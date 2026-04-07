@@ -1,0 +1,32 @@
+{
+  "openrpc": "1.2.6",
+  "info": {
+    "title": "Petstore",
+    "version": "1.0.0"
+  },
+  "methods": [
+    {
+      "name": "listPets",
+      "params": [],
+      "result": {
+        "name": "pets",
+        "schema": {
+          "type": "array",
+          "items": { "$ref": "#/components/schemas/Pet" }
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      }
+    }
+  }
+}

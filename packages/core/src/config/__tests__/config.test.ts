@@ -1,24 +1,6 @@
 import { type SpecVersion } from '../../oas-types.js';
 import { Config } from '../config.js';
-import * as jsYaml from '../../js-yaml/index.js';
-import * as fs from 'node:fs';
-import { ignoredFileStub } from './fixtures/ingore-file.js';
-import * as path from 'node:path';
 import { createConfig } from '../index.js';
-import * as doesYamlFileExistModule from '../../utils/does-yaml-file-exist.js';
-
-vi.mock('../../js-yaml/index.js', async () => {
-  const actual = await vi.importActual('../../js-yaml/index.js');
-  return { ...actual };
-});
-vi.mock('node:fs', async () => {
-  const actual = await vi.importActual('node:fs');
-  return { ...actual };
-});
-vi.mock('node:path', async () => {
-  const actual = await vi.importActual('node:path');
-  return { ...actual };
-});
 
 // Create the config and clean up not needed props for consistency
 const testConfig: Config = await createConfig(
@@ -56,6 +38,7 @@ describe('Config.forAlias', () => {
           "oas3_0": {},
           "oas3_1": {},
           "oas3_2": {},
+          "openrpc1": {},
           "overlay1": {},
         },
         "doNotResolveExamples": false,
@@ -96,6 +79,7 @@ describe('Config.forAlias', () => {
           "oas3_0": {},
           "oas3_1": {},
           "oas3_2": {},
+          "openrpc1": {},
           "overlay1": {},
         },
         "resolve": {
@@ -127,6 +111,9 @@ describe('Config.forAlias', () => {
           "oas3_2Decorators": {},
           "oas3_2Preprocessors": {},
           "oas3_2Rules": {},
+          "openrpc1Decorators": {},
+          "openrpc1Preprocessors": {},
+          "openrpc1Rules": {},
           "overlay1Decorators": {},
           "overlay1Preprocessors": {},
           "overlay1Rules": {},
@@ -170,6 +157,10 @@ describe('Config.forAlias', () => {
             "operation-summary": "warn",
           },
           "oas3_2": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "openrpc1": {
             "no-empty-servers": "error",
             "operation-summary": "warn",
           },
@@ -228,12 +219,16 @@ describe('Config.extendTypes', () => {
 
 describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
-    vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => '');
-    vi.spyOn(jsYaml, 'parseYaml').mockImplementationOnce(() => ignoredFileStub);
-    vi.spyOn(doesYamlFileExistModule, 'doesYamlFileExist').mockImplementationOnce(() => true);
-    vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
+    const ignore = {
+      'some-path/openapi.yaml': {
+        'no-unused-components': new Set(['#/components/schemas/Foo']),
+      },
+      'https://some-path.yaml': {
+        'no-unused-components': new Set(['#/components/schemas/Foo']),
+      },
+    };
 
-    const config = new Config(testConfig.resolvedConfig);
+    const config = new Config(testConfig.resolvedConfig, { ignore });
     config.resolvedConfig = 'resolvedConfig stub' as any;
 
     expect(config).toMatchSnapshot();

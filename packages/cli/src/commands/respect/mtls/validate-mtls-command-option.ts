@@ -1,8 +1,28 @@
 import type { MtlsConfig } from '../index.js';
 
-export function validateMtlsCommandOption(value: string): MtlsConfig | undefined {
-  if (!value) return undefined;
+export function validateMtlsCommandOption(value: string | string[]): MtlsConfig | undefined {
+  if (Array.isArray(value)) {
+    const merged: MtlsConfig = {};
 
+    for (const item of value) {
+      if (!item) continue;
+      if (typeof item === 'string') {
+        const parsed = parseAndValidateMtlsConfig(item);
+        Object.assign(merged, parsed);
+      }
+    }
+
+    return Object.keys(merged).length > 0 ? merged : undefined;
+  }
+
+  if (!value || typeof value !== 'string') {
+    return undefined;
+  }
+
+  return parseAndValidateMtlsConfig(value);
+}
+
+function parseAndValidateMtlsConfig(value: string): MtlsConfig {
   try {
     const parsed = JSON.parse(value);
 

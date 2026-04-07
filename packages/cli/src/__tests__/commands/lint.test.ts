@@ -1,6 +1,4 @@
-import { handleLint, LintArgv } from '../../commands/lint.js';
 import {
-  createConfig,
   lint,
   getTotals,
   formatProblems,
@@ -9,6 +7,13 @@ import {
   type NormalizedProblem,
   loadConfig,
 } from '@redocly/openapi-core';
+import { blue } from 'colorette';
+import { performance } from 'perf_hooks';
+import { type MockInstance } from 'vitest';
+import { type Arguments } from 'yargs';
+
+import { handleLint, type LintArgv } from '../../commands/lint.js';
+import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   getExecutionTime,
@@ -17,13 +22,8 @@ import {
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
-import { configFixture } from '../fixtures/config.js';
-import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper.js';
-import { Arguments } from 'yargs';
-import { blue } from 'colorette';
-import { type MockInstance } from 'vitest';
+import { configFixture } from '../fixtures/config.js';
 
 const argvMock = {
   apis: ['openapi.yaml'],
@@ -51,7 +51,7 @@ describe('handleLint', () => {
       return {
         ...actual,
         lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        getTotals: vi.fn(() => ({ errors: 0 } as Totals)),
+        getTotals: vi.fn(() => ({ errors: 0 }) as Totals),
         doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
         logger: {
           info: vi.fn(),
@@ -160,6 +160,7 @@ describe('handleLint', () => {
         maxProblems: 2,
         totals: { errors: 0 },
         version: '2.0.0',
+        command: 'lint',
       });
       expect(getExecutionTime).toHaveBeenCalledWith(42);
     });
@@ -199,6 +200,18 @@ describe('handleLint', () => {
       });
       await commandWrapper(handleLint)(argvMock);
       expect(logger.info).toHaveBeenCalledWith(
+        `No configurations were provided -- using built in ${blue(
+          'recommended'
+        )} configuration by default.\n\n`
+      );
+    });
+
+    it('should not suggest recommended fallback if --extends is provided', async () => {
+      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+        return await loadConfig({});
+      });
+      await commandWrapper(handleLint)({ ...argvMock, extends: ['some/path'] });
+      expect(logger.info).not.toHaveBeenCalledWith(
         `No configurations were provided -- using built in ${blue(
           'recommended'
         )} configuration by default.\n\n`

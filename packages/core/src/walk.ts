@@ -1,13 +1,14 @@
-import { Location, isRef } from './ref-utils.js';
-import { isNamedType, SpecExtension } from './types/index.js';
+import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
+import type { SpecVersion } from './oas-types.js';
+import { Location, isRef } from './ref-utils.js';
+import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
+import type { Referenced } from './typings/openapi.js';
+import { getOwn } from './utils/get-own.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { pushStack, popStack } from './utils/stack.js';
-import { getOwn } from './utils/get-own.js';
-
-import type { SpecVersion } from './oas-types.js';
-import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
-import type { Referenced } from './typings/openapi.js';
 import type {
   VisitorLevelContext,
   NormalizedOasVisitors,
@@ -17,8 +18,6 @@ import type {
   NormalizeVisitor,
   VisitorNode,
 } from './visitors.js';
-import type { NormalizedNodeType } from './types/index.js';
-import type { Config, RuleSeverity } from './config/index.js';
 
 export type NonUndefined =
   | string
@@ -156,8 +155,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
-        ? new Location(error.source, '')
-        : undefined;
+          ? new Location(error.source, '')
+          : undefined;
 
       return { location: newLocation, node, error };
     };
@@ -293,7 +292,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               }
             }
           }
-        } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
+        } else if (isPlainObject(resolvedNode)) {
           // visit in order from type-tree first
           const props = Object.keys(type.properties);
           if (type.additionalProperties) {

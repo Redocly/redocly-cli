@@ -1,20 +1,19 @@
-import {
-  validateSuccessCriteria,
-  isRegexpSuccessCriteria,
-  isJSONPathSuccessCriteria,
-} from './validate-success-criteria.js';
-import { CHECKS } from '../../checks/index.js';
-import { evaluateRuntimeExpression } from '../../runtime-expressions/index.js';
-import { createRuntimeExpressionCtx } from '../context/index.js';
-import { evaluateJSONPathCondition } from './evaluate-jsonpath-condition.js';
-
 import type {
   TestContext,
   Check,
   RegexpSuccessCriteria,
   Step,
-  CriteriaObject,
+  CriterionObject,
 } from '../../../types.js';
+import { CHECKS } from '../../checks/index.js';
+import { evaluateRuntimeExpression } from '../../runtime-expressions/index.js';
+import { createRuntimeExpressionCtx } from '../context/index.js';
+import { evaluateJSONPathCondition } from './evaluate-jsonpath-condition.js';
+import {
+  validateSuccessCriteria,
+  isRegexpSuccessCriteria,
+  isJSONPathSuccessCriteria,
+} from './validate-success-criteria.js';
 
 export function checkCriteria({
   workflowId,
@@ -24,7 +23,7 @@ export function checkCriteria({
 }: {
   workflowId?: string;
   step: Step;
-  criteria?: CriteriaObject[];
+  criteria?: CriterionObject[];
   ctx: TestContext;
 }): Check[] {
   validateSuccessCriteria(criteriaList);
@@ -48,7 +47,7 @@ export function checkCriteria({
     step,
   });
 
-  criteriaList.forEach((criteria: CriteriaObject) => {
+  criteriaList.forEach((criteria: CriterionObject) => {
     const { condition } = criteria;
 
     try {

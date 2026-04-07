@@ -1,11 +1,12 @@
+import { logger } from '@redocly/openapi-core';
+import { Buffer } from 'node:buffer';
+import crypto from 'node:crypto';
+import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
-import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
-import crypto from 'node:crypto';
-import { Buffer } from 'node:buffer';
-import { logger } from '@redocly/openapi-core';
-import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
+
 import { isValidReuniteUrl } from '../reunite/api/domains.js';
+import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const CREDENTIALS_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';
@@ -25,8 +26,11 @@ export class RedoclyOAuthClient {
     this.credentialsFileName = 'credentials';
     this.credentialsFilePath = path.join(this.credentialsFolderPath, this.credentialsFileName);
 
-    this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIALS_SALT}`).digest();
-    this.iv = crypto.createHash('md5').update(homeDirPath).digest();
+    this.key = crypto
+      .createHash('sha256')
+      .update(`${this.credentialsFolderPath}${CREDENTIALS_SALT}`)
+      .digest();
+    this.iv = crypto.createHash('md5').update(this.credentialsFolderPath).digest();
 
     mkdirSync(this.credentialsFolderPath, { recursive: true });
   }

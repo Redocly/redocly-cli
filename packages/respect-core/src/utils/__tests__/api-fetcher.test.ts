@@ -1,12 +1,12 @@
 import { logger } from '@redocly/openapi-core';
+
+import type { OperationMethod } from '../../types.js';
 import {
   normalizeHeaders,
   isJsonContentType,
   isXmlContentType,
   ApiFetcher,
 } from '../api-fetcher.js';
-
-import type { OperationMethod } from '../../types.js';
 
 describe('normalizeHeaders', () => {
   it('should return empty object if no headers', () => {
@@ -32,7 +32,7 @@ describe('normalizeHeaders', () => {
 });
 
 describe('isJsonContentType', () => {
-  it('should return true if json mime type', () => {
+  it('should return true if json content type', () => {
     const result = isJsonContentType('application/json');
     expect(result).toEqual(true);
   });
@@ -42,9 +42,14 @@ describe('isJsonContentType', () => {
     expect(result).toEqual(true);
   });
 
-  it('should return false if not json mime type', () => {
+  it('should return false if not json content type', () => {
     const result = isJsonContentType('application/xml');
     expect(result).toEqual(false);
+  });
+
+  it('should return true if json content type with numbers', () => {
+    const result = isJsonContentType('application/ast.some.test.value-3v3.info+json');
+    expect(result).toEqual(true);
   });
 });
 

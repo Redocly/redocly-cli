@@ -1,12 +1,15 @@
-import { isRef } from '../../ref-utils.js';
-import { getOwn } from '../../utils/get-own.js';
-
-import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
+import { getOwn } from '../../utils/get-own.js';
+import { isNotEmptyArray } from '../../utils/is-not-empty-array.js';
+import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { resolveSchema } from '../utils.js';
 
-type AnySchema = Oas3Schema | Oas3_1Schema | Oas2Schema;
+type AnySchema =
+  | Oas3Schema
+  | Oas3_1Schema
+  | (Oas2Schema & { anyOf?: undefined; oneOf?: undefined });
 
 export const NoRequiredSchemaPropertiesUndefined:
   | Oas3Rule
@@ -20,91 +23,72 @@ export const NoRequiredSchemaPropertiesUndefined:
       leave(_: AnySchema) {
         parents.pop();
       },
-      enter(schema: AnySchema, { location, report, resolve }: UserContext) {
-        parents.push(schema);
-        if (!schema.required) return;
-        const visitedSchemas: Set<AnySchema> = new Set();
+      enter(currentSchema: AnySchema, ctx: UserContext) {
+        parents.push(currentSchema);
+        if (!currentSchema.required) return;
 
-        const elevateProperties = (
-          schema: AnySchema,
-          from?: string,
-          includeFirstLevelExclusiveSchemas: boolean = true
-        ): Record<string, AnySchema> => {
-          // Check if the schema has been visited before processing it
-          if (visitedSchemas.has(schema)) {
-            return {};
-          }
-          visitedSchemas.add(schema);
+        const hasProperty = (
+          schemaOrRef: AnySchema | undefined,
+          propertyName: string,
+          visited: Set<AnySchema>,
+          resolveFrom?: string
+        ): boolean => {
+          const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveFrom);
+          if (!schema || visited.has(schema)) return false;
+          visited.add(schema);
 
-          if (isRef(schema)) {
-            const resolved = resolve<AnySchema>(schema, from);
-            return elevateProperties(
-              resolved.node as AnySchema,
-              resolved.location?.source.absoluteRef
-            );
+          if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
+            return true;
           }
 
-          return Object.assign(
-            {},
-            schema.properties,
-            ...(schema.allOf?.map((s) => elevateProperties(s, from)) ?? []),
-            ...(('anyOf' in schema && includeFirstLevelExclusiveSchemas
-              ? schema.anyOf?.map((s) => elevateProperties(s, from))
-              : undefined) ?? []),
-            ...(('oneOf' in schema && includeFirstLevelExclusiveSchemas
-              ? schema.oneOf?.map((s) => elevateProperties(s, from))
-              : undefined) ?? [])
+          if (schema.allOf?.some((s) => hasProperty(s, propertyName, visited, location))) {
+            return true;
+          }
+
+          if (
+            isNotEmptyArray<AnySchema>(schema.anyOf) &&
+            schema.anyOf.every((s) => hasProperty(s, propertyName, new Set(visited), location))
+          ) {
+            return true;
+          }
+
+          if (
+            isNotEmptyArray<AnySchema>(schema.oneOf) &&
+            schema.oneOf.every((s) => hasProperty(s, propertyName, new Set(visited), location))
+          ) {
+            return true;
+          }
+
+          return false;
+        };
+
+        const isCompositionChild = (parent: AnySchema, child: AnySchema): boolean => {
+          const matchesChild = (s: AnySchema) => resolveSchema(s, ctx).schema === child;
+          return !!(
+            parent.allOf?.some(matchesChild) ||
+            parent.anyOf?.some(matchesChild) ||
+            parent.oneOf?.some(matchesChild)
           );
         };
 
-        /**
-         * The index to use to lookup grand parent schemas when dealing with composed schemas.
-         * @summary The current schema should always end up with under ../anyOf/1, if we get multiple ancestors, they should always be a multiple.
-         */
-        const locationLookupIndex = 2;
-        const getParentSchema = (lookupIndex: number): AnySchema | undefined => {
-          lookupIndex++;
-          if (!parents || parents.length < lookupIndex) return undefined;
-          const parent = parents[parents.length - lookupIndex];
-          return parent;
-        };
-        const recursivelyGetParentProperties = (
-          splitLocation: string[],
-          parentLookupIndex: number = 0
-        ): Record<string, AnySchema> | undefined => {
-          const isMemberOfComposedType =
-            splitLocation.length > locationLookupIndex &&
-            !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
-            !!/(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - locationLookupIndex]);
-          const parentSchema = isMemberOfComposedType
-            ? getParentSchema(++parentLookupIndex)
-            : undefined;
-          const grandParentProperties =
-            splitLocation.length >= locationLookupIndex + locationLookupIndex
-              ? recursivelyGetParentProperties(
-                  splitLocation.slice(0, -locationLookupIndex),
-                  parentLookupIndex
-                )
-              : {};
-          return parentSchema
-            ? {
-                ...elevateProperties(parentSchema, undefined, false),
-                ...grandParentProperties,
-              }
+        const findCompositionRoot = (i: number, child: AnySchema): AnySchema | undefined => {
+          if (i < 0) return undefined;
+          const parent = parents[i];
+          return isCompositionChild(parent, child)
+            ? (findCompositionRoot(i - 1, parent) ?? parent)
             : undefined;
         };
 
-        const allProperties = elevateProperties(schema);
-        const parentProperties = recursivelyGetParentProperties(location.pointer.split('/'));
+        const compositionRoot = findCompositionRoot(parents.length - 2, currentSchema);
 
-        for (const [i, requiredProperty] of schema.required.entries()) {
+        for (const [i, requiredProperty] of currentSchema.required.entries()) {
           if (
-            (!allProperties || getOwn(allProperties, requiredProperty) === undefined) &&
-            (!parentProperties || getOwn(parentProperties, requiredProperty) === undefined)
+            !hasProperty(currentSchema, requiredProperty, new Set()) &&
+            !hasProperty(compositionRoot, requiredProperty, new Set())
           ) {
-            report({
-              message: `Required property '${requiredProperty}' is undefined.`,
-              location: location.child(['required', i]),
+            ctx.report({
+              message: `Required property '${requiredProperty}' is not defined.`,
+              location: ctx.location.child(['required', i]),
             });
           }
         }

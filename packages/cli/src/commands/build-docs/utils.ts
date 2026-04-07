@@ -1,15 +1,14 @@
-import { createElement } from 'react';
-import { default as redoc } from 'redoc';
-import { renderToString } from 'react-dom/server';
-import { ServerStyleSheet } from 'styled-components';
+import { isAbsoluteUrl, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
-import * as path from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import * as path from 'node:path';
 import * as url from 'node:url';
-import { exitWithError } from '../../utils/error.js';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { default as redoc } from 'redoc';
+import { ServerStyleSheet } from 'styled-components';
 
-import type { Config } from '@redocly/openapi-core';
+import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions } from './types.js';
 
 const __internalDirname = import.meta.url
@@ -74,14 +73,14 @@ export async function getPageHTML(
   templateFileName = templateFileName
     ? templateFileName
     : redocOptions?.htmlTemplate
-    ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
-    : path.join(__internalDirname, './template.hbs');
+      ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
+      : path.join(__internalDirname, './template.hbs');
   const template = handlebars.compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
       <div id="redoc">${html || ''}</div>
       <script>
-      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};` || ''}
+      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};`}
 
       var container = document.getElementById('redoc');
       Redoc.${'hydrate(__redoc_state, container)'};

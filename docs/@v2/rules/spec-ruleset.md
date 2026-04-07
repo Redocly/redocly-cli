@@ -17,6 +17,7 @@ All the rules are of severity `error`:
 - [nullable-type-sibling](./oas/nullable-type-sibling.md)
 - [operation-operationId-unique](./oas/operation-operationId-unique.md)
 - [operation-parameters-unique](./oas/operation-parameters-unique.md)
+- [outputs-defined](./arazzo/outputs-defined.md)
 - [parameters-unique](./arazzo/parameters-unique.md)
 - [path-declaration-must-exist](./oas/path-declaration-must-exist.md)
 - [path-not-include-query](./oas/path-not-include-query.md)

@@ -1,5 +1,3 @@
-import { isDefined } from '../utils/is-defined.js';
-
 import type {
   Arazzo1RuleSet,
   Async2RuleSet,
@@ -7,10 +5,12 @@ import type {
   Oas2RuleSet,
   Oas3RuleSet,
   Overlay1RuleSet,
+  OpenRpc1RuleSet,
   SpecVersion,
 } from '../oas-types.js';
-import type { Config } from './config.js';
+import { isDefined } from '../utils/is-defined.js';
 import type { ProblemSeverity } from '../walk.js';
+import type { Config } from './config.js';
 
 type InitializedRule = {
   severity: ProblemSeverity;
@@ -26,6 +26,7 @@ export function initRules(
     | Async3RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
+    | OpenRpc1RuleSet
   )[],
   config: Config,
   type: 'rules' | 'preprocessors' | 'decorators',
@@ -40,8 +41,8 @@ export function initRules(
           type === 'rules'
             ? config.getRuleSettings(ruleId, oasVersion)
             : type === 'preprocessors'
-            ? config.getPreprocessorSettings(ruleId, oasVersion)
-            : config.getDecoratorSettings(ruleId, oasVersion);
+              ? config.getPreprocessorSettings(ruleId, oasVersion)
+              : config.getDecoratorSettings(ruleId, oasVersion);
 
         if (ruleSettings.severity === 'off') {
           return undefined;

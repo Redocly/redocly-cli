@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { getSecurityParameter } from '../../context-parser/get-security-parameters';
 
 import type { TestContext } from '../../../types';
+import { getSecurityParameter } from '../../context-parser/get-security-parameters';
 
 describe('getSecurityParameter', () => {
   const ctx = {

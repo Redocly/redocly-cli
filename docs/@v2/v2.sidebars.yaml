@@ -34,6 +34,8 @@
           page: commands/push-status.md
         - label: respect
           page: commands/respect.md
+        - label: scorecard-classic
+          page: commands/scorecard-classic.md
         - label: split
           page: commands/split.md
         - label: stats
@@ -89,6 +91,7 @@
             - page: rules/common/no-enum-type-mismatch.md
             - page: rules/common/no-schema-type-mismatch.md
             - page: rules/common/no-required-schema-properties-undefined.md
+            - page: rules/common/no-mixed-number-range-constraints.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
@@ -108,6 +111,7 @@
             - page: rules/oas/spec-example-values.md
             - page: rules/oas/spec-discriminator-defaultMapping.md
             - page: rules/oas/spec-no-invalid-encoding-combinations.md
+            - page: rules/oas/spec-querystring-parameters.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md

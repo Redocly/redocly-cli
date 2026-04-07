@@ -1,7 +1,3 @@
-import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-
-import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 import type {
   Oas3RuleSet,
   Oas2RuleSet,
@@ -9,7 +5,11 @@ import type {
   Async2RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
+  OpenRpc1RuleSet,
 } from '../oas-types.js';
+import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -28,6 +28,7 @@ export function prefixRules<
     | Async2RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
+    | OpenRpc1RuleSet,
 >(rules: T, prefix: string) {
   if (!prefix) return rules;
 
@@ -50,6 +51,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Rules: {},
     arazzo1Rules: {},
     overlay1Rules: {},
+    openrpc1Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -60,6 +62,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Preprocessors: {},
     arazzo1Preprocessors: {},
     overlay1Preprocessors: {},
+    openrpc1Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
@@ -70,6 +73,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Decorators: {},
     arazzo1Decorators: {},
     overlay1Decorators: {},
+    openrpc1Decorators: {},
   };
 
   for (const rulesConf of rulesConfList) {
@@ -96,6 +100,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Rules, rulesConf.rules);
     assignConfig(result.overlay1Rules, rulesConf.overlay1Rules);
     assignOnlyExistingConfig(result.overlay1Rules, rulesConf.rules);
+    assignConfig(result.openrpc1Rules, rulesConf.openrpc1Rules);
+    assignOnlyExistingConfig(result.openrpc1Rules, rulesConf.rules);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -114,6 +120,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Preprocessors, rulesConf.preprocessors);
     assignConfig(result.overlay1Preprocessors, rulesConf.overlay1Preprocessors);
     assignOnlyExistingConfig(result.overlay1Preprocessors, rulesConf.preprocessors);
+    assignConfig(result.openrpc1Preprocessors, rulesConf.openrpc1Preprocessors);
+    assignOnlyExistingConfig(result.openrpc1Preprocessors, rulesConf.preprocessors);
 
     assignConfig(result.decorators, rulesConf.decorators);
     assignConfig(result.oas2Decorators, rulesConf.oas2Decorators);
@@ -132,6 +140,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
     assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
+    assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
+    assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
   }
 
   return result;
@@ -144,7 +154,7 @@ export function deepCloneMapWithJSON<K, V>(originalMap: Map<K, V>): Map<K, V> {
 }
 
 export function isDeprecatedPluginFormat(plugin: ImportedPlugin | undefined): plugin is Plugin {
-  return plugin !== undefined && typeof plugin === 'object' && 'id' in plugin;
+  return isPlainObject(plugin) && 'id' in plugin;
 }
 
 export function isCommonJsPlugin(plugin: ImportedPlugin | undefined): plugin is PluginCreator {

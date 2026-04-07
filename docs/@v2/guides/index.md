@@ -61,6 +61,12 @@ API governance for async and streaming API applications.
 Check the validity of Arazzo descriptions for workflows.
 {% /card %}
 
+{% card title="Lint Open-RPC descriptions"
+    to="./lint-openrpc"
+  %}
+Check the validity of Open-RPC descriptions.
+{% /card %}
+
 {% card title="Change the OAuth2 token URL"
     to="./change-token-url"
   %}

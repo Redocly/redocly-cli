@@ -1,7 +1,7 @@
 import { logger } from '@redocly/openapi-core';
-import { resolveXSecurityParameters } from '../../flow-runner/resolve-x-security-parameters.js';
-
 import type { Step, RuntimeExpressionContext, TestContext } from 'respect-core/src/types.js';
+
+import { resolveXSecurityParameters } from '../../flow-runner/resolve-x-security-parameters.js';
 
 describe('resolveXSecurityParameters', () => {
   const ctx = {

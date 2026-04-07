@@ -21,7 +21,7 @@ One HTTP header is supported for each URL resolved.
 
 - doNotResolveExamples
 - boolean
-- When running `lint`, set this option to `true` to avoid resolving `$ref` fields in examples. Resolving `$ref`s in other parts of the API is unaffected.
+- Set this option to `true` to prevent resolving `$ref` fields in singular `example` properties. This affects both `lint` and `bundle` commands. Resolving `$ref`s in other parts of the API description is unaffected.
 
 ---
 

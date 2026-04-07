@@ -4,16 +4,18 @@ import {
   isPlainObject,
   logger,
   HandledError,
+  type Config,
+  type CollectFn,
+  type ArazzoDefinition,
+  type Exact,
 } from '@redocly/openapi-core';
-import { version } from './utils/package.js';
-import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
-import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
-import { AbortFlowError, exitWithError } from './utils/error.js';
-
 import type { Arguments } from 'yargs';
-import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
-import type { ExitCode } from './utils/miscellaneous.js';
+
 import type { CommandArgv } from './types.js';
+import { AbortFlowError, exitWithError } from './utils/error.js';
+import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
+import { version } from './utils/package.js';
+import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
 
 export type CommandArgs<T extends CommandArgv> = {
   argv: T;
@@ -26,6 +28,7 @@ export function commandWrapper<T extends CommandArgv>(
   commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
 ) {
   return async (argv: Arguments<T>) => {
+    const startedAt = performance.now();
     let code: ExitCode = 2;
     let telemetry;
     let specVersion: string = 'unknown';
@@ -43,16 +46,19 @@ export function commandWrapper<T extends CommandArgv>(
       specKeyword = document?.openapi
         ? 'openapi'
         : document?.swagger
-        ? 'swagger'
-        : document?.asyncapi
-        ? 'asyncapi'
-        : document?.arazzo
-        ? 'arazzo'
-        : document?.overlay
-        ? 'overlay'
-        : undefined;
+          ? 'swagger'
+          : document?.asyncapi
+            ? 'asyncapi'
+            : document?.arazzo
+              ? 'arazzo'
+              : document?.overlay
+                ? 'overlay'
+                : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
+      } else {
+        // Ensure specFullVersion is undefined if specKeyword is not found
+        specFullVersion = undefined;
       }
 
       if (specVersion === 'arazzo1') {
@@ -85,10 +91,12 @@ export function commandWrapper<T extends CommandArgv>(
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
+        const executionTime = Math.round(performance.now() - startedAt);
         await sendTelemetry({
           config,
           argv,
           exit_code: code,
+          execution_time: executionTime,
           spec_version: specVersion,
           spec_keyword: specKeyword,
           spec_full_version: specFullVersion,

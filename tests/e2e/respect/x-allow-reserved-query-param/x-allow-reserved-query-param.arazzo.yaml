@@ -1,0 +1,21 @@
+arazzo: 1.0.1
+info:
+  title: Allow reserved query params
+  version: 1.0.0
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: ../museum-api.yaml
+workflows:
+  - workflowId: allow-reserved
+    steps:
+      - stepId: get-with-allow-reserved
+        operationId: museum-api.getMuseumHours
+        parameters:
+          - in: query
+            name: startDate
+            value: "2023-02-23"
+          - in: query
+            name: filter
+            value: "https://example.com/path/to;x,y(z)a*b.c[1]@v"
+            x-allowReserved: true

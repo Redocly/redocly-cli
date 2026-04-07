@@ -1,4 +1,5 @@
 import { logger } from '@redocly/openapi-core';
+
 import { getWorkflowsToRun } from '../../flow-runner/index.js';
 
 describe('getWorkflowsToRun', () => {

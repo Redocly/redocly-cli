@@ -1,6 +1,6 @@
 import { logger, type Totals } from '@redocly/openapi-core';
-import type { VerboseLog } from '../../../types.js';
 
+import type { VerboseLog } from '../../../types.js';
 import {
   printWorkflowSeparatorLine,
   printWorkflowSeparator,

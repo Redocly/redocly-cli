@@ -1,4 +1,16 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import { bgRed, inverse } from 'colorette';
+
+import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
+import { resolvePath } from '../modules/context-parser/index.js';
+import { getResponseSchema } from '../modules/description-parser/index.js';
+import { collectSecretValues, type RequestData } from '../modules/flow-runner/index.js';
+import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
+import {
+  getVerboseLogs,
+  conditionallyMaskSecrets,
+  findPotentiallySecretObjectFields,
+} from '../modules/logger-output/index.js';
 import {
   type OperationMethod,
   type VerboseLog,
@@ -6,22 +18,11 @@ import {
   type ResponseContext,
   type Step,
 } from '../types.js';
-import { isEmpty } from './is-empty.js';
-import { resolvePath } from '../modules/context-parser/index.js';
-import {
-  getVerboseLogs,
-  conditionallyMaskSecrets,
-  findPotentiallySecretObjectFields,
-} from '../modules/logger-output/index.js';
-import { getResponseSchema } from '../modules/description-parser/index.js';
-import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
-import { collectSecretValues } from '../modules/flow-runner/index.js';
-import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
-import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './binary-content-type-checker.js';
-import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
-
-import type { RequestData } from '../modules/flow-runner/index.js';
+import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
+import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
+import { isEmpty } from './is-empty.js';
+import { buildQueryString } from './url-encoding.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -49,7 +50,7 @@ export function normalizeHeaders(headers: Record<string, string> | undefined) {
 }
 
 export function isJsonContentType(contentType: string) {
-  return /^application\/([a-z.-]+\+)?json$/.test(contentType);
+  return /^application\/([a-z0-9.-]+\+)?json$/.test(contentType);
 }
 
 export function isXmlContentType(contentType: string) {
@@ -141,7 +142,7 @@ export class ApiFetcher implements IFetcher {
     }
 
     const headers: Record<string, string> = {};
-    const searchParams = new URLSearchParams();
+    const searchParams = [];
     const pathParams: Record<string, string | number | boolean> = {};
     const cookies: Record<string, string> = {};
 
@@ -151,7 +152,11 @@ export class ApiFetcher implements IFetcher {
           headers[param.name.toLowerCase()] = String(param.value);
           break;
         case 'query':
-          searchParams.set(param.name, String(param.value));
+          searchParams.push({
+            name: param.name,
+            value: String(param.value),
+            allowReserved: param.allowReserved,
+          });
           break;
         case 'path':
           pathParams[param.name] = String(param.value);
@@ -162,7 +167,9 @@ export class ApiFetcher implements IFetcher {
       }
     }
 
-    if (typeof requestBody === 'object' && !headers['content-type']) {
+    const queryString = buildQueryString(searchParams);
+
+    if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';
     }
 
@@ -173,9 +180,7 @@ export class ApiFetcher implements IFetcher {
     }
 
     const resolvedPath = resolvePath(path, pathParams) || '';
-    const pathWithSearchParams = `${resolvedPath}${
-      searchParams.toString() ? '?' + searchParams.toString() : ''
-    }`;
+    const pathWithSearchParams = `${resolvedPath}${queryString ? `?${queryString}` : ''}`;
     const resolvedServerUrl = resolvePath(serverUrl.url, pathParams) || '';
     const urlToFetch = `${trimTrailingSlash(resolvedServerUrl)}${pathWithSearchParams}`;
 
@@ -416,8 +421,8 @@ export class ApiFetcher implements IFetcher {
       ? responseBody instanceof ArrayBuffer
         ? responseBody
         : isJsonContentType(responseContentType)
-        ? JSON.parse(responseBody)
-        : responseBody
+          ? JSON.parse(responseBody)
+          : responseBody
       : {};
     const responseSchema = getResponseSchema({
       statusCode: fetchResult.status,

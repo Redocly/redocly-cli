@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: Test api
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://test.com/v1
+
+paths:
+  /test:
+    get:
+      summary: Minimal endpoint to trigger "no-invalid-*-examples" errors
+      operationId: test
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            $ref: '#/components/schemas/ExampleObject'
+          example:
+            prop: 'ok'
+            extraParam: not-allowed
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExampleObject'
+              example:
+                prop: 'ok'
+                extraBody: 'not-allowed'
+components:
+  schemas:
+    ExampleObject:
+      type: object
+      properties:
+        prop:
+          type: string
+    SchemaExample:
+      type: object
+      properties:
+        prop1:
+          type: string
+      example:
+        prop1: 123
+        extraSchema: allowed

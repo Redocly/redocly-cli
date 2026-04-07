@@ -1,6 +1,7 @@
-import { type MockInstance } from 'vitest';
-import { Spinner } from '../utils/spinner.js';
 import * as process from 'node:process';
+import { type MockInstance } from 'vitest';
+
+import { Spinner } from '../utils/spinner.js';
 
 describe('Spinner', () => {
   const IS_TTY = process.stderr.isTTY;

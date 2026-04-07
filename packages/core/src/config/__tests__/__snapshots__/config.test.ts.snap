@@ -14,6 +14,7 @@ Config {
     "oas3_0": {},
     "oas3_1": {},
     "oas3_2": {},
+    "openrpc1": {},
     "overlay1": {},
   },
   "doNotResolveExamples": false,
@@ -39,6 +40,7 @@ Config {
     "oas3_0": {},
     "oas3_1": {},
     "oas3_2": {},
+    "openrpc1": {},
     "overlay1": {},
   },
   "resolve": {
@@ -75,6 +77,10 @@ Config {
       "operation-summary": "error",
     },
     "oas3_2": {
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "openrpc1": {
       "no-empty-servers": "error",
       "operation-summary": "error",
     },

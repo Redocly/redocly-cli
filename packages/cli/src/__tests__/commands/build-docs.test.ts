@@ -1,12 +1,13 @@
-import { createStore, loadAndBundleSpec } from 'redoc';
-import { renderToString } from 'react-dom/server';
-import { handlerBuildCommand } from '../../commands/build-docs/index.js';
-import { BuildDocsArgv } from '../../commands/build-docs/types.js';
-import { getPageHTML } from '../../commands/build-docs/utils.js';
-import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
-import { type OpenAPISpec } from 'redoc/typings/types';
 import { createConfig } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
+import { renderToString } from 'react-dom/server';
+import { createStore, loadAndBundleSpec } from 'redoc';
+import { type OpenAPISpec } from 'redoc/typings/types';
+
+import { handlerBuildCommand } from '../../commands/build-docs/index.js';
+import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
+import { getPageHTML } from '../../commands/build-docs/utils.js';
+import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
 const config = {
   output: '',

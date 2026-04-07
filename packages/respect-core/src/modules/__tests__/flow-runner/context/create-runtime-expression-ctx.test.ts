@@ -1,10 +1,11 @@
 import { createConfig, logger } from '@redocly/openapi-core';
+
 import { type Step, type AppOptions, type TestDescription } from '../../../../types.js';
+import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import {
   createRuntimeExpressionCtx,
   createTestContext,
 } from '../../../flow-runner/context/index.js';
-import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 
 const testDescription = {
   arazzo: '1.0.1',

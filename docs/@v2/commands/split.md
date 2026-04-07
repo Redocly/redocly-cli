@@ -24,15 +24,15 @@ redocly split --version
 
 ## Options
 
-| Option        | Type    | Description                                                                                                                                                                              |
-| ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api           | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                       |
-| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                     |
-| --help        | boolean | Show help.                                                                                                                                                                               |
-| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                       |
-| --outDir      | string  | **REQUIRED.** Path to the directory where you want to save the split files. If the specified directory doesn't exist, it is created automatically.                                       |
-| --separator   | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`). |
-| --version     | boolean | Show version number.                                                                                                                                                                     |
+| Option        | Type    | Description                                                                                                                                                                                                                               |
+| ------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api           | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                                                                        |
+| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                      |
+| --help        | boolean | Show help.                                                                                                                                                                                                                                |
+| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                        |
+| --outDir      | string  | **REQUIRED.** Path to the directory where you want to save the split files. If the specified directory doesn't exist, it is created automatically.                                                                                        |
+| --separator   | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`, root level path `/` becomes `_.yaml`, and so on). |
+| --version     | boolean | Show version number.                                                                                                                                                                                                                      |
 
 ## Examples
 

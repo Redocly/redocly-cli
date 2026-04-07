@@ -1,9 +1,8 @@
-import { matchesJsonSchemaType, oasTypeOf } from '../utils.js';
-
-import type { Oas3Rule, Oas2Rule, Async3Rule, Async2Rule, Arazzo1Rule } from '../../visitors.js';
-import type { Oas2Schema } from '../../typings/swagger.js';
 import type { Oas3Schema } from '../../typings/openapi.js';
+import type { Oas2Schema } from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule, Async3Rule, Async2Rule, Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { matchesJsonSchemaType, oasTypeOf } from '../utils.js';
 
 export const NoEnumTypeMismatch:
   | Oas3Rule

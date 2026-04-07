@@ -24,7 +24,7 @@ Different OpenAPI `securitySchemes` have some required values, like `token` or `
 An example configuration:
 
 ```yaml
-arazzoRules:
+arazzo1Rules:
   x-security-schema-required-values: error
 ```
 
@@ -33,7 +33,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+arazzo1Rules:
   x-security-schema-required-values: error
 ```
 

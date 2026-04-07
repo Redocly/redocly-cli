@@ -1,5 +1,6 @@
-import type { UserContext } from '../../walk.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { CatalogEntityRule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 const validKeyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MIN_KEY_LENGTH = 2;
@@ -8,7 +9,7 @@ const MAX_KEY_LENGTH = 150;
 export const EntityKeyValid: CatalogEntityRule = () => {
   return {
     any(node: any, { report, location }: UserContext) {
-      if (typeof node === 'object' && node !== null && 'key' in node) {
+      if (isPlainObject(node) && 'key' in node) {
         const key = node.key;
 
         if (typeof key !== 'string') {

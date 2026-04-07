@@ -20,6 +20,7 @@ Redocly CLI can lint multiple API description formats:
 - [OpenAPI](#openapi-rules)
 - [AsyncAPI](#asyncapi-rules)
 - [Arazzo](#arazzo-rules)
+- [Open-RPC](#open-rpc-rules)
 - Overlay
 
 Visit each page for details of what the rule does, additional configuration options, and examples of it in use.
@@ -36,6 +37,7 @@ The rules list is split into sections.
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
+- [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`
 - [spec-strict-refs](./oas/spec-strict-refs.md): Restricts the usage of the `$ref` keyword
 
 ### Info
@@ -81,6 +83,7 @@ The rules list is split into sections.
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
+- [no-mixed-number-range-constraints](./common/no-mixed-number-range-constraints.md): Ensures that schemas do not use both `maximum` and `exclusiveMaximum` (or both `minimum` and `exclusiveMinimum`) at the same time.
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md): Schema examples must match declared types
 - [no-required-schema-properties-undefined](./common/no-required-schema-properties-undefined.md): All properties marked as required must be defined
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md): Detects schemas with type mismatches between object and items fields, and array and properties fields.
@@ -126,6 +129,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 ### Arazzo
 
 - [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
+- [outputs-defined](./arazzo/outputs-defined.md): the output value should be defined before usage
 - [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
 - [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
@@ -147,6 +151,18 @@ The below rules are being migrated to Respect:
 - [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 - [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
 - [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
+
+## Open-RPC rules
+
+Use the rules in this section for Open-RPC specific linting.
+
+- [struct](./common/struct.md): Conform to the declared Open-RPC specification version
+- [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
+- [no-unused-components](./oas/no-unused-components.md): All components must be used
+- `spec-no-duplicated-method-params`: The list of parameters must not include duplicated parameters
+- `spec-no-required-params-after-optional`: Required parameters must be positioned before optional parameters
+- [info-contact](./oas/info-contact.md): Contact section is defined under `info`
+- [info-license](./oas/info-license.md): License section is defined under `info`
 
 ## Resources
 

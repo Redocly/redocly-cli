@@ -1,6 +1,6 @@
 import { type LoggerInterface } from '@redocly/openapi-core';
-import * as Sampler from 'openapi-sampler';
 import { bgRed } from 'colorette';
+import * as Sampler from 'openapi-sampler';
 
 export function generateTestDataFromJsonSchema(schema: any, logger: LoggerInterface) {
   if (!schema) return;

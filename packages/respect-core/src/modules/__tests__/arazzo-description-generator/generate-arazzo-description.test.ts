@@ -1,4 +1,5 @@
 import { createConfig } from '@redocly/openapi-core';
+
 import { generateArazzoDescription } from '../../arazzo-description-generator/index.js';
 import { type ParameterWithIn } from '../../context-parser/index.js';
 import {

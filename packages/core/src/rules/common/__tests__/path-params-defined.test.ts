@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 path-params-defined', () => {
   it('should not report on defined params', async () => {
@@ -103,6 +104,7 @@ describe('Oas3 path-params-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1pets~1{a}/parameters/1/name",
@@ -116,6 +118,7 @@ describe('Oas3 path-params-defined', () => {
           "suggest": [],
         },
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1pets~1{a}/get/parameters/0/name",
@@ -199,5 +202,290 @@ describe('Oas3 path-params-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report on undefined params in callback for next operation in same path item', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        paths:
+          /projects/{projectId}:
+            post:
+              operationId: createProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              callbacks:
+                onEvent:
+                  '{$request.body#/callbackUrl}':
+                    post:
+                      summary: Callback endpoint
+                      responses:
+                        '200':
+                          description: OK
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        callbackUrl:
+                          type: string
+              responses:
+                '201':
+                  description: Created
+
+            patch:
+              operationId: updateProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              responses:
+                '200':
+                  description: OK
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should fail on undefined or missing params in callback', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        paths:
+          /projects/{projectId}:
+            post:
+              operationId: createProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              callbacks:
+                onEvent:
+                  '{$request.body#/callbackUrl/{missingId}}':
+                    post:
+                      parameters:
+                        - name: notDefinedId
+                          in: path
+                          required: true
+                          schema:
+                            type: string
+                      responses:
+                        '200':
+                          description: OK
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        callbackUrl:
+                          type: string
+              responses:
+                '201':
+                  description: Created
+
+            patch:
+              operationId: updateProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              responses:
+                '200':
+                  description: OK
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl~1{missingId}}/post/parameters/0/name",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Path parameter \`notDefinedId\` is not used in the path \`{$request.body#/callbackUrl/{missingId}}\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl~1{missingId}}/post/parameters",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The operation does not define the path parameter \`{missingId}\` expected by path \`{$request.body#/callbackUrl/{missingId}}\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should fail on too deep callback nesting with 2 levels', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        paths:
+          /projects/{projectId}:
+            post:
+              operationId: createProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              callbacks:
+                onEvent:
+                  '{$request.body#/callbackUrl}':
+                    post:
+                      summary: Callback endpoint
+                      callbacks:
+                        onEvent:
+                          '{$request.body#/callbackUrl}':
+                            post:
+                              summary: Callback endpoint
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Maximum callback nesting depth (2) reached. Path parameter validation is limited beyond this depth to prevent infinite recursion.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on undefined params in case of reference', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /test-endpoint:
+            get:
+              operationId: testEndpoint
+              tags:
+                - Test
+              summary: Test endpoint to reproduce bug
+              parameters:
+                - $ref: ./test_params.yaml
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report error at $ref location when path parameter via $ref is not used in path (issue #1241)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: Test
+          version: 0.0.1
+        paths:
+          /users/data:
+            post:
+              parameters:
+                - $ref: "#/components/parameters/path_userId"
+              responses:
+                "200":
+                  description: OK
+        components:
+          parameters:
+            path_userId:
+              name: user-id
+              in: path
+              required: true
+              schema:
+                type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users~1data/post/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/parameters/path_userId/name",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Path parameter \`user-id\` is not used in the path \`/users/data\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });

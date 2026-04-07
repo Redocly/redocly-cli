@@ -23,9 +23,7 @@ export const ParametersUnique: Arazzo1Rule = () => {
             });
           }
 
-          parameter?.name
-            ? seenParameters.add(parameter.name)
-            : seenParameters.add(parameter.reference);
+          seenParameters.add(parameter?.name ?? parameter?.reference);
         }
       },
     },

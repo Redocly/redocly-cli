@@ -1,8 +1,9 @@
 import path from 'node:path';
-import { lint } from '../../lint.js';
-import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { fileURLToPath } from 'node:url';
+
+import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { createConfig } from '../../config/index.js';
+import { lint } from '../../lint.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +48,7 @@ describe('spec ruleset', () => {
           ],
         },
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1pets?id/get/parameters/1/name",

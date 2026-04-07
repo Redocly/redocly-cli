@@ -1,8 +1,9 @@
+import { spawnSync } from 'node:child_process';
 import { readdirSync, statSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers.js';
 import { fileURLToPath } from 'node:url';
+
+import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -371,6 +372,75 @@ describe('E2E', () => {
           NO_COLOR: 'TRUE',
         },
       });
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('root endpoint correctly split', async () => {
+      const testPath = join(__dirname, `split/root-endpoint`);
+
+      const args = getParams(indexEntryPoint, ['split', 'openapi.yaml', '--outDir=output']);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('root endpoint split and bundle again to the content', async () => {
+      const testPath = join(__dirname, `split/root-endpoint`);
+
+      let args = getParams(indexEntryPoint, ['split', 'openapi.yaml', '--outDir=output']);
+      spawnSync('node', args, {
+        cwd: testPath,
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+          NO_COLOR: 'TRUE',
+        },
+      });
+
+      args = getParams(indexEntryPoint, [
+        'bundle',
+        'output/openapi.yaml',
+        '-o=output/bundled.yaml',
+      ]);
+      getCommandOutput(args, { testPath });
+
+      const expected = readFileSync(join(testPath, 'openapi.yaml'), 'utf8');
+      const actual = readFileSync(join(testPath, 'output/bundled.yaml'), 'utf8');
+
+      // Clean up output folder after splitting so the produced files do not interfere with other tests
+      spawnSync('rm', ['-rf', 'output'], {
+        cwd: testPath,
+      });
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('asyncapi2-basic', async () => {
+      const testPath = join(__dirname, `split/asyncapi2-basic`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('asyncapi3-basic', async () => {
+      const testPath = join(__dirname, `split/asyncapi3-basic`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('asyncapi3-complex', async () => {
+      const testPath = join(__dirname, `split/asyncapi3-complex`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
 
       const result = getCommandOutput(args, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
@@ -804,7 +874,7 @@ describe('E2E', () => {
       `);
 
       expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36372);
+      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36417);
       const output = readFileSync(join(testPath, 'nested/redoc-static.html'), 'utf8');
       await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
@@ -933,6 +1003,27 @@ describe('E2E', () => {
     test('stats should produce correct Markdown format', async () => {
       const testPath = join(folderPath, 'stats-markdown');
       const args = getParams(indexEntryPoint, ['stats', 'museum.yaml', '--format=markdown']);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('stats should support AsyncAPI 2.x (stylish format)', async () => {
+      const testPath = join(folderPath, 'stats-async2-stylish');
+      const args = getParams(indexEntryPoint, ['stats', 'async.yaml']);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('stats should support AsyncAPI 2.x (JSON format)', async () => {
+      const testPath = join(folderPath, 'stats-async2-json');
+      const args = getParams(indexEntryPoint, ['stats', 'async.yaml', '--format=json']);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('stats should support AsyncAPI 3.x (stylish format)', async () => {
+      const testPath = join(folderPath, 'stats-async3-stylish');
+      const args = getParams(indexEntryPoint, ['stats', 'asyncapi3.yaml']);
       const result = getCommandOutput(args, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });

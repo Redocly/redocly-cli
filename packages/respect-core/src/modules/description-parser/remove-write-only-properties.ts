@@ -1,4 +1,5 @@
-import type { JSONSchemaType } from '@redocly/ajv/dist/2020.js';
+import { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
+import { isPlainObject } from '@redocly/openapi-core';
 
 export function removeWriteOnlyProperties<T>(schema: JSONSchemaType<T>): JSONSchemaType<T> {
   const schemaCopy = JSON.parse(JSON.stringify(schema));
@@ -17,7 +18,7 @@ export function removeWriteOnlyProperties<T>(schema: JSONSchemaType<T>): JSONSch
           }
         }
       }
-      if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
+      if (isPlainObject(schema.additionalProperties)) {
         filterWriteOnlyProps(schema.additionalProperties as JSONSchemaType<T>);
       }
     } else if (schema.type === 'array' && schema.items) {

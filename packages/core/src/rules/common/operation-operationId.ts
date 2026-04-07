@@ -1,9 +1,8 @@
-import { validateDefinedAndNonEmpty } from '../utils.js';
-
+import type { Oas3Operation } from '../../typings/openapi.js';
+import type { Oas2Operation } from '../../typings/swagger.js';
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { Oas2Operation } from '../../typings/swagger.js';
-import type { Oas3Operation } from '../../typings/openapi.js';
+import { validateDefinedAndNonEmpty } from '../utils.js';
 
 export const OperationOperationId: Oas3Rule | Oas2Rule = () => {
   return {

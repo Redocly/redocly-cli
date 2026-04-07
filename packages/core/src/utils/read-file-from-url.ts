@@ -1,7 +1,7 @@
-import * as picomatch from 'picomatch';
-import { env } from '../env.js';
+import picomatch from 'picomatch';
 
 import type { HttpResolveConfig } from '../config';
+import { env } from '../env.js';
 
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   const headers: Record<string, string> = {};

@@ -1,15 +1,15 @@
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { normalizeVisitors } from '../visitors.js';
-import { replaceRef } from '../ref-utils.js';
-import { bundleExtends } from './bundle-extends.js';
-import { preResolvePluginPath } from './config-resolvers.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
+import * as redoclyConfig from '@redocly/config';
 
-import type { PluginResolveInfo } from './config-resolvers.js';
+import { replaceRef } from '../ref-utils.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
-import type { Plugin } from './types.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
+import { bundleExtends } from './bundle-extends.js';
+import { preResolvePluginPath, type PluginResolveInfo } from './config-resolvers.js';
+import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
+import type { Plugin } from './types.js';
 
 export type PluginsCollectorVisitorData = {
   plugins: (PluginResolveInfo | Plugin)[];
@@ -48,7 +48,12 @@ export const pluginsCollectorVisitor = normalizeVisitors(
             collectorHandleNode(node, ctx);
           },
         },
-        'rootRedoclyConfigSchema.scorecard.levels_items': {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
+          leave(node: unknown, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
+          },
+        },
+        'rootRedoclyConfigSchema.scorecardClassic.levels_items': {
           leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
@@ -99,7 +104,12 @@ export const configBundlerVisitor = normalizeVisitors(
             bundlerHandleNode(node, ctx);
           },
         },
-        'rootRedoclyConfigSchema.scorecard.levels_items': {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
+          leave(node: unknown, ctx: UserContext) {
+            bundlerHandleNode(node, ctx);
+          },
+        },
+        'rootRedoclyConfigSchema.scorecardClassic.levels_items': {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },

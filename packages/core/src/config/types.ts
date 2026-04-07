@@ -1,6 +1,6 @@
 import type { ApiConfig, RedoclyConfig } from '@redocly/config';
-import type { Location } from '../ref-utils.js';
-import type { ProblemSeverity, UserContext } from '../walk.js';
+import type { JSONSchema } from 'json-schema-to-ts';
+
 import type {
   Oas3PreprocessorsSet,
   SpecMajorVersion,
@@ -23,10 +23,12 @@ import type {
   Overlay1PreprocessorsSet,
   Overlay1DecoratorsSet,
   Overlay1RuleSet,
+  OpenRpc1RuleSet,
+  OpenRpc1PreprocessorsSet,
+  OpenRpc1DecoratorsSet,
 } from '../oas-types.js';
+import type { Location } from '../ref-utils.js';
 import type { NodeType } from '../types/index.js';
-import type { SkipFunctionContext } from '../visitors.js';
-import type { JSONSchema } from 'json-schema-to-ts';
 import type {
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
@@ -34,8 +36,11 @@ import type {
   BuiltInAsync3RuleId,
   BuiltInArazzo1RuleId,
   BuiltInOverlay1RuleId,
+  BuiltInOpenRpc1RuleId,
   BuiltInCommonRuleId,
 } from '../types/redocly-yaml.js';
+import type { SkipFunctionContext } from '../visitors.js';
+import type { ProblemSeverity, UserContext } from '../walk.js';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -62,9 +67,11 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas3_0Rules?: RuleMap<
     Exclude<
       BuiltInOAS3RuleId,
+      | 'no-mixed-number-range-constraints'
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'
+      | 'spec-querystring-parameters'
     >,
     RuleConfig,
     T
@@ -76,6 +83,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'
+      | 'spec-querystring-parameters'
     >,
     RuleConfig,
     T
@@ -89,6 +97,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
   arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
+  openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
@@ -99,6 +108,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async3Preprocessors?: Record<string, PreprocessorConfig>;
   arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
   overlay1Preprocessors?: Record<string, PreprocessorConfig>;
+  openrpc1Preprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
   oas2Decorators?: Record<string, DecoratorConfig>;
@@ -109,6 +119,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async3Decorators?: Record<string, DecoratorConfig>;
   arazzo1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
+  openrpc1Decorators?: Record<string, DecoratorConfig>;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
@@ -120,6 +131,7 @@ export type PreprocessorsConfig = {
   async3?: Async3PreprocessorsSet;
   arazzo1?: Arazzo1PreprocessorsSet;
   overlay1?: Overlay1PreprocessorsSet;
+  openrpc1?: OpenRpc1PreprocessorsSet;
 };
 
 export type DecoratorsConfig = {
@@ -129,6 +141,7 @@ export type DecoratorsConfig = {
   async3?: Async3DecoratorsSet;
   arazzo1?: Arazzo1DecoratorsSet;
   overlay1?: Overlay1DecoratorsSet;
+  openrpc1?: OpenRpc1DecoratorsSet;
 };
 
 export type TypesExtensionFn = (
@@ -145,6 +158,7 @@ export type RulesConfig<T> = {
   async3?: Async3RuleSet<T>;
   arazzo1?: Arazzo1RuleSet<T>;
   overlay1?: Overlay1RuleSet<T>;
+  openrpc1?: OpenRpc1RuleSet<T>;
 };
 
 export type CustomRulesConfig = RulesConfig<undefined>;
@@ -222,7 +236,7 @@ export type RawResolveConfig = {
 
 export type HttpResolveConfig = {
   headers: ResolveHeader[];
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   customFetch?: Function;
 };
 
@@ -239,7 +253,7 @@ export type RawUniversalApiConfig = ApiConfig &
 
 export type ResolvedApiConfig = ApiConfig & Required<ResolvedGovernanceConfig>;
 
-export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
+export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApiConfig>;
@@ -253,3 +267,5 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     apis?: Record<string, ResolvedApiConfig>;
     plugins?: string[];
   };
+
+export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

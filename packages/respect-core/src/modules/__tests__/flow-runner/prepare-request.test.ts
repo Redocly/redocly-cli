@@ -1,7 +1,6 @@
 import type { TestContext, Step } from '../../../types.js';
-
-import { prepareRequest } from '../../flow-runner/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
+import { prepareRequest } from '../../flow-runner/index.js';
 
 describe('prepareRequest', () => {
   const apiClient = new ApiFetcher({});
@@ -426,6 +425,63 @@ describe('prepareRequest', () => {
     });
     expect(serverUrl).toEqual({ url: 'https://catfact.ninja/', parameters: [] });
     expect(requestBody).toEqual(undefined);
+  });
+
+  it('should pass x-allowReserved on query params when OpenAPI operation has allowReserved', async () => {
+    const allowReservedCtx = {
+      ...ctx,
+      $sourceDescriptions: {
+        cats: {
+          paths: {
+            '/search': {
+              get: {
+                operationId: 'searchAllowReserved',
+                summary: 'Search',
+                parameters: [
+                  {
+                    name: 'filter',
+                    in: 'query',
+                    required: true,
+                    allowReserved: true,
+                    schema: { type: 'string' },
+                  },
+                ],
+                responses: { '200': { description: 'ok' } },
+              },
+            },
+          },
+          servers: [{ url: 'https://api.example.com/' }],
+        },
+      },
+      workflows: [
+        {
+          workflowId: 'search-workflow',
+          steps: [
+            {
+              stepId: 'search-step',
+              operationId: 'cats.searchAllowReserved',
+              checks: [],
+              response: {},
+            },
+          ],
+        },
+      ],
+      $workflows: {
+        'search-workflow': {
+          steps: {
+            'search-step': { request: {} },
+          },
+        },
+      },
+      $steps: {
+        'search-step': { request: {} },
+      },
+    } as unknown as TestContext;
+    const searchStep = allowReservedCtx.workflows[0].steps[0];
+    const { parameters } = await prepareRequest(allowReservedCtx, searchStep, 'search-workflow');
+    const filterParam = parameters.find((p) => p.name === 'filter');
+    expect(filterParam).toBeDefined();
+    expect(filterParam?.allowReserved).toBe(true);
   });
 
   it('should set apiClient step params when descriptionOperation not provided', async () => {
@@ -1665,5 +1721,49 @@ describe('prepareRequest', () => {
         name: 'token-from-workflow',
       },
     ]);
+  });
+
+  it('should handle null request body', async () => {
+    const workflowName = 'create-item-workflow';
+    const step = {
+      stepId: 'create-item-step',
+      'x-operation': {
+        url: 'http://localhost:3000/items',
+        method: 'post',
+      },
+      requestBody: {
+        payload: null,
+      },
+      checks: [],
+    } as unknown as Step;
+
+    const localCtx = {
+      apiClient,
+      $env: {},
+      $faker: {},
+      $descriptions: {},
+      workflows: [
+        {
+          workflowId: 'create-item-workflow',
+          steps: [step],
+        },
+      ],
+      $workflows: {
+        'create-item-workflow': {
+          steps: {},
+        },
+      },
+      $steps: {},
+      options: {
+        filePath: 'test.yaml',
+        metadata: {},
+      },
+      'x-serverUrl': '',
+      $outputs: {},
+    } as unknown as TestContext;
+
+    const { requestBody } = await prepareRequest(localCtx, step, workflowName);
+
+    expect(requestBody).toBeNull();
   });
 });

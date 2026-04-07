@@ -124,11 +124,12 @@ export interface Oas3Example {
 }
 
 export interface Oas3Xml {
+  nodeType?: 'element' | 'attribute' | 'text' | 'cdata' | 'none'; // added in OAS 3.2
   name?: string;
   namespace?: string;
   prefix?: string;
-  attribute?: string;
-  wrapped?: string;
+  attribute?: boolean; // Deprecated in OAS 3.2: Use nodeType: "attribute" instead
+  wrapped?: boolean; // Deprecated in OAS 3.2: Use nodeType: "element" instead
 }
 
 // common fields for OpenAPI Schema v3.x
@@ -305,6 +306,11 @@ export interface Oas3_1Components extends Oas3ComponentsBase<Oas3_1Schema> {
   pathItems?: { [name: string]: Referenced<Oas3PathItem<Oas3_1Schema>> };
 }
 
+export interface Oas3_2Components extends Oas3_1Components {
+  mediaTypes?: { [name: string]: Referenced<Oas3MediaType<Oas3_1Schema>> };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Oas3Components extends Oas3ComponentsBase<Oas3Schema> {}
 
 export type Oas3ComponentName<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> =

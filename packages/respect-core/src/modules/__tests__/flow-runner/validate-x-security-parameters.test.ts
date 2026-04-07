@@ -1,4 +1,5 @@
 import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from '@redocly/openapi-core';
+
 import { validateXSecurityParameters } from '../../flow-runner/validate-x-security-parameters.js';
 
 describe('validateXSecurityParameters', () => {

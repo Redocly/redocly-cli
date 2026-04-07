@@ -1,65 +1,231 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { Oas2Parameter } from '../../typings/swagger.js';
-import type { Oas3Parameter } from '../../typings/openapi.js';
-import type { UserContext } from '../../walk.js';
+import { type Oas3Parameter } from '../../typings/openapi.js';
+import { type Oas2Parameter } from '../../typings/swagger.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
+import { type Oas3Rule, type Oas2Rule } from '../../visitors.js';
+import { type UserContext } from '../../walk.js';
 
 const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
+const MAX_DEPTH = 2; // Only first callback level is supported
+
+type PathContext = {
+  path: string;
+  templateParams: Set<string>;
+  definedParams: Set<string>;
+};
 
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
-  let pathTemplateParams: Set<string>;
-  let definedPathParams: Set<string>;
-  let currentPath: string;
-  let definedOperationParams: Set<string>;
+  const pathContext = { current: null as PathContext | null };
+  const currentOperationParams = new Set<string>();
 
   return {
     PathItem: {
       enter(_: object, { key }: UserContext) {
-        definedPathParams = new Set();
-        currentPath = key as string;
-        pathTemplateParams = new Set(
-          Array.from(key!.toString().matchAll(pathRegex)).map((m) => m[1])
-        );
+        pathItemEnter(pathContext, key as string);
       },
-      Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-        if (parameter.in === 'path' && parameter.name) {
-          definedPathParams.add(parameter.name);
-          if (!pathTemplateParams.has(parameter.name)) {
-            report({
-              message: `Path parameter \`${parameter.name}\` is not used in the path \`${currentPath}\`.`,
-              location: location.child(['name']),
-            });
-          }
-        }
+      leave() {
+        pathItemLeave(pathContext);
       },
-      Operation: {
-        enter() {
-          definedOperationParams = new Set();
-        },
-        leave(_op: object, { report, location }: UserContext) {
-          for (const templateParam of Array.from(pathTemplateParams.keys())) {
-            if (
-              !definedOperationParams.has(templateParam) &&
-              !definedPathParams.has(templateParam)
-            ) {
-              report({
-                message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${currentPath}\`.`,
-                location: location.child(['parameters']).key(), // report on operation
-              });
-            }
-          }
-        },
-        Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-          if (parameter.in === 'path' && parameter.name) {
-            definedOperationParams.add(parameter.name);
-            if (!pathTemplateParams.has(parameter.name)) {
-              report({
-                message: `Path parameter \`${parameter.name}\` is not used in the path \`${currentPath}\`.`,
-                location: location.child(['name']),
-              });
-            }
-          }
-        },
+      Parameter(
+        parameter: Oas2Parameter | Oas3Parameter,
+        { report, location, rawLocation }: UserContext
+      ) {
+        createPathItemParameterHandler({ parameter, pathContext, report, location, rawLocation });
+      },
+      Operation: createOperationHandlers(pathContext, currentOperationParams),
+    },
+  };
+};
+
+const pathItemEnter = (pathContext: { current: PathContext | null }, key: string) => {
+  pathContext.current = {
+    path: key,
+    templateParams: extractTemplateParams(key),
+    definedParams: new Set(),
+  };
+};
+
+const pathItemLeave = (pathContext: { current: PathContext | null }) => {
+  pathContext.current = null;
+};
+
+const createPathItemParameterHandler = ({
+  parameter,
+  pathContext,
+  report,
+  location,
+  rawLocation,
+}: {
+  parameter: Oas2Parameter | Oas3Parameter;
+  pathContext: { current: PathContext | null };
+  report: UserContext['report'];
+  location: UserContext['location'];
+  rawLocation: UserContext['rawLocation'];
+}): void => {
+  if (parameter.in === 'path' && parameter.name && pathContext.current) {
+    pathContext.current.definedParams.add(parameter.name);
+    validatePathParameter({
+      paramName: parameter.name,
+      templateParams: pathContext.current.templateParams,
+      path: pathContext.current.path,
+      report,
+      location,
+      rawLocation,
+    });
+  }
+};
+
+const createOperationHandlers = (
+  pathContext: { current: PathContext | null },
+  currentOperationParams: Set<string>,
+  depth = 0
+) => {
+  const reportMaxDepthWarning = (
+    report: UserContext['report'],
+    location: UserContext['location'],
+    depth: number
+  ) => {
+    report({
+      message: `Maximum callback nesting depth (${depth}) reached. Path parameter validation is limited beyond this depth to prevent infinite recursion.`,
+      location: location,
+    });
+  };
+  if (depth >= MAX_DEPTH) {
+    return {
+      enter: () => {},
+      leave: (_op: unknown, { report, location }: UserContext) => {
+        reportMaxDepthWarning(report, location, depth);
+      },
+      Parameter: () => {},
+      Callback: undefined,
+    };
+  }
+
+  const createCallbackPathItem = () => {
+    let parentPathContext: PathContext | null = null;
+
+    return {
+      enter(_: object, { key }: UserContext) {
+        parentPathContext = pathContext.current;
+        pathItemEnter(pathContext, key as string);
+      },
+      leave() {
+        pathContext.current = parentPathContext;
+      },
+      Parameter(
+        parameter: Oas2Parameter | Oas3Parameter,
+        { report, location, rawLocation }: UserContext
+      ) {
+        createPathItemParameterHandler({ parameter, pathContext, report, location, rawLocation });
+      },
+      get Operation() {
+        return createOperationHandlers(pathContext, currentOperationParams, depth + 1);
+      },
+    };
+  };
+
+  return {
+    enter() {
+      currentOperationParams = new Set();
+    },
+    leave(_operation: unknown, { report, location }: UserContext) {
+      if (!pathContext.current || !currentOperationParams) return;
+
+      validateRequiredPathParams({
+        templateParams: pathContext.current.templateParams,
+        definedOperationParams: currentOperationParams,
+        definedPathParams: pathContext.current.definedParams,
+        path: pathContext.current.path,
+        report,
+        location,
+      });
+    },
+    Parameter(
+      parameter: Oas2Parameter | Oas3Parameter,
+      { report, location, rawLocation }: UserContext
+    ) {
+      collectPathParamsFromOperation(parameter, currentOperationParams);
+
+      if (parameter.in === 'path' && parameter.name && pathContext.current) {
+        currentOperationParams.add(parameter.name);
+        validatePathParameter({
+          paramName: parameter.name,
+          templateParams: pathContext.current.templateParams,
+          path: pathContext.current.path,
+          report,
+          location,
+          rawLocation,
+        });
+      }
+    },
+    Callback: {
+      get PathItem() {
+        return createCallbackPathItem();
       },
     },
   };
+};
+
+const extractTemplateParams = (path: string): Set<string> => {
+  return new Set(Array.from(path.matchAll(pathRegex)).map((m) => m[1]));
+};
+
+const collectPathParamsFromOperation = (
+  parameter: Oas2Parameter | Oas3Parameter,
+  targetSet: Set<string>
+): void => {
+  if (isPlainObject(parameter) && 'in' in parameter && 'name' in parameter) {
+    if (parameter.in === 'path' && parameter.name) {
+      targetSet.add(parameter.name);
+    }
+  }
+};
+
+const validatePathParameter = ({
+  paramName,
+  templateParams,
+  path,
+  report,
+  location,
+  rawLocation,
+}: {
+  paramName: string;
+  templateParams: Set<string>;
+  path: string;
+  report: UserContext['report'];
+  location: UserContext['location'];
+  rawLocation: UserContext['rawLocation'];
+}): void => {
+  if (!templateParams.has(paramName)) {
+    const message = `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`;
+    const from = rawLocation === location ? undefined : rawLocation;
+
+    report({ message, location: location.child(['name']), from });
+  }
+};
+
+const validateRequiredPathParams = ({
+  templateParams,
+  definedOperationParams,
+  definedPathParams,
+  path,
+  report,
+  location,
+}: {
+  templateParams: Set<string>;
+  definedOperationParams: Set<string>;
+  definedPathParams: Set<string>;
+  path: string;
+  report: UserContext['report'];
+  location: UserContext['location'];
+}): void => {
+  const allDefinedParams = new Set([...definedOperationParams, ...definedPathParams]);
+
+  for (const templateParam of templateParams) {
+    if (!allDefinedParams.has(templateParam)) {
+      report({
+        message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${path}\`.`,
+        location: location.child(['parameters']).key(),
+      });
+    }
+  }
 };

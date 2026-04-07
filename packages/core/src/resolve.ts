@@ -1,31 +1,34 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
+
+import type { ResolveConfig } from './config/types.js';
+import { YamlParseError } from './errors/yaml-parse-error.js';
+import { parseYaml } from './js-yaml/index.js';
 import {
   isRef,
   joinPointer,
-  escapePointer,
+  escapePointerFragment,
   parseRef,
   isAbsoluteUrl,
   isAnchor,
   isExternalValue,
 } from './ref-utils.js';
-import { isNamedType, SpecExtension } from './types/index.js';
-import { getOwn } from './utils/get-own.js';
-import { readFileFromUrl } from './utils/read-file-from-url.js';
-import { parseYaml } from './js-yaml/index.js';
-import { nextTick } from './utils/next-tick.js';
-import { YamlParseError } from './errors/yaml-parse-error.js';
-import { makeRefId } from './utils/make-ref-id.js';
-
-import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
-import type { NormalizedNodeType } from './types/index.js';
-import type { ResolveConfig } from './config/types.js';
+import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
+import { getOwn } from './utils/get-own.js';
+import { makeRefId } from './utils/make-ref-id.js';
+import { nextTick } from './utils/next-tick.js';
+import { readFileFromUrl } from './utils/read-file-from-url.js';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
 export class Source {
-  constructor(public absoluteRef: string, public body: string, public mimeType?: string) {}
+  constructor(
+    public absoluteRef: string,
+    public body: string,
+    public mimeType?: string
+  ) {}
 
   private _ast: YAMLNode | undefined;
   private _lines: string[] | undefined;
@@ -315,7 +318,7 @@ export async function resolveDocument(opts: {
           continue;
         }
 
-        walk(propValue, propType, joinPointer(nodeAbsoluteRef, escapePointer(propName)));
+        walk(propValue, propType, joinPointer(nodeAbsoluteRef, escapePointerFragment(propName)));
       }
 
       if (isRef(node)) {
@@ -426,7 +429,10 @@ export async function resolveDocument(opts: {
           break;
         } else if (target[segment] !== undefined) {
           target = target[segment];
-          resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
+          resolvedRef.nodePointer = joinPointer(
+            resolvedRef.nodePointer!,
+            escapePointerFragment(segment)
+          );
         } else if (isRef(target)) {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
           targetDoc = resolvedRef.document || targetDoc;
@@ -437,7 +443,10 @@ export async function resolveDocument(opts: {
           }
 
           target = resolvedRef.node[segment];
-          resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
+          resolvedRef.nodePointer = joinPointer(
+            resolvedRef.nodePointer!,
+            escapePointerFragment(segment)
+          );
         } else {
           target = undefined;
           break;

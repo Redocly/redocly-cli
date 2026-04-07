@@ -54,11 +54,6 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --verbose             | boolean  | Verbose output. Default value is `false`.                                                                                                                                              |
 | --help                | boolean  | Help output for the command.                                                                                                                                                           |
 
-## Constraints
-
-- Maximum file size: 10 MB per file
-- Maximum number of files: 100
-
 ## Example usage
 
 ### Push files to the `push-docs` project in the default organization
@@ -191,7 +186,6 @@ To authenticate to the API registry, you can use several approaches:
   ```
 
   Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
-
   - [Travis CI documentation](https://docs.travis-ci.com/user/environment-variables/)
   - [CircleCI documentation](https://circleci.com/docs/env-vars/)
   - [GitHub Actions documentation](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)

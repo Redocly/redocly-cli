@@ -1,7 +1,7 @@
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
-
 import type { RawAssertion, AssertionDefinition, Assertion } from '../rules/common/assertions';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 import type { RawGovernanceConfig, RuleConfig, Plugin } from './types';
 
 export function groupAssertionRules(
@@ -18,7 +18,7 @@ export function groupAssertionRules(
   // Collect assertion rules
   const assertions: Assertion[] = [];
   for (const [ruleKey, rule] of Object.entries(config.rules)) {
-    if (ruleKey.startsWith('rule/') && typeof rule === 'object' && rule !== null) {
+    if (ruleKey.startsWith('rule/') && isPlainObject(rule)) {
       const assertion = rule as RawAssertion;
 
       if (plugins) {

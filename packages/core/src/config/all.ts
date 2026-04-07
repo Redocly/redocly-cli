@@ -136,6 +136,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'error',
     'no-schema-type-mismatch': 'error',
     'no-invalid-media-type-examples': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-server-example.com': 'error',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',
@@ -199,6 +200,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'error',
     'no-schema-type-mismatch': 'error',
     'no-invalid-media-type-examples': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-server-example.com': 'error',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',
@@ -246,6 +248,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
+    'spec-querystring-parameters': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'error',
@@ -258,6 +261,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-duplicated-tag-names': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-enum-type-mismatch': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-schema-type-mismatch': 'error',
   },
   async3Rules: {
@@ -271,16 +275,19 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-duplicated-tag-names': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-enum-type-mismatch': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-schema-type-mismatch': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
     'no-criteria-xpath': 'off',
     'no-enum-type-mismatch': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-schema-type-mismatch': 'error',
     'no-x-security-both-scheme-and-scheme-name': 'off',
     'no-x-security-scheme-name-without-openapi': 'off',
+    'outputs-defined': 'error',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'error',
     'respect-supported-versions': 'off',
@@ -297,6 +304,13 @@ const all: RawGovernanceConfig<'built-in'> = {
   },
   overlay1Rules: {
     'info-contact': 'error',
+  },
+  openrpc1Rules: {
+    'info-contact': 'error',
+    'info-license': 'error',
+    'no-unused-components': 'error',
+    'spec-no-duplicated-method-params': 'error',
+    'spec-no-required-params-after-optional': 'error',
   },
 };
 

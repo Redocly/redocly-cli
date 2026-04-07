@@ -1,6 +1,4 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-
-import type { ViteUserConfig } from 'vitest/config';
+import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
 
 const configExtension: { [key: string]: ViteUserConfig } = {
   unit: defineConfig({
@@ -22,10 +20,10 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/utils/assert-node-version.ts',
         ],
         thresholds: {
-          lines: 78,
-          functions: 81,
-          statements: 78,
-          branches: 70,
+          lines: 79,
+          functions: 82,
+          statements: 79,
+          branches: 71,
         },
       },
     },
@@ -48,6 +46,7 @@ export default mergeConfig(
     test: {
       globals: true,
       restoreMocks: true,
+      mockReset: true,
       environment: 'node',
       env: {
         FORCE_COLOR: '1',
