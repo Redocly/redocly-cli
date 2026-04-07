@@ -15,7 +15,6 @@ import type {
   VisitorSkippedLevelContext,
   VisitFunction,
   BaseVisitor,
-  NormalizeVisitor,
   VisitorNode,
 } from './visitors.js';
 
@@ -131,6 +130,17 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   const seenNodesPerType: Record<string, Set<unknown>> = {};
   const ignoredNodes = new Set<string>();
 
+  // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
+  const anyEnter = normalizedVisitors.any.enter as VisitorNode<any>[];
+  const anyLeave = normalizedVisitors.any.leave as VisitorNode<any>[];
+  const combinedEnter: Record<string, Array<VisitorNode<any>>> = {};
+  const combinedLeave: Record<string, Array<VisitorNode<any>>> = {};
+  for (const typeName of Object.keys(normalizedVisitors)) {
+    if (typeName === 'any' || typeName === 'ref') continue;
+    combinedEnter[typeName] = anyEnter.concat(normalizedVisitors[typeName]?.enter || []);
+    combinedLeave[typeName] = (normalizedVisitors[typeName]?.leave || []).concat(anyLeave);
+  }
+
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
   function walkNode(
@@ -200,10 +210,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
       let visitedBySome = false;
 
-      const anyEnterVisitors = normalizedVisitors.any.enter;
-      const currentEnterVisitors = anyEnterVisitors.concat(
-        (normalizedVisitors[type.name]?.enter as NormalizeVisitor<VisitorNode<unknown>[]>) || []
-      );
+      const currentEnterVisitors =
+        combinedEnter[type.name] || anyEnter.concat(normalizedVisitors[type.name]?.enter || []);
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
 
@@ -354,10 +362,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         }
       }
 
-      const anyLeaveVisitors = normalizedVisitors.any.leave;
-      const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(
-        anyLeaveVisitors
-      );
+      const currentLeaveVisitors =
+        combinedLeave[type.name] || (normalizedVisitors[type.name]?.leave || []).concat(anyLeave);
 
       for (const context of activatedContexts.reverse()) {
         if (context.isSkippedLevel) {
