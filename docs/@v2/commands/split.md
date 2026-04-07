@@ -76,18 +76,3 @@ Document: pet.yaml is successfully split
 
 pet.yaml: split processed in 33ms
 </pre>
-
-### Split an AsyncAPI description
-
-The `split` command works the same way with AsyncAPI 2.x and AsyncAPI 3.x descriptions:
-
-```bash
-redocly split asyncapi.yaml --outDir=asyncapi
-```
-
-<pre>
-Document: asyncapi.yaml is successfully split
- and all related files are saved to the directory: asyncapi
-
-asyncapi.yaml: split processed in 25ms
-</pre>
