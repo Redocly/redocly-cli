@@ -173,10 +173,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     const rawLocation = location;
     let currentLocation = location;
+    const nodeIsRef = isRef(node);
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
-    if (isRef(node)) {
+    if (nodeIsRef) {
       const refEnterVisitors = normalizedVisitors.ref.enter;
       for (const { visit: visitor, ruleId, severity, message, context } of refEnterVisitors) {
         enteredContexts.add(context);
@@ -315,7 +316,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             );
           }
 
-          if (isRef(node)) {
+          if (nodeIsRef) {
             props.push(...Object.keys(node).filter((k) => k !== '$ref' && !props.includes(k))); // properties on the same level as $ref
           }
 
@@ -393,7 +394,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     currentLocation = location;
 
-    if (isRef(node)) {
+    if (nodeIsRef) {
       const refLeaveVisitors = normalizedVisitors.ref.leave;
       for (const { visit: visitor, ruleId, severity, context, message } of refLeaveVisitors) {
         if (enteredContexts.has(context)) {
