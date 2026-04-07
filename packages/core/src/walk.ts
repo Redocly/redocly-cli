@@ -431,7 +431,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       severity: ProblemSeverity,
       customMessage: string | undefined
     ) {
-      const report = (opts: Problem) => reportFn(ruleId, severity, customMessage!, opts);
+      const report = (opts: Problem) => reportFn(ruleId, severity, customMessage, opts);
       visit(
         resolvedNode,
         {
