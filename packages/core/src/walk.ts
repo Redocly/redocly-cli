@@ -180,7 +180,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const refEnterVisitors = normalizedVisitors.ref.enter;
       for (const { visit: visitor, ruleId, severity, message, context } of refEnterVisitors) {
         enteredContexts.add(context);
-        const report = reportFn.bind(undefined, ruleId, severity, message);
+        const report = (opts: Problem) => reportFn(ruleId, severity, message, opts);
         visitor(
           node,
           {
@@ -195,7 +195,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             parentLocations: {},
             specVersion: ctx.specVersion,
             config: ctx.config,
-            getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
+            getVisitorData: () => getVisitorDataFn(ruleId),
           },
           { node: resolvedNode, location: resolvedLocation, error }
         );
@@ -397,7 +397,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const refLeaveVisitors = normalizedVisitors.ref.leave;
       for (const { visit: visitor, ruleId, severity, context, message } of refLeaveVisitors) {
         if (enteredContexts.has(context)) {
-          const report = reportFn.bind(undefined, ruleId, severity, message);
+          const report = (opts: Problem) => reportFn(ruleId, severity, message, opts);
           visitor(
             node,
             {
@@ -412,7 +412,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               parentLocations: {},
               specVersion: ctx.specVersion,
               config: ctx.config,
-              getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
+              getVisitorData: () => getVisitorDataFn(ruleId),
             },
             { node: resolvedNode, location: resolvedLocation, error }
           );
@@ -458,7 +458,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     function reportFn(
       ruleId: string,
       severity: ProblemSeverity,
-      customMessage: string,
+      customMessage: string | undefined,
       opts: Problem
     ) {
       const normalizedLocation = opts.location
