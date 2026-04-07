@@ -49,7 +49,7 @@ With the `splitIntoWords` option enabled, "posters" is identified as a resource 
 | -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
 | severity       | string   | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration).                                    |
 | splitIntoWords | boolean  | Matches http verbs when the string is split into words based on casing. This can reduce false positives. Default **false**. |
-| excludedPaths  | [string] | List of paths to exclude from the check. Use exact path strings (e.g. `/gettoken`). Default **[]**.                        |
+| excludedPaths  | [string] | List of paths to exclude from the check. Use exact path strings (e.g. `/token`). Default **[]**.                            |
 
 An example configuration:
 
@@ -74,8 +74,8 @@ rules:
   no-http-verbs-in-paths:
     severity: error
     excludedPaths:
-      - /gettoken
-      - /oauth/postback
+      - /token
+      - /oauth/callback
 ```
 
 ## Examples

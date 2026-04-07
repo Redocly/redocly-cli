@@ -67,10 +67,10 @@ describe('no-http-verbs-in-paths', () => {
       outdent`
         openapi: 3.1.0
         paths:
-          /path/post:
+          /data/post:
             get:
               summary: Contains http verb post
-          /get/path:
+          /get/data:
             get:
               summary: Contains http verb get
         `,
@@ -84,7 +84,7 @@ describe('no-http-verbs-in-paths', () => {
         rules: {
           'no-http-verbs-in-paths': {
             severity: 'error',
-            excludedPaths: ['/path/post'],
+            excludedPaths: ['/data/post'],
           },
         },
       }),
@@ -95,12 +95,12 @@ describe('no-http-verbs-in-paths', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1get~1path",
+              "pointer": "#/paths/~1get~1data",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "path \`/get/path\` should not contain http verb get",
+          "message": "path \`/get/data\` should not contain http verb get",
           "ruleId": "no-http-verbs-in-paths",
           "severity": "error",
           "suggest": [],
