@@ -214,9 +214,10 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         combinedEnter[type.name] || anyEnter.concat(normalizedVisitors[type.name]?.enter || []);
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
+      const ignoreKey = `${currentLocation.absolutePointer}${currentLocation.pointer}`;
 
       for (const { context, visit, skip, ruleId, severity, message } of currentEnterVisitors) {
-        if (ignoredNodes.has(`${currentLocation.absolutePointer}${currentLocation.pointer}`)) break;
+        if (ignoredNodes.has(ignoreKey)) break;
 
         if (context.isSkippedLevel) {
           if (
