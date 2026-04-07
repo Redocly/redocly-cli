@@ -10,12 +10,11 @@ import {
 } from '../ref-utils.js';
 import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { type OasRef } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
 import { isTruthy } from '../utils/is-truthy.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
-import { type UserContext, type ResolveResult } from '../walk.js';
+import { type UserContext } from '../walk.js';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -160,8 +159,6 @@ export function makeBundleVisitor({
             replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
-            // Register the bundled component from the original location
-            resolveBundledComponent(node, resolved);
           }
         }
       },
@@ -223,17 +220,6 @@ export function makeBundleVisitor({
     };
   }
 
-  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>) {
-    const newRefId = makeRefId(rootDocument.source.absoluteRef, node.$ref);
-    resolvedRefMap.set(newRefId, {
-      document: rootDocument,
-      isRemote: false,
-      node: resolved.node,
-      nodePointer: node.$ref,
-      resolved: true,
-    });
-  }
-
   function saveComponent(
     componentType: string,
     target: { node: unknown; location: Location },
@@ -242,16 +228,30 @@ export function makeBundleVisitor({
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
+
+    let newRef: string;
     if (
       version === 'oas3' ||
       version === 'async2' ||
       version === 'async3' ||
       version === 'openrpc1'
     ) {
-      return `#/components/${componentType}/${name}`;
+      newRef = `#/components/${componentType}/${name}`;
     } else {
-      return `#/${componentType}/${name}`;
+      newRef = `#/${componentType}/${name}`;
     }
+
+    const entry = {
+      document: rootDocument,
+      isRemote: false,
+      node: target.node,
+      nodePointer: newRef,
+      resolved: true,
+    };
+    resolvedRefMap.set(makeRefId(rootDocument.source.absoluteRef, newRef), entry);
+    resolvedRefMap.set(makeRefId(ctx.location.source.absoluteRef, newRef), entry);
+
+    return newRef;
   }
 
   function isEqualOrEqualRef(
