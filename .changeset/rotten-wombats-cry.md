@@ -2,4 +2,4 @@
 "@redocly/cli": minor
 ---
 
-redocly lint api1.yaml --generate-ignore-file updates only entries related to api1.yaml and its referenced files
+Changed lint behavior with the `--generate-ignore-file` option — now it updates only the entries related to the file being linted, leaving other files' entries untouched.

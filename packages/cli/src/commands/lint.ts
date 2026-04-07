@@ -12,7 +12,7 @@ import {
   type OutputFormat,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
-import { resolve as resolvePath } from 'node:path';
+import { resolve } from 'node:path';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
@@ -57,7 +57,7 @@ export async function handleLint({
   let totalIgnored = 0;
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const { path: apiPath, alias } of apis) {
+  for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
       const aliasConfig = config.forAlias(alias);
@@ -75,15 +75,15 @@ export async function handleLint({
         );
       }
       if (alias === undefined) {
-        logger.info(gray(`validating ${formatPath(apiPath)}...\n`));
+        logger.info(gray(`validating ${formatPath(path)}...\n`));
       } else {
         logger.info(
-          gray(`validating ${formatPath(apiPath)} using lint rules for api '${alias}'...\n`)
+          gray(`validating ${formatPath(path)} using lint rules for api '${alias}'...\n`)
         );
       }
 
       const results = await lint({
-        ref: apiPath,
+        ref: path,
         config: aliasConfig,
         collectSpecData,
       });
@@ -94,7 +94,7 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
-        const apiAbsRef = isAbsoluteUrl(apiPath) ? apiPath : resolvePath(apiPath);
+        const apiAbsRef = isAbsoluteUrl(path) ? path : resolve(path);
         delete config.ignore[apiAbsRef];
         for (const m of results) {
           config.addIgnore(m);
@@ -111,9 +111,9 @@ export async function handleLint({
       }
 
       const elapsed = getExecutionTime(startedAt);
-      logger.info(gray(`${formatPath(apiPath)}: validated in ${elapsed}\n\n`));
+      logger.info(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
     } catch (e) {
-      handleError(e, apiPath);
+      handleError(e, path);
     }
   }
 
