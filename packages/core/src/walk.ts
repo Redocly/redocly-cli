@@ -430,7 +430,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       severity: ProblemSeverity,
       customMessage: string | undefined
     ) {
-      const report = reportFn.bind(undefined, ruleId, severity, customMessage);
+      const report = (opts: Problem) => reportFn(ruleId, severity, customMessage!, opts);
       visit(
         resolvedNode,
         {
@@ -448,7 +448,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           ignoreNextVisitorsOnNode: () => {
             ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
-          getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
+          getVisitorData: () => getVisitorDataFn(ruleId),
         },
         collectParents(context),
         context
