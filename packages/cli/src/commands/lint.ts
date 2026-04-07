@@ -1,7 +1,6 @@
 import {
   formatProblems,
   getTotals,
-  isAbsoluteUrl,
   lint,
   lintConfig,
   pluralize,
@@ -12,7 +11,6 @@ import {
   type OutputFormat,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
-import { resolve } from 'node:path';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
@@ -94,8 +92,7 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
-        const apiAbsRef = isAbsoluteUrl(path) ? path : resolve(path);
-        delete config.ignore[apiAbsRef];
+        config.clearIgnoreForRef(path);
         for (const m of results) {
           config.addIgnore(m);
           totalIgnored++;
