@@ -118,40 +118,40 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
+      Schema(schema, { rawLocation, key }) {
         if (!schema.allOf) {
-          registerComponent(location, 'schemas', key.toString());
+          registerComponent(rawLocation, 'schemas', key.toString());
         }
       },
     },
     NamedParameters: {
-      Parameter(_parameter, { location, key }) {
-        registerComponent(location, 'parameters', key.toString());
+      Parameter(_parameter, { rawLocation, key }) {
+        registerComponent(rawLocation, 'parameters', key.toString());
       },
     },
     NamedResponses: {
-      Response(_response, { location, key }) {
-        registerComponent(location, 'responses', key.toString());
+      Response(_response, { rawLocation, key }) {
+        registerComponent(rawLocation, 'responses', key.toString());
       },
     },
     NamedExamples: {
-      Example(_example, { location, key }) {
-        registerComponent(location, 'examples', key.toString());
+      Example(_example, { rawLocation, key }) {
+        registerComponent(rawLocation, 'examples', key.toString());
       },
     },
     NamedRequestBodies: {
-      RequestBody(_requestBody, { location, key }) {
-        registerComponent(location, 'requestBodies', key.toString());
+      RequestBody(_requestBody, { rawLocation, key }) {
+        registerComponent(rawLocation, 'requestBodies', key.toString());
       },
     },
     NamedHeaders: {
-      Header(_header, { location, key }) {
-        registerComponent(location, 'headers', key.toString());
+      Header(_header, { rawLocation, key }) {
+        registerComponent(rawLocation, 'headers', key.toString());
       },
     },
     NamedMediaTypes: {
-      MediaTypesMap(_mediaTypesMap, { location, key }) {
-        registerComponent(location, 'mediaTypes', key.toString());
+      MediaTypesMap(_mediaTypesMap, { rawLocation, key }) {
+        registerComponent(rawLocation, 'mediaTypes', key.toString());
       },
     },
   };

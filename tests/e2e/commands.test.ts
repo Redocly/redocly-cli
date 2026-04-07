@@ -752,6 +752,16 @@ describe('E2E', () => {
     });
   });
 
+  describe('bundle with unused named schema that is a $ref alias', () => {
+    it('should remove the alias schema when it is not referenced anywhere', async () => {
+      const testPath = join(__dirname, `bundle/remove-unused-schema-alias`);
+      const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+  });
+
   describe('miscellaneous', () => {
     const folderPath = join(__dirname, 'miscellaneous');
 
