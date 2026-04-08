@@ -211,6 +211,10 @@ export function collectMetrics({
       if (allOfStats) result = addStats(result, allOfStats);
       if (polyStats) result = addStats(result, polyStats);
       if (discStats) result = addStats(result, discStats);
+
+      if (ref) {
+        result = { ...result, refsUsed: [ref, ...result.refsUsed] };
+      }
     } else {
       result = walkSchemaRaw(schemaNode, debug);
     }

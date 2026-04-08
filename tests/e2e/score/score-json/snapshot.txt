@@ -5,7 +5,7 @@
     "parameterSimplicity": 0.8625,
     "schemaSimplicity": 0.796875,
     "documentationQuality": 0.9017857142857143,
-    "constraintClarity": 0.4375,
+    "constraintClarity": 0.5625,
     "exampleCoverage": 0.875,
     "errorClarity": 1,
     "dependencyClarity": 0.7291666666666669,
@@ -309,12 +309,12 @@
       }
     },
     "getTicketCode": {
-      "agentReadiness": 69,
+      "agentReadiness": 81,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 1,
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 1,
         "exampleCoverage": 0,
         "errorClarity": 1,
         "dependencyClarity": 1,
@@ -338,7 +338,7 @@
       "path": "/tickets/{ticketId}/qr",
       "method": "get",
       "operationId": "getTicketCode",
-      "agentReadinessScore": 69,
+      "agentReadinessScore": 81,
       "reasons": [
         "Missing response examples"
       ]

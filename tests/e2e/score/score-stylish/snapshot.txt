@@ -8,7 +8,7 @@
   Parameter Simplicity     [█████████████████░░░] 86%
   Schema Simplicity        [████████████████░░░░] 80%
   Documentation Quality    [██████████████████░░] 90%
-  Constraint Clarity       [█████████░░░░░░░░░░░] 44%
+  Constraint Clarity       [███████████░░░░░░░░░] 56%
   Example Coverage         [██████████████████░░] 88%
   Error Clarity            [████████████████████] 100%
   Dependency Clarity       [███████████████░░░░░] 73%
@@ -30,7 +30,7 @@
   Top 1 Hotspot Operations
 
   GET /tickets/{ticketId}/qr (getTicketCode)
-    Agent Readiness: 69.0
+    Agent Readiness: 81.0
     - Missing response examples
 
 

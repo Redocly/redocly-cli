@@ -31,8 +31,10 @@ export function computeOperationSubscores(
   const descTotal = 1 + metrics.parameterCount + metrics.totalSchemaProperties;
   const documentationQuality = descTotal > 0 ? clamp01(descCount / descTotal) : 1;
 
-  const propCount = metrics.totalSchemaProperties || 1;
-  const constraintClarity = clamp01(metrics.constraintCount / propCount);
+  const constraintClarity =
+    metrics.totalSchemaProperties > 0
+      ? clamp01(metrics.constraintCount / metrics.totalSchemaProperties)
+      : 1;
 
   const examplePoints =
     (metrics.requestExamplePresent ? 1 : 0) + (metrics.responseExamplePresent ? 1 : 0);
