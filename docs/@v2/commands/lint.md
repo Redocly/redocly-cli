@@ -372,6 +372,12 @@ The errors in the ignore file `.redocly.lint-ignore.yaml` are ignored when the `
 
 If you run:
 
+```bash
+redocly lint api1.yaml --generate-ignore-file
+```
+
+Only the ignore entries related to api1.yaml are updated.
+Ignore entries for other API descriptions remain unchanged.
 
 To generate an ignore file for multiple API descriptions, pass them as arguments:
 
