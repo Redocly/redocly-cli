@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.26.0 (2026-04-08)
+
+### Minor Changes
+
+- Added support for AsyncAPI v2 and v3 in the split command.
+- Added `excludedPaths` option to the `no-http-verbs-in-paths` rule, allowing specific paths to be excluded from evaluation.
+
+### Patch Changes
+
+- Fixed the `no-required-schema-properties-undefined` rule to report when a required property is not defined in every `oneOf`/`anyOf` branch.
+- Updated @redocly/openapi-core to v2.26.0.
+
 ## 2.25.4 (2026-04-02)
 
 ### Patch Changes
