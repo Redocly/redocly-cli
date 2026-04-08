@@ -166,6 +166,11 @@ describe('handleLint', () => {
         },
       };
 
+      vi.mocked(configFixture.clearIgnoreForRef).mockImplementation((ref: string) => {
+        const absRef = resolve(ref);
+        delete configFixture.ignore[absRef];
+      });
+
       vi.mocked(configFixture.addIgnore).mockImplementation((problem: any) => {
         const loc = problem.location[0];
         if (loc.pointer === undefined) return;
