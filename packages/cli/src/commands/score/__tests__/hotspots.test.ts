@@ -16,7 +16,6 @@ function makeMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetric
     polymorphismCount: 0,
     anyOfCount: 0,
     hasDiscriminator: false,
-    propertyCount: 0,
     operationDescriptionPresent: true,
     schemaPropertiesWithDescription: 0,
     totalSchemaProperties: 0,

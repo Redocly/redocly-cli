@@ -15,7 +15,6 @@ function makeOp(path: string, method: string, refs: string[]): OperationMetrics 
     polymorphismCount: 0,
     anyOfCount: 0,
     hasDiscriminator: false,
-    propertyCount: 0,
     operationDescriptionPresent: false,
     schemaPropertiesWithDescription: 0,
     totalSchemaProperties: 0,

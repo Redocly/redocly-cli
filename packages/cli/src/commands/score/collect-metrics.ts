@@ -1,17 +1,13 @@
 import {
-  normalizeTypes,
-  getTypes,
+  type normalizeTypes,
   normalizeVisitors,
   walkDocument,
-  resolveDocument,
-  BaseResolver,
-  Source,
+  type resolveDocument,
   isPlainObject,
   isRef,
   isMappingRef,
   unescapePointerFragment,
   type Document,
-  type SpecVersion,
   type WalkContext,
 } from '@redocly/openapi-core';
 
@@ -57,7 +53,7 @@ export function collectMetrics({
   const schemaWalkState = createSchemaWalkState();
   const schemaVisitor = createSchemaMetricVisitor(schemaWalkState);
   const normalizedSchemaVisitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'score-schema', visitor: schemaVisitor as any }],
+    [{ severity: 'warn', ruleId: 'score-schema', visitor: schemaVisitor }],
     types
   );
 
@@ -87,7 +83,6 @@ export function collectMetrics({
     polymorphismCount: 0,
     anyOfCount: 0,
     hasDiscriminator: false,
-    propertyCount: 0,
     totalSchemaProperties: 0,
     schemaPropertiesWithDescription: 0,
     constraintCount: 0,
@@ -102,7 +97,6 @@ export function collectMetrics({
       polymorphismCount: a.polymorphismCount + b.polymorphismCount,
       anyOfCount: a.anyOfCount + b.anyOfCount,
       hasDiscriminator: a.hasDiscriminator || b.hasDiscriminator,
-      propertyCount: a.propertyCount + b.propertyCount,
       totalSchemaProperties: a.totalSchemaProperties + b.totalSchemaProperties,
       schemaPropertiesWithDescription:
         a.schemaPropertiesWithDescription + b.schemaPropertiesWithDescription,
@@ -172,7 +166,7 @@ export function collectMetrics({
         let maxBranch = walkSchema(polyBranches[0], debug);
         for (let i = 1; i < polyBranches.length; i++) {
           const branchStats = walkSchema(polyBranches[i], debug);
-          if (branchStats.propertyCount > maxBranch.propertyCount) {
+          if (branchStats.totalSchemaProperties > maxBranch.totalSchemaProperties) {
             maxBranch = branchStats;
           }
         }
@@ -191,7 +185,7 @@ export function collectMetrics({
         let maxBranch = walkSchema(discriminatorRefs[0], debug);
         for (let i = 1; i < discriminatorRefs.length; i++) {
           const branchStats = walkSchema(discriminatorRefs[i], debug);
-          if (branchStats.propertyCount > maxBranch.propertyCount) {
+          if (branchStats.totalSchemaProperties > maxBranch.totalSchemaProperties) {
             maxBranch = branchStats;
           }
         }
@@ -235,7 +229,7 @@ export function collectMetrics({
   const scoreVisitor = createScoreVisitor(accumulator);
 
   const normalizedVisitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor as any }],
+    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor }],
     types
   );
 
@@ -251,33 +245,4 @@ export function collectMetrics({
     metrics: getDocumentMetrics(accumulator),
     debugLogs: accumulator.debugLogs,
   };
-}
-
-/**
- * Convenience wrapper that resolves a parsed OpenAPI document and collects metrics.
- * Useful in tests and standalone usage where you don't already have resolved types.
- */
-export async function collectDocumentMetrics(
-  parsed: Record<string, unknown>,
-  options?: { specVersion?: SpecVersion; debugOperationId?: string }
-): Promise<CollectMetricsResult> {
-  const specVersion: SpecVersion = options?.specVersion ?? 'oas3_0';
-  const types = normalizeTypes(getTypes(specVersion), {});
-  const source = new Source('score.yaml', JSON.stringify(parsed));
-  const document: Document = { source, parsed };
-  const externalRefResolver = new BaseResolver();
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-  const ctx: WalkContext = { problems: [], specVersion, visitorsData: {} };
-
-  return collectMetrics({
-    document,
-    types,
-    resolvedRefMap,
-    ctx,
-    debugOperationId: options?.debugOperationId,
-  });
 }

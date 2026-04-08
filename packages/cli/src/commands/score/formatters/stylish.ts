@@ -85,7 +85,7 @@ function printRawMetricsSummary(result: ScoreResult): void {
     params.push(m.parameterCount);
     depths.push(Math.max(m.maxRequestSchemaDepth, m.maxResponseSchemaDepth));
     polys.push(m.polymorphismCount);
-    props.push(m.propertyCount);
+    props.push(m.totalSchemaProperties);
     if (m.requestExamplePresent) opsWithReqExample++;
     if (m.responseExamplePresent) opsWithResExample++;
     if (m.operationDescriptionPresent) opsWithDescription++;
@@ -140,7 +140,7 @@ function printOperationDetails(result: ScoreResult): void {
   out(cyan('  ' + '─'.repeat(header.length - 2)));
 
   const entries = [...result.rawMetrics.operations.entries()].sort(
-    ([, a], [, b]) => b.propertyCount - a.propertyCount
+    ([, a], [, b]) => b.totalSchemaProperties - a.totalSchemaProperties
   );
 
   for (const [, m] of entries) {
@@ -149,7 +149,7 @@ function printOperationDetails(result: ScoreResult): void {
     const line =
       '  ' +
       label.padEnd(50) +
-      String(m.propertyCount).padStart(7) +
+      String(m.totalSchemaProperties).padStart(7) +
       String(m.polymorphismCount).padStart(7) +
       String(depth).padStart(7) +
       String(m.parameterCount).padStart(8) +

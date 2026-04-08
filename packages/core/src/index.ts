@@ -145,6 +145,7 @@ export type {
   Oas3Parameter,
   Oas3Server,
   Oas3Operation,
+  Oas3MediaType,
   Oas3Responses,
   ApiKeyAuth,
   HttpAuth,

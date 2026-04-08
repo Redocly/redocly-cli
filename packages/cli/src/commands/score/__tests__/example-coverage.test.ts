@@ -1,5 +1,5 @@
-import { collectDocumentMetrics } from '../collect-metrics.js';
 import { computeOperationSubscores, computeAgentReadiness } from '../scoring.js';
+import { collectDocumentMetrics } from './collect-metrics-helper.js';
 
 async function collect(doc: Record<string, unknown>) {
   return (await collectDocumentMetrics(doc)).metrics;

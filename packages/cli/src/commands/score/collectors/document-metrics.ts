@@ -1,6 +1,7 @@
 import {
   isNotEmptyObject,
   isPlainObject,
+  type Oas3MediaType,
   type Oas3Visitor,
   type UserContext,
   type Oas3PathItem,
@@ -49,7 +50,6 @@ export interface SchemaWalkState {
   polymorphismCount: number;
   anyOfCount: number;
   hasDiscriminator: boolean;
-  propertyCount: number;
   totalSchemaProperties: number;
   schemaPropertiesWithDescription: number;
   constraintCount: number;
@@ -68,7 +68,6 @@ export function createSchemaWalkState(): SchemaWalkState {
     polymorphismCount: 0,
     anyOfCount: 0,
     hasDiscriminator: false,
-    propertyCount: 0,
     totalSchemaProperties: 0,
     schemaPropertiesWithDescription: 0,
     constraintCount: 0,
@@ -122,7 +121,6 @@ export function createSchemaMetricVisitor(state: SchemaWalkState): Oas3Visitor {
         if (isPlainObject(schema.properties)) {
           const props = Object.entries(schema.properties) as [string, any][];
           state.totalSchemaProperties += props.length;
-          state.propertyCount += props.length;
 
           for (const [name, prop] of props) {
             localPropertyNames.push(name);
@@ -166,7 +164,6 @@ interface CurrentOperationContext {
 
   maxRequestSchemaDepth: number;
   maxResponseSchemaDepth: number;
-  propertyCount: number;
   totalSchemaProperties: number;
   schemaPropertiesWithDescription: number;
   constraintCount: number;
@@ -174,7 +171,7 @@ interface CurrentOperationContext {
   anyOfCount: number;
   hasDiscriminator: boolean;
 
-  writableTopLevelFieldCount: number;
+  topLevelWritableFieldCount: number;
 
   requestBodyPresent: boolean;
   requestExamplePresent: boolean;
@@ -233,7 +230,6 @@ function createOperationContext(
 
     maxRequestSchemaDepth: 0,
     maxResponseSchemaDepth: 0,
-    propertyCount: 0,
     totalSchemaProperties: 0,
     schemaPropertiesWithDescription: 0,
     constraintCount: 0,
@@ -241,7 +237,7 @@ function createOperationContext(
     anyOfCount: 0,
     hasDiscriminator: false,
 
-    writableTopLevelFieldCount: 0,
+    topLevelWritableFieldCount: 0,
 
     requestBodyPresent: false,
     requestExamplePresent: false,
@@ -259,32 +255,14 @@ function createOperationContext(
 }
 
 function buildOperationMetrics(ctx: CurrentOperationContext): OperationMetrics {
-  return {
-    path: ctx.path,
-    method: ctx.method,
-    operationId: ctx.operationId,
-    parameterCount: ctx.parameterCount,
-    requiredParameterCount: ctx.requiredParameterCount,
-    paramsWithDescription: ctx.paramsWithDescription,
-    requestBodyPresent: ctx.requestBodyPresent,
-    topLevelWritableFieldCount: ctx.writableTopLevelFieldCount,
-    maxRequestSchemaDepth: ctx.maxRequestSchemaDepth,
-    maxResponseSchemaDepth: ctx.maxResponseSchemaDepth,
-    polymorphismCount: ctx.polymorphismCount,
-    anyOfCount: ctx.anyOfCount,
-    hasDiscriminator: ctx.hasDiscriminator,
-    propertyCount: ctx.propertyCount,
-    operationDescriptionPresent: ctx.operationDescriptionPresent,
-    schemaPropertiesWithDescription: ctx.schemaPropertiesWithDescription,
-    totalSchemaProperties: ctx.totalSchemaProperties,
-    constraintCount: ctx.constraintCount,
-    requestExamplePresent: ctx.requestExamplePresent,
-    responseExamplePresent: ctx.responseExamplePresent,
-    structuredErrorResponseCount: ctx.structuredErrorResponseCount,
-    totalErrorResponses: ctx.totalErrorResponses,
-    ambiguousIdentifierCount: ctx.ambiguousIdentifierCount,
-    refsUsed: ctx.refsUsed,
-  };
+  const {
+    inRequestBody: _1,
+    inResponse: _2,
+    currentResponseCode: _3,
+    errorStructuredCounted: _4,
+    ...metrics
+  } = ctx;
+  return metrics;
 }
 
 export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
@@ -324,7 +302,7 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
       },
     },
     MediaType: {
-      enter(mediaType: any) {
+      enter(mediaType) {
         const current = accumulator.current;
         if (!current) return;
 
@@ -350,12 +328,11 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
 
           const stats = accumulator.walkSchema(mediaType.schema, isDebugTarget);
 
-          current.propertyCount = Math.max(current.propertyCount, stats.propertyCount);
           if (stats.totalSchemaProperties > current.totalSchemaProperties) {
             current.totalSchemaProperties = stats.totalSchemaProperties;
             current.schemaPropertiesWithDescription = stats.schemaPropertiesWithDescription;
+            current.constraintCount = stats.constraintCount;
           }
-          current.constraintCount = Math.max(current.constraintCount, stats.constraintCount);
           current.polymorphismCount = Math.max(current.polymorphismCount, stats.polymorphismCount);
           current.anyOfCount = Math.max(current.anyOfCount, stats.anyOfCount);
           if (stats.hasDiscriminator) current.hasDiscriminator = true;
@@ -369,8 +346,8 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
 
           if (current.inRequestBody) {
             current.maxRequestSchemaDepth = Math.max(current.maxRequestSchemaDepth, stats.maxDepth);
-            current.writableTopLevelFieldCount = Math.max(
-              current.writableTopLevelFieldCount,
+            current.topLevelWritableFieldCount = Math.max(
+              current.topLevelWritableFieldCount,
               stats.writableTopLevelFields
             );
           }
@@ -388,7 +365,7 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
             accumulator.debugLogs.push({
               context,
               entries: stats.debugEntries,
-              totalProperties: stats.propertyCount,
+              totalProperties: stats.totalSchemaProperties,
               totalPolymorphism: stats.polymorphismCount,
               totalConstraints: stats.constraintCount,
               maxDepth: stats.maxDepth,
@@ -460,7 +437,7 @@ function mergeParameters(
   return merged;
 }
 
-function hasExample(mediaType: { example?: unknown; examples?: Record<string, unknown> }): boolean {
+function hasExample(mediaType: Oas3MediaType): boolean {
   return mediaType.example !== undefined || isNotEmptyObject(mediaType.examples);
 }
 

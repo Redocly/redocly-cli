@@ -1,7 +1,7 @@
 import { parseYaml } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
 
-import { collectDocumentMetrics } from '../collect-metrics.js';
+import { collectDocumentMetrics } from './collect-metrics-helper.js';
 
 const yaml = (source: string) => parseYaml(source) as Record<string, unknown>;
 
@@ -131,7 +131,7 @@ describe('collectDocumentMetrics', () => {
     const op = metrics.operations.get('createItem')!;
     expect(op.requestBodyPresent).toBe(true);
     expect(op.requestExamplePresent).toBe(true);
-    expect(op.propertyCount).toBe(2);
+    expect(op.totalSchemaProperties).toBe(2);
     expect(op.constraintCount).toBe(2);
     expect(op.schemaPropertiesWithDescription).toBe(1);
   });

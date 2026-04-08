@@ -15,7 +15,6 @@ export interface OperationMetrics {
   polymorphismCount: number;
   anyOfCount: number;
   hasDiscriminator: boolean;
-  propertyCount: number;
 
   operationDescriptionPresent: boolean;
   schemaPropertiesWithDescription: number;
@@ -125,7 +124,6 @@ export interface SchemaStats {
   polymorphismCount: number;
   anyOfCount: number;
   hasDiscriminator: boolean;
-  propertyCount: number;
   totalSchemaProperties: number;
   schemaPropertiesWithDescription: number;
   constraintCount: number;

@@ -51,7 +51,6 @@ function makeTestMetrics(overrides: Partial<OperationMetrics> = {}): OperationMe
     polymorphismCount: 0,
     anyOfCount: 0,
     hasDiscriminator: false,
-    propertyCount: 1,
     operationDescriptionPresent: true,
     schemaPropertiesWithDescription: 0,
     totalSchemaProperties: 1,
