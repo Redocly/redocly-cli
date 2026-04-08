@@ -15,6 +15,7 @@ The `scorecard-classic` command requires a scorecard configuration in your Redoc
 redocly scorecard-classic <api> --project-url=<url>
 redocly scorecard-classic <api> --config=<path>
 redocly scorecard-classic <api> --format=json
+redocly scorecard-classic <api> --format=junit
 redocly scorecard-classic <api> --target-level=<level>
 redocly scorecard-classic <api> --verbose
 ```
@@ -25,7 +26,7 @@ redocly scorecard-classic <api> --verbose
 | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api            | string  | Path to the API description filename or alias that you want to evaluate. See [the API section](#specify-api) for more details.                                                                       |
 | --config       | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                       |
-| --format       | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `checkstyle`. Default value is `stylish`.                                                                                        |
+| --format       | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `checkstyle`, `junit`. Default value is `stylish`.                                                                               |
 | --help         | boolean | Show help.                                                                                                                                                                                           |
 | --project-url  | string  | URL to the project scorecard configuration. Required if not configured in the Redocly configuration file. Example: `https://app.cloud.redocly.com/org/my-org/projects/my-project/scorecard-classic`. |
 | --target-level | string  | Target scorecard level to achieve. The command validates that the API meets this level and all preceding levels without errors. Exits with an error if the target level is not achieved.             |
@@ -89,6 +90,21 @@ The JSON output is grouped by scorecard level and includes:
 - location information (file path, line/column range, and JSON pointer)
 - descriptive message about the violation
 
+### Use JUnit output format
+
+To generate JUnit XML for test reporting integrations, use the JUnit format:
+
+```bash
+redocly scorecard-classic openapi/openapi.yaml --format=junit
+```
+
+The JUnit output includes:
+
+- one test suite for the `scorecard-classic` run
+- one test case per reported issue
+- scorecard level, rule, severity, and location details for each issue
+- warnings as skipped test cases and errors as failed test cases
+
 ### Validate against a target level
 
 Use the `--target-level` option to ensure your API meets a specific quality level. The command validates that your API satisfies the target level and all preceding levels without errors:
@@ -149,7 +165,7 @@ The scorecard evaluation categorizes issues into multiple levels based on your p
 Each issue is associated with a specific scorecard level, allowing you to prioritize improvements.
 
 The command displays the achieved scorecard level, which is the highest level your API meets without errors.
-The achieved level is shown in both stylish, JSON and checkstyle output formats.
+The achieved level is shown in stylish, JSON, checkstyle, and JUnit output formats.
 
 When all checks pass, the command displays a success message:
 
