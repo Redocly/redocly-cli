@@ -401,6 +401,59 @@ describe('checkSchema', () => {
     ]);
   });
 
+  it('should handle discriminator with allOf + not pattern without throwing', () => {
+    const discriminatorDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          content: {
+            'application/json': {
+              schema: {
+                oneOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      method: {
+                        allOf: [
+                          { enum: ['cash', 'payment-card', 'paypal'] },
+                          { not: { enum: ['payment-card', 'paypal'] } },
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    type: 'object',
+                    properties: {
+                      method: { const: 'payment-card' },
+                    },
+                  },
+                ],
+                discriminator: { propertyName: 'method' },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(() =>
+      checkSchema({
+        stepCallCtx: {
+          ...stepCallCtx,
+          $response: {
+            body: { method: 'cash' },
+            statusCode: 200,
+            header: { 'content-type': 'application/json' },
+            contentType: 'application/json',
+          },
+        } as unknown as StepCallContext,
+        descriptionOperation: discriminatorDescriptionOperation,
+        ctx,
+      })
+    ).not.toThrow();
+  });
+
   it('should return empty checks if no response available', () => {
     const stepCtx = {
       $request: {
