@@ -11,9 +11,6 @@ import { preResolvePluginPath, type PluginResolveInfo } from './config-resolvers
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
 import type { Plugin } from './types.js';
 
-const scorecardClassicLevelNodeTypeName =
-  redoclyConfig.CONFIG_NODE_TYPE_NAMES?.ScorecardClassicLevel || 'ScorecardClassicLevel';
-
 export type PluginsCollectorVisitorData = {
   plugins: (PluginResolveInfo | Plugin)[];
   rootConfigDir: string;
@@ -51,7 +48,7 @@ export const pluginsCollectorVisitor = normalizeVisitors(
             collectorHandleNode(node, ctx);
           },
         },
-        [scorecardClassicLevelNodeTypeName]: {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
           leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
@@ -107,7 +104,7 @@ export const configBundlerVisitor = normalizeVisitors(
             bundlerHandleNode(node, ctx);
           },
         },
-        [scorecardClassicLevelNodeTypeName]: {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },
