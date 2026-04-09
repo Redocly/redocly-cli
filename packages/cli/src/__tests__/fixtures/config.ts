@@ -60,5 +60,6 @@ export const configFixture: Config = {
   getDecoratorSettings: vi.fn(),
   getUnusedRules: vi.fn(),
   getRulesForSpecVersion: vi.fn(),
+  getPostBundleDecoratorsForSpecVersion: vi.fn(),
   forAlias: vi.fn(() => configFixture),
 } as Omit<Config, '_usedRules' | '_usedVersions'> as Config;
