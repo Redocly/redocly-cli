@@ -54,7 +54,12 @@ function formatProblemDetails(problem: ScorecardProblem, location: ProblemLocati
   return details.join('\n');
 }
 
-export function printScorecardResultsAsJunit(path: string, problems: ScorecardProblem[]): void {
+export function printScorecardResultsAsJunit(
+  path: string,
+  problems: ScorecardProblem[],
+  achievedLevel: string,
+  targetLevelAchieved: boolean
+): void {
   const failures = problems.filter((problem) => problem.severity === 'error').length;
   const skipped = problems.filter((problem) => problem.severity === 'warn').length;
 
@@ -67,6 +72,9 @@ export function printScorecardResultsAsJunit(path: string, problems: ScorecardPr
   );
   logger.output('<properties>\n');
   logger.output(`<property name="api" value="${xmlEscape(path)}" />\n`);
+  if (targetLevelAchieved) {
+    logger.output(`<property name="achievedLevel" value="${xmlEscape(achievedLevel)}" />\n`);
+  }
   logger.output('</properties>\n');
 
   for (const problem of problems) {

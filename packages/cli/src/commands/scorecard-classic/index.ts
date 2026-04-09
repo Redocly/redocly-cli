@@ -158,7 +158,7 @@ export async function handleScorecardClassic({
   } else if (argv.format === 'checkstyle') {
     printScorecardResultsAsCheckstyle(path, result, achievedLevel, targetLevelAchieved);
   } else if (argv.format === 'junit') {
-    printScorecardResultsAsJunit(path, result);
+    printScorecardResultsAsJunit(path, result, achievedLevel, targetLevelAchieved);
   } else {
     printScorecardResults(result, achievedLevel, targetLevelAchieved);
   }

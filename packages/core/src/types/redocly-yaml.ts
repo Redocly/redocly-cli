@@ -11,6 +11,9 @@ import { omit } from '../utils/omit.js';
 import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 
+const scorecardClassicLevelNodeTypeName =
+  redoclyConfig.CONFIG_NODE_TYPE_NAMES?.ScorecardClassicLevel || 'ScorecardClassicLevel';
+
 const builtInOAS2Rules = [
   'info-contact',
   'operation-operationId',
@@ -433,9 +436,9 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
 
 function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
   return {
-    ...nodeTypes[redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
+    ...nodeTypes[scorecardClassicLevelNodeTypeName],
     properties: {
-      ...nodeTypes[redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
+      ...nodeTypes[scorecardClassicLevelNodeTypeName]?.properties,
       ...configGovernanceProperties,
     },
   };
@@ -617,8 +620,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     Subject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
-    [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]:
-      createScorecardLevelsItems(nodeTypes),
+    [scorecardClassicLevelNodeTypeName]: createScorecardLevelsItems(nodeTypes),
   };
 }
 

@@ -20,7 +20,7 @@ describe('printScorecardResultsAsJunit', () => {
     (openapiCore.logger.output as any).mock.calls.map((call: any) => call[0]).join('');
 
   it('outputs an empty junit suite when there are no problems', () => {
-    printScorecardResultsAsJunit('/api/openapi.yaml', []);
+    printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Gold', true);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -28,6 +28,7 @@ describe('printScorecardResultsAsJunit', () => {
       <testsuite name="scorecard-classic" tests="0" failures="0" errors="0" skipped="0">
       <properties>
       <property name="api" value="/api/openapi.yaml" />
+      <property name="achievedLevel" value="Gold" />
       </properties>
       </testsuite>
       </testsuites>
@@ -68,7 +69,7 @@ describe('printScorecardResultsAsJunit', () => {
       },
     ];
 
-    printScorecardResultsAsJunit('/api/openapi.yaml', problems);
+    printScorecardResultsAsJunit('/api/openapi.yaml', problems, 'Silver', false);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -122,7 +123,7 @@ describe('printScorecardResultsAsJunit', () => {
       },
     ];
 
-    printScorecardResultsAsJunit('/api/openapi.yaml', problems);
+    printScorecardResultsAsJunit('/api/openapi.yaml', problems, 'Gold', false);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -160,7 +161,7 @@ describe('printScorecardResultsAsJunit', () => {
       },
     ];
 
-    printScorecardResultsAsJunit('/api/openapi.yaml', problems);
+    printScorecardResultsAsJunit('/api/openapi.yaml', problems, 'Non Conformant', false);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
