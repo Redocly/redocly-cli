@@ -41,6 +41,10 @@ import {
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
 
+export const clearPluginsCache = (): void => {
+  pluginsCache.clear();
+};
+
 export type PluginResolveInfo = {
   absolutePath: string;
   rawPath: string;
