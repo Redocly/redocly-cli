@@ -11,6 +11,7 @@ export const configFixture: Config = {
   },
   configPath: undefined,
   addIgnore: vi.fn(),
+  clearIgnoreForRef: vi.fn(),
   skipRules: vi.fn(),
   skipPreprocessors: vi.fn(),
   saveIgnore: vi.fn(),

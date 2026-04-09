@@ -7,11 +7,12 @@ import type { UserContext } from '../../walk.js';
 
 const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 
-export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords }) => {
+export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords, excludedPaths }) => {
   return {
     PathItem(_path: Oas2PathItem | Oas3PathItem, { key, report, location }: UserContext) {
       const pathKey = key.toString();
       if (!pathKey.startsWith('/')) return;
+      if (excludedPaths?.some((excludedPath: string) => pathKey === excludedPath)) return;
       const pathSegments = pathKey.split('/');
 
       for (const pathSegment of pathSegments) {

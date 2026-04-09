@@ -8,8 +8,8 @@ import {
 } from '@redocly/openapi-core';
 import { yellow } from 'colorette';
 
-import { replace$Refs } from '../../commands/join/helpers/replace-$-refs.js';
 import { handleJoin } from '../../commands/join/index.js';
+import { replace$Refs } from '../../commands/join/utils/replace-$-refs.js';
 import { exitWithError } from '../../utils/error.js';
 import {
   getAndValidateFileExtension,
