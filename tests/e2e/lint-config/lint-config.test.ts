@@ -54,18 +54,15 @@ describe('lint-config', () => {
     },
   ];
 
-  test.each(configSeverityOptions)(
-    'invalid-definition-and-config: %s',
-    async (severityOption) => {
-      const { dirName, option, snapshot } = severityOption;
-      const testPath = join(__dirname, `${dirName}`);
-      const relativeInvalidOpenapiFile = relative(testPath, invalidOpenapiFile);
-      const args = [relativeInvalidOpenapiFile, `--lint-config=${option}`];
-      const passedArgs = getParams(indexEntryPoint, ['lint', ...args]);
+  test.each(configSeverityOptions)('invalid-definition-and-config: %s', async (severityOption) => {
+    const { dirName, option, snapshot } = severityOption;
+    const testPath = join(__dirname, `${dirName}`);
+    const relativeInvalidOpenapiFile = relative(testPath, invalidOpenapiFile);
+    const args = [relativeInvalidOpenapiFile, `--lint-config=${option}`];
+    const passedArgs = getParams(indexEntryPoint, ['lint', ...args]);
 
-      const result = getCommandOutput(passedArgs, { testPath });
+    const result = getCommandOutput(passedArgs, { testPath });
 
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, snapshot));
-    }
-  );
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, snapshot));
+  });
 });

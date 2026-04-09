@@ -29,10 +29,7 @@ describe('check-config', () => {
     const dirName = 'valid-config-with-config-option';
     const testPath = join(__dirname, `${dirName}`);
 
-    const passedArgs = getParams(indexEntryPoint, [
-      'check-config',
-      '--config=nested/redocly.yaml',
-    ]);
+    const passedArgs = getParams(indexEntryPoint, ['check-config', '--config=nested/redocly.yaml']);
 
     const result = getCommandOutput(passedArgs, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));

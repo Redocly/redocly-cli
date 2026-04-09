@@ -100,9 +100,7 @@ describe('join', () => {
         : parameters.entrypoints;
       const args = getParams(indexEntryPoint, ['join', ...argsWithOption]);
       const result = getCommandOutput(args, { testPath });
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(
-        join(testPath, parameters.snapshot)
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, parameters.snapshot));
     });
   });
 });

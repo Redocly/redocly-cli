@@ -13,7 +13,18 @@ const excludeFolders = [
   'arazzo-valid-test-description',
 ];
 
-const coveredPrefixes = ['assertion', 'no-invalid', 'operation-', 'oas', 'async', 'openrpc', 'spec-', 'draft4', 'null-schema', 'xml-'];
+const coveredPrefixes = [
+  'assertion',
+  'no-invalid',
+  'operation-',
+  'oas',
+  'async',
+  'openrpc',
+  'spec-',
+  'draft4',
+  'null-schema',
+  'xml-',
+];
 
 /** Checks if a folder is already covered by another contextual test file. */
 function isCoveredElsewhere(folder: string): boolean {

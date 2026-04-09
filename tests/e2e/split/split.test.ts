@@ -119,11 +119,7 @@ describe('split', () => {
       },
     });
 
-    args = getParams(indexEntryPoint, [
-      'bundle',
-      'output/openapi.yaml',
-      '-o=output/bundled.yaml',
-    ]);
+    args = getParams(indexEntryPoint, ['bundle', 'output/openapi.yaml', '-o=output/bundled.yaml']);
     getCommandOutput(args, { testPath });
 
     const expected = readFileSync(join(testPath, 'openapi.yaml'), 'utf8');

@@ -61,11 +61,7 @@ describe('miscellaneous', () => {
 
   test('apply a decorator to a specific api (when the api is specified as an alias)', async () => {
     const testPath = join(folderPath, 'apply-per-api-decorators');
-    const args = getParams(indexEntryPoint, [
-      'bundle',
-      '--config=nested/redocly.yaml',
-      'test@fs',
-    ]);
+    const args = getParams(indexEntryPoint, ['bundle', '--config=nested/redocly.yaml', 'test@fs']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
   });
