@@ -1,7 +1,7 @@
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from '../helpers.js';
+import { getCommandOutput, getParams, cleanupOutput } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
