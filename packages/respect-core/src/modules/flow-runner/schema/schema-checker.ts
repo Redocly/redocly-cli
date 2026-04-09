@@ -1,4 +1,4 @@
-import { Ajv2020, type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
+import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 import type { Oas3Responses } from '@redocly/openapi-core';
 import { blue, dim, red, yellow, green } from 'colorette';
 
@@ -13,7 +13,7 @@ import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in
 import { CHECKS } from '../../checks/index.js';
 import { removeWriteOnlyProperties } from '../../description-parser/index.js';
 
-const ajvStrict = new Ajv2020({
+const ajvStrict = new (Ajv as any)({
   schemaId: '$id',
   meta: true,
   allErrors: true,
