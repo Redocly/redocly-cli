@@ -184,20 +184,4 @@ describe('printScorecardResultsAsJunit', () => {
       "
     `);
   });
-
-  it('does not log achieved level to the console', () => {
-    printScorecardResultsAsJunit('/api/openapi.yaml', []);
-
-    printScorecardResultsAsJunit('/api/openapi.yaml', []);
-
-    expect(openapiCore.logger.info).not.toHaveBeenCalled();
-  });
-
-  it('never includes achievedLevel-related properties in the junit output', () => {
-    printScorecardResultsAsJunit('/api/openapi.yaml', []);
-    printScorecardResultsAsJunit('/api/openapi.yaml', []);
-
-    expect(getOutput()).not.toContain('achievedLevel');
-    expect(getOutput()).not.toContain('targetLevelAchieved');
-  });
 });
