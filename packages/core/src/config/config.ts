@@ -166,6 +166,12 @@ export class Config {
     );
   }
 
+  clearIgnoreForRef(ref: string) {
+    const dir = this.configPath ? path.dirname(this.configPath) : process.cwd();
+    const absRef = isAbsoluteUrl(ref) ? ref : path.resolve(dir, ref);
+    delete this.ignore[absRef];
+  }
+
   saveIgnore() {
     const dir = this.configPath ? path.dirname(this.configPath) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
