@@ -1,7 +1,7 @@
 import { logger, getLineColLocation } from '@redocly/openapi-core';
 
+import { stripAnsiCodes } from '../../../utils/strip-ansi-codes.js';
 import type { ScorecardProblem } from '../types.js';
-import { stripAnsiCodes } from './strip-ansi-codes.js';
 
 type ScorecardLevel = {
   name: string;
