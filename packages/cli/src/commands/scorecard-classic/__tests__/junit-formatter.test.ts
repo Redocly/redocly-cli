@@ -29,7 +29,6 @@ describe('printScorecardResultsAsJunit', () => {
       <properties>
       <property name="api" value="/api/openapi.yaml" />
       <property name="achievedLevel" value="Gold" />
-      <property name="targetLevelAchieved" value="true" />
       </properties>
       </testsuite>
       </testsuites>
@@ -78,8 +77,6 @@ describe('printScorecardResultsAsJunit', () => {
       <testsuite name="scorecard-classic" tests="2" failures="1" errors="0" skipped="1">
       <properties>
       <property name="api" value="/api/openapi.yaml" />
-      <property name="achievedLevel" value="Silver" />
-      <property name="targetLevelAchieved" value="false" />
       </properties>
       <testcase classname="Gold" name="operation-summary" file="/api/openapi.yaml" line="1">
       <failure message="Missing summary" type="operation-summary">Level: Gold
@@ -134,8 +131,6 @@ describe('printScorecardResultsAsJunit', () => {
       <testsuite name="scorecard-classic" tests="1" failures="1" errors="0" skipped="0">
       <properties>
       <property name="api" value="/api/openapi.yaml" />
-      <property name="achievedLevel" value="Gold" />
-      <property name="targetLevelAchieved" value="false" />
       </properties>
       <testcase classname="Gold" name="custom/my-rule" file="/api/openapi.yaml" line="1">
       <failure message="Value must be &lt; 5 &amp; &gt; 0" type="custom/my-rule">Level: Gold
@@ -174,8 +169,6 @@ describe('printScorecardResultsAsJunit', () => {
       <testsuite name="scorecard-classic" tests="1" failures="1" errors="0" skipped="0">
       <properties>
       <property name="api" value="/api/openapi.yaml" />
-      <property name="achievedLevel" value="Non Conformant" />
-      <property name="targetLevelAchieved" value="false" />
       </properties>
       <testcase classname="Unknown" name="some-rule" file="/api/openapi.yaml" line="0">
       <failure message="No location error" type="some-rule">Level: Unknown
@@ -206,5 +199,12 @@ describe('printScorecardResultsAsJunit', () => {
     printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Silver', false);
 
     expect(openapiCore.logger.info).not.toHaveBeenCalled();
+  });
+
+  it('omits achievedLevel suite property when the target is not achieved', () => {
+    printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Silver', false);
+
+    expect(getOutput()).not.toContain('achievedLevel');
+    expect(getOutput()).not.toContain('targetLevelAchieved');
   });
 });

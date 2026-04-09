@@ -11,6 +11,10 @@ type ProblemLocation = {
   pointer?: string;
 };
 
+function formatDetail(label: string, value: string | number): string {
+  return `${label}: ${xmlEscape(String(value))}`;
+}
+
 function getProblemLocation(problem: ScorecardProblem, apiPath: string): ProblemLocation {
   const location = problem.location[0];
 
@@ -34,19 +38,19 @@ function getProblemLocation(problem: ScorecardProblem, apiPath: string): Problem
 
 function formatProblemDetails(problem: ScorecardProblem, location: ProblemLocation): string {
   const details = [
-    `Level: ${problem.scorecardLevel || 'Unknown'}`,
-    `Rule: ${problem.ruleId}`,
-    `Severity: ${problem.severity}`,
-    `File: ${location.file}`,
-    `Line: ${location.line}`,
-    `Column: ${location.column}`,
+    formatDetail('Level', problem.scorecardLevel || 'Unknown'),
+    formatDetail('Rule', problem.ruleId),
+    formatDetail('Severity', problem.severity),
+    formatDetail('File', location.file),
+    formatDetail('Line', location.line),
+    formatDetail('Column', location.column),
   ];
 
   if (location.pointer) {
-    details.push(`Pointer: ${location.pointer}`);
+    details.push(formatDetail('Pointer', location.pointer));
   }
 
-  details.push(`Message: ${stripAnsiCodes(problem.message)}`);
+  details.push(formatDetail('Message', stripAnsiCodes(problem.message)));
 
   return details.join('\n');
 }
@@ -73,17 +77,18 @@ export function printScorecardResultsAsJunit(
   );
   logger.output('<properties>\n');
   logger.output(`<property name="api" value="${xmlEscape(path)}" />\n`);
-  logger.output(`<property name="achievedLevel" value="${xmlEscape(achievedLevel)}" />\n`);
-  logger.output(
-    `<property name="targetLevelAchieved" value="${targetLevelAchieved ? 'true' : 'false'}" />\n`
-  );
+
+  if (targetLevelAchieved) {
+    logger.output(`<property name="achievedLevel" value="${xmlEscape(achievedLevel)}" />\n`);
+  }
+
   logger.output('</properties>\n');
 
   for (const problem of problems) {
     const location = getProblemLocation(problem, path);
     const level = problem.scorecardLevel || 'Unknown';
     const message = stripAnsiCodes(problem.message);
-    const details = xmlEscape(formatProblemDetails(problem, location)).replaceAll('&#10;', '\n');
+    const details = formatProblemDetails(problem, location);
 
     logger.output(
       `<testcase classname="${xmlEscape(level)}" name="${xmlEscape(
