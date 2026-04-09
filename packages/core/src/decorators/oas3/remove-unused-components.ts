@@ -17,10 +17,10 @@ type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyo
 const COMPONENTS_PREFIX = '#/components/';
 
 function getContainingComponentKey(pointer: string): string | undefined {
-  if (!pointer.startsWith(COMPONENTS_PREFIX)) return undefined;
+  if (!pointer.startsWith(COMPONENTS_PREFIX)) return;
   const rest = pointer.slice(COMPONENTS_PREFIX.length);
   const parts = rest.split('/');
-  if (parts.length < 2) return undefined;
+  if (parts.length < 2) return;
   return `${unescapePointerFragment(parts[0])}/${unescapePointerFragment(parts[1])}`;
 }
 
