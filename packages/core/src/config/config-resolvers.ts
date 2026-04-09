@@ -228,7 +228,9 @@ export async function resolvePlugins(
           // @ts-ignore FIXME: investigate if we still need this (2.0)
           requiredPlugin = __non_webpack_require__(absolutePluginPath);
         } else {
-          const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
+          const pluginUrl = url.pathToFileURL(absolutePluginPath);
+          pluginUrl.searchParams.set('t', Date.now().toString());
+          const mod = await import(pluginUrl.href);
           requiredPlugin = mod.default || mod;
         }
 
