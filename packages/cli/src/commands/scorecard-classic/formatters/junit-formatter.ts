@@ -1,8 +1,7 @@
 import { getLineColLocation, logger, xmlEscape } from '@redocly/openapi-core';
-import { bold, cyan, white } from 'colorette';
 
 import type { ScorecardProblem } from '../types.js';
-import { stripAnsiCodes } from './utils.js';
+import { stripAnsiCodes } from './strip-ansi-codes.js';
 
 type ProblemLocation = {
   file: string;
@@ -55,16 +54,7 @@ function formatProblemDetails(problem: ScorecardProblem, location: ProblemLocati
   return details.join('\n');
 }
 
-export function printScorecardResultsAsJunit(
-  path: string,
-  problems: ScorecardProblem[],
-  achievedLevel: string,
-  targetLevelAchieved: boolean
-): void {
-  if (targetLevelAchieved) {
-    logger.info(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n\n`)));
-  }
-
+export function printScorecardResultsAsJunit(path: string, problems: ScorecardProblem[]): void {
   const failures = problems.filter((problem) => problem.severity === 'error').length;
   const skipped = problems.filter((problem) => problem.severity === 'warn').length;
 
@@ -77,11 +67,6 @@ export function printScorecardResultsAsJunit(
   );
   logger.output('<properties>\n');
   logger.output(`<property name="api" value="${xmlEscape(path)}" />\n`);
-
-  if (targetLevelAchieved) {
-    logger.output(`<property name="achievedLevel" value="${xmlEscape(achievedLevel)}" />\n`);
-  }
-
   logger.output('</properties>\n');
 
   for (const problem of problems) {

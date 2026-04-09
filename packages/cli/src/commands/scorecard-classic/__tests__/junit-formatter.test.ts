@@ -20,7 +20,7 @@ describe('printScorecardResultsAsJunit', () => {
     (openapiCore.logger.output as any).mock.calls.map((call: any) => call[0]).join('');
 
   it('outputs an empty junit suite when there are no problems', () => {
-    printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Gold', true);
+    printScorecardResultsAsJunit('/api/openapi.yaml', []);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -28,7 +28,6 @@ describe('printScorecardResultsAsJunit', () => {
       <testsuite name="scorecard-classic" tests="0" failures="0" errors="0" skipped="0">
       <properties>
       <property name="api" value="/api/openapi.yaml" />
-      <property name="achievedLevel" value="Gold" />
       </properties>
       </testsuite>
       </testsuites>
@@ -69,7 +68,7 @@ describe('printScorecardResultsAsJunit', () => {
       },
     ];
 
-    printScorecardResultsAsJunit('/api/openapi.yaml', problems, 'Silver', false);
+    printScorecardResultsAsJunit('/api/openapi.yaml', problems);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -123,7 +122,7 @@ describe('printScorecardResultsAsJunit', () => {
       },
     ];
 
-    printScorecardResultsAsJunit('/api/openapi.yaml', problems, 'Gold', false);
+    printScorecardResultsAsJunit('/api/openapi.yaml', problems);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -161,7 +160,7 @@ describe('printScorecardResultsAsJunit', () => {
       },
     ];
 
-    printScorecardResultsAsJunit('/api/openapi.yaml', problems, 'Non Conformant', false);
+    printScorecardResultsAsJunit('/api/openapi.yaml', problems);
 
     expect(getOutput()).toMatchInlineSnapshot(`
       "<?xml version="1.0" encoding="UTF-8"?>
@@ -186,23 +185,17 @@ describe('printScorecardResultsAsJunit', () => {
     `);
   });
 
-  it('logs achieved level to the console only when the target is met', () => {
-    printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Gold', true);
+  it('does not log achieved level to the console', () => {
+    printScorecardResultsAsJunit('/api/openapi.yaml', []);
 
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('Achieved Level:')
-    );
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(expect.stringContaining('Gold'));
-
-    vi.mocked(openapiCore.logger.info).mockClear();
-
-    printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Silver', false);
+    printScorecardResultsAsJunit('/api/openapi.yaml', []);
 
     expect(openapiCore.logger.info).not.toHaveBeenCalled();
   });
 
-  it('omits achievedLevel suite property when the target is not achieved', () => {
-    printScorecardResultsAsJunit('/api/openapi.yaml', [], 'Silver', false);
+  it('never includes achievedLevel-related properties in the junit output', () => {
+    printScorecardResultsAsJunit('/api/openapi.yaml', []);
+    printScorecardResultsAsJunit('/api/openapi.yaml', []);
 
     expect(getOutput()).not.toContain('achievedLevel');
     expect(getOutput()).not.toContain('targetLevelAchieved');
