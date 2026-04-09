@@ -2,6 +2,7 @@ import { getLineColLocation, logger, xmlEscape } from '@redocly/openapi-core';
 import { bold, cyan, white } from 'colorette';
 
 import type { ScorecardProblem } from '../types.js';
+import { stripAnsiCodes } from './utils.js';
 
 type ProblemLocation = {
   file: string;
@@ -9,11 +10,6 @@ type ProblemLocation = {
   column: number;
   pointer?: string;
 };
-
-function stripAnsiCodes(text: string): string {
-  // eslint-disable-next-line no-control-regex
-  return text.replace(/\u001b\[\d+m/g, '');
-}
 
 function getProblemLocation(problem: ScorecardProblem, apiPath: string): ProblemLocation {
   const location = problem.location[0];

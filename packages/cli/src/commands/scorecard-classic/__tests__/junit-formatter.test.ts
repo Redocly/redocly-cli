@@ -111,7 +111,7 @@ describe('printScorecardResultsAsJunit', () => {
   it('XML-escapes details and strips ANSI sequences from messages', () => {
     const problems: ScorecardProblem[] = [
       {
-        message: '\u001b[31mValue must be < 5 & > 0\u001b[0m',
+        message: '\u001b[1;31mValue must be < 5 & > 0\u001b[0m',
         ruleId: 'custom/my-rule',
         severity: 'error',
         suggest: [],
