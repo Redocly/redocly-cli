@@ -1,3 +1,4 @@
+import { unescapePointerFragment } from '../../ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -20,7 +21,7 @@ function getContainingComponentKey(pointer: string): string | undefined {
   const rest = pointer.slice(COMPONENTS_PREFIX.length);
   const parts = rest.split('/');
   if (parts.length < 2) return undefined;
-  return `${parts[0]}/${parts[1]}`;
+  return `${unescapePointerFragment(parts[0])}/${unescapePointerFragment(parts[1])}`;
 }
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {

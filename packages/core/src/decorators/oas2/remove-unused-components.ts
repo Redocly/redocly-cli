@@ -1,3 +1,4 @@
+import { unescapePointerFragment } from '../../ref-utils.js';
 import type { Oas2Components, Oas2Definition } from '../../typings/swagger.js';
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import type { Oas2Decorator } from '../../visitors.js';
@@ -27,7 +28,8 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
   function getContainingComponentKey(pointer: string): string | undefined {
     const parts = pointer.replace(/^#\//, '').split('/');
     if (parts.length < 2) return undefined;
-    const [type, name] = parts;
+    const type = unescapePointerFragment(parts[0]);
+    const name = unescapePointerFragment(parts[1]);
     if (!OAS2_COMPONENT_TYPES.includes(type as keyof Oas2Components)) return undefined;
     return `${type}/${name}`;
   }
