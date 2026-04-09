@@ -1,4 +1,4 @@
-import { Ajv2020 } from '@redocly/ajv/dist/2020.js';
+import Ajv from '@redocly/ajv/dist/2020.js';
 
 import type { InputSchema } from '../../../types.js';
 
@@ -11,7 +11,7 @@ export function resolveInputValuesToSchema(value: any, schema: InputSchema): Map
     return {};
   }
 
-  const ajv = new Ajv2020({
+  const ajv = new (Ajv as any)({
     useDefaults: true,
     removeAdditional: 'all',
     coerceTypes: true,
