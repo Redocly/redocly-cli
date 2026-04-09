@@ -5,8 +5,9 @@ import * as process from 'node:process';
 
 import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
-import { iteratePathItems, handleSplit } from '../index.js';
+import { handleSplit } from '../index.js';
 import { type ComponentsFiles } from '../types.js';
+import { iteratePathItems } from '../utils/iterate-path-items.js';
 import samplesJson from './fixtures/samples.json' with { type: 'json' };
 import specJson from './fixtures/spec.json' with { type: 'json' };
 import webhooksJson from './fixtures/webhooks.json' with { type: 'json' };
@@ -175,5 +176,55 @@ describe('split', () => {
     expect(utils.escapeLanguageName).nthReturnedWith(3, 'VisualBasic');
 
     expect(utils.escapeLanguageName).toBeCalledTimes(3);
+  });
+
+  it('should split an AsyncAPI 2 file and show the success message', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi2.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
+      `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
+    and all related files are saved to the directory: ${blue(openapiDir)} \n`
+    );
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
+      `${filePath}: split processed in <test>ms`
+    );
+  });
+
+  it('should split an AsyncAPI 3 file and show the success message', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi3.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
+      `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
+    and all related files are saved to the directory: ${blue(openapiDir)} \n`
+    );
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
+      `${filePath}: split processed in <test>ms`
+    );
   });
 });

@@ -1,7 +1,7 @@
 import { dequal } from '@redocly/openapi-core';
 import { green } from 'colorette';
 
-import { COMPONENTS } from '../../split/types.js';
+import { COMPONENTS } from '../../split/constants.js';
 import { duplicateTagDescriptionWarning } from './duplicate-tag-description-warning.js';
 import { filterConflicts } from './filter-conflicts.js';
 import { prefixTagSuggestion } from './prefix-tag-suggestion.js';

@@ -1,3 +1,4 @@
+import { isMappingRef } from '../ref-utils.js';
 import { listOf, mapOf, type NodeType } from './index.js';
 import { Oas3Types } from './oas3.js';
 import { Oas3_1Types } from './oas3_1.js';
@@ -241,10 +242,15 @@ const Discriminator: NodeType = {
   ...Oas3_1Types.Discriminator,
   properties: {
     ...Oas3_1Types.Discriminator.properties,
-    defaultMapping: {
-      type: 'string',
-      description:
-        'The schema name or URI reference to a schema that is expected to validate the structure of the model when the discriminating property is not present in the payload or contains a value for which there is no explicit or implicit mapping.',
+    defaultMapping: (value) => {
+      const description =
+        'The schema name or URI reference to a schema that is expected to validate the structure of the model when the discriminating property is not present in the payload or contains a value for which there is no explicit or implicit mapping.';
+
+      if (isMappingRef(value)) {
+        return { type: 'string', directResolveAs: 'Schema', description };
+      } else {
+        return { type: 'string', description };
+      }
     },
   },
 };

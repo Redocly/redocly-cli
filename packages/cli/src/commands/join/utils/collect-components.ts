@@ -1,4 +1,4 @@
-import { COMPONENTS } from '../../split/types.js';
+import { COMPONENTS } from '../../split/constants.js';
 import type { AnyOas3Definition, JoinDocumentContext } from '../types.js';
 import { addPrefix } from './add-prefix.js';
 

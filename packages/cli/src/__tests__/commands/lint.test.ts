@@ -8,6 +8,7 @@ import {
   loadConfig,
 } from '@redocly/openapi-core';
 import { blue } from 'colorette';
+import { resolve } from 'node:path';
 import { performance } from 'perf_hooks';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
@@ -114,7 +115,7 @@ describe('handleLint', () => {
       );
     });
 
-    it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
+    it('should call forAlias when `generate-ignore-file` argv is set', async () => {
       await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true });
       expect(configFixture.forAlias).toHaveBeenCalledWith(undefined);
     });
@@ -149,6 +150,64 @@ describe('handleLint', () => {
       });
       expect(configFixture.skipRules).toHaveBeenCalledWith(['rule']);
       expect(configFixture.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+    });
+
+    it('should update only the linted file entries and preserve ignore entries for other files', async () => {
+      const barAbsRef = resolve('ignore-bar.yaml');
+      const fooAbsRef = resolve('ignore-foo.yaml');
+
+      configFixture.ignore = {
+        [barAbsRef]: {
+          'no-empty-servers': new Set(['#/servers']),
+          'operation-summary': new Set(['#/paths/~1items/get/summary']),
+        },
+        [fooAbsRef]: {
+          'no-empty-servers': new Set(['#/servers']),
+        },
+      };
+
+      vi.mocked(configFixture.clearIgnoreForRef).mockImplementation((ref: string) => {
+        const absRef = resolve(ref);
+        delete configFixture.ignore[absRef];
+      });
+
+      vi.mocked(configFixture.addIgnore).mockImplementation((problem: any) => {
+        const loc = problem.location[0];
+        if (loc.pointer === undefined) return;
+        const fileIgnore = (configFixture.ignore[loc.source.absoluteRef] =
+          configFixture.ignore[loc.source.absoluteRef] || {});
+        const ruleIgnore = (fileIgnore[problem.ruleId] = fileIgnore[problem.ruleId] || new Set());
+        ruleIgnore.add(loc.pointer);
+      });
+
+      vi.mocked(lint).mockResolvedValueOnce([
+        {
+          ruleId: 'no-empty-servers',
+          severity: 1,
+          message: 'Servers must not be empty',
+          location: [{ source: { absoluteRef: barAbsRef }, pointer: '#/servers' }],
+          suggest: [],
+          ignored: false,
+        } as any,
+      ]);
+
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['ignore-bar.yaml'],
+        'generate-ignore-file': true,
+      });
+
+      expect(configFixture.ignore[fooAbsRef]).toEqual({
+        'no-empty-servers': new Set(['#/servers']),
+      });
+
+      expect(configFixture.ignore[barAbsRef]).toEqual({
+        'no-empty-servers': new Set(['#/servers']),
+      });
+
+      expect(configFixture.saveIgnore).toHaveBeenCalled();
+
+      configFixture.ignore = {};
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {

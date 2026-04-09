@@ -1,5 +1,32 @@
 # @redocly/cli
 
+## 2.26.0
+
+### Minor Changes
+
+- Added support for AsyncAPI v2 and v3 in the split command.
+- Added `excludedPaths` option to the `no-http-verbs-in-paths` rule, allowing specific paths to be excluded from evaluation.
+
+### Patch Changes
+
+- Fixed the `no-required-schema-properties-undefined` rule to report when a required property is not defined in every `oneOf`/`anyOf` branch.
+- Updated @redocly/openapi-core to v2.26.0.
+
+## 2.25.4
+
+### Patch Changes
+
+- Updated handlebars to v4.7.9.
+- Updated @redocly/openapi-core to v2.25.4.
+
+## 2.25.3
+
+### Patch Changes
+
+- Fixed multiple issues in the `spec-discriminator-defaultMapping` rule that could cause crashes or incorrect validation results.
+  The rule now correctly resolves existing schema names, traverses composite schemas (`allOf`, `anyOf`, `oneOf`) to find required properties, treats `defaultMapping` values as `$ref`s to schemas, resolves `$ref`s correctly across files, and handles cyclic schema dependencies.
+- Updated @redocly/respect-core to v2.25.3.
+
 ## 2.25.2
 
 ### Patch Changes
@@ -567,7 +594,8 @@
 
 - Fixed an issue where the root config was not properly merged with the `apis` config.
 - Resolved an issue that caused configuration parsing to fail when the config value was set to `null`.
-- Improved join command server handling for specifications with differing servers.
+- Improved `join` command server handling for specifications with differing servers.
+  **Warning**: this change may break workflows that relied on root-level server inheritance.
 - Updated @redocly/respect-core to v2.0.5.
 
 ## 2.0.4

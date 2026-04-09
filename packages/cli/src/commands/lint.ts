@@ -51,9 +51,6 @@ export async function handleLint({
     exitWithError('No APIs were provided.');
   }
 
-  if (argv['generate-ignore-file']) {
-    config.ignore = {}; // clear ignore
-  }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
 
@@ -95,6 +92,7 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
+        config.clearIgnoreForRef(path);
         for (const m of results) {
           config.addIgnore(m);
           totalIgnored++;
@@ -118,9 +116,7 @@ export async function handleLint({
 
   if (argv['generate-ignore-file']) {
     config.saveIgnore();
-    logger.info(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
-    );
+    logger.info(`Explicitly ignored ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`);
   } else {
     printLintTotals(totals, apis.length);
   }

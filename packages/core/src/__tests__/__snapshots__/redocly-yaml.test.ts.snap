@@ -248,9 +248,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Preprocessors": "Preprocessors",
       "overlay1Rules": "Rules",
       "preprocessors": "Preprocessors",
-      "rbac": {
-        "type": "object",
-      },
+      "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
         "type": "string",
       },
@@ -427,7 +425,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "ocean",
           "indigo",
           "iris",
-          "default",
         ],
         "type": "string",
       },
@@ -1475,7 +1472,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "ocean",
           "indigo",
           "iris",
-          "default",
         ],
         "type": "string",
       },
@@ -2393,9 +2389,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "preprocessors": {
         "type": "object",
       },
-      "rbac": {
-        "type": "object",
-      },
+      "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
         "type": "string",
       },
@@ -5336,6 +5330,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.rbac": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
     "items": undefined,
     "properties": {},
     "required": undefined,
@@ -9969,7 +9973,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "ocean",
           "indigo",
           "iris",
-          "default",
         ],
         "type": "string",
       },
@@ -10881,9 +10884,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "preprocessors": {
         "type": "object",
       },
-      "rbac": {
-        "type": "object",
-      },
+      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rbac",
       "root": {
         "type": "string",
       },
@@ -13824,6 +13825,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rbac": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
     "items": undefined,
     "properties": {},
     "required": undefined,
@@ -24476,7 +24487,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "ocean",
           "indigo",
           "iris",
-          "default",
         ],
         "type": "string",
       },

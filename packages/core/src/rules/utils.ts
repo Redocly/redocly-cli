@@ -1,7 +1,7 @@
 import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import { default as levenshtein } from 'js-levenshtein';
 
-import { Location } from '../ref-utils.js';
+import { isRef, Location } from '../ref-utils.js';
 import type {
   Oas3Schema,
   Oas3Tag,
@@ -11,8 +11,26 @@ import type {
 } from '../typings/openapi.js';
 import type { Oas2Tag } from '../typings/swagger.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { UserContext } from '../walk.js';
+import type { NonUndefined, UserContext } from '../walk.js';
 import { validateJsonSchema } from './ajv.js';
+
+export const resolveSchema = <T extends NonUndefined>(
+  schemaOrRef: Referenced<T> | undefined,
+  ctx: UserContext,
+  resolveFrom?: string
+): {
+  schema: T | undefined;
+  location: string | undefined;
+} => {
+  if (isRef(schemaOrRef)) {
+    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);
+    return resolved
+      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
+      : { schema: undefined, location: resolveFrom };
+  }
+
+  return { schema: schemaOrRef, location: resolveFrom };
+};
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {

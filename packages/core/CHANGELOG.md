@@ -1,5 +1,29 @@
 # @redocly/openapi-core
 
+## 2.26.0
+
+### Minor Changes
+
+- Added `excludedPaths` option to the `no-http-verbs-in-paths` rule, allowing specific paths to be excluded from evaluation.
+
+### Patch Changes
+
+- Fixed the `no-required-schema-properties-undefined` rule to report when a required property is not defined in every `oneOf`/`anyOf` branch.
+- Updated @redocly/config to v0.46.1.
+
+## 2.25.4
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.46.0`.
+
+## 2.25.3
+
+### Patch Changes
+
+- Fixed multiple issues in the `spec-discriminator-defaultMapping` rule that could cause crashes or incorrect validation results.
+  The rule now correctly resolves existing schema names, traverses composite schemas (`allOf`, `anyOf`, `oneOf`) to find required properties, treats `defaultMapping` values as `$ref`s to schemas, resolves `$ref`s correctly across files, and handles cyclic schema dependencies.
+
 ## 2.25.2
 
 ### Patch Changes
