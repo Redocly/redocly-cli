@@ -1,0 +1,4 @@
+/clSchema:
+  type: string
+User:
+  type: string

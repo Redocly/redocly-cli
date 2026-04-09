@@ -181,6 +181,7 @@ export type Plugin<T = undefined> = {
   rules?: RulesConfig<T>;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
+  postBundleDecorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
   assertions?: AssertionsConfig;
 

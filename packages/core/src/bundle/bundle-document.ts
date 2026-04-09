@@ -1,4 +1,5 @@
 import { makeBundleVisitor } from '../bundle/bundle-visitor.js';
+import { runPostBundleDecorators } from '../bundle/run-post-bundle-decorators.js';
 import { type Config } from '../config/config.js';
 import { initRules } from '../config/rules.js';
 import { type RuleSeverity } from '../config/types.js';
@@ -57,7 +58,10 @@ export async function bundleDocument(opts: {
   const normalizedTypes = normalizeTypes(config.extendTypes(types, specVersion), config);
 
   const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-  const decorators = initRules(rules, config, 'decorators', specVersion);
+  const regularDecorators = initRules(rules, config, 'decorators', specVersion);
+
+  const postBundleRules = config.getPostBundleDecoratorsForSpecVersion(specMajorVersion);
+  const postBundleDecorators = initRules(postBundleRules, config, 'decorators', specVersion);
 
   const ctx: BundleContext = {
     problems: [],
@@ -67,8 +71,11 @@ export async function bundleDocument(opts: {
     visitorsData: {},
   };
 
-  if (removeUnusedComponents && !decorators.some((d) => d.ruleId === 'remove-unused-components')) {
-    decorators.push({
+  if (
+    removeUnusedComponents &&
+    !postBundleDecorators.some((d) => d.ruleId === 'remove-unused-components')
+  ) {
+    postBundleDecorators.push({
       severity: 'error',
       ruleId: 'remove-unused-components',
       visitor:
@@ -114,7 +121,7 @@ export async function bundleDocument(opts: {
           componentRenamingConflicts,
         }),
       },
-      ...decorators,
+      ...regularDecorators,
     ],
     normalizedTypes
   );
@@ -124,6 +131,14 @@ export async function bundleDocument(opts: {
     rootType: normalizedTypes.Root,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
+    ctx,
+  });
+
+  await runPostBundleDecorators({
+    document,
+    normalizedTypes,
+    postBundleDecorators,
+    externalRefResolver,
     ctx,
   });
 

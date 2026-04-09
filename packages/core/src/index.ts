@@ -119,6 +119,7 @@ export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from
 export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument } from './bundle/bundle-document.js';
+export { runPostBundleDecorators } from './bundle/run-post-bundle-decorators.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
