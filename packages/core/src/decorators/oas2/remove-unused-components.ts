@@ -16,23 +16,20 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
   >();
 
   function registerComponent(componentType: keyof Oas2Components, name: string): void {
-    const pointer = `#/${componentType}/${name}`;
-    components.set(pointer, {
-      usedIn: components.get(pointer)?.usedIn ?? [],
+    const key = `${componentType}/${name}`;
+    components.set(key, {
+      usedIn: components.get(key)?.usedIn ?? [],
       componentType,
       name,
     });
   }
 
-  function getComponentPointer(pointer: string): string | undefined {
-    for (const type of OAS2_COMPONENT_TYPES) {
-      const prefix = `#/${type}/`;
-      if (pointer.startsWith(prefix)) {
-        const name = pointer.slice(prefix.length).split('/')[0];
-        if (name) return `#/${type}/${name}`;
-      }
-    }
-    return undefined;
+  function getContainingComponentKey(pointer: string): string | undefined {
+    const parts = pointer.replace(/^#\//, '').split('/');
+    if (parts.length < 2) return undefined;
+    const [type, name] = parts;
+    if (!OAS2_COMPONENT_TYPES.includes(type as keyof Oas2Components)) return undefined;
+    return `${type}/${name}`;
   }
 
   function removeUnusedComponents(
@@ -65,10 +62,10 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     ref: {
       leave(ref, { location, type }) {
         if (['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)) {
-          const targetPointer = getComponentPointer(ref.$ref);
+          const targetPointer = getContainingComponentKey(ref.$ref);
           if (!targetPointer) return;
 
-          const sourcePointer = getComponentPointer(location.pointer);
+          const sourcePointer = getContainingComponentKey(location.pointer);
           const registered = components.get(targetPointer);
 
           if (registered) {
