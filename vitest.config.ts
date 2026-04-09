@@ -31,7 +31,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   e2e: defineConfig({
     test: {
       include: ['tests/e2e/**/*.test.ts'],
-      pool: 'forks',
     },
   }),
   'smoke-rebilly': defineConfig({
