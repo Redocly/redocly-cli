@@ -23,7 +23,10 @@ import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
-import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
+import type {
+  ScorecardClassicArgv,
+  ScorecardClassicOutputFormat,
+} from './commands/scorecard-classic/types.js';
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
@@ -817,8 +820,13 @@ yargs(hideBin(process.argv))
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json', 'checkstyle'],
-          default: 'stylish',
+          choices: [
+            'stylish',
+            'json',
+            'checkstyle',
+            'junit',
+          ] as ReadonlyArray<ScorecardClassicOutputFormat>,
+          default: 'stylish' as ScorecardClassicOutputFormat,
         },
         'target-level': {
           describe: 'Target level for the scorecard.',
