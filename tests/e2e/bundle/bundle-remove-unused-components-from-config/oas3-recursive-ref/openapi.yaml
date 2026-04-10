@@ -1,0 +1,24 @@
+openapi: 3.1.0
+info:
+  title: Sample API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+components: 
+  schemas: 
+    RecursiveRef:
+      type: object
+      properties: 
+        prop:
+          type: array
+          items: 
+            anyOf: 
+              - $ref: '#/components/schemas/RecursiveRef'
+    UnusedComponent:
+      type: string

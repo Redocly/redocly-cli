@@ -77,6 +77,7 @@ describe('bundle with option in config: remove-unused-components', () => {
     'oas3-parameter-ref-to-schema',
     'oas3-parameter-ref-to-schema-with-unused-schema-same-ref',
     'oas3-parameter-ref-to-schema-with-unused-schema-opposite-ref',
+    'oas3-recursive-ref',
   ])('%s: should remove unused components', async (type) => {
     const testPath = join(__dirname, `bundle-remove-unused-components-from-config/${type}`);
     const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);

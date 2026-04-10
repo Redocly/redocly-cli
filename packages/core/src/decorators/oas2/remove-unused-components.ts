@@ -39,7 +39,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     const countBefore = removedKeys.size;
 
     for (const [key, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some((sourceKey) => !removedKeys.has(sourceKey));
+      const used = usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey));
 
       if (!used && componentType) {
         removedKeys.add(key);
