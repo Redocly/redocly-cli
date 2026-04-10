@@ -1,5 +1,4 @@
 import { makeBundleVisitor } from '../bundle/bundle-visitor.js';
-import { runPostBundleDecorators } from '../bundle/run-post-bundle-decorators.js';
 import { type Config } from '../config/config.js';
 import { initRules } from '../config/rules.js';
 import { type RuleSeverity } from '../config/types.js';
@@ -134,13 +133,22 @@ export async function bundleDocument(opts: {
     ctx,
   });
 
-  await runPostBundleDecorators({
-    document,
-    normalizedTypes,
-    postBundleDecorators,
-    externalRefResolver,
-    ctx,
-  });
+  if (postBundleDecorators.length > 0) {
+    const postBundleRefMap = await resolveDocument({
+      rootDocument: document,
+      rootType: normalizedTypes.Root,
+      externalRefResolver,
+    });
+    const postBundleVisitors = normalizeVisitors(postBundleDecorators, normalizedTypes);
+
+    walkDocument({
+      document,
+      rootType: normalizedTypes.Root,
+      normalizedVisitors: postBundleVisitors,
+      resolvedRefMap: postBundleRefMap,
+      ctx,
+    });
+  }
 
   return {
     bundle: document,
