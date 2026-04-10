@@ -58,7 +58,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
 
   return {
     ref: {
-      leave(ref, { location, type }) {
+      leave(ref, { location, type, key }) {
         if (['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)) {
           const targetPointer = getContainingComponentKey(ref.$ref);
           if (!targetPointer) return;
@@ -71,7 +71,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
           } else {
             components.set(targetPointer, {
               usedIn: [sourcePointer],
-              name: ref.$ref.split('/').pop()!,
+              name: key.toString(),
             });
           }
         }
