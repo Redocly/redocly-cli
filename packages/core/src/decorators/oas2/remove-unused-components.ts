@@ -1,4 +1,4 @@
-import { unescapePointerFragment } from '../../ref-utils.js';
+import { parsePointer } from '../../ref-utils.js';
 import type { Oas2Components, Oas2Definition } from '../../typings/swagger.js';
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import type { Oas2Decorator } from '../../visitors.js';
@@ -13,7 +13,7 @@ const OAS2_COMPONENT_TYPES: (keyof Oas2Components)[] = [
 export const RemoveUnusedComponents: Oas2Decorator = () => {
   const components = new Map<
     string,
-    { usedIn: (string | undefined)[]; componentType?: keyof Oas2Components; name: string }
+    { usedIn: string[]; componentType?: keyof Oas2Components; name: string }
   >();
 
   function registerComponent(componentType: keyof Oas2Components, name: string): void {
@@ -26,10 +26,8 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
   }
 
   function getContainingComponentKey(pointer: string): string | undefined {
-    const parts = pointer.replace(/^#\//, '').split('/');
-    if (parts.length < 2) return undefined;
-    const type = unescapePointerFragment(parts[0]);
-    const name = unescapePointerFragment(parts[1]);
+    const [type, name] = parsePointer(pointer.slice(2));
+    if (!type || !name) return undefined;
     if (!OAS2_COMPONENT_TYPES.includes(type as keyof Oas2Components)) return undefined;
     return `${type}/${name}`;
   }
@@ -41,9 +39,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     const countBefore = removedKeys.size;
 
     for (const [key, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some(
-        (sourceKey) => sourceKey === undefined || !removedKeys.has(sourceKey)
-      );
+      const used = usedIn.some((sourceKey) => !removedKeys.has(sourceKey));
 
       if (!used && componentType) {
         removedKeys.add(key);
@@ -67,7 +63,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
           const targetPointer = getContainingComponentKey(ref.$ref);
           if (!targetPointer) return;
 
-          const sourcePointer = getContainingComponentKey(location.pointer);
+          const sourcePointer = getContainingComponentKey(location.pointer) ?? location.pointer;
           const registered = components.get(targetPointer);
 
           if (registered) {
