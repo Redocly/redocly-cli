@@ -11,7 +11,7 @@ import {
 } from '../ref-utils.js';
 import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { type OasRef } from '../typings/openapi.js';
+import { type OasRef, type Oas3Discriminator } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
@@ -205,19 +205,32 @@ export function makeBundleVisitor({
   };
 
   if (version === 'oas3') {
-    visitor.DiscriminatorMapping = {
-      leave(mapping: Record<string, string>, ctx: UserContext) {
-        for (const name of Object.keys(mapping)) {
-          const $ref = mapping[name];
-          const resolved = ctx.resolve({ $ref });
-          if (!resolved.location || resolved.node === undefined) {
-            reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
-            return;
-          }
+    const componentType = mapTypeToComponent('Schema', version)!;
+    visitor.Discriminator = {
+      leave(discriminator: Oas3Discriminator, ctx: UserContext) {
+        if (typeof discriminator.defaultMapping !== 'string') return;
 
-          const componentType = mapTypeToComponent('Schema', version)!;
-          mapping[name] = saveComponent(componentType, resolved, ctx);
+        const resolved = ctx.resolve({ $ref: discriminator.defaultMapping });
+        if (!resolved.location || resolved.node === undefined) {
+          reportUnresolvedRef(resolved, ctx.report, ctx.location.child('defaultMapping'));
+          return;
         }
+
+        discriminator.defaultMapping = saveComponent(componentType, resolved, ctx);
+      },
+      DiscriminatorMapping: {
+        leave(mapping, ctx) {
+          for (const name of Object.keys(mapping)) {
+            const $ref = mapping[name];
+            const resolved = ctx.resolve({ $ref });
+            if (!resolved.location || resolved.node === undefined) {
+              reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
+              return;
+            }
+
+            mapping[name] = saveComponent(componentType, resolved, ctx);
+          }
+        },
       },
     };
   }
