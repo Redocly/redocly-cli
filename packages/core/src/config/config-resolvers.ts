@@ -219,20 +219,13 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        let requiredPlugin: ImportedPlugin | undefined;
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore FIXME: investigate if we still need this (2.0)
-        if (typeof __webpack_require__ === 'function') {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore FIXME: investigate if we still need this (2.0)
-          requiredPlugin = __non_webpack_require__(absolutePluginPath);
-        } else {
-          const pluginUrl = url.pathToFileURL(absolutePluginPath);
-          pluginUrl.searchParams.set('t', Date.now().toString());
-          const mod = await import(pluginUrl.href);
-          requiredPlugin = mod.default || mod;
-        }
+        const requireModule = module.createRequire(import.meta.url);
+        delete requireModule.cache[absolutePluginPath];
+        /* eslint-disable-next-line no-console */
+        console.log(`[PLUGIN_IMPORT] loading ${absolutePluginPath}`);
+        const requiredPlugin: ImportedPlugin | undefined = requireModule(absolutePluginPath);
+        /* eslint-disable-next-line no-console */
+        console.log(`[PLUGIN_IMPORT] loaded, type: ${typeof requiredPlugin}`);
 
         const pluginCreatorOptions = { contentDir: configDir };
 
