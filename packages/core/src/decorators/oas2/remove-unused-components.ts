@@ -1,4 +1,4 @@
-import { parsePointer } from '../../ref-utils.js';
+import { parseRef } from '../../ref-utils.js';
 import type { Oas2Components, Oas2Definition } from '../../typings/swagger.js';
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import type { Oas2Decorator } from '../../visitors.js';
@@ -26,7 +26,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
   }
 
   function getContainingComponentKey(pointer: string): string | undefined {
-    const [type, name] = parsePointer(pointer.slice(2));
+    const [type, name] = parseRef(pointer).pointer;
     if (!type || !name) return undefined;
     if (!OAS2_COMPONENT_TYPES.includes(type as keyof Oas2Components)) return undefined;
     return `${type}/${name}`;

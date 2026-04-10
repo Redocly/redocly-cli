@@ -1,4 +1,4 @@
-import { parsePointer } from '../../ref-utils.js';
+import { parseRef } from '../../ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -14,11 +14,9 @@ import type { Oas3Decorator } from '../../visitors.js';
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
 
-export const COMPONENTS_PREFIX = '#/components/';
-
 function getContainingComponentKey(pointer: string): string | undefined {
-  if (!pointer.startsWith(COMPONENTS_PREFIX)) return;
-  const [type, name] = parsePointer(pointer.slice(COMPONENTS_PREFIX.length));
+  if (!pointer.startsWith('#/components/')) return;
+  const [_component, type, name] = parseRef(pointer).pointer;
   if (!type || !name) return;
   return `${type}/${name}`;
 }
