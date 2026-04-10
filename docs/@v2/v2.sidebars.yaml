@@ -132,6 +132,7 @@
             - page: rules/oas/operation-tag-defined.md
             - page: rules/oas/parameter-description.md
             - page: rules/oas/path-declaration-must-exist.md
+            - page: rules/oas/path-http-verbs-order.md
             - page: rules/oas/path-not-include-query.md
             - page: rules/oas/path-parameters-defined.md
             - page: rules/oas/path-segment-plural.md
@@ -150,6 +151,9 @@
             - separator: AsyncAPI
             - page: rules/async/channels-kebab-case.md
             - page: rules/async/no-channel-trailing-slash.md
+            - separator: Open-RPC
+            - page: rules/openrpc/spec-no-duplicated-method-params.md
+            - page: rules/openrpc/spec-no-required-params-after-optional.md
             - separator: Arazzo
             - page: rules/respect/no-criteria-xpath.md
             - page: rules/respect/respect-supported-versions.md
@@ -160,8 +164,8 @@
             - page: rules/arazzo/criteria-unique.md
             - page: rules/arazzo/parameters-unique.md
             - page: rules/arazzo/requestBody-replacements-unique.md
-            - page: rules/arazzo/sourceDescriptions-name-unique.md
-            - page: rules/arazzo/sourceDescriptions-type.md
+            - page: rules/arazzo/sourceDescription-name-unique.md
+            - page: rules/arazzo/sourceDescription-type.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md
