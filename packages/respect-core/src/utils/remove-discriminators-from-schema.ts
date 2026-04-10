@@ -4,9 +4,8 @@
 export function removeDiscriminatorsFromSchema(schema: any): any {
   if (!schema || typeof schema !== 'object') return schema;
 
-  const schemaCopy = JSON.parse(JSON.stringify(schema));
-  stripDiscriminators(schemaCopy);
-  return schemaCopy;
+  stripDiscriminators(schema);
+  return schema;
 }
 
 function stripDiscriminators(node: any): void {
