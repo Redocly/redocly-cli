@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { after } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import util from 'node:util';
 
@@ -10,13 +9,27 @@ import { Config } from '../config.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 
-vi.mock('node:module', () => ({
-  default: {
-    createRequire: () => ({
-      resolve: (path: string) => `/mock/path/${path}`,
-    }),
-  },
-}));
+vi.mock('node:module', async (importOriginal) => {
+  const { default: nodeModule } = await importOriginal<typeof import('node:module')>();
+  return {
+    default: {
+      ...nodeModule,
+      createRequire(baseUrl: string) {
+        const req = nodeModule.createRequire(baseUrl);
+        return {
+          ...req,
+          resolve: (id: string, opts?: any) => {
+            try {
+              return req.resolve(id, opts);
+            } catch {
+              return `/mock/path/${id}`;
+            }
+          },
+        };
+      },
+    },
+  };
+});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -638,28 +651,21 @@ describe('resolveApis', () => {
   });
 
   it('should work with npm dependencies', async () => {
-    after(() => {
-      (globalThis as any).__webpack_require__ = undefined;
-      (globalThis as any).__non_webpack_require__ = undefined;
-    });
+    vi.doMock('/mock/path/test-plugin', () => ({ default: { id: 'npm-test-plugin' } }));
+    vi.doMock('/mock/path/fixtures/plugin.cjs', () => ({ default: { id: 'local-test-plugin' } }));
 
-    (globalThis as any).__webpack_require__ = () => {};
-    (globalThis as any).__non_webpack_require__ = (p: string) =>
-      p === '/mock/path/test-plugin'
-        ? {
-            id: 'npm-test-plugin',
-          }
-        : {
-            id: 'local-test-plugin',
-          };
-
-    const { resolvedConfig } = await resolveConfig({
-      rawConfigDocument: makeDocument(
-        { plugins: ['test-plugin', 'fixtures/plugin.cjs'] },
-        configPath
-      ),
-    });
-    expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
+    try {
+      const { resolvedConfig } = await resolveConfig({
+        rawConfigDocument: makeDocument(
+          { plugins: ['test-plugin', 'fixtures/plugin.cjs'] },
+          configPath
+        ),
+      });
+      expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
+    } finally {
+      vi.doUnmock('/mock/path/test-plugin');
+      vi.doUnmock('/mock/path/fixtures/plugin.cjs');
+    }
   });
 
   it('should work with nested schema', async () => {

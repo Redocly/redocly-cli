@@ -40,9 +40,11 @@ import {
 
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
+let pluginsCacheVersion = 0;
 
 export const clearPluginsCache = (): void => {
   pluginsCache.clear();
+  pluginsCacheVersion++;
 };
 
 export type PluginResolveInfo = {
@@ -219,13 +221,11 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        const requireModule = module.createRequire(import.meta.url);
-        delete requireModule.cache[absolutePluginPath];
-        /* eslint-disable-next-line no-console */
-        console.log(`[PLUGIN_IMPORT] loading ${absolutePluginPath}`);
-        const requiredPlugin: ImportedPlugin | undefined = requireModule(absolutePluginPath);
-        /* eslint-disable-next-line no-console */
-        console.log(`[PLUGIN_IMPORT] loaded, type: ${typeof requiredPlugin}`);
+        const pluginUrl = url.pathToFileURL(absolutePluginPath).pathname;
+        const mod = await import(
+          pluginsCacheVersion ? `${pluginUrl}?v=${pluginsCacheVersion}` : pluginUrl
+        );
+        const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
 
