@@ -222,7 +222,7 @@ export async function resolvePlugins(
 
       if (!pluginsCache.has(absolutePluginPath)) {
         // Evict from CJS cache so .cjs plugins are re-read from disk
-        const requireModule = module.createRequire(import.meta.url);
+        const requireModule = module.createRequire(absolutePluginPath);
         delete requireModule.cache[absolutePluginPath];
 
         // Cache-bust ESM module map for .mjs plugins
