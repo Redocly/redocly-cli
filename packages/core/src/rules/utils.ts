@@ -184,10 +184,6 @@ export function validateExample(
       }
     }
   } catch (e) {
-    if (e.message === 'discriminator: requires oneOf or anyOf composite keyword') {
-      return;
-    }
-
     report({
       message: `Example validation errored: ${e.message}.`,
       location: parentLocation.child('schema'),
