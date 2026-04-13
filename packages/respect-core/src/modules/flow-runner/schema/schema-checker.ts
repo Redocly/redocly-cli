@@ -10,7 +10,6 @@ import {
 } from '../../../types.js';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
-import { removeDiscriminatorsFromSchema } from '../../../utils/remove-discriminators-from-schema.js';
 import { CHECKS } from '../../checks/index.js';
 import { removeWriteOnlyProperties } from '../../description-parser/index.js';
 
@@ -21,7 +20,7 @@ const ajvStrict = new Ajv({
   strictSchema: false,
   inlineRefs: false,
   validateSchema: false,
-  discriminator: true,
+  discriminator: false,
   allowUnionTypes: true,
   validateFormats: true,
   logger: false,
@@ -80,8 +79,8 @@ function checkSchemaFromDescription({
 
   if (schemaFromDescription && !isSchemaWithCircularRef) {
     try {
-      const processedSchema = removeDiscriminatorsFromSchema(
-        removeWriteOnlyProperties(schemaFromDescription as JSONSchemaType<unknown>)
+      const processedSchema = removeWriteOnlyProperties(
+        schemaFromDescription as JSONSchemaType<unknown>
       );
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
