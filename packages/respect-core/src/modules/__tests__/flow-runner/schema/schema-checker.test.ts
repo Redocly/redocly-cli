@@ -401,7 +401,7 @@ describe('checkSchema', () => {
     ]);
   });
 
-  it('should handle discriminator with allOf + not pattern without throwing', () => {
+  it('should pass schema check for discriminator with allOf + not pattern', () => {
     const discriminatorDescriptionOperation = {
       ...descriptionOperation,
       responses: {
@@ -437,21 +437,80 @@ describe('checkSchema', () => {
       },
     };
 
-    expect(() =>
-      checkSchema({
-        stepCallCtx: {
-          ...stepCallCtx,
-          $response: {
-            body: { method: 'cash' },
-            statusCode: 200,
-            header: { 'content-type': 'application/json' },
-            contentType: 'application/json',
+    const result = checkSchema({
+      stepCallCtx: {
+        ...stepCallCtx,
+        $response: {
+          body: { method: 'cash' },
+          statusCode: 200,
+          header: { 'content-type': 'application/json' },
+          contentType: 'application/json',
+        },
+      } as unknown as StepCallContext,
+      descriptionOperation: discriminatorDescriptionOperation,
+      ctx,
+    });
+
+    const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+    expect(schemaCheck).toBeDefined();
+    expect(schemaCheck?.passed).toBe(true);
+    expect(schemaCheck?.message).not.toContain('Ajv error');
+  });
+
+  it('should fail schema check for discriminator with allOf + not when body does not match', () => {
+    const discriminatorDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          content: {
+            'application/json': {
+              schema: {
+                oneOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      method: {
+                        allOf: [
+                          { enum: ['cash', 'payment-card', 'paypal'] },
+                          { not: { enum: ['payment-card', 'paypal'] } },
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    type: 'object',
+                    properties: {
+                      method: { const: 'payment-card' },
+                    },
+                  },
+                ],
+                discriminator: { propertyName: 'method' },
+              },
+            },
           },
-        } as unknown as StepCallContext,
-        descriptionOperation: discriminatorDescriptionOperation,
-        ctx,
-      })
-    ).not.toThrow();
+        },
+      },
+    };
+
+    const result = checkSchema({
+      stepCallCtx: {
+        ...stepCallCtx,
+        $response: {
+          body: { method: 'bitcoin' },
+          statusCode: 200,
+          header: { 'content-type': 'application/json' },
+          contentType: 'application/json',
+        },
+      } as unknown as StepCallContext,
+      descriptionOperation: discriminatorDescriptionOperation,
+      ctx,
+    });
+
+    const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+    expect(schemaCheck).toBeDefined();
+    expect(schemaCheck?.passed).toBe(false);
+    expect(schemaCheck?.message).not.toContain('Ajv error');
   });
 
   it('should return empty checks if no response available', () => {

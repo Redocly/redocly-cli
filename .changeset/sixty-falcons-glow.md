@@ -1,5 +1,6 @@
 ---
 "@redocly/respect-core": patch
+"@redocly/openapi-core": patch
 ---
 
-Fix AJV validation error when response schemas use a discriminator property with complex constraint patterns like `allOf + not`. The AJV instance in `schema-checker` was configured with `discriminator: true`, which requires every discriminator property to have a direct `const` or `enum` — incompatible with fully-dereferenced schemas that use valid OpenAPI composition patterns. Setting `discriminator: false` means AJV validates `oneOf`/`anyOf` branches normally, preserving identical pass/fail semantics without the compile-time constraint.
+Fixed AJV validation error when schemas use a discriminator property with complex constraint patterns like `allOf + not`.AJV's `discriminator: true` option requires every discriminator property to have a direct `const` or `enum`, which is incompatible with valid OpenAPI schemas that use composition patterns. Disabled AJV's discriminator keyword in both the respect schema checker and lint example validation, and removed the silent error swallowing in `validateExample` that was skipping validation for schemas with discriminators.

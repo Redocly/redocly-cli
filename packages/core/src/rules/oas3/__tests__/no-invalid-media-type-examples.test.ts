@@ -692,7 +692,7 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
-  it('should not report if allOf used with discriminator', async () => {
+  it('should validate example against schema with allOf and discriminator', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
