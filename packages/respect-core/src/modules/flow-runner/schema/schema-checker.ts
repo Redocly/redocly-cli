@@ -20,7 +20,7 @@ const ajvStrict = new Ajv({
   strictSchema: false,
   inlineRefs: false,
   validateSchema: false,
-  discriminator: true,
+  discriminator: false,
   allowUnionTypes: true,
   validateFormats: true,
   logger: false,
