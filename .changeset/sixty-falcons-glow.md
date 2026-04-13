@@ -2,4 +2,4 @@
 "@redocly/respect-core": patch
 ---
 
-Fix AJV validation error when using discriminator with constraint patterns allOf + not . AJV with `discriminator: true` requires discriminator properties to have `const` or `enum` directly, but valid OpenAPI schemas can use `allOf + not` patterns. The schema check now strips discriminators before AJV validation which allows full dereferenced schemas with complex constraints to validate correctly while maintaining data validation semantics.
+Fix AJV validation error when response schemas use a discriminator property with complex constraint patterns like `allOf + not`. The AJV instance in `schema-checker` was configured with `discriminator: true`, which requires every discriminator property to have a direct `const` or `enum` — incompatible with fully-dereferenced schemas that use valid OpenAPI composition patterns. Setting `discriminator: false` means AJV validates `oneOf`/`anyOf` branches normally, preserving identical pass/fail semantics without the compile-time constraint.
