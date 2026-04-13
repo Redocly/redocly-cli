@@ -9,8 +9,10 @@ import { Config } from '../config.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 
+const resolveOverrides = new Map<string, string>();
+
 vi.mock('node:module', async (importOriginal) => {
-  const { default: nodeModule } = await importOriginal<typeof import('node:module')>();
+  const nodeModule = (await importOriginal<Record<string, any>>()).default;
   return {
     default: {
       ...nodeModule,
@@ -19,6 +21,7 @@ vi.mock('node:module', async (importOriginal) => {
         return {
           ...req,
           resolve: (id: string, opts?: any) => {
+            if (resolveOverrides.has(id)) return resolveOverrides.get(id)!;
             try {
               return req.resolve(id, opts);
             } catch {
@@ -651,8 +654,9 @@ describe('resolveApis', () => {
   });
 
   it('should work with npm dependencies', async () => {
-    vi.doMock('/mock/path/test-plugin', () => ({ default: { id: 'npm-test-plugin' } }));
-    vi.doMock('/mock/path/fixtures/plugin.cjs', () => ({ default: { id: 'local-test-plugin' } }));
+    const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
+    resolveOverrides.set('test-plugin', path.join(fixturesDir, 'mock-npm-plugin.js'));
+    resolveOverrides.set('fixtures/plugin.cjs', path.join(fixturesDir, 'mock-local-plugin.js'));
 
     try {
       const { resolvedConfig } = await resolveConfig({
@@ -663,8 +667,7 @@ describe('resolveApis', () => {
       });
       expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
     } finally {
-      vi.doUnmock('/mock/path/test-plugin');
-      vi.doUnmock('/mock/path/fixtures/plugin.cjs');
+      resolveOverrides.clear();
     }
   });
 

@@ -221,10 +221,11 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        const pluginUrl = url.pathToFileURL(absolutePluginPath).pathname;
-        const mod = await import(
-          pluginsCacheVersion ? `${pluginUrl}?v=${pluginsCacheVersion}` : pluginUrl
-        );
+        const pluginFileUrl = url.pathToFileURL(absolutePluginPath);
+        if (pluginsCacheVersion) {
+          pluginFileUrl.searchParams.set('v', String(pluginsCacheVersion));
+        }
+        const mod = await import(pluginFileUrl.href);
         const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
