@@ -349,7 +349,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
-      "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": "Decorators",
       "developerOnboarding": "rootRedoclyConfigSchema.developerOnboarding",
       "entitiesCatalog": "rootRedoclyConfigSchema.entitiesCatalog",
@@ -1369,7 +1368,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
-      "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": {
         "type": "object",
       },
@@ -8281,9 +8279,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "target": {
         "type": "string",
       },
-      "trackingId": {
-        "type": "string",
-      },
     },
     "required": [
       "content",
@@ -8431,21 +8426,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "light",
           "dark",
         ],
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.corsProxy": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedTargets": {
         "items": {
           "type": "string",
         },
@@ -9890,7 +9870,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.env_additionalProperties.colorMode",
-      "corsProxy": "rootRedoclyConfigSchema.env_additionalProperties.corsProxy",
       "decorators": {
         "type": "object",
       },
@@ -16795,9 +16774,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "target": {
         "type": "string",
       },
-      "trackingId": {
-        "type": "string",
-      },
     },
     "required": [
       "content",
@@ -16941,21 +16917,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "modes": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.corsProxy": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedTargets": {
         "items": {
           "type": "string",
         },
