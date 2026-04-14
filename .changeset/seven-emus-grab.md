@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue where discriminator `defaultMapping` was not resolved when bundling.
+Fixed an issue where the `defaultMapping` discriminator was not resolved when bundling.
