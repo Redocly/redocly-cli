@@ -1,12 +1,13 @@
-import outdent from 'outdent';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import outdent from 'outdent';
+
+import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { bundleDocument } from '../bundle/bundle-document.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
-import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { createConfig, loadConfig } from '../config/index.js';
-import { BaseResolver } from '../resolve.js';
 import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
+import { BaseResolver } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -67,16 +68,55 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should bundle external refs under x-query operation (no dereference)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-x-query.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+    expect(
+      parsed.paths['/pet']['x-query'].responses['200'].content['application/json'].schema
+    ).toMatchObject({
+      $ref: '#/components/schemas/schema-a',
+    });
+    expect(parsed.components.schemas['schema-a']).toEqual({ type: 'string' });
+  });
+
   it('should bundle external refs and warn for conflicting names', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
     expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('warn');
     expect(problems[0].message).toEqual(
       `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
     );
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle external refs and do not show warnings for conflicting names', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentRenamingConflicts: 'off',
+    });
+    expect(problems).toHaveLength(0);
+  });
+
+  it('should bundle external refs and show errors for conflicting names', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentRenamingConflicts: 'error',
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('error');
+    expect(problems[0].message).toEqual(
+      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
+    );
   });
 
   it('should dereferenced correctly when used with dereference', async () => {
@@ -90,6 +130,22 @@ describe('bundle', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should dereference external refs under x-query operation when dereference is enabled', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-x-query.yaml'),
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+    expect(
+      parsed.paths['/pet']['x-query'].responses['200'].content['application/json'].schema
+    ).toEqual({
+      type: 'string',
+    });
   });
 
   it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {
@@ -110,6 +166,140 @@ describe('bundle', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle mediaTypes refs correctly (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.2.0"
+        paths:
+          /test:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    $ref: '#/components/mediaTypes/Test'
+        components:
+          mediaTypes:
+            Test:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/User'
+                examples:
+                  example1:
+                    value:
+                      id: 1
+                      name: John
+          schemas:
+            User:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+        `,
+      'test.yaml'
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      types: Oas3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/Test'
+      components:
+        mediaTypes:
+          Test:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
+        schemas:
+          User:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+    `);
+  });
+
+  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/testMediaType'
+      components:
+        mediaTypes:
+          testMediaType:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+              examples:
+                Test:
+                  value:
+                    id: 1
+    `);
+  });
+
+  it('should accept parameter in: querystring (OAS 3.2)', async () => {
+    const document = outdent`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            parameters:
+              - name: filters
+                in: querystring
+                content:
+                  application/x-www-form-urlencoded:
+                    schema:
+                      type: object
+                      properties:
+                        filters:
+                          type: string
+    `;
+
+    const { problems } = await bundleFromString({
+      source: document,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toHaveLength(0);
   });
 
   it('should pull hosted schema', async () => {
@@ -305,7 +495,7 @@ describe('bundle', () => {
 describe('bundleFromString', () => {
   it('should bundle from string using bundleFromString', async () => {
     const {
-      bundle: { parsed, ...rest },
+      bundle: { parsed: _parsed, ...rest },
       problems,
     } = await bundleFromString({
       config: await createConfig(`
@@ -476,6 +666,68 @@ describe('bundle async', () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/self-file-refs/async3-root.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+});
+
+describe('sibling $ref resolution by spec', () => {
+  it('should resolve description and summary refs alongside $ref in Schema - OAS 3', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should resolve description and summary refs alongside $ref in Schema - AsyncAPI 3', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/asyncapi.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should resolve description and summary refs alongside $ref in Schema contexts - Arazzo 1', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/arazzo.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not resolve non-description/summary sibling ref', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-non-summary-desc-ref.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should prefer description from sibling ref over target schema description', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-with-description-ref.yaml'),
+    });
+
+    const field = (res.parsed as any).paths['/test'].get.responses['200'].content[
+      'application/json'
+    ].schema.properties.field;
+
+    expect(problems).toHaveLength(0);
+    expect(field.description).toBe('This is a description resolved from a reference file.\n');
+  });
+
+  it('should resolve RequestBody.description as $ref sibling to RequestBody $ref (non-Schema context)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-request-body.yaml'),
     });
 
     expect(problems).toHaveLength(0);

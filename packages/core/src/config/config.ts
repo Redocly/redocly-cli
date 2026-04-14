@@ -1,18 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
-import { slash } from '../utils/slash.js';
-import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { specVersions } from '../detect-spec.js';
-import { isBrowser } from '../env.js';
-import { getResolveConfig } from './get-resolve-config.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
-import { groupAssertionRules } from './group-assertion-rules.js';
-import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
-import type { Document, ResolvedRefMap } from '../resolve.js';
-import type { NormalizedProblem } from '../walk.js';
+import { specVersions } from '../detect-spec.js';
+import { stringifyYaml } from '../js-yaml/index.js';
 import type {
   Oas2RuleSet,
   Oas3RuleSet,
@@ -20,10 +10,19 @@ import type {
   Async3RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
+  OpenRpc1RuleSet,
   SpecVersion,
   SpecMajorVersion,
 } from '../oas-types.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { slash } from '../utils/slash.js';
+import type { NormalizedProblem } from '../walk.js';
+import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
+import { getResolveConfig } from './get-resolve-config.js';
+import { groupAssertionRules } from './group-assertion-rules.js';
 import type {
   DecoratorConfig,
   Plugin,
@@ -32,17 +31,8 @@ import type {
   ResolvedConfig,
   RuleConfig,
   RuleSettings,
+  IgnoreConfig,
 } from './types.js';
-
-function getIgnoreFilePath(configPath?: string): string | undefined {
-  if (configPath) {
-    return doesYamlFileExist(configPath)
-      ? path.join(path.dirname(configPath), IGNORE_FILE)
-      : path.join(configPath, IGNORE_FILE);
-  } else {
-    return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
-  }
-}
 
 export class Config {
   resolvedConfig: ResolvedConfig;
@@ -53,7 +43,7 @@ export class Config {
   _alias?: string;
 
   plugins: Plugin[];
-  ignore: Record<string, Record<string, Set<string>>> = {};
+  ignore: IgnoreConfig = {};
   doNotResolveExamples: boolean;
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
@@ -70,6 +60,7 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
+      ignore?: IgnoreConfig;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -95,6 +86,7 @@ export class Config {
       async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
+      openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
     };
 
     this.preprocessors = {
@@ -127,6 +119,10 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
       },
+      openrpc1: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.openrpc1Preprocessors,
+      },
     };
 
     this.decorators = {
@@ -141,9 +137,13 @@ export class Config {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
       },
+      openrpc1: {
+        ...resolvedConfig.decorators,
+        ...resolvedConfig.openrpc1Decorators,
+      },
     };
 
-    this.resolveIgnore(getIgnoreFilePath(opts.configPath));
+    this.ignore = opts.ignore ?? {};
   }
 
   forAlias(alias?: string) {
@@ -161,33 +161,15 @@ export class Config {
         resolvedRefMap: this.resolvedRefMap,
         alias,
         plugins: this.plugins,
+        ignore: this.ignore,
       }
     );
   }
 
-  resolveIgnore(ignoreFile?: string) {
-    if (!ignoreFile || !doesYamlFileExist(ignoreFile)) return;
-
-    this.ignore =
-      (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
-        string,
-        Record<string, Set<string>>
-      >) || {};
-
-    // resolve ignore paths
-    for (const fileName of Object.keys(this.ignore)) {
-      this.ignore[
-        isAbsoluteUrl(fileName) ? fileName : path.resolve(path.dirname(ignoreFile), fileName)
-      ] = this.ignore[fileName];
-
-      for (const ruleId of Object.keys(this.ignore[fileName])) {
-        this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
-      }
-
-      if (!isAbsoluteUrl(fileName)) {
-        delete this.ignore[fileName];
-      }
-    }
+  clearIgnoreForRef(ref: string) {
+    const dir = this.configPath ? path.dirname(this.configPath) : process.cwd();
+    const absRef = isAbsoluteUrl(ref) ? ref : path.resolve(dir, ref);
+    delete this.ignore[absRef];
   }
 
   saveIgnore() {
@@ -263,6 +245,10 @@ export class Config {
           case 'overlay1':
             if (!plugin.typeExtension.overlay1) continue;
             extendedTypes = plugin.typeExtension.overlay1(extendedTypes, version);
+            break;
+          case 'openrpc1':
+            if (!plugin.typeExtension.openrpc1) continue;
+            extendedTypes = plugin.typeExtension.openrpc1(extendedTypes, version);
             break;
           default:
             throw new Error('Not implemented');
@@ -397,6 +383,17 @@ export class Config {
           (p) => p.decorators?.overlay1 && overlay1Rules.push(p.decorators.overlay1)
         );
         return overlay1Rules;
+      case 'openrpc1':
+        // eslint-disable-next-line no-case-declarations
+        const openrpc1Rules: OpenRpc1RuleSet[] = [];
+        this.plugins.forEach(
+          (p) => p.preprocessors?.openrpc1 && openrpc1Rules.push(p.preprocessors.openrpc1)
+        );
+        this.plugins.forEach((p) => p.rules?.openrpc1 && openrpc1Rules.push(p.rules.openrpc1));
+        this.plugins.forEach(
+          (p) => p.decorators?.openrpc1 && openrpc1Rules.push(p.decorators.openrpc1)
+        );
+        return openrpc1Rules;
     }
   }
 

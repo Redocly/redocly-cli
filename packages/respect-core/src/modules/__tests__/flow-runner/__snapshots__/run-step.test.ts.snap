@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`runStep > should run step and display checks 1`] = `
-[MockFunction spy] {
+[MockFunction] {
   "calls": [
     [
       {

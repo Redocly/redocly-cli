@@ -1,4 +1,3 @@
-import { yellow } from 'colorette';
 import {
   bundleDocument,
   detectSpec,
@@ -7,14 +6,17 @@ import {
   type Document,
   BaseResolver,
 } from '@redocly/openapi-core';
-import { handleJoin } from '../../commands/join.js';
+import { yellow } from 'colorette';
+
+import { handleJoin } from '../../commands/join/index.js';
+import { replace$Refs } from '../../commands/join/utils/replace-$-refs.js';
+import { exitWithError } from '../../utils/error.js';
 import {
   getAndValidateFileExtension,
   getFallbackApisOrExit,
   sortTopLevelKeysForOas,
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
 import {
   firstDocument,
@@ -45,9 +47,8 @@ describe('handleJoin', () => {
     vi.mocked(yellow).mockImplementation((text) => text as string);
 
     vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual<typeof import('@redocly/openapi-core')>(
-        '@redocly/openapi-core'
-      );
+      const actual =
+        await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
       return {
         ...actual,
         bundleDocument: vi.fn(),
@@ -462,6 +463,45 @@ describe('handleJoin', () => {
       expect(joinedDef.servers).toBeUndefined();
       expect(joinedDef.paths['/foo'].servers).toEqual([{ url: 'https://foo.com/api/v1/first' }]);
       expect(joinedDef.paths['/bar'].servers).toEqual([{ url: 'https://foo.com/api/v1/second' }]);
+    });
+  });
+
+  describe('replace$Refs', () => {
+    it('should prefix discriminator mapping refs when schema name contains prefix substring', () => {
+      const doc = {
+        components: {
+          schemas: {
+            CreateSomethingRequest: {
+              type: 'object',
+              properties: {
+                kind: { type: 'string' },
+              },
+            },
+            Wrapper: {
+              discriminator: {
+                propertyName: 'kind',
+                mapping: {
+                  create: '#/components/schemas/CreateSomethingRequest',
+                  alreadyPrefixed: '#/components/schemas/Something_CreateSomethingRequest',
+                },
+              },
+              oneOf: [
+                { $ref: '#/components/schemas/CreateSomethingRequest' },
+                { $ref: '#/components/schemas/Something_CreateSomethingRequest' },
+              ],
+            },
+          },
+        },
+      };
+
+      replace$Refs(doc, 'Something');
+
+      expect(doc.components.schemas.Wrapper.discriminator.mapping.create).toBe(
+        '#/components/schemas/Something_CreateSomethingRequest'
+      );
+      expect(doc.components.schemas.Wrapper.discriminator.mapping.alreadyPrefixed).toBe(
+        '#/components/schemas/Something_CreateSomethingRequest'
+      );
     });
   });
 });

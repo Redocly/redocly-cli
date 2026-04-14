@@ -1,7 +1,13 @@
 export interface Async2Definition {
   asyncapi: string;
   info?: Async2Info;
-  // TBD
+  id?: string;
+  servers?: Record<string, any>;
+  channels?: Record<string, any>;
+  components?: Record<string, any>;
+  tags?: unknown[];
+  externalDocs?: unknown;
+  defaultContentType?: string;
 }
 
 export interface Async2Info {

@@ -1,14 +1,34 @@
-import * as path from 'node:path';
-import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
+import * as path from 'node:path';
+import * as url from 'node:url';
+
+import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
+import { isBrowser } from '../env.js';
+import { colorize, logger } from '../logger.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString } from '../utils/is-not-string.js';
-import { isString } from '../utils/is-string.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
+import {
+  resolveDocument,
+  BaseResolver,
+  Source,
+  type Document,
+  type ResolvedRefMap,
+} from '../resolve.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { isDefined } from '../utils/is-defined.js';
-import { resolveDocument, BaseResolver, Source } from '../resolve.js';
+import { isNotString } from '../utils/is-not-string.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
+import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
+import { getResolveConfig } from './get-resolve-config.js';
+import type {
+  Plugin,
+  RawUniversalConfig,
+  ResolvedConfig,
+  RawGovernanceConfig,
+  ImportedPlugin,
+} from './types.js';
 import {
   deepCloneMapWithJSON,
   isCommonJsPlugin,
@@ -17,21 +37,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-import { getResolveConfig } from './get-resolve-config.js';
-import { isBrowser } from '../env.js';
-import { colorize, logger } from '../logger.js';
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
-import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
-
-import type {
-  Plugin,
-  RawUniversalConfig,
-  ResolvedConfig,
-  RawGovernanceConfig,
-  ImportedPlugin,
-} from './types.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
 
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
@@ -64,7 +69,12 @@ export async function resolveConfig({
   if (customExtends !== undefined && isPlainObject(config)) {
     config.extends = customExtends;
   }
-  if (isPlainObject<RawUniversalConfig>(config) && config?.extends?.some(isNotString)) {
+  if (
+    isPlainObject<RawUniversalConfig>(config) &&
+    (config?.extends?.some(isNotString) ||
+      config?.scorecardClassic?.levels?.some((level) => level?.extends?.some(isNotString)) ||
+      config?.scorecard?.levels?.some((level) => level?.extends?.some(isNotString)))
+  ) {
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
@@ -159,20 +169,26 @@ export const preResolvePluginPath = (
 
   const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
 
-  return fs.existsSync(maybeAbsolutePluginPath)
-    ? { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false }
-    : {
-        absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
-          paths: [
-            // Plugins imported from the node_modules in the project directory
-            rootConfigDir,
-            // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-            import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
-          ],
-        }),
-        isModule: true,
-        rawPath: plugin,
-      };
+  if (fs.existsSync(maybeAbsolutePluginPath)) {
+    return { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false };
+  }
+
+  try {
+    return {
+      absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+        paths: [
+          // Plugins imported from the node_modules in the project directory
+          rootConfigDir,
+          // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
+          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
+        ],
+      }),
+      isModule: true,
+      rawPath: plugin,
+    };
+  } catch {
+    throw new Error(`Plugin "${plugin}" not found.`);
+  }
 };
 
 export async function resolvePlugins(
@@ -226,8 +242,8 @@ export async function resolvePlugins(
         const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
           ? requiredPlugin
           : isCommonJsPlugin(requiredPlugin)
-          ? await requiredPlugin(pluginCreatorOptions)
-          : await requiredPlugin?.default?.(pluginCreatorOptions);
+            ? await requiredPlugin(pluginCreatorOptions)
+            : await requiredPlugin?.default?.(pluginCreatorOptions);
 
         const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
 
@@ -329,10 +345,11 @@ export async function resolvePlugins(
                 !pluginInstance.rules.async2 &&
                 !pluginInstance.rules.async3 &&
                 !pluginInstance.rules.arazzo1 &&
-                !pluginInstance.rules.overlay1
+                !pluginInstance.rules.overlay1 &&
+                !pluginInstance.rules.openrpc1
               ) {
                 throw new Error(
-                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, or \`overlay1\` rules "${p}.`
+                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, \`overlay1\`, or \`openrpc1\` rules "${p}.`
                 );
               }
               plugin.rules = {};
@@ -354,6 +371,9 @@ export async function resolvePlugins(
               if (pluginInstance.rules.overlay1) {
                 plugin.rules.overlay1 = prefixRules(pluginInstance.rules.overlay1, id);
               }
+              if (pluginInstance.rules.openrpc1) {
+                plugin.rules.openrpc1 = prefixRules(pluginInstance.rules.openrpc1, id);
+              }
             }
             if (pluginInstance.preprocessors) {
               if (
@@ -362,10 +382,11 @@ export async function resolvePlugins(
                 !pluginInstance.preprocessors.async2 &&
                 !pluginInstance.preprocessors.async3 &&
                 !pluginInstance.preprocessors.arazzo1 &&
-                !pluginInstance.preprocessors.overlay1
+                !pluginInstance.preprocessors.overlay1 &&
+                !pluginInstance.preprocessors.openrpc1
               ) {
                 throw new Error(
-                  `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` preprocessors "${p}.`
+                  `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, \`overlay1\`, or \`openrpc1\` preprocessors "${p}.`
                 );
               }
               plugin.preprocessors = {};
@@ -393,6 +414,12 @@ export async function resolvePlugins(
                   id
                 );
               }
+              if (pluginInstance.preprocessors.openrpc1) {
+                plugin.preprocessors.openrpc1 = prefixRules(
+                  pluginInstance.preprocessors.openrpc1,
+                  id
+                );
+              }
             }
 
             if (pluginInstance.decorators) {
@@ -402,10 +429,11 @@ export async function resolvePlugins(
                 !pluginInstance.decorators.async2 &&
                 !pluginInstance.decorators.async3 &&
                 !pluginInstance.decorators.arazzo1 &&
-                !pluginInstance.decorators.overlay1
+                !pluginInstance.decorators.overlay1 &&
+                !pluginInstance.decorators.openrpc1
               ) {
                 throw new Error(
-                  `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` decorators "${p}.`
+                  `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, \`overlay1\`, or \`openrpc1\` decorators "${p}.`
                 );
               }
               plugin.decorators = {};
@@ -426,6 +454,9 @@ export async function resolvePlugins(
               }
               if (pluginInstance.decorators.overlay1) {
                 plugin.decorators.overlay1 = prefixRules(pluginInstance.decorators.overlay1, id);
+              }
+              if (pluginInstance.decorators.openrpc1) {
+                plugin.decorators.openrpc1 = prefixRules(pluginInstance.decorators.openrpc1, id);
               }
             }
 

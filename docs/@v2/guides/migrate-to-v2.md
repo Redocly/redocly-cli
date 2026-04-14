@@ -118,6 +118,40 @@ rules:
       defined: true
 ```
 
+### Changes in the `join` command server handling (since v2.0.5)
+
+The `join` command no longer merges `servers` into the root level.
+Each path item now retains the `servers` from its source description, so that joined descriptions remain unmodified.
+This fixes incorrect behavior but may break workflows that relied on root-level server inheritance.
+
+To restore root-level `servers`, use a custom [decorator](../custom-plugins/custom-decorators.md) like the following:
+
+```js
+export default function plugin() {
+  return {
+    id: 'my-plugin',
+    decorators: {
+      oas3: {
+        'add-servers': () => ({
+          Root: {
+            leave: (root) => {
+              root.servers = [{ url: 'https://your-server-url.com' }];
+            },
+          },
+        }),
+      },
+    },
+  };
+}
+```
+
+Register the plugin in `redocly.yaml` and run `join` followed by `bundle` to apply it:
+
+```bash
+redocly join foo.yaml bar.yaml -o tmp.yaml
+redocly bundle tmp.yaml -o joined.yaml
+```
+
 ### Platform changes
 
 - **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
@@ -174,6 +208,7 @@ paths:
 1. **Replace `spec` rule** with `struct`.
 1. **Update configurable rules** to use `rule/` prefix instead of `assert/`.
 1. **Replace `undefined` assertions** with `defined: true`.
+1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`

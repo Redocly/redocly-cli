@@ -1,0 +1,2 @@
+- $ref: '@v2/v2.sidebars.yaml'
+- $ref: '@v1/v1.sidebars.yaml'

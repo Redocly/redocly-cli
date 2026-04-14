@@ -1,13 +1,11 @@
+import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
+import type { Location } from '../../../ref-utils.js';
+import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
+import { isOrdered, type OrderOptions, type OrderDirection } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
-import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
-import { isOrdered } from '../../../utils/is-ordered.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
-
-import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
-import type { Location } from '../../../ref-utils.js';
-import type { OrderOptions, OrderDirection } from '../../../utils/is-ordered.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
@@ -81,8 +79,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -104,8 +102,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -196,11 +194,15 @@ export const asserts: Asserts = {
     }
   },
   nonEmpty: (
-    value: string | undefined | null,
+    value: string | any[] | undefined | null,
     condition: boolean = true,
     { baseLocation }: AssertionFnContext
   ) => {
-    const isEmpty = typeof value === 'undefined' || value === null || value === '';
+    const isEmpty =
+      typeof value === 'undefined' ||
+      value === null ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0);
     const isValid = condition ? !isEmpty : isEmpty;
     return isValid
       ? []
@@ -258,7 +260,7 @@ export const asserts: Asserts = {
   ) => {
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
-    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && !property) {
+    if (Array.isArray(value) && value.length > 0 && isPlainObject(value[0]) && !property) {
       return [
         {
           message: `Please define a property to sort objects by`,

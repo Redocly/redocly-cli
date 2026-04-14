@@ -1,11 +1,17 @@
-name: PR Title Check
+name: PR Title and Description Check
 
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 
+permissions:
+  contents: read
+
 jobs:
   check-pr-title:
+    if: >-
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check PR title
@@ -23,3 +29,38 @@ jobs:
             exit 1
           fi
           echo "✅ PR title format is valid"
+  check-pr-required-checklist:
+    if: >-
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check required checklist items
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          echo "Checking required checklist items in PR description..."  
+
+          REQUIRED_CHECKS="$(grep 'required 🔒' .github/pull_request_template.md)"
+
+          MISSING_REQUIRED_CHECKS=no
+          while read line; do
+            line="${line%%<!--*-->}" # clean up the line
+            while [[ "$line" == *[[:space:]] ]]; do
+              line="${line%[[:space:]]}" # strip trailing spaces
+            done
+            expected_checked_line="${line/#- [ \]/- [x]}" # expect the same line, but with checked box
+            if ! echo "$PR_BODY" | grep -Fiq -- "$expected_checked_line"; then
+              line="${line#- [ \] }" # clean up the line
+              echo "⚠️ Please acknowledge the following: $line"
+              MISSING_REQUIRED_CHECKS=yes
+            fi
+          done <<< "$REQUIRED_CHECKS"
+
+          if [ "$MISSING_REQUIRED_CHECKS" = "yes" ]; then
+            exit 1
+          fi
+
+          echo "✅ Required checklist items are checked"

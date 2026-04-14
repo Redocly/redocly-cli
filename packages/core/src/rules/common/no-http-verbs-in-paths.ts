@@ -1,18 +1,18 @@
+import type { Oas3PathItem } from '../../typings/openapi.js';
+import type { Oas2PathItem } from '../../typings/swagger.js';
 import { isPathParameter } from '../../utils/is-path-parameter.js';
 import { splitCamelCaseIntoWords } from '../../utils/split-camel-case-into-words.js';
-
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { Oas2PathItem } from '../../typings/swagger.js';
-import type { Oas3PathItem } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
 const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 
-export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords }) => {
+export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords, excludedPaths }) => {
   return {
     PathItem(_path: Oas2PathItem | Oas3PathItem, { key, report, location }: UserContext) {
       const pathKey = key.toString();
       if (!pathKey.startsWith('/')) return;
+      if (excludedPaths?.some((excludedPath: string) => pathKey === excludedPath)) return;
       const pathSegments = pathKey.split('/');
 
       for (const pathSegment of pathSegments) {

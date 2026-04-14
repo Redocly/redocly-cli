@@ -1,10 +1,23 @@
-import { SpecExtension } from './types/index.js';
-import { isPlainObject } from './utils/is-plain-object.js';
-
-import type { Stack } from './utils/stack.js';
-import type { NormalizedNodeType } from './types/index.js';
-import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
 import type { Location } from './ref-utils.js';
+import { SpecExtension, type NormalizedNodeType } from './types/index.js';
+import type {
+  ArazzoDefinition,
+  ArazzoSourceDescription,
+  CriterionObject,
+  ExtendedOperation,
+  InfoObject,
+  OnFailureObject,
+  OnSuccessObject,
+  OpenAPISourceDescription,
+  Parameter,
+  Replacement,
+  RequestBody,
+  SourceDescription,
+  Step,
+  Workflow,
+} from './typings/arazzo.js';
+import type { Async2Definition } from './typings/asyncapi.js';
+import type { Async3Definition } from './typings/asyncapi3.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -40,6 +53,24 @@ import type {
   Oas3Callback,
 } from './typings/openapi.js';
 import type {
+  OpenRpc1Definition,
+  OpenRpc1Info,
+  OpenRpc1Server,
+  OpenRpc1ServerVariable,
+  OpenRpc1Method,
+  OpenRpc1ContentDescriptor,
+  OpenRpc1ExamplePairing,
+  OpenRpc1Example,
+  OpenRpc1Link,
+  OpenRpc1Error,
+  OpenRpc1Components,
+  OpenRpc1Tag,
+  OpenRpc1ExternalDocs,
+  OpenRpc1Contact,
+  OpenRpc1License,
+} from './typings/openrpc.js';
+import type { Overlay1Definition } from './typings/overlay.js';
+import type {
   Oas2Definition,
   Oas2Tag,
   Oas2ExternalDocs,
@@ -56,25 +87,9 @@ import type {
   Oas2Parameter,
   Oas2SecurityScheme,
 } from './typings/swagger.js';
-import type { Async2Definition } from './typings/asyncapi.js';
-import type { Async3Definition } from './typings/asyncapi3.js';
-import type {
-  ArazzoDefinition,
-  ArazzoSourceDescription,
-  CriteriaObject,
-  ExtendedOperation,
-  InfoObject,
-  OnFailureObject,
-  OnSuccessObject,
-  OpenAPISourceDescription,
-  Parameter,
-  Replacement,
-  RequestBody,
-  SourceDescription,
-  Step,
-  Workflow,
-} from './typings/arazzo.js';
-import type { Overlay1Definition } from './typings/overlay.js';
+import { isPlainObject } from './utils/is-plain-object.js';
+import type { Stack } from './utils/stack.js';
+import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -186,11 +201,11 @@ type Oas3FlatVisitor = {
   Link?: VisitFunctionOrObject<Oas3Link>;
   Schema?: VisitFunctionOrObject<Oas3Schema | Oas3_1Schema>;
   Xml?: VisitFunctionOrObject<Oas3Xml>;
-  SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema | Oas3_1Schema>>;
   DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;
   Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
   Components?: VisitFunctionOrObject<Oas3Components | Oas3_1Components>;
-  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema | Oas3_1Schema>>;
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter<Oas3Schema | Oas3_1Schema>>>;
   NamedExamples?: VisitFunctionOrObject<Record<string, Oas3Example>>;
@@ -201,6 +216,7 @@ type Oas3FlatVisitor = {
   NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme>>;
   NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
   NamedCallbacks?: VisitFunctionOrObject<Record<string, Oas3Callback<Oas3Schema | Oas3_1Schema>>>;
+  NamedMediaTypes?: VisitFunctionOrObject<Record<string, Oas3MediaType<Oas3Schema | Oas3_1Schema>>>;
 
   ImplicitFlow?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['implicit']>>;
   PasswordFlow?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['password']>>;
@@ -243,10 +259,12 @@ type Oas2FlatVisitor = {
 
 type Async2FlatVisitor = {
   Root?: VisitFunctionOrObject<Async2Definition>;
+  Schema?: VisitFunctionOrObject<Oas3_1Schema>;
 };
 
 type Async3FlatVisitor = {
   Root?: VisitFunctionOrObject<Async3Definition>;
+  Schema?: VisitFunctionOrObject<Oas3_1Schema>;
 };
 
 type ArazzoFlatVisitor = {
@@ -259,9 +277,10 @@ type ArazzoFlatVisitor = {
   ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
   Replacement?: VisitFunctionOrObject<Replacement>;
   RequestBody?: VisitFunctionOrObject<RequestBody>;
-  CriteriaObject?: VisitFunctionOrObject<CriteriaObject>;
+  CriterionObject?: VisitFunctionOrObject<CriterionObject>;
   OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
   OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
+  Schema?: VisitFunctionOrObject<Oas3_1Schema>;
   Step?: VisitFunctionOrObject<Step>;
   Steps?: VisitFunctionOrObject<Step[]>;
   Workflow?: VisitFunctionOrObject<Workflow>;
@@ -270,6 +289,33 @@ type ArazzoFlatVisitor = {
 
 type Overlay1FlatVisitor = {
   Root?: VisitFunctionOrObject<Overlay1Definition>;
+};
+
+type OpenRpc1FlatVisitor = {
+  Root?: VisitFunctionOrObject<OpenRpc1Definition>;
+  Info?: VisitFunctionOrObject<OpenRpc1Info>;
+  Contact?: VisitFunctionOrObject<OpenRpc1Contact>;
+  License?: VisitFunctionOrObject<OpenRpc1License>;
+  Server?: VisitFunctionOrObject<OpenRpc1Server>;
+  ServerVariable?: VisitFunctionOrObject<OpenRpc1ServerVariable>;
+  Method?: VisitFunctionOrObject<OpenRpc1Method>;
+  ContentDescriptor?: VisitFunctionOrObject<OpenRpc1ContentDescriptor>;
+  ExamplePairing?: VisitFunctionOrObject<OpenRpc1ExamplePairing>;
+  Example?: VisitFunctionOrObject<OpenRpc1Example>;
+  Link?: VisitFunctionOrObject<OpenRpc1Link>;
+  ErrorObject?: VisitFunctionOrObject<OpenRpc1Error>;
+  Components?: VisitFunctionOrObject<OpenRpc1Components>;
+  Tag?: VisitFunctionOrObject<OpenRpc1Tag>;
+  ExternalDocs?: VisitFunctionOrObject<OpenRpc1ExternalDocs>;
+  Schema?: VisitFunctionOrObject<any>; // generic schema
+  SchemaProperties?: VisitFunctionOrObject<Record<string, any>>;
+  NamedContentDescriptors?: VisitFunctionOrObject<Record<string, OpenRpc1ContentDescriptor>>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, any>>;
+  NamedExamples?: VisitFunctionOrObject<Record<string, OpenRpc1Example>>;
+  NamedLinks?: VisitFunctionOrObject<Record<string, OpenRpc1Link>>;
+  NamedErrors?: VisitFunctionOrObject<Record<string, OpenRpc1Error>>;
+  NamedExamplePairingObjects?: VisitFunctionOrObject<Record<string, OpenRpc1ExamplePairing>>;
+  NamedTags?: VisitFunctionOrObject<Record<string, OpenRpc1Tag>>;
 };
 
 const legacyTypesMap = {
@@ -287,45 +333,52 @@ const legacyTypesMap = {
 };
 
 type Oas3NestedVisitor = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Oas3FlatVisitor]: Oas3FlatVisitor[T] extends Function
     ? Oas3FlatVisitor[T]
     : Oas3FlatVisitor[T] & NestedVisitor<Oas3NestedVisitor>;
 };
 
 type Oas2NestedVisitor = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Oas2FlatVisitor]: Oas2FlatVisitor[T] extends Function
     ? Oas2FlatVisitor[T]
     : Oas2FlatVisitor[T] & NestedVisitor<Oas2NestedVisitor>;
 };
 
 type Async2NestedVisitor = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Async2FlatVisitor]: Async2FlatVisitor[T] extends Function
     ? Async2FlatVisitor[T]
     : Async2FlatVisitor[T] & NestedVisitor<Async2NestedVisitor>;
 };
 
 type Async3NestedVisitor = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Async3FlatVisitor]: Async3FlatVisitor[T] extends Function
     ? Async3FlatVisitor[T]
     : Async3FlatVisitor[T] & NestedVisitor<Async3NestedVisitor>;
 };
 
 type ArazzoNestedVisitor = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof ArazzoFlatVisitor]: ArazzoFlatVisitor[T] extends Function
     ? ArazzoFlatVisitor[T]
     : ArazzoFlatVisitor[T] & NestedVisitor<ArazzoNestedVisitor>;
 };
 
 type Overlay1NestedVisitor = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Overlay1FlatVisitor]: Overlay1FlatVisitor[T] extends Function
     ? Overlay1FlatVisitor[T]
     : Overlay1FlatVisitor[T] & NestedVisitor<Overlay1NestedVisitor>;
+};
+
+type OpenRpc1NestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  [T in keyof OpenRpc1FlatVisitor]: OpenRpc1FlatVisitor[T] extends Function
+    ? OpenRpc1FlatVisitor[T]
+    : OpenRpc1FlatVisitor[T] & NestedVisitor<OpenRpc1NestedVisitor>;
 };
 
 export type Oas3Visitor = BaseVisitor &
@@ -352,6 +405,12 @@ export type Overlay1Visitor = BaseVisitor &
   Overlay1NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Overlay1NestedVisitor>>;
 
+export type OpenRpc1Visitor = BaseVisitor &
+  OpenRpc1NestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, OpenRpc1NestedVisitor>>;
+
+export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<any>>;
+
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
@@ -377,18 +436,24 @@ export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async
 export type Async3Rule = (options: Record<string, any>) => Async3Visitor | Async3Visitor[];
 export type Arazzo1Rule = (options: Record<string, any>) => Arazzo1Visitor | Arazzo1Visitor[];
 export type Overlay1Rule = (options: Record<string, any>) => Overlay1Visitor | Overlay1Visitor[];
+export type OpenRpc1Rule = (options: Record<string, any>) => OpenRpc1Visitor | OpenRpc1Visitor[];
+export type CatalogEntityRule = (
+  options: Record<string, any>
+) => CatalogEntityVisitor | CatalogEntityVisitor[];
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Preprocessor = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor;
 export type Async3Preprocessor = (options: Record<string, any>) => Async3Visitor;
 export type Arazzo1Preprocessor = (options: Record<string, any>) => Arazzo1Visitor;
 export type Overlay1Preprocessor = (options: Record<string, any>) => Overlay1Visitor;
+export type OpenRpc1Preprocessor = (options: Record<string, any>) => OpenRpc1Visitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Decorator = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Decorator = (options: Record<string, any>) => Async2Visitor;
 export type Async3Decorator = (options: Record<string, any>) => Async3Visitor;
 export type Arazzo1Decorator = (options: Record<string, any>) => Arazzo1Visitor;
 export type Overlay1Decorator = (options: Record<string, any>) => Overlay1Visitor;
+export type OpenRpc1Decorator = (options: Record<string, any>) => OpenRpc1Visitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver
@@ -454,7 +519,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
         addWeakFromStack(ruleConf, stack);
         continue;
       }
-      if (typeof type === 'object' && type !== null && type.name) {
+      if (isPlainObject(type) && type.name !== undefined) {
         possibleChildren.add(type);
       }
     }

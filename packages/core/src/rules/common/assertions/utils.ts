@@ -1,21 +1,19 @@
-import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
+import type { AssertionContext, AssertResult } from '../../../config/index.js';
 import { colorize } from '../../../logger.js';
-import { isRef } from '../../../ref-utils.js';
+import { isRef, isAbsoluteUrl } from '../../../ref-utils.js';
+import { isString } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { keysOf } from '../../../utils/keys-of.js';
-import { isString } from '../../../utils/is-string.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
-
-import type { UserContext } from '../../../walk.js';
-import type { Asserts } from './asserts.js';
-import type { AssertionContext, AssertResult } from '../../../config/index.js';
-import type { Assertion, AssertionDefinition, AssertionLocators } from './index.js';
 import type {
   Oas2Visitor,
   Oas3Visitor,
   SkipFunctionContext,
   VisitFunction,
 } from '../../../visitors.js';
+import type { UserContext } from '../../../walk.js';
+import { asserts, runOnKeysSet, runOnValuesSet, type Asserts } from './asserts.js';
+import type { Assertion, AssertionDefinition, AssertionLocators } from './index.js';
 
 export type AssertToApply = {
   name: keyof Asserts;
@@ -32,7 +30,15 @@ type RunAssertionParams = {
 
 const assertionMessageTemplates = {
   problems: '{{problems}}',
-};
+  assertionName: '{{assertionName}}',
+  nodeType: '{{nodeType}}',
+  key: '{{key}}',
+  property: '{{property}}',
+  file: '{{file}}',
+  pointer: '{{pointer}}',
+} as const;
+
+type PlaceholderKeys = keyof typeof assertionMessageTemplates;
 
 function getPredicatesFromLocators(
   locators: AssertionLocators
@@ -216,8 +222,19 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
       for (const problemGroup of groupProblemsByPointer(problems)) {
         const message = assertion.message || defaultMessage;
         const problemMessage = getProblemsMessage(problemGroup);
+
+        const placeholders: Record<PlaceholderKeys, string> = {
+          problems: problemMessage,
+          assertionName: assertId,
+          nodeType: assertion.subject.type,
+          property: properties.join(', '),
+          key: String(ctx.key),
+          pointer: ctx.location.pointer,
+          file: getFilenameFromPath(ctx.location.source.absoluteRef),
+        };
+
         ctx.report({
-          message: message.replace(assertionMessageTemplates.problems, problemMessage),
+          message: interpolateMessagePlaceholders(message, placeholders),
           location: getProblemsLocation(problemGroup) || ctx.location,
           forceSeverity: assertion.severity || 'error',
           suggest: assertion.suggest || [],
@@ -245,8 +262,35 @@ function getProblemsLocation(problems: AssertResult[]) {
 
 function getProblemsMessage(problems: AssertResult[]) {
   return problems.length === 1
-    ? problems[0].message ?? ''
+    ? (problems[0].message ?? '')
     : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
+}
+
+function getFilenameFromPath(absoluteRef: string): string {
+  if (isAbsoluteUrl(absoluteRef)) {
+    const parts = absoluteRef.split('/');
+    return parts.at(-1) || absoluteRef;
+  }
+  const parts = absoluteRef.split(/[/\\]/);
+  return parts.at(-1) || absoluteRef;
+}
+
+function interpolateMessagePlaceholders(
+  message: string,
+  placeholders: Record<PlaceholderKeys, string>
+): string {
+  let result = message;
+
+  for (const key of Object.keys(assertionMessageTemplates) as PlaceholderKeys[]) {
+    const template = assertionMessageTemplates[key];
+    const value = placeholders[key];
+
+    if (!template) continue;
+
+    result = result.split(template).join(value);
+  }
+
+  return result;
 }
 
 export function runAssertion({

@@ -1,6 +1,6 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { Oas2PathItem } from '../../typings/swagger.js';
 import type { Oas3PathItem } from '../../typings/openapi.js';
+import type { Oas2PathItem } from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 const defaultOrder = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'query', 'trace'];

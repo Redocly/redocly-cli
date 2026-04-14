@@ -1,5 +1,9 @@
 name: Performance Benchmark
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   pull_request:
     branches:
@@ -10,68 +14,45 @@ env:
   REDOCLY_TELEMETRY: off
 
 jobs:
-  latest-vs-next:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 22
-          cache: 'npm'
-      - name: Install Dependencies
-        run: npm ci
-      - name: Install External
-        run: npm i -g hyperfine @redocly/cli@latest
-      - name: Prepare
-        run: |
-          jq '.bin = {"redocly-next":"bin/cli.js"} | .name = "@redocly/cli-next"' packages/cli/package.json > __tmp__.json
-          mv __tmp__.json packages/cli/package.json
-          cat packages/cli/package.json
-          npm run pack:prepare
-          npm i -g redocly-cli.tgz
-      - run: redocly-next --version
-      - run: redocly --version
-      - name: Run Benchmark
-        run: hyperfine -i --warmup 3 'redocly lint packages/core/src/benchmark/benches/rebilly.yaml' 'redocly-next lint packages/core/src/benchmark/benches/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
-
-      - name: Comment PR
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          filePath: benchmark_check.md
-          comment_tag: latest-vs-next-comparison
-
   historical-versions:
-    # Run only on release branch (changeset-release/main):
-    if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - name: Install Dependencies
         run: npm ci
       - name: Install External
         run: npm i -g hyperfine
+
+      - name: Add more versions to test
+        # Run only on the release branch (changeset-release/main):
+        if: github.head_ref == 'changeset-release/main'
+        run: |
+          cd tests/performance/
+          cat package.json | jq ".dependencies = $(cat package.json | jq ._enhancedDependencies)" > package.json
+          cat package.json
+
       - name: Prepare
         run: |
           npm run compile
           npm run pack:prepare
-          cd benchmark/
+          cd tests/performance/
           npm i
           npm run make-test
+
       - name: Run Benchmark
         run: |
-          cd benchmark/
-          npm test # This command is generated and injected into package.json in the previous step.
+          cd tests/performance/
+          npm run test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
       - name: Comment PR
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          filePath: benchmark/benchmark_chart.md
-          comment_tag: historical-versions-comparison
+          file-path: tests/performance/benchmark_chart.md
+          comment-tag: historical-versions-comparison

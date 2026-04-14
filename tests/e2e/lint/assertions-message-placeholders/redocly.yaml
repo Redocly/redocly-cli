@@ -1,0 +1,83 @@
+apis:
+  main:
+    root: ./openapi.yaml
+rules:
+  # Test {{pointer}} placeholder
+  rule/test-pointer-placeholder:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'POST operation missing requestBody at {{pointer}}'
+    assertions:
+      required:
+        - requestBody
+
+  # Test {{nodeType}} placeholder
+  rule/test-subject-placeholder:
+    subject:
+      type: Operation
+      property: description
+    message: 'The {{nodeType}} type must have a description property'
+    assertions:
+      defined: true
+
+  # Test {{property}} placeholder
+  rule/test-property-placeholder:
+    subject:
+      type: Operation
+      property: deprecated
+    message: 'The property "{{property}}" should be defined'
+    assertions:
+      defined: true
+
+  # Test {{assertionName}} placeholder
+  rule/test-assertion-name-placeholder:
+    subject:
+      type: Operation
+      property: summary
+    message: 'Rule {{assertionName}} failed - summary too short'
+    assertions:
+      minLength: 50
+
+  # Test multiple placeholders together
+  rule/test-multiple-placeholders:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'Rule {{assertionName}} failed: {{nodeType}} at {{pointer}} - {{problems}}'
+    assertions:
+      required:
+        - requestBody
+
+  # Test that existing {{problems}} placeholder still works
+  rule/test-problems-placeholder:
+    subject:
+      type: Operation
+    message: 'Custom error: {{problems}}'
+    assertions:
+      required:
+        - security
+
+  # Test {{file}} placeholder
+  rule/test-file-placeholder:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'Error in file {{file}} at {{pointer}}'
+    assertions:
+      required:
+        - requestBody
+
+  # Test {{key}} placeholder
+  rule/test-key-placeholder:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'Error in file {{file}} at {{pointer}} with key "{{key}}"'
+    assertions:
+      required:
+        - requestBody

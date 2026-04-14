@@ -1,12 +1,12 @@
 import { createConfig, logger } from '@redocly/openapi-core';
-import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
-import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import {
   createTestContext,
   DEFAULT_SEVERITY_CONFIGURATION,
   collectSecretValues,
 } from '../../../../modules/flow-runner/index.js';
+import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
+import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 
 describe('createTestContext', () => {
   it('should create context', async () => {
@@ -14,12 +14,20 @@ describe('createTestContext', () => {
       arazzo: '1.0.1',
       info: { title: 'API', version: '1.0' },
       sourceDescriptions: [
-        { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
-        { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+        {
+          name: 'cats',
+          type: 'openapi',
+          url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
+        },
+        {
+          name: 'catsTwo',
+          type: 'openapi',
+          url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
+        },
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+          url: '../../tests/e2e/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       workflows: [
@@ -527,12 +535,20 @@ describe('createTestContext', () => {
       secretsSet: {},
       severity: DEFAULT_SEVERITY_CONFIGURATION,
       sourceDescriptions: [
-        { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
-        { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+        {
+          name: 'cats',
+          type: 'openapi',
+          url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
+        },
+        {
+          name: 'catsTwo',
+          type: 'openapi',
+          url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
+        },
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+          url: '../../tests/e2e/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       apiClient: expect.any(ApiFetcher),

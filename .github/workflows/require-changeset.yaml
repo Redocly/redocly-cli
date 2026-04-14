@@ -1,4 +1,8 @@
 name: Require Either a Changeset or a Label 'no changeset needed'
+
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
@@ -12,14 +16,14 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           # check out full history
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - run: npm ci
       - name: Check for changeset
         run: npx changeset status --since origin/main

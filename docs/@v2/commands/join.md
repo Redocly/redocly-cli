@@ -108,7 +108,8 @@ x-tagGroups:
 Use the [`--without-x-tag-groups`](#avoid-tag-duplication) option to skip the creation and population of `x-tagGroups` in the output file.
 
 {% admonition type="info" %}
-If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file. The `other` tag is also included in the `x-tagGroups` object.
+If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file.
+The `other` tag is also included in the `x-tagGroups` object.
 
 If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
 
@@ -117,12 +118,16 @@ If you need to adjust the `info.title` field, apply the [info-override decorator
 
 {% /admonition %}
 
-The `servers` object combines the content from all input files, starting with the content from the first file.
+The root `servers` object combines only the common content from all input files.
+If the servers are different for each input file, the `join` command puts the content inside the `servers` object under the corresponding `paths`.
+
 Commented lines are not included in the output file.
 
-Path names and component names must be unique in all input files, but their content doesn't have to be unique for the `join` command to produce the output file. For each path item object, only the operation ID must be unique.
+Path names and component names must be unique in all input files, but their content doesn't have to be unique for the `join` command to produce the output file.
+For each path item object, only the operation ID must be unique.
 
-If the `join` command detects any conflicting content while trying to combine the input files, it displays informative messages about the conflicts and exits without creating an output file. To prevent this, use optional parameters to add prefixes to tags and components.
+If the `join` command detects any conflicting content while trying to combine the input files, it displays informative messages about the conflicts and exits without creating an output file.
+To prevent this, use optional parameters to add prefixes to tags and components.
 
 <pre>
 Conflict on tags => all : tickets in files: museum.yaml,exhibition.yaml
@@ -190,7 +195,8 @@ The following is the example output:
 
 ### Avoid tag duplication
 
-If you have the same tags in multiple API descriptions, you can avoid tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
+If you have the same tags in multiple API descriptions, you can avoid tag duplication by using the `without-x-tag-groups` option.
+In this case, the `x-tagGroups` property is not created in the joined file.
 
 This command sets the `--without-x-tag-groups` option:
 

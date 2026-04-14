@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 typed enum', () => {
   it('should not report on enum object if all items match type', async () => {

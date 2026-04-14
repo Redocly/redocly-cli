@@ -1,35 +1,36 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
-import { normalizeVisitors } from './visitors.js';
-import { walkDocument } from './walk.js';
+
+import type { Config } from './config/index.js';
 import { initRules } from './config/rules.js';
-import { normalizeTypes } from './types/index.js';
-import { releaseAjvInstance } from './rules/ajv.js';
-import { getTypes } from './oas-types.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
-import { createConfigTypes } from './types/redocly-yaml.js';
-import { Struct } from './rules/common/struct.js';
+import { getTypes } from './oas-types.js';
+import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
+import { releaseAjvInstance } from './rules/ajv.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
-import { type Config } from './config/index.js';
-
-import type { Document } from './resolve.js';
-import type { ProblemSeverity, WalkContext } from './walk.js';
-import type { NodeType } from './types/index.js';
-import type {
-  Arazzo1Visitor,
-  Async2Visitor,
-  Async3Visitor,
-  NestedVisitObject,
-  Oas2Visitor,
-  Oas3Visitor,
-  Overlay1Visitor,
-  RuleInstanceConfig,
-} from './visitors.js';
+import { Struct } from './rules/common/struct.js';
+import { normalizeTypes, type NodeType } from './types/index.js';
+import { createConfigTypes } from './types/redocly-yaml.js';
 import type { CollectFn } from './utils/types.js';
+import {
+  normalizeVisitors,
+  type Arazzo1Visitor,
+  type Async2Visitor,
+  type Async3Visitor,
+  type NestedVisitObject,
+  type Oas2Visitor,
+  type Oas3Visitor,
+  type Overlay1Visitor,
+  type OpenRpc1Visitor,
+  type RuleInstanceConfig,
+} from './visitors.js';
+import { walkDocument, type ProblemSeverity, type WalkContext } from './walk.js';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore FIXME: remove this once we remove `theme` from the schema
-delete rootRedoclyConfigSchema.properties.theme;
+// FIXME: remove this once we remove `theme` from the schema
+const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
+const redoclyConfigSchemaWithoutTheme = {
+  ...rootRedoclyConfigSchema,
+  properties: propertiesWithoutTheme,
+};
 
 export async function lint(opts: {
   ref: string;
@@ -144,7 +145,7 @@ export async function lintConfig(opts: {
   };
 
   const types = normalizeTypes(
-    opts.externalConfigTypes || createConfigTypes(rootRedoclyConfigSchema, config)
+    opts.externalConfigTypes || createConfigTypes(redoclyConfigSchemaWithoutTheme, config)
   );
 
   const rules: (RuleInstanceConfig & {
@@ -162,6 +163,8 @@ export async function lintConfig(opts: {
       | Arazzo1Visitor[]
       | Overlay1Visitor
       | Overlay1Visitor[]
+      | OpenRpc1Visitor
+      | OpenRpc1Visitor[]
     >;
   })[] = [
     {

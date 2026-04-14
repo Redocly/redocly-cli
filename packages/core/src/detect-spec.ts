@@ -1,7 +1,6 @@
+import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
 import { VERSION_PATTERN } from './typings/arazzo.js';
 import { isPlainObject } from './utils/is-plain-object.js';
-
-import type { SpecMajorVersion, SpecVersion } from './oas-types';
 
 export const specVersions = [
   'oas2',
@@ -12,6 +11,7 @@ export const specVersions = [
   'async3',
   'arazzo1',
   'overlay1',
+  'openrpc1',
 ] as const;
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
@@ -25,6 +25,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'arazzo1';
   } else if (version === 'overlay1') {
     return 'overlay1';
+  } else if (version === 'openrpc1') {
+    return 'openrpc1';
   } else {
     return 'oas3';
   }
@@ -33,6 +35,10 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
 export function detectSpec(root: unknown): SpecVersion {
   if (!isPlainObject(root)) {
     throw new Error(`Document must be JSON object, got ${typeof root}`);
+  }
+
+  if (typeof root.openrpc === 'string' && root.openrpc.startsWith('1.')) {
+    return 'openrpc1';
   }
 
   if (root.openapi && typeof root.openapi !== 'string') {

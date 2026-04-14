@@ -1,13 +1,15 @@
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
+import { describe, it, expect } from 'vitest';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
+import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
+import { detectSpec } from '../detect-spec.js';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
-import { createConfig, loadConfig } from '../config/load.js';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
-import { detectSpec } from '../detect-spec.js';
-import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
-import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -511,6 +513,7 @@ describe('lint', () => {
             "apis",
             "seo",
             "sso",
+            "mcp",
             "env",
           ],
         },
@@ -1704,15 +1707,20 @@ describe('lint', () => {
     );
 
     const configFilePath = path.join(__dirname, 'fixtures');
+    const resolver = new BaseResolver();
+    const ignore = await loadIgnoreConfig(configFilePath, resolver);
 
     const result = await lintDocument({
-      externalRefResolver: new BaseResolver(),
+      externalRefResolver: resolver,
       document,
       config: await createConfig(
         {
           rules: { 'operation-operationId': 'error' },
         },
-        { configPath: configFilePath }
+        {
+          configPath: configFilePath,
+          ignore,
+        }
       ),
     });
     expect(result).toHaveLength(1);
@@ -1958,5 +1966,35 @@ describe('lint', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report no unresolved extends when scorecardClassic extends contains a ref to non existing preset', async () => {
+    const testConfigContent = outdent`
+      scorecardClassic:
+        levels:
+          - name: Baseline
+            extends:
+              - ./custom-rules.yaml
+    `;
+    const config = await createConfig(testConfigContent);
+    const results = await lintConfig({ config });
+
+    expect(replaceSourceWithRef(results, process.cwd())).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/scorecardClassic/levels/0/extends/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'custom-rules.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });

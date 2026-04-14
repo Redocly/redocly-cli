@@ -1,12 +1,11 @@
-import { checkCriteria } from './success-criteria/index.js';
-import { checkSchema } from './schema/index.js';
-import { CHECKS } from '../checks/index.js';
-import { createRuntimeExpressionCtx } from './context/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { StatusCodeError, UnexpectedError } from '../checks/checks.js';
-
-import type { RequestData } from './prepare-request.js';
 import type { TestContext, Step } from '../../types.js';
+import { StatusCodeError, UnexpectedError } from '../checks/checks.js';
+import { CHECKS } from '../checks/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { createRuntimeExpressionCtx } from './context/index.js';
+import type { RequestData } from './prepare-request.js';
+import { checkSchema } from './schema/index.js';
+import { checkCriteria } from './success-criteria/index.js';
 
 // TODO: split into two functions
 export async function callAPIAndAnalyzeResults({
@@ -59,10 +58,12 @@ export async function callAPIAndAnalyzeResults({
     step.checks.push({
       name: CHECKS.NETWORK_ERROR,
       passed: false,
-      message: error.message,
+      message: error.cause?.code ? error.message + ` (cause: ${error.cause.code})` : error.message,
       severity: ctx.severity['NETWORK_ERROR'],
     });
     checksResult.networkCheck = false;
+    // clear current step verbose response log
+    ctx.apiClient.clearVerboseResponseLogs();
     return checksResult;
   }
 

@@ -1,23 +1,4 @@
 import { blue, white, bold, red } from 'colorette';
-import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
-import { checkCriteria } from './success-criteria/index.js';
-import { delay } from '../../utils/delay.js';
-import { CHECKS } from '../checks/index.js';
-import { runWorkflow, resolveWorkflowContext } from './runner.js';
-import { prepareRequest, type RequestData } from './prepare-request.js';
-import {
-  printChildWorkflowSeparator,
-  printStepDetails,
-  printActionsSeparator,
-  printUnknownStep,
-} from '../logger-output/helpers.js';
-import {
-  getValueFromContext,
-  isParameterWithoutIn,
-  resolveReusableComponentItem,
-} from '../context-parser/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { Timer } from '../timeout-timer/timer.js';
 
 import type {
   Check,
@@ -29,8 +10,28 @@ import type {
   RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
+  Workflow,
 } from '../../types.js';
-import type { ParameterWithoutIn } from '../context-parser/index.js';
+import { delay } from '../../utils/delay.js';
+import { CHECKS } from '../checks/index.js';
+import {
+  getValueFromContext,
+  isParameterWithoutIn,
+  resolveReusableComponentItem,
+  type ParameterWithoutIn,
+} from '../context-parser/index.js';
+import {
+  printChildWorkflowSeparator,
+  printStepDetails,
+  printActionsSeparator,
+  printUnknownStep,
+} from '../logger-output/helpers.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { Timer } from '../timeout-timer/timer.js';
+import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
+import { prepareRequest, type RequestData } from './prepare-request.js';
+import { runWorkflow, resolveWorkflowContext } from './runner.js';
+import { checkCriteria } from './success-criteria/index.js';
 
 export async function runStep({
   step,
@@ -64,7 +65,9 @@ export async function runStep({
   if (targetWorkflowRef) {
     const targetWorkflow =
       ctx.workflows.find((w) => w.workflowId === targetWorkflowRef) ||
-      getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger });
+      (getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger }) as
+        | Workflow
+        | undefined);
 
     if (!targetWorkflow) {
       const failedCall: Check = {
@@ -84,16 +87,15 @@ export async function runStep({
       ctx.options.config
     );
 
-    if (resolvedParameters && resolvedParameters.length) {
+    if (resolvedParameters && resolvedParameters.length > 0) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-      const workflowInputParameters = resolvedParameters
-        .filter(isParameterWithoutIn)
-        .reduce((acc, parameter: ParameterWithoutIn) => {
+      const workflowInputParameters = resolvedParameters.filter(isParameterWithoutIn).reduce(
+        (acc, parameter: ParameterWithoutIn) => {
           const ctxWithInputs = {
             ...ctx,
             $inputs: {
-              ...(ctx.$inputs || {}),
-              ...(workflowId ? ctx.$workflows[workflowId]?.inputs || {} : {}),
+              ...ctx.$inputs,
+              ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
             },
           };
           // Ensure parameter is of type ParameterWithoutIn
@@ -103,7 +105,9 @@ export async function runStep({
             logger: ctx.options.logger,
           });
           return acc;
-        }, {} as Record<string, any>);
+        },
+        {} as Record<string, any>
+      );
 
       // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
       workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {
@@ -300,11 +304,21 @@ export async function runStep({
 
       if (matchesCriteria) {
         const targetWorkflow = action.workflowId
-          ? getValueFromContext({ value: action.workflowId, ctx, logger: ctx.options.logger })
+          ? (getValueFromContext({
+              value: action.workflowId,
+              ctx,
+              logger: ctx.options.logger,
+            }) as Workflow)
           : undefined;
-        const targetCtx = action.workflowId
-          ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx, ctx.options.config)
-          : { ...ctx, executedSteps: [] };
+        const targetCtx =
+          action.workflowId && targetWorkflow
+            ? await resolveWorkflowContext(
+                action.workflowId,
+                targetWorkflow,
+                ctx,
+                ctx.options.config
+              )
+            : { ...ctx, executedSteps: [] };
 
         const targetStep = action.stepId ? action.stepId : undefined;
 
@@ -316,7 +330,9 @@ export async function runStep({
             return { retriesLeft: 0, shouldEnd: false };
           }
 
-          retryAfter && (await delay(retryAfter));
+          if (retryAfter) {
+            await delay(retryAfter);
+          }
 
           if (targetWorkflow || targetStep) {
             printActionsSeparator({
@@ -334,6 +350,7 @@ export async function runStep({
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
               executedStepsCount,
+              retriesLeft: retriesLeft - 1,
             });
             ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {

@@ -1,6 +1,7 @@
-import { handleRespect, type RespectArgv } from '../../../commands/respect/index.js';
-import { run } from '@redocly/respect-core';
 import * as openapiCore from '@redocly/openapi-core';
+import { run } from '@redocly/respect-core';
+
+import { handleRespect, type RespectArgv } from '../../../commands/respect/index.js';
 
 // Mock node:fs
 vi.mock('node:fs', async () => {
@@ -18,9 +19,8 @@ vi.mock('node:fs', async () => {
 
 // Mock the run function
 vi.mock('@redocly/respect-core', async () => {
-  const actual = await vi.importActual<typeof import('@redocly/respect-core')>(
-    '@redocly/respect-core'
-  );
+  const actual =
+    await vi.importActual<typeof import('@redocly/respect-core')>('@redocly/respect-core');
   return {
     ...actual,
     run: vi.fn(),

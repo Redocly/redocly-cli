@@ -1,23 +1,23 @@
-import type {
-  CriteriaObject,
-  RegexpSuccessCriteria,
-  JsonPathSuccessCriteria,
+import { isPlainObject } from '@redocly/openapi-core';
+
+import {
+  type CriterionObject,
+  type RegexpSuccessCriteria,
+  type JsonPathSuccessCriteria,
 } from '../../../types.js';
 
 export function isRegexpSuccessCriteria(
-  criteria: CriteriaObject
+  criteria: CriterionObject
 ): criteria is RegexpSuccessCriteria {
   return (criteria as RegexpSuccessCriteria).type === 'regex';
 }
 
 export function isJSONPathSuccessCriteria(
-  criteria: CriteriaObject
+  criteria: CriterionObject
 ): criteria is JsonPathSuccessCriteria {
   const typeValue = (criteria as JsonPathSuccessCriteria)?.type;
 
-  return (
-    typeValue === 'jsonpath' || (typeof typeValue === 'object' && typeValue?.type === 'jsonpath')
-  );
+  return typeValue === 'jsonpath' || (isPlainObject(typeValue) && typeValue.type === 'jsonpath');
 }
 
 export const ALLOWED_EXPRESSION_KEYS = [
@@ -34,8 +34,8 @@ export const ALLOWED_EXPRESSION_KEYS = [
   '$components',
 ];
 
-export function validateSuccessCriteria(successCriteria: CriteriaObject[]) {
-  successCriteria.forEach((criteria: CriteriaObject) => {
+export function validateSuccessCriteria(successCriteria: CriterionObject[]) {
+  successCriteria.forEach((criteria: CriterionObject) => {
     const { condition } = criteria;
 
     if (isRegexpSuccessCriteria(criteria)) {

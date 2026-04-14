@@ -1,11 +1,13 @@
 // For internal usage only
 
 import Ajv from '@redocly/ajv/dist/2020.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType, PropType, ResolveTypeFn } from './index.js';
+
 import type { Oas3Schema } from '../typings/openapi.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import type { NodeType, PropType, ResolveTypeFn } from './index.js';
+
+type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
 
 const ajv = new Ajv({
   strictSchema: false,
@@ -17,7 +19,10 @@ const ajv = new Ajv({
   verbose: true,
 });
 
-function findOneOf(schemaOneOf: JSONSchema[], oneOfs: (PropType | ResolveTypeFn)[]): ResolveTypeFn {
+function findOneOf(
+  schemaOneOf: ExtendedJSONSchema[],
+  oneOfs: (PropType | ResolveTypeFn)[]
+): ResolveTypeFn {
   if (oneOfs.some((option) => typeof option === 'function')) {
     throw new Error('Unexpected oneOf inside oneOf.');
   }
@@ -33,7 +38,7 @@ function findOneOf(schemaOneOf: JSONSchema[], oneOfs: (PropType | ResolveTypeFn)
 
 function transformJSONSchemaToNodeType(
   propertyName: string,
-  schema: JSONSchema,
+  schema: ExtendedJSONSchema,
   ctx: Record<string, NodeType>
 ): PropType | ResolveTypeFn {
   if (!schema || typeof schema === 'boolean') {
@@ -97,6 +102,10 @@ function transformJSONSchemaToNodeType(
       if (!discriminatedPropertyName) {
         throw new Error(`Unexpected discriminator without a propertyName in ${propertyName}.`);
       }
+
+      // Map discriminator values to their actual type names
+      const discriminatorMapping: Record<string, string> = {};
+
       const oneOfs = schema.oneOf.map((option, i) => {
         if (typeof option === 'boolean') {
           throw new Error(
@@ -109,24 +118,37 @@ function transformJSONSchemaToNodeType(
             `Unexpected property '${discriminatedProperty}' schema in ${propertyName} at position ${i} in oneOf.`
           );
         }
-        const name = discriminatedProperty.const as string;
-        return transformJSONSchemaToNodeType(name, option, ctx);
+
+        const discriminatorValue = discriminatedProperty.const as string;
+        const actualTypeName = transformJSONSchemaToNodeType(discriminatorValue, option, ctx);
+
+        // Store mapping from discriminator value to actual type name
+        if (typeof actualTypeName === 'string') {
+          discriminatorMapping[discriminatorValue] = actualTypeName;
+        }
+
+        return actualTypeName;
       });
 
+      //TODO: investigate why this function doesn't invoke inside the current function scope
       return (value: unknown, key: string) => {
         if (isPlainObject(value)) {
           const discriminatedTypeName = value[discriminatedPropertyName];
-          if (typeof discriminatedTypeName === 'string' && ctx[discriminatedTypeName]) {
-            return discriminatedTypeName;
+          if (typeof discriminatedTypeName === 'string') {
+            const actualTypeName = discriminatorMapping[discriminatedTypeName];
+
+            if (actualTypeName && ctx[actualTypeName]) {
+              return actualTypeName;
+            }
           }
         }
-        return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
+        return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs)(value, key);
       };
     } else {
       const oneOfs = schema.oneOf.map((option, i) =>
         transformJSONSchemaToNodeType(propertyName + '_' + i, option, ctx)
       );
-      return findOneOf(schema.oneOf as JSONSchema[], oneOfs);
+      return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs);
     }
   }
 
@@ -135,7 +157,7 @@ function transformJSONSchemaToNodeType(
 
 function extractNodeToContext(
   propertyName: string,
-  schema: JSONSchema,
+  schema: ExtendedJSONSchema,
   ctx: Record<string, NodeType>
 ): string {
   if (!schema || typeof schema === 'boolean') {
@@ -156,9 +178,12 @@ function extractNodeToContext(
     );
   }
 
+  // Use nodeTypeName from schema if provided, otherwise use propertyName
+  const nodeTypeName = schema.nodeTypeName ?? propertyName;
+
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
-    properties[name] = transformJSONSchemaToNodeType(propertyName + '.' + name, property, ctx);
+    properties[name] = transformJSONSchemaToNodeType(nodeTypeName + '.' + name, property, ctx);
   }
 
   let additionalProperties;
@@ -203,15 +228,30 @@ function extractNodeToContext(
     };
   }
 
-  ctx[propertyName] = { properties, additionalProperties, items, required };
-  return propertyName;
+  ctx[nodeTypeName] = {
+    properties,
+    additionalProperties,
+    items,
+    required,
+    description: schema.description,
+    documentationLink: schema.documentationLink,
+  };
+  return nodeTypeName;
 }
 
 export function getNodeTypesFromJSONSchema(
   schemaName: string,
-  entrySchema: JSONSchema
-): Record<string, NodeType> {
+  entrySchema: ExtendedJSONSchema
+): {
+  ctx: Record<string, NodeType>;
+  discriminatorResolver?: ResolveTypeFn;
+} {
   const ctx: Record<string, NodeType> = {};
-  transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
-  return ctx;
+  //TODO: fix this function to return discriminator resolvers in all NodeTypes that are returned in ctx. Currently it only only returns one discriminatorResolver for all types.
+  const discriminatorResolver = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
+  return {
+    ctx,
+    discriminatorResolver:
+      typeof discriminatorResolver === 'function' ? discriminatorResolver : undefined,
+  };
 }

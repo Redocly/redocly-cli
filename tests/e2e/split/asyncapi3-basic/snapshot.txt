@@ -1,0 +1,42 @@
+
+address: user/signedup
+messages:
+  UserSignedUp:
+    $ref: ../components/messages/UserSignedUp.yaml
+type: object
+properties:
+  id:
+    type: string
+  name:
+    type: string
+payload:
+  type: object
+  properties:
+    displayName:
+      type: string
+      description: Name of the user
+    email:
+      type: string
+      format: email
+      description: Email of the user
+action: send
+channel:
+  $ref: ../channels/userSignedup.yaml
+messages:
+  - $ref: ../channels/userSignedup.yaml#/messages/UserSignedUp
+asyncapi: 3.0.0
+info:
+  title: Simple AsyncAPI 3 Example
+  version: 1.0.0
+  description: A simple AsyncAPI v3 example for testing split command
+channels:
+  userSignedup:
+    $ref: channels/userSignedup.yaml
+operations:
+  sendUserSignedup:
+    $ref: operations/sendUserSignedup.yaml
+🪓 Document: asyncapi.yaml is successfully split
+    and all related files are saved to the directory: output 
+
+asyncapi.yaml: split processed in <test>ms
+

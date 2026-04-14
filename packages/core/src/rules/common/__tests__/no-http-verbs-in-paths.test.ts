@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('no-http-verbs-in-paths', () => {
@@ -53,6 +54,53 @@ describe('no-http-verbs-in-paths', () => {
             },
           ],
           "message": "path \`/get/path\` should not contain http verb get",
+          "ruleId": "no-http-verbs-in-paths",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on excluded paths', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /data/post:
+            get:
+              summary: Contains http verb post
+          /get/data:
+            get:
+              summary: Contains http verb get
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-http-verbs-in-paths': {
+            severity: 'error',
+            excludedPaths: ['/data/post'],
+          },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1get~1data",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "path \`/get/data\` should not contain http verb get",
           "ruleId": "no-http-verbs-in-paths",
           "severity": "error",
           "suggest": [],

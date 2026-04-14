@@ -20,6 +20,7 @@ Redocly CLI can lint multiple API description formats:
 - [OpenAPI](#openapi-rules)
 - [AsyncAPI](#asyncapi-rules)
 - [Arazzo](#arazzo-rules)
+- [Open-RPC](#open-rpc-rules)
 - Overlay
 
 Visit each page for details of what the rule does, additional configuration options, and examples of it in use.
@@ -36,6 +37,7 @@ The rules list is split into sections.
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
+- [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`
 - [spec-strict-refs](./oas/spec-strict-refs.md): Restricts the usage of the `$ref` keyword
 
 ### Info
@@ -58,7 +60,7 @@ The rules list is split into sections.
 ### Parameters
 
 - [array-parameter-serialization](./oas/array-parameter-serialization.md): Require `style` and `explode` for parameters with array type
-- [boolean-parameter-prefixes](./oas/boolean-parameter-prefixes.md): All boolean paramater names start with a particular prefix (such as "is")
+- [boolean-parameter-prefixes](./oas/boolean-parameter-prefixes.md): All boolean parameter names start with a particular prefix (such as "is")
 - [no-invalid-parameter-examples](./oas/no-invalid-parameter-examples.md): Parameter examples must match declared schema types
 - [operation-parameters-unique](./oas/operation-parameters-unique.md): No repeated parameter names within an operation
 - [parameter-description](./oas/parameter-description.md): Parameters must all have descriptions
@@ -70,6 +72,7 @@ The rules list is split into sections.
 
 - [no-ambiguous-paths](./oas/no-ambiguous-paths.md): No path can match more than one PathItem entry, including template variables
 - [no-http-verbs-in-paths](./oas/no-http-verbs-in-paths.md): Verbs like "get" cannot be used in paths
+- [path-http-verbs-order](./oas/path-http-verbs-order.md): HTTP operations on each path must follow a configured verb order
 - [no-identical-paths](./oas/no-identical-paths.md): Paths cannot be identical, including template variables
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md): No trailing slashes on paths
 - [path-segment-plural](./oas/path-segment-plural.md): All URL segments in a path must be plural (exceptions can be configured)
@@ -77,10 +80,11 @@ The rules list is split into sections.
 
 ### Requests, Responses, and Schemas
 
-- [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unqiue naming of parameters, schemas, request bodies and responses
+- [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unique naming of parameters, schemas, request bodies and responses
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
+- [no-mixed-number-range-constraints](./common/no-mixed-number-range-constraints.md): Ensures that schemas do not use both `maximum` and `exclusiveMaximum` (or both `minimum` and `exclusiveMinimum`) at the same time.
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md): Schema examples must match declared types
 - [no-required-schema-properties-undefined](./common/no-required-schema-properties-undefined.md): All properties marked as required must be defined
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md): Detects schemas with type mismatches between object and items fields, and array and properties fields.
@@ -126,10 +130,11 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 ### Arazzo
 
 - [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
+- [outputs-defined](./arazzo/outputs-defined.md): the output value should be defined before usage
 - [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
-- [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
-- [sourceDescriptions-type](./arazzo/sourceDescriptions-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
+- [sourceDescription-name-unique](./arazzo/sourceDescription-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
+- [sourceDescription-type](./arazzo/sourceDescription-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
 - [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
@@ -142,10 +147,23 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 The below rules are being migrated to Respect:
 
 - [no-criteria-xpath](./respect/no-criteria-xpath.md): the `xpath` type criteria is not supported by Respect.
-- [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
+- [no-x-security-both-scheme-and-scheme-name](./respect/no-x-security-both-scheme-and-scheme-name.md): forbids using both `scheme` and `schemeName` in the same `x-security` item
 - [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md): the `x-security` can't use `schemeName` when Step request is described with `x-operation`.
-- [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
-- [no-x-security-scheme-name-in-workflow](./respect/no-x-security-scheme-name-in-workflow.md) the `x-security` can't use `schemeName` when described in Workflow.
+- [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
+- [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
+- [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md): validate that `x-security` have all required `values` described according to the used `scheme`.
+
+## Open-RPC rules
+
+Use the rules in this section for Open-RPC specific linting.
+
+- [struct](./common/struct.md): Conform to the declared Open-RPC specification version
+- [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
+- [no-unused-components](./oas/no-unused-components.md): All components must be used
+- [spec-no-duplicated-method-params](./openrpc/spec-no-duplicated-method-params.md): The list of parameters must not include duplicated parameters
+- [spec-no-required-params-after-optional](./openrpc/spec-no-required-params-after-optional.md): Required parameters must be positioned before optional parameters
+- [info-contact](./oas/info-contact.md): Contact section is defined under `info`
+- [info-license](./oas/info-license.md): License section is defined under `info`
 
 ## Resources
 

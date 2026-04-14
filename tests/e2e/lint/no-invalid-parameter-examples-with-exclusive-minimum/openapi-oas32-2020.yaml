@@ -1,0 +1,54 @@
+openapi: 3.2.0
+info:
+  title: OAS 3.2 JSON Schema 2020 Exclusive Minimum/Maximum Examples
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: Test endpoint with exclusiveMinimum/Maximum parameters
+      operationId: getTest
+      parameters:
+        - name: validExclusiveMinimum
+          description: "draft2020: exclusiveMinimum is numeric threshold"
+          in: query
+          schema:
+            type: integer
+            exclusiveMinimum: 10
+          example: 11
+
+        - name: invalidExclusiveMinimumBoundary
+          description: "Invalid exclusiveMinimum boundary (value equals threshold)"
+          in: query
+          schema:
+            type: integer
+            exclusiveMinimum: 10
+          example: 10
+
+        - name: validExclusiveMaximum
+          description: "Valid exclusiveMaximum (value < threshold)"
+          in: query
+          schema:
+            type: integer
+            exclusiveMaximum: 20
+          example: 19
+
+        - name: invalidExclusiveMaximumBoundary
+          description: "Invalid exclusiveMaximum boundary (value equals threshold)"
+          in: query
+          schema:
+            type: integer
+            exclusiveMaximum: 20
+          example: 20
+
+        - $ref: '#/components/parameters/RefInvalidExclusiveMinimumBoundary'
+
+components:
+  parameters:
+    RefInvalidExclusiveMinimumBoundary:
+      name: refInvalidExclusiveMinimumBoundary
+      description: "Reference-based invalid boundary case"
+      in: query
+      schema:
+        type: integer
+        exclusiveMinimum: 5
+      example: 5

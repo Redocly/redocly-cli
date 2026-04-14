@@ -1,7 +1,7 @@
 # Redocly CLI
 
-[@Redocly](https://redocly.com) CLI is your all-in-one OpenAPI utility.
-It builds, manages, improves, and quality-checks your OpenAPI descriptions, all of which comes in handy for various phases of the API Lifecycle.
+[@Redocly](https://redocly.com) CLI is your all-in-one API documentation utility.
+It builds, manages, improves, and quality-checks your API descriptions, all of which comes in handy for various phases of the API Lifecycle.
 Create your own rulesets to make API governance easy, publish beautiful API reference documentation, and more.
 Supports OpenAPI 3.2, 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6, Arazzo 1.0.
 
@@ -96,8 +96,8 @@ redocly lint openapi.yaml
 ```
 
 **Configure the rules** as you wish.
-Other API Linters use complicated identifiers like JSONPath, but Redocly makes life easy with simple expressions that understand the OpenAPI structure.
-You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API guidelines, or break out the tools to build your own.
+Other API Linters use complicated identifiers like JSONPath, but Redocly makes life easy with simple expressions that understand the API specification structure.
+You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API guidelines, or break out the tools to [build your own](https://redocly.com/docs/cli/rules#rule-ideas).
 
 **Format the output** in whatever way you need.
 The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Checkstyle and other outputs to integrate with other tools, the `lint` command can output those too.

@@ -1,4 +1,3 @@
-import { bold, red } from 'colorette';
 import {
   getTotals,
   formatProblems,
@@ -10,9 +9,11 @@ import {
   type LoggerInterface,
   type NormalizedProblem,
 } from '@redocly/openapi-core';
+import { bold, red } from 'colorette';
 import * as path from 'node:path';
-import { printConfigLintTotals } from '../logger-output/helpers.js';
+
 import { isTestFile } from '../../utils/file.js';
+import { printConfigLintTotals } from '../logger-output/helpers.js';
 
 type BundleArazzoOptions = {
   filePath: string;
@@ -45,10 +46,12 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
     extends: ['recommended-strict'],
     arazzo1Rules: {
       'no-criteria-xpath': 'error',
-      'respect-supported-versions': 'warn',
+      'no-x-security-both-scheme-and-scheme-name': 'error',
       'no-x-security-scheme-name-without-openapi': 'error',
+      'outputs-defined': 'error',
+      'respect-supported-versions': 'warn',
+      'x-security-scheme-name-reference': 'error',
       'x-security-scheme-required-values': 'error',
-      'no-x-security-scheme-name-in-workflow': 'error',
     },
   });
 
@@ -65,6 +68,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
       formatProblems(lintProblems, {
         totals: fileTotals,
         version,
+        command: 'bundle',
       });
 
       printConfigLintTotals(fileTotals, options.logger);

@@ -1,10 +1,10 @@
 import { logger } from '@redocly/openapi-core';
-import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
-import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
-import { version } from '../../utils/package.js';
-
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
+
+import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
+import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
+import { version } from '../../utils/package.js';
 import type {
   ListRemotesResponse,
   ProjectSourceResponse,
@@ -20,7 +20,10 @@ export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
 
 export class ReuniteApiError extends Error {
-  constructor(message: string, public status: number) {
+  constructor(
+    message: string,
+    public status: number
+  ) {
     super(message);
   }
 }
@@ -36,14 +39,28 @@ export class ReuniteApiClient implements BaseApiClient {
       'user-agent': `redocly-cli/${version} ${this.command}`,
     };
 
-    const response = await fetchWithTimeout(url, {
-      ...options,
-      headers,
-    });
+    try {
+      const response = await fetchWithTimeout(url, {
+        ...options,
+        headers,
+      });
 
-    this.collectSunsetWarning(response);
+      this.collectSunsetWarning(response);
 
-    return response;
+      return response;
+    } catch (err) {
+      let errorMessage = 'Failed to fetch.';
+
+      if (err.cause) {
+        errorMessage += ` Caused by ${err.cause.message || err.cause.name}.`;
+      }
+
+      if (err.code || err.cause?.code) {
+        errorMessage += ` Code: ${err.code || err.cause?.code}`;
+      }
+
+      throw new Error(errorMessage);
+    }
   }
 
   private collectSunsetWarning(response: Response) {
@@ -183,20 +200,32 @@ class RemotesApi {
     formData.append('commit[author][name]', payload.commit.author.name);
     formData.append('commit[author][email]', payload.commit.author.email);
     formData.append('commit[branchName]', payload.commit.branchName);
-    payload.commit.url && formData.append('commit[url]', payload.commit.url);
-    payload.commit.namespace && formData.append('commit[namespaceId]', payload.commit.namespace);
-    payload.commit.sha && formData.append('commit[sha]', payload.commit.sha);
-    payload.commit.repository && formData.append('commit[repositoryId]', payload.commit.repository);
-    payload.commit.createdAt && formData.append('commit[createdAt]', payload.commit.createdAt);
+    if (payload.commit.url) {
+      formData.append('commit[url]', payload.commit.url);
+    }
+    if (payload.commit.namespace) {
+      formData.append('commit[namespaceId]', payload.commit.namespace);
+    }
+    if (payload.commit.sha) {
+      formData.append('commit[sha]', payload.commit.sha);
+    }
+    if (payload.commit.repository) {
+      formData.append('commit[repositoryId]', payload.commit.repository);
+    }
+    if (payload.commit.createdAt) {
+      formData.append('commit[createdAt]', payload.commit.createdAt);
+    }
 
     for (const file of files) {
       const blob = Buffer.isBuffer(file.stream)
-        ? new Blob([file.stream])
-        : new Blob([await streamToBuffer(file.stream)]);
+        ? new Blob([file.stream as BlobPart])
+        : new Blob([(await streamToBuffer(file.stream)) as BlobPart]);
       formData.append(`files[${file.path}]`, blob, file.path);
     }
 
-    payload.isMainBranch && formData.append('isMainBranch', 'true');
+    if (payload.isMainBranch) {
+      formData.append('isMainBranch', 'true');
+    }
     try {
       const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,

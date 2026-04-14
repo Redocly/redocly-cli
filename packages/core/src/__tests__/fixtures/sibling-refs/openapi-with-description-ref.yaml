@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: Desc Source Test
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field:
+                    description:
+                      $ref: './description.md'
+                    $ref: '#/components/schemas/Child'
+components:
+  schemas:
+    Child:
+      type: object
+      description: Should not win
+      properties:
+        name:
+          type: string

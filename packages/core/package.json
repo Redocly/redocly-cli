@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "2.7.0",
+  "version": "2.27.0",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -52,13 +52,14 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/ajv": "^8.11.2",
-    "@redocly/config": "^0.31.0",
-    "ajv-formats": "^2.1.1",
+    "@redocly/ajv": "^8.18.0",
+    "@redocly/config": "^0.48.0",
+    "ajv": "npm:@redocly/ajv@8.18.0",
+    "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
-    "picomatch": "^4.0.3",
+    "picomatch": "^4.0.4",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
@@ -68,6 +69,6 @@
     "@types/picomatch": "^4.0.2",
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",
-    "typescript": "5.5.3"
+    "typescript": "5.9.3"
   }
 }

@@ -1,6 +1,6 @@
 import AbortController from 'abort-controller';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-import { Agent } from 'undici';
+import { Agent, ProxyAgent } from 'undici';
+
 import fetchWithTimeout from '../utils/fetch-with-timeout.js';
 import * as proxyAgent from '../utils/proxy-agent.js';
 
@@ -16,7 +16,7 @@ const mockFetch = vi.fn(() =>
     redirected: false,
     type: 'default',
     url: '',
-    clone: () => ({} as Response),
+    clone: () => ({}) as Response,
     body: null,
     bodyUsed: false,
     arrayBuffer: async () => new ArrayBuffer(0),
@@ -64,17 +64,45 @@ describe('fetchWithTimeout', () => {
   });
 
   it('should call fetch with proxy agent', async () => {
-    const dispatcher = new HttpsProxyAgent('http://localhost');
-    vi.spyOn(proxyAgent, 'getProxyAgent').mockReturnValueOnce(dispatcher);
+    const proxyUrl = 'http://localhost:8080';
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce(proxyUrl);
 
     await fetchWithTimeout('url');
 
-    expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'url',
+      expect.objectContaining({
+        dispatcher: expect.any(ProxyAgent),
+      })
+    );
   });
 
   it('should call fetch without signal and without dispatcher when timeout is not passed', async () => {
     await fetchWithTimeout('url');
 
     expect(global.fetch).toHaveBeenCalledWith('url', {});
+  });
+
+  it('should bypass proxy when URL matches NO_PROXY', async () => {
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce('http://proxy:8080');
+    vi.spyOn(proxyAgent, 'shouldBypassProxy').mockReturnValueOnce(true);
+
+    await fetchWithTimeout('http://localhost:3000/api');
+
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api', {});
+  });
+
+  it('should use proxy when URL does not match NO_PROXY', async () => {
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce('http://proxy:8080');
+    vi.spyOn(proxyAgent, 'shouldBypassProxy').mockReturnValueOnce(false);
+
+    await fetchWithTimeout('http://external.com/api');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://external.com/api',
+      expect.objectContaining({
+        dispatcher: expect.any(ProxyAgent),
+      })
+    );
   });
 });

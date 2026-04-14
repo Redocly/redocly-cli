@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: x-query external refs
+  version: '1.0'
+paths:
+  /pet:
+    x-query:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: ./schema-a.yaml

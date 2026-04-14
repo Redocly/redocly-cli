@@ -1,0 +1,441 @@
+openapi: 3.2.0
+info:
+  title: OpenAPI 3.2 XML Modeling Test
+  version: 1.0.0
+  description: Comprehensive test for OpenAPI 3.2 XML Object with all nodeType values
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: https://api.xmltest.io
+security: []
+
+paths:
+  /xml/books:
+    get:
+      operationId: getXmlBooks
+      summary: Get book with explicit element nodes
+      responses:
+        '200':
+          description: Book with XML element nodes
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlElementExplicit'
+        '400':
+          description: Bad request
+
+  /xml/products:
+    get:
+      operationId: getXmlProducts
+      summary: Get product with attributes
+      responses:
+        '200':
+          description: Product with XML attributes
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlAttributeExplicit'
+        '404':
+          description: Not found
+
+  /xml/messages:
+    get:
+      operationId: getXmlMessages
+      summary: Get message with text node
+      responses:
+        '200':
+          description: Message with XML text content
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlTextExplicit'
+        '400':
+          description: Bad request
+
+  /xml/html-content:
+    get:
+      operationId: getXmlHtmlContent
+      summary: Get HTML content with CDATA
+      responses:
+        '200':
+          description: HTML content wrapped in CDATA
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlCdataExplicit'
+        '400':
+          description: Bad request
+
+  /xml/library:
+    get:
+      operationId: getXmlLibrary
+      summary: Get wrapped array of books
+      responses:
+        '200':
+          description: Library with wrapped book list
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlArrayWrapped'
+        '404':
+          description: Not found
+
+  /xml/catalog:
+    get:
+      operationId: getXmlCatalog
+      summary: Get unwrapped array of items
+      responses:
+        '200':
+          description: Catalog with unwrapped items
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlArrayUnwrapped'
+        '400':
+          description: Bad request
+
+  /xml/mixed:
+    get:
+      operationId: getXmlMixed
+      summary: Get element with mixed attributes and text
+      responses:
+        '200':
+          description: Paragraph with mixed content
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlMixedContent'
+        '400':
+          description: Bad request
+
+  /xml/namespaces:
+    get:
+      operationId: getXmlNamespaces
+      summary: Get element with namespaces
+      responses:
+        '200':
+          description: Element with namespace and prefix
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlNamespaces'
+        '404':
+          description: Not found
+
+  /xml/deprecated-attribute:
+    get:
+      operationId: getXmlDeprecatedAttribute
+      summary: Get element using deprecated attribute field
+      responses:
+        '200':
+          description: Element with deprecated attribute syntax
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlDeprecatedAttribute'
+        '400':
+          description: Bad request
+
+  /xml/deprecated-wrapped:
+    get:
+      operationId: getXmlDeprecatedWrapped
+      summary: Get array using deprecated wrapped field
+      responses:
+        '200':
+          description: Array with deprecated wrapped syntax
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlDeprecatedWrapped'
+        '400':
+          description: Bad request
+
+  /xml/implicit-text:
+    get:
+      operationId: getXmlImplicitText
+      summary: Get implicit text node
+      responses:
+        '200':
+          description: Implicit text node from primitive type
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlImplicitText'
+        '400':
+          description: Bad request
+
+  /xml/invalid-nodetype:
+    get:
+      operationId: getXmlInvalidNodeType
+      summary: Test invalid nodeType value (should fail validation)
+      responses:
+        '200':
+          description: Invalid nodeType
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlInvalidNodeType'
+        '400':
+          description: Bad request
+
+  /xml/invalid-property-nodetype:
+    get:
+      operationId: getXmlInvalidPropertyNodeType
+      summary: Test invalid nodeType in property (should fail validation)
+      responses:
+        '200':
+          description: Invalid property nodeType
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlInvalidPropertyNodeType'
+        '400':
+          description: Bad request
+
+  /xml/nodetype-wrong-type:
+    get:
+      operationId: getXmlNodeTypeWrongType
+      summary: Test nodeType with wrong data type (should fail validation)
+      responses:
+        '200':
+          description: nodeType as number instead of string
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/XmlNodeTypeWrongType'
+        '400':
+          description: Bad request
+
+components:
+  schemas:
+    # Test 1: Explicit element nodes with namespace and prefix
+    XmlElementExplicit:
+      type: object
+      xml:
+        nodeType: element
+        name: book
+        namespace: http://example.com/schema
+        prefix: ex
+      properties:
+        title:
+          type: string
+          xml:
+            nodeType: element
+        author:
+          type: string
+          xml:
+            nodeType: element
+
+    # Test 2: Element with attribute children
+    XmlAttributeExplicit:
+      type: object
+      xml:
+        nodeType: element
+        name: product
+      properties:
+        id:
+          type: string
+          xml:
+            nodeType: attribute
+        sku:
+          type: string
+          xml:
+            nodeType: attribute
+        name:
+          type: string
+          xml:
+            nodeType: element
+
+    # Test 3: Element with attribute and text content
+    XmlTextExplicit:
+      type: object
+      xml:
+        nodeType: element
+        name: message
+      properties:
+        lang:
+          type: string
+          xml:
+            nodeType: attribute
+        content:
+          type: string
+          xml:
+            nodeType: text
+
+    # Test 4: Element with CDATA content
+    XmlCdataExplicit:
+      type: object
+      xml:
+        nodeType: element
+        name: htmlContent
+      properties:
+        html:
+          type: string
+          xml:
+            nodeType: cdata
+
+    # Test 5: nodeType: none for JSON Schema constructs
+    XmlNoneExplicit:
+      xml:
+        nodeType: none
+      allOf:
+        - $ref: '#/components/schemas/Metadata'
+        - type: object
+          properties:
+            data:
+              type: string
+
+    # Test 6: Wrapped array (explicit element nodeType)
+    XmlArrayWrapped:
+      type: object
+      xml:
+        nodeType: element
+        name: library
+      properties:
+        books:
+          type: array
+          xml:
+            nodeType: element
+            name: bookList
+          items:
+            type: object
+            xml:
+              nodeType: element
+              name: book
+            properties:
+              title:
+                type: string
+
+    # Test 7: Unwrapped array (default none nodeType for arrays)
+    XmlArrayUnwrapped:
+      type: array
+      items:
+        type: object
+        xml:
+          nodeType: element
+          name: item
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+
+    # Test 8: Deprecated attribute field (backward compatibility)
+    XmlDeprecatedAttribute:
+      type: object
+      xml:
+        nodeType: element
+        name: person
+      properties:
+        id:
+          type: string
+          xml:
+            attribute: true
+        name:
+          type: string
+
+    # Test 9: Deprecated wrapped field (backward compatibility)
+    XmlDeprecatedWrapped:
+      type: object
+      properties:
+        items:
+          type: array
+          xml:
+            wrapped: true
+            name: itemList
+          items:
+            type: string
+            xml:
+              name: item
+
+    # Test 10: Implicit text node from primitive type
+    XmlImplicitText:
+      type: string
+      xml:
+        nodeType: element
+        name: description
+
+    # Test 11: Mixed attributes and text content
+    XmlMixedContent:
+      type: object
+      xml:
+        nodeType: element
+        name: paragraph
+      properties:
+        style:
+          type: string
+          xml:
+            nodeType: attribute
+        text:
+          type: string
+          xml:
+            nodeType: text
+
+    # Test 12: Namespaces and prefixes with nested elements
+    XmlNamespaces:
+      type: object
+      xml:
+        nodeType: element
+        name: document
+        namespace: http://example.com/ns
+        prefix: doc
+      properties:
+        header:
+          type: object
+          xml:
+            nodeType: element
+            namespace: http://example.com/header
+            prefix: hdr
+          properties:
+            title:
+              type: string
+        body:
+          type: object
+          xml:
+            nodeType: element
+          properties:
+            content:
+              type: string
+
+    # Supporting schema for nodeType: none test
+    Metadata:
+      type: object
+      properties:
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    # Test: Invalid nodeType value (should fail)
+    XmlInvalidNodeType:
+      type: object
+      xml:
+        nodeType: invalid
+        name: test
+      properties:
+        value:
+          type: string
+
+    # Test: Invalid nodeType in property (should fail)
+    XmlInvalidPropertyNodeType:
+      type: object
+      xml:
+        nodeType: element
+        name: data
+      properties:
+        field:
+          type: string
+          xml:
+            nodeType: wrongType
+
+    # Test: nodeType as number instead of string (should fail)
+    XmlNodeTypeWrongType:
+      type: object
+      xml:
+        nodeType: 123
+        name: test
+      properties:
+        value:
+          type: string

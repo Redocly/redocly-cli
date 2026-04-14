@@ -1,14 +1,19 @@
-import { iteratePathItems, handleSplit } from '../index.js';
+import * as openapiCore from '@redocly/openapi-core';
+import { blue, green } from 'colorette';
 import * as path from 'node:path';
 import * as process from 'node:process';
-import * as openapiCore from '@redocly/openapi-core';
-import { type ComponentsFiles } from '../types.js';
-import { blue, green } from 'colorette';
-import * as utils from '../../../utils/miscellaneous.js';
+
 import { configFixture } from '../../../__tests__/fixtures/config.js';
+import * as utils from '../../../utils/miscellaneous.js';
+import { handleSplit } from '../index.js';
+import { type ComponentsFiles } from '../types.js';
+import { iteratePathItems } from '../utils/iterate-path-items.js';
+import samplesJson from './fixtures/samples.json';
+import specJson from './fixtures/spec.json';
+import webhooksJson from './fixtures/webhooks.json';
 
 describe('split', () => {
-  const openapiDir = 'test';
+  const openapiDir = 'output/split-test';
   const componentsFiles: ComponentsFiles = {};
 
   beforeEach(() => {
@@ -82,7 +87,7 @@ describe('split', () => {
   });
 
   it('should have correct path with paths', () => {
-    const openapi = require('./fixtures/spec.json');
+    const openapi = specJson;
 
     vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
     vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
@@ -97,11 +102,14 @@ describe('split', () => {
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith('test', 'test/paths/test.yaml');
+    expect(path.relative).toHaveBeenCalledWith(
+      'output/split-test',
+      'output/split-test/paths/test.yaml'
+    );
   });
 
   it('should have correct path with webhooks', () => {
-    const openapi = require('./fixtures/webhooks.json');
+    const openapi = webhooksJson;
 
     vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
@@ -116,11 +124,14 @@ describe('split', () => {
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
+    expect(path.relative).toHaveBeenCalledWith(
+      'output/split-test',
+      'output/split-test/webhooks/test.yaml'
+    );
   });
 
   it('should have correct path with x-webhooks', () => {
-    const openapi = require('./fixtures/spec.json');
+    const openapi = specJson;
 
     vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
@@ -135,11 +146,14 @@ describe('split', () => {
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
+    expect(path.relative).toHaveBeenCalledWith(
+      'output/split-test',
+      'output/split-test/webhooks/test.yaml'
+    );
   });
 
   it('should create correct folder name for code samples', async () => {
-    const openapi = require('./fixtures/samples.json');
+    const openapi = samplesJson;
 
     vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(
@@ -162,5 +176,55 @@ describe('split', () => {
     expect(utils.escapeLanguageName).nthReturnedWith(3, 'VisualBasic');
 
     expect(utils.escapeLanguageName).toBeCalledTimes(3);
+  });
+
+  it('should split an AsyncAPI 2 file and show the success message', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi2.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
+      `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
+    and all related files are saved to the directory: ${blue(openapiDir)} \n`
+    );
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
+      `${filePath}: split processed in <test>ms`
+    );
+  });
+
+  it('should split an AsyncAPI 3 file and show the success message', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi3.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
+      `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
+    and all related files are saved to the directory: ${blue(openapiDir)} \n`
+    );
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
+      `${filePath}: split processed in <test>ms`
+    );
   });
 });

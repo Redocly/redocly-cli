@@ -1,4 +1,23 @@
 import {
+  type Totals,
+  ResolveError,
+  YamlParseError,
+  HandledError,
+  type Config,
+  type RawUniversalApiConfig,
+  type ResolvedApiConfig,
+} from '@redocly/openapi-core';
+import * as openapiCore from '@redocly/openapi-core';
+import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
+import { blue, red, yellow } from 'colorette';
+import * as glob from 'glob';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as process from 'node:process';
+import { fileURLToPath } from 'node:url';
+
+import * as errorHandling from '../utils/error.js';
+import {
   getFallbackApisOrExit,
   pathToFilename,
   printConfigLintTotals,
@@ -11,26 +30,8 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { cleanArgs } from '../utils/telemetry.js';
-import * as errorHandling from '../utils/error.js';
 import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
-import {
-  type Totals,
-  ResolveError,
-  YamlParseError,
-  HandledError,
-  type Config,
-  type RawUniversalApiConfig,
-  type ResolvedApiConfig,
-} from '@redocly/openapi-core';
-import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
-import * as glob from 'glob';
-import * as openapiCore from '@redocly/openapi-core';
-import { blue, red, yellow } from 'colorette';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as process from 'node:process';
-import { fileURLToPath } from 'node:url';
+import { cleanArgs } from '../utils/telemetry.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,7 +54,7 @@ vi.mock('@redocly/openapi-core', async () => {
   const actual = await vi.importActual('@redocly/openapi-core');
   return {
     ...actual,
-    stringifyYaml: vi.fn((data, opts) => data as string),
+    stringifyYaml: vi.fn((data, _opts) => data as string),
   };
 });
 vi.mock('../../utils/error.js', async () => {
@@ -336,8 +337,8 @@ describe('getFallbackApisOrExit', async () => {
     const entry = await getFallbackApisOrExit(undefined, config);
     expect(entry).toEqual([
       {
-        path: expect.stringMatching(/project\-folder\/test\.yaml$/),
-        output: expect.stringMatching(/project\-folder\/output\/test\.yaml$/),
+        path: expect.stringMatching(/project-folder\/test\.yaml$/),
+        output: expect.stringMatching(/project-folder\/output\/test\.yaml$/),
         alias: 'main',
       },
     ]);
@@ -546,6 +547,7 @@ describe('checkIfRulesetExist', () => {
       async3: {},
       arazzo1: {},
       overlay1: {},
+      openrpc1: {},
     };
     expect(() => checkIfRulesetExist(rules)).toThrowError(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
@@ -562,6 +564,7 @@ describe('checkIfRulesetExist', () => {
       async3: {},
       arazzo1: {},
       overlay1: {},
+      openrpc1: {},
     };
     checkIfRulesetExist(rules);
   });
@@ -592,9 +595,13 @@ describe('cleanArgs', () => {
       apis: ['main@v1', 'fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       format: 'codeframe',
       input: 'some-input',
-      'client-cert': 'some-client-cert',
-      'client-key': 'some-client-key',
-      'ca-cert': 'some-ca-cert',
+      mtls: {
+        'https://example.com': {
+          clientCert: 'some-client-cert',
+          clientKey: 'some-client-key',
+          caCert: 'some-ca-cert',
+        },
+      },
     };
     const rawArgs = [
       'redocly',
@@ -605,9 +612,7 @@ describe('cleanArgs', () => {
       '--config=fixtures/redocly.yaml',
       '--format=codeframe',
       '--input=some-input',
-      '--client-cert=some-client-cert',
-      '--client-key=some-client-key',
-      '--ca-cert=some-ca-cert',
+      '--mtls={"https://example.com": {"clientCert": "some-client-cert", "clientKey": "some-client-key", "caCert": "some-ca-cert"}}',
     ];
     const result = cleanArgs(parsedArgs, rawArgs);
     expect(result.arguments).toEqual(
@@ -616,9 +621,13 @@ describe('cleanArgs', () => {
         apis: ['main@v1', 'file-yaml', 'http://url'],
         format: 'codeframe',
         input: '***',
-        'client-cert': '***',
-        'client-key': '***',
-        'ca-cert': '***',
+        mtls: {
+          'https://example.com': {
+            clientCert: '***',
+            clientKey: '***',
+            caCert: '***',
+          },
+        },
       })
     );
   });
@@ -633,12 +642,7 @@ describe('cleanArgs', () => {
       '--config=fixtures/redocly.yaml',
       '--output',
       'fixtures',
-      '--client-cert',
-      'fixtures/client-cert.pem',
-      '--client-key',
-      'fixtures/client-key.pem',
-      '--ca-cert',
-      'fixtures/ca-cert.pem',
+      '--mtls={"https://example.com": {"clientCert": "some-client-cert", "clientKey": "some-client-key", "caCert": "some-ca-cert"}}',
       '--organization',
       'my-org',
       '--input',
@@ -650,24 +654,32 @@ describe('cleanArgs', () => {
       apis: ['./fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       input: ['timeout=10000', '{"apiKey":"some=111=1111"}'],
       organization: 'my-org',
-      'client-cert': 'fixtures/client-cert.pem',
-      'client-key': 'fixtures/client-key.pem',
-      'ca-cert': 'fixtures/ca-cert.pem',
+      mtls: {
+        'https://example.com': {
+          clientCert: 'some-client-cert',
+          clientKey: 'some-client-key',
+          caCert: 'some-ca-cert',
+        },
+      },
       config: 'fixtures/redocly.yaml',
       output: 'fixtures',
     };
     const result = cleanArgs(parsedArgs, rawInput);
     expect(result.raw_input).toEqual(
-      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --client-cert *** --client-key *** --ca-cert *** --organization *** --input *** --input ***'
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
     );
     expect(result.arguments).toEqual(
       JSON.stringify({
         apis: ['file-yaml', 'http://url'],
         input: '***',
         organization: '***',
-        'client-cert': '***',
-        'client-key': '***',
-        'ca-cert': '***',
+        mtls: {
+          'https://example.com': {
+            clientCert: '***',
+            clientKey: '***',
+            caCert: '***',
+          },
+        },
         config: 'file-yaml',
         output: 'folder',
       })

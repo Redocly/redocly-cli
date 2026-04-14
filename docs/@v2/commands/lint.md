@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Redocly CLI can identify and report on problems found in OpenAPI, AsyncAPI, or Arazzo descriptions.
+Redocly CLI can identify and report on problems found in OpenAPI, AsyncAPI, Arazzo, or Open-RPC descriptions.
 This helps you avoid bugs and make API or Arazzo descriptions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules.
@@ -50,7 +50,7 @@ The `lint` command behaves differently depending on how you pass the API(s) to i
 redocly lint openapi/openapi.yaml
 ```
 
-In this case, `lint` validates the API or Arazzo description(s) passed to the command.
+In this case, `lint` validates the API, Arazzo, or Open-RPC description(s) passed to the command.
 If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used.
 If you have `extends` or `rules` defined in `redocly.yaml`, those are used when linting.
 
@@ -333,6 +333,16 @@ If the number of detected problems exceeds the specified threshold, the remainin
 
 Note that the default value is `100`.
 
+### Limit the displayed suggestions count
+
+When lint errors include suggestions (such as "Did you mean: propertyName?"), you can control how many suggestions are displayed using the `REDOCLY_CLI_LINT_MAX_SUGGESTIONS` environment variable.
+
+```bash
+REDOCLY_CLI_LINT_MAX_SUGGESTIONS=10 redocly lint openapi.yaml
+```
+
+The default value is `5`. This is useful when working with rules that provide many suggestions (like typo corrections for property names), allowing you to see more or fewer alternatives as needed.
+
 ### Generate ignore file
 
 With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output.
@@ -342,7 +352,8 @@ This option is useful when you have an API design standard, but have some except
 It allows for highly granular control.
 
 {% admonition type="warning" %}
-This command overwrites an existing ignore file.
+This command updates ignore entries only for the API descriptions passed to the command.
+Existing entries for other API descriptions are preserved.
 {% /admonition %}
 
 The following command runs `lint` and adds all the errors to an ignore file:
@@ -358,6 +369,15 @@ Generated ignore file with 3 problems.
 </pre>
 
 The errors in the ignore file `.redocly.lint-ignore.yaml` are ignored when the `lint` command is run.
+
+If you run:
+
+```bash
+redocly lint api1.yaml --generate-ignore-file
+```
+
+Only the ignore entries related to api1.yaml are updated.
+Ignore entries for other API descriptions remain unchanged.
 
 To generate an ignore file for multiple API descriptions, pass them as arguments:
 
@@ -422,3 +442,10 @@ The `lint` command also validates [The Arazzo](https://spec.openapis.org/arazzo/
 You can pass the Arazzo description file to the `lint` command as shown below:
 
 `redocly lint arazzo.yaml`
+
+### Lint Open-RPC description file
+
+The `lint` command also validates [Open-RPC](https://spec.open-rpc.org/) description files.
+You can pass the Open-RPC description file to the `lint` command as shown below:
+
+`redocly lint open-rpc.json`

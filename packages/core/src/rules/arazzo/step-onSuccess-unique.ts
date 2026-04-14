@@ -23,9 +23,7 @@ export const StepOnSuccessUnique: Arazzo1Rule = () => {
             });
           }
 
-          onSuccessAction?.name
-            ? seenSuccessActions.add(onSuccessAction.name)
-            : seenSuccessActions.add(onSuccessAction.reference);
+          seenSuccessActions.add(onSuccessAction?.name ?? onSuccessAction?.reference);
         }
       },
     },

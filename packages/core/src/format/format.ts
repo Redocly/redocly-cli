@@ -1,15 +1,15 @@
 import * as path from 'node:path';
-import { colorOptions, colorize, logger } from '../logger.js';
-import { getCodeframe, getLineColLocation } from './codeframes.js';
-import { env, isBrowser } from '../env.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
 
+import { env, isBrowser } from '../env.js';
+import { colorOptions, colorize, logger } from '../logger.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 import type {
   NormalizedProblem,
   ProblemSeverity,
   LineColLocationObject,
   LocationObject,
 } from '../walk.js';
+import { getCodeframe, getLineColLocation } from './codeframes.js';
 
 export type Totals = {
   errors: number;
@@ -41,7 +41,7 @@ const CODECLIMATE_SEVERITY_MAPPING = {
   warn: 'minor',
 };
 
-const MAX_SUGGEST = 5;
+const MAX_SUGGEST = +(env.REDOCLY_CLI_LINT_MAX_SUGGESTIONS ?? 5);
 
 function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
@@ -87,6 +87,7 @@ export function formatProblems(
     color?: boolean;
     totals: Totals;
     version?: string;
+    command?: 'bundle' | 'lint' | 'join' | 'check-config';
   }
 ) {
   const {
@@ -96,6 +97,7 @@ export function formatProblems(
     color = colorOptions.enabled,
     totals = getTotals(problems),
     version = '2.0',
+    command,
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified
@@ -117,7 +119,11 @@ export function formatProblems(
     case 'codeframe':
       for (let i = 0; i < problems.length; i++) {
         const problem = problems[i];
-        logger.output(`${formatCodeframe(problem, i)}\n`);
+        if (command === 'bundle') {
+          logger.info(`${formatCodeframe(problem, i)}\n`);
+        } else {
+          logger.output(`${formatCodeframe(problem, i)}\n`);
+        }
       }
       break;
     case 'stylish': {
@@ -307,7 +313,10 @@ export function formatProblems(
     const { start } = problem.location[0];
     return `| ${severityName} | line ${`${start.line}:${start.col}`} | [${
       problem.ruleId
-    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message} |`;
+    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message.replaceAll(
+      '\n',
+      '<br>'
+    )} |`;
   }
 
   function formatCheckstyle(problem: OnlyLineColProblem) {
@@ -398,7 +407,7 @@ const groupByFiles = (problems: NormalizedProblem[]) => {
   return fileGroups;
 };
 
-function xmlEscape(s: string): string {
+export function xmlEscape(s: string): string {
   // eslint-disable-next-line no-control-regex
   return s.replace(/[<>&"'\x00-\x1F\x7F\u0080-\uFFFF]/gu, (char) => {
     switch (char) {

@@ -14,6 +14,7 @@ Config {
     "oas3_0": {},
     "oas3_1": {},
     "oas3_2": {},
+    "openrpc1": {},
     "overlay1": {},
   },
   "doNotResolveExamples": false,
@@ -28,6 +29,7 @@ Config {
     "oas3_0": {},
     "oas3_1": {},
     "oas3_2": {},
+    "openrpc1": {},
     "overlay1": {},
   },
   "resolve": {
@@ -61,6 +63,9 @@ Config {
         "oas3_2Decorators": {},
         "oas3_2Preprocessors": {},
         "oas3_2Rules": {},
+        "openrpc1Decorators": {},
+        "openrpc1Preprocessors": {},
+        "openrpc1Rules": {},
         "overlay1Decorators": {},
         "overlay1Preprocessors": {},
         "overlay1Rules": {},
@@ -202,6 +207,22 @@ Config {
       "operation-summary": "error",
     },
     "oas3_2": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "openrpc1": {
       "assertions": [
         {
           "assertionId": "rule/test",

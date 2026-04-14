@@ -1,0 +1,150 @@
+openapi: 3.1.0
+info:
+  title: readOnly/writeOnly + oneOf/allOf + required (examples validation)
+  version: 1.0.0
+
+paths:
+  /users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserOneOf'
+            examples:
+              valid_email_branch:
+                summary: oneOf(email) + password required
+                value:
+                  name: Doe
+                  password: p
+                  email: test@example.com
+
+              valid_phone_branch:
+                summary: oneOf(phone) + password required
+                value:
+                  name: Doe
+                  password: p
+                  phone: '1234567890'
+
+              invalid_missing_password:
+                summary: missing required writeOnly `password`
+                value:
+                  name: Doe
+                  email: test@example.com
+                  phone: '1234567890'
+
+              invalid_readOnly_id_present:
+                summary: readOnly `id` must NOT be present in requestBody
+                value:
+                  id: usr_1
+                  name: Doe
+                  password: p
+                  phone: '1234567890'
+
+              invalid_oneOf_both_email_and_phone:
+                summary: oneOf must match exactly one branch
+                value:
+                  name: Doe
+                  password: p
+                  email: test@example.com
+                  phone: '1234567890'
+
+              invalid_oneOf_neither_email_nor_phone:
+                summary: oneOf requires email or phone
+                value:
+                  name: Doe
+                  password: p
+
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAllOf'
+              examples:
+                res_valid_phone_branch:
+                  summary: responseBody must include `id`, `name` + `phone`
+                  value:
+                    id: usr_1
+                    name: Doe
+                    phone: '1234567890'
+
+                res_invalid_missing_readOnly_id:
+                  summary: missing required readOnly `id` (responseBody)
+                  value:
+                    name: Doe
+                    phone: '1234567890'
+
+                res_invalid_writeOnly_password_present:
+                  summary: writeOnly `password` must NOT be present in responseBody
+                  value:
+                    id: usr_1
+                    name: Doe
+                    phone: '1234567890'
+                    password: p
+
+                res_invalid_writeOnly_email_present:
+                  summary: writeOnly `email` must NOT be present in responseBody
+                  value:
+                    id: u_1
+                    name: Doe
+                    phone: '1234567890'
+                    email: test@example.com
+
+components:
+  schemas:
+    UserOneOf:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+        - id
+        - name
+        - password
+      oneOf:
+        - properties:
+            email:
+              type: string
+              writeOnly: true
+          required: [email]
+        - properties:
+            phone:
+              type: string
+              writeOnly: true
+          required: [phone]
+
+    UserAllOf:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+            name:
+              type: string
+          required:
+            - id
+            - name
+        - type: object
+          properties:
+            password:
+              type: string
+              writeOnly: true
+            email:
+              type: string
+              writeOnly: true
+            phone:
+              type: string
+          required:
+            - password
+            - phone

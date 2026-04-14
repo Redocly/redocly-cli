@@ -1,7 +1,8 @@
-import JsonPointerLib from 'json-pointer';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { type RuntimeExpressionContext, type Replacement } from '../../types.js';
 import { type LoggerInterface } from '@redocly/openapi-core';
+import JsonPointerLib from 'json-pointer';
+
+import { type RuntimeExpressionContext, type Replacement } from '../../types.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 
 export function handlePayloadReplacements({
   payload,
@@ -9,7 +10,7 @@ export function handlePayloadReplacements({
   expressionContext,
   logger,
 }: {
-  payload: object;
+  payload: Record<string, unknown> | Array<unknown>;
   replacements: Replacement[];
   expressionContext: RuntimeExpressionContext;
   logger: LoggerInterface;

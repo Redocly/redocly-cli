@@ -1,6 +1,4 @@
-import { handleLint, LintArgv } from '../../commands/lint.js';
 import {
-  createConfig,
   lint,
   getTotals,
   formatProblems,
@@ -9,6 +7,14 @@ import {
   type NormalizedProblem,
   loadConfig,
 } from '@redocly/openapi-core';
+import { blue } from 'colorette';
+import { resolve } from 'node:path';
+import { performance } from 'perf_hooks';
+import { type MockInstance } from 'vitest';
+import { type Arguments } from 'yargs';
+
+import { handleLint, type LintArgv } from '../../commands/lint.js';
+import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   getExecutionTime,
@@ -17,13 +23,8 @@ import {
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
-import { configFixture } from '../fixtures/config.js';
-import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper.js';
-import { Arguments } from 'yargs';
-import { blue } from 'colorette';
-import { type MockInstance } from 'vitest';
+import { configFixture } from '../fixtures/config.js';
 
 const argvMock = {
   apis: ['openapi.yaml'],
@@ -51,7 +52,7 @@ describe('handleLint', () => {
       return {
         ...actual,
         lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        getTotals: vi.fn(() => ({ errors: 0 } as Totals)),
+        getTotals: vi.fn(() => ({ errors: 0 }) as Totals),
         doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
         logger: {
           info: vi.fn(),
@@ -114,7 +115,7 @@ describe('handleLint', () => {
       );
     });
 
-    it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
+    it('should call forAlias when `generate-ignore-file` argv is set', async () => {
       await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true });
       expect(configFixture.forAlias).toHaveBeenCalledWith(undefined);
     });
@@ -151,6 +152,64 @@ describe('handleLint', () => {
       expect(configFixture.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
+    it('should update only the linted file entries and preserve ignore entries for other files', async () => {
+      const barAbsRef = resolve('ignore-bar.yaml');
+      const fooAbsRef = resolve('ignore-foo.yaml');
+
+      configFixture.ignore = {
+        [barAbsRef]: {
+          'no-empty-servers': new Set(['#/servers']),
+          'operation-summary': new Set(['#/paths/~1items/get/summary']),
+        },
+        [fooAbsRef]: {
+          'no-empty-servers': new Set(['#/servers']),
+        },
+      };
+
+      vi.mocked(configFixture.clearIgnoreForRef).mockImplementation((ref: string) => {
+        const absRef = resolve(ref);
+        delete configFixture.ignore[absRef];
+      });
+
+      vi.mocked(configFixture.addIgnore).mockImplementation((problem: any) => {
+        const loc = problem.location[0];
+        if (loc.pointer === undefined) return;
+        const fileIgnore = (configFixture.ignore[loc.source.absoluteRef] =
+          configFixture.ignore[loc.source.absoluteRef] || {});
+        const ruleIgnore = (fileIgnore[problem.ruleId] = fileIgnore[problem.ruleId] || new Set());
+        ruleIgnore.add(loc.pointer);
+      });
+
+      vi.mocked(lint).mockResolvedValueOnce([
+        {
+          ruleId: 'no-empty-servers',
+          severity: 1,
+          message: 'Servers must not be empty',
+          location: [{ source: { absoluteRef: barAbsRef }, pointer: '#/servers' }],
+          suggest: [],
+          ignored: false,
+        } as any,
+      ]);
+
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['ignore-bar.yaml'],
+        'generate-ignore-file': true,
+      });
+
+      expect(configFixture.ignore[fooAbsRef]).toEqual({
+        'no-empty-servers': new Set(['#/servers']),
+      });
+
+      expect(configFixture.ignore[barAbsRef]).toEqual({
+        'no-empty-servers': new Set(['#/servers']),
+      });
+
+      expect(configFixture.saveIgnore).toHaveBeenCalled();
+
+      configFixture.ignore = {};
+    });
+
     it('should call formatProblems and getExecutionTime with argv', async () => {
       vi.mocked(lint).mockResolvedValueOnce(['problem'] as any);
       await commandWrapper(handleLint)({ ...argvMock, 'max-problems': 2, format: 'stylish' });
@@ -160,6 +219,7 @@ describe('handleLint', () => {
         maxProblems: 2,
         totals: { errors: 0 },
         version: '2.0.0',
+        command: 'lint',
       });
       expect(getExecutionTime).toHaveBeenCalledWith(42);
     });
@@ -199,6 +259,18 @@ describe('handleLint', () => {
       });
       await commandWrapper(handleLint)(argvMock);
       expect(logger.info).toHaveBeenCalledWith(
+        `No configurations were provided -- using built in ${blue(
+          'recommended'
+        )} configuration by default.\n\n`
+      );
+    });
+
+    it('should not suggest recommended fallback if --extends is provided', async () => {
+      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+        return await loadConfig({});
+      });
+      await commandWrapper(handleLint)({ ...argvMock, extends: ['some/path'] });
+      expect(logger.info).not.toHaveBeenCalledWith(
         `No configurations were provided -- using built in ${blue(
           'recommended'
         )} configuration by default.\n\n`

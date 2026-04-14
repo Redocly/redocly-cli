@@ -1,4 +1,12 @@
+import type {
+  Config,
+  CollectFn,
+  RuleSeverity,
+  LoggerInterface,
+  BaseResolver,
+} from '@redocly/openapi-core';
 import type { FromSchema } from 'json-schema-to-ts';
+
 import type {
   parameter,
   operationMethod,
@@ -15,17 +23,10 @@ import type {
   extendedOperation,
   extendedSecurity,
 } from './arazzo-schema.js';
-import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
-import type { ApiFetcher } from './utils/api-fetcher.js';
+import type { Faker } from './modules/faker.js';
 import type { RespectOptions } from './run.js';
-import type {
-  Config,
-  CollectFn,
-  RuleSeverity,
-  LoggerInterface,
-  BaseResolver,
-} from '@redocly/openapi-core';
+import type { ApiFetcher } from './utils/api-fetcher.js';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {
@@ -40,7 +41,7 @@ type ArazzoParameter = FromSchema<typeof parameter>;
 export type InfoObject = FromSchema<typeof infoObject>;
 export type RequestBody = FromSchema<typeof requestBody>;
 export type Replacement = FromSchema<typeof replacement>;
-export type CriteriaObject = FromSchema<typeof criteriaObject>;
+export type CriterionObject = FromSchema<typeof criteriaObject>;
 export type ReusableObject = FromSchema<typeof reusableObject>;
 export type OnSuccessObject = FromSchema<typeof onSuccessObject>;
 export type OnFailureObject = FromSchema<typeof onFailureObject>;
@@ -58,6 +59,7 @@ export type AdditionalParameterProperties = {
   schema?: Record<string, any>;
   example?: unknown;
   examples?: Record<string, any> | unknown;
+  allowReserved?: boolean;
 };
 type ExtendedParameter<T> = T & AdditionalParameterProperties;
 export type Parameter = ExtendedParameter<ArazzoParameter>;
@@ -205,13 +207,14 @@ export type RuntimeExpressionContext = {
 };
 
 export type RunWorkflowInput = {
-  workflowInput: Workflow | string;
+  workflowInput: Workflow | string | undefined;
   ctx: TestContext;
   fromStepId?: string;
   parentStepId?: string;
   skipLineSeparator?: boolean;
   invocationContext?: string;
   executedStepsCount: ExecutedStepsCount;
+  retriesLeft?: number;
 };
 
 export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;

@@ -1,0 +1,32 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "description": "Test benchmark for Redocly CLI",
+  "private": true,
+  "scripts": {
+    "chart": "node chart.js > benchmark_chart.md",
+    "make-test": "bash make-test-command.sh",
+    "test": "echo 'Run `npm run make-test` to setup benchmark tests'"
+  },
+  "_enhancedDependencies": {
+    "cli-2.0.0": "npm:@redocly/cli@2.0.0",
+    "cli-2.03.1": "npm:@redocly/cli@2.3.1",
+    "cli-2.08.0": "npm:@redocly/cli@2.8.0",
+    "cli-2.11.1": "npm:@redocly/cli@2.11.1",
+    "cli-2.12.0": "npm:@redocly/cli@2.12.0",
+    "cli-2.12.2": "npm:@redocly/cli@2.12.2",
+    "cli-2.13.0": "npm:@redocly/cli@2.13.0",
+    "cli-2.14.1": "npm:@redocly/cli@2.14.1",
+    "cli-2.14.2": "npm:@redocly/cli@2.14.2",
+    "cli-2.19.2": "npm:@redocly/cli@2.19.2",
+    "cli-2.24.1": "npm:@redocly/cli@2.24.1",
+    "cli-2.25.0": "npm:@redocly/cli@2.25.0",
+    "cli-2.25.4": "npm:@redocly/cli@2.25.4",
+    "cli-latest": "npm:@redocly/cli@latest",
+    "cli-next": "file:../../redocly-cli.tgz"
+  },
+  "dependencies": {
+    "cli-latest": "npm:@redocly/cli@latest",
+    "cli-next": "file:../../redocly-cli.tgz"
+  }
+}

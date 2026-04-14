@@ -1,8 +1,8 @@
 import { logger } from '@redocly/openapi-core';
+
 import type { ExtendedOperation, TestContext } from '../../../types.js';
 import type { OperationDetails } from '../../description-parser/index.js';
-
-import { getServerUrl, GetServerUrlInput } from '../../flow-runner/index.js';
+import { getServerUrl, type GetServerUrlInput } from '../../flow-runner/index.js';
 
 describe('getServerUrl', () => {
   it('should return first server url from servers', () => {
@@ -159,6 +159,23 @@ describe('getServerUrl', () => {
     } as unknown as ExtendedOperation;
     const result = getServerUrl({ ctx, descriptionName, xOperation });
     expect(result).toEqual({ url: 'http:/localhost:3000/test' });
+  });
+
+  it('should resolve runtime expression in "x-operation" url', () => {
+    const ctx = {
+      $steps: {
+        test: { outputs: { upload_url: 'http://localhost:3000/test' } },
+      },
+      options: {
+        logger,
+      },
+    } as unknown as TestContext;
+    const result = getServerUrl({
+      ctx,
+      descriptionName: '',
+      xOperation: { url: '$steps.test.outputs.upload_url', method: 'get' },
+    });
+    expect(result).toEqual({ url: 'http://localhost:3000/test' });
   });
 
   it('should return x-serverUrl when available when descriptionName is not provided and there is only one sourceDescription', () => {

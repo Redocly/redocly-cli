@@ -1,7 +1,6 @@
-import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
+import type { RuleSeverity } from '../../../config/index.js';
+import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString } from '../../../utils/is-string.js';
-
-import type { asserts, AssertionFn } from './asserts.js';
 import type {
   Arazzo1Visitor,
   Async2Visitor,
@@ -10,7 +9,8 @@ import type {
   Oas3Visitor,
   Overlay1Visitor,
 } from '../../../visitors.js';
-import type { RuleSeverity } from '../../../config/index.js';
+import type { asserts, AssertionFn } from './asserts.js';
+import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
 
 export type AssertionLocators = {
   filterInParentKeys?: (string | number)[];
@@ -50,9 +50,7 @@ export const Assertions = (opts: Record<string, Assertion>) => {
   // https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/config/config.ts#L311
   // that is why we need to iterate through 'opts' values;
   // before - filter only object 'opts' values
-  const assertions: Assertion[] = Object.values(opts).filter(
-    (opt: unknown) => typeof opt === 'object' && opt !== null
-  );
+  const assertions: Assertion[] = Object.values(opts).filter((opt) => isPlainObject(opt));
 
   for (const [_, assertion] of assertions.entries()) {
     if (!isString(assertion.subject.type)) {

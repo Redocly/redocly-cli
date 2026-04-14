@@ -1,8 +1,13 @@
-import { RedoclyOAuthClient } from '../oauth-client.js';
-import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as os from 'node:os';
+import * as path from 'node:path';
+
+import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
+import { RedoclyOAuthClient } from '../oauth-client.js';
+
+vi.mock('node:fs');
+vi.mock('../device-flow.js');
+vi.mock('node:os');
 
 describe('RedoclyOAuthClient', () => {
   const mockBaseUrl = 'https://test.redocly.com';
@@ -11,9 +16,6 @@ describe('RedoclyOAuthClient', () => {
   let client: RedoclyOAuthClient;
 
   beforeEach(() => {
-    vi.mock('node:fs');
-    vi.mock('../device-flow.js');
-    vi.mock('node:os');
     vi.mocked(os.homedir).mockReturnValue(mockHomeDir);
     process.env.HOME = mockHomeDir;
     client = new RedoclyOAuthClient();
@@ -25,7 +27,9 @@ describe('RedoclyOAuthClient', () => {
       const mockDeviceFlow = {
         run: vi.fn().mockResolvedValue(mockToken),
       };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow;
+      });
 
       await client.login(mockBaseUrl);
 
@@ -37,7 +41,9 @@ describe('RedoclyOAuthClient', () => {
       const mockDeviceFlow = {
         run: vi.fn().mockResolvedValue(null),
       };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow;
+      });
 
       await expect(client.login(mockBaseUrl)).rejects.toThrow('Failed to login');
     });
@@ -65,7 +71,9 @@ describe('RedoclyOAuthClient', () => {
       const mockDeviceFlow = {
         verifyApiKey: vi.fn().mockResolvedValue(true),
       };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow;
+      });
 
       const result = await client.isAuthorized(mockBaseUrl, 'test-api-key');
 

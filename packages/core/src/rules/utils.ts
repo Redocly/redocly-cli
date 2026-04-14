@@ -1,8 +1,7 @@
+import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import { default as levenshtein } from 'js-levenshtein';
-import { Location } from '../ref-utils.js';
-import { validateJsonSchema } from './ajv.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
 
+import { isRef, Location } from '../ref-utils.js';
 import type {
   Oas3Schema,
   Oas3Tag,
@@ -11,7 +10,27 @@ import type {
   Referenced,
 } from '../typings/openapi.js';
 import type { Oas2Tag } from '../typings/swagger.js';
-import type { UserContext } from '../walk.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import type { NonUndefined, UserContext } from '../walk.js';
+import { validateJsonSchema } from './ajv.js';
+
+export const resolveSchema = <T extends NonUndefined>(
+  schemaOrRef: Referenced<T> | undefined,
+  ctx: UserContext,
+  resolveFrom?: string
+): {
+  schema: T | undefined;
+  location: string | undefined;
+} => {
+  if (isRef(schemaOrRef)) {
+    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);
+    return resolved
+      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
+      : { schema: undefined, location: resolveFrom };
+  }
+
+  return { schema: schemaOrRef, location: resolveFrom };
+};
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -41,7 +60,7 @@ export function matchesJsonSchemaType(value: unknown, type: string, nullable: bo
     case 'array':
       return Array.isArray(value);
     case 'object':
-      return typeof value === 'object' && value !== null && !Array.isArray(value);
+      return isPlainObject(value);
     case 'null':
       return value === null;
     case 'integer':
@@ -132,29 +151,34 @@ export function getSuggest(given: string, variants: string[]): string[] {
 export function validateExample(
   example: any,
   schema: Referenced<Oas3Schema | Oas3_1Schema>,
-  dataLoc: Location,
-  { resolve, location, report }: UserContext,
-  allowAdditionalProperties: boolean
+  options: {
+    location: Location;
+    ctx: UserContext;
+    allowAdditionalProperties: boolean;
+    ajvContext?: AjvContext;
+  }
 ) {
+  const { location, ctx, allowAdditionalProperties, ajvContext } = options;
+  const { resolve, location: parentLocation, report, specVersion } = ctx;
   try {
-    const { valid, errors } = validateJsonSchema(
-      example,
-      schema,
-      location.child('schema'),
-      dataLoc.pointer,
+    const { valid, errors } = validateJsonSchema(example, schema, {
+      schemaLoc: parentLocation.child('schema'),
+      instancePath: location.pointer,
       resolve,
-      allowAdditionalProperties
-    );
+      allowAdditionalProperties,
+      ajvContext,
+      specVersion,
+    });
     if (!valid) {
       for (const error of errors) {
         report({
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {
-            ...new Location(dataLoc.source, error.instancePath),
+            ...new Location(location.source, error.instancePath),
             reportOnKey:
               error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
           },
-          from: location,
+          from: parentLocation,
           suggest: error.suggest,
         });
       }
@@ -166,8 +190,8 @@ export function validateExample(
 
     report({
       message: `Example validation errored: ${e.message}.`,
-      location: location.child('schema'),
-      from: location,
+      location: parentLocation.child('schema'),
+      from: parentLocation,
     });
   }
 }

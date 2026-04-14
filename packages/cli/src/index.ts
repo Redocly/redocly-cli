@@ -1,44 +1,50 @@
 #!/usr/bin/env node
-import * as path from 'node:path';
-import * as dotenv from 'dotenv';
 import './utils/assert-node-version.js';
-import yargs from 'yargs';
+
+import { logger, type OutputFormat, type RuleSeverity } from '@redocly/openapi-core';
+import * as dotenv from 'dotenv';
+import * as path from 'node:path';
+import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { logger } from '@redocly/openapi-core';
-import { outputExtensions } from './types.js';
-import { handleStats } from './commands/stats.js';
-import { handleSplit } from './commands/split/index.js';
-import { handleJoin } from './commands/join.js';
-import { handlePush } from './reunite/commands/push.js';
-import { handlePushStatus } from './reunite/commands/push-status.js';
-import { handleLint } from './commands/lint.js';
-import { handleBundle } from './commands/bundle.js';
+
 import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
-import { commandWrapper } from './wrapper.js';
-import { previewProject } from './commands/preview-project/index.js';
-import { handleTranslations } from './commands/translations.js';
-import { handleEject } from './commands/eject.js';
-import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import { handleBundle } from './commands/bundle.js';
+import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import { handleJoin } from './commands/join/index.js';
+import { handleLint } from './commands/lint.js';
+import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
+import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
+import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
+import type {
+  ScorecardClassicArgv,
+  ScorecardClassicOutputFormat,
+} from './commands/scorecard-classic/types.js';
+import { handleSplit } from './commands/split/index.js';
+import { handleStats } from './commands/stats/index.js';
+import { handleTranslations } from './commands/translations.js';
+import { handlePushStatus } from './reunite/commands/push-status.js';
+import { handlePush } from './reunite/commands/push.js';
+import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
+import { validateMountPath } from './utils/validate-mount-path.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
-
-import type { Arguments } from 'yargs';
-import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import type { EjectArgv } from './commands/eject.js';
+import { commandWrapper } from './wrapper.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 cacheLatestVersion();
 
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
@@ -246,6 +252,7 @@ yargs(hideBin(process.argv))
             type: 'string',
             alias: 'mp',
             required: true,
+            coerce: validateMountPath,
           },
           author: {
             description: 'Author of the commit.',
@@ -445,6 +452,11 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          'component-renaming-conflicts-severity': {
+            description:
+              'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          },
         })
         .check((argv) => {
           if (argv.output && (!argv.apis || argv.apis.length === 0)) {
@@ -601,7 +613,7 @@ yargs(hideBin(process.argv))
         })
         .check((argv: any) => {
           if (argv.theme && !argv.theme?.openapi)
-            throw Error('Invalid option: theme.openapi not set.');
+            throw new Error('Invalid option: theme.openapi not set.');
           return true;
         }),
     async (argv) => {
@@ -728,17 +740,12 @@ yargs(hideBin(process.argv))
             type: 'string',
             alias: 'J',
           },
-          'client-cert': {
-            describe: 'Mutual TLS client certificate.',
+          mtls: {
+            describe:
+              'Per-domain mutual TLS certificates configuration as JSON. Format: {"<domain>": {"clientCert": "<path>", "clientKey": "<path>", "caCert": "<path>"}}',
             type: 'string',
-          },
-          'client-key': {
-            describe: 'Mutual TLS client key.',
-            type: 'string',
-          },
-          'ca-cert': {
-            describe: 'Mutual TLS CA certificate.',
-            type: 'string',
+            array: true,
+            coerce: validateMtlsCommandOption,
           },
           severity: {
             describe: 'Severity of the check.',
@@ -796,6 +803,44 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
+    }
+  )
+  .command(
+    'scorecard-classic [api]',
+    'Run quality scorecards with multiple rule levels to validate and maintain API description standards.',
+    (yargs) => {
+      return yargs.positional('api', { type: 'string' }).option({
+        config: {
+          describe: 'Path to the config file.',
+          type: 'string',
+        },
+        'project-url': {
+          describe: 'URL to the project scorecard configuration.',
+          type: 'string',
+        },
+        format: {
+          description: 'Use a specific output format.',
+          choices: [
+            'stylish',
+            'json',
+            'checkstyle',
+            'junit',
+          ] as ReadonlyArray<ScorecardClassicOutputFormat>,
+          default: 'stylish' as ScorecardClassicOutputFormat,
+        },
+        'target-level': {
+          describe: 'Target level for the scorecard.',
+          type: 'string',
+        },
+        verbose: {
+          alias: 'v',
+          describe: 'Apply verbose mode.',
+          type: 'boolean',
+        },
+      });
+    },
+    async (argv) => {
+      commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

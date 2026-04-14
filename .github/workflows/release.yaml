@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
+  push: # for the regular release flow (release --> dockerhub --> post-release-smoke-checks --> notify)
     branches:
       - main
+  pull_request: # for the snapshot release flow
+    types:
+      - labeled
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,20 +14,25 @@ concurrency:
 
 jobs:
   release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write
+      pull-requests: write
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
 
       - name: Install Dependencies
         run: npm ci
@@ -43,7 +51,6 @@ jobs:
             node scripts/post-changeset.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   dockerhub:
     needs: [release]
@@ -53,7 +60,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Get version
         id: get_version
@@ -63,7 +70,7 @@ jobs:
 
       - name: Docker meta
         id: docker_meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: |
             redocly/cli
@@ -73,26 +80,26 @@ jobs:
             latest
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           context: .
           file: ./Dockerfile
@@ -109,8 +116,8 @@ jobs:
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
       - name: Install CLI from npm
         run: npm i -g @redocly/cli@latest
       - name: Test version from NPM
@@ -151,13 +158,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
 
       - name: Install Dependencies
         run: npm ci
@@ -167,9 +174,85 @@ jobs:
 
       - name: Send to a Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@fcfb566f8b0aab22203f066d80ca1d7e4b5d05b3 # v1.27.1
         with:
           channel-id: C019K52TC0L #releases
-          payload-file-path: './output/release-message.json'
+          payload-file-path: ./output/release-message.json
         env:
           SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
+
+  release-snapshot:
+    if: github.event_name == 'pull_request' && github.event.label.name == 'snapshot'
+    name: Release Snapshot
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write # Required for OIDC
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Update package versions
+        run: |
+          TIMESTAMP=$(date +%s)
+          VERSION="0.0.0-snapshot.$TIMESTAMP"
+
+          # Update Core package version
+          jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
+
+          # Update Respect Core package version and dependencies
+          jq ".version = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+
+          # Update CLI package version and dependencies
+          jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+
+          # Add comment with installation instructions
+          COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.
+
+          Install with NPM:
+          \`\`\`bash
+          npm install @redocly/cli@$VERSION
+          # or
+          npm install @redocly/openapi-core@$VERSION
+          # or
+          npm install @redocly/respect-core@$VERSION
+          \`\`\`
+
+          ⚠️ Note: This is a development build and may contain unstable features."
+
+          gh pr comment $PR_NUMBER --body "$COMMENT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build packages
+        run: npm run compile
+
+      - name: Publish snapshot packages
+        run: |
+          git diff
+
+          cd packages/core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../respect-core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../cli
+          npm publish --tag snapshot

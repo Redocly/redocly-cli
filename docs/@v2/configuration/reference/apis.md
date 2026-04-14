@@ -14,9 +14,9 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 ---
 
-- `{name}@{version}`
+- `{name}`
 - [API object](#api-object)
-- **REQUIRED**. Each API needs a name and optionally a version. Supports alphanumeric characters and underscores.
+- **REQUIRED**. Each API needs a name. Supports alphanumeric characters and underscores.
 
 {% /table %}
 
@@ -66,7 +66,7 @@ The following example shows a simple `redocly.yaml` configuration file with sett
 
 ```yaml
 apis:
-  orders@v3:
+  orders:
     root: orders/openapi.yaml
     rules:
       tags-alphabetical: error

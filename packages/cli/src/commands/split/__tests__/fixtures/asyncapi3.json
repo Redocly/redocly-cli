@@ -1,0 +1,42 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Test AsyncAPI 3",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "userSignedUp": {
+      "address": "user/signedup",
+      "messages": {
+        "UserSignedUpMessage": {
+          "$ref": "#/components/messages/UserSignedUpMessage"
+        }
+      }
+    }
+  },
+  "operations": {
+    "UserSignedUp": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/userSignedUp"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserSignedUp": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" }
+        }
+      }
+    },
+    "messages": {
+      "UserSignedUpMessage": {
+        "payload": {
+          "$ref": "#/components/schemas/UserSignedUp"
+        }
+      }
+    }
+  }
+}

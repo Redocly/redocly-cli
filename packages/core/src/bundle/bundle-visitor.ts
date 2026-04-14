@@ -1,16 +1,21 @@
-import { isAbsoluteUrl, replaceRef, isExternalValue, isRef, refBaseName } from '../ref-utils.js';
-import { makeRefId } from '../utils/make-ref-id.js';
+import { type RuleSeverity } from '../config/types.js';
+import { type SpecMajorVersion } from '../oas-types.js';
+import {
+  isAbsoluteUrl,
+  replaceRef,
+  isExternalValue,
+  isRef,
+  refBaseName,
+  type Location,
+} from '../ref-utils.js';
+import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { isTruthy } from '../utils/is-truthy.js';
+import { type OasRef } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
-
-import type { OasRef } from '../typings/openapi';
-import type { Location } from '../ref-utils.js';
-import type { Document } from '../resolve.js';
-import type { ResolvedRefMap } from '../resolve';
-import type { SpecMajorVersion } from '../oas-types';
-import type { Oas3Visitor, Oas2Visitor } from '../visitors';
-import type { UserContext, ResolveResult } from '../walk';
+import { isTruthy } from '../utils/is-truthy.js';
+import { makeRefId } from '../utils/make-ref-id.js';
+import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
+import { type UserContext, type ResolveResult } from '../walk.js';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -34,6 +39,8 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
           return 'links';
         case 'Callback':
           return 'callbacks';
+        case 'MediaTypesMap':
+          return 'mediaTypes';
         default:
           return null;
       }
@@ -79,16 +86,43 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case 'openrpc1':
+      switch (typeName) {
+        case 'ContentDescriptor':
+          return 'contentDescriptors';
+        case 'Schema':
+          return 'schemas';
+        case 'Example':
+          return 'examples';
+        case 'Link':
+          return 'links';
+        case 'ErrorObject':
+          return 'errors';
+        case 'ExamplePairing':
+          return 'examplePairingObjects';
+        case 'Tag':
+          return 'tags';
+        default:
+          return null;
+      }
   }
 }
 
-export function makeBundleVisitor(
-  version: SpecMajorVersion,
-  dereference: boolean,
-  rootDocument: Document,
-  resolvedRefMap: ResolvedRefMap,
-  keepUrlRefs: boolean
-) {
+export function makeBundleVisitor({
+  version,
+  dereference,
+  rootDocument,
+  resolvedRefMap,
+  keepUrlRefs,
+  componentRenamingConflicts = 'warn',
+}: {
+  version: SpecMajorVersion;
+  dereference: boolean;
+  rootDocument: Document;
+  resolvedRefMap: ResolvedRefMap;
+  keepUrlRefs: boolean;
+  componentRenamingConflicts?: RuleSeverity;
+}) {
   let components: Record<string, Record<string, any>>;
   let rootLocation: Location;
 
@@ -163,6 +197,8 @@ export function makeBundleVisitor(
           components = root.components = root.components || {};
         } else if (version === 'arazzo1') {
           components = root.components = root.components || {};
+        } else if (version === 'openrpc1') {
+          components = root.components = root.components || {};
         }
       },
     },
@@ -205,7 +241,12 @@ export function makeBundleVisitor(
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (version === 'oas3' || version === 'async2' || version === 'async3') {
+    if (
+      version === 'oas3' ||
+      version === 'async2' ||
+      version === 'async3' ||
+      version === 'openrpc1'
+    ) {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;
@@ -266,7 +307,7 @@ export function makeBundleVisitor(
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
         location: ctx.location,
-        forceSeverity: 'warn',
+        forceSeverity: componentRenamingConflicts,
       });
     }
 

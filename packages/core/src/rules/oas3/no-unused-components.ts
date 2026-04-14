@@ -1,5 +1,5 @@
-import type { Oas3Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
+import type { Oas3Rule } from '../../visitors.js';
 
 export const NoUnusedComponents: Oas3Rule = () => {
   const components = new Map<string, { used: boolean; location: Location; name: string }>();
@@ -15,7 +15,15 @@ export const NoUnusedComponents: Oas3Rule = () => {
   return {
     ref(ref, { type, resolve, key, location }) {
       if (
-        ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(type.name)
+        [
+          'Schema',
+          'Header',
+          'Parameter',
+          'Response',
+          'Example',
+          'RequestBody',
+          'MediaTypesMap',
+        ].includes(type.name)
       ) {
         const resolvedRef = resolve(ref);
         if (!resolvedRef.location) return;
@@ -68,6 +76,11 @@ export const NoUnusedComponents: Oas3Rule = () => {
     },
     NamedHeaders: {
       Header(_header, { location, key }) {
+        registerComponent(location, key.toString());
+      },
+    },
+    NamedMediaTypes: {
+      MediaTypesMap(_mediaTypesMap, { location, key }) {
         registerComponent(location, key.toString());
       },
     },

@@ -1,7 +1,7 @@
 import { logger } from '@redocly/openapi-core';
-import { resolveXSecurityParameters } from '../../flow-runner/resolve-x-security-parameters.js';
-
 import type { Step, RuntimeExpressionContext, TestContext } from 'respect-core/src/types.js';
+
+import { resolveXSecurityParameters } from '../../flow-runner/resolve-x-security-parameters.js';
 
 describe('resolveXSecurityParameters', () => {
   const ctx = {
@@ -180,5 +180,24 @@ describe('resolveXSecurityParameters', () => {
         value: 'step-level-api-key',
       },
     ]);
+  });
+
+  it('should throw when schemeName is provided but scheme cannot be resolved', () => {
+    const runtimeContext = {} as RuntimeExpressionContext;
+    const step = {
+      stepId: 'getPet',
+      'x-security': [
+        { schemeName: '$sourceDescriptions.museum-api.Missing', values: { token: 'x' } },
+      ],
+    } as unknown as Step;
+
+    const ctxWithSources = {
+      ...ctx,
+      $sourceDescriptions: { 'museum-api': { components: { securitySchemes: {} } } },
+    };
+
+    expect(() => resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })).toThrow(
+      'Security scheme "$sourceDescriptions.museum-api.Missing" not found'
+    );
   });
 });

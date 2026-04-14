@@ -1,27 +1,28 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import JsonPointerLib from 'json-pointer';
 
 export function replaceJSONPointers(expression: string, context: any): string {
   const jsonPointerReplacementRules = [
     {
-      pattern: /\$response\.body#\/([\w/]+)/g,
+      pattern: /\$response\.body#\/([\w/-]+)/g,
       ctxFunction: (match: string, pointer: string) => {
         return resolvePointer(context.$response?.body, pointer, match);
       },
     },
     {
-      pattern: /\$request\.body#\/([\w/]+)/g,
+      pattern: /\$request\.body#\/([\w/-]+)/g,
       ctxFunction: (match: string, pointer: string) => {
         return resolvePointer(context.$request?.body, pointer, match);
       },
     },
     {
-      pattern: /\$outputs\.([\w-]+)#\/([\w/]+)/g,
+      pattern: /\$outputs\.([\w-]+)#\/([\w/-]+)/g,
       ctxFunction: (match: string, property: string, pointer: string) => {
         return resolvePointer(context.$outputs?.[property], pointer, match);
       },
     },
     {
-      pattern: /\$workflows\.([\w-]+)\.outputs\.([\w-]+)#\/([\w/]+)/g,
+      pattern: /\$workflows\.([\w-]+)\.outputs\.([\w-]+)#\/([\w/-]+)/g,
       ctxFunction: (match: string, workflowId: string, property: string, pointer: string) => {
         return resolvePointer(
           context.$workflows?.[workflowId]?.outputs?.[property],
@@ -31,7 +32,7 @@ export function replaceJSONPointers(expression: string, context: any): string {
       },
     },
     {
-      pattern: /\$steps\.([\w-]+)\.outputs\.([\w-]+)#\/([\w/]+)/g,
+      pattern: /\$steps\.([\w-]+)\.outputs\.([\w-]+)#\/([\w/-]+)/g,
       ctxFunction: (match: string, stepId: string, property: string, pointer: string) => {
         return resolvePointer(context.$steps?.[stepId]?.outputs?.[property], pointer, match);
       },
@@ -53,7 +54,7 @@ function resolvePointer(sourceContext: any, pointer: string, fallbackMatch: stri
       if (typeof value === 'string') {
         return JSON.stringify(value); // Safely quote the strings
       }
-      if (Array.isArray(value) || typeof value === 'object') {
+      if (Array.isArray(value) || isPlainObject(value)) {
         return JSON.stringify(value);
       }
       return value !== undefined ? value : fallbackMatch;

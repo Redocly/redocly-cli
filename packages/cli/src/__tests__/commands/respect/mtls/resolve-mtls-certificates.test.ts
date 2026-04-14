@@ -47,40 +47,50 @@ describe('resolveMtlsCertificates', () => {
     });
   });
 
-  it('should resolve certificates', () => {
+  it('should resolve certificates per domain', () => {
     const certs = resolveMtlsCertificates(
       {
+        'https://localhost:3443': {
+          clientCert:
+            '-----BEGIN CERTIFICATE-----\nMIICWDCCAd+gAwIBAgIJAP8L\n-----END CERTIFICATE-----',
+          clientKey:
+            '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0B\n-----END PRIVATE KEY-----',
+          caCert:
+            '-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK7P\n-----END CERTIFICATE-----',
+        },
+      },
+      'test.yaml'
+    );
+
+    expect(certs).toEqual({
+      'https://localhost:3443': {
         clientCert:
           '-----BEGIN CERTIFICATE-----\nMIICWDCCAd+gAwIBAgIJAP8L\n-----END CERTIFICATE-----',
         clientKey:
           '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0B\n-----END PRIVATE KEY-----',
         caCert: '-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK7P\n-----END CERTIFICATE-----',
       },
-      'test.yaml'
-    );
-
-    expect(certs).toEqual({
-      clientCert:
-        '-----BEGIN CERTIFICATE-----\nMIICWDCCAd+gAwIBAgIJAP8L\n-----END CERTIFICATE-----',
-      clientKey: '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0B\n-----END PRIVATE KEY-----',
-      caCert: '-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK7P\n-----END CERTIFICATE-----',
     });
   });
 
   it('should resolve certificates from file', () => {
     const certs = resolveMtlsCertificates(
       {
-        clientCert: 'clientCert.pem',
-        clientKey: 'clientKey.pem',
-        caCert: 'caCert.pem',
+        'https://example.com': {
+          clientCert: 'clientCert.pem',
+          clientKey: 'clientKey.pem',
+          caCert: 'caCert.pem',
+        },
       },
       'test.yaml'
     );
 
     expect(certs).toEqual({
-      clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
-      clientKey: '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----',
-      caCert: '-----BEGIN CERTIFICATE-----\ncaCert\n-----END CERTIFICATE-----',
+      'https://example.com': {
+        clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
+        clientKey: '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----',
+        caCert: '-----BEGIN CERTIFICATE-----\ncaCert\n-----END CERTIFICATE-----',
+      },
     });
   });
 
@@ -93,9 +103,11 @@ describe('resolveMtlsCertificates', () => {
     expect(() =>
       resolveMtlsCertificates(
         {
-          clientCert: 'clientCert.pem',
-          clientKey: 'clientKey.pem',
-          caCert: 'caCert.pem',
+          'https://example.com': {
+            clientCert: 'clientCert.pem',
+            clientKey: 'clientKey.pem',
+            caCert: 'caCert.pem',
+          },
         },
         'test.yaml'
       )
@@ -105,37 +117,69 @@ describe('resolveMtlsCertificates', () => {
   it('should resolve certificate content in case some cert is not provided', () => {
     const certs = resolveMtlsCertificates(
       {
-        clientCert: 'clientCert.pem',
-        clientKey: 'clientKey.pem',
+        'https://example.com': {
+          clientCert: 'clientCert.pem',
+          clientKey: 'clientKey.pem',
+        },
       },
       'test.yaml'
     );
 
     expect(certs).toEqual({
-      clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
-      clientKey: '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----',
-      caCert: undefined,
+      'https://example.com': {
+        clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
+        clientKey: '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----',
+        caCert: undefined,
+      },
     });
   });
 
-  it('should return undefined if cert is not provided', () => {
+  it('should return empty object if no domains provided', () => {
     const certs = resolveMtlsCertificates({}, 'test.yaml');
 
-    expect(certs).toEqual({
-      clientCert: undefined,
-      clientKey: undefined,
-      caCert: undefined,
-    });
+    expect(certs).toEqual({});
   });
 
   it('should throw error if certificate is not valid', () => {
     expect(() =>
       resolveMtlsCertificates(
         {
-          clientCert: '-----BEGIN CERTIFICATE--22323-----END CERTIFICATE-----',
+          'https://example.com': {
+            clientCert: '-----BEGIN CERTIFICATE--22323-----END CERTIFICATE-----',
+          },
         },
         'test.yaml'
       )
     ).toThrow('Invalid certificate format');
+  });
+
+  it('should handle multiple domains', () => {
+    const certs = resolveMtlsCertificates(
+      {
+        'https://localhost:3443': {
+          clientCert: 'clientCert.pem',
+          clientKey: 'clientKey.pem',
+          caCert: 'caCert.pem',
+        },
+        'https://api.example.com': {
+          clientCert: 'clientCert.pem',
+          clientKey: 'clientKey.pem',
+        },
+      },
+      'test.yaml'
+    );
+
+    expect(certs).toEqual({
+      'https://localhost:3443': {
+        clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
+        clientKey: '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----',
+        caCert: '-----BEGIN CERTIFICATE-----\ncaCert\n-----END CERTIFICATE-----',
+      },
+      'https://api.example.com': {
+        clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
+        clientKey: '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----',
+        caCert: undefined,
+      },
+    });
   });
 });

@@ -1,5 +1,3 @@
-import { blue, gray } from 'colorette';
-import { performance } from 'perf_hooks';
 import {
   formatProblems,
   getTotals,
@@ -8,7 +6,17 @@ import {
   pluralize,
   ConfigValidationError,
   logger,
+  type Config,
+  type Exact,
+  type OutputFormat,
 } from '@redocly/openapi-core';
+import { blue, gray } from 'colorette';
+import { performance } from 'perf_hooks';
+import type { Arguments } from 'yargs';
+
+import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
+import { AbortFlowError, exitWithError } from '../utils/error.js';
+import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
   formatPath,
@@ -19,12 +27,6 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
-import { AbortFlowError, exitWithError } from '../utils/error.js';
-import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
-
-import type { Arguments } from 'yargs';
-import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
 export type LintArgv = {
@@ -49,9 +51,6 @@ export async function handleLint({
     exitWithError('No APIs were provided.');
   }
 
-  if (argv['generate-ignore-file']) {
-    config.ignore = {}; // clear ignore
-  }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
 
@@ -66,7 +65,7 @@ export async function handleLint({
       aliasConfig.skipRules(argv['skip-rule']);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (typeof config.document?.parsed === 'undefined') {
+      if (typeof config.document?.parsed === 'undefined' && !argv.extends) {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -93,6 +92,7 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
+        config.clearIgnoreForRef(path);
         for (const m of results) {
           config.addIgnore(m);
           totalIgnored++;
@@ -103,6 +103,7 @@ export async function handleLint({
           maxProblems: argv['max-problems'],
           totals: fileTotals,
           version,
+          command: 'lint',
         });
       }
 
@@ -115,9 +116,7 @@ export async function handleLint({
 
   if (argv['generate-ignore-file']) {
     config.saveIgnore();
-    logger.info(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
-    );
+    logger.info(`Explicitly ignored ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`);
   } else {
     printLintTotals(totals, apis.length);
   }
@@ -153,6 +152,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,
+    command: 'check-config',
   });
 
   printConfigLintTotals(fileTotals, command);

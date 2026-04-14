@@ -6,7 +6,7 @@
   "type": "module",
   "engines": {
     "node": ">=22.12.0 || >=20.19.0 <21.0.0",
-    "npm": ">=10"
+    "npm": ">=11"
   },
   "engineStrict": true,
   "scripts": {
@@ -14,9 +14,10 @@
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
-    "prettier": "npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
-    "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,yml,json,md}\"",
-    "eslint": "eslint packages/**",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint ./packages",
+    "lint:fix": "oxlint --fix",
     "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "compile": "tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run build-docs:copy-assets",
@@ -27,7 +28,7 @@
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format es --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
     "build-docs:copy-assets": "cp packages/cli/src/commands/build-docs/template.hbs packages/cli/lib/commands/build-docs/template.hbs ",
-    "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
+    "json-server": "json-server --watch tests/e2e/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
   "workspaces": [
     "packages/*"
@@ -52,33 +53,29 @@
   "license": "MIT",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@types/mark.js": "^8.11.5",
-    "@types/marked": "^4.0.3",
     "@types/node": "^22.15.3",
-    "@typescript-eslint/eslint-plugin": "^6.8.0",
-    "@typescript-eslint/parser": "^6.8.0",
-    "@vitest/coverage-istanbul": "^3.0.9",
-    "eslint": "^8.22.0",
-    "eslint-plugin-import": "^2.29.1",
+    "@vitest/coverage-istanbul": "^4.0.18",
     "husky": "^9.1.7",
+    "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",
     "json-server": "1.0.0-beta.3",
     "lint-staged": "^15.4.3",
     "outdent": "^0.7.1",
+    "oxfmt": "^0.33.0",
+    "oxlint": "^1.48.0",
     "pegjs": "0.11.0-master.b7b87ea",
-    "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
-    "ts-loader": "^8.0.2",
     "tsx": "^4.19.3",
-    "typescript": "5.5.3",
-    "vitest": "^3.0.8"
+    "typescript": "5.9.3",
+    "vitest": "^4.0.18"
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
-      "prettier --write"
+      "npm run lint",
+      "npm run format"
     ],
     "packages/**/*.ts": [
-      "eslint --fix"
+      "npm run lint:fix"
     ]
   }
 }

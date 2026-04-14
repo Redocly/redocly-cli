@@ -1,17 +1,16 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
+
+import type { Parameter } from '../../types.js';
 import {
   generateTestDataFromJsonSchema,
   generateExampleValue,
 } from '../arazzo-description-generator/index.js';
+import { isParameterWithIn, type ParameterWithIn } from '../context-parser/index.js';
 import { extractFirstExample } from './extract-first-example.js';
-import { isParameterWithIn } from '../context-parser/index.js';
-
-import type { Parameter } from '../../types.js';
-import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from './get-operation-from-description.js';
 
 export interface OpenApiRequestData {
-  requestBody?: Record<string, unknown>;
+  requestBody?: unknown;
   contentType?: string;
   parameters: ParameterWithIn[];
   contentTypeParameters: ParameterWithIn[];
@@ -72,6 +71,7 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
           name: parameter.name,
           in: parameter.in,
           value: generateExampleValue(parameter, logger),
+          ...(parameter.allowReserved && { allowReserved: parameter.allowReserved }),
         } as ParameterWithIn;
       }
       // Return undefined for non-matching parameters

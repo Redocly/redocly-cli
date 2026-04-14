@@ -132,6 +132,7 @@ schemas:
 
 - [no-schema-type-mismatch](./no-schema-type-mismatch.md)
 - [no-enum-type-mismatch](./no-enum-type-mismatch.md)
+- [no-mixed-number-range-constraints](./no-mixed-number-range-constraints.md)
 - [no-invalid-schema-examples](../oas/no-invalid-schema-examples.md)
 
 ## Resources

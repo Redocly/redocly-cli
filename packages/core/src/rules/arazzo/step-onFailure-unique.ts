@@ -23,9 +23,7 @@ export const StepOnFailureUnique: Arazzo1Rule = () => {
             });
           }
 
-          onFailureAction?.name
-            ? seenFailureActions.add(onFailureAction.name)
-            : seenFailureActions.add(onFailureAction.reference);
+          seenFailureActions.add(onFailureAction.name ?? onFailureAction.reference);
         }
       },
     },

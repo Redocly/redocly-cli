@@ -1,0 +1,13 @@
+🚗 References: 2 
+📦 External Documents: 1 
+📈 Schemas: 1 
+👉 Parameters: 0 
+📡 Channels: 1 
+👷 Operations: 1 
+🔖 Tags: 2 
+
+Document: async.yaml stats:
+
+
+async.yaml: stats processed in <test>ms
+

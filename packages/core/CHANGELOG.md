@@ -1,5 +1,352 @@
 # @redocly/openapi-core
 
+## 2.27.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.48.0.
+
+## 2.26.0
+
+### Minor Changes
+
+- Added `excludedPaths` option to the `no-http-verbs-in-paths` rule, allowing specific paths to be excluded from evaluation.
+
+### Patch Changes
+
+- Fixed the `no-required-schema-properties-undefined` rule to report when a required property is not defined in every `oneOf`/`anyOf` branch.
+- Updated @redocly/config to v0.46.1.
+
+## 2.25.4
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.46.0`.
+
+## 2.25.3
+
+### Patch Changes
+
+- Fixed multiple issues in the `spec-discriminator-defaultMapping` rule that could cause crashes or incorrect validation results.
+  The rule now correctly resolves existing schema names, traverses composite schemas (`allOf`, `anyOf`, `oneOf`) to find required properties, treats `defaultMapping` values as `$ref`s to schemas, resolves `$ref`s correctly across files, and handles cyclic schema dependencies.
+
+## 2.25.2
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.45.0`.
+- Fixed a crash when a non-string value (for example, a number) was used in an `extends` array in `redocly.yaml` inside `scorecard`/`scorecardClassic`.
+  Fixed a crash when reference could not be resolved in `extends`.
+- Improved error message when a plugin is not detected.
+- Updated `picomatch` dependency to `^4.0.4`.
+
+## 2.25.1
+
+## 2.25.0
+
+### Minor Changes
+
+- Added `no-mixed-number-range-constraints` rule for OpenAPI `3.1+`, as well as for AsyncAPI and Arazzo.
+  This rule warns when schemas use both `maximum` and `exclusiveMaximum` or both `minimum` and `exclusiveMinimum` keywords.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.44.2.
+- Fixed an issue where invalid discriminator mapping values could cause linting to fail.
+
+## 2.24.1
+
+## 2.24.0
+
+### Minor Changes
+
+- Added `x-allowReserved` extension for Respect.
+  This extension enables the use of unencoded reserved characters in query parameter values in Arazzo workflows.
+
+## 2.23.0
+
+### Patch Changes
+
+- Added export of `regexFromString` function.
+
+## 2.22.1
+
+## 2.22.0
+
+### Patch Changes
+
+- Extended the `nonEmpty` assertion to support arrays.
+  An empty array is now treated as empty during linting.
+
+## 2.21.1
+
+## 2.21.0
+
+### Minor Changes
+
+- Added a new option to the `filter-in` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added a new option to the `filter-out` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+
+## 2.20.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.44.1.
+
+## 2.20.4
+
+### Patch Changes
+
+- Improved error messaging when a path parameter referenced via `$ref` is not used in the path.
+
+## 2.20.3
+
+## 2.20.2
+
+### Patch Changes
+
+- Add support for data: URLs (RFC 2397) in references.
+  The resolver now handles inline base64-encoded and URL-encoded data in $ref fields, allowing schemas and other content to be embedded directly as data URLs.
+- Updated `@redocly/config` to v0.44.0.
+
+## 2.20.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.0`
+
+## 2.20.0
+
+### Minor Changes
+
+- Added AsyncAPI support to the `stats` command.
+
+## 2.19.2
+
+### Patch Changes
+
+- Fixed an issue where `scorecardClassic` configurations were not resolved.
+
+## 2.19.1
+
+## 2.19.0
+
+### Minor Changes
+
+- Added the `spec-querystring-parameters` rule (OpenAPI 3.2).
+  This rule enforces that `query` and `querystring` are not mixed in the same operation/path parameter set, and that at most one `querystring` parameter is declared per operation or path.
+
+## 2.18.2
+
+### Patch Changes
+
+- Fixed false positive errors in example validation for OpenAPI 3.0.x and OpenAPI 2.x.
+
+## 2.18.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to v8.17.4.
+- Fixed validation of examples where combining `required` with `readOnly` or `writeOnly` properties would incorrectly generate warnings.
+
+## 2.18.0
+
+### Minor Changes
+
+- Added `lintEntityWithScorecardLevel` function to validate entity files against scorecard level configurations and `lintSchema` function to lint individual schemas from API description files.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.43.0.
+
+## 2.17.0
+
+### Minor Changes
+
+- Added support for Media Types in the Components model.
+- Added new `outputs-defined` Arazzo rule, ensuring outputs are defined before use.
+
+## 2.16.0
+
+### Minor Changes
+
+- Added a new `--component-renaming-conflicts-severity` option for the `bundle` command to control how naming conflicts are reported when bundling API descriptions with external references.
+
+### Patch Changes
+
+- Redirected bundling problems (such as lint errors and warnings) to `stderr` instead of `stdout` to avoid interfering with the bundled output.
+
+## 2.15.2
+
+### Patch Changes
+
+- Fixed an issue where improperly structured OpenAPI examples caused the linter to fail.
+
+## 2.15.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.4.
+- Added `description` and `documentationLink` properties to NodeTypes.
+  Renamed Redocly configuration types to better reflect their purpose and relations.
+- Updated @redocly/config to v0.41.3.
+
+## 2.15.0
+
+### Patch Changes
+
+- Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.9
+
+### Patch Changes
+
+- Revert: fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.8
+
+### Patch Changes
+
+- Allowed `x-query` operations names in OpenAPI 3.0 and 3.1 similar to `query` in OpenAPI 3.2.
+- Fixed an issue where multi-line lint error messages could break Markdown formatting.
+
+## 2.14.7
+
+### Patch Changes
+
+- Fixed an issue where the `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` would not trigger warnings when an example defined in a schema.
+
+## 2.14.6
+
+### Patch Changes
+
+- Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.2.
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+
+## 2.14.4
+
+## 2.14.3
+
+## 2.14.2
+
+### Patch Changes
+
+- Improved overall performance by skipping unnecessary JSON pointer escaping and unescaping.
+
+## 2.14.1
+
+### Patch Changes
+
+- Fixed an issue where JSON Pointers containing special characters (like `%`) were not properly URI-encoded.
+  When these pointers were used as URI identifiers, they caused validation errors with properties containing percent signs or other special characters.
+
+## 2.14.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.1.
+
+## 2.13.0
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+## 2.12.7
+
+## 2.12.6
+
+### Patch Changes
+
+- Fixed `path-params-defined` rule to correctly skip parameters defined through `$ref`.
+
+## 2.12.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.0.
+
+## 2.12.4
+
+### Patch Changes
+
+- Fixed false positive reports for path parameters in callback operations reported by the `path-parameters-defined` rule.
+
+## 2.12.3
+
+## 2.12.2
+
+## 2.12.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.17.1` and `ajv-formats` to `v3.0.1`.
+
+## 2.12.0
+
+### Minor Changes
+
+- Added OpenAPI 3.2 XML modeling support.
+
+### Patch Changes
+
+- Fixed an issue where the `no-required-schema-properties-undefined` caused a crash when encountering unresolved `$ref`s.
+- Updated @redocly/config to v0.40.0.
+
+## 2.11.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.38.0.
+- Fixed an issue where the content of `$ref`s inside example values was erroneously resolved during bundling and linting.
+- Fixed `no-invalid-media-type-examples` for schemas using `anyOf`/`oneOf`.
+
+## 2.11.0
+
+### Minor Changes
+
+- Added `REDOCLY_CLI_LINT_MAX_SUGGESTIONS` environment variable to limit displayed suggestions (default: 5).
+
+### Patch Changes
+
+- Updated @redocly/config to v0.37.0.
+
+## 2.10.0
+
+### Minor Changes
+
+- Added support for message placeholders in custom rule error messages.
+
+## 2.9.0
+
+### Minor Changes
+
+- Added support for `schemeName` in `x-security` at the workflow level (Arazzo). Added new lint rules: `arazzo/no-x-security-both-scheme-and-scheme-name` and `arazzo/x-security-scheme-name-link`. Updated core configs to include new rules.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.36.2.
+
+## 2.8.0
+
+### Minor Changes
+
+- Added the `no-invalid-schema-examples` and `no-invalid-parameter-examples` to the `recommended` ruleset.
+  Added the `no-duplicated-tag-names` to the `spec` ruleset.
+
+## 2.7.1
+
+### Patch Changes
+
+- Fixed an issue where `no-required-schema-properties-undefined` rule did not evaluate properties in `any` and `oneOf`.
+- Fixed an issue where references were not resolved when used inside other properties alongside the `$ref` keyword.
+
 ## 2.7.0
 
 ### Minor Changes
@@ -320,7 +667,6 @@
 
 - Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
   Use this extension to:
-
   - Define security schemes at the step level using either predefined schemes or inline definitions
   - Pass values of secrets (passwords, tokens, API keys)
   - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect

@@ -1,9 +1,10 @@
 import { outdent } from 'outdent';
-import { bundleDocument } from '../../bundle/bundle-document.js';
-import { BaseResolver } from '../../resolve.js';
+
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { bundleDocument } from '../../bundle/bundle-document.js';
 import { createConfig } from '../../config/index.js';
 import { Oas2Types, Oas3Types } from '../../index.js';
+import { BaseResolver } from '../../resolve.js';
 
 describe('oas3 filter-out', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -341,6 +342,243 @@ describe('oas2 filter-out', () => {
               - protected
               - public
 
+    `);
+  });
+});
+
+describe('oas3 filter-out with applyTo: Operation', () => {
+  expect.addSnapshotSerializer(yamlSerializer);
+
+  it('should remove only operations with a matching property value', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              x-audience: Public
+              summary: List users
+            post:
+              x-audience: Internal
+              summary: Create user
+          /admin:
+            get:
+              x-audience: Internal
+              summary: Admin panel
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-out': {
+            property: 'x-audience',
+            value: ['Internal'],
+            applyTo: 'Operation',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          get:
+            x-audience: Public
+            summary: List users
+      components: {}
+
+    `);
+  });
+
+  it('should keep operations without the property', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              x-audience: Public
+              summary: List users
+            post:
+              summary: Create user (no audience)
+          /admin:
+            get:
+              x-audience: Internal
+              summary: Admin panel
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-out': {
+            property: 'x-audience',
+            value: ['Internal'],
+            applyTo: 'Operation',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          get:
+            x-audience: Public
+            summary: List users
+          post:
+            summary: Create user (no audience)
+      components: {}
+
+    `);
+  });
+
+  it('should remove only operations with specified operationIds', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /foo:
+            get:
+              operationId: getFoo
+            post:
+              operationId: createFoo
+          /bar:
+            get:
+              operationId: getBar
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-out': {
+            property: 'operationId',
+            value: ['getFoo', 'getBar'],
+            applyTo: 'Operation',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /foo:
+          post:
+            operationId: createFoo
+      components: {}
+
+    `);
+  });
+
+  it('should support matchStrategy: all with applyTo: Operation', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /foo:
+            get:
+              tags:
+                - internal
+                - deprecated
+            post:
+              tags:
+                - internal
+          /bar:
+            get:
+              tags:
+                - public
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-out': {
+            property: 'tags',
+            value: ['internal', 'deprecated'],
+            applyTo: 'Operation',
+            matchStrategy: 'all',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /foo:
+          post:
+            tags:
+              - internal
+        /bar:
+          get:
+            tags:
+              - public
+      components: {}
+
+    `);
+  });
+});
+
+describe('oas3 filter-out with applyTo: PathItem', () => {
+  expect.addSnapshotSerializer(yamlSerializer);
+
+  it('should remove only path items with a matching property value but should not remove nodes with the property on operation level', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            x-audience: Public
+            get:
+              summary: List users
+          /admin:
+            x-audience: Internal
+            get:
+              summary: Admin panel
+          /health:
+            x-audience: Public
+            get:
+              summary: Health check
+              x-audience: Internal
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-out': {
+            property: 'x-audience',
+            value: ['Internal'],
+            applyTo: 'PathItem',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          x-audience: Public
+          get:
+            summary: List users
+        /health:
+          x-audience: Public
+          get:
+            summary: Health check
+            x-audience: Internal
+      components: {}
     `);
   });
 });

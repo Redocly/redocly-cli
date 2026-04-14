@@ -1,5 +1,4 @@
 import type { TestDescription } from '../../../types.js';
-
 import { cleanupTestDescription } from '../../arazzo-description-generator/index.js';
 
 describe('cleanupTestDescription', () => {

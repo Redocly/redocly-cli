@@ -1,22 +1,7 @@
+import type { CollectFn, Config } from '@redocly/openapi-core';
 import { blue } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
-import { ApiFetcher } from '../../utils/api-fetcher.js';
-import { createTestContext } from './context/create-test-context.js';
-import { getValueFromContext } from '../context-parser/index.js';
-import { getWorkflowsToRun } from './get-workflows-to-run.js';
-import { runStep } from './run-step.js';
-import {
-  printWorkflowSeparator,
-  printRequiredWorkflowSeparator,
-} from '../logger-output/helpers.js';
-import { bundleArazzo } from './get-test-description-from-file.js';
-import { CHECKS } from '../checks/index.js';
-import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { calculateTotals } from '../logger-output/index.js';
-import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 
-import type { CollectFn, Config } from '@redocly/openapi-core';
 import type {
   TestDescription,
   AppOptions,
@@ -30,6 +15,21 @@ import type {
   ExecutedStepsCount,
   Step,
 } from '../../types.js';
+import { ApiFetcher } from '../../utils/api-fetcher.js';
+import { CHECKS } from '../checks/index.js';
+import { getValueFromContext } from '../context-parser/index.js';
+import {
+  printWorkflowSeparator,
+  printRequiredWorkflowSeparator,
+} from '../logger-output/helpers.js';
+import { calculateTotals } from '../logger-output/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { createTestContext } from './context/create-test-context.js';
+import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
+import { bundleArazzo } from './get-test-description-from-file.js';
+import { getWorkflowsToRun } from './get-workflows-to-run.js';
+import { resolveRunningWorkflows } from './resolve-running-workflows.js';
+import { runStep } from './run-step.js';
 
 export async function runTestFile({
   options,
@@ -115,6 +115,7 @@ export async function runWorkflow({
   parentStepId,
   invocationContext,
   executedStepsCount,
+  retriesLeft,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
@@ -166,6 +167,7 @@ export async function runWorkflow({
         ctx,
         workflowId,
         executedStepsCount,
+        retriesLeft,
       });
 
       // When `end` action is used, we should not continue with the next steps
@@ -201,8 +203,8 @@ export async function runWorkflow({
       ctx: {
         ...ctx,
         $inputs: {
-          ...(ctx.$inputs || {}),
-          ...(ctx.$workflows[workflowId]?.inputs || {}),
+          ...ctx.$inputs,
+          ...ctx.$workflows[workflowId]?.inputs,
         },
       },
       workflowId,
@@ -264,7 +266,7 @@ async function handleDependsOn({
         value: workflowId,
         ctx,
         logger: ctx.options.logger,
-      });
+      }) as Workflow;
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);

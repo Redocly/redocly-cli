@@ -1,8 +1,8 @@
 import { logger } from '@redocly/openapi-core';
-import { exitWithError } from '../utils/error.js';
+
 import { RedoclyOAuthClient } from '../auth/oauth-client.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
-
+import { exitWithError } from '../utils/error.js';
 import type { CommandArgs } from '../wrapper.js';
 
 export type LoginArgv = {

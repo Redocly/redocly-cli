@@ -33,16 +33,17 @@ Before submitting your contribution though, please make sure to take a moment an
 
 Before submitting a pull request, please make sure the following is done:
 
-1. Fork the repository and create your branch from `main`.
+1. Pull/fork the repository and create your branch from `main`.
 1. Run `npm install` in the repository root.
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
-1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
-1. Format your code with prettier (`npm run prettier`).
-1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`;
-   if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well).
-   Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
-   This produces a file in `.changeset` folder.
-   Please commit this file along with your changes. If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the 'no changeset needed' label to the PR.
+1. Ensure the test suite and lint checks pass (`npm run test` and `npm run lint`).
+1. It's your responsibility to ensure your contribution does not violate copyright laws.
+1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`).
+   If your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
+   Describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
+   This creates a file in the `.changeset` folder.
+   Commit this file with your changes.
+   If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the `no changeset needed` label to the PR.
 1. When merging a PR, make sure to remove all redundant commit information (like intermediate commit descriptions).
    Please leave only the main commit description (plus co-authors if needed).
    If you think it makes sense to keep several commit descriptions, please rebase your PR instead of squashing it to preserve the commits.
@@ -50,7 +51,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v22.12.0+ and NPM v10.9.2+ are required.
+[Node.js](http://nodejs.org) at v22.12.0+ and NPM v11+ are required.
 
 After forking the repo, run:
 
@@ -65,7 +66,7 @@ To compile the code, run `npm run compile`.
 To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
 Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
-Format your code with `npm run prettier` before committing.
+Format your code with `npm run format` before committing.
 
 Please check the [Tests section](#tests) for the test commands reference.
 
@@ -80,17 +81,15 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
 1. Use the built-in logger from `@redocly/openapi-core` package:
 
    ```typescript
-   import { logger } from '@redocly/openapi-core';
+   import { logger } from "@redocly/openapi-core";
    ```
 
 2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
-
    - `logger.info()` for general information
    - `logger.warn()` for warnings
    - `logger.error()` for errors
 
 3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
-
    - Command output that needs to be parsed
    - Interactive outputs (like login/logout responses)
    - Data that needs to be piped to other commands
@@ -114,7 +113,7 @@ To test the local source code of the packages in other local applications, you c
 
 To test local changes as a package, you can use the following steps:
 
-1. Optionally, bump the version of the packages ([see details](#version-updating)).
+1. Optionally, change the version of the packages.
 
 1. Run `npm run pack:prepare` in the repository's root.
    This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
@@ -158,7 +157,7 @@ The configuration is in `.vale.ini` in the root of the project.
 
 We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that the Markdown in our docs is well formatted. The checks run as part of the pull request, and you can also run this tool locally. Follow the instructions from the markdownlint project page, and then run `markdownlint docs/` in the top-level folder of this repository.
 
-> Note that prettier also runs and reformats Markdown files. Use `npm run prettier` from the root of the project.
+> Note that formatter also runs and reformats Markdown files. Use `npm run format` from the root of the project.
 
 ### Markdown link checking
 
@@ -175,14 +174,21 @@ It only checks links within the local docs (it can't check links to other docs s
 ## Built-in rules changes
 
 After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error), `spec`, and `all` rulesets with appropriate severity levels.
-The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
+The defaults are `off` or `warn` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the built-in rules list in [the config types tree](./packages/core/src/types/redocly-yaml.ts).
 
+If the rule reflects a specification requirement, prefix it with `spec-` and add it to the [spec ruleset](./packages/core/src/config/spec.ts).
+
 Separately, open a merge request with the corresponding documentation changes.
+To make changes to documentation:
+
+1. Create a new page for the rule in the `docs/@v2` folder.
+2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
+3. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
 ## Arguments usage
 
-There are three ways of providing arguments to the CLI: environment variables, command line arguments, and Redocly configuration file.
+There are three ways of providing arguments to the CLI: environment variables, command line arguments, and a Redocly configuration file.
 
 ### Environment variables
 
@@ -248,8 +254,8 @@ Note that the snapshot does not always match the command output because of the w
 Here's how the output is processed in tests:
 
 ```typescript
-const out = result.stdout ? result.stdout.toString() : '';
-const err = result.stderr ? result.stderr.toString() : '';
+const out = result.stdout ? result.stdout.toString() : "";
+const err = result.stderr ? result.stderr.toString() : "";
 return `${out}\n${err}`;
 ```
 
@@ -260,7 +266,7 @@ When writing tests, keep in mind that the order of stdout and stderr messages in
 
 Smokes are for testing the CLI in different environments.
 
-To run them locally, please follow the steps described in the smoke GitHub actions: [smoke](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+To run them locally, please follow the steps described in the smoke GitHub actions: [smoke-basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
 
 To update smoke tests for the `build-docs` command (which sometimes fails due to external package updates), please follow the steps below:
 
@@ -271,57 +277,61 @@ npm run pack:prepare
 npm i -g redocly-cli.tgz
 
 # Re-build the docs
-(cd __tests__/smoke/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
+(cd tests/smoke/basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
 ```
 
+Don't forget to visually check the [changes](tests/smoke/basic/pre-built/redoc.html) in a browser.
 For other commands you'd have to do something similar.
 
 ### Performance benchmark
 
-To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
-Prepare the local build, go to the `benchmark` folder, clean it up, do the preparations, and run the actual benchmark:
+To run the performance tests locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
+Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations:
 
 ```sh
-(npm run compile && npm run pack:prepare && cd benchmark/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
+(npm run compile && npm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff .  && rm -rf node_modules && rm -f package-lock.json && npm i && npm run make-test)
 ```
 
-You might need to adjust the CLI versions that need to be tested in the `benchmark/package.json` file.
+and run the actual test:
+
+```sh
+(cd tests/performance/ && npm run test && cat benchmark_check.md)
+```
+
+You might need to adjust the CLI versions that need to be tested in the `tests/performance/package.json` file.
 
 ### Manual tests
 
-What should be verified when changes applied to the `respect-core` package:
+What should be verified when changes are applied to the `respect-core` package:
 
-- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --ca-cert="ca-cert.pem" --client-key="client-key.pem" --client-cert="client-cert.pem"`.
+- `mTLS` is working. Can be done by calling API endpoint with mTLS authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
 - File upload is working for both `multipart/form-data` and `application/octet-stream`.
 
 ## Project structure
 
-- **`__tests__`**: contains e2e and smoke tests.
+- **`tests/e2e`**: contains e2e tests.
 
-- **`benchmark`**: contains the performance benchmark. <!-- TODO: move it under the __tests__ folder -->
+- **`tests/performance`**: contains the performance benchmark.
+
+- **`tests/smoke`**: contains smoke tests.
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
 - **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
-
-  - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
-
+  - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](./README.md).
     - **`packages/cli/src`**: contains CLI package source code.
-
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
   - **`packages/core`**: contains Redocly CLI core functionality like rules, decorators, etc.
-
     - **`packages/core/__tests__`**: contains unit tests.
-    - **`packages/cli/core`**: contains core package source code.
-
+    - **`packages/core/src`**: contains core package source code.
       - **`packages/core/src/__tests__`**: contains unit tests.
       - **`packages/core/src/config`**: contains the base configuration options.
-      - **`packages/core/src/decorators`**: contains the built-in [decorators](../docs/resources/built-in-decorators.md) code.
+      - **`packages/core/src/decorators`**: contains the built-in [decorators](docs/@v2/decorators.md) code.
       - **`packages/core/src/format`**: contains the format options.
       - **`packages/core/src/js-yaml`**: contains the [JS-YAML](https://www.npmjs.com/package/js-yaml) based functions.
-      - **`packages/core/src/rules`**: contains the built-in [rules](../docs/resources/built-in-rules.md) code.
+      - **`packages/core/src/rules`**: contains the built-in [rules](docs/@v2/rules/built-in-rules.md) code.
       - **`packages/core/src/types`**: contains the common types for several OpenAPI versions.
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 

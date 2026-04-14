@@ -33,7 +33,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | files                 | [string] | **REQUIRED.** List of folders and/or files to upload.                                                                                                                                  |
 | --organization, -o    |  string  | **REQUIRED.** Organization slug.                                                                                                                                                       |
 | --project, -p         |  string  | **REQUIRED.** Project slug.                                                                                                                                                            |
-| --mount-path, -mp     |  string  | **REQUIRED.** The path where the files are mounted in the project.                                                                                                                     |
+| --mount-path, -mp     |  string  | **REQUIRED.** The path where the files are mounted in the project. Cannot be empty or identical to the project path.                                                                   |
 | --branch, -b          |  string  | **REQUIRED.** The branch files are pushed from.                                                                                                                                        |
 | --author, -a          |  string  | **REQUIRED.** The author of the push in the format: `'Author Name <author-email@example.com>'`.                                                                                        |
 | --message, -m         |  string  | **REQUIRED.** The commit message for the push.                                                                                                                                         |
@@ -49,11 +49,6 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --wait-for-deployment | boolean  | Waits until the build is completed if it is in progress. Behaves the same as `push-status` command when passed. See [push-status](./push-status.md) command. Default value is `false`. |
 | --verbose             | boolean  | Verbose output. Default value is `false`.                                                                                                                                              |
 | --help                | boolean  | Help output for the command.                                                                                                                                                           |
-
-## Constraints
-
-- Maximum file size: 10 MB per file
-- Maximum number of files: 100
 
 ## Example usage
 
