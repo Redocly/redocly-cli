@@ -1,11 +1,15 @@
 import type { ScorecardConfig } from '@redocly/config';
 import type { NormalizedProblem, OutputFormat, ResolvedConfig } from '@redocly/openapi-core';
 
+export type ScorecardClassicOutputFormat =
+  | Extract<OutputFormat, 'stylish' | 'json' | 'checkstyle'>
+  | 'junit';
+
 export type ScorecardClassicArgv = {
   api: string;
   config: string;
   'project-url'?: string;
-  format: OutputFormat;
+  format: ScorecardClassicOutputFormat;
   'target-level'?: string;
   verbose?: boolean;
 };
