@@ -14,10 +14,10 @@ type SchemaSignature = {
   items?: SchemaSignature;
   additionalProperties?: boolean | SchemaSignature;
   required?: Set<string>;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
-type ReturnType = {
+type ExclusivityResult = {
   isExclusive: boolean;
   reason?: string;
 };
@@ -26,28 +26,26 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
   return {
     Schema: {
       skip(node) {
-        return !(node.oneOf || node.anyOf || node.allOf);
+        return !('oneOf' in node || 'anyOf' in node || 'allOf' in node);
       },
       enter(schema, { report, location, resolve }) {
-        // Helper function to get the composition keyword and schemas
-        const compositionData = (() => {
-          if (schema.oneOf && Array.isArray(schema.oneOf)) {
-            return { keyword: 'oneOf' as const, schemas: schema.oneOf };
-          }
-          if (schema.anyOf && Array.isArray(schema.anyOf)) {
-            return { keyword: 'anyOf' as const, schemas: schema.anyOf };
-          }
-          if (schema.allOf && Array.isArray(schema.allOf)) {
-            return { keyword: 'allOf' as const, schemas: schema.allOf };
-          }
-          return undefined;
-        })();
+        let keyword: 'oneOf' | 'anyOf' | 'allOf' | undefined;
+        let schemas: Array<Oas3Schema | Oas3_1Schema> | undefined;
 
-        if (!compositionData) return;
+        if (Array.isArray(schema.oneOf)) {
+          keyword = 'oneOf';
+          schemas = schema.oneOf;
+        } else if (Array.isArray(schema.anyOf)) {
+          keyword = 'anyOf';
+          schemas = schema.anyOf;
+        } else if (Array.isArray(schema.allOf)) {
+          keyword = 'allOf';
+          schemas = schema.allOf;
+        }
 
-        const { keyword, schemas } = compositionData;
+        if (!keyword || !schemas) return;
 
-        // Check for minimum schema count (oneOf and anyOf require at least 2)
+        // oneOf and anyOf require at least 2 schemas; use the schema directly otherwise
         if ((keyword === 'oneOf' || keyword === 'anyOf') && schemas.length < 2) {
           report({
             message: `Schema object '${keyword}' should contain at least 2 schemas. Use the schema directly instead.`,
@@ -56,10 +54,10 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           return;
         }
 
-        // Check for empty schemas (applies to all composition keywords)
+        // Empty schemas are meaningless in any composition keyword
         for (let i = 0; i < schemas.length; i++) {
           const resolvedSchema = resolveSchema(schemas[i], resolve);
-          if (isEmptyObject(resolvedSchema)) {
+          if (resolvedSchema && isEmptyObject(resolvedSchema)) {
             report({
               message: `Schema is empty.`,
               location: location.child([keyword, String(i)]),
@@ -68,10 +66,10 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           }
         }
 
-        // Check for duplicate schemas
+        // Duplicate schemas make composition impossible to discriminate
         for (let i = 0; i < schemas.length - 1; i++) {
           for (let j = i + 1; j < schemas.length; j++) {
-            if (dequal(Object.values(schemas[i]), Object.values(schemas[j]))) {
+            if (dequal(schemas[i], schemas[j])) {
               report({
                 message: `Duplicate schemas found in '${keyword}', which makes it impossible to discriminate between schemas.`,
                 location: location.child([keyword]),
@@ -81,13 +79,12 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           }
         }
 
-        // oneOf-specific checks
         if (keyword === 'oneOf') {
-          // Check for nullable type conflict
+          // A nullable parent with a nullable oneOf option creates null ambiguity
           if (hasNullableType(schema)) {
             const hasNullTypeInOneOf = schemas.some((subSchema) => {
               const resolved = resolveSchema(subSchema, resolve);
-              return hasNullableType(resolved);
+              return resolved ? hasNullableType(resolved) : false;
             });
 
             if (hasNullTypeInOneOf) {
@@ -106,118 +103,95 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
   };
 };
 
-// Helper function to resolve a schema if it's a reference
+/** Resolves a schema $ref to its target node. Returns undefined if the ref cannot be resolved. */
 function resolveSchema(
   schema: Oas3Schema | Oas3_1Schema,
   resolve: UserContext['resolve']
-): Oas3Schema | Oas3_1Schema {
+): Oas3Schema | Oas3_1Schema | undefined {
   if (isRef(schema)) {
     const { node: resolvedSchema } = resolve(schema);
-    if (resolvedSchema) {
-      return resolvedSchema;
-    }
+    return resolvedSchema ?? undefined;
   }
   return schema;
 }
 
-// Helper to check if a schema or signature represents a nullable type
-// Works with both Schema objects and SchemaSignature objects
+/** Checks if a schema represents a nullable type (OAS 3.0 nullable or OAS 3.1 type array/null). */
 function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): boolean {
-  if ('nullable' in schema && schema.nullable === true) {
-    return true;
-  }
-
-  // Check if type is the string 'null'
-  if (schema.type === 'null') {
-    return true;
-  }
-
-  // Check if type is an array containing 'null'
-  if (schema.type && Array.isArray(schema.type)) {
-    return schema.type.includes('null');
-  }
-
+  if ('nullable' in schema && schema.nullable === true) return true;
+  if (schema.type === 'null') return true;
+  if (schema.type && Array.isArray(schema.type)) return (schema.type as string[]).includes('null');
   return false;
 }
 
+/** Builds a normalized signature of a schema for mutual exclusivity comparison, with cycle detection. */
 function createSchemaSignature(
   schema: Oas3Schema | Oas3_1Schema,
-  resolve: UserContext['resolve']
+  resolve: UserContext['resolve'],
+  visited: Set<object> = new Set()
 ): SchemaSignature {
-  // Resolve $ref if present
   const resolvedSchema = resolveSchema(schema, resolve);
+  if (!resolvedSchema) return {};
 
-  // If resolving returned a different schema, recurse with the resolved one
-  if (resolvedSchema !== schema) {
-    return createSchemaSignature(resolvedSchema, resolve);
-  }
+  if (visited.has(resolvedSchema)) return {};
+  visited.add(resolvedSchema);
 
   const signature: SchemaSignature = {};
-
-  // Properties that need special handling
   const specialProperties = new Set(['properties', 'required', 'items', 'additionalProperties']);
 
-  // Copy all simple properties automatically
-  for (const [key, value] of Object.entries(schema)) {
-    if (!isDefined(value) || specialProperties.has(key)) {
-      continue; // Skip undefined values and special properties
-    }
-
-    // Clone arrays to avoid mutation
-    if (Array.isArray(value)) {
-      signature[key] = [...value];
-    } else {
-      signature[key] = value;
-    }
+  for (const [key, value] of Object.entries(resolvedSchema)) {
+    if (!isDefined(value) || specialProperties.has(key)) continue;
+    signature[key] = Array.isArray(value) ? [...value] : value;
   }
 
-  // Handle special properties that need transformation
-  if (schema.properties) {
-    signature.properties = new Set(Object.keys(schema.properties));
+  if (resolvedSchema.properties) {
+    signature.properties = new Set(Object.keys(resolvedSchema.properties));
     signature.propertySchemas = new Map();
-
-    // Store property schemas for deeper comparison
-    for (const [propName, propSchema] of Object.entries(schema.properties)) {
+    for (const [propName, propSchema] of Object.entries(resolvedSchema.properties)) {
       if (isPlainObject(propSchema)) {
-        signature.propertySchemas.set(propName, createSchemaSignature(propSchema, resolve));
+        signature.propertySchemas.set(
+          propName,
+          createSchemaSignature(propSchema, resolve, visited)
+        );
       }
     }
   }
 
-  if (schema.required) {
-    signature.required = new Set(schema.required);
+  if (resolvedSchema.required) {
+    signature.required = new Set(resolvedSchema.required);
   }
 
-  if (schema.items && isPlainObject(schema.items)) {
-    signature.items = createSchemaSignature(schema.items, resolve);
+  if (resolvedSchema.items && isPlainObject(resolvedSchema.items)) {
+    signature.items = createSchemaSignature(resolvedSchema.items, resolve, visited);
   }
 
-  if (isDefined(schema.additionalProperties)) {
-    if (typeof schema.additionalProperties === 'boolean') {
-      signature.additionalProperties = schema.additionalProperties;
+  if (isDefined(resolvedSchema.additionalProperties)) {
+    if (typeof resolvedSchema.additionalProperties === 'boolean') {
+      signature.additionalProperties = resolvedSchema.additionalProperties;
     } else {
-      signature.additionalProperties = createSchemaSignature(schema.additionalProperties, resolve);
+      signature.additionalProperties = createSchemaSignature(
+        resolvedSchema.additionalProperties,
+        resolve,
+        visited
+      );
     }
   }
 
   return signature;
 }
 
+/** Checks if two schema signatures are mutually exclusive based on their constraints. */
 function arePropertiesMutuallyExclusive(
   prop1: SchemaSignature,
   prop2: SchemaSignature
-): ReturnType {
-  // Check for null type distinction (OpenAPI 3.0 and 3.1)
+): ExclusivityResult {
   if (hasNullableType(prop1) && hasNullableType(prop2)) {
     return { isExclusive: false, reason: 'Both schemas allow null values, creating ambiguity.' };
   }
 
-  // If both have enums, check if they're completely non-overlapping
   if (prop1.enum && prop2.enum) {
     const overlappingEnums = prop1.enum.filter((val) =>
       prop2.enum!.some((val2) => dequal(val, val2))
     );
-
     return overlappingEnums.length > 0
       ? {
           isExclusive: false,
@@ -226,7 +200,6 @@ function arePropertiesMutuallyExclusive(
       : { isExclusive: true };
   }
 
-  // If both have const values and they're different, they're mutually exclusive
   if (prop1.const && prop2.const) {
     return !dequal(prop1.const, prop2.const)
       ? { isExclusive: true }
@@ -236,43 +209,35 @@ function arePropertiesMutuallyExclusive(
         };
   }
 
-  // If types are different, they're mutually exclusive.
   if (prop1.type && prop2.type && !isPlainObject(prop1.type) && !isPlainObject(prop2.type)) {
-    if (!dequal(prop1.type, prop2.type)) {
-      return { isExclusive: true };
-    } else if (prop1.format && prop2.format && prop1.format !== prop2.format) {
-      return { isExclusive: true };
-    }
+    if (!dequal(prop1.type, prop2.type)) return { isExclusive: true };
+    if (prop1.format && prop2.format && prop1.format !== prop2.format) return { isExclusive: true };
     return { isExclusive: false };
   }
 
   return { isExclusive: true };
 }
 
+/** Recursively checks if two schema signatures are mutually exclusive, with a depth limit. */
 function areSignaturesMutuallyExclusive(
   sig1: SchemaSignature,
   sig2: SchemaSignature,
   depth: number = 0
-): ReturnType {
+): ExclusivityResult {
   const MAX_DEPTH = 10;
   if (depth > MAX_DEPTH) {
-    // If we've gone too deep, assume they're not mutually exclusive to be safe
-    return {
-      isExclusive: false,
-      reason: 'Maximum recursion depth reached while checking schema exclusivity.',
-    };
+    // Cannot determine exclusivity at this depth — assume exclusive to avoid false positives
+    return { isExclusive: true };
   }
-  // Check top-level constraint exclusivity (types, formats, const values, enum values, and all constraints)
+
   const topLevelResult = arePropertiesMutuallyExclusive(sig1, sig2);
   if (!topLevelResult.isExclusive && topLevelResult.reason) {
     return topLevelResult;
   }
 
-  // Property overlap check
   if (sig1.properties && sig2.properties) {
     const intersection = [...sig1.properties].filter((prop) => sig2.properties!.has(prop));
     if (intersection.length > 0) {
-      // Check if overlapping properties have mutually exclusive values
       const ambiguousProperties: string[] = [];
       const mutuallyExclusiveProperties: string[] = [];
 
@@ -280,53 +245,30 @@ function areSignaturesMutuallyExclusive(
         const prop1Schema = sig1.propertySchemas?.get(propName);
         const prop2Schema = sig2.propertySchemas?.get(propName);
 
-        // If we have both property schemas, check if they're mutually exclusive
         if (prop1Schema && prop2Schema) {
           const { isExclusive, reason } = arePropertiesMutuallyExclusive(prop1Schema, prop2Schema);
+          if (!isExclusive && reason) return { isExclusive, reason };
 
-          if (!isExclusive && reason) {
-            return {
-              isExclusive,
-              reason,
-            };
-          }
-
-          // A property is truly mutually exclusive only if:
-          // 1. It has mutually exclusive values (different types, enums, etc.), OR
-          // 2. It's required in BOTH schemas (otherwise data can omit it)
           const isRequiredInBoth = sig1.required?.has(propName) && sig2.required?.has(propName);
-
           if (isExclusive && isRequiredInBoth) {
             mutuallyExclusiveProperties.push(propName);
-          } else if (isExclusive && !isRequiredInBoth) {
-            // Property has different types/values but is not required in both
-            // This doesn't make schemas mutually exclusive, but also not ambiguous
-            // Don't add to either list - it's neutral
-          } else {
-            // Property has overlapping/same values
+          } else if (!isExclusive) {
             ambiguousProperties.push(propName);
           }
         } else {
-          // If we can't determine, assume it's ambiguous
           ambiguousProperties.push(propName);
         }
       }
 
-      // If all overlapping properties have mutually exclusive values, schemas are not ambiguous
       if (ambiguousProperties.length === 0 && mutuallyExclusiveProperties.length > 0) {
         return { isExclusive: true };
       }
 
-      // Key insight: If ANY required property is mutually exclusive, the schemas are distinguishable
       if (sig1.required && sig2.required && mutuallyExclusiveProperties.length > 0) {
         const requiredAndMutuallyExclusive = mutuallyExclusiveProperties.filter(
           (prop) => sig1.required!.has(prop) && sig2.required!.has(prop)
         );
-
-        // If there's at least one required property that's mutually exclusive, schemas are NOT ambiguous
-        if (requiredAndMutuallyExclusive.length > 0) {
-          return { isExclusive: true };
-        }
+        if (requiredAndMutuallyExclusive.length > 0) return { isExclusive: true };
       }
 
       if (ambiguousProperties.length > 0) {
@@ -340,112 +282,40 @@ function areSignaturesMutuallyExclusive(
     }
   }
 
-  // additionalProperties check
-  if (isDefined(sig1.additionalProperties) || isDefined(sig2.additionalProperties)) {
-    const addlProps1 = sig1.additionalProperties;
-    const addlProps2 = sig2.additionalProperties;
+  // Check additionalProperties schemas for discrimination (schema-vs-schema only)
+  const addlProps1 = sig1.additionalProperties;
+  const addlProps2 = sig2.additionalProperties;
 
-    // Determine the type of additionalProperties for each schema
-    const isBoolean1 = typeof addlProps1 === 'boolean';
-    const isBoolean2 = typeof addlProps2 === 'boolean';
-    const isSchema1 = isPlainObject(addlProps1);
-    const isSchema2 = isPlainObject(addlProps2);
-
-    // Case 1: Both are booleans
-    if (isBoolean1 && isBoolean2) {
-      const allowsAdditional1 = addlProps1 !== false;
-      const allowsAdditional2 = addlProps2 !== false;
-
-      // If one allows and the other doesn't, they're not mutually exclusive (ambiguous)
-      if (allowsAdditional1 !== allowsAdditional2) {
-        return {
-          isExclusive: false,
-          reason: 'One schema allows additional properties while the other does not.',
-        };
-      }
+  if (isPlainObject(addlProps1) && isPlainObject(addlProps2)) {
+    const addlPropsResult = areSignaturesMutuallyExclusive(
+      addlProps1 as SchemaSignature,
+      addlProps2 as SchemaSignature,
+      depth + 1
+    );
+    if (!addlPropsResult.isExclusive) {
+      return {
+        isExclusive: false,
+        reason: `Schemas have overlapping additionalProperties definitions. ${addlPropsResult.reason ?? ''}`,
+      };
     }
-    // Case 2: One is boolean, the other is a schema/ref
-    else if ((isBoolean1 && isSchema2) || (isSchema1 && isBoolean2)) {
-      // If boolean is false, it means no additional properties allowed
-      // If the other has a schema, they conflict (one allows with constraints, one disallows)
-      const boolValue = isBoolean1 ? addlProps1 : addlProps2;
-
-      if (boolValue === false) {
-        return {
-          isExclusive: false,
-          reason:
-            'One schema disallows additional properties (false) while the other defines a schema for them.',
-        };
-      }
-      // If boolean is true, one allows any additional properties, the other allows with constraints
-      // This could be mutually exclusive if other constraints distinguish them, but the
-      // additionalProperties themselves don't provide discrimination
-    }
-    // Case 3: Both are schemas/refs
-    else if (isSchema1 && isSchema2) {
-      // Check if the additionalProperties schemas are mutually exclusive
-      const addlPropsResult = areSignaturesMutuallyExclusive(
-        addlProps1 as SchemaSignature,
-        addlProps2 as SchemaSignature,
-        depth + 1
-      );
-
-      // If the additionalProperties schemas are not mutually exclusive, it creates ambiguity
-      if (!addlPropsResult.isExclusive) {
-        return {
-          isExclusive: false,
-          reason: `Schemas have overlapping additionalProperties definitions. ${
-            addlPropsResult.reason || ''
-          }`,
-        };
-      }
-      // If they ARE mutually exclusive, this helps distinguish the schemas
-      // The additionalProperties provide discrimination, so schemas are mutually exclusive
-      return { isExclusive: true };
-    }
-    // Case 4: One or both are undefined (default is true in JSON Schema)
-    else {
-      // Default behavior: if undefined, it typically means additionalProperties: true
-      // If one is explicitly false and the other is undefined, they differ
-      if (addlProps1 === false || addlProps2 === false) {
-        const otherIsUndefined =
-          addlProps1 === false ? !isDefined(addlProps2) : !isDefined(addlProps1);
-
-        if (otherIsUndefined) {
-          return {
-            isExclusive: false,
-            reason:
-              'One schema explicitly disallows additional properties while the other allows them by default.',
-          };
-        }
-      }
-    }
+    return { isExclusive: true };
   }
 
   return { isExclusive: true };
 }
 
+/** Reports ambiguous oneOf schema pairs that are not mutually exclusive. */
 function checkOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
   resolve: UserContext['resolve'],
   report: UserContext['report'],
   location: UserContext['location']
 ) {
-  const signatures: SchemaSignature[] = [];
+  const signatures = schemas.map((s) => createSchemaSignature(s, resolve));
 
-  // Collect signatures
-  for (let i = 0; i < schemas.length; i++) {
-    signatures.push(createSchemaSignature(schemas[i], resolve));
-  }
-
-  // Helper to get schema reference or description
   const getSchemaIdentifier = (schema: Oas3Schema | Oas3_1Schema, index: number): string => {
-    if (isRef(schema)) {
-      return `\`${schema.$ref}\``;
-    }
-    if (schema.title) {
-      return `\`${schema.title}\` (position ${index + 1})`;
-    }
+    if (isRef(schema)) return `\`${schema.$ref}\``;
+    if (schema.title) return `\`${schema.title}\` (position ${index + 1})`;
     return `at position ${index + 1}`;
   };
 
@@ -453,13 +323,8 @@ function checkOneOfSchemasMutuallyExclusive(
     for (let j = i + 1; j < signatures.length; j++) {
       const { isExclusive, reason } = areSignaturesMutuallyExclusive(signatures[i], signatures[j]);
       if (!isExclusive) {
-        const schema1Id = getSchemaIdentifier(schemas[i], i);
-        const schema2Id = getSchemaIdentifier(schemas[j], j);
-
         report({
-          message: `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
-            reason ? reason : ''
-          }`,
+          message: `Ambiguous oneOf schemas detected. Schemas ${getSchemaIdentifier(schemas[i], i)} and ${getSchemaIdentifier(schemas[j], j)} are not mutually exclusive. ${reason ?? ''}`,
           location: location.child(['oneOf']),
         });
       }
