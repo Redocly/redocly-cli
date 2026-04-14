@@ -19,8 +19,5 @@ export const decorators = {
   'filter-in': FilterIn as Oas3Decorator,
   'filter-out': FilterOut as Oas3Decorator,
   'media-type-examples-override': MediaTypeExamplesOverride as Oas3Decorator,
-};
-
-export const postBundleDecorators = {
   'remove-unused-components': RemoveUnusedComponents,
 };

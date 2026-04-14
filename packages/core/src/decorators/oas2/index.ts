@@ -16,8 +16,5 @@ export const decorators = {
   'remove-x-internal': RemoveXInternal as Oas2Decorator,
   'filter-in': FilterIn as Oas2Decorator,
   'filter-out': FilterOut as Oas2Decorator,
-};
-
-export const postBundleDecorators = {
   'remove-unused-components': RemoveUnusedComponents,
 };
