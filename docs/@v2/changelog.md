@@ -7,6 +7,19 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.27.0 (2026-04-14)
+
+### Minor Changes
+
+- Added support for `junit` output in the `scorecard-classic` command.
+- Changed `lint` behavior with the `--generate-ignore-file` option.
+  Now `lint` updates only the entries related to the file being linted.
+  Other files' entries are unchanged.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.27.0.
+
 ## 2.26.0 (2026-04-08)
 
 ### Minor Changes
