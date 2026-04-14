@@ -14,7 +14,7 @@ import type { Oas3Decorator } from '../../visitors.js';
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
 
-function getContainingComponentKey(pointer: string): string | undefined {
+function getComponentKey(pointer: string): string | undefined {
   if (!pointer.startsWith('#/components/')) return;
   const [_component, type, name] = parseRef(pointer).pointer;
   if (!type || !name) return;
@@ -44,7 +44,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     root: AnyOas3Definition,
     removedKeys: Set<string> = new Set()
   ): number {
-    const countBefore = removedKeys.size;
+    const removedCountBefore = removedKeys.size;
 
     for (const [key, { usedIn, name, componentType }] of components) {
       const used = usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey));
@@ -65,7 +65,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       }
     }
 
-    return removedKeys.size > countBefore
+    return removedKeys.size > removedCountBefore
       ? removeUnusedComponents(root, removedKeys)
       : removedKeys.size;
   }
@@ -84,10 +84,10 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
             'MediaTypesMap',
           ].includes(type.name)
         ) {
-          const targetPointer = getContainingComponentKey(ref.$ref);
+          const targetPointer = getComponentKey(ref.$ref);
           if (!targetPointer) return;
 
-          const sourcePointer = getContainingComponentKey(location.pointer) ?? location.pointer;
+          const sourcePointer = getComponentKey(location.pointer) ?? location.pointer;
           const registered = components.get(targetPointer);
 
           if (registered) {

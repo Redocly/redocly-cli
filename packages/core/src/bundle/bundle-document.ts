@@ -116,11 +116,10 @@ export async function bundleDocument(opts: {
     ctx,
   });
 
-  const shouldRemoveUnused =
+  if (
     removeUnusedComponents ||
-    config.getDecoratorSettings('remove-unused-components', specVersion).severity !== 'off';
-
-  if (shouldRemoveUnused) {
+    config.getDecoratorSettings('remove-unused-components', specVersion).severity !== 'off'
+  ) {
     const postBundleRefMap = await resolveDocument({
       rootDocument: document,
       rootType: normalizedTypes.Root,
