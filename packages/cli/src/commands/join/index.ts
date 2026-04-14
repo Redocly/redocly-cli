@@ -26,7 +26,8 @@ import {
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { COMPONENTS } from '../split/types.js';
+import { COMPONENTS } from '../split/constants.js';
+import type { JoinArgv, AnyOas3Definition } from './types.js';
 import {
   replace$Refs,
   getInfoPrefix,
@@ -38,8 +39,7 @@ import {
   collectComponents,
   collectWebhooks,
   addInfoSectionAndSpecVersion,
-} from './helpers/index.js';
-import type { JoinArgv, AnyOas3Definition } from './types.js';
+} from './utils/index.js';
 
 export async function handleJoin({
   argv,

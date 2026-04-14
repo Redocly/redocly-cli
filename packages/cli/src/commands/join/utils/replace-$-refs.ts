@@ -1,7 +1,8 @@
 import { isRef, isPlainObject } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
-import { crawl, startsWithComponents } from '../../split/index.js';
+import { crawl } from '../../split/utils/crawl.js';
+import { startsWithComponents } from '../../split/utils/starts-with-components.js';
 
 export function replace$Refs(obj: unknown, componentsPrefix: string) {
   crawl(obj, (node: Record<string, unknown>) => {

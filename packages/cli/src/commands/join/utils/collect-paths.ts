@@ -10,7 +10,8 @@ import {
 } from '@redocly/openapi-core';
 
 import { exitWithError } from '../../../utils/error.js';
-import { type Oas3Method, OPENAPI3_METHOD_NAMES } from '../../split/types.js';
+import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
+import { type Oas3Method } from '../../split/types.js';
 import type { AnyOas3Definition, JoinDocumentContext } from '../types.js';
 import { addPrefix } from './add-prefix.js';
 import { addSecurityPrefix } from './add-security-prefix.js';

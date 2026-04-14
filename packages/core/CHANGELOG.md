@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 2.26.0
+
+### Minor Changes
+
+- Added `excludedPaths` option to the `no-http-verbs-in-paths` rule, allowing specific paths to be excluded from evaluation.
+
+### Patch Changes
+
+- Fixed the `no-required-schema-properties-undefined` rule to report when a required property is not defined in every `oneOf`/`anyOf` branch.
+- Updated @redocly/config to v0.46.1.
+
 ## 2.25.4
 
 ### Patch Changes

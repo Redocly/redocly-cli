@@ -45,10 +45,11 @@ With the `splitIntoWords` option enabled, "posters" is identified as a resource 
 
 ## Configuration
 
-| Option         | Type    | Description                                                                                                                 |
-| -------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
-| severity       | string  | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration).                                    |
-| splitIntoWords | boolean | Matches http verbs when the string is split into words based on casing. This can reduce false positives. Default **false**. |
+| Option         | Type     | Description                                                                                                                 |
+| -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| severity       | string   | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration).                                    |
+| splitIntoWords | boolean  | Matches http verbs when the string is split into words based on casing. This can reduce false positives. Default **false**. |
+| excludedPaths  | [string] | List of paths to exclude from the check. Use exact path strings (e.g. `/get-signed-url` ). Default **[]**.                  |
 
 An example configuration:
 
@@ -64,6 +65,17 @@ rules:
   no-http-verbs-in-paths:
     severity: error
     splitIntoWords: true
+```
+
+An example configuration with `excludedPaths` to allow specific paths that intentionally contain HTTP verbs:
+
+```yaml
+rules:
+  no-http-verbs-in-paths:
+    severity: error
+    excludedPaths:
+      - /get-signed-url
+      - /oauth/postback
 ```
 
 ## Examples
