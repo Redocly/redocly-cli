@@ -8,6 +8,7 @@ import {
   pointerBaseName,
   refBaseName,
   type Location,
+  isMappingRef,
 } from '../ref-utils.js';
 import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
@@ -208,7 +209,12 @@ export function makeBundleVisitor({
     const componentType = mapTypeToComponent('Schema', version)!;
     visitor.Discriminator = {
       leave(discriminator: Oas3Discriminator, ctx: UserContext) {
-        if (typeof discriminator.defaultMapping !== 'string') return;
+        if (
+          typeof discriminator.defaultMapping !== 'string' ||
+          !isMappingRef(discriminator.defaultMapping)
+        ) {
+          return;
+        }
 
         const resolved = ctx.resolve({ $ref: discriminator.defaultMapping });
         if (!resolved.location || resolved.node === undefined) {
@@ -222,6 +228,9 @@ export function makeBundleVisitor({
         leave(mapping, ctx) {
           for (const name of Object.keys(mapping)) {
             const $ref = mapping[name];
+            if (!isMappingRef($ref)) {
+              continue;
+            }
             const resolved = ctx.resolve({ $ref });
             if (!resolved.location || resolved.node === undefined) {
               reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
