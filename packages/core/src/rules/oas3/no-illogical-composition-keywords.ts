@@ -26,6 +26,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
   return {
     Schema: {
       skip(node) {
+        if (!node || typeof node !== 'object') return true;
         return !('oneOf' in node || 'anyOf' in node || 'allOf' in node);
       },
       enter(schema, { report, location, resolve }) {
@@ -66,20 +67,20 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           }
         }
 
-        // Duplicate schemas make composition impossible to discriminate
-        for (let i = 0; i < schemas.length - 1; i++) {
-          for (let j = i + 1; j < schemas.length; j++) {
-            if (dequal(schemas[i], schemas[j])) {
-              report({
-                message: `Duplicate schemas found in '${keyword}', which makes it impossible to discriminate between schemas.`,
-                location: location.child([keyword]),
-              });
-              return;
+        if (keyword === 'oneOf') {
+          // Duplicate schemas make oneOf impossible to discriminate
+          for (let i = 0; i < schemas.length - 1; i++) {
+            for (let j = i + 1; j < schemas.length; j++) {
+              if (dequal(schemas[i], schemas[j])) {
+                report({
+                  message: `Duplicate schemas found in 'oneOf', which makes it impossible to discriminate between schemas.`,
+                  location: location.child(['oneOf']),
+                });
+                return;
+              }
             }
           }
-        }
 
-        if (keyword === 'oneOf') {
           // A nullable parent with a nullable oneOf option creates null ambiguity
           if (hasNullableType(schema)) {
             const hasNullTypeInOneOf = schemas.some((subSchema) => {
