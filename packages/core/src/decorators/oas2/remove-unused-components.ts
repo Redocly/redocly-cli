@@ -26,6 +26,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
   }
 
   function getContainingComponentKey(pointer: string): string | undefined {
+    if (!pointer.startsWith('#/')) return;
     const [type, name] = parseRef(pointer).pointer;
     if (!type || !name) return undefined;
     if (!OAS2_COMPONENT_TYPES.includes(type as keyof Oas2Components)) return undefined;
