@@ -63,6 +63,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'warn',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'warn',
+    'no-illogical-composition-keywords': 'off',
     'no-invalid-media-type-examples': {
       severity: 'warn',
       allowAdditionalProperties: false,
@@ -109,7 +110,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -125,6 +125,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'warn',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'warn',
+    'no-illogical-composition-keywords': 'off',
     'no-invalid-media-type-examples': 'warn',
     'no-invalid-parameter-examples': 'off',
     'no-invalid-schema-examples': 'off',
@@ -168,7 +169,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'off',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
@@ -183,6 +183,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'warn',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'warn',
+    'no-illogical-composition-keywords': 'off',
     'no-invalid-media-type-examples': 'warn',
     'no-invalid-parameter-examples': 'off',
     'no-invalid-schema-examples': 'off',
@@ -230,7 +231,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'off',
   },
   async2Rules: {
     'channels-kebab-case': 'off',

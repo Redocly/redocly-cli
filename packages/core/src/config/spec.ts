@@ -63,6 +63,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'off',
     'no-invalid-media-type-examples': {
       severity: 'off',
       allowAdditionalProperties: false,
@@ -109,7 +110,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -125,6 +125,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'error',
     'no-invalid-media-type-examples': 'off',
     'no-invalid-parameter-examples': 'off',
     'no-invalid-schema-examples': 'off',
@@ -168,7 +169,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'error',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
@@ -183,6 +183,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'error',
     'no-invalid-media-type-examples': 'off',
     'no-invalid-parameter-examples': 'off',
     'no-invalid-schema-examples': 'off',
@@ -224,7 +225,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
-    'no-illogical-composition-keywords': 'error',
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-no-invalid-tag-parents': 'error',
     'spec-querystring-parameters': 'error',

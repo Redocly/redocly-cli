@@ -63,6 +63,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'warn',
     'no-invalid-media-type-examples': {
       severity: 'warn',
       allowAdditionalProperties: false,
@@ -109,7 +110,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'warn',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -125,6 +125,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'warn',
     'no-invalid-media-type-examples': 'warn',
     'no-invalid-parameter-examples': 'warn',
     'no-invalid-schema-examples': 'warn',
@@ -168,7 +169,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'no-illogical-composition-keywords': 'warn',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
@@ -183,6 +183,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'warn',
     'no-invalid-media-type-examples': 'warn',
     'no-invalid-parameter-examples': 'warn',
     'no-invalid-schema-examples': 'warn',
@@ -224,7 +225,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'spec-discriminator-defaultMapping': 'warn',
     'spec-example-values': 'error',
-    'no-illogical-composition-keywords': 'warn',
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-no-invalid-tag-parents': 'error',
     'spec-querystring-parameters': 'error',
