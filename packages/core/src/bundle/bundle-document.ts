@@ -57,10 +57,7 @@ export async function bundleDocument(opts: {
   const normalizedTypes = normalizeTypes(config.extendTypes(types, specVersion), config);
 
   const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-  const regularDecorators = initRules(rules, config, 'decorators', specVersion);
-
-  const postBundleRules = config.getPostBundleDecoratorsForSpecVersion(specMajorVersion);
-  const postBundleDecorators = initRules(postBundleRules, config, 'decorators', specVersion);
+  const decorators = initRules(rules, config, 'decorators', specVersion);
 
   const ctx: BundleContext = {
     problems: [],
@@ -69,20 +66,6 @@ export async function bundleDocument(opts: {
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {},
   };
-
-  if (
-    removeUnusedComponents &&
-    !postBundleDecorators.some((d) => d.ruleId === 'remove-unused-components')
-  ) {
-    postBundleDecorators.push({
-      severity: 'error',
-      ruleId: 'remove-unused-components',
-      visitor:
-        specMajorVersion === 'oas2'
-          ? RemoveUnusedComponentsOas2({})
-          : RemoveUnusedComponentsOas3({}),
-    });
-  }
 
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
@@ -120,7 +103,7 @@ export async function bundleDocument(opts: {
           componentRenamingConflicts,
         }),
       },
-      ...regularDecorators,
+      ...decorators.filter((decorator) => decorator.ruleId !== 'remove-unused-components'),
     ],
     normalizedTypes
   );
@@ -133,13 +116,29 @@ export async function bundleDocument(opts: {
     ctx,
   });
 
-  if (postBundleDecorators.length > 0) {
+  const shouldRemoveUnused =
+    removeUnusedComponents ||
+    config.getDecoratorSettings('remove-unused-components', specVersion).severity !== 'off';
+
+  if (shouldRemoveUnused) {
     const postBundleRefMap = await resolveDocument({
       rootDocument: document,
       rootType: normalizedTypes.Root,
       externalRefResolver,
     });
-    const postBundleVisitors = normalizeVisitors(postBundleDecorators, normalizedTypes);
+    const postBundleVisitors = normalizeVisitors(
+      [
+        {
+          severity: 'error',
+          ruleId: 'remove-unused-components',
+          visitor:
+            specMajorVersion === 'oas2'
+              ? RemoveUnusedComponentsOas2({})
+              : RemoveUnusedComponentsOas3({}),
+        },
+      ],
+      normalizedTypes
+    );
 
     walkDocument({
       document,

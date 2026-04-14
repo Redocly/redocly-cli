@@ -397,60 +397,6 @@ export class Config {
     }
   }
 
-  getPostBundleDecoratorsForSpecVersion(version: SpecMajorVersion) {
-    switch (version) {
-      case 'oas3': {
-        const sets: Oas3RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.oas3 && sets.push(p.postBundleDecorators.oas3)
-        );
-        return sets;
-      }
-      case 'oas2': {
-        const sets: Oas2RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.oas2 && sets.push(p.postBundleDecorators.oas2)
-        );
-        return sets;
-      }
-      case 'async2': {
-        const sets: Async2RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.async2 && sets.push(p.postBundleDecorators.async2)
-        );
-        return sets;
-      }
-      case 'async3': {
-        const sets: Async3RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.async3 && sets.push(p.postBundleDecorators.async3)
-        );
-        return sets;
-      }
-      case 'arazzo1': {
-        const sets: Arazzo1RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.arazzo1 && sets.push(p.postBundleDecorators.arazzo1)
-        );
-        return sets;
-      }
-      case 'overlay1': {
-        const sets: Overlay1RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.overlay1 && sets.push(p.postBundleDecorators.overlay1)
-        );
-        return sets;
-      }
-      case 'openrpc1': {
-        const sets: OpenRpc1RuleSet[] = [];
-        this.plugins.forEach(
-          (p) => p.postBundleDecorators?.openrpc1 && sets.push(p.postBundleDecorators.openrpc1)
-        );
-        return sets;
-      }
-    }
-  }
-
   skipRules(rules?: string[]) {
     for (const ruleId of rules || []) {
       for (const version of specVersions) {

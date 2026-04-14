@@ -1,14 +1,8 @@
 import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
 import { decorators as async2Decorators } from '../decorators/async2/index.js';
 import { decorators as async3Decorators } from '../decorators/async3/index.js';
-import {
-  decorators as oas2Decorators,
-  postBundleDecorators as oas2PostBundleDecorators,
-} from '../decorators/oas2/index.js';
-import {
-  decorators as oas3Decorators,
-  postBundleDecorators as oas3PostBundleDecorators,
-} from '../decorators/oas3/index.js';
+import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
+import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
 import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
 import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
 import {
@@ -76,10 +70,6 @@ export const defaultPlugin: Plugin<'built-in'> = {
     arazzo1: arazzo1Decorators,
     overlay1: overlay1Decorators,
     openrpc1: openrpc1Decorators,
-  },
-  postBundleDecorators: {
-    oas3: oas3PostBundleDecorators,
-    oas2: oas2PostBundleDecorators,
   },
   configs: builtInConfigs,
 };
