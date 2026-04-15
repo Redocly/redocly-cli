@@ -654,8 +654,9 @@ describe('resolveApis', () => {
 
   it('should work with npm dependencies', async () => {
     const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
-    resolveOverrides.set('test-plugin', path.join(fixturesDir, 'mock-npm-plugin.js'));
-    resolveOverrides.set('fixtures/plugin.cjs', path.join(fixturesDir, 'mock-local-plugin.js'));
+    const pluginPath = path.join(fixturesDir, 'plugin.js');
+    resolveOverrides.set('test-plugin', pluginPath);
+    resolveOverrides.set('fixtures/plugin.cjs', pluginPath);
 
     try {
       const { resolvedConfig } = await resolveConfig({
