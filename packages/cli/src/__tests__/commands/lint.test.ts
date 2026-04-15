@@ -240,6 +240,25 @@ describe('handleLint', () => {
       );
     });
 
+    it('should output accumulated results when a later API fails and handleError throws', async () => {
+      vi.mocked(lint)
+        .mockResolvedValueOnce(['problem-a'] as any)
+        .mockRejectedValueOnce(new Error('boom'));
+      vi.mocked(handleError).mockImplementationOnce((e) => {
+        throw e;
+      });
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['a.yaml', 'b.yaml'],
+        format: 'checkstyle',
+      });
+      expect(formatProblems).toHaveBeenCalledTimes(1);
+      expect(formatProblems).toHaveBeenCalledWith(
+        ['problem-a'],
+        expect.objectContaining({ format: 'checkstyle' })
+      );
+    });
+
     it('should catch error in handleError if something fails', async () => {
       vi.mocked(lint).mockRejectedValueOnce('error');
       await commandWrapper(handleLint)(argvMock);
