@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Order top-level keys in AsyncAPI documents when bundling
+Ordered top-level keys in AsyncAPI documents during bundling for improved consistency and readability.
