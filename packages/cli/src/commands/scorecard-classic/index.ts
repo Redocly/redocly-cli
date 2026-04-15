@@ -12,6 +12,7 @@ import type { CommandArgs } from '../../wrapper.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResultsAsCheckstyle } from './formatters/checkstyle-formatter.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
+import { printScorecardResultsAsJunit } from './formatters/junit-formatter.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import { getTarget } from './targets-handler/targets-handler.js';
@@ -156,6 +157,8 @@ export async function handleScorecardClassic({
     printScorecardResultsAsJson(result, achievedLevel, targetLevelAchieved, version);
   } else if (argv.format === 'checkstyle') {
     printScorecardResultsAsCheckstyle(path, result, achievedLevel, targetLevelAchieved);
+  } else if (argv.format === 'junit') {
+    printScorecardResultsAsJunit(path, result, achievedLevel, targetLevelAchieved);
   } else {
     printScorecardResults(result, achievedLevel, targetLevelAchieved);
   }
