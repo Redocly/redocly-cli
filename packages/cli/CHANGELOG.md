@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 2.28.0
+
+### Minor Changes
+
+- Moved the `remove-unused-components` decorator to the post-bundle phase so that components that become unused only after `$ref` resolution are correctly removed.
+
+### Patch Changes
+
+- Fixed an issue where the discriminator's `defaultMapping` property was not resolved when bundling.
+- Updated @redocly/openapi-core to v2.28.0.
+
 ## 2.27.1
 
 ### Patch Changes
