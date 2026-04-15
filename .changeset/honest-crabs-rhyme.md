@@ -2,4 +2,4 @@
 "@redocly/respect-core": patch
 ---
 
-Made respect JSONPath criteria compliant with RFC 9535.
+Made Respect's JSONPath criteria compliant with RFC 9535.
