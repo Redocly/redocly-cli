@@ -18,8 +18,7 @@ vi.mock('node:module', async (importOriginal) => {
       ...nodeModule,
       createRequire(baseUrl: string) {
         const req = nodeModule.createRequire(baseUrl);
-        return {
-          ...req,
+        return Object.assign((id: string) => req(id), req, {
           resolve: (id: string, opts?: any) => {
             if (resolveOverrides.has(id)) return resolveOverrides.get(id)!;
             try {
@@ -28,7 +27,7 @@ vi.mock('node:module', async (importOriginal) => {
               return `/mock/path/${id}`;
             }
           },
-        };
+        }) as typeof req;
       },
     },
   };

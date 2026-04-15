@@ -221,21 +221,27 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        // Evict plugin and all its dependencies from CJS cache
-        const requireModule = module.createRequire(absolutePluginPath);
+        const nodeRequire = module.createRequire(absolutePluginPath);
         const pluginDir = path.dirname(absolutePluginPath) + path.sep;
-        for (const cachedPath of Object.keys(requireModule.cache)) {
+        for (const cachedPath of Object.keys(nodeRequire.cache)) {
           if (cachedPath.startsWith(pluginDir)) {
-            delete requireModule.cache[cachedPath];
+            // clear the cache for CJS modules
+            delete nodeRequire.cache[cachedPath];
           }
         }
 
-        // Cache-bust ESM module map for .mjs plugins
-        const pluginFileUrl = url.pathToFileURL(absolutePluginPath);
-        if (pluginsCacheVersion) {
-          pluginFileUrl.searchParams.set('v', String(pluginsCacheVersion));
+        let mod;
+        try {
+          mod = nodeRequire(absolutePluginPath);
+        } catch (e) {
+          if ((e as NodeJS.ErrnoException).code !== 'ERR_REQUIRE_ESM') throw e;
+          const pluginUrl = url.pathToFileURL(absolutePluginPath);
+          if (pluginsCacheVersion) {
+            // clear the cache for ESM modules
+            pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
+          }
+          mod = await import(pluginUrl.href);
         }
-        const mod = await import(pluginFileUrl.href);
         const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
