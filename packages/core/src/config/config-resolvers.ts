@@ -221,23 +221,20 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        const nodeRequire = module.createRequire(absolutePluginPath);
-        const pluginDir = path.dirname(absolutePluginPath) + path.sep;
-        for (const cachedPath of Object.keys(nodeRequire.cache)) {
-          if (cachedPath.startsWith(pluginDir)) {
-            // clear the cache for CJS modules
-            delete nodeRequire.cache[cachedPath];
-          }
-        }
-
         let mod;
-        try {
+
+        if (absolutePluginPath.endsWith('.cjs')) {
+          const nodeRequire = module.createRequire(absolutePluginPath);
+          const pluginDir = path.dirname(absolutePluginPath) + path.sep;
+          for (const cachedPath of Object.keys(nodeRequire.cache)) {
+            if (cachedPath.startsWith(pluginDir)) {
+              delete nodeRequire.cache[cachedPath];
+            }
+          }
           mod = nodeRequire(absolutePluginPath);
-        } catch (e) {
-          if ((e as NodeJS.ErrnoException).code !== 'ERR_REQUIRE_ESM') throw e;
+        } else {
           const pluginUrl = url.pathToFileURL(absolutePluginPath);
           if (pluginsCacheVersion) {
-            // clear the cache for ESM modules
             pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
           }
           mod = await import(pluginUrl.href);
