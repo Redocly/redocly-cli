@@ -1,5 +1,19 @@
 # @redocly/openapi-core
 
+## 2.27.1
+
+### Patch Changes
+
+- Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
+
+  **Warning:** Autogenrated component names and `$ref` paths in bundled documents may differ from older releases.
+
+## 2.27.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.48.0.
+
 ## 2.26.0
 
 ### Minor Changes

@@ -7,6 +7,29 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.27.1 (2026-04-14)
+
+### Patch Changes
+
+- Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
+
+  **Warning:** Autogenrated component names and `$ref` paths in bundled documents may differ from older releases.
+
+- Updated @redocly/openapi-core to v2.27.1.
+
+## 2.27.0 (2026-04-14)
+
+### Minor Changes
+
+- Added support for `junit` output in the `scorecard-classic` command.
+- Changed `lint` behavior with the `--generate-ignore-file` option.
+  Now `lint` updates only the entries related to the file being linted.
+  Other files' entries are unchanged.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.27.0.
+
 ## 2.26.0 (2026-04-08)
 
 ### Minor Changes
