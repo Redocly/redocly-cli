@@ -197,6 +197,28 @@ export const preResolvePluginPath = (
   }
 };
 
+async function loadPluginModule(
+  absolutePluginPath: string,
+  pluginsCacheVersion: number | undefined
+): Promise<Record<string, unknown>> {
+  if (absolutePluginPath.endsWith('.cjs')) {
+    const nodeRequire = module.createRequire(absolutePluginPath);
+    const pluginDir = path.dirname(absolutePluginPath) + path.sep;
+    for (const cachedPath of Object.keys(nodeRequire.cache)) {
+      if (cachedPath.startsWith(pluginDir)) {
+        delete nodeRequire.cache[cachedPath];
+      }
+    }
+    return nodeRequire(absolutePluginPath);
+  }
+
+  const pluginUrl = url.pathToFileURL(absolutePluginPath);
+  if (pluginsCacheVersion) {
+    pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
+  }
+  return import(pluginUrl.href);
+}
+
 export async function resolvePlugins(
   plugins: (string | Plugin)[],
   configDir: string
@@ -221,24 +243,7 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        let mod;
-
-        if (absolutePluginPath.endsWith('.cjs')) {
-          const nodeRequire = module.createRequire(absolutePluginPath);
-          const pluginDir = path.dirname(absolutePluginPath) + path.sep;
-          for (const cachedPath of Object.keys(nodeRequire.cache)) {
-            if (cachedPath.startsWith(pluginDir)) {
-              delete nodeRequire.cache[cachedPath];
-            }
-          }
-          mod = nodeRequire(absolutePluginPath);
-        } else {
-          const pluginUrl = url.pathToFileURL(absolutePluginPath);
-          if (pluginsCacheVersion) {
-            pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
-          }
-          mod = await import(pluginUrl.href);
-        }
+        const mod = await loadPluginModule(absolutePluginPath, pluginsCacheVersion);
         const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
