@@ -43,7 +43,7 @@ exports[`should pass inputs to step target workflow with additional input parame
       } 
  
     ✗ success criteria check - $statusCode == 201
-    ✗ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
+    ✗ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
@@ -59,7 +59,7 @@ exports[`should pass inputs to step target workflow with additional input parame
       Checking simple criteria: {"condition":"$statusCode == 201"}
        
     ✗ success criteria check 
-      Checking jsonpath criteria: $[?@.name == 'Mermaid Treasure Identification and Analysis']
+      Checking jsonpath criteria: $[?@.name == 'Mermaid Treasure Identification and Analysis']
        
   Summary for inputs-passed-to-step-target-workflow-and-remapped.arazzo.yaml
   
