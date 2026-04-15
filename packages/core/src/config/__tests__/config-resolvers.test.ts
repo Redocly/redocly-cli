@@ -20,12 +20,7 @@ vi.mock('node:module', async (importOriginal) => {
         const req = nodeModule.createRequire(baseUrl);
         return Object.assign((id: string) => req(id), req, {
           resolve: (id: string, opts?: any) => {
-            if (resolveOverrides.has(id)) return resolveOverrides.get(id)!;
-            try {
-              return req.resolve(id, opts);
-            } catch {
-              return `/mock/path/${id}`;
-            }
+            return resolveOverrides.get(id) ?? req.resolve(id, opts);
           },
         }) as typeof req;
       },
@@ -56,6 +51,10 @@ function makeDocument(rawConfig: RawUniversalConfig, configPath: string = '') {
     parsed: rawConfig,
   };
 }
+
+afterEach(() => {
+  resolveOverrides.clear();
+});
 
 describe('resolveConfig', () => {
   it('should return the config with no recommended', async () => {
@@ -658,17 +657,13 @@ describe('resolveApis', () => {
     resolveOverrides.set('test-plugin', pluginPath);
     resolveOverrides.set('fixtures/plugin.cjs', pluginPath);
 
-    try {
-      const { resolvedConfig } = await resolveConfig({
-        rawConfigDocument: makeDocument(
-          { plugins: ['test-plugin', 'fixtures/plugin.cjs'] },
-          configPath
-        ),
-      });
-      expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
-    } finally {
-      resolveOverrides.clear();
-    }
+    const { resolvedConfig } = await resolveConfig({
+      rawConfigDocument: makeDocument(
+        { plugins: ['test-plugin', 'fixtures/plugin.cjs'] },
+        configPath
+      ),
+    });
+    expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
   });
 
   it('should work with nested schema', async () => {
