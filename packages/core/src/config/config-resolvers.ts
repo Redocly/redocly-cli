@@ -221,9 +221,14 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        // Evict from CJS cache so .cjs plugins are re-read from disk
+        // Evict plugin and all its dependencies from CJS cache
         const requireModule = module.createRequire(absolutePluginPath);
-        delete requireModule.cache[absolutePluginPath];
+        const pluginDir = path.dirname(absolutePluginPath) + path.sep;
+        for (const cachedPath of Object.keys(requireModule.cache)) {
+          if (cachedPath.startsWith(pluginDir)) {
+            delete requireModule.cache[cachedPath];
+          }
+        }
 
         // Cache-bust ESM module map for .mjs plugins
         const pluginFileUrl = url.pathToFileURL(absolutePluginPath);
