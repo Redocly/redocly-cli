@@ -1,5 +1,28 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`bundle > should bundle external pointer refs and warn for conflicting names 1`] = `
+openapi: 3.1.0
+paths:
+  /foo:
+    put:
+      parameters:
+        - $ref: '#/components/parameters/User-2'
+    get:
+      parameters:
+        - $ref: '#/components/parameters/User'
+components:
+  parameters:
+    User:
+      name: test
+      in: query
+      description: test-B
+    User-2:
+      name: test
+      in: path
+      description: test-A
+
+`;
+
 exports[`bundle > should bundle external refs 1`] = `
 openapi: 3.0.0
 paths:
@@ -26,7 +49,7 @@ components:
         $ref: '#/components/schemas/schema-a'
       examples:
         first:
-          $ref: '#/components/examples/param-a-first'
+          $ref: '#/components/examples/first-2'
         second:
           $ref: '#/components/examples/second'
     path-param:
@@ -41,7 +64,7 @@ components:
   examples:
     first:
       value: b1
-    param-a-first:
+    first-2:
       value: a1
     second:
       value: a2
@@ -121,6 +144,51 @@ components:
   parameters:
     shared_a:
       name: shared-a
+
+`;
+
+exports[`bundle > should keep dotted JSON pointer schema keys and rename conflicting User schemas 1`] = `
+openapi: 3.0.0
+info:
+  title: Test ref with dots in component names
+  version: '1.0'
+  description: Demo
+  license:
+    name: DEMO
+    url: https://demo.com
+servers:
+  - url: http://demo.com/api
+paths:
+  /org-user:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/my.org.User'
+    post:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/my.User'
+components:
+  schemas:
+    my.org.User:
+      type: object
+      properties:
+        orgId:
+          type: string
+    my.User:
+      type: object
+      properties:
+        displayName:
+          type: string
 
 `;
 

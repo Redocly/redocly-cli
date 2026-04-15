@@ -1,4 +1,4 @@
-import type { Location } from '../../ref-utils.js';
+import { parseRef } from '../../ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -14,41 +14,40 @@ import type { Oas3Decorator } from '../../visitors.js';
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
 
+function getComponentKey(pointer: string): string | undefined {
+  if (!pointer.startsWith('#/components/')) return;
+  const [_component, type, name] = parseRef(pointer).pointer;
+  if (!type || !name) return;
+  return `${type}/${name}`;
+}
+
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
     {
-      usedIn: Location[];
+      usedIn: string[];
       componentType?: AnyOas3ComponentsKey;
       name: string;
     }
   >();
 
-  function registerComponent(
-    location: Location,
-    componentType: AnyOas3ComponentsKey,
-    name: string
-  ): void {
-    components.set(location.absolutePointer, {
-      usedIn: components.get(location.absolutePointer)?.usedIn ?? [],
+  function registerComponent(componentType: AnyOas3ComponentsKey, name: string): void {
+    const key = `${componentType}/${name}`;
+    components.set(key, {
+      usedIn: components.get(key)?.usedIn ?? [],
       componentType,
       name,
     });
   }
 
-  function removeUnusedComponents(root: AnyOas3Definition, removedPaths: string[]): number {
-    const removedLengthStart = removedPaths.length;
+  function removeUnusedComponents(
+    root: AnyOas3Definition,
+    removedKeys: Set<string> = new Set()
+  ): number {
+    const removedCountBefore = removedKeys.size;
 
-    for (const [path, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some(
-        (location) =>
-          !removedPaths.some(
-            (removed) =>
-              location.absolutePointer.startsWith(removed) &&
-              (location.absolutePointer.length === removed.length ||
-                location.absolutePointer[removed.length] === '/')
-          )
-      );
+    for (const [key, { usedIn, name, componentType }] of components) {
+      const used = usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey));
 
       if (
         !used &&
@@ -56,24 +55,24 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
         root.components &&
         hasComponent(root.components, componentType)
       ) {
-        removedPaths.push(path);
+        removedKeys.add(key);
         const componentChild = root.components[componentType];
         delete componentChild![name];
-        components.delete(path);
+        components.delete(key);
         if (isEmptyObject(componentChild)) {
           delete root.components[componentType];
         }
       }
     }
 
-    return removedPaths.length > removedLengthStart
-      ? removeUnusedComponents(root, removedPaths)
-      : removedPaths.length;
+    return removedKeys.size > removedCountBefore
+      ? removeUnusedComponents(root, removedKeys)
+      : removedKeys.size;
   }
 
   return {
     ref: {
-      leave(ref, { location, type, resolve, key }) {
+      leave(ref, { location, type, key }) {
         if (
           [
             'Schema',
@@ -85,22 +84,17 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
             'MediaTypesMap',
           ].includes(type.name)
         ) {
-          const resolvedRef = resolve(ref);
-          if (!resolvedRef.location) return;
+          const targetPointer = getComponentKey(ref.$ref);
+          if (!targetPointer) return;
 
-          const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
-          if (!localPointer) return;
-
-          const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
-          const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
-
-          const registered = components.get(pointer);
+          const sourcePointer = getComponentKey(location.pointer) ?? location.pointer;
+          const registered = components.get(targetPointer);
 
           if (registered) {
-            registered.usedIn.push(location);
+            registered.usedIn.push(sourcePointer);
           } else {
-            components.set(pointer, {
-              usedIn: [location],
+            components.set(targetPointer, {
+              usedIn: [sourcePointer],
               name: key.toString(),
             });
           }
@@ -110,7 +104,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     Root: {
       leave(root, ctx) {
         const data = ctx.getVisitorData() as { removedCount: number };
-        data.removedCount = removeUnusedComponents(root, []);
+        data.removedCount = removeUnusedComponents(root);
 
         if (isEmptyObject(root.components)) {
           delete root.components;
@@ -118,40 +112,40 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
+      Schema(schema, { key }) {
         if (!schema.allOf) {
-          registerComponent(location, 'schemas', key.toString());
+          registerComponent('schemas', key.toString());
         }
       },
     },
     NamedParameters: {
-      Parameter(_parameter, { location, key }) {
-        registerComponent(location, 'parameters', key.toString());
+      Parameter(_parameter, { key }) {
+        registerComponent('parameters', key.toString());
       },
     },
     NamedResponses: {
-      Response(_response, { location, key }) {
-        registerComponent(location, 'responses', key.toString());
+      Response(_response, { key }) {
+        registerComponent('responses', key.toString());
       },
     },
     NamedExamples: {
-      Example(_example, { location, key }) {
-        registerComponent(location, 'examples', key.toString());
+      Example(_example, { key }) {
+        registerComponent('examples', key.toString());
       },
     },
     NamedRequestBodies: {
-      RequestBody(_requestBody, { location, key }) {
-        registerComponent(location, 'requestBodies', key.toString());
+      RequestBody(_requestBody, { key }) {
+        registerComponent('requestBodies', key.toString());
       },
     },
     NamedHeaders: {
-      Header(_header, { location, key }) {
-        registerComponent(location, 'headers', key.toString());
+      Header(_header, { key }) {
+        registerComponent('headers', key.toString());
       },
     },
     NamedMediaTypes: {
-      MediaTypesMap(_mediaTypesMap, { location, key }) {
-        registerComponent(location, 'mediaTypes', key.toString());
+      MediaTypesMap(_mediaTypesMap, { key }) {
+        registerComponent('mediaTypes', key.toString());
       },
     },
   };

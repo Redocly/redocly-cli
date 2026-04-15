@@ -1,0 +1,9 @@
+allOf:
+  - $ref: ./Used.yaml
+  - type: object
+    properties:
+      test:
+        type: string
+        const: foo
+    required:
+      - test
