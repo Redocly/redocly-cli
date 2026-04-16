@@ -210,6 +210,35 @@ describe('format', () => {
     `);
   });
 
+  it('should include reference URL in github-actions format', () => {
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'struct',
+        message: 'Operation must include a request body',
+        severity: 'error' as const,
+        location: [
+          {
+            source: { absoluteRef: 'openapi.yaml' } as Source,
+            start: { line: 1, col: 2 },
+            end: { line: 3, col: 4 },
+          } as LocationObject,
+        ],
+        suggest: [],
+        reference: 'https://wiki.example.com/api-guidelines#request-bodies',
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'github-actions',
+      version: '1.0.0',
+      totals: getTotals(problems),
+    });
+
+    expect(output).toEqual(
+      '::error title=struct,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::Operation must include a request body%0A%0AReference: https://wiki.example.com/api-guidelines#request-bodies%0A%0A\n'
+    );
+  });
+
   it('should limit suggestions based on REDOCLY_CLI_LINT_MAX_SUGGESTIONS constant', () => {
     const problems: NormalizedProblem[] = [
       {
