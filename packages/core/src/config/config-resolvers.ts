@@ -199,19 +199,23 @@ export const preResolvePluginPath = (
 
 async function loadPluginModule(
   absolutePluginPath: string,
-  pluginsCacheVersion: number | undefined
+  pluginsCacheVersion: number
 ): Promise<Record<string, unknown>> {
+  // CJS: drop this plugin's subtree from `require.cache` so `require()` does not reuse a stale graph.
   if (absolutePluginPath.endsWith('.cjs')) {
     const nodeRequire = module.createRequire(absolutePluginPath);
-    const pluginDir = path.dirname(absolutePluginPath) + path.sep;
-    for (const cachedPath of Object.keys(nodeRequire.cache)) {
-      if (cachedPath.startsWith(pluginDir)) {
-        delete nodeRequire.cache[cachedPath];
+    if (pluginsCacheVersion) {
+      const pluginDir = path.dirname(absolutePluginPath) + path.sep;
+      for (const cachedPath of Object.keys(nodeRequire.cache)) {
+        if (cachedPath.startsWith(pluginDir)) {
+          delete nodeRequire.cache[cachedPath];
+        }
       }
     }
     return nodeRequire(absolutePluginPath);
   }
 
+  // ESM: the loader keys modules by URL; a distinct `?v=` makes dynamic `import()` bypass the prior cache entry.
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
   if (pluginsCacheVersion) {
     pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
