@@ -84,10 +84,10 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should not report when oneOf contains a null schema entry (null is not a schema object)', async () => {
+    it('should report when oneOf contains a null schema entry', async () => {
       expect(
         await lint(`
-          openapi: 3.0.0
+          openapi: 3.1.0
           info:
             title: Test
             version: '1.0'
@@ -97,12 +97,28 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Test:
                 oneOf:
                   - type: string
-                  - null
+                  - type: "null"
         `)
-      ).toMatchInlineSnapshot(`[]`);
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf/1",
+                "reportOnKey": false,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schema is empty.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
     });
 
-    it('should not report when oneOf contains a nullable-only schema (nullable: true is not empty)', async () => {
+    it('should report when oneOf contains a nullable-only schema (no type constraints)', async () => {
       expect(
         await lint(`
           openapi: 3.0.0
@@ -117,7 +133,23 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type: string
                   - nullable: true
         `)
-      ).toMatchInlineSnapshot(`[]`);
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf/1",
+                "reportOnKey": false,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schema is empty.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
     });
 
     it('should report when oneOf contains duplicate schemas', async () => {

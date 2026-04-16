@@ -55,10 +55,13 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           return;
         }
 
-        // Empty schemas are meaningless in any composition keyword
+        // Empty schemas (null entries or schemas with no type constraints) are meaningless
         for (let i = 0; i < schemas.length; i++) {
           const resolvedSchema = resolveSchema(schemas[i], resolve);
-          if (resolvedSchema && isEmptyObject(resolvedSchema)) {
+          if (
+            resolvedSchema &&
+            (hasNullableType(resolvedSchema) || isEmptyObject(resolvedSchema))
+          ) {
             report({
               message: `Schema is empty.`,
               location: location.child([keyword, String(i)]),
