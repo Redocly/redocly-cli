@@ -243,8 +243,17 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        const mod = await loadPluginModule(absolutePluginPath, pluginsCacheVersion);
-        const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
+        let requiredPlugin: ImportedPlugin | undefined;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore FIXME: investigate if we still need this (2.0)
+        if (typeof __webpack_require__ === 'function') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore FIXME: investigate if we still need this (2.0)
+          requiredPlugin = __non_webpack_require__(absolutePluginPath);
+        } else {
+          const mod = await loadPluginModule(absolutePluginPath, pluginsCacheVersion);
+          requiredPlugin = mod.default || mod;
+        }
 
         const pluginCreatorOptions = { contentDir: configDir };
 
