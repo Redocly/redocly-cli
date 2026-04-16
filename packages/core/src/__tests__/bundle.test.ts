@@ -555,6 +555,38 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should bundle discriminator with defaultMapping and mapping as component names to the same document', async () => {
+    const document = outdent`
+      openapi: 3.2.0
+      components:
+        schemas:
+          Pet:
+            type: object
+            discriminator:
+              propertyName: kind
+              defaultMapping: Cat
+              mapping:
+                cat: Cat
+          Cat:
+            type: object
+            properties:
+              kind:
+                type: string
+
+    `;
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleFromString({
+      source: document,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toMatchInlineSnapshot(`[]`);
+    expect(parsed).toMatchInlineSnapshot(document);
+  });
 });
 
 describe('bundleFromString', () => {
