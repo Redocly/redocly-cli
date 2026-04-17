@@ -6,6 +6,8 @@ import {
   type Oas2Definition,
   type Oas3Definition,
   type RuleSeverity,
+  type Async2Definition,
+  type Async3Definition,
 } from '@redocly/openapi-core';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
@@ -21,7 +23,7 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
-  sortTopLevelKeysForOas,
+  sortTopLevelKeys,
   formatPath,
 } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -91,14 +93,18 @@ export async function handleBundle({
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
           const bundled = dumpBundle(
-            sortTopLevelKeysForOas(result.parsed as Oas3Definition | Oas2Definition),
+            sortTopLevelKeys(
+              result.parsed as Oas3Definition | Oas2Definition | Async2Definition | Async3Definition
+            ),
             argv.ext || 'yaml',
             argv.dereferenced
           );
           logger.output(bundled);
         } else {
           const bundled = dumpBundle(
-            sortTopLevelKeysForOas(result.parsed as Oas3Definition | Oas2Definition),
+            sortTopLevelKeys(
+              result.parsed as Oas3Definition | Oas2Definition | Async2Definition | Async3Definition
+            ),
             ext,
             argv.dereferenced
           );

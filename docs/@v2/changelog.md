@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.28.1 (2026-04-16)
+
+### Patch Changes
+
+- Ordered top-level keys in AsyncAPI documents during bundling for improved consistency and readability.
+- Updated @redocly/openapi-core to v2.28.1.
+
 ## 2.28.0 (2026-04-15)
 
 ### Minor Changes

@@ -25,7 +25,7 @@ import {
   checkIfRulesetExist,
   handleError,
   CircularJSONNotSupportedError,
-  sortTopLevelKeysForOas,
+  sortTopLevelKeys,
   cleanColors,
   getAndValidateFileExtension,
   writeToFileByExtension,
@@ -382,7 +382,7 @@ describe('langToExt', () => {
   });
 });
 
-describe('sorTopLevelKeysForOas', () => {
+describe('sortTopLevelKeys', () => {
   it('should sort oas3 top level keys', () => {
     const openApi: openapiCore.Oas3Definition = {
       openapi: '3.0.0',
@@ -411,7 +411,7 @@ describe('sorTopLevelKeysForOas', () => {
       'x-webhooks',
       'components',
     ];
-    const result = sortTopLevelKeysForOas(openApi);
+    const result = sortTopLevelKeys(openApi);
 
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);
@@ -453,7 +453,61 @@ describe('sorTopLevelKeysForOas', () => {
       'responses',
       'securityDefinitions',
     ];
-    const result = sortTopLevelKeysForOas(openApi);
+    const result = sortTopLevelKeys(openApi);
+
+    Object.keys(result).forEach((key, index) => {
+      expect(key).toEqual(orderedKeys[index]);
+    });
+  });
+
+  it('should sort asyncapi2 top level keys', () => {
+    const asyncApi: openapiCore.Async2Definition = {
+      asyncapi: '2.0.0',
+      servers: {},
+      channels: {},
+      components: {},
+      tags: [],
+      info: { title: 'Test', version: '1.0.0' },
+      externalDocs: {},
+      defaultContentType: 'application/json',
+    };
+    const orderedKeys = [
+      'asyncapi',
+      'info',
+      'externalDocs',
+      'tags',
+      'defaultContentType',
+      'servers',
+      'channels',
+      'components',
+    ];
+    const result = sortTopLevelKeys(asyncApi);
+
+    Object.keys(result).forEach((key, index) => {
+      expect(key).toEqual(orderedKeys[index]);
+    });
+  });
+
+  it('should sort asyncapi3 top level keys', () => {
+    const asyncApi: openapiCore.Async3Definition = {
+      asyncapi: '3.0.0',
+      channels: {},
+      info: { title: 'Test', version: '1.0.0' },
+      servers: {},
+      components: {},
+      operations: {},
+      defaultContentType: 'application/json',
+    };
+    const orderedKeys = [
+      'asyncapi',
+      'info',
+      'defaultContentType',
+      'servers',
+      'channels',
+      'operations',
+      'components',
+    ];
+    const result = sortTopLevelKeys(asyncApi);
 
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);

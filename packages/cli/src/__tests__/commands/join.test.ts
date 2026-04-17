@@ -14,7 +14,7 @@ import { exitWithError } from '../../utils/error.js';
 import {
   getAndValidateFileExtension,
   getFallbackApisOrExit,
-  sortTopLevelKeysForOas,
+  sortTopLevelKeys,
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
 import { configFixture } from '../fixtures/config.js';
@@ -38,7 +38,7 @@ describe('handleJoin', () => {
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
-    vi.mocked(sortTopLevelKeysForOas).mockImplementation((document) => document);
+    vi.mocked(sortTopLevelKeys).mockImplementation((document) => document);
     writeToFileByExtensionSpy = vi
       .mocked(writeToFileByExtension)
       .mockImplementation(() => undefined);
