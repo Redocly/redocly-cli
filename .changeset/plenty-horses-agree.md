@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Resolved high severity audit vulnerabilities by updating dependency versions.
+Resolved `GHSA-xq3m-2v4x-88gg` vulnerabilitiy by updating dependency versions.
