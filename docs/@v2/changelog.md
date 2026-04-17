@@ -7,6 +7,34 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.28.1 (2026-04-16)
+
+### Patch Changes
+
+- Ordered top-level keys in AsyncAPI documents during bundling for improved consistency and readability.
+- Updated @redocly/openapi-core to v2.28.1.
+
+## 2.28.0 (2026-04-15)
+
+### Minor Changes
+
+- Moved the `remove-unused-components` decorator to the post-bundle phase so that components that become unused only after `$ref` resolution are correctly removed.
+
+### Patch Changes
+
+- Fixed an issue where the discriminator's `defaultMapping` property was not resolved when bundling.
+- Updated @redocly/openapi-core to v2.28.0.
+
+## 2.27.1 (2026-04-14)
+
+### Patch Changes
+
+- Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
+
+  **Warning:** Autogenrated component names and `$ref` paths in bundled documents may differ from older releases.
+
+- Updated @redocly/openapi-core to v2.27.1.
+
 ## 2.27.0 (2026-04-14)
 
 ### Minor Changes
