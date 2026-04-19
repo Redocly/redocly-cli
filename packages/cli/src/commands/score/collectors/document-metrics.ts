@@ -449,6 +449,8 @@ function isAmbiguousParam(param: Param): boolean {
 
 function isErrorCode(code: string): boolean {
   if (code === 'default') return true;
+  // OpenAPI 3.1: status ranges 4XX / 5XX (see https://spec.openapis.org/oas/v3.1.0#patterned-fields)
+  if (/^4xx$/i.test(code) || /^5xx$/i.test(code)) return true;
   const num = parseInt(code, 10);
   return num >= 400 && num < 600;
 }

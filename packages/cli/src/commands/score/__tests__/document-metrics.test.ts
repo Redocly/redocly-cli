@@ -189,6 +189,43 @@ describe('collectDocumentMetrics', () => {
     expect(op.structuredErrorResponseCount).toBe(3);
   });
 
+  it('treats OpenAPI 3.1 wildcard error codes 4XX and 5XX as errors', async () => {
+    const { metrics } = await collectDocumentMetrics(
+      yaml(outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: '1.0'
+        paths:
+          /items:
+            get:
+              operationId: listItems
+              responses:
+                '200':
+                  description: OK
+                '4XX':
+                  description: Client error
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          code:
+                            type: string
+                '5xx':
+                  description: Server error
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+      `)
+    );
+
+    const op = metrics.operations.get('listItems')!;
+    expect(op.totalErrorResponses).toBe(2);
+    expect(op.structuredErrorResponseCount).toBe(2);
+  });
+
   it('detects operation descriptions and tracks shared $ref usage across operations', async () => {
     const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
