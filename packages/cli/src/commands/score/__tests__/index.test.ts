@@ -189,4 +189,83 @@ describe('handleScore', () => {
     const output = mockOutput.mock.calls.map(([s]: [string]) => s).join('');
     expect(output).toContain('Hotspot');
   });
+
+  it('should strip issues from JSON hotspots by default', async () => {
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(
+        new Map([
+          [
+            'complexOp',
+            makeTestMetrics({
+              path: '/complex',
+              method: 'post',
+              operationId: 'complexOp',
+              parameterCount: 10,
+              operationDescriptionPresent: false,
+            }),
+          ],
+        ])
+      ),
+      debugLogs: [],
+    });
+
+    await handleScore(createArgs({ format: 'json' }));
+    const parsed = JSON.parse(mockOutput.mock.calls[0][0]);
+    expect(parsed.hotspots.length).toBeGreaterThan(0);
+    expect(parsed.hotspots[0].issues).toBeUndefined();
+    expect(parsed.hotspots[0].suggestion).toBeUndefined();
+  });
+
+  it('should add suggestion to JSON hotspots when suggestions is true', async () => {
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(
+        new Map([
+          [
+            'complexOp',
+            makeTestMetrics({
+              path: '/complex',
+              method: 'post',
+              operationId: 'complexOp',
+              parameterCount: 10,
+              operationDescriptionPresent: false,
+            }),
+          ],
+        ])
+      ),
+      debugLogs: [],
+    });
+
+    await handleScore(createArgs({ format: 'json', suggestions: true }));
+    const parsed = JSON.parse(mockOutput.mock.calls[0][0]);
+    expect(typeof parsed.hotspots[0].suggestion).toBe('string');
+    expect(parsed.hotspots[0].suggestion).toContain('test.yaml');
+    expect(parsed.hotspots[0].issues).toBeUndefined();
+  });
+
+  it('should print agent prompts section when suggestions is true', async () => {
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(
+        new Map([
+          [
+            'complexOp',
+            makeTestMetrics({
+              path: '/complex',
+              method: 'post',
+              operationId: 'complexOp',
+              parameterCount: 10,
+              operationDescriptionPresent: false,
+            }),
+          ],
+        ])
+      ),
+      debugLogs: [],
+    });
+
+    await handleScore(createArgs({ suggestions: true }));
+
+    const output = mockOutput.mock.calls.map(([s]: [string]) => s).join('');
+    expect(output).toContain('Agent prompts (copy/paste)');
+    expect(output).toContain('test.yaml');
+    expect(output).toContain('```');
+  });
 });

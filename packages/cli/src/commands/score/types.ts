@@ -55,12 +55,32 @@ export interface OperationScores {
   subscores: Subscores;
 }
 
+export type HotspotIssueCode =
+  | 'high_parameter_count'
+  | 'deep_schema_nesting'
+  | 'any_of_without_discriminator'
+  | 'high_polymorphism_count'
+  | 'missing_request_and_response_examples'
+  | 'missing_request_body_examples'
+  | 'missing_response_examples'
+  | 'no_structured_error_responses'
+  | 'missing_operation_description'
+  | 'no_parameter_descriptions'
+  | 'high_dependency_depth'
+  | 'ambiguous_identifiers';
+
+export interface HotspotIssue {
+  code: HotspotIssueCode;
+  message: string;
+}
+
 export interface HotspotOperation {
   path: string;
   method: string;
   operationId?: string;
   agentReadinessScore: number;
   reasons: string[];
+  issues: HotspotIssue[];
 }
 
 export interface ScoreResult {
