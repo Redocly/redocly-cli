@@ -132,20 +132,16 @@ export function collectMetrics({
 
     const oneOfBranches = resolved?.oneOf;
     const anyOfBranches = resolved?.anyOf;
-    const polyKeyword: 'oneOf' | 'anyOf' | null =
-      Array.isArray(oneOfBranches) && oneOfBranches.length > 1
-        ? 'oneOf'
-        : Array.isArray(anyOfBranches) && anyOfBranches.length > 1
-          ? 'anyOf'
-          : null;
-    const polyBranches: any[] | null =
-      polyKeyword === 'oneOf' ? oneOfBranches : polyKeyword === 'anyOf' ? anyOfBranches : null;
+    const hasOneOfPoly = Array.isArray(oneOfBranches) && oneOfBranches.length > 1;
+    const hasAnyOfPoly = Array.isArray(anyOfBranches) && anyOfBranches.length > 1;
+    /** True when we peel off multi-branch oneOf/anyOf for max-branch walks (may be both). */
+    const hasPolyComposition = hasOneOfPoly || hasAnyOfPoly;
 
     const hasAllOf = Array.isArray(resolved?.allOf) && resolved.allOf.length > 0;
 
     const disc = resolved?.discriminator;
     const discriminatorRefs =
-      !polyKeyword && isPlainObject(disc?.mapping)
+      !hasPolyComposition && isPlainObject(disc?.mapping)
         ? Object.values(disc.mapping)
             .filter((v): v is string => typeof v === 'string' && isMappingRef(v))
             .map((v) => ({ $ref: v }))
@@ -155,14 +151,19 @@ export function collectMetrics({
 
     let result: SchemaStats;
 
-    if (polyKeyword || hasAllOf || hasDiscriminatorBranches) {
+    if (hasPolyComposition || hasAllOf || hasDiscriminatorBranches) {
       const parentOnly = { ...resolved };
 
       let polyStats: SchemaStats | null = null;
-      if (polyKeyword && polyBranches) {
-        delete parentOnly[polyKeyword];
-        delete parentOnly.discriminator;
 
+      const mergePolyPart = (part: SchemaStats) => {
+        polyStats = polyStats ? addStats(polyStats, part) : part;
+      };
+
+      const maxBranchPolyStats = (
+        polyKeyword: 'oneOf' | 'anyOf',
+        polyBranches: any[]
+      ): SchemaStats => {
         let maxBranch = walkSchema(polyBranches[0], debug);
         for (let i = 1; i < polyBranches.length; i++) {
           const branchStats = walkSchema(polyBranches[i], debug);
@@ -170,12 +171,24 @@ export function collectMetrics({
             maxBranch = branchStats;
           }
         }
-        polyStats = {
+        return {
           ...maxBranch,
           polymorphismCount: maxBranch.polymorphismCount + polyBranches.length,
           anyOfCount: maxBranch.anyOfCount + (polyKeyword === 'anyOf' ? polyBranches.length : 0),
           hasDiscriminator: maxBranch.hasDiscriminator || !!disc,
         };
+      };
+
+      if (hasPolyComposition) {
+        delete parentOnly.discriminator;
+      }
+      if (hasOneOfPoly) {
+        delete parentOnly.oneOf;
+        mergePolyPart(maxBranchPolyStats('oneOf', oneOfBranches));
+      }
+      if (hasAnyOfPoly) {
+        delete parentOnly.anyOf;
+        mergePolyPart(maxBranchPolyStats('anyOf', anyOfBranches));
       }
 
       let discStats: SchemaStats | null = null;

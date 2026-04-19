@@ -226,6 +226,148 @@ describe('collectDocumentMetrics', () => {
     expect(op.structuredErrorResponseCount).toBe(2);
   });
 
+  it('when media types tie on property count, keeps doc + constraint metrics from the stronger schema', async () => {
+    const { metrics } = await collectDocumentMetrics(
+      yaml(outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: '1.0'
+        paths:
+          /items:
+            post:
+              operationId: samePropTie
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        a:
+                          type: string
+                        b:
+                          type: string
+                          description: B only
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                            description: A
+                          b:
+                            type: string
+                            description: B
+      `)
+    );
+
+    const op = metrics.operations.get('samePropTie')!;
+    expect(op.totalSchemaProperties).toBe(2);
+    expect(op.schemaPropertiesWithDescription).toBe(2);
+  });
+
+  it('keeps polymorphismCount and anyOfCount from the same schema (max effective polymorphism across media types)', async () => {
+    const { metrics } = await collectDocumentMetrics(
+      yaml(outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: '1.0'
+        paths:
+          /items:
+            post:
+              operationId: mixedPoly
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - type: string
+                        - type: number
+                        - type: boolean
+                        - type: object
+                        - type: array
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        anyOf:
+                          - type: object
+                          - type: object
+                          - type: object
+      `)
+    );
+
+    const op = metrics.operations.get('mixedPoly')!;
+    // Request alone: poly 5 / anyOf 0 (effective 5). Response alone: poly 3 / anyOf 3 (effective 6 with multiplier 2).
+    // Must not mix into poly 5 + anyOf 3 (invalid effective 11).
+    expect(op.polymorphismCount).toBe(3);
+    expect(op.anyOfCount).toBe(3);
+  });
+
+  it('applies max-branch counting to both oneOf and anyOf when both are present', async () => {
+    const { metrics } = await collectDocumentMetrics(
+      yaml(outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: '1.0'
+        paths:
+          /items:
+            post:
+              operationId: bothOneOfAndAnyOf
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        common:
+                          type: string
+                      oneOf:
+                        - type: object
+                          properties:
+                            a:
+                              type: string
+                        - type: object
+                          properties:
+                            b1:
+                              type: string
+                            b2:
+                              type: string
+                            b3:
+                              type: string
+                            b4:
+                              type: string
+                            b5:
+                              type: string
+                      anyOf:
+                        - type: object
+                          properties:
+                            p1:
+                              type: string
+                            p2:
+                              type: string
+                            p3:
+                              type: string
+                        - type: object
+                          properties:
+                            q:
+                              type: string
+      `)
+    );
+
+    const op = metrics.operations.get('bothOneOfAndAnyOf')!;
+    // Parent: 1 prop. oneOf max branch: 5 props. anyOf max branch: 3 props (not 3+1 summed from both anyOf branches).
+    expect(op.totalSchemaProperties).toBe(9);
+  });
+
   it('detects operation descriptions and tracks shared $ref usage across operations', async () => {
     const { metrics } = await collectDocumentMetrics(
       yaml(outdent`

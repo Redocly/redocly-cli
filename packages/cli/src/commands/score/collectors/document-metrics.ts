@@ -12,7 +12,7 @@ import {
   type Referenced,
 } from '@redocly/openapi-core';
 
-import { AMBIGUOUS_PARAM_NAMES } from '../constants.js';
+import { AMBIGUOUS_PARAM_NAMES, DEFAULT_SCORING_CONSTANTS } from '../constants.js';
 import type {
   DebugMediaTypeLog,
   DebugSchemaEntry,
@@ -24,6 +24,44 @@ import type {
 type Schema = Oas3Schema | Oas3_1Schema;
 type Param = Oas3Parameter<Schema>;
 type ResolveFn = UserContext['resolve'];
+
+const ANY_OF_PENALTY_MULTIPLIER = DEFAULT_SCORING_CONSTANTS.weights.anyOfPenaltyMultiplier;
+
+/** Matches `effectivePolymorphism` in scoring.ts so operation rollup stays from one schema walk. */
+function schemaEffectivePolymorphism(polymorphismCount: number, anyOfCount: number): number {
+  const otherPoly = polymorphismCount - anyOfCount;
+  return otherPoly + anyOfCount * ANY_OF_PENALTY_MULTIPLIER;
+}
+
+/** When two media types have the same property count, pick the triple with stronger doc + constraint signal. */
+function propertyMetricsBundleScore(
+  totalSchemaProperties: number,
+  schemaPropertiesWithDescription: number,
+  constraintCount: number
+): number {
+  const p = Math.max(1, totalSchemaProperties);
+  return schemaPropertiesWithDescription / p + constraintCount / p;
+}
+
+function shouldReplacePropertyMetrics(
+  current: CurrentOperationContext,
+  stats: SchemaStats
+): boolean {
+  if (stats.totalSchemaProperties > current.totalSchemaProperties) return true;
+  if (stats.totalSchemaProperties < current.totalSchemaProperties) return false;
+  return (
+    propertyMetricsBundleScore(
+      stats.totalSchemaProperties,
+      stats.schemaPropertiesWithDescription,
+      stats.constraintCount
+    ) >
+    propertyMetricsBundleScore(
+      current.totalSchemaProperties,
+      current.schemaPropertiesWithDescription,
+      current.constraintCount
+    )
+  );
+}
 
 const CONSTRAINT_KEYS: readonly string[] = [
   'enum',
@@ -184,6 +222,9 @@ interface CurrentOperationContext {
   currentResponseCode: string;
   errorStructuredCounted: boolean;
 
+  /** Internal: best schema walk for polymorphism + anyOf (see `schemaEffectivePolymorphism`). */
+  maxEffectivePolymorphism: number;
+
   refsUsed: Set<string>;
 }
 
@@ -250,6 +291,8 @@ function createOperationContext(
     currentResponseCode: '',
     errorStructuredCounted: false,
 
+    maxEffectivePolymorphism: -1,
+
     refsUsed: new Set(),
   };
 }
@@ -260,6 +303,7 @@ function buildOperationMetrics(ctx: CurrentOperationContext): OperationMetrics {
     inResponse: _2,
     currentResponseCode: _3,
     errorStructuredCounted: _4,
+    maxEffectivePolymorphism: _5,
     ...metrics
   } = ctx;
   return metrics;
@@ -328,13 +372,18 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
 
           const stats = accumulator.walkSchema(mediaType.schema, isDebugTarget);
 
-          if (stats.totalSchemaProperties > current.totalSchemaProperties) {
+          if (shouldReplacePropertyMetrics(current, stats)) {
             current.totalSchemaProperties = stats.totalSchemaProperties;
             current.schemaPropertiesWithDescription = stats.schemaPropertiesWithDescription;
             current.constraintCount = stats.constraintCount;
           }
-          current.polymorphismCount = Math.max(current.polymorphismCount, stats.polymorphismCount);
-          current.anyOfCount = Math.max(current.anyOfCount, stats.anyOfCount);
+
+          const effective = schemaEffectivePolymorphism(stats.polymorphismCount, stats.anyOfCount);
+          if (effective > current.maxEffectivePolymorphism) {
+            current.maxEffectivePolymorphism = effective;
+            current.polymorphismCount = stats.polymorphismCount;
+            current.anyOfCount = stats.anyOfCount;
+          }
           if (stats.hasDiscriminator) current.hasDiscriminator = true;
 
           for (const ref of stats.refsUsed) current.refsUsed.add(ref);
