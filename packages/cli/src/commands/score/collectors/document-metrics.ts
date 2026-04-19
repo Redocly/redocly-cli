@@ -12,7 +12,8 @@ import {
   type Referenced,
 } from '@redocly/openapi-core';
 
-import { AMBIGUOUS_PARAM_NAMES, DEFAULT_SCORING_CONSTANTS } from '../constants.js';
+import { AMBIGUOUS_PARAM_NAMES } from '../constants.js';
+import { effectivePolymorphismFromCounts } from '../scoring.js';
 import type {
   DebugMediaTypeLog,
   DebugSchemaEntry,
@@ -24,14 +25,6 @@ import type {
 type Schema = Oas3Schema | Oas3_1Schema;
 type Param = Oas3Parameter<Schema>;
 type ResolveFn = UserContext['resolve'];
-
-const ANY_OF_PENALTY_MULTIPLIER = DEFAULT_SCORING_CONSTANTS.weights.anyOfPenaltyMultiplier;
-
-/** Matches `effectivePolymorphism` in scoring.ts so operation rollup stays from one schema walk. */
-function schemaEffectivePolymorphism(polymorphismCount: number, anyOfCount: number): number {
-  const otherPoly = polymorphismCount - anyOfCount;
-  return otherPoly + anyOfCount * ANY_OF_PENALTY_MULTIPLIER;
-}
 
 /** When two media types have the same property count, pick the triple with stronger doc + constraint signal. */
 function propertyMetricsBundleScore(
@@ -222,7 +215,7 @@ interface CurrentOperationContext {
   currentResponseCode: string;
   errorStructuredCounted: boolean;
 
-  /** Internal: best schema walk for polymorphism + anyOf (see `schemaEffectivePolymorphism`). */
+  /** Internal: best schema walk for polymorphism + anyOf (see `effectivePolymorphismFromCounts`). */
   maxEffectivePolymorphism: number;
 
   refsUsed: Set<string>;
@@ -234,12 +227,15 @@ export interface ScoreAccumulator {
   pathLevelParams: Array<Referenced<Param>>;
   current: CurrentOperationContext | null;
   walkSchema: (schema: any, debug?: boolean) => SchemaStats;
+  /** Must match scoring `weights.anyOfPenaltyMultiplier` for this run. */
+  anyOfPenaltyMultiplier: number;
   debugOperationId?: string;
   debugLogs: DebugMediaTypeLog[];
 }
 
 export function createScoreAccumulator(
   walkSchema: (schema: any, debug?: boolean) => SchemaStats,
+  anyOfPenaltyMultiplier: number,
   debugOperationId?: string
 ): ScoreAccumulator {
   return {
@@ -248,6 +244,7 @@ export function createScoreAccumulator(
     pathLevelParams: [],
     current: null,
     walkSchema,
+    anyOfPenaltyMultiplier,
     debugOperationId,
     debugLogs: [],
   };
@@ -378,7 +375,11 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
             current.constraintCount = stats.constraintCount;
           }
 
-          const effective = schemaEffectivePolymorphism(stats.polymorphismCount, stats.anyOfCount);
+          const effective = effectivePolymorphismFromCounts(
+            stats.polymorphismCount,
+            stats.anyOfCount,
+            accumulator.anyOfPenaltyMultiplier
+          );
           if (effective > current.maxEffectivePolymorphism) {
             current.maxEffectivePolymorphism = effective;
             current.polymorphismCount = stats.polymorphismCount;

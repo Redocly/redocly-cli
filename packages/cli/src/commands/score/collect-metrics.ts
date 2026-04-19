@@ -19,7 +19,8 @@ import {
   createSchemaMetricVisitor,
   getDocumentMetrics,
 } from './collectors/document-metrics.js';
-import type { DebugMediaTypeLog, DocumentMetrics, SchemaStats } from './types.js';
+import { DEFAULT_SCORING_CONSTANTS } from './constants.js';
+import type { DebugMediaTypeLog, DocumentMetrics, SchemaStats, ScoringConstants } from './types.js';
 
 function resolveJsonPointer(root: any, ref: string): any {
   if (!ref.startsWith('#/')) return undefined;
@@ -36,6 +37,8 @@ export interface CollectMetricsOptions {
   resolvedRefMap: ReturnType<typeof resolveDocument> extends Promise<infer R> ? R : never;
   ctx: WalkContext;
   debugOperationId?: string;
+  /** When set, must match the constants passed into scoring for this run (e.g. anyOf penalty). */
+  scoringConstants?: ScoringConstants;
 }
 
 export interface CollectMetricsResult {
@@ -49,7 +52,11 @@ export function collectMetrics({
   resolvedRefMap,
   ctx,
   debugOperationId,
+  scoringConstants,
 }: CollectMetricsOptions): CollectMetricsResult {
+  const anyOfPenaltyMultiplier =
+    scoringConstants?.weights.anyOfPenaltyMultiplier ??
+    DEFAULT_SCORING_CONSTANTS.weights.anyOfPenaltyMultiplier;
   const schemaWalkState = createSchemaWalkState();
   const schemaVisitor = createSchemaMetricVisitor(schemaWalkState);
   const normalizedSchemaVisitors = normalizeVisitors(
@@ -242,7 +249,7 @@ export function collectMetrics({
     return result;
   };
 
-  const accumulator = createScoreAccumulator(walkSchema, debugOperationId);
+  const accumulator = createScoreAccumulator(walkSchema, anyOfPenaltyMultiplier, debugOperationId);
   const scoreVisitor = createScoreVisitor(accumulator);
 
   const normalizedVisitors = normalizeVisitors(

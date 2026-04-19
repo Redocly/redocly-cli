@@ -10,6 +10,7 @@ import {
 } from '@redocly/openapi-core';
 
 import { collectMetrics, type CollectMetricsResult } from '../collect-metrics.js';
+import type { ScoringConstants } from '../types.js';
 
 /**
  * Convenience wrapper that resolves a parsed OpenAPI document and collects metrics.
@@ -17,7 +18,11 @@ import { collectMetrics, type CollectMetricsResult } from '../collect-metrics.js
  */
 export async function collectDocumentMetrics(
   parsed: Record<string, unknown>,
-  options?: { specVersion?: SpecVersion; debugOperationId?: string }
+  options?: {
+    specVersion?: SpecVersion;
+    debugOperationId?: string;
+    scoringConstants?: ScoringConstants;
+  }
 ): Promise<CollectMetricsResult> {
   const specVersion: SpecVersion = options?.specVersion ?? 'oas3_0';
   const types = normalizeTypes(getTypes(specVersion), {});
@@ -37,5 +42,6 @@ export async function collectDocumentMetrics(
     resolvedRefMap,
     ctx,
     debugOperationId: options?.debugOperationId,
+    scoringConstants: options?.scoringConstants,
   });
 }

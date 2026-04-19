@@ -1,6 +1,8 @@
 import { parseYaml } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
 
+import { DEFAULT_SCORING_CONSTANTS } from '../constants.js';
+import type { ScoringConstants } from '../types.js';
 import { collectDocumentMetrics } from './collect-metrics-helper.js';
 
 const yaml = (source: string) => parseYaml(source) as Record<string, unknown>;
@@ -309,6 +311,51 @@ describe('collectDocumentMetrics', () => {
     // Must not mix into poly 5 + anyOf 3 (invalid effective 11).
     expect(op.polymorphismCount).toBe(3);
     expect(op.anyOfCount).toBe(3);
+  });
+
+  it('uses scoringConstants.anyOfPenaltyMultiplier when rolling up polymorphism across media types', async () => {
+    const doc = yaml(outdent`
+      openapi: 3.0.0
+      info:
+        title: Test
+        version: '1.0'
+      paths:
+        /items:
+          post:
+            operationId: mixedPoly
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    oneOf:
+                      - type: string
+                      - type: number
+                      - type: boolean
+                      - type: object
+                      - type: array
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      anyOf:
+                        - type: object
+                        - type: object
+                        - type: object
+    `);
+    const lowMultiplier: ScoringConstants = {
+      ...DEFAULT_SCORING_CONSTANTS,
+      weights: {
+        ...DEFAULT_SCORING_CONSTANTS.weights,
+        anyOfPenaltyMultiplier: 1,
+      },
+    };
+    const { metrics } = await collectDocumentMetrics(doc, { scoringConstants: lowMultiplier });
+    const op = metrics.operations.get('mixedPoly')!;
+    // With multiplier 1, response effective = 3; request = 5 — request branch should win.
+    expect(op.polymorphismCount).toBe(5);
+    expect(op.anyOfCount).toBe(0);
   });
 
   it('applies max-branch counting to both oneOf and anyOf when both are present', async () => {

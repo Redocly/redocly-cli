@@ -140,9 +140,22 @@ export function computeDocumentScores(
   };
 }
 
+/** Shared by metric collection (media-type rollup) and subscore computation. */
+export function effectivePolymorphismFromCounts(
+  polymorphismCount: number,
+  anyOfCount: number,
+  anyOfMultiplier: number
+): number {
+  const otherPoly = polymorphismCount - anyOfCount;
+  return otherPoly + anyOfCount * anyOfMultiplier;
+}
+
 function effectivePolymorphism(metrics: OperationMetrics, anyOfMultiplier: number): number {
-  const otherPoly = metrics.polymorphismCount - metrics.anyOfCount;
-  return otherPoly + metrics.anyOfCount * anyOfMultiplier;
+  return effectivePolymorphismFromCounts(
+    metrics.polymorphismCount,
+    metrics.anyOfCount,
+    anyOfMultiplier
+  );
 }
 
 function clamp01(value: number): number {

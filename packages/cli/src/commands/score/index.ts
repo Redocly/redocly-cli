@@ -60,6 +60,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
   });
 
   const debugOpId = argv['debug-operation-id'];
+  // Non-default scoring constants must be passed both to collectMetrics and computeAllOperationScores.
   const { metrics: rawMetrics, debugLogs } = collectMetrics({
     document,
     types,
