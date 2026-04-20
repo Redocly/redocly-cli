@@ -1,0 +1,49 @@
+import type { ScoringConstants } from './types.js';
+
+export const DEFAULT_SCORING_CONSTANTS: ScoringConstants = {
+  thresholds: {
+    maxParamsGood: 5,
+    maxDepthGood: 4,
+    maxPolymorphismGood: 2,
+    maxDependencyDepthGood: 3,
+    maxAmbiguousGood: 0,
+    maxOperationsForDiscoverability: 1000,
+  },
+  weights: {
+    parameterSimplicity: 0.1,
+    schemaSimplicity: 0.1,
+    documentationQuality: 0.18,
+    constraintClarity: 0.12,
+    exampleCoverage: 0.18,
+    errorClarity: 0.12,
+    dependencyClarity: 0.1,
+    identifierClarity: 0.05,
+    polymorphismClarity: 0.05,
+    anyOfPenaltyMultiplier: 2.0,
+    discoverabilityWeight: 0.1,
+  },
+  hotspotLimit: 10,
+};
+
+export const AMBIGUOUS_PARAM_NAMES = new Set([
+  'id',
+  'name',
+  'type',
+  'value',
+  'data',
+  'key',
+  'status',
+  'state',
+  'code',
+  'result',
+  'item',
+  'object',
+  'resource',
+  'entity',
+  'input',
+  'output',
+  'payload',
+  'body',
+  'content',
+  'info',
+]);
