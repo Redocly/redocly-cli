@@ -17,11 +17,6 @@ type SchemaSignature = {
   [key: string]: unknown;
 };
 
-type ExclusivityResult = {
-  isExclusive: boolean;
-  reason?: string;
-};
-
 export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
   return {
     Schema: {
@@ -123,7 +118,7 @@ function resolveSchema(
 function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): boolean {
   if ('nullable' in schema && schema.nullable === true) return true;
   if (schema.type === 'null') return true;
-  if (schema.type && Array.isArray(schema.type)) return (schema.type as string[]).includes('null');
+  if (schema.type && Array.isArray(schema.type)) return schema.type.includes('null');
   return false;
 }
 
@@ -183,129 +178,91 @@ function createSchemaSignature(
   return signature;
 }
 
-/** Checks if two schema signatures are mutually exclusive based on their constraints. */
-function arePropertiesMutuallyExclusive(
-  prop1: SchemaSignature,
-  prop2: SchemaSignature
-): ExclusivityResult {
-  if (hasNullableType(prop1) && hasNullableType(prop2)) {
-    return { isExclusive: false, reason: 'Both schemas allow null values, creating ambiguity.' };
+/**
+ * Returns true if the two signatures can be proven to accept no common value
+ * based on type-level constraints (enum, const, type, format) alone.
+ * Used to detect required discriminator properties in `oneOf` sub-schemas.
+ */
+function hasExclusiveConstraints(sig1: SchemaSignature, sig2: SchemaSignature): boolean {
+  if (sig1.enum && sig2.enum) {
+    return !sig1.enum.some((v) => sig2.enum!.some((v2) => dequal(v, v2)));
   }
-
-  if (prop1.enum && prop2.enum) {
-    const overlappingEnums = prop1.enum.filter((val) =>
-      prop2.enum!.some((val2) => dequal(val, val2))
-    );
-    return overlappingEnums.length > 0
-      ? {
-          isExclusive: false,
-          reason: `Schemas have overlapping enum values: ${JSON.stringify(overlappingEnums)}.`,
-        }
-      : { isExclusive: true };
+  if (sig1.const && sig2.const) {
+    return !dequal(sig1.const, sig2.const);
   }
-
-  if (prop1.const && prop2.const) {
-    return !dequal(prop1.const, prop2.const)
-      ? { isExclusive: true }
-      : {
-          isExclusive: false,
-          reason: `Both schemas have the same const value: ${JSON.stringify(prop1.const)}.`,
-        };
+  if (sig1.type && sig2.type && !isPlainObject(sig1.type) && !isPlainObject(sig2.type)) {
+    if (!dequal(sig1.type, sig2.type)) return true;
+    if (sig1.format && sig2.format && sig1.format !== sig2.format) return true;
   }
-
-  if (prop1.type && prop2.type && !isPlainObject(prop1.type) && !isPlainObject(prop2.type)) {
-    if (!dequal(prop1.type, prop2.type)) return { isExclusive: true };
-    if (prop1.format && prop2.format && prop1.format !== prop2.format) return { isExclusive: true };
-    return { isExclusive: false };
-  }
-
-  return { isExclusive: true };
+  return false;
 }
 
-/** Recursively checks if two schema signatures are mutually exclusive, with a depth limit. */
-function areSignaturesMutuallyExclusive(
+/**
+ * Returns an overlap reason when the two signatures are NOT mutually exclusive,
+ * or `null` when they appear exclusive. Recurses into properties and
+ * additionalProperties with a depth guard.
+ */
+function findOverlapReason(
   sig1: SchemaSignature,
   sig2: SchemaSignature,
   depth: number = 0
-): ExclusivityResult {
+): string | null {
   const MAX_DEPTH = 10;
-  if (depth > MAX_DEPTH) {
-    // Cannot determine exclusivity at this depth — assume exclusive to avoid false positives
-    return { isExclusive: true };
+  if (depth > MAX_DEPTH) return null;
+
+  if (hasNullableType(sig1) && hasNullableType(sig2)) {
+    return 'Both schemas allow null values, creating ambiguity.';
   }
 
-  const topLevelResult = arePropertiesMutuallyExclusive(sig1, sig2);
-  if (!topLevelResult.isExclusive && topLevelResult.reason) {
-    return topLevelResult;
+  if (sig1.enum && sig2.enum) {
+    const overlap = sig1.enum.filter((v) => sig2.enum!.some((v2) => dequal(v, v2)));
+    return overlap.length > 0
+      ? `Schemas have overlapping enum values: ${JSON.stringify(overlap)}.`
+      : null;
   }
+
+  if (sig1.const && sig2.const) {
+    return dequal(sig1.const, sig2.const)
+      ? `Both schemas have the same const value: ${JSON.stringify(sig1.const)}.`
+      : null;
+  }
+
+  if (hasExclusiveConstraints(sig1, sig2)) return null;
 
   if (sig1.properties && sig2.properties) {
-    const intersection = [...sig1.properties].filter((prop) => sig2.properties!.has(prop));
-    if (intersection.length > 0) {
-      const ambiguousProperties: string[] = [];
-      const mutuallyExclusiveProperties: string[] = [];
+    const shared = [...sig1.properties].filter((p) => sig2.properties!.has(p));
+    if (shared.length > 0) {
+      const ambiguous: string[] = [];
+      for (const prop of shared) {
+        const s1 = sig1.propertySchemas?.get(prop);
+        const s2 = sig2.propertySchemas?.get(prop);
 
-      for (const propName of intersection) {
-        const prop1Schema = sig1.propertySchemas?.get(propName);
-        const prop2Schema = sig2.propertySchemas?.get(propName);
+        const isDiscriminator =
+          s1 &&
+          s2 &&
+          hasExclusiveConstraints(s1, s2) &&
+          sig1.required?.has(prop) &&
+          sig2.required?.has(prop);
 
-        if (prop1Schema && prop2Schema) {
-          const { isExclusive, reason } = arePropertiesMutuallyExclusive(prop1Schema, prop2Schema);
-          if (!isExclusive && reason) return { isExclusive, reason };
-
-          const isRequiredInBoth = sig1.required?.has(propName) && sig2.required?.has(propName);
-          if (isExclusive && isRequiredInBoth) {
-            mutuallyExclusiveProperties.push(propName);
-          } else if (!isExclusive) {
-            ambiguousProperties.push(propName);
-          }
-        } else {
-          ambiguousProperties.push(propName);
-        }
+        if (isDiscriminator) return null;
+        ambiguous.push(prop);
       }
-
-      if (ambiguousProperties.length === 0 && mutuallyExclusiveProperties.length > 0) {
-        return { isExclusive: true };
+      if (ambiguous.length > 0) {
+        return `Schemas have overlapping properties: ${ambiguous.join(', ')}.`;
       }
-
-      if (sig1.required && sig2.required && mutuallyExclusiveProperties.length > 0) {
-        const requiredAndMutuallyExclusive = mutuallyExclusiveProperties.filter(
-          (prop) => sig1.required!.has(prop) && sig2.required!.has(prop)
-        );
-        if (requiredAndMutuallyExclusive.length > 0) return { isExclusive: true };
-      }
-
-      if (ambiguousProperties.length > 0) {
-        return {
-          isExclusive: false,
-          reason: `Schemas have overlapping properties: ${ambiguousProperties.join(', ')}.`,
-        };
-      }
-
-      return { isExclusive: true };
     }
   }
 
-  // Check additionalProperties schemas for discrimination (schema-vs-schema only)
-  const addlProps1 = sig1.additionalProperties;
-  const addlProps2 = sig2.additionalProperties;
-
-  if (isPlainObject(addlProps1) && isPlainObject(addlProps2)) {
-    const addlPropsResult = areSignaturesMutuallyExclusive(
-      addlProps1 as SchemaSignature,
-      addlProps2 as SchemaSignature,
+  if (isPlainObject(sig1.additionalProperties) && isPlainObject(sig2.additionalProperties)) {
+    const reason = findOverlapReason(
+      sig1.additionalProperties as SchemaSignature,
+      sig2.additionalProperties as SchemaSignature,
       depth + 1
     );
-    if (!addlPropsResult.isExclusive) {
-      return {
-        isExclusive: false,
-        reason: `Schemas have overlapping additionalProperties definitions. ${addlPropsResult.reason ?? ''}`,
-      };
-    }
-    return { isExclusive: true };
+    if (reason) return `Schemas have overlapping additionalProperties definitions. ${reason}`;
   }
 
-  return { isExclusive: true };
+  return null;
 }
 
 /** Reports ambiguous oneOf schema pairs that are not mutually exclusive. */
@@ -325,10 +282,10 @@ function checkOneOfSchemasMutuallyExclusive(
 
   for (let i = 0; i < signatures.length; i++) {
     for (let j = i + 1; j < signatures.length; j++) {
-      const { isExclusive, reason } = areSignaturesMutuallyExclusive(signatures[i], signatures[j]);
-      if (!isExclusive) {
+      const reason = findOverlapReason(signatures[i], signatures[j]);
+      if (reason) {
         report({
-          message: `Ambiguous oneOf schemas detected. Schemas ${getSchemaIdentifier(schemas[i], i)} and ${getSchemaIdentifier(schemas[j], j)} are not mutually exclusive. ${reason ?? ''}`,
+          message: `Ambiguous oneOf schemas detected. Schemas ${getSchemaIdentifier(schemas[i], i)} and ${getSchemaIdentifier(schemas[j], j)} are not mutually exclusive. ${reason}`,
           location: location.child(['oneOf']),
         });
       }
