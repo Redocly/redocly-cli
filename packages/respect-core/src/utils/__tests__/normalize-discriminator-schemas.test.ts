@@ -221,4 +221,31 @@ describe('normalizeDiscriminatorSchemas', () => {
     expect(result.oneOf[0].properties.method).toBeUndefined();
     expect(result.oneOf[1].properties.method).toEqual({ const: 'cash' });
   });
+
+  it('should preserve existing properties on discriminator schema when promoting const/enum', () => {
+    const schema = {
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            method: {
+              type: 'string',
+              description: 'Payment method type',
+              nullable: true,
+              allOf: [{ enum: ['cash', 'card'] }],
+            },
+          },
+        },
+      ],
+      discriminator: { propertyName: 'method' },
+    };
+
+    const result = normalizeDiscriminatorSchemas(schema) as any;
+
+    expect(result.oneOf[0].properties.method.enum).toEqual(['cash', 'card']);
+    expect(result.oneOf[0].properties.method.type).toBe('string');
+    expect(result.oneOf[0].properties.method.description).toBe('Payment method type');
+    expect(result.oneOf[0].properties.method.nullable).toBe(true);
+    expect(result.oneOf[0].properties.method.allOf).toBeDefined();
+  });
 });

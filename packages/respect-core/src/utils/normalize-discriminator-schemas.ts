@@ -42,18 +42,11 @@ function normalizeDiscriminatorProperty(variant: any, tagName: string): void {
     for (const subschema of propSchema.allOf) {
       if (subschema && typeof subschema === 'object') {
         if (subschema.const !== undefined) {
-          variant.properties[tagName] = {
-            const: subschema.const,
-            allOf: propSchema.allOf,
-          };
+          propSchema.const = subschema.const;
           return;
         }
         if (subschema.enum) {
-          // Promote enum to top level, preserve allOf for full validation
-          variant.properties[tagName] = {
-            enum: subschema.enum,
-            allOf: propSchema.allOf,
-          };
+          propSchema.enum = subschema.enum;
           return;
         }
       }
