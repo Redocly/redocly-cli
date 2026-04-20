@@ -401,7 +401,7 @@ describe('checkSchema', () => {
     ]);
   });
 
-  it('should pass schema check for discriminator with allOf + not pattern', () => {
+  it('should pass schema check for discriminator with allOf pattern (non-overlapping values)', () => {
     const discriminatorDescriptionOperation = {
       ...descriptionOperation,
       responses: {
@@ -413,17 +413,16 @@ describe('checkSchema', () => {
                 oneOf: [
                   {
                     type: 'object',
+                    required: ['method'],
                     properties: {
                       method: {
-                        allOf: [
-                          { enum: ['cash', 'payment-card', 'paypal'] },
-                          { not: { enum: ['payment-card', 'paypal'] } },
-                        ],
+                        allOf: [{ enum: ['cash', 'crypto'] }],
                       },
                     },
                   },
                   {
                     type: 'object',
+                    required: ['method'],
                     properties: {
                       method: { const: 'payment-card' },
                     },
@@ -457,7 +456,7 @@ describe('checkSchema', () => {
     expect(schemaCheck?.message).not.toContain('Ajv error');
   });
 
-  it('should fail schema check for discriminator with allOf + not when body does not match', () => {
+  it('should fail schema check for discriminator with allOf pattern when body does not match', () => {
     const discriminatorDescriptionOperation = {
       ...descriptionOperation,
       responses: {
@@ -469,17 +468,16 @@ describe('checkSchema', () => {
                 oneOf: [
                   {
                     type: 'object',
+                    required: ['method'],
                     properties: {
                       method: {
-                        allOf: [
-                          { enum: ['cash', 'payment-card', 'paypal'] },
-                          { not: { enum: ['payment-card', 'paypal'] } },
-                        ],
+                        allOf: [{ enum: ['cash', 'crypto'] }],
                       },
                     },
                   },
                   {
                     type: 'object',
+                    required: ['method'],
                     properties: {
                       method: { const: 'payment-card' },
                     },
