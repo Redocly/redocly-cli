@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.12
+
+### Patch Changes
+
+- Improved the stability of the `push` command.
+- Updated @redocly/openapi-core to v1.34.12.
+
 ## 1.34.11
 
 ### Patch Changes
