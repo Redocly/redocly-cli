@@ -42,7 +42,7 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
       strictSchema: false,
       inlineRefs: false,
       validateSchema: false,
-      discriminator: false,
+      discriminator: true,
       allowUnionTypes: true,
       validateFormats: true,
       passContext: true,
