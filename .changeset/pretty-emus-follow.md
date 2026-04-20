@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Improved stability of the push command.
+Improved the stability of the `push` command.
