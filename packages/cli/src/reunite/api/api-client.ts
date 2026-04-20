@@ -2,6 +2,7 @@ import { yellow, red } from 'colorette';
 import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
   DEFAULT_FETCH_TIMEOUT,
+  SOURCE_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout';
 
 import type { ReadStream } from 'fs';
@@ -109,7 +110,7 @@ class RemotesApi {
       const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
         {
-          timeout: DEFAULT_FETCH_TIMEOUT,
+          timeout: SOURCE_FETCH_TIMEOUT,
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
