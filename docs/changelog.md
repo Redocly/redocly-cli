@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.12 (2026-04-20)
+
+### Patch Changes
+
+- Improved the stability of the `push` command.
+- Updated @redocly/openapi-core to v1.34.12.
+
 ## 1.34.11 (2026-03-16)
 
 ### Patch Changes
