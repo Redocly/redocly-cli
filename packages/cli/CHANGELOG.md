@@ -1,5 +1,58 @@
 # @redocly/cli
 
+## 2.29.0
+
+### Minor Changes
+
+- Added new `score` command that analyzes OpenAPI 3.x descriptions and produces an AI Agent Readiness score (0-100).
+  Reports normalized subscores, raw per-operation metrics, and top hotspot operations with human-readable explanations. Supports `--format=stylish` (default) and `--format=json` output.
+
+### Patch Changes
+
+- Improved the stability of the `push` command.
+- Updated @redocly/openapi-core to v2.29.0.
+
+## 2.28.1
+
+### Patch Changes
+
+- Ordered top-level keys in AsyncAPI documents during bundling for improved consistency and readability.
+- Updated @redocly/openapi-core to v2.28.1.
+
+## 2.28.0
+
+### Minor Changes
+
+- Moved the `remove-unused-components` decorator to the post-bundle phase so that components that become unused only after `$ref` resolution are correctly removed.
+
+### Patch Changes
+
+- Fixed an issue where the discriminator's `defaultMapping` property was not resolved when bundling.
+- Updated @redocly/openapi-core to v2.28.0.
+
+## 2.27.1
+
+### Patch Changes
+
+- Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
+
+  **Warning:** Autogenrated component names and `$ref` paths in bundled documents may differ from older releases.
+
+- Updated @redocly/openapi-core to v2.27.1.
+
+## 2.27.0
+
+### Minor Changes
+
+- Added support for `junit` output in the `scorecard-classic` command.
+- Changed `lint` behavior with the `--generate-ignore-file` option.
+  Now `lint` updates only the entries related to the file being linted.
+  Other files' entries are unchanged.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.27.0.
+
 ## 2.26.0
 
 ### Minor Changes

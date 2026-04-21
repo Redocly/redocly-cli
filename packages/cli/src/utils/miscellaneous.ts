@@ -16,6 +16,8 @@ import {
   type Oas3Definition,
   type Oas2Definition,
   type Exact,
+  type Async3Definition,
+  type Async2Definition,
 } from '@redocly/openapi-core';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { hasMagic, glob } from 'glob';
@@ -446,58 +448,81 @@ export async function loadConfigAndHandleErrors(
   }
 }
 
-export function sortTopLevelKeysForOas(
-  document: Oas3Definition | Oas2Definition
-): Oas3Definition | Oas2Definition {
-  if ('swagger' in document) {
-    return sortOas2Keys(document);
-  }
-  return sortOas3Keys(document as Oas3Definition);
+function isAsync2Definition(doc: Async2Definition | Async3Definition): doc is Async2Definition {
+  return doc.asyncapi?.startsWith('2');
 }
 
-function sortOas2Keys(document: Oas2Definition): Oas2Definition {
-  const orderedKeys = [
-    'swagger',
-    'info',
-    'host',
-    'basePath',
-    'schemes',
-    'consumes',
-    'produces',
-    'security',
-    'tags',
-    'externalDocs',
-    'paths',
-    'definitions',
-    'parameters',
-    'responses',
-    'securityDefinitions',
-  ];
-  const result: any = {};
-  for (const key of orderedKeys as (keyof Oas2Definition)[]) {
-    if (document.hasOwnProperty(key)) {
-      result[key] = document[key];
-    }
+const oas2OrderedKeys = [
+  'swagger',
+  'info',
+  'host',
+  'basePath',
+  'schemes',
+  'consumes',
+  'produces',
+  'security',
+  'tags',
+  'externalDocs',
+  'paths',
+  'definitions',
+  'parameters',
+  'responses',
+  'securityDefinitions',
+];
+
+const oas3OrderedKeys = [
+  'openapi',
+  'info',
+  'jsonSchemaDialect',
+  'servers',
+  'security',
+  'tags',
+  'externalDocs',
+  'paths',
+  'webhooks',
+  'x-webhooks',
+  'components',
+];
+
+const asyncApi2OrderedKeys = [
+  'asyncapi',
+  'id',
+  'info',
+  'externalDocs',
+  'tags',
+  'defaultContentType',
+  'servers',
+  'channels',
+  'components',
+];
+
+const asyncApi3OrderedKeys = [
+  'asyncapi',
+  'info',
+  'defaultContentType',
+  'servers',
+  'channels',
+  'operations',
+  'components',
+];
+
+export function sortTopLevelKeys(
+  document: Oas3Definition | Oas2Definition | Async2Definition | Async3Definition
+): Oas3Definition | Oas2Definition | Async2Definition | Async3Definition {
+  if ('asyncapi' in document) {
+    return isAsync2Definition(document)
+      ? sortDocumentKeys(document, asyncApi2OrderedKeys)
+      : sortDocumentKeys(document, asyncApi3OrderedKeys);
   }
-  // merge any other top-level keys (e.g. vendor extensions)
-  return Object.assign(result, document);
+  if ('swagger' in document) {
+    return sortDocumentKeys(document, oas2OrderedKeys);
+  }
+  return sortDocumentKeys(document, oas3OrderedKeys);
 }
-function sortOas3Keys(document: Oas3Definition): Oas3Definition {
-  const orderedKeys = [
-    'openapi',
-    'info',
-    'jsonSchemaDialect',
-    'servers',
-    'security',
-    'tags',
-    'externalDocs',
-    'paths',
-    'webhooks',
-    'x-webhooks',
-    'components',
-  ];
+
+function sortDocumentKeys<T extends object>(document: T, orderedKeys: string[]): T {
   const result: any = {};
-  for (const key of orderedKeys as (keyof Oas3Definition)[]) {
+  for (const key of orderedKeys as (keyof T)[]) {
     if (document.hasOwnProperty(key)) {
       result[key] = document[key];
     }
