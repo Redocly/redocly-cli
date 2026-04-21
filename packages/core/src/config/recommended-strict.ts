@@ -230,6 +230,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
   },
   async2Rules: {
+    'asyncapi-operation-security-defined': 'error',
     'channels-kebab-case': 'off',
     'info-contact': 'off',
     'info-license-strict': 'error',
