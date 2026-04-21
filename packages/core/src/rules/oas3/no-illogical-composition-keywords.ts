@@ -273,7 +273,9 @@ function findOverlapReason(
   // `additionalProperties` defaults to `true` in OpenAPI: an object schema without
   // `additionalProperties: false` accepts any extra keys. If at least one schema is open,
   // a value valid for the stricter schema also satisfies the permissive one.
-  if (isObjectLike(sig1) && isObjectLike(sig2)) {
+  // Only apply when both schemas define their shape via `properties` — shape-less
+  // object schemas (e.g. those composing via oneOf/allOf) give us no basis to flag overlap.
+  if (isObjectLike(sig1) && isObjectLike(sig2) && sig1.properties && sig2.properties) {
     const sig1AllowsExtras = sig1.additionalProperties !== false;
     const sig2AllowsExtras = sig2.additionalProperties !== false;
 
