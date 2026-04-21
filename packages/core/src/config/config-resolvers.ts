@@ -43,9 +43,29 @@ const pluginsCache: Map<string, Plugin[]> = new Map();
 let pluginsCacheVersion = 0;
 
 export const clearPluginsCache = (): void => {
+  invalidateCjsRequireCache();
   pluginsCache.clear();
   pluginsCacheVersion++;
 };
+
+function invalidateCjsRequireCache(): void {
+  const cjsPluginDirs = new Set<string>();
+  for (const pluginPath of pluginsCache.keys()) {
+    if (pluginPath.endsWith('.cjs')) {
+      cjsPluginDirs.add(path.dirname(pluginPath) + path.sep);
+    }
+  }
+  if (!cjsPluginDirs.size) return;
+  const nodeRequire = module.createRequire(import.meta.url);
+  for (const cachedPath of Object.keys(nodeRequire.cache)) {
+    for (const dir of cjsPluginDirs) {
+      if (cachedPath.startsWith(dir)) {
+        delete nodeRequire.cache[cachedPath];
+        break;
+      }
+    }
+  }
+}
 
 export type PluginResolveInfo = {
   absolutePath: string;
@@ -197,26 +217,13 @@ export const preResolvePluginPath = (
   }
 };
 
-async function loadPluginModule(
-  absolutePluginPath: string,
-  pluginsCacheVersion: number
-): Promise<Record<string, unknown>> {
-  // CJS: drop this plugin's subtree from `require.cache` so `require()` does not reuse a stale graph.
+async function loadPluginModule(absolutePluginPath: string): Promise<Record<string, unknown>> {
   if (absolutePluginPath.endsWith('.cjs')) {
-    const nodeRequire = module.createRequire(absolutePluginPath);
-    if (pluginsCacheVersion) {
-      const pluginDir = path.dirname(absolutePluginPath) + path.sep;
-      for (const cachedPath of Object.keys(nodeRequire.cache)) {
-        if (cachedPath.startsWith(pluginDir)) {
-          delete nodeRequire.cache[cachedPath];
-        }
-      }
-    }
-    return nodeRequire(absolutePluginPath);
+    return module.createRequire(absolutePluginPath)(absolutePluginPath);
   }
 
-  // ESM: the loader keys modules by URL; a distinct `?v=` makes dynamic `import()` bypass the prior cache entry.
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
+  // Force re-import after `clearPluginsCache()` by using a unique URL each time.
   if (pluginsCacheVersion) {
     pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
   }
@@ -247,7 +254,7 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        const mod = await loadPluginModule(absolutePluginPath, pluginsCacheVersion);
+        const mod = await loadPluginModule(absolutePluginPath);
         const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
