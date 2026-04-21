@@ -1,0 +1,48 @@
+
+  Scores
+
+  Agent Readiness:  52.7/100
+
+  Subscores
+
+  Parameter Simplicity     [██████████████████░░] 90%
+  Schema Simplicity        [████████████████░░░░] 81%
+  Documentation Quality    [░░░░░░░░░░░░░░░░░░░░] 0%
+  Constraint Clarity       [░░░░░░░░░░░░░░░░░░░░] 0%
+  Example Coverage         [░░░░░░░░░░░░░░░░░░░░] 0%
+  Error Clarity            [████████████████████] 100%
+  Dependency Clarity       [████████████████████] 100%
+  Identifier Clarity       [█████████████░░░░░░░] 67%
+  Polymorphism Clarity     [████████████████████] 100%
+  Discoverability          [████████████████████] 100%
+
+  Raw Metrics Summary
+
+  Total operations: 2
+  Parameters/operation:      avg    1.0  median    1.0  min     0  max     2
+  Schema depth:              avg    1.5  median    1.5  min     1  max     2
+  Polymorphism/operation:    avg    0.0  median    0.0  min     0  max     0
+  Properties/operation:      avg    2.0  median    2.0  min     2  max     2
+  Operations with request examples: 0/2 (0%)
+  Operations with response examples: 0/2 (0%)
+  Operations with description: 0/2 (0%)
+
+  Top 2 Hotspot Operations
+
+  GET /items (listItems)
+    Agent Readiness: 44.2
+    - Missing response examples
+    - Missing operation description
+    - No parameter descriptions
+    - Ambiguous identifiers (2)
+
+  POST /items (createItem)
+    Agent Readiness: 50.7
+    - Missing request and response examples
+    - Missing operation description
+
+
+Document: openapi.yaml score:
+
+openapi.yaml: score processed in <test>ms
+

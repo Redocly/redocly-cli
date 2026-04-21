@@ -1,5 +1,24 @@
 # @redocly/cli
 
+## 2.29.0
+
+### Minor Changes
+
+- Added new `score` command that analyzes OpenAPI 3.x descriptions and produces an AI Agent Readiness score (0-100).
+  Reports normalized subscores, raw per-operation metrics, and top hotspot operations with human-readable explanations. Supports `--format=stylish` (default) and `--format=json` output.
+
+### Patch Changes
+
+- Improved the stability of the `push` command.
+- Updated @redocly/openapi-core to v2.29.0.
+
+## 2.28.1
+
+### Patch Changes
+
+- Ordered top-level keys in AsyncAPI documents during bundling for improved consistency and readability.
+- Updated @redocly/openapi-core to v2.28.1.
+
 ## 2.28.0
 
 ### Minor Changes
