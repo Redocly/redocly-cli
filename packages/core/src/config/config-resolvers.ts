@@ -43,29 +43,20 @@ const pluginsCache: Map<string, Plugin[]> = new Map();
 let pluginsCacheVersion = 0;
 
 export const clearPluginsCache = (): void => {
-  invalidateCjsRequireCache();
-  pluginsCache.clear();
-  pluginsCacheVersion++;
-};
-
-function invalidateCjsRequireCache(): void {
-  const cjsPluginDirs = new Set<string>();
   for (const pluginPath of pluginsCache.keys()) {
     if (pluginPath.endsWith('.cjs')) {
-      cjsPluginDirs.add(path.dirname(pluginPath) + path.sep);
-    }
-  }
-  if (!cjsPluginDirs.size) return;
-  const nodeRequire = module.createRequire(import.meta.url);
-  for (const cachedPath of Object.keys(nodeRequire.cache)) {
-    for (const dir of cjsPluginDirs) {
-      if (cachedPath.startsWith(dir)) {
-        delete nodeRequire.cache[cachedPath];
-        break;
+      const nodeRequire = module.createRequire(pluginPath);
+      const pluginDir = path.dirname(pluginPath) + path.sep;
+      for (const cachedPath of Object.keys(nodeRequire.cache)) {
+        if (cachedPath.startsWith(pluginDir)) {
+          delete nodeRequire.cache[cachedPath];
+        }
       }
     }
   }
-}
+  pluginsCache.clear();
+  pluginsCacheVersion++;
+};
 
 export type PluginResolveInfo = {
   absolutePath: string;

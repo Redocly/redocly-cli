@@ -4,7 +4,7 @@ import util from 'node:util';
 
 import { Source } from '../../resolve.js';
 import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
-import { resolveConfig } from '../config-resolvers.js';
+import { clearPluginsCache, resolveConfig } from '../config-resolvers.js';
 import { Config } from '../config.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
@@ -146,6 +146,21 @@ describe('resolveConfig', () => {
 
     // Should not execute the init logic again
     expect(deprecateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should resolve config after clearPluginsCache', async () => {
+    const { plugins: before } = await resolveConfig({
+      rawConfigDocument: makeDocument(baseGovernanceConfig),
+    });
+    expect(before?.length).toBe(1);
+
+    clearPluginsCache();
+
+    const { plugins: after } = await resolveConfig({
+      rawConfigDocument: makeDocument(baseGovernanceConfig),
+    });
+    expect(after?.length).toBe(1);
+    expect(after?.[0].id).toBe('');
   });
 
   it('should resolve realm plugin properties', async () => {
