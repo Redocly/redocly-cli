@@ -775,6 +775,215 @@ describe('checkSuccessCriteria', () => {
     ]);
   });
 
+  it('should pass jsonpath criteria for empty object response body', () => {
+    const stepMock: Step = {
+      stepId: 'stepId',
+      'x-operation': { method: 'get', url: 'http://localhost:3000/some/path' },
+      checks: [],
+      response: {
+        body: {},
+        statusCode: 200,
+        header: {},
+        contentType: 'application/json',
+      },
+    } as unknown as Step;
+
+    const result = checkCriteria({
+      workflowId: 'workflowId',
+      step: stepMock,
+      criteria: [
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$[?length(@) == 0]',
+        },
+      ],
+      ctx: {
+        workflows: [],
+        $workflows: {
+          workflowId: {
+            steps: {
+              stepId: {
+                response: {
+                  body: {},
+                  code: 200,
+                  headers: new Headers(),
+                  contentType: 'application/json',
+                },
+                request: {
+                  queryParams: {},
+                  pathParams: {},
+                  headerParams: {},
+                  url: '',
+                  path: '',
+                  method: '',
+                  headers: { 'content-type': 'application/json' },
+                  body: {},
+                },
+              },
+            },
+          },
+        },
+        descriptions: '',
+        severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: { logger },
+      } as unknown as TestContext,
+    });
+
+    expect(result).toEqual([
+      {
+        message: 'Checking jsonpath criteria: $[?length(@) == 0]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$[?length(@) == 0]',
+      },
+    ]);
+  });
+
+  it('should fail jsonpath criteria for empty object condition when body is non-empty', () => {
+    const stepMock: Step = {
+      stepId: 'stepId',
+      'x-operation': { method: 'get', url: 'http://localhost:3000/some/path' },
+      checks: [],
+      response: {
+        body: { someProp: 'someValue' },
+        statusCode: 200,
+        header: {},
+        contentType: 'application/json',
+      },
+    } as unknown as Step;
+
+    const result = checkCriteria({
+      workflowId: 'workflowId',
+      step: stepMock,
+      criteria: [
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$[?length(@) == 0]',
+        },
+      ],
+      ctx: {
+        workflows: [],
+        $workflows: {
+          workflowId: {
+            steps: {
+              stepId: {
+                response: {
+                  body: { someProp: 'someValue' },
+                  code: 200,
+                  headers: new Headers(),
+                  contentType: 'application/json',
+                },
+                request: {
+                  queryParams: {},
+                  pathParams: {},
+                  headerParams: {},
+                  url: '',
+                  path: '',
+                  method: '',
+                  headers: { 'content-type': 'application/json' },
+                  body: {},
+                },
+              },
+            },
+          },
+        },
+        descriptions: '',
+        severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: { logger },
+      } as unknown as TestContext,
+    });
+
+    expect(result).toEqual([
+      {
+        message: 'Checking jsonpath criteria: $[?length(@) == 0]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$[?length(@) == 0]',
+      },
+    ]);
+  });
+
+  it('should resolve embedded runtime expressions inside jsonpath condition', () => {
+    const stepMock: Step = {
+      stepId: 'stepId',
+      'x-operation': { method: 'get', url: 'http://localhost:3000/some/path' },
+      checks: [],
+      response: {
+        body: { test: 'expected-value', id: 1 },
+        statusCode: 200,
+        header: {},
+        contentType: 'application/json',
+      },
+    } as unknown as Step;
+
+    const result = checkCriteria({
+      workflowId: 'workflowId',
+      step: stepMock,
+      criteria: [
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition:
+            '$[?(@.test == {$steps.simple-object-step-1.outputs.test} && @.id == {$steps.simple-object-step-1.outputs.expectedId})]',
+        },
+      ],
+      ctx: {
+        workflows: [],
+        $steps: {
+          'simple-object-step-1': {
+            outputs: {
+              test: 'expected-value',
+              expectedId: 1,
+            },
+          },
+        },
+        $workflows: {
+          workflowId: {
+            steps: {
+              stepId: {
+                response: {
+                  body: { test: 'expected-value', id: 1 },
+                  code: 200,
+                  headers: new Headers(),
+                  contentType: 'application/json',
+                },
+                request: {
+                  queryParams: {},
+                  pathParams: {},
+                  headerParams: {},
+                  url: '',
+                  path: '',
+                  method: '',
+                  headers: { 'content-type': 'application/json' },
+                  body: {},
+                },
+              },
+            },
+          },
+        },
+        descriptions: '',
+        severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: { logger },
+      } as unknown as TestContext,
+    });
+
+    expect(result).toEqual([
+      {
+        message:
+          'Checking jsonpath criteria: $[?(@.test == {$steps.simple-object-step-1.outputs.test} && @.id == {$steps.simple-object-step-1.outputs.expectedId})]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition:
+          '$[?(@.test == {$steps.simple-object-step-1.outputs.test} && @.id == {$steps.simple-object-step-1.outputs.expectedId})]',
+      },
+    ]);
+  });
+
   it('should return failed check', () => {
     const result = checkCriteria({
       workflowId: 'workflowId',
