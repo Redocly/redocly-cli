@@ -122,6 +122,14 @@ function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): b
   return false;
 }
 
+/** Checks if a signature describes an object schema (explicit, untyped, or OAS 3.1 type-array with 'object'). */
+function isObjectLike(sig: SchemaSignature): boolean {
+  if (!sig.type) return true;
+  if (sig.type === 'object') return true;
+  if (Array.isArray(sig.type) && sig.type.includes('object')) return true;
+  return false;
+}
+
 /** Builds a normalized signature of a schema for mutual exclusivity comparison, with cycle detection. */
 function createSchemaSignature(
   schema: Oas3Schema | Oas3_1Schema,
@@ -237,14 +245,14 @@ function findOverlapReason(
         const s1 = sig1.propertySchemas?.get(prop);
         const s2 = sig2.propertySchemas?.get(prop);
 
-        const isDiscriminator =
+        const isDiscriminatorProp =
           s1 &&
           s2 &&
           hasExclusiveConstraints(s1, s2) &&
           sig1.required?.has(prop) &&
           sig2.required?.has(prop);
 
-        if (isDiscriminator) return null;
+        if (isDiscriminatorProp) return null;
         ambiguous.push(prop);
       }
       if (ambiguous.length > 0) {
@@ -260,6 +268,18 @@ function findOverlapReason(
       depth + 1
     );
     if (reason) return `Schemas have overlapping additionalProperties definitions. ${reason}`;
+  }
+
+  // `additionalProperties` defaults to `true` in OpenAPI: an object schema without
+  // `additionalProperties: false` accepts any extra keys. If at least one schema is open,
+  // a value valid for the stricter schema also satisfies the permissive one.
+  if (isObjectLike(sig1) && isObjectLike(sig2)) {
+    const sig1AllowsExtras = sig1.additionalProperties !== false;
+    const sig2AllowsExtras = sig2.additionalProperties !== false;
+
+    if (sig1AllowsExtras || sig2AllowsExtras) {
+      return 'At least one schema allows additional properties (implicit or explicit `additionalProperties: true`), so a value valid for one may also satisfy the other. Set `additionalProperties: false` on both or add a discriminating required property.';
+    }
   }
 
   return null;

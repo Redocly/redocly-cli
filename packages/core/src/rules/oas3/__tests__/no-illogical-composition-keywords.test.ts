@@ -273,6 +273,116 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         `)
       ).toMatchInlineSnapshot(`[]`);
     });
+
+    it('should report when one oneOf schema has additionalProperties: false and another allows extras', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    properties:
+                      x:
+                        type: string
+                  - type: object
+                    properties:
+                      y:
+                        type: string
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf",
+                "reportOnKey": false,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. At least one schema allows additional properties (implicit or explicit \`additionalProperties: true\`), so a value valid for one may also satisfy the other. Set \`additionalProperties: false\` on both or add a discriminating required property.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should report overlap for OAS 3.1 schemas where type is an array including object', async () => {
+      expect(
+        await lint(`
+          openapi: 3.1.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                oneOf:
+                  - type: [object]
+                    additionalProperties: false
+                    properties:
+                      x:
+                        type: string
+                  - type: [object]
+                    properties:
+                      y:
+                        type: string
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf",
+                "reportOnKey": false,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. At least one schema allows additional properties (implicit or explicit \`additionalProperties: true\`), so a value valid for one may also satisfy the other. Set \`additionalProperties: false\` on both or add a discriminating required property.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should not report when both oneOf schemas have additionalProperties: false and disjoint required properties', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required: [x]
+                    properties:
+                      x:
+                        type: string
+                  - type: object
+                    additionalProperties: false
+                    required: [y]
+                    properties:
+                      y:
+                        type: string
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
   });
 
   describe('anyOf', () => {
