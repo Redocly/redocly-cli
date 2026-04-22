@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.29.1 (2026-04-22)
+
+### Patch Changes
+
+- Fixed an issue where discriminator's `mapping` values written as bare local file names were not resolved during build.
+- Updated @redocly/openapi-core to v2.29.1.
+
 ## 2.29.0 (2026-04-20)
 
 ### Minor Changes
