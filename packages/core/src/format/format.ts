@@ -443,9 +443,7 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
       const suggest = formatDidYouMean(problem);
       const reference = problem.reference ? `Reference: ${problem.reference}\n\n` : '';
       const message =
-        problem.message +
-        (suggest !== '' ? '\n\n' + suggest : '') +
-        (reference !== '' ? '\n\n' + reference : '');
+        problem.message + (suggest !== '' || reference !== '' ? '\n\n' : '') + suggest + reference;
       const properties = {
         title: problem.ruleId,
         file: isAbsoluteUrl(location.source.absoluteRef)
