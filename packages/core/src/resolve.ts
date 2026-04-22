@@ -13,6 +13,7 @@ import {
   isAbsoluteUrl,
   isAnchor,
   isExternalValue,
+  hasSchemaId,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
@@ -248,6 +249,23 @@ export async function resolveDocument(opts: {
 
     function walk(node: any, type: NormalizedNodeType, nodeAbsoluteRef: string) {
       if (typeof node !== 'object' || node === null) {
+        return;
+      }
+
+      const normalizedNodeId = hasSchemaId(node)
+        ? externalRefResolver.resolveExternalRef(rootNodeDocument.source.absoluteRef, node.$id)
+        : undefined;
+
+      if (normalizedNodeId && normalizedNodeId !== nodeAbsoluteRef && node !== rootNode) {
+        const nestedDocument = {
+          source: new Source(
+            normalizedNodeId,
+            rootNodeDocument.source.body,
+            rootNodeDocument.source.mimeType
+          ),
+          parsed: node,
+        };
+        resolveRefsInParallel(node, nestedDocument, '', type);
         return;
       }
 

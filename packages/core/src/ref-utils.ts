@@ -19,6 +19,10 @@ export function isExternalValue(node: unknown) {
   return isPlainObject(node) && typeof node.externalValue === 'string';
 }
 
+export function hasSchemaId(node: unknown): node is { $id: string } {
+  return isPlainObject(node) && typeof node.$id === 'string';
+}
+
 export class Location {
   constructor(
     public source: Source,
@@ -109,6 +113,13 @@ export function resolvePath(base: string, relative: string): string {
     return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
   }
   return path.resolve(base, relative);
+}
+
+export function resolveSchemaId(baseAbsoluteRef: string, schemaId: string) {
+  if (isAbsoluteUrl(schemaId) || path.isAbsolute(schemaId)) {
+    return schemaId;
+  }
+  return resolvePath(getDir(baseAbsoluteRef), schemaId);
 }
 
 export function isMappingRef(mapping: string) {

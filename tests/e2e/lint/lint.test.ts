@@ -109,4 +109,24 @@ describe('lint', () => {
     const result = getCommandOutput(args, {});
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
   });
+
+  test('lint nested root $id with local $defs refs', async () => {
+    const dirName = 'nested-id-ref-resolution';
+    const testPath = join(__dirname, `${dirName}`);
+
+    const args = getParams(indexEntryPoint, ['lint', 'openapi.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('lint relative $id IRI ref resolution', async () => {
+    const dirName = 'relative-id-ref-resolution';
+    const testPath = join(__dirname, `${dirName}`);
+
+    const args = getParams(indexEntryPoint, ['lint', 'openapi.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
 });
