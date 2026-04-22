@@ -58,6 +58,7 @@ export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointerFragment,
   isRef,
+  isMappingRef,
   isAbsoluteUrl,
   getDir,
   resolvePath,
@@ -145,6 +146,7 @@ export type {
   Oas3Parameter,
   Oas3Server,
   Oas3Operation,
+  Oas3MediaType,
   Oas3Responses,
   ApiKeyAuth,
   HttpAuth,

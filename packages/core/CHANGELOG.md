@@ -1,5 +1,39 @@
 # @redocly/openapi-core
 
+## 2.29.1
+
+### Patch Changes
+
+- Fixed an issue where discriminator's `mapping` values written as bare local file names were not resolved during build.
+
+## 2.29.0
+
+## 2.28.1
+
+## 2.28.0
+
+### Minor Changes
+
+- Moved the `remove-unused-components` decorator to the post-bundle phase so that components that become unused only after `$ref` resolution are correctly removed.
+
+### Patch Changes
+
+- Fixed an issue where the discriminator's `defaultMapping` property was not resolved when bundling.
+
+## 2.27.1
+
+### Patch Changes
+
+- Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
+
+  **Warning:** Autogenrated component names and `$ref` paths in bundled documents may differ from older releases.
+
+## 2.27.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.48.0.
+
 ## 2.26.0
 
 ### Minor Changes

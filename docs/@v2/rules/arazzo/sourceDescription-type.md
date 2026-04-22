@@ -1,4 +1,4 @@
-# sourceDescriptions-type
+# sourceDescription-type
 
 The `type` property of the Source Description object must be either `openapi` or `arazzo`.
 
@@ -21,7 +21,7 @@ An example configuration:
 
 ```yaml
 rules:
-  sourceDescriptions-type: error
+  sourceDescription-type: error
 ```
 
 ## Examples
@@ -30,7 +30,7 @@ Given the following configuration:
 
 ```yaml
 rules:
-  sourceDescriptions-type: error
+  sourceDescription-type: error
 ```
 
 Example of a **correct** `sourceDescriptions` list:
@@ -47,7 +47,7 @@ sourceDescriptions:
 
 ## Related rules
 
-- [sourceDescription-name-unique](./sourceDescriptions-name-unique.md)
+- [sourceDescription-name-unique](./sourceDescription-name-unique.md)
 
 ## Resources
 

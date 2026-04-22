@@ -67,17 +67,6 @@ export async function bundleDocument(opts: {
     visitorsData: {},
   };
 
-  if (removeUnusedComponents && !decorators.some((d) => d.ruleId === 'remove-unused-components')) {
-    decorators.push({
-      severity: 'error',
-      ruleId: 'remove-unused-components',
-      visitor:
-        specMajorVersion === 'oas2'
-          ? RemoveUnusedComponentsOas2({})
-          : RemoveUnusedComponentsOas3({}),
-    });
-  }
-
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: normalizedTypes.Root,
@@ -114,7 +103,7 @@ export async function bundleDocument(opts: {
           componentRenamingConflicts,
         }),
       },
-      ...decorators,
+      ...decorators.filter((decorator) => decorator.ruleId !== 'remove-unused-components'),
     ],
     normalizedTypes
   );
@@ -126,6 +115,38 @@ export async function bundleDocument(opts: {
     resolvedRefMap,
     ctx,
   });
+
+  if (
+    removeUnusedComponents ||
+    config.getDecoratorSettings('remove-unused-components', specVersion).severity !== 'off'
+  ) {
+    const postBundleRefMap = await resolveDocument({
+      rootDocument: document,
+      rootType: normalizedTypes.Root,
+      externalRefResolver,
+    });
+    const postBundleVisitors = normalizeVisitors(
+      [
+        {
+          severity: 'error',
+          ruleId: 'remove-unused-components',
+          visitor:
+            specMajorVersion === 'oas2'
+              ? RemoveUnusedComponentsOas2({})
+              : RemoveUnusedComponentsOas3({}),
+        },
+      ],
+      normalizedTypes
+    );
+
+    walkDocument({
+      document,
+      rootType: normalizedTypes.Root,
+      normalizedVisitors: postBundleVisitors,
+      resolvedRefMap: postBundleRefMap,
+      ctx,
+    });
+  }
 
   return {
     bundle: document,

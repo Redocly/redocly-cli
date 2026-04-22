@@ -73,6 +73,18 @@ describe('bundle with option in config: remove-unused-components', () => {
     );
   });
 
+  test.each([
+    'oas3-parameter-ref-to-schema',
+    'oas3-parameter-ref-to-schema-with-unused-schema-same-ref',
+    'oas3-parameter-ref-to-schema-with-unused-schema-opposite-ref',
+    'oas3-recursive-ref',
+  ])('%s: should remove unused components', async (type) => {
+    const testPath = join(__dirname, `bundle-remove-unused-components-from-config/${type}`);
+    const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test.each(['oas2-without-option', 'oas3-without-option'])(
     "%s: shouldn't remove unused components",
     async (type) => {

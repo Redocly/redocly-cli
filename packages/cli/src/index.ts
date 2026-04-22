@@ -22,8 +22,12 @@ import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
+import { handleScore } from './commands/score/index.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
-import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
+import type {
+  ScorecardClassicArgv,
+  ScorecardClassicOutputFormat,
+} from './commands/scorecard-classic/types.js';
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
@@ -68,6 +72,39 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'score [api]',
+    'Score an API description for integration simplicity and agent readiness.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_SCORE')
+        .positional('api', { type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+            default: 'stylish' as OutputFormat,
+          },
+          'operation-details': {
+            description: 'Print per-operation metric details.',
+            type: 'boolean' as const,
+            default: false,
+          },
+          'debug-operation-id': {
+            description: 'Print detailed schema breakdown for a specific operation.',
+            type: 'string' as const,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleScore)(argv);
     }
   )
   .command(
@@ -817,8 +854,13 @@ yargs(hideBin(process.argv))
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json', 'checkstyle'],
-          default: 'stylish',
+          choices: [
+            'stylish',
+            'json',
+            'checkstyle',
+            'junit',
+          ] as ReadonlyArray<ScorecardClassicOutputFormat>,
+          default: 'stylish' as ScorecardClassicOutputFormat,
         },
         'target-level': {
           describe: 'Target level for the scorecard.',

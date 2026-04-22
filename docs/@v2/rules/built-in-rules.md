@@ -60,7 +60,7 @@ The rules list is split into sections.
 ### Parameters
 
 - [array-parameter-serialization](./oas/array-parameter-serialization.md): Require `style` and `explode` for parameters with array type
-- [boolean-parameter-prefixes](./oas/boolean-parameter-prefixes.md): All boolean paramater names start with a particular prefix (such as "is")
+- [boolean-parameter-prefixes](./oas/boolean-parameter-prefixes.md): All boolean parameter names start with a particular prefix (such as "is")
 - [no-invalid-parameter-examples](./oas/no-invalid-parameter-examples.md): Parameter examples must match declared schema types
 - [operation-parameters-unique](./oas/operation-parameters-unique.md): No repeated parameter names within an operation
 - [parameter-description](./oas/parameter-description.md): Parameters must all have descriptions
@@ -72,6 +72,7 @@ The rules list is split into sections.
 
 - [no-ambiguous-paths](./oas/no-ambiguous-paths.md): No path can match more than one PathItem entry, including template variables
 - [no-http-verbs-in-paths](./oas/no-http-verbs-in-paths.md): Verbs like "get" cannot be used in paths
+- [path-http-verbs-order](./oas/path-http-verbs-order.md): HTTP operations on each path must follow a configured verb order
 - [no-identical-paths](./oas/no-identical-paths.md): Paths cannot be identical, including template variables
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md): No trailing slashes on paths
 - [path-segment-plural](./oas/path-segment-plural.md): All URL segments in a path must be plural (exceptions can be configured)
@@ -79,7 +80,7 @@ The rules list is split into sections.
 
 ### Requests, Responses, and Schemas
 
-- [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unqiue naming of parameters, schemas, request bodies and responses
+- [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unique naming of parameters, schemas, request bodies and responses
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
@@ -132,8 +133,8 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [outputs-defined](./arazzo/outputs-defined.md): the output value should be defined before usage
 - [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
-- [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
-- [sourceDescriptions-type](./arazzo/sourceDescriptions-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
+- [sourceDescription-name-unique](./arazzo/sourceDescription-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
+- [sourceDescription-type](./arazzo/sourceDescription-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
 - [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
@@ -150,7 +151,7 @@ The below rules are being migrated to Respect:
 - [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md): the `x-security` can't use `schemeName` when Step request is described with `x-operation`.
 - [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 - [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
-- [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
+- [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md): validate that `x-security` have all required `values` described according to the used `scheme`.
 
 ## Open-RPC rules
 
@@ -159,8 +160,8 @@ Use the rules in this section for Open-RPC specific linting.
 - [struct](./common/struct.md): Conform to the declared Open-RPC specification version
 - [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
-- `spec-no-duplicated-method-params`: The list of parameters must not include duplicated parameters
-- `spec-no-required-params-after-optional`: Required parameters must be positioned before optional parameters
+- [spec-no-duplicated-method-params](./openrpc/spec-no-duplicated-method-params.md): The list of parameters must not include duplicated parameters
+- [spec-no-required-params-after-optional](./openrpc/spec-no-required-params-after-optional.md): Required parameters must be positioned before optional parameters
 - [info-contact](./oas/info-contact.md): Contact section is defined under `info`
 - [info-license](./oas/info-license.md): License section is defined under `info`
 

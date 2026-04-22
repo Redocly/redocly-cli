@@ -1,4 +1,4 @@
-# sourceDescriptions-name-unique
+# sourceDescription-name-unique
 
 The `name` property of the Source Description object must be unique across all source descriptions.
 
@@ -21,7 +21,7 @@ An example configuration:
 
 ```yaml
 rules:
-  sourceDescriptions-name-unique: error
+  sourceDescription-name-unique: error
 ```
 
 ## Examples
@@ -30,7 +30,7 @@ Given the following configuration:
 
 ```yaml
 rules:
-  sourceDescriptions-name-unique: error
+  sourceDescription-name-unique: error
 ```
 
 Example of a **correct** `sourceDescriptions` list:
@@ -47,7 +47,7 @@ sourceDescriptions:
 
 ## Related rules
 
-- [sourceDescription-type](./sourceDescriptions-type.md)
+- [sourceDescription-type](./sourceDescription-type.md)
 
 ## Resources
 
