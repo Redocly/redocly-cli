@@ -212,10 +212,18 @@ describe('ref-utils', () => {
   describe('isMappingRef', () => {
     it('should return true for a valid mapping ref', () => {
       expect(isMappingRef('#/components/schemas/Foo')).toBe(true);
+      expect(isMappingRef('https://example.com/schema.yaml')).toBe(true);
       expect(isMappingRef('./test.yaml')).toBe(true);
+      expect(isMappingRef('../test.yaml')).toBe(true);
+      expect(isMappingRef('nested/test.yaml')).toBe(true);
+      expect(isMappingRef('test.yaml')).toBe(true);
+      expect(isMappingRef('test.yml')).toBe(true);
+      expect(isMappingRef('test.json')).toBe(true);
     });
 
-    it('should return false if the ref is not a string', () => {
+    it('should return false for plain schema names and non-strings', () => {
+      expect(isMappingRef('Test')).toBe(false);
+      expect(isMappingRef('My.Schema.v1')).toBe(false);
       expect(isMappingRef(null as any)).toBe(false);
     });
   });
