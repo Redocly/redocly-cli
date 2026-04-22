@@ -13,16 +13,5 @@
     "redocly-respect": "redocly respect museum-tickets.arazzo.yaml"
   },
   "author": "redocly",
-  "license": "ISC",
-  "resolutions": {
-    "@redocly/config": "latest"
-  },
-  "overrides": {
-    "@redocly/config": "latest"
-  },
-  "pnpm": {
-    "overrides": {
-      "@redocly/config": "latest"
-    }
-  }
+  "license": "ISC"
 }
