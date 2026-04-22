@@ -556,6 +556,19 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should resolve discriminator mapping with relative file refs without "./" prefix', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/discriminator-mapping-file-refs/openapi.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    const discriminated = (res.parsed as any).components.schemas.discriminated;
+    expect(discriminated.discriminator.mapping).toEqual({
+      a: '#/components/schemas/type-a',
+      b: '#/components/schemas/type-b',
+    });
+  });
+
   it('should bundle discriminator with defaultMapping and mapping as component names to the same document', async () => {
     const document = outdent`
       openapi: 3.2.0
