@@ -19,5 +19,10 @@
   },
   "overrides": {
     "@redocly/config": "latest"
+  },
+  "pnpm": {
+    "overrides": {
+      "@redocly/config": "latest"
+    }
   }
 }
