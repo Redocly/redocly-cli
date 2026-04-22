@@ -1,77 +1,77 @@
-import type { Location } from '../../ref-utils.js';
+import { parseRef } from '../../ref-utils.js';
 import type { Oas2Components, Oas2Definition } from '../../typings/swagger.js';
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import type { Oas2Decorator } from '../../visitors.js';
 
+const OAS2_COMPONENT_TYPES: (keyof Oas2Components)[] = [
+  'definitions',
+  'parameters',
+  'responses',
+  'securityDefinitions',
+];
+
 export const RemoveUnusedComponents: Oas2Decorator = () => {
   const components = new Map<
     string,
-    { usedIn: Location[]; componentType?: keyof Oas2Components; name: string }
+    { usedIn: string[]; componentType?: keyof Oas2Components; name: string }
   >();
 
-  function registerComponent(
-    location: Location,
-    componentType: keyof Oas2Components,
-    name: string
-  ): void {
-    components.set(location.absolutePointer, {
-      usedIn: components.get(location.absolutePointer)?.usedIn ?? [],
+  function registerComponent(componentType: keyof Oas2Components, name: string): void {
+    const key = `${componentType}/${name}`;
+    components.set(key, {
+      usedIn: components.get(key)?.usedIn ?? [],
       componentType,
       name,
     });
   }
 
-  function removeUnusedComponents(root: Oas2Definition, removedPaths: string[]): number {
-    const removedLengthStart = removedPaths.length;
+  function getComponentKey(pointer: string): string | undefined {
+    if (!pointer.startsWith('#/')) return;
+    const [type, name] = parseRef(pointer).pointer;
+    if (!type || !name) return undefined;
+    if (!OAS2_COMPONENT_TYPES.includes(type as keyof Oas2Components)) return undefined;
+    return `${type}/${name}`;
+  }
 
-    for (const [path, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some(
-        (location) =>
-          !removedPaths.some(
-            (removed) =>
-              // Check if the current location's absolute pointer starts with the 'removed' path
-              // and either its length matches exactly with 'removed' or the character after the 'removed' path is a '/'
-              location.absolutePointer.startsWith(removed) &&
-              (location.absolutePointer.length === removed.length ||
-                location.absolutePointer[removed.length] === '/')
-          )
-      );
+  function removeUnusedComponents(
+    root: Oas2Definition,
+    removedKeys: Set<string> = new Set()
+  ): number {
+    const removedCountBefore = removedKeys.size;
+
+    for (const [key, { usedIn, name, componentType }] of components) {
+      const used = usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey));
+
       if (!used && componentType) {
-        removedPaths.push(path);
+        removedKeys.add(key);
         delete root[componentType]![name];
-        components.delete(path);
-
+        components.delete(key);
         if (isEmptyObject(root[componentType])) {
           delete root[componentType];
         }
       }
     }
 
-    return removedPaths.length > removedLengthStart
-      ? removeUnusedComponents(root, removedPaths)
-      : removedPaths.length;
+    return removedKeys.size > removedCountBefore
+      ? removeUnusedComponents(root, removedKeys)
+      : removedKeys.size;
   }
 
   return {
     ref: {
-      leave(ref, { location, type, resolve, key }) {
+      leave(ref, { location, type, key }) {
         if (['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)) {
-          const resolvedRef = resolve(ref);
-          if (!resolvedRef.location) return;
+          const targetPointer = getComponentKey(ref.$ref);
+          if (!targetPointer) return;
 
-          const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
-          if (!localPointer) return;
-
-          const componentLevelLocalPointer = localPointer.split('/').slice(0, 3).join('/');
-          const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
-
-          const registered = components.get(pointer);
+          const sourcePointer = getComponentKey(location.pointer) ?? location.pointer;
+          const registered = components.get(targetPointer);
 
           if (registered) {
-            registered.usedIn.push(location);
+            registered.usedIn.push(sourcePointer);
           } else {
-            components.set(pointer, {
-              usedIn: [location],
+            components.set(targetPointer, {
+              usedIn: [sourcePointer],
               name: key.toString(),
             });
           }
@@ -81,29 +81,29 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     Root: {
       leave(root, ctx) {
         const data = ctx.getVisitorData() as { removedCount: number };
-        data.removedCount = removeUnusedComponents(root, []);
+        data.removedCount = removeUnusedComponents(root);
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
+      Schema(schema, { key }) {
         if (!schema.allOf) {
-          registerComponent(location, 'definitions', key.toString());
+          registerComponent('definitions', key.toString());
         }
       },
     },
     NamedParameters: {
-      Parameter(_parameter, { location, key }) {
-        registerComponent(location, 'parameters', key.toString());
+      Parameter(_parameter, { key }) {
+        registerComponent('parameters', key.toString());
       },
     },
     NamedResponses: {
-      Response(_response, { location, key }) {
-        registerComponent(location, 'responses', key.toString());
+      Response(_response, { key }) {
+        registerComponent('responses', key.toString());
       },
     },
     NamedSecuritySchemes: {
-      SecurityScheme(_securityScheme, { location, key }) {
-        registerComponent(location, 'securityDefinitions', key.toString());
+      SecurityScheme(_securityScheme, { key }) {
+        registerComponent('securityDefinitions', key.toString());
       },
     },
   };

@@ -116,11 +116,11 @@ export function isMappingRef(mapping: string) {
   return (
     typeof mapping === 'string' &&
     (mapping.startsWith('#') ||
-      mapping.startsWith('https://') ||
-      mapping.startsWith('http://') ||
+      isAbsoluteUrl(mapping) ||
       mapping.startsWith('./') ||
       mapping.startsWith('../') ||
-      mapping.indexOf('/') > -1)
+      mapping.indexOf('/') > -1 ||
+      /\.(ya?ml|json)$/i.test(mapping))
   );
 }
 

@@ -1,0 +1,6 @@
+openapi: 3.2.0
+info: {}
+servers: []
+paths:
+  /:
+    $ref: paths/_.yaml

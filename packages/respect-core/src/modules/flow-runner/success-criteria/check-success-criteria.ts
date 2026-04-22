@@ -83,7 +83,12 @@ export function checkCriteria({
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          passed: evaluateJSONPathCondition(condition, data),
+          passed: evaluateJSONPathCondition({
+            condition,
+            data,
+            context: criteriaContext,
+            logger: ctx.options.logger,
+          }),
           message: `Checking jsonpath criteria: ${condition}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
           condition: condition,

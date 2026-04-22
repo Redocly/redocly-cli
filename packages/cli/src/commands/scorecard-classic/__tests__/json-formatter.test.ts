@@ -188,7 +188,7 @@ describe('printScorecardResultsAsJson', () => {
   it('should strip ANSI codes from messages', () => {
     const problems: ScorecardProblem[] = [
       {
-        message: '\u001b[31mError message with color\u001b[0m',
+        message: '\u001b[1;31mError message with color\u001b[0m',
         ruleId: 'test-rule',
         severity: 'error',
         suggest: [],

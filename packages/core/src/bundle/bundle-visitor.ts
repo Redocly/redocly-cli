@@ -5,14 +5,15 @@ import {
   replaceRef,
   isExternalValue,
   isRef,
+  pointerBaseName,
   refBaseName,
   type Location,
+  isMappingRef,
 } from '../ref-utils.js';
 import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { type OasRef } from '../typings/openapi.js';
+import { type OasRef, type Oas3Discriminator } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
-import { isTruthy } from '../utils/is-truthy.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult } from '../walk.js';
@@ -205,19 +206,40 @@ export function makeBundleVisitor({
   };
 
   if (version === 'oas3') {
-    visitor.DiscriminatorMapping = {
-      leave(mapping: Record<string, string>, ctx: UserContext) {
-        for (const name of Object.keys(mapping)) {
-          const $ref = mapping[name];
-          const resolved = ctx.resolve({ $ref });
-          if (!resolved.location || resolved.node === undefined) {
-            reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
-            return;
-          }
-
-          const componentType = mapTypeToComponent('Schema', version)!;
-          mapping[name] = saveComponent(componentType, resolved, ctx);
+    const componentType = mapTypeToComponent('Schema', version)!;
+    visitor.Discriminator = {
+      leave(discriminator: Oas3Discriminator, ctx: UserContext) {
+        if (
+          typeof discriminator.defaultMapping !== 'string' ||
+          !isMappingRef(discriminator.defaultMapping)
+        ) {
+          return;
         }
+
+        const resolved = ctx.resolve({ $ref: discriminator.defaultMapping });
+        if (!resolved.location || resolved.node === undefined) {
+          reportUnresolvedRef(resolved, ctx.report, ctx.location.child('defaultMapping'));
+          return;
+        }
+
+        discriminator.defaultMapping = saveComponent(componentType, resolved, ctx);
+      },
+      DiscriminatorMapping: {
+        leave(mapping, ctx) {
+          for (const name of Object.keys(mapping)) {
+            const $ref = mapping[name];
+            if (!isMappingRef($ref)) {
+              continue;
+            }
+            const resolved = ctx.resolve({ $ref });
+            if (!resolved.location || resolved.node === undefined) {
+              reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
+              return;
+            }
+
+            mapping[name] = saveComponent(componentType, resolved, ctx);
+          }
+        },
       },
     };
   }
@@ -274,27 +296,9 @@ export function makeBundleVisitor({
     componentType: string,
     ctx: UserContext
   ) {
-    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
     const componentsGroup = components[componentType];
-
-    let name = '';
-
-    const refParts = pointer.slice(2).split('/').filter(isTruthy); // slice(2) removes "#/"
-    while (refParts.length > 0) {
-      name = refParts.pop() + (name ? `-${name}` : '');
-      if (
-        !componentsGroup ||
-        !componentsGroup[name] ||
-        isEqualOrEqualRef(componentsGroup[name], target, ctx)
-      ) {
-        return name;
-      }
-    }
-
-    name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      return name;
-    }
+    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
+    let name = pointerBaseName(pointer) || refBaseName(fileRef);
 
     const prevName = name;
     let serialId = 2;
@@ -303,7 +307,7 @@ export function makeBundleVisitor({
       serialId++;
     }
 
-    if (!componentsGroup[name]) {
+    if (!componentsGroup[name] && prevName !== name) {
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
         location: ctx.location,

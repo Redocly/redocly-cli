@@ -21,7 +21,7 @@ import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
-  sortTopLevelKeysForOas,
+  sortTopLevelKeys,
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
@@ -222,7 +222,7 @@ export async function handleJoin({
     return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
   }
 
-  writeToFileByExtension(sortTopLevelKeysForOas(joinedDef), specFilename, noRefs);
+  writeToFileByExtension(sortTopLevelKeys(joinedDef), specFilename, noRefs);
 
   printExecutionTime('join', startedAt, specFilename);
 }
