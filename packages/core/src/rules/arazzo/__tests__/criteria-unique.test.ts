@@ -42,10 +42,10 @@ describe('Arazzo criteria-unique', () => {
                 - condition: $statusCode == 200
                 - condition: $statusCode == 200
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type: jsonpath
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type: jsonpath
               onSuccess:
                 - name: 'onSuccessActionName'
