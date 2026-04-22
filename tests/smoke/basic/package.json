@@ -16,5 +16,8 @@
   "license": "ISC",
   "resolutions": {
     "@redocly/config": "latest"
+  },
+  "overrides": {
+    "@redocly/config": "latest"
   }
 }
