@@ -10,6 +10,5 @@ node -e "
   const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
   pkg.resolutions['@redocly/config'] = '$REDOCLY_CONFIG_VERSION';
   pkg.overrides['@redocly/config'] = '$REDOCLY_CONFIG_VERSION';
-  pkg.pnpm.overrides['@redocly/config'] = '$REDOCLY_CONFIG_VERSION';
   fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
 "
