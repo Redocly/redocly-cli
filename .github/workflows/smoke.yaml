@@ -77,6 +77,7 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
@@ -86,6 +87,8 @@ jobs:
           node-version: 24
       - name: Clear Yarn Cache
         run: yarn cache clean
+      - name: Pin intersecting deps
+        run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
             sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install && yarn add redoc" "yarn" && break
@@ -243,6 +246,7 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
@@ -255,6 +259,8 @@ jobs:
         run: |
           yarn cache clean
           npm cache clean --force
+      - name: Pin intersecting deps
+        run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
@@ -330,6 +336,7 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
@@ -342,6 +349,8 @@ jobs:
         run: |
           yarn cache clean
           npm cache clean --force
+      - name: Pin intersecting deps
+        run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
