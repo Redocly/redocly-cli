@@ -10,10 +10,8 @@ node -e "
 
   for (const name of PINNED) {
     const version = core.dependencies[name].replace(/^[\^~]/, '');
-    console.log('Pinning ' + name + ' to ' + version + ' in smoke test overrides');
+    console.log('Pinning ' + name + ' to ' + version + ' in smoke test resolutions');
     (pkg.resolutions ??= {})[name] = version;
-    (pkg.overrides ??= {})[name] = version;
-    ((pkg.pnpm ??= {}).overrides ??= {})[name] = version;
   }
 
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
