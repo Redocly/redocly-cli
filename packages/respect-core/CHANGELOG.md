@@ -1,5 +1,13 @@
 # @redocly/respect-core
 
+## 2.29.1
+
+### Patch Changes
+
+- Made Respect's JSONPath criteria compliant with RFC 9535.
+  **Warning:** This update may affect existing workflows. Please review your usage for compatibility.
+- Updated @redocly/openapi-core to v2.29.1.
+
 ## 2.29.0
 
 ### Patch Changes

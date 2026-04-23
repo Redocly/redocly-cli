@@ -183,7 +183,7 @@ describe('Arazzo outputs-defined', () => {
                     criteria:
                       - condition: $statusCode == $steps.get-museum-hours.outputs.broken-in-simple-failure-criteria
                       - context: $response.body
-                        condition: $.name == $steps.get-museum-hours.outputs.broken-in-jsonpath-failure-criteria
+                        condition: $[?@.name == $steps.get-museum-hours.outputs.broken-in-jsonpath-failure-criteria]
                         type: jsonpath
                       - context: $response.body
                         condition: $.name == $steps.get-museum-hours.outputs.broken-in-xpath-failure-criteria
@@ -194,7 +194,7 @@ describe('Arazzo outputs-defined', () => {
                     criteria:
                       - condition: $statusCode == $steps.get-museum-hours.outputs.broken-in-simple-success-criteria
                       - context: $response.body
-                        condition: $.name == $steps.get-museum-hours.outputs.broken-in-jsonpath-success-criteria
+                        condition: $[?@.name == $steps.get-museum-hours.outputs.broken-in-jsonpath-success-criteria]
                         type: jsonpath
                       - context: $response.body
                         condition: $.name == $steps.get-museum-hours.outputs.broken-in-xpath-success-criteria
@@ -202,7 +202,7 @@ describe('Arazzo outputs-defined', () => {
                 successCriteria:
                   - condition: $statusCode == $steps.get-museum-hours.outputs.broken-in-simple-success-criteria
                   - context: $response.body
-                    condition: $.name == $steps.get-museum-hours.outputs.broken-in-jsonpath-success-criteria
+                    condition: $[?@.name == $steps.get-museum-hours.outputs.broken-in-jsonpath-success-criteria]
                     type: jsonpath
                   - context: $response.body
                     condition: $.name == $steps.get-museum-hours.outputs.broken-in-xpath-success-criteria

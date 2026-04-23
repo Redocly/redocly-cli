@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.29.1
+
+### Patch Changes
+
+- Fixed an issue where discriminator's `mapping` values written as bare local file names were not resolved during build.
+
 ## 2.29.0
 
 ## 2.28.1
