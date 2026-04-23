@@ -44,13 +44,11 @@ let pluginsCacheVersion = 0;
 
 export const clearPluginsCache = (): void => {
   for (const pluginPath of pluginsCache.keys()) {
-    if (pluginPath.endsWith('.cjs')) {
-      const nodeRequire = module.createRequire(pluginPath);
-      const pluginDir = path.dirname(pluginPath) + path.sep;
-      for (const cachedPath of Object.keys(nodeRequire.cache)) {
-        if (cachedPath.startsWith(pluginDir)) {
-          delete nodeRequire.cache[cachedPath];
-        }
+    const nodeRequire = module.createRequire(pluginPath);
+    const pluginDir = path.dirname(pluginPath) + path.sep;
+    for (const cachedPath of Object.keys(nodeRequire.cache)) {
+      if (cachedPath.startsWith(pluginDir)) {
+        delete nodeRequire.cache[cachedPath];
       }
     }
   }
