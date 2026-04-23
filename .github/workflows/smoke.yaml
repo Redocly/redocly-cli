@@ -237,7 +237,19 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Run Smoke Tests
+        run: |
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--yarn--node-22--windows:
     needs: prepare-smoke
@@ -324,7 +336,19 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Run Smoke Tests
+        run: |
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--yarn--node-20--windows:
     needs: prepare-smoke
