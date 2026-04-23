@@ -70,7 +70,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install" "yarn" && break
           done
 
   run-smoke--yarn--node-24--redoc:
@@ -88,7 +88,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile && yarn add redoc --no-lockfile" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install && yarn add redoc" "yarn" && break
           done
   run-smoke--pnpm--node-24:
     needs: prepare-smoke
@@ -188,7 +188,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn installe" "yarn" && break
           done
 
   run-smoke--yarn--node-22--redoc:
@@ -206,7 +206,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile && yarn add redoc --no-lockfile" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install && yarn add redoc" "yarn" && break
           done
   run-smoke--pnpm--node-22:
     needs: prepare-smoke
@@ -260,7 +260,7 @@ jobs:
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
           for ($i = 1; $i -le 3; $i++) {
             try {
-              bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile --network-timeout 100000" "yarn"
+              bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
               if ($LASTEXITCODE -eq 0) { break }
             } catch {
               if ($i -eq 3) { throw }
@@ -309,7 +309,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install" "yarn" && break
           done
 
   run-smoke--npm--node-20--windows:
@@ -347,7 +347,7 @@ jobs:
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
           for ($i = 1; $i -le 3; $i++) {
             try {
-              bash ./tests/smoke/basic/run-smoke.sh "yarn install --no-lockfile --network-timeout 100000" "yarn"
+              bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
               if ($LASTEXITCODE -eq 0) { break }
             } catch {
               if ($i -eq 3) { throw }
