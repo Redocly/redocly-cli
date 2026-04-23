@@ -5,8 +5,6 @@ npm run pack:prepare
 
 cp ./redocly-cli.tgz ./openapi-core.tgz ./respect-core.tgz resources/pets.yaml resources/museum.yaml resources/museum-tickets.arazzo.yaml ./tests/smoke/basic/
 
-bash ./tests/smoke/basic/pin-config-version.sh
-
 echo "Current directory:"
 pwd
 echo
