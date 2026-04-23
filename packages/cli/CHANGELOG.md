@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.29.2
+
+### Patch Changes
+
+- Resolved `GHSA-xq3m-2v4x-88gg` vulnerabilitiy by updating dependency versions.
+- Updated @redocly/openapi-core to v2.29.2.
+
 ## 2.29.1
 
 ### Patch Changes
