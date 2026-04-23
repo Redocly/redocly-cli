@@ -9,7 +9,8 @@ This page describes how to replace the server URL with a decorator for a given e
 ## Prerequisites
 
 - [Install Redocly CLI](../installation.md) version 2.x.
-- Use an editor for working with YAML and JavaScript files. We use VS Code with the [Redocly extension](https://redocly.com/docs/vscode) installed.
+- Use an editor for working with YAML and JavaScript files.
+  We use VS Code with the [Redocly extension](https://redocly.com/docs/vscode) installed.
 
 ## Create a demo folder and description file
 
@@ -44,7 +45,8 @@ paths:
 
 ## Create a custom plugin
 
-A plugin is the container that registers a decorator with Redocly CLI. Create the plugin file first and wire up the decorator it depends on; the decorator itself is added in the next section.
+A plugin is the container that registers a decorator with Redocly CLI.
+Create the plugin file first and wire up the decorator it depends on; the decorator itself is added in the next section.
 
 1. In the `replace-servers-demo` folder, create a folder called `plugins`.
 
@@ -71,12 +73,14 @@ export default function replaceServersUrlPlugin() {
 3. Save the file.
 
 {% admonition type="info" %}
-The `plugins` folder and the `plugin.js` file can be renamed. In that case, the import path above, and the `plugins` entry in the Redocly configuration file, must [match the new names](#configure-the-plugin-for-use).
+The `plugins` folder and the `plugin.js` file can be renamed.
+In that case, the import path above, and the `plugins` entry in the Redocly configuration file, must [match the new names](#configure-the-plugin-for-use).
 {% /admonition %}
 
 ## Add a decorator
 
-The decorator is the function that modifies the API description. It accepts a `serverUrl` parameter from the Redocly configuration file and overwrites the URL on every `Server` node in the document.
+The decorator is the function that modifies the API description.
+It accepts a `serverUrl` parameter from the Redocly configuration file and overwrites the URL on every `Server` node in the document.
 
 1. Inside the `plugins` folder, create a `decorators` folder.
 
@@ -102,12 +106,13 @@ export default function ReplaceServersURL({serverUrl}) {
 3. Save the file.
 
 {% admonition type="info" %}
-The `decorators` folder can be renamed. In that case, keep the import path in the [`plugin.js` file](#create-a-custom-plugin) in sync with the new name.
+The `decorators` folder can be renamed.In that case, keep the import path in the [`plugin.js` file](#create-a-custom-plugin) in sync with the new name.
 {% /admonition %}
 
 ## Configure the plugin for use
 
-Register the plugin in the [Redocly configuration file](../configuration/index.md) and create one API entry per environment. Each API entry passes a different `serverUrl` value to the same decorator, producing multiple outputs from a single source file.
+Register the plugin in the [Redocly configuration file](../configuration/index.md) and create one API entry per environment.
+Each API entry passes a different `serverUrl` value to the same decorator, producing multiple outputs from a single source file.
 
 ```yaml
 apis:
