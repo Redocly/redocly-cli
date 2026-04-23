@@ -4,6 +4,6 @@ module.exports = function pluginWithInitLogic() {
   util.deprecate(() => null);
 
   return {
-    id: 'test-plugin',
+    id: 'test-plugin-cjs-init',
   };
 };

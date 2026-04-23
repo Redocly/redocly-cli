@@ -123,7 +123,7 @@ describe('resolveConfig', () => {
     });
   });
 
-  it('should instantiate the plugin once', async () => {
+  it('should instantiate cjs and esm plugins once', async () => {
     // Called by plugin during init
     const deprecateSpy = vi.spyOn(util, 'deprecate');
 
@@ -137,7 +137,7 @@ describe('resolveConfig', () => {
       configPath,
     });
 
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+    expect(deprecateSpy).toHaveBeenCalledTimes(2);
 
     await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
@@ -145,7 +145,7 @@ describe('resolveConfig', () => {
     });
 
     // Should not execute the init logic again
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+    expect(deprecateSpy).toHaveBeenCalledTimes(2);
   });
 
   it('should resolve config after clearPluginsCache', async () => {
