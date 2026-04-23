@@ -249,7 +249,16 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Run Smoke Tests
+        run: |
+          for ($i = 1; $i -le 3; $i++) {
+            bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($i -eq 3) { exit $LASTEXITCODE }
+            Start-Sleep -Seconds 5
+          }
 
   run-smoke--yarn--node-22--windows:
     needs: prepare-smoke
@@ -271,7 +280,13 @@ jobs:
       - name: Pin intersecting deps
         run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - name: Run Smoke Tests
-        run: bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
+        run: |
+          for ($i = 1; $i -le 3; $i++) {
+            bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($i -eq 3) { exit $LASTEXITCODE }
+            Start-Sleep -Seconds 5
+          }
 
   run-smoke--npm--node-20:
     needs: prepare-smoke
@@ -332,7 +347,16 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Run Smoke Tests
+        run: |
+          for ($i = 1; $i -le 3; $i++) {
+            bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($i -eq 3) { exit $LASTEXITCODE }
+            Start-Sleep -Seconds 5
+          }
 
   run-smoke--yarn--node-20--windows:
     needs: prepare-smoke
@@ -354,7 +378,13 @@ jobs:
       - name: Pin intersecting deps
         run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - name: Run Smoke Tests
-        run: bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
+        run: |
+          for ($i = 1; $i -le 3; $i++) {
+            bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($i -eq 3) { exit $LASTEXITCODE }
+            Start-Sleep -Seconds 5
+          }
 
   run-smoke--docker-image:
     runs-on: ubuntu-latest
