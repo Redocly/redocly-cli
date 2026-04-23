@@ -271,17 +271,7 @@ jobs:
       - name: Pin intersecting deps
         run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - name: Run Smoke Tests
-        run: |
-          Start-Sleep -Seconds 20 # workaround for yarn cache issue
-          for ($i = 1; $i -le 3; $i++) {
-            try {
-              bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
-              if ($LASTEXITCODE -eq 0) { break }
-            } catch {
-              if ($i -eq 3) { throw }
-              Start-Sleep -Seconds 5
-            }
-          }
+        run: bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
 
   run-smoke--npm--node-20:
     needs: prepare-smoke
@@ -364,17 +354,7 @@ jobs:
       - name: Pin intersecting deps
         run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
       - name: Run Smoke Tests
-        run: |
-          Start-Sleep -Seconds 20 # workaround for yarn cache issue
-          for ($i = 1; $i -le 3; $i++) {
-            try {
-              bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
-              if ($LASTEXITCODE -eq 0) { break }
-            } catch {
-              if ($i -eq 3) { throw }
-              Start-Sleep -Seconds 5
-            }
-          }
+        run: bash ./tests/smoke/basic/run-smoke.sh "yarn install --network-timeout 100000" "yarn"
 
   run-smoke--docker-image:
     runs-on: ubuntu-latest
