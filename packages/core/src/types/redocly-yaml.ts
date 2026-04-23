@@ -231,7 +231,7 @@ const configGovernanceProperties: Record<
       return {
         ...ConfigGovernance,
         directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
-      } as PropType;
+      };
     },
     description: 'Use extends to inherit rules and their configurations from other rulesets.',
     documentationLink: 'https://redocly.com/docs/cli/configuration/reference/extends#extends',
