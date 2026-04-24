@@ -1968,6 +1968,26 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not produce spurious example validation errors when linting concurrently', async () => {
+    const config = await createConfig({
+      rules: { 'no-invalid-media-type-examples': 'error' },
+    });
+
+    const [resultsA, resultsB] = await Promise.all([
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-a.yaml'),
+        config,
+      }),
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-b.yaml'),
+        config,
+      }),
+    ]);
+
+    expect(resultsA).toHaveLength(0);
+    expect(resultsB).toHaveLength(0);
+  });
+
   it('should report no unresolved extends when scorecardClassic extends contains a ref to non existing preset', async () => {
     const testConfigContent = outdent`
       scorecardClassic:

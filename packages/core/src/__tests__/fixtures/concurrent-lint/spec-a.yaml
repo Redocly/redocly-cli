@@ -1,0 +1,39 @@
+openapi: '3.0.0'
+info:
+  title: Service A
+  version: '1.0.0'
+servers:
+  - url: https://a.example.com
+security:
+  - BearerAuth: []
+paths:
+  /a:
+    post:
+      operationId: create_a
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Foo'
+            example:
+              name: 'test'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Foo:
+      type: object
+      properties:
+        name:
+          type: string

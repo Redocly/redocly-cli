@@ -3,6 +3,7 @@ import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
 import { Location, isRef } from './ref-utils.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import type { AjvValidator } from './rules/ajv.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
@@ -49,6 +50,7 @@ export type UserContext = {
   specVersion: SpecVersion;
   config?: Config;
   getVisitorData: () => Record<string, unknown>;
+  ajvValidator: AjvValidator;
 };
 
 export type Loc = {
@@ -97,6 +99,7 @@ export type WalkContext = {
   config?: Config;
   visitorsData: Record<string, Record<string, unknown>>; // custom data store that visitors can use for various purposes
   refTypes?: Map<string, NormalizedNodeType>;
+  ajvValidator: AjvValidator;
 };
 
 function collectParents(ctx: VisitorLevelContext) {
@@ -197,6 +200,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             specVersion: ctx.specVersion,
             config: ctx.config,
             getVisitorData: () => getVisitorDataFn(ruleId),
+            ajvValidator: ctx.ajvValidator,
           },
           { node: resolvedNode, location: resolvedLocation, error }
         );
@@ -414,6 +418,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               specVersion: ctx.specVersion,
               config: ctx.config,
               getVisitorData: () => getVisitorDataFn(ruleId),
+              ajvValidator: ctx.ajvValidator,
             },
             { node: resolvedNode, location: resolvedLocation, error }
           );
@@ -450,6 +455,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
           getVisitorData: () => getVisitorDataFn(ruleId),
+          ajvValidator: ctx.ajvValidator,
         },
         collectParents(context),
         context

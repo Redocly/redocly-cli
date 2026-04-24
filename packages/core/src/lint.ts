@@ -5,7 +5,7 @@ import { initRules } from './config/rules.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { getTypes } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
-import { releaseAjvInstance } from './rules/ajv.js';
+import { AjvValidator } from './rules/ajv.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
 import { normalizeTypes, type NodeType } from './types/index.js';
@@ -71,7 +71,7 @@ export async function lintDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
-  releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
+  const ajvValidator = new AjvValidator();
 
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
@@ -87,6 +87,7 @@ export async function lintDocument(opts: {
     specVersion,
     config,
     visitorsData: {},
+    ajvValidator,
   };
 
   const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
@@ -142,6 +143,7 @@ export async function lintConfig(opts: {
     specVersion: 'oas3_0', // TODO: use config-specific version
     config,
     visitorsData: {},
+    ajvValidator: new AjvValidator(),
   };
 
   const types = normalizeTypes(
