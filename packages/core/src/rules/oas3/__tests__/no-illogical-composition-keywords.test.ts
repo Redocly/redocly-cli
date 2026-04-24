@@ -50,6 +50,62 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
+    it('should report a discriminator-specific message when the discriminator property is defined with exclusive enums but not required', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              TimelineAction:
+                type: object
+                discriminator:
+                  propertyName: action
+                  mapping:
+                    redemption-cancel: '#/components/schemas/RedemptionCancel'
+                    resend-email: '#/components/schemas/ResendEmail'
+                oneOf:
+                  - $ref: '#/components/schemas/RedemptionCancel'
+                  - $ref: '#/components/schemas/ResendEmail'
+              RedemptionCancel:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum: [redemption-cancel]
+                  redemptionId:
+                    type: string
+              ResendEmail:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum: [resend-email]
+                  messageId:
+                    type: string
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/TimelineAction/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Ambiguous oneOf schemas detected. Schemas \`#/components/schemas/RedemptionCancel\` and \`#/components/schemas/ResendEmail\` are not mutually exclusive. Discriminator property \`action\` must be listed in \`required\` of each member schema.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
     it('should not report when oneOf has only one schema but parent declares a discriminator', async () => {
       expect(
         await lint(`

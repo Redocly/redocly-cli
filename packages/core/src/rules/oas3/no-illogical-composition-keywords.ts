@@ -99,7 +99,17 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
             }
           }
 
-          checkOneOfSchemasMutuallyExclusive(schemas, resolve, report, location);
+          const discriminatorPropertyName =
+            hasDiscriminator && typeof schema.discriminator?.propertyName === 'string'
+              ? schema.discriminator.propertyName
+              : undefined;
+          checkOneOfSchemasMutuallyExclusive(
+            schemas,
+            resolve,
+            report,
+            location,
+            discriminatorPropertyName
+          );
         }
       },
     },
@@ -206,7 +216,8 @@ function hasExclusiveConstraints(sig1: SchemaSignature, sig2: SchemaSignature): 
 function findOverlapReason(
   sig1: SchemaSignature,
   sig2: SchemaSignature,
-  depth: number = 0
+  depth: number = 0,
+  discriminatorPropertyName?: string
 ): string | null {
   const MAX_DEPTH = 10;
   if (depth > MAX_DEPTH) return null;
@@ -248,19 +259,27 @@ function findOverlapReason(
     }
     if (shared.length > 0) {
       const ambiguous: string[] = [];
+      let discriminatorNotRequired = false;
       for (const prop of shared) {
         const s1 = sig1.propertySchemas?.get(prop);
         const s2 = sig2.propertySchemas?.get(prop);
 
-        const isDiscriminatorProp =
-          s1 &&
-          s2 &&
-          hasExclusiveConstraints(s1, s2) &&
-          sig1.required?.has(prop) &&
-          sig2.required?.has(prop);
+        const hasExclusiveValues = !!(s1 && s2 && hasExclusiveConstraints(s1, s2));
+        const requiredInBoth = !!(sig1.required?.has(prop) && sig2.required?.has(prop));
 
-        if (isDiscriminatorProp) return null;
+        if (hasExclusiveValues && requiredInBoth) return null;
+
+        if (hasExclusiveValues && prop === discriminatorPropertyName) {
+          discriminatorNotRequired = true;
+          continue;
+        }
+
         ambiguous.push(prop);
+      }
+      if (discriminatorNotRequired) {
+        const extra =
+          ambiguous.length > 0 ? ` Other overlapping properties: ${ambiguous.join(', ')}.` : '';
+        return `Discriminator property \`${discriminatorPropertyName}\` must be listed in \`required\` of each member schema.${extra}`;
       }
       if (ambiguous.length > 0) {
         return `Schemas have overlapping properties: ${ambiguous.join(', ')}. Consider using a discriminator or ensuring that shared properties have mutually exclusive constraints.`;
@@ -292,7 +311,8 @@ function checkOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
   resolve: UserContext['resolve'],
   report: UserContext['report'],
-  location: UserContext['location']
+  location: UserContext['location'],
+  discriminatorPropertyName?: string
 ) {
   const signatures = schemas.map((s) => createSchemaSignature(s, resolve));
 
@@ -304,7 +324,7 @@ function checkOneOfSchemasMutuallyExclusive(
 
   for (let i = 0; i < signatures.length - 1; i++) {
     for (let j = i + 1; j < signatures.length; j++) {
-      const reason = findOverlapReason(signatures[i], signatures[j]);
+      const reason = findOverlapReason(signatures[i], signatures[j], 0, discriminatorPropertyName);
       if (!reason) continue;
       report({
         message: `Ambiguous oneOf schemas detected. Schemas ${getSchemaIdentifier(schemas[i], i)} and ${getSchemaIdentifier(schemas[j], j)} are not mutually exclusive. ${reason}`,
