@@ -53,7 +53,9 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install && npm i redoc" "npm run"
+      - name: Add redoc to deps
+        run: bash ./tests/smoke/basic/add-redoc.sh
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
 
   run-smoke--yarn--node-24:
     needs: prepare-smoke
@@ -92,9 +94,11 @@ jobs:
         run: yarn cache clean
       - name: Pin intersecting deps
         run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
+      - name: Add redoc to deps
+        run: bash ./tests/smoke/basic/add-redoc.sh
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install && yarn add redoc" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install" "yarn" && break
           done
   run-smoke--pnpm--node-24:
     needs: prepare-smoke
@@ -177,7 +181,9 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install && npm i redoc" "npm run"
+      - name: Add redoc to deps
+        run: bash ./tests/smoke/basic/add-redoc.sh
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
 
   run-smoke--yarn--node-22:
     needs: prepare-smoke
@@ -216,9 +222,11 @@ jobs:
         run: yarn cache clean
       - name: Pin intersecting deps
         run: bash ./tests/smoke/basic/pin-intersecting-deps.sh
+      - name: Add redoc to deps
+        run: bash ./tests/smoke/basic/add-redoc.sh
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install && yarn add redoc" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn install" "yarn" && break
           done
   run-smoke--pnpm--node-22:
     needs: prepare-smoke
@@ -312,7 +320,9 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install && npm i redoc" "npm run"
+      - name: Add redoc to deps
+        run: bash ./tests/smoke/basic/add-redoc.sh
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm install" "npm run"
 
   run-smoke--yarn--node-20:
     needs: prepare-smoke
