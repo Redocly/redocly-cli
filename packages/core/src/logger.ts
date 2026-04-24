@@ -13,6 +13,7 @@ export const colorize = new Proxy(colorette, {
       return identity;
     }
 
+    // oxlint-disable-next-line typescript/no-explicit-any
     return (target as any)[prop];
   },
 });
