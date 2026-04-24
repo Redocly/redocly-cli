@@ -32,14 +32,13 @@ vi.mock('ajv-formats', () => {
 
 import { Location } from '../../ref-utils.js';
 import type { Source } from '../../resolve.js';
-import { validateJsonSchema, releaseAjvInstance } from '../ajv.js';
+import { AjvValidator } from '../ajv.js';
 
-describe('ajv configuration', () => {
+describe('AjvValidator', () => {
   const resolve = () => ({ node: undefined, location: undefined });
   const baseLocation = createBaseLocation();
 
   beforeEach(() => {
-    releaseAjvInstance();
     vi.clearAllMocks();
   });
 
@@ -48,9 +47,10 @@ describe('ajv configuration', () => {
       const mockAjvInstance = createMockAjvInstance();
       mockAjvDraft4Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'integer' };
 
-      validateJsonSchema(10, schema, {
+      validator.validate(10, schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -69,9 +69,10 @@ describe('ajv configuration', () => {
       const mockAjvInstance = createMockAjvInstance();
       mockAjv2020Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'integer' };
 
-      validateJsonSchema(10, schema, {
+      validator.validate(10, schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -92,9 +93,10 @@ describe('ajv configuration', () => {
       const mockAjvInstance = createMockAjvInstance();
       mockAjvDraft4Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'string' };
 
-      validateJsonSchema('test', schema, {
+      validator.validate('test', schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -112,9 +114,10 @@ describe('ajv configuration', () => {
       const mockAjvInstance = createMockAjvInstance();
       mockAjv2020Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'string' };
 
-      validateJsonSchema('test', schema, {
+      validator.validate('test', schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -131,9 +134,10 @@ describe('ajv configuration', () => {
       const mockAjvInstance = createMockAjvInstance();
       mockAjvDraft4Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'string' };
 
-      validateJsonSchema('test', schema, {
+      validator.validate('test', schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -158,9 +162,10 @@ describe('ajv configuration', () => {
       };
       mockAjvDraft4Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'integer' };
 
-      validateJsonSchema(10, schema, {
+      validator.validate(10, schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -184,9 +189,10 @@ describe('ajv configuration', () => {
       };
       mockAjv2020Constructor.mockReturnValue(mockAjvInstance);
 
+      const validator = new AjvValidator();
       const schema = { type: 'integer' };
 
-      validateJsonSchema(10, schema, {
+      validator.validate(10, schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
