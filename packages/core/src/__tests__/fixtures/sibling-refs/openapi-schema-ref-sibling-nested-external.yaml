@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: Nested external refs in schema $ref siblings
+  version: 1.0.0
+paths:
+  /sample:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Base'
+                properties:
+                  second:
+                    $ref: ./schema-ref-sibling-external-value.yaml#/Second
+components:
+  schemas:
+    Base:
+      type: object
+      properties:
+        first:
+          type: integer
+        second:
+          type: integer
