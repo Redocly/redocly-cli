@@ -2,17 +2,14 @@ openapi: 3.1.0
 info:
   title: E2E bundle - ref with sibling keys
   version: 1.0.0
-  license:
-    name: MIT
-    identifier: MIT
 servers:
   - url: https://api.redocly.com
 security: []
 paths:
   /sample:
     get:
-      summary: Sample GET (parameter $ref with sibling name)
       operationId: getSample
+      description: parameter $ref with sibling name
       parameters:
         - name: Referenced model
           in: query
@@ -21,7 +18,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 200 response with JSON schema using $ref and sibling properties
+          description: JSON schema using $ref and sibling properties
           content:
             application/json:
               schema:
@@ -40,7 +37,7 @@ paths:
                 type: object
   /submit:
     post:
-      summary: Sample POST (requestBody $ref with sibling description)
+      description: requestBody $ref with sibling description
       operationId: postSubmit
       requestBody:
         description: Referenced model
@@ -52,9 +49,6 @@ paths:
               properties:
                 value:
                   type: string
-      responses:
-        '204':
-          description: No content
 components:
   parameters:
     id:
