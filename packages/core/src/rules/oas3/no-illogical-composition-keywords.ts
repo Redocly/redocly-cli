@@ -23,7 +23,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
         if (!node || typeof node !== 'object') return true;
         return !('oneOf' in node || 'anyOf' in node || 'allOf' in node);
       },
-      enter(schema, { report, location, resolve }) {
+      enter(schema, { report, location, resolve, specVersion }) {
         let keyword: 'oneOf' | 'anyOf' | 'allOf' | undefined;
         let schemas: Array<Oas3Schema | Oas3_1Schema> | undefined;
 
@@ -40,9 +40,32 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
 
         if (!keyword || !schemas) return;
 
+        const hasDiscriminator = isPlainObject(schema.discriminator);
+
         if ((keyword === 'oneOf' || keyword === 'anyOf') && schemas.length < 2) {
+          if (hasDiscriminator) return;
           report({
             message: `Schema object '${keyword}' should contain at least 2 schemas. Use the schema directly instead.`,
+            location: location.child([keyword]).key(),
+          });
+          return;
+        }
+
+        if (keyword === 'anyOf' && hasDiscriminator) {
+          report({
+            message: `Schema uses 'anyOf' alongside a 'discriminator'. A 'discriminator' implies mutually exclusive variants — use 'oneOf' instead.`,
+            location: location.child([keyword]).key(),
+          });
+          return;
+        }
+
+        if (
+          keyword === 'allOf' &&
+          schemas.length < 2 &&
+          (specVersion === 'oas3_1' || specVersion === 'oas3_2')
+        ) {
+          report({
+            message: `Schema object 'allOf' with a single member is redundant in OpenAPI 3.1. '$ref' supports sibling keywords natively — attach properties directly instead.`,
             location: location.child([keyword]).key(),
           });
           return;
@@ -216,6 +239,12 @@ function findOverlapReason(
       !shared.some((p) => sig1.required!.has(p) || sig2.required!.has(p))
     ) {
       return null;
+    }
+
+    if (sig1.required && sig2.required) {
+      const sig1HasExclusiveRequired = [...sig1.required].some((p) => !sig2.properties!.has(p));
+      const sig2HasExclusiveRequired = [...sig2.required].some((p) => !sig1.properties!.has(p));
+      if (sig1HasExclusiveRequired && sig2HasExclusiveRequired) return null;
     }
     if (shared.length > 0) {
       const ambiguous: string[] = [];

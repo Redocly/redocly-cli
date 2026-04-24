@@ -50,6 +50,34 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
+    it('should not report when oneOf has only one schema but parent declares a discriminator', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              ReadyToPayKlarnaMethodFeature:
+                type: object
+                discriminator:
+                  propertyName: name
+                  mapping:
+                    Klarna: '#/components/schemas/KlarnaFeature'
+                oneOf:
+                  - $ref: '#/components/schemas/KlarnaFeature'
+              KlarnaFeature:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    enum: [Klarna]
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
+
     it('should not report when oneOf contains an empty schema {}', async () => {
       expect(
         await lint(`
@@ -438,6 +466,41 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
+    it('should not report when each oneOf schema has a required property absent from the other schema', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              ReadyToPay:
+                type: object
+                oneOf:
+                  - type: object
+                    required: [websiteId, amount, riskMetadata]
+                    properties:
+                      websiteId:
+                        type: string
+                      amount:
+                        type: number
+                      riskMetadata:
+                        type: object
+                  - type: object
+                    required: [websiteId, items, riskMetadata]
+                    properties:
+                      websiteId:
+                        type: string
+                      items:
+                        type: array
+                      riskMetadata:
+                        type: object
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
+
     it('should not report when oneOf schemas have disjoint required properties but share optional properties', async () => {
       expect(
         await lint(`
@@ -507,6 +570,85 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
+    it('should report when anyOf is used alongside a discriminator', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              PaymentInstrument:
+                type: object
+                discriminator:
+                  propertyName: method
+                  mapping:
+                    card: '#/components/schemas/PaymentCard'
+                    paypal: '#/components/schemas/PayPal'
+                anyOf:
+                  - $ref: '#/components/schemas/PaymentCard'
+                  - $ref: '#/components/schemas/PayPal'
+              PaymentCard:
+                type: object
+                properties:
+                  method:
+                    type: string
+                    enum: [card]
+              PayPal:
+                type: object
+                properties:
+                  method:
+                    type: string
+                    enum: [paypal]
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/PaymentInstrument/anyOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schema uses 'anyOf' alongside a 'discriminator'. A 'discriminator' implies mutually exclusive variants — use 'oneOf' instead.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should not report when anyOf has only one schema but parent declares a discriminator', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                discriminator:
+                  propertyName: type
+                  mapping:
+                    a: '#/components/schemas/A'
+                anyOf:
+                  - $ref: '#/components/schemas/A'
+              A:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [a]
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
+
     it('should not report when anyOf contains an empty schema', async () => {
       expect(
         await lint(`
@@ -568,6 +710,62 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                     properties:
                       age:
                         type: integer
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
+
+    it('should report when allOf has only one schema in OpenAPI 3.1', async () => {
+      expect(
+        await lint(`
+          openapi: 3.1.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                description: Website identifier.
+                allOf:
+                  - $ref: '#/components/schemas/WebsiteId'
+              WebsiteId:
+                type: string
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/allOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schema object 'allOf' with a single member is redundant in OpenAPI 3.1. '$ref' supports sibling keywords natively — attach properties directly instead.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should not report when allOf has only one schema in OpenAPI 3.0', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                description: Website identifier.
+                allOf:
+                  - $ref: '#/components/schemas/WebsiteId'
+              WebsiteId:
+                type: string
         `)
       ).toMatchInlineSnapshot(`[]`);
     });
