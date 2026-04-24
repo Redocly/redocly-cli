@@ -2,7 +2,6 @@ import { isRef } from '../../ref-utils.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import { dequal } from '../../utils/dequal.js';
 import { isDefined } from '../../utils/is-defined.js';
-import { isEmptyObject } from '../../utils/is-empty-object.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
@@ -41,45 +40,27 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
 
         if (!keyword || !schemas) return;
 
-        // oneOf and anyOf require at least 2 schemas; use the schema directly otherwise
         if ((keyword === 'oneOf' || keyword === 'anyOf') && schemas.length < 2) {
           report({
             message: `Schema object '${keyword}' should contain at least 2 schemas. Use the schema directly instead.`,
-            location: location.child([keyword]),
+            location: location.child([keyword]).key(),
           });
           return;
         }
 
-        // Empty schemas (null entries or schemas with no type constraints) are meaningless
-        for (let i = 0; i < schemas.length; i++) {
-          const resolvedSchema = resolveSchema(schemas[i], resolve);
-          if (
-            resolvedSchema &&
-            (hasNullableType(resolvedSchema) || isEmptyObject(resolvedSchema))
-          ) {
-            report({
-              message: `Schema is empty.`,
-              location: location.child([keyword, String(i)]),
-            });
-            return;
-          }
-        }
-
         if (keyword === 'oneOf') {
-          // Duplicate schemas make oneOf impossible to discriminate
           for (let i = 0; i < schemas.length - 1; i++) {
             for (let j = i + 1; j < schemas.length; j++) {
               if (dequal(schemas[i], schemas[j])) {
                 report({
                   message: `Duplicate schemas found in 'oneOf', which makes it impossible to discriminate between schemas.`,
-                  location: location.child(['oneOf']),
+                  location: location.child(['oneOf']).key(),
                 });
                 return;
               }
             }
           }
 
-          // A nullable parent with a nullable oneOf option creates null ambiguity
           if (hasNullableType(schema)) {
             const hasNullTypeInOneOf = schemas.some((subSchema) => {
               const resolved = resolveSchema(subSchema, resolve);
@@ -89,7 +70,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
             if (hasNullTypeInOneOf) {
               report({
                 message: `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`,
-                location: location.child(['oneOf']),
+                location: location.child(['oneOf']).key(),
               });
               return;
             }
@@ -102,7 +83,6 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
   };
 };
 
-/** Resolves a schema $ref to its target node. Returns undefined if the ref cannot be resolved. */
 function resolveSchema(
   schema: Oas3Schema | Oas3_1Schema,
   resolve: UserContext['resolve']
@@ -114,7 +94,6 @@ function resolveSchema(
   return schema;
 }
 
-/** Checks if a schema represents a nullable type (OAS 3.0 nullable or OAS 3.1 type array/null). */
 function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): boolean {
   if ('nullable' in schema && schema.nullable === true) return true;
   if (schema.type === 'null') return true;
@@ -122,7 +101,6 @@ function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): b
   return false;
 }
 
-/** Checks if a signature describes an object schema (explicit, untyped, or OAS 3.1 type-array with 'object'). */
 function isObjectLike(sig: SchemaSignature): boolean {
   if (!sig.type) return true;
   if (sig.type === 'object') return true;
@@ -130,7 +108,6 @@ function isObjectLike(sig: SchemaSignature): boolean {
   return false;
 }
 
-/** Builds a normalized signature of a schema for mutual exclusivity comparison, with cycle detection. */
 function createSchemaSignature(
   schema: Oas3Schema | Oas3_1Schema,
   resolve: UserContext['resolve'],
@@ -186,30 +163,23 @@ function createSchemaSignature(
   return signature;
 }
 
-/**
- * Returns true if the two signatures can be proven to accept no common value
- * based on type-level constraints (enum, const, type, format) alone.
- * Used to detect required discriminator properties in `oneOf` sub-schemas.
- */
 function hasExclusiveConstraints(sig1: SchemaSignature, sig2: SchemaSignature): boolean {
   if (sig1.enum && sig2.enum) {
     return !sig1.enum.some((v) => sig2.enum!.some((v2) => dequal(v, v2)));
   }
+
   if (sig1.const && sig2.const) {
     return !dequal(sig1.const, sig2.const);
   }
+
   if (sig1.type && sig2.type && !isPlainObject(sig1.type) && !isPlainObject(sig2.type)) {
     if (!dequal(sig1.type, sig2.type)) return true;
     if (sig1.format && sig2.format && sig1.format !== sig2.format) return true;
   }
+
   return false;
 }
 
-/**
- * Returns an overlap reason when the two signatures are NOT mutually exclusive,
- * or `null` when they appear exclusive. Recurses into properties and
- * additionalProperties with a depth guard.
- */
 function findOverlapReason(
   sig1: SchemaSignature,
   sig2: SchemaSignature,
@@ -239,6 +209,14 @@ function findOverlapReason(
 
   if (sig1.properties && sig2.properties) {
     const shared = [...sig1.properties].filter((p) => sig2.properties!.has(p));
+    if (
+      sig1.required &&
+      sig2.required &&
+      ![...sig1.required].some((p) => sig2.required!.has(p)) &&
+      !shared.some((p) => sig1.required!.has(p) || sig2.required!.has(p))
+    ) {
+      return null;
+    }
     if (shared.length > 0) {
       const ambiguous: string[] = [];
       for (const prop of shared) {
@@ -256,38 +234,31 @@ function findOverlapReason(
         ambiguous.push(prop);
       }
       if (ambiguous.length > 0) {
-        return `Schemas have overlapping properties: ${ambiguous.join(', ')}.`;
+        return `Schemas have overlapping properties: ${ambiguous.join(', ')}. Consider using a discriminator or ensuring that shared properties have mutually exclusive constraints.`;
       }
     }
   }
 
   if (isPlainObject(sig1.additionalProperties) && isPlainObject(sig2.additionalProperties)) {
-    const reason = findOverlapReason(
+    const nested = findOverlapReason(
       sig1.additionalProperties as SchemaSignature,
       sig2.additionalProperties as SchemaSignature,
       depth + 1
     );
-    if (reason) return `Schemas have overlapping additionalProperties definitions. ${reason}`;
+    if (nested) {
+      return `Schemas have overlapping additionalProperties definitions. ${nested}`;
+    }
   }
 
-  // `additionalProperties` defaults to `true` in OpenAPI: an object schema without
-  // `additionalProperties: false` accepts any extra keys. If at least one schema is open,
-  // a value valid for the stricter schema also satisfies the permissive one.
-  // Only apply when both schemas define their shape via `properties` — shape-less
-  // object schemas (e.g. those composing via oneOf/allOf) give us no basis to flag overlap.
   if (isObjectLike(sig1) && isObjectLike(sig2) && sig1.properties && sig2.properties) {
-    const sig1AllowsExtras = sig1.additionalProperties !== false;
-    const sig2AllowsExtras = sig2.additionalProperties !== false;
-
-    if (sig1AllowsExtras || sig2AllowsExtras) {
-      return 'At least one schema allows additional properties (implicit or explicit `additionalProperties: true`), so a value valid for one may also satisfy the other. Set `additionalProperties: false` on both or add a discriminating required property.';
+    if (sig1.additionalProperties !== sig2.additionalProperties) {
+      return 'At least one schema allows additional properties, so a value valid for one may also satisfy the other.';
     }
   }
 
   return null;
 }
 
-/** Reports ambiguous oneOf schema pairs that are not mutually exclusive. */
 function checkOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
   resolve: UserContext['resolve'],
@@ -302,15 +273,14 @@ function checkOneOfSchemasMutuallyExclusive(
     return `at position ${index + 1}`;
   };
 
-  for (let i = 0; i < signatures.length; i++) {
+  for (let i = 0; i < signatures.length - 1; i++) {
     for (let j = i + 1; j < signatures.length; j++) {
       const reason = findOverlapReason(signatures[i], signatures[j]);
-      if (reason) {
-        report({
-          message: `Ambiguous oneOf schemas detected. Schemas ${getSchemaIdentifier(schemas[i], i)} and ${getSchemaIdentifier(schemas[j], j)} are not mutually exclusive. ${reason}`,
-          location: location.child(['oneOf']),
-        });
-      }
+      if (!reason) continue;
+      report({
+        message: `Ambiguous oneOf schemas detected. Schemas ${getSchemaIdentifier(schemas[i], i)} and ${getSchemaIdentifier(schemas[j], j)} are not mutually exclusive. ${reason}`,
+        location: location.child(['oneOf']).key(),
+      });
     }
   }
 }

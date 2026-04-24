@@ -37,7 +37,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             "location": [
               {
                 "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": false,
+                "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
@@ -50,7 +50,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should report when oneOf contains an empty schema {}', async () => {
+    it('should not report when oneOf contains an empty schema {}', async () => {
       expect(
         await lint(`
           openapi: 3.0.0
@@ -65,26 +65,10 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type: string
                   - {}
         `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf/1",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema is empty.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      ).toMatchInlineSnapshot(`[]`);
     });
 
-    it('should report when oneOf contains a null schema entry', async () => {
+    it('should not report when oneOf contains a null schema entry', async () => {
       expect(
         await lint(`
           openapi: 3.1.0
@@ -99,26 +83,10 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type: string
                   - type: "null"
         `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf/1",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema is empty.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      ).toMatchInlineSnapshot(`[]`);
     });
 
-    it('should report when oneOf contains a nullable-only schema (no type constraints)', async () => {
+    it('should not report when oneOf contains a nullable-only schema (no type constraints)', async () => {
       expect(
         await lint(`
           openapi: 3.0.0
@@ -133,23 +101,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type: string
                   - nullable: true
         `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf/1",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema is empty.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      ).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report when oneOf contains duplicate schemas', async () => {
@@ -173,7 +125,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             "location": [
               {
                 "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": false,
+                "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
@@ -215,11 +167,11 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             "location": [
               {
                 "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": false,
+                "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. Schemas have overlapping properties: name.",
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. Schemas have overlapping properties: name. Consider using a discriminator or ensuring that shared properties have mutually exclusive constraints.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -302,11 +254,11 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             "location": [
               {
                 "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": false,
+                "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. At least one schema allows additional properties (implicit or explicit \`additionalProperties: true\`), so a value valid for one may also satisfy the other. Set \`additionalProperties: false\` on both or add a discriminating required property.",
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. At least one schema allows additional properties, so a value valid for one may also satisfy the other.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -343,11 +295,11 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             "location": [
               {
                 "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": false,
+                "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. At least one schema allows additional properties (implicit or explicit \`additionalProperties: true\`), so a value valid for one may also satisfy the other. Set \`additionalProperties: false\` on both or add a discriminating required property.",
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. At least one schema allows additional properties, so a value valid for one may also satisfy the other.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -383,6 +335,142 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         `)
       ).toMatchInlineSnapshot(`[]`);
     });
+
+    it('should not report when oneOf schemas have disjoint required property sets (implicit additionalProperties: true)', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                oneOf:
+                  - type: object
+                    required: [username, password]
+                    properties:
+                      username:
+                        type: string
+                      password:
+                        type: string
+                  - type: object
+                    required: [customerId]
+                    properties:
+                      customerId:
+                        type: string
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
+
+    it('should report each overlapping pair separately when multiple oneOf schemas overlap', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                oneOf:
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                      age:
+                        type: integer
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                      email:
+                        type: string
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 2 are not mutually exclusive. Schemas have overlapping properties: name. Consider using a discriminator or ensuring that shared properties have mutually exclusive constraints.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 1 and at position 3 are not mutually exclusive. Schemas have overlapping properties: name. Consider using a discriminator or ensuring that shared properties have mutually exclusive constraints.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Test/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Ambiguous oneOf schemas detected. Schemas at position 2 and at position 3 are not mutually exclusive. Schemas have overlapping properties: name. Consider using a discriminator or ensuring that shared properties have mutually exclusive constraints.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should not report when oneOf schemas have disjoint required properties but share optional properties', async () => {
+      expect(
+        await lint(`
+          openapi: 3.0.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Test:
+                oneOf:
+                  - type: object
+                    required: [file]
+                    properties:
+                      file:
+                        type: string
+                      name:
+                        type: string
+                      isPublic:
+                        type: boolean
+                  - type: object
+                    required: [url]
+                    properties:
+                      url:
+                        type: string
+                      name:
+                        type: string
+                      isPublic:
+                        type: boolean
+        `)
+      ).toMatchInlineSnapshot(`[]`);
+    });
   });
 
   describe('anyOf', () => {
@@ -406,7 +494,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             "location": [
               {
                 "pointer": "#/components/schemas/Test/anyOf",
-                "reportOnKey": false,
+                "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
@@ -419,7 +507,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should report when anyOf contains an empty schema', async () => {
+    it('should not report when anyOf contains an empty schema', async () => {
       expect(
         await lint(`
           openapi: 3.0.0
@@ -434,28 +522,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type: string
                   - {}
         `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/anyOf/1",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema is empty.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      ).toMatchInlineSnapshot(`[]`);
     });
   });
 
   describe('allOf', () => {
-    it('should report when allOf contains an empty schema', async () => {
+    it('should not report when allOf contains an empty schema', async () => {
       expect(
         await lint(`
           openapi: 3.0.0
@@ -473,23 +545,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                         type: string
                   - {}
         `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/allOf/1",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema is empty.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      ).toMatchInlineSnapshot(`[]`);
     });
 
     it('should not report for a valid allOf', async () => {
