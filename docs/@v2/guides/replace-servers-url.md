@@ -8,35 +8,13 @@ This page describes how to replace the server URL with a decorator for a given e
 
 ## Prerequisites
 
-- [Install @redocly/cli](../installation.md). We use version 1.12.0 in this tutorial.
-
-- [Install @redocly/cli](../installation.md) with version 1.0.0-beta.111 or later (we use 1.0.0-beta.111 in this tutorial).
-- Save the following OpenAPI file as `original.yaml` into a new directory named `replace-servers-demo`.
-  ```yaml
-  openapi: 3.1.0
-  info:
-    version: 1.0.0
-    title: Custom decorators demo
-    description: The servers URL is replaced by the decorator during the `bundle` process.
-  servers:
-    - url: 'https://example.com/api/v1'
-  paths:
-    /status:
-      get:
-        summary: Get status
-        operationId: getStatus
-        security: []
-        responses:
-          '204':
-            description: Status OK
-          '400':
-            description: Status not OK
-  ```
-- Use your favorite IDE for editing files (we use VS Code and have the [Redocly extension](https://redocly.com/docs/redocly-openapi/) installed).
+- [Install Redocly CLI](../installation.md) version 2.x.
+- Use an editor for working with YAML and JavaScript files.
+  We use VS Code with the [Redocly extension](https://redocly.com/docs/vscode) installed.
 
 ## Create a demo folder and description file
 
-Before you start, create a demo folder and a sample OpenAPI description file to later test your plugin and decorators.
+Create a working folder and a sample OpenAPI file that the decorator in the following sections uses as its input.
 
 1. Create a new folder and name it `replace-servers-demo`.
 
@@ -67,7 +45,8 @@ paths:
 
 ## Create a custom plugin
 
-In this step, create a custom plugin and define the decorator dependency.
+A plugin is the container that registers a decorator with Redocly CLI.
+Create the plugin file first and wire up the decorator it depends on; the decorator itself is added in the next section.
 
 1. In the `replace-servers-demo` folder, create a folder called `plugins`.
 
@@ -94,12 +73,14 @@ export default function replaceServersUrlPlugin() {
 3. Save the file.
 
 {% admonition type="info" %}
-If you change the names of the plugins directory or the files, make sure to change them also in the Redocly configuration file [when registering your plugins and decorators](#add-a-decorator-and-associate-it-with-an-environment-variable).
+The `plugins` folder and the `plugin.js` file can be renamed.
+In that case, the import path above, and the `plugins` entry in the Redocly configuration file, must [match the new names](#configure-the-plugin-for-use).
 {% /admonition %}
 
-## Add a decorator and associate it with an environment variable
+## Add a decorator
 
-In this step, add a decorator and define the environment variable associated with it.
+The decorator is the function that modifies the API description.
+It accepts a `serverUrl` parameter from the Redocly configuration file and overwrites the URL on every `Server` node in the document.
 
 1. Inside the `plugins` folder, create a `decorators` folder.
 
@@ -125,14 +106,13 @@ export default function ReplaceServersURL({serverUrl}) {
 3. Save the file.
 
 {% admonition type="info" %}
-If you change the name of the decorators directory, make sure to also change it in line 1 of the [`plugin.js` file](#create-a-custom-plugin).
+The `decorators` folder can be renamed.In that case, keep the import path in the [`plugin.js` file](#create-a-custom-plugin) in sync with the new name.
 {% /admonition %}
 
 ## Configure the plugin for use
 
-To use the decorators, register your `plugins` and `decorators` in the [Redocly configuration file](../configuration/index.md).
-
-- In your Redocly configuration file, register your plugins and decorators:
+Register the plugin in the [Redocly configuration file](../configuration/index.md) and create one API entry per environment.
+Each API entry passes a different `serverUrl` value to the same decorator, producing multiple outputs from a single source file.
 
 ```yaml
 apis:
@@ -177,7 +157,7 @@ servers:
 
 ### Check the configuration for the "proxy" server
 
-1. Run the following command bundles the `original.yaml` API with the "proxy" server URL.
+1. Run the following command to bundle the `original.yaml` API with the "proxy" server URL.
 
 ```shell
 npx @redocly/cli@latest bundle sample@v1-proxy
