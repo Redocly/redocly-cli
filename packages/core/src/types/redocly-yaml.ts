@@ -594,6 +594,7 @@ const ConfigurableRule: NodeType = {
     where: listOf('Where'),
     message: { type: 'string' },
     suggest: { type: 'array', items: { type: 'string' } },
+    reference: { type: 'string' },
     severity: { enum: ['error', 'warn', 'off'] },
   },
   required: ['subject', 'assertions'],

@@ -284,6 +284,7 @@ export function formatProblems(
       `[${idx + 1}] ${bgColor(fileWithLoc)} ${atPointer}\n\n` +
       `${problem.message}\n\n` +
       formatDidYouMean(problem) +
+      (problem.reference ? `Reference: ${colorize.blue(problem.reference)}\n\n` : '') +
       getCodeframe(loc, color) +
       '\n\n' +
       formatFrom(cwd, problem.from) +
@@ -440,7 +441,9 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
           break;
       }
       const suggest = formatDidYouMean(problem);
-      const message = suggest !== '' ? problem.message + '\n\n' + suggest : problem.message;
+      const reference = problem.reference ? `Reference: ${problem.reference}\n\n` : '';
+      const message =
+        problem.message + (suggest !== '' || reference !== '' ? '\n\n' : '') + suggest + reference;
       const properties = {
         title: problem.ruleId,
         file: isAbsoluteUrl(location.source.absoluteRef)

@@ -390,6 +390,41 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results_with_createConfig)).toEqual(replaceSourceWithRef(results));
   });
 
+  it('lintFromString should propagate reference from a configurable rule to the resulting problem', async () => {
+    const source = outdent`
+      openapi: 3.0.2
+      info:
+        title: Example
+        version: '1.0'
+      paths:
+        /user:
+          get:
+            responses:
+              '200':
+                description: OK
+    `;
+    const results = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await createConfig(outdent`
+        rules:
+          rule/operation-summary-required:
+            subject:
+              type: Operation
+              property: summary
+            assertions:
+              defined: true
+            message: Operation summary is required
+            severity: error
+            reference: https://docs.example.com/style-guide#operation-summary
+      `),
+    });
+
+    const problem = results.find((r) => r.ruleId === 'rule/operation-summary-required');
+    expect(problem).toBeDefined();
+    expect(problem?.reference).toEqual('https://docs.example.com/style-guide#operation-summary');
+  });
+
   it('lint should work', async () => {
     const results = await lint({
       ref: path.join(__dirname, 'fixtures/lint/openapi.yaml'),

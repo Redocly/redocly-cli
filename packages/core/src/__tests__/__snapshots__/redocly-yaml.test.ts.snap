@@ -488,6 +488,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "message": {
         "type": "string",
       },
+      "reference": {
+        "type": "string",
+      },
       "severity": {
         "enum": [
           "error",

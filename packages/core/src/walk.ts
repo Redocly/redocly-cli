@@ -79,6 +79,7 @@ export type Problem = {
   from?: LocationObject;
   forceSeverity?: RuleSeverity;
   ruleId?: string;
+  reference?: string;
 };
 
 export type NormalizedProblem = {
@@ -89,6 +90,7 @@ export type NormalizedProblem = {
   from?: LocationObject;
   suggest: string[];
   ignored?: boolean;
+  reference?: string;
 };
 
 export type WalkContext = {
