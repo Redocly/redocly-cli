@@ -124,7 +124,7 @@ export function makeBundleVisitor({
   keepUrlRefs: boolean;
   componentRenamingConflicts?: RuleSeverity;
 }) {
-  let components: Record<string, Record<string, any>>;
+  let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
 
   const visitor: Oas3Visitor | Oas2Visitor = {

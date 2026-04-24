@@ -17,6 +17,7 @@ import {
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { nextTick } from './utils/next-tick.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
@@ -193,17 +194,17 @@ export type ResolvedRefMap = Map<string, ResolvedRef>;
 
 type RefFrame = {
   prev: RefFrame | null;
-  node: any;
+  node: unknown;
 };
 
-function pushRef(head: RefFrame, node: any): RefFrame {
+function pushRef(head: RefFrame, node: unknown): RefFrame {
   return {
     prev: head,
     node,
   };
 }
 
-function hasRef(head: RefFrame | null, node: any): boolean {
+function hasRef(head: RefFrame | null, node: unknown): boolean {
   while (head) {
     if (head.node === node) {
       return true;
@@ -236,18 +237,18 @@ export async function resolveDocument(opts: {
   return resolvedRefMap;
 
   function resolveRefsInParallel(
-    rootNode: any,
+    rootNode: unknown,
     rootNodeDocument: Document,
     rootNodePointer: string,
-    type: any
+    type: NormalizedNodeType
   ) {
     const rootNodeDocAbsoluteRef = rootNodeDocument.source.absoluteRef;
-    const anchorRefsMap: Map<string, any> = new Map();
+    const anchorRefsMap: Map<string, unknown> = new Map();
 
     walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer);
 
-    function walk(node: any, type: NormalizedNodeType, nodeAbsoluteRef: string) {
-      if (typeof node !== 'object' || node === null) {
+    function walk(node: unknown, type: NormalizedNodeType, nodeAbsoluteRef: string) {
+      if (!isPlainObject(node) && !Array.isArray(node)) {
         return;
       }
 
@@ -257,11 +258,6 @@ export async function resolveDocument(opts: {
       }
 
       seenNodes.add(nodeId);
-
-      const [_, anchor] = Object.entries(node).find(([key]) => key === '$anchor') || [];
-      if (anchor) {
-        anchorRefsMap.set(`#${anchor}`, node);
-      }
 
       if (Array.isArray(node)) {
         const itemsType = type.items;
@@ -289,6 +285,11 @@ export async function resolveDocument(opts: {
           );
         }
         return;
+      }
+
+      const [_, anchor] = Object.entries(node).find(([key]) => key === '$anchor') || [];
+      if (anchor) {
+        anchorRefsMap.set(`#${anchor}`, node);
       }
 
       for (const propName of Object.keys(node)) {
@@ -342,7 +343,7 @@ export async function resolveDocument(opts: {
       if (isExternalValue(node)) {
         const promise = followRef(
           rootNodeDocument,
-          { $ref: node.externalValue },
+          { $ref: node.externalValue as string },
           {
             prev: null,
             node,
@@ -352,7 +353,7 @@ export async function resolveDocument(opts: {
             resolveRefsInParallel(
               resolvedRef.node,
               resolvedRef.document,
-              resolvedRef.nodePointer!,
+              resolvedRef.nodePointer,
               type
             );
           }
@@ -420,15 +421,18 @@ export async function resolveDocument(opts: {
         nodePointer: '#/',
       };
 
-      let target = targetDoc.parsed as any;
+      let target = targetDoc.parsed;
 
       const segments = pointer;
       for (const segment of segments) {
-        if (typeof target !== 'object') {
-          target = undefined;
-          break;
-        } else if (target[segment] !== undefined) {
+        if (isPlainObject(target) && target[segment] !== undefined) {
           target = target[segment];
+          resolvedRef.nodePointer = joinPointer(
+            resolvedRef.nodePointer!,
+            escapePointerFragment(segment)
+          );
+        } else if (Array.isArray(target) && target[+segment] !== undefined) {
+          target = target[+segment];
           resolvedRef.nodePointer = joinPointer(
             resolvedRef.nodePointer!,
             escapePointerFragment(segment)
@@ -437,16 +441,22 @@ export async function resolveDocument(opts: {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
           targetDoc = resolvedRef.document || targetDoc;
 
-          if (typeof resolvedRef.node !== 'object') {
+          if (isPlainObject(resolvedRef.node)) {
+            target = resolvedRef.node[segment];
+            resolvedRef.nodePointer = joinPointer(
+              resolvedRef.nodePointer!,
+              escapePointerFragment(segment)
+            );
+          } else if (Array.isArray(resolvedRef.node)) {
+            target = resolvedRef.node[+segment];
+            resolvedRef.nodePointer = joinPointer(
+              resolvedRef.nodePointer!,
+              escapePointerFragment(segment)
+            );
+          } else {
             target = undefined;
             break;
           }
-
-          target = resolvedRef.node[segment];
-          resolvedRef.nodePointer = joinPointer(
-            resolvedRef.nodePointer!,
-            escapePointerFragment(segment)
-          );
         } else {
           target = undefined;
           break;
