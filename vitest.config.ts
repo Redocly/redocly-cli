@@ -20,8 +20,8 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/utils/assert-node-version.ts',
         ],
         thresholds: {
-          lines: 79,
-          functions: 82,
+          lines: 80,
+          functions: 83,
           statements: 79,
           branches: 71,
         },

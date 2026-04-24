@@ -41,7 +41,7 @@ describe('Arazzo no-criteria-xpath', () => {
               successCriteria:
                 - condition: $statusCode == 201
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type:
                     type: jsonpath
                     version: draft-goessner-dispatch-jsonpath-00
