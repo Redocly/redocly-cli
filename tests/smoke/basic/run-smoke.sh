@@ -8,8 +8,8 @@ echo "Directory content:"
 ls -a
 echo
 
-# Executing the command provided as the first argument
-eval "$1"
+# Executing the command provided as the first argument 
+$1
 
 # Actual smoke test - executing the command provided as the second argument
 $2 redocly-version
