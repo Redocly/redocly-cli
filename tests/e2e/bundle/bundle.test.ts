@@ -206,7 +206,7 @@ describe('bundle with ref siblings', () => {
     const testPath = join(__dirname, `ref-siblings`);
     const args = getParams(indexEntryPoint, ['bundle', 'openapi.yaml']);
 
-    const result = cleanupOutput(getCommandOutput(args, { testPath }));
+    const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
@@ -214,7 +214,7 @@ describe('bundle with ref siblings', () => {
     const testPath = join(__dirname, `ref-siblings`);
     const args = getParams(indexEntryPoint, ['bundle', 'openapi.yaml', '--dereferenced']);
 
-    const result = cleanupOutput(getCommandOutput(args, { testPath }));
+    const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
   });
 });
