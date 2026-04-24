@@ -6,9 +6,12 @@ import { isDefined } from '../../utils/is-defined.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { AjvValidator } from '../ajv.js';
 import { validateExample } from '../utils.js';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
+  const validator = new AjvValidator();
+
   const skip = (mediaType: Oas3MediaType) => {
     return mediaType.schema === undefined;
   };
@@ -45,6 +48,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
       validateExample(isMultiple ? example.value : example, mediaType.schema!, {
         location,
         ctx,
+        validator,
         allowAdditionalProperties: !!opts.allowAdditionalProperties,
         ajvContext: context,
       });

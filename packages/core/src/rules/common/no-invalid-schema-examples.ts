@@ -2,9 +2,11 @@ import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import { isDefined } from '../../utils/is-defined.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { AjvValidator } from '../ajv.js';
 import { validateExample } from '../utils.js';
 
 export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts) => {
+  const validator = new AjvValidator();
   return {
     Schema: {
       leave(schema: Oas3_1Schema | Oas3Schema, ctx: UserContext) {
@@ -15,6 +17,7 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts) => {
             validateExample(example, schema, {
               location: ctx.location.child(['examples', examples.indexOf(example)]),
               ctx,
+              validator,
               allowAdditionalProperties: !!opts.allowAdditionalProperties,
             });
           }
@@ -33,6 +36,7 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts) => {
           validateExample(schema.example, schema, {
             location: ctx.location.child('example'),
             ctx,
+            validator,
             allowAdditionalProperties: !!opts.allowAdditionalProperties,
           });
         }
