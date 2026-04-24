@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: E2E bundle - ref with sibling keys
+  version: 1.0.0
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: https://api.redocly.com
+security: []
+paths:
+  /sample:
+    get:
+      summary: Sample GET (parameter $ref with sibling name)
+      operationId: getSample
+      parameters:
+        - $ref: '#/components/parameters/id'
+          name: Referenced model
+      responses:
+        '200':
+          description: 200 response with JSON schema using $ref and sibling properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/test'
+                properties:
+                  second:
+                    $ref: '#/components/schemas/reference'
+                  third:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/reference'
+                additionalProperties:
+                  title: Referenced model
+                  type: string
+  /submit:
+    post:
+      summary: Sample POST (requestBody $ref with sibling description)
+      operationId: postSubmit
+      requestBody:
+        $ref: '#/components/requestBodies/SampleBody'
+        description: Referenced model
+      responses:
+        '204':
+          description: No content
+components:
+  parameters:
+    id:
+      name: id
+      in: query
+      required: false
+      schema:
+        type: string
+  schemas:
+    test:
+      type: object
+      properties:
+        first:
+          type: integer
+      additionalProperties: false
+    reference:
+      title: Referenced model
+      type: string
+  requestBodies:
+    SampleBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              value:
+                type: string
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.

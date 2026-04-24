@@ -843,4 +843,69 @@ describe('sibling $ref resolution by spec', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should bundle nested external refs inside Schema $ref sibling properties', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/sibling-refs/openapi-schema-ref-sibling-nested-external.yaml'
+      ),
+    });
+
+    const parsed = res.parsed as any;
+    const nestedSiblingRef =
+      parsed.paths['/sample'].get.responses['200'].content['application/json'].schema.properties
+        .second.$ref;
+
+    expect(problems).toHaveLength(0);
+    expect(nestedSiblingRef).toBe('#/components/schemas/Second');
+    expect(parsed.components.schemas.Second).toMatchObject({
+      title: 'Referenced model',
+      type: 'string',
+    });
+  });
+
+  it('should keep sibling fields defined next to a schema $ref wrapper', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleFromString({
+      source: outdent`
+        openapi: 3.1.0
+        info:
+          title: Sibling fields on schema $ref wrapper
+          version: 1.0.0
+        paths:
+          /sample:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/IdReadOnly'
+        components:
+          schemas:
+            Id:
+              type: integer
+              description: A generic id
+            IdReadOnly:
+              $ref: '#/components/schemas/Id'
+              readOnly: true
+              description: A generic id that is specifically read only
+      `,
+      config: await createConfig({}),
+    });
+
+    const wrappedSchema = (parsed as any).components.schemas.IdReadOnly;
+
+    expect(problems).toHaveLength(0);
+    expect(wrappedSchema).toMatchObject({
+      $ref: '#/components/schemas/Id',
+      readOnly: true,
+      description: 'A generic id that is specifically read only',
+    });
+  });
 });
