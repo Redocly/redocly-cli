@@ -13,9 +13,8 @@ import type { Oas3Schema, Oas3_1Schema } from '../typings/openapi.js';
 import type { ResolveFn } from '../walk.js';
 
 type AjvDialect = '2020' | 'draft4';
-type AnyAjv = Ajv2020 | AjvDraft4;
 
-const ajvInstances: Partial<Record<AjvDialect, AnyAjv>> = {};
+const ajvInstances: Partial<Record<AjvDialect, any>> = {};
 
 export function releaseAjvInstance() {
   ajvInstances['2020'] = undefined;
@@ -31,7 +30,7 @@ function getDialectBySpecVersion(specVersion: SpecVersion): AjvDialect {
   return '2020';
 }
 
-function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
+function getAjv(resolve: ResolveFn, dialect: AjvDialect): any {
   if (!ajvInstances[dialect]) {
     const schemaIdKey = getSchemaIdKey(dialect);
 
@@ -59,9 +58,10 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
       logger: false,
     };
 
-    ajvInstances[dialect] = dialect === '2020' ? new Ajv2020(options) : new AjvDraft4(options);
+    ajvInstances[dialect] =
+      dialect === '2020' ? new (Ajv2020 as any)(options) : new (AjvDraft4 as any)(options);
 
-    addFormats(ajvInstances[dialect] as any);
+    (addFormats as any)(ajvInstances[dialect]);
   }
   return ajvInstances[dialect];
 }
