@@ -223,8 +223,8 @@ export interface Oas3Discriminator {
 export interface Oas3MediaType<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   schema?: Referenced<T>;
   example?: unknown;
-  examples?: { [name: string]: Referenced<Oas3Example> };
-  encoding?: { [field: string]: Oas3Encoding<T> };
+  examples?: Record<string, Referenced<Oas3Example>>;
+  encoding?: Record<string, Oas3Encoding<T>>;
   itemSchema?: Referenced<T>; // added in OAS 3.2
   prefixEncoding?: Oas3Encoding<T>[]; // added in OAS 3.2
   itemEncoding?: Referenced<Oas3Encoding<T>>; // added in OAS 3.2
