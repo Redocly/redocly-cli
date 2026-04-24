@@ -200,3 +200,21 @@ describe('bundle with long description', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
   });
 });
+
+describe('bundle with ref siblings', () => {
+  it('should resolve schema ref siblings', async () => {
+    const testPath = join(__dirname, `ref-siblings`);
+    const args = getParams(indexEntryPoint, ['bundle', 'openapi.yaml']);
+
+    const result = cleanupOutput(getCommandOutput(args, { testPath }));
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  it('should resolve schema ref siblings in dereferenced output', async () => {
+    const testPath = join(__dirname, `ref-siblings`);
+    const args = getParams(indexEntryPoint, ['bundle', 'openapi.yaml', '--dereferenced']);
+
+    const result = cleanupOutput(getCommandOutput(args, { testPath }));
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
+  });
+});
