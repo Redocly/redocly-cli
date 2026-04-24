@@ -1,7 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
 import { exitWithError } from '../../../utils/error.js';
-import type { RemoteScorecardAndPlugins, Project } from '../types.js';
+import type { RemoteScorecardAndPlugins, Project, ProjectConfig } from '../types.js';
 
 export type FetchRemoteScorecardAndPluginsParams = {
   projectUrl: string;
@@ -29,7 +29,7 @@ export async function fetchRemoteScorecardAndPlugins({
   const { residency, orgSlug, projectSlug } = parsedProjectUrl;
 
   try {
-    const project = await fetchProjectConfigBySlugs({
+    const project = await fetchProjectBySlugs({
       residency,
       orgSlug,
       projectSlug,
@@ -37,7 +37,17 @@ export async function fetchRemoteScorecardAndPlugins({
       isApiKey,
       verbose,
     });
-    const scorecard = project?.config.scorecardClassic || project?.config.scorecard;
+
+    const projectConfig = await fetchProjectConfig({
+      residency,
+      orgId: project.organizationId,
+      projectId: project.id,
+      auth,
+      isApiKey,
+      verbose,
+    });
+
+    const scorecard = projectConfig?.config?.scorecardClassic || projectConfig?.config?.scorecard;
 
     if (!scorecard) {
       throw new Error('No scorecard configuration found.');
@@ -48,15 +58,14 @@ export async function fetchRemoteScorecardAndPlugins({
       logger.info(`Scorecard levels found: ${scorecard.levels?.length || 0}\n`);
     }
 
-    const plugins = project.config.pluginsUrl
-      ? await fetchPlugins(project.config.pluginsUrl, verbose)
-      : undefined;
+    const pluginsUrl = projectConfig?.config?.pluginsUrl;
+    const plugins = pluginsUrl ? await fetchPlugins(pluginsUrl, verbose) : undefined;
 
     if (verbose) {
       if (plugins) {
-        logger.info(`Successfully fetched plugins from ${project.config.pluginsUrl}\n`);
-      } else if (project.config.pluginsUrl) {
-        logger.info(`No plugins were loaded from ${project.config.pluginsUrl}\n`);
+        logger.info(`Successfully fetched plugins from ${pluginsUrl}\n`);
+      } else if (pluginsUrl) {
+        logger.info(`No plugins were loaded from ${pluginsUrl}\n`);
       } else {
         logger.info(`No custom plugins configured for this scorecard.\n`);
       }
@@ -98,7 +107,7 @@ function parseProjectUrl(
   };
 }
 
-type FetchProjectConfigBySlugsParams = {
+type FetchProjectBySlugsParams = {
   residency: string;
   orgSlug: string;
   projectSlug: string;
@@ -107,14 +116,14 @@ type FetchProjectConfigBySlugsParams = {
   verbose?: boolean;
 };
 
-async function fetchProjectConfigBySlugs({
+async function fetchProjectBySlugs({
   residency,
   orgSlug,
   projectSlug,
   auth,
   isApiKey,
   verbose = false,
-}: FetchProjectConfigBySlugsParams): Promise<Project | undefined> {
+}: FetchProjectBySlugsParams): Promise<Project> {
   const authHeaders = createAuthHeaders(auth, isApiKey);
   const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
 
@@ -139,10 +148,59 @@ async function fetchProjectConfigBySlugs({
   }
 
   if (verbose) {
-    logger.info(`Successfully received project configuration.\n`);
+    logger.info(`Successfully received project.\n`);
   }
 
   return projectResponse.json();
+}
+
+type FetchProjectConfigParams = {
+  residency: string;
+  orgId: string;
+  projectId: string;
+  auth: string;
+  isApiKey: boolean;
+  verbose?: boolean;
+};
+
+async function fetchProjectConfig({
+  residency,
+  orgId,
+  projectId,
+  auth,
+  isApiKey,
+  verbose = false,
+}: FetchProjectConfigParams): Promise<ProjectConfig> {
+  const authHeaders = createAuthHeaders(auth, isApiKey);
+  const projectConfigUrl = new URL(`${residency}/api/orgs/${orgId}/project-configs/${projectId}`);
+
+  const projectConfigResponse = await fetch(projectConfigUrl, { headers: authHeaders });
+
+  if (verbose) {
+    logger.info(`Project config fetch response status: ${projectConfigResponse.status}\n`);
+  }
+
+  if (projectConfigResponse.status === 401 || projectConfigResponse.status === 403) {
+    if (verbose) {
+      logger.error(`Authentication failed with status ${projectConfigResponse.status}.\n`);
+      logger.error(`Check that your credentials are valid and have the necessary permissions.\n`);
+    }
+    throw new Error(
+      `Unauthorized access to project config: ${projectId}. Please check your credentials.`
+    );
+  }
+
+  if (projectConfigResponse.status !== 200) {
+    throw new Error(
+      `Failed to fetch project config: ${projectId}. Status: ${projectConfigResponse.status}`
+    );
+  }
+
+  if (verbose) {
+    logger.info(`Successfully received project configuration.\n`);
+  }
+
+  return projectConfigResponse.json();
 }
 
 async function fetchPlugins(pluginsUrl: string, verbose = false): Promise<string | undefined> {
