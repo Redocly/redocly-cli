@@ -42,6 +42,35 @@ import {
 const pluginsCache: Map<string, Plugin[]> = new Map();
 let pluginsCacheVersion = 0;
 
+// Propagates `?v=N` from a parent URL to nested `file:` imports so the whole
+// plugin subgraph is reloaded after `clearPluginsCache()`, not just the entry.
+const ESM_CACHE_BUST_HOOK_SOURCE = `
+export async function resolve(specifier, context, nextResolve) {
+  const result = await nextResolve(specifier, context);
+  if (!result.url.startsWith('file:')) return result;
+  if (!context.parentURL) return result;
+  const parentV = new URL(context.parentURL).searchParams.get('v');
+  if (!parentV) return result;
+  const childURL = new URL(result.url);
+  if (childURL.pathname.includes('/node_modules/')) return result;
+  if (!childURL.searchParams.has('v')) {
+    childURL.searchParams.set('v', parentV);
+  }
+  return { ...result, url: childURL.href, shortCircuit: true };
+}
+`;
+
+if (typeof module.register === 'function') {
+  try {
+    module.register(
+      `data:text/javascript,${encodeURIComponent(ESM_CACHE_BUST_HOOK_SOURCE)}`,
+      import.meta.url
+    );
+  } catch {
+    // Best-effort: without the hook, only the entry plugin is cache-busted.
+  }
+}
+
 export type PluginResolveInfo = {
   absolutePath: string;
   rawPath: string;
@@ -193,7 +222,9 @@ export const preResolvePluginPath = (
 };
 
 export const clearPluginsCache = (): void => {
-  // Evict CommonJS entries from `require.cache`; no-op for ESM paths.
+  // CJS: evict matching entries from `require.cache`.
+  // ESM: bumping `pluginsCacheVersion` makes the next `import()` use a fresh
+  // `?v=N` URL; the loader hook propagates it to nested imports.
   for (const pluginPath of pluginsCache.keys()) {
     const nodeRequire = module.createRequire(pluginPath);
     const pluginDir = path.dirname(pluginPath) + path.sep;
@@ -209,7 +240,6 @@ export const clearPluginsCache = (): void => {
 
 async function loadPluginModule(absolutePluginPath: string): Promise<Record<string, unknown>> {
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
-  // Cache-bust ESM imports after `clearPluginsCache()`; ignored for CJS.
   if (pluginsCacheVersion) {
     pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
   }
