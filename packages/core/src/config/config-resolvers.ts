@@ -42,20 +42,6 @@ import {
 const pluginsCache: Map<string, Plugin[]> = new Map();
 let pluginsCacheVersion = 0;
 
-export const clearPluginsCache = (): void => {
-  for (const pluginPath of pluginsCache.keys()) {
-    const nodeRequire = module.createRequire(pluginPath);
-    const pluginDir = path.dirname(pluginPath) + path.sep;
-    for (const cachedPath of Object.keys(nodeRequire.cache)) {
-      if (cachedPath.startsWith(pluginDir)) {
-        delete nodeRequire.cache[cachedPath];
-      }
-    }
-  }
-  pluginsCache.clear();
-  pluginsCacheVersion++;
-};
-
 export type PluginResolveInfo = {
   absolutePath: string;
   rawPath: string;
@@ -206,13 +192,24 @@ export const preResolvePluginPath = (
   }
 };
 
-async function loadPluginModule(absolutePluginPath: string): Promise<Record<string, unknown>> {
-  if (absolutePluginPath.endsWith('.cjs')) {
-    return module.createRequire(absolutePluginPath)(absolutePluginPath);
+export const clearPluginsCache = (): void => {
+  // Evict CommonJS entries from `require.cache`; no-op for ESM paths.
+  for (const pluginPath of pluginsCache.keys()) {
+    const nodeRequire = module.createRequire(pluginPath);
+    const pluginDir = path.dirname(pluginPath) + path.sep;
+    for (const cachedPath of Object.keys(nodeRequire.cache)) {
+      if (cachedPath.startsWith(pluginDir)) {
+        delete nodeRequire.cache[cachedPath];
+      }
+    }
   }
+  pluginsCache.clear();
+  pluginsCacheVersion++;
+};
 
+async function loadPluginModule(absolutePluginPath: string): Promise<Record<string, unknown>> {
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
-  // Force re-import after `clearPluginsCache()` by using a unique URL each time.
+  // Cache-bust ESM imports after `clearPluginsCache()`; ignored for CJS.
   if (pluginsCacheVersion) {
     pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
   }
