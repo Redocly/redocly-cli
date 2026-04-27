@@ -1,7 +1,6 @@
 import { getProxyAgent } from '@redocly/openapi-core';
 
-export const DEFAULT_FETCH_TIMEOUT = 3000;
-export const SOURCE_FETCH_TIMEOUT = 6000;
+export const DEFAULT_FETCH_TIMEOUT = 6000;
 
 export type FetchWithTimeoutOptions = RequestInit & {
   timeout?: number;
