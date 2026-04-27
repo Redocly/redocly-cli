@@ -4,11 +4,7 @@ import * as url from 'node:url';
 
 import type { Plugin } from './types.js';
 
-// Plugins instantiated during the current process, keyed by absolute path.
-// `clearPluginsCache()` drops the memo, evicts CJS deps from `require.cache`,
-// and bumps `?v=N` so subsequent ESM imports re-evaluate. The resolver hook
-// below propagates `?v=N` from a parent URL to nested `file:` imports so the
-// whole plugin subgraph reloads, not just the entry.
+// Cache instantiated plugins during a single execution
 export const pluginsCache: Map<string, Plugin[]> = new Map();
 let pluginsCacheVersion = 0;
 let isEsmCacheBustHookRegistered = false;
