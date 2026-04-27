@@ -56,21 +56,22 @@ The command identifies the operations with the lowest scores and provides reason
 
 ```bash
 redocly score <api>
-redocly score <api> [--format=<option>]
+redocly score <api> [--format=<option>] [--suggestions]
 ```
 
 ## Options
 
-| Option               | Type    | Description                                                                                                                                    |
-| -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| api                  | string  | **REQUIRED.** Path to the API description filename or alias that you want to score. Refer to [the API section](#specify-api) for more details. |
-| --config             | string  | Specify path to the [configuration file](../configuration/index.md).                                                                           |
-| --format             | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                |
-| --operation-details  | boolean | Print a per-operation metrics table sorted by property count.                                                                                  |
-| --debug-operation-id | string  | Print a detailed schema breakdown for a specific operation (by `operationId` or `METHOD /path`).                                               |
-| --help               | boolean | Show help.                                                                                                                                     |
-| --lint-config        | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
-| --version            | boolean | Show version number.                                                                                                                           |
+| Option               | Type    | Description                                                                                                                                                   |
+| -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                  | string  | **REQUIRED.** Path to the API description filename or alias that you want to score. Refer to [the API section](#specify-api) for more details.                |
+| --config             | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                          |
+| --format             | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                               |
+| --operation-details  | boolean | Print a per-operation metrics table sorted by property count.                                                                                                 |
+| --debug-operation-id | string  | Print a detailed schema breakdown for a specific operation (by `operationId` or `METHOD /path`).                                                              |
+| --suggestions        | boolean | Append copy-paste prompts (for LLM-assisted editing) for each hotspot operation. Also adds a `suggestion` field per hotspot in JSON output. Default: `false`. |
+| --help               | boolean | Show help.                                                                                                                                                    |
+| --lint-config        | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                            |
+| --version            | boolean | Show version number.                                                                                                                                          |
 
 ## Examples
 
@@ -131,3 +132,11 @@ redocly score openapi.yaml --format=json
 The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, and hotspot details with reasoning.
 
 The JSON format is suitable for CI pipelines, quality gates, or feeding results into dashboards.
+
+### Suggestions (LLM prompts)
+
+With `--suggestions`, the command adds an **Agent prompts (copy/paste)** section after hotspots in stylish output. Each hotspot gets a fenced block containing a self-contained prompt you can paste into an assistant to improve that operation in your OpenAPI file.
+
+With `--format=json` and `--suggestions`, each hotspot object includes a `suggestion` string (the same prompt text). Structured `issues` codes are not included in JSON output.
+
+These prompts are advisory; review generated edits before committing them.
