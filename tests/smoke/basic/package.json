@@ -13,5 +13,8 @@
     "redocly-respect": "redocly respect museum-tickets.arazzo.yaml"
   },
   "author": "redocly",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@redocly/cli": "file:./redocly-cli.tgz"
+  }
 }

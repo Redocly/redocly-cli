@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 2.30.1
+
+## 2.30.0
+
+### Minor Changes
+
+- Added a `reference` property to `context.report()` so that custom rules can link to external documentation.
+  When set, the URL is rendered beneath the message in both stylish and `github-actions` output formats.
+  Configurable rules also accept a top-level `reference` field.
+
 ## 2.29.2
 
 ### Patch Changes

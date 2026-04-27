@@ -30,6 +30,7 @@ export type RawAssertion = AssertionDefinition & {
   where?: AssertionDefinition[];
   message?: string;
   suggest?: string[];
+  reference?: string;
   severity?: RuleSeverity;
 };
 

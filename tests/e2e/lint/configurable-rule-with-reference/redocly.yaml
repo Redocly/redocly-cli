@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/named-examples-pascal-case:
+    subject:
+      type: NamedExamples
+    assertions:
+      casing: PascalCase
+    message: NamedExamples key must be in PascalCase
+    reference: https://redocly.com/docs/cli/rules/configurable-rules
