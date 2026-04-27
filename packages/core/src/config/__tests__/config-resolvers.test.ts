@@ -1,10 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import util from 'node:util';
 
 import { Source } from '../../resolve.js';
 import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
-import { clearPluginsCache, resolveConfig } from '../config-resolvers.js';
+import { resolveConfig } from '../config-resolvers.js';
 import { Config } from '../config.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
@@ -121,46 +120,6 @@ describe('resolveConfig', () => {
       'operation-description': 'error',
       'path-http-verbs-order': 'error',
     });
-  });
-
-  it('should instantiate cjs and esm plugins once', async () => {
-    // Called by plugin during init
-    const deprecateSpy = vi.spyOn(util, 'deprecate');
-
-    const config = {
-      ...baseGovernanceConfig,
-      extends: ['local-config-with-plugin-init.yaml'],
-    };
-
-    await resolveConfig({
-      rawConfigDocument: makeDocument(config, configPath),
-      configPath,
-    });
-
-    expect(deprecateSpy).toHaveBeenCalledTimes(2);
-
-    await resolveConfig({
-      rawConfigDocument: makeDocument(config, configPath),
-      configPath,
-    });
-
-    // Should not execute the init logic again
-    expect(deprecateSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it('should resolve config after clearPluginsCache', async () => {
-    const { plugins: before } = await resolveConfig({
-      rawConfigDocument: makeDocument(baseGovernanceConfig),
-    });
-    expect(before?.length).toBe(1);
-
-    clearPluginsCache();
-
-    const { plugins: after } = await resolveConfig({
-      rawConfigDocument: makeDocument(baseGovernanceConfig),
-    });
-    expect(after?.length).toBe(1);
-    expect(after?.[0].id).toBe('');
   });
 
   it('should resolve realm plugin properties', async () => {

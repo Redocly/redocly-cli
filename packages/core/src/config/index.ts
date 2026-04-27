@@ -5,3 +5,4 @@ export * from './builtIn.js';
 export * from './load.js';
 export * from './utils.js';
 export * from './config-resolvers.js';
+export { clearPluginsCache } from './plugins-cache.js';

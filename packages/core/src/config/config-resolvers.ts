@@ -22,6 +22,7 @@ import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
+import { loadPluginModule, pluginsCache } from './plugins-cache.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -37,39 +38,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-
-// Cache instantiated plugins during a single execution
-const pluginsCache: Map<string, Plugin[]> = new Map();
-let pluginsCacheVersion = 0;
-
-// Propagates `?v=N` from a parent URL to nested `file:` imports so the whole
-// plugin subgraph is reloaded after `clearPluginsCache()`, not just the entry.
-const ESM_CACHE_BUST_HOOK_SOURCE = `
-export async function resolve(specifier, context, nextResolve) {
-  const result = await nextResolve(specifier, context);
-  if (!result.url.startsWith('file:')) return result;
-  if (!context.parentURL) return result;
-  const parentV = new URL(context.parentURL).searchParams.get('v');
-  if (!parentV) return result;
-  const childURL = new URL(result.url);
-  if (childURL.pathname.includes('/node_modules/')) return result;
-  if (!childURL.searchParams.has('v')) {
-    childURL.searchParams.set('v', parentV);
-  }
-  return { ...result, url: childURL.href, shortCircuit: true };
-}
-`;
-
-if (typeof module.register === 'function') {
-  try {
-    module.register(
-      `data:text/javascript,${encodeURIComponent(ESM_CACHE_BUST_HOOK_SOURCE)}`,
-      import.meta.url
-    );
-  } catch {
-    // Best-effort: without the hook, only the entry plugin is cache-busted.
-  }
-}
 
 export type PluginResolveInfo = {
   absolutePath: string;
@@ -220,31 +188,6 @@ export const preResolvePluginPath = (
     throw new Error(`Plugin "${plugin}" not found.`);
   }
 };
-
-export const clearPluginsCache = (): void => {
-  // CJS: evict matching entries from `require.cache`.
-  // ESM: bumping `pluginsCacheVersion` makes the next `import()` use a fresh
-  // `?v=N` URL; the loader hook propagates it to nested imports.
-  for (const pluginPath of pluginsCache.keys()) {
-    const nodeRequire = module.createRequire(pluginPath);
-    const pluginDir = path.dirname(pluginPath) + path.sep;
-    for (const cachedPath of Object.keys(nodeRequire.cache)) {
-      if (cachedPath.startsWith(pluginDir)) {
-        delete nodeRequire.cache[cachedPath];
-      }
-    }
-  }
-  pluginsCache.clear();
-  pluginsCacheVersion++;
-};
-
-async function loadPluginModule(absolutePluginPath: string): Promise<Record<string, unknown>> {
-  const pluginUrl = url.pathToFileURL(absolutePluginPath);
-  if (pluginsCacheVersion) {
-    pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
-  }
-  return import(pluginUrl.href);
-}
 
 export async function resolvePlugins(
   plugins: (string | Plugin)[],
