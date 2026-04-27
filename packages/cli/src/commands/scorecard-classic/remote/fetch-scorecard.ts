@@ -234,8 +234,8 @@ async function fetchPlugins(pluginsUrl: string, verbose = false): Promise<string
 
 function createAuthHeaders(auth: string, isApiKey: boolean): Record<string, string> {
   if (isApiKey) {
-    return { Authorization: `Bearer ${auth}` };
+    return { Authorization: `Bearer ${auth}`, version: '2' };
   }
 
-  return { Cookie: `accessToken=${auth}` };
+  return { Cookie: `accessToken=${auth}`, version: '2' };
 }

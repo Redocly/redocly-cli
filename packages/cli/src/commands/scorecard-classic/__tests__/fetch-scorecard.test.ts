@@ -311,7 +311,7 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(URL),
       expect.objectContaining({
-        headers: { Cookie: `accessToken=${testToken}` },
+        headers: { Cookie: `accessToken=${testToken}`, version: '2' },
       })
     );
   });
@@ -344,7 +344,7 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(URL),
       expect.objectContaining({
-        headers: { Authorization: `Bearer ${apiKey}` },
+        headers: { Authorization: `Bearer ${apiKey}`, version: '2' },
       })
     );
   });
