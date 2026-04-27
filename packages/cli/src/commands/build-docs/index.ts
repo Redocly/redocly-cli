@@ -1,17 +1,15 @@
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { default as redoc } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { BuildDocsArgv } from './types.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
-
-const packageJson = createRequire(import.meta.url ?? __dirname)('../../../package.json');
 
 export const handlerBuildCommand = async ({
   argv,
@@ -31,8 +29,6 @@ export const handlerBuildCommand = async ({
     redocOptions: getObjectOrJSON(argv.theme?.openapi, config.forAlias(alias)),
   };
 
-  const redocCurrentVersion = packageJson.dependencies.redoc;
-
   try {
     const elapsed = getExecutionTime(startedAt);
 
@@ -43,7 +39,7 @@ export const handlerBuildCommand = async ({
     const pageHTML = await getPageHTML(
       api,
       pathToApi,
-      { ...options, redocCurrentVersion },
+      { ...options, redocCurrentVersion: redocVersion },
       argv.config
     );
 

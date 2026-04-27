@@ -50,7 +50,5 @@ export function cleanupOutput(message: string) {
   const cwdRegexp = new RegExp(process.cwd(), 'g');
 
   const cleanedFromCwd = message.replace(cwdRegexp, '.');
-  const cleanedFromVersion = cleanUpVersion(cleanedFromCwd);
-
-  return cleanedFromVersion;
+  return cleanUpVersion(cleanedFromCwd);
 }
