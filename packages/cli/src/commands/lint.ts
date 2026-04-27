@@ -53,64 +53,73 @@ export async function handleLint({
 
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
+  const allLintRes: Awaited<ReturnType<typeof lint>> = [];
+  let loopCompleted = false;
 
-  // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const { path, alias } of apis) {
-    try {
-      const startedAt = performance.now();
-      const aliasConfig = config.forAlias(alias);
+  try {
+    // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
+    for (const { path, alias } of apis) {
+      try {
+        const startedAt = performance.now();
+        const aliasConfig = config.forAlias(alias);
 
-      checkIfRulesetExist(aliasConfig.rules);
+        checkIfRulesetExist(aliasConfig.rules);
 
-      aliasConfig.skipRules(argv['skip-rule']);
-      aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
+        aliasConfig.skipRules(argv['skip-rule']);
+        aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (typeof config.document?.parsed === 'undefined' && !argv.extends) {
-        logger.info(
-          `No configurations were provided -- using built in ${blue(
-            'recommended'
-          )} configuration by default.\n\n`
-        );
-      }
-      if (alias === undefined) {
-        logger.info(gray(`validating ${formatPath(path)}...\n`));
-      } else {
-        logger.info(
-          gray(`validating ${formatPath(path)} using lint rules for api '${alias}'...\n`)
-        );
-      }
-
-      const results = await lint({
-        ref: path,
-        config: aliasConfig,
-        collectSpecData,
-      });
-
-      const fileTotals = getTotals(results);
-      totals.errors += fileTotals.errors;
-      totals.warnings += fileTotals.warnings;
-      totals.ignored += fileTotals.ignored;
-
-      if (argv['generate-ignore-file']) {
-        config.clearIgnoreForRef(path);
-        for (const m of results) {
-          config.addIgnore(m);
-          totalIgnored++;
+        if (typeof config.document?.parsed === 'undefined' && !argv.extends) {
+          logger.info(
+            `No configurations were provided -- using built in ${blue(
+              'recommended'
+            )} configuration by default.\n\n`
+          );
         }
-      } else {
-        formatProblems(results, {
-          format: argv.format,
-          maxProblems: argv['max-problems'],
-          totals: fileTotals,
-          version,
-          command: 'lint',
-        });
-      }
+        if (alias === undefined) {
+          logger.info(gray(`validating ${formatPath(path)}...\n`));
+        } else {
+          logger.info(
+            gray(`validating ${formatPath(path)} using lint rules for api '${alias}'...\n`)
+          );
+        }
 
-      const elapsed = getExecutionTime(startedAt);
-      logger.info(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
-    } catch (e) {
-      handleError(e, path);
+        const results = await lint({
+          ref: path,
+          config: aliasConfig,
+          collectSpecData,
+        });
+
+        const fileTotals = getTotals(results);
+        totals.errors += fileTotals.errors;
+        totals.warnings += fileTotals.warnings;
+        totals.ignored += fileTotals.ignored;
+
+        if (argv['generate-ignore-file']) {
+          config.clearIgnoreForRef(path);
+          for (const m of results) {
+            config.addIgnore(m);
+            totalIgnored++;
+          }
+        } else {
+          allLintRes.push(...results);
+        }
+
+        const elapsed = getExecutionTime(startedAt);
+        logger.info(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
+      } catch (e) {
+        handleError(e, path);
+      }
+    }
+    loopCompleted = true;
+  } finally {
+    if (!argv['generate-ignore-file'] && (loopCompleted || allLintRes.length > 0)) {
+      formatProblems(allLintRes, {
+        format: argv.format,
+        maxProblems: argv['max-problems'],
+        totals,
+        version,
+        command: 'lint',
+      });
     }
   }
 

@@ -52,7 +52,7 @@ describe('handleLint', () => {
       return {
         ...actual,
         lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        getTotals: vi.fn(() => ({ errors: 0 }) as Totals),
+        getTotals: vi.fn(() => ({ errors: 0, warnings: 0, ignored: 0 }) as Totals),
         doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
         logger: {
           info: vi.fn(),
@@ -217,11 +217,46 @@ describe('handleLint', () => {
       expect(formatProblems).toHaveBeenCalledWith(['problem'], {
         format: 'stylish',
         maxProblems: 2,
-        totals: { errors: 0 },
+        totals: { errors: 0, warnings: 0, ignored: 0 },
         version: '2.0.0',
         command: 'lint',
       });
       expect(getExecutionTime).toHaveBeenCalledWith(42);
+    });
+
+    it('should aggregate problems from multiple APIs into a single formatProblems call', async () => {
+      vi.mocked(lint)
+        .mockResolvedValueOnce(['problem-a'] as any)
+        .mockResolvedValueOnce(['problem-b'] as any);
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['a.yaml', 'b.yaml'],
+        format: 'checkstyle',
+      });
+      expect(formatProblems).toHaveBeenCalledTimes(1);
+      expect(formatProblems).toHaveBeenCalledWith(
+        ['problem-a', 'problem-b'],
+        expect.objectContaining({ format: 'checkstyle' })
+      );
+    });
+
+    it('should output accumulated results when a later API fails and handleError throws', async () => {
+      vi.mocked(lint)
+        .mockResolvedValueOnce(['problem-a'] as any)
+        .mockRejectedValueOnce(new Error('boom'));
+      vi.mocked(handleError).mockImplementationOnce((e) => {
+        throw e;
+      });
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['a.yaml', 'b.yaml'],
+        format: 'checkstyle',
+      });
+      expect(formatProblems).toHaveBeenCalledTimes(1);
+      expect(formatProblems).toHaveBeenCalledWith(
+        ['problem-a'],
+        expect.objectContaining({ format: 'checkstyle' })
+      );
     });
 
     it('should catch error in handleError if something fails', async () => {

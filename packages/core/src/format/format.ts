@@ -145,6 +145,13 @@ export function formatProblems(
     case 'markdown': {
       const groupedByFile = groupByFiles(problems);
       for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
+        let fileErrors = 0;
+        let fileWarnings = 0;
+        for (const p of fileProblems) {
+          if (p.severity === 'error') fileErrors++;
+          else if (p.severity === 'warn') fileWarnings++;
+        }
+
         logger.output(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
 
         logger.output(`| Severity | Location | Problem | Message |\n`);
@@ -155,14 +162,14 @@ export function formatProblems(
         }
         logger.output('\n');
 
-        if (totals.errors > 0) {
-          logger.output(`Validation failed\nErrors: ${totals.errors}\n`);
+        if (fileErrors > 0) {
+          logger.output(`Validation failed\nErrors: ${fileErrors}\n`);
         } else {
           logger.output('Validation successful\n');
         }
 
-        if (totals.warnings > 0) {
-          logger.output(`Warnings: ${totals.warnings}\n`);
+        if (fileWarnings > 0) {
+          logger.output(`Warnings: ${fileWarnings}\n`);
         }
 
         logger.output('\n');
