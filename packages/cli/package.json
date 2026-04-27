@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.30.0",
+  "version": "2.30.1",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -43,8 +43,8 @@
     "@opentelemetry/sdk-trace-node": "2.6.1",
     "@opentelemetry/semantic-conventions": "1.40.0",
     "@redocly/cli-otel": "0.1.2",
-    "@redocly/openapi-core": "2.30.0",
-    "@redocly/respect-core": "2.30.0",
+    "@redocly/openapi-core": "2.30.1",
+    "@redocly/respect-core": "2.30.1",
     "ajv": "npm:@redocly/ajv@8.18.0",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
