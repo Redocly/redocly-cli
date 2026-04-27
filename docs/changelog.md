@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.13 (2026-04-27)
+
+### Patch Changes
+
+- Increased the default fetch timeout used by the `push` command to better support slower uploads.
+- Updated @redocly/openapi-core to v1.34.13.
+
 ## 1.34.12 (2026-04-20)
 
 ### Patch Changes

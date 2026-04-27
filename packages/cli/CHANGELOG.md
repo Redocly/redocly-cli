@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.13
+
+### Patch Changes
+
+- Increased the default fetch timeout used by the `push` command to better support slower uploads.
+- Updated @redocly/openapi-core to v1.34.13.
+
 ## 1.34.12
 
 ### Patch Changes
