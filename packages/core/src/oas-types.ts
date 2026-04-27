@@ -16,21 +16,23 @@ import type {
   BuiltInOverlay1RuleId,
   BuiltInCommonRuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInOas2DecoratorId,
+  BuiltInOas3DecoratorId,
 } from './types/redocly-yaml.js';
 import type {
   Oas3Rule,
-  Oas3Preprocessor,
+  Oas3Decorator,
   Oas2Rule,
-  Oas2Preprocessor,
-  Async2Preprocessor,
+  Oas2Decorator,
+  Async2Decorator,
   Async2Rule,
-  Async3Preprocessor,
+  Async3Decorator,
   Async3Rule,
-  Arazzo1Preprocessor,
+  Arazzo1Decorator,
   Arazzo1Rule,
-  Overlay1Preprocessor,
+  Overlay1Decorator,
   Overlay1Rule,
-  OpenRpc1Preprocessor,
+  OpenRpc1Decorator,
   OpenRpc1Rule,
 } from './visitors.js';
 
@@ -110,21 +112,19 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
-export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
-export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
-export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
-export type Async3PreprocessorsSet = Record<string, Async3Preprocessor>;
-export type Arazzo1PreprocessorsSet = Record<string, Arazzo1Preprocessor>;
-export type Overlay1PreprocessorsSet = Record<string, Overlay1Preprocessor>;
-export type OpenRpc1PreprocessorsSet = Record<string, OpenRpc1Preprocessor>;
-
-export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
-export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
-export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
-export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
-export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
-export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
-export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Preprocessor>;
+export type Oas3DecoratorsSet<T = undefined> = Record<
+  T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+  Oas3Decorator
+>;
+export type Oas2DecoratorsSet<T = undefined> = Record<
+  T extends 'built-in' ? BuiltInOas2DecoratorId : string,
+  Oas2Decorator
+>;
+export type Async2DecoratorsSet = Record<string, Async2Decorator>;
+export type Async3DecoratorsSet = Record<string, Async3Decorator>;
+export type Arazzo1DecoratorsSet = Record<string, Arazzo1Decorator>;
+export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
+export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
 
 export function getTypes(spec: SpecVersion) {
   return typesMap[spec];

@@ -1,3 +1,4 @@
+import { type Oas2DecoratorsSet } from '../../oas-types.js';
 import type { Oas2Decorator } from '../../visitors.js';
 import { FilterIn } from '../common/filters/filter-in.js';
 import { FilterOut } from '../common/filters/filter-out.js';
@@ -8,7 +9,7 @@ import { RemoveXInternal } from '../common/remove-x-internal.js';
 import { TagDescriptionOverride } from '../common/tag-description-override.js';
 import { RemoveUnusedComponents } from './remove-unused-components.js';
 
-export const decorators = {
+export const decorators: Oas2DecoratorsSet<'built-in'> = {
   'operation-description-override': OperationDescriptionOverride as Oas2Decorator,
   'tag-description-override': TagDescriptionOverride as Oas2Decorator,
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,

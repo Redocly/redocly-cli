@@ -174,6 +174,18 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
   },
+  "BuiltinDecorator": {
+    "additionalProperties": {},
+    "description": "Built-in decorators are the default decorators included with Redocly CLI.",
+    "documentationLink": "https://redocly.com/docs/cli/decorators#list-of-decorators",
+    "properties": {},
+  },
+  "BuiltinPreprocessor": {
+    "additionalProperties": {},
+    "description": "Built-in preprocessors are the default preprocessors included with Redocly CLI.",
+    "documentationLink": "https://redocly.com/docs/cli/decorators#list-of-decorators",
+    "properties": {},
+  },
   "BuiltinRule": {
     "additionalProperties": {},
     "description": "Built-in rules are the default linting rules included with Redocly CLI. They enforce widely accepted API design standards and best practices. Each built-in rule has a default severity of error, but you can change the severity or turn off any built-in rule in your configuration file.",
@@ -516,8 +528,26 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "assertions",
     ],
   },
-  "Decorators": {
+  "CustomDecorator": {
     "additionalProperties": {},
+    "description": "Custom decorators are defined by users via plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/custom-plugins/custom-decorators",
+    "properties": {},
+  },
+  "CustomPreprocessor": {
+    "additionalProperties": {},
+    "description": "Custom preprocessors are defined by users via plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/custom-plugins/custom-decorators",
+    "properties": {},
+  },
+  "CustomRule": {
+    "additionalProperties": {},
+    "description": "Custom rules are defined by users via plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/custom-plugins/custom-rules",
+    "properties": {},
+  },
+  "Decorators": {
+    "additionalProperties": [Function],
     "description": "Decorators define transformations that can be applied to the API document during the bundle step.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/decorators",
     "properties": {},
@@ -723,7 +753,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "Preprocessors": {
-    "additionalProperties": {},
+    "additionalProperties": [Function],
     "description": "Preprocessors define transformations that can be applied to the API document before bundling.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/preprocessors",
     "properties": {},
