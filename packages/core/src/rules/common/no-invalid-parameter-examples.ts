@@ -1,10 +1,11 @@
 import type { Oas3Parameter } from '../../typings/openapi.js';
 import { isDefined } from '../../utils/is-defined.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { validateExample } from '../utils.js';
 
-export const NoInvalidParameterExamples: any = (opts: any) => {
+export const NoInvalidParameterExamples: Oas3Rule | Oas2Rule = (opts) => {
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {

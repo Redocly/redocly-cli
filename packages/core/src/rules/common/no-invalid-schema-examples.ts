@@ -4,7 +4,7 @@ import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { validateExample } from '../utils.js';
 
-export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
+export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts) => {
   return {
     Schema: {
       leave(schema: Oas3_1Schema | Oas3Schema, ctx: UserContext) {
