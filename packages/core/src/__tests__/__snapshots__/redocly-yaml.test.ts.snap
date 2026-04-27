@@ -544,7 +544,18 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "additionalProperties": {},
     "description": "Custom rules are defined by users via plugins.",
     "documentationLink": "https://redocly.com/docs/cli/custom-plugins/custom-rules",
-    "properties": {},
+    "properties": {
+      "severity": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+      },
+    },
+    "required": [
+      "severity",
+    ],
   },
   "Decorators": {
     "additionalProperties": [Function],

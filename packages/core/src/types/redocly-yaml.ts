@@ -380,8 +380,11 @@ const BuiltinRule: NodeType = {
 };
 
 const CustomRule: NodeType = {
-  properties: {},
+  properties: {
+    severity: { enum: ['error', 'warn', 'off'] },
+  },
   additionalProperties: {},
+  required: ['severity'],
   description: 'Custom rules are defined by users via plugins.',
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-rules',
 };
@@ -399,7 +402,11 @@ const Decorators: NodeType = {
         return 'BuiltinDecorator';
       }
     } else if (isCustomRuleId(key)) {
-      return 'CustomDecorator';
+      if (typeof value === 'string') {
+        return { enum: ['on', 'off'] };
+      } else {
+        return 'CustomDecorator';
+      }
     }
     // Otherwise is considered as invalid
     return;
