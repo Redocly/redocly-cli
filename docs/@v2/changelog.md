@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.30.2 (2026-04-28)
+
+### Patch Changes
+
+- Improved Redocly config validation: now the config checks for typos in built-in decorator names.
+- Updated @redocly/openapi-core to v2.30.2.
+
 ## 2.30.1 (2026-04-27)
 
 ### Patch Changes
