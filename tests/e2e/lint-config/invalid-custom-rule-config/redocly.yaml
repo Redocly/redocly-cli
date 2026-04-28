@@ -1,0 +1,3 @@
+rules:
+  my-plugin/lacks-severity:
+    key: value
