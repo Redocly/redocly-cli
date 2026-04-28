@@ -1,11 +1,10 @@
 import module from 'node:module';
-import * as path from 'node:path';
 import * as url from 'node:url';
 
 import type { Plugin } from './types.js';
 
-// Cache instantiated plugins during a single execution
-export const pluginsCache: Map<string, Plugin[]> = new Map();
+const pluginsCache: Map<string, Plugin[]> = new Map();
+
 let pluginsCacheVersion = 0;
 let isEsmCacheBustHookRegistered = false;
 
@@ -39,18 +38,44 @@ function ensureEsmCacheBustHook(): void {
   }
 }
 
+export function hasCachedPlugin(absolutePluginPath: string): boolean {
+  return pluginsCache.has(absolutePluginPath);
+}
+
+export function getCachedPlugins(absolutePluginPath: string): Plugin[] | undefined {
+  return pluginsCache.get(absolutePluginPath);
+}
+
+export function cachePlugins(absolutePluginPath: string, plugins: Plugin[]): void {
+  pluginsCache.set(absolutePluginPath, plugins);
+}
+
+function evictPluginFromRequireCache(pluginPath: string): void {
+  const nodeRequire = module.createRequire(pluginPath);
+  const visited = new Set<string>();
+
+  const evict = (modulePath: string): void => {
+    if (visited.has(modulePath)) return;
+    visited.add(modulePath);
+    const cached = nodeRequire.cache[modulePath];
+    if (!cached) return;
+    for (const child of cached.children) {
+      if (child.id.includes('/node_modules/')) continue;
+      evict(child.id);
+    }
+    delete nodeRequire.cache[modulePath];
+  };
+
+  evict(pluginPath);
+}
+
 export const clearPluginsCache = (): void => {
-  // CJS: evict matching entries from `require.cache`.
+  // CJS: walk each plugin's dependency graph via `module.children` and evict
+  // matching `require.cache` entries (skipping node_modules).
   // ESM: bumping `pluginsCacheVersion` makes the next `import()` use a fresh
   // `?v=N` URL; the loader hook propagates it to nested imports.
   for (const pluginPath of pluginsCache.keys()) {
-    const nodeRequire = module.createRequire(pluginPath);
-    const pluginDir = path.dirname(pluginPath) + path.sep;
-    for (const cachedPath of Object.keys(nodeRequire.cache)) {
-      if (cachedPath.startsWith(pluginDir)) {
-        delete nodeRequire.cache[cachedPath];
-      }
-    }
+    evictPluginFromRequireCache(pluginPath);
   }
   pluginsCache.clear();
   pluginsCacheVersion++;

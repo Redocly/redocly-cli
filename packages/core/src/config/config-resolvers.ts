@@ -22,7 +22,12 @@ import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
-import { loadPluginModule, pluginsCache } from './plugins-cache.js';
+import {
+  cachePlugins,
+  getCachedPlugins,
+  hasCachedPlugin,
+  loadPluginModule,
+} from './plugins-cache.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -212,7 +217,7 @@ export async function resolvePlugins(
             ) as PluginResolveInfo
           ).absolutePath;
 
-      if (!pluginsCache.has(absolutePluginPath)) {
+      if (!hasCachedPlugin(absolutePluginPath)) {
         const mod = await loadPluginModule(absolutePluginPath);
         const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
@@ -236,7 +241,7 @@ export async function resolvePlugins(
         const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
 
         if (pluginModule) {
-          pluginsCache.set(
+          cachePlugins(
             absolutePluginPath,
             pluginInstances.map((p) => ({
               ...p,
@@ -247,7 +252,7 @@ export async function resolvePlugins(
         }
       }
 
-      return pluginsCache.get(absolutePluginPath);
+      return getCachedPlugins(absolutePluginPath);
     } catch (e) {
       throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
     }

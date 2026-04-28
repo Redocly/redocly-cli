@@ -1,12 +1,14 @@
+import module from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { clearPluginsCache, loadPluginModule, pluginsCache } from '../plugins-cache.js';
+import { cachePlugins, clearPluginsCache, loadPluginModule } from '../plugins-cache.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
 const cjsPluginPath = path.join(fixturesDir, 'plugin-with-init-logic.cjs');
 const esmPluginPath = path.join(fixturesDir, 'plugin-with-init-logic.js');
+const unrelatedCjsPath = path.join(fixturesDir, 'realm-plugin.cjs');
 
 afterEach(() => {
   clearPluginsCache();
@@ -30,20 +32,10 @@ describe('plugins-cache', () => {
   });
 
   describe('clearPluginsCache', () => {
-    it('should empty pluginsCache map', () => {
-      pluginsCache.set('/some/path', []);
-      pluginsCache.set('/another/path', []);
-      expect(pluginsCache.size).toBe(2);
-
-      clearPluginsCache();
-
-      expect(pluginsCache.size).toBe(0);
-    });
-
     it('should reload cjs plugin so a fresh module is returned', async () => {
       const first = await loadPluginModule(cjsPluginPath);
       // require.cache eviction targets paths registered in pluginsCache.
-      pluginsCache.set(cjsPluginPath, []);
+      cachePlugins(cjsPluginPath, []);
 
       clearPluginsCache();
 
@@ -58,6 +50,23 @@ describe('plugins-cache', () => {
 
       const second = await loadPluginModule(esmPluginPath);
       expect(second).not.toBe(first);
+    });
+
+    it('should not evict cjs modules outside the plugin dependency graph', async () => {
+      // Pre-populate require.cache with an unrelated module living in the same
+      // directory as the plugin but NOT imported by it.
+      const nodeRequire = module.createRequire(cjsPluginPath);
+      nodeRequire(unrelatedCjsPath);
+      expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
+
+      await loadPluginModule(cjsPluginPath);
+      cachePlugins(cjsPluginPath, []);
+
+      clearPluginsCache();
+
+      // Eviction must follow `module.children`, not directory prefix, so the
+      // unrelated module is preserved.
+      expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
     });
   });
 });
