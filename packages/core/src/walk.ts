@@ -1,8 +1,8 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef } from './ref-utils.js';
-import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import { Location, isRef, resolveSchemaId, hasSchemaId } from './ref-utils.js';
+import { Source, type ResolveError, type ResolvedRefMap, type Document } from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
@@ -153,7 +153,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     key: string | number
   ) {
     const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
-      if (!isRef(ref)) return { location, node: ref };
+      if (!isRef(ref)) return { location: currentLocation, node: ref };
       const refId = makeRefId(from, ref.$ref);
       const resolvedRef = resolvedRefMap.get(refId);
       if (!resolvedRef) {
@@ -165,7 +165,16 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       const { resolved, node, document, nodePointer, error } = resolvedRef;
       const newLocation = resolved
-        ? new Location(document!.source, nodePointer!)
+        ? hasSchemaId(node)
+          ? new Location(
+              new Source(
+                resolveSchemaId(document!.source.absoluteRef, node.$id),
+                document!.source.body,
+                document!.source.mimeType
+              ),
+              '#/'
+            )
+          : new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
           ? new Location(error.source, '')
           : undefined;
@@ -174,7 +183,16 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     };
 
     const rawLocation = location;
-    let currentLocation = location;
+    let currentLocation = hasSchemaId(node)
+      ? new Location(
+          new Source(
+            resolveSchemaId(location.source.absoluteRef, node.$id),
+            location.source.body,
+            location.source.mimeType
+          ),
+          '#/'
+        )
+      : location;
     const nodeIsRef = isRef(node);
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
