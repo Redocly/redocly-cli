@@ -461,7 +461,8 @@ const BuiltinPreprocessor: NodeType = {
 const CustomPreprocessor: NodeType = {
   properties: {},
   additionalProperties: {},
-  description: 'Custom preprocessors are defined by users via plugins. The available options are the same for decorators and preprocessors.',
+  description:
+    'Custom preprocessors are defined by users via plugins. The available options are the same for decorators and preprocessors.',
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
 };
 
