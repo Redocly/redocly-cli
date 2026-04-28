@@ -13,6 +13,7 @@ import { OperationOperationId } from '../common/operation-operationId.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
+import { AsyncApiOperationSecurityDefined } from './asyncapi-operation-security-defined.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
 
@@ -23,6 +24,7 @@ export const rules: Async2RuleSet<'built-in'> = {
   'info-contact': InfoContact as Async2Rule,
   'info-license-strict': InfoLicenseStrict as Async2Rule,
   'operation-operationId': OperationOperationId as Async2Rule,
+  'asyncapi-operation-security-defined': AsyncApiOperationSecurityDefined,
   'channels-kebab-case': ChannelsKebabCase,
   'no-channel-trailing-slash': NoChannelTrailingSlash,
   'tag-description': TagDescription as Async2Rule,

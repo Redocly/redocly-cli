@@ -153,6 +153,7 @@ describe('loadConfig', () => {
             "async2Decorators": {},
             "async2Preprocessors": {},
             "async2Rules": {
+              "asyncapi-operation-security-defined": "warn",
               "channels-kebab-case": "off",
               "info-contact": "off",
               "info-license-strict": "off",
@@ -477,6 +478,7 @@ describe('loadConfig', () => {
             "async2Decorators": {},
             "async2Preprocessors": {},
             "async2Rules": {
+              "asyncapi-operation-security-defined": "error",
               "channels-kebab-case": "off",
               "info-contact": "off",
               "info-license-strict": "warn",
@@ -806,6 +808,7 @@ describe('loadConfig', () => {
             "async2Decorators": {},
             "async2Preprocessors": {},
             "async2Rules": {
+              "asyncapi-operation-security-defined": "warn",
               "channels-kebab-case": "off",
               "info-contact": "off",
               "info-license-strict": "off",
@@ -1219,6 +1222,7 @@ describe('loadConfig', () => {
             "async2Decorators": {},
             "async2Preprocessors": {},
             "async2Rules": {
+              "asyncapi-operation-security-defined": "warn",
               "channels-kebab-case": "off",
               "info-contact": "off",
               "info-license-strict": "off",
@@ -1543,6 +1547,7 @@ describe('loadConfig', () => {
             "async2Decorators": {},
             "async2Preprocessors": {},
             "async2Rules": {
+              "asyncapi-operation-security-defined": "error",
               "channels-kebab-case": "off",
               "info-contact": "off",
               "info-license-strict": "warn",
@@ -1872,6 +1877,7 @@ describe('loadConfig', () => {
             "async2Decorators": {},
             "async2Preprocessors": {},
             "async2Rules": {
+              "asyncapi-operation-security-defined": "warn",
               "channels-kebab-case": "off",
               "info-contact": "off",
               "info-license-strict": "off",

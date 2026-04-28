@@ -251,6 +251,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-querystring-parameters': 'error',
   },
   async2Rules: {
+    'asyncapi-operation-security-defined': 'error',
     'channels-kebab-case': 'error',
     'info-contact': 'error',
     'info-license-strict': 'error',

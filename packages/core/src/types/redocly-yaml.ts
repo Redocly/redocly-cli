@@ -126,6 +126,7 @@ const builtInAsync2Rules = [
   'info-contact',
   'info-license-strict',
   'operation-operationId',
+  'asyncapi-operation-security-defined',
   'tag-description',
   'tags-alphabetical',
   'channels-kebab-case',

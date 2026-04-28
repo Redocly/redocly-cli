@@ -120,6 +120,7 @@ The rules list is split into sections.
 Use the rules in this section for AsyncAPI-specific linting.
 Other rules, such as the `struct` and `info.*`, also apply to AsyncAPI.
 
+- [asyncapi-operation-security-defined](./async/asyncapi-operation-security-defined.md): Security scheme names referenced from operations or servers must be defined in `components.securitySchemes`
 - [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
 - [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
 
