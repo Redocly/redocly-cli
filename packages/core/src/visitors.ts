@@ -440,13 +440,13 @@ export type OpenRpc1Rule = (options: Record<string, any>) => OpenRpc1Visitor | O
 export type CatalogEntityRule = (
   options: Record<string, any>
 ) => CatalogEntityVisitor | CatalogEntityVisitor[];
-export type Oas3Preprocessor = (options: Record<string, any>) => Oas3Visitor;
-export type Oas2Preprocessor = (options: Record<string, any>) => Oas2Visitor;
-export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor;
-export type Async3Preprocessor = (options: Record<string, any>) => Async3Visitor;
-export type Arazzo1Preprocessor = (options: Record<string, any>) => Arazzo1Visitor;
-export type Overlay1Preprocessor = (options: Record<string, any>) => Overlay1Visitor;
-export type OpenRpc1Preprocessor = (options: Record<string, any>) => OpenRpc1Visitor;
+export type Oas3Preprocessor = Oas3Decorator;
+export type Oas2Preprocessor = Oas2Decorator;
+export type Async2Preprocessor = Async2Decorator;
+export type Async3Preprocessor = Async3Decorator;
+export type Arazzo1Preprocessor = Arazzo1Decorator;
+export type Overlay1Preprocessor = Overlay1Decorator;
+export type OpenRpc1Preprocessor = OpenRpc1Decorator;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Decorator = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Decorator = (options: Record<string, any>) => Async2Visitor;
@@ -458,7 +458,7 @@ export type OpenRpc1Decorator = (options: Record<string, any>) => OpenRpc1Visito
 // alias for the latest version supported
 // every time we update it - consider semver
 export type OasRule = Oas3Rule;
-export type OasPreprocessor = Oas3Preprocessor;
+export type OasPreprocessor = Oas3Decorator;
 export type OasDecorator = Oas3Decorator;
 
 export type RuleInstanceConfig = {

@@ -2,29 +2,22 @@ import type { ApiConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type {
-  Oas3PreprocessorsSet,
   SpecMajorVersion,
   Oas3DecoratorsSet,
   Oas2RuleSet,
-  Oas2PreprocessorsSet,
   Oas2DecoratorsSet,
   Oas3RuleSet,
   SpecVersion,
-  Async2PreprocessorsSet,
   Async2DecoratorsSet,
   Async2RuleSet,
-  Async3PreprocessorsSet,
   Async3DecoratorsSet,
   Async3RuleSet,
   Arazzo1RuleSet,
-  Arazzo1PreprocessorsSet,
   Arazzo1DecoratorsSet,
   RuleMap,
-  Overlay1PreprocessorsSet,
   Overlay1DecoratorsSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
-  OpenRpc1PreprocessorsSet,
   OpenRpc1DecoratorsSet,
 } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
@@ -38,6 +31,8 @@ import type {
   BuiltInOverlay1RuleId,
   BuiltInOpenRpc1RuleId,
   BuiltInCommonRuleId,
+  BuiltInOas2DecoratorId,
+  BuiltInOas3DecoratorId,
 } from '../types/redocly-yaml.js';
 import type { SkipFunctionContext } from '../visitors.js';
 import type { ProblemSeverity, UserContext } from '../walk.js';
@@ -99,11 +94,23 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
 
-  preprocessors?: Record<string, PreprocessorConfig>;
-  oas2Preprocessors?: Record<string, PreprocessorConfig>;
-  oas3_0Preprocessors?: Record<string, PreprocessorConfig>;
-  oas3_1Preprocessors?: Record<string, PreprocessorConfig>;
-  oas3_2Preprocessors?: Record<string, PreprocessorConfig>;
+  preprocessors?: Record<string, DecoratorConfig>;
+  oas2Preprocessors?: Record<
+    T extends 'built-in' ? BuiltInOas2DecoratorId : string,
+    DecoratorConfig
+  >;
+  oas3_0Preprocessors?: Record<
+    T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+    DecoratorConfig
+  >;
+  oas3_1Preprocessors?: Record<
+    T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+    DecoratorConfig
+  >;
+  oas3_2Preprocessors?: Record<
+    T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+    DecoratorConfig
+  >;
   async2Preprocessors?: Record<string, PreprocessorConfig>;
   async3Preprocessors?: Record<string, PreprocessorConfig>;
   arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
@@ -111,10 +118,19 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   openrpc1Preprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
-  oas2Decorators?: Record<string, DecoratorConfig>;
-  oas3_0Decorators?: Record<string, DecoratorConfig>;
-  oas3_1Decorators?: Record<string, DecoratorConfig>;
-  oas3_2Decorators?: Record<string, DecoratorConfig>;
+  oas2Decorators?: Record<T extends 'built-in' ? BuiltInOas2DecoratorId : string, DecoratorConfig>;
+  oas3_0Decorators?: Record<
+    T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+    DecoratorConfig
+  >;
+  oas3_1Decorators?: Record<
+    T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+    DecoratorConfig
+  >;
+  oas3_2Decorators?: Record<
+    T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+    DecoratorConfig
+  >;
   async2Decorators?: Record<string, DecoratorConfig>;
   async3Decorators?: Record<string, DecoratorConfig>;
   arazzo1Decorators?: Record<string, DecoratorConfig>;
@@ -125,13 +141,13 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
 
 export type PreprocessorsConfig = {
-  oas3?: Oas3PreprocessorsSet;
-  oas2?: Oas2PreprocessorsSet;
-  async2?: Async2PreprocessorsSet;
-  async3?: Async3PreprocessorsSet;
-  arazzo1?: Arazzo1PreprocessorsSet;
-  overlay1?: Overlay1PreprocessorsSet;
-  openrpc1?: OpenRpc1PreprocessorsSet;
+  oas3?: Oas3DecoratorsSet;
+  oas2?: Oas2DecoratorsSet;
+  async2?: Async2DecoratorsSet;
+  async3?: Async3DecoratorsSet;
+  arazzo1?: Arazzo1DecoratorsSet;
+  overlay1?: Overlay1DecoratorsSet;
+  openrpc1?: OpenRpc1DecoratorsSet;
 };
 
 export type DecoratorsConfig = {
