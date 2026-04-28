@@ -1,3 +1,0 @@
-plugins:
-  - plugin-with-init-logic.cjs
-  - plugin-with-init-logic.js
