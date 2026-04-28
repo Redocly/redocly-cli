@@ -61,6 +61,7 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
 
     ajvInstances[dialect] = dialect === '2020' ? new Ajv2020(options) : new AjvDraft4(options);
 
+    // oxlint-disable-next-line typescript/no-explicit-any
     addFormats(ajvInstances[dialect] as any);
   }
   return ajvInstances[dialect];
@@ -126,9 +127,10 @@ export function validateJsonSchema(
 
   function beatifyErrorMessage(error: ErrorObject) {
     let message = error.message;
-    const suggest = error.keyword === 'enum' ? error.params.allowedValues : undefined;
+    const suggest: string[] | undefined =
+      error.keyword === 'enum' ? error.params.allowedValues : undefined;
     if (suggest) {
-      message += ` ${suggest.map((e: any) => `"${e}"`).join(', ')}`;
+      message += ` ${suggest.map((e) => `"${e}"`).join(', ')}`;
     }
 
     if (error.keyword === 'type') {

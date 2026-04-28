@@ -8,7 +8,7 @@ const MAX_KEY_LENGTH = 150;
 
 export const EntityKeyValid: CatalogEntityRule = () => {
   return {
-    any(node: any, { report, location }: UserContext) {
+    any(node: unknown, { report, location }: UserContext) {
       if (isPlainObject(node) && 'key' in node) {
         const key = node.key;
 

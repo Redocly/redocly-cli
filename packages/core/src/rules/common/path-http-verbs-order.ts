@@ -5,7 +5,7 @@ import type { UserContext } from '../../walk.js';
 
 const defaultOrder = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'query', 'trace'];
 
-export const PathHttpVerbsOrder: Oas3Rule | Oas2Rule = (opts: any) => {
+export const PathHttpVerbsOrder: Oas3Rule | Oas2Rule = (opts) => {
   const order: string[] = (opts && opts.order) || defaultOrder;
   if (!Array.isArray(order)) {
     throw new Error('path-http-verbs-order `order` option must be an array');
