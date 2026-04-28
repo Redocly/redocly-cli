@@ -110,8 +110,8 @@ export interface Oas3Parameter<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
   allowReserved?: boolean;
   schema?: Referenced<T>;
   example?: unknown;
-  examples?: { [media: string]: Referenced<Oas3Example> };
-  content?: { [media: string]: Oas3MediaType<T> };
+  examples?: Record<string, Referenced<Oas3Example>>;
+  content?: Record<string, Oas3MediaType<T>>;
 }
 
 export interface Oas3Example {

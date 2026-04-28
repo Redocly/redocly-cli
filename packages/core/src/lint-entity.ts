@@ -188,7 +188,7 @@ export async function lintEntityWithScorecardLevel(
 
     if (entity.type === 'data-schema' && entity.metadata?.schema) {
       Object.values(apiRules).forEach((rule) => {
-        if (typeof rule === 'object' && rule.subject.type !== 'Schema') {
+        if (isPlainObject(rule) && isPlainObject(rule.subject) && rule.subject.type !== 'Schema') {
           throw new Error(
             `API rules for "data-schema" entity must target Schema subject, but found "${rule.subject.type}".`
           );

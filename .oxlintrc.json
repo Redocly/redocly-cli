@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "import"],
+  "jsPlugins": ["./scripts/oxlint-redocly-plugin.js"],
   "categories": {
     "correctness": "error"
   },
@@ -48,7 +49,9 @@
       {
         "preferInline": true
       }
-    ]
+    ],
+
+    "oxlint-redocly-plugin/no-typeof-object": "warn"
   },
   "overrides": [
     {
