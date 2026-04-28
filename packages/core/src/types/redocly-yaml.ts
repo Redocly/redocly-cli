@@ -454,7 +454,8 @@ const Preprocessors: NodeType = {
 const BuiltinPreprocessor: NodeType = {
   properties: {},
   additionalProperties: {},
-  description: 'Built-in preprocessors are the default preprocessors included with Redocly CLI.',
+  description:
+    'Built-in preprocessors are the default preprocessors included with Redocly CLI. The available options are the same for decorators and preprocessors.',
   documentationLink: 'https://redocly.com/docs/cli/decorators#list-of-decorators',
 };
 
