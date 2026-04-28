@@ -115,7 +115,7 @@ export interface Oas3Parameter<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
 }
 
 export interface Oas3Example {
-  value: unknown;
+  value?: unknown;
   dataValue?: unknown; // added in OAS 3.2
   serializedValue?: string; // added in OAS 3.2
   summary?: string;

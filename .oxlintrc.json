@@ -51,7 +51,7 @@
       }
     ],
 
-    "oxlint-redocly-plugin/no-typeof-object": "warn"
+    "oxlint-redocly-plugin/no-typeof-object": "error"
   },
   "overrides": [
     {
