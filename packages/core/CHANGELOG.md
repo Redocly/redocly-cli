@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.30.2
+
+### Patch Changes
+
+- Improved Redocly config validation: now the config checks for typos in built-in decorator names.
+
 ## 2.30.1
 
 ## 2.30.0
