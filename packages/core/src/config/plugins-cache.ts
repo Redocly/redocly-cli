@@ -90,5 +90,10 @@ export async function loadPluginModule(
   if (pluginsCacheVersion) {
     pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
   }
-  return import(pluginUrl.href);
+  // Plugins are user files resolved at runtime, so this `import()` must stay
+  // a native ESM import. `webpackIgnore` stops bundlers (webpack/rspack/esbuild)
+  // from rewriting it into their build-time module map — otherwise every
+  // plugin path would resolve to `MODULE_NOT_FOUND` once `@redocly/openapi-core`
+  // is embedded in a bundled host (e.g. NestJS services calling `loadConfig`).
+  return import(/* webpackIgnore: true */ pluginUrl.href);
 }
