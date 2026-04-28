@@ -26,15 +26,16 @@ export async function resolve(specifier, context, nextResolve) {
 
 function ensureEsmCacheBustHook(): void {
   if (isEsmCacheBustHookRegistered) return;
-  isEsmCacheBustHookRegistered = true;
   if (typeof module.register !== 'function') return;
   try {
     module.register(
       `data:text/javascript,${encodeURIComponent(ESM_CACHE_BUST_HOOK_SOURCE)}`,
       import.meta.url
     );
+    isEsmCacheBustHookRegistered = true;
   } catch {
-    // silently fail; without the hook only the entry plugin is cache-busted
+    // silently fail; without the hook only the entry plugin is cache-busted.
+    // The flag stays false so a later `clearPluginsCache()` will retry.
   }
 }
 
