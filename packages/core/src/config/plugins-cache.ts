@@ -61,7 +61,7 @@ function evictPluginFromRequireCache(pluginPath: string): void {
     const cached = nodeRequire.cache[modulePath];
     if (!cached) return;
     for (const child of cached.children) {
-      if (child.id.includes('/node_modules/')) continue;
+      if (/[/\\]node_modules[/\\]/.test(child.id)) continue;
       evict(child.id);
     }
     delete nodeRequire.cache[modulePath];
