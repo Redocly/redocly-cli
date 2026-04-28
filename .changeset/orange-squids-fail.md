@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Improved Redocly config validation by recognizing built-in decorator names.
+Improved Redocly config validation: now the config checks for typos in built-in decorator names.
