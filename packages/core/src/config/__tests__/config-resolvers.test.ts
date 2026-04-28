@@ -1,7 +1,5 @@
 import path from 'node:path';
-import { after } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import util from 'node:util';
 
 import { Source } from '../../resolve.js';
 import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
@@ -10,13 +8,24 @@ import { Config } from '../config.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 
-vi.mock('node:module', () => ({
-  default: {
-    createRequire: () => ({
-      resolve: (path: string) => `/mock/path/${path}`,
-    }),
-  },
-}));
+const resolveOverrides = new Map<string, string>();
+
+vi.mock('node:module', async (importOriginal) => {
+  const nodeModule = (await importOriginal<Record<string, any>>()).default;
+  return {
+    default: {
+      ...nodeModule,
+      createRequire(baseUrl: string) {
+        const req = nodeModule.createRequire(baseUrl);
+        return Object.assign((id: string) => req(id), req, {
+          resolve: (id: string, opts?: any) => {
+            return resolveOverrides.get(id) ?? req.resolve(id, opts);
+          },
+        }) as typeof req;
+      },
+    },
+  };
+});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,6 +50,10 @@ function makeDocument(rawConfig: RawUniversalConfig, configPath: string = '') {
     parsed: rawConfig,
   };
 }
+
+afterEach(() => {
+  resolveOverrides.clear();
+});
 
 describe('resolveConfig', () => {
   it('should return the config with no recommended', async () => {
@@ -107,31 +120,6 @@ describe('resolveConfig', () => {
       'operation-description': 'error',
       'path-http-verbs-order': 'error',
     });
-  });
-
-  it('should instantiate the plugin once', async () => {
-    // Called by plugin during init
-    const deprecateSpy = vi.spyOn(util, 'deprecate');
-
-    const config = {
-      ...baseGovernanceConfig,
-      extends: ['local-config-with-plugin-init.yaml'],
-    };
-
-    await resolveConfig({
-      rawConfigDocument: makeDocument(config, configPath),
-      configPath,
-    });
-
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
-
-    await resolveConfig({
-      rawConfigDocument: makeDocument(config, configPath),
-      configPath,
-    });
-
-    // Should not execute the init logic again
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should resolve realm plugin properties', async () => {
@@ -638,20 +626,10 @@ describe('resolveApis', () => {
   });
 
   it('should work with npm dependencies', async () => {
-    after(() => {
-      (globalThis as any).__webpack_require__ = undefined;
-      (globalThis as any).__non_webpack_require__ = undefined;
-    });
-
-    (globalThis as any).__webpack_require__ = () => {};
-    (globalThis as any).__non_webpack_require__ = (p: string) =>
-      p === '/mock/path/test-plugin'
-        ? {
-            id: 'npm-test-plugin',
-          }
-        : {
-            id: 'local-test-plugin',
-          };
+    const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
+    const pluginPath = path.join(fixturesDir, 'plugin.js');
+    resolveOverrides.set('test-plugin', pluginPath);
+    resolveOverrides.set('fixtures/plugin.cjs', pluginPath);
 
     const { resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(

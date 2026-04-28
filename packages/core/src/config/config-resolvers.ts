@@ -22,6 +22,7 @@ import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
+import { loadPluginModule, pluginsCache } from './plugins-cache.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -37,9 +38,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-
-// Cache instantiated plugins during a single execution
-const pluginsCache: Map<string, Plugin[]> = new Map();
 
 export type PluginResolveInfo = {
   absolutePath: string;
@@ -215,18 +213,8 @@ export async function resolvePlugins(
           ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
-        let requiredPlugin: ImportedPlugin | undefined;
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore FIXME: investigate if we still need this (2.0)
-        if (typeof __webpack_require__ === 'function') {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore FIXME: investigate if we still need this (2.0)
-          requiredPlugin = __non_webpack_require__(absolutePluginPath);
-        } else {
-          const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
-          requiredPlugin = mod.default || mod;
-        }
+        const mod = await loadPluginModule(absolutePluginPath);
+        const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
 
