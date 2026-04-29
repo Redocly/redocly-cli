@@ -157,6 +157,7 @@ export type {
   OpenIDAuth,
   Oas3SecurityScheme,
   Oas3SecurityRequirement,
+  Oas3Example,
 } from './typings/openapi.js';
 export type { Oas2Definition } from './typings/swagger.js';
 export type { Async3Definition } from './typings/asyncapi3.js';

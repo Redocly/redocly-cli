@@ -315,7 +315,7 @@ export async function resolveDocument(opts: {
           propType = resolvableScalarType;
         }
 
-        if (!isNamedType(propType) || typeof propValue !== 'object') {
+        if (!isNamedType(propType) || !(isPlainObject(propValue) || Array.isArray(propValue))) {
           continue;
         }
 
@@ -343,7 +343,7 @@ export async function resolveDocument(opts: {
       if (isExternalValue(node)) {
         const promise = followRef(
           rootNodeDocument,
-          { $ref: node.externalValue as string },
+          { $ref: node.externalValue },
           {
             prev: null,
             node,
