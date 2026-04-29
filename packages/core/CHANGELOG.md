@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.30.3
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.1`
+
 ## 2.30.2
 
 ### Patch Changes

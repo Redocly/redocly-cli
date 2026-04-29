@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.30.3
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.1`
+- Updated @redocly/respect-core to v2.30.3.
+
 ## 2.30.2
 
 ### Patch Changes
