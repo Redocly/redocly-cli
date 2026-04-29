@@ -1,4 +1,5 @@
 import module from 'node:module';
+import * as path from 'node:path';
 import * as url from 'node:url';
 
 import type { Plugin } from './types.js';
@@ -7,6 +8,11 @@ const pluginsCache: Map<string, Plugin[]> = new Map();
 
 let pluginsCacheVersion = 0;
 let isEsmCacheBustHookRegistered = false;
+
+// TEMP: debug logs for language-server. Remove before merge.
+const debug = (line: string): void => {
+  process.stderr.write(`[plugins-cache] ${line}\n`);
+};
 
 const ESM_CACHE_BUST_HOOK_SOURCE = `
 export async function resolve(specifier, context, nextResolve) {
@@ -33,7 +39,9 @@ function ensureEsmCacheBustHook(): void {
       import.meta.url
     );
     isEsmCacheBustHookRegistered = true;
-  } catch {
+    debug('hook registered');
+  } catch (err) {
+    debug(`hook registration failed: ${(err as Error).message}`);
     // silently fail; without the hook only the entry plugin is cache-busted.
     // The flag stays false so a later `clearPluginsCache()` will retry.
   }
@@ -54,20 +62,25 @@ export function setCachedPlugins(absolutePluginPath: string, plugins: Plugin[]):
 function evictPluginFromRequireCache(pluginPath: string): void {
   const nodeRequire = module.createRequire(pluginPath);
   const visited = new Set<string>();
+  debug(`tree of ${pluginPath}`);
 
-  const evict = (modulePath: string): void => {
+  const evict = (modulePath: string, depth: number): void => {
     if (visited.has(modulePath)) return;
     visited.add(modulePath);
     const cached = nodeRequire.cache[modulePath];
-    if (!cached) return;
+    if (!cached) {
+      debug(`  ${'  '.repeat(depth)}• ${path.basename(modulePath)} (not in require.cache)`);
+      return;
+    }
+    debug(`  ${'  '.repeat(depth)}• ${path.basename(modulePath)}`);
     for (const child of cached.children) {
       if (/[/\\]node_modules[/\\]/.test(child.id)) continue;
-      evict(child.id);
+      evict(child.id, depth + 1);
     }
     delete nodeRequire.cache[modulePath];
   };
 
-  evict(pluginPath);
+  evict(pluginPath, 0);
 }
 
 export const clearPluginsCache = (): void => {
@@ -75,6 +88,11 @@ export const clearPluginsCache = (): void => {
   // matching `require.cache` entries (skipping node_modules).
   // ESM: bumping `pluginsCacheVersion` makes the next `import()` use a fresh
   // `?v=N` URL; the loader hook propagates it to nested imports.
+  debug(
+    `clear: ${pluginsCache.size} plugin(s), bump v=${pluginsCacheVersion} → v=${
+      pluginsCacheVersion + 1
+    }`
+  );
   for (const pluginPath of pluginsCache.keys()) {
     evictPluginFromRequireCache(pluginPath);
   }
@@ -90,6 +108,7 @@ export async function loadPluginModule(
   if (pluginsCacheVersion) {
     pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
   }
+  debug(`load ${pluginUrl.href}`);
   // Plugins are user files resolved at runtime, so this `import()` must stay
   // a native ESM import. `webpackIgnore` stops bundlers (webpack/rspack/esbuild)
   // from rewriting it into their build-time module map — otherwise every

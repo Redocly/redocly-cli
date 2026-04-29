@@ -200,6 +200,14 @@ export async function resolvePlugins(
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
+  // TEMP: debug logs for language-server. Remove before merge.
+  const debugReplacer = (_key: string, value: unknown): unknown =>
+    typeof value === 'function' ? '<function>' : value;
+  process.stderr.write(
+    `[resolvePlugins] configDir=${configDir}\n` +
+      `[resolvePlugins] plugins=${JSON.stringify(plugins, debugReplacer, 2)}\n`
+  );
+
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
   const requireFunc = async (plugin: string | Plugin): Promise<Plugin | Plugin[] | undefined> => {
     if (!isString(plugin)) {
@@ -250,6 +258,12 @@ export async function resolvePlugins(
             }))
           );
         }
+
+        // TEMP: debug logs for language-server. Remove before merge.
+        process.stderr.write(
+          `[resolvePlugins] loaded ${absolutePluginPath}\n` +
+            `[resolvePlugins] content=${JSON.stringify(pluginInstances, debugReplacer, 2)}\n`
+        );
       }
 
       return getCachedPlugins(absolutePluginPath);
