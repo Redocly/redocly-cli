@@ -295,10 +295,11 @@ Prepare the local build, go to the `tests/performance` folder, clean it up, do t
 and run the actual test:
 
 ```sh
-(cd tests/performance/ && npm run test && cat benchmark_check.md)
+(cd tests/performance/ && npm run test)
 ```
 
 You might need to adjust the CLI versions that need to be tested in the `tests/performance/package.json` file.
+There are also other commands available for your convenience to test specific commands like `lint` or `check-config`.
 
 ### Manual tests
 
