@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
+import * as util from 'node:util';
 
 import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { isBrowser } from '../env.js';
@@ -260,9 +261,22 @@ export async function resolvePlugins(
         }
 
         // TEMP: debug logs for language-server. Remove before merge.
+        let fileSource = '';
+        try {
+          fileSource = fs.readFileSync(absolutePluginPath, 'utf8');
+        } catch (err) {
+          fileSource = `<could not read: ${(err as Error).message}>`;
+        }
         process.stderr.write(
           `[resolvePlugins] loaded ${absolutePluginPath}\n` +
-            `[resolvePlugins] content=${JSON.stringify(pluginInstances, debugReplacer, 2)}\n`
+            `--- file source from disk ---\n${fileSource}\n--- end source ---\n` +
+            `[resolvePlugins] content=${util.inspect(pluginInstances, {
+              depth: null,
+              breakLength: 120,
+              maxArrayLength: null,
+              maxStringLength: null,
+              colors: false,
+            })}\n`
         );
       }
 
