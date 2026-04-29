@@ -267,6 +267,22 @@ export async function resolvePlugins(
         } catch (err) {
           fileSource = `<could not read: ${(err as Error).message}>`;
         }
+        const fnDumps: string[] = [];
+        const walk = (obj: unknown, p: string): void => {
+          if (typeof obj === 'function') {
+            const fn = obj as { name?: string; toString(): string };
+            fnDumps.push(`--- ${p} (${fn.name || 'anonymous'}) ---\n${fn.toString()}`);
+            return;
+          }
+          if (Array.isArray(obj)) {
+            obj.forEach((it, i) => walk(it, `${p}[${i}]`));
+            return;
+          }
+          if (isPlainObject(obj)) {
+            for (const [k, v] of Object.entries(obj)) walk(v, p ? `${p}.${k}` : k);
+          }
+        };
+        walk(pluginInstances, '');
         process.stderr.write(
           `[resolvePlugins] loaded ${absolutePluginPath}\n` +
             `--- file source from disk ---\n${fileSource}\n--- end source ---\n` +
@@ -276,7 +292,10 @@ export async function resolvePlugins(
               maxArrayLength: null,
               maxStringLength: null,
               colors: false,
-            })}\n`
+            })}\n` +
+            (fnDumps.length
+              ? `--- functions in plugin ---\n${fnDumps.join('\n')}\n--- end functions ---\n`
+              : '')
         );
       }
 
