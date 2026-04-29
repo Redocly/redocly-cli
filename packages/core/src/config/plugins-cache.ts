@@ -1,43 +1,8 @@
 import module from 'node:module';
-import * as url from 'node:url';
 
 import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
-
-let pluginsCacheVersion = 0;
-let isEsmCacheBustHookRegistered = false;
-
-const ESM_CACHE_BUST_HOOK_SOURCE = `
-export async function resolve(specifier, context, nextResolve) {
-  const result = await nextResolve(specifier, context);
-  if (!result.url.startsWith('file:')) return result;
-  if (!context.parentURL) return result;
-  const parentV = new URL(context.parentURL).searchParams.get('v');
-  if (!parentV) return result;
-  const childURL = new URL(result.url);
-  if (childURL.pathname.includes('/node_modules/')) return result;
-  if (!childURL.searchParams.has('v')) {
-    childURL.searchParams.set('v', parentV);
-  }
-  return { ...result, url: childURL.href, shortCircuit: true };
-}
-`;
-
-function ensureEsmCacheBustHook(): void {
-  if (isEsmCacheBustHookRegistered) return;
-  if (typeof module.register !== 'function') return;
-  try {
-    module.register(
-      `data:text/javascript,${encodeURIComponent(ESM_CACHE_BUST_HOOK_SOURCE)}`,
-      import.meta.url
-    );
-    isEsmCacheBustHookRegistered = true;
-  } catch {
-    // silently fail; without the hook only the entry plugin is cache-busted.
-    // The flag stays false so a later `clearPluginsCache()` will retry.
-  }
-}
 
 export function hasCachedPlugin(absolutePluginPath: string): boolean {
   return pluginsCache.has(absolutePluginPath);
@@ -61,6 +26,9 @@ function evictPluginFromRequireCache(pluginPath: string): void {
     const cached = nodeRequire.cache[modulePath];
     if (!cached) return;
     for (const child of cached.children) {
+      // skip node_modules: shared deps shouldn't be re-evaluated.
+      // `child.id` is a filesystem path that uses `\` on Windows, so we match
+      // both separators.
       if (/[/\\]node_modules[/\\]/.test(child.id)) continue;
       evict(child.id);
     }
@@ -71,29 +39,21 @@ function evictPluginFromRequireCache(pluginPath: string): void {
 }
 
 export const clearPluginsCache = (): void => {
-  // CJS: walk each plugin's dependency graph via `module.children` and evict
-  // matching `require.cache` entries (skipping node_modules).
-  // ESM: bumping `pluginsCacheVersion` makes the next `import()` use a fresh
-  // `?v=N` URL; the loader hook propagates it to nested imports.
   for (const pluginPath of pluginsCache.keys()) {
     evictPluginFromRequireCache(pluginPath);
   }
   pluginsCache.clear();
-  pluginsCacheVersion++;
-  ensureEsmCacheBustHook();
 };
 
+// Plugins are loaded synchronously via `require()`, which works for both CJS
+// and ESM (Node's `require(esm)` is enabled by default on the supported
+// engines: >=20.19, >=22.12). This unifies caching: every plugin and its deps
+// land in `require.cache`, so eviction in `clearPluginsCache` actually frees
+// memory and survives the next call. Limitation: ESM plugins cannot use
+// top-level `await`.
 export async function loadPluginModule(
   absolutePluginPath: string
 ): Promise<Record<string, unknown>> {
-  const pluginUrl = url.pathToFileURL(absolutePluginPath);
-  if (pluginsCacheVersion) {
-    pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
-  }
-  // Plugins are user files resolved at runtime, so this `import()` must stay
-  // a native ESM import. `webpackIgnore` stops bundlers (webpack/rspack/esbuild)
-  // from rewriting it into their build-time module map — otherwise every
-  // plugin path would resolve to `MODULE_NOT_FOUND` once `@redocly/openapi-core`
-  // is embedded in a bundled host (e.g. NestJS services calling `loadConfig`).
-  return import(/* webpackIgnore: true */ pluginUrl.href);
+  const nodeRequire = module.createRequire(absolutePluginPath);
+  return nodeRequire(absolutePluginPath);
 }

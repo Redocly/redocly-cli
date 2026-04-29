@@ -45,6 +45,8 @@ describe('plugins-cache', () => {
 
     it('should reload esm plugin so a fresh module is returned', async () => {
       const first = await loadPluginModule(esmPluginPath);
+      // require.cache eviction targets paths registered in pluginsCache.
+      setCachedPlugins(esmPluginPath, []);
 
       clearPluginsCache();
 
