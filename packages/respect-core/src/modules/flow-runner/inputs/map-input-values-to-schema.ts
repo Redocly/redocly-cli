@@ -11,7 +11,7 @@ export function resolveInputValuesToSchema(value: any, schema: InputSchema): Map
     return {};
   }
 
-  const ajv = new Ajv({
+  const ajv = new (Ajv as any)({
     useDefaults: true,
     removeAdditional: 'all',
     coerceTypes: true,
