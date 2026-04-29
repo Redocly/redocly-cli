@@ -4,6 +4,7 @@ import type {
   RuleSeverity,
   LoggerInterface,
   BaseResolver,
+  Oas3Example,
 } from '@redocly/openapi-core';
 import type { FromSchema } from 'json-schema-to-ts';
 
@@ -58,7 +59,7 @@ export type AdditionalParameterProperties = {
   required?: boolean;
   schema?: Record<string, any>;
   example?: unknown;
-  examples?: Record<string, any> | unknown;
+  examples?: Record<string, Oas3Example>;
   allowReserved?: boolean;
 };
 type ExtendedParameter<T> = T & AdditionalParameterProperties;
