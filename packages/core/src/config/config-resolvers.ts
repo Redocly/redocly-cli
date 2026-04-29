@@ -23,10 +23,10 @@ import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
 import {
-  cachePlugins,
   getCachedPlugins,
   hasCachedPlugin,
   loadPluginModule,
+  setCachedPlugins,
 } from './plugins-cache.js';
 import type {
   Plugin,
@@ -241,7 +241,7 @@ export async function resolvePlugins(
         const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
 
         if (pluginModule) {
-          cachePlugins(
+          setCachedPlugins(
             absolutePluginPath,
             pluginInstances.map((p) => ({
               ...p,

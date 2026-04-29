@@ -47,7 +47,7 @@ export function getCachedPlugins(absolutePluginPath: string): Plugin[] | undefin
   return pluginsCache.get(absolutePluginPath);
 }
 
-export function cachePlugins(absolutePluginPath: string, plugins: Plugin[]): void {
+export function setCachedPlugins(absolutePluginPath: string, plugins: Plugin[]): void {
   pluginsCache.set(absolutePluginPath, plugins);
 }
 

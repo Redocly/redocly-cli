@@ -2,7 +2,7 @@ import module from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cachePlugins, clearPluginsCache, loadPluginModule } from '../plugins-cache.js';
+import { clearPluginsCache, loadPluginModule, setCachedPlugins } from '../plugins-cache.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
@@ -35,7 +35,7 @@ describe('plugins-cache', () => {
     it('should reload cjs plugin so a fresh module is returned', async () => {
       const first = await loadPluginModule(cjsPluginPath);
       // require.cache eviction targets paths registered in pluginsCache.
-      cachePlugins(cjsPluginPath, []);
+      setCachedPlugins(cjsPluginPath, []);
 
       clearPluginsCache();
 
@@ -60,7 +60,7 @@ describe('plugins-cache', () => {
       expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
 
       await loadPluginModule(cjsPluginPath);
-      cachePlugins(cjsPluginPath, []);
+      setCachedPlugins(cjsPluginPath, []);
 
       clearPluginsCache();
 
