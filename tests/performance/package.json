@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Test benchmark for Redocly CLI",
   "private": true,
+  "type": "module",
   "scripts": {
     "chart": "node chart.js > benchmark_chart.md",
     "make-test": "bash make-test-command.sh",
