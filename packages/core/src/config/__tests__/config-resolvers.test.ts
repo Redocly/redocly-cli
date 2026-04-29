@@ -123,6 +123,30 @@ describe('resolveConfig', () => {
     });
   });
 
+  it('should instantiate the plugin once', async () => {
+    const config = {
+      ...baseGovernanceConfig,
+      extends: ['local-config-with-plugin-init.yaml'],
+    };
+    const pluginPath = path.join(__dirname, 'fixtures/resolve-config/plugin-with-init-logic.cjs');
+
+    await resolveConfig({
+      rawConfigDocument: makeDocument(config, configPath),
+      configPath,
+    });
+
+    const cachedPlugins = getCachedPlugins(pluginPath);
+    expect(cachedPlugins).toBeDefined();
+
+    await resolveConfig({
+      rawConfigDocument: makeDocument(config, configPath),
+      configPath,
+    });
+
+    // Should not execute the init logic again
+    expect(getCachedPlugins(pluginPath)).toBe(cachedPlugins);
+  });
+
   it('should resolve realm plugin properties', async () => {
     const config = {
       ...baseGovernanceConfig,
@@ -213,30 +237,6 @@ describe('resolveConfig', () => {
     expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
-  });
-
-  it('should instantiate the plugin once', async () => {
-    const config = {
-      ...baseGovernanceConfig,
-      extends: ['local-config-with-plugin-init.yaml'],
-    };
-    const pluginPath = path.join(__dirname, 'fixtures/resolve-config/plugin-with-init-logic.cjs');
-
-    await resolveConfig({
-      rawConfigDocument: makeDocument(config, configPath),
-      configPath,
-    });
-
-    const cachedPlugins = getCachedPlugins(pluginPath);
-    expect(cachedPlugins).toBeDefined();
-
-    await resolveConfig({
-      rawConfigDocument: makeDocument(config, configPath),
-      configPath,
-    });
-
-    // Should not execute the init logic again
-    expect(getCachedPlugins(pluginPath)).toBe(cachedPlugins);
   });
 
   // TODO: fix circular test
