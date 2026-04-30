@@ -9,6 +9,7 @@ jobs:
     if: github.event.label.name == 'snapshot'
     runs-on: ubuntu-latest
     permissions:
+      id-token: write # Required for OIDC
       contents: write
       pull-requests: write
 
@@ -21,7 +22,8 @@ jobs:
           node-version: 20
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-
+      - name: Update NPM for trusted publishing
+        run: npm install -g npm@latest
       - name: Update package versions
         run: |
           TIMESTAMP=$(date +%s)
@@ -65,8 +67,6 @@ jobs:
         run: npm run compile
 
       - name: Publish snapshot packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git diff
 
