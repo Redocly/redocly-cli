@@ -1,4 +1,5 @@
-import { logger } from '@redocly/openapi-core';
+import { isPlainObject, logger } from '@redocly/openapi-core';
+import { randomUUID } from 'node:crypto';
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
 
@@ -18,6 +19,49 @@ interface BaseApiClient {
 type CommandOption = 'push' | 'push-status';
 export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
+const CORRELATION_ID_HEADER = 'x-correlation-id';
+
+function getErrorDetails(err: unknown): string {
+  if (err === undefined || err === null) {
+    return 'Unknown error';
+  }
+
+  if (err instanceof Error) {
+    const details = [err.message || err.name];
+
+    if ('code' in err && err.code) {
+      details.push(`Code: ${String(err.code)}`);
+    }
+
+    if (err.cause) {
+      details.push(`Cause: ${getErrorDetails(err.cause)}`);
+    }
+
+    return details.join('. ') || 'Unknown error';
+  }
+
+  if (!isPlainObject(err)) {
+    return String(err);
+  }
+
+  const details: string[] = [];
+
+  if (typeof err.message === 'string' && err.message) {
+    details.push(err.message);
+  } else if (typeof err.name === 'string' && err.name) {
+    details.push(err.name);
+  }
+
+  if (err.code) {
+    details.push(`Code: ${String(err.code)}`);
+  }
+
+  if (err.cause) {
+    details.push(`Cause: ${getErrorDetails(err.cause)}`);
+  }
+
+  return details.join('. ') || 'Unknown error';
+}
 
 export class ReuniteApiError extends Error {
   constructor(
@@ -34,9 +78,11 @@ export class ReuniteApiClient implements BaseApiClient {
   constructor(protected command: string) {}
 
   public async request(url: string, options: FetchWithTimeoutOptions) {
+    const correlationId = randomUUID();
     const headers = {
       ...options.headers,
       'user-agent': `redocly-cli/${version} ${this.command}`,
+      [CORRELATION_ID_HEADER]: correlationId,
     };
 
     try {
@@ -49,15 +95,9 @@ export class ReuniteApiClient implements BaseApiClient {
 
       return response;
     } catch (err) {
-      let errorMessage = 'Failed to fetch.';
+      let errorMessage = `Failed to fetch. Details: ${getErrorDetails(err)}.`;
 
-      if (err.cause) {
-        errorMessage += ` Caused by ${err.cause.message || err.cause.name}.`;
-      }
-
-      if (err.code || err.cause?.code) {
-        errorMessage += ` Code: ${err.code || err.cause?.code}`;
-      }
+      errorMessage += ` Correlation ID: ${correlationId}.`;
 
       throw new Error(errorMessage);
     }
@@ -138,7 +178,7 @@ class RemotesApi {
 
       return source.branchName;
     } catch (err) {
-      const message = `Failed to fetch default branch. ${err.message}`;
+      const message = `Failed to fetch default branch. ${getErrorDetails(err)}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -177,7 +217,7 @@ class RemotesApi {
 
       return await this.getParsedResponse<UpsertRemoteResponse>(response);
     } catch (err) {
-      const message = `Failed to upsert remote. ${err.message}`;
+      const message = `Failed to upsert remote. ${getErrorDetails(err)}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -240,7 +280,7 @@ class RemotesApi {
 
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
-      const message = `Failed to push. ${err.message}`;
+      const message = `Failed to push. ${getErrorDetails(err)}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -274,7 +314,7 @@ class RemotesApi {
 
       return await this.getParsedResponse<ListRemotesResponse>(response);
     } catch (err) {
-      const message = `Failed to get remote list. ${err.message}`;
+      const message = `Failed to get remote list. ${getErrorDetails(err)}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -308,7 +348,7 @@ class RemotesApi {
 
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
-      const message = `Failed to get push status. ${err.message}`;
+      const message = `Failed to get push status. ${getErrorDetails(err)}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
