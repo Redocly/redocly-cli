@@ -7,6 +7,34 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.14 (2026-04-30)
+
+### Patch Changes
+
+- Updated handlebars to v4.7.9.
+- Updated @redocly/openapi-core to v1.34.14.
+
+## 1.34.13 (2026-04-27)
+
+### Patch Changes
+
+- Increased the default fetch timeout used by the `push` command to better support slower uploads.
+- Updated @redocly/openapi-core to v1.34.13.
+
+## 1.34.12 (2026-04-20)
+
+### Patch Changes
+
+- Improved the stability of the `push` command.
+- Updated @redocly/openapi-core to v1.34.12.
+
+## 1.34.11 (2026-03-16)
+
+### Patch Changes
+
+- Updated `undici` to the `6.24.1` version to ensure improved performance, security, and compatibility.
+- Updated @redocly/respect-core to v1.34.11.
+
 ## 1.34.10 (2026-03-02)
 
 ### Patch Changes
