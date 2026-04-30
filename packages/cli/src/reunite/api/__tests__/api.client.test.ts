@@ -52,6 +52,7 @@ describe('ApiClient', () => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${testToken}`,
             'user-agent': expectedUserAgent,
+            'x-correlation-id': expect.any(String),
           },
           signal: expect.any(AbortSignal),
           dispatcher: expect.any(Object),
@@ -90,6 +91,33 @@ describe('ApiClient', () => {
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
         new ReuniteApiError('Failed to fetch default branch. Not found.', 404)
+      );
+    });
+
+    it('should throw fetch error details with the request correlation ID', async () => {
+      vi.mocked(global.fetch).mockRejectedValueOnce(
+        Object.assign(new Error('fetch failed'), {
+          cause: {
+            message: 'socket hang up',
+            code: 'ECONNRESET',
+          },
+        })
+      );
+
+      let error: unknown;
+
+      try {
+        await apiClient.remotes.getDefaultBranch(testOrg, testProject);
+      } catch (err) {
+        error = err;
+      }
+
+      const headers = vi.mocked(global.fetch).mock.calls[0][1]?.headers as Record<string, string>;
+      const correlationId = headers['x-correlation-id'];
+
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toBe(
+        `Failed to fetch default branch. Failed to fetch. Details: fetch failed. Cause: socket hang up. Code: ECONNRESET. Correlation ID: ${correlationId}.`
       );
     });
   });
@@ -131,6 +159,7 @@ describe('ApiClient', () => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${testToken}`,
             'user-agent': expectedUserAgent,
+            'x-correlation-id': expect.any(String),
           },
           body: JSON.stringify({
             mountPath: remotePayload.mountPath,
@@ -249,6 +278,7 @@ describe('ApiClient', () => {
           headers: {
             Authorization: `Bearer ${testToken}`,
             'user-agent': expectedUserAgent,
+            'x-correlation-id': expect.any(String),
           },
         })
       );
