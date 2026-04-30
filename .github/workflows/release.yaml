@@ -1,212 +1,82 @@
-name: Release
+name: Snapshot Release
 
 on:
-  push:
-    branches:
-      - v1
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
+    types: [labeled]
 
 jobs:
-  release:
-    name: Release
+  release-snapshot:
+    if: github.event.label.name == 'snapshot'
     runs-on: ubuntu-latest
     permissions:
-      id-token: write # Required for OIDC
       contents: write
       pull-requests: write
-    outputs:
-      published: ${{ steps.changesets.outputs.published }}
-      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Update NPM for trusted publishing
-        run: npm install -g npm@latest
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: RomanHotsiy/changesets-action@v1
-        with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: npm run release
-          commit: 'chore: 🔖 release new versions'
-          title: 'chore: 🔖 release new versions'
-          version: |
-            npx changeset version
-            npm i
-            node scripts/post-changeset.js
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy:
-    needs: [release]
-    if: needs.release.outputs.published == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
-
-      - name: Bundle into single file
-        run: npm run webpack-bundle
-
-      - name: Upload to AWS S3 bucket
-        run: npm run upload
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_S3_PATH: openapi-cli-dist
-
-      - name: Upload to AWS sandbox S3 bucket
-        run: npm run upload
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SANDBOX_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SANDBOX_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_S3_PATH: redocly-sandbox-openapi-cli-dist
-
-  dockerhub:
-    needs: [release]
-    if: needs.release.outputs.published == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Get version
-        id: get_version
+      - name: Update package versions
         run: |
-          value="$(cat packages/cli/package.json | jq -r '.version')"
-          echo "value=$value" >> "$GITHUB_OUTPUT"
+          TIMESTAMP=$(date +%s)
+          VERSION="0.0.0-snapshot.$TIMESTAMP"
 
-      - name: Docker meta
-        id: docker_meta
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            redocly/cli
-            ghcr.io/redocly/cli
-          tags: |
-            ${{ steps.get_version.outputs.value }}
-            v1-archive
+          # Update Core package version
+          jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+          # Update Respect Core package version and dependencies
+          jq ".version = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+          # Update CLI package version and dependencies
+          jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          # Add comment with installation instructions
+          COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          Install with NPM:
+          \`\`\`bash
+          npm install @redocly/cli@$VERSION
+          # or
+          npm install @redocly/openapi-core@$VERSION
+          # or
+          npm install @redocly/respect-core@$VERSION
+          \`\`\`
 
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
+          ⚠️ Note: This is a development build and may contain unstable features."
 
-  post-release-smoke-checks:
-    needs:
-      - release
-      - deploy
-      - dockerhub
-    name: Test released version
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - name: Install CLI from npm
-        run: npm i -g @redocly/cli@v1-archive
-      - name: Test version from NPM
-        continue-on-error: true
-        run: |
-          expected_version="$(cat packages/cli/package.json | jq -r '.version')"
-          actual_version="$(redocly --version)"
-          if [[ $expected_version == $actual_version  ]]; then
-            echo "The version is correct. Actual version: $actual_version"
-          else
-            echo "The version is incorrect. Expected: $expected_version, actual: $actual_version"
-          fi
-          redocly lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml --format=stylish
-          redocly bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml -o bundled.json
-          redocly build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
-      - name: Pull docker image
-        run: docker pull redocly/cli:v1-archive
-      - name: Test docker image
-        continue-on-error: true
-        run: |
-          expected_version="$(cat packages/cli/package.json | jq -r '.version')"
-          actual_version="$(docker run --rm redocly/cli --version)"
-          if [[ $expected_version == $actual_version  ]]; then
-            echo "The version is correct. Actual version: $actual_version"
-          else
-            echo "The version is incorrect. Expected: $expected_version, actual: $actual_version"
-          fi
-          docker run --rm redocly/cli lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
-          docker run --rm redocly/cli bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml --output=bundled.yaml
-          docker run --rm redocly/cli build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
-
-  notify:
-    needs:
-      - release
-      - post-release-smoke-checks
-    if: needs.release.outputs.published == 'true'
-    name: Send the Release Message to Slack
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Write release message to file
-        run: node scripts/write-release-message.js
-
-      - name: Send to a Slack channel
-        id: slack
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          channel-id: C019K52TC0L #releases
-          payload-file-path: './output/release-message.json'
+          gh pr comment $PR_NUMBER --body "$COMMENT"
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build packages
+        run: npm run compile
+
+      - name: Publish snapshot packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          git diff
+
+          cd packages/core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../respect-core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../cli
+          npm publish --tag snapshot
