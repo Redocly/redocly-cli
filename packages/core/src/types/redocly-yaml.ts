@@ -602,7 +602,7 @@ const Assertions: NodeType = {
       type: 'array',
       items: { type: 'string' },
       description: 'Asserts that all listed strings are included in the value array.',
-      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#assertions-object',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#contains-example',
     },
     disallowed: {
       type: 'array',
