@@ -318,9 +318,10 @@ rules:
 
 ### `contains` example
 
-The following example uses `where` so it only runs on schemas that define `properties`, then asserts that the `required` array includes both `page` and `items`.
-Use `contains` when every listed string must appear in a **string array** (set `subject.property` to that array, for example `required` on `Schema`).
-That differs from `mutuallyRequired`, which inspects **object keys** on the subject and passes when none of the listed keys are present.
+Use `contains` to assert that every listed string appears as an element of a **string array** property (for example, the `required` field of a `Schema`).
+This differs from `required`, which checks for **object keys** rather than array values.
+
+The following example asserts that the `required` array of every schema includes both `page` and `items`.
 
 ```yaml Response example
 rules:
