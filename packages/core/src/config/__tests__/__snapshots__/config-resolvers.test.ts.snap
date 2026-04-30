@@ -31,7 +31,6 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
   "async2Decorators": {},
   "async2Preprocessors": {},
   "async2Rules": {
-    "asyncapi-operation-security-defined": "error",
     "channels-kebab-case": "off",
     "info-contact": "off",
     "info-license-strict": "warn",
@@ -42,6 +41,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-required-schema-properties-undefined": "warn",
     "no-schema-type-mismatch": "error",
     "operation-operationId": "warn",
+    "security-defined": "error",
     "tag-description": "warn",
     "tags-alphabetical": "off",
   },
@@ -419,7 +419,6 @@ exports[`resolveConfig > should resolve extends with local file config which con
   "async2Decorators": {},
   "async2Preprocessors": {},
   "async2Rules": {
-    "asyncapi-operation-security-defined": "error",
     "channels-kebab-case": "off",
     "info-contact": "off",
     "info-license-strict": "warn",
@@ -430,6 +429,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "no-required-schema-properties-undefined": "warn",
     "no-schema-type-mismatch": "error",
     "operation-operationId": "warn",
+    "security-defined": "error",
     "tag-description": "warn",
     "tags-alphabetical": "off",
   },
