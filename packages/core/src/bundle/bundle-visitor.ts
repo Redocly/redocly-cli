@@ -12,7 +12,7 @@ import {
 } from '../ref-utils.js';
 import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { type OasRef, type Oas3Discriminator } from '../typings/openapi.js';
+import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
@@ -124,7 +124,7 @@ export function makeBundleVisitor({
   keepUrlRefs: boolean;
   componentRenamingConflicts?: RuleSeverity;
 }) {
-  let components: Record<string, Record<string, any>>;
+  let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -181,7 +181,7 @@ export function makeBundleVisitor({
           }
 
           node.value = ctx.resolve({ $ref: node.externalValue }).node;
-          delete node.externalValue;
+          delete (node as Oas3Example).externalValue;
         }
       },
     },

@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.29.2",
+  "version": "2.30.3",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -43,10 +43,9 @@
     "@opentelemetry/sdk-trace-node": "2.6.1",
     "@opentelemetry/semantic-conventions": "1.40.0",
     "@redocly/cli-otel": "0.1.2",
-    "@redocly/openapi-core": "2.29.2",
-    "@redocly/respect-core": "2.29.2",
-    "abort-controller": "^3.0.0",
-    "ajv": "npm:@redocly/ajv@8.18.0",
+    "@redocly/openapi-core": "2.30.3",
+    "@redocly/respect-core": "2.30.3",
+    "ajv": "npm:@redocly/ajv@8.18.1",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "cookie": "^0.7.2",
@@ -77,6 +76,6 @@
     "@types/semver": "^7.5.0",
     "@types/set-cookie-parser": "2.4.10",
     "@types/yargs": "17.0.32",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   }
 }

@@ -1,5 +1,31 @@
 # @redocly/respect-core
 
+## 2.30.3
+
+### Patch Changes
+
+- Updated `better-ajv-errors` to `v2.0.3`.
+- Updated `@redocly/ajv` to `v8.18.1`
+- Updated @redocly/openapi-core to v2.30.3.
+
+## 2.30.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.2.
+
+## 2.30.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.1.
+
+## 2.30.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.0.
+
 ## 2.29.2
 
 ### Patch Changes

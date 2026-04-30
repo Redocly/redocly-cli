@@ -230,9 +230,9 @@ export function formatProblems(
       totals,
       version,
       problems: problems.map((p) => {
-        const problem = {
+        const problem: Record<string, unknown> = {
           ...p,
-          location: p.location.map((location: any) => ({
+          location: p.location.map((location: LocationObject) => ({
             ...location,
             source: {
               ref: isAbsoluteUrl(location.source.absoluteRef)
@@ -255,7 +255,7 @@ export function formatProblems(
         if (env.FORMAT_JSON_WITH_CODEFRAMES) {
           const location = p.location[0]; // TODO: support multiple locations
           const loc = getLineColLocation(location);
-          (problem as any).codeframe = getCodeframe(loc, color);
+          problem.codeframe = getCodeframe(loc, color);
         }
         return problem;
       }),
@@ -284,6 +284,7 @@ export function formatProblems(
       `[${idx + 1}] ${bgColor(fileWithLoc)} ${atPointer}\n\n` +
       `${problem.message}\n\n` +
       formatDidYouMean(problem) +
+      (problem.reference ? `Reference: ${colorize.blue(problem.reference)}\n\n` : '') +
       getCodeframe(loc, color) +
       '\n\n' +
       formatFrom(cwd, problem.from) +
@@ -440,7 +441,9 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
           break;
       }
       const suggest = formatDidYouMean(problem);
-      const message = suggest !== '' ? problem.message + '\n\n' + suggest : problem.message;
+      const reference = problem.reference ? `Reference: ${problem.reference}\n\n` : '';
+      const message =
+        problem.message + (suggest !== '' || reference !== '' ? '\n\n' : '') + suggest + reference;
       const properties = {
         title: problem.ruleId,
         file: isAbsoluteUrl(location.source.absoluteRef)
@@ -455,14 +458,14 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
     }
   }
 
-  function formatProperties(props: Record<string, any>): string {
+  function formatProperties(props: Record<string, unknown>): string {
     return Object.entries(props)
       .filter(([, v]) => v !== null && v !== undefined)
       .map(([k, v]) => `${k}=${escapeProperty(v)}`)
       .join(',');
   }
 
-  function toString(v: any): string {
+  function toString(v: unknown): string {
     if (v === null || v === undefined) {
       return '';
     } else if (typeof v === 'string' || v instanceof String) {
@@ -471,10 +474,10 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
     return JSON.stringify(v);
   }
 
-  function escapeMessage(v: any): string {
+  function escapeMessage(v: unknown): string {
     return toString(v).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
   }
-  function escapeProperty(v: any): string {
+  function escapeProperty(v: unknown): string {
     return toString(v)
       .replace(/%/g, '%25')
       .replace(/\r/g, '%0D')

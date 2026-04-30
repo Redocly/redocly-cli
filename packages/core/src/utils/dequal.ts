@@ -16,7 +16,7 @@ export function dequal(foo: any, bar: any): boolean {
       }
       return len === -1;
     }
-
+    // oxlint-disable-next-line oxlint-redocly-plugin/no-typeof-object
     if (!ctor || typeof foo === 'object') {
       len = 0;
       for (ctor in foo) {

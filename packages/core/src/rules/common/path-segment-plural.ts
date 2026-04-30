@@ -8,7 +8,7 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
   const { ignoreLastPathSegment, exceptions } = opts;
   return {
     PathItem: {
-      leave(_path: any, { report, key, location }: UserContext) {
+      leave(_path: unknown, { report, key, location }: UserContext) {
         const pathKey = key.toString();
         if (pathKey.startsWith('/')) {
           const pathSegments = pathKey.split('/');

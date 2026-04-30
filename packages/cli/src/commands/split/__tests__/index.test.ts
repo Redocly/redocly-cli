@@ -8,9 +8,9 @@ import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
 import { type ComponentsFiles } from '../types.js';
 import { iteratePathItems } from '../utils/iterate-path-items.js';
-import samplesJson from './fixtures/samples.json';
-import specJson from './fixtures/spec.json';
-import webhooksJson from './fixtures/webhooks.json';
+import samplesJson from './fixtures/samples.json' with { type: 'json' };
+import specJson from './fixtures/spec.json' with { type: 'json' };
+import webhooksJson from './fixtures/webhooks.json' with { type: 'json' };
 
 describe('split', () => {
   const openapiDir = 'output/split-test';

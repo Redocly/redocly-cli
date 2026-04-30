@@ -1,3 +1,4 @@
+import { isPlainObject } from '../utils/is-plain-object.js';
 import { listOf, mapOf, type NodeType } from './index.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
@@ -260,7 +261,7 @@ const Header: NodeType = {
     multipleOf: { type: 'number' },
   },
   required(value) {
-    if (value && typeof value === 'object' && 'type' in value && value.type === 'array') {
+    if (isPlainObject(value) && value.type === 'array') {
       return ['type', 'items'];
     } else {
       return ['type'];

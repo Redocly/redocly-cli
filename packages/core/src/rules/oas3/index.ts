@@ -111,7 +111,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural as Oas3Rule,
   'no-invalid-schema-examples': NoInvalidSchemaExamples as Oas3Rule,
-  'no-invalid-parameter-examples': NoInvalidParameterExamples,
+  'no-invalid-parameter-examples': NoInvalidParameterExamples as Oas3Rule,
   'response-contains-header': ResponseContainsHeader as Oas3Rule,
   'response-contains-property': ResponseContainsProperty,
   'scalar-property-missing-example': ScalarPropertyMissingExample as Oas3Rule,
