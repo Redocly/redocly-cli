@@ -53,7 +53,6 @@ some of the built-in rules. The currently-supported rules are:
 
 - `info-contact`: the `Info` section must contain a valid `Contact` field.
 - `operation-operationId`: every operation must have a valid `operationId`.
-- `asyncapi-operation-security-defined`: every scheme referenced from an operation or server `security` array must be defined in `components.securitySchemes`.
 - `channels-kebab-case`: channel address should be `kebab-case` (lowercase with hyphens).
 - `no-channel-trailing-slash`: channel names must not have trailing slashes in their address.
 - `tag-description`: all tags require a description.
