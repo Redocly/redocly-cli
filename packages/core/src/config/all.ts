@@ -251,12 +251,12 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-querystring-parameters': 'error',
   },
   async2Rules: {
-    'asyncapi-operation-security-defined': 'error',
     'channels-kebab-case': 'error',
     'info-contact': 'error',
     'info-license-strict': 'error',
     'no-channel-trailing-slash': 'error',
     'operation-operationId': 'error',
+    'security-defined': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',

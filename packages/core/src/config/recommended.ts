@@ -230,7 +230,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
   },
   async2Rules: {
-    'asyncapi-operation-security-defined': 'error',
     'channels-kebab-case': 'off',
     'info-contact': 'off',
     'info-license-strict': 'warn',
@@ -241,6 +240,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'warn',
     'no-schema-type-mismatch': 'error',
     'operation-operationId': 'warn',
+    'security-defined': 'error',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
   },

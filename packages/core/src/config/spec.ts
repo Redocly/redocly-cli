@@ -230,7 +230,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
   },
   async2Rules: {
-    'asyncapi-operation-security-defined': 'off',
     'channels-kebab-case': 'off',
     'info-contact': 'off',
     'info-license-strict': 'off',
@@ -241,6 +240,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'operation-operationId': 'off',
+    'security-defined': 'off',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
   },
