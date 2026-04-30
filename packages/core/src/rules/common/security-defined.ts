@@ -5,18 +5,29 @@ import type {
   Oas3_2Definition,
   Oas3Operation,
   Oas3PathItem,
+  Oas3SecurityScheme,
 } from '../../typings/openapi.js';
-import type { Oas2Definition, Oas2Operation, Oas2PathItem } from '../../typings/swagger.js';
+import type {
+  Oas2Definition,
+  Oas2Operation,
+  Oas2PathItem,
+  Oas2SecurityScheme,
+} from '../../typings/swagger.js';
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { createSecuritySchemeReferencesChecker } from './security-scheme-references.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
 export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
   exceptions?: { path: string; methods?: string[] }[];
 }) => {
-  const checker = createSecuritySchemeReferencesChecker();
+  const referencedSchemes = new Map<
+    string,
+    {
+      defined?: boolean;
+      from: Location[];
+    }
+  >();
 
   const operationsWithoutSecurity: Location[] = [];
   let eachOperationHasSecurity: boolean = true;
@@ -24,14 +35,22 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
 
   return {
     Root: {
-      leave(root: Oas2Definition | AnyOas3Definition, ctx: UserContext) {
-        checker.reportUndefinedSchemes(ctx);
+      leave(root: Oas2Definition | AnyOas3Definition, { report }: UserContext) {
+        for (const [name, scheme] of referencedSchemes.entries()) {
+          if (scheme.defined) continue;
+          for (const reportedFromLocation of scheme.from) {
+            report({
+              message: `There is no \`${name}\` security scheme defined.`,
+              location: reportedFromLocation.key(),
+            });
+          }
+        }
 
         if (root.security || eachOperationHasSecurity) {
           return;
         } else {
           for (const operationLocation of operationsWithoutSecurity) {
-            ctx.report({
+            report({
               message: `Every operation should have security defined on it or on the root level.`,
               location: operationLocation.key(),
             });
@@ -39,7 +58,20 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
         }
       },
     },
-    ...checker.visitors,
+    SecurityScheme(_securityScheme: Oas2SecurityScheme | Oas3SecurityScheme, { key }: UserContext) {
+      referencedSchemes.set(key.toString(), { defined: true, from: [] });
+    },
+    SecurityRequirement(requirements, { location }) {
+      for (const requirement of Object.keys(requirements)) {
+        const authScheme = referencedSchemes.get(requirement);
+        const requirementLocation = location.child([requirement]);
+        if (!authScheme) {
+          referencedSchemes.set(requirement, { from: [requirementLocation] });
+        } else {
+          authScheme.from.push(requirementLocation);
+        }
+      }
+    },
     PathItem: {
       enter(pathItem: Oas2PathItem | Oas3PathItem, { key }: UserContext) {
         path = key as string;
