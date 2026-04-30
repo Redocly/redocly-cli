@@ -1,5 +1,4 @@
-import { createRequire } from 'node:module';
-
-const packageJson = createRequire(import.meta.url ?? __dirname)('../../package.json');
+import packageJson from '../../package.json' with { type: 'json' };
 
 export const { version, name, engines } = packageJson;
+export const redocVersion = packageJson.dependencies.redoc;

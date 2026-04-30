@@ -14,10 +14,12 @@
   },
   "engineStrict": true,
   "scripts": {
-    "compile": "tsc",
-    "copy-assets": "cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs ",
-    "prepack": "npm run copy-assets",
-    "prepublishOnly": "npm run copy-assets && cp ../../README.md ."
+    "compile": "node ./scripts/compile-bundle.mjs",
+    "prepare:publish-dir": "node ./scripts/prepare-publish-dir.mjs",
+    "clean:publish-dir": "rm -rf .publish"
+  },
+  "publishConfig": {
+    "directory": ".publish"
   },
   "repository": {
     "type": "git",
