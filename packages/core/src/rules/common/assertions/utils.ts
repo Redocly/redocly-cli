@@ -238,6 +238,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
           location: getProblemsLocation(problemGroup) || ctx.location,
           forceSeverity: assertion.severity || 'error',
           suggest: assertion.suggest || [],
+          ...(assertion.reference && { reference: assertion.reference }),
           ruleId: assertId,
         });
       }

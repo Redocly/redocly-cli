@@ -41,6 +41,7 @@ export {
   type RuleConfig,
   type RuleSeverity,
   type IgnoreConfig,
+  type ResolveConfig,
 } from './config/index.js';
 export * from './config/constants.js';
 export {
@@ -90,13 +91,13 @@ export {
   type Arazzo1Decorator,
   type Overlay1Decorator,
   type OpenRpc1Decorator,
-  type Oas3Preprocessor,
-  type Oas2Preprocessor,
-  type Async2Preprocessor,
-  type Async3Preprocessor,
-  type Arazzo1Preprocessor,
-  type Overlay1Preprocessor,
-  type OpenRpc1Preprocessor,
+  type Oas3Decorator as Oas3Preprocessor,
+  type Oas2Decorator as Oas2Preprocessor,
+  type Async2Decorator as Async2Preprocessor,
+  type Async3Decorator as Async3Preprocessor,
+  type Arazzo1Decorator as Arazzo1Preprocessor,
+  type Overlay1Decorator as Overlay1Preprocessor,
+  type OpenRpc1Decorator as OpenRpc1Preprocessor,
 } from './visitors.js';
 export {
   WalkContext,
@@ -157,6 +158,7 @@ export type {
   OpenIDAuth,
   Oas3SecurityScheme,
   Oas3SecurityRequirement,
+  Oas3Example,
 } from './typings/openapi.js';
 export type { Oas2Definition } from './typings/swagger.js';
 export type { Async3Definition } from './typings/asyncapi3.js';

@@ -7,6 +7,49 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.30.3 (2026-04-29)
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.1`
+- Updated @redocly/respect-core to v2.30.3.
+
+## 2.30.2 (2026-04-29)
+
+### Patch Changes
+
+- Improved Redocly config validation: now the config checks for typos in built-in decorator names.
+- Updated @redocly/openapi-core to v2.30.2.
+
+## 2.30.1 (2026-04-27)
+
+### Patch Changes
+
+- Increased the default fetch timeout used by the `push` command to better support slower uploads.
+- Updated @redocly/openapi-core to v2.30.1.
+
+## 2.30.0 (2026-04-24)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.0.
+
+## 2.29.2 (2026-04-23)
+
+### Patch Changes
+
+- Resolved `GHSA-xq3m-2v4x-88gg` vulnerabilitiy by updating dependency versions.
+- Updated @redocly/openapi-core to v2.29.2.
+
+## 2.29.1 (2026-04-22)
+
+### Patch Changes
+
+- Made Respect's JSONPath criteria compliant with RFC 9535.
+  **Warning:** This update may affect existing workflows. Please review your usage for compatibility.
+- Fixed an issue where discriminator's `mapping` values written as bare local file names were not resolved during build.
+- Updated @redocly/openapi-core to v2.29.1.
+
 ## 2.29.0 (2026-04-20)
 
 ### Minor Changes

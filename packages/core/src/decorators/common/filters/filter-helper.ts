@@ -4,7 +4,7 @@ import { isEmptyObject } from '../../../utils/is-empty-object.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import type { UserContext } from '../../../walk.js';
 
-export function filter(node: any, ctx: UserContext, criteria: (item: any) => boolean) {
+export function filter(node: unknown, ctx: UserContext, criteria: (item: unknown) => boolean) {
   const { parent, key } = ctx;
   let didDelete = false;
   if (Array.isArray(node)) {
@@ -25,7 +25,6 @@ export function filter(node: any, ctx: UserContext, criteria: (item: any) => boo
     }
   } else if (isPlainObject(node)) {
     for (const key of Object.keys(node)) {
-      node = node as any;
       if (isRef(node[key])) {
         const resolved = ctx.resolve(node[key]);
         if (criteria(resolved.node)) {

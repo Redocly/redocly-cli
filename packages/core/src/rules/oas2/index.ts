@@ -48,7 +48,7 @@ import { ResponseMimeType } from './response-mime-type.js';
 export const rules: Oas2RuleSet<'built-in'> = {
   struct: Struct as Oas2Rule,
   'no-invalid-schema-examples': NoInvalidSchemaExamples as Oas2Rule,
-  'no-invalid-parameter-examples': NoInvalidParameterExamples,
+  'no-invalid-parameter-examples': NoInvalidParameterExamples as Oas2Rule,
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
   'info-license-strict': InfoLicenseStrict as Oas2Rule,

@@ -1,5 +1,12 @@
 import type { OASStatsAccumulator, AsyncAPIStatsAccumulator } from '../../typings/common.js';
-import type { Oas3Parameter, OasRef, Oas3Tag, Oas3_2Tag } from '../../typings/openapi.js';
+import type {
+  Oas3Link,
+  Oas3Operation,
+  Oas3Parameter,
+  Oas3Tag,
+  Oas3_2Tag,
+  OasRef,
+} from '../../typings/openapi.js';
 import type { Oas2Parameter } from '../../typings/swagger.js';
 
 export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
@@ -20,13 +27,13 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     Link: {
-      leave(link: any) {
-        statsAccumulator.links.items!.add(link.operationId);
+      leave(link: Oas3Link) {
+        statsAccumulator.links.items!.add(link.operationId!);
       },
     },
     WebhooksMap: {
       Operation: {
-        leave(operation: any) {
+        leave(operation: Oas3Operation) {
           statsAccumulator.webhooks.total++;
           if (operation.tags) {
             for (const tag of operation.tags) {
@@ -42,7 +49,7 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
           statsAccumulator.pathItems.total++;
         },
         Operation: {
-          leave(operation: any) {
+          leave(operation: Oas3Operation) {
             statsAccumulator.operations.total++;
             if (operation.tags) {
               for (const tag of operation.tags) {
@@ -89,7 +96,7 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     Tag: {
-      leave(tag: Oas3Tag | Oas3_2Tag) {
+      leave(tag: Oas3Tag) {
         statsAccumulator.tags.items!.add(tag.name);
       },
     },
@@ -147,7 +154,7 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     Tag: {
-      leave(tag: Oas3Tag | Oas3_2Tag) {
+      leave(tag: Oas3Tag) {
         statsAccumulator.tags.items!.add(tag.name);
       },
     },

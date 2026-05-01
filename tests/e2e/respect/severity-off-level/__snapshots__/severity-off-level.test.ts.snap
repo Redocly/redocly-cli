@@ -117,7 +117,7 @@ exports[`should use off severity level 1`] = `
       } 
  
     ✓ success criteria check - $statusCode == 201
-    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
+    ✓ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
@@ -159,7 +159,7 @@ exports[`should use off severity level 1`] = `
       } 
  
     ✓ success criteria check - $statusCode == 200
-    ✓ success criteria check - $.name == 'Orca Identification and Analysis'
+    ✓ success criteria check - $[?@.name == 'Orca Identification and Analysis']
     ✓ status code check - $statusCode in [200, 400, 404]
     ✗ content-type check
  

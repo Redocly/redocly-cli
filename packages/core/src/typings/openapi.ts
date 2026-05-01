@@ -110,12 +110,12 @@ export interface Oas3Parameter<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
   allowReserved?: boolean;
   schema?: Referenced<T>;
   example?: unknown;
-  examples?: { [media: string]: Referenced<Oas3Example> };
-  content?: { [media: string]: Oas3MediaType<T> };
+  examples?: Record<string, Referenced<Oas3Example>>;
+  content?: Record<string, Oas3MediaType<T>>;
 }
 
 export interface Oas3Example {
-  value: unknown;
+  value?: unknown;
   dataValue?: unknown; // added in OAS 3.2
   serializedValue?: string; // added in OAS 3.2
   summary?: string;
@@ -223,8 +223,8 @@ export interface Oas3Discriminator {
 export interface Oas3MediaType<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   schema?: Referenced<T>;
   example?: unknown;
-  examples?: { [name: string]: Referenced<Oas3Example> };
-  encoding?: { [field: string]: Oas3Encoding<T> };
+  examples?: Record<string, Referenced<Oas3Example>>;
+  encoding?: Record<string, Oas3Encoding<T>>;
   itemSchema?: Referenced<T>; // added in OAS 3.2
   prefixEncoding?: Oas3Encoding<T>[]; // added in OAS 3.2
   itemEncoding?: Referenced<Oas3Encoding<T>>; // added in OAS 3.2

@@ -14,7 +14,7 @@ export type ScalarSchema = {
 export type NormalizedScalarSchema = {
   name?: never;
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
-  items?: ScalarSchema;
+  items?: NormalizedScalarSchema;
   enum?: string[];
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
@@ -46,7 +46,7 @@ export type NormalizedNodeType = {
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
-  directResolveAs?: NormalizedPropType;
+  directResolveAs?: NormalizedNodeType;
   description?: string;
   documentationLink?: string;
 };
@@ -122,7 +122,7 @@ export function normalizeTypes(
 
         if (options.doNotResolveExamples && prop && (prop as ScalarSchema).isExample) {
           mappedProps[propName] = {
-            ...(prop as object),
+            ...prop,
             resolvable: false,
           };
         }
@@ -132,24 +132,25 @@ export function normalizeTypes(
   }
 
   // typings are painful here...
-  function resolveType(type?: any): any {
+  function resolveType(
+    type: NormalizedPropType | NormalizedResolveTypeFn | string
+  ): NormalizedPropType | NormalizedResolveTypeFn {
     if (typeof type === 'string') {
       if (!normalizedTypes[type]) {
         throw new Error(`Unknown type name found: ${type}`);
       }
       return normalizedTypes[type];
     } else if (typeof type === 'function') {
-      return (value: any, key: string) => {
-        return resolveType(type(value, key));
-      };
-    } else if (type && type.name) {
+      return (value: unknown, key: string) =>
+        resolveType((type as NormalizedResolveTypeFn)(value, key)) as NormalizedPropType;
+    } else if (isNamedType(type)) {
       type = { ...type };
       normalizeType(type);
       return type;
-    } else if (type && type.directResolveAs) {
+    } else if (type?.directResolveAs !== undefined) {
       return {
         ...type,
-        directResolveAs: resolveType(type.directResolveAs),
+        directResolveAs: (resolveType(type.directResolveAs) ?? undefined) as NormalizedNodeType,
       };
     } else {
       return type;

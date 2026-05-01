@@ -1,4 +1,4 @@
-import type { Oas3Components, Oas3_1Components, Oas3_2Components } from '../typings/openapi';
+import type { Oas3Components, Oas3_1Components, Oas3_2Components } from '../typings/openapi.js';
 
 export function hasComponent<
   C extends Oas3Components | Oas3_1Components | Oas3_2Components,

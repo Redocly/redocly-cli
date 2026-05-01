@@ -46,7 +46,7 @@ describe('Arazzo requestBody-replacements-unique', () => {
               successCriteria:
                 - condition: $statusCode == 201
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type: jsonpath
               outputs:
                 createdEventId: $response.body.eventId

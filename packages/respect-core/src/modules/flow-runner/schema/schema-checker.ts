@@ -13,7 +13,7 @@ import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in
 import { CHECKS } from '../../checks/index.js';
 import { removeWriteOnlyProperties } from '../../description-parser/index.js';
 
-const ajvStrict = new Ajv({
+const ajvStrict = new (Ajv as any)({
   schemaId: '$id',
   meta: true,
   allErrors: true,
