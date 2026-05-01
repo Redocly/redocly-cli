@@ -1,2 +1,2 @@
 plugins:
-  - plugin-with-init-logic.js
+  - plugin-with-init-logic.cjs
