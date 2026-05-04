@@ -1,7 +1,7 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef } from './ref-utils.js';
+import { Location, isRef, refHasSibling } from './ref-utils.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
@@ -327,11 +327,6 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
             let loc = resolvedLocation;
 
-            if (value === undefined) {
-              value = node[propName];
-              loc = location; // properties on the same level as $ref should resolve against original location, not target
-            }
-
             let propType = getOwn(type.properties, propName);
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
@@ -353,12 +348,16 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               propType = { name: 'scalar', properties: {} };
             }
 
-            if (isRef(node[propName]) && propType?.name === 'scalar') {
+            if (!isNamedType(propType)) {
+              continue;
+            }
+
+            if (nodeIsRef && refHasSibling(node, propName)) {
               walkNode(node[propName], propType, location.child([propName]), node, propName);
               continue;
             }
 
-            if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
+            if (propType.name === 'scalar' && !isRef(value)) {
               continue;
             }
 

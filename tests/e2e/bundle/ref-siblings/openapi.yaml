@@ -1,0 +1,66 @@
+openapi: 3.1.0
+info:
+  title: E2E bundle - ref with sibling keys
+  version: 1.0.0
+servers:
+  - url: https://api.redocly.com
+security: []
+paths:
+  /sample:
+    get:
+      operationId: getSample
+      description: parameter $ref with sibling name
+      parameters:
+        - $ref: '#/components/parameters/id'
+          name: 
+            $ref: reference.yaml#/title
+      responses:
+        '200':
+          description: JSON schema using $ref and sibling properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/test'
+                properties:
+                  second:
+                    $ref: reference.yaml
+                  third:
+                    type: array
+                    items:
+                      $ref: reference.yaml
+                additionalProperties:
+                  $ref: reference.yaml
+  /submit:
+    post:
+      description: requestBody $ref with sibling description
+      operationId: postSubmit
+      requestBody:
+        $ref: '#/components/requestBodies/SampleBody'
+        description:
+          $ref: reference.yaml#/title
+
+components:
+  parameters:
+    id:
+      name: id
+      in: query
+      required: false
+      schema:
+        type: string
+  schemas:
+    test:
+      type: object
+      properties:
+        first:
+          type: integer
+      additionalProperties: false
+  requestBodies:
+    SampleBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              value:
+                type: string
