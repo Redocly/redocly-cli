@@ -130,11 +130,7 @@ However, if you have a configuration file, but it doesn't include any rules or e
 ### Specify output format
 
 The standard `codeframe` output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
-
-{% admonition type="warning" name="Lint one API at a time" %}
-Some formats, such as `checkstyle` or `json`, don't work well when multiple APIs are linted in a single command.
-Try linting each API separately when you pass the command output to another tool.
-{% /admonition %}
+When multiple APIs are linted in a single command, all structured formats (such as `checkstyle` and `json`) produce a single combined document that groups problems per file.
 
 #### Codeframe (default)
 
