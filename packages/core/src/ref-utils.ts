@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 
 import type { Source } from './resolve.js';
-import type { Oas3Example,OasRef } from './typings/openapi.js';
+import type { Oas3Example, OasRef } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { isTruthy } from './utils/is-truthy.js';
