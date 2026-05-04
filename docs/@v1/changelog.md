@@ -11,7 +11,7 @@ toc:
 
 ### Patch Changes
 
-- Updated handlebars to v4.7.9.
+- Updated Handlebars to v4.7.9.
 - Updated @redocly/openapi-core to v1.34.14.
 
 ## 1.34.13 (2026-04-27)
