@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.30.4 (2026-05-04)
+
+### Patch Changes
+
+- Updated `styled-components` dependency to `6.4.1`.
+- Updated @redocly/openapi-core to v2.30.4.
+
 ## 2.30.3 (2026-04-29)
 
 ### Patch Changes
