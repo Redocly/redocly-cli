@@ -1,7 +1,8 @@
 import * as path from 'node:path';
 
 import type { Source } from './resolve.js';
-import type { Oas3Example, OasRef } from './typings/openapi.js';
+import type { Oas3Example,OasRef } from './typings/openapi.js';
+import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { isTruthy } from './utils/is-truthy.js';
 import type { ResolveResult, UserContext } from './walk.js';
@@ -17,6 +18,13 @@ export function isRef(node: unknown): node is OasRef {
 
 export function isExternalValue(node: unknown): node is Oas3Example & { externalValue: string } {
   return isPlainObject(node) && typeof node.externalValue === 'string';
+}
+
+export function refHasSibling<Prop extends string>(
+  node: OasRef,
+  propName: Prop
+): node is OasRef & Record<Prop, unknown> {
+  return getOwn(node, propName) !== undefined;
 }
 
 export class Location {
