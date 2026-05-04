@@ -598,6 +598,12 @@ const Assertions: NodeType = {
         'Asserts that at least one of the listed properties (key names only) is defined. ',
       documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#requireany-example',
     },
+    contains: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Asserts that all listed strings are included in the value array.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#contains-example',
+    },
     disallowed: {
       type: 'array',
       items: { type: 'string' },

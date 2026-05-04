@@ -28,6 +28,7 @@ export type Asserts = {
   requireAny: AssertionFn;
   ref: AssertionFn;
   const: AssertionFn;
+  contains: AssertionFn;
 };
 
 export const runOnKeysSet = new Set<keyof Asserts>([
@@ -59,6 +60,7 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'sortOrder',
   'ref',
   'const',
+  'contains',
 ]);
 
 export const asserts: Asserts = {
@@ -144,6 +146,19 @@ export const asserts: Asserts = {
           !value.includes(requiredKey) && {
             message: `${requiredKey} is required`,
             location: baseLocation.key(),
+          }
+      )
+      .filter(isTruthy);
+  },
+  contains: (value: string[], words: string[], { baseLocation }: AssertionFnContext) => {
+    if (typeof value === 'undefined' || isPlainObject(value)) return [];
+    const list = Array.isArray(value) ? value : [value];
+    return words
+      .map(
+        (word) =>
+          !list.includes(word) && {
+            message: `${word} should be in the list`,
+            location: baseLocation,
           }
       )
       .filter(isTruthy);

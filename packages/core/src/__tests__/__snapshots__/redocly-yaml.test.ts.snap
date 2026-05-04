@@ -93,6 +93,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
       },
       "const": [Function],
+      "contains": {
+        "description": "Asserts that all listed strings are included in the value array.",
+        "documentationLink": "https://redocly.com/docs/cli/rules/configurable-rules#contains-example",
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "defined": {
         "description": "Asserts a property is defined.",
         "documentationLink": "https://redocly.com/docs/cli/rules/configurable-rules#defined-example",

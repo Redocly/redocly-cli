@@ -207,6 +207,22 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('contains', () => {
+      it('list value should include every required entry (e.g. schema required array)', () => {
+        expect(
+          asserts.contains(['object', 'page', 'items'], ['page', 'items'], assertionProperties)
+        ).toEqual([]);
+        expect(
+          asserts.contains(['object', 'page'], ['page', 'items'], assertionProperties)
+        ).toEqual([
+          {
+            message: 'items should be in the list',
+            location: baseLocation,
+          },
+        ]);
+      });
+    });
+
     describe('nonEmpty', () => {
       it('value should not be empty', () => {
         expect(asserts.nonEmpty('test', true, assertionProperties)).toEqual([]);

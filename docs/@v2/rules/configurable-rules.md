@@ -47,6 +47,7 @@ A minimum of one assertion property is required to be defined.
 | --------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | casing                      | string            | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).                                                                                                                                                                                                                      |
 | const                       | string            | Asserts equality of a value. The behavior is the same as the `enum` assertion with exactly one value. See [const example](#const-example).                                                                                                                                                                                                                                                               |
+| contains                    | [string]          | Asserts that all listed strings are included in the value array. See [contains example](#contains-example).                                                                                                                                                                                                                                                                                              |
 | defined                     | boolean           | Asserts a property is defined. See [defined example](#defined-example).                                                                                                                                                                                                                                                                                                                                  |
 | disallowed                  | [string]          | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).                                                                                                                                                                                                                                                                                                                |
 | enum                        | [string]          | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).                                                                                                                                                                                                                                                       |
@@ -313,6 +314,32 @@ rules:
     assertions:
       const: application/json
     message: Only application/json can be used
+```
+
+### `contains` example
+
+Use `contains` to assert that every listed string appears as an element of a **string array** property (for example, the `required` field of a `Schema`).
+This differs from `required`, which checks for **object keys** rather than array values.
+
+The following example asserts that the `required` array of every schema includes both `page` and `items`.
+
+```yaml Response example
+rules:
+  rule/list-schema-required-fields:
+    subject:
+      type: Schema
+      property: required
+    where:
+      - subject:
+          type: Schema
+          property: properties
+        assertions:
+          defined: true
+    message: 'List schemas must include "page" and "items" in the required array'
+    assertions:
+      contains:
+        - page
+        - items
 ```
 
 ### `defined` example
