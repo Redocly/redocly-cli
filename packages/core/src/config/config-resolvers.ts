@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
+import * as util from 'node:util';
 
 import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { isBrowser } from '../env.js';
@@ -22,6 +23,12 @@ import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
+import {
+  getCachedPlugins,
+  hasCachedPlugin,
+  loadPluginModule,
+  setCachedPlugins,
+} from './plugins-cache.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -37,9 +44,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-
-// Cache instantiated plugins during a single execution
-const pluginsCache: Map<string, Plugin[]> = new Map();
 
 export type PluginResolveInfo = {
   absolutePath: string;
@@ -197,6 +201,14 @@ export async function resolvePlugins(
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
+  // TEMP: debug logs for language-server. Remove before merge.
+  const debugReplacer = (_key: string, value: unknown): unknown =>
+    typeof value === 'function' ? '<function>' : value;
+  process.stderr.write(
+    `[resolvePlugins] configDir=${configDir}\n` +
+      `[resolvePlugins] plugins=${JSON.stringify(plugins, debugReplacer, 2)}\n`
+  );
+
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
   const requireFunc = async (plugin: string | Plugin): Promise<Plugin | Plugin[] | undefined> => {
     if (!isString(plugin)) {
@@ -214,19 +226,9 @@ export async function resolvePlugins(
             ) as PluginResolveInfo
           ).absolutePath;
 
-      if (!pluginsCache.has(absolutePluginPath)) {
-        let requiredPlugin: ImportedPlugin | undefined;
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore FIXME: investigate if we still need this (2.0)
-        if (typeof __webpack_require__ === 'function') {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore FIXME: investigate if we still need this (2.0)
-          requiredPlugin = __non_webpack_require__(absolutePluginPath);
-        } else {
-          const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
-          requiredPlugin = mod.default || mod;
-        }
+      if (!hasCachedPlugin(absolutePluginPath)) {
+        const mod = await loadPluginModule(absolutePluginPath);
+        const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
 
@@ -248,7 +250,7 @@ export async function resolvePlugins(
         const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
 
         if (pluginModule) {
-          pluginsCache.set(
+          setCachedPlugins(
             absolutePluginPath,
             pluginInstances.map((p) => ({
               ...p,
@@ -257,9 +259,47 @@ export async function resolvePlugins(
             }))
           );
         }
+
+        // TEMP: debug logs for language-server. Remove before merge.
+        let fileSource = '';
+        try {
+          fileSource = fs.readFileSync(absolutePluginPath, 'utf8');
+        } catch (err) {
+          fileSource = `<could not read: ${(err as Error).message}>`;
+        }
+        const fnDumps: string[] = [];
+        const walk = (obj: unknown, p: string): void => {
+          if (typeof obj === 'function') {
+            const fn = obj as { name?: string; toString(): string };
+            fnDumps.push(`--- ${p} (${fn.name || 'anonymous'}) ---\n${fn.toString()}`);
+            return;
+          }
+          if (Array.isArray(obj)) {
+            obj.forEach((it, i) => walk(it, `${p}[${i}]`));
+            return;
+          }
+          if (isPlainObject(obj)) {
+            for (const [k, v] of Object.entries(obj)) walk(v, p ? `${p}.${k}` : k);
+          }
+        };
+        walk(pluginInstances, '');
+        process.stderr.write(
+          `[resolvePlugins] loaded ${absolutePluginPath}\n` +
+            `--- file source from disk ---\n${fileSource}\n--- end source ---\n` +
+            `[resolvePlugins] content=${util.inspect(pluginInstances, {
+              depth: null,
+              breakLength: 120,
+              maxArrayLength: null,
+              maxStringLength: null,
+              colors: false,
+            })}\n` +
+            (fnDumps.length
+              ? `--- functions in plugin ---\n${fnDumps.join('\n')}\n--- end functions ---\n`
+              : '')
+        );
       }
 
-      return pluginsCache.get(absolutePluginPath);
+      return getCachedPlugins(absolutePluginPath);
     } catch (e) {
       throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
     }
