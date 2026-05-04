@@ -29,4 +29,11 @@ describe('score', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
+
+  test('score should include agent prompts when --suggestions', async () => {
+    const snapshotPath = join(folderPath, 'score-suggestions', 'snapshot.txt');
+    const args = getParams(indexEntryPoint, ['score', 'museum.yaml', '--suggestions']);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'score-stylish') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshotPath);
+  });
 });

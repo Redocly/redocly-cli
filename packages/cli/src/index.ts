@@ -102,6 +102,12 @@ yargs(hideBin(process.argv))
             description: 'Print detailed schema breakdown for a specific operation.',
             type: 'string' as const,
           },
+          suggestions: {
+            description:
+              'Include copy-paste LLM prompts to improve hotspot operations (stylish and JSON output).',
+            type: 'boolean' as const,
+            default: false,
+          },
         }),
     (argv) => {
       commandWrapper(handleScore)(argv);
@@ -645,7 +651,7 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         })
-        .check((argv: any) => {
+        .check((argv: { theme?: { openapi?: unknown } }) => {
           if (argv.theme && !argv.theme?.openapi)
             throw new Error('Invalid option: theme.openapi not set.');
           return true;
