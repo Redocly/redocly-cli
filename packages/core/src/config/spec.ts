@@ -240,6 +240,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'operation-operationId': 'off',
+    'security-defined': 'off',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
   },

@@ -240,6 +240,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'error',
     'no-schema-type-mismatch': 'error',
     'operation-operationId': 'error',
+    'security-defined': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
   },

@@ -240,6 +240,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'warn',
     'no-schema-type-mismatch': 'warn',
     'operation-operationId': 'warn',
+    'security-defined': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
   },

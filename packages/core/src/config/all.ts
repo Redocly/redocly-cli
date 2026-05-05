@@ -256,6 +256,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'info-license-strict': 'error',
     'no-channel-trailing-slash': 'error',
     'operation-operationId': 'error',
+    'security-defined': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
