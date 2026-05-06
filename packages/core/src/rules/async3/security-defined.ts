@@ -1,7 +1,7 @@
 import type { Async3Rule } from '../../visitors.js';
 
 const SECURITY_LOCATION = /\/security\/\d+$/;
-const COMPONENT_SCHEME_REF = /^#\/components\/securitySchemes\/([^/]+)$/;
+const COMPONENT_SCHEME_FRAGMENT = /^\/components\/securitySchemes\/([^/]+)$/;
 
 export const SecurityDefined: Async3Rule = () => {
   return {
@@ -9,7 +9,8 @@ export const SecurityDefined: Async3Rule = () => {
       leave(node, { location, report }, resolved) {
         if (!SECURITY_LOCATION.test(location.pointer)) return;
 
-        const match = COMPONENT_SCHEME_REF.exec(node.$ref);
+        const fragment = node.$ref.split('#')[1] ?? '';
+        const match = COMPONENT_SCHEME_FRAGMENT.exec(fragment);
         if (!match) {
           report({
             message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,

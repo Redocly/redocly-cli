@@ -210,7 +210,6 @@ rules:
   info-contact: off
   info-license-strict: off
   operation-operationId: warn
-  asyncapi-operation-security-defined: warn
   tag-description: warn
   tags-alphabetical: off
   channels-kebab-case: off
