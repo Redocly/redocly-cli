@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.30.4
+
+### Patch Changes
+
+- Added `contains` assertion to check that all listed strings are present in an array property.
+
 ## 2.30.3
 
 ### Patch Changes
