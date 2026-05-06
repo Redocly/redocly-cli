@@ -143,6 +143,7 @@ const builtInAsync3Rules = [
   'info-contact',
   'info-license-strict',
   'operation-operationId',
+  'security-defined',
   'tag-description',
   'tags-alphabetical',
   'channels-kebab-case',

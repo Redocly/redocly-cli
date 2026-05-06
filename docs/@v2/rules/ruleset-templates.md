@@ -151,6 +151,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   operation-operationId: warn
+  security-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -159,11 +160,11 @@ rules:
 
 ```yaml
 rules:
-  asyncapi-operation-security-defined: warn
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   operation-operationId: warn
+  security-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -358,6 +359,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-defined: error
   struct: error
   tag-description: warn
 ```
@@ -366,7 +368,6 @@ rules:
 
 ```yaml
 rules:
-  asyncapi-operation-security-defined: error
   info-license-strict: warn
   no-duplicated-tag-names: warn
   no-enum-type-mismatch: error
@@ -374,6 +375,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-defined: error
   struct: error
   tag-description: warn
 ```

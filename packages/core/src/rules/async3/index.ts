@@ -15,6 +15,7 @@ import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
+import { SecurityDefined } from './security-defined.js';
 
 export const rules: Async3RuleSet<'built-in'> = {
   struct: Struct as Async3Rule,
@@ -23,6 +24,7 @@ export const rules: Async3RuleSet<'built-in'> = {
   'info-contact': InfoContact as Async3Rule,
   'info-license-strict': InfoLicenseStrict as Async3Rule,
   'operation-operationId': OperationOperationId as Async3Rule,
+  'security-defined': SecurityDefined,
   'channels-kebab-case': ChannelsKebabCase,
   'no-channel-trailing-slash': NoChannelTrailingSlash,
   'tag-description': TagDescription as Async3Rule,
