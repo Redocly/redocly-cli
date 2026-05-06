@@ -1,0 +1,15 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/operation-tags-contains:
+    subject:
+      type: Operation
+      property: tags
+    message: Operation tags must list every required tag name
+    severity: error
+    assertions:
+      contains:
+        - pets
+        - store
