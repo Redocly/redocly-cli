@@ -163,6 +163,7 @@ const builtInArazzo1Rules = [
   'workflow-dependsOn',
   'outputs-defined',
   'parameters-unique',
+  'spec-parameters-in-by-context',
   'step-onSuccess-unique',
   'step-onFailure-unique',
   'respect-supported-versions',
