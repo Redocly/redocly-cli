@@ -27,6 +27,17 @@ rules:
     assertions:
       required:
         - get
+  # contains example
+  rule/operation-tags-contains:
+    subject:
+      type: Operation
+      property: tags
+    message: Every operation must include documentation tags for each documented area
+    severity: error
+    assertions:
+      contains:
+        - test
+        - about
   rule/tag-name-and-desc:
     subject:
       type: Tag
