@@ -19,12 +19,12 @@ import { isDefined } from '../utils/is-defined.js';
 import { isNotString } from '../utils/is-not-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
-// TEMP: language-server debug. Remove this import + the `logPluginLoadSummary`
-// call below together with the `__debug__/` directory.
-import { logPluginLoadSummary } from './__debug__/plugin-import-tree.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
+// TEMP: language-server debug. Remove this import + the `logPluginLoadSummary`
+// call below together with the `plugin-import-tree.ts` file.
+import { logPluginLoadSummary } from './plugin-import-tree.js';
 import {
   getCachedPlugins,
   hasCachedPlugin,

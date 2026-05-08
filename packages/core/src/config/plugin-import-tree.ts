@@ -1,7 +1,7 @@
 /**
  * TEMP: debug-only renderer of the plugin import tree for the language-server.
  *
- * Removal: delete this directory and the matching import + call site in
+ * Removal: delete this file and the matching import + call site in
  * `config-resolvers.ts`. No other module imports this.
  */
 
