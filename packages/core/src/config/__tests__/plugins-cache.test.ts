@@ -1,8 +1,16 @@
+import * as fs from 'node:fs';
 import module from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { clearPluginsCache, loadPluginModule, setCachedPlugins } from '../plugins-cache.js';
+
+// Bumps mtime so `loadPluginModule` recomputes a fresh `?redocly-mtime=` and
+// Node's ESM cache is forced to evaluate the module again — mirrors a real edit.
+function bumpMtime(filePath: string): void {
+  const future = new Date(Date.now() + 1000);
+  fs.utimesSync(filePath, future, future);
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
@@ -38,6 +46,7 @@ describe('plugins-cache', () => {
       setCachedPlugins(cjsPluginPath, []);
 
       clearPluginsCache();
+      bumpMtime(cjsPluginPath);
 
       const second = await loadPluginModule(cjsPluginPath);
       expect(second).not.toBe(first);
@@ -47,6 +56,7 @@ describe('plugins-cache', () => {
       const first = await loadPluginModule(esmPluginPath);
 
       clearPluginsCache();
+      bumpMtime(esmPluginPath);
 
       const second = await loadPluginModule(esmPluginPath);
       expect(second).not.toBe(first);

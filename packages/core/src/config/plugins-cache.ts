@@ -6,13 +6,18 @@ import * as url from 'node:url';
 import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
+// Memoizes the directory walk that produces the plugin's cache-bust mtime.
+// Cleared in `clearPluginsCache()` so the next load picks up any file edits.
+const pluginMtimeCache: Map<string, number> = new Map();
 
-// URL search-param key that marks a plugin-scoped resolve. Namespaced to
-// avoid colliding with arbitrary query strings users might put on imports.
-const PLUGIN_SCOPE_PARAM = 'redocly-plugin';
+// URL search-param key that does double duty: its presence flags a URL as
+// plugin-scoped (so the global resolve hook only acts on our imports), and
+// its value is the file's mtime in ms (the cache-bust key).
+const PLUGIN_MTIME_PARAM = 'redocly-mtime';
 
-// Propagates `?v=<mtimeMs>` from a plugin's URL to every nested `file:`
-// import, scoped by the plugin marker. Requires Node >=22.15.
+// `module.registerHooks` is process-wide. The check on `PLUGIN_MTIME_PARAM`
+// scopes our rewrite to plugin imports and propagates it down the graph.
+// Requires Node >=22.15.
 function registerEsmCacheBustHook(): void {
   if (typeof module.registerHooks !== 'function') return;
 
@@ -21,11 +26,11 @@ function registerEsmCacheBustHook(): void {
       const result = nextResolve(specifier, context);
       if (!result.url.startsWith('file:')) return result;
       if (!context.parentURL) return result;
-      if (!new URL(context.parentURL).searchParams.has(PLUGIN_SCOPE_PARAM)) return result;
+      if (!new URL(context.parentURL).searchParams.has(PLUGIN_MTIME_PARAM)) return result;
 
       const childURL = new URL(result.url);
       if (childURL.pathname.includes('/node_modules/')) return result;
-      if (childURL.searchParams.has(PLUGIN_SCOPE_PARAM)) return result;
+      if (childURL.searchParams.has(PLUGIN_MTIME_PARAM)) return result;
 
       let mtimeMs: number;
       try {
@@ -34,8 +39,7 @@ function registerEsmCacheBustHook(): void {
         return result;
       }
 
-      childURL.searchParams.set(PLUGIN_SCOPE_PARAM, '1');
-      childURL.searchParams.set('v', String(mtimeMs));
+      childURL.searchParams.set(PLUGIN_MTIME_PARAM, String(Math.floor(mtimeMs)));
       return { ...result, url: childURL.href, shortCircuit: true };
     },
   });
@@ -43,11 +47,19 @@ function registerEsmCacheBustHook(): void {
 
 registerEsmCacheBustHook();
 
-// Largest mtime under the plugin's directory — used as the entry's `?v=`
-// so any change in the plugin invalidates Node's ESM cache for the entry.
-// Over-conservative (e.g. README edits also bump it), but unchanged children
-// still reuse their cached graphs via the per-file hook above.
-function computePluginVersion(entryPath: string): number {
+function getPluginMtime(entryPath: string): number {
+  let mtime = pluginMtimeCache.get(entryPath);
+  if (mtime === undefined) {
+    mtime = Math.floor(computePluginMaxMtime(entryPath));
+    pluginMtimeCache.set(entryPath, mtime);
+  }
+  return mtime;
+}
+
+// Largest mtime under the plugin's directory — used as the entry URL's
+// `?redocly-mtime=`. Over-conservative (e.g. README edits also bump it), but
+// unchanged children still reuse their cached graphs via the per-file hook.
+function computePluginMaxMtime(entryPath: string): number {
   // node_modules plugins are immutable for the process — skip the walk.
   if (entryPath.includes(`${path.sep}node_modules${path.sep}`)) {
     return safeMtime(entryPath);
@@ -121,22 +133,20 @@ function evictPluginFromRequireCache(pluginPath: string): void {
 
 export const clearPluginsCache = (): void => {
   // CJS: evict matching entries from `require.cache` (skip node_modules).
-  // ESM: nothing — the hook keys files by mtime, so re-import is automatic.
+  // ESM: drop the mtime map so the next load re-walks the directory; if any
+  //      file changed on disk, the new `?redocly-mtime=` busts Node's ESM cache.
   for (const pluginPath of pluginsCache.keys()) {
     evictPluginFromRequireCache(pluginPath);
   }
   pluginsCache.clear();
+  pluginMtimeCache.clear();
 };
 
 export async function loadPluginModule(
   absolutePluginPath: string
 ): Promise<Record<string, unknown>> {
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
-  // Scope marker the resolve hook checks to skip non-plugin imports.
-  pluginUrl.searchParams.set(PLUGIN_SCOPE_PARAM, '1');
-  // Cache key — bumps whenever any file in the plugin changes.
-  const version = computePluginVersion(absolutePluginPath);
-  if (version) pluginUrl.searchParams.set('v', String(version));
+  pluginUrl.searchParams.set(PLUGIN_MTIME_PARAM, String(getPluginMtime(absolutePluginPath)));
 
   // `webpackIgnore` keeps this a native ESM `import()` so bundlers don't
   // rewrite it into their build-time module map.
