@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
-import * as util from 'node:util';
 
 import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { isBrowser } from '../env.js';
@@ -20,6 +19,9 @@ import { isDefined } from '../utils/is-defined.js';
 import { isNotString } from '../utils/is-not-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
+// TEMP: language-server debug. Remove this import + the `logPluginLoadSummary`
+// call below together with the `__debug__/` directory.
+import { logPluginLoadSummary } from './__debug__/plugin-import-tree.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
@@ -201,14 +203,6 @@ export async function resolvePlugins(
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
-  // TEMP: debug logs for language-server. Remove before merge.
-  const debugReplacer = (_key: string, value: unknown): unknown =>
-    typeof value === 'function' ? '<function>' : value;
-  process.stderr.write(
-    `[resolvePlugins] configDir=${configDir}\n` +
-      `[resolvePlugins] plugins=${JSON.stringify(plugins, debugReplacer, 2)}\n`
-  );
-
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
   const requireFunc = async (plugin: string | Plugin): Promise<Plugin | Plugin[] | undefined> => {
     if (!isString(plugin)) {
@@ -261,42 +255,7 @@ export async function resolvePlugins(
         }
 
         // TEMP: debug logs for language-server. Remove before merge.
-        let fileSource = '';
-        try {
-          fileSource = fs.readFileSync(absolutePluginPath, 'utf8');
-        } catch (err) {
-          fileSource = `<could not read: ${(err as Error).message}>`;
-        }
-        const fnDumps: string[] = [];
-        const walk = (obj: unknown, p: string): void => {
-          if (typeof obj === 'function') {
-            const fn = obj as { name?: string; toString(): string };
-            fnDumps.push(`--- ${p} (${fn.name || 'anonymous'}) ---\n${fn.toString()}`);
-            return;
-          }
-          if (Array.isArray(obj)) {
-            obj.forEach((it, i) => walk(it, `${p}[${i}]`));
-            return;
-          }
-          if (isPlainObject(obj)) {
-            for (const [k, v] of Object.entries(obj)) walk(v, p ? `${p}.${k}` : k);
-          }
-        };
-        walk(pluginInstances, '');
-        process.stderr.write(
-          `[resolvePlugins] loaded ${absolutePluginPath}\n` +
-            `--- file source from disk ---\n${fileSource}\n--- end source ---\n` +
-            `[resolvePlugins] content=${util.inspect(pluginInstances, {
-              depth: null,
-              breakLength: 120,
-              maxArrayLength: null,
-              maxStringLength: null,
-              colors: false,
-            })}\n` +
-            (fnDumps.length
-              ? `--- functions in plugin ---\n${fnDumps.join('\n')}\n--- end functions ---\n`
-              : '')
-        );
+        logPluginLoadSummary(absolutePluginPath);
       }
 
       return getCachedPlugins(absolutePluginPath);

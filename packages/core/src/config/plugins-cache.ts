@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
@@ -6,44 +7,84 @@ import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
 
-let pluginsCacheVersion = 0;
-let isEsmCacheBustHookRegistered = false;
+// URL search-param key that marks a plugin-scoped resolve. Namespaced to
+// avoid colliding with arbitrary query strings users might put on imports.
+const PLUGIN_SCOPE_PARAM = 'redocly-plugin';
 
-// TEMP: debug logs for language-server. Remove before merge.
-const debug = (line: string): void => {
-  process.stderr.write(`[plugins-cache] ${line}\n`);
-};
+// Propagates `?v=<mtimeMs>` from a plugin's URL to every nested `file:`
+// import, scoped by the plugin marker. Requires Node >=22.15.
+function registerEsmCacheBustHook(): void {
+  if (typeof module.registerHooks !== 'function') return;
 
-const ESM_CACHE_BUST_HOOK_SOURCE = `
-export async function resolve(specifier, context, nextResolve) {
-  const result = await nextResolve(specifier, context);
-  if (!result.url.startsWith('file:')) return result;
-  if (!context.parentURL) return result;
-  const parentV = new URL(context.parentURL).searchParams.get('v');
-  if (!parentV) return result;
-  const childURL = new URL(result.url);
-  if (childURL.pathname.includes('/node_modules/')) return result;
-  if (!childURL.searchParams.has('v')) {
-    childURL.searchParams.set('v', parentV);
-  }
-  return { ...result, url: childURL.href, shortCircuit: true };
+  module.registerHooks({
+    resolve(specifier, context, nextResolve) {
+      const result = nextResolve(specifier, context);
+      if (!result.url.startsWith('file:')) return result;
+      if (!context.parentURL) return result;
+      if (!new URL(context.parentURL).searchParams.has(PLUGIN_SCOPE_PARAM)) return result;
+
+      const childURL = new URL(result.url);
+      if (childURL.pathname.includes('/node_modules/')) return result;
+      if (childURL.searchParams.has(PLUGIN_SCOPE_PARAM)) return result;
+
+      let mtimeMs: number;
+      try {
+        mtimeMs = fs.statSync(url.fileURLToPath(childURL)).mtimeMs;
+      } catch {
+        return result;
+      }
+
+      childURL.searchParams.set(PLUGIN_SCOPE_PARAM, '1');
+      childURL.searchParams.set('v', String(mtimeMs));
+      return { ...result, url: childURL.href, shortCircuit: true };
+    },
+  });
 }
-`;
 
-function ensureEsmCacheBustHook(): void {
-  if (isEsmCacheBustHookRegistered) return;
-  if (typeof module.register !== 'function') return;
+registerEsmCacheBustHook();
+
+// Largest mtime under the plugin's directory — used as the entry's `?v=`
+// so any change in the plugin invalidates Node's ESM cache for the entry.
+// Over-conservative (e.g. README edits also bump it), but unchanged children
+// still reuse their cached graphs via the per-file hook above.
+function computePluginVersion(entryPath: string): number {
+  // node_modules plugins are immutable for the process — skip the walk.
+  if (entryPath.includes(`${path.sep}node_modules${path.sep}`)) {
+    return safeMtime(entryPath);
+  }
+
+  let maxMtime = 0;
+
+  function walkDir(dir: string): void {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walkDir(fullPath);
+      } else if (entry.isFile()) {
+        const mtime = safeMtime(fullPath);
+        if (mtime > maxMtime) maxMtime = mtime;
+      }
+    }
+  }
+
+  walkDir(path.dirname(entryPath));
+  return maxMtime;
+}
+
+function safeMtime(filePath: string): number {
   try {
-    module.register(
-      `data:text/javascript,${encodeURIComponent(ESM_CACHE_BUST_HOOK_SOURCE)}`,
-      import.meta.url
-    );
-    isEsmCacheBustHookRegistered = true;
-    debug('hook registered');
-  } catch (err) {
-    debug(`hook registration failed: ${(err as Error).message}`);
-    // silently fail; without the hook only the entry plugin is cache-busted.
-    // The flag stays false so a later `clearPluginsCache()` will retry.
+    return fs.statSync(filePath).mtimeMs;
+  } catch {
+    return 0;
   }
 }
 
@@ -62,57 +103,42 @@ export function setCachedPlugins(absolutePluginPath: string, plugins: Plugin[]):
 function evictPluginFromRequireCache(pluginPath: string): void {
   const nodeRequire = module.createRequire(pluginPath);
   const visited = new Set<string>();
-  debug(`tree of ${pluginPath}`);
 
-  const evict = (modulePath: string, depth: number): void => {
+  const evict = (modulePath: string): void => {
     if (visited.has(modulePath)) return;
     visited.add(modulePath);
     const cached = nodeRequire.cache[modulePath];
-    if (!cached) {
-      debug(`  ${'  '.repeat(depth)}• ${path.basename(modulePath)} (not in require.cache)`);
-      return;
-    }
-    debug(`  ${'  '.repeat(depth)}• ${path.basename(modulePath)}`);
+    if (!cached) return;
     for (const child of cached.children) {
       if (/[/\\]node_modules[/\\]/.test(child.id)) continue;
-      evict(child.id, depth + 1);
+      evict(child.id);
     }
     delete nodeRequire.cache[modulePath];
   };
 
-  evict(pluginPath, 0);
+  evict(pluginPath);
 }
 
 export const clearPluginsCache = (): void => {
-  // CJS: walk each plugin's dependency graph via `module.children` and evict
-  // matching `require.cache` entries (skipping node_modules).
-  // ESM: bumping `pluginsCacheVersion` makes the next `import()` use a fresh
-  // `?v=N` URL; the loader hook propagates it to nested imports.
-  debug(
-    `clear: ${pluginsCache.size} plugin(s), bump v=${pluginsCacheVersion} → v=${
-      pluginsCacheVersion + 1
-    }`
-  );
+  // CJS: evict matching entries from `require.cache` (skip node_modules).
+  // ESM: nothing — the hook keys files by mtime, so re-import is automatic.
   for (const pluginPath of pluginsCache.keys()) {
     evictPluginFromRequireCache(pluginPath);
   }
   pluginsCache.clear();
-  pluginsCacheVersion++;
-  ensureEsmCacheBustHook();
 };
 
 export async function loadPluginModule(
   absolutePluginPath: string
 ): Promise<Record<string, unknown>> {
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
-  if (pluginsCacheVersion) {
-    pluginUrl.searchParams.set('v', String(pluginsCacheVersion));
-  }
-  debug(`load ${pluginUrl.href}`);
-  // Plugins are user files resolved at runtime, so this `import()` must stay
-  // a native ESM import. `webpackIgnore` stops bundlers (webpack/rspack/esbuild)
-  // from rewriting it into their build-time module map — otherwise every
-  // plugin path would resolve to `MODULE_NOT_FOUND` once `@redocly/openapi-core`
-  // is embedded in a bundled host (e.g. NestJS services calling `loadConfig`).
+  // Scope marker the resolve hook checks to skip non-plugin imports.
+  pluginUrl.searchParams.set(PLUGIN_SCOPE_PARAM, '1');
+  // Cache key — bumps whenever any file in the plugin changes.
+  const version = computePluginVersion(absolutePluginPath);
+  if (version) pluginUrl.searchParams.set('v', String(version));
+
+  // `webpackIgnore` keeps this a native ESM `import()` so bundlers don't
+  // rewrite it into their build-time module map.
   return import(/* webpackIgnore: true */ pluginUrl.href);
 }
