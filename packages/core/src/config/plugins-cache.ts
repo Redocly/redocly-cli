@@ -3,13 +3,15 @@ import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
 
-// TEMP: language-server debug. Remove together with `plugin-import-tree.ts`.
-import { logHookStatus, logPluginLoadSummary } from './plugin-import-tree.js';
+// ─── LOGGING (TEMP, language-server) — remove this import + all `LOGGING` blocks
+//     below together with `plugin-import-tree.ts`. ───
+import { logClearPluginImportTrees, logHookStatus } from './plugin-import-tree.js';
 import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
 // Memoizes the directory walk that produces the plugin's cache-bust mtime.
-// Cleared in `clearPluginsCache()` so the next load picks up any file edits.
+// Cleared in `clearPluginsCache()` so the next load re-walks the directory; if any
+// file changed on disk, the new `?redocly-mtime=` busts Node's ESM cache.
 const pluginMtimeCache: Map<string, number> = new Map();
 
 // URL search-param key that does double duty: its presence flags a URL as
@@ -30,17 +32,22 @@ function registerHooksImpl(): void {
       if (!result.url.startsWith('file:')) return result;
       if (!context.parentURL) return result;
       if (!new URL(context.parentURL).searchParams.has(PLUGIN_MTIME_PARAM)) return result;
+
       const childURL = new URL(result.url);
       if (childURL.pathname.includes('/node_modules/')) return result;
-      if (childURL.searchParams.has(PLUGIN_MTIME_PARAM)) return result;
-      let mtimeMs: number;
-      try {
-        mtimeMs = fs.statSync(url.fileURLToPath(childURL)).mtimeMs;
-      } catch {
-        return result;
+
+      let out = result;
+      if (!childURL.searchParams.has(PLUGIN_MTIME_PARAM)) {
+        try {
+          const mtimeMs = fs.statSync(url.fileURLToPath(childURL)).mtimeMs;
+          childURL.searchParams.set(PLUGIN_MTIME_PARAM, String(Math.floor(mtimeMs)));
+          out = { ...result, url: childURL.href, shortCircuit: true };
+        } catch {
+          // keep `out === result`
+        }
       }
-      childURL.searchParams.set(PLUGIN_MTIME_PARAM, String(Math.floor(mtimeMs)));
-      return { ...result, url: childURL.href, shortCircuit: true };
+
+      return out;
     },
   });
 }
@@ -145,13 +152,27 @@ function evictPluginFromRequireCache(pluginPath: string): void {
 export const clearPluginsCache = (): void => {
   // CJS: evict matching entries from `require.cache` (skip node_modules).
   // ESM: drop the mtime map so the next load re-walks the directory; if any
-  //      file changed on disk, the new `?redocly-mtime=` busts Node's ESM cache.
-  for (const pluginPath of pluginsCache.keys()) {
+  // file changed on disk, the new `?redocly-mtime=` busts Node's ESM cache.
+  const paths = [...pluginsCache.keys()];
+
+  for (const pluginPath of paths) {
     evictPluginFromRequireCache(pluginPath);
   }
   pluginsCache.clear();
   pluginMtimeCache.clear();
   ensureEsmCacheBustHook();
+
+  // LOGGING (TEMP): import tree to stderr after each clear. Uses a fresh
+  // `computePluginMaxMtime` walk only — do not call `getPluginMtime` here or it
+  // would repopulate `pluginMtimeCache` before the next `loadPluginModule()`
+  // (e.g. tests bump mtimes between clear and load).
+  const entries = paths.map((absolutePath) => {
+    const entryMtime = Math.floor(computePluginMaxMtime(absolutePath));
+    const pluginUrl = url.pathToFileURL(absolutePath);
+    pluginUrl.searchParams.set(PLUGIN_MTIME_PARAM, String(entryMtime));
+    return { absolutePath, entryHref: pluginUrl.href, entryMtime };
+  });
+  logClearPluginImportTrees(entries, PLUGIN_MTIME_PARAM, safeMtime);
 };
 
 export async function loadPluginModule(
@@ -164,11 +185,8 @@ export async function loadPluginModule(
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
   pluginUrl.searchParams.set(PLUGIN_MTIME_PARAM, String(getPluginMtime(absolutePluginPath)));
 
-  logPluginLoadSummary(absolutePluginPath, pluginUrl.href); // TEMP
-
-  // `webpackIgnore` keeps this a native ESM `import()` so bundlers don't
-  // rewrite it into their build-time module map.
   return import(/* webpackIgnore: true */ pluginUrl.href);
 }
 
-logHookStatus(); // TEMP
+// LOGGING (TEMP): once at module load — whether `registerHooks` exists.
+logHookStatus();

@@ -1,25 +1,27 @@
 /**
- * TEMP: debug-only renderer of the plugin import tree for the language-server.
+ * TEMP: debug-only plugin import tree on `clearPluginsCache` (from disk + current mtimes).
  *
- * Removal: delete this file and the matching imports + call sites in
- * `plugins-cache.ts`.
+ * Removal: delete this file and the matching imports + calls in `plugins-cache.ts`.
  */
 
 import * as fs from 'node:fs';
 import module from 'node:module';
 import * as path from 'node:path';
+import * as url from 'node:url';
+
+export type PluginClearLogEntry = {
+  absolutePath: string;
+  entryHref: string;
+  /** Same value as `?redocly-mtime=` on the entry URL (max mtime in plugin dir). */
+  entryMtime: number;
+};
 
 type TreeNode = {
-  name: string;
-  fullPath: string;
+  label: string;
   children: TreeNode[];
   cycle?: boolean;
   edge?: string;
 };
-
-type Edge = { spec: string; resolved: string; description: string };
-
-let loadCounter = 0;
 
 const EXTENSIONS = ['', '.js', '.mjs', '.cjs', '.ts', '.tsx'];
 const INDEX_EXTENSIONS = ['.js', '.mjs', '.cjs', '.ts'];
@@ -64,8 +66,11 @@ function resolveRelativeImport(spec: string, fromDir: string): string | null {
   return null;
 }
 
-function parseEdges(source: string, fromDir: string): Edge[] {
-  const edges: Edge[] = [];
+function parseEdges(
+  source: string,
+  fromDir: string
+): { spec: string; resolved: string; description: string }[] {
+  const edges: { spec: string; resolved: string; description: string }[] = [];
   const push = (spec: string, description: string): void => {
     const resolved = resolveRelativeImport(spec, fromDir);
     if (resolved) edges.push({ spec, resolved, description });
@@ -80,12 +85,24 @@ function parseEdges(source: string, fromDir: string): Edge[] {
   return edges;
 }
 
+function fileHrefWithMtime(absPath: string, mtimeParam: string, mtimeMs: number): string {
+  const u = url.pathToFileURL(absPath);
+  u.searchParams.set(mtimeParam, String(Math.floor(mtimeMs)));
+  return u.href;
+}
+
 function buildImportTree(
   filePath: string,
+  rootPath: string,
+  entryMtime: number,
+  mtimeParam: string,
+  fileMtimeMs: (p: string) => number,
   ancestors: Set<string> = new Set(),
   edge?: string
 ): TreeNode {
-  const node: TreeNode = { name: path.basename(filePath), fullPath: filePath, children: [], edge };
+  const m = filePath === rootPath ? entryMtime : fileMtimeMs(filePath);
+  const label = fileHrefWithMtime(filePath, mtimeParam, m);
+  const node: TreeNode = { label, children: [], edge };
   if (ancestors.has(filePath)) {
     node.cycle = true;
     return node;
@@ -103,7 +120,17 @@ function buildImportTree(
   for (const e of parseEdges(source, dir)) {
     if (seen.has(e.resolved)) continue;
     seen.add(e.resolved);
-    node.children.push(buildImportTree(e.resolved, next, `${e.spec}  [${e.description}]`));
+    node.children.push(
+      buildImportTree(
+        e.resolved,
+        rootPath,
+        entryMtime,
+        mtimeParam,
+        fileMtimeMs,
+        next,
+        `${e.spec}  [${e.description}]`
+      )
+    );
   }
   return node;
 }
@@ -112,7 +139,7 @@ function renderTree(node: TreeNode, prefix = '', isLast = true, depth = 0): stri
   const branch = depth === 0 ? '' : isLast ? '└─ ' : '├─ ';
   const cycle = node.cycle ? ' [CYCLE]' : '';
   const edge = node.edge ? `  ← ${node.edge}` : '';
-  const lines = [prefix + branch + node.name + cycle + edge];
+  const lines = [prefix + branch + node.label + cycle + edge];
   if (node.cycle) return lines;
   const childPrefix = prefix + (depth === 0 ? '' : isLast ? '   ' : '│  ');
   node.children.forEach((c, i) =>
@@ -121,19 +148,38 @@ function renderTree(node: TreeNode, prefix = '', isLast = true, depth = 0): stri
   return lines;
 }
 
-/** Once per process: whether `module.registerHooks` exists (Node >= 22.15). */
+let clearCounter = 0;
+
 export function logHookStatus(): void {
   const ok = typeof module.registerHooks === 'function';
   process.stderr.write(`[plugins-cache] module.registerHooks=${ok ? 'available' : 'missing'}\n`);
 }
 
-export function logPluginLoadSummary(absolutePluginPath: string, pluginUrlHref?: string): void {
-  loadCounter += 1;
+/** TEMP: after `clearPluginsCache` — tree from current files + mtimes (matches next `import()` URLs). */
+export function logClearPluginImportTrees(
+  entries: PluginClearLogEntry[],
+  mtimeParam: string,
+  fileMtimeMs: (absFile: string) => number
+): void {
+  clearCounter += 1;
   const out: string[] = [];
   out.push('─'.repeat(70));
-  out.push(`[plugins-cache] plugin load #${loadCounter}: ${path.basename(absolutePluginPath)}`);
-  if (pluginUrlHref) out.push(`  import URL: ${pluginUrlHref}`);
-  renderTree(buildImportTree(absolutePluginPath)).forEach((l) => out.push('  ' + l));
+  out.push(
+    `[plugins-cache] clearPluginsCache #${clearCounter} — current import tree (disk + mtimes)`
+  );
+  if (entries.length === 0) {
+    out.push('  (no plugin paths were in cache)');
+  }
+  for (const e of entries) {
+    out.push(`  plugin: ${path.basename(e.absolutePath)}`);
+    out.push(`  path: ${e.absolutePath}`);
+    out.push(`  entry import URL (now): ${e.entryHref}`);
+    renderTree(
+      buildImportTree(e.absolutePath, e.absolutePath, e.entryMtime, mtimeParam, fileMtimeMs)
+    ).forEach((l) => out.push('  ' + l));
+    out.push('');
+  }
+  if (entries.length > 0) out.pop();
   out.push('─'.repeat(70));
   process.stderr.write(out.join('\n') + '\n');
 }
