@@ -22,9 +22,6 @@ import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
-// TEMP: language-server debug. Remove this import + the `logPluginLoadSummary`
-// call below together with the `plugin-import-tree.ts` file.
-import { logPluginLoadSummary } from './plugin-import-tree.js';
 import {
   getCachedPlugins,
   hasCachedPlugin,
@@ -253,9 +250,6 @@ export async function resolvePlugins(
             }))
           );
         }
-
-        // TEMP: debug logs for language-server. Remove before merge.
-        logPluginLoadSummary(absolutePluginPath);
       }
 
       return getCachedPlugins(absolutePluginPath);

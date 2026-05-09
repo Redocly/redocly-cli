@@ -3,6 +3,8 @@ import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
 
+// TEMP: language-server debug. Remove together with `plugin-import-tree.ts`.
+import { logHookStatus, logPluginLoadSummary } from './plugin-import-tree.js';
 import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
@@ -15,37 +17,46 @@ const pluginMtimeCache: Map<string, number> = new Map();
 // its value is the file's mtime in ms (the cache-bust key).
 const PLUGIN_MTIME_PARAM = 'redocly-mtime';
 
-// `module.registerHooks` is process-wide. The check on `PLUGIN_MTIME_PARAM`
-// scopes our rewrite to plugin imports and propagates it down the graph.
-// Requires Node >=22.15.
-function registerEsmCacheBustHook(): void {
-  if (typeof module.registerHooks !== 'function') return;
+let isEsmCacheBustHookRegistered = false;
 
+// `module.registerHooks` runs in the main thread (Node >= 22.15). It must NOT
+// be registered at module top-level: importing `openapi-core` during LSP
+// startup would then run a process-wide resolve hook before the server is
+// ready. We register lazily from `clearPluginsCache` / `loadPluginModule`.
+function registerHooksImpl(): void {
   module.registerHooks({
     resolve(specifier, context, nextResolve) {
       const result = nextResolve(specifier, context);
       if (!result.url.startsWith('file:')) return result;
       if (!context.parentURL) return result;
       if (!new URL(context.parentURL).searchParams.has(PLUGIN_MTIME_PARAM)) return result;
-
       const childURL = new URL(result.url);
       if (childURL.pathname.includes('/node_modules/')) return result;
       if (childURL.searchParams.has(PLUGIN_MTIME_PARAM)) return result;
-
       let mtimeMs: number;
       try {
         mtimeMs = fs.statSync(url.fileURLToPath(childURL)).mtimeMs;
       } catch {
         return result;
       }
-
       childURL.searchParams.set(PLUGIN_MTIME_PARAM, String(Math.floor(mtimeMs)));
       return { ...result, url: childURL.href, shortCircuit: true };
     },
   });
 }
 
-registerEsmCacheBustHook();
+// Requires Node >= 22.15 (`module.registerHooks`). Without it, nested ESM
+// plugin imports are not cache-busted (entry `import()` still uses `?redocly-mtime=`).
+function ensureEsmCacheBustHook(): void {
+  if (isEsmCacheBustHookRegistered) return;
+  if (typeof module.registerHooks !== 'function') return;
+  try {
+    registerHooksImpl();
+    isEsmCacheBustHookRegistered = true;
+  } catch {
+    // Retry on a later `clearPluginsCache()` / `loadPluginModule()`.
+  }
+}
 
 function getPluginMtime(entryPath: string): number {
   let mtime = pluginMtimeCache.get(entryPath);
@@ -140,15 +151,24 @@ export const clearPluginsCache = (): void => {
   }
   pluginsCache.clear();
   pluginMtimeCache.clear();
+  ensureEsmCacheBustHook();
 };
 
 export async function loadPluginModule(
   absolutePluginPath: string
 ): Promise<Record<string, unknown>> {
+  // First load must install the hook before `import()` so nested plugin files
+  // get their own `?redocly-mtime=` (not only after a prior `clearPluginsCache`).
+  ensureEsmCacheBustHook();
+
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
   pluginUrl.searchParams.set(PLUGIN_MTIME_PARAM, String(getPluginMtime(absolutePluginPath)));
+
+  logPluginLoadSummary(absolutePluginPath, pluginUrl.href); // TEMP
 
   // `webpackIgnore` keeps this a native ESM `import()` so bundlers don't
   // rewrite it into their build-time module map.
   return import(/* webpackIgnore: true */ pluginUrl.href);
 }
+
+logHookStatus(); // TEMP

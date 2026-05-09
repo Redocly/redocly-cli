@@ -1,11 +1,12 @@
 /**
  * TEMP: debug-only renderer of the plugin import tree for the language-server.
  *
- * Removal: delete this file and the matching import + call site in
- * `config-resolvers.ts`. No other module imports this.
+ * Removal: delete this file and the matching imports + call sites in
+ * `plugins-cache.ts`.
  */
 
 import * as fs from 'node:fs';
+import module from 'node:module';
 import * as path from 'node:path';
 
 type TreeNode = {
@@ -120,11 +121,18 @@ function renderTree(node: TreeNode, prefix = '', isLast = true, depth = 0): stri
   return lines;
 }
 
-export function logPluginLoadSummary(absolutePluginPath: string): void {
+/** Once per process: whether `module.registerHooks` exists (Node >= 22.15). */
+export function logHookStatus(): void {
+  const ok = typeof module.registerHooks === 'function';
+  process.stderr.write(`[plugins-cache] module.registerHooks=${ok ? 'available' : 'missing'}\n`);
+}
+
+export function logPluginLoadSummary(absolutePluginPath: string, pluginUrlHref?: string): void {
   loadCounter += 1;
   const out: string[] = [];
   out.push('─'.repeat(70));
   out.push(`[plugins-cache] plugin load #${loadCounter}: ${path.basename(absolutePluginPath)}`);
+  if (pluginUrlHref) out.push(`  import URL: ${pluginUrlHref}`);
   renderTree(buildImportTree(absolutePluginPath)).forEach((l) => out.push('  ' + l));
   out.push('─'.repeat(70));
   process.stderr.write(out.join('\n') + '\n');
