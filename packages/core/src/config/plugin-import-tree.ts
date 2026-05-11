@@ -143,7 +143,7 @@ let clearCounter = 0;
 
 // Off by default; set `REDOCLY_DEBUG_PLUGINS_CACHE=1` (or any truthy value) to
 // enable. Keeps stderr clean for snapshot/smoke tests.
-const DEBUG = true; // TEMP: force-on while debugging
+const DEBUG = false; // TEMP: force-on while debugging
 
 export function logHookStatus(): void {
   if (!DEBUG) return;
