@@ -199,13 +199,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "description": "Built-in rules are the default linting rules included with Redocly CLI. They enforce widely accepted API design standards and best practices. Each built-in rule has a default severity of error, but you can change the severity or turn off any built-in rule in your configuration file.",
     "documentationLink": "https://redocly.com/docs/cli/rules/built-in-rules",
     "properties": {
-      "severity": {
-        "enum": [
-          "error",
-          "warn",
-          "off",
-        ],
-      },
+      "severity": [Function],
     },
     "required": [
       "severity",
@@ -489,12 +483,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "sidebar": "rootRedoclyConfigSchema.sidebar",
       "sso": [Function],
       "ssoDirect": "rootRedoclyConfigSchema.ssoDirect",
-      "telemetry": {
-        "enum": [
-          "on",
-          "off",
-        ],
-      },
+      "telemetry": [Function],
       "userMenu": "rootRedoclyConfigSchema.userMenu",
       "versionPicker": "rootRedoclyConfigSchema.versionPicker",
     },
@@ -511,13 +500,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reference": {
         "type": "string",
       },
-      "severity": {
-        "enum": [
-          "error",
-          "warn",
-          "off",
-        ],
-      },
+      "severity": [Function],
       "subject": "Subject",
       "suggest": {
         "items": {
@@ -553,13 +536,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "description": "Custom rules are defined by users via plugins.",
     "documentationLink": "https://redocly.com/docs/cli/custom-plugins/custom-rules",
     "properties": {
-      "severity": {
-        "enum": [
-          "error",
-          "warn",
-          "off",
-        ],
-      },
+      "severity": [Function],
     },
     "required": [
       "severity",

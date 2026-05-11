@@ -289,6 +289,13 @@ const configGovernanceProperties: Record<
   openrpc1Decorators: 'Decorators',
 };
 
+const ENV_VAR_TEMPLATE = /{{\s*process\.env\.[A-Z0-9_]+\s*}}/i;
+
+const enumSchema = (value: unknown, enumValues: string[]) =>
+  typeof value === 'string' && ENV_VAR_TEMPLATE.test(value)
+    ? { type: 'string' as const }
+    : { enum: enumValues };
+
 const ConfigGovernance: NodeType = {
   properties: configGovernanceProperties,
 };
@@ -299,7 +306,7 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
-    telemetry: { enum: ['on', 'off'] },
+    telemetry: (value: unknown) => enumSchema(value, ['on', 'off']),
     resolve: {
       properties: {
         http: 'ConfigHTTP',
@@ -344,19 +351,19 @@ const Rules: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {
-        return { enum: ['error', 'warn', 'off'] };
+        return enumSchema(value, ['error', 'warn', 'off']);
       } else {
         return 'ConfigurableRule';
       }
     } else if (builtInRules.includes(key as BuiltInRuleId)) {
       if (typeof value === 'string') {
-        return { enum: ['error', 'warn', 'off'] };
+        return enumSchema(value, ['error', 'warn', 'off']);
       } else {
         return 'BuiltinRule';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return { enum: ['error', 'warn', 'off'] };
+        return enumSchema(value, ['error', 'warn', 'off']);
       } else {
         return 'CustomRule';
       }
@@ -370,7 +377,7 @@ const Rules: NodeType = {
 
 const BuiltinRule: NodeType = {
   properties: {
-    severity: { enum: ['error', 'warn', 'off'] },
+    severity: (value: unknown) => enumSchema(value, ['error', 'warn', 'off']),
   },
   additionalProperties: {},
   required: ['severity'],
@@ -381,18 +388,13 @@ const BuiltinRule: NodeType = {
 
 const CustomRule: NodeType = {
   properties: {
-    severity: { enum: ['error', 'warn', 'off'] },
+    severity: (value: unknown) => enumSchema(value, ['error', 'warn', 'off']),
   },
   additionalProperties: {},
   required: ['severity'],
   description: 'Custom rules are defined by users via plugins.',
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-rules',
 };
-
-const ENV_VAR_TEMPLATE_RE = /{{\s*process\.env\.[A-Z0-9_]+\s*}}/i;
-
-const decoratorSchema = (value: string) =>
-  ENV_VAR_TEMPLATE_RE.test(value) ? { type: 'string' as const } : { enum: ['on', 'off'] };
 
 const Decorators: NodeType = {
   properties: {},
@@ -402,13 +404,13 @@ const Decorators: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return decoratorSchema(value);
+        return enumSchema(value, ['on', 'off']);
       } else {
         return 'BuiltinDecorator';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return decoratorSchema(value);
+        return enumSchema(value, ['on', 'off']);
       } else {
         return 'CustomDecorator';
       }
@@ -440,13 +442,13 @@ const Preprocessors: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return decoratorSchema(value);
+        return enumSchema(value, ['on', 'off']);
       } else {
         return 'BuiltinPreprocessor';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return decoratorSchema(value);
+        return enumSchema(value, ['on', 'off']);
       } else {
         return 'CustomPreprocessor';
       }
@@ -703,7 +705,7 @@ const ConfigurableRule: NodeType = {
     message: { type: 'string' },
     suggest: { type: 'array', items: { type: 'string' } },
     reference: { type: 'string' },
-    severity: { enum: ['error', 'warn', 'off'] },
+    severity: (value: unknown) => enumSchema(value, ['error', 'warn', 'off']),
   },
   required: ['subject', 'assertions'],
   description:
