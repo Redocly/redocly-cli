@@ -17,7 +17,6 @@ import { buildResponseCookies } from './helpers/build-response-cookies.js';
 import { getDuration } from './helpers/get-duration.js';
 
 const HAR_HEADER_NAME = 'x-har-request-id';
-const NULL_BODY_STATUS_CODES = new Set([204, 205, 304]);
 const harEntryMap = new Map<string, any>();
 export interface WithHar {
   <T extends typeof fetch>(baseFetch: T, defaults?: any): T;
@@ -111,14 +110,15 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     // Make the request
     const response = await baseFetch(input, options);
 
-    // Need to clone response to get both text and arrayBuffer
-    const responseClone = response.clone();
+    // Read from clones so HAR logging does not consume or reconstruct the real response.
+    const responseTextClone = response.clone();
+    const responseBodyClone = response.clone();
 
     // Update firstByte time when we get the response
     entry._timestamps.firstByte = process.hrtime();
 
     // Get the response body and update received time
-    const text = await response.text();
+    const text = response.body === null ? '' : await responseTextClone.text();
     entry._timestamps.received = process.hrtime();
 
     const harEntry = harEntryMap.get(requestId);
@@ -150,7 +150,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     }
 
     if (harEntry._compressed) {
-      const rawBody = await responseClone.arrayBuffer();
+      const rawBody = await responseBodyClone.arrayBuffer();
       harEntry.response.content.size = rawBody.byteLength;
     } else {
       harEntry.response.content.size = text ? Buffer.byteLength(text) : -1;
@@ -212,15 +212,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
       parent.pageref = entry.pageref;
     });
 
-    const Response =
-      defaults.Response || baseFetch.Response || global.Response || response.constructor;
-    const responseCopy = new Response(NULL_BODY_STATUS_CODES.has(response.status) ? null : text, {
-      status: response.status,
-      statusText: response.statusText || '',
-      headers: response.headers,
-      url: response.url,
-    });
-    responseCopy.harEntry = entry;
+    response.harEntry = entry;
 
     if (Array.isArray(har?.log?.entries)) {
       har.log.entries.push(...parents, entry);
@@ -233,6 +225,6 @@ export const withHar: WithHar = function <T extends typeof fetch>(
       onHarEntry(entry);
     }
 
-    return responseCopy;
+    return response;
   } as T;
 };
