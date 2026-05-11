@@ -389,6 +389,11 @@ const CustomRule: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-rules',
 };
 
+const ENV_VAR_TEMPLATE_RE = /{{\s*process\.env\.[A-Z0-9_]+\s*}}/i;
+
+const decoratorSchema = (value: string) =>
+  ENV_VAR_TEMPLATE_RE.test(value) ? { type: 'string' as const } : { enum: ['on', 'off'] };
+
 const Decorators: NodeType = {
   properties: {},
   description:
@@ -397,13 +402,13 @@ const Decorators: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return decoratorSchema(value);
       } else {
         return 'BuiltinDecorator';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return decoratorSchema(value);
       } else {
         return 'CustomDecorator';
       }
@@ -435,13 +440,13 @@ const Preprocessors: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return decoratorSchema(value);
       } else {
         return 'BuiltinPreprocessor';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return decoratorSchema(value);
       } else {
         return 'CustomPreprocessor';
       }

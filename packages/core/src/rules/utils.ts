@@ -196,8 +196,6 @@ export function validateExample(
   }
 }
 
-const ENV_VAR_TEMPLATE_RE = /{{\s*process\.env\.[A-Z0-9_]+\s*}}/i;
-
 export function validateSchemaEnumType(
   schemaEnum: string[],
   propertyValue: string,
@@ -206,9 +204,6 @@ export function validateSchemaEnumType(
   { report, location }: UserContext
 ) {
   if (!schemaEnum) {
-    return;
-  }
-  if (ENV_VAR_TEMPLATE_RE.test(propertyValue)) {
     return;
   }
   if (!schemaEnum.includes(propertyValue)) {
