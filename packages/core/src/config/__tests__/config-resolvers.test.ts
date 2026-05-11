@@ -1,3 +1,4 @@
+import nodeModule from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,25 +9,6 @@ import { Config } from '../config.js';
 import { getCachedPlugins } from '../plugins-cache.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
-
-const resolveOverrides = new Map<string, string>();
-
-vi.mock('node:module', async (importOriginal) => {
-  const nodeModule = (await importOriginal<Record<string, any>>()).default;
-  return {
-    default: {
-      ...nodeModule,
-      createRequire(baseUrl: string) {
-        const req = nodeModule.createRequire(baseUrl);
-        return Object.assign((id: string) => req(id), req, {
-          resolve: (id: string, opts?: any) => {
-            return resolveOverrides.get(id) ?? req.resolve(id, opts);
-          },
-        }) as typeof req;
-      },
-    },
-  };
-});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -52,9 +34,16 @@ function makeDocument(rawConfig: RawUniversalConfig, configPath: string = '') {
   };
 }
 
-afterEach(() => {
-  resolveOverrides.clear();
-});
+function mockRequireResolve(overrides: Record<string, string>): void {
+  const realCreateRequire = nodeModule.createRequire;
+  vi.spyOn(nodeModule, 'createRequire').mockImplementation((specifier) => {
+    const req = realCreateRequire(specifier);
+    const realResolve = req.resolve.bind(req);
+    req.resolve = ((id: string, opts?: any) =>
+      overrides[id] ?? realResolve(id, opts)) as typeof req.resolve;
+    return req;
+  });
+}
 
 describe('resolveConfig', () => {
   it('should return the config with no recommended', async () => {
@@ -653,8 +642,10 @@ describe('resolveApis', () => {
   it('should work with npm dependencies', async () => {
     const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
     const pluginPath = path.join(fixturesDir, 'plugin.js');
-    resolveOverrides.set('test-plugin', pluginPath);
-    resolveOverrides.set('fixtures/plugin.cjs', pluginPath);
+    mockRequireResolve({
+      'test-plugin': pluginPath,
+      'fixtures/plugin.cjs': pluginPath,
+    });
 
     const { resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(

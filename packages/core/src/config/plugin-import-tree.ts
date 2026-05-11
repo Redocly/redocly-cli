@@ -1,5 +1,7 @@
 /**
- * TEMP: debug-only plugin import tree on `clearPluginsCache` (from disk + current mtimes).
+ * TEMP: debug-only plugin import tree on `clearPluginsCache`. Tree is built
+ * from disk by parsing `import` / `require` statements; every node carries the
+ * same `?v=<cacheVersion>` because that's what the loader hook propagates.
  *
  * Removal: delete this file and the matching imports + calls in `plugins-cache.ts`.
  */
@@ -12,8 +14,8 @@ import * as url from 'node:url';
 export type PluginClearLogEntry = {
   absolutePath: string;
   entryHref: string;
-  /** Same value as `?redocly-mtime=` on the entry URL (max mtime in plugin dir). */
-  entryMtime: number;
+  /** Same value as `?v=` on the entry URL. */
+  version: number;
 };
 
 type TreeNode = {
@@ -85,23 +87,20 @@ function parseEdges(
   return edges;
 }
 
-function fileHrefWithMtime(absPath: string, mtimeParam: string, mtimeMs: number): string {
+function fileHrefWithVersion(absPath: string, versionParam: string, version: number): string {
   const u = url.pathToFileURL(absPath);
-  u.searchParams.set(mtimeParam, String(Math.floor(mtimeMs)));
+  u.searchParams.set(versionParam, String(version));
   return u.href;
 }
 
 function buildImportTree(
   filePath: string,
-  rootPath: string,
-  entryMtime: number,
-  mtimeParam: string,
-  fileMtimeMs: (p: string) => number,
+  versionParam: string,
+  version: number,
   ancestors: Set<string> = new Set(),
   edge?: string
 ): TreeNode {
-  const m = filePath === rootPath ? entryMtime : fileMtimeMs(filePath);
-  const label = fileHrefWithMtime(filePath, mtimeParam, m);
+  const label = fileHrefWithVersion(filePath, versionParam, version);
   const node: TreeNode = { label, children: [], edge };
   if (ancestors.has(filePath)) {
     node.cycle = true;
@@ -121,15 +120,7 @@ function buildImportTree(
     if (seen.has(e.resolved)) continue;
     seen.add(e.resolved);
     node.children.push(
-      buildImportTree(
-        e.resolved,
-        rootPath,
-        entryMtime,
-        mtimeParam,
-        fileMtimeMs,
-        next,
-        `${e.spec}  [${e.description}]`
-      )
+      buildImportTree(e.resolved, versionParam, version, next, `${e.spec}  [${e.description}]`)
     );
   }
   return node;
@@ -155,18 +146,15 @@ export function logHookStatus(): void {
   process.stderr.write(`[plugins-cache] module.registerHooks=${ok ? 'available' : 'missing'}\n`);
 }
 
-/** TEMP: after `clearPluginsCache` — tree from current files + mtimes (matches next `import()` URLs). */
+/** TEMP: after `clearPluginsCache` — tree with current `?v=<cacheVersion>` URLs. */
 export function logClearPluginImportTrees(
   entries: PluginClearLogEntry[],
-  mtimeParam: string,
-  fileMtimeMs: (absFile: string) => number
+  versionParam: string
 ): void {
   clearCounter += 1;
   const out: string[] = [];
   out.push('─'.repeat(70));
-  out.push(
-    `[plugins-cache] clearPluginsCache #${clearCounter} — current import tree (disk + mtimes)`
-  );
+  out.push(`[plugins-cache] clearPluginsCache #${clearCounter} — current import tree`);
   if (entries.length === 0) {
     out.push('  (no plugin paths were in cache)');
   }
@@ -174,9 +162,9 @@ export function logClearPluginImportTrees(
     out.push(`  plugin: ${path.basename(e.absolutePath)}`);
     out.push(`  path: ${e.absolutePath}`);
     out.push(`  entry import URL (now): ${e.entryHref}`);
-    renderTree(
-      buildImportTree(e.absolutePath, e.absolutePath, e.entryMtime, mtimeParam, fileMtimeMs)
-    ).forEach((l) => out.push('  ' + l));
+    renderTree(buildImportTree(e.absolutePath, versionParam, e.version)).forEach((l) =>
+      out.push('  ' + l)
+    );
     out.push('');
   }
   if (entries.length > 0) out.pop();

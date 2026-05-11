@@ -32,6 +32,7 @@ export {
   findConfig,
   resolvePlugins,
   clearPluginsCache,
+  getPluginCacheVersion,
   ConfigValidationError,
   Config, // FIXME: export it as a type
   type RawUniversalConfig,
