@@ -339,6 +339,33 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('2023-12-15');
   });
 
+  it('should not evaluate query-language strings as runtime expressions', () => {
+    const payload = {
+      jsonpath: "$.items[*].attributes[?(@.type=='foo')]",
+      xpath: '$bookstore/book[price>35]/title',
+      sparql: 'SELECT $item WHERE { $item <http://example.com/type> "foo" }',
+      opa: 'data.items[_].type == "foo"',
+    };
+
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual(payload);
+  });
+
+  it('should evaluate {$faker.*} wrapped expression embedded in object payload', () => {
+    const payload = { x: '{$faker.number.integer({ min: 5, max: 5 })}' };
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual({ x: '5' });
+  });
+
+  it('should evaluate {$faker.*} wrapped expression mixed with surrounding text', () => {
+    const payload = '{$faker.number.integer({ min: 5, max: 5 })} suffix';
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual('5 suffix');
+  });
+
   it('should evaluate $faker runtime expression value', () => {
     const payload = '$faker.number.integer({ min: 1, max: 10 })';
     expect(
@@ -352,13 +379,13 @@ describe('evaluateRuntimeExpressionPayload', () => {
 
   it('should evaluate $faker inside string runtime expression value', () => {
     const payload = 'Some text {$faker.number.integer({ min: 1, max: 10 })}';
-    expect(
-      typeof evaluateRuntimeExpressionPayload({
-        payload,
-        context: runtimeExpressionContext,
-        logger,
-      })
-    ).toBe('string');
+    const result = evaluateRuntimeExpressionPayload({
+      payload,
+      context: runtimeExpressionContext,
+      logger,
+    });
+    expect(typeof result).toBe('string');
+    expect(result).toMatch(/^Some text \d+$/);
   });
 
   it('should evaluate multiword runtime expression value', () => {
@@ -607,9 +634,9 @@ describe('evaluateRuntimeExpression', () => {
 
   it('should evaluate $faker inside string runtime expression value', () => {
     const payload = 'Some text {$faker.number.integer({ min: 1, max: 10 })}';
-    expect(typeof evaluateRuntimeExpression(payload, runtimeExpressionContext, logger)).toBe(
-      'string'
-    );
+    const result = evaluateRuntimeExpression(payload, runtimeExpressionContext, logger);
+    expect(typeof result).toBe('string');
+    expect(result).toMatch(/^Some text \d+$/);
   });
 
   it('should evaluete list runtime expression value', () => {
