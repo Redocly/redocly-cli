@@ -70,7 +70,7 @@ export function getPluginCacheVersion(): number {
   return cacheVersion;
 }
 
-function evictPluginFromRequireCache(pluginPath: string): void {
+function evictPluginFromCjsCache(pluginPath: string): void {
   const nodeRequire = module.createRequire(pluginPath);
   const visited = new Set<string>();
 
@@ -96,7 +96,7 @@ export const clearPluginsCache = (): void => {
   const paths = [...pluginsCache.keys()];
 
   for (const pluginPath of paths) {
-    evictPluginFromRequireCache(pluginPath);
+    evictPluginFromCjsCache(pluginPath);
   }
   pluginsCache.clear();
   cacheVersion += 1;
@@ -114,11 +114,12 @@ export const clearPluginsCache = (): void => {
 export async function loadPluginModule(
   absolutePluginPath: string
 ): Promise<Record<string, unknown>> {
-  ensureEsmCacheBustHook();
-
   const pluginUrl = url.pathToFileURL(absolutePluginPath);
   pluginUrl.searchParams.set(PLUGIN_VERSION_PARAM, String(cacheVersion));
 
+  // `webpackIgnore` keeps this dynamic import as a runtime `import()` so Node's
+  // ESM loader (with our `?v=` cache-bust hook) handles it instead of webpack
+  // rewriting it during VSCE/Reunite bundling.
   return import(/* webpackIgnore: true */ pluginUrl.href);
 }
 
