@@ -88,8 +88,7 @@ function evictPluginFromCjsCache(pluginPath: string): void {
 
 export const clearPluginsCache = (): void => {
   // CJS: evict from `require.cache` (skip node_modules).
-  // ESM: bump version; next load uses a fresh `?v=` so Node re-imports every
-  // module in the plugin graph.
+  // ESM: bump version; next load uses a fresh `?v=` so Node re-imports every module in the plugin graph.
   const paths = [...pluginsCache.keys()];
 
   for (const pluginPath of paths) {

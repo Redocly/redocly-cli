@@ -58,8 +58,6 @@ describe('plugins-cache', () => {
     });
 
     it('should not evict cjs modules outside the plugin dependency graph', async () => {
-      // Pre-populate require.cache with an unrelated module living in the same
-      // directory as the plugin but NOT imported by it.
       const nodeRequire = module.createRequire(cjsPluginPath);
       nodeRequire(unrelatedCjsPath);
       expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
@@ -69,8 +67,6 @@ describe('plugins-cache', () => {
 
       clearPluginsCache();
 
-      // Eviction must follow `module.children`, not directory prefix, so the
-      // unrelated module is preserved.
       expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
     });
   });
