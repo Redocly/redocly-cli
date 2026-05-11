@@ -17,6 +17,7 @@ import { buildResponseCookies } from './helpers/build-response-cookies.js';
 import { getDuration } from './helpers/get-duration.js';
 
 const HAR_HEADER_NAME = 'x-har-request-id';
+const NULL_BODY_STATUS_CODES = new Set([204, 205, 304]);
 const harEntryMap = new Map<string, any>();
 export interface WithHar {
   <T extends typeof fetch>(baseFetch: T, defaults?: any): T;
@@ -213,8 +214,8 @@ export const withHar: WithHar = function <T extends typeof fetch>(
 
     const Response =
       defaults.Response || baseFetch.Response || global.Response || response.constructor;
-    const responseCopy = new Response(text, {
-      status: response.statusCode,
+    const responseCopy = new Response(NULL_BODY_STATUS_CODES.has(response.status) ? null : text, {
+      status: response.status,
       statusText: response.statusText || '',
       headers: response.headers,
       url: response.url,
