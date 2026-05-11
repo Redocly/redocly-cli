@@ -14,7 +14,6 @@ import * as url from 'node:url';
 export type PluginClearLogEntry = {
   absolutePath: string;
   entryHref: string;
-  /** Same value as `?v=` on the entry URL. */
   version: number;
 };
 
@@ -22,39 +21,14 @@ type TreeNode = {
   label: string;
   children: TreeNode[];
   cycle?: boolean;
-  edge?: string;
 };
 
 const EXTENSIONS = ['', '.js', '.mjs', '.cjs', '.ts', '.tsx'];
 const INDEX_EXTENSIONS = ['.js', '.mjs', '.cjs', '.ts'];
 
-const ESM_IMPORT_RE = /^[ \t]*import\s+(?:(.+?)\s+from\s+)?['"](\.\.?\/[^'"]+)['"]/gm;
+const ESM_IMPORT_RE = /^[ \t]*import\s+(?:.+?\s+from\s+)?['"](\.\.?\/[^'"]+)['"]/gm;
 const CJS_REQUIRE_RE = /(?:^|[^.\w])require\s*\(\s*['"](\.\.?\/[^'"]+)['"]\s*\)/g;
 const DYNAMIC_IMPORT_RE = /(?:^|[^.\w])import\s*\(\s*['"](\.\.?\/[^'"]+)['"]\s*\)/g;
-
-function describeImportClause(clause: string | undefined): string {
-  if (!clause) return 'side-effect';
-  const c = clause.trim();
-  const ns = c.match(/^\*\s+as\s+(\w+)$/);
-  if (ns) return `* as ${ns[1]}`;
-  const def = c.match(/^([\w$]+)(?:\s*,\s*\{([^}]+)\})?$/);
-  if (def) {
-    const named = def[2]
-      ? `, { ${def[2]
-          .split(',')
-          .map((s) => s.trim())
-          .join(', ')} }`
-      : '';
-    return `default → ${def[1]}${named}`;
-  }
-  const named = c.match(/^\{([^}]+)\}$/);
-  if (named)
-    return `{ ${named[1]
-      .split(',')
-      .map((s) => s.trim())
-      .join(', ')} }`;
-  return c;
-}
 
 function resolveRelativeImport(spec: string, fromDir: string): string | null {
   for (const ext of EXTENSIONS) {
@@ -68,23 +42,20 @@ function resolveRelativeImport(spec: string, fromDir: string): string | null {
   return null;
 }
 
-function parseEdges(
-  source: string,
-  fromDir: string
-): { spec: string; resolved: string; description: string }[] {
-  const edges: { spec: string; resolved: string; description: string }[] = [];
-  const push = (spec: string, description: string): void => {
-    const resolved = resolveRelativeImport(spec, fromDir);
-    if (resolved) edges.push({ spec, resolved, description });
+function parseImports(source: string, fromDir: string): string[] {
+  const resolved: string[] = [];
+  const push = (spec: string): void => {
+    const r = resolveRelativeImport(spec, fromDir);
+    if (r) resolved.push(r);
   };
   let m: RegExpExecArray | null;
   ESM_IMPORT_RE.lastIndex = 0;
-  while ((m = ESM_IMPORT_RE.exec(source))) push(m[2], describeImportClause(m[1]));
+  while ((m = ESM_IMPORT_RE.exec(source))) push(m[1]);
   CJS_REQUIRE_RE.lastIndex = 0;
-  while ((m = CJS_REQUIRE_RE.exec(source))) push(m[1], 'require()');
+  while ((m = CJS_REQUIRE_RE.exec(source))) push(m[1]);
   DYNAMIC_IMPORT_RE.lastIndex = 0;
-  while ((m = DYNAMIC_IMPORT_RE.exec(source))) push(m[1], 'import() dynamic');
-  return edges;
+  while ((m = DYNAMIC_IMPORT_RE.exec(source))) push(m[1]);
+  return resolved;
 }
 
 function fileHrefWithVersion(absPath: string, versionParam: string, version: number): string {
@@ -97,11 +68,10 @@ function buildImportTree(
   filePath: string,
   versionParam: string,
   version: number,
-  ancestors: Set<string> = new Set(),
-  edge?: string
+  ancestors: Set<string> = new Set()
 ): TreeNode {
   const label = fileHrefWithVersion(filePath, versionParam, version);
-  const node: TreeNode = { label, children: [], edge };
+  const node: TreeNode = { label, children: [] };
   if (ancestors.has(filePath)) {
     node.cycle = true;
     return node;
@@ -112,16 +82,13 @@ function buildImportTree(
   } catch {
     return node;
   }
-  const dir = path.dirname(filePath);
-  const seen = new Set<string>();
   const next = new Set(ancestors);
   next.add(filePath);
-  for (const e of parseEdges(source, dir)) {
-    if (seen.has(e.resolved)) continue;
-    seen.add(e.resolved);
-    node.children.push(
-      buildImportTree(e.resolved, versionParam, version, next, `${e.spec}  [${e.description}]`)
-    );
+  const seen = new Set<string>();
+  for (const resolved of parseImports(source, path.dirname(filePath))) {
+    if (seen.has(resolved)) continue;
+    seen.add(resolved);
+    node.children.push(buildImportTree(resolved, versionParam, version, next));
   }
   return node;
 }
@@ -129,8 +96,7 @@ function buildImportTree(
 function renderTree(node: TreeNode, prefix = '', isLast = true, depth = 0): string[] {
   const branch = depth === 0 ? '' : isLast ? '└─ ' : '├─ ';
   const cycle = node.cycle ? ' [CYCLE]' : '';
-  const edge = node.edge ? `  ← ${node.edge}` : '';
-  const lines = [prefix + branch + node.label + cycle + edge];
+  const lines = [prefix + branch + node.label + cycle];
   if (node.cycle) return lines;
   const childPrefix = prefix + (depth === 0 ? '' : isLast ? '   ' : '│  ');
   node.children.forEach((c, i) =>
@@ -143,7 +109,7 @@ let clearCounter = 0;
 
 // Off by default; set `REDOCLY_DEBUG_PLUGINS_CACHE=1` (or any truthy value) to
 // enable. Keeps stderr clean for snapshot/smoke tests.
-const DEBUG = false; // TEMP: force-on while debugging
+const DEBUG = true; // TEMP: force-on while debugging
 
 export function logHookStatus(): void {
   if (!DEBUG) return;
