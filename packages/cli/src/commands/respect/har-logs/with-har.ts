@@ -112,7 +112,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
 
     // Read from clones so HAR logging does not consume or reconstruct the real response.
     const responseTextClone = response.clone();
-    const responseBodyClone = response.clone();
+    const responseBufferClone = response.clone();
 
     // Update firstByte time when we get the response
     entry._timestamps.firstByte = process.hrtime();
@@ -150,7 +150,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     }
 
     if (harEntry._compressed) {
-      const rawBody = await responseBodyClone.arrayBuffer();
+      const rawBody = await responseBufferClone.arrayBuffer();
       harEntry.response.content.size = rawBody.byteLength;
     } else {
       harEntry.response.content.size = text ? Buffer.byteLength(text) : -1;
