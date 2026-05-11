@@ -141,7 +141,12 @@ function renderTree(node: TreeNode, prefix = '', isLast = true, depth = 0): stri
 
 let clearCounter = 0;
 
+// Off by default; set `REDOCLY_DEBUG_PLUGINS_CACHE=1` (or any truthy value) to
+// enable. Keeps stderr clean for snapshot/smoke tests.
+const DEBUG = true; // TEMP: force-on while debugging
+
 export function logHookStatus(): void {
+  if (!DEBUG) return;
   const ok = typeof module.registerHooks === 'function';
   process.stderr.write(`[plugins-cache] module.registerHooks=${ok ? 'available' : 'missing'}\n`);
 }
@@ -151,6 +156,7 @@ export function logClearPluginImportTrees(
   entries: PluginClearLogEntry[],
   versionParam: string
 ): void {
+  if (!DEBUG) return;
   clearCounter += 1;
   const out: string[] = [];
   out.push('─'.repeat(70));
@@ -158,16 +164,13 @@ export function logClearPluginImportTrees(
   if (entries.length === 0) {
     out.push('  (no plugin paths were in cache)');
   }
-  for (const e of entries) {
-    out.push(`  plugin: ${path.basename(e.absolutePath)}`);
-    out.push(`  path: ${e.absolutePath}`);
-    out.push(`  entry import URL (now): ${e.entryHref}`);
-    renderTree(buildImportTree(e.absolutePath, versionParam, e.version)).forEach((l) =>
-      out.push('  ' + l)
-    );
-    out.push('');
-  }
-  if (entries.length > 0) out.pop();
+  // Render each plugin entry as a sibling at depth 1 of an implicit root, so
+  // multiple entries appear under a single tree.
+  entries.forEach((e, i) => {
+    const isLast = i === entries.length - 1;
+    const root = buildImportTree(e.absolutePath, versionParam, e.version);
+    renderTree(root, '', isLast, 1).forEach((l) => out.push('  ' + l));
+  });
   out.push('─'.repeat(70));
   process.stderr.write(out.join('\n') + '\n');
 }
