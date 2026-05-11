@@ -51,6 +51,10 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
   return undefined;
 }
 
+export function getProxyAwareFetch() {
+  return withConnectionClient();
+}
+
 export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
   const proxyUrl = getProxyUrl();
 
