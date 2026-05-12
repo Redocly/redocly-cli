@@ -438,7 +438,6 @@ rules:
   info-contact: off
   info-license-strict: warn
   operation-operationId: warn
-  asyncapi-operation-security-defined: error
   tag-description: warn
   tags-alphabetical: off
   channels-kebab-case: off
