@@ -289,13 +289,6 @@ const configGovernanceProperties: Record<
   openrpc1Decorators: 'Decorators',
 };
 
-const ENV_VAR_TEMPLATE = /{{\s*process\.env\.[A-Z0-9_]+\s*}}/i;
-
-const enumSchema = (value: unknown, enumValues: string[]) =>
-  typeof value === 'string' && ENV_VAR_TEMPLATE.test(value)
-    ? { type: 'string' as const }
-    : { enum: enumValues };
-
 const ConfigGovernance: NodeType = {
   properties: configGovernanceProperties,
 };
@@ -306,7 +299,7 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
-    telemetry: (value: unknown) => enumSchema(value, ['on', 'off']),
+    telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
         http: 'ConfigHTTP',
@@ -351,19 +344,19 @@ const Rules: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['error', 'warn', 'off']);
+        return { enum: ['error', 'warn', 'off'] };
       } else {
         return 'ConfigurableRule';
       }
     } else if (builtInRules.includes(key as BuiltInRuleId)) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['error', 'warn', 'off']);
+        return { enum: ['error', 'warn', 'off'] };
       } else {
         return 'BuiltinRule';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['error', 'warn', 'off']);
+        return { enum: ['error', 'warn', 'off'] };
       } else {
         return 'CustomRule';
       }
@@ -377,7 +370,7 @@ const Rules: NodeType = {
 
 const BuiltinRule: NodeType = {
   properties: {
-    severity: (value: unknown) => enumSchema(value, ['error', 'warn', 'off']),
+    severity: { enum: ['error', 'warn', 'off'] },
   },
   additionalProperties: {},
   required: ['severity'],
@@ -388,7 +381,7 @@ const BuiltinRule: NodeType = {
 
 const CustomRule: NodeType = {
   properties: {
-    severity: (value: unknown) => enumSchema(value, ['error', 'warn', 'off']),
+    severity: { enum: ['error', 'warn', 'off'] },
   },
   additionalProperties: {},
   required: ['severity'],
@@ -404,13 +397,13 @@ const Decorators: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['on', 'off']);
+        return { type: 'string' };
       } else {
         return 'BuiltinDecorator';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['on', 'off']);
+        return { type: 'string' };
       } else {
         return 'CustomDecorator';
       }
@@ -442,13 +435,13 @@ const Preprocessors: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['on', 'off']);
+        return { type: 'string' };
       } else {
         return 'BuiltinPreprocessor';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return enumSchema(value, ['on', 'off']);
+        return { type: 'string' };
       } else {
         return 'CustomPreprocessor';
       }
@@ -705,7 +698,7 @@ const ConfigurableRule: NodeType = {
     message: { type: 'string' },
     suggest: { type: 'array', items: { type: 'string' } },
     reference: { type: 'string' },
-    severity: (value: unknown) => enumSchema(value, ['error', 'warn', 'off']),
+    severity: { enum: ['error', 'warn', 'off'] },
   },
   required: ['subject', 'assertions'],
   description:
