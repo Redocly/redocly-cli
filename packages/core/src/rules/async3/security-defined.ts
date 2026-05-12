@@ -1,17 +1,15 @@
 import type { Async3Rule } from '../../visitors.js';
 
-const SECURITY_LOCATION = /\/security\/\d+$/;
-const COMPONENT_SCHEME_FRAGMENT = /^\/components\/securitySchemes\/([^/]+)$/;
+const COMPONENT_SCHEME_PREFIX = '#/components/securitySchemes/';
 
 export const SecurityDefined: Async3Rule = () => {
   return {
     ref: {
-      leave(node, { location, report }, resolved) {
-        if (!SECURITY_LOCATION.test(location.pointer)) return;
+      leave(node, { type, location, report }, resolved) {
+        if (type.name !== 'SecurityScheme') return;
 
-        const fragment = node.$ref.split('#')[1] ?? '';
-        const match = COMPONENT_SCHEME_FRAGMENT.exec(fragment);
-        if (!match) {
+        const ref = node.$ref;
+        if (!ref.startsWith(COMPONENT_SCHEME_PREFIX)) {
           report({
             message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
             location: location.key(),
@@ -20,8 +18,9 @@ export const SecurityDefined: Async3Rule = () => {
         }
 
         if (resolved.node === undefined) {
+          const schemeName = ref.slice(COMPONENT_SCHEME_PREFIX.length);
           report({
-            message: `There is no \`${match[1]}\` security scheme defined.`,
+            message: `There is no \`${schemeName}\` security scheme defined.`,
             location: location.key(),
           });
         }
