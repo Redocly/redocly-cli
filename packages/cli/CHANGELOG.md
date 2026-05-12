@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.30.5
+
+### Patch Changes
+
+- Fixed a status code mismatch that occurred when using the `--har-output` option in the `respect` command.
+- Updated @redocly/openapi-core to v2.30.5.
+
 ## 2.30.4
 
 ### Patch Changes
