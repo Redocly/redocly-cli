@@ -21,6 +21,9 @@ tags:
 paths:
   /pet/findByStatus:
     put:
+      tags:
+        - test
+        - about
       operationId: exampleOne
       summary: My resource
       externalDocs:
@@ -61,6 +64,9 @@ paths:
                     type: string
                     description: hooray
     get:
+      tags:
+        - about
+        - test
       operationId: example
       summary: My resource
       description: description
