@@ -329,6 +329,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
             let loc = resolvedLocation;
 
+            if (value === undefined) {
+              value = node[propName];
+              loc = location; // properties on the same level as $ref should resolve against original location, not target
+            }
+
             let propType = getOwn(type.properties, propName);
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
