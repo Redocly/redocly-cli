@@ -397,13 +397,13 @@ const Decorators: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return { type: 'string' };
       } else {
         return 'BuiltinDecorator';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return { type: 'string' };
       } else {
         return 'CustomDecorator';
       }
@@ -435,13 +435,13 @@ const Preprocessors: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return { type: 'string' };
       } else {
         return 'BuiltinPreprocessor';
       }
     } else if (isCustomRuleId(key)) {
       if (typeof value === 'string') {
-        return { enum: ['on', 'off'] };
+        return { type: 'string' };
       } else {
         return 'CustomPreprocessor';
       }

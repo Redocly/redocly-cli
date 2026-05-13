@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.30.5
+
+### Patch Changes
+
+- Fixed an issue where query-language strings (JSONPath, XPath, SPARQL, OPA) in Respect request bodies were incorrectly treated as runtime expressions.
+- Updated @redocly/openapi-core to v2.30.5.
+
 ## 2.30.4
 
 ### Patch Changes
