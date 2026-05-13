@@ -445,7 +445,7 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
       const message =
         problem.message + (suggest !== '' || reference !== '' ? '\n\n' : '') + suggest + reference;
       const properties = {
-        title: problem.ruleId,
+        title: problem.ruleId.replaceAll('/', '\u2215'),
         file: isAbsoluteUrl(location.source.absoluteRef)
           ? location.source.absoluteRef
           : path.relative(cwd, location.source.absoluteRef),
