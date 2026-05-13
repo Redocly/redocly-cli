@@ -240,6 +240,10 @@ function evaluateExpressionsInString(
   return expression.replace(regex, (match) => {
     const exprToEvaluate = match.trim();
 
+    if (!isValidRuntimeExpression(exprToEvaluate) && !exprToEvaluate.includes('$faker.')) {
+      return match;
+    }
+
     // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression
     const evaluatedValue = evaluateRuntimeExpression(exprToEvaluate, context, logger);
 
@@ -249,9 +253,29 @@ function evaluateExpressionsInString(
 }
 
 export function isPureRuntimeExpression(expression: string): boolean {
-  // Regular expression to match runtime expressions
-  const regex = /^\$[^\s{}]+(\([^)]*\))?$|^\{[^{}]*\}$/;
+  const trimmedExpression = expression.trim();
 
-  // Check if the expression matches the runtime expression format
-  return regex.test(expression.trim());
+  if (trimmedExpression.startsWith('$faker.')) {
+    return true;
+  }
+
+  if (
+    !(
+      (trimmedExpression.startsWith('$') && !/\s/.test(trimmedExpression)) ||
+      (trimmedExpression.startsWith('{') && trimmedExpression.endsWith('}'))
+    )
+  ) {
+    return false;
+  }
+
+  return isValidRuntimeExpression(trimmedExpression);
+}
+
+function isValidRuntimeExpression(expression: string): boolean {
+  try {
+    lintExpression(expression);
+    return true;
+  } catch {
+    return false;
+  }
 }

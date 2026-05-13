@@ -1,5 +1,17 @@
 # @redocly/openapi-core
 
+## 2.30.5
+
+### Patch Changes
+
+- Fixed an issue where using environment variables in `redocly.yaml` caused a config validation error during the build.
+
+## 2.30.4
+
+### Patch Changes
+
+- Added `contains` assertion to check that all listed strings are present in an array property.
+
 ## 2.30.3
 
 ### Patch Changes
