@@ -7,7 +7,7 @@ import { dirname, basename } from 'node:path';
 import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { type CommandArgs } from '../../wrapper.js';
-import { getProxyAwareFetch, withConnectionClient } from './connection-client.js';
+import { withConnectionClient } from './connection-client.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { createHarLog } from './har-logs/har-logs.js';
 import { withHar } from './har-logs/index.js';
@@ -66,7 +66,7 @@ export async function handleRespect({
     const externalRefResolver = new BaseResolver({
       http: {
         headers: config.resolve?.http?.headers ?? [],
-        customFetch: getProxyAwareFetch(),
+        customFetch: withConnectionClient(),
       },
     });
 

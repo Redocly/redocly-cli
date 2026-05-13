@@ -2,7 +2,6 @@ import { Client, ProxyAgent, fetch as undiciFetch } from 'undici';
 
 import {
   createNetworkDispatcher,
-  getProxyAwareFetch,
   type MtlsPerDomainCerts,
   withConnectionClient,
 } from '../../../commands/respect/connection-client.js';
@@ -163,7 +162,7 @@ describe('createNetworkDispatcher', () => {
   });
 });
 
-describe('getProxyAwareFetch', () => {
+describe('withConnectionClient (proxy-only behavior)', () => {
   const savedEnv: Record<string, string | undefined> = {};
 
   beforeEach(() => {
@@ -189,21 +188,21 @@ describe('getProxyAwareFetch', () => {
     }
   });
 
-  it('returns the bare undici fetch when no proxy env vars are set', () => {
-    const customFetch = getProxyAwareFetch();
+  it('returns the bare undici fetch when no proxy env vars and no certs', () => {
+    const customFetch = withConnectionClient();
     expect(customFetch).toBe(undiciFetch);
   });
 
   it('returns a wrapper fetch when HTTPS_PROXY is set', () => {
     process.env.HTTPS_PROXY = 'http://proxy.local:8080';
-    const customFetch = getProxyAwareFetch();
+    const customFetch = withConnectionClient();
     expect(customFetch).not.toBe(undiciFetch);
     expect(typeof customFetch).toBe('function');
   });
 
   it('returns a wrapper fetch when HTTP_PROXY is set', () => {
     process.env.HTTP_PROXY = 'http://proxy.local:8080';
-    const customFetch = getProxyAwareFetch();
+    const customFetch = withConnectionClient();
     expect(customFetch).not.toBe(undiciFetch);
     expect(typeof customFetch).toBe('function');
   });
