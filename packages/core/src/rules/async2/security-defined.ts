@@ -10,6 +10,8 @@ export const SecurityDefined: Async2Rule = () => {
       from: Location[];
     }
   >();
+  const operationsWithoutSecurity: Location[] = [];
+  let eachOperationHasSecurity = true;
 
   return {
     Root: {
@@ -20,6 +22,15 @@ export const SecurityDefined: Async2Rule = () => {
             report({
               message: `There is no \`${name}\` security scheme defined.`,
               location: reportedFromLocation.key(),
+            });
+          }
+        }
+
+        if (!eachOperationHasSecurity) {
+          for (const operationLocation of operationsWithoutSecurity) {
+            report({
+              message: `Every operation should have security defined on it.`,
+              location: operationLocation.key(),
             });
           }
         }
@@ -38,6 +49,14 @@ export const SecurityDefined: Async2Rule = () => {
           authScheme.from.push(requirementLocation);
         }
       }
+    },
+    Channel: {
+      Operation(operation: { security?: unknown }, { location }: UserContext) {
+        if (!operation?.security) {
+          eachOperationHasSecurity = false;
+          operationsWithoutSecurity.push(location);
+        }
+      },
     },
   };
 };
