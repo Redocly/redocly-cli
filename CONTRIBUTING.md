@@ -178,6 +178,7 @@ The defaults are `off` or `warn` for `minimal` and `recommended` and `error` for
 Also add the rule to the built-in rules list in [the config types tree](./packages/core/src/types/redocly-yaml.ts).
 
 If the rule reflects a specification requirement, prefix it with `spec-` and add it to the [spec ruleset](./packages/core/src/config/spec.ts).
+If a rule already exists for another specification, reuse the existing name so the same concept stays discoverable across specs.
 
 Separately, open a merge request with the corresponding documentation changes.
 To make changes to documentation:
