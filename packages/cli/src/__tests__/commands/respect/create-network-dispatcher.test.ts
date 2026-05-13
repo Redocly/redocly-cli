@@ -175,6 +175,8 @@ describe('getProxyAwareFetch', () => {
     delete process.env.HTTP_PROXY;
     delete process.env.NO_PROXY;
     delete process.env.no_proxy;
+    delete process.env.https_proxy;
+    delete process.env.http_proxy;
   });
 
   afterEach(() => {
