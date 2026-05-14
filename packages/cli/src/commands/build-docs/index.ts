@@ -21,11 +21,6 @@ export const handlerBuildCommand = async ({
   const startedAt = performance.now();
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-
-  if (!apis.length) {
-    exitWithError('No APIs were provided.');
-  }
-
   const { path: pathToApi, alias } = apis[0];
   const options = {
     output: argv.o,

@@ -142,6 +142,18 @@ describe('getFallbackApisOrExit', async () => {
     }
   });
 
+  it('should exit with error when no APIs are provided and config has no apis', async () => {
+    const apisConfig = await openapiCore.createConfig({ apis: {} });
+    expect.assertions(1);
+    try {
+      await getFallbackApisOrExit([], apisConfig);
+    } catch (e) {
+      expect(e.message).toEqual(
+        'No APIs were provided. Specify an API via the command argument or define one in your config.'
+      );
+    }
+  });
+
   it('should error if file from config do not exist', async () => {
     vi.spyOn(errorHandling, 'exitWithError');
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
