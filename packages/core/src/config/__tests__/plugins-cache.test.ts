@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import module from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,19 @@ const cjsPluginPath = path.join(fixturesDir, 'plugin-with-init-logic.cjs');
 const esmPluginPath = path.join(fixturesDir, 'plugin-with-init-logic.js');
 const pluginWithDepsPath = path.join(fixturesDir, 'plugin-with-deps.cjs');
 const localHelperPath = path.join(fixturesDir, 'plugin-with-deps-helper.cjs');
-const nodeModulesPkgPath = path.join(fixturesDir, 'node_modules/fake-pkg/index.cjs');
+const nodeModulesDir = path.join(fixturesDir, 'node_modules');
+const nodeModulesPkgPath = path.join(nodeModulesDir, 'fake-pkg/index.cjs');
+
+// `node_modules/` is gitignored at the repo root, so the fake-pkg fixture
+// isn't tracked — create it on the fly for each test run.
+beforeAll(() => {
+  fs.mkdirSync(path.dirname(nodeModulesPkgPath), { recursive: true });
+  fs.writeFileSync(nodeModulesPkgPath, "module.exports = { id: 'fake-pkg' };\n");
+});
+
+afterAll(() => {
+  fs.rmSync(nodeModulesDir, { recursive: true, force: true });
+});
 
 afterEach(() => {
   clearPluginsCache();

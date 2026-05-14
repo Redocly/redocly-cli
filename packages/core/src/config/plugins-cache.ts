@@ -74,8 +74,6 @@ export function getPluginCacheVersion(): number {
   return cacheVersion;
 }
 
-// Walks the plugin's CJS `require.cache` subgraph and deletes each entry,
-// skipping anything under `node_modules` so npm singletons survive the clear.
 function evictPluginFromCjsCache(pluginPath: string): void {
   const nodeRequire = module.createRequire(pluginPath);
   const visited = new Set<string>();
