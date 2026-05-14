@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed a hard crash when no API is provided either via the command argument or in the config.
+Fixed a hard crash that happened when no API was provided either via the command argument or in the config.
