@@ -39,7 +39,7 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: Debounce delay
-        run: sleep 60
+        run: sleep 30 # seconds
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
