@@ -2,9 +2,6 @@ import module from 'node:module';
 import * as url from 'node:url';
 
 import { logger } from '../logger.js';
-// ─── LOGGING (TEMP, language-server) — remove this import + all `LOGGING` blocks
-//     below together with `plugin-import-tree.ts`. ───
-import { logClearPluginImportTrees, logHookStatus } from './plugin-import-tree.js';
 import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
@@ -109,14 +106,6 @@ export const clearPluginsCache = (): void => {
   pluginsCache.clear();
   cacheVersion += 1;
   ensureEsmCacheBustHook();
-
-  // LOGGING (TEMP)
-  const entries = paths.map((absolutePath) => {
-    const pluginUrl = url.pathToFileURL(absolutePath);
-    pluginUrl.searchParams.set(PLUGIN_VERSION_PARAM, String(cacheVersion));
-    return { absolutePath, entryHref: pluginUrl.href, version: cacheVersion };
-  });
-  logClearPluginImportTrees(entries, PLUGIN_VERSION_PARAM);
 };
 
 export async function loadPluginModule(
@@ -130,6 +119,3 @@ export async function loadPluginModule(
   // rewriting it during VSCE/Reunite bundling.
   return import(/* webpackIgnore: true */ pluginUrl.href);
 }
-
-// LOGGING (TEMP)
-logHookStatus();
