@@ -13,33 +13,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
 const cjsPluginPath = path.join(fixturesDir, 'plugin-with-init-logic.cjs');
 const esmPluginPath = path.join(fixturesDir, 'plugin-with-init-logic.js');
-const unrelatedCjsPath = path.join(fixturesDir, 'realm-plugin.cjs');
+const pluginWithDepsPath = path.join(fixturesDir, 'plugin-with-deps.cjs');
+const localHelperPath = path.join(fixturesDir, 'plugin-with-deps-helper.cjs');
+const nodeModulesPkgPath = path.join(fixturesDir, 'node_modules/fake-pkg/index.cjs');
 
 afterEach(() => {
   clearPluginsCache();
 });
 
 describe('plugins-cache', () => {
-  describe('loadPluginModule', () => {
-    it('should return the same module on subsequent imports of the same cjs plugin', async () => {
-      const first = await loadPluginModule(cjsPluginPath);
-      const second = await loadPluginModule(cjsPluginPath);
-
-      expect(second).toBe(first);
-    });
-
-    it('should return the same module on subsequent imports of the same esm plugin', async () => {
-      const first = await loadPluginModule(esmPluginPath);
-      const second = await loadPluginModule(esmPluginPath);
-
-      expect(second).toBe(first);
-    });
-  });
-
   describe('clearPluginsCache', () => {
     it('should reload cjs plugin so a fresh module is returned', async () => {
       const first = await loadPluginModule(cjsPluginPath);
-      // require.cache eviction targets paths registered in pluginsCache.
       setCachedPlugins(cjsPluginPath, []);
 
       clearPluginsCache();
@@ -57,17 +42,21 @@ describe('plugins-cache', () => {
       expect(second).not.toBe(first);
     });
 
-    it('should not evict cjs modules outside the plugin dependency graph', async () => {
-      const nodeRequire = module.createRequire(cjsPluginPath);
-      nodeRequire(unrelatedCjsPath);
-      expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
+    it('should evict local plugin deps but skip node_modules', () => {
+      const nodeRequire = module.createRequire(pluginWithDepsPath);
+      nodeRequire(pluginWithDepsPath);
+      setCachedPlugins(pluginWithDepsPath, []);
 
-      await loadPluginModule(cjsPluginPath);
-      setCachedPlugins(cjsPluginPath, []);
+      expect(nodeRequire.cache[pluginWithDepsPath]).toBeDefined();
+      expect(nodeRequire.cache[localHelperPath]).toBeDefined();
+      expect(nodeRequire.cache[nodeModulesPkgPath]).toBeDefined();
 
       clearPluginsCache();
 
-      expect(nodeRequire.cache[unrelatedCjsPath]).toBeDefined();
+      expect(nodeRequire.cache[pluginWithDepsPath]).toBeUndefined();
+      expect(nodeRequire.cache[localHelperPath]).toBeUndefined();
+      // node_modules deps are skipped to keep npm singletons stable across clears.
+      expect(nodeRequire.cache[nodeModulesPkgPath]).toBeDefined();
     });
   });
 

@@ -2,37 +2,45 @@ import module from 'node:module';
 import * as url from 'node:url';
 
 import { logger } from '../logger.js';
+// ─── LOGGING (TEMP, language-server) — remove this import + all `LOGGING` blocks
+//     below together with `plugin-import-tree.ts`. ───
+import { logClearPluginImportTrees, logHookStatus } from './plugin-import-tree.js';
 import type { Plugin } from './types.js';
 
 const pluginsCache: Map<string, Plugin[]> = new Map();
 
-// Marks plugin-scoped URLs and carries the cache-bust version.
 const PLUGIN_VERSION_PARAM = 'v';
 
-// Cleared in `clearPluginsCache()` so the next load re-walks the directory; if any
-// file changed on disk, the new `?v=` busts Node's ESM cache.
 let cacheVersion = 0;
 
 let isEsmCacheBustHookRegistered = false;
 
+// Installs a Node ESM resolve hook (requires Node >= 22.15) that propagates
+// `?v=<cacheVersion>` from a plugin URL down to its nested `file:` imports.
+// Together with `cacheVersion` bumping in `clearPluginsCache`, this makes one
+// clear invalidate the whole plugin graph in Node's ESM cache, not just the entry.
 function registerEsmCacheBustHook(): void {
   module.registerHooks({
+    // `specifier`   — raw import string (e.g. './utils.js', 'node:util').
+    // `context`     — { parentURL, conditions, importAttributes }.
+    // `nextResolve` — delegate to the remaining hooks + Node's default resolver.
     resolve(specifier, context, nextResolve) {
       const result = nextResolve(specifier, context);
+
       if (!result.url.startsWith('file:')) return result;
+      // Top-level entry: no parent URL to inherit a version from.
       if (!context.parentURL) return result;
 
       const parentVersion = new URL(context.parentURL).searchParams.get(PLUGIN_VERSION_PARAM);
       if (!parentVersion) return result;
 
       const childURL = new URL(result.url);
+
       if (childURL.pathname.includes('/node_modules/')) return result;
       if (childURL.searchParams.has(PLUGIN_VERSION_PARAM)) return result;
-
-      // Propagate parent's version down the whole plugin graph so every nested
-      // URL is busted together with the entry.
       childURL.searchParams.set(PLUGIN_VERSION_PARAM, parentVersion);
-      return { ...result, url: childURL.href, shortCircuit: true };
+
+      return { ...result, url: childURL.href };
     },
   });
 }
@@ -67,6 +75,8 @@ export function getPluginCacheVersion(): number {
   return cacheVersion;
 }
 
+// Walks the plugin's CJS `require.cache` subgraph and deletes each entry,
+// skipping anything under `node_modules` so npm singletons survive the clear.
 function evictPluginFromCjsCache(pluginPath: string): void {
   const nodeRequire = module.createRequire(pluginPath);
   const visited = new Set<string>();
@@ -97,6 +107,14 @@ export const clearPluginsCache = (): void => {
   pluginsCache.clear();
   cacheVersion += 1;
   ensureEsmCacheBustHook();
+
+  // LOGGING (TEMP)
+  const entries = paths.map((absolutePath) => {
+    const pluginUrl = url.pathToFileURL(absolutePath);
+    pluginUrl.searchParams.set(PLUGIN_VERSION_PARAM, String(cacheVersion));
+    return { absolutePath, entryHref: pluginUrl.href, version: cacheVersion };
+  });
+  logClearPluginImportTrees(entries, PLUGIN_VERSION_PARAM);
 };
 
 export async function loadPluginModule(
@@ -110,3 +128,6 @@ export async function loadPluginModule(
   // rewriting it during VSCE/Reunite bundling.
   return import(/* webpackIgnore: true */ pluginUrl.href);
 }
+
+// LOGGING (TEMP)
+logHookStatus();
