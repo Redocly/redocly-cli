@@ -15,10 +15,8 @@ let cacheVersion = 0;
 
 let isEsmCacheBustHookRegistered = false;
 
-// Installs a Node ESM resolve hook (requires Node >= 22.15) that propagates
-// `?v=<cacheVersion>` from a plugin URL down to its nested `file:` imports.
-// Together with `cacheVersion` bumping in `clearPluginsCache`, this makes one
-// clear invalidate the whole plugin graph in Node's ESM cache, not just the entry.
+// Propagates `?v=<cacheVersion>` from a plugin URL down to its nested `file:`
+// imports, so bumping `cacheVersion` invalidates the whole plugin graph.
 function registerEsmCacheBustHook(): void {
   module.registerHooks({
     // `specifier`   — raw import string (e.g. './utils.js', 'node:util').
@@ -31,16 +29,20 @@ function registerEsmCacheBustHook(): void {
       // Top-level entry: no parent URL to inherit a version from.
       if (!context.parentURL) return result;
 
+      // Copy `?v=` from the importer (parentURL) onto the resolved URL.
       const parentVersion = new URL(context.parentURL).searchParams.get(PLUGIN_VERSION_PARAM);
       if (!parentVersion) return result;
 
-      const childURL = new URL(result.url);
+      const resolvedURL = new URL(result.url);
 
-      if (childURL.pathname.includes('/node_modules/')) return result;
-      if (childURL.searchParams.has(PLUGIN_VERSION_PARAM)) return result;
-      childURL.searchParams.set(PLUGIN_VERSION_PARAM, parentVersion);
+      if (resolvedURL.pathname.includes('/node_modules/')) return result;
+      // If the URL already carries `?v=` (e.g. written explicitly in the
+      // specifier), keep it as-is. Otherwise stamp `parentVersion` fresh — no
+      // prior value is reused, the version comes from the importer every time.
+      if (resolvedURL.searchParams.has(PLUGIN_VERSION_PARAM)) return result;
+      resolvedURL.searchParams.set(PLUGIN_VERSION_PARAM, parentVersion);
 
-      return { ...result, url: childURL.href };
+      return { ...result, url: resolvedURL.href };
     },
   });
 }
