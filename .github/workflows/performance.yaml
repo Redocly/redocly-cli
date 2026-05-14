@@ -56,8 +56,12 @@ jobs:
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
       - name: Comment PR
+        # If the PR carries the `performance-benchmark` label, each push posts a
+        # fresh comment (so variance across reruns can be compared in-thread);
+        # otherwise the comment is overwritten in place so normal PRs keep a
+        # single result.
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           file-path: tests/performance/benchmark_chart.md
-          comment-tag: historical-versions-comparison
+          comment-tag: ${{ contains(github.event.pull_request.labels.*.name, 'performance-benchmark') && format('historical-versions-rerun-{0}', github.sha) || 'historical-versions-comparison' }}
