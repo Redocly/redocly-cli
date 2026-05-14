@@ -183,4 +183,96 @@ describe('Oas3 no-unused-components', () => {
       ]
     `);
   });
+
+  it('should remove unused components using allOf but preserve those referencing a discriminator via allOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.2.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Pet'
+        components:
+          schemas:
+            Pet:
+              type: object
+              properties:
+                petType:
+                  type: string
+              discriminator:
+                propertyName: petType
+                mapping:
+                  cat: '#/components/schemas/Cat'
+                  dog: '#/components/schemas/Dog'
+                  lizard: '#/components/schemas/Lizard'
+              required:
+                - petType
+            Cat:
+              allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  name:
+                    type: string
+            Dog:
+              allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  bark:
+                    type: string
+            Lizard:
+              allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  lovesRocks:
+                    type: boolean
+            Unused:
+              allOf:
+                - type: object
+                  properties:
+                    one:
+                      type: string
+                - type: object
+                  properties:
+                    two:
+                      type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Unused",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Component: "Unused" is never used.",
+          "ruleId": "no-unused-components",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
