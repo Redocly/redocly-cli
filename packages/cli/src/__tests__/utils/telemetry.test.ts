@@ -8,11 +8,13 @@ import {
   collectXSecurityAuthTypes,
   cacheAnonymousId,
   getCachedAnonymousId,
+  collectSourceDescriptionTypes,
+  collectCriterionObjectTypes,
 } from '../../utils/telemetry.js';
 
 describe('collectXSecurityAuthTypes', () => {
   it('should collect X-Security Auth types and schemeNames', () => {
-    const respectXSecurityAuthTypesAndSchemeName: string[] = [];
+    const respectXSecurityAuthTypesAndSchemeName = new Set<string>();
     const arazzoDocument = {
       workflows: [
         {
@@ -86,7 +88,7 @@ describe('collectXSecurityAuthTypes', () => {
       ],
     } as Partial<ArazzoDefinition>;
     collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypesAndSchemeName);
-    expect(respectXSecurityAuthTypesAndSchemeName).toEqual([
+    expect([...respectXSecurityAuthTypesAndSchemeName]).toEqual([
       'basic',
       'apiKey',
       'bearer',
@@ -96,14 +98,14 @@ describe('collectXSecurityAuthTypes', () => {
   });
 
   it('should handle documents with no workflows', () => {
-    const respectXSecurityAuthTypesAndSchemeName: string[] = [];
+    const respectXSecurityAuthTypesAndSchemeName = new Set<string>();
     const arazzoDocument = {} as Partial<ArazzoDefinition>;
     collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypesAndSchemeName);
-    expect(respectXSecurityAuthTypesAndSchemeName).toEqual([]);
+    expect([...respectXSecurityAuthTypesAndSchemeName]).toEqual([]);
   });
 
   it('should handle workflows with no x-security', () => {
-    const respectXSecurityAuthTypesAndSchemeName: string[] = [];
+    const respectXSecurityAuthTypesAndSchemeName = new Set<string>();
     const arazzoDocument = {
       workflows: [
         {
@@ -113,7 +115,131 @@ describe('collectXSecurityAuthTypes', () => {
       ],
     } as Partial<ArazzoDefinition>;
     collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypesAndSchemeName);
-    expect(respectXSecurityAuthTypesAndSchemeName).toEqual([]);
+    expect([...respectXSecurityAuthTypesAndSchemeName]).toEqual([]);
+  });
+});
+
+describe('collectSourceDescriptionTypes', () => {
+  it('should collect source description types', () => {
+    const respectSourceDescriptionTypes = new Set<string>();
+    const arazzoDocument = {
+      sourceDescriptions: [
+        {
+          type: 'openapi',
+          url: 'https://example.com/openapi.yaml',
+        },
+        {
+          type: 'arazzo',
+          url: 'https://example.com/arazzo.yaml',
+        },
+        {
+          type: 'asyncapi',
+          url: 'https://example.com/asyncapi.yaml',
+        },
+      ],
+    } as Partial<ArazzoDefinition>;
+    collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
+    expect([...respectSourceDescriptionTypes]).toEqual(['openapi', 'arazzo', 'asyncapi']);
+  });
+
+  it('should handle documents with no source descriptions', () => {
+    const respectSourceDescriptionTypes = new Set<string>();
+    const arazzoDocument = {} as Partial<ArazzoDefinition>;
+    collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
+    expect([...respectSourceDescriptionTypes]).toEqual([]);
+  });
+});
+
+describe('collectCriterionObjectTypes', () => {
+  it('should collect criterion object types from all criteria locations', () => {
+    const respectCriterionObjectTypes = new Set<string>();
+    const arazzoDocument = {
+      workflows: [
+        {
+          workflowId: 'workflow1',
+          successActions: [
+            {
+              name: 'workflow-success',
+              type: 'end',
+              criteria: [{ condition: '$response.body.id', type: 'jsonpath' }],
+            },
+          ],
+          failureActions: [
+            {
+              name: 'workflow-failure',
+              type: 'end',
+              criteria: [{ condition: 'Problem', type: 'regex' }],
+            },
+          ],
+          steps: [
+            {
+              stepId: 'step1',
+              operationId: 'operation1',
+              successCriteria: [{ condition: '$statusCode == 200', type: 'simple' }],
+              onSuccess: [
+                {
+                  name: 'step-success',
+                  type: 'end',
+                  criteria: [
+                    {
+                      condition: '$.data',
+                      context: '$response.body',
+                      type: {
+                        type: 'jsonpath',
+                        version: 'draft-goessner-dispatch-jsonpath-00',
+                      },
+                    },
+                  ],
+                },
+              ],
+              onFailure: [
+                {
+                  name: 'step-failure',
+                  type: 'end',
+                  criteria: [
+                    {
+                      condition: '//error',
+                      context: '$response.body',
+                      type: {
+                        type: 'xpath',
+                        version: 'xpath-30',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      components: {
+        successActions: {
+          ReusableSuccess: {
+            name: 'reusable-success',
+            type: 'end',
+            criteria: [{ condition: '$statusCode == 201' }],
+          },
+        },
+        failureActions: {
+          ReusableFailure: {
+            name: 'reusable-failure',
+            type: 'end',
+            criteria: [{ condition: '$statusCode == 500', type: 'regex' }],
+          },
+        },
+      },
+    } as Partial<ArazzoDefinition>;
+
+    collectCriterionObjectTypes(arazzoDocument, respectCriterionObjectTypes);
+
+    expect([...respectCriterionObjectTypes]).toEqual(['jsonpath', 'regex', 'simple', 'xpath']);
+  });
+
+  it('should handle documents with no criterion objects', () => {
+    const respectCriterionObjectTypes = new Set<string>();
+    const arazzoDocument = {} as Partial<ArazzoDefinition>;
+    collectCriterionObjectTypes(arazzoDocument, respectCriterionObjectTypes);
+    expect([...respectCriterionObjectTypes]).toEqual([]);
   });
 });
 

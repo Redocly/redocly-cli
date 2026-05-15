@@ -16,12 +16,18 @@ import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
+import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
 import type { ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
+
+type ArazzoWorkflow = NonNullable<ArazzoDefinition['workflows']>[number];
+type ArazzoStep = ArazzoWorkflow['steps'][number];
+type ArazzoSuccessAction = NonNullable<ArazzoWorkflow['successActions']>[number];
+type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number];
 
 const SECRET_REPLACEMENT = '***';
 
@@ -34,6 +40,8 @@ export async function sendTelemetry({
   spec_keyword,
   spec_full_version,
   respect_x_security_auth_types,
+  respect_source_description_types,
+  respect_criterion_object_types,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -43,6 +51,8 @@ export async function sendTelemetry({
   spec_keyword: string | undefined;
   spec_full_version: string | undefined;
   respect_x_security_auth_types: string[] | undefined;
+  respect_source_description_types: string[] | undefined;
+  respect_criterion_object_types: string[] | undefined;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -93,6 +103,14 @@ export async function sendTelemetry({
           spec_version === 'arazzo1' && respect_x_security_auth_types?.length
             ? JSON.stringify(respect_x_security_auth_types)
             : undefined,
+        respect_source_description_types:
+          spec_version === 'arazzo1' && respect_source_description_types?.length
+            ? JSON.stringify(respect_source_description_types)
+            : undefined,
+        respect_criterion_object_types:
+          spec_version === 'arazzo1' && respect_criterion_object_types?.length
+            ? JSON.stringify(respect_criterion_object_types)
+            : undefined,
       },
     ];
 
@@ -117,9 +135,70 @@ export async function sendTelemetry({
   }
 }
 
+export function collectSourceDescriptionTypes(
+  document: Partial<ArazzoDefinition>,
+  respectSourceDescriptionTypes: Set<string>
+) {
+  for (const sourceDescription of document.sourceDescriptions ?? []) {
+    if (sourceDescription.type) {
+      respectSourceDescriptionTypes.add(sourceDescription.type);
+    }
+  }
+}
+
+export function collectCriterionObjectTypes(
+  document: Partial<ArazzoDefinition>,
+  respectCriterionObjectTypes: Set<string>
+) {
+  for (const criterionObject of getCriterionObjects(document)) {
+    const type = getCriterionObjectType(criterionObject);
+    if (type) {
+      respectCriterionObjectTypes.add(type);
+    }
+  }
+}
+
+function getCriterionObjects(document: Partial<ArazzoDefinition>) {
+  const criterionObjects: CriterionObject[] = [];
+
+  for (const workflow of document.workflows ?? []) {
+    collectActionCriteria(workflow.successActions, criterionObjects);
+    collectActionCriteria(workflow.failureActions, criterionObjects);
+
+    for (const step of workflow.steps ?? []) {
+      collectStepCriteria(step, criterionObjects);
+    }
+  }
+
+  collectActionCriteria(Object.values(document.components?.successActions ?? {}), criterionObjects);
+  collectActionCriteria(Object.values(document.components?.failureActions ?? {}), criterionObjects);
+
+  return criterionObjects;
+}
+
+function collectStepCriteria(step: ArazzoStep, criterionObjects: CriterionObject[]) {
+  criterionObjects.push(...(step.successCriteria ?? []));
+  collectActionCriteria(step.onSuccess, criterionObjects);
+  collectActionCriteria(step.onFailure, criterionObjects);
+}
+
+function collectActionCriteria(
+  actions: readonly (ArazzoSuccessAction | ArazzoFailureAction)[] | undefined,
+  criterionObjects: CriterionObject[]
+) {
+  criterionObjects.push(...(actions ?? []).flatMap((action) => action.criteria ?? []));
+}
+
+function getCriterionObjectType(criterionObject: CriterionObject) {
+  const type = criterionObject.type;
+  return typeof type === 'string'
+    ? type
+    : type?.type || (criterionObject.condition ? 'simple' : undefined);
+}
+
 export function collectXSecurityAuthTypes(
   document: Partial<ArazzoDefinition>,
-  respectXSecurityAuthTypesAndSchemeName: string[]
+  respectXSecurityAuthTypesAndSchemeName: Set<string>
 ) {
   for (const workflow of document.workflows ?? []) {
     // Collect auth types from workflow-level x-security
@@ -127,8 +206,8 @@ export function collectXSecurityAuthTypes(
       const scheme = (security as ExtendedSecurity).scheme;
       if (scheme?.type) {
         const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-        if (authType && !respectXSecurityAuthTypesAndSchemeName.includes(authType)) {
-          respectXSecurityAuthTypesAndSchemeName.push(authType);
+        if (authType) {
+          respectXSecurityAuthTypesAndSchemeName.add(authType);
         }
       }
     }
@@ -140,15 +219,15 @@ export function collectXSecurityAuthTypes(
         const scheme = (security as ExtendedSecurity).scheme;
         if (scheme?.type) {
           const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-          if (authType && !respectXSecurityAuthTypesAndSchemeName.includes(authType)) {
-            respectXSecurityAuthTypesAndSchemeName.push(authType);
+          if (authType) {
+            respectXSecurityAuthTypesAndSchemeName.add(authType);
           }
         }
 
         // Handle schemeName case
         const schemeName = (security as ExtendedSecurity).schemeName;
-        if (schemeName && !respectXSecurityAuthTypesAndSchemeName.includes(schemeName)) {
-          respectXSecurityAuthTypesAndSchemeName.push(schemeName);
+        if (schemeName) {
+          respectXSecurityAuthTypesAndSchemeName.add(schemeName);
         }
       }
     }
