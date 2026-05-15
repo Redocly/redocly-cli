@@ -1,12 +1,25 @@
-import type { Location } from '../../ref-utils.js';
+import { isRef, type Location } from '../../ref-utils.js';
+import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import type { Oas3Rule } from '../../visitors.js';
 
-export const NoUnusedComponents: Oas3Rule = () => {
-  const components = new Map<string, { used: boolean; location: Location; name: string }>();
+type ComponentInfo = {
+  used: boolean;
+  location: Location;
+  name: string;
+  referencesDiscriminator?: boolean;
+};
 
-  function registerComponent(location: Location, name: string): void {
+export const NoUnusedComponents: Oas3Rule = () => {
+  const components = new Map<string, ComponentInfo>();
+
+  function registerComponent(
+    location: Location,
+    name: string,
+    referencesDiscriminator: boolean = false
+  ): void {
     components.set(location.absolutePointer, {
       used: components.get(location.absolutePointer)?.used || false,
+      referencesDiscriminator,
       location,
       name,
     });
@@ -37,7 +50,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
     Root: {
       leave(_, { report }) {
         components.forEach((usageInfo) => {
-          if (!usageInfo.used) {
+          if (!usageInfo.used && !usageInfo.referencesDiscriminator) {
             report({
               message: `Component: "${usageInfo.name}" is never used.`,
               location: usageInfo.location.key(),
@@ -47,8 +60,11 @@ export const NoUnusedComponents: Oas3Rule = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
-        registerComponent(location, key.toString());
+      Schema(schema, { location, key, resolve }) {
+        const referencesDiscriminator = schema.allOf?.some(
+          (ref) => isRef(ref) && resolve<Oas3Schema | Oas3_1Schema>(ref)?.node?.discriminator
+        );
+        registerComponent(location, key.toString(), referencesDiscriminator);
       },
     },
     NamedParameters: {

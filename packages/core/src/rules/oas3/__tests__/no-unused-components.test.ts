@@ -184,7 +184,7 @@ describe('Oas3 no-unused-components', () => {
     `);
   });
 
-  it('should remove unused components using allOf but preserve those referencing a discriminator via allOf', async () => {
+  it('should report unused components using allOf BUT NOT report those referencing a discriminator via allOf', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: "3.2.0"
@@ -210,10 +210,7 @@ describe('Oas3 no-unused-components', () => {
                   type: string
               discriminator:
                 propertyName: petType
-                mapping:
-                  cat: '#/components/schemas/Cat'
-                  dog: '#/components/schemas/Dog'
-                  lizard: '#/components/schemas/Lizard'
+                defaultMapping: '#/components/schemas/Cat'
               required:
                 - petType
             Cat:
