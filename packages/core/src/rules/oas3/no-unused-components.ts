@@ -54,6 +54,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
             report({
               message: `Component: "${usageInfo.name}" is never used.`,
               location: usageInfo.location.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
             });
           }
         });
