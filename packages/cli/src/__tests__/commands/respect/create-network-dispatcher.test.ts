@@ -168,12 +168,10 @@ describe('withConnectionClient (proxy-only behavior)', () => {
   beforeEach(() => {
     savedEnv.HTTPS_PROXY = process.env.HTTPS_PROXY;
     savedEnv.HTTP_PROXY = process.env.HTTP_PROXY;
-    savedEnv.NO_PROXY = process.env.NO_PROXY;
-    savedEnv.no_proxy = process.env.no_proxy;
+    savedEnv.https_proxy = process.env.https_proxy;
+    savedEnv.http_proxy = process.env.http_proxy;
     delete process.env.HTTPS_PROXY;
     delete process.env.HTTP_PROXY;
-    delete process.env.NO_PROXY;
-    delete process.env.no_proxy;
     delete process.env.https_proxy;
     delete process.env.http_proxy;
   });
