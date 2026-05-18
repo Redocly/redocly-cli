@@ -1,15 +1,24 @@
 import { logger } from '@redocly/openapi-core';
 import { bold, cyan, green, red, white, yellow } from 'colorette';
 
+import { buildHotspotAgentPrompt } from '../suggestions.js';
 import type { DebugMediaTypeLog, ScoreResult } from '../types.js';
 import { median } from '../utils.js';
 
-export function printScoreStylish(result: ScoreResult, operationDetails = false): void {
+export function printScoreStylish(
+  result: ScoreResult,
+  operationDetails = false,
+  apiPath = '',
+  includeSuggestions = false
+): void {
   printScores(result);
   printSubscores(result);
   printRawMetricsSummary(result);
   if (operationDetails) printOperationDetails(result);
   printHotspots(result);
+  if (includeSuggestions && apiPath) {
+    printAgentPrompts(apiPath, result);
+  }
 }
 
 function scoreColor(score: number): (text: string) => string {
@@ -272,6 +281,27 @@ function printHotspots(result: ScoreResult): void {
     for (const reason of hotspot.reasons) {
       out(yellow(`    - ${reason}`));
     }
+    out('');
+  }
+}
+
+function printAgentPrompts(apiPath: string, result: ScoreResult): void {
+  if (result.hotspots.length === 0) {
+    return;
+  }
+
+  out('');
+  out(bold(white('  Agent prompts (copy/paste)')));
+  out('');
+
+  for (const hotspot of result.hotspots) {
+    const prompt = buildHotspotAgentPrompt(apiPath, hotspot);
+    out('```');
+    const lines = prompt.split('\n');
+    for (const line of lines) {
+      out(line);
+    }
+    out('```');
     out('');
   }
 }
