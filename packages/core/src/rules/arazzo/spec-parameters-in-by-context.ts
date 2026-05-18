@@ -1,13 +1,6 @@
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-const IN_REQUIRED_MESSAGE =
-  "Parameter `in` field MUST be specified when the parent does not reference a `workflowId`.";
-const IN_NOT_ALLOWED_MESSAGE =
-  "Parameter `in` field MUST NOT be specified when the parent references a `workflowId`; parameters map to workflow inputs.";
-const ACTION_PARAMETERS_REQUIRE_WORKFLOW_ID =
-  'Parameters on success/failure actions are only valid when the action references a `workflowId`.';
-
 function isInlineParameter(parameter: any): boolean {
   return parameter && typeof parameter === 'object' && !('reference' in parameter);
 }
@@ -28,12 +21,14 @@ function checkParameters(
 
     if (hasWorkflowId && hasIn) {
       report({
-        message: IN_NOT_ALLOWED_MESSAGE,
+        message:
+          'Parameter `in` field MUST NOT be specified when the parent references a `workflowId`; parameters map to workflow inputs.',
         location: location.child([...basePath, i, 'in']).key(),
       });
     } else if (!hasWorkflowId && !hasIn) {
       report({
-        message: IN_REQUIRED_MESSAGE,
+        message:
+          'Parameter `in` field MUST be specified when the parent does not reference a `workflowId`.',
         location: location.child([...basePath, i]),
       });
     }
@@ -45,36 +40,37 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
     Step: {
       enter(step, ctx: UserContext) {
         if (!step.parameters) return;
-        const hasWorkflowId = Boolean(step.workflowId);
-        checkParameters(step.parameters, hasWorkflowId, ['parameters'], ctx);
+        checkParameters(step.parameters, Boolean(step.workflowId), ['parameters'], ctx);
       },
     },
     SuccessActionObject: {
       enter(action, ctx: UserContext) {
         if (!('parameters' in action) || !action.parameters) return;
 
-        const hasWorkflowId = Boolean(action.workflowId);
-        if (!hasWorkflowId) {
+        if (!action.workflowId) {
           ctx.report({
-            message: ACTION_PARAMETERS_REQUIRE_WORKFLOW_ID,
+            message:
+              'Parameters on success/failure actions are only valid when the action references a `workflowId`.',
             location: ctx.location.child(['parameters']).key(),
           });
+          return;
         }
-        checkParameters(action.parameters, hasWorkflowId, ['parameters'], ctx);
+        checkParameters(action.parameters, true, ['parameters'], ctx);
       },
     },
     FailureActionObject: {
       enter(action, ctx: UserContext) {
         if (!('parameters' in action) || !action.parameters) return;
 
-        const hasWorkflowId = Boolean(action.workflowId);
-        if (!hasWorkflowId) {
+        if (!action.workflowId) {
           ctx.report({
-            message: ACTION_PARAMETERS_REQUIRE_WORKFLOW_ID,
+            message:
+              'Parameters on success/failure actions are only valid when the action references a `workflowId`.',
             location: ctx.location.child(['parameters']).key(),
           });
+          return;
         }
-        checkParameters(action.parameters, hasWorkflowId, ['parameters'], ctx);
+        checkParameters(action.parameters, true, ['parameters'], ctx);
       },
     },
   };
