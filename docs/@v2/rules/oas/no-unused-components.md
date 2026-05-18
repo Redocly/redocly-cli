@@ -57,7 +57,7 @@ Example of **incorrect** components:
 openapi: 3.1.0
 paths:
   /customers:
-    $ref: "#/components/pathItems/customers"
+    $ref: '#/components/pathItems/customers'
 components:
   pathItems:
     customers:
@@ -74,7 +74,7 @@ Example of **correct** components:
 openapi: 3.1.0
 paths:
   /customers:
-    $ref: "#/components/pathItems/customers"
+    $ref: '#/components/pathItems/customers'
 components:
   pathItems:
     customers:
