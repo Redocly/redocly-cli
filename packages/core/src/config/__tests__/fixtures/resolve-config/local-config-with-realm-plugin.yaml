@@ -1,2 +1,2 @@
 plugins:
-  - realm-plugin.js
+  - realm-plugin.cjs

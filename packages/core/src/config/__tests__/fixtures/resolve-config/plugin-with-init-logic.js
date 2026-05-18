@@ -1,9 +1,9 @@
-var util = require('util');
+import util from 'node:util';
 
-module.exports = function pluginWithInitLogic() {
+export default function pluginWithInitLogic() {
   util.deprecate(() => null);
 
   return {
-    id: 'test-plugin',
+    id: 'test-plugin-esm-init',
   };
-};
+}

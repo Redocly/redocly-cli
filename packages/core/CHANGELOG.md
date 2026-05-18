@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.31.0
+
+### Minor Changes
+
+- Added support for clearing the plugins cache.
+
 ## 2.30.6
 
 ## 2.30.5
