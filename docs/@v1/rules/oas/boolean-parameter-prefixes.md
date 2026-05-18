@@ -65,7 +65,7 @@ The following example configures prefixes:
 rules:
   boolean-parameter-prefixes:
     severity: error
-    prefixes: ["can", "is", "has"]
+    prefixes: ['can', 'is', 'has']
 ```
 
 ## Examples

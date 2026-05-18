@@ -26,7 +26,6 @@ tags:
     description: Endpoints used for integrations with partners and external collaborators.
   - name: Customer APIs
     description: Endpoints used for integrations with customers.
-
 ```
 
 The default setting for this rule (in the built-in `recommended` configuration) is `warn`.

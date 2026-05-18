@@ -37,22 +37,22 @@ Example of a **correct** `onSuccess` list:
 
 ```yaml Correct example
 workflows:
-- workflowId: get-museum-hours
-  description: This workflow demonstrates how to get the museum opening hours and buy tickets.
-  steps:
-    - stepId: get-museum-hours
-      operationId: museum-api.getMuseumHours
-      successCriteria:
-        - condition: $statusCode == 200
-      onSuccess:
-        - name: call-crud-events
-          workflowId: events-crud
-          type: goto
-        - name: second-call-crud-events
-          workflowId: events-crud
-          type: goto
-        - reference: $components.successActions.notify
-        - reference: $components.successActions.report
+  - workflowId: get-museum-hours
+    description: This workflow demonstrates how to get the museum opening hours and buy tickets.
+    steps:
+      - stepId: get-museum-hours
+        operationId: museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 200
+        onSuccess:
+          - name: call-crud-events
+            workflowId: events-crud
+            type: goto
+          - name: second-call-crud-events
+            workflowId: events-crud
+            type: goto
+          - reference: $components.successActions.notify
+          - reference: $components.successActions.report
 ```
 
 ## Related rules

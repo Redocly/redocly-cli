@@ -101,7 +101,10 @@ Sample custom Handlebars template:
     <meta description='{{{templateOptions.metaDescription}}}' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
     <style>
-      body { padding: 0; margin: 0; }
+      body {
+        padding: 0;
+        margin: 0;
+      }
     </style>
     {{{redocHead}}}
     {{#unless disableGoogleFont}}<link

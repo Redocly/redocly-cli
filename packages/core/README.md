@@ -253,15 +253,15 @@ async function bundle(options: {
   // optional base path for resolution
   base?: string | null;
 }): Promise<{
-    bundle: {
-      parsed: object; // OpenAPI document object as js object
-    };
-    problems: NormalizedProblem[]
-    fileDependencies
-    rootType
-    refTypes
-    visitorsData
-  }>;
+  bundle: {
+    parsed: object; // OpenAPI document object as js object
+  };
+  problems: NormalizedProblem[];
+  fileDependencies;
+  rootType;
+  refTypes;
+  visitorsData;
+}>;
 ```
 
 ### `bundleFromString`
@@ -286,15 +286,15 @@ async function bundleFromString(options: {
   // optional external reference resolver
   externalRefResolver?: BaseResolver;
 }): Promise<{
-    bundle: {
-      parsed: object; // OpenAPI document object as js object
-    };
-    problems: NormalizedProblem[]
-    fileDependencies
-    rootType
-    refTypes
-    visitorsData
-  }>;
+  bundle: {
+    parsed: object; // OpenAPI document object as js object
+  };
+  problems: NormalizedProblem[];
+  fileDependencies;
+  rootType;
+  refTypes;
+  visitorsData;
+}>;
 ```
 
 ### `stringifyYaml`
