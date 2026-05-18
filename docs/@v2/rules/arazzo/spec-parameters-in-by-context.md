@@ -83,12 +83,12 @@ Example of an **incorrect** step referencing a `workflowId` while declaring `in`
 
 ```yaml Incorrect example - workflowId with `in`
 workflows:
-  - workflowId: buy-tickets
+- workflowId: buy-tickets
     steps:
-      - stepId: reuse-hours-workflow
+  - stepId: reuse-hours-workflow
         workflowId: get-museum-hours
         parameters:
-          - in: query
+    - in: query
             name: startDate
             value: '2024-01-01'
 ```
