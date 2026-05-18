@@ -57,6 +57,8 @@ describe('commandWrapper', () => {
         spec_keyword: 'openapi',
         spec_full_version: '3.1.0',
         respect_x_security_auth_types: [],
+        respect_source_description_types: [],
+        respect_criterion_object_types: [],
       })
     );
   });
@@ -88,6 +90,8 @@ describe('commandWrapper', () => {
         spec_keyword: undefined,
         spec_full_version: undefined,
         respect_x_security_auth_types: [],
+        respect_source_description_types: [],
+        respect_criterion_object_types: [],
       })
     );
   });
