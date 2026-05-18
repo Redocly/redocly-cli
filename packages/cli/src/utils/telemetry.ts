@@ -25,7 +25,6 @@ import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
 
 type ArazzoWorkflow = NonNullable<ArazzoDefinition['workflows']>[number];
-type ArazzoStep = ArazzoWorkflow['steps'][number];
 type ArazzoSuccessAction = NonNullable<ArazzoWorkflow['successActions']>[number];
 type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number];
 
@@ -150,43 +149,46 @@ export function collectCriterionObjectTypes(
   document: Partial<ArazzoDefinition>,
   respectCriterionObjectTypes: Set<string>
 ) {
-  for (const criterionObject of getCriterionObjects(document)) {
-    const type = getCriterionObjectType(criterionObject);
-    if (type) {
-      respectCriterionObjectTypes.add(type);
-    }
-  }
-}
-
-function getCriterionObjects(document: Partial<ArazzoDefinition>) {
-  const criterionObjects: CriterionObject[] = [];
-
   for (const workflow of document.workflows ?? []) {
-    collectActionCriteria(workflow.successActions, criterionObjects);
-    collectActionCriteria(workflow.failureActions, criterionObjects);
+    collectActionCriteriaTypes(workflow.successActions, respectCriterionObjectTypes);
+    collectActionCriteriaTypes(workflow.failureActions, respectCriterionObjectTypes);
 
     for (const step of workflow.steps ?? []) {
-      collectStepCriteria(step, criterionObjects);
+      collectCriteriaTypes(step.successCriteria, respectCriterionObjectTypes);
+      collectActionCriteriaTypes(step.onSuccess, respectCriterionObjectTypes);
+      collectActionCriteriaTypes(step.onFailure, respectCriterionObjectTypes);
     }
   }
 
-  collectActionCriteria(Object.values(document.components?.successActions ?? {}), criterionObjects);
-  collectActionCriteria(Object.values(document.components?.failureActions ?? {}), criterionObjects);
-
-  return criterionObjects;
+  collectActionCriteriaTypes(
+    Object.values(document.components?.successActions ?? {}),
+    respectCriterionObjectTypes
+  );
+  collectActionCriteriaTypes(
+    Object.values(document.components?.failureActions ?? {}),
+    respectCriterionObjectTypes
+  );
 }
 
-function collectStepCriteria(step: ArazzoStep, criterionObjects: CriterionObject[]) {
-  criterionObjects.push(...(step.successCriteria ?? []));
-  collectActionCriteria(step.onSuccess, criterionObjects);
-  collectActionCriteria(step.onFailure, criterionObjects);
-}
-
-function collectActionCriteria(
+function collectActionCriteriaTypes(
   actions: readonly (ArazzoSuccessAction | ArazzoFailureAction)[] | undefined,
-  criterionObjects: CriterionObject[]
+  types: Set<string>
 ) {
-  criterionObjects.push(...(actions ?? []).flatMap((action) => action.criteria ?? []));
+  for (const action of actions ?? []) {
+    collectCriteriaTypes(action.criteria, types);
+  }
+}
+
+function collectCriteriaTypes(
+  criteria: readonly CriterionObject[] | undefined,
+  types: Set<string>
+) {
+  for (const criterion of criteria ?? []) {
+    const type = getCriterionObjectType(criterion);
+    if (type) {
+      types.add(type);
+    }
+  }
 }
 
 function getCriterionObjectType(criterionObject: CriterionObject) {
