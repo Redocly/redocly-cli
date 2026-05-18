@@ -54,7 +54,7 @@ rules:
       property: summary
     assertions:
       notPattern: /test/
-    message: "Operation summary must not include the word test"
+    message: 'Operation summary must not include the word test'
 ```
 
 It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration/index.md#apis-object) to set per-API rules (or exceptions!).

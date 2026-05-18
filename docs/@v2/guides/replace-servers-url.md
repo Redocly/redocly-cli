@@ -88,17 +88,15 @@ It accepts a `serverUrl` parameter from the Redocly configuration file and overw
 
 ```js
 /** @type {import('@redocly/cli').OasDecorator} */
-export default function ReplaceServersURL({serverUrl}) {
+export default function ReplaceServersURL({ serverUrl }) {
   return {
     Server: {
       leave(Server) {
-
         if (serverUrl) {
           Server.url = serverUrl;
         }
-
-      }
-    }
+      },
+    },
   };
 }
 ```

@@ -25,7 +25,6 @@ decorators:
     title: All APIs
     extraProperty: This property will be ignored at the per-API level.
 
-
 apis:
   storefront@latest:
     decorators:

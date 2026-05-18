@@ -37,22 +37,22 @@ Example of a **correct** `onFailure` list:
 
 ```yaml Correct example
 workflows:
-- workflowId: get-museum-hours
-  description: This workflow demonstrates how to get the museum opening hours and buy tickets.
-  steps:
-    - stepId: get-museum-hours
-      operationId: museum-api.getMuseumHours
-      successCriteria:
-        - condition: $statusCode == 200
-      onFailure:
-        - name: call-crud-events
-          workflowId: events-crud
-          type: goto
-        - name: second-call-crud-events
-          workflowId: events-crud
-          type: goto
-        - reference: $components.failureActions.notify
-        - reference: $components.failureActions.report
+  - workflowId: get-museum-hours
+    description: This workflow demonstrates how to get the museum opening hours and buy tickets.
+    steps:
+      - stepId: get-museum-hours
+        operationId: museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: call-crud-events
+            workflowId: events-crud
+            type: goto
+          - name: second-call-crud-events
+            workflowId: events-crud
+            type: goto
+          - reference: $components.failureActions.notify
+          - reference: $components.failureActions.report
 ```
 
 ## Related rules

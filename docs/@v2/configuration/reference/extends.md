@@ -28,7 +28,7 @@ To get started, try the following example to configure your project to be based 
 
 ```yaml
 extends:
- - minimal
+  - minimal
 ```
 
 ## Related options
