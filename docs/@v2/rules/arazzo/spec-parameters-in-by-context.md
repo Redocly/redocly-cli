@@ -24,9 +24,7 @@ An example configuration:
 ```yaml
 rules:
   spec-parameters-in-by-context: error
-```
-
-## Examples
+```## Examples
 
 Given the following configuration:
 
@@ -37,7 +35,8 @@ rules:
 
 Example of a **correct** step referencing an `operationId` (each parameter declares `in`):
 
-```yaml Correct example - operationId
+```yaml
+# Correct example - operationId
 workflows:
   - workflowId: get-museum-hours
     steps:
@@ -51,7 +50,8 @@ workflows:
 
 Example of a **correct** step referencing a `workflowId` (parameters map to workflow inputs, no `in` field):
 
-```yaml Correct example - workflowId
+```yaml
+# Correct example - workflowId
 workflows:
   - workflowId: buy-tickets
     steps:
@@ -64,7 +64,8 @@ workflows:
 
 Example of a **correct** success action transferring to another workflow with mapped parameters:
 
-```yaml Correct example - success action
+```yaml
+# Correct example - success action
 workflows:
   - workflowId: buy-tickets
     steps:
@@ -81,21 +82,23 @@ workflows:
 
 Example of an **incorrect** step referencing a `workflowId` while declaring `in` on a parameter:
 
-```yaml Incorrect example - workflowId with `in`
+```yaml
+# Incorrect example - workflowId with `in`
 workflows:
-- workflowId: buy-tickets
+  - workflowId: buy-tickets
     steps:
-  - stepId: reuse-hours-workflow
+      - stepId: reuse-hours-workflow
         workflowId: get-museum-hours
         parameters:
-    - in: query
+          - in: query
             name: startDate
             value: '2024-01-01'
 ```
 
 Example of an **incorrect** step referencing an `operationId` while omitting `in`:
 
-```yaml Incorrect example - operationId without `in`
+```yaml
+# Incorrect example - operationId without `in`
 workflows:
   - workflowId: get-museum-hours
     steps:
@@ -108,7 +111,8 @@ workflows:
 
 Example of an **incorrect** success action defining `parameters` without referencing a `workflowId`:
 
-```yaml Incorrect example - action without workflowId
+```yaml
+# Incorrect example - action without workflowId
 workflows:
   - workflowId: buy-tickets
     steps:
