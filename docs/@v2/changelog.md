@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.30.6 (2026-05-14)
+
+### Patch Changes
+
+- Fixed hard crash that happened when no API was provided either via the command argument or in the config.
+- Updated @redocly/openapi-core to v2.30.6.
+
+## 2.30.5 (2026-05-12)
+
+### Patch Changes
+
+- Fixed a status code mismatch that occurred when using the `--har-output` option in the `respect` command.
+- Updated @redocly/openapi-core to v2.30.5.
+
 ## 2.30.4 (2026-05-06)
 
 ### Patch Changes
