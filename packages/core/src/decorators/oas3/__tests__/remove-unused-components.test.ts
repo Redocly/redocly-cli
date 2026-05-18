@@ -407,4 +407,169 @@ describe('oas3 remove-unused-components', () => {
       },
     });
   });
+
+  it('should remove unused components using allOf but preserve those referencing a discriminator via allOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Pet'
+        components:
+          schemas:
+            Pet:
+              type: object
+              properties:
+                petType:
+                  type: string
+              discriminator:
+                propertyName: petType
+                defaultMapping: '#/components/schemas/Cat'
+              required:
+                - petType
+            Cat:
+              allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  name:
+                    type: string
+            Dog:
+              allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  bark:
+                    type: string
+            Lizard:
+              allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  lovesRocks:
+                    type: boolean
+            Unused:
+              allOf:
+                - type: object
+                  properties:
+                    one:
+                      type: string
+                - type: object
+                  properties:
+                    two:
+                      type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      types: Oas3_2Types,
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+    });
+
+    expect(results.bundle.parsed).toMatchInlineSnapshot(`
+      {
+        "components": {
+          "schemas": {
+            "Cat": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Pet",
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+              ],
+            },
+            "Dog": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Pet",
+                },
+                {
+                  "properties": {
+                    "bark": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+              ],
+            },
+            "Lizard": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Pet",
+                },
+                {
+                  "properties": {
+                    "lovesRocks": {
+                      "type": "boolean",
+                    },
+                  },
+                  "type": "object",
+                },
+              ],
+            },
+            "Pet": {
+              "discriminator": {
+                "defaultMapping": "#/components/schemas/Cat",
+                "propertyName": "petType",
+              },
+              "properties": {
+                "petType": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "petType",
+              ],
+              "type": "object",
+            },
+          },
+        },
+        "openapi": "3.2.0",
+        "paths": {
+          "/pets": {
+            "get": {
+              "operationId": "listPets",
+              "responses": {
+                "200": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "items": {
+                          "$ref": "#/components/schemas/Pet",
+                        },
+                        "type": "array",
+                      },
+                    },
+                  },
+                },
+              },
+              "summary": "List all pets",
+            },
+          },
+        },
+      }
+    `);
+  });
 });
