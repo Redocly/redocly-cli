@@ -1676,6 +1676,67 @@ describe('context.resolve', () => {
       }),
     });
   });
+
+  it('should use source location derived from resolved schema $id IRI', async () => {
+    const testRuleSet: Oas3RuleSet = {
+      test: vi.fn(() => {
+        return {
+          Schema: vi.fn((schema, { resolve }) => {
+            if (schema.properties?.value?.$ref) {
+              const { location, node } = resolve(schema.properties.value);
+              expect(node).toMatchObject({
+                $id: 'https://example.com/schemas/shared.yaml',
+                type: 'object',
+              });
+              expect(location?.pointer).toEqual('#/');
+              expect(location?.source.absoluteRef).toEqual(
+                'https://example.com/schemas/shared.yaml'
+              );
+            }
+          }),
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Canonical:
+              $id: 'https://example.com/schemas/shared.yaml'
+              type: object
+            Holder:
+              type: object
+              properties:
+                value:
+                  $ref: '#/components/schemas/Canonical'
+      `,
+      'foobar.yaml'
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        plugins: [
+          {
+            id: 'test',
+            rules: {
+              oas3: testRuleSet,
+            },
+          },
+        ],
+        rules: {
+          'test/test': 'error',
+        },
+      }),
+    });
+  });
 });
 
 describe('type extensions', () => {

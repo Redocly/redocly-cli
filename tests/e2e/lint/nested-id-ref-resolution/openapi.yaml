@@ -1,0 +1,39 @@
+openapi: 3.2.0
+info:
+  title: nested-id-ref-resolution
+  version: 1.0.0
+paths:
+  /userData:
+    get:
+      operationId: getUserData
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userData'
+
+components:
+  schemas:
+    userData:
+      $id: 'https://api.example.com/classroom/userData'
+      type: array
+      items:
+        type: object
+        properties:
+          completedChallenges:
+            type: array
+            items:
+              $ref: '#/$defs/Challenge'
+      $defs:
+        Challenge:
+          type: object
+          properties:
+            files:
+              type: array
+              unevaluatedItems: false
+              items:
+                $ref: '#/$defs/File'
+        File:
+          type: string
