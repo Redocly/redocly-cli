@@ -67,17 +67,17 @@ Example of an **incorrect** example object:
 ```yaml Bad example
 requestBody:
   content:
-    'application/json':
+    application/json:
       schema:
         $ref: '#/components/schemas/Address'
       examples:
         foo:
           summary: A foo example
-          value: {"foo": "bar"}
+          value: { foo: bar }
           externalValue: https://example.org/examples/foo-example.xml
         bar:
           summary: A bar example
-          value: {"bar": "baz"}
+          value: { bar: baz }
           externalValue: https://example.org/examples/bar-example.xml
 ```
 
@@ -86,13 +86,13 @@ Example of a **correct** example object:
 ```yaml Good example
 requestBody:
   content:
-    'application/json':
+    application/json:
       schema:
         $ref: '#/components/schemas/Address'
       examples:
         foo:
           summary: A foo example
-          value: {"foo": "bar"}
+          value: { foo: bar }
         bar:
           summary: A bar example
           externalValue: https://example.org/examples/address-example.xml

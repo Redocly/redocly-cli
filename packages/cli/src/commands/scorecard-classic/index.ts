@@ -34,9 +34,6 @@ export async function handleScorecardClassic({
 }: CommandArgs<ScorecardClassicArgv>) {
   const startedAt = performance.now();
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  if (!apis.length) {
-    exitWithError('No APIs were provided.');
-  }
 
   const projectUrl =
     argv['project-url'] ||

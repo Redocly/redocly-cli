@@ -116,9 +116,9 @@ schemas:
     type: object
     anyOf:
       - required:
-        - id
+          - id
       - required:
-        - name
+          - name
     properties:
       id:
         type: integer

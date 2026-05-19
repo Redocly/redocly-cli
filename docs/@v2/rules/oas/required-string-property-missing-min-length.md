@@ -55,12 +55,11 @@ schemas:
   User:
     type: object
     required:
-        - name
+      - name
     properties:
       name:
         description: User name
         type: string
-
 ```
 
 Example of a **correct** schema:
@@ -70,7 +69,7 @@ schemas:
   User:
     type: object
     required:
-        - name
+      - name
     properties:
       name:
         description: User name

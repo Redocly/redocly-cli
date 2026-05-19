@@ -1,22 +1,14 @@
+import nodeModule from 'node:module';
 import path from 'node:path';
-import { after } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import util from 'node:util';
 
 import { Source } from '../../resolve.js';
 import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
 import { resolveConfig } from '../config-resolvers.js';
 import { Config } from '../config.js';
+import { getCachedPlugins } from '../plugins-cache.js';
 import recommended from '../recommended.js';
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
-
-vi.mock('node:module', () => ({
-  default: {
-    createRequire: () => ({
-      resolve: (path: string) => `/mock/path/${path}`,
-    }),
-  },
-}));
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,6 +32,17 @@ function makeDocument(rawConfig: RawUniversalConfig, configPath: string = '') {
     source: new Source(configPath, JSON.stringify(rawConfig)),
     parsed: rawConfig,
   };
+}
+
+function mockRequireResolve(overrides: Record<string, string>): void {
+  const realCreateRequire = nodeModule.createRequire;
+  vi.spyOn(nodeModule, 'createRequire').mockImplementation((specifier) => {
+    const req = realCreateRequire(specifier);
+    const realResolve = req.resolve.bind(req);
+    req.resolve = ((id: string, opts?: any) =>
+      overrides[id] ?? realResolve(id, opts)) as typeof req.resolve;
+    return req;
+  });
 }
 
 describe('resolveConfig', () => {
@@ -110,20 +113,19 @@ describe('resolveConfig', () => {
   });
 
   it('should instantiate the plugin once', async () => {
-    // Called by plugin during init
-    const deprecateSpy = vi.spyOn(util, 'deprecate');
-
     const config = {
       ...baseGovernanceConfig,
       extends: ['local-config-with-plugin-init.yaml'],
     };
+    const pluginPath = path.join(__dirname, 'fixtures/resolve-config/plugin-with-init-logic.cjs');
 
     await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
       configPath,
     });
 
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+    const cachedPlugins = getCachedPlugins(pluginPath);
+    expect(cachedPlugins).toBeDefined();
 
     await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
@@ -131,7 +133,7 @@ describe('resolveConfig', () => {
     });
 
     // Should not execute the init logic again
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+    expect(getCachedPlugins(pluginPath)).toBe(cachedPlugins);
   });
 
   it('should resolve realm plugin properties', async () => {
@@ -638,20 +640,12 @@ describe('resolveApis', () => {
   });
 
   it('should work with npm dependencies', async () => {
-    after(() => {
-      (globalThis as any).__webpack_require__ = undefined;
-      (globalThis as any).__non_webpack_require__ = undefined;
+    const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
+    const pluginPath = path.join(fixturesDir, 'plugin.js');
+    mockRequireResolve({
+      'test-plugin': pluginPath,
+      'fixtures/plugin.cjs': pluginPath,
     });
-
-    (globalThis as any).__webpack_require__ = () => {};
-    (globalThis as any).__non_webpack_require__ = (p: string) =>
-      p === '/mock/path/test-plugin'
-        ? {
-            id: 'npm-test-plugin',
-          }
-        : {
-            id: 'local-test-plugin',
-          };
 
     const { resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(

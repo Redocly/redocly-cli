@@ -23,7 +23,6 @@ An example configuration:
 ```yaml
 rules:
   no-channel-trailing-slash: error
-
 ```
 
 ## Examples

@@ -55,10 +55,10 @@ function ExampleRule() {
     Operation: {
       Schema: {
         enter(schema, ctx, parents) {
-          console.log(`type ${schema.type} from ${parents.Operation.operationId}`)
-        }
-      }
-    }
+          console.log(`type ${schema.type} from ${parents.Operation.operationId}`);
+        },
+      },
+    },
   };
 }
 ```

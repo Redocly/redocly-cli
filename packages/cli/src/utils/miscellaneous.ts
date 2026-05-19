@@ -57,6 +57,11 @@ export async function getFallbackApisOrExit(
     }
     exitWithError('Please provide a valid path.');
   }
+  if (res.length === 0) {
+    exitWithError(
+      'No APIs were provided. Specify an API via the command argument or define one in your config.'
+    );
+  }
   return res;
 }
 

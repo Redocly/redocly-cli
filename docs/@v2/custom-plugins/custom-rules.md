@@ -26,7 +26,7 @@ export default function OperationIdNotTest() {
           });
         }
       },
-    }
+    },
   };
 }
 ```
@@ -94,7 +94,7 @@ You may use the message alone:
 
 ```js
 context.report({
-  message: "Unexpected identifier"
+  message: 'Unexpected identifier',
 });
 ```
 

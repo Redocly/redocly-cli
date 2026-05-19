@@ -27,6 +27,8 @@ it('sendTelemetry calls all telemetry functions', async () => {
     spec_keyword: 'openapi',
     spec_full_version: '3.1.0',
     respect_x_security_auth_types: undefined,
+    respect_source_description_types: undefined,
+    respect_criterion_object_types: undefined,
   });
 
   expect(respondWithinMs).toHaveBeenCalled();

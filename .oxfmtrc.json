@@ -2,7 +2,6 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 100,
   "singleQuote": true,
-  "embeddedLanguageFormatting": "off",
   "experimentalSortPackageJson": false,
   "ignorePatterns": [
     "coverage/",
