@@ -12,7 +12,7 @@ import type {
 import type { Oas2Tag } from '../typings/swagger.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import { validateJsonSchema } from './ajv.js';
+import type { AjvValidator } from './ajv.js';
 
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
@@ -154,14 +154,15 @@ export function validateExample(
   options: {
     location: Location;
     ctx: UserContext;
+    validator: AjvValidator;
     allowAdditionalProperties: boolean;
     ajvContext?: AjvContext;
   }
 ) {
-  const { location, ctx, allowAdditionalProperties, ajvContext } = options;
+  const { location, ctx, validator, allowAdditionalProperties, ajvContext } = options;
   const { resolve, location: parentLocation, report, specVersion } = ctx;
   try {
-    const { valid, errors } = validateJsonSchema(example, schema, {
+    const { valid, errors } = validator.validate(example, schema, {
       schemaLoc: parentLocation.child('schema'),
       instancePath: location.pointer,
       resolve,
