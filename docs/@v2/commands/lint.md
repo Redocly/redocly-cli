@@ -130,7 +130,7 @@ However, if you have a configuration file, but it doesn't include any rules or e
 ### Specify output format
 
 The standard `codeframe` output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
-When multiple APIs are linted in a single command, all structured formats (such as `checkstyle` and `json`) produce a single combined document that groups problems per file.
+When multiple APIs are linted in a single command, the `checkstyle` format produces a single combined XML document with one `<file>` element per API.
 
 #### Codeframe (default)
 

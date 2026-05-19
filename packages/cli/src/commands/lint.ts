@@ -53,7 +53,8 @@ export async function handleLint({
 
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
-  const allLintRes: Awaited<ReturnType<typeof lint>> = [];
+  const isCheckstyle = argv.format === 'checkstyle';
+  const checkstyleResults: Awaited<ReturnType<typeof lint>> = [];
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const { path, alias } of apis) {
@@ -98,8 +99,16 @@ export async function handleLint({
           config.addIgnore(m);
           totalIgnored++;
         }
+      } else if (isCheckstyle) {
+        checkstyleResults.push(...results);
       } else {
-        allLintRes.push(...results);
+        formatProblems(results, {
+          format: argv.format,
+          maxProblems: argv['max-problems'],
+          totals: fileTotals,
+          version,
+          command: 'lint',
+        });
       }
 
       const elapsed = getExecutionTime(startedAt);
@@ -109,8 +118,8 @@ export async function handleLint({
     }
   }
 
-  if (!argv['generate-ignore-file']) {
-    formatProblems(allLintRes, {
+  if (isCheckstyle && !argv['generate-ignore-file']) {
+    formatProblems(checkstyleResults, {
       format: argv.format,
       maxProblems: argv['max-problems'],
       totals,
