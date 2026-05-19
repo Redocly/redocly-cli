@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.31.2 (2026-05-19)
+
+### Patch Changes
+
+- Fixed the `remove-unused-components` decorator to remove unused components containing `allOf` keyword.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+- Fixed the `no-unused-components` rule to highlight unused schemas containing `allOf` keyword.
+- Updated @redocly/openapi-core to v2.31.2.
+
 ## 2.31.1 (2026-05-18)
 
 ### Patch Changes
