@@ -168,6 +168,7 @@
             - page: rules/arazzo/requestBody-replacements-unique.md
             - page: rules/arazzo/sourceDescription-name-unique.md
             - page: rules/arazzo/sourceDescription-type.md
+            - page: rules/arazzo/spec-parameters-in-by-context.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md
