@@ -40,7 +40,6 @@ describe('ajv configuration', () => {
 
   beforeEach(() => {
     releaseAjvInstance();
-    vi.clearAllMocks();
   });
 
   describe('dialect selection by specVersion', () => {
