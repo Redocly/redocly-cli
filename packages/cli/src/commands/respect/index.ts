@@ -1,4 +1,4 @@
-import { HandledError, logger } from '@redocly/openapi-core';
+import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
 import { type JsonLogs } from '@redocly/respect-core';
 import { blue, green } from 'colorette';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -63,6 +63,13 @@ export async function handleRespect({
       customFetch = withHar(customFetch, { har: harLogs });
     }
 
+    const externalRefResolver = new BaseResolver({
+      http: {
+        headers: config.resolve?.http?.headers ?? [],
+        customFetch: withConnectionClient(mtlsCerts),
+      },
+    });
+
     const options = {
       files: argv.files,
       input: argv.input,
@@ -90,6 +97,7 @@ export async function handleRespect({
       envVariables: readEnvVariables(workingDir) || {},
       logger,
       fetch: customFetch as unknown as typeof fetch,
+      externalRefResolver,
       noSecretsMasking: argv['no-secrets-masking'],
     };
 
