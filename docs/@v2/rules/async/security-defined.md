@@ -13,7 +13,7 @@ In AsyncAPI 2.x, `security` entries on operations and servers are bare security 
 A typo or rename breaks the reference but the document remains structurally valid.
 The key mismatch is only visible to clients at runtime.
 
-In AsyncAPI 3.0, `security` entries are `SecurityScheme` objects, typically expressed as `$ref`s into `components.securitySchemes`. 
+In AsyncAPI 3.0, `security` entries are `SecurityScheme` objects, typically expressed as `$ref`s into `components.securitySchemes`.
 
 The `security-defined` rule reports when a security `$ref` does not point into `components.securitySchemes` or when it points at a name that is not defined there.
 This rule catches these name mismatches at lint time.
