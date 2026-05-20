@@ -15,7 +15,6 @@ The following example shows rules configured in `redocly.yaml` with short syntax
 ```yaml
 rules:
   operation-operationId: warn
-
 ```
 
 Some rules support additional configuration options. The following example shows the more verbose format where the `severity` setting is added alongside other settings:

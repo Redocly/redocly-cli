@@ -36,11 +36,11 @@ Example of a **correct** `dependsOn` list:
 
 ```yaml Correct example
 workflows:
-    - workflowId: get-museum-hours
-      description: This workflow demonstrates how to get the museum opening hours and buy tickets.
-      dependsOn:
-        - get-museum-hours-2
-        - get-museum-hours-3
+  - workflowId: get-museum-hours
+    description: This workflow demonstrates how to get the museum opening hours and buy tickets.
+    dependsOn:
+      - get-museum-hours-2
+      - get-museum-hours-3
 ```
 
 ## Resources

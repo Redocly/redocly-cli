@@ -1,4 +1,4 @@
-import { parseRef } from '../../ref-utils.js';
+import { isRef, parseRef } from '../../ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -6,6 +6,8 @@ import type {
   Oas3Components,
   Oas3_1Components,
   Oas3_2Components,
+  Oas3Schema,
+  Oas3_1Schema,
 } from '../../typings/openapi.js';
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import { hasComponent } from '../../utils/oas-has-component.js';
@@ -13,6 +15,12 @@ import type { Oas3Decorator } from '../../visitors.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
+type ComponentInfo = {
+  usedIn: string[];
+  componentType?: AnyOas3ComponentsKey;
+  name: string;
+  referencesDiscriminator?: boolean;
+};
 
 function getComponentKey(pointer: string): string | undefined {
   if (!pointer.startsWith('#/components/')) return;
@@ -22,21 +30,19 @@ function getComponentKey(pointer: string): string | undefined {
 }
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
-  const components = new Map<
-    string,
-    {
-      usedIn: string[];
-      componentType?: AnyOas3ComponentsKey;
-      name: string;
-    }
-  >();
+  const components = new Map<string, ComponentInfo>();
 
-  function registerComponent(componentType: AnyOas3ComponentsKey, name: string): void {
+  function registerComponent(
+    componentType: AnyOas3ComponentsKey,
+    name: string,
+    referencesDiscriminator: boolean = false
+  ): void {
     const key = `${componentType}/${name}`;
     components.set(key, {
       usedIn: components.get(key)?.usedIn ?? [],
       componentType,
       name,
+      referencesDiscriminator,
     });
   }
 
@@ -46,8 +52,10 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
   ): number {
     const removedCountBefore = removedKeys.size;
 
-    for (const [key, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey));
+    for (const [key, { usedIn, name, componentType, referencesDiscriminator }] of components) {
+      const used =
+        usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey)) ||
+        referencesDiscriminator;
 
       if (
         !used &&
@@ -112,10 +120,11 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { key }) {
-        if (!schema.allOf) {
-          registerComponent('schemas', key.toString());
-        }
+      Schema(schema, ctx) {
+        const referencesDiscriminator = schema.allOf?.some(
+          (ref) => isRef(ref) && ctx.resolve<Oas3Schema | Oas3_1Schema>(ref)?.node?.discriminator
+        );
+        registerComponent('schemas', ctx.key.toString(), referencesDiscriminator);
       },
     },
     NamedParameters: {

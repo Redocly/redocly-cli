@@ -81,7 +81,7 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
 1. Use the built-in logger from `@redocly/openapi-core` package:
 
    ```typescript
-   import { logger } from "@redocly/openapi-core";
+   import { logger } from '@redocly/openapi-core';
    ```
 
 2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
@@ -255,8 +255,8 @@ Note that the snapshot does not always match the command output because of the w
 Here's how the output is processed in tests:
 
 ```typescript
-const out = result.stdout ? result.stdout.toString() : "";
-const err = result.stderr ? result.stderr.toString() : "";
+const out = result.stdout ? result.stdout.toString() : '';
+const err = result.stderr ? result.stderr.toString() : '';
 return `${out}\n${err}`;
 ```
 
