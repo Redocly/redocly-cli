@@ -73,7 +73,7 @@ For example, let's build a lightweight ruleset using the [spec ruleset](./rules/
 
 ```yaml
 extends:
- - spec
+  - spec
 
 rules:
   path-parameters-defined: error

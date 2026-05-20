@@ -83,7 +83,7 @@ components:
 
 ## Related rules
 
-- [no-undefined-refs](../common/no-unresolved-refs.md)
+- [no-unresolved-refs](../common/no-unresolved-refs.md)
 
 ## Resources
 

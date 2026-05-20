@@ -78,7 +78,7 @@ The following example shows configuration for the minimal ruleset with some addi
 
 ```yaml
 extends:
- - minimal
+  - minimal
 
 arazzo1Rules:
   sourceDescription-name-unique: warn

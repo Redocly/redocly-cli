@@ -26,10 +26,10 @@ Define the type extension for the new `x-metadata` section, in this example, we 
 ```js
 const XMetaData = {
   properties: {
-    lifecycle: { type: 'string', enum: ['development', 'staging', 'production']},
-    'owner-team': { type: 'string'},
+    lifecycle: { type: 'string', enum: ['development', 'staging', 'production'] },
+    'owner-team': { type: 'string' },
   },
-  required: ['lifecycle']
+  required: ['lifecycle'],
 };
 ```
 
@@ -66,7 +66,7 @@ You can use the new type immediately to check the validity of your API document.
 extends: []
 
 plugins:
- - 'plugins/example-type-extension.js'
+  - plugins/example-type-extension.js
 
 rules:
   struct: warn

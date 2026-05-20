@@ -95,12 +95,12 @@ components:
     GetMuseumHoursResponseExample:
       summary: Get hours response
       value:
-        - date: "2024-06-18"
-          timeOpen: "09:00"
-          timeClose: "18:00"
-        - date: "2024-06-19"
-          timeOpen: "09:00"
-          timeClose: "18:00"
+        - date: '2024-06-18'
+          timeOpen: '09:00'
+          timeClose: '18:00'
+        - date: '2024-06-19'
+          timeOpen: '09:00'
+          timeClose: '18:00'
 ```
 
 Given the file `./opening-hours-examples.yaml` with content:
@@ -109,16 +109,15 @@ Given the file `./opening-hours-examples.yaml` with content:
 GetMuseumHoursResponseExampleShort:
   summary: Short-term opening hours
   value:
-    - date: "2023-09-11"
-      timeOpen: "09:00"
-      timeClose: "18:00"
-    - date: "2023-09-12"
-      timeOpen: "09:00"
-      timeClose: "18:00"
+    - date: '2023-09-11'
+      timeOpen: '09:00'
+      timeClose: '18:00'
+    - date: '2023-09-12'
+      timeOpen: '09:00'
+      timeClose: '18:00'
 GetMuseumHoursResponseExampleClosed:
   summary: The museum is closed
   value: []
-
 ```
 
 Given this configuration:

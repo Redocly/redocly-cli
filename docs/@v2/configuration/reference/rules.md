@@ -101,7 +101,6 @@ rules:
       property: operationId
     assertions:
       casing: camelCase
-
 ```
 
 The configurable rules have user-defined names that all start with `rule/` and then a meaningful name.
