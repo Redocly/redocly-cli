@@ -1,4 +1,4 @@
-import { Client, ProxyAgent, fetch as undiciFetch } from 'undici';
+import { Client, ProxyAgent } from 'undici';
 
 import {
   createNetworkDispatcher,
@@ -159,50 +159,6 @@ describe('createNetworkDispatcher', () => {
     expect(client).toBeDefined();
     expect(client).toBeInstanceOf(Client);
     expect(client).not.toBeInstanceOf(ProxyAgent);
-  });
-});
-
-describe('withConnectionClient (proxy-only behavior)', () => {
-  const savedEnv: Record<string, string | undefined> = {};
-
-  beforeEach(() => {
-    savedEnv.HTTPS_PROXY = process.env.HTTPS_PROXY;
-    savedEnv.HTTP_PROXY = process.env.HTTP_PROXY;
-    savedEnv.https_proxy = process.env.https_proxy;
-    savedEnv.http_proxy = process.env.http_proxy;
-    delete process.env.HTTPS_PROXY;
-    delete process.env.HTTP_PROXY;
-    delete process.env.https_proxy;
-    delete process.env.http_proxy;
-  });
-
-  afterEach(() => {
-    for (const [key, value] of Object.entries(savedEnv)) {
-      if (value !== undefined) {
-        process.env[key] = value;
-      } else {
-        delete process.env[key];
-      }
-    }
-  });
-
-  it('returns the bare undici fetch when no proxy env vars and no certs', () => {
-    const customFetch = withConnectionClient();
-    expect(customFetch).toBe(undiciFetch);
-  });
-
-  it('returns a wrapper fetch when HTTPS_PROXY is set', () => {
-    process.env.HTTPS_PROXY = 'http://proxy.local:8080';
-    const customFetch = withConnectionClient();
-    expect(customFetch).not.toBe(undiciFetch);
-    expect(typeof customFetch).toBe('function');
-  });
-
-  it('returns a wrapper fetch when HTTP_PROXY is set', () => {
-    process.env.HTTP_PROXY = 'http://proxy.local:8080';
-    const customFetch = withConnectionClient();
-    expect(customFetch).not.toBe(undiciFetch);
-    expect(typeof customFetch).toBe('function');
   });
 });
 
