@@ -385,4 +385,89 @@ describe('Arazzo spec-parameters-in-by-context', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should not report when workflow-level parameters specify `in`', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            parameters:
+              - in: header
+                name: Secret
+                value: Basic Og==
+            steps:
+              - stepId: get-museum-hours
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'spec-parameters-in-by-context': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report when workflow-level parameter is missing `in`', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            parameters:
+              - name: Secret
+                value: Basic Og==
+            steps:
+              - stepId: get-museum-hours
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'spec-parameters-in-by-context': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/parameters/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Parameter \`in\` field MUST be specified when the parent does not reference a \`workflowId\`.",
+          "ruleId": "spec-parameters-in-by-context",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
