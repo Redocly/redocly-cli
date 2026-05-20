@@ -14,9 +14,9 @@ import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
 import { type Oas3Method } from '../../split/types.js';
 import type { AnyOas3Definition, JoinDocumentContext } from '../types.js';
 import { addPrefix } from './add-prefix.js';
-import { addSecurityPrefix } from './add-security-prefix.js';
 import { formatTags } from './format-tags.js';
 import { populateTags } from './populate-tags.js';
+import { resolveOperationSecurity } from './resolve-operation-security.js';
 
 export function collectPaths({
   joinedDef,
@@ -39,6 +39,7 @@ export function collectPaths({
     tagsPrefix,
     componentsPrefix,
     oasVersion,
+    rootSecuritiesFromAllApis,
   } = context;
   const { paths, servers: rootServers } = openapi;
   const operationsSet = new Set(OPENAPI3_METHOD_NAMES);
@@ -181,7 +182,7 @@ export function collectPaths({
       ];
     }
 
-    const { tags, security } = joinedDef.paths[path][operation];
+    const { tags } = joinedDef.paths[path][operation];
 
     if (tags) {
       joinedDef.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
@@ -216,16 +217,16 @@ export function collectPaths({
         },
       });
     }
-    if (!security && openapi.hasOwnProperty('security')) {
-      joinedDef.paths[path][operation]['security'] = addSecurityPrefix(
-        openapi.security,
-        componentsPrefix!
-      );
-    } else if (pathOperation.security) {
-      joinedDef.paths[path][operation].security = addSecurityPrefix(
-        pathOperation.security,
-        componentsPrefix!
-      );
+    const operationSecurity = resolveOperationSecurity({
+      pathItem,
+      pathOperation,
+      openapi,
+      componentsPrefix,
+      rootSecuritiesFromAllApis: rootSecuritiesFromAllApis || [],
+    });
+
+    if (operationSecurity) {
+      joinedDef.paths[path][operation].security = operationSecurity;
     }
   }
 }

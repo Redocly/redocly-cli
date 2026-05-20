@@ -11,6 +11,11 @@ import type { VerifyConfigOptions } from '../../types.js';
 
 export type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
+export type JoinRootSecurity = {
+  security: NonNullable<AnyOas3Definition['security']>;
+  componentsPrefix: string | undefined;
+};
+
 export type JoinDocumentContext = {
   api: string;
   apiFilename: string;
@@ -20,6 +25,7 @@ export type JoinDocumentContext = {
   tagsPrefix: string;
   componentsPrefix: string | undefined;
   oasVersion: Extract<SpecVersion, 'oas3_0' | 'oas3_1' | 'oas3_2'> | null;
+  rootSecuritiesFromAllApis?: JoinRootSecurity[];
 };
 
 export type JoinArgv = {

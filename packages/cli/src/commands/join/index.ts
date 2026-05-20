@@ -26,7 +26,7 @@ import {
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { COMPONENTS } from '../split/constants.js';
+// import { COMPONENTS } from '../split/constants.js';
 import type { JoinArgv, AnyOas3Definition } from './types.js';
 import {
   replace$Refs,
@@ -39,6 +39,8 @@ import {
   collectComponents,
   collectWebhooks,
   addInfoSectionAndSpecVersion,
+  collectDuplicateSecuritySchemeNames,
+  getEffectiveComponentsPrefix,
 } from './utils/index.js';
 
 export async function handleJoin({
@@ -174,6 +176,34 @@ export async function handleJoin({
     joinedDef.servers = first.parsed.servers;
   }
 
+  const duplicateSecuritySchemeNames = collectDuplicateSecuritySchemeNames(
+    documents as Document<AnyOas3Definition>[]
+  );
+
+  const rootSecuritiesFromAllApis = documents.flatMap((document) => {
+    const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
+      ? document.parsed
+      : ({} as AnyOas3Definition);
+
+    if (!openapi.hasOwnProperty('security')) {
+      return [];
+    }
+
+    const apiFilename = getApiFilename(path.relative(process.cwd(), document.source.absoluteRef));
+
+    return [
+      {
+        security: openapi.security!,
+        componentsPrefix: getEffectiveComponentsPrefix({
+          info: openapi.info,
+          apiFilename,
+          prefixComponentsWithInfoProp,
+          duplicateSecuritySchemeNames,
+        }),
+      },
+    ];
+  });
+
   for (const document of documents) {
     const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
       ? document.parsed
@@ -184,7 +214,12 @@ export async function handleJoin({
     const tagsPrefix = prefixTagsWithFilename
       ? apiFilename
       : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
-    const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
+    const componentsPrefix = getEffectiveComponentsPrefix({
+      info,
+      apiFilename,
+      prefixComponentsWithInfoProp,
+      duplicateSecuritySchemeNames,
+    });
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
       logger.warn(`warning: x-tagGroups at ${blue(api)} will be skipped \n`);
@@ -199,10 +234,12 @@ export async function handleJoin({
       tagsPrefix,
       componentsPrefix,
       oasVersion,
+      rootSecuritiesFromAllApis,
     };
     if (tags) {
       populateTags({ joinedDef, withoutXTagGroups, context });
     }
+
     collectExternalDocs({ joinedDef, openapi, context });
     collectPaths({ joinedDef, withoutXTagGroups, openapi, context, serversAreTheSame });
     collectComponents({ joinedDef, openapi, context });
