@@ -66,7 +66,7 @@ export async function handleRespect({
     const externalRefResolver = new BaseResolver({
       http: {
         headers: config.resolve?.http?.headers ?? [],
-        customFetch: withConnectionClient(mtlsCerts),
+        customFetch,
       },
     });
 
