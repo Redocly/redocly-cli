@@ -15,7 +15,7 @@ import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
-import { AbortFlowError, exitWithError } from '../utils/error.js';
+import { AbortFlowError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
@@ -46,10 +46,6 @@ export async function handleLint({
   collectSpecData,
 }: CommandArgs<LintArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
-
-  if (!apis.length) {
-    exitWithError('No APIs were provided.');
-  }
 
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;

@@ -1,5 +1,35 @@
 # @redocly/cli
 
+## 2.31.2
+
+### Patch Changes
+
+- Fixed the `remove-unused-components` decorator to remove unused components containing `allOf` keyword.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+- Fixed the `no-unused-components` rule to highlight unused schemas containing `allOf` keyword.
+- Updated @redocly/openapi-core to v2.31.2.
+
+## 2.31.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.1.
+
+## 2.31.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.0.
+
+## 2.30.6
+
+### Patch Changes
+
+- Fixed hard crash that happened when no API was provided either via the command argument or in the config.
+- Updated @redocly/openapi-core to v2.30.6.
+
 ## 2.30.5
 
 ### Patch Changes

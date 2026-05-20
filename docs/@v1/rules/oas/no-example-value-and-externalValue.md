@@ -68,11 +68,11 @@ requestBody:
       examples:
         foo:
           summary: A foo example
-          value: {"foo": "bar"}
+          value: { 'foo': 'bar' }
           externalValue: 'https://example.org/examples/foo-example.xml'
         bar:
           summary: A bar example
-          value: {"bar": "baz"}
+          value: { 'bar': 'baz' }
           externalValue: 'https://example.org/examples/bar-example.xml'
 ```
 
@@ -87,7 +87,7 @@ requestBody:
       examples:
         foo:
           summary: A foo example
-          value: {"foo": "bar"}
+          value: { 'foo': 'bar' }
         bar:
           summary: A bar example
           externalValue: 'https://example.org/examples/address-example.xml'

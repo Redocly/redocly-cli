@@ -101,7 +101,6 @@ rules:
     assertions:
       pattern: /1\.[0-9]\.[0-9]/
     message: API version must be in SemVer format, no major version release
-
 ```
 
 The `subject` is the `version` property of the `info` object; Info is a [recognized node type](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/). Using the `pattern` assertion, describe what's allowed with [regular expression syntax](https://en.wikipedia.org/wiki/Regular_expression). Finally, adding the `message` ensures clear information is conveyed if the rule isn't satisfied.

@@ -124,12 +124,6 @@ describe('handleLint', () => {
       await commandWrapper(handleLint)(argvMock);
       expect(checkIfRulesetExist).toHaveBeenCalledTimes(1);
     });
-
-    it('should fail if apis not provided', async () => {
-      await commandWrapper(handleLint)({ ...argvMock, apis: [] });
-      expect(getFallbackApisOrExit).toHaveBeenCalledTimes(1);
-      expect(exitWithError).toHaveBeenCalledWith('No APIs were provided.');
-    });
   });
 
   describe('loop through entrypoints and lint stage', () => {
