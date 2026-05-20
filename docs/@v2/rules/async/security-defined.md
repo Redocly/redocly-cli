@@ -10,7 +10,8 @@ Verifies that every security scheme referenced from an operation or server `secu
 ## API design principles
 
 In AsyncAPI 2.x, `security` entries on operations and servers are bare security scheme names that must match a key under `components.securitySchemes`.
-A typo or rename leaves the reference dangling, and the document remains structurally valid — the mismatch is only visible to clients at runtime.
+A typo or rename breaks the reference but the document remains structurally valid.
+The key mismatch is only visible to clients at runtime.
 
 In AsyncAPI 3.0, `security` entries are `SecurityScheme` objects, typically expressed as `$ref`s into `components.securitySchemes`. The rule reports when a security `$ref` does not point into `components.securitySchemes` or when it points at a name that is not defined there.
 
