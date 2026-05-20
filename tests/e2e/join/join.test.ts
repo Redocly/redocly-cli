@@ -21,6 +21,11 @@ describe('join', () => {
       'ignore-decorators',
       'multi-references-to-one-file',
       'oas3.2',
+      'root-security-propagation',
+      'duplicate-scheme-root-security',
+      'duplicate-scheme-operation-level',
+      'no-duplicate-scheme-no-prefix',
+      'operation-overrides-root-security',
     ];
 
     test.each(testDirNames)('test: %s', async (dir) => {

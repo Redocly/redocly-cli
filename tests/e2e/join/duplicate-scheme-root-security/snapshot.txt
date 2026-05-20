@@ -1,0 +1,61 @@
+
+openapi: 3.1.0
+info:
+  title: spec1
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+tags:
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
+paths:
+  /pets:
+    get:
+      summary: Pets from spec1
+      operationId: getPetsSpec1
+      responses:
+        '200':
+          description: OK
+      tags:
+        - foo_other
+      security:
+        - spec1_oauth2: []
+  /orders:
+    get:
+      summary: Orders from spec2
+      operationId: getOrdersSpec2
+      responses:
+        '200':
+          description: OK
+      tags:
+        - bar_other
+      security:
+        - spec2_oauth2: []
+components:
+  securitySchemes:
+    spec1_oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize1
+          tokenUrl: https://example.com/oauth/token1
+          scopes: {}
+    spec2_oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize2
+          tokenUrl: https://example.com/oauth/token2
+          scopes: {}
+x-tagGroups:
+  - name: spec1
+    tags:
+      - foo_other
+  - name: spec2
+    tags:
+      - bar_other
+
+openapi.yaml: join processed in <test>ms
+

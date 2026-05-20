@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: spec2
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /orders:
+    get:
+      summary: No security
+      operationId: getOrdersNoSecurity
+      responses:
+        '200':
+          description: OK

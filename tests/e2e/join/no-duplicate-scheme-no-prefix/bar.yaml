@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: spec2
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+security:
+  - apiKey2: []
+components:
+  securitySchemes:
+    apiKey2:
+      type: apiKey
+      in: header
+      name: X-API-Key-2
+paths:
+  /orders:
+    get:
+      summary: Orders from spec2
+      operationId: getOrdersSpec2
+      responses:
+        '200':
+          description: OK

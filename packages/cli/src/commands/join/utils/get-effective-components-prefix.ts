@@ -1,10 +1,9 @@
-import { type Document, isPlainObject, keysOf } from '@redocly/openapi-core';
+import { type Document, type Oas3PathItem, isPlainObject, keysOf } from '@redocly/openapi-core';
 
 import { COMPONENTS } from '../../split/constants.js';
 import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
 import { type Oas3Method } from '../../split/types.js';
 import type { AnyOas3Definition } from '../types.js';
-import { getApiFilename } from './get-api-filename.js';
 import { getInfoPrefix } from './get-info-prefix.js';
 
 const operationsSet = new Set(OPENAPI3_METHOD_NAMES);
@@ -26,15 +25,19 @@ function collectSecuritySchemeNamesFromApi(openapi: AnyOas3Definition): Set<stri
   addFromSecurity(openapi.security);
 
   for (const pathItem of Object.values(openapi.paths ?? {})) {
-    if (!pathItem || isPlainObject(pathItem)) {
+    if (!pathItem || !isPlainObject(pathItem)) {
       continue;
     }
 
-    addFromSecurity((pathItem as { security?: AnyOas3Definition['security'] }).security);
+    const pathItemObject = pathItem as Oas3PathItem;
 
-    for (const field of keysOf(pathItem)) {
+    addFromSecurity(
+      (pathItemObject as Oas3PathItem & { security?: AnyOas3Definition['security'] }).security
+    );
+
+    for (const field of keysOf(pathItemObject)) {
       if (operationsSet.has(field as Oas3Method)) {
-        addFromSecurity(pathItem[field as Oas3Method]?.security);
+        addFromSecurity(pathItemObject[field as Oas3Method]?.security);
       }
     }
   }
@@ -86,9 +89,4 @@ export function getEffectiveComponentsPrefix({
 
   const raw = info?.title ?? apiFilename;
   return raw.replaceAll(/\s/g, '_');
-}
-
-export function getApiFilenameFromDocument(document: Document<AnyOas3Definition>) {
-  const api = document.source.absoluteRef;
-  return getApiFilename(api);
 }
