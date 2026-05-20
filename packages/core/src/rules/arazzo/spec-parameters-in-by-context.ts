@@ -1,14 +1,14 @@
+import type { Parameter } from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-function isInlineParameter(parameter: any): boolean {
-  return parameter && typeof parameter === 'object' && !('reference' in parameter);
+function isInlineParameter(parameter: Parameter): boolean {
+  return Boolean(parameter) && typeof parameter === 'object' && !('reference' in parameter);
 }
 
 function checkParameters(
-  parameters: any,
+  parameters: Parameter[],
   hasWorkflowId: boolean,
-  basePath: (string | number)[],
   { report, location }: UserContext
 ) {
   if (!Array.isArray(parameters)) return;
@@ -23,13 +23,13 @@ function checkParameters(
       report({
         message:
           'Parameter `in` field MUST NOT be specified when the parent references a `workflowId`; parameters map to workflow inputs.',
-        location: location.child([...basePath, i, 'in']).key(),
+        location: location.child(['parameters', i, 'in']).key(),
       });
     } else if (!hasWorkflowId && !hasIn) {
       report({
         message:
           'Parameter `in` field MUST be specified when the parent does not reference a `workflowId`.',
-        location: location.child([...basePath, i]),
+        location: location.child(['parameters', i]),
       });
     }
   }
@@ -37,15 +37,22 @@ function checkParameters(
 
 export const SpecParametersInByContext: Arazzo1Rule = () => {
   return {
+    Workflow: {
+      enter(workflow, ctx: UserContext) {
+        if (!workflow.parameters) return;
+        // A workflow never references another workflow, so `in` is always required.
+        checkParameters(workflow.parameters, false, ctx);
+      },
+    },
     Step: {
       enter(step, ctx: UserContext) {
         if (!step.parameters) return;
-        checkParameters(step.parameters, Boolean(step.workflowId), ['parameters'], ctx);
+        checkParameters(step.parameters, Boolean(step.workflowId), ctx);
       },
     },
     SuccessActionObject: {
       enter(action, ctx: UserContext) {
-        if (!('parameters' in action) || !action.parameters) return;
+        if (!action.parameters) return;
 
         if (!action.workflowId) {
           ctx.report({
@@ -55,12 +62,12 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
           });
           return;
         }
-        checkParameters(action.parameters, true, ['parameters'], ctx);
+        checkParameters(action.parameters, true, ctx);
       },
     },
     FailureActionObject: {
       enter(action, ctx: UserContext) {
-        if (!('parameters' in action) || !action.parameters) return;
+        if (!action.parameters) return;
 
         if (!action.workflowId) {
           ctx.report({
@@ -70,7 +77,7 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
           });
           return;
         }
-        checkParameters(action.parameters, true, ['parameters'], ctx);
+        checkParameters(action.parameters, true, ctx);
       },
     },
   };

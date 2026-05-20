@@ -9,7 +9,7 @@ Requires the `in` field on a parameter to be specified or omitted based on the p
 ## Design principles
 
 The Arazzo specification states that when a step, success action, or failure action specifies a `workflowId`, all parameters map to the referenced workflow's inputs and the `in` field MUST NOT be specified.
-In every other case (for example, when a step specifies an `operationId`, `operationPath`, or `x-operation`), the `in` field MUST be specified on each parameter.
+In every other case (for example, when a step specifies an `operationId`, `operationPath`, or `x-operation`, or for parameters defined at the workflow level), the `in` field MUST be specified on each parameter.
 
 This rule additionally enforces that success and failure action `parameters` are only valid when the action references a `workflowId`.
 
@@ -24,6 +24,7 @@ An example configuration:
 ```yaml
 rules:
   spec-parameters-in-by-context: error
+
 ```## Examples
 
 Given the following configuration:
