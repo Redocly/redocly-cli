@@ -31,8 +31,6 @@ paths:
           description: OK
       tags:
         - bar_other
-      security:
-        - rootScheme: []
 components:
   securitySchemes:
     rootScheme:

@@ -6,9 +6,22 @@ info:
 servers:
   - url: https://api.example.com
 tags:
+  - name: foo_other
+    x-displayName: other
   - name: bar_other
     x-displayName: other
 paths:
+  /pets:
+    get:
+      summary: Inherits root security from spec1
+      operationId: getPetsSpec1
+      responses:
+        '200':
+          description: OK
+      tags:
+        - foo_other
+      security:
+        - oauth2: []
   /post:
     get:
       summary: Example
@@ -20,8 +33,6 @@ paths:
           description: Bad request
       tags:
         - bar_other
-      security:
-        - oauth2: []
 components:
   securitySchemes:
     oauth2:
@@ -32,6 +43,9 @@ components:
           tokenUrl: https://example.com/oauth/token
           scopes: {}
 x-tagGroups:
+  - name: spec1
+    tags:
+      - foo_other
   - name: spec2
     tags:
       - bar_other

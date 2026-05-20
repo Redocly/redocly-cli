@@ -15,4 +15,11 @@ components:
           authorizationUrl: https://example.com/oauth/authorize
           tokenUrl: https://example.com/oauth/token
           scopes: {}
-paths: {}
+paths:
+  /pets:
+    get:
+      summary: Inherits root security from spec1
+      operationId: getPetsSpec1
+      responses:
+        '200':
+          description: OK

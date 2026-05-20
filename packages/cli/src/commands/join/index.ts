@@ -180,30 +180,6 @@ export async function handleJoin({
     documents as Document<AnyOas3Definition>[]
   );
 
-  const rootSecuritiesFromAllApis = documents.flatMap((document) => {
-    const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
-      ? document.parsed
-      : ({} as AnyOas3Definition);
-
-    if (!openapi.hasOwnProperty('security')) {
-      return [];
-    }
-
-    const apiFilename = getApiFilename(path.relative(process.cwd(), document.source.absoluteRef));
-
-    return [
-      {
-        security: openapi.security!,
-        componentsPrefix: getEffectiveComponentsPrefix({
-          info: openapi.info,
-          apiFilename,
-          prefixComponentsWithInfoProp,
-          duplicateSecuritySchemeNames,
-        }),
-      },
-    ];
-  });
-
   for (const document of documents) {
     const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
       ? document.parsed
@@ -234,7 +210,6 @@ export async function handleJoin({
       tagsPrefix,
       componentsPrefix,
       oasVersion,
-      rootSecuritiesFromAllApis,
     };
     if (tags) {
       populateTags({ joinedDef, withoutXTagGroups, context });

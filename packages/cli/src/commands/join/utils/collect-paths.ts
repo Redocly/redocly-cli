@@ -39,7 +39,6 @@ export function collectPaths({
     tagsPrefix,
     componentsPrefix,
     oasVersion,
-    rootSecuritiesFromAllApis,
   } = context;
   const { paths, servers: rootServers } = openapi;
   const operationsSet = new Set(OPENAPI3_METHOD_NAMES);
@@ -222,7 +221,6 @@ export function collectPaths({
       pathOperation,
       openapi,
       componentsPrefix,
-      rootSecuritiesFromAllApis: rootSecuritiesFromAllApis || [],
     });
 
     if (operationSecurity) {
