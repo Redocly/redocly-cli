@@ -24,8 +24,9 @@ An example configuration:
 ```yaml
 rules:
   spec-parameters-in-by-context: error
+```
 
-```## Examples
+## Examples
 
 Given the following configuration:
 
