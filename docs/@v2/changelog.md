@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.31.3 (2026-05-21)
+
+### Patch Changes
+
+- Fixed an issue where the Respect command did not honor the `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` environment variables when loading remote source descriptions or resolving external `$ref`s.
+  Proxy settings are consistently applied during reference resolution as well.
+- Updated @redocly/openapi-core to v2.31.3.
+
 ## 2.31.2 (2026-05-19)
 
 ### Patch Changes
