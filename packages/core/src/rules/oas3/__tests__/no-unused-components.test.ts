@@ -9,7 +9,7 @@ describe('Oas3 no-unused-components', () => {
   it('should report unused components', async () => {
     const document = parseYamlToDocument(
       outdent`
-        openapi: "3.0.0"
+        openapi: 3.0.0
         paths:
           /pets:
             get:
@@ -140,7 +140,7 @@ describe('Oas3 no-unused-components', () => {
   it('should report unused mediaTypes components in OAS 3.2', async () => {
     const document = parseYamlToDocument(
       outdent`
-        openapi: "3.2.0"
+        openapi: 3.2.0
         paths:
           /pets:
             get:
@@ -194,7 +194,7 @@ describe('Oas3 no-unused-components', () => {
   it('should report unused components using allOf BUT NOT report those referencing a discriminator via allOf', async () => {
     const document = parseYamlToDocument(
       outdent`
-        openapi: "3.2.0"
+        openapi: 3.2.0
         paths:
           /pets:
             get:
@@ -279,5 +279,84 @@ describe('Oas3 no-unused-components', () => {
         },
       ]
     `);
+  });
+
+  it('should report unused securitySchemes', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          securitySchemes:
+            unused:
+              type: apiKey
+              name: unused
+              in: header
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/securitySchemes/unused",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Security scheme: "unused" is never used.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unused-components",
+          "ruleId": "no-unused-components",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report securitySchemes referenced via SecurityRequirement', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /foo:
+            get:
+              security:
+                - api_key: []
+              responses:
+                '200':
+                  description: ok
+          /bar:
+            get:
+              security:
+                - derived: []
+              responses:
+                '200':
+                  description: ok
+        components:
+          securitySchemes:
+            api_key:
+              type: apiKey
+              name: api-key
+              in: header
+          
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(results).toEqual([]);
   });
 });
