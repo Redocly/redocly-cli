@@ -49,6 +49,7 @@
     "get-port-please": "3.0.1",
     "glob": "7.2.3",
     "handlebars": "4.7.9",
+    "js-yaml": "4.1.1",
     "mobx": "6.12.3",
     "@opentelemetry/api": "1.9.0",
     "@opentelemetry/exporter-trace-otlp-http": "0.53.0",
@@ -61,7 +62,7 @@
     "redoc": "2.5.0",
     "semver": "7.7.4",
     "simple-websocket": "9.1.0",
-    "styled-components": "6.3.9",
+    "styled-components": "6.4.1",
     "yargs": "17.0.1"
   },
   "devDependencies": {
