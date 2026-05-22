@@ -46,7 +46,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'test' is not defined.",
+          "message": "Required property 'test' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -59,7 +59,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'test2' is not defined.",
+          "message": "Required property 'test2' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -108,7 +108,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'test' is not defined.",
+          "message": "Required property 'test' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -231,7 +231,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'foo' is not defined.",
+          "message": "Required property 'foo' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -286,7 +286,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'surname' is not defined.",
+          "message": "Required property 'surname' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -428,7 +428,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'test' is not defined.",
+          "message": "Required property 'test' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -536,7 +536,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'name' is not defined.",
+          "message": "Required property 'name' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -648,7 +648,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'name' is not defined.",
+          "message": "Required property 'name' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -661,7 +661,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'huntingSkill' is not defined.",
+          "message": "Required property 'huntingSkill' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -796,7 +796,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'missing-required-prop' is not defined.",
+          "message": "Required property 'missing-required-prop' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -841,7 +841,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'missingRequired' is not defined.",
+          "message": "Required property 'missingRequired' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -889,7 +889,194 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'missing-required' is not defined.",
+          "message": "Required property 'missing-required' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report bare required when property is defined in parent allOf sibling', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              PersonBase:
+                type: object
+                properties:
+                  personName:
+                    type: object
+                    properties:
+                      givenName:
+                        type: string
+                      familyName:
+                        type: string
+              Person:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/PersonBase'
+                properties:
+                  personName:
+                    required:
+                      - givenName
+                      - familyName
+                required:
+                  - personName
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report bare required in oneOf branches when property is defined in parent allOf sibling', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              PersonBase:
+                type: object
+                properties:
+                  communication:
+                    type: object
+                    properties:
+                      landlines:
+                        type: array
+                      mobiles:
+                        type: array
+                      emails:
+                        type: array
+              Person:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/PersonBase'
+                properties:
+                  communication:
+                    oneOf:
+                      - required:
+                          - landlines
+                      - required:
+                          - mobiles
+                      - required:
+                          - emails
+                required:
+                  - communication
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report bare required in anyOf branches when property is defined in parent allOf sibling', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              PersonBase:
+                type: object
+                properties:
+                  communication:
+                    type: object
+                    properties:
+                      landlines:
+                        type: array
+                      mobiles:
+                        type: array
+                      emails:
+                        type: array
+              Person:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/PersonBase'
+                properties:
+                  communication:
+                    anyOf:
+                      - required:
+                          - landlines
+                      - required:
+                          - mobiles
+                      - required:
+                          - emails
+                required:
+                  - communication
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report misspelled required property even when parent allOf sibling defines the property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              PersonBase:
+                type: object
+                properties:
+                  personName:
+                    type: object
+                    properties:
+                      givenName:
+                        type: string
+                      familyName:
+                        type: string
+              Person:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/PersonBase'
+                properties:
+                  personName:
+                    required:
+                      - giveName
+                required:
+                  - personName
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Person/properties/personName/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'giveName' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -929,7 +1116,7 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'name' is not defined.",
+          "message": "Required property 'name' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],

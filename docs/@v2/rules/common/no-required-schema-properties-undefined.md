@@ -128,6 +128,86 @@ schemas:
         example: doggie
 ```
 
+The rule accepts bare `required` constraints on property sub-schemas when the property's type is defined in a parent `allOf` sibling. This is a valid JSON Schema pattern for adding presence constraints on top of a referenced base type:
+
+```yaml
+schemas:
+  PersonBase:
+    type: object
+    properties:
+      personName:
+        type: object
+        properties:
+          givenName:
+            type: string
+          familyName:
+            type: string
+  Person:
+    type: object
+    allOf:
+      - $ref: '#/components/schemas/PersonBase'
+    properties:
+      personName:
+        required:
+          - givenName
+          - familyName
+    required:
+      - personName
+```
+
+The rule also accepts `oneOf` branches used as pure constraint fragments, where each branch contains only a `required` keyword and the property's type is defined in a parent `allOf` sibling:
+
+```yaml
+schemas:
+  PersonBase:
+    type: object
+    properties:
+      communication:
+        type: object
+        properties:
+          landlines:
+            type: array
+          mobiles:
+            type: array
+          emails:
+            type: array
+  Person:
+    type: object
+    allOf:
+      - $ref: '#/components/schemas/PersonBase'
+    properties:
+      communication:
+        oneOf:
+          - required:
+              - landlines
+          - required:
+              - mobiles
+          - required:
+              - emails
+    required:
+      - communication
+```
+
+Misspellings in bare `required` lists are still caught. If a required key does not exist in the property's type definition resolved through the parent `allOf` sibling, the rule reports an error:
+
+```yaml
+schemas:
+  Person:
+    type: object
+    allOf:
+      - $ref: '#/components/schemas/PersonBase'
+    properties:
+      personName:
+        required:
+          - giveName # misspelling of givenName
+    required:
+      - personName
+```
+
+```bash
+Required property 'giveName' is undefined.
+```
+
 ## Related rules
 
 - [no-schema-type-mismatch](./no-schema-type-mismatch.md)
