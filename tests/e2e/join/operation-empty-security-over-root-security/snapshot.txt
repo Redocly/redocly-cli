@@ -1,0 +1,37 @@
+
+openapi: 3.1.0
+info:
+  title: spec1
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+tags:
+  - name: bar_other
+    x-displayName: other
+paths:
+  /public:
+    get:
+      security: []
+      summary: Public endpoint
+      operationId: public
+      responses:
+        '200':
+          description: OK
+      tags:
+        - bar_other
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes: {}
+x-tagGroups:
+  - name: spec1
+    tags:
+      - bar_other
+
+openapi.yaml: join processed in <test>ms
+

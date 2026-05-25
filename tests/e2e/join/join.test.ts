@@ -24,6 +24,7 @@ describe('join', () => {
       'root-security-in-both-specs',
       'root-security-without-paths',
       'operation-security-over-root-security',
+      'operation-empty-security-over-root-security',
     ];
 
     test.each(testDirNames)('test: %s', async (dir) => {
