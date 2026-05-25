@@ -321,6 +321,49 @@ describe('Oas3 no-unused-components', () => {
     `);
   });
 
+  it('should not report securitySchemes referenced via SecurityRequirement from webhooks or components.pathItems', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          securitySchemes:
+            webhook_key:
+              type: apiKey
+              name: webhook-key
+              in: header
+            shared_key:
+              type: apiKey
+              name: shared-key
+              in: header
+          pathItems:
+            shared:
+              get:
+                security:
+                  - shared_key: []
+                responses:
+                  '200':
+                    description: ok
+        webhooks:
+          newPet:
+            post:
+              security:
+                - webhook_key: []
+              responses:
+                '200':
+                  description: ok
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(results).toEqual([]);
+  });
+
   it('should not report securitySchemes referenced via SecurityRequirement', async () => {
     const document = parseYamlToDocument(
       outdent`

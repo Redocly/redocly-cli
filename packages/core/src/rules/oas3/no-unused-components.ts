@@ -11,6 +11,7 @@ type ComponentInfo = {
 
 export const NoUnusedComponents: Oas3Rule = () => {
   const components = new Map<string, ComponentInfo>();
+  const securitySchemeLocations = new Map<string, Location>();
   const usedSecuritySchemeComponents = new Set<string>();
 
   function registerComponent(
@@ -59,6 +60,15 @@ export const NoUnusedComponents: Oas3Rule = () => {
             });
           }
         });
+        securitySchemeLocations.forEach((location, name) => {
+          if (!usedSecuritySchemeComponents.has(name)) {
+            report({
+              message: `Security scheme: "${name}" is never used.`,
+              location: location.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
+            });
+          }
+        });
       },
     },
     NamedSchemas: {
@@ -100,15 +110,8 @@ export const NoUnusedComponents: Oas3Rule = () => {
       },
     },
     NamedSecuritySchemes: {
-      SecurityScheme(_securityScheme, { location, key, report }) {
-        const name = key.toString();
-        if (!usedSecuritySchemeComponents.has(name)) {
-          report({
-            message: `Security scheme: "${name}" is never used.`,
-            location: location.key(),
-            reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
-          });
-        }
+      SecurityScheme(_securityScheme, { location, key }) {
+        securitySchemeLocations.set(key.toString(), location);
       },
     },
     SecurityRequirement(requirements) {
