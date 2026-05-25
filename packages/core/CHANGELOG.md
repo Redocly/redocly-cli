@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.34.15
+
+### Patch Changes
+
+- Applied NPM audit fix to prevent potential security vulnerabilities.
+
 ## 1.34.14
 
 ## 1.34.13
