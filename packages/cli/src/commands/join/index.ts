@@ -39,8 +39,6 @@ import {
   collectComponents,
   collectWebhooks,
   addInfoSectionAndSpecVersion,
-  collectDuplicateSecuritySchemeNames,
-  getEffectiveComponentsPrefix,
 } from './utils/index.js';
 
 export async function handleJoin({
@@ -192,10 +190,6 @@ export async function handleJoin({
     joinedDef.servers = first.parsed.servers;
   }
 
-  const duplicateSecuritySchemeNames = collectDuplicateSecuritySchemeNames(
-    documents as Document<AnyOas3Definition>[]
-  );
-
   for (const document of documents) {
     const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
       ? document.parsed
@@ -206,12 +200,8 @@ export async function handleJoin({
     const tagsPrefix = prefixTagsWithFilename
       ? apiFilename
       : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
-    const componentsPrefix = getEffectiveComponentsPrefix({
-      info,
-      apiFilename,
-      prefixComponentsWithInfoProp,
-      duplicateSecuritySchemeNames,
-    });
+
+    const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
       logger.warn(`warning: x-tagGroups at ${blue(api)} will be skipped \n`);
