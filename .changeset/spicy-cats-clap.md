@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Applied NPM audit fix to detect potential security vulnerabilities.
+Applied NPM audit fix to prevent potential security vulnerabilities.
