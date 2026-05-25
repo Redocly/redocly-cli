@@ -12,7 +12,7 @@ import {
 import { exitWithError } from '../../../utils/error.js';
 import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
 import { type Oas3Method } from '../../split/types.js';
-import type { AnyOas3Definition, JoinDocumentContext, RootSecurity } from '../types.js';
+import type { AnyOas3Definition, JoinDocumentContext } from '../types.js';
 import { addPrefix } from './add-prefix.js';
 import { addSecurityPrefix } from './add-security-prefix.js';
 import { formatTags } from './format-tags.js';
@@ -24,14 +24,12 @@ export function collectPaths({
   openapi,
   context,
   serversAreTheSame,
-  rootSecurities,
 }: {
   joinedDef: any;
   withoutXTagGroups: boolean | undefined;
   openapi: AnyOas3Definition;
   context: JoinDocumentContext;
   serversAreTheSame: boolean;
-  rootSecurities: RootSecurity[];
 }) {
   const {
     apiFilename,
@@ -227,11 +225,6 @@ export function collectPaths({
       joinedDef.paths[path][operation].security = addSecurityPrefix(
         pathOperation.security,
         componentsPrefix!
-      );
-    } else if (rootSecurities.length) {
-      joinedDef.paths[path][operation].security = rootSecurities.flatMap(
-        ({ security: rootSecurity, componentsPrefix: rootSecurityPrefix }) =>
-          addSecurityPrefix(rootSecurity, rootSecurityPrefix!) ?? []
       );
     }
   }

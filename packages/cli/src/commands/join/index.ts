@@ -27,7 +27,7 @@ import {
 } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { COMPONENTS } from '../split/constants.js';
-import type { JoinArgv, AnyOas3Definition, RootSecurity } from './types.js';
+import type { JoinArgv, AnyOas3Definition } from './types.js';
 import {
   replace$Refs,
   getInfoPrefix,
@@ -170,22 +170,6 @@ export async function handleJoin({
 
   addInfoSectionAndSpecVersion(joinedDef, documents, prefixComponentsWithInfoProp);
 
-  const rootSecurities: RootSecurity[] = documents.flatMap((document) => {
-    const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
-      ? document.parsed
-      : ({} as AnyOas3Definition);
-    const { paths, security, info } = openapi;
-    if (!security || (paths && !isEmptyObject(paths))) {
-      return [];
-    }
-    return [
-      {
-        security,
-        componentsPrefix: getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS),
-      },
-    ];
-  });
-
   if (serversAreTheSame && first.parsed.servers) {
     joinedDef.servers = first.parsed.servers;
   }
@@ -200,7 +184,6 @@ export async function handleJoin({
     const tagsPrefix = prefixTagsWithFilename
       ? apiFilename
       : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
-
     const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
@@ -220,16 +203,8 @@ export async function handleJoin({
     if (tags) {
       populateTags({ joinedDef, withoutXTagGroups, context });
     }
-
     collectExternalDocs({ joinedDef, openapi, context });
-    collectPaths({
-      joinedDef,
-      withoutXTagGroups,
-      openapi,
-      context,
-      serversAreTheSame,
-      rootSecurities,
-    });
+    collectPaths({ joinedDef, withoutXTagGroups, openapi, context, serversAreTheSame });
     collectComponents({ joinedDef, openapi, context });
     collectWebhooks({ joinedDef, withoutXTagGroups, openapi, context });
     if (componentsPrefix) {
