@@ -48,6 +48,8 @@ function validateSecuritySchemas(
           report({
             message: `The \`${requiredValue}\` is required when using the ${authType} authentication security schema.`,
             location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+            reference:
+              'https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values',
           });
         }
       }
@@ -55,6 +57,7 @@ function validateSecuritySchemas(
       report({
         message: `The \`${authType}\` authentication security schema is not supported.`,
         location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+        reference: 'https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values',
       });
     }
   }

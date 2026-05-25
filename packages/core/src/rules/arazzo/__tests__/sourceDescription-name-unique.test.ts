@@ -58,6 +58,7 @@ describe('Arazzo sourceDescription-name-unique', () => {
             },
           ],
           "message": "The \`name\` must be unique amongst all SourceDescriptions.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/sourcedescription-name-unique",
           "ruleId": "sourceDescription-name-unique",
           "severity": "error",
           "suggest": [],

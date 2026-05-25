@@ -63,5 +63,6 @@ export function reportUnresolvedRef(
   report({
     location,
     message: `Can't resolve $ref${message ? ': ' + message : ''}`,
+    reference: 'https://redocly.com/docs/cli/rules/oas/no-unresolved-refs',
   });
 }

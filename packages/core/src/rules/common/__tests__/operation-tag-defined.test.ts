@@ -60,6 +60,7 @@ describe('Oas3 operation-tag-defined', () => {
             },
           ],
           "message": "Operation tags should be defined",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-tag-defined",
           "ruleId": "operation-tag-defined",
           "severity": "error",
           "suggest": [],

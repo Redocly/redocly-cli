@@ -52,6 +52,7 @@ describe('Arazzo x-security-scheme-name-reference', () => {
             },
           ],
           "message": "When multiple \`sourceDescriptions\` exist, \`workflow.x-security.schemeName\` must be a reference to a source description (e.g. \`$sourceDescriptions.{name}.{schemeName}\`)",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-name-reference",
           "ruleId": "x-security-scheme-name-reference",
           "severity": "error",
           "suggest": [],

@@ -84,6 +84,7 @@ describe('Arazzo respect-supported-versions', () => {
             },
           ],
           "message": "Only 1.0.1 Arazzo version is fully supported by Respect.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/respect-supported-versions",
           "ruleId": "respect-supported-versions",
           "severity": "error",
           "suggest": [],

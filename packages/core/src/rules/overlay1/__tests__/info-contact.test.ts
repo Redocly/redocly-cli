@@ -66,6 +66,7 @@ describe('Overlay 1.0 Description', () => {
             },
           ],
           "message": "Info object should contain \`contact\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/info-contact",
           "ruleId": "info-contact",
           "severity": "error",
           "suggest": [],

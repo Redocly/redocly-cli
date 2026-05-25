@@ -5,11 +5,23 @@ import type { UserContext } from '../../walk.js';
 export const RequestMimeType: Oas2Rule = ({ allowedValues }) => {
   return {
     Root(root, ctx: UserContext) {
-      validateMimeType({ type: 'consumes', value: root }, ctx, allowedValues);
+      validateMimeType({
+        type: 'consumes',
+        value: root,
+        ctx,
+        allowedValues,
+        reference: 'https://redocly.com/docs/cli/rules/oas/request-mime-type',
+      });
     },
     Operation: {
       leave(operation, ctx: UserContext) {
-        validateMimeType({ type: 'consumes', value: operation }, ctx, allowedValues);
+        validateMimeType({
+          type: 'consumes',
+          value: operation,
+          ctx,
+          allowedValues,
+          reference: 'https://redocly.com/docs/cli/rules/oas/request-mime-type',
+        });
       },
     },
   };

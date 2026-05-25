@@ -42,6 +42,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
             report({
               message: `There is no \`${name}\` security scheme defined.`,
               location: reportedFromLocation.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/security-defined',
             });
           }
         }
@@ -53,6 +54,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
             report({
               message: `Every operation should have security defined on it or on the root level.`,
               location: operationLocation.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/security-defined',
             });
           }
         }

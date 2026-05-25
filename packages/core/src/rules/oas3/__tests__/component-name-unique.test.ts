@@ -52,6 +52,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/SomeSchema' is not unique. It is also defined at:
         - /test.yaml#/components/schemas/SomeSchema",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -66,6 +67,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/SomeSchema' is not unique. It is also defined at:
         - /foobar.yaml#/components/schemas/SomeSchema",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -120,6 +122,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/SomeSchema' is not unique. It is also defined at:
         - /SomeSchema.yaml",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -134,6 +137,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/SomeSchema' is not unique. It is also defined at:
         - /foobar.yaml#/components/schemas/SomeSchema",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -236,6 +240,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'parameters/ParameterOne' is not unique. It is also defined at:
         - /test.yaml#/components/parameters/ParameterOne",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -250,6 +255,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'parameters/ParameterOne' is not unique. It is also defined at:
         - /foobar.yaml#/components/parameters/ParameterOne",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -308,6 +314,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'parameters/ParameterOne' is not unique. It is also defined at:
         - /ParameterOne.yaml",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -322,6 +329,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'parameters/ParameterOne' is not unique. It is also defined at:
         - /foobar.yaml#/components/parameters/ParameterOne",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -438,6 +446,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'responses/SuccessResponse' is not unique. It is also defined at:
         - /test.yaml#/components/responses/SuccessResponse",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -452,6 +461,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'responses/SuccessResponse' is not unique. It is also defined at:
         - /foobar.yaml#/components/responses/SuccessResponse",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -517,6 +527,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'responses/SuccessResponse' is not unique. It is also defined at:
         - /SuccessResponse.yaml",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -531,6 +542,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'responses/SuccessResponse' is not unique. It is also defined at:
         - /foobar.yaml#/components/responses/SuccessResponse",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -651,6 +663,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /test.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -665,6 +678,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /foobar.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -731,6 +745,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /MyRequestBody.yaml",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -745,6 +760,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /foobar.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -873,6 +889,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /test.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -887,6 +904,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /foobar.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -901,6 +919,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/SomeSchema' is not unique. It is also defined at:
         - /test.yaml#/components/schemas/SomeSchema",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -915,6 +934,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/SomeSchema' is not unique. It is also defined at:
         - /foobar.yaml#/components/schemas/SomeSchema",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -942,6 +962,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /test.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],
@@ -956,6 +977,7 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'requestBodies/MyRequestBody' is not unique. It is also defined at:
         - /foobar.yaml#/components/requestBodies/MyRequestBody",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
             "suggest": [],

@@ -22,6 +22,8 @@ export const RequestBodyReplacementsUnique: Arazzo1Rule = () => {
                   requestBody.replacements.indexOf(replacement),
                   `target`,
                 ]),
+                reference:
+                  'https://redocly.com/docs/cli/rules/arazzo/requestbody-replacements-unique',
               });
             }
             seenReplacements.add(replacement.target);

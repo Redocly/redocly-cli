@@ -16,6 +16,7 @@ export const NoCriteriaXpath: Arazzo1Rule = () => {
           report({
             message: 'The `xpath` type criteria is not supported by Respect.',
             location: location.child(['type']),
+            reference: 'https://redocly.com/docs/cli/rules/respect/no-criteria-xpath',
           });
         }
       },

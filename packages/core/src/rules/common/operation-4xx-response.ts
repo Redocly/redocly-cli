@@ -8,7 +8,12 @@ export const Operation4xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) 
       Responses(responses: Record<string, object>, { report }: UserContext) {
         const codes = Object.keys(responses || {});
 
-        validateResponseCodes(codes, '4XX', { report } as UserContext);
+        validateResponseCodes({
+          responseCodes: codes,
+          codeRange: '4XX',
+          report: report as UserContext['report'],
+          reference: 'https://redocly.com/docs/cli/rules/oas/operation-4xx-response',
+        });
       },
     },
     WebhooksMap: {
@@ -17,7 +22,12 @@ export const Operation4xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) 
 
         const codes = Object.keys(responses || {});
 
-        validateResponseCodes(codes, '4XX', { report } as UserContext);
+        validateResponseCodes({
+          responseCodes: codes,
+          codeRange: '4XX',
+          report: report as UserContext['report'],
+          reference: 'https://redocly.com/docs/cli/rules/oas/operation-4xx-response',
+        });
       },
     },
   };

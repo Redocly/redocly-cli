@@ -35,6 +35,7 @@ describe('Oas3 path-not-include-query', () => {
             },
           ],
           "message": "Don't put query string items in the path, they belong in parameters with \`in: query\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/path-not-include-query",
           "ruleId": "path-not-include-query",
           "severity": "error",
           "suggest": [],
