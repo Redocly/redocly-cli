@@ -26,8 +26,8 @@ import {
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-// import { COMPONENTS } from '../split/constants.js';
-import type { JoinArgv, AnyOas3Definition } from './types.js';
+import { COMPONENTS } from '../split/constants.js';
+import type { JoinArgv, AnyOas3Definition, RootSecurity } from './types.js';
 import {
   replace$Refs,
   getInfoPrefix,
@@ -172,6 +172,22 @@ export async function handleJoin({
 
   addInfoSectionAndSpecVersion(joinedDef, documents, prefixComponentsWithInfoProp);
 
+  const rootSecurities: RootSecurity[] = documents.flatMap((document) => {
+    const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
+      ? document.parsed
+      : ({} as AnyOas3Definition);
+    const { paths, security, info } = openapi;
+    if (!security || (paths && !isEmptyObject(paths))) {
+      return [];
+    }
+    return [
+      {
+        security,
+        componentsPrefix: getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS),
+      },
+    ];
+  });
+
   if (serversAreTheSame && first.parsed.servers) {
     joinedDef.servers = first.parsed.servers;
   }
@@ -216,7 +232,14 @@ export async function handleJoin({
     }
 
     collectExternalDocs({ joinedDef, openapi, context });
-    collectPaths({ joinedDef, withoutXTagGroups, openapi, context, serversAreTheSame });
+    collectPaths({
+      joinedDef,
+      withoutXTagGroups,
+      openapi,
+      context,
+      serversAreTheSame,
+      rootSecurities,
+    });
     collectComponents({ joinedDef, openapi, context });
     collectWebhooks({ joinedDef, withoutXTagGroups, openapi, context });
     if (componentsPrefix) {

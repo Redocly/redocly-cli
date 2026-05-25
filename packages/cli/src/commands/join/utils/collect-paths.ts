@@ -12,11 +12,11 @@ import {
 import { exitWithError } from '../../../utils/error.js';
 import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
 import { type Oas3Method } from '../../split/types.js';
-import type { AnyOas3Definition, JoinDocumentContext } from '../types.js';
+import type { AnyOas3Definition, JoinDocumentContext, RootSecurity } from '../types.js';
 import { addPrefix } from './add-prefix.js';
+import { addSecurityPrefix } from './add-security-prefix.js';
 import { formatTags } from './format-tags.js';
 import { populateTags } from './populate-tags.js';
-import { resolveOperationSecurity } from './resolve-operation-security.js';
 
 export function collectPaths({
   joinedDef,
@@ -24,12 +24,14 @@ export function collectPaths({
   openapi,
   context,
   serversAreTheSame,
+  rootSecurities,
 }: {
   joinedDef: any;
   withoutXTagGroups: boolean | undefined;
   openapi: AnyOas3Definition;
   context: JoinDocumentContext;
   serversAreTheSame: boolean;
+  rootSecurities: RootSecurity[];
 }) {
   const {
     apiFilename,
@@ -181,7 +183,7 @@ export function collectPaths({
       ];
     }
 
-    const { tags } = joinedDef.paths[path][operation];
+    const { tags, security } = joinedDef.paths[path][operation];
 
     if (tags) {
       joinedDef.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
@@ -216,15 +218,21 @@ export function collectPaths({
         },
       });
     }
-    const operationSecurity = resolveOperationSecurity({
-      pathItem,
-      pathOperation,
-      openapi,
-      componentsPrefix,
-    });
-
-    if (operationSecurity) {
-      joinedDef.paths[path][operation].security = operationSecurity;
+    if (!security && openapi.hasOwnProperty('security')) {
+      joinedDef.paths[path][operation]['security'] = addSecurityPrefix(
+        openapi.security,
+        componentsPrefix!
+      );
+    } else if (pathOperation.security) {
+      joinedDef.paths[path][operation].security = addSecurityPrefix(
+        pathOperation.security,
+        componentsPrefix!
+      );
+    } else if (rootSecurities.length) {
+      joinedDef.paths[path][operation].security = rootSecurities.flatMap(
+        ({ security: rootSecurity, componentsPrefix: rootSecurityPrefix }) =>
+          addSecurityPrefix(rootSecurity, rootSecurityPrefix!) ?? []
+      );
     }
   }
 }
