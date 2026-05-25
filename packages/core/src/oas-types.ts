@@ -122,7 +122,10 @@ export function detectSpec(root: unknown): SpecVersion {
     return SpecVersion.OAS3_0;
   }
 
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1')) {
+  if (
+    typeof root.openapi === 'string' &&
+    (root.openapi.startsWith('3.1') || root.openapi.startsWith('3.2')) // temporary support for 3.2
+  ) {
     return SpecVersion.OAS3_1;
   }
 
