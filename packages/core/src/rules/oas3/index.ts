@@ -46,6 +46,7 @@ import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { ComponentNameUnique } from './component-name-unique.js';
 import { NoEmptyServers } from './no-empty-servers.js';
 import { NoExampleValueAndExternalValue } from './no-example-value-and-externalValue.js';
+import { NoIllogicalCompositionKeywords } from './no-illogical-composition-keywords.js';
 import { ValidContentExamples } from './no-invalid-media-type-examples.js';
 import { NoServerExample } from './no-server-example.com.js';
 import { NoServerTrailingSlash } from './no-server-trailing-slash.js';
@@ -129,6 +130,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
   'spec-example-values': SpecExampleValues,
   'spec-querystring-parameters': SpecQuerystringParameters,
+  'no-illogical-composition-keywords': NoIllogicalCompositionKeywords,
 };
 
 export const preprocessors = {};
