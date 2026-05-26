@@ -1,4 +1,6 @@
 import { isRef } from '../../ref-utils.js';
+import { operationHasSecurity } from '../common/operation-has-security.js';
+
 import type { Location } from '../../ref-utils.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
@@ -74,7 +76,8 @@ export const SecurityDefined: Async3Rule = () => {
         }
       },
     },
-    Operation(operation: { security?: unknown; traits?: unknown[] },
+    Operation(
+      operation: { security?: unknown; traits?: unknown[] },
       { location, resolve }: UserContext
     ) {
       if (operationHasSecurity(operation, resolve)) return;
@@ -83,16 +86,3 @@ export const SecurityDefined: Async3Rule = () => {
     },
   };
 };
-
-function operationHasSecurity(
-  operation: { security?: unknown; traits?: unknown[] } | undefined,
-  resolve: UserContext['resolve']
-): boolean {
-  if (operation?.security) return true;
-  if (!Array.isArray(operation?.traits)) return false;
-  for (const trait of operation.traits) {
-    const traitNode = isRef(trait) ? resolve(trait).node : trait;
-    if ((traitNode as { security?: unknown } | undefined)?.security) return true;
-  }
-  return false;
-}

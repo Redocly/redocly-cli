@@ -1,3 +1,5 @@
+import { operationHasSecurity } from '../common/operation-has-security.js';
+
 import type { Location } from '../../ref-utils.js';
 import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
@@ -12,6 +14,7 @@ export const SecurityDefined: Async2Rule = () => {
   >();
   const operationsWithoutSecurity: Location[] = [];
   let eachOperationHasSecurity = true;
+  let anyServerHasSecurity = false;
 
   return {
     Root: {
@@ -26,7 +29,7 @@ export const SecurityDefined: Async2Rule = () => {
           }
         }
 
-        if (!eachOperationHasSecurity) {
+        if (!eachOperationHasSecurity && !anyServerHasSecurity) {
           for (const operationLocation of operationsWithoutSecurity) {
             report({
               message: `Every operation should have security defined on it.`,
@@ -50,12 +53,16 @@ export const SecurityDefined: Async2Rule = () => {
         }
       }
     },
+    Server(server: { security?: unknown }) {
+      if (server?.security) anyServerHasSecurity = true;
+    },
     Channel: {
-      Operation(operation: { security?: unknown }, { location }: UserContext) {
-        if (!operation?.security) {
-          eachOperationHasSecurity = false;
-          operationsWithoutSecurity.push(location);
-        }
+      Operation(operation: { security?: unknown; traits?: unknown[] },
+        { location, resolve }: UserContext
+      ) {
+        if (operationHasSecurity(operation, resolve)) return;
+        eachOperationHasSecurity = false;
+        operationsWithoutSecurity.push(location);
       },
     },
   };

@@ -175,6 +175,82 @@ describe('Async2 security-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not report when an applicable server already has security defined', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            url: kafka.example.com
+            protocol: kafka
+            security:
+              - apiKeyAuth: []
+        channels:
+          some/channel:
+            subscribe:
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when security is declared via an operation trait', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        channels:
+          some/channel:
+            subscribe:
+              traits:
+                - $ref: '#/components/operationTraits/secured'
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+          operationTraits:
+            secured:
+              security:
+                - apiKeyAuth: []
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report when an operation has no security defined', async () => {
     const document = parseYamlToDocument(
       outdent`
