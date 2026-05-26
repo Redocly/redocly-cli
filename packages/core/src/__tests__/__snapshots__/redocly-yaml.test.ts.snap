@@ -19776,6 +19776,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "template": "rootRedoclyConfigSchema.env_additionalProperties.markdown.template",
       "toc": "rootRedoclyConfigSchema.env_additionalProperties.markdown.toc",
     },
     "required": undefined,
@@ -19817,6 +19818,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.markdown.template": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.markdown.toc": {
@@ -28104,6 +28115,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "template": "rootRedoclyConfigSchema.env_additionalProperties.theme.markdown.template",
       "toc": "rootRedoclyConfigSchema.env_additionalProperties.theme.markdown.toc",
     },
     "required": undefined,
@@ -28145,6 +28157,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.markdown.template": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.markdown.toc": {
@@ -33470,6 +33492,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "template": "rootRedoclyConfigSchema.markdown.template",
       "toc": "rootRedoclyConfigSchema.markdown.toc",
     },
     "required": undefined,
@@ -33511,6 +33534,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.markdown.template": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.markdown.toc": {

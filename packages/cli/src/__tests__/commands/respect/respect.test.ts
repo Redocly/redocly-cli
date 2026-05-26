@@ -1,5 +1,7 @@
+import { BaseResolver } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { run } from '@redocly/respect-core';
+import { fetch as undiciFetch } from 'undici';
 
 import { handleRespect, type RespectArgv } from '../../../commands/respect/index.js';
 
@@ -103,5 +105,102 @@ describe('handleRespect', () => {
         executionTimeout: 3_600_000,
       })
     );
+  });
+});
+
+describe('handleRespect externalRefResolver wiring', () => {
+  const PEM_CERT = '-----BEGIN CERTIFICATE-----\nY2VydA==\n-----END CERTIFICATE-----';
+  const PEM_KEY = '-----BEGIN PRIVATE KEY-----\na2V5\n-----END PRIVATE KEY-----';
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv('HTTPS_PROXY', undefined);
+    vi.stubEnv('HTTP_PROXY', undefined);
+    vi.stubEnv('https_proxy', undefined);
+    vi.stubEnv('http_proxy', undefined);
+    vi.stubEnv('NO_PROXY', undefined);
+    vi.stubEnv('no_proxy', undefined);
+
+    vi.mocked(run).mockResolvedValue([
+      {
+        hasProblems: false,
+        hasWarnings: false,
+        file: 'test.arazzo.yaml',
+        executedWorkflows: [],
+        options: {} as any,
+        ctx: {} as any,
+        totalTimeMs: 0,
+        totalRequests: 0,
+        globalTimeoutError: false,
+        secretValues: [],
+      },
+    ]);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  async function invokeHandleRespect(argvOverrides: Partial<RespectArgv> = {}) {
+    const config = await openapiCore.createConfig({});
+    await handleRespect({
+      argv: {
+        files: ['test.arazzo.yaml'],
+        'max-steps': 2000,
+        'max-fetch-timeout': 40_000,
+        'execution-timeout': 3_600_000,
+        'no-secrets-masking': false,
+        ...argvOverrides,
+      } as RespectArgv,
+      config,
+      version: '1.0.0',
+      collectSpecData: vi.fn(),
+    });
+    return vi.mocked(run).mock.calls[0]?.[0];
+  }
+
+  function getResolverCustomFetch(resolver: BaseResolver | undefined) {
+    return (resolver as unknown as { config: { http: { customFetch?: unknown } } } | undefined)
+      ?.config.http.customFetch;
+  }
+
+  it('should pass an externalRefResolver instance to run', async () => {
+    const callArgs = await invokeHandleRespect();
+    expect(callArgs?.externalRefResolver).toBeInstanceOf(BaseResolver);
+  });
+
+  it('should use the bare undici fetch when no proxy and no mTLS are configured', async () => {
+    const callArgs = await invokeHandleRespect();
+    expect(getResolverCustomFetch(callArgs?.externalRefResolver)).toBe(undiciFetch);
+  });
+
+  it('should use a proxy-aware customFetch when HTTPS_PROXY is set', async () => {
+    vi.stubEnv('HTTPS_PROXY', 'http://proxy.local:8080');
+    const callArgs = await invokeHandleRespect();
+    const customFetch = getResolverCustomFetch(callArgs?.externalRefResolver);
+    expect(customFetch).not.toBe(undiciFetch);
+    expect(typeof customFetch).toBe('function');
+  });
+
+  it('should use a proxy-aware customFetch when HTTP_PROXY is set', async () => {
+    vi.stubEnv('HTTP_PROXY', 'http://proxy.local:8080');
+    const callArgs = await invokeHandleRespect();
+    const customFetch = getResolverCustomFetch(callArgs?.externalRefResolver);
+    expect(customFetch).not.toBe(undiciFetch);
+    expect(typeof customFetch).toBe('function');
+  });
+
+  it('should use an mTLS-aware customFetch when argv.mtls is provided', async () => {
+    const callArgs = await invokeHandleRespect({
+      mtls: {
+        'https://internal-api.example.com': {
+          clientCert: PEM_CERT,
+          clientKey: PEM_KEY,
+        },
+      },
+    });
+    const customFetch = getResolverCustomFetch(callArgs?.externalRefResolver);
+    expect(customFetch).not.toBe(undiciFetch);
+    expect(typeof customFetch).toBe('function');
   });
 });
