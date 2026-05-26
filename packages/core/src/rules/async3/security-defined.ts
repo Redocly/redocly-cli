@@ -74,11 +74,25 @@ export const SecurityDefined: Async3Rule = () => {
         }
       },
     },
-    Operation(operation: { security?: unknown }, { location }: UserContext) {
-      if (!operation?.security) {
-        eachOperationHasSecurity = false;
-        operationsWithoutSecurity.push(location);
-      }
+    Operation(operation: { security?: unknown; traits?: unknown[] },
+      { location, resolve }: UserContext
+    ) {
+      if (operationHasSecurity(operation, resolve)) return;
+      eachOperationHasSecurity = false;
+      operationsWithoutSecurity.push(location);
     },
   };
 };
+
+function operationHasSecurity(
+  operation: { security?: unknown; traits?: unknown[] } | undefined,
+  resolve: UserContext['resolve']
+): boolean {
+  if (operation?.security) return true;
+  if (!Array.isArray(operation?.traits)) return false;
+  for (const trait of operation.traits) {
+    const traitNode = isRef(trait) ? resolve(trait).node : trait;
+    if ((traitNode as { security?: unknown } | undefined)?.security) return true;
+  }
+  return false;
+}
