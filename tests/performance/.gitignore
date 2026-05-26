@@ -2,6 +2,8 @@ api-definitions
 node_modules
 package-lock.json
 test-command.txt
-benchmark_check.md
-benchmark_check.json
+benchmark_bundle.md
+benchmark_bundle.json
+benchmark_lint.md
+benchmark_lint.json
 benchmark_chart.md
