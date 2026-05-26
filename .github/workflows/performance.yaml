@@ -60,7 +60,7 @@ jobs:
         run: |
           cd tests/performance/
           npm run test # This command is generated and injected into package.json in the previous step.
-          cat benchmark_check.md
+          cat benchmark_bundle.md benchmark_lint.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
       - name: Comment PR
