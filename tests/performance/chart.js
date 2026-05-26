@@ -6,7 +6,7 @@ const json = JSON.parse(content);
 /** Returns the median of a numeric array without mutating the input. */
 const median = (xs) => {
   const sorted = [...xs].sort((a, b) => a - b);
-  const mid = sorted.length >> 1;
+  const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 
