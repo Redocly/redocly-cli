@@ -241,6 +241,47 @@ describe('Async3 security-defined', () => {
     `);
   });
 
+  it('should not report when security is declared via an operation trait', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '3.0.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        channels:
+          some/channel:
+            address: some/channel
+        operations:
+          sendMessage:
+            action: send
+            channel:
+              $ref: '#/channels/some~1channel'
+            traits:
+              - $ref: '#/components/operationTraits/secured'
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+          operationTraits:
+            secured:
+              security:
+                - $ref: '#/components/securitySchemes/apiKeyAuth'
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report when an operation has no security defined', async () => {
     const document = parseYamlToDocument(
       outdent`
