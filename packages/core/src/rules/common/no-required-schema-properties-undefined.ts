@@ -81,13 +81,50 @@ export const NoRequiredSchemaPropertiesUndefined:
 
         const compositionRoot = findCompositionRoot(parents.length - 2, currentSchema);
 
+        const hasPropertyInParentContext = (
+          propertyName: string,
+          targetSchema: AnySchema
+        ): boolean => {
+          for (let i = parents.length - 2; i >= 0; i--) {
+            const ancestor = parents[i];
+            const props = ancestor.properties as Record<string, AnySchema> | undefined;
+            if (!props) continue;
+
+            const propKey = (Object.keys(props) as string[]).find((k) => {
+              const val = getOwn(props, k) as AnySchema;
+              if (val === targetSchema) return true;
+              return resolveSchema(val, ctx).schema === targetSchema;
+            });
+            if (!propKey) continue;
+
+            const checkSiblings = (siblings: AnySchema[] | undefined): boolean =>
+              !!siblings?.some((sibling) => {
+                const { schema: s, location } = resolveSchema(sibling, ctx);
+                if (!s?.properties) return false;
+                const propDef = getOwn(s.properties as Record<string, AnySchema>, propKey);
+                if (propDef === undefined) return false;
+                return hasProperty(propDef as AnySchema, propertyName, new Set(), location);
+              });
+
+            if (
+              checkSiblings(ancestor.allOf) ||
+              checkSiblings(ancestor.anyOf) ||
+              checkSiblings(ancestor.oneOf)
+            ) {
+              return true;
+            }
+          }
+          return false;
+        };
+
         for (const [i, requiredProperty] of currentSchema.required.entries()) {
           if (
             !hasProperty(currentSchema, requiredProperty, new Set()) &&
-            !hasProperty(compositionRoot, requiredProperty, new Set())
+            !hasProperty(compositionRoot, requiredProperty, new Set()) &&
+            !hasPropertyInParentContext(requiredProperty, compositionRoot ?? currentSchema)
           ) {
             ctx.report({
-              message: `Required property '${requiredProperty}' is not defined.`,
+              message: `Required property '${requiredProperty}' is undefined.`,
               location: ctx.location.child(['required', i]),
             });
           }
