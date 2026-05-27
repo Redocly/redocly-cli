@@ -90,6 +90,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
             'Example',
             'RequestBody',
             'MediaTypesMap',
+            'SecurityScheme',
           ].includes(type.name)
         ) {
           const targetPointer = getComponentKey(ref.$ref);
@@ -156,6 +157,26 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       MediaTypesMap(_mediaTypesMap, { key }) {
         registerComponent('mediaTypes', key.toString());
       },
+    },
+    NamedSecuritySchemes: {
+      SecurityScheme(_securityScheme, { key }) {
+        registerComponent('securitySchemes', key.toString());
+      },
+    },
+    SecurityRequirement(requirements) {
+      for (const schemeName of Object.keys(requirements)) {
+        // Security requirements reference security schemes by name, so we know that this security scheme is used in a SecurityRequirement.
+        const key = `securitySchemes/${schemeName}`;
+        const registered = components.get(key);
+        if (registered) {
+          registered.usedIn.push('SecurityRequirement');
+        } else {
+          components.set(key, {
+            usedIn: ['SecurityRequirement'],
+            name: schemeName,
+          });
+        }
+      }
     },
   };
 };
