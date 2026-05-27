@@ -16,12 +16,13 @@ components:
           tokenUrl: https://example.com/oauth/token
           scopes: {}
 paths:
-  /post2:
+  /products:
     get:
-      summary: Example2
-      operationId: example2
+      summary: Get products
+      operationId: getProducts
       responses:
         200:
           description: OK
         400:
           description: Bad request
+          

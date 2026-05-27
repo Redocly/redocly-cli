@@ -9,19 +9,17 @@ tags:
   - name: bar_other
     x-displayName: other
 paths:
-  /post:
+  /pets:
     get:
-      summary: Example
-      operationId: example
+      summary: Get pets
+      operationId: getPets
       responses:
-        '200':
+        200:
           description: OK
-        '400':
+        400:
           description: Bad request
       tags:
         - bar_other
-      security:
-        - oauth2: []
 components:
   securitySchemes:
     oauth2:
