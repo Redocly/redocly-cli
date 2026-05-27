@@ -1,7 +1,7 @@
 
 openapi: 3.1.0
 info:
-  title: spec1
+  title: Bar
   version: 1.0.0
 servers:
   - url: https://api.example.com
@@ -14,9 +14,9 @@ paths:
       summary: Get pets
       operationId: getPets
       responses:
-        200:
+        '200':
           description: OK
-        400:
+        '400':
           description: Bad request
       tags:
         - bar_other
@@ -30,7 +30,7 @@ components:
           tokenUrl: https://example.com/oauth/token
           scopes: {}
 x-tagGroups:
-  - name: spec1
+  - name: Bar
     tags:
       - bar_other
 
