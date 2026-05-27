@@ -48,9 +48,7 @@ export const NoUnusedComponents: OpenRpc1Rule = () => {
     },
     NamedSchemas: {
       Schema(schema, { location, key }) {
-        if (!schema.allOf) {
-          registerComponent(location, key.toString());
-        }
+        registerComponent(location, key.toString());
       },
     },
     NamedContentDescriptors: {

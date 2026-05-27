@@ -46,7 +46,7 @@ sourceDescriptions:
 workflows:
   - workflowId: list-users
     x-security:
-      - schemeName: BasicAuth   # <- must be a reference when multiple sources exist
+      - schemeName: BasicAuth # <- must be a reference when multiple sources exist
         values:
           username: test@example.com
           password: 123456

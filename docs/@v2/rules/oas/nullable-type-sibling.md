@@ -49,7 +49,6 @@ components:
         - $ref: '#/components/schemas/SomeType'
     SomeType:
       type: string
-
 ```
 
 Example of a **correct** usage:

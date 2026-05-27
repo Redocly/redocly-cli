@@ -1,5 +1,36 @@
 # @redocly/respect-core
 
+## 2.31.4
+
+### Patch Changes
+
+- Fixed an issue where running `respect` on multiple Arazzo files in a single invocation could surface false-positive `struct` lint errors.
+- Updated @redocly/openapi-core to v2.31.4.
+
+## 2.31.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.3.
+
+## 2.31.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.2.
+
+## 2.31.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.1.
+
+## 2.31.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.0.
+
 ## 2.30.6
 
 ### Patch Changes

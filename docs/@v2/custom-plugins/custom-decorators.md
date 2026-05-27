@@ -47,14 +47,14 @@ To help keep the plugin code organized, this example uses one file per decorator
 
 ```js
 export default function OperationSparkle() {
-  console.log("adding sparkles ... ");
+  console.log('adding sparkles ... ');
   return {
     Operation: {
       leave(target) {
-        if(target.description) {
-          target.description = "✨ " + String(target.description);
+        if (target.description) {
+          target.description = '✨ ' + String(target.description);
         }
-      }
+      },
     },
   };
 }
@@ -69,10 +69,10 @@ import OperationSparkle from './decorators/operation-sparkle.js';
 
 export default function sparklePlugin() {
   return {
-    id: "sparkle",
+    id: 'sparkle',
     decorators: {
       oas3: {
-        "operation-sparkle": OperationSparkle,
+        'operation-sparkle': OperationSparkle,
       },
     },
   };
@@ -96,15 +96,15 @@ A common use case is a decorator that can accept input values to be used during 
 Here's the decorator code, in a file named `plugins/decorations/add-suffix.js` and it expects a configuration option named `suffix`:
 
 ```js
-export default function OpIdSuffix({suffix}) {
-  console.log("updating OperationIds ... ");
+export default function OpIdSuffix({ suffix }) {
+  console.log('updating OperationIds ... ');
   return {
     Operation: {
       leave(target) {
-        if(target.operationId) {
+        if (target.operationId) {
           target.operationId = target.operationId + suffix;
         }
-      }
+      },
     },
   };
 }
@@ -120,11 +120,11 @@ import OpIdSuffix from './decorators/add-suffix.js';
 
 export default function sparklePlugin() {
   return {
-    id: "sparkle",
+    id: 'sparkle',
     decorators: {
       oas3: {
-        "operation-sparkle": OperationSparkle,
-        "add-opid-suffix": OpIdSuffix,
+        'operation-sparkle': OperationSparkle,
+        'add-opid-suffix': OpIdSuffix,
       },
     },
   };
