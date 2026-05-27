@@ -3,13 +3,12 @@ openapi: 3.1.0
 info:
   title: Foo
   version: 1.0.0
-servers:
-  - url: https://api.example.com
 tags:
   - name: bar_other
     x-displayName: other
 paths:
   /pets:
+    servers: []
     get:
       summary: Get pets
       operationId: getPets

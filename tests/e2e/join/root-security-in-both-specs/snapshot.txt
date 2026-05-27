@@ -10,8 +10,7 @@ tags:
     x-displayName: other
 paths:
   /products:
-    servers:
-      - url: https://api.example.com
+    servers: []
     get:
       summary: Get products
       operationId: getProducts
