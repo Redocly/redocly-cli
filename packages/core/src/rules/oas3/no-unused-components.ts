@@ -110,8 +110,8 @@ export const NoUnusedComponents: Oas3Rule = () => {
       },
     },
     NamedSecuritySchemes: {
-      SecurityScheme(_securityScheme, { location, key }) {
-        securitySchemeLocations.set(key.toString(), location);
+      SecurityScheme(_securityScheme, { rawLocation, key }) {
+        securitySchemeLocations.set(key.toString(), rawLocation);
       },
     },
     SecurityRequirement(requirements) {

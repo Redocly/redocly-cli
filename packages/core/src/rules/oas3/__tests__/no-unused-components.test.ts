@@ -402,4 +402,50 @@ describe('Oas3 no-unused-components', () => {
 
     expect(results).toEqual([]);
   });
+
+  it('should report correct location for referenced securitySchemes', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /foo:
+            get:
+              security:
+                - base: []
+        components:
+          securitySchemes:
+            base:
+              type: apiKey
+              name: x-api-key
+              in: header
+            derived:
+              $ref: '#/components/securitySchemes/base'
+      `
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/securitySchemes/derived",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Security scheme: "derived" is never used.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unused-components",
+          "ruleId": "no-unused-components",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
