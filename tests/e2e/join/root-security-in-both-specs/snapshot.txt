@@ -1,28 +1,14 @@
 
 openapi: 3.1.0
 info:
-  title: Bar
+  title: Foo
   version: 1.0.0
 tags:
-  - name: bar_other
-    x-displayName: other
   - name: foo_other
     x-displayName: other
+  - name: bar_other
+    x-displayName: other
 paths:
-  /pets:
-    servers: []
-    get:
-      summary: Get pets
-      operationId: getPets
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad request
-      tags:
-        - bar_other
-      security:
-        - bearerAuth: []
   /products:
     servers:
       - url: https://api.example.com
@@ -38,12 +24,22 @@ paths:
         - foo_other
       security:
         - oauth2: []
+  /pets:
+    servers: []
+    get:
+      summary: Get pets
+      operationId: getPets
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - bar_other
+      security:
+        - bearerAuth: []
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
     oauth2:
       type: oauth2
       flows:
@@ -51,13 +47,17 @@ components:
           authorizationUrl: https://example.com/oauth/authorize
           tokenUrl: https://example.com/oauth/token
           scopes: {}
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 x-tagGroups:
-  - name: Bar
-    tags:
-      - bar_other
   - name: Foo
     tags:
       - foo_other
+  - name: Bar
+    tags:
+      - bar_other
 
 
 openapi.yaml: join processed in <test>ms
