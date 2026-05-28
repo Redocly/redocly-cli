@@ -189,7 +189,7 @@ describe('Arazzo spec-parameters-in-by-context', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report when onSuccess action with workflowId has a parameter with `in`', async () => {
+  it('should report a struct error when an action parameter specifies `in`', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -225,13 +225,14 @@ describe('Arazzo spec-parameters-in-by-context', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'spec-parameters-in-by-context': 'error' },
+        rules: { struct: 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/0/in",
@@ -239,8 +240,8 @@ describe('Arazzo spec-parameters-in-by-context', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Parameter \`in\` field MUST NOT be specified when the parent references a \`workflowId\`; parameters map to workflow inputs.",
-          "ruleId": "spec-parameters-in-by-context",
+          "message": "Property \`in\` is not expected here.",
+          "ruleId": "struct",
           "severity": "error",
           "suggest": [],
         },
@@ -338,7 +339,7 @@ describe('Arazzo spec-parameters-in-by-context', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Parameters on success/failure actions are only valid when the action references a \`workflowId\`.",
+          "message": "Parameters on success actions are only valid when the action references a \`workflowId\`.",
           "ruleId": "spec-parameters-in-by-context",
           "severity": "error",
           "suggest": [],
