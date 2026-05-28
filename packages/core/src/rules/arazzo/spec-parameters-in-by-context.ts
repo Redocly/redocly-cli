@@ -60,9 +60,7 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
               'Parameters on success actions are only valid when the action references a `workflowId`.',
             location: ctx.location.child(['parameters']).key(),
           });
-          return;
         }
-        checkParameters(action.parameters, true, ctx);
       },
     },
     FailureActionObject: {
@@ -75,9 +73,7 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
               'Parameters on failure actions are only valid when the action references a `workflowId`.',
             location: ctx.location.child(['parameters']).key(),
           });
-          return;
         }
-        checkParameters(action.parameters, true, ctx);
       },
     },
   };
