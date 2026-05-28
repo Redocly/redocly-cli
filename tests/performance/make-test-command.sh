@@ -6,6 +6,7 @@ set -eo pipefail # Fail on script errors
 git clone https://github.com/Rebilly/api-definitions.git
 cd api-definitions && pnpm install && cd ..
 
+# Store the command into a text file:
 build_cmds() {
   jq -r --arg sub "$1" --arg extra "${2:-}" '.dependencies | keys | map("'\''node node_modules/" + . + "/bin/cli.js " + $sub + " all@latest --config=api-definitions/redocly.yaml" + $extra + "'\''") | join(" ")' package.json
 }
