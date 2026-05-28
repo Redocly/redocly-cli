@@ -7,6 +7,32 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.31.5 (2026-05-27)
+
+### Patch Changes
+
+- Updated the `no-unused-components` rule to validate unused security schemes.
+- Pinned the official Docker image base to `node:24-alpine`.
+- Fixed the `remove-unused-components` decorator to remove unused security schemes.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+- Updated @redocly/openapi-core to v2.31.5.
+
+## 2.31.4 (2026-05-22)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.4.
+
+## 2.31.3 (2026-05-21)
+
+### Patch Changes
+
+- Fixed an issue where the Respect command did not honor the `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` environment variables when loading remote source descriptions or resolving external `$ref`s.
+  Proxy settings are consistently applied during reference resolution as well.
+- Updated @redocly/openapi-core to v2.31.3.
+
 ## 2.31.2 (2026-05-19)
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @redocly/openapi-core
 
+## 2.31.5
+
+### Patch Changes
+
+- Updated the `no-unused-components` rule to validate unused security schemes.
+- Fixed the `remove-unused-components` decorator to remove unused security schemes.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+## 2.31.4
+
+### Patch Changes
+
+- Updated @redocly/config to v0.49.0.
+
+## 2.31.3
+
 ## 2.31.2
 
 ### Patch Changes
