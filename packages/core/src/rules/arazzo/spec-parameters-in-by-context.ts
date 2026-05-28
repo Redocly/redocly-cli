@@ -57,7 +57,7 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
         if (!action.workflowId) {
           ctx.report({
             message:
-              'Parameters on success/failure actions are only valid when the action references a `workflowId`.',
+              'Parameters on success actions are only valid when the action references a `workflowId`.',
             location: ctx.location.child(['parameters']).key(),
           });
           return;
@@ -72,7 +72,7 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
         if (!action.workflowId) {
           ctx.report({
             message:
-              'Parameters on success/failure actions are only valid when the action references a `workflowId`.',
+              'Parameters on failure actions are only valid when the action references a `workflowId`.',
             location: ctx.location.child(['parameters']).key(),
           });
           return;
