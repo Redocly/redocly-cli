@@ -1113,6 +1113,108 @@ describe('runStep', () => {
     expect(runWorkflow).toHaveBeenCalled();
   });
 
+  it('should map onSuccess action parameters to the target workflow inputs', async () => {
+    const stepOne: Step = {
+      stepId: 'get-bird',
+      'x-operation': {
+        url: 'http://localhost:3000/bird',
+        method: 'get',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onSuccess: [
+        {
+          name: 'success-action',
+          workflowId: 'success-action-workflow',
+          type: 'goto',
+          parameters: [{ name: 'birdId', value: 'abc-123' }],
+          criteria: [{ condition: '$statusCode == 200' }],
+        },
+      ],
+      checks: [],
+      response: {} as any,
+    };
+    const workflowId = 'get-bird-workflow';
+
+    vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        unexpectedErrorCheck: true,
+        statusCodeCheck: true,
+      };
+    });
+
+    vi.mocked(checkCriteria).mockImplementation(() => [
+      {
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
+        severity: 'error',
+      },
+    ]);
+
+    const context = {
+      ...basicCTX,
+      $workflows: {
+        'get-bird-workflow': { steps: {}, inputs: {} },
+        'success-action-workflow': { steps: {}, inputs: {} },
+      },
+      workflows: [
+        {
+          workflowId: 'get-bird-workflow',
+          steps: [stepOne],
+        },
+        {
+          workflowId: 'success-action-workflow',
+          steps: [
+            {
+              stepId: 'use-bird',
+              'x-operation': {
+                url: 'http://localhost:3000/bird',
+                method: 'get',
+              },
+              checks: [],
+            },
+          ],
+        },
+      ],
+    } as unknown as TestContext;
+
+    let capturedInputs: Record<string, any> | undefined;
+    vi.mocked(runWorkflow).mockImplementationOnce(async ({ ctx }) => {
+      capturedInputs = ctx.$workflows['success-action-workflow']?.inputs;
+      return {
+        type: 'workflow',
+        invocationContext: {},
+        workflowId,
+      } as WorkflowExecutionResult;
+    });
+
+    vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => {
+      return { ...context, executedSteps: [] };
+    });
+
+    await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId,
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(runWorkflow).toHaveBeenCalled();
+    expect(capturedInputs).toEqual({ birdId: 'abc-123' });
+  });
+
   it('should log error when onSuccess step criteria with goto StepId and WorkflowId provided', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
