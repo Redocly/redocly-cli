@@ -19,9 +19,9 @@ const constructBarForChart = (value, min) => {
 const loadResults = (jsonPath) => {
   const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   return new Map(
-    json.results.map(({ command, median, times }) => {
-      const cliVersion = command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
-      return [cliVersion, { median, mad: medianAbsoluteDeviation(times, median) }];
+    json.results.map((r) => {
+      const cliVersion = r.command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
+      return [cliVersion, { median: r.median, mad: medianAbsoluteDeviation(r.times, r.median) }];
     })
   );
 };
