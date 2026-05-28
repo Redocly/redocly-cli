@@ -16,35 +16,50 @@ const constructBarForChart = (value, min) => {
   return '▓' + '▓'.repeat(length);
 };
 
-const renderSection = (jsonPath, title) => {
+const loadResults = (jsonPath) => {
   const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-  const rows = json.results.map((r) => [
-    r.command.replace(/^node node_modules\/([^/]+)\/.*/, (_, cliVersion) => cliVersion),
-    r.median,
-    medianAbsoluteDeviation(r.times, r.median),
-  ]);
-  const fastest = Math.min(...rows.map(([, value]) => value));
-
-  return [
-    `### ${title}`,
-    '',
-    '| CLI Version | Median Time ± MAD (s) | Relative Performance (Lower is Faster) |',
-    '|---|---|---|',
-    ...rows.map(([cliVersion, medianValue, madValue]) => {
-      const bar = constructBarForChart(medianValue, fastest);
-      const factor = (medianValue / fastest).toFixed(2);
-      const suffix = medianValue === fastest ? 'x (Fastest)' : 'x';
-      return `| ${cliVersion} | ${medianValue.toFixed(3)}s ± ${madValue.toFixed(3)}s | ${bar} ${factor}${suffix} |`;
-    }),
-  ].join('\n');
+  return new Map(
+    json.results.map(({ command, median, times }) => {
+      const cliVersion = command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
+      return [cliVersion, { median, mad: medianAbsoluteDeviation(times, median) }];
+    })
+  );
 };
+
+const findFastest = (results) =>
+  [...results.values()].reduce((best, r) => (r.median < best.median ? r : best));
+
+const renderCell = (entry, fastest) => {
+  const bar = constructBarForChart(entry.median, fastest.median);
+  const factor = entry.median / fastest.median;
+  if (entry === fastest) {
+    return `${bar} ${factor.toFixed(2)}x (Fastest)`;
+  }
+  const relativeUnc =
+    factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
+  return `${bar} ${factor.toFixed(2)}x ± ${relativeUnc.toFixed(2)}`;
+};
+
+const operations = [
+  { name: 'Bundle', file: 'benchmark_bundle.json' },
+  { name: 'Lint', file: 'benchmark_lint.json' },
+  { name: 'Check Config', file: 'benchmark_check-config.json' },
+];
+
+const columns = operations.map(({ name, file }) => {
+  const data = loadResults(file);
+  return { name, data, fastest: findFastest(data) };
+});
+const versions = [...columns[0].data.keys()];
 
 const output = [
   '## Performance Benchmark',
   '',
-  renderSection('benchmark_bundle.json', 'Bundle'),
-  '',
-  renderSection('benchmark_lint.json', 'Lint'),
+  `| CLI Version | ${columns.map((c) => c.name).join(' | ')} |`,
+  `|---|${columns.map(() => '---').join('|')}|`,
+  ...versions.map(
+    (v) => `| ${v} | ${columns.map((c) => renderCell(c.data.get(v), c.fastest)).join(' | ')} |`
+  ),
 ].join('\n');
 
 process.stdout.write(output);

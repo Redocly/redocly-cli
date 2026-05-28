@@ -7,9 +7,9 @@
   "scripts": {
     "chart": "node chart.js > benchmark_chart.md",
     "make-test": "bash make-test-command.sh",
-    "test:bundle": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 2 'node node_modules/cli-latest/bin/cli.js bundle all@latest --config=api-definitions/redocly.yaml' 'node node_modules/cli-next/bin/cli.js bundle all@latest --config=api-definitions/redocly.yaml'",
-    "test:lint": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 2 --prepare 'rm -f api-definitions/.redocly.lint-ignore.yaml' 'node node_modules/cli-latest/bin/cli.js lint all@latest --config=api-definitions/redocly.yaml --generate-ignore-file' 'node node_modules/cli-next/bin/cli.js lint all@latest --config=api-definitions/redocly.yaml --generate-ignore-file'",
-    "test:check-config": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 2 'node node_modules/cli-latest/bin/cli.js check-config --config=api-definitions/redocly.yaml --lint-config=warn' 'node node_modules/cli-next/bin/cli.js check-config --config=api-definitions/redocly.yaml --lint-config=warn'"
+    "test:bundle": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 3 'node node_modules/cli-latest/bin/cli.js bundle all@latest --config=api-definitions/redocly.yaml' 'node node_modules/cli-next/bin/cli.js bundle all@latest --config=api-definitions/redocly.yaml'",
+    "test:lint": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 3 'node node_modules/cli-latest/bin/cli.js lint all@latest --config=api-definitions/redocly.yaml --generate-ignore-file' 'node node_modules/cli-next/bin/cli.js lint all@latest --config=api-definitions/redocly.yaml --generate-ignore-file'",
+    "test:check-config": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 3 'node node_modules/cli-latest/bin/cli.js check-config --config=api-definitions/redocly.yaml --lint-config=warn' 'node node_modules/cli-next/bin/cli.js check-config --config=api-definitions/redocly.yaml --lint-config=warn'"
   },
   "_enhancedDependencies": {
     "cli-2.0.0": "npm:@redocly/cli@2.0.0",
