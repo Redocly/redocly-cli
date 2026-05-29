@@ -35,11 +35,11 @@ const renderCell = (entry, fastest) => {
   const bar = constructBarForChart(entry.median, fastest.median);
   const factor = entry.median / fastest.median;
   if (entry === fastest) {
-    return `${bar} ${Math.round(factor)}x (Fastest)`;
+    return `${bar} ${factor.toFixed(2)}x (Fastest)`;
   }
   const relativeUnc =
     factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
-  return `${bar} ${Math.round(factor)}x ± ${Math.round(relativeUnc * 100) / 100}x`;
+  return `${bar} ${factor.toFixed(2)}x ± ${Math.round(relativeUnc * 100) / 100}x`;
 };
 
 const operations = [
