@@ -4,7 +4,7 @@ Automated benchmark testing that compares the performance of **Redocly CLI** ver
 
 ## Adding a version after a release
 
-After releasing a new version, add its reference to `_enhancedDependencies` in [package.json](./package.json). That is the full historical matrix; it is benchmarked only on opt-in runs (see [Which versions get benchmarked](#which-versions-get-benchmarked)).
+After releasing a new version, add it to `_enhancedDependencies` in [package.json](./package.json) for historical reference; it is benchmarked only on opt-in runs (see [Which versions get benchmarked](#which-versions-get-benchmarked)).
 
 ## Which versions get benchmarked
 
