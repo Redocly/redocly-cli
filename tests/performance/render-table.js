@@ -38,7 +38,8 @@ const renderCell = (entry, fastest) => {
   }
   const relativeUnc =
     factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
-  return `${bar} ${factor.toFixed(2)}x ± ${relativeUnc.toFixed(2)}`;
+  const formattedUnc = relativeUnc < 0.01 ? relativeUnc.toFixed(3) : relativeUnc.toFixed(2);
+  return `${bar} ${factor.toFixed(2)}x ± ${formattedUnc}`;
 };
 
 const operations = [
