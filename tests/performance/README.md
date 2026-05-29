@@ -19,4 +19,4 @@ The [performance workflow](../../.github/workflows/performance.yaml) promotes `_
 
 - `npm run make-test` — reads the `dependencies` keys and generates the `test:bundle` / `test:lint` / `test:check-config` hyperfine commands into `package.json` (overwriting the committed placeholders by design).
 - `npm test` — runs the three generated benchmarks, exporting `benchmark_<op>.md` / `.json`.
-- `npm run chart` — renders the combined comparison table (`benchmark_chart.md`) from the JSON exports.
+- `npm run table` — renders the combined comparison table (`benchmark_table.md`) from the JSON exports.
