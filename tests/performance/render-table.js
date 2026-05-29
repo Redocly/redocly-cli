@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 
-const median = (xs) => {
+const calculateMedian = (xs) => {
   const sorted = [...xs].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 
-const medianAbsoluteDeviation = (xs, centre) => median(xs.map((x) => Math.abs(x - centre)));
+const calculateMedianAbsoluteDeviation = (xs, centre) =>
+  calculateMedian(xs.map((x) => Math.abs(x - centre)));
 
 const constructBarForChart = (value, min) => {
   if (min <= 0) return 'N/A';
@@ -19,9 +20,9 @@ const constructBarForChart = (value, min) => {
 const loadResults = (jsonPath) => {
   const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   return new Map(
-    json.results.map((r) => {
-      const cliVersion = r.command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
-      return [cliVersion, { median: r.median, mad: medianAbsoluteDeviation(r.times, r.median) }];
+    json.results.map(({ command, median, times }) => {
+      const cliVersion = command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
+      return [cliVersion, { median, mad: calculateMedianAbsoluteDeviation(times, median) }];
     })
   );
 };
@@ -50,16 +51,23 @@ const columns = operations.map(({ name, file }) => {
   const data = loadResults(file);
   return { name, data, fastest: findFastest(data) };
 });
-const versions = [...columns[0].data.keys()];
+
+const versions = [...new Set(columns.flatMap((c) => [...c.data.keys()]))];
+
+const renderRow = (version) =>
+  `| ${version} | ${columns
+    .map((c) => {
+      const entry = c.data.get(version);
+      return entry ? renderCell(entry, c.fastest) : '—';
+    })
+    .join(' | ')} |`;
 
 const output = [
   '## Performance Benchmark',
   '',
   `| CLI Version | ${columns.map((c) => c.name).join(' | ')} |`,
   `|---|${columns.map(() => '---').join('|')}|`,
-  ...versions.map(
-    (v) => `| ${v} | ${columns.map((c) => renderCell(c.data.get(v), c.fastest)).join(' | ')} |`
-  ),
+  ...versions.map(renderRow),
 ].join('\n');
 
 process.stdout.write(output);
