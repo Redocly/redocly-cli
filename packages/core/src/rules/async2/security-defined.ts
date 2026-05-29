@@ -12,9 +12,9 @@ export const SecurityDefined: Async2Rule = () => {
       from: Location[];
     }
   >();
-  const operationsWithoutSecurity: Location[] = [];
-  let eachOperationHasSecurity = true;
-  let anyServerHasSecurity = false;
+  const serverHasSecurity = new Map<string, boolean>();
+  const operationsWithoutSecurity: { location: Location; channelServers?: string[] }[] = [];
+  let currentChannelServers: string[] | undefined;
 
   return {
     Root: {
@@ -29,11 +29,14 @@ export const SecurityDefined: Async2Rule = () => {
           }
         }
 
-        if (!eachOperationHasSecurity && !anyServerHasSecurity) {
-          for (const operationLocation of operationsWithoutSecurity) {
+        const allServerNames = [...serverHasSecurity.keys()];
+        for (const { location, channelServers } of operationsWithoutSecurity) {
+          const applicableServers = channelServers ?? allServerNames;
+          const securedByServer = applicableServers.some((name) => serverHasSecurity.get(name));
+          if (!securedByServer) {
             report({
               message: `Every operation should have security defined on it.`,
-              location: operationLocation.key(),
+              location: location.key(),
             });
           }
         }
@@ -53,16 +56,19 @@ export const SecurityDefined: Async2Rule = () => {
         }
       }
     },
-    Server(server: { security?: unknown }) {
-      if (server?.security) anyServerHasSecurity = true;
+    Server(server: { security?: unknown }, { key }: UserContext) {
+      serverHasSecurity.set(key.toString(), Boolean(server?.security));
     },
     Channel: {
-      Operation(operation: { security?: unknown; traits?: unknown[] },
+      enter(channel: { servers?: string[] }) {
+        currentChannelServers = Array.isArray(channel?.servers) ? channel.servers : undefined;
+      },
+      Operation(
+        operation: { security?: unknown; traits?: unknown[] },
         { location, resolve }: UserContext
       ) {
         if (operationHasSecurity(operation, resolve)) return;
-        eachOperationHasSecurity = false;
-        operationsWithoutSecurity.push(location);
+        operationsWithoutSecurity.push({ location, channelServers: currentChannelServers });
       },
     },
   };

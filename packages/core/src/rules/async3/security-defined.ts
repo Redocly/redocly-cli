@@ -17,6 +17,7 @@ export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
   const operationsWithoutSecurity: Location[] = [];
   let eachOperationHasSecurity = true;
+  let anyServerHasSecurity = false;
 
   return {
     Root: {
@@ -43,7 +44,7 @@ export const SecurityDefined: Async3Rule = () => {
           }
         }
 
-        if (!eachOperationHasSecurity) {
+        if (!eachOperationHasSecurity && !anyServerHasSecurity) {
           for (const operationLocation of operationsWithoutSecurity) {
             report({
               message: `Every operation should have security defined on it.`,
@@ -52,6 +53,9 @@ export const SecurityDefined: Async3Rule = () => {
           }
         }
       },
+    },
+    Server(server: { security?: unknown }) {
+      if (server?.security) anyServerHasSecurity = true;
     },
     NamedSecuritySchemes: {
       SecurityScheme(_scheme: unknown, { location }: UserContext) {
