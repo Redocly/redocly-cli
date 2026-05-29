@@ -23,6 +23,7 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
               report({
                 message: `path segment \`${pathSegment}\` should be plural.`,
                 location: location.key(),
+                reference: 'https://redocly.com/docs/cli/rules/oas/path-segment-plural',
               });
             }
           }

@@ -12,6 +12,7 @@ export const SourceDescriptionType: Arazzo1Rule = () => {
               message:
                 'The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.',
               location: location.child([sourceDescriptions.indexOf(sourceDescription)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/sourcedescription-type',
             });
           }
         }

@@ -19,6 +19,7 @@ export const NoMixedNumberRangeConstraints:
           message:
             'Schema should not have both `maximum` and `exclusiveMaximum`. Use one or the other.',
           location: location.child(['exclusiveMaximum']).key(),
+          reference: 'https://redocly.com/docs/cli/rules/common/no-mixed-number-range-constraints',
         });
       }
       if (typeof schema.minimum === 'number' && typeof schema.exclusiveMinimum === 'number') {
@@ -26,6 +27,7 @@ export const NoMixedNumberRangeConstraints:
           message:
             'Schema should not have both `minimum` and `exclusiveMinimum`. Use one or the other.',
           location: location.child(['exclusiveMinimum']).key(),
+          reference: 'https://redocly.com/docs/cli/rules/common/no-mixed-number-range-constraints',
         });
       }
     },

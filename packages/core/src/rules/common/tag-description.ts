@@ -7,7 +7,12 @@ import { validateDefinedAndNonEmpty } from '../utils.js';
 export const TagDescription: Oas3Rule | Oas2Rule = () => {
   return {
     Tag(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, ctx: UserContext) {
-      validateDefinedAndNonEmpty('description', tag, ctx);
+      validateDefinedAndNonEmpty({
+        fieldName: 'description',
+        value: tag,
+        ctx,
+        reference: 'https://redocly.com/docs/cli/rules/oas/tag-description',
+      });
     },
   };
 };

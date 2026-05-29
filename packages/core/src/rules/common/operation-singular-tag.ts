@@ -10,6 +10,7 @@ export const OperationSingularTag: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Operation `tags` object should have only one tag.',
           location: location.child(['tags']).key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/operation-singular-tag',
         });
       }
     },

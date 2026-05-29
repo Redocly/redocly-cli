@@ -38,6 +38,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
             },
           ],
           "message": "Example object can have either \`value\` or \`externalValue\` fields.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-example-value-and-externalValue",
           "ruleId": "no-example-value-and-externalValue",
           "severity": "error",
           "suggest": [],

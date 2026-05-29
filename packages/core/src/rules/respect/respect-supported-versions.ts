@@ -15,6 +15,7 @@ export const RespectSupportedVersions: Arazzo1Rule = () => {
               ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT.length
             )} fully supported by Respect.`,
             location: location.child('arazzo'),
+            reference: 'https://redocly.com/docs/cli/rules/respect/respect-supported-versions',
           });
         }
       },

@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 2.31.5
+
+### Patch Changes
+
+- Updated the `no-unused-components` rule to validate unused security schemes.
+- Pinned the official Docker image base to `node:24-alpine`.
+- Fixed the `remove-unused-components` decorator to remove unused security schemes.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+- Updated @redocly/openapi-core to v2.31.5.
+
 ## 2.31.4
 
 ### Patch Changes

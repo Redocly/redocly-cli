@@ -87,6 +87,7 @@ const createOperationHandlers = (
     report({
       message: `Maximum callback nesting depth (${depth}) reached. Path parameter validation is limited beyond this depth to prevent infinite recursion.`,
       location: location,
+      reference: 'https://redocly.com/docs/cli/rules/oas/path-parameters-defined',
     });
   };
   if (depth >= MAX_DEPTH) {
@@ -199,7 +200,12 @@ const validatePathParameter = ({
     const message = `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`;
     const from = rawLocation === location ? undefined : rawLocation;
 
-    report({ message, location: location.child(['name']), from });
+    report({
+      message,
+      location: location.child(['name']),
+      from,
+      reference: 'https://redocly.com/docs/cli/rules/oas/path-parameters-defined',
+    });
   }
 };
 
@@ -225,6 +231,7 @@ const validateRequiredPathParams = ({
       report({
         message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${path}\`.`,
         location: location.child(['parameters']).key(),
+        reference: 'https://redocly.com/docs/cli/rules/oas/path-parameters-defined',
       });
     }
   }

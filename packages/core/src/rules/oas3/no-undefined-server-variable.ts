@@ -12,6 +12,7 @@ export const NoUndefinedServerVariable: Oas3Rule = () => {
           report({
             message: `The \`${serverVar}\` variable is not defined in the \`variables\` objects.`,
             location: location.child(['url']),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-undefined-server-variable',
           });
         }
       }
@@ -22,6 +23,7 @@ export const NoUndefinedServerVariable: Oas3Rule = () => {
             message: `The \`${definedServerVar}\` variable is not used in the server's \`url\` field.`,
             location: location.child(['variables', definedServerVar]).key(),
             from: location.child('url'),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-undefined-server-variable',
           });
         }
       }

@@ -33,6 +33,7 @@ export const WorkflowDependsOn: Arazzo1Rule = () => {
               report({
                 message: `SourceDescription ${sourceDescriptionName} must be defined in sourceDescriptions.`,
                 location: location.child([`dependsOn`, workflow.dependsOn.indexOf(item)]),
+                reference: 'https://redocly.com/docs/cli/rules/arazzo/workflow-dependson',
               });
             }
           }
@@ -40,12 +41,14 @@ export const WorkflowDependsOn: Arazzo1Rule = () => {
             report({
               message: `Workflow ${item} must be defined in workflows.`,
               location: location.child([`dependsOn`, workflow.dependsOn.indexOf(item)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/workflow-dependson',
             });
           }
           if (seenWorkflow.has(item)) {
             report({
               message: 'Every workflow in dependsOn must be unique.',
               location: location.child([`dependsOn`]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/workflow-dependson',
             });
           }
           seenWorkflow.add(item);

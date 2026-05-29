@@ -68,6 +68,7 @@ describe('Arazzo workflowId-unique', () => {
             },
           ],
           "message": "Every workflow must have a unique \`workflowId\`.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/workflowid-unique",
           "ruleId": "workflowId-unique",
           "severity": "error",
           "suggest": [],

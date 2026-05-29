@@ -83,6 +83,7 @@ describe('Oas2 response-contains-property', () => {
             },
           ],
           "message": "Response object must contain a top-level "id" property.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/response-contains-property",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": [],
