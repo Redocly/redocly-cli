@@ -16,6 +16,8 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
           report({
             message: 'Response `4xx` must have content-type `application/problem+json`.',
             location: location.key(),
+            reference:
+              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
           });
       },
       MediaType: {

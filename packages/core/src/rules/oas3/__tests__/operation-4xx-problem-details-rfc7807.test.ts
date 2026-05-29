@@ -47,6 +47,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
             },
           ],
           "message": "Response \`4xx\` must have content-type \`application/problem+json\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": [],
