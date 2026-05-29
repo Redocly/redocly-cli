@@ -8,6 +8,7 @@ export const NoChannelTrailingSlash: Async2Rule = () => {
         report({
           message: `\`${key}\` should not have a trailing slash.`,
           location: location.key(),
+          reference: 'https://redocly.com/docs/cli/rules/async/no-channel-trailing-slash',
         });
       }
     },

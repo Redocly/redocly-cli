@@ -23,6 +23,7 @@ export const NoEnumTypeMismatch:
               schema.type
             }" but received "${oasTypeOf(mismatchedValue)}".`,
             location: location.child(['enum', schema.enum.indexOf(mismatchedValue)]),
+            reference: 'https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch',
           });
         }
       }
@@ -49,6 +50,7 @@ export const NoEnumTypeMismatch:
           report({
             message: `Enum value \`${mismatchedKey}\` must be of allowed types: \`${schema.type}\`.`,
             location: location.child(['enum', schema.enum.indexOf(mismatchedKey)]),
+            reference: 'https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch',
           });
         }
       }

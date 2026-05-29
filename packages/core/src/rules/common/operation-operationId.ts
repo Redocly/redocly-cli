@@ -9,7 +9,12 @@ export const OperationOperationId: Oas3Rule | Oas2Rule = () => {
     Root: {
       PathItem: {
         Operation(operation: Oas2Operation | Oas3Operation, ctx: UserContext) {
-          validateDefinedAndNonEmpty('operationId', operation, ctx);
+          validateDefinedAndNonEmpty({
+            fieldName: 'operationId',
+            value: operation,
+            ctx,
+            reference: 'https://redocly.com/docs/cli/rules/oas/operation-operationId',
+          });
         },
       },
     },

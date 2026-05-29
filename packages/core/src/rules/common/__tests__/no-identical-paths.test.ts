@@ -50,6 +50,7 @@ describe('no-identical-paths', () => {
             },
           ],
           "message": "The path already exists which differs only by path parameter name(s): \`/good/{id}\` and \`/good/{hash}\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-identical-paths",
           "ruleId": "no-identical-paths",
           "severity": "error",
           "suggest": [],

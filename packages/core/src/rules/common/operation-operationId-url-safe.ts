@@ -13,6 +13,7 @@ export const OperationIdUrlSafe: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Operation `operationId` should not have URL invalid characters.',
           location: location.child(['operationId']),
+          reference: 'https://redocly.com/docs/cli/rules/oas/operation-operationId-url-safe',
         });
       }
     },

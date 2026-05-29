@@ -22,6 +22,7 @@ export const PathHttpVerbsOrder: Oas3Rule | Oas2Rule = (opts) => {
           report({
             message: 'Operation http verbs must be ordered.',
             location: { reportOnKey: true, ...location.child(httpVerbs[i + 1]) },
+            reference: 'https://redocly.com/docs/cli/rules/oas/path-http-verbs-order',
           });
         }
       }
