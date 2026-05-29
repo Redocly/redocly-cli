@@ -12,10 +12,9 @@ const calculateMedianAbsoluteDeviation = (xs, centre) =>
 const constructBarForChart = (value, min) => {
   if (min <= 0) return 'N/A';
   const slownessFactor = value / min - 1;
-  const baseBarLength = 5;
-  const extraBarMax = 30;
-  const extra = Math.floor(Math.min(1, slownessFactor / 0.3) * extraBarMax);
-  return '▓'.repeat(baseBarLength + extra);
+  const maxBarLength = 30;
+  const length = Math.floor(Math.min(1, slownessFactor) * maxBarLength);
+  return '▓' + '▓'.repeat(length);
 };
 
 const loadResults = (jsonPath) => {
