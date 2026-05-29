@@ -8,7 +8,13 @@ type MimeTypeParams = {
   reference?: string;
 };
 
-export function validateMimeType({ type, value, ctx, allowedValues, reference }: MimeTypeParams) {
+export function validateMimeTypeOAS2({
+  type,
+  value,
+  ctx,
+  allowedValues,
+  reference,
+}: MimeTypeParams) {
   const { report, location } = ctx;
   const ruleType = type === 'consumes' ? 'request' : 'response';
   if (!allowedValues)

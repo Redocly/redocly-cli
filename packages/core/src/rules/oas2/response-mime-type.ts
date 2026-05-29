@@ -1,11 +1,11 @@
-import { validateMimeType } from '../../utils/validate-mime-type.js';
+import { validateMimeTypeOAS2 } from '../../utils/validate-mime-type.js';
 import type { Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const ResponseMimeType: Oas2Rule = ({ allowedValues }) => {
   return {
     Root(root, ctx: UserContext) {
-      validateMimeType({
+      validateMimeTypeOAS2({
         type: 'produces',
         value: root,
         ctx,
@@ -15,7 +15,7 @@ export const ResponseMimeType: Oas2Rule = ({ allowedValues }) => {
     },
     Operation: {
       leave(operation, ctx: UserContext) {
-        validateMimeType({
+        validateMimeTypeOAS2({
           type: 'produces',
           value: operation,
           ctx,
