@@ -16,11 +16,34 @@ export const SecurityDefined: Async3Rule = () => {
   const definedSchemeAbsolutePointers = new Set<string>();
   const references: SecurityReference[] = [];
   const operationsWithoutSecurity: Location[] = [];
-  let eachOperationHasSecurity = true;
-  let anyServerHasSecurity = false;
+  let rootServers: Record<string, unknown> | undefined;
+
+  const resolveMaybeRef = (node: unknown, resolve: UserContext['resolve']): unknown =>
+    isRef(node) ? resolve(node).node : node;
+
+  const operationSecuredByServers = (
+    operation: { channel?: unknown },
+    resolve: UserContext['resolve']
+  ): boolean => {
+    const channel = resolveMaybeRef(operation?.channel, resolve) as
+      | { servers?: unknown }
+      | undefined;
+    const applicableServers = Array.isArray(channel?.servers)
+      ? channel.servers
+      : rootServers
+      ? Object.values(rootServers)
+      : [];
+    return applicableServers.some((server) => {
+      const serverNode = resolveMaybeRef(server, resolve) as { security?: unknown } | undefined;
+      return Boolean(serverNode?.security);
+    });
+  };
 
   return {
     Root: {
+      enter(root: { servers?: Record<string, unknown> }) {
+        rootServers = root?.servers;
+      },
       leave(_root: unknown, { report }: UserContext) {
         for (const reference of references) {
           if (
@@ -44,18 +67,13 @@ export const SecurityDefined: Async3Rule = () => {
           }
         }
 
-        if (!eachOperationHasSecurity && !anyServerHasSecurity) {
-          for (const operationLocation of operationsWithoutSecurity) {
-            report({
-              message: `Every operation should have security defined on it.`,
-              location: operationLocation.key(),
-            });
-          }
+        for (const operationLocation of operationsWithoutSecurity) {
+          report({
+            message: `Every operation should have security defined on it.`,
+            location: operationLocation.key(),
+          });
         }
       },
-    },
-    Server(server: { security?: unknown }) {
-      if (server?.security) anyServerHasSecurity = true;
     },
     NamedSecuritySchemes: {
       SecurityScheme(_scheme: unknown, { location }: UserContext) {
@@ -81,11 +99,11 @@ export const SecurityDefined: Async3Rule = () => {
       },
     },
     Operation(
-      operation: { security?: unknown; traits?: unknown[] },
+      operation: { security?: unknown; traits?: unknown[]; channel?: unknown },
       { location, resolve }: UserContext
     ) {
       if (operationHasSecurity(operation, resolve)) return;
-      eachOperationHasSecurity = false;
+      if (operationSecuredByServers(operation, resolve)) return;
       operationsWithoutSecurity.push(location);
     },
   };
