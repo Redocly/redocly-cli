@@ -12,9 +12,10 @@ const calculateMedianAbsoluteDeviation = (xs, centre) =>
 const constructBarForChart = (value, min) => {
   if (min <= 0) return 'N/A';
   const slownessFactor = value / min - 1;
-  const maxBarLength = 30;
-  const length = Math.floor(Math.min(1, slownessFactor) * maxBarLength);
-  return '▓' + '▓'.repeat(length);
+  const baseBarLength = 5;
+  const extraBarMax = 30;
+  const extra = Math.floor(Math.min(1, slownessFactor / 0.3) * extraBarMax);
+  return '▓'.repeat(baseBarLength + extra);
 };
 
 const loadResults = (jsonPath) => {
@@ -34,12 +35,11 @@ const renderCell = (entry, fastest) => {
   const bar = constructBarForChart(entry.median, fastest.median);
   const factor = entry.median / fastest.median;
   if (entry === fastest) {
-    return `${bar} ${factor.toFixed(2)}x (Fastest)`;
+    return `${bar} ${Math.round(factor)}x (Fastest)`;
   }
   const relativeUnc =
     factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
-  const formattedUnc = relativeUnc < 0.01 ? relativeUnc.toFixed(3) : relativeUnc.toFixed(2);
-  return `${bar} ${factor.toFixed(2)}x ± ${formattedUnc}`;
+  return `${bar} ${Math.round(factor)}x ± ${Math.round(relativeUnc * 100) / 100}x`;
 };
 
 const operations = [
@@ -64,7 +64,7 @@ const renderRow = (version) =>
     .join(' | ')} |`;
 
 const output = [
-  '## Performance Benchmark',
+  '## Performance Benchmark (Lower is Faster)',
   '',
   `| CLI Version | ${columns.map((c) => c.name).join(' | ')} |`,
   `|---|${columns.map(() => '---').join('|')}|`,
