@@ -89,6 +89,8 @@ export const NoRequiredSchemaPropertiesUndefined:
             ctx.report({
               message: `Required property '${requiredProperty}' is not defined.`,
               location: ctx.location.child(['required', i]),
+              reference:
+                'https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined',
             });
           }
         }

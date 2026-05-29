@@ -58,6 +58,7 @@ describe('Arazzo sourceDescription-type', () => {
             },
           ],
           "message": "The \`type\` property of the \`sourceDescription\` object must be either \`openapi\` or \`arazzo\`.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/sourcedescription-type",
           "ruleId": "sourceDescription-type",
           "severity": "error",
           "suggest": [],

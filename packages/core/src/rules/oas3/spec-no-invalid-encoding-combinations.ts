@@ -13,6 +13,8 @@ export const SpecNoInvalidEncodingCombinations: Oas3Rule = () => {
             message:
               "The 'encoding' field cannot be used together with 'prefixEncoding' or 'itemEncoding'.",
             location: ctx.location.child('encoding').key(),
+            reference:
+              'https://redocly.com/docs/cli/rules/oas/spec-no-invalid-encoding-combinations',
           });
         }
       },

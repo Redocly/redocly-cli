@@ -23,6 +23,8 @@ export const NoXSecuritySchemeNameWithoutOpenAPI: Arazzo1Rule = () => {
               message:
                 'The `schemeName` can be only used in Step with OpenAPI operation, please use `scheme` instead.',
               location: location.child(['x-security', extendedSecurity.indexOf(security)]),
+              reference:
+                'https://redocly.com/docs/cli/rules/respect/no-x-security-scheme-name-without-openapi',
             });
           }
         }

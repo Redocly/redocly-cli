@@ -16,6 +16,7 @@ export const CriteriaUnique: Arazzo1Rule = () => {
             report({
               message: 'The FailureAction criteria items must be unique.',
               location: location.child(['criteria', criterias.indexOf(criteria)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/criteria-unique',
             });
           } else {
             seen.add(key);
@@ -36,6 +37,7 @@ export const CriteriaUnique: Arazzo1Rule = () => {
             report({
               message: 'The SuccessAction criteria items must be unique.',
               location: location.child(['criteria', criterias.indexOf(criteria)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/criteria-unique',
             });
           } else {
             seen.add(key);
@@ -59,6 +61,7 @@ export const CriteriaUnique: Arazzo1Rule = () => {
             report({
               message: 'The Step SuccessCriteria items must be unique.',
               location: location.child(['successCriteria', successCriterias.indexOf(criteria)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/criteria-unique',
             });
           } else {
             seen.add(key);

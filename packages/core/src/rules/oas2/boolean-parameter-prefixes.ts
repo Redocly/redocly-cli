@@ -19,6 +19,7 @@ export const BooleanParameterPrefixes: Oas2Rule = (options: BooleanParameterPref
         report({
           message: `Boolean parameter \`${param.name}\` should have ${prefixesString} prefix.`,
           location: location.child('name'),
+          reference: 'https://redocly.com/docs/cli/rules/oas/boolean-parameter-prefixes',
         });
       }
     },

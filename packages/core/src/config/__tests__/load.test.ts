@@ -76,6 +76,7 @@ describe('loadConfig', () => {
             },
           ],
           "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
           "ruleId": "configuration no-unresolved-refs",
           "severity": "warn",
           "suggest": [],

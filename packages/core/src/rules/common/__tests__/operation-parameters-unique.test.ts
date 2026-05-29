@@ -39,6 +39,7 @@ describe('Oas3 operation-parameters-unique', () => {
           ],
           "message": "Paths must have unique \`name\` + \`in\` parameters.
       Repeats of \`in:query\` + \`name:a\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-parameters-unique",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
           "suggest": [],
@@ -111,6 +112,7 @@ describe('Oas3 operation-parameters-unique', () => {
             },
           ],
           "message": "Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:query\` + \`name:a\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-parameters-unique",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
           "suggest": [],
@@ -159,6 +161,7 @@ describe('Oas3 operation-parameters-unique', () => {
             },
           ],
           "message": "Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:query\` + \`name:a\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-parameters-unique",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
           "suggest": [],

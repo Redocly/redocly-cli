@@ -33,6 +33,7 @@ describe('Oas3 info-license', () => {
             },
           ],
           "message": "Info object should contain \`license\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/info-license",
           "ruleId": "info-license",
           "severity": "error",
           "suggest": [],

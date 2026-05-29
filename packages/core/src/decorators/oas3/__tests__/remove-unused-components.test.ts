@@ -572,4 +572,116 @@ describe('oas3 remove-unused-components', () => {
       }
     `);
   });
+
+  it('should keep securitySchemes referenced via SecurityRequirement or a $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /foo:
+            get:
+              security:
+                - api_key: []
+          /bar:
+            get:
+              security:
+                - derived: []
+        components:
+          securitySchemes:
+            api_key:
+              type: apiKey
+              name: api_key
+              in: header
+            base:
+              type: apiKey
+              name: base
+              in: header
+            derived:
+              $ref: '#/components/securitySchemes/base'
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+      types: Oas3Types,
+    });
+
+    expect(results.bundle.parsed).toMatchInlineSnapshot(`
+      {
+        "components": {
+          "securitySchemes": {
+            "api_key": {
+              "in": "header",
+              "name": "api_key",
+              "type": "apiKey",
+            },
+            "base": {
+              "in": "header",
+              "name": "base",
+              "type": "apiKey",
+            },
+            "derived": {
+              "$ref": "#/components/securitySchemes/base",
+            },
+          },
+        },
+        "openapi": "3.2.0",
+        "paths": {
+          "/bar": {
+            "get": {
+              "security": [
+                {
+                  "derived": [],
+                },
+              ],
+            },
+          },
+          "/foo": {
+            "get": {
+              "security": [
+                {
+                  "api_key": [],
+                },
+              ],
+            },
+          },
+        },
+      }
+    `);
+  });
+
+  it('should remove unused securitySchemes', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          securitySchemes:
+            unused:
+              type: apiKey
+              name: unused
+              in: header
+            derived:
+              $ref: '#/components/securitySchemes/unused'
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+      types: Oas3Types,
+    });
+
+    expect(results.bundle.parsed).toMatchInlineSnapshot(`
+      {
+        "openapi": "3.2.0",
+      }
+    `);
+  });
 });

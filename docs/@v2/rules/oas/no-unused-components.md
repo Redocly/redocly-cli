@@ -5,7 +5,7 @@ slug: /docs/cli/rules/oas/no-unused-components
 # no-unused-components
 
 Ensures that every component specified in your API description is used at least once.
-In this context, "used" means that a component defined in the `components` object is referenced elsewhere in the API document with `$ref`.
+In this context, "used" means that a component is referenced elsewhere in the API document with `$ref`, or that a `securitySchemes` entry is referenced by name in a `security` requirement object.
 
 | OAS | Compatibility |
 | --- | ------------- |

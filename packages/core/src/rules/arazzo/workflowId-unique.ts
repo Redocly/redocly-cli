@@ -12,6 +12,7 @@ export const WorkflowIdUnique: Arazzo1Rule = () => {
           report({
             message: 'Every workflow must have a unique `workflowId`.',
             location: location.child([workflow.workflowId]),
+            reference: 'https://redocly.com/docs/cli/rules/arazzo/workflowid-unique',
           });
         }
         seenWorkflow.add(workflow.workflowId);
