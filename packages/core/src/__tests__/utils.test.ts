@@ -12,7 +12,7 @@ import { isTruthy } from '../utils/is-truthy.js';
 import { hasComponent } from '../utils/oas-has-component.js';
 import { slash } from '../utils/slash.js';
 import { splitCamelCaseIntoWords } from '../utils/split-camel-case-into-words.js';
-import { validateMimeType, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
+import { validateMimeTypeOAS2, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
 
 vi.mock('node:fs');
 vi.mock('node:path');
@@ -139,24 +139,26 @@ describe('utils', () => {
     });
   });
 
-  describe('validateMimeType', () => {
+  describe('validateMimeTypeOAS2', () => {
     it('should validate mime type without reporting errors', () => {
       const report = vi.fn();
-      validateMimeType(
-        { type: 'consumes', value: { consumes: ['application/json'] } },
-        { report, location: { child: () => ({ key: () => ({}) as any }) } } as any,
-        ['application/json']
-      );
+      validateMimeTypeOAS2({
+        type: 'consumes',
+        value: { consumes: ['application/json'] },
+        ctx: { report, location: { child: () => ({ key: () => ({}) as any }) } } as any,
+        allowedValues: ['application/json'],
+      });
       expect(report).not.toHaveBeenCalled();
     });
 
     it('should report error for invalid mime type', () => {
       const report = vi.fn();
-      validateMimeType(
-        { type: 'consumes', value: { consumes: ['text/plain'] } },
-        { report, location: { child: () => ({ key: () => ({}) as any }) } } as any,
-        ['application/json']
-      );
+      validateMimeTypeOAS2({
+        type: 'consumes',
+        value: { consumes: ['text/plain'] },
+        ctx: { report, location: { child: () => ({ key: () => ({}) as any }) } } as any,
+        allowedValues: ['application/json'],
+      });
       expect(report).toHaveBeenCalledWith({
         message: 'Mime type "text/plain" is not allowed',
         location: {},
@@ -165,12 +167,13 @@ describe('utils', () => {
 
     it('should throw error if allowedValues is not provided', () => {
       expect(() =>
-        validateMimeType(
-          { type: 'consumes', value: { consumes: ['application/json'] } },
-          { report: () => {}, location: { child: () => ({ key: () => ({}) as any }) } } as any,
+        validateMimeTypeOAS2({
+          type: 'consumes',
+          value: { consumes: ['application/json'] },
+          ctx: { report: () => {}, location: { child: () => ({ key: () => ({}) as any }) } } as any,
           // @ts-expect-error
-          undefined
-        )
+          allowedValues: undefined,
+        })
       ).toThrow('Parameter "allowedValues" is not provided for "request-mime-type" rule');
     });
   });
@@ -178,30 +181,29 @@ describe('utils', () => {
   describe('validateMimeTypeOAS3', () => {
     it('should validate mime type without reporting errors', () => {
       const report = vi.fn();
-      validateMimeTypeOAS3(
-        {
-          type: 'consumes',
-          value: { content: { 'application/json': { schema: { type: 'string' } } } },
-        },
-        {
+      validateMimeTypeOAS3({
+        type: 'consumes',
+        value: { content: { 'application/json': { schema: { type: 'string' } } } },
+        ctx: {
           report,
           location: { child: () => ({ child: () => ({ key: () => ({}) as any }) }) },
         } as any,
-        ['application/json']
-      );
+        allowedValues: ['application/json'],
+      });
       expect(report).not.toHaveBeenCalled();
     });
 
     it('should report error for invalid mime type', () => {
       const report = vi.fn();
-      validateMimeTypeOAS3(
-        { type: 'consumes', value: { content: { 'text/plain': { schema: { type: 'string' } } } } },
-        {
+      validateMimeTypeOAS3({
+        type: 'consumes',
+        value: { content: { 'text/plain': { schema: { type: 'string' } } } },
+        ctx: {
           report,
           location: { child: () => ({ child: () => ({ key: () => ({}) as any }) }) },
         } as any,
-        ['application/json']
-      );
+        allowedValues: ['application/json'],
+      });
       expect(report).toHaveBeenCalledWith({
         message: 'Mime type "text/plain" is not allowed',
         location: {},
@@ -210,18 +212,16 @@ describe('utils', () => {
 
     it('should throw error if allowedValues is not provided', () => {
       expect(() =>
-        validateMimeTypeOAS3(
-          {
-            type: 'consumes',
-            value: { content: { 'application/json': { schema: { type: 'string' } } } },
-          },
-          {
+        validateMimeTypeOAS3({
+          type: 'consumes',
+          value: { content: { 'application/json': { schema: { type: 'string' } } } },
+          ctx: {
             report: () => {},
             location: { child: () => ({ child: () => ({ key: () => ({}) as any }) }) },
           } as any,
           // @ts-expect-error
-          undefined
-        )
+          allowedValues: undefined,
+        })
       ).toThrow('Parameter "allowedValues" is not provided for "request-mime-type" rule');
     });
   });

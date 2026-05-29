@@ -74,6 +74,7 @@ describe('Arazzo stepId-unique', () => {
             },
           ],
           "message": "The \`stepId\` must be unique amongst all steps described in the workflow.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/stepid-unique",
           "ruleId": "stepId-unique",
           "severity": "error",
           "suggest": [],

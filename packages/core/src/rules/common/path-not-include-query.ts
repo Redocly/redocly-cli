@@ -9,6 +9,7 @@ export const PathNotIncludeQuery: Oas3Rule | Oas2Rule = () => {
           report({
             message: `Don't put query string items in the path, they belong in parameters with \`in: query\`.`,
             location: { reportOnKey: true },
+            reference: 'https://redocly.com/docs/cli/rules/oas/path-not-include-query',
           });
         }
       },

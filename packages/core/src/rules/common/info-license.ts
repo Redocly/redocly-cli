@@ -8,6 +8,7 @@ export const InfoLicense: Oas3Rule | Oas2Rule = () => {
         report({
           message: missingRequiredField('Info', 'license'),
           location: { reportOnKey: true },
+          reference: 'https://redocly.com/docs/cli/rules/oas/info-license',
         });
       }
     },

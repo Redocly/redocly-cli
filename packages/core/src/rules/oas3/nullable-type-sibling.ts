@@ -8,6 +8,7 @@ export const NullableTypeSibling: Oas3Rule = (): Oas3Visitor => {
           ctx.report({
             message: `The \`type\` field must be defined when the \`nullable\` field is used.`,
             location: ctx.location.child(['nullable']),
+            reference: 'https://redocly.com/docs/cli/rules/oas/nullable-type-sibling',
           });
         }
       },

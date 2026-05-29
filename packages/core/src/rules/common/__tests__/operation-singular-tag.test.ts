@@ -40,6 +40,7 @@ describe('Oas3 operation-singular-tag', () => {
             },
           ],
           "message": "Operation \`tags\` object should have only one tag.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-singular-tag",
           "ruleId": "operation-singular-tag",
           "severity": "error",
           "suggest": [],

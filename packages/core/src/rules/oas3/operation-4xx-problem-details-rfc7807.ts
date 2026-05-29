@@ -16,6 +16,8 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
           report({
             message: 'Response `4xx` must have content-type `application/problem+json`.',
             location: location.key(),
+            reference:
+              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
           });
       },
       MediaType: {
@@ -23,11 +25,29 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
           return key !== 'application/problem+json';
         },
         enter(media, ctx: UserContext) {
-          validateDefinedAndNonEmpty('schema', media, ctx);
+          validateDefinedAndNonEmpty({
+            fieldName: 'schema',
+            value: media,
+            ctx,
+            reference:
+              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
+          });
         },
         SchemaProperties(schema, ctx: UserContext) {
-          validateDefinedAndNonEmpty('type', schema, ctx);
-          validateDefinedAndNonEmpty('title', schema, ctx);
+          validateDefinedAndNonEmpty({
+            fieldName: 'type',
+            value: schema,
+            ctx,
+            reference:
+              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
+          });
+          validateDefinedAndNonEmpty({
+            fieldName: 'title',
+            value: schema,
+            ctx,
+            reference:
+              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
+          });
         },
       },
     },

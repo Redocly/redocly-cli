@@ -19,6 +19,7 @@ function reportIfMultipleQuerystring(querystringCount: number, ctx: UserContext)
       message:
         'Parameters with `in: querystring` should be defined only once per path/operation parameter set.',
       location: parametersLocation,
+      reference: 'https://redocly.com/docs/cli/rules/oas/spec-querystring-parameters',
     });
   }
 }
@@ -35,6 +36,7 @@ function checkMixedUsage(
         message:
           'Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set.',
         location: parameterLocation,
+        reference: 'https://redocly.com/docs/cli/rules/oas/spec-querystring-parameters',
       });
     }
     state.queryLocation ??= parameterLocation;
@@ -47,6 +49,7 @@ function checkMixedUsage(
         message:
           'Parameters with `in: querystring` cannot be used together with `in: query` in the same operation/path parameter set.',
         location: parameterLocation,
+        reference: 'https://redocly.com/docs/cli/rules/oas/spec-querystring-parameters',
       });
     }
     state.querystringLocation ??= parameterLocation;

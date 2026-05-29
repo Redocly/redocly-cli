@@ -8,6 +8,7 @@ export const NoPathTrailingSlash: Oas3Rule | Oas2Rule = () => {
         report({
           message: `\`${key}\` should not have a trailing slash.`,
           location: rawLocation.key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-path-trailing-slash',
         });
       }
     },
