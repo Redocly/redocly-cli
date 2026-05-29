@@ -1,7 +1,8 @@
+import type { Parameter } from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-function checkParametersUnique(parameters: any, { report, location }: UserContext) {
+function checkParametersUnique(parameters: Parameter[], { report, location }: UserContext) {
   if (!parameters) return;
   const seenParameters = new Set();
 

@@ -150,6 +150,7 @@ export const reusableObject = {
   required: ['reference'],
   additionalProperties: false,
 } as const;
+
 export const parameter = {
   type: 'object',
   oneOf: [
@@ -169,10 +170,12 @@ export const parameter = {
     reusableObject,
   ],
 } as const;
+
 const parameters = {
   type: 'array',
   items: parameter,
 } as const;
+
 export const actionParameter = {
   type: 'object',
   oneOf: [
@@ -191,10 +194,12 @@ export const actionParameter = {
     reusableObject,
   ],
 } as const;
+
 const actionParameters = {
   type: 'array',
   items: actionParameter,
 } as const;
+
 export const infoObject = {
   type: 'object',
   properties: {

@@ -42,21 +42,24 @@ function mapParametersToWorkflowInputs({
   ctx: TestContext;
   workflowId: string | undefined;
 }): Record<string, any> {
-  return parameters.filter(isParameterWithoutIn).reduce((acc, parameter: ParameterWithoutIn) => {
-    const ctxWithInputs = {
-      ...ctx,
-      $inputs: {
-        ...ctx.$inputs,
-        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
-      },
-    };
-    acc[parameter.name] = getValueFromContext({
-      value: parameter.value,
-      ctx: ctxWithInputs,
-      logger: ctx.options.logger,
-    });
-    return acc;
-  }, {} as Record<string, any>);
+  return parameters.filter(isParameterWithoutIn).reduce(
+    (acc, parameter: ParameterWithoutIn) => {
+      const ctxWithInputs = {
+        ...ctx,
+        $inputs: {
+          ...ctx.$inputs,
+          ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+        },
+      };
+      acc[parameter.name] = getValueFromContext({
+        value: parameter.value,
+        ctx: ctxWithInputs,
+        logger: ctx.options.logger,
+      });
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 }
 
 export async function runStep({
