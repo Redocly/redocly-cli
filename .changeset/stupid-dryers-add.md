@@ -1,5 +1,5 @@
 ---
-"@redocly/openapi-core": minor
+'@redocly/openapi-core': minor
 ---
 
 Added `security-defined` rule for AsyncAPI 2.x and 3.x.

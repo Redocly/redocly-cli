@@ -1,9 +1,8 @@
 import { isRef } from '../../ref-utils.js';
-import { operationHasSecurity } from '../common/operation-has-security.js';
-
 import type { Location } from '../../ref-utils.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { operationHasSecurity } from '../common/operation-has-security.js';
 
 type SecurityReference = {
   location: Location;
@@ -31,8 +30,8 @@ export const SecurityDefined: Async3Rule = () => {
     const applicableServers = Array.isArray(channel?.servers)
       ? channel.servers
       : rootServers
-      ? Object.values(rootServers)
-      : [];
+        ? Object.values(rootServers)
+        : [];
     return applicableServers.some((server) => {
       const serverNode = resolveMaybeRef(server, resolve) as { security?: unknown } | undefined;
       return Boolean(serverNode?.security);

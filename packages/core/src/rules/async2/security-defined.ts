@@ -1,8 +1,7 @@
-import { operationHasSecurity } from '../common/operation-has-security.js';
-
 import type { Location } from '../../ref-utils.js';
 import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { operationHasSecurity } from '../common/operation-has-security.js';
 
 export const SecurityDefined: Async2Rule = () => {
   const referencedSchemes = new Map<
