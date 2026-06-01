@@ -1,18 +1,20 @@
 import { isRef } from '../../ref-utils.js';
+import { operationHasSecurity } from '../common/operation-has-security.js';
+
 import type { Location } from '../../ref-utils.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { operationHasSecurity } from '../common/operation-has-security.js';
+
+const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
 
 type SecurityReference = {
   location: Location;
   name: string;
-  resolvedAbsolutePointer?: string;
+  resolvedPointer?: string;
   resolved: boolean;
 };
 
 export const SecurityDefined: Async3Rule = () => {
-  const definedSchemeAbsolutePointers = new Set<string>();
   const references: SecurityReference[] = [];
   const operationsWithoutSecurity: Location[] = [];
   let rootServers: Record<string, unknown> | undefined;
@@ -45,20 +47,19 @@ export const SecurityDefined: Async3Rule = () => {
       },
       leave(_root: unknown, { report }: UserContext) {
         for (const reference of references) {
-          if (
-            reference.resolved &&
-            reference.resolvedAbsolutePointer &&
-            definedSchemeAbsolutePointers.has(reference.resolvedAbsolutePointer)
-          ) {
-            continue;
-          }
-
           if (!reference.resolved) {
             report({
               message: `There is no \`${reference.name}\` security scheme defined.`,
               location: reference.location.key(),
             });
-          } else {
+            continue;
+          }
+
+          const pointer = reference.resolvedPointer ?? '';
+          if (
+            !pointer.startsWith(SECURITY_SCHEMES_POINTER) ||
+            pointer.slice(SECURITY_SCHEMES_POINTER.length).includes('/')
+          ) {
             report({
               message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
               location: reference.location.key(),
@@ -74,11 +75,6 @@ export const SecurityDefined: Async3Rule = () => {
         }
       },
     },
-    NamedSecuritySchemes: {
-      SecurityScheme(_scheme: unknown, { location }: UserContext) {
-        definedSchemeAbsolutePointers.add(location.absolutePointer.toString());
-      },
-    },
     SecuritySchemeList: {
       enter(list: unknown[] | undefined, { location, resolve }: UserContext) {
         if (!list) return;
@@ -91,7 +87,7 @@ export const SecurityDefined: Async3Rule = () => {
           references.push({
             location: itemLocation,
             name,
-            resolvedAbsolutePointer: resolved.location?.absolutePointer.toString(),
+            resolvedPointer: resolved.location?.pointer,
             resolved: resolved.node !== undefined,
           });
         }
