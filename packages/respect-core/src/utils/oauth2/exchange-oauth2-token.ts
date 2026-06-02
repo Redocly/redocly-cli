@@ -12,12 +12,14 @@ export function pickOAuth2ExchangeableFlow(
   values: Record<string, unknown>
 ): { flow: OAuth2ExchangeableFlow; config: OAuth2FlowConfig } | undefined {
   const flows = scheme.flows ?? {};
+  const hasFullUserCredentials = Boolean(values.username && values.password);
+  const hasFullClientCredentials = Boolean(values.clientId && values.clientSecret);
 
-  if (flows.clientCredentials && (values.clientId || values.clientSecret)) {
-    return { flow: 'clientCredentials', config: flows.clientCredentials };
-  }
-  if (flows.password && (values.username || values.password)) {
+  if (flows.password && hasFullUserCredentials) {
     return { flow: 'password', config: flows.password };
+  }
+  if (flows.clientCredentials && hasFullClientCredentials) {
+    return { flow: 'clientCredentials', config: flows.clientCredentials };
   }
   if (flows.clientCredentials) {
     return { flow: 'clientCredentials', config: flows.clientCredentials };
@@ -70,13 +72,16 @@ export async function exchangeOAuth2Token({
   const scope = buildScope(values, config.scopes);
   const clientAuthMethod = values.clientAuthMethod === 'body' ? 'body' : 'header';
 
-  const cacheKey = [
+  const cacheKey = JSON.stringify([
     flow,
     tokenUrl,
     clientId ?? '',
+    clientSecret ?? '',
+    clientAuthMethod,
     flow === 'password' ? (values.username ?? '') : '',
+    flow === 'password' ? (values.password ?? '') : '',
     scope ?? '',
-  ].join('|');
+  ]);
 
   if (!ctx.oauth2TokenCache) {
     ctx.oauth2TokenCache = new Map();

@@ -127,6 +127,47 @@ describe('exchangeOAuth2Token', () => {
     expect(ctx.secretsSet.has('pwd-token')).toBe(true);
   });
 
+  it('prefers the password flow over clientCredentials when both flows are defined and username/password are provided', async () => {
+    const scheme: OAuth2Auth = {
+      type: 'oauth2',
+      flows: {
+        clientCredentials: {
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: { read: 'Read access' },
+        },
+        password: {
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: { read: 'Read access' },
+        },
+      },
+    };
+
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ access_token: 'mixed-token' })
+    ) as unknown as typeof fetch;
+    const ctx = makeCtx(fetchMock);
+
+    await exchangeOAuth2Token({
+      scheme,
+      values: {
+        username: 'alice',
+        password: 'hunter2',
+        clientId: 'id',
+        clientSecret: 'secret',
+      },
+      ctx,
+    });
+
+    const [, init] = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+    const body = new URLSearchParams(init.body as string);
+    expect(body.get('grant_type')).toBe('password');
+    expect(body.get('username')).toBe('alice');
+    expect(body.get('password')).toBe('hunter2');
+    // Client credentials still authenticate the password flow's client.
+    const headers = init.headers as Record<string, string>;
+    expect(headers.authorization).toBe(`Basic ${btoa('id:secret')}`);
+  });
+
   it('caches the token so a second call does not re-fetch', async () => {
     const scheme: OAuth2Auth = {
       type: 'oauth2',

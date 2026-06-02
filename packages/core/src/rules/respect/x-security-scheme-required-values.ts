@@ -19,13 +19,26 @@ function getOAuth2RequiredValues(
   flows: OAuth2Auth['flows'] | undefined,
   values: Record<string, unknown> | undefined
 ): readonly string[] {
-  if (values && 'accessToken' in values) {
-    return ['accessToken'];
+  if (values?.accessToken) {
+    return [];
   }
-  if (flows?.clientCredentials) {
+
+  const hasClientCredentialsFlow = Boolean(flows?.clientCredentials);
+  const hasPasswordFlow = Boolean(flows?.password);
+
+  if (hasClientCredentialsFlow && hasPasswordFlow) {
+    const hasClientCredentials = !!(values && values.clientId && values.clientSecret);
+    const hasPasswordCredentials = !!(values && values.username && values.password);
+    if (hasClientCredentials || hasPasswordCredentials) {
+      return [];
+    }
     return ['clientId', 'clientSecret'];
   }
-  if (flows?.password) {
+
+  if (hasClientCredentialsFlow) {
+    return ['clientId', 'clientSecret'];
+  }
+  if (hasPasswordFlow) {
     return ['username', 'password'];
   }
   return ['accessToken'];

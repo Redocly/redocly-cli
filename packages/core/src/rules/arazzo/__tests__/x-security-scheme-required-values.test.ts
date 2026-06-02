@@ -752,4 +752,169 @@ describe('Arazzo x-security-scheme-required-values', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report missing credentials when accessToken is present but empty', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+          description: A cool API
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: oauth2
+                  flows:
+                    clientCredentials:
+                      tokenUrl: https://example.com/oauth/token
+                      scopes:
+                        read: Read access
+                values:
+                  accessToken: ''
+            steps:
+              - stepId: step-with-openapi-operation
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-required-values': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`clientId\` is required when using the oauth2 authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`clientSecret\` is required when using the oauth2 authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should accept username + password when both OAuth2 flows are defined', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+          description: A cool API
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: oauth2
+                  flows:
+                    clientCredentials:
+                      tokenUrl: https://example.com/oauth/token
+                      scopes:
+                        read: Read access
+                    password:
+                      tokenUrl: https://example.com/oauth/token
+                      scopes:
+                        read: Read access
+                values:
+                  username: alice
+                  password: hunter2
+            steps:
+              - stepId: step-with-openapi-operation
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-required-values': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should accept clientId + clientSecret when both OAuth2 flows are defined', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+          description: A cool API
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: oauth2
+                  flows:
+                    clientCredentials:
+                      tokenUrl: https://example.com/oauth/token
+                      scopes:
+                        read: Read access
+                    password:
+                      tokenUrl: https://example.com/oauth/token
+                      scopes:
+                        read: Read access
+                values:
+                  clientId: id
+                  clientSecret: secret
+            steps:
+              - stepId: step-with-openapi-operation
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-required-values': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
