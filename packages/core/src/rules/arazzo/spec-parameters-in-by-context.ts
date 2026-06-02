@@ -1,9 +1,11 @@
+import { isPlainObject } from '../../utils/is-plain-object.js';
+
 import type { Parameter } from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 function isInlineParameter(parameter: Parameter): boolean {
-  return Boolean(parameter) && typeof parameter === 'object' && !('reference' in parameter);
+  return isPlainObject(parameter) && !('reference' in parameter);
 }
 
 function checkParameters(
