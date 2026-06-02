@@ -61,7 +61,7 @@ export async function resolveXSecurityParameters({
       })
     );
 
-        if (
+    if (
       scheme.type === 'oauth2' &&
       !values.accessToken &&
       pickOAuth2ExchangeableFlow(scheme as OAuth2Auth, values)
