@@ -8,5 +8,5 @@ export const getFixturePath = (fileName: string): string => join(fixturesPath, f
 
 export function cleanColors(input: string): string {
   // eslint-disable-next-line no-control-regex
-  return input.replace(/\x1b\[\d+m/g, '');
+  return input.replace(/\x1b\[\d+m/g, '').replace(/\\u001b\[\d+m/g, '');
 }

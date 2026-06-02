@@ -363,10 +363,12 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
 export function printConfigLintTotals(totals: Totals, command?: string | number): void {
   if (totals.errors > 0) {
-    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.\n`);
+    logger.error(
+      red(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.\n`)
+    );
   } else if (totals.warnings > 0) {
     logger.warn(
-      `⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`
+      yellow(`⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
     );
   } else if (command === 'check-config') {
     logger.info(green('✅  Your config is valid.\n'));
@@ -557,7 +559,7 @@ export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
 
 export function cleanColors(input: string): string {
   // eslint-disable-next-line no-control-regex
-  return input.replace(/\x1b\[\d+m/g, '');
+  return input.replace(/\x1b\[\d+m/g, '').replace(/\\u001b\[\d+m/g, '');
 }
 
 export function formatPath(path: string) {

@@ -1,3 +1,4 @@
+import { cleanColors } from '../../../../../../tests/e2e/respect/utils.js';
 import * as errorHandling from '../../../utils/error.js';
 import { ReuniteApi } from '../../api/index.js';
 import { type PushResponse } from '../../api/types.js';
@@ -219,6 +220,7 @@ describe('handlePushStatus()', () => {
   });
 
   it('should print message if there is no changes', async () => {
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.getPush.mockResolvedValueOnce({
@@ -245,7 +247,7 @@ describe('handlePushStatus()', () => {
       version: 'cli-version',
     });
 
-    expect(process.stderr.write).toHaveBeenCalledWith(
+    expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
       'Files not added to your project. Reason: no changes.\n'
     );
   });

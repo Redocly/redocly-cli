@@ -89,13 +89,19 @@ describe('printConfigLintTotals', () => {
 
   it('should print errors if such exist', () => {
     printConfigLintTotals(totalProblemsMock);
-    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
+      '❌ Your config has 1 error.\n'
+    );
     expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
   });
 
   it('should print warning if no error', () => {
     printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
-    expect(process.stderr.write).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
+      '⚠️ Your config has 2 warnings.\n'
+    );
     expect(yellowColoretteMocks).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
   });
 
@@ -155,13 +161,14 @@ describe('getFallbackApisOrExit', async () => {
   });
 
   it('should error if file from config do not exist', async () => {
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(errorHandling, 'exitWithError');
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
     try {
       await getFallbackApisOrExit(undefined, config);
     } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
+      expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
         '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
       expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
@@ -186,6 +193,7 @@ describe('getFallbackApisOrExit', async () => {
   });
 
   it('should exit with error in case if invalid path provided as args', async () => {
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(errorHandling, 'exitWithError');
     const apisConfig = await openapiCore.createConfig({
       apis: {},
@@ -196,7 +204,7 @@ describe('getFallbackApisOrExit', async () => {
     try {
       await getFallbackApisOrExit(['someFile.yaml'], apisConfig);
     } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
+      expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
         '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
       expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
@@ -205,6 +213,7 @@ describe('getFallbackApisOrExit', async () => {
   });
 
   it('should exit with error in case if invalid 2 path provided as args', async () => {
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(errorHandling, 'exitWithError');
     const apisConfig = await openapiCore.createConfig({
       apis: {},
@@ -214,7 +223,7 @@ describe('getFallbackApisOrExit', async () => {
     try {
       await getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig);
     } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
+      expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
         '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
       expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
@@ -222,7 +231,7 @@ describe('getFallbackApisOrExit', async () => {
     }
   });
 
-  it('should exit with error if only one file exist ', async () => {
+  it('should exit with error if only one file exist', async () => {
     vi.spyOn(errorHandling, 'exitWithError');
     const apisStub = {
       ...apis,
@@ -241,7 +250,8 @@ describe('getFallbackApisOrExit', async () => {
     try {
       await getFallbackApisOrExit(undefined, configStub);
     } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
+      const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+      expect(cleanColors(String(stderrMock.mock.calls[0][0]))).toBe(
         '\nnotExist.yaml does not exist or is invalid.\n\n'
       );
       expect(process.stderr.write).toHaveBeenCalledTimes(1);
@@ -796,7 +806,9 @@ describe('validateFileExtension', () => {
     vi.mocked(yellow).mockImplementation((text) => text as string);
 
     expect(getAndValidateFileExtension('test.xml')).toEqual('yaml');
-    expect(stderrMock).toHaveBeenCalledWith(`Unsupported file extension: xml. Using yaml.\n`);
+    expect(cleanColors(String(stderrMock.mock.calls[0]?.[0]))).toBe(
+      `Unsupported file extension: xml. Using yaml.\n`
+    );
   });
 });
 
