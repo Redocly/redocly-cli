@@ -231,7 +231,7 @@ jobs:
 
           ⚠️ Note: This is a development build and may contain unstable features."
 
-          gh pr comment $PR_NUMBER --body "$COMMENT"
+          gh pr comment $PR_NUMBER --body "$COMMENT" || echo "$COMMENT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
