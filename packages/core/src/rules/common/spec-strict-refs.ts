@@ -23,6 +23,7 @@ export const SpecStrictRefs: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Field $ref is not expected here.',
           location: rawLocation.child('$ref').key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/spec-strict-refs',
         });
       }
     },

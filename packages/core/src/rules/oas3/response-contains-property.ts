@@ -27,6 +27,7 @@ export const ResponseContainsProperty: Oas3Rule = (options) => {
                 report({
                   message: `Response object must contain a top-level "${expectedProperty}" property.`,
                   location: location.child('properties').key(),
+                  reference: 'https://redocly.com/docs/cli/rules/oas/response-contains-property',
                 });
               }
             }

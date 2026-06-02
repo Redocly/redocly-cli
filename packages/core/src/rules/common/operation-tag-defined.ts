@@ -24,6 +24,7 @@ export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
             report({
               message: `Operation tags should be defined in global tags.`,
               location: location.child(['tags', i]),
+              reference: 'https://redocly.com/docs/cli/rules/oas/operation-tag-defined',
             });
           }
         }
@@ -31,6 +32,7 @@ export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
         report({
           message: `Operation tags should be defined`,
           location: location.key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/operation-tag-defined',
         });
       }
     },

@@ -12,6 +12,7 @@ export const PathsKebabCase: Oas3Rule | Oas2Rule = () => {
         report({
           message: `\`${key}\` does not use kebab-case.`,
           location: { reportOnKey: true },
+          reference: 'https://redocly.com/docs/cli/rules/oas/paths-kebab-case',
         });
       }
     },

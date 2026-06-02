@@ -8,6 +8,7 @@ export const NoServerTrailingSlash: Oas3Rule = () => {
         report({
           message: 'Server `url` should not have a trailing slash.',
           location: location.child(['url']),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-server-trailing-slash',
         });
       }
     },

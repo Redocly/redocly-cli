@@ -76,6 +76,7 @@ describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
             },
           ],
           "message": "The \`schemeName\` can be only used in Step with OpenAPI operation, please use \`scheme\` instead.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/no-x-security-scheme-name-without-openapi",
           "ruleId": "no-x-security-scheme-name-without-openapi",
           "severity": "error",
           "suggest": [],

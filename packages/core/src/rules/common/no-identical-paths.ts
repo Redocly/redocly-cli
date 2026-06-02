@@ -14,6 +14,7 @@ export const NoIdenticalPaths: Oas3Rule | Oas2Rule = () => {
           report({
             message: `The path already exists which differs only by path parameter name(s): \`${existingSamePath}\` and \`${pathName}\`.`,
             location: location.child([pathName]).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-identical-paths',
           });
         } else {
           Paths.set(id, pathName);

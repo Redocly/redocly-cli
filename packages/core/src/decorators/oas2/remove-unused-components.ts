@@ -106,5 +106,20 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
         registerComponent('securityDefinitions', key.toString());
       },
     },
+    SecurityRequirement(requirements) {
+      for (const schemeName of Object.keys(requirements)) {
+        // Security requirements reference schemes by name, so we know that this security definition is used in a SecurityRequirement.
+        const key = `securityDefinitions/${schemeName}`;
+        const registered = components.get(key);
+        if (registered) {
+          registered.usedIn.push('SecurityRequirement');
+        } else {
+          components.set(key, {
+            usedIn: ['SecurityRequirement'],
+            name: schemeName,
+          });
+        }
+      }
+    },
   };
 };

@@ -7,14 +7,26 @@ export const ResponseMimeType: Oas3Rule = ({ allowedValues }) => {
     Paths: {
       Response: {
         leave(response, ctx: UserContext) {
-          validateMimeTypeOAS3({ type: 'produces', value: response }, ctx, allowedValues);
+          validateMimeTypeOAS3({
+            type: 'produces',
+            value: response,
+            ctx,
+            allowedValues,
+            reference: 'https://redocly.com/docs/cli/rules/oas/response-mime-type',
+          });
         },
       },
       Callback: {
         Response() {},
         RequestBody: {
           leave(requestBody, ctx: UserContext) {
-            validateMimeTypeOAS3({ type: 'produces', value: requestBody }, ctx, allowedValues);
+            validateMimeTypeOAS3({
+              type: 'produces',
+              value: requestBody,
+              ctx,
+              allowedValues,
+              reference: 'https://redocly.com/docs/cli/rules/oas/response-mime-type',
+            });
           },
         },
       },
@@ -22,7 +34,13 @@ export const ResponseMimeType: Oas3Rule = ({ allowedValues }) => {
     WebhooksMap: {
       RequestBody: {
         leave(requestBody, ctx: UserContext) {
-          validateMimeTypeOAS3({ type: 'produces', value: requestBody }, ctx, allowedValues);
+          validateMimeTypeOAS3({
+            type: 'produces',
+            value: requestBody,
+            ctx,
+            allowedValues,
+            reference: 'https://redocly.com/docs/cli/rules/oas/response-mime-type',
+          });
         },
       },
     },

@@ -33,6 +33,8 @@ export const XSecuritySchemeNameReference: Arazzo1Rule = () => {
                   extendedSecurity.indexOf(security),
                   'schemeName',
                 ]),
+                reference:
+                  'https://redocly.com/docs/cli/rules/respect/x-security-scheme-name-reference',
               });
             }
           }

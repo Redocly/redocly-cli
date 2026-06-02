@@ -26,6 +26,7 @@ export const ArrayParameterSerialization: Oas3Rule = (
           ctx.report({
             message: `Parameter \`${node.name}\` should have \`style\` and \`explode \` fields`,
             location: ctx.location,
+            reference: 'https://redocly.com/docs/cli/rules/oas/array-parameter-serialization',
           });
         }
       },

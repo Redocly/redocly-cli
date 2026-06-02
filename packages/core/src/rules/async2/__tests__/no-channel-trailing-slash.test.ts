@@ -39,6 +39,7 @@ describe('no-channel-trailing-slash', () => {
             },
           ],
           "message": "\`/trailing/\` should not have a trailing slash.",
+          "reference": "https://redocly.com/docs/cli/rules/async/no-channel-trailing-slash",
           "ruleId": "no-channel-trailing-slash",
           "severity": "error",
           "suggest": [],
