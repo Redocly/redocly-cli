@@ -1,5 +1,4 @@
-import { isRef } from '../../ref-utils.js';
-import type { Location } from '../../ref-utils.js';
+import { isRef, type Location } from '../../ref-utils.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { operationHasSecurity } from '../common/operation-has-security.js';
