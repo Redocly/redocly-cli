@@ -61,20 +61,16 @@ export async function resolveXSecurityParameters({
       })
     );
 
-    if (
+        if (
       scheme.type === 'oauth2' &&
       !values.accessToken &&
       pickOAuth2ExchangeableFlow(scheme as OAuth2Auth, values)
     ) {
-      const accessToken = await exchangeOAuth2Token({
+      values.accessToken = await exchangeOAuth2Token({
         scheme: scheme as OAuth2Auth,
         values,
         ctx,
       });
-      values.accessToken = accessToken;
-      if (security.values) {
-        security.values.accessToken = accessToken;
-      }
     }
 
     const resolvedSecurity = validateXSecurityParameters({ scheme, values });

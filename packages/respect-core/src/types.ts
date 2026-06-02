@@ -297,7 +297,7 @@ export type TestContext = RuntimeExpressionContext & {
   noSecretsMasking: boolean;
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;
-  oauth2TokenCache?: Map<string, string>;
+  oauth2TokenCache?: Map<string, { token: string; expiresAt: number }>;
 };
 
 export type TestDescription = Partial<

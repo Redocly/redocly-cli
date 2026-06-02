@@ -6,6 +6,8 @@ import { type TestContext } from '../../types.js';
 export type OAuth2ExchangeableFlow = 'clientCredentials' | 'password';
 
 type OAuth2FlowConfig = NonNullable<OAuth2Auth['flows']['clientCredentials' | 'password']>;
+const TOKEN_EXPIRY_SKEW_MS = 30_000;
+const DEFAULT_TOKEN_LIFETIME_MS = 3_600_000;
 
 export function pickOAuth2ExchangeableFlow(
   scheme: OAuth2Auth,
@@ -87,8 +89,8 @@ export async function exchangeOAuth2Token({
     ctx.oauth2TokenCache = new Map();
   }
   const cached = ctx.oauth2TokenCache.get(cacheKey);
-  if (cached) {
-    return cached;
+  if (cached && cached.expiresAt - Date.now() > TOKEN_EXPIRY_SKEW_MS) {
+    return cached.token;
   }
 
   const body = new URLSearchParams();
@@ -155,7 +157,7 @@ export async function exchangeOAuth2Token({
     );
   }
 
-  let payload: { access_token?: string };
+  let payload: { access_token?: string; expires_in?: number };
   try {
     payload = JSON.parse(responseText);
   } catch {
@@ -170,8 +172,16 @@ export async function exchangeOAuth2Token({
     );
   }
 
+  const lifetimeMs =
+    typeof payload.expires_in === 'number' && payload.expires_in > 0
+      ? payload.expires_in * 1000
+      : DEFAULT_TOKEN_LIFETIME_MS;
+
   ctx.secretsSet.add(payload.access_token);
-  ctx.oauth2TokenCache.set(cacheKey, payload.access_token);
+  ctx.oauth2TokenCache.set(cacheKey, {
+    token: payload.access_token,
+    expiresAt: Date.now() + lifetimeMs,
+  });
 
   return payload.access_token;
 }

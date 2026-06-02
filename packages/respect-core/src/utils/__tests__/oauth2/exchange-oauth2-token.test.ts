@@ -168,6 +168,44 @@ describe('exchangeOAuth2Token', () => {
     expect(headers.authorization).toBe(`Basic ${btoa('id:secret')}`);
   });
 
+  it('re-fetches the token when the cached entry is past its expiry', async () => {
+    const scheme: OAuth2Auth = {
+      type: 'oauth2',
+      flows: {
+        clientCredentials: {
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: { read: 'Read access' },
+        },
+      },
+    };
+
+    let call = 0;
+    const fetchMock = vi.fn(async () => {
+      call += 1;
+      return jsonResponse({ access_token: `token-${call}`, expires_in: 1 });
+    }) as unknown as typeof fetch;
+    const ctx = makeCtx(fetchMock);
+
+    const first = await exchangeOAuth2Token({
+      scheme,
+      values: { clientId: 'id', clientSecret: 'secret' },
+      ctx,
+    });
+
+    const [[, cached]] = Array.from(ctx.oauth2TokenCache!.entries());
+    cached.expiresAt = Date.now();
+
+    const second = await exchangeOAuth2Token({
+      scheme,
+      values: { clientId: 'id', clientSecret: 'secret' },
+      ctx,
+    });
+
+    expect(first).toBe('token-1');
+    expect(second).toBe('token-2');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it('caches the token so a second call does not re-fetch', async () => {
     const scheme: OAuth2Auth = {
       type: 'oauth2',
