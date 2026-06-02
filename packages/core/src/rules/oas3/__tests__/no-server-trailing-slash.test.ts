@@ -33,6 +33,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
             },
           ],
           "message": "Server \`url\` should not have a trailing slash.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-trailing-slash",
           "ruleId": "no-server-trailing-slash",
           "severity": "error",
           "suggest": [],

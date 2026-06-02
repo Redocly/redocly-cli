@@ -20,6 +20,7 @@ export const BooleanParameterPrefixes: Oas3Rule = (options: BooleanParameterPref
           report({
             message: `Boolean parameter \`${parents.Parameter.name}\` should have ${prefixesString} prefix.`,
             location: parentLocations.Parameter.child(['name']),
+            reference: 'https://redocly.com/docs/cli/rules/oas/boolean-parameter-prefixes',
           });
         }
       },

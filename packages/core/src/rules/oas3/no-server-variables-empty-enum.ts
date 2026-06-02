@@ -27,6 +27,7 @@ export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
           report({
             message: 'Server variable with `enum` must be a non-empty array.',
             location: location.child(['servers']).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-server-variables-empty-enum',
           });
         }
         if (invalidVariable === 'invalidDefaultValue') {
@@ -34,6 +35,7 @@ export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
             message:
               'Server variable define `enum` and `default`. `enum` must include default value',
             location: location.child(['servers']).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-server-variables-empty-enum',
           });
         }
       }

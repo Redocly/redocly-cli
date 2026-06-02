@@ -2,7 +2,7 @@
 
 Removes unused components from the bundle output.
 
-In this context, "used" means that a component defined in the `components` object is referenced elsewhere in the API document with `$ref`.
+In this context, "used" means that a component is referenced elsewhere in the API document with `$ref`, or that a `securitySchemes` / `securityDefinitions` entry is referenced by name in a `security` requirement object.
 
 ## API design principles
 

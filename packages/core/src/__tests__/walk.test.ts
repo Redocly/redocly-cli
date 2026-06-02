@@ -1607,6 +1607,7 @@ describe('context.report', () => {
             },
           ],
           "message": "MY ERR DESCRIPTION: Info object should contain \`contact\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/info-contact",
           "ruleId": "info-contact",
           "severity": "error",
           "suggest": [],

@@ -15,6 +15,7 @@ export const TagsAlphabetical: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) =>
           report({
             message: 'The `tags` array should be in alphabetical order.',
             location: location.child(['tags', i]),
+            reference: 'https://redocly.com/docs/cli/rules/oas/tags-alphabetical',
           });
         }
       }

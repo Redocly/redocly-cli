@@ -42,11 +42,16 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
       if (isMultiple && typeof example?.value === 'undefined') {
         return;
       }
-      validateExample(isMultiple ? example.value : example, mediaType.schema!, {
-        location,
-        ctx,
-        allowAdditionalProperties: !!opts.allowAdditionalProperties,
-        ajvContext: context,
+      validateExample({
+        example: isMultiple ? example.value : example,
+        schema: mediaType.schema!,
+        options: {
+          location,
+          ctx,
+          allowAdditionalProperties: !!opts.allowAdditionalProperties,
+          ajvContext: context,
+        },
+        reference: 'https://redocly.com/docs/cli/rules/oas/no-invalid-media-type-examples',
       });
     }
   };

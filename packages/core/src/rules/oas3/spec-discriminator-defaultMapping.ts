@@ -54,6 +54,7 @@ export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
             ctx.report({
               message: `Discriminator with optional property '${discriminatedPropertyName}' must include a defaultMapping field.`,
               location: ctx.location.child('discriminator'),
+              reference: 'https://redocly.com/docs/cli/rules/oas/spec-discriminator-defaultMapping',
             });
           }
         } else {
@@ -64,6 +65,7 @@ export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
             ctx.report({
               message: `defaultMapping value '${defaultMapping}' does not point to an existing schema component.`,
               location: ctx.location.child(['discriminator', 'defaultMapping']),
+              reference: 'https://redocly.com/docs/cli/rules/oas/spec-discriminator-defaultMapping',
             });
           }
         }

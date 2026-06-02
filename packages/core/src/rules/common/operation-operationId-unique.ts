@@ -13,6 +13,7 @@ export const OperationIdUnique: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Every operation must have a unique `operationId`.',
           location: location.child([operation.operationId]),
+          reference: 'https://redocly.com/docs/cli/rules/oas/operation-operationId-unique',
         });
       }
       seenOperations.add(operation.operationId);

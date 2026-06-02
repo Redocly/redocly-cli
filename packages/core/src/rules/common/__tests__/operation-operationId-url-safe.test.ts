@@ -37,6 +37,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
             },
           ],
           "message": "Operation \`operationId\` should not have URL invalid characters.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-operationId-url-safe",
           "ruleId": "operation-operationId-url-safe",
           "severity": "error",
           "suggest": [],
