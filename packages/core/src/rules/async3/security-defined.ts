@@ -24,9 +24,15 @@ export const SecurityDefined: Async3Rule = () => {
     operation: { channel?: unknown },
     resolve: UserContext['resolve']
   ): boolean => {
-    const channel = resolveMaybeRef(operation?.channel, resolve) as
-      | { servers?: unknown }
-      | undefined;
+    const channelRaw = operation?.channel;
+    let channel: { servers?: unknown[] } | undefined;
+    if (isRef(channelRaw)) {
+      const resolved = resolve(channelRaw);
+      if (resolved.node === undefined) return false;
+      channel = resolved.node as { servers?: unknown[] };
+    } else {
+      channel = channelRaw as { servers?: unknown[] } | undefined;
+    }
     const applicableServers = Array.isArray(channel?.servers)
       ? channel.servers
       : rootServers
