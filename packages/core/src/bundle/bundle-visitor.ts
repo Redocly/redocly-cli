@@ -1,5 +1,3 @@
-import * as path from 'node:path';
-
 import { type RuleSeverity } from '../config/types.js';
 import { type SpecMajorVersion } from '../oas-types.js';
 import {
@@ -132,8 +130,8 @@ export function makeBundleVisitor({
   let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
 
-  // First location for each name, to report the conflicting schema on a collision.
-  const titleNameLocations = new Map<string, string>();
+  // First schema's `title` location per name, linked as `from` when a later title collides.
+  const titleNameLocations = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version);
 
@@ -315,18 +313,17 @@ export function makeBundleVisitor({
       const existing = componentsGroup[titleName];
       if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
         const title = (target.node as { title?: string }).title;
-        const rootDir = path.dirname(rootDocument.source.absoluteRef);
-        const conflictAt = path.relative(rootDir, titleNameLocations.get(titleName)!);
         ctx.report({
           message:
             `Title "${title}" maps to component name \`${titleName}\`, ` +
-            `already used by the schema at ${conflictAt}. Rename one of the titles.`,
+            `already used by another schema. Rename one of the titles.`,
           location: target.location.child('title'),
+          from: titleNameLocations.get(titleName),
           forceSeverity: 'error',
         });
         return target.location.absolutePointer;
       }
-      titleNameLocations.set(titleName, target.location.source.absoluteRef);
+      titleNameLocations.set(titleName, target.location.child('title'));
       return titleName;
     }
 

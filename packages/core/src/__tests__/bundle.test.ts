@@ -890,10 +890,11 @@ describe('sibling $ref resolution by spec', () => {
     });
     expect(problems).toHaveLength(1);
     expect(problems[0].severity).toBe('error');
-    // Caret on the second schema's title; message names the first (conflicting) schema.
+    // Caret on the second schema's title; `from` links to the first (conflicting) schema.
     expect(problems[0].location[0].source.absoluteRef).toMatch(/schemas\/b\/User\.yaml$/);
+    expect(problems[0].from?.source.absoluteRef).toMatch(/schemas\/a\/User\.yaml$/);
     expect(problems[0].message).toMatch(
-      /maps to component name `User`, already used by the schema at .*schemas\/a\/User\.yaml/
+      /maps to component name `User`, already used by another schema/
     );
   });
 
