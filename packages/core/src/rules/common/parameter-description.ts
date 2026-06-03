@@ -10,11 +10,13 @@ export const ParameterDescription: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Parameter object description must be present.',
           location: { reportOnKey: true },
+          reference: 'https://redocly.com/docs/cli/rules/oas/parameter-description',
         });
       } else if (!parameter.description) {
         report({
           message: 'Parameter object description must be non-empty string.',
           location: location.child(['description']),
+          reference: 'https://redocly.com/docs/cli/rules/oas/parameter-description',
         });
       }
     },

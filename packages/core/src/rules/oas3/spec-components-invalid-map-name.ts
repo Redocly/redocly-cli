@@ -15,6 +15,7 @@ export const SpecComponentsInvalidMapName: Oas3Rule = () => {
       report({
         message: `The map key in ${component} "${key}" does not match the regular expression "${KEYS_REGEX}"`,
         location: location.key(),
+        reference: 'https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name',
       });
     }
   }

@@ -24,6 +24,8 @@ export const NoRequiredParamsAfterOptional: OpenRpc1Rule = () => {
             report({
               message: `Required parameter '${param.name}' must be positioned before optional parameters.`,
               location: location.child([index, 'name']),
+              reference:
+                'https://redocly.com/docs/cli/rules/openrpc/spec-no-required-params-after-optional',
             });
           }
         });

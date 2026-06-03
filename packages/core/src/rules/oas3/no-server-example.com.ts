@@ -9,6 +9,7 @@ export const NoServerExample: Oas3Rule = () => {
         report({
           message: 'Server `url` should not point to example.com or localhost.',
           location: location.child(['url']),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-server-example-com',
         });
       }
     },

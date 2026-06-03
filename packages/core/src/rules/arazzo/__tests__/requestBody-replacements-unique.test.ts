@@ -88,6 +88,7 @@ describe('Arazzo requestBody-replacements-unique', () => {
             },
           ],
           "message": "Every \`replacement\` in \`requestBody\` must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/requestbody-replacements-unique",
           "ruleId": "requestBody-replacements-unique",
           "severity": "error",
           "suggest": [],

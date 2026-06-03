@@ -12,10 +12,15 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts) => {
 
         if (Array.isArray(examples)) {
           for (const example of examples) {
-            validateExample(example, schema, {
-              location: ctx.location.child(['examples', examples.indexOf(example)]),
-              ctx,
-              allowAdditionalProperties: !!opts.allowAdditionalProperties,
+            validateExample({
+              example,
+              schema,
+              options: {
+                location: ctx.location.child(['examples', examples.indexOf(example)]),
+                ctx,
+                allowAdditionalProperties: !!opts.allowAdditionalProperties,
+              },
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-invalid-schema-examples',
             });
           }
         }
@@ -30,10 +35,15 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts) => {
             return;
           }
 
-          validateExample(schema.example, schema, {
-            location: ctx.location.child('example'),
-            ctx,
-            allowAdditionalProperties: !!opts.allowAdditionalProperties,
+          validateExample({
+            example: schema.example,
+            schema,
+            options: {
+              location: ctx.location.child('example'),
+              ctx,
+              allowAdditionalProperties: !!opts.allowAdditionalProperties,
+            },
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-invalid-schema-examples',
           });
         }
       },

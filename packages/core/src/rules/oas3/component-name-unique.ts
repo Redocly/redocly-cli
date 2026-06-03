@@ -73,6 +73,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               const problem: Problem = {
                 message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is also defined at:\n${definitions}`,
                 location: location,
+                reference: 'https://redocly.com/docs/cli/rules/oas/component-name-unique',
               };
               if (componentSeverity) {
                 problem.forceSeverity = componentSeverity;

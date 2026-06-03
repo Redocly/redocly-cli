@@ -33,6 +33,8 @@ export const RequiredStringPropertyMissingMinLength: Oas3Rule = () => {
                 report({
                   message: 'Property minLength is required.',
                   location: location.key(),
+                  reference:
+                    'https://redocly.com/docs/cli/rules/oas/required-string-property-missing-min-length',
                 });
               }
             }

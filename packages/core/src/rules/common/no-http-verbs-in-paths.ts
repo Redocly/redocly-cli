@@ -29,6 +29,7 @@ export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords, exclud
             report({
               message: `path \`${pathKey}\` should not contain http verb ${method}`,
               location: location.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-http-verbs-in-paths',
             });
           }
         }

@@ -8,6 +8,7 @@ export const InfoContact: Oas3Rule | Oas2Rule = () => {
         report({
           message: missingRequiredField('Info', 'contact'),
           location: location.child('contact').key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/info-contact',
         });
       }
     },

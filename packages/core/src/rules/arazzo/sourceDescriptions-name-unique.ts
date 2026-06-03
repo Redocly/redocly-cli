@@ -13,6 +13,7 @@ export const SourceDescriptionsNameUnique: Arazzo1Rule = () => {
             report({
               message: 'The `name` must be unique amongst all SourceDescriptions.',
               location: location.child([sourceDescriptions.indexOf(sourceDescription)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/sourcedescription-name-unique',
             });
           }
           seenSourceDescriptions.add(sourceDescription.name);

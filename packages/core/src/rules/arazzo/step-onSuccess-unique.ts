@@ -13,6 +13,7 @@ export const StepOnSuccessUnique: Arazzo1Rule = () => {
             report({
               message: 'The action `name` must be unique amongst listed `onSuccess` actions.',
               location: location.child([onSuccessActionList.indexOf(onSuccessAction)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/step-onsuccess-unique',
             });
           }
 
@@ -20,6 +21,7 @@ export const StepOnSuccessUnique: Arazzo1Rule = () => {
             report({
               message: 'The action `reference` must be unique amongst listed `onSuccess` actions.',
               location: location.child([onSuccessActionList.indexOf(onSuccessAction)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/step-onsuccess-unique',
             });
           }
 

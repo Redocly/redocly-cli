@@ -37,6 +37,7 @@ describe('oas2 boolean-parameter-prefixes', () => {
             },
           ],
           "message": "Boolean parameter \`a\` should have \`is\` or \`has\` prefix.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/boolean-parameter-prefixes",
           "ruleId": "boolean-parameter-prefixes",
           "severity": "error",
           "suggest": [],

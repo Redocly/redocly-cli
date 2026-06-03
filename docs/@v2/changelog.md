@@ -7,6 +7,26 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.31.6 (2026-06-03)
+
+### Patch Changes
+
+- Fixed `lint --format=checkstyle` to produce a single combined XML document when multiple APIs are passed to the command, instead of concatenated per-file documents.
+- Updated redoc to v2.5.3, styled-components to v6.4.2, and react to v19.2.7.
+- Updated @redocly/openapi-core to v2.31.6.
+
+## 2.31.5 (2026-05-27)
+
+### Patch Changes
+
+- Updated the `no-unused-components` rule to validate unused security schemes.
+- Pinned the official Docker image base to `node:24-alpine`.
+- Fixed the `remove-unused-components` decorator to remove unused security schemes.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+- Updated @redocly/openapi-core to v2.31.5.
+
 ## 2.31.4 (2026-05-22)
 
 ### Patch Changes

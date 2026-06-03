@@ -8,6 +8,7 @@ export const PathDeclarationMustExist: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Path parameter declarations must be non-empty. `{}` is invalid.',
           location: { reportOnKey: true },
+          reference: 'https://redocly.com/docs/cli/rules/oas/path-declaration-must-exist',
         });
       }
     },
