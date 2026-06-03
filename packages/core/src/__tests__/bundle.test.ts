@@ -875,7 +875,7 @@ describe('sibling $ref resolution by spec', () => {
     });
     expect(problems).toHaveLength(1);
     expect(problems[0].severity).toBe('error');
-    expect(problems[0].message).toMatch(/has no `title`/);
+    expect(problems[0].message).toMatch(/must define a `title`/);
     // Caret points at the schema file that lacks a title.
     expect(problems[0].location[0].source.absoluteRef).toMatch(
       /title-naming-missing\/schemas\/Order\.yaml$/

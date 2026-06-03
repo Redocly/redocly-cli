@@ -35,7 +35,7 @@ export function buildSchemaNameFromTitle(
   const title = typeof node?.title === 'string' ? node.title : '';
   if (title.trim() === '') {
     ctx.report({
-      message: `Schema has no \`title\` to build a component name from. Add a \`title\`.`,
+      message: `Schema must define a \`title\` to build a component name.`,
       location: target.location,
       forceSeverity: 'error',
     });
