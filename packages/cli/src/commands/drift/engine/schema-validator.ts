@@ -1,21 +1,23 @@
-import Ajv2020, { type AnySchema, type ValidateFunction } from '@redocly/ajv/dist/2020.js';
+import Ajv2020, {
+  type AnySchema,
+  type Options,
+  type ValidateFunction,
+  type Ajv2020 as Ajv2020Instance,
+} from '@redocly/ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
-type ValidationError = {
-  keyword?: string;
-  message?: string;
-  params?: Record<string, unknown>;
-  schemaPath?: string;
-  instancePath?: string;
-};
+import type { SchemaValidationError } from '../types/index.js';
+
+const AjvConstructor = Ajv2020 as unknown as new (options?: Options) => Ajv2020Instance;
+const applyFormats = addFormats as unknown as (ajv: Ajv2020Instance) => void;
 
 export class SchemaValidator {
-  private readonly ajv: any;
+  private readonly ajv: Ajv2020Instance;
   private readonly objectSchemaCache = new WeakMap<object, ValidateFunction>();
   private readonly scalarSchemaCache = new Map<string, ValidateFunction>();
 
   public constructor() {
-    this.ajv = new (Ajv2020 as any)({
+    this.ajv = new AjvConstructor({
       strict: false,
       allErrors: true,
       allowUnionTypes: true,
@@ -29,10 +31,13 @@ export class SchemaValidator {
       },
     });
 
-    (addFormats as any)(this.ajv);
+    applyFormats(this.ajv);
   }
 
-  public validate(schema: unknown, value: unknown): { valid: boolean; errors: ValidationError[] } {
+  public validate(
+    schema: unknown,
+    value: unknown
+  ): { valid: boolean; errors: SchemaValidationError[] } {
     if (schema === undefined) {
       return { valid: true, errors: [] };
     }
@@ -53,7 +58,7 @@ export class SchemaValidator {
     }
 
     const valid = Boolean(validate(value));
-    const errors = (validate.errors as ValidationError[] | null | undefined) ?? [];
+    const errors = (validate.errors as SchemaValidationError[] | null | undefined) ?? [];
     return { valid, errors };
   }
 

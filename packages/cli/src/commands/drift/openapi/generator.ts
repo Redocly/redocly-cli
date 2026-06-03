@@ -1,7 +1,7 @@
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
+import type { NormalizedExchange, TrafficFormat } from '../types/index.js';
 import { listFilesRecursively } from '../utils/files.js';
 import { isJsonMime } from '../utils/http.js';
-import type { NormalizedExchange, TrafficFormat } from '../types/index.js';
 
 export interface GenerateSpecOptions {
   trafficPath: string;
@@ -10,7 +10,37 @@ export interface GenerateSpecOptions {
   title?: string;
 }
 
-type JsonSchema = Record<string, any>;
+interface JsonSchema {
+  type?: string;
+  properties?: Record<string, JsonSchema>;
+  required?: string[];
+  items?: JsonSchema;
+}
+
+interface GeneratedParameter {
+  name: string;
+  in: 'path' | 'query';
+  required: boolean;
+  schema: JsonSchema;
+}
+
+interface GeneratedResponse {
+  description: string;
+  content?: Record<string, { schema: JsonSchema }>;
+}
+
+interface GeneratedOperation {
+  operationId: string;
+  responses: Record<string, GeneratedResponse>;
+  parameters?: GeneratedParameter[];
+  requestBody?: { content: Record<string, { schema: JsonSchema }> };
+}
+
+export interface GeneratedDocument {
+  openapi: string;
+  info: { title: string; version: string };
+  paths: Record<string, Record<string, GeneratedOperation>>;
+}
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HTTP_METHODS = new Set(['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace']);
@@ -155,7 +185,9 @@ function getContentType(headers: Record<string, string>): string | undefined {
  * document object; the caller decides whether to print it, write it, or index
  * it for validation.
  */
-export async function generateSpecFromTraffic(options: GenerateSpecOptions): Promise<any> {
+export async function generateSpecFromTraffic(
+  options: GenerateSpecOptions
+): Promise<GeneratedDocument> {
   const trafficFiles = await listFilesRecursively(options.trafficPath);
   if (trafficFiles.length === 0) {
     throw new Error('No traffic files found in the provided traffic path.');
@@ -241,28 +273,35 @@ export async function generateSpecFromTraffic(options: GenerateSpecOptions): Pro
   return buildDocument(operations, options.title ?? 'Generated API');
 }
 
-function buildDocument(operations: Map<string, OperationAccumulator>, title: string): any {
-  const paths: Record<string, any> = {};
+function buildDocument(
+  operations: Map<string, OperationAccumulator>,
+  title: string
+): GeneratedDocument {
+  const paths: Record<string, Record<string, GeneratedOperation>> = {};
 
   for (const accumulator of operations.values()) {
     const pathItem = (paths[accumulator.template] ??= {});
 
-    const parameters = [
-      ...Array.from(accumulator.pathParams).map((name) => ({
-        name,
-        in: 'path',
-        required: true,
-        schema: { type: 'string' },
-      })),
-      ...Array.from(accumulator.queryParams).map((name) => ({
-        name,
-        in: 'query',
-        required: false,
-        schema: { type: 'string' },
-      })),
+    const parameters: GeneratedParameter[] = [
+      ...Array.from(accumulator.pathParams).map(
+        (name): GeneratedParameter => ({
+          name,
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        })
+      ),
+      ...Array.from(accumulator.queryParams).map(
+        (name): GeneratedParameter => ({
+          name,
+          in: 'query',
+          required: false,
+          schema: { type: 'string' },
+        })
+      ),
     ];
 
-    const operation: any = {
+    const operation: GeneratedOperation = {
       operationId: deriveOperationId(accumulator.method, accumulator.template),
       responses: {},
     };
@@ -283,7 +322,7 @@ function buildDocument(operations: Map<string, OperationAccumulator>, title: str
       operation.responses['default'] = { description: 'Observed response' };
     } else {
       for (const [status, schemas] of accumulator.responses) {
-        const response: any = { description: 'Observed response' };
+        const response: GeneratedResponse = { description: 'Observed response' };
         if (schemas.length > 0) {
           response.content = { 'application/json': { schema: mergeSchemas(schemas) } };
         }

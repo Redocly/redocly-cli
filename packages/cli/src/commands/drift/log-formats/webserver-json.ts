@@ -1,4 +1,5 @@
 import path from 'node:path';
+
 import type { NormalizedExchange, TrafficParser } from '../types/index.js';
 import { readProbe } from '../utils/files.js';
 import {
@@ -8,9 +9,14 @@ import {
   iterateJsonArray,
   pickHeaderContentType,
   streamNdjsonObjects,
+  type JsonNode,
 } from './helpers.js';
 
-function parseRequestLine(requestLine: string | undefined): { method?: string; path?: string; protocol?: string } {
+function parseRequestLine(requestLine: string | undefined): {
+  method?: string;
+  path?: string;
+  protocol?: string;
+} {
   if (!requestLine) {
     return {};
   }
@@ -27,20 +33,21 @@ function parseRequestLine(requestLine: string | undefined): { method?: string; p
   };
 }
 
-function buildUrl(record: any, request: any): string | undefined {
+function buildUrl(record: JsonNode, request: JsonNode): string | undefined {
   const directUrl = coerceString(
     request?.url ??
       request?.uri ??
       request?.request_uri ??
       record?.url ??
       record?.request_url ??
-      record?.absolute_uri,
+      record?.absolute_uri
   );
 
   const requestLine = parseRequestLine(coerceString(record?.request ?? request?.request_line));
   const requestPath =
-    coerceString(request?.request_uri ?? request?.uri ?? request?.path ?? record?.request_uri ?? record?.uri) ??
-    requestLine.path;
+    coerceString(
+      request?.request_uri ?? request?.uri ?? request?.path ?? record?.request_uri ?? record?.uri
+    ) ?? requestLine.path;
 
   if (directUrl?.startsWith('http://') || directUrl?.startsWith('https://')) {
     return directUrl;
@@ -52,10 +59,12 @@ function buildUrl(record: any, request: any): string | undefined {
       record?.host ??
       record?.http_host ??
       record?.server_name ??
-      record?.vhost,
+      record?.vhost
   );
 
-  const scheme = coerceString(record?.scheme ?? request?.scheme ?? record?.request_scheme ?? 'http');
+  const scheme = coerceString(
+    record?.scheme ?? request?.scheme ?? record?.request_scheme ?? 'http'
+  );
 
   if (host && (directUrl || requestPath)) {
     const targetPath = directUrl ?? requestPath;
@@ -68,14 +77,20 @@ function buildUrl(record: any, request: any): string | undefined {
   return directUrl ?? requestPath;
 }
 
-function normalizeWebServerRecord(record: any, index: number, source: string): NormalizedExchange | null {
+function normalizeWebServerRecord(
+  record: JsonNode,
+  index: number,
+  source: string
+): NormalizedExchange | null {
   const request = record?.request && typeof record.request === 'object' ? record.request : record;
-  const response = record?.response && typeof record.response === 'object' ? record.response : record;
+  const response =
+    record?.response && typeof record.response === 'object' ? record.response : record;
   const requestLine = parseRequestLine(coerceString(record?.request));
 
-  const method = coerceString(
-    request?.method ?? request?.request_method ?? record?.request_method ?? record?.method,
-  ) ?? requestLine.method;
+  const method =
+    coerceString(
+      request?.method ?? request?.request_method ?? record?.request_method ?? record?.method
+    ) ?? requestLine.method;
 
   const url = buildUrl(record, request);
 
@@ -85,40 +100,41 @@ function normalizeWebServerRecord(record: any, index: number, source: string): N
       url,
       requestHeaders:
         request?.headers ?? request?.request_headers ?? record?.request_headers ?? record?.headers,
-      requestBody:
-        request?.body ?? request?.request_body ?? record?.request_body ?? record?.body,
+      requestBody: request?.body ?? request?.request_body ?? record?.request_body ?? record?.body,
       requestContentType: pickHeaderContentType(
-        request?.headers ?? request?.request_headers ?? record?.request_headers,
+        request?.headers ?? request?.request_headers ?? record?.request_headers
       ),
       responseStatus: coerceNumber(
         response?.status ??
           response?.status_code ??
           record?.status ??
           record?.status_code ??
-          record?.response_status,
+          record?.response_status
       ),
       responseHeaders:
-        response?.headers ?? response?.response_headers ?? record?.response_headers ?? record?.headers_out,
-      responseBody:
-        response?.body ?? response?.response_body ?? record?.response_body,
+        response?.headers ??
+        response?.response_headers ??
+        record?.response_headers ??
+        record?.headers_out,
+      responseBody: response?.body ?? response?.response_body ?? record?.response_body,
       responseContentType: pickHeaderContentType(
-        response?.headers ?? response?.response_headers ?? record?.response_headers,
+        response?.headers ?? response?.response_headers ?? record?.response_headers
       ),
       startedAt: coerceString(
         record?.time_iso8601 ??
           record?.timestamp ??
           record?.time ??
           record?.time_local ??
-          record?.['@timestamp'],
+          record?.['@timestamp']
       ),
       raw: record,
     },
     index,
-    source,
+    source
   );
 }
 
-async function* parseJsonFile(filePath: string): AsyncIterable<any> {
+async function* parseJsonFile(filePath: string): AsyncIterable<JsonNode> {
   const firstChar = (await readProbe(filePath, 16)).trim().slice(0, 1);
 
   if (firstChar === '[') {

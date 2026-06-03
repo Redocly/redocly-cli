@@ -1,4 +1,5 @@
 import path from 'node:path';
+
 import type { NormalizedExchange, TrafficParser } from '../types/index.js';
 import { readProbe } from '../utils/files.js';
 import {
@@ -8,9 +9,10 @@ import {
   iterateJsonArray,
   pickHeaderContentType,
   streamNdjsonObjects,
+  type JsonNode,
 } from './helpers.js';
 
-function buildKongUrl(record: any): string | undefined {
+function buildKongUrl(record: JsonNode): string | undefined {
   const request = record?.request ?? {};
 
   const directUrl = coerceString(request.url ?? request.uri);
@@ -33,7 +35,11 @@ function buildKongUrl(record: any): string | undefined {
   return undefined;
 }
 
-function normalizeKongRecord(record: any, index: number, source: string): NormalizedExchange | null {
+function normalizeKongRecord(
+  record: JsonNode,
+  index: number,
+  source: string
+): NormalizedExchange | null {
   const request = record?.request ?? record?.req ?? record?.http?.request;
   if (!request) {
     return null;
@@ -41,17 +47,9 @@ function normalizeKongRecord(record: any, index: number, source: string): Normal
 
   const response = record?.response ?? record?.res ?? record?.http?.response;
 
-  const responseBody =
-    response?.body ??
-    response?.raw_body ??
-    response?.payload ??
-    response?.data;
+  const responseBody = response?.body ?? response?.raw_body ?? response?.payload ?? response?.data;
 
-  const requestBody =
-    request?.body ??
-    request?.raw_body ??
-    request?.payload ??
-    request?.data;
+  const requestBody = request?.body ?? request?.raw_body ?? request?.payload ?? request?.data;
 
   return createNormalizedExchange(
     {
@@ -68,7 +66,7 @@ function normalizeKongRecord(record: any, index: number, source: string): Normal
       raw: record,
     },
     index,
-    source,
+    source
   );
 }
 
@@ -84,7 +82,9 @@ export class KongTrafficParser implements TrafficParser {
     const lowerProbe = probe.toLowerCase();
     return (
       lowerProbe.includes('"latencies"') ||
-      (lowerProbe.includes('"request"') && lowerProbe.includes('"response"') && lowerProbe.includes('"route"'))
+      (lowerProbe.includes('"request"') &&
+        lowerProbe.includes('"response"') &&
+        lowerProbe.includes('"route"'))
     );
   }
 

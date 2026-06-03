@@ -3,9 +3,6 @@ import { randomUUID } from 'node:crypto';
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
 import { matchOperation } from '../openapi/matcher.js';
 import { loadRulePlugins } from '../rules/registry.js';
-import { listFilesRecursively } from '../utils/files.js';
-import { createProblemKey } from '../utils/finding-groups.js';
-import { SchemaValidator } from './schema-validator.js';
 import type {
   Finding,
   FindingPreview,
@@ -16,6 +13,9 @@ import type {
   RunnerOptions,
   RunSummary,
 } from '../types/index.js';
+import { listFilesRecursively } from '../utils/files.js';
+import { createProblemKey } from '../utils/finding-groups.js';
+import { SchemaValidator } from './schema-validator.js';
 
 const DEFAULT_FINDINGS_PREVIEW_LIMIT = 10;
 
@@ -78,7 +78,10 @@ function mapFindingToPreview(finding: Finding, exchange: NormalizedExchange): Fi
   };
 }
 
-function ensureOperationContextInFinding(finding: Finding, matchedOperation: RuleContext['matchedOperation']): void {
+function ensureOperationContextInFinding(
+  finding: Finding,
+  matchedOperation: RuleContext['matchedOperation']
+): void {
   if (!matchedOperation) {
     return;
   }
@@ -92,7 +95,11 @@ function ensureOperationContextInFinding(finding: Finding, matchedOperation: Rul
   }
 
   const existingDetails = finding.details ?? {};
-  if (typeof existingDetails !== 'object' || existingDetails === null || Array.isArray(existingDetails)) {
+  if (
+    typeof existingDetails !== 'object' ||
+    existingDetails === null ||
+    Array.isArray(existingDetails)
+  ) {
     finding.details = {
       operationPathTemplate: matchedOperation.operation.pathTemplate,
     };

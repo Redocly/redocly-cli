@@ -1,4 +1,5 @@
 import path from 'node:path';
+
 import type { TrafficParser, NormalizedExchange } from '../types/index.js';
 import {
   createNormalizedExchange,
@@ -6,9 +7,14 @@ import {
   coerceNumber,
   decodeBody,
   iterateJsonArray,
+  type JsonNode,
 } from './helpers.js';
 
-function normalizeHarEntry(entry: any, index: number, source: string): NormalizedExchange | null {
+function normalizeHarEntry(
+  entry: JsonNode,
+  index: number,
+  source: string
+): NormalizedExchange | null {
   const request = entry?.request;
   const response = entry?.response;
 
@@ -17,9 +23,9 @@ function normalizeHarEntry(entry: any, index: number, source: string): Normalize
   }
 
   const requestBody = request?.postData?.text;
-  const requestEncoding = request?.postData?.encoding;
+  const requestEncoding = coerceString(request?.postData?.encoding);
   const responseBody = response?.content?.text;
-  const responseEncoding = response?.content?.encoding;
+  const responseEncoding = coerceString(response?.content?.encoding);
 
   return createNormalizedExchange(
     {
@@ -27,16 +33,16 @@ function normalizeHarEntry(entry: any, index: number, source: string): Normalize
       url: coerceString(request?.url),
       requestHeaders: request?.headers,
       requestBody: decodeBody(requestBody, requestEncoding),
-      requestContentType: request?.postData?.mimeType,
+      requestContentType: coerceString(request?.postData?.mimeType),
       responseStatus: coerceNumber(response?.status),
       responseHeaders: response?.headers,
       responseBody: decodeBody(responseBody, responseEncoding),
-      responseContentType: response?.content?.mimeType,
+      responseContentType: coerceString(response?.content?.mimeType),
       startedAt: coerceString(entry?.startedDateTime),
       raw: entry,
     },
     index,
-    source,
+    source
   );
 }
 

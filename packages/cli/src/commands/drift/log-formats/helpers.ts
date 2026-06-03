@@ -1,13 +1,19 @@
-import { createInterface } from 'node:readline';
+import { isPlainObject } from '@redocly/openapi-core';
 import { createReadStream } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import {
-  normalizeHeaders,
-  parseJsonBodyIfPresent,
-  parseUrl,
-  isJsonMime,
-} from '../utils/http.js';
+import { createInterface } from 'node:readline';
+
 import type { NormalizedExchange, NormalizedRequest, NormalizedResponse } from '../types/index.js';
+import { normalizeHeaders, parseJsonBodyIfPresent, parseUrl, isJsonMime } from '../utils/http.js';
+
+/**
+ * Loosely-typed view of parsed JSON used by traffic parsers. Every property
+ * access yields another node so deep optional chains type-check; leaf values are
+ * always funneled through the `coerce*` helpers, which accept `unknown`.
+ */
+export interface JsonNode {
+  [key: string]: JsonNode;
+}
 
 export interface ExchangeSeed {
   method?: string;
@@ -78,7 +84,11 @@ export function decodeBody(value: unknown, encoding?: string): string | undefine
   return coerceString(value);
 }
 
-export function createNormalizedExchange(seed: ExchangeSeed, index: number, source: string): NormalizedExchange | null {
+export function createNormalizedExchange(
+  seed: ExchangeSeed,
+  index: number,
+  source: string
+): NormalizedExchange | null {
   const method = seed.method?.toUpperCase();
   const url = seed.url;
 
@@ -128,7 +138,7 @@ export function createNormalizedExchange(seed: ExchangeSeed, index: number, sour
   };
 }
 
-export async function* streamNdjsonObjects(filePath: string): AsyncIterable<unknown> {
+export async function* streamNdjsonObjects(filePath: string): AsyncIterable<JsonNode> {
   const readStream = createReadStream(filePath, { encoding: 'utf8' });
   const reader = createInterface({ input: readStream, crlfDelay: Infinity });
 
@@ -139,7 +149,10 @@ export async function* streamNdjsonObjects(filePath: string): AsyncIterable<unkn
     }
 
     try {
-      yield JSON.parse(trimmed);
+      const parsed: unknown = JSON.parse(trimmed);
+      if (isPlainObject(parsed)) {
+        yield parsed as JsonNode;
+      }
     } catch {
       // skip invalid lines by design to keep ingestion resilient
     }
@@ -155,19 +168,24 @@ export async function* streamNdjsonObjects(filePath: string): AsyncIterable<unkn
  * command this trade-off keeps the dependency footprint minimal (no streaming
  * JSON parser). Use the NDJSON format for very large captures.
  */
-export async function* iterateJsonArray(filePath: string, arrayPath?: string): AsyncIterable<unknown> {
+export async function* iterateJsonArray(
+  filePath: string,
+  arrayPath?: string
+): AsyncIterable<JsonNode> {
   const content = await readFile(filePath, 'utf8');
-  let value: any = JSON.parse(content);
+  let value: unknown = JSON.parse(content);
 
   if (arrayPath) {
     for (const key of arrayPath.split('.')) {
-      value = value?.[key];
+      value = isPlainObject(value) ? value[key] : undefined;
     }
   }
 
   if (Array.isArray(value)) {
     for (const item of value) {
-      yield item;
+      if (isPlainObject(item)) {
+        yield item as JsonNode;
+      }
     }
   }
 }

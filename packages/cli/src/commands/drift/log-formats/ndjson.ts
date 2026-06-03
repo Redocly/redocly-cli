@@ -1,4 +1,5 @@
 import path from 'node:path';
+
 import type { NormalizedExchange, TrafficParser } from '../types/index.js';
 import {
   coerceNumber,
@@ -6,18 +7,21 @@ import {
   createNormalizedExchange,
   pickHeaderContentType,
   streamNdjsonObjects,
+  type JsonNode,
 } from './helpers.js';
 
-function getRequestCandidate(record: any): any {
+function getRequestCandidate(record: JsonNode): JsonNode {
   return record?.request ?? record?.req ?? record?.httpRequest ?? record?.http?.request ?? record;
 }
 
-function getResponseCandidate(record: any): any {
+function getResponseCandidate(record: JsonNode): JsonNode {
   return record?.response ?? record?.res ?? record?.httpResponse ?? record?.http?.response;
 }
 
-function buildUrl(record: any, request: any): string | undefined {
-  const directUrl = coerceString(request?.url ?? request?.uri ?? request?.requestUrl ?? record?.url);
+function buildUrl(record: JsonNode, request: JsonNode): string | undefined {
+  const directUrl = coerceString(
+    request?.url ?? request?.uri ?? request?.requestUrl ?? record?.url
+  );
   if (directUrl) {
     return directUrl;
   }
@@ -33,16 +37,16 @@ function buildUrl(record: any, request: any): string | undefined {
   return path;
 }
 
-function normalizeGenericRecord(record: any, index: number, source: string): NormalizedExchange | null {
+function normalizeGenericRecord(
+  record: JsonNode,
+  index: number,
+  source: string
+): NormalizedExchange | null {
   const request = getRequestCandidate(record);
   const response = getResponseCandidate(record);
 
   const requestBody =
-    request?.body ??
-    request?.bodyText ??
-    request?.payload ??
-    request?.data ??
-    request?.rawBody;
+    request?.body ?? request?.bodyText ?? request?.payload ?? request?.data ?? request?.rawBody;
 
   const responseBody =
     response?.body ??
@@ -53,12 +57,16 @@ function normalizeGenericRecord(record: any, index: number, source: string): Nor
 
   return createNormalizedExchange(
     {
-      method: coerceString(request?.method ?? request?.httpMethod ?? record?.method ?? record?.httpMethod),
+      method: coerceString(
+        request?.method ?? request?.httpMethod ?? record?.method ?? record?.httpMethod
+      ),
       url: buildUrl(record, request),
       requestHeaders: request?.headers,
       requestBody,
       requestContentType: pickHeaderContentType(request?.headers),
-      responseStatus: coerceNumber(response?.status ?? response?.statusCode ?? record?.status ?? record?.statusCode),
+      responseStatus: coerceNumber(
+        response?.status ?? response?.statusCode ?? record?.status ?? record?.statusCode
+      ),
       responseHeaders: response?.headers,
       responseBody,
       responseContentType: pickHeaderContentType(response?.headers),
@@ -66,7 +74,7 @@ function normalizeGenericRecord(record: any, index: number, source: string): Nor
       raw: record,
     },
     index,
-    source,
+    source
   );
 }
 

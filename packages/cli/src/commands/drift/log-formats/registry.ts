@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { readProbe } from '../utils/files.js';
+
 import type { TrafficFormat, TrafficParser } from '../types/index.js';
+import { readProbe } from '../utils/files.js';
 import { HarTrafficParser } from './har.js';
 import { KongTrafficParser } from './kong.js';
 import { NdjsonTrafficParser } from './ndjson.js';
@@ -40,7 +41,7 @@ export async function loadTrafficParsers(modulePaths: string[]): Promise<Traffic
     const loadedModule = await import(moduleUrl);
 
     const exportedParsers = normalizeParserExport(
-      loadedModule.default ?? loadedModule.parsers ?? loadedModule.parser,
+      loadedModule.default ?? loadedModule.parsers ?? loadedModule.parser
     );
 
     if (exportedParsers.length === 0) {
@@ -51,7 +52,12 @@ export async function loadTrafficParsers(modulePaths: string[]): Promise<Traffic
   }
 
   for (const parser of parsers) {
-    if (!parser || typeof parser.id !== 'string' || typeof parser.canParse !== 'function' || typeof parser.parse !== 'function') {
+    if (
+      !parser ||
+      typeof parser.id !== 'string' ||
+      typeof parser.canParse !== 'function' ||
+      typeof parser.parse !== 'function'
+    ) {
       throw new Error('Invalid traffic parser plugin. Expected { id, canParse, parse }.');
     }
   }
@@ -62,7 +68,7 @@ export async function loadTrafficParsers(modulePaths: string[]): Promise<Traffic
 export async function selectTrafficParser(
   filePath: string,
   format: TrafficFormat,
-  externalParsers: TrafficParser[] = [],
+  externalParsers: TrafficParser[] = []
 ): Promise<TrafficParser> {
   const parserPool = [...externalParsers, ...PARSERS];
 
@@ -78,7 +84,7 @@ export async function selectTrafficParser(
   const parser = parserPool.find((candidate) => candidate.canParse(filePath, probe));
   if (!parser) {
     throw new Error(
-      'Unable to auto-detect traffic log format. Provide --format with one of: har, kong, nginx-json, apache-json, ndjson.',
+      'Unable to auto-detect traffic log format. Provide --format with one of: har, kong, nginx-json, apache-json, ndjson.'
     );
   }
 

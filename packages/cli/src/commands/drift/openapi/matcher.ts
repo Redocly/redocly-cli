@@ -1,4 +1,3 @@
-import { getPathWithoutTrailingSlash } from '../utils/http.js';
 import type {
   MatchMode,
   MatchedOperation,
@@ -7,6 +6,7 @@ import type {
   OpenApiServer,
   OpenApiIndex,
 } from '../types/index.js';
+import { getPathWithoutTrailingSlash } from '../utils/http.js';
 
 interface CandidateMatch {
   score: number;
@@ -44,7 +44,11 @@ function hostMatches(operationServer: OpenApiServer, requestHost: string | undef
   return operationServer.host === requestHost.toLowerCase();
 }
 
-function scoreCandidate(operation: OpenApiOperation, server: OpenApiServer, mode: MatchMode): number {
+function scoreCandidate(
+  operation: OpenApiOperation,
+  server: OpenApiServer,
+  mode: MatchMode
+): number {
   const hostScore = mode === 'strict-host' ? (server.host ? 20 : 5) : 0;
   return operation.pathScore * 10 + hostScore;
 }
@@ -52,7 +56,7 @@ function scoreCandidate(operation: OpenApiOperation, server: OpenApiServer, mode
 export function matchOperation(
   index: OpenApiIndex,
   exchange: NormalizedExchange,
-  mode: MatchMode,
+  mode: MatchMode
 ): MatchedOperation | null {
   const method = exchange.request.method.toLowerCase();
   const operationCandidates = index.operationsByMethod.get(method);

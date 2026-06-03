@@ -1,7 +1,15 @@
-import { parseUrl, getPathWithoutTrailingSlash } from './http.js';
 import type { OpenApiServer } from '../types/index.js';
+import { parseUrl, getPathWithoutTrailingSlash } from './http.js';
 
-export function resolveServerUrl(rawUrl: string, variables?: Record<string, any>): OpenApiServer {
+export interface ServerVariable {
+  default?: unknown;
+  enum?: unknown[];
+}
+
+export function resolveServerUrl(
+  rawUrl: string,
+  variables?: Record<string, ServerVariable>
+): OpenApiServer {
   const resolvedUrl = rawUrl.replace(/\{([^}]+)\}/g, (_, variableName: string) => {
     const variable = variables?.[variableName];
     if (variable?.default !== undefined) {

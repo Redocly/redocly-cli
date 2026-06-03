@@ -286,7 +286,9 @@ function collectSecurityIssues(evaluation: SecurityEvaluationResult): SecurityIs
   return issues;
 }
 
-function collectSkippedSecurityChecks(evaluation: SecurityEvaluationResult): SkippedSecurityCheck[] {
+function collectSkippedSecurityChecks(
+  evaluation: SecurityEvaluationResult
+): SkippedSecurityCheck[] {
   const skippedChecks: SkippedSecurityCheck[] = [];
   for (const requirement of evaluation.requirements) {
     for (const schemeResult of requirement.schemeResults) {
@@ -393,7 +395,9 @@ export class SecurityRule implements RulePlugin {
           summary: createSecuritySummary(issues),
           failedChecks: issues,
           skippedChecks: collectSkippedSecurityChecks(securityEvaluation),
-          authorizationScheme: extractAuthorizationScheme(context.exchange.request.headers.authorization),
+          authorizationScheme: extractAuthorizationScheme(
+            context.exchange.request.headers.authorization
+          ),
           hasAuthorizationHeader: hasAuthorizationHeader(context),
         },
       });
@@ -410,7 +414,12 @@ export class SecurityRule implements RulePlugin {
           specSource: context.matchedOperation.operation.specSource,
           target: 'request',
           details: {
-            summary: skippedChecks.map((check, index) => `Skipped option ${index + 1} (${check.schemeName}): ${check.reason}`).join(' '),
+            summary: skippedChecks
+              .map(
+                (check, index) =>
+                  `Skipped option ${index + 1} (${check.schemeName}): ${check.reason}`
+              )
+              .join(' '),
             skippedChecks,
           },
         });

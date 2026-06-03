@@ -11,8 +11,8 @@ import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
-import { handleDrift, type DriftArgv } from './commands/drift/index.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
+import { handleDrift, type DriftArgv } from './commands/drift/index.js';
 import type { MatchMode, TrafficFormat } from './commands/drift/types/index.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
@@ -898,7 +898,14 @@ yargs(hideBin(process.argv))
           },
           'traffic-format': {
             describe: 'Traffic input format.',
-            choices: ['auto', 'har', 'kong', 'nginx-json', 'apache-json', 'ndjson'] as ReadonlyArray<TrafficFormat>,
+            choices: [
+              'auto',
+              'har',
+              'kong',
+              'nginx-json',
+              'apache-json',
+              'ndjson',
+            ] as ReadonlyArray<TrafficFormat>,
             default: 'auto' as TrafficFormat,
           },
           format: {
@@ -937,7 +944,8 @@ yargs(hideBin(process.argv))
           },
           'generate-output': {
             alias: 'o',
-            describe: 'When generating a description from traffic, write it to this file instead of stdout.',
+            describe:
+              'When generating a description from traffic, write it to this file instead of stdout.',
             type: 'string',
           },
           config: { describe: 'Path to the config file.', type: 'string' },

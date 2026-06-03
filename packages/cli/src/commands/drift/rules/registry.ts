@@ -1,10 +1,11 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+
 import type { RulePlugin } from '../types/index.js';
-import { UndocumentedEndpointRule } from './builtins/undocumented-endpoint.js';
+import { OwaspApiTop10Rule } from './builtins/owasp.js';
 import { SchemaConsistencyRule } from './builtins/schema.js';
 import { SecurityRule } from './builtins/security.js';
-import { OwaspApiTop10Rule } from './builtins/owasp.js';
+import { UndocumentedEndpointRule } from './builtins/undocumented-endpoint.js';
 
 const BUILTIN_RULE_FACTORIES: Record<string, () => RulePlugin> = {
   'undocumented-endpoint': () => new UndocumentedEndpointRule(),
@@ -14,7 +15,11 @@ const BUILTIN_RULE_FACTORIES: Record<string, () => RulePlugin> = {
 };
 
 export const BUILTIN_RULE_IDS = Object.keys(BUILTIN_RULE_FACTORIES);
-const DEFAULT_BUILTIN_RULE_IDS = ['undocumented-endpoint', 'schema-consistency', 'security-baseline'];
+const DEFAULT_BUILTIN_RULE_IDS = [
+  'undocumented-endpoint',
+  'schema-consistency',
+  'security-baseline',
+];
 
 function normalizeRuleExport(value: unknown): RulePlugin[] {
   if (!value) {
@@ -30,9 +35,10 @@ function normalizeRuleExport(value: unknown): RulePlugin[] {
 
 export async function loadRulePlugins(
   activeRuleIds: string[] | undefined,
-  pluginModules: string[],
+  pluginModules: string[]
 ): Promise<RulePlugin[]> {
-  const selectedRuleIds = activeRuleIds && activeRuleIds.length > 0 ? activeRuleIds : DEFAULT_BUILTIN_RULE_IDS;
+  const selectedRuleIds =
+    activeRuleIds && activeRuleIds.length > 0 ? activeRuleIds : DEFAULT_BUILTIN_RULE_IDS;
 
   const builtins: RulePlugin[] = selectedRuleIds.map((ruleId) => {
     const factory = BUILTIN_RULE_FACTORIES[ruleId];
@@ -48,7 +54,9 @@ export async function loadRulePlugins(
     const absolutePath = path.resolve(process.cwd(), modulePath);
     const moduleUrl = pathToFileURL(absolutePath).toString();
     const loadedModule = await import(moduleUrl);
-    const exportedRules = normalizeRuleExport(loadedModule.default ?? loadedModule.rules ?? loadedModule.rule);
+    const exportedRules = normalizeRuleExport(
+      loadedModule.default ?? loadedModule.rules ?? loadedModule.rule
+    );
 
     if (exportedRules.length === 0) {
       throw new Error(`Plugin module "${modulePath}" does not export a rule plugin`);

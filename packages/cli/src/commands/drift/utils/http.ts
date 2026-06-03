@@ -75,8 +75,7 @@ export function normalizeHeaders(input: unknown): Record<string, string> {
       if (!item || typeof item !== 'object') {
         continue;
       }
-      const name = (item as any).name;
-      const value = (item as any).value;
+      const { name, value } = item as { name?: unknown; value?: unknown };
       if (typeof name === 'string' && value !== undefined) {
         result[name.toLowerCase()] = String(value);
       }
@@ -120,7 +119,11 @@ export function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function compileOpenApiPath(pathTemplate: string): { regex: RegExp; params: string[]; score: number } {
+export function compileOpenApiPath(pathTemplate: string): {
+  regex: RegExp;
+  params: string[];
+  score: number;
+} {
   const params: string[] = [];
   let score = 0;
 
@@ -150,7 +153,10 @@ export function compileOpenApiPath(pathTemplate: string): { regex: RegExp; param
   };
 }
 
-export function parseJsonBodyIfPresent(contentType: string | undefined, bodyText: string | undefined): unknown {
+export function parseJsonBodyIfPresent(
+  contentType: string | undefined,
+  bodyText: string | undefined
+): unknown {
   if (!bodyText) {
     return undefined;
   }
@@ -181,7 +187,7 @@ export function isJsonMime(contentType: string | undefined): boolean {
 
 export function pickSchemaByMime(
   contentMap: Record<string, unknown>,
-  contentType: string | undefined,
+  contentType: string | undefined
 ): unknown | undefined {
   const requestedMime = normalizeContentType(contentType);
 

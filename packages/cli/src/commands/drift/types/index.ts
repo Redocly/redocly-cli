@@ -6,6 +6,14 @@ export type FindingSeverity = 'info' | 'warning' | 'error';
 
 export type FindingCategory = 'documentation' | 'schema' | 'security';
 
+export interface SchemaValidationError {
+  keyword?: string;
+  message?: string;
+  params?: Record<string, unknown>;
+  schemaPath?: string;
+  instancePath?: string;
+}
+
 export interface NormalizedHttpMessage {
   headers: Record<string, string>;
   bodyText?: string;
@@ -94,7 +102,7 @@ export interface OpenApiOperation {
   requestBodyRequired: boolean;
   responseBodyContent: Record<string, Record<string, unknown>>;
   security: Record<string, string[]>[] | undefined;
-  securitySchemes: Record<string, any>;
+  securitySchemes: Record<string, unknown>;
   specSource: string;
 }
 
@@ -114,7 +122,10 @@ export interface RuleContext {
   matchedOperation: MatchedOperation | null;
   matchMode: MatchMode;
   ignoreCookies?: boolean;
-  validateSchema: (schema: unknown, value: unknown) => { valid: boolean; errors: any[] };
+  validateSchema: (
+    schema: unknown,
+    value: unknown
+  ) => { valid: boolean; errors: SchemaValidationError[] };
 }
 
 export interface RulePlugin {

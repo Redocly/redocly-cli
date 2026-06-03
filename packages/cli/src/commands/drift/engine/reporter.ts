@@ -1,7 +1,7 @@
 import path from 'node:path';
 
-import { createProblemKey } from '../utils/finding-groups.js';
 import type { DriftRunResult, FindingPreview, FindingRecord, RunSummary } from '../types/index.js';
+import { createProblemKey } from '../utils/finding-groups.js';
 
 export type ReportFormat = 'pretty' | 'json' | 'csv' | 'sarif';
 
@@ -195,7 +195,10 @@ function formatCsv(result: DriftRunResult): string {
 // --- sarif -------------------------------------------------------------------
 
 function formatSarif(result: DriftRunResult): string {
-  const ruleSet = new Map<string, { id: string; name: string; shortDescription: { text: string } }>();
+  const ruleSet = new Map<
+    string,
+    { id: string; name: string; shortDescription: { text: string } }
+  >();
 
   for (const finding of result.findings) {
     if (!ruleSet.has(finding.ruleId)) {
@@ -244,7 +247,9 @@ function formatSarif(result: DriftRunResult): string {
 
 function totalFindings(summary: RunSummary): number {
   return (
-    summary.findingsBySeverity.error + summary.findingsBySeverity.warning + summary.findingsBySeverity.info
+    summary.findingsBySeverity.error +
+    summary.findingsBySeverity.warning +
+    summary.findingsBySeverity.info
   );
 }
 
@@ -301,10 +306,17 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
   }
 
   lines.push('');
-  lines.push(colorize(`Types (${Object.keys(summary.problemGroupsByRule).length})`, `${ANSI.cyan}${ANSI.bold}`));
+  lines.push(
+    colorize(
+      `Types (${Object.keys(summary.problemGroupsByRule).length})`,
+      `${ANSI.cyan}${ANSI.bold}`
+    )
+  );
   for (const [ruleId, problemsCount] of sortRuleCounts(summary.problemGroupsByRule)) {
     const findingsForRule = summary.findingsByRule[ruleId] ?? problemsCount;
-    lines.push(`  ${colorize('•', ANSI.gray)} ${ruleId}: ${problemsCount} problems / ${findingsForRule} findings`);
+    lines.push(
+      `  ${colorize('•', ANSI.gray)} ${ruleId}: ${problemsCount} problems / ${findingsForRule} findings`
+    );
   }
 
   const groupedFindings = new Map<string, FindingPreview[]>();
@@ -356,7 +368,9 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
           ? colorize(String(finding.status), statusColorCode(finding.status))
           : colorize('-', ANSI.gray);
       const displayPath = getOperationTemplatePath(finding.details) ?? finding.path;
-      const operationLabel = finding.operationId ? ` ${colorize(finding.operationId, ANSI.dim)}` : '';
+      const operationLabel = finding.operationId
+        ? ` ${colorize(finding.operationId, ANSI.dim)}`
+        : '';
       lines.push(
         `${severityIcon(finding.severity)} ${severityLabel(finding.severity)} #${renderedIndex}${
           occurrences > 1 ? ` ${colorize(`×${occurrences}`, ANSI.gray)}` : ''
@@ -371,13 +385,19 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
       if (finding.specSource || finding.schemaPath || finding.dataPath) {
         lines.push('');
         if (finding.specSource) {
-          lines.push(`    ${colorize('spec:', ANSI.dim)} ${colorize(toRelativeSpecPath(finding.specSource), ANSI.cyan)}`);
+          lines.push(
+            `    ${colorize('spec:', ANSI.dim)} ${colorize(toRelativeSpecPath(finding.specSource), ANSI.cyan)}`
+          );
         }
         if (finding.schemaPath) {
-          lines.push(`    ${colorize('schemaPath=', ANSI.dim)} ${colorize(finding.schemaPath, ANSI.dim)}`);
+          lines.push(
+            `    ${colorize('schemaPath=', ANSI.dim)} ${colorize(finding.schemaPath, ANSI.dim)}`
+          );
         }
         if (finding.dataPath) {
-          lines.push(`    ${colorize('dataPath=', ANSI.dim)} ${colorize(finding.dataPath, ANSI.cyan)}`);
+          lines.push(
+            `    ${colorize('dataPath=', ANSI.dim)} ${colorize(finding.dataPath, ANSI.cyan)}`
+          );
         }
       }
 
@@ -385,18 +405,30 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
         lines.push('');
         if (finding.ruleId === 'security-baseline' && typeof finding.details.summary === 'string') {
           lines.push(`    ${colorize('security:', ANSI.dim)} ${finding.details.summary}`);
-        } else if (finding.ruleId === 'owasp-api-top10' && typeof finding.details.summary === 'string') {
-          const issueId = typeof finding.details.issueId === 'string' ? finding.details.issueId : null;
-          const issueTitle = typeof finding.details.issueTitle === 'string' ? finding.details.issueTitle : null;
+        } else if (
+          finding.ruleId === 'owasp-api-top10' &&
+          typeof finding.details.summary === 'string'
+        ) {
+          const issueId =
+            typeof finding.details.issueId === 'string' ? finding.details.issueId : null;
+          const issueTitle =
+            typeof finding.details.issueTitle === 'string' ? finding.details.issueTitle : null;
           lines.push(`    ${colorize('owasp:', ANSI.dim)} ${finding.details.summary}`);
           if (issueId || issueTitle) {
-            lines.push(`    ${colorize('issue:', ANSI.dim)} ${[issueId, issueTitle].filter(Boolean).join(' - ')}`);
+            lines.push(
+              `    ${colorize('issue:', ANSI.dim)} ${[issueId, issueTitle].filter(Boolean).join(' - ')}`
+            );
           }
-        } else if (finding.ruleId === 'schema-consistency' && typeof finding.details.summary === 'string') {
+        } else if (
+          finding.ruleId === 'schema-consistency' &&
+          typeof finding.details.summary === 'string'
+        ) {
           const detailPath = typeof finding.details.path === 'string' ? finding.details.path : null;
-          const expected = typeof finding.details.expected === 'string' ? finding.details.expected : null;
+          const expected =
+            typeof finding.details.expected === 'string' ? finding.details.expected : null;
           const actual = typeof finding.details.actual === 'string' ? finding.details.actual : null;
-          const suggestion = typeof finding.details.suggestion === 'string' ? finding.details.suggestion : null;
+          const suggestion =
+            typeof finding.details.suggestion === 'string' ? finding.details.suggestion : null;
 
           lines.push(`    ${colorize('schema:', ANSI.dim)} ${finding.details.summary}`);
           if (detailPath) {

@@ -1,10 +1,15 @@
-import { bundle, type Config } from '@redocly/openapi-core';
+import { bundle, isPlainObject, type Config } from '@redocly/openapi-core';
 import { stat } from 'node:fs/promises';
 
+import type {
+  OpenApiIndex,
+  OpenApiOperation,
+  OpenApiParameter,
+  OpenApiServer,
+} from '../types/index.js';
 import { listOpenApiFiles } from '../utils/files.js';
 import { compileOpenApiPath } from '../utils/http.js';
-import { ensureLeadingSlash, resolveServerUrl } from '../utils/openapi.js';
-import type { OpenApiIndex, OpenApiOperation, OpenApiParameter, OpenApiServer } from '../types/index.js';
+import { ensureLeadingSlash, resolveServerUrl, type ServerVariable } from '../utils/openapi.js';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
 
@@ -12,24 +17,43 @@ type HttpMethod = (typeof HTTP_METHODS)[number];
 
 const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
 
+interface RawDocument {
+  openapi?: unknown;
+  paths?: Record<string, unknown>;
+  servers?: unknown;
+  security?: unknown;
+  components?: { securitySchemes?: unknown };
+}
+
 function isParameterLocation(value: string): value is OpenApiParameter['in'] {
   return PARAMETER_LOCATIONS.has(value);
 }
 
-function normalizeParameters(parameters: any[] | undefined): OpenApiParameter[] {
-  if (!parameters || !Array.isArray(parameters)) {
+function normalizeParameters(parameters: unknown): OpenApiParameter[] {
+  if (!Array.isArray(parameters)) {
     return [];
   }
 
-  return parameters
-    .filter(Boolean)
-    .filter((parameter) => isParameterLocation(parameter.in))
-    .map((parameter) => ({
-      name: parameter.name,
-      in: parameter.in as OpenApiParameter['in'],
-      required: Boolean(parameter.required) || parameter.in === 'path',
-      schema: parameter.schema,
-    }));
+  const normalized: OpenApiParameter[] = [];
+  for (const entry of parameters) {
+    if (!isPlainObject(entry)) {
+      continue;
+    }
+
+    const location = entry.in;
+    if (typeof location !== 'string' || !isParameterLocation(location)) {
+      continue;
+    }
+
+    normalized.push({
+      name: String(entry.name ?? ''),
+      in: location,
+      required: Boolean(entry.required) || location === 'path',
+      schema: entry.schema,
+    });
+  }
+
+  return normalized;
 }
 
 function mergeParameters(
@@ -49,14 +73,14 @@ function mergeParameters(
   return Array.from(map.values());
 }
 
-function extractRequestBodyContent(requestBody: any): Record<string, unknown> {
-  if (!requestBody?.content) {
-    return {};
+function extractMediaSchemas(content: unknown): Record<string, unknown> {
+  const output: Record<string, unknown> = {};
+  if (!isPlainObject(content)) {
+    return output;
   }
 
-  const output: Record<string, unknown> = {};
-  for (const [mime, mediaTypeObject] of Object.entries<any>(requestBody.content)) {
-    if (mediaTypeObject && typeof mediaTypeObject === 'object' && 'schema' in mediaTypeObject) {
+  for (const [mime, mediaTypeObject] of Object.entries(content)) {
+    if (isPlainObject(mediaTypeObject) && 'schema' in mediaTypeObject) {
       output[mime.toLowerCase()] = mediaTypeObject.schema;
     }
   }
@@ -64,44 +88,59 @@ function extractRequestBodyContent(requestBody: any): Record<string, unknown> {
   return output;
 }
 
-function extractResponseBodyContent(responses: any): Record<string, Record<string, unknown>> {
-  if (!responses) {
+function extractRequestBodyContent(requestBody: unknown): Record<string, unknown> {
+  if (!isPlainObject(requestBody)) {
+    return {};
+  }
+
+  return extractMediaSchemas(requestBody.content);
+}
+
+function extractResponseBodyContent(responses: unknown): Record<string, Record<string, unknown>> {
+  if (!isPlainObject(responses)) {
     return {};
   }
 
   const output: Record<string, Record<string, unknown>> = {};
-  for (const [statusCode, responseObject] of Object.entries<any>(responses)) {
-    if (!responseObject || !('content' in responseObject)) {
+  for (const [statusCode, responseObject] of Object.entries(responses)) {
+    if (!isPlainObject(responseObject) || !('content' in responseObject)) {
       continue;
     }
 
-    const mediaMap: Record<string, unknown> = {};
-    for (const [mime, mediaTypeObject] of Object.entries<any>(responseObject.content ?? {})) {
-      if (mediaTypeObject && typeof mediaTypeObject === 'object' && 'schema' in mediaTypeObject) {
-        mediaMap[mime.toLowerCase()] = mediaTypeObject.schema;
-      }
-    }
-
-    output[statusCode] = mediaMap;
+    output[statusCode] = extractMediaSchemas(responseObject.content);
   }
 
   return output;
 }
 
 function resolveOperationServers(
-  operationServers: any[] | undefined,
-  pathServers: any[] | undefined,
-  rootServers: any[] | undefined
+  operationServers: unknown,
+  pathServers: unknown,
+  rootServers: unknown
 ): OpenApiServer[] {
   const sourceServers = operationServers ?? pathServers ?? rootServers;
-  if (!sourceServers || sourceServers.length === 0) {
+  if (!Array.isArray(sourceServers) || sourceServers.length === 0) {
     return [resolveServerUrl('/')];
   }
 
-  return sourceServers.map((server) => resolveServerUrl(server.url, server.variables));
+  return sourceServers.map((server) => {
+    if (!isPlainObject(server)) {
+      return resolveServerUrl('/');
+    }
+
+    const url = typeof server.url === 'string' ? server.url : '/';
+    const variables = isPlainObject(server.variables)
+      ? (server.variables as Record<string, ServerVariable>)
+      : undefined;
+    return resolveServerUrl(url, variables);
+  });
 }
 
-function toOperationId(method: HttpMethod, pathTemplate: string, declaredOperationId?: string): string {
+function toOperationId(
+  method: HttpMethod,
+  pathTemplate: string,
+  declaredOperationId?: string
+): string {
   if (declaredOperationId) {
     return declaredOperationId;
   }
@@ -109,17 +148,33 @@ function toOperationId(method: HttpMethod, pathTemplate: string, declaredOperati
   return `${method.toUpperCase()} ${pathTemplate}`;
 }
 
-function isOpenApi3Document(document: any): boolean {
+function isOpenApi3Document(document: unknown): document is RawDocument {
   return Boolean(
-    document && typeof document === 'object' && typeof document.openapi === 'string' && document.openapi.startsWith('3.')
+    isPlainObject(document) &&
+    typeof document.openapi === 'string' &&
+    document.openapi.startsWith('3.')
   );
 }
 
-function indexDocument(document: any, specSource: string, operationsByMethod: Map<string, OpenApiOperation[]>): void {
-  const paths = document.paths ?? {};
+function normalizeSecurity(value: unknown): Record<string, string[]>[] | undefined {
+  return Array.isArray(value) ? (value as Record<string, string[]>[]) : undefined;
+}
 
-  for (const [rawPathTemplate, pathItem] of Object.entries<any>(paths)) {
-    if (!pathItem) {
+function indexDocument(
+  document: RawDocument,
+  specSource: string,
+  operationsByMethod: Map<string, OpenApiOperation[]>
+): void {
+  const paths = document.paths ?? {};
+  const componentsSecuritySchemes = isPlainObject(document.components)
+    ? document.components.securitySchemes
+    : undefined;
+  const securitySchemes: Record<string, unknown> = isPlainObject(componentsSecuritySchemes)
+    ? componentsSecuritySchemes
+    : {};
+
+  for (const [rawPathTemplate, pathItem] of Object.entries(paths)) {
+    if (!isPlainObject(pathItem)) {
       continue;
     }
 
@@ -128,17 +183,26 @@ function indexDocument(document: any, specSource: string, operationsByMethod: Ma
 
     for (const method of HTTP_METHODS) {
       const operation = pathItem[method];
-      if (!operation) {
+      if (!isPlainObject(operation)) {
         continue;
       }
 
       const operationParameters = normalizeParameters(operation.parameters);
       const mergedParameters = mergeParameters(pathParameters, operationParameters);
       const compiledPath = compileOpenApiPath(pathTemplate);
-      const servers = resolveOperationServers(operation.servers, pathItem.servers, document.servers);
+      const servers = resolveOperationServers(
+        operation.servers,
+        pathItem.servers,
+        document.servers
+      );
+      const requestBody = operation.requestBody;
 
       const item: OpenApiOperation = {
-        operationId: toOperationId(method, pathTemplate, operation.operationId),
+        operationId: toOperationId(
+          method,
+          pathTemplate,
+          typeof operation.operationId === 'string' ? operation.operationId : undefined
+        ),
         method,
         pathTemplate,
         pathRegex: compiledPath.regex,
@@ -146,11 +210,11 @@ function indexDocument(document: any, specSource: string, operationsByMethod: Ma
         pathScore: compiledPath.score,
         servers,
         requestParameters: mergedParameters,
-        requestBodyContent: extractRequestBodyContent(operation.requestBody),
-        requestBodyRequired: Boolean(operation.requestBody?.required),
+        requestBodyContent: extractRequestBodyContent(requestBody),
+        requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
         responseBodyContent: extractResponseBodyContent(operation.responses),
-        security: operation.security ?? document.security,
-        securitySchemes: (document.components?.securitySchemes ?? {}) as Record<string, any>,
+        security: normalizeSecurity(operation.security) ?? normalizeSecurity(document.security),
+        securitySchemes,
         specSource,
       };
 
@@ -181,7 +245,9 @@ function finalizeIndex(
  * Build an OpenApiIndex from already-parsed OpenAPI documents (e.g. a spec
  * generated in memory from traffic).
  */
-export function buildOpenApiIndex(documents: Array<{ document: any; source: string }>): OpenApiIndex {
+export function buildOpenApiIndex(
+  documents: Array<{ document: unknown; source: string }>
+): OpenApiIndex {
   const operationsByMethod = new Map<string, OpenApiOperation[]>();
   let loadedSpecs = 0;
 
@@ -219,7 +285,7 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
   let loadedSpecs = 0;
 
   for (const specFile of specFiles) {
-    let document: any;
+    let document: unknown;
     try {
       const { bundle: bundled } = await bundle({ config, ref: specFile, dereference: true });
       document = bundled.parsed;

@@ -1,4 +1,4 @@
-import { logger, stringifyYaml, type Config } from '@redocly/openapi-core';
+import { logger, stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -8,9 +8,8 @@ import { renderReport, type ReportFormat } from './engine/reporter.js';
 import { runTrafficValidation } from './engine/runner.js';
 import { generateSpecFromTraffic } from './openapi/generator.js';
 import { buildOpenApiIndex, loadOpenApiIndex } from './openapi/loader.js';
-import { BUILTIN_RULE_IDS } from './rules/registry.js';
-import { normalizeFsPath } from './utils/files.js';
 import type { MatchMode, TrafficFormat } from './types/index.js';
+import { normalizeFsPath } from './utils/files.js';
 
 export type DriftArgv = {
   traffic: string;
@@ -51,12 +50,17 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
 
   // No spec provided → generate an OpenAPI description from the traffic itself.
   if (!argv.api) {
-    await handleGenerate({ trafficPath, trafficFormat, trafficParserModules, output: argv['generate-output'] });
+    await handleGenerate({
+      trafficPath,
+      trafficFormat,
+      trafficParserModules,
+      output: argv['generate-output'],
+    });
     return;
   }
 
   const specPath = normalizeFsPath(argv.api);
-  const openApiIndex = await loadOpenApiIndex(specPath, config as Config);
+  const openApiIndex = await loadOpenApiIndex(specPath, config);
   if (openApiIndex.loadedOperations === 0) {
     return exitWithError(`No OpenAPI operations were loaded from: ${specPath}`);
   }
@@ -74,8 +78,23 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   });
 
   const report = renderReport(
-    { runId, summary, findings, meta: { specSource: specPath, trafficPath, format: trafficFormat, matchMode: argv['match-mode'], generatedSpec: false } },
-    { format: argv.format, color: USE_COLOR && argv.format === 'pretty', maxFindings: argv['max-findings'] }
+    {
+      runId,
+      summary,
+      findings,
+      meta: {
+        specSource: specPath,
+        trafficPath,
+        format: trafficFormat,
+        matchMode: argv['match-mode'],
+        generatedSpec: false,
+      },
+    },
+    {
+      format: argv.format,
+      color: USE_COLOR && argv.format === 'pretty',
+      maxFindings: argv['max-findings'],
+    }
   );
 
   logger.output(report);
@@ -105,7 +124,7 @@ async function handleGenerate(params: {
 
   if (params.output) {
     await writeOutput(params.output, yaml);
-    logger.output(
+    logger.info(
       `Generated OpenAPI description from traffic: ${index.loadedOperations} operation(s).\nWritten to: ${normalizeFsPath(
         params.output
       )}\n`

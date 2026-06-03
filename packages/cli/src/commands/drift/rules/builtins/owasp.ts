@@ -6,7 +6,8 @@ const MAX_SCAN_ARRAY_ITEMS = 50;
 const MAX_SENSITIVE_QUERY_PARAMS = 5;
 const LARGE_RESPONSE_THRESHOLD_BYTES = 1_000_000;
 
-const SENSITIVE_QUERY_KEY_PATTERN = /(?:token|api[_-]?key|apikey|password|passwd|secret|authorization|jwt)/i;
+const SENSITIVE_QUERY_KEY_PATTERN =
+  /(?:token|api[_-]?key|apikey|password|passwd|secret|authorization|jwt)/i;
 const SENSITIVE_RESPONSE_KEY_PATTERN =
   /(?:password|passwd|secret|api[_-]?key|access[_-]?token|refresh[_-]?token|private[_-]?key|ssn|credit[_-]?card|card[_-]?number|cvv)/i;
 
@@ -67,7 +68,9 @@ function isBooleanLikeValue(value: string | number): boolean {
   }
 
   const normalized = value.trim().toLowerCase();
-  return normalized === 'true' || normalized === 'false' || normalized === '0' || normalized === '1';
+  return (
+    normalized === 'true' || normalized === 'false' || normalized === '0' || normalized === '1'
+  );
 }
 
 function findSensitiveResponsePaths(payload: unknown): string[] {
@@ -79,7 +82,11 @@ function findSensitiveResponsePaths(payload: unknown): string[] {
   const queue: Array<{ value: unknown; path: string }> = [{ value: payload, path: '' }];
   let visitedNodes = 0;
 
-  while (queue.length > 0 && visitedNodes < MAX_SCAN_NODES && exposedPaths.length < MAX_EXPOSED_PATHS) {
+  while (
+    queue.length > 0 &&
+    visitedNodes < MAX_SCAN_NODES &&
+    exposedPaths.length < MAX_EXPOSED_PATHS
+  ) {
     const current = queue.pop();
     if (!current) {
       break;
@@ -142,7 +149,7 @@ function buildSecurityFinding(
   message: string,
   target: 'request' | 'response',
   severity: 'error' | 'warning' | 'info',
-  details: OwaspMeta & Record<string, unknown>,
+  details: OwaspMeta & Record<string, unknown>
 ): Finding {
   return {
     ruleId: 'owasp-api-top10',
@@ -190,7 +197,7 @@ function detectSensitiveQueryParams(context: RuleContext): Finding[] {
         summary:
           'Authentication data should not be passed via query parameters because it can leak via logs, browser history, and referrers.',
         sensitiveQueryParams: matches,
-      },
+      }
     ),
   ];
 }
@@ -202,7 +209,9 @@ function detectInsecureCors(context: RuleContext): Finding[] {
   }
 
   const allowOrigin = response.headers['access-control-allow-origin']?.trim();
-  const allowCredentials = response.headers['access-control-allow-credentials']?.trim().toLowerCase();
+  const allowCredentials = response.headers['access-control-allow-credentials']
+    ?.trim()
+    .toLowerCase();
   if (allowOrigin !== '*' || allowCredentials !== 'true') {
     return [];
   }
@@ -222,7 +231,7 @@ function detectInsecureCors(context: RuleContext): Finding[] {
           accessControlAllowOrigin: allowOrigin,
           accessControlAllowCredentials: allowCredentials,
         },
-      },
+      }
     ),
   ];
 }
@@ -243,35 +252,55 @@ function detectWeakCookieAttributes(context: RuleContext): Finding[] {
 
   if (context.exchange.request.protocol === 'https:' && !/\bsecure\b/.test(cookieHeader)) {
     findings.push(
-      buildSecurityFinding(context, 'Set-Cookie header is missing "Secure" attribute', 'response', 'warning', {
-        issueId: 'API2:2023',
-        issueTitle: 'Broken Authentication',
-        summary: 'Session cookies over HTTPS should include "Secure" to prevent transmission over plain HTTP.',
-        setCookiePreview: setCookie.slice(0, 200),
-      }),
+      buildSecurityFinding(
+        context,
+        'Set-Cookie header is missing "Secure" attribute',
+        'response',
+        'warning',
+        {
+          issueId: 'API2:2023',
+          issueTitle: 'Broken Authentication',
+          summary:
+            'Session cookies over HTTPS should include "Secure" to prevent transmission over plain HTTP.',
+          setCookiePreview: setCookie.slice(0, 200),
+        }
+      )
     );
   }
 
   if (!/\bhttponly\b/.test(cookieHeader)) {
     findings.push(
-      buildSecurityFinding(context, 'Set-Cookie header is missing "HttpOnly" attribute', 'response', 'warning', {
-        issueId: 'API2:2023',
-        issueTitle: 'Broken Authentication',
-        summary:
-          'Session cookies should include "HttpOnly" to reduce risk of token theft via client-side script access.',
-        setCookiePreview: setCookie.slice(0, 200),
-      }),
+      buildSecurityFinding(
+        context,
+        'Set-Cookie header is missing "HttpOnly" attribute',
+        'response',
+        'warning',
+        {
+          issueId: 'API2:2023',
+          issueTitle: 'Broken Authentication',
+          summary:
+            'Session cookies should include "HttpOnly" to reduce risk of token theft via client-side script access.',
+          setCookiePreview: setCookie.slice(0, 200),
+        }
+      )
     );
   }
 
   if (!/\bsamesite\s*=/.test(cookieHeader)) {
     findings.push(
-      buildSecurityFinding(context, 'Set-Cookie header is missing "SameSite" attribute', 'response', 'info', {
-        issueId: 'API8:2023',
-        issueTitle: 'Security Misconfiguration',
-        summary: 'Set "SameSite" on session cookies to reduce CSRF risk for state-changing requests.',
-        setCookiePreview: setCookie.slice(0, 200),
-      }),
+      buildSecurityFinding(
+        context,
+        'Set-Cookie header is missing "SameSite" attribute',
+        'response',
+        'info',
+        {
+          issueId: 'API8:2023',
+          issueTitle: 'Security Misconfiguration',
+          summary:
+            'Set "SameSite" on session cookies to reduce CSRF risk for state-changing requests.',
+          setCookiePreview: setCookie.slice(0, 200),
+        }
+      )
     );
   }
 
@@ -290,12 +319,18 @@ function detectSensitiveResponseData(context: RuleContext): Finding[] {
   }
 
   return [
-    buildSecurityFinding(context, 'Potential sensitive data exposure in response payload', 'response', 'warning', {
-      issueId: 'API3:2019',
-      issueTitle: 'Excessive Data Exposure',
-      summary: `Sensitive-looking fields detected in response payload: ${exposedPaths.join(', ')}`,
-      exposedPaths,
-    }),
+    buildSecurityFinding(
+      context,
+      'Potential sensitive data exposure in response payload',
+      'response',
+      'warning',
+      {
+        issueId: 'API3:2019',
+        issueTitle: 'Excessive Data Exposure',
+        summary: `Sensitive-looking fields detected in response payload: ${exposedPaths.join(', ')}`,
+        exposedPaths,
+      }
+    ),
   ];
 }
 
@@ -325,7 +360,7 @@ function detectLargeUnpaginatedResponses(context: RuleContext): Finding[] {
         summary:
           'A large response was returned without common pagination query parameters. Consider explicit page/limit controls for large collections.',
         responseBytes: response.bodyText.length,
-      },
+      }
     ),
   ];
 }

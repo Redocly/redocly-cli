@@ -1,19 +1,16 @@
-import { pickSchemaByMime, shouldIgnoreHeaderAsUndocumented, isJsonMime } from '../../utils/http.js';
 import type {
   Finding,
   MatchedOperation,
   OpenApiParameter,
   RuleContext,
   RulePlugin,
+  SchemaValidationError,
 } from '../../types/index.js';
-
-interface ValidationErrorLike {
-  keyword?: string;
-  message?: string;
-  params?: Record<string, unknown>;
-  schemaPath?: string;
-  instancePath?: string;
-}
+import {
+  pickSchemaByMime,
+  shouldIgnoreHeaderAsUndocumented,
+  isJsonMime,
+} from '../../utils/http.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
@@ -97,7 +94,7 @@ function getValueAtJsonPointer(root: unknown, pointer: string | undefined): unkn
   return current;
 }
 
-function normalizeDataPathForError(error: ValidationErrorLike): string {
+function normalizeDataPathForError(error: SchemaValidationError): string {
   const basePath = error.instancePath ?? '';
   const params = error.params ?? {};
 
@@ -147,7 +144,7 @@ function compactActualValue(value: unknown): string {
     : serialized;
 }
 
-function createExpectedHint(error: ValidationErrorLike): string | undefined {
+function createExpectedHint(error: SchemaValidationError): string | undefined {
   const params = error.params ?? {};
   if (error.keyword === 'required' && typeof params.missingProperty === 'string') {
     return `required field "${params.missingProperty}"`;
@@ -170,8 +167,8 @@ function createExpectedHint(error: ValidationErrorLike): string | undefined {
 
 function createFallbackSchemaErrorSummary(
   target: 'request' | 'response',
-  error: ValidationErrorLike,
-  highlightedDataPath: string,
+  error: SchemaValidationError,
+  highlightedDataPath: string
 ): string {
   const targetLabel = target === 'request' ? 'Request' : 'Response';
   const params = error.params ?? {};
@@ -203,8 +200,8 @@ function createFallbackSchemaErrorSummary(
 function createSchemaErrorDetails(
   schema: unknown,
   value: unknown,
-  error: ValidationErrorLike,
-  target: 'request' | 'response',
+  error: SchemaValidationError,
+  target: 'request' | 'response'
 ): Record<string, unknown> {
   const highlightedDataPath = normalizeDataPathForError(error);
   const actualValue = getValueAtJsonPointer(value, highlightedDataPath);
@@ -226,7 +223,7 @@ function validateParameter(
   parameter: OpenApiParameter,
   actualValue: unknown,
   context: RuleContext,
-  findings: Finding[],
+  findings: Finding[]
 ): void {
   if (actualValue === undefined || actualValue === null || !parameter.schema) {
     return;
@@ -238,20 +235,20 @@ function validateParameter(
   }
 
   for (const error of result.errors) {
-    const details = createSchemaErrorDetails(parameter.schema, actualValue, error as ValidationErrorLike, 'request');
+    const details = createSchemaErrorDetails(parameter.schema, actualValue, error, 'request');
     findings.push({
       ruleId: 'schema-consistency',
       severity: 'error',
       category: 'schema',
       message: `Invalid ${parameter.in} parameter "${parameter.name}": ${
-        typeof details.summary === 'string' ? details.summary : error.message ?? 'schema mismatch'
+        typeof details.summary === 'string' ? details.summary : (error.message ?? 'schema mismatch')
       }`,
       exchangeIndex: context.exchange.index,
       operationId: context.matchedOperation?.operation.operationId,
       specSource: context.matchedOperation?.operation.specSource,
       target: 'request',
       schemaPath: error.schemaPath,
-      dataPath: normalizeDataPathForError(error as ValidationErrorLike),
+      dataPath: normalizeDataPathForError(error),
       details: {
         ...details,
         parameter: {
@@ -266,7 +263,7 @@ function validateParameter(
 function getActualParameterValue(
   parameter: OpenApiParameter,
   context: RuleContext,
-  cookies: Record<string, string>,
+  cookies: Record<string, string>
 ): unknown {
   switch (parameter.in) {
     case 'path':
@@ -284,7 +281,7 @@ function getActualParameterValue(
 
 function createUndocumentedParameterFindings(
   context: RuleContext,
-  matchedOperation: MatchedOperation,
+  matchedOperation: MatchedOperation
 ): Finding[] {
   const findings: Finding[] = [];
   const paramsByLocation = {
@@ -338,7 +335,7 @@ function createUndocumentedParameterFindings(
 
 function pickResponseSchema(
   context: RuleContext,
-  matchedOperation: MatchedOperation,
+  matchedOperation: MatchedOperation
 ): unknown | undefined {
   const response = context.exchange.response;
   if (!response) {
@@ -363,7 +360,7 @@ function validateSchemaResult(
   schema: unknown,
   value: unknown,
   context: RuleContext,
-  target: 'request' | 'response',
+  target: 'request' | 'response'
 ): Finding[] {
   const result = context.validateSchema(schema, value);
   if (result.valid) {
@@ -371,7 +368,7 @@ function validateSchemaResult(
   }
 
   return result.errors.map((error) => {
-    const details = createSchemaErrorDetails(schema, value, error as ValidationErrorLike, target);
+    const details = createSchemaErrorDetails(schema, value, error, target);
     return {
       ruleId: 'schema-consistency',
       severity: 'error' as const,
@@ -385,7 +382,7 @@ function validateSchemaResult(
       specSource: context.matchedOperation?.operation.specSource,
       target,
       schemaPath: error.schemaPath,
-      dataPath: normalizeDataPathForError(error as ValidationErrorLike),
+      dataPath: normalizeDataPathForError(error),
       details,
     };
   });
@@ -412,7 +409,10 @@ export class SchemaConsistencyRule implements RulePlugin {
 
       const actualValue = getActualParameterValue(parameter, context, cookies);
 
-      if (parameter.required && (actualValue === undefined || actualValue === null || actualValue === '')) {
+      if (
+        parameter.required &&
+        (actualValue === undefined || actualValue === null || actualValue === '')
+      ) {
         findings.push({
           ruleId: this.id,
           severity: 'error',
@@ -432,7 +432,7 @@ export class SchemaConsistencyRule implements RulePlugin {
     const requestContentType = context.exchange.request.headers['content-type'];
     const requestSchema = pickSchemaByMime(
       matchedOperation.operation.requestBodyContent,
-      requestContentType,
+      requestContentType
     );
 
     if (
@@ -465,7 +465,8 @@ export class SchemaConsistencyRule implements RulePlugin {
           target: 'request',
         });
       } else {
-        const requestPayload = context.exchange.request.bodyJson ?? context.exchange.request.bodyText;
+        const requestPayload =
+          context.exchange.request.bodyJson ?? context.exchange.request.bodyText;
         findings.push(...validateSchemaResult(requestSchema, requestPayload, context, 'request'));
       }
     }
@@ -485,8 +486,11 @@ export class SchemaConsistencyRule implements RulePlugin {
           target: 'response',
         });
       } else {
-        const responsePayload = context.exchange.response.bodyJson ?? context.exchange.response.bodyText;
-        findings.push(...validateSchemaResult(responseSchema, responsePayload, context, 'response'));
+        const responsePayload =
+          context.exchange.response.bodyJson ?? context.exchange.response.bodyText;
+        findings.push(
+          ...validateSchemaResult(responseSchema, responsePayload, context, 'response')
+        );
       }
     }
 
