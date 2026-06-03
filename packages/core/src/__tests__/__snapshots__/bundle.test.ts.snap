@@ -443,6 +443,35 @@ components:
 
 `;
 
+exports[`sibling $ref resolution by spec > does not affect non-schema components when --use-titles-for-component-names is on 1`] = `
+openapi: 3.0.0
+paths:
+  /pet:
+    parameters:
+      - $ref: '#/components/parameters/path-param'
+    put:
+      parameters:
+        - $ref: '#/components/parameters/param-b'
+        - $ref: '#/components/parameters/param-b-2'
+    get:
+      parameters:
+        - $ref: '#/components/parameters/param-a'
+        - $ref: '#/components/parameters/param-c'
+components:
+  parameters:
+    param-a:
+      name: test
+    param-b:
+      name: param_b_alt
+    path-param:
+      name: path_param
+    param-c:
+      name: param_c
+    param-b-2:
+      name: param_b
+
+`;
+
 exports[`sibling $ref resolution by spec > should not resolve non-description/summary sibling ref 1`] = `
 openapi: 3.1.0
 info:

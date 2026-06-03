@@ -32,5 +32,11 @@ Options:
       --component-renaming-conflicts-sever  Whether to show warnings or fail on
       ity                                   renaming conflicts (defaults to warn
                                             ). [choices: "warn", "error", "off"]
+      --use-titles-for-component-names      Derive Schema component names from e
+                                            ach schema `title` field (PascalCase
+                                            ). Bundle errors out when a referenc
+                                            ed schema has no title or when two t
+                                            itles produce the same key.
+                                                      [boolean] [default: false]
 
 At least one inline API must be specified when using --output.

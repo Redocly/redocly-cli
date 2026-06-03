@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  title: e2e use-titles
+  version: 1.0.0
+paths:
+  /authorities:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/models/Authority.yaml'
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/requests/Authority.yaml'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/models/Authority.yaml'

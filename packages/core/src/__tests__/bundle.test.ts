@@ -4,10 +4,13 @@ import { outdent } from 'outdent';
 
 import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { bundleDocument } from '../bundle/bundle-document.js';
+import { deriveSchemaNameFromTitle, titleToPascalCase } from '../bundle/bundle-title-naming.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
 import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
+import { type Location } from '../ref-utils.js';
 import { BaseResolver } from '../resolve.js';
+import { type UserContext } from '../walk.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -842,5 +845,131 @@ describe('sibling $ref resolution by spec', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should derive Schema component names from title when flag is on', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming/openapi.yaml'),
+      useTitlesForComponentNames: true,
+    });
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+    expect(Object.keys(parsed.components.schemas).sort()).toEqual([
+      'AuthorityModel',
+      'AuthorityRequest',
+    ]);
+    expect(
+      parsed.paths['/authorities'].get.responses['200'].content['application/json'].schema
+    ).toEqual({ $ref: '#/components/schemas/AuthorityModel' });
+    expect(
+      parsed.paths['/authorities'].post.requestBody.content['application/json'].schema
+    ).toEqual({ $ref: '#/components/schemas/AuthorityRequest' });
+  });
+
+  it('keeps existing behavior when --use-titles-for-component-names is off', async () => {
+    const { bundle: res } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming/openapi.yaml'),
+    });
+    const parsed = res.parsed as any;
+    // Both basenames are "Authority" → second gets -2 suffix.
+    expect(Object.keys(parsed.components.schemas).sort()).toEqual(['Authority', 'Authority-2']);
+  });
+
+  it('errors when a referenced schema has no title and flag is on', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-missing/openapi.yaml'),
+      useTitlesForComponentNames: true,
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('error');
+    expect(problems[0].message).toMatch(/has no `title`/);
+    // Caret points at the schema file that lacks a title.
+    expect(problems[0].location[0].source.absoluteRef).toMatch(
+      /title-naming-missing\/Widget\.yaml$/
+    );
+  });
+
+  it('errors when two schemas resolve to the same title-derived name', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-collision/openapi.yaml'),
+      useTitlesForComponentNames: true,
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('error');
+    // Caret on the second schema's title; message names the first (conflicting) schema.
+    expect(problems[0].location[0].source.absoluteRef).toMatch(/schemas\/b\/User\.yaml$/);
+    expect(problems[0].message).toMatch(
+      /maps to component name `User`, already used by the schema at .*schemas\/a\/User\.yaml/
+    );
+  });
+
+  it('does not affect non-schema components when --use-titles-for-component-names is on', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      useTitlesForComponentNames: true,
+    });
+    // Same warning as without the flag — parameters are out of scope.
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('warn');
+    expect(problems[0].message).toEqual(
+      'Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.'
+    );
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('derives oas2 definition names from title when the flag is on', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-oas2/openapi.yaml'),
+      useTitlesForComponentNames: true,
+    });
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+    expect(Object.keys(parsed.definitions)).toEqual(['UserAccount']);
+    expect(parsed.paths['/users'].get.responses['200'].schema).toEqual({
+      $ref: '#/definitions/UserAccount',
+    });
+  });
+});
+
+describe('titleToPascalCase', () => {
+  it.each([
+    ['Authority model', 'AuthorityModel'],
+    ['authority-model', 'Authority-model'],
+    ['user_profile', 'User_profile'],
+    ['foo.bar', 'Foo.bar'],
+    ['API v2 User', 'APIV2User'],
+  ])('normalizes %j to %j', (input, expected) => {
+    expect(titleToPascalCase(input)).toBe(expected);
+  });
+
+  it('preserves a punctuation-only title that the spec allows as a key', () => {
+    expect(titleToPascalCase('...')).toBe('...');
+  });
+
+  it.each([[''], ['   '], ['User & Group'], ['User Імʼя']])(
+    'returns null for unusable title %j',
+    (input) => {
+      expect(titleToPascalCase(input)).toBeNull();
+    }
+  );
+});
+
+describe('deriveSchemaNameFromTitle', () => {
+  it('reports an error and returns null when the title cannot form a valid key', () => {
+    const problems: { message: string }[] = [];
+    const location = { child: () => location } as unknown as Location;
+    const ctx = {
+      report: (p: { message: string }) => problems.push(p),
+    } as unknown as UserContext;
+    const name = deriveSchemaNameFromTitle({ node: { title: 'User & Group' }, location }, ctx);
+    expect(name).toBeNull();
+    expect(problems).toHaveLength(1);
+    expect(problems[0].message).toMatch(/can't be turned into a component name/);
   });
 });

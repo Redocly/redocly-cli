@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: title-naming missing-title fixture
+  version: 1.0.0
+paths:
+  /widget:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './Widget.yaml'

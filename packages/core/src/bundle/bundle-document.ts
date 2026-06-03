@@ -18,6 +18,7 @@ export type CoreBundleOptions = {
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
   componentRenamingConflicts?: RuleSeverity;
+  useTitlesForComponentNames?: boolean;
 };
 
 type BundleContext = WalkContext;
@@ -40,6 +41,7 @@ export async function bundleDocument(opts: {
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
   componentRenamingConflicts?: RuleSeverity;
+  useTitlesForComponentNames?: boolean;
 }): Promise<BundleResult> {
   const {
     document,
@@ -50,6 +52,7 @@ export async function bundleDocument(opts: {
     removeUnusedComponents = false,
     keepUrlRefs = false,
     componentRenamingConflicts,
+    useTitlesForComponentNames = false,
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
@@ -101,6 +104,7 @@ export async function bundleDocument(opts: {
           resolvedRefMap,
           keepUrlRefs,
           componentRenamingConflicts,
+          useTitlesForComponentNames,
         }),
       },
       ...decorators.filter((decorator) => decorator.ruleId !== 'remove-unused-components'),

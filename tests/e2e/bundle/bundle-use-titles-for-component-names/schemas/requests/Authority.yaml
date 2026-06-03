@@ -1,0 +1,5 @@
+type: object
+title: Authority request
+properties:
+  name: { type: string }
+required: [name]

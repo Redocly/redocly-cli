@@ -17,6 +17,7 @@ import { dequal } from '../utils/dequal.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult } from '../walk.js';
+import { deriveSchemaNameFromTitle } from './bundle-title-naming.js';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -116,6 +117,7 @@ export function makeBundleVisitor({
   resolvedRefMap,
   keepUrlRefs,
   componentRenamingConflicts = 'warn',
+  useTitlesForComponentNames = false,
 }: {
   version: SpecMajorVersion;
   dereference: boolean;
@@ -123,9 +125,16 @@ export function makeBundleVisitor({
   resolvedRefMap: ResolvedRefMap;
   keepUrlRefs: boolean;
   componentRenamingConflicts?: RuleSeverity;
+  useTitlesForComponentNames?: boolean;
 }) {
   let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
+
+  // Where each title-derived Schema name was first used, so a later collision can name the conflicting schema.
+  const titleNameLocations = new Map<string, string>();
+
+  // Spec-specific schema group: "schemas" for OAS3/AsyncAPI/OpenRPC, "definitions" for OAS2.
+  const schemaComponentType = mapTypeToComponent('Schema', version);
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -206,7 +215,7 @@ export function makeBundleVisitor({
   };
 
   if (version === 'oas3') {
-    const componentType = mapTypeToComponent('Schema', version)!;
+    const componentType = schemaComponentType!;
     visitor.Discriminator = {
       leave(discriminator: Oas3Discriminator, ctx: UserContext) {
         if (
@@ -297,9 +306,29 @@ export function makeBundleVisitor({
     ctx: UserContext
   ) {
     const componentsGroup = components[componentType];
-    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
-    let name = pointerBaseName(pointer) || refBaseName(fileRef);
 
+    if (useTitlesForComponentNames && componentType === schemaComponentType) {
+      const titleName = deriveSchemaNameFromTitle(target, ctx);
+      if (titleName === null) return target.location.absolutePointer;
+
+      const existing = componentsGroup[titleName];
+      if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
+        const title = (target.node as { title?: string }).title;
+        ctx.report({
+          message:
+            `Title "${title}" maps to component name \`${titleName}\`, ` +
+            `already used by the schema at ${titleNameLocations.get(titleName)}. Rename one of the titles.`,
+          location: target.location.child('title'),
+          forceSeverity: 'error',
+        });
+        return target.location.absolutePointer;
+      }
+      titleNameLocations.set(titleName, target.location.absolutePointer);
+      return titleName;
+    }
+
+    let name =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
     const prevName = name;
     let serialId = 2;
     while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
