@@ -21,6 +21,8 @@ describe('join', () => {
       'ignore-decorators',
       'multi-references-to-one-file',
       'oas3.2',
+      'root-security-in-both-specs',
+      'root-security-without-paths',
     ];
 
     test.each(testDirNames)('test: %s', async (dir) => {
