@@ -45,6 +45,7 @@ redocly bundle --version
 | --remove-unused-components              | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                        |
 | --skip-decorator                        | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                 |
 | --skip-preprocessor                     | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                              |
+| --use-titles-for-component-names        | boolean  | Build Schema component names from each schema's `title` field. See [Use titles for component names](#use-titles-for-component-names).                                                                                                                     |
 | --version                               | boolean  | Show version number.                                                                                                                                                                                                                                      |
 
 ## Examples
@@ -147,3 +148,31 @@ You can adjust how the CLI handles these naming conflicts with the `--component-
 - `off`: No warnings or errors are shown.
 - `warn` (default): Shows a warning and renames conflicting components automatically.
 - `error`: Treats conflicts as errors; the bundling process fails if a naming conflict is detected.
+
+### Use titles for component names
+
+By default, the bundler names each inlined Schema component after the JSON Pointer fragment of its `$ref`, or after the source file's basename when no fragment is present. Two external files that share a basename (for example, `schemas/models/Authority.yaml` and `schemas/requests/Authority.yaml`) are emitted as `Authority` and `Authority-2`. The suffix is auto-generated and brittle: an unrelated `$ref` change can renumber it.
+
+With `--use-titles-for-component-names`, the bundler instead builds each Schema component name from that schema's `title` field. Words (separated by spaces) are capitalized and concatenated, while the spec-legal `.`, `-`, and `_` characters are kept as-is:
+
+```yaml
+# schemas/models/Authority.yaml
+type: object
+title: Authority model
+
+# schemas/requests/Authority.yaml
+type: object
+title: Authority request
+```
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --use-titles-for-component-names
+```
+
+The bundled output contains `AuthorityModel` and `AuthorityRequest` instead of `Authority` and `Authority-2`. A title containing `.`, `-`, or `_` keeps those characters — for example, `order-item` becomes `Order-item`.
+
+The flag enforces three rules. When any of them is violated, the bundle ends with an error and no output file is written (unless `--force` is also passed):
+
+- Every externally referenced schema must define a non-empty `title`.
+- The title may contain only ASCII letters, digits, `.`, `-`, `_`, and spaces. Any other character (for example `title: "User & Group"` or a non-ASCII title) is rejected.
+- Two schemas must not produce the same name — for example, two schemas titled `User` fail instead of becoming `User` and `User-2`.

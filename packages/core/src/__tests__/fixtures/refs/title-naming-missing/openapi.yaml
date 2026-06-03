@@ -3,7 +3,7 @@ info:
   title: title-naming missing-title fixture
   version: 1.0.0
 paths:
-  /widget:
+  /orders:
     get:
       responses:
         '200':
@@ -11,4 +11,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Widget.yaml'
+                $ref: './schemas/Order.yaml'

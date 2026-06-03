@@ -17,7 +17,7 @@ import { dequal } from '../utils/dequal.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult } from '../walk.js';
-import { deriveSchemaNameFromTitle } from './bundle-title-naming.js';
+import { buildSchemaNameFromTitle } from './bundle-title-naming.js';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -130,10 +130,9 @@ export function makeBundleVisitor({
   let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
 
-  // Where each title-derived Schema name was first used, so a later collision can name the conflicting schema.
+  // First location for each name, to report the conflicting schema on a collision.
   const titleNameLocations = new Map<string, string>();
 
-  // Spec-specific schema group: "schemas" for OAS3/AsyncAPI/OpenRPC, "definitions" for OAS2.
   const schemaComponentType = mapTypeToComponent('Schema', version);
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -308,7 +307,7 @@ export function makeBundleVisitor({
     const componentsGroup = components[componentType];
 
     if (useTitlesForComponentNames && componentType === schemaComponentType) {
-      const titleName = deriveSchemaNameFromTitle(target, ctx);
+      const titleName = buildSchemaNameFromTitle(target, ctx);
       if (titleName === null) return target.location.absolutePointer;
 
       const existing = componentsGroup[titleName];

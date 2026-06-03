@@ -27,7 +27,7 @@ export function titleToPascalCase(title: string): string | null {
 }
 
 /** Schema component name from its `title`; errors and returns `null` if missing or unusable. */
-export function deriveSchemaNameFromTitle(
+export function buildSchemaNameFromTitle(
   target: { node: unknown; location: Location },
   ctx: UserContext
 ): string | null {
@@ -35,7 +35,7 @@ export function deriveSchemaNameFromTitle(
   const title = typeof node?.title === 'string' ? node.title : '';
   if (title === '') {
     ctx.report({
-      message: `Schema has no \`title\` to derive a component name from. Add a \`title\`.`,
+      message: `Schema has no \`title\` to build a component name from. Add a \`title\`.`,
       location: target.location,
       forceSeverity: 'error',
     });

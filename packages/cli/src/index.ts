@@ -492,8 +492,7 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           },
           'use-titles-for-component-names': {
-            description:
-              'Derive Schema component names from each schema `title` field (PascalCase). Bundle errors out when a referenced schema has no title or when two titles produce the same key.',
+            description: "Build Schema component names from each schema's `title` field.",
             type: 'boolean',
             default: false,
           },
