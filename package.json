@@ -72,7 +72,7 @@
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
       "npm run lint",
-      "npm run format"
+      "oxfmt --write"
     ],
     "packages/**/*.ts": [
       "npm run lint:fix"

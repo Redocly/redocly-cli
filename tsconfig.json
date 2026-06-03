@@ -17,7 +17,7 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
-    "lib": ["ES2023", "DOM", "dom.iterable"],
+    "lib": ["ESNext", "DOM", "dom.iterable"],
     "paths": { "*": ["./packages/*"] },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
