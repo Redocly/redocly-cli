@@ -11,6 +11,9 @@ import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
+import { handleDrift, type DriftArgv } from './commands/drift/index.js';
+import type { ReportFormat } from './commands/drift/engine/reporter.js';
+import type { MatchMode, TrafficFormat } from './commands/drift/types/index.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
@@ -875,6 +878,72 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
+    }
+  )
+  .command(
+    'drift <traffic>',
+    'Detect drift between recorded HTTP traffic and an OpenAPI description, or generate one from traffic [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DRIFT')
+        .positional('traffic', {
+          describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
+          type: 'string',
+        })
+        .option({
+          api: {
+            describe:
+              'OpenAPI description file or folder to validate against. Omit to generate a description from traffic.',
+            type: 'string',
+          },
+          'traffic-format': {
+            describe: 'Traffic input format.',
+            choices: ['auto', 'har', 'kong', 'nginx-json', 'apache-json', 'ndjson'] as ReadonlyArray<TrafficFormat>,
+            default: 'auto' as TrafficFormat,
+          },
+          format: {
+            describe: 'Output format.',
+            choices: ['pretty', 'json', 'csv', 'sarif'] as ReadonlyArray<ReportFormat>,
+            default: 'pretty' as ReportFormat,
+          },
+          'match-mode': {
+            describe: 'Endpoint matching mode.',
+            choices: ['strict-host', 'basepath'] as ReadonlyArray<MatchMode>,
+            default: 'strict-host' as MatchMode,
+          },
+          'ignore-cookies': {
+            describe: 'Ignore cookie-based checks (useful for logs exported without cookies).',
+            type: 'boolean',
+            default: false,
+          },
+          'max-findings': {
+            describe: 'Maximum findings shown in pretty output.',
+            type: 'number',
+            default: 10,
+          },
+          rules: {
+            describe: 'Comma-separated builtin rules to run.',
+            type: 'string',
+          },
+          plugin: {
+            describe: 'Path to an external rule plugin module (repeatable).',
+            type: 'string',
+            array: true,
+          },
+          'traffic-plugin': {
+            describe: 'Path to an external traffic parser module (repeatable).',
+            type: 'string',
+            array: true,
+          },
+          'generate-output': {
+            alias: 'o',
+            describe: 'When generating a description from traffic, write it to this file instead of stdout.',
+            type: 'string',
+          },
+          config: { describe: 'Path to the config file.', type: 'string' },
+        }),
+    (argv) => {
+      commandWrapper(handleDrift)(argv as Arguments<DriftArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
