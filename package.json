@@ -54,7 +54,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@types/node": "^22.15.3",
-    "@vitest/coverage-istanbul": "^4.0.18",
+    "@vitest/coverage-istanbul": "^4.1.8",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",
@@ -67,7 +67,7 @@
     "slackify-markdown": "^4.3.1",
     "tsx": "^4.19.3",
     "typescript": "6.0.2",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.8"
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [

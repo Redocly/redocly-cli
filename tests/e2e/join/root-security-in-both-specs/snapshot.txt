@@ -1,0 +1,62 @@
+
+openapi: 3.1.0
+info:
+  title: Foo
+  version: 1.0.0
+tags:
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
+paths:
+  /products:
+    servers: []
+    get:
+      summary: Get products
+      operationId: getProducts
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - foo_other
+      security:
+        - oauth2: []
+  /pets:
+    servers: []
+    get:
+      summary: Get pets
+      operationId: getPets
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - bar_other
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes: {}
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-tagGroups:
+  - name: Foo
+    tags:
+      - foo_other
+  - name: Bar
+    tags:
+      - bar_other
+
+openapi.yaml: join processed in <test>ms
+
