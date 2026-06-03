@@ -33,10 +33,7 @@ Options:
       ity                                   renaming conflicts (defaults to warn
                                             ). [choices: "warn", "error", "off"]
       --use-titles-for-component-names      Build Schema component names from ea
-                                            ch schema's `title` field. Bundle er
-                                            rors out when a referenced schema ha
-                                            s no title or when two titles produc
-                                            e the same key.
+                                            ch schema's `title` field.
                                                       [boolean] [default: false]
 
 At least one inline API must be specified when using --output.
