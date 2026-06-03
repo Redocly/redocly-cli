@@ -49,6 +49,8 @@ Before submitting a pull request, please make sure the following is done:
    If you think it makes sense to keep several commit descriptions, please rebase your PR instead of squashing it to preserve the commits.
    Please use the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
 
+Please do not modify the PR template.
+
 ## Development setup
 
 [Node.js](http://nodejs.org) at v22.12.0+ and NPM v11+ are required.
