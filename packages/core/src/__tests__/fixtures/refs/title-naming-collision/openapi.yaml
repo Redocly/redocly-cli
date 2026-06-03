@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: collision fixture
+  title: title-naming collision fixture
   version: 1.0.0
 paths:
   /a:
