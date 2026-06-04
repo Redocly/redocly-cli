@@ -7,26 +7,14 @@ function isInlineParameter(parameter: Parameter): boolean {
   return isPlainObject(parameter) && !('reference' in parameter);
 }
 
-function checkParameters(
-  parameters: Parameter[],
-  hasWorkflowId: boolean,
-  { report, location }: UserContext
-) {
+function checkInRequired(parameters: Parameter[], { report, location }: UserContext) {
   if (!Array.isArray(parameters)) return;
 
   for (let i = 0; i < parameters.length; i++) {
     const parameter = parameters[i];
     if (!isInlineParameter(parameter)) continue;
 
-    const hasIn = 'in' in parameter;
-
-    if (hasWorkflowId && hasIn) {
-      report({
-        message:
-          'Parameter `in` field MUST NOT be specified when the parent references a `workflowId`; parameters map to workflow inputs.',
-        location: location.child(['parameters', i, 'in']).key(),
-      });
-    } else if (!hasWorkflowId && !hasIn) {
+    if (!('in' in parameter)) {
       report({
         message:
           'Parameter `in` field MUST be specified when the parent does not reference a `workflowId`.',
@@ -42,13 +30,14 @@ export const SpecParametersInByContext: Arazzo1Rule = () => {
       enter(workflow, ctx: UserContext) {
         if (!workflow.parameters) return;
         // A workflow never references another workflow, so `in` is always required.
-        checkParameters(workflow.parameters, false, ctx);
+        checkInRequired(workflow.parameters, ctx);
       },
     },
     Step: {
       enter(step, ctx: UserContext) {
         if (!step.parameters) return;
-        checkParameters(step.parameters, Boolean(step.workflowId), ctx);
+        if (step.workflowId) return;
+        checkInRequired(step.parameters, ctx);
       },
     },
     SuccessActionObject: {

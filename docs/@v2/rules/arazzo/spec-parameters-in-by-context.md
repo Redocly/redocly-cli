@@ -1,6 +1,6 @@
 # spec-parameters-in-by-context
 
-Requires the `in` field on a parameter to be specified or omitted based on the parent context.
+Validates how the `in` field is used on parameters based on the parent context.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -8,10 +8,14 @@ Requires the `in` field on a parameter to be specified or omitted based on the p
 
 ## Design principles
 
-The Arazzo specification states that when a step, success action, or failure action specifies a `workflowId`, all parameters map to the referenced workflow's inputs and the `in` field MUST NOT be specified.
-In every other case (for example, when a step specifies an `operationId`, `operationPath`, or `x-operation`, or for parameters defined at the workflow level), the `in` field MUST be specified on each parameter.
+The `in` field on an Arazzo parameter is not a required property — omitting it carries semantics.
+When a step references a `workflowId`, a parameter with no `in` field is mapped to the referenced workflow's inputs.
+When `in` is specified, the parameter is sent at that request location (`header`, `query`, `path`, or `cookie`) against the targeted operation.
 
-This rule additionally enforces that success and failure action `parameters` are only valid when the action references a `workflowId`.
+This rule enforces the following:
+
+- For a step that does not reference a `workflowId` (for example, one using `operationId`, `operationPath`, or `x-operation`), and for parameters defined at the workflow level, `in` must be specified on each inline parameter.
+- Parameters on success and failure actions are only valid when the action references a `workflowId` — these parameters map to the referenced workflow's inputs and the spec states that `in` MUST NOT be used on them (see the [Success Action Object](https://spec.openapis.org/arazzo/latest.html#success-action-object) and [Failure Action Object](https://spec.openapis.org/arazzo/latest.html#failure-action-object)).
 
 ## Configuration
 
@@ -50,7 +54,7 @@ workflows:
             value: '2024-01-01'
 ```
 
-Example of a **correct** step referencing a `workflowId` (parameters map to workflow inputs, no `in` field):
+Example of a **correct** step referencing a `workflowId` (parameters omit `in` and are mapped to the referenced workflow's inputs):
 
 ```yaml
 # Correct example - workflowId
@@ -80,21 +84,6 @@ workflows:
             parameters:
               - name: startDate
                 value: '2024-01-01'
-```
-
-Example of an **incorrect** step referencing a `workflowId` while declaring `in` on a parameter:
-
-```yaml
-# Incorrect example - workflowId with `in`
-workflows:
-  - workflowId: buy-tickets
-    steps:
-      - stepId: reuse-hours-workflow
-        workflowId: get-museum-hours
-        parameters:
-          - in: query
-            name: startDate
-            value: '2024-01-01'
 ```
 
 Example of an **incorrect** step referencing an `operationId` while omitting `in`:
