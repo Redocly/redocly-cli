@@ -186,7 +186,6 @@ export const actionParameter = {
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
         },
-        'x-allowReserved': { type: 'boolean' },
       },
       required: ['name', 'value'],
       additionalProperties: false,
