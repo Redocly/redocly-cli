@@ -91,7 +91,7 @@ describe('Arazzo spec-parameters-in-by-context', () => {
     `);
   });
 
-  it('should report when step references workflowId and a parameter has `in`', async () => {
+  it('should not report when step references workflowId and a parameter declares `in` (spec is silent on steps)', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -104,11 +104,6 @@ describe('Arazzo spec-parameters-in-by-context', () => {
             url: openapi.yaml
         workflows:
           - workflowId: outer
-            inputs:
-              type: object
-              properties:
-                token:
-                  type: string
             steps:
               - stepId: call-inner
                 workflowId: inner
@@ -132,23 +127,7 @@ describe('Arazzo spec-parameters-in-by-context', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/workflows/0/steps/0/parameters/0/in",
-              "reportOnKey": true,
-              "source": "arazzo.yaml",
-            },
-          ],
-          "message": "Parameter \`in\` field MUST NOT be specified when the parent references a \`workflowId\`; parameters map to workflow inputs.",
-          "ruleId": "spec-parameters-in-by-context",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report when step references workflowId and parameter has no `in`', async () => {
