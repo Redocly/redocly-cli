@@ -13,63 +13,15 @@ exports[`should make request with Authorization header \`Bearer ...\` 1`] = `
       authorization: Bearer ******** 
  
 
-    Response status code: 200
+    Response status code: 400
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ] 
+      {
+        "type": "object",
+        "title": "Not authenticated. Supported authentication types: MuseumPlaceholderAuth."
+      } 
  
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
