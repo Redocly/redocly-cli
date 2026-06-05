@@ -313,13 +313,11 @@ Message: Operation object should contain `operationId` field.</failure>
 
 A valid (empty) report is produced even when no problems are found, so passing runs still populate the CI test results.
 
-````
-
 #### GitHub Actions
 
 ```bash
 redocly lint --format=github-actions
-````
+```
 
 The `lint` command also comes with support for a [GitHub Actions](https://docs.github.com/en/actions) specific formatting.
 Specify this output format to have any encountered problem annotated on the affected files.
