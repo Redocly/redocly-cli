@@ -29,7 +29,7 @@ redocly lint --version
 | apis                   | [string] | Array of API or Arazzo description filenames that need to be linted. See [the API section](#specify-api) for more options.                                                                                  |
 | --config               | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                   |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings). Build-in rulesets are: `spec`, `minimal`, `recommended`, `recommended-strict`. Default value is `recommended`. |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                        |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`, `junit`. Default value is `codeframe`.               |
 | --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                                              |
 | --help                 | boolean  | Show help.                                                                                                                                                                                                  |
 | --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                          |
@@ -130,7 +130,7 @@ However, if you have a configuration file, but it doesn't include any rules or e
 ### Specify output format
 
 The standard `codeframe` output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
-When multiple APIs are linted in a single command, the `checkstyle` format produces a single combined XML document with one `<file>` element per API.
+When multiple APIs are linted in a single command, the `checkstyle` and `junit` formats each produce a single combined XML document, with one `<file>` (checkstyle) or `<testsuite>` (junit) element per API.
 
 #### Codeframe (default)
 
@@ -272,6 +272,39 @@ Run this command to use the following standard format output with your other too
 
 Due to the limitations of this format, only file name, line, column, severity, and rule ID (in the `source` attribute) are included.
 All other information is omitted.
+
+#### JUnit
+
+```bash
+redocly lint --format=junit
+```
+
+The `lint` command supports the JUnit XML report format, which is consumed by many CI systems (for example, CircleCI's `store_test_results` step).
+Each linted API becomes a `<testsuite>`, and each problem becomes a `<testcase>`.
+Errors are reported as `<error>` elements and warnings as `<failure>` elements, so CI tools that render the two differently keep errors and warnings visually distinct.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="redocly lint" tests="3" errors="2" failures="1" skipped="0">
+<testsuite name="museum-with-errors.yaml" tests="3" errors="2" failures="1">
+<testcase classname="struct" name="struct - 19:7" file="museum-with-errors.yaml" line="19">
+<error message="Property `operationIds` is not expected here." type="struct">at #/paths/~1museum-hours/get</error>
+</testcase>
+<testcase classname="operation-operationId" name="operation-operationId - 16:5" file="museum-with-errors.yaml" line="16">
+<failure message="Operation object should contain `operationId` field." type="operation-operationId">at #/paths/~1museum-hours/get</failure>
+</testcase>
+</testsuite>
+</testsuites>
+```
+
+A valid (empty) report is produced even when no problems are found, so passing runs still populate the CI test results.
+In CircleCI, write the output to a file and upload it:
+
+```yaml
+- run: redocly lint openapi.yaml --format=junit > /tmp/test-results/redocly.xml
+- store_test_results:
+    path: /tmp/test-results
+```
 
 #### GitHub Actions
 

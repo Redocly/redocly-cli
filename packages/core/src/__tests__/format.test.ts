@@ -307,4 +307,71 @@ describe('format', () => {
       "
     `);
   });
+
+  it('should map errors to <error> and warnings to <failure> in junit format', () => {
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'struct',
+        message: 'message',
+        severity: 'error',
+        location: [
+          {
+            source: { absoluteRef: 'openapi.yaml' } as Source,
+            start: { line: 1, col: 2 },
+            end: { line: 3, col: 4 },
+          } as LocationObject,
+        ],
+        suggest: [],
+      },
+      {
+        ruleId: 'other-rule',
+        message: 'a warning',
+        severity: 'warn',
+        location: [
+          {
+            source: { absoluteRef: 'openapi.yaml' } as Source,
+            start: { line: 5, col: 1 },
+            end: { line: 5, col: 9 },
+          } as LocationObject,
+        ],
+        suggest: [],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'junit',
+      version: '1.0.0',
+      totals: getTotals(problems),
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      "<?xml version="1.0" encoding="UTF-8"?>
+      <testsuites name="redocly lint" tests="2" errors="1" failures="1" skipped="0">
+      <testsuite name="openapi.yaml" tests="2" errors="1" failures="1">
+      <testcase classname="struct" name="struct - 1:2" file="openapi.yaml" line="1">
+      <error message="message" type="struct"></error>
+      </testcase>
+      <testcase classname="other-rule" name="other-rule - 5:1" file="openapi.yaml" line="5">
+      <failure message="a warning" type="other-rule"></failure>
+      </testcase>
+      </testsuite>
+      </testsuites>
+      "
+    `);
+  });
+
+  it('should emit a valid empty report in junit format when there are no problems', () => {
+    formatProblems([], {
+      format: 'junit',
+      version: '1.0.0',
+      totals: getTotals([]),
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      "<?xml version="1.0" encoding="UTF-8"?>
+      <testsuites name="redocly lint" tests="0" errors="0" failures="0" skipped="0">
+      </testsuites>
+      "
+    `);
+  });
 });
