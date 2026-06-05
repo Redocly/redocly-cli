@@ -349,10 +349,20 @@ describe('format', () => {
       <testsuites name="redocly lint" tests="2" errors="1" failures="1" skipped="0">
       <testsuite name="openapi.yaml" tests="2" errors="1" failures="1">
       <testcase classname="struct" name="struct - 1:2" file="openapi.yaml" line="1">
-      <error message="message" type="struct"></error>
+      <error message="message" type="struct">Rule: struct
+      Severity: error
+      File: openapi.yaml
+      Line: 1
+      Column: 2
+      Message: message</error>
       </testcase>
       <testcase classname="other-rule" name="other-rule - 5:1" file="openapi.yaml" line="5">
-      <failure message="a warning" type="other-rule"></failure>
+      <failure message="a warning" type="other-rule">Rule: other-rule
+      Severity: warn
+      File: openapi.yaml
+      Line: 5
+      Column: 1
+      Message: a warning</failure>
       </testcase>
       </testsuite>
       </testsuites>

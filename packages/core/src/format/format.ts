@@ -368,13 +368,27 @@ export function formatProblems(
     const element = problem.severity === 'error' ? 'error' : 'failure';
     const ruleId = xmlEscape(problem.ruleId);
     const message = xmlEscape(problem.message);
-    const body = location.pointer ? `at ${xmlEscape(location.pointer)}` : '';
+
+    const details = [
+      `Rule: ${ruleId}`,
+      `Severity: ${xmlEscape(problem.severity)}`,
+      `File: ${xmlEscape(relativePath)}`,
+      `Line: ${start.line}`,
+      `Column: ${start.col}`,
+    ];
+    if (location.pointer) {
+      details.push(`Pointer: ${xmlEscape(location.pointer)}`);
+    }
+    details.push(`Message: ${message}`);
+
     logger.output(
       `<testcase classname="${ruleId}" name="${xmlEscape(
         `${problem.ruleId} - ${start.line}:${start.col}`
       )}" file="${xmlEscape(relativePath)}" line="${start.line}">\n`
     );
-    logger.output(`<${element} message="${message}" type="${ruleId}">${body}</${element}>\n`);
+    logger.output(
+      `<${element} message="${message}" type="${ruleId}">${details.join('\n')}</${element}>\n`
+    );
     logger.output(`</testcase>\n`);
   }
 }
