@@ -315,6 +315,10 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
   },
+  graphqlRules: {
+    'type-description': 'off',
+    'type-pascal-case': 'off',
+  },
 };
 
 export default spec;
