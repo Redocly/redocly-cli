@@ -1,7 +1,7 @@
-import { isRef } from '../../ref-utils.js';
-import type { UserContext } from '../../walk.js';
+import { isRef } from '../ref-utils.js';
+import type { UserContext } from '../walk.js';
 
-export function operationHasSecurity(
+export function isOperationSecured(
   operation: { security?: unknown; traits?: unknown[] } | undefined,
   resolve: UserContext['resolve']
 ): boolean {
