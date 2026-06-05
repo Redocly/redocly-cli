@@ -188,8 +188,8 @@ export function formatProblems(
       break;
     }
     case 'junit': {
-      const emittedErrors = problems.filter((p) => p.severity === 'error').length;
-      const emittedFailures = problems.filter((p) => p.severity === 'warn').length;
+      const totalErrors = problems.filter((p) => p.severity === 'error').length;
+      const totalWarnings = problems.filter((p) => p.severity === 'warn').length;
 
       const groupedByFile: Record<string, NormalizedProblem[]> = {};
       for (const problem of problems) {
@@ -202,17 +202,17 @@ export function formatProblems(
 
       logger.output('<?xml version="1.0" encoding="UTF-8"?>\n');
       logger.output(
-        `<testsuites name="redocly lint" tests="${problems.length}" errors="${emittedErrors}" failures="${emittedFailures}" skipped="0">\n`
+        `<testsuites name="redocly lint" tests="${problems.length}" errors="${totalErrors}" failures="${totalWarnings}" skipped="0">\n`
       );
 
       for (const [file, fileProblems] of Object.entries(groupedByFile)) {
         const relativePath = isAbsoluteUrl(file) ? file : path.relative(cwd, file);
         const fileErrors = fileProblems.filter((p) => p.severity === 'error').length;
-        const fileFailures = fileProblems.filter((p) => p.severity === 'warn').length;
+        const fileWarnings = fileProblems.filter((p) => p.severity === 'warn').length;
         logger.output(
           `<testsuite name="${xmlEscape(relativePath)}" tests="${
             fileProblems.length
-          }" errors="${fileErrors}" failures="${fileFailures}">\n`
+          }" errors="${fileErrors}" failures="${fileWarnings}">\n`
         );
         fileProblems.forEach((problem) => formatJunit(problem, relativePath));
         logger.output(`</testsuite>\n`);
