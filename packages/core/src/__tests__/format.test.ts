@@ -370,6 +370,70 @@ describe('format', () => {
     `);
   });
 
+  it('should group problems from different files into separate testsuites in junit format', () => {
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'struct',
+        message: 'error in first file',
+        severity: 'error',
+        location: [
+          {
+            source: { absoluteRef: 'first.yaml' } as Source,
+            start: { line: 1, col: 2 },
+            end: { line: 3, col: 4 },
+          } as LocationObject,
+        ],
+        suggest: [],
+      },
+      {
+        ruleId: 'struct',
+        message: 'error in second file',
+        severity: 'error',
+        location: [
+          {
+            source: { absoluteRef: 'second.yaml' } as Source,
+            start: { line: 7, col: 5 },
+            end: { line: 7, col: 9 },
+          } as LocationObject,
+        ],
+        suggest: [],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'junit',
+      version: '1.0.0',
+      totals: getTotals(problems),
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      "<?xml version="1.0" encoding="UTF-8"?>
+      <testsuites name="redocly lint" tests="2" errors="2" failures="0" skipped="0">
+      <testsuite name="first.yaml" tests="1" errors="1" failures="0">
+      <testcase classname="struct" name="struct" file="first.yaml" line="1">
+      <error message="error in first file" type="struct">Rule: struct
+      Severity: error
+      File: first.yaml
+      Line: 1
+      Column: 2
+      Message: error in first file</error>
+      </testcase>
+      </testsuite>
+      <testsuite name="second.yaml" tests="1" errors="1" failures="0">
+      <testcase classname="struct" name="struct" file="second.yaml" line="7">
+      <error message="error in second file" type="struct">Rule: struct
+      Severity: error
+      File: second.yaml
+      Line: 7
+      Column: 5
+      Message: error in second file</error>
+      </testcase>
+      </testsuite>
+      </testsuites>
+      "
+    `);
+  });
+
   it('should emit a valid empty report in junit format when there are no problems', () => {
     formatProblems([], {
       format: 'junit',
