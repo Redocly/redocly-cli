@@ -1,7 +1,14 @@
 import type { Location } from '../../ref-utils.js';
+import type {
+  Async2Channel,
+  Async2Operation,
+  Async2SecurityRequirement,
+  Async2SecurityScheme,
+  Async2Server,
+} from '../../typings/asyncapi.js';
+import { isOperationSecured } from '../../utils/is-operation-secured.js';
 import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { operationHasSecurity } from '../common/operation-has-security.js';
 
 export const SecurityDefined: Async2Rule = () => {
   const referencedSchemes = new Map<
@@ -17,7 +24,7 @@ export const SecurityDefined: Async2Rule = () => {
 
   return {
     Root: {
-      leave(_root: unknown, { report }: UserContext) {
+      leave(_root, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
@@ -41,10 +48,10 @@ export const SecurityDefined: Async2Rule = () => {
         }
       },
     },
-    SecurityScheme(_scheme: unknown, { key }: UserContext) {
+    SecurityScheme(_scheme: Async2SecurityScheme, { key }: UserContext) {
       referencedSchemes.set(key.toString(), { defined: true, from: [] });
     },
-    SecurityRequirement(requirements: Record<string, string[]>, { location }: UserContext) {
+    SecurityRequirement(requirements: Async2SecurityRequirement, { location }: UserContext) {
       for (const requirement of Object.keys(requirements)) {
         const authScheme = referencedSchemes.get(requirement);
         const requirementLocation = location.child([requirement]);
@@ -55,18 +62,15 @@ export const SecurityDefined: Async2Rule = () => {
         }
       }
     },
-    Server(server: { security?: unknown }, { key }: UserContext) {
+    Server(server: Async2Server, { key }: UserContext) {
       serverHasSecurity.set(key.toString(), Boolean(server?.security));
     },
     Channel: {
-      enter(channel: { servers?: string[] }) {
+      enter(channel: Async2Channel) {
         currentChannelServers = Array.isArray(channel?.servers) ? channel.servers : undefined;
       },
-      Operation(
-        operation: { security?: unknown; traits?: unknown[] },
-        { location, resolve }: UserContext
-      ) {
-        if (operationHasSecurity(operation, resolve)) return;
+      Operation(operation: Async2Operation, { location, resolve }: UserContext) {
+        if (isOperationSecured(operation, resolve)) return;
         operationsWithoutSecurity.push({ location, channelServers: currentChannelServers });
       },
     },

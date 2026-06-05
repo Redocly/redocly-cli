@@ -1,7 +1,14 @@
 import { isRef, type Location } from '../../ref-utils.js';
+import type {
+  Async3Channel,
+  Async3Operation,
+  Async3SecurityScheme,
+  Async3Server,
+} from '../../typings/asyncapi3.js';
+import type { Referenced } from '../../typings/openapi.js';
+import { isOperationSecured } from '../../utils/is-operation-secured.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { operationHasSecurity } from '../common/operation-has-security.js';
 
 const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
 
@@ -15,41 +22,35 @@ type SecurityReference = {
 export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
   const operationsWithoutSecurity: Location[] = [];
-  let rootServers: Record<string, unknown> | undefined;
+  let rootServers: Record<string, Async3Server> | undefined;
 
-  const resolveMaybeRef = (node: unknown, resolve: UserContext['resolve']): unknown =>
-    isRef(node) ? resolve(node).node : node;
-
-  const operationSecuredByServers = (
-    operation: { channel?: unknown },
+  const isOperationSecuredByServers = (
+    operation: Async3Operation,
     resolve: UserContext['resolve']
   ): boolean => {
-    const channelRaw = operation?.channel;
-    let channel: { servers?: unknown[] } | undefined;
-    if (isRef(channelRaw)) {
-      const resolved = resolve(channelRaw);
+    const channelRef = operation.channel;
+    let channel: Async3Channel | undefined;
+    if (isRef(channelRef)) {
+      const resolved = resolve<Async3Channel>(channelRef);
       if (resolved.node === undefined) return false;
-      channel = resolved.node as { servers?: unknown[] };
+      channel = resolved.node;
     } else {
-      channel = channelRaw as { servers?: unknown[] } | undefined;
+      channel = channelRef;
     }
-    const applicableServers = Array.isArray(channel?.servers)
-      ? channel.servers
-      : rootServers
-        ? Object.values(rootServers)
-        : [];
+    const applicableServers: Array<Referenced<Async3Server>> =
+      channel?.servers ?? (rootServers ? Object.values(rootServers) : []);
     return applicableServers.some((server) => {
-      const serverNode = resolveMaybeRef(server, resolve) as { security?: unknown } | undefined;
+      const serverNode = isRef(server) ? resolve<Async3Server>(server).node : server;
       return Boolean(serverNode?.security);
     });
   };
 
   return {
     Root: {
-      enter(root: { servers?: Record<string, unknown> }) {
+      enter(root) {
         rootServers = root?.servers;
       },
-      leave(_root: unknown, { report }: UserContext) {
+      leave(_root, { report }: UserContext) {
         for (const reference of references) {
           if (!reference.resolved) {
             report({
@@ -80,13 +81,13 @@ export const SecurityDefined: Async3Rule = () => {
       },
     },
     SecuritySchemeList: {
-      enter(list: unknown[] | undefined, { location, resolve }: UserContext) {
+      enter(list: Array<Referenced<Async3SecurityScheme>>, { location, resolve }: UserContext) {
         if (!list) return;
         for (let i = 0; i < list.length; i++) {
           const item = list[i];
           if (!isRef(item)) continue;
           const itemLocation = location.child([i]);
-          const resolved = resolve(item);
+          const resolved = resolve<Async3SecurityScheme>(item);
           const name = item.$ref.split('/').pop() ?? item.$ref;
           references.push({
             location: itemLocation,
@@ -97,12 +98,9 @@ export const SecurityDefined: Async3Rule = () => {
         }
       },
     },
-    Operation(
-      operation: { security?: unknown; traits?: unknown[]; channel?: unknown },
-      { location, resolve }: UserContext
-    ) {
-      if (operationHasSecurity(operation, resolve)) return;
-      if (operationSecuredByServers(operation, resolve)) return;
+    Operation(operation: Async3Operation, { location, resolve }: UserContext) {
+      if (isOperationSecured(operation, resolve)) return;
+      if (isOperationSecuredByServers(operation, resolve)) return;
       operationsWithoutSecurity.push(location);
     },
   };
