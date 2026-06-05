@@ -189,12 +189,15 @@ export function formatProblems(
     }
     case 'junit': {
       const emittedErrors = problems.filter((p) => p.severity === 'error').length;
-      const emittedFailures = problems.length - emittedErrors;
+      const emittedFailures = problems.filter((p) => p.severity === 'warn').length;
 
       const groupedByFile: Record<string, NormalizedProblem[]> = {};
       for (const problem of problems) {
         const absoluteRef = problem.location[0].source.absoluteRef;
-        (groupedByFile[absoluteRef] ||= []).push(problem);
+        if (!groupedByFile[absoluteRef]) {
+          groupedByFile[absoluteRef] = [];
+        }
+        groupedByFile[absoluteRef].push(problem);
       }
 
       logger.output('<?xml version="1.0" encoding="UTF-8"?>\n');
@@ -205,7 +208,7 @@ export function formatProblems(
       for (const [file, fileProblems] of Object.entries(groupedByFile)) {
         const relativePath = isAbsoluteUrl(file) ? file : path.relative(cwd, file);
         const fileErrors = fileProblems.filter((p) => p.severity === 'error').length;
-        const fileFailures = fileProblems.length - fileErrors;
+        const fileFailures = fileProblems.filter((p) => p.severity === 'warn').length;
         logger.output(
           `<testsuite name="${xmlEscape(relativePath)}" tests="${
             fileProblems.length
@@ -382,9 +385,9 @@ export function formatProblems(
     details.push(`Message: ${message}`);
 
     logger.output(
-      `<testcase classname="${ruleId}" name="${xmlEscape(
-        `${problem.ruleId} - ${start.line}:${start.col}`
-      )}" file="${xmlEscape(relativePath)}" line="${start.line}">\n`
+      `<testcase classname="${ruleId}" name="${ruleId}" file="${xmlEscape(
+        relativePath
+      )}" line="${start.line}">\n`
     );
     logger.output(
       `<${element} message="${message}" type="${ruleId}">${details.join('\n')}</${element}>\n`

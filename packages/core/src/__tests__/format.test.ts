@@ -348,7 +348,7 @@ describe('format', () => {
       "<?xml version="1.0" encoding="UTF-8"?>
       <testsuites name="redocly lint" tests="2" errors="1" failures="1" skipped="0">
       <testsuite name="openapi.yaml" tests="2" errors="1" failures="1">
-      <testcase classname="struct" name="struct - 1:2" file="openapi.yaml" line="1">
+      <testcase classname="struct" name="struct" file="openapi.yaml" line="1">
       <error message="message" type="struct">Rule: struct
       Severity: error
       File: openapi.yaml
@@ -356,7 +356,7 @@ describe('format', () => {
       Column: 2
       Message: message</error>
       </testcase>
-      <testcase classname="other-rule" name="other-rule - 5:1" file="openapi.yaml" line="5">
+      <testcase classname="other-rule" name="other-rule" file="openapi.yaml" line="5">
       <failure message="a warning" type="other-rule">Rule: other-rule
       Severity: warn
       File: openapi.yaml

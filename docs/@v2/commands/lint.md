@@ -283,13 +283,13 @@ The `lint` command supports the JUnit XML report format, which is consumed by ma
 Each linted API becomes a `<testsuite>`, and each problem becomes a `<testcase>`.
 Errors are reported as `<error>` elements and warnings as `<failure>` elements, so CI tools that render the two differently keep errors and warnings visually distinct.
 
-Each `<testcase>` body repeats the rule, severity, location, pointer, and message as a readable detail block, matching the [`scorecard-classic`](./scorecard-classic.md) JUnit output.
+Each `<testcase>` body repeats the rule, severity, location, pointer, and message as a readable detail block.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="redocly lint" tests="2" errors="1" failures="1" skipped="0">
 <testsuite name="museum-with-errors.yaml" tests="2" errors="1" failures="1">
-<testcase classname="struct" name="struct - 19:7" file="museum-with-errors.yaml" line="19">
+<testcase classname="struct" name="struct" file="museum-with-errors.yaml" line="19">
 <error message="Property `operationIds` is not expected here." type="struct">Rule: struct
 Severity: error
 File: museum-with-errors.yaml
@@ -298,7 +298,7 @@ Column: 7
 Pointer: #/paths/~1museum-hours/get
 Message: Property `operationIds` is not expected here.</error>
 </testcase>
-<testcase classname="operation-operationId" name="operation-operationId - 16:5" file="museum-with-errors.yaml" line="16">
+<testcase classname="operation-operationId" name="operation-operationId" file="museum-with-errors.yaml" line="16">
 <failure message="Operation object should contain `operationId` field." type="operation-operationId">Rule: operation-operationId
 Severity: warn
 File: museum-with-errors.yaml
