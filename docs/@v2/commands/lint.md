@@ -279,7 +279,7 @@ All other information is omitted.
 redocly lint --format=junit
 ```
 
-The `lint` command supports the JUnit XML report format, which is consumed by many CI systems (for example, CircleCI's `store_test_results` step).
+The `lint` command supports the JUnit XML report format, which is consumed by many CI systems.
 Each linted API becomes a `<testsuite>`, and each problem becomes a `<testcase>`.
 Errors are reported as `<error>` elements and warnings as `<failure>` elements, so CI tools that render the two differently keep errors and warnings visually distinct.
 
@@ -298,19 +298,14 @@ Errors are reported as `<error>` elements and warnings as `<failure>` elements, 
 ```
 
 A valid (empty) report is produced even when no problems are found, so passing runs still populate the CI test results.
-In CircleCI, write the output to a file and upload it:
 
-```yaml
-- run: redocly lint openapi.yaml --format=junit > /tmp/test-results/redocly.xml
-- store_test_results:
-    path: /tmp/test-results
-```
+````
 
 #### GitHub Actions
 
 ```bash
 redocly lint --format=github-actions
-```
+````
 
 The `lint` command also comes with support for a [GitHub Actions](https://docs.github.com/en/actions) specific formatting.
 Specify this output format to have any encountered problem annotated on the affected files.
