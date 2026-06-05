@@ -1,3 +1,4 @@
+import type { GraphqlRule } from './graphql/visitor.js';
 import { Arazzo1Types } from './types/arazzo.js';
 import { Arazzo1_1Types } from './types/arazzo1_1.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
@@ -17,6 +18,7 @@ import type {
   BuiltInOverlay1RuleId,
   BuiltInCommonRuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInGraphqlRuleId,
   BuiltInOas2DecoratorId,
   BuiltInOas3DecoratorId,
 } from './types/redocly-yaml.js';
@@ -48,6 +50,7 @@ export const specVersions = [
   'arazzo1_1',
   'overlay1',
   'openrpc1',
+  'graphql',
 ] as const;
 export type SpecVersion = (typeof specVersions)[number];
 
@@ -62,7 +65,8 @@ export type SpecMajorVersion =
   | 'arazzo1'
   | 'arazzo1_1'
   | 'overlay1'
-  | 'openrpc1';
+  | 'openrpc1'
+  | 'graphql';
 
 const typesMap = {
   oas2: Oas2Types,
@@ -119,6 +123,14 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
+// GraphQL has a separate engine: it reuses the common `struct` rule but not
+// `no-unresolved-refs`/`assertions` (which walk the JSON tree).
+export type GraphqlRuleSet<T = undefined> = RuleMap<
+  BuiltInGraphqlRuleId | 'struct',
+  GraphqlRule,
+  T
+>;
+
 export type Oas3DecoratorsSet<T = undefined> = Record<
   T extends 'built-in' ? BuiltInOas3DecoratorId : string,
   Oas3Decorator
@@ -134,5 +146,7 @@ export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
 export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
 
 export function getTypes(spec: SpecVersion) {
-  return typesMap[spec];
+  // GraphQL uses a separate engine and never resolves a JSON `NodeType` tree.
+  // FIXME: I don't like this. Maybe let's get rid of the graphql key in SpecVersion? do we need it?
+  return typesMap[spec as keyof typeof typesMap];
 }

@@ -10,6 +10,7 @@ import {
   type Arazzo1RuleSet,
   type Overlay1RuleSet,
   type OpenRpc1RuleSet,
+  type GraphqlRuleSet,
   type SpecVersion,
   type SpecMajorVersion,
   specVersions,
@@ -88,6 +89,7 @@ export class Config {
       arazzo1_1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1_1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
       openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
+      graphql: group({ ...resolvedConfig.rules, ...resolvedConfig.graphqlRules }),
     };
 
     this.preprocessors = {
@@ -128,6 +130,7 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.openrpc1Preprocessors,
       },
+      graphql: { ...resolvedConfig.preprocessors },
     };
 
     this.decorators = {
@@ -147,6 +150,7 @@ export class Config {
         ...resolvedConfig.decorators,
         ...resolvedConfig.openrpc1Decorators,
       },
+      graphql: { ...resolvedConfig.decorators },
     };
 
     this.ignore = opts.ignore ?? {};
@@ -412,6 +416,11 @@ export class Config {
           (p) => p.decorators?.openrpc1 && openrpc1Rules.push(p.decorators.openrpc1)
         );
         return openrpc1Rules;
+      case 'graphql':
+        // eslint-disable-next-line no-case-declarations
+        const graphqlRules: GraphqlRuleSet[] = [];
+        this.plugins.forEach((p) => p.rules?.graphql && graphqlRules.push(p.rules.graphql));
+        return graphqlRules;
     }
   }
 
