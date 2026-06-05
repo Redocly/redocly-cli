@@ -5,7 +5,7 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-test('should make request with Authorization header `Bearer ...`', () => {
+test('should make request with Authorization header `Bearer ...`, actual response is not relevant', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'x-security-bearer-auth.arazzo.yaml');
   const args = getParams(indexEntryPoint, [
