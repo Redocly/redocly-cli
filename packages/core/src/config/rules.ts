@@ -6,6 +6,7 @@ import type {
   Oas3RuleSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
+  GraphqlRuleSet,
   SpecVersion,
 } from '../oas-types.js';
 import { isDefined } from '../utils/is-defined.js';
@@ -27,6 +28,7 @@ export function initRules(
     | Arazzo1RuleSet
     | Overlay1RuleSet
     | OpenRpc1RuleSet
+    | GraphqlRuleSet
   )[],
   config: Config,
   type: 'rules' | 'preprocessors' | 'decorators',

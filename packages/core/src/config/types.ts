@@ -19,6 +19,7 @@ import type {
   Overlay1RuleSet,
   OpenRpc1RuleSet,
   OpenRpc1DecoratorsSet,
+  GraphqlRuleSet,
 } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
 import type { NodeType } from '../types/index.js';
@@ -30,6 +31,7 @@ import type {
   BuiltInArazzo1RuleId,
   BuiltInOverlay1RuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInGraphqlRuleId,
   BuiltInCommonRuleId,
   BuiltInOas2DecoratorId,
   BuiltInOas3DecoratorId,
@@ -93,6 +95,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
+  graphqlRules?: RuleMap<BuiltInGraphqlRuleId, RuleConfig, T>;
 
   preprocessors?: Record<string, DecoratorConfig>;
   oas2Preprocessors?: Record<
@@ -175,6 +178,7 @@ export type RulesConfig<T> = {
   arazzo1?: Arazzo1RuleSet<T>;
   overlay1?: Overlay1RuleSet<T>;
   openrpc1?: OpenRpc1RuleSet<T>;
+  graphql?: GraphqlRuleSet<T>;
 };
 
 export type CustomRulesConfig = RulesConfig<undefined>;

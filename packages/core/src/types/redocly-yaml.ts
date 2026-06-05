@@ -192,6 +192,9 @@ const builtInOpenRpc1Rules = [
 ] as const;
 export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
+const builtInGraphqlRules = ['type-description', 'type-pascal-case'] as const;
+export type BuiltInGraphqlRuleId = (typeof builtInGraphqlRules)[number];
+
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
 export type BuiltInCommonRuleId = (typeof builtInCommonRules)[number];
 
@@ -203,6 +206,7 @@ const builtInRules = [
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
   ...builtInOpenRpc1Rules,
+  ...builtInGraphqlRules,
   ...builtInCommonRules,
 ] as const;
 type BuiltInRuleId = (typeof builtInRules)[number];
@@ -267,6 +271,7 @@ const configGovernanceProperties: Record<
   arazzo1Rules: 'Rules',
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
+  graphqlRules: 'Rules',
   preprocessors: 'Preprocessors',
   oas2Preprocessors: 'Preprocessors',
   oas3_0Preprocessors: 'Preprocessors',
@@ -709,7 +714,11 @@ const ConfigurableRule: NodeType = {
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
   const nodeNames = specVersions.flatMap((version) => {
-    const types = config ? config.extendTypes(getTypes(version), version) : getTypes(version);
+    // FIXME: this is not needed, i believe. no types for graphql - no need to change here. because we're creating types not only for graphql, but for all specs.
+    // GraphQL uses a separate engine and has no JSON `NodeType` tree.
+    const baseTypes = getTypes(version);
+    if (!baseTypes) return [];
+    const types = config ? config.extendTypes(baseTypes, version) : baseTypes;
     return Object.keys(types);
   });
   // Create types based on external schemas

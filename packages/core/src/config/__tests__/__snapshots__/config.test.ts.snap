@@ -10,6 +10,7 @@ Config {
     "arazzo1": {},
     "async2": {},
     "async3": {},
+    "graphql": {},
     "oas2": {},
     "oas3_0": {},
     "oas3_1": {},
@@ -36,6 +37,7 @@ Config {
     "arazzo1": {},
     "async2": {},
     "async3": {},
+    "graphql": {},
     "oas2": {},
     "oas3_0": {},
     "oas3_1": {},
@@ -61,6 +63,10 @@ Config {
       "operation-summary": "error",
     },
     "async3": {
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "graphql": {
       "no-empty-servers": "error",
       "operation-summary": "error",
     },

@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: ./schema.graphql
+
+extends:
+  - recommended
+
+rules:
+  type-description: error
+  type-pascal-case: error

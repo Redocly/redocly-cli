@@ -284,6 +284,10 @@ const minimal: RawGovernanceConfig<'built-in'> = {
   overlay1Rules: {
     'info-contact': 'off',
   },
+  graphqlRules: {
+    'type-description': 'off',
+    'type-pascal-case': 'off',
+  },
   openrpc1Rules: {
     'info-contact': 'off',
     'info-license': 'off',

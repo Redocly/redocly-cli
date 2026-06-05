@@ -1,0 +1,10 @@
+"""
+Root query type.
+"""
+type Query {
+  product: product
+}
+
+type product {
+  id: ID!
+}

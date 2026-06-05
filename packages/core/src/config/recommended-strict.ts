@@ -291,6 +291,10 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
   },
+  graphqlRules: {
+    'type-description': 'error',
+    'type-pascal-case': 'error',
+  },
 };
 
 export default recommendedStrict;
