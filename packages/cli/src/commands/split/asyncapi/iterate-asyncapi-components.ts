@@ -35,7 +35,7 @@ export function iterateAsyncApiComponents({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const { components } = asyncapi;
+  const components = asyncapi.components as Record<string, Record<string, unknown>> | undefined;
   if (components) {
     const componentsDir = path.join(asyncapiDir, COMPONENTS);
     fs.mkdirSync(componentsDir, { recursive: true });
@@ -63,7 +63,7 @@ export function iterateAsyncApiComponents({
           writeToFileByExtension(componentData, filename);
         }
 
-        delete asyncapi.components?.[componentType]?.[componentName];
+        delete components?.[componentType]?.[componentName];
       }
       removeAsyncApiEmptyComponents(asyncapi, componentType);
     }

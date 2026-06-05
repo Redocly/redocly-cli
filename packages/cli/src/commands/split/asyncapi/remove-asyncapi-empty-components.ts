@@ -10,7 +10,7 @@ export function removeAsyncApiEmptyComponents(
   asyncapi: AnyAsyncApiDefinition,
   componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
 ) {
-  const components = asyncapi.components;
+  const components = asyncapi.components as Record<string, Record<string, unknown>> | undefined;
   if (!components) return;
 
   if (isEmptyObject(components[componentType])) {

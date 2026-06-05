@@ -19,7 +19,7 @@ export function gatherAsyncApiComponentFiles({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const { components } = asyncapi;
+  const components = asyncapi.components as Record<string, Record<string, unknown>> | undefined;
   if (!components) return;
   const componentsDir = path.join(asyncapiDir, COMPONENTS);
   const componentTypes = findAsyncApiComponentTypes(components, specVersion);
