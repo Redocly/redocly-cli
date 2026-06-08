@@ -21,6 +21,7 @@ export const SecurityDefined: Async2Rule = () => {
   const serverHasSecurity = new Map<string, boolean>();
   const operationsWithoutSecurity: { location: Location; channelServers?: string[] }[] = [];
   let currentChannelServers: string[] | undefined;
+  let inComponents = false;
 
   return {
     Root: {
@@ -64,7 +65,16 @@ export const SecurityDefined: Async2Rule = () => {
         }
       }
     },
+    Components: {
+      enter() {
+        inComponents = true;
+      },
+      leave() {
+        inComponents = false;
+      },
+    },
     Server(server: Async2Server, { key }: UserContext) {
+      if (inComponents) return;
       serverHasSecurity.set(key.toString(), Boolean(server?.security));
     },
     Channel: {
