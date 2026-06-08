@@ -8,11 +8,11 @@ import {
   visit,
 } from 'graphql';
 
-import type { Config } from '../config/index.js';
+import type { Config, InitializedRule } from '../config/index.js';
 import { initRules } from '../config/rules.js';
 import type { GraphqlRuleSet } from '../oas-types.js';
 import type { Document, Source } from '../resolve.js';
-import type { NormalizedProblem, ProblemSeverity } from '../walk.js';
+import type { NormalizedProblem } from '../walk.js';
 import { type GraphqlVisitor, toAstVisitor } from './visitor.js';
 
 export function lintGraphqlDocument(opts: {
@@ -55,11 +55,9 @@ function syntaxErrorToProblem(error: GraphQLError, source: Source): NormalizedPr
   };
 }
 
-type InitializedGraphqlRule = {
-  ruleId: string;
-  severity: ProblemSeverity;
-  message?: string;
+type InitializedGraphqlRule = InitializedRule & {
   visitor: GraphqlVisitor;
+  message?: string;
 };
 
 function runGraphqlRules(opts: {
