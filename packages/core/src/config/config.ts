@@ -19,6 +19,7 @@ import { isAbsoluteUrl } from '../ref-utils.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { omit } from '../utils/omit.js';
 import { slash } from '../utils/slash.js';
 import type { NormalizedProblem } from '../walk.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
@@ -88,7 +89,11 @@ export class Config {
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
       openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
-      graphql: group({ ...resolvedConfig.rules, ...resolvedConfig.graphqlRules }),
+      graphql: group({
+        // removing common ref-resolution rules from the GraphQL ruleset:
+        ...omit(resolvedConfig.rules ?? {}, ['no-unresolved-refs']),
+        ...resolvedConfig.graphqlRules,
+      }),
     };
 
     this.preprocessors = {
@@ -253,6 +258,9 @@ export class Config {
           case 'openrpc1':
             if (!plugin.typeExtension.openrpc1) continue;
             extendedTypes = plugin.typeExtension.openrpc1(extendedTypes, version);
+            break;
+          case 'graphql':
+            // Skip GraphQL types extension as there is no NodeType tree for it.
             break;
           default:
             throw new Error('Not implemented');
