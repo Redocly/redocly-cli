@@ -223,10 +223,6 @@ jobs:
           Install with NPM:
           \`\`\`bash
           npm install @redocly/cli@$VERSION
-          # or
-          npm install @redocly/openapi-core@$VERSION
-          # or
-          npm install @redocly/respect-core@$VERSION
           \`\`\`
 
           ⚠️ Note: This is a development build and may contain unstable features."
