@@ -151,9 +151,9 @@ You can adjust how the CLI handles these naming conflicts with the `--component-
 
 ### Use titles for component names
 
-By default, the bundler names each inlined Schema component after the JSON Pointer fragment of its `$ref`, or after the source file's basename when no fragment is present. Two external files that share a basename (for example, `schemas/models/Authority.yaml` and `schemas/requests/Authority.yaml`) are emitted as `Authority` and `Authority-2`. The suffix is auto-generated and brittle: an unrelated `$ref` change can renumber it.
+By default, the bundler names each inlined Schema component after its `$ref` — the JSON Pointer fragment, or the file's basename when there's no fragment. Two files that share a basename — for example `schemas/models/Authority.yaml` and `schemas/requests/Authority.yaml` — collide into `Authority` and `Authority-2`. That auto-numbered suffix is brittle: an unrelated `$ref` change can renumber it.
 
-With `--use-titles-for-component-names`, the bundler instead builds each Schema component name from that schema's `title` field. Words (separated by spaces) are capitalized and concatenated, while the spec-legal `.`, `-`, and `_` characters are kept as-is:
+With `--use-titles-for-component-names`, the name comes from each schema's `title` instead. Words (split on spaces) are capitalized and joined, and the spec-legal `.`, `-`, and `_` are kept:
 
 ```yaml
 # schemas/models/Authority.yaml
@@ -169,10 +169,10 @@ title: Authority request
 redocly bundle openapi.yaml -o bundled.yaml --use-titles-for-component-names
 ```
 
-The bundled output contains `AuthorityModel` and `AuthorityRequest` instead of `Authority` and `Authority-2`. A title containing `.`, `-`, or `_` keeps those characters — for example, `order-item` becomes `Order-item`.
+The output now uses `AuthorityModel` and `AuthorityRequest`. A `title` containing `.`, `-`, or `_` keeps them — `order-item` becomes `Order-item`.
 
-The flag enforces three rules. When any of them is violated, the bundle ends with an error and no output file is written (unless `--force` is also passed):
+Bundling fails (no output file unless you pass `--force`) when:
 
-- Every externally referenced schema must define a non-empty `title`.
-- The title may contain only ASCII letters, digits, `.`, `-`, `_`, and spaces. Any other character (for example `title: "User & Group"` or a non-ASCII title) is rejected.
-- Two schemas must not produce the same name — for example, two schemas titled `User` fail instead of becoming `User` and `User-2`.
+- A referenced schema has no `title`.
+- A `title` uses anything other than ASCII letters, digits, spaces, `.`, `-`, or `_` (for example `&` or a non-ASCII title).
+- Two schemas produce the same name — for example, both titled `User` — instead of being silently renamed to `User` and `User-2`.
