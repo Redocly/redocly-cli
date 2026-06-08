@@ -3,27 +3,14 @@ import type { UserContext } from '../walk.js';
 
 /** Build a PascalCase component key from a `title`; `null` if empty or has unsupported characters. */
 export function titleToPascalCase(title: string): string | null {
-  const tokens = title
-    .trim()
-    .split(/\s+/)
-    .filter((t) => t.length > 0);
-  if (tokens.length === 0) {
-    return null;
-  }
+  const tokens = title.trim().split(/\s+/);
   for (const token of tokens) {
+    // Allowed characters mirror the OpenAPI/AsyncAPI component-key pattern.
     if (!/^[A-Za-z0-9.\-_]+$/.test(token)) {
       return null;
     }
   }
-  return tokens
-    .map((token) => {
-      const first = token[0];
-      if (first >= 'a' && first <= 'z') {
-        return first.toUpperCase() + token.slice(1);
-      }
-      return token;
-    })
-    .join('');
+  return tokens.map((token) => token.replace(/^[a-z]/, (c) => c.toUpperCase())).join('');
 }
 
 /** Schema component name from its `title`; errors and returns `null` if missing or unusable. */
