@@ -2,7 +2,11 @@ import { isTruthy } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import { COMPONENTS } from '../constants.js';
-import { type ComponentsFiles, type AnyAsyncApiDefinition } from '../types.js';
+import {
+  type AnyAsyncApiComponents,
+  type AnyAsyncApiDefinition,
+  type ComponentsFiles,
+} from '../types.js';
 import { getFileNamePath } from '../utils/get-file-name-path.js';
 import { findAsyncApiComponentTypes } from './find-asyncapi-component-types.js';
 
@@ -19,7 +23,7 @@ export function gatherAsyncApiComponentFiles({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const components = asyncapi.components as Record<string, Record<string, unknown>> | undefined;
+  const components: AnyAsyncApiComponents | undefined = asyncapi.components;
   if (!components) return;
   const componentsDir = path.join(asyncapiDir, COMPONENTS);
   const componentTypes = findAsyncApiComponentTypes(components, specVersion);
