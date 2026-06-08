@@ -1,13 +1,22 @@
-import { GraphQLError, parse, Source as GraphqlSource, type DocumentNode } from 'graphql';
+import {
+  GraphQLError,
+  parse,
+  Source as GraphqlSource,
+  type DocumentNode,
+  visitInParallel,
+  type ASTNode,
+  visit,
+} from 'graphql';
 
-import type { Config } from './config/index.js';
-import { initRules } from './config/rules.js';
-import { isGraphqlRef } from './graphql/extensions.js';
-import { runGraphqlRules, type InitializedGraphqlRule } from './graphql/run.js';
-import type { GraphqlRuleSet } from './oas-types.js';
-import type { Document, Source } from './resolve.js';
-import type { NormalizedProblem } from './walk.js';
+import type { Config } from '../config/index.js';
+import { initRules } from '../config/rules.js';
+import type { GraphqlRuleSet } from '../oas-types.js';
+import type { Document, Source } from '../resolve.js';
+import type { NormalizedProblem, ProblemSeverity } from '../walk.js';
+import { isGraphqlRef } from './detect-graphql.js';
+import { type GraphqlVisitor, toAstVisitor } from './visitor.js';
 
+// FIXME: let's use only one function. no wrappers.
 export function isGraphqlDocument(document: Document): boolean {
   return isGraphqlRef(document.source.absoluteRef);
 }
@@ -50,4 +59,31 @@ function syntaxErrorToProblem(error: GraphQLError, source: Source): NormalizedPr
       },
     ],
   };
+}
+
+type InitializedGraphqlRule = {
+  ruleId: string;
+  severity: ProblemSeverity;
+  message?: string;
+  visitor: GraphqlVisitor;
+};
+
+function runGraphqlRules(opts: {
+  ast: ASTNode;
+  source: Source;
+  config?: Config;
+  rules: InitializedGraphqlRule[];
+}): NormalizedProblem[] {
+  const { ast, source, config, rules } = opts;
+  const problems: NormalizedProblem[] = [];
+
+  const astVisitors = rules.map(({ ruleId, severity, message, visitor }) =>
+    toAstVisitor(visitor, { ruleId, severity, message, source, config, problems })
+  );
+
+  if (astVisitors.length > 0) {
+    visit(ast, visitInParallel(astVisitors));
+  }
+
+  return problems;
 }

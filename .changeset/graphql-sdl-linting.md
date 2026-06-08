@@ -3,4 +3,4 @@
 '@redocly/cli': minor
 ---
 
-Added initial support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
+Added experimental support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
