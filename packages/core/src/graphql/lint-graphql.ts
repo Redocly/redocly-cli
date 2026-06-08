@@ -13,13 +13,7 @@ import { initRules } from '../config/rules.js';
 import type { GraphqlRuleSet } from '../oas-types.js';
 import type { Document, Source } from '../resolve.js';
 import type { NormalizedProblem, ProblemSeverity } from '../walk.js';
-import { isGraphqlRef } from './detect-graphql.js';
 import { type GraphqlVisitor, toAstVisitor } from './visitor.js';
-
-// FIXME: let's use only one function. no wrappers.
-export function isGraphqlDocument(document: Document): boolean {
-  return isGraphqlRef(document.source.absoluteRef);
-}
 
 export function lintGraphqlDocument(opts: {
   document: Document;
