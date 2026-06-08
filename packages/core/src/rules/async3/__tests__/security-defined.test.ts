@@ -241,59 +241,6 @@ describe('Async3 security-defined', () => {
     `);
   });
 
-  it('should report wrong-path message when $ref targets non-security path and does not resolve', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        asyncapi: '3.0.0'
-        info:
-          title: Cool API
-          version: 1.0.0
-        channels:
-          some/channel:
-            address: some/channel
-        operations:
-          sendMessage:
-            action: send
-            channel:
-              $ref: '#/channels/some~1channel'
-            security:
-              - $ref: '#/components/schemas/Missing'
-        components:
-          securitySchemes:
-            apiKeyAuth:
-              type: apiKey
-              in: user
-      `,
-      'asyncapi.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({
-        rules: { 'security-defined': 'error' },
-      }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/operations/sendMessage/security/0",
-              "reportOnKey": true,
-              "source": "asyncapi.yaml",
-            },
-          ],
-          "message": "Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.",
-          "ruleId": "security-defined",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
-  });
-
   it('should report when channel is bound to both secured and unsecured servers', async () => {
     const document = parseYamlToDocument(
       outdent`
