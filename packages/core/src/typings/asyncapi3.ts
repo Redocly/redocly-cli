@@ -6,7 +6,7 @@ export interface Async3Definition {
   info: Async3Info;
   channels?: Record<string, Async3Channel>;
   components?: Async3Components;
-  operations?: Record<string, Async3Operation>;
+  operations?: Record<string, Referenced<Async3Operation>>;
   defaultContentType?: string;
 }
 

@@ -15,15 +15,27 @@ const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
 type SecurityReference = {
   location: Location;
   name: string;
-  resolvedPointer?: string;
+  refPointer: string;
   resolved: boolean;
 };
 
+function getRefPointer(ref: string): string {
+  const hashIndex = ref.indexOf('#');
+  return hashIndex === -1 ? ref : ref.slice(hashIndex);
+}
+
+function pointsToSecurityScheme(pointer: string): boolean {
+  return (
+    pointer.startsWith(SECURITY_SCHEMES_POINTER) &&
+    !pointer.slice(SECURITY_SCHEMES_POINTER.length).includes('/')
+  );
+}
+
 export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
-  const operationsWithoutSecurity: Location[] = [];
   let rootServers: Record<string, Async3Server> | undefined;
-  let inComponents = false;
+  let rootOperations: Record<string, Referenced<Async3Operation>> | undefined;
+  let rootLocation: Location | undefined;
 
   const isOperationSecuredByServers = (
     operation: Async3Operation,
@@ -44,36 +56,41 @@ export const SecurityDefined: Async3Rule = () => {
 
   return {
     Root: {
-      enter(root) {
+      enter(root, { location }: UserContext) {
         rootServers = root?.servers;
+        rootOperations = root?.operations;
+        rootLocation = location;
       },
-      leave(_root, { report }: UserContext) {
+      leave(_root, { report, resolve }: UserContext) {
         for (const reference of references) {
-          if (!reference.resolved) {
+          if (!pointsToSecurityScheme(reference.refPointer)) {
             report({
-              message: `There is no \`${reference.name}\` security scheme defined.`,
+              message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
               location: reference.location.key(),
             });
             continue;
           }
 
-          const pointer = reference.resolvedPointer ?? '';
-          if (
-            !pointer.startsWith(SECURITY_SCHEMES_POINTER) ||
-            pointer.slice(SECURITY_SCHEMES_POINTER.length).includes('/')
-          ) {
+          if (!reference.resolved) {
             report({
-              message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
+              message: `There is no \`${reference.name}\` security scheme defined.`,
               location: reference.location.key(),
             });
           }
         }
 
-        for (const operationLocation of operationsWithoutSecurity) {
-          report({
-            message: `Every operation should have security defined on it.`,
-            location: operationLocation.key(),
-          });
+        if (rootOperations && rootLocation) {
+          const operationsLocation = rootLocation.child(['operations']);
+          for (const [opName, opRef] of Object.entries(rootOperations)) {
+            const operation = isRef(opRef) ? resolve<Async3Operation>(opRef).node : opRef;
+            if (!operation) continue;
+            if (isOperationSecured(operation, resolve)) continue;
+            if (isOperationSecuredByServers(operation, resolve)) continue;
+            report({
+              message: `Every operation should have security defined on it.`,
+              location: operationsLocation.child([opName]).key(),
+            });
+          }
         }
       },
     },
@@ -85,29 +102,16 @@ export const SecurityDefined: Async3Rule = () => {
           if (!isRef(item)) continue;
           const itemLocation = location.child([i]);
           const resolved = resolve<Async3SecurityScheme>(item);
-          const name = item.$ref.split('/').pop() ?? item.$ref;
+          const refPointer = getRefPointer(item.$ref);
+          const name = refPointer.split('/').pop() ?? item.$ref;
           references.push({
             location: itemLocation,
             name,
-            resolvedPointer: resolved.location?.pointer,
+            refPointer,
             resolved: resolved.node !== undefined,
           });
         }
       },
-    },
-    Components: {
-      enter() {
-        inComponents = true;
-      },
-      leave() {
-        inComponents = false;
-      },
-    },
-    Operation(operation: Async3Operation, { location, resolve }: UserContext) {
-      if (inComponents) return;
-      if (isOperationSecured(operation, resolve)) return;
-      if (isOperationSecuredByServers(operation, resolve)) return;
-      operationsWithoutSecurity.push(location);
     },
   };
 };
