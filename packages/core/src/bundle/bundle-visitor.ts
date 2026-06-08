@@ -305,10 +305,13 @@ export function makeBundleVisitor({
     ctx: UserContext
   ) {
     const componentsGroup = components[componentType];
+    const baseName =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
 
     if (useTitlesForComponentNames && componentType === schemaComponentType) {
       const titleName = buildSchemaNameFromTitle(target, ctx);
-      if (titleName === null) return target.location.absolutePointer;
+      // Title error → fall back to the basename so a `--force` bundle still gets a spec-valid key.
+      if (titleName === null) return baseName;
 
       const existing = componentsGroup[titleName];
       if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
@@ -321,14 +324,13 @@ export function makeBundleVisitor({
           from: titleNameLocations.get(titleName),
           forceSeverity: 'error',
         });
-        return target.location.absolutePointer;
+        return baseName;
       }
       titleNameLocations.set(titleName, target.location.child('title'));
       return titleName;
     }
 
-    let name =
-      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    let name = baseName;
     const prevName = name;
     let serialId = 2;
     while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
