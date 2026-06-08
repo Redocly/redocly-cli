@@ -272,6 +272,66 @@ describe('Async2 security-defined', () => {
     `);
   });
 
+  it('should report when channel is bound to both secured and unsecured servers', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            url: kafka.example.com
+            protocol: kafka
+            security:
+              - apiKeyAuth: []
+          public:
+            url: kafka.public.example.com
+            protocol: kafka
+        channels:
+          some/channel:
+            servers:
+              - production
+              - public
+            subscribe:
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/channels/some~1channel/subscribe",
+              "reportOnKey": true,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "Every operation should have security defined on it.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report when security is declared via an operation trait', async () => {
     const document = parseYamlToDocument(
       outdent`

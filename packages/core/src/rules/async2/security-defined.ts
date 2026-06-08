@@ -38,7 +38,9 @@ export const SecurityDefined: Async2Rule = () => {
         const allServerNames = [...serverHasSecurity.keys()];
         for (const { location, channelServers } of operationsWithoutSecurity) {
           const applicableServers = channelServers ?? allServerNames;
-          const securedByServer = applicableServers.some((name) => serverHasSecurity.get(name));
+          const securedByServer =
+            applicableServers.length > 0 &&
+            applicableServers.every((name) => serverHasSecurity.get(name));
           if (!securedByServer) {
             report({
               message: `Every operation should have security defined on it.`,

@@ -31,8 +31,8 @@ import type {
   Async3SecurityScheme,
   Async3Server,
 } from './typings/asyncapi3.js';
-import type { Referenced } from './typings/openapi.js';
 import type {
+  Referenced,
   Oas3Definition,
   Oas3_1Definition,
   Oas3_2Definition,
@@ -173,19 +173,19 @@ export type NormalizeVisitor<Fn> = Fn extends VisitFunction<infer T> ? VisitorNo
 
 export type BaseVisitor = {
   any?:
-    | {
-        enter?: VisitFunction<any>;
-        leave?: VisitFunction<any>;
-        skip?: SkipFunction<any>;
-      }
-    | VisitFunction<any>;
+  | {
+    enter?: VisitFunction<any>;
+    leave?: VisitFunction<any>;
+    skip?: SkipFunction<any>;
+  }
+  | VisitFunction<any>;
 
   ref?:
-    | {
-        enter?: VisitRefFunction;
-        leave?: VisitRefFunction;
-      }
-    | VisitRefFunction;
+  | {
+    enter?: VisitRefFunction;
+    leave?: VisitRefFunction;
+  }
+  | VisitRefFunction;
 };
 
 type Oas3FlatVisitor = {
@@ -361,50 +361,50 @@ const legacyTypesMap = {
 type Oas3NestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Oas3FlatVisitor]: Oas3FlatVisitor[T] extends Function
-    ? Oas3FlatVisitor[T]
-    : Oas3FlatVisitor[T] & NestedVisitor<Oas3NestedVisitor>;
+  ? Oas3FlatVisitor[T]
+  : Oas3FlatVisitor[T] & NestedVisitor<Oas3NestedVisitor>;
 };
 
 type Oas2NestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Oas2FlatVisitor]: Oas2FlatVisitor[T] extends Function
-    ? Oas2FlatVisitor[T]
-    : Oas2FlatVisitor[T] & NestedVisitor<Oas2NestedVisitor>;
+  ? Oas2FlatVisitor[T]
+  : Oas2FlatVisitor[T] & NestedVisitor<Oas2NestedVisitor>;
 };
 
 type Async2NestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Async2FlatVisitor]: Async2FlatVisitor[T] extends Function
-    ? Async2FlatVisitor[T]
-    : Async2FlatVisitor[T] & NestedVisitor<Async2NestedVisitor>;
+  ? Async2FlatVisitor[T]
+  : Async2FlatVisitor[T] & NestedVisitor<Async2NestedVisitor>;
 };
 
 type Async3NestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Async3FlatVisitor]: Async3FlatVisitor[T] extends Function
-    ? Async3FlatVisitor[T]
-    : Async3FlatVisitor[T] & NestedVisitor<Async3NestedVisitor>;
+  ? Async3FlatVisitor[T]
+  : Async3FlatVisitor[T] & NestedVisitor<Async3NestedVisitor>;
 };
 
 type ArazzoNestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof ArazzoFlatVisitor]: ArazzoFlatVisitor[T] extends Function
-    ? ArazzoFlatVisitor[T]
-    : ArazzoFlatVisitor[T] & NestedVisitor<ArazzoNestedVisitor>;
+  ? ArazzoFlatVisitor[T]
+  : ArazzoFlatVisitor[T] & NestedVisitor<ArazzoNestedVisitor>;
 };
 
 type Overlay1NestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof Overlay1FlatVisitor]: Overlay1FlatVisitor[T] extends Function
-    ? Overlay1FlatVisitor[T]
-    : Overlay1FlatVisitor[T] & NestedVisitor<Overlay1NestedVisitor>;
+  ? Overlay1FlatVisitor[T]
+  : Overlay1FlatVisitor[T] & NestedVisitor<Overlay1NestedVisitor>;
 };
 
 type OpenRpc1NestedVisitor = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [T in keyof OpenRpc1FlatVisitor]: OpenRpc1FlatVisitor[T] extends Function
-    ? OpenRpc1FlatVisitor[T]
-    : OpenRpc1FlatVisitor[T] & NestedVisitor<OpenRpc1NestedVisitor>;
+  ? OpenRpc1FlatVisitor[T]
+  : OpenRpc1FlatVisitor[T] & NestedVisitor<OpenRpc1NestedVisitor>;
 };
 
 export type Oas3Visitor = BaseVisitor &

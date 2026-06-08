@@ -29,17 +29,13 @@ export const SecurityDefined: Async3Rule = () => {
     resolve: UserContext['resolve']
   ): boolean => {
     const channelRef = operation.channel;
-    let channel: Async3Channel | undefined;
-    if (isRef(channelRef)) {
-      const resolved = resolve<Async3Channel>(channelRef);
-      if (resolved.node === undefined) return false;
-      channel = resolved.node;
-    } else {
-      channel = channelRef;
-    }
+    const channel: Async3Channel | undefined = isRef(channelRef)
+      ? resolve<Async3Channel>(channelRef).node
+      : channelRef;
     const applicableServers: Array<Referenced<Async3Server>> =
       channel?.servers ?? (rootServers ? Object.values(rootServers) : []);
-    return applicableServers.some((server) => {
+    if (applicableServers.length === 0) return false;
+    return applicableServers.every((server) => {
       const serverNode = isRef(server) ? resolve<Async3Server>(server).node : server;
       return Boolean(serverNode?.security);
     });
