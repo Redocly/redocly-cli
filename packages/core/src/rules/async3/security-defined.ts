@@ -23,6 +23,7 @@ export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
   const operationsWithoutSecurity: Location[] = [];
   let rootServers: Record<string, Async3Server> | undefined;
+  let inComponents = false;
 
   const isOperationSecuredByServers = (
     operation: Async3Operation,
@@ -94,7 +95,16 @@ export const SecurityDefined: Async3Rule = () => {
         }
       },
     },
+    Components: {
+      enter() {
+        inComponents = true;
+      },
+      leave() {
+        inComponents = false;
+      },
+    },
     Operation(operation: Async3Operation, { location, resolve }: UserContext) {
+      if (inComponents) return;
       if (isOperationSecured(operation, resolve)) return;
       if (isOperationSecuredByServers(operation, resolve)) return;
       operationsWithoutSecurity.push(location);
