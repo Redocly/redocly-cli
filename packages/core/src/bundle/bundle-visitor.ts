@@ -299,45 +299,55 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
+  // Unique component key from the source basename, suffixing `-N` on different-content conflicts.
+  function basenameComponentName(
+    target: { node: unknown; location: Location },
+    componentsGroup: Record<string, unknown>,
+    ctx: UserContext
+  ) {
+    const prevName =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    let name = prevName;
+    let serialId = 2;
+    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
+      name = `${prevName}-${serialId}`;
+      serialId++;
+    }
+    return { name, prevName };
+  }
+
   function getComponentName(
     target: { node: unknown; location: Location },
     componentType: string,
     ctx: UserContext
   ) {
     const componentsGroup = components[componentType];
-    const baseName =
-      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
 
     if (useTitlesForComponentNames && componentType === schemaComponentType) {
       const titleName = buildSchemaNameFromTitle(target, ctx);
-      // Title error → fall back to the basename so a `--force` bundle still gets a spec-valid key.
-      if (titleName === null) return baseName;
-
-      const existing = componentsGroup[titleName];
-      if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
-        const title = (target.node as { title?: string }).title;
-        ctx.report({
-          message:
-            `Title "${title}" maps to component name \`${titleName}\`, ` +
-            `already used by another schema. Rename one of the titles.`,
-          location: target.location.child('title'),
-          from: titleNameLocations.get(titleName),
-          forceSeverity: 'error',
-        });
-        return baseName;
+      if (titleName !== null) {
+        const existing = componentsGroup[titleName];
+        if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
+          const title = (target.node as { title?: string }).title;
+          ctx.report({
+            message:
+              `Title "${title}" maps to component name \`${titleName}\`, ` +
+              `already used by another schema. Rename one of the titles.`,
+            location: target.location.child('title'),
+            from: titleNameLocations.get(titleName),
+            forceSeverity: 'error',
+          });
+        } else {
+          titleNameLocations.set(titleName, target.location.child('title'));
+          return titleName;
+        }
       }
-      titleNameLocations.set(titleName, target.location.child('title'));
-      return titleName;
+      // Title unusable or collided: the error is reported above; name it the default way so a
+      // `--force` bundle matches a no-flag run instead of emitting an invalid key.
+      return basenameComponentName(target, componentsGroup, ctx).name;
     }
 
-    let name = baseName;
-    const prevName = name;
-    let serialId = 2;
-    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      name = `${prevName}-${serialId}`;
-      serialId++;
-    }
-
+    const { name, prevName } = basenameComponentName(target, componentsGroup, ctx);
     if (!componentsGroup[name] && prevName !== name) {
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
