@@ -151,7 +151,9 @@ You can adjust how the CLI handles these naming conflicts with the `--component-
 
 ### Use titles for component names
 
-By default, the bundler names each inlined Schema component after its `$ref` — the JSON Pointer fragment, or the file's basename when there's no fragment. Two files that share a basename — for example `schemas/models/Authority.yaml` and `schemas/requests/Authority.yaml` — collide into `Authority` and `Authority-2`. That auto-numbered suffix is brittle: an unrelated `$ref` change can renumber it.
+By default, the bundler names each inlined Schema component after its `$ref` — the JSON Pointer fragment, or the file's basename when there's no fragment.
+Two files that share a basename — for example `schemas/models/Authority.yaml` and `schemas/requests/Authority.yaml` — collide into `Authority` and `Authority-2`.
+The auto-numbered suffix is brittle: an unrelated `$ref` change can renumber it.
 
 With `--use-titles-for-component-names`, the name comes from each schema's `title` instead. Words (split on spaces) are capitalized and joined, and the spec-legal `.`, `-`, and `_` are kept:
 
@@ -169,7 +171,8 @@ title: Authority request
 redocly bundle openapi.yaml -o bundled.yaml --use-titles-for-component-names
 ```
 
-The output now uses `AuthorityModel` and `AuthorityRequest`. A `title` containing `.`, `-`, or `_` keeps them — `order-item` becomes `Order-item`.
+The output uses `AuthorityModel` and `AuthorityRequest`.
+A `title` containing `.`, `-`, or `_` keeps them — `order-item` becomes `Order-item`.
 
 Bundling fails (no output file unless you pass `--force`) when:
 
