@@ -29,10 +29,8 @@ export function lintGraphqlDocument(opts: {
     }
     throw e;
   }
-
   const ruleSets = (config.getRulesForSpecVersion('graphql') ?? []) as GraphqlRuleSet[];
   const rules = initRules(ruleSets, config, 'rules', 'graphql') as InitializedGraphqlRule[];
-
   const problems = runGraphqlRules({ ast, source, config, rules });
   return problems.map((problem) => config.addProblemToIgnore(problem));
 }

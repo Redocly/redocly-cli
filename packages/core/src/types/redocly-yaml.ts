@@ -717,10 +717,7 @@ const ConfigurableRule: NodeType = {
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
   const nodeNames = specVersions.flatMap((version) => {
-    // FIXME: this is not needed, i believe. no types for graphql - no need to change here. because we're creating types not only for graphql, but for all specs.
-    // GraphQL uses a separate engine and has no JSON `NodeType` tree.
     const baseTypes = getTypes(version);
-    if (!baseTypes) return [];
     const types = config ? config.extendTypes(baseTypes, version) : baseTypes;
     return Object.keys(types);
   });
