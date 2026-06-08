@@ -3,6 +3,7 @@ import { Arazzo1Types } from './types/arazzo.js';
 import { Arazzo1_1Types } from './types/arazzo1_1.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
+import type { NodeType } from './types/index.js';
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
@@ -123,8 +124,7 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
-// GraphQL has a separate engine: it reuses the common `struct` rule but not
-// `no-unresolved-refs`/`assertions` (which walk the JSON tree).
+// GraphQL has a separate engine: it reuses the common struct rule but not no-unresolved-refs/assertions.
 export type GraphqlRuleSet<T = undefined> = RuleMap<
   BuiltInGraphqlRuleId | 'struct',
   GraphqlRule,
@@ -145,8 +145,8 @@ export type Arazzo1DecoratorsSet = Record<string, Arazzo1Decorator>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
 export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
 
-export function getTypes(spec: SpecVersion) {
-  // GraphQL uses a separate engine and never resolves a JSON `NodeType` tree.
-  // FIXME: I don't like this. Maybe let's get rid of the graphql key in SpecVersion? do we need it?
-  return typesMap[spec as keyof typeof typesMap];
+export function getTypes(spec: SpecVersion): Record<string, NodeType> {
+  if (spec === 'graphql') return {}; // graphql is linted by a separate engine so it has no NodeType
+
+  return typesMap[spec];
 }
