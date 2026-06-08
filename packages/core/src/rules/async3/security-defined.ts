@@ -15,9 +15,21 @@ const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
 type SecurityReference = {
   location: Location;
   name: string;
-  resolvedPointer?: string;
+  refPointer: string;
   resolved: boolean;
 };
+
+function getRefPointer(ref: string): string {
+  const hashIndex = ref.indexOf('#');
+  return hashIndex === -1 ? ref : ref.slice(hashIndex);
+}
+
+function pointsToSecurityScheme(pointer: string): boolean {
+  return (
+    pointer.startsWith(SECURITY_SCHEMES_POINTER) &&
+    !pointer.slice(SECURITY_SCHEMES_POINTER.length).includes('/')
+  );
+}
 
 export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
@@ -48,21 +60,17 @@ export const SecurityDefined: Async3Rule = () => {
       },
       leave(_root, { report }: UserContext) {
         for (const reference of references) {
-          if (!reference.resolved) {
+          if (!pointsToSecurityScheme(reference.refPointer)) {
             report({
-              message: `There is no \`${reference.name}\` security scheme defined.`,
+              message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
               location: reference.location.key(),
             });
             continue;
           }
 
-          const pointer = reference.resolvedPointer ?? '';
-          if (
-            !pointer.startsWith(SECURITY_SCHEMES_POINTER) ||
-            pointer.slice(SECURITY_SCHEMES_POINTER.length).includes('/')
-          ) {
+          if (!reference.resolved) {
             report({
-              message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
+              message: `There is no \`${reference.name}\` security scheme defined.`,
               location: reference.location.key(),
             });
           }
@@ -84,11 +92,12 @@ export const SecurityDefined: Async3Rule = () => {
           if (!isRef(item)) continue;
           const itemLocation = location.child([i]);
           const resolved = resolve<Async3SecurityScheme>(item);
-          const name = item.$ref.split('/').pop() ?? item.$ref;
+          const refPointer = getRefPointer(item.$ref);
+          const name = refPointer.split('/').pop() ?? item.$ref;
           references.push({
             location: itemLocation,
             name,
-            resolvedPointer: resolved.location?.pointer,
+            refPointer,
             resolved: resolved.node !== undefined,
           });
         }
