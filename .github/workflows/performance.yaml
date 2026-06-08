@@ -56,6 +56,8 @@ jobs:
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
       - name: Comment PR
+        # Skip on PRs from forks: fork PRs get a read-only GITHUB_TOKEN, so
+        # commenting would fail with a 403. Only same-repo branches can post.
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
