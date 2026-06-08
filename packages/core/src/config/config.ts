@@ -135,7 +135,7 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.openrpc1Preprocessors,
       },
-      graphql: { ...resolvedConfig.preprocessors },
+      graphql: {},
     };
 
     this.decorators = {
@@ -155,7 +155,7 @@ export class Config {
         ...resolvedConfig.decorators,
         ...resolvedConfig.openrpc1Decorators,
       },
-      graphql: { ...resolvedConfig.decorators },
+      graphql: {},
     };
 
     this.ignore = opts.ignore ?? {};

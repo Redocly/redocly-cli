@@ -3,7 +3,7 @@ import { rootRedoclyConfigSchema } from '@redocly/config';
 import type { Config } from './config/index.js';
 import { initRules } from './config/rules.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
-import { isGraphqlDocument, lintGraphqlDocument } from './lint-graphql.js';
+import { isGraphqlDocument, lintGraphqlDocument } from './graphql/lint-graphql.js';
 import { getTypes } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';

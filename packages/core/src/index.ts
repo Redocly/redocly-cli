@@ -121,13 +121,6 @@ export {
   type Totals,
 } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
-export { lintGraphqlDocument, isGraphqlDocument } from './lint-graphql.js';
-export type {
-  GraphqlRule,
-  GraphqlVisitor,
-  GraphqlUserContext,
-  GraphqlProblem,
-} from './graphql/visitor.js';
 export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
