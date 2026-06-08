@@ -4,7 +4,7 @@ import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
-import { isGraphqlRef } from './graphql/extensions.js';
+import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { parseYaml } from './js-yaml/index.js';
 import {
   isRef,
