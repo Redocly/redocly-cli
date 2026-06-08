@@ -29,7 +29,7 @@ redocly lint --version
 | apis                   | [string] | Array of API or Arazzo description filenames that need to be linted. See [the API section](#specify-api) for more options.                                                                                  |
 | --config               | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                   |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings). Build-in rulesets are: `spec`, `minimal`, `recommended`, `recommended-strict`. Default value is `recommended`. |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                        |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`, `junit`. Default value is `codeframe`.               |
 | --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                                              |
 | --help                 | boolean  | Show help.                                                                                                                                                                                                  |
 | --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                          |
@@ -130,7 +130,7 @@ However, if you have a configuration file, but it doesn't include any rules or e
 ### Specify output format
 
 The standard `codeframe` output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
-When multiple APIs are linted in a single command, the `checkstyle` format produces a single combined XML document with one `<file>` element per API.
+When multiple APIs are linted in a single command, the `checkstyle` and `junit` formats each produce a single combined XML document, with one `<file>` (checkstyle) or `<testsuite>` (junit) element per API.
 
 #### Codeframe (default)
 
@@ -272,6 +272,46 @@ Run this command to use the following standard format output with your other too
 
 Due to the limitations of this format, only file name, line, column, severity, and rule ID (in the `source` attribute) are included.
 All other information is omitted.
+
+#### JUnit
+
+```bash
+redocly lint --format=junit
+```
+
+The `lint` command supports the JUnit XML report format, which is consumed by many CI systems.
+Each linted API becomes a `<testsuite>`, and each problem becomes a `<testcase>`.
+Errors are reported as `<error>` elements and warnings as `<failure>` elements, so CI tools that render the two differently keep errors and warnings visually distinct.
+
+Each `<testcase>` body repeats the rule, severity, location, pointer, and message as a readable detail block.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="redocly lint" tests="2" errors="1" failures="1" skipped="0">
+<testsuite name="museum-with-errors.yaml" tests="2" errors="1" failures="1">
+<testcase classname="struct" name="struct" file="museum-with-errors.yaml" line="19">
+<error message="Property `operationIds` is not expected here." type="struct">Rule: struct
+Severity: error
+File: museum-with-errors.yaml
+Line: 19
+Column: 7
+Pointer: #/paths/~1museum-hours/get
+Message: Property `operationIds` is not expected here.</error>
+</testcase>
+<testcase classname="operation-operationId" name="operation-operationId" file="museum-with-errors.yaml" line="16">
+<failure message="Operation object should contain `operationId` field." type="operation-operationId">Rule: operation-operationId
+Severity: warn
+File: museum-with-errors.yaml
+Line: 16
+Column: 5
+Pointer: #/paths/~1museum-hours/get
+Message: Operation object should contain `operationId` field.</failure>
+</testcase>
+</testsuite>
+</testsuites>
+```
+
+A valid (empty) report is produced even when no problems are found, so passing runs still populate the CI test results.
 
 #### GitHub Actions
 
