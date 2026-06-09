@@ -225,7 +225,57 @@ describe('resolveXSecurityParameters', () => {
     expect(parameters).toEqual([
       { name: 'Authorization', in: 'header', value: 'Bearer exchanged-cc-token' },
     ]);
-    expect(step['x-security']?.[0]?.values?.accessToken).toBeUndefined();
+    expect(step['x-security']?.[0]?.values?.accessToken).toBe('exchanged-cc-token');
+  });
+
+  it('refreshes the exchanged accessToken when the cache entry expires', async () => {
+    let call = 0;
+    const fetchMock = vi.fn(async () => {
+      call += 1;
+      return new Response(JSON.stringify({ access_token: `cc-token-${call}`, expires_in: 1 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }) as unknown as typeof fetch;
+
+    const ctxWithFetch = {
+      secretsSet: new Set<string>(),
+      options: { logger, fetch: fetchMock, maxFetchTimeout: 30_000 },
+    } as unknown as TestContext;
+
+    const sharedSecurity = {
+      scheme: {
+        type: 'oauth2',
+        flows: {
+          clientCredentials: {
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: { read: 'Read access' },
+          },
+        },
+      },
+      values: { clientId: 'id', clientSecret: 'secret' },
+    };
+
+    const stepA = { stepId: 'a', 'x-security': [sharedSecurity] } as unknown as Step;
+    const firstParams = await resolveXSecurityParameters({
+      ctx: ctxWithFetch,
+      runtimeContext: {} as RuntimeExpressionContext,
+      step: stepA,
+    });
+
+    const [[, cached]] = Array.from(ctxWithFetch.oauth2TokenCache!.entries());
+    cached.expiresAt = Date.now();
+
+    const stepB = { stepId: 'b', 'x-security': [sharedSecurity] } as unknown as Step;
+    const secondParams = await resolveXSecurityParameters({
+      ctx: ctxWithFetch,
+      runtimeContext: {} as RuntimeExpressionContext,
+      step: stepB,
+    });
+
+    expect(firstParams[0].value).toBe('Bearer cc-token-1');
+    expect(secondParams[0].value).toBe('Bearer cc-token-2');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('should skip OAuth2 token exchange when an accessToken is already provided', async () => {

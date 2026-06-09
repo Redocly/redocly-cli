@@ -61,16 +61,26 @@ export async function resolveXSecurityParameters({
       })
     );
 
+    if (!ctx.oauth2ExchangedSecurities) {
+      ctx.oauth2ExchangedSecurities = new WeakSet<object>();
+    }
+    const previouslyExchanged = ctx.oauth2ExchangedSecurities.has(security);
+    const hasUserAccessToken = !!values.accessToken && !previouslyExchanged;
     if (
       scheme.type === 'oauth2' &&
-      !values.accessToken &&
+      !hasUserAccessToken &&
       pickOAuth2ExchangeableFlow(scheme as OAuth2Auth, values)
     ) {
-      values.accessToken = await exchangeOAuth2Token({
+      const accessToken = await exchangeOAuth2Token({
         scheme: scheme as OAuth2Auth,
         values,
         ctx,
       });
+      values.accessToken = accessToken;
+      if (security.values) {
+        security.values.accessToken = accessToken;
+      }
+      ctx.oauth2ExchangedSecurities.add(security);
     }
 
     const resolvedSecurity = validateXSecurityParameters({ scheme, values });

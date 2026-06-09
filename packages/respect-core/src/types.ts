@@ -298,6 +298,7 @@ export type TestContext = RuntimeExpressionContext & {
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;
   oauth2TokenCache?: Map<string, { token: string; expiresAt: number }>;
+  oauth2ExchangedSecurities?: WeakSet<object>;
 };
 
 export type TestDescription = Partial<
