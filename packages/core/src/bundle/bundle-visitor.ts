@@ -138,7 +138,8 @@ export function makeBundleVisitor({
   let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
 
-  const titleLocationByName = new Map<string, Location>();
+  // Location of the schema that first claimed each title-based component name, used for a collision's `from`.
+  const titleNameLocations = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version);
 
@@ -298,8 +299,7 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
-  // Unique component key from the source basename, suffixing `-N` on different-content conflicts.
-  function basenameComponentName(
+  function componentNameFromBasename(
     target: ComponentTarget,
     componentsGroup: Record<string, unknown>,
     ctx: UserContext
@@ -340,7 +340,6 @@ export function makeBundleVisitor({
       });
     }
 
-    // A different schema already uses this name.
     const existing = componentsGroup[key];
     if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
       return fallbackName(target, componentsGroup, ctx, {
@@ -348,27 +347,24 @@ export function makeBundleVisitor({
           `Title "${title}" maps to component name \`${key}\`, ` +
           `already used by another schema. Rename one of the titles.`,
         location: titleLocation,
-        from: titleLocationByName.get(key),
+        from: titleNameLocations.get(key),
       });
     }
 
-    // The title is usable. Remember where the name was claimed so a later colliding title can
-    // point back here, then use it.
-    titleLocationByName.set(key, titleLocation);
+    titleNameLocations.set(key, titleLocation);
     return key;
   }
 
-  // File-based component name, reporting the given problem once — on the first `$ref` that stores
-  // this schema, so repeat references to it stay quiet.
   function fallbackName(
     target: ComponentTarget,
     componentsGroup: Record<string, unknown>,
     ctx: UserContext,
     problem: { message: string; location: Location; from?: Location }
   ) {
-    const name = basenameComponentName(target, componentsGroup, ctx).name;
+    const name = componentNameFromBasename(target, componentsGroup, ctx).name;
     if (!componentsGroup[name]) {
       ctx.report({ ...problem, forceSeverity: 'error' });
+      titleNameLocations.set(name, target.location);
     }
     return name;
   }
@@ -380,7 +376,7 @@ export function makeBundleVisitor({
       return componentNameFromTitle(target, componentsGroup, ctx);
     }
 
-    const { name, prevName } = basenameComponentName(target, componentsGroup, ctx);
+    const { name, prevName } = componentNameFromBasename(target, componentsGroup, ctx);
     if (!componentsGroup[name] && prevName !== name) {
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
