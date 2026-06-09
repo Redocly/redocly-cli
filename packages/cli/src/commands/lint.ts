@@ -64,8 +64,8 @@ export async function handleLint({
 
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
-  const isCheckstyle = argv.format === 'checkstyle';
-  const checkstyleResults: Awaited<ReturnType<typeof lint>> = [];
+  const isAggregatedXmlFormat = argv.format === 'checkstyle' || argv.format === 'junit';
+  const aggregatedResults: Awaited<ReturnType<typeof lint>> = [];
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const { path, alias } of apis) {
@@ -110,8 +110,8 @@ export async function handleLint({
           config.addIgnore(m);
           totalIgnored++;
         }
-      } else if (isCheckstyle) {
-        checkstyleResults.push(...results);
+      } else if (isAggregatedXmlFormat) {
+        aggregatedResults.push(...results);
       } else {
         formatProblems(results, {
           format: argv.format,
@@ -129,8 +129,8 @@ export async function handleLint({
     }
   }
 
-  if (isCheckstyle && !argv['generate-ignore-file']) {
-    formatProblems(checkstyleResults, {
+  if (isAggregatedXmlFormat && !argv['generate-ignore-file']) {
+    formatProblems(aggregatedResults, {
       format: argv.format,
       maxProblems: argv['max-problems'],
       totals,
@@ -158,8 +158,8 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     return;
   }
 
-  if (argv.format === 'json') {
-    // we can't print config lint results as it will break json output
+  if (argv.format === 'json' || argv.format === 'junit' || argv.format === 'checkstyle') {
+    // these are single-document formats, so a separate config-lint document would break the output
     return;
   }
 

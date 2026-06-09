@@ -378,6 +378,7 @@ yargs(hideBin(process.argv))
               'summary',
               'markdown',
               'github-actions',
+              'junit',
             ] as ReadonlyArray<OutputFormat>,
             default: 'codeframe' as OutputFormat,
           },

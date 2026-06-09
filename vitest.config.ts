@@ -22,8 +22,8 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/commands/proxy/**',
         ],
         thresholds: {
-          lines: 80,
-          functions: 83,
+          lines: 81,
+          functions: 84,
           statements: 80,
           branches: 72,
         },
