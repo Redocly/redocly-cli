@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.32.0 (2026-06-08)
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
 ## 2.31.6 (2026-06-03)
 
 ### Patch Changes
