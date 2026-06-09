@@ -66,11 +66,13 @@ export async function resolveXSecurityParameters({
     }
     const previouslyExchanged = ctx.oauth2ExchangedSecurities.has(security);
     const hasUserAccessToken = !!values.accessToken && !previouslyExchanged;
-    if (
+    const shouldExchangeOAuth2 =
       scheme.type === 'oauth2' &&
       !hasUserAccessToken &&
-      pickOAuth2ExchangeableFlow(scheme as OAuth2Auth, values)
-    ) {
+      !!pickOAuth2ExchangeableFlow(scheme as OAuth2Auth, values);
+    const resolvedSecurity = validateXSecurityParameters({ scheme, values });
+
+    if (shouldExchangeOAuth2) {
       const accessToken = await exchangeOAuth2Token({
         scheme: scheme as OAuth2Auth,
         values,
@@ -83,7 +85,6 @@ export async function resolveXSecurityParameters({
       ctx.oauth2ExchangedSecurities.add(security);
     }
 
-    const resolvedSecurity = validateXSecurityParameters({ scheme, values });
     const param = getSecurityParameter(resolvedSecurity, ctx);
 
     if (param) {

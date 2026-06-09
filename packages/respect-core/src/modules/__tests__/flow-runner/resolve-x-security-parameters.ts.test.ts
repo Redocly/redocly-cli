@@ -278,6 +278,43 @@ describe('resolveXSecurityParameters', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it('should fail validation before calling the token endpoint when OAuth2 credentials are incomplete', async () => {
+    const fetchMock = vi.fn() as unknown as typeof fetch;
+    const ctxWithFetch = {
+      secretsSet: new Set<string>(),
+      options: { logger, fetch: fetchMock, maxFetchTimeout: 30_000 },
+    } as unknown as TestContext;
+
+    const step = {
+      stepId: 'getPet',
+      'x-security': [
+        {
+          scheme: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: { read: 'Read access' },
+              },
+            },
+          },
+          // Only clientId — clientSecret is missing.
+          values: { clientId: 'id' },
+        },
+      ],
+    } as unknown as Step;
+
+    await expect(
+      resolveXSecurityParameters({
+        ctx: ctxWithFetch,
+        runtimeContext: {} as RuntimeExpressionContext,
+        step,
+      })
+    ).rejects.toThrow('Missing required value `clientSecret` for oauth2 security scheme');
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('should skip OAuth2 token exchange when an accessToken is already provided', async () => {
     const fetchMock = vi.fn() as unknown as typeof fetch;
 
