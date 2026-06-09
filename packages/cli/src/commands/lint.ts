@@ -29,6 +29,21 @@ import {
 } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
+const OUTPUT_FORMATS: readonly OutputFormat[] = [
+  'codeframe',
+  'stylish',
+  'json',
+  'checkstyle',
+  'codeclimate',
+  'summary',
+  'github-actions',
+  'markdown',
+];
+
+function isOutputFormat(format: string | undefined): format is OutputFormat {
+  return format !== undefined && (OUTPUT_FORMATS as readonly string[]).includes(format);
+}
+
 export type LintArgv = {
   apis?: string[];
   'max-problems': number;
@@ -158,7 +173,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   const fileTotals = getTotals(problems);
 
   formatProblems(problems, {
-    format: argv.format,
+    format: isOutputFormat(argv.format) ? argv.format : 'codeframe',
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,

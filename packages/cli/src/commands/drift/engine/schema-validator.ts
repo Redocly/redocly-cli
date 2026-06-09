@@ -4,6 +4,7 @@ import Ajv2020, {
   type ValidateFunction,
   type Ajv2020 as Ajv2020Instance,
 } from '@redocly/ajv/dist/2020.js';
+import { isPlainObject } from '@redocly/openapi-core';
 import addFormats from 'ajv-formats';
 
 import type { SchemaValidationError } from '../types/index.js';
@@ -63,7 +64,7 @@ export class SchemaValidator {
   }
 
   private getOrCompileValidator(schema: unknown): ValidateFunction {
-    if (schema && typeof schema === 'object') {
+    if (isPlainObject(schema)) {
       const cached = this.objectSchemaCache.get(schema);
       if (cached) {
         return cached;

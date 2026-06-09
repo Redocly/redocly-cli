@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 import type {
   Finding,
   MatchedOperation,
@@ -84,11 +86,11 @@ function getValueAtJsonPointer(root: unknown, pointer: string | undefined): unkn
       continue;
     }
 
-    if (!current || typeof current !== 'object') {
+    if (!isPlainObject(current)) {
       return undefined;
     }
 
-    current = (current as Record<string, unknown>)[segment];
+    current = current[segment];
   }
 
   return current;

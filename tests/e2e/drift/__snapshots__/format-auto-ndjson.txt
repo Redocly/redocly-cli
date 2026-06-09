@@ -1,0 +1,27 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/openapi.yaml
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-undocumented.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=2 documented=0 undocumented=2
+┃ Findings: total=2 error=2 warning=0 info=0
+┃ Problems: total=2
+┗ Duration: <ms>ms
+
+Types (1)
+  • undocumented-endpoint: 2 problems / 2 findings
+
+Problems by type (showing first 2 of 2)
+
+◉ undocumented-endpoint (2 problems shown / 2 total, 2 findings)
+✖ ERROR #1 → Undocumented endpoint: GET /unknown
+  ↳ sample exchange=0 GET /unknown (404)
+
+    http://api.example.com/unknown
+
+✖ ERROR #2 → Undocumented endpoint: DELETE /users/42
+  ↳ sample exchange=1 DELETE /users/42 (405)
+
+    http://api.example.com/users/42
+

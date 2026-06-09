@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 const DUMMY_BASE_URL = 'http://drift.local';
 
 const IGNORED_UNDOCUMENTED_HEADERS = new Set([
@@ -65,14 +67,14 @@ const IGNORED_UNDOCUMENTED_HEADER_PREFIXES = [
 ];
 
 export function normalizeHeaders(input: unknown): Record<string, string> {
-  if (!input || typeof input !== 'object') {
+  if (!isPlainObject(input) && !Array.isArray(input)) {
     return {};
   }
 
   if (Array.isArray(input)) {
     const result: Record<string, string> = {};
     for (const item of input) {
-      if (!item || typeof item !== 'object') {
+      if (!isPlainObject(item)) {
         continue;
       }
       const { name, value } = item as { name?: unknown; value?: unknown };

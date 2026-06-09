@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import { randomUUID } from 'node:crypto';
 
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
@@ -95,11 +96,7 @@ function ensureOperationContextInFinding(
   }
 
   const existingDetails = finding.details ?? {};
-  if (
-    typeof existingDetails !== 'object' ||
-    existingDetails === null ||
-    Array.isArray(existingDetails)
-  ) {
+  if (!isPlainObject(existingDetails)) {
     finding.details = {
       operationPathTemplate: matchedOperation.operation.pathTemplate,
     };

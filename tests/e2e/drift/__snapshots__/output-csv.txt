@@ -1,0 +1,4 @@
+run_id,finding_id,exchange_index,severity,category,rule_id,message,method,path,url,status,operation_id,spec_source,target,schema_path,data_path
+<uuid>,<uuid>,0,error,documentation,undocumented-endpoint,Undocumented endpoint: GET /unknown,GET,/unknown,http://api.example.com/unknown,404,,,request,,
+<uuid>,<uuid>,1,error,documentation,undocumented-endpoint,Undocumented endpoint: DELETE /users/42,DELETE,/users/42,http://api.example.com/users/42,405,,,request,,
+

@@ -42,7 +42,7 @@ export function coerceString(value: unknown): string | undefined {
     return value.toString('utf8');
   }
 
-  if (typeof value === 'object') {
+  if (isPlainObject(value) || Array.isArray(value)) {
     try {
       return JSON.stringify(value);
     } catch {

@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info:
+  title: Secured Drift Test API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      responses:
+        '200':
+          description: A list of users.

@@ -45,7 +45,7 @@ export async function loadTrafficParsers(modulePaths: string[]): Promise<Traffic
     );
 
     if (exportedParsers.length === 0) {
-      throw new Error(`Traffic parser module \"${modulePath}\" does not export a parser.`);
+      throw new Error(`Traffic parser module "${modulePath}" does not export a parser.`);
     }
 
     parsers.push(...exportedParsers);

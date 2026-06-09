@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 import type { Finding, RuleContext, RulePlugin } from '../../types/index.js';
 
 const MAX_EXPOSED_PATHS = 6;
@@ -74,7 +76,7 @@ function isBooleanLikeValue(value: string | number): boolean {
 }
 
 function findSensitiveResponsePaths(payload: unknown): string[] {
-  if (!payload || typeof payload !== 'object') {
+  if (!isPlainObject(payload) && !Array.isArray(payload)) {
     return [];
   }
 
@@ -98,18 +100,18 @@ function findSensitiveResponsePaths(payload: unknown): string[] {
       const limit = Math.min(current.value.length, MAX_SCAN_ARRAY_ITEMS);
       for (let index = 0; index < limit; index += 1) {
         const item = current.value[index];
-        if (item && typeof item === 'object') {
+        if (isPlainObject(item) || Array.isArray(item)) {
           queue.push({ value: item, path: `${current.path}/${index}` });
         }
       }
       continue;
     }
 
-    if (!current.value || typeof current.value !== 'object') {
+    if (!isPlainObject(current.value)) {
       continue;
     }
 
-    for (const [key, value] of Object.entries(current.value as Record<string, unknown>)) {
+    for (const [key, value] of Object.entries(current.value)) {
       const pointerPath = `${current.path}/${normalizeJsonPointerSegment(key)}`;
       if (SENSITIVE_RESPONSE_KEY_PATTERN.test(key) && looksLikePrimitive(value)) {
         const stringified = String(value);
@@ -125,7 +127,7 @@ function findSensitiveResponsePaths(payload: unknown): string[] {
         }
       }
 
-      if (value && typeof value === 'object') {
+      if (isPlainObject(value) || Array.isArray(value)) {
         queue.push({ value, path: pointerPath });
       }
     }

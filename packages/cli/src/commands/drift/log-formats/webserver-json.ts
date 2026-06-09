@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import path from 'node:path';
 
 import type { NormalizedExchange, TrafficParser } from '../types/index.js';
@@ -82,9 +83,8 @@ function normalizeWebServerRecord(
   index: number,
   source: string
 ): NormalizedExchange | null {
-  const request = record?.request && typeof record.request === 'object' ? record.request : record;
-  const response =
-    record?.response && typeof record.response === 'object' ? record.response : record;
+  const request = isPlainObject<JsonNode>(record?.request) ? record.request : record;
+  const response = isPlainObject<JsonNode>(record?.response) ? record.response : record;
   const requestLine = parseRequestLine(coerceString(record?.request));
 
   const method =
