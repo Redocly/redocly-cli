@@ -18,6 +18,8 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/**/__tests__/**/*',
           'packages/cli/src/index.ts',
           'packages/cli/src/utils/assert-node-version.ts',
+          'packages/cli/src/commands/drift/**',
+          'packages/cli/src/commands/proxy/**',
         ],
         thresholds: {
           lines: 80,
