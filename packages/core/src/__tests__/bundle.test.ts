@@ -4,13 +4,11 @@ import { outdent } from 'outdent';
 
 import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { bundleDocument } from '../bundle/bundle-document.js';
-import { buildSchemaNameFromTitle, titleToPascalCase } from '../bundle/bundle-title-naming.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
 import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
-import { type Location } from '../ref-utils.js';
 import { BaseResolver } from '../resolve.js';
-import { type UserContext } from '../walk.js';
+import { toPascalCase } from '../utils/to-pascal-case.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -846,7 +844,9 @@ describe('sibling $ref resolution by spec', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+});
 
+describe('bundle with --use-titles-for-component-names', () => {
   it('should build Schema component names from title when flag is on', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
@@ -867,27 +867,30 @@ describe('sibling $ref resolution by spec', () => {
     ).toEqual({ $ref: '#/components/schemas/AuthorityRequest' });
   });
 
-  it('errors when a referenced schema has no title and flag is on', async () => {
+  it('errors when a schema title is missing or unusable and flag is on', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/refs/title-naming-missing/openapi.yaml'),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-bad-title/openapi.yaml'),
       useTitlesForComponentNames: true,
     });
-    expect(problems).toHaveLength(1);
-    expect(problems[0].severity).toBe('error');
-    expect(problems[0].message).toMatch(/must define a `title`/);
-    // Caret points at the schema file that lacks a title.
-    expect(problems[0].location[0].source.absoluteRef).toMatch(
-      /title-naming-missing\/schemas\/Order\.yaml$/
+    // One schema has no `title`, the other a title with an unsupported character — distinct errors.
+    expect(problems).toHaveLength(2);
+    expect(problems.every((p) => p.severity === 'error')).toBe(true);
+    expect(problems.map((p) => p.message)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/must define a `title`/),
+        expect.stringMatching(/can't be turned into a component name/),
+      ])
     );
   });
 
-  it('errors when two schemas resolve to the same title-based name', async () => {
+  it('reports a collision once even when the conflicting schema is referenced repeatedly', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/title-naming-collision/openapi.yaml'),
       useTitlesForComponentNames: true,
     });
+    // `b/User.yaml` is referenced twice yet collides with `a/User.yaml` — reported exactly once.
     expect(problems).toHaveLength(1);
     expect(problems[0].severity).toBe('error');
     // Caret on the second schema's title; `from` links to the first (conflicting) schema.
@@ -927,39 +930,19 @@ describe('sibling $ref resolution by spec', () => {
   });
 });
 
-describe('titleToPascalCase', () => {
+describe('toPascalCase', () => {
   it.each([
     ['Authority model', 'AuthorityModel'],
     ['authority-model', 'Authority-model'],
     ['user_profile', 'User_profile'],
     ['foo.bar', 'Foo.bar'],
     ['API v2 User', 'APIV2User'],
-  ])('normalizes %j to %j', (input, expected) => {
-    expect(titleToPascalCase(input)).toBe(expected);
-  });
-
-  it('preserves a punctuation-only title that the spec allows as a key', () => {
-    expect(titleToPascalCase('...')).toBe('...');
-  });
-
-  it.each([[''], ['   '], ['User & Group'], ['User Імʼя']])(
-    'returns null for unusable title %j',
-    (input) => {
-      expect(titleToPascalCase(input)).toBeNull();
-    }
-  );
-});
-
-describe('buildSchemaNameFromTitle', () => {
-  it('reports an error and returns null when the title cannot form a valid key', () => {
-    const problems: { message: string }[] = [];
-    const location = { child: () => location } as unknown as Location;
-    const ctx = {
-      report: (p: { message: string }) => problems.push(p),
-    } as unknown as UserContext;
-    const name = buildSchemaNameFromTitle({ node: { title: 'User & Group' }, location }, ctx);
-    expect(name).toBeNull();
-    expect(problems).toHaveLength(1);
-    expect(problems[0].message).toMatch(/can't be turned into a component name/);
+    ['  padded  ', 'Padded'],
+    ['', ''],
+    // Disallowed characters are kept verbatim; validating them is the bundler's job, not this one's.
+    ['User & Group', 'User&Group'],
+    ['User Імʼя', 'UserІмʼя'],
+  ])('converts %j to %j', (input, expected) => {
+    expect(toPascalCase(input)).toBe(expected);
   });
 });

@@ -21,3 +21,12 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/b/User.yaml'
+  /b-again:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/b/User.yaml'

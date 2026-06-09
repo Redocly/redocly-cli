@@ -155,7 +155,11 @@ By default, the bundler names each inlined Schema component after its `$ref` —
 Two files that share a basename — for example `schemas/models/Authority.yaml` and `schemas/requests/Authority.yaml` — collide into `Authority` and `Authority-2`.
 The auto-numbered suffix is brittle: an unrelated `$ref` change can renumber it.
 
-With `--use-titles-for-component-names`, the name comes from each schema's `title` instead. Words (split on spaces) are capitalized and joined, and the spec-legal `.`, `-`, and `_` are kept:
+The `--use-titles-for-component-names` option derives each Schema component's name from its `title` instead, so the keys stay stable and meaningful regardless of file layout.
+The title is converted to PascalCase — words are split on spaces, capitalized, and joined — while `.`, `-`, and `_` are preserved.
+Those are the only characters the OpenAPI and AsyncAPI specifications allow in Components Object keys, the same set the [`spec-components-invalid-map-name`](../rules/oas/spec-components-invalid-map-name.md) rule enforces.
+
+For example:
 
 ```yaml
 # schemas/models/Authority.yaml
@@ -174,8 +178,8 @@ redocly bundle openapi.yaml -o bundled.yaml --use-titles-for-component-names
 The output uses `AuthorityModel` and `AuthorityRequest`.
 A `title` containing `.`, `-`, or `_` keeps them — `order-item` becomes `Order-item`.
 
-Bundling fails (no output file unless you pass `--force`) when:
+Bundling fails (no output unless you pass `--force`) when:
 
-- A referenced schema has no `title`.
-- A `title` uses anything other than ASCII letters, digits, spaces, `.`, `-`, or `_` (for example `&` or a non-ASCII title).
-- Two schemas produce the same name — for example, both titled `User` — instead of being silently renamed to `User` and `User-2`.
+- a referenced schema has no `title`;
+- a `title` uses characters that aren't allowed in a component key — for example `&` or a non-ASCII letter;
+- two schemas produce the same name — for example both titled `User` — instead of being silently renamed to `User` and `User-2`.

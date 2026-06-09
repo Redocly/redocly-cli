@@ -14,10 +14,25 @@ import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { makeRefId } from '../utils/make-ref-id.js';
+import { toPascalCase } from '../utils/to-pascal-case.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult } from '../walk.js';
-import { buildSchemaNameFromTitle } from './bundle-title-naming.js';
+
+type ComponentTarget = { node: unknown; location: Location };
+
+/**
+ * Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs — the same
+ * pattern the `spec-components-invalid-map-name` rule enforces.
+ */
+const COMPONENT_NAME_PATTERN = /^[a-zA-Z0-9.\-_]+$/;
+
+/** A schema's `title`, trimmed; `''` when it is missing or not a string. */
+function schemaTitle(node: unknown): string {
+  return isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
+}
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -130,8 +145,7 @@ export function makeBundleVisitor({
   let components: Record<string, Record<string, unknown>>;
   let rootLocation: Location;
 
-  // First schema's `title` location per name, linked as `from` when a later title collides.
-  const titleNameLocations = new Map<string, Location>();
+  const titleLocationByName = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version);
 
@@ -263,11 +277,7 @@ export function makeBundleVisitor({
     });
   }
 
-  function saveComponent(
-    componentType: string,
-    target: { node: unknown; location: Location },
-    ctx: UserContext
-  ) {
+  function saveComponent(componentType: string, target: ComponentTarget, ctx: UserContext) {
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
@@ -283,11 +293,7 @@ export function makeBundleVisitor({
     }
   }
 
-  function isEqualOrEqualRef(
-    node: unknown,
-    target: { node: unknown; location: Location },
-    ctx: UserContext
-  ) {
+  function isEqualOrEqualRef(node: unknown, target: ComponentTarget, ctx: UserContext) {
     if (
       isRef(node) &&
       ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer ===
@@ -301,7 +307,7 @@ export function makeBundleVisitor({
 
   // Unique component key from the source basename, suffixing `-N` on different-content conflicts.
   function basenameComponentName(
-    target: { node: unknown; location: Location },
+    target: ComponentTarget,
     componentsGroup: Record<string, unknown>,
     ctx: UserContext
   ) {
@@ -316,35 +322,69 @@ export function makeBundleVisitor({
     return { name, prevName };
   }
 
-  function getComponentName(
-    target: { node: unknown; location: Location },
-    componentType: string,
+  function componentNameFromTitle(
+    target: ComponentTarget,
+    componentsGroup: Record<string, unknown>,
     ctx: UserContext
   ) {
+    const title = schemaTitle(target.node);
+    const key = toPascalCase(title);
+    const titleLocation = target.location.child('title');
+
+    if (title === '') {
+      return fallbackName(target, componentsGroup, ctx, {
+        message: 'Schema must define a `title` to build a component name.',
+        location: target.location,
+      });
+    }
+
+    if (!COMPONENT_NAME_PATTERN.test(key)) {
+      return fallbackName(target, componentsGroup, ctx, {
+        message:
+          `Title "${title}" can't be turned into a component name. ` +
+          `Use only letters, digits, \`.\`, \`-\`, \`_\`, and spaces.`,
+        location: titleLocation,
+      });
+    }
+
+    // A different schema already uses this name.
+    const existing = componentsGroup[key];
+    if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
+      return fallbackName(target, componentsGroup, ctx, {
+        message:
+          `Title "${title}" maps to component name \`${key}\`, ` +
+          `already used by another schema. Rename one of the titles.`,
+        location: titleLocation,
+        from: titleLocationByName.get(key),
+      });
+    }
+
+    // The title is usable. Remember where the name was claimed so a later colliding title can
+    // point back here, then use it.
+    titleLocationByName.set(key, titleLocation);
+    return key;
+  }
+
+  // File-based component name, reporting the given problem once — on the first `$ref` that stores
+  // this schema, so repeat references to it stay quiet.
+  function fallbackName(
+    target: ComponentTarget,
+    componentsGroup: Record<string, unknown>,
+    ctx: UserContext,
+    problem: { message: string; location: Location; from?: Location }
+  ) {
+    const name = basenameComponentName(target, componentsGroup, ctx).name;
+    if (!componentsGroup[name]) {
+      ctx.report({ ...problem, forceSeverity: 'error' });
+    }
+    return name;
+  }
+
+  function getComponentName(target: ComponentTarget, componentType: string, ctx: UserContext) {
     const componentsGroup = components[componentType];
 
     if (useTitlesForComponentNames && componentType === schemaComponentType) {
-      const titleName = buildSchemaNameFromTitle(target, ctx);
-      if (titleName !== null) {
-        const existing = componentsGroup[titleName];
-        if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
-          const title = (target.node as { title?: string }).title;
-          ctx.report({
-            message:
-              `Title "${title}" maps to component name \`${titleName}\`, ` +
-              `already used by another schema. Rename one of the titles.`,
-            location: target.location.child('title'),
-            from: titleNameLocations.get(titleName),
-            forceSeverity: 'error',
-          });
-        } else {
-          titleNameLocations.set(titleName, target.location.child('title'));
-          return titleName;
-        }
-      }
-      // Title unusable or collided: the error is reported above; name it the default way so a
-      // `--force` bundle matches a no-flag run instead of emitting an invalid key.
-      return basenameComponentName(target, componentsGroup, ctx).name;
+      return componentNameFromTitle(target, componentsGroup, ctx);
     }
 
     const { name, prevName } = basenameComponentName(target, componentsGroup, ctx);
