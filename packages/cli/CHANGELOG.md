@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.32.0
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
 ## 2.31.6
 
 ### Patch Changes

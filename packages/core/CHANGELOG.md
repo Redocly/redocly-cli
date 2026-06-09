@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.32.0
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
 ## 2.31.6
 
 ## 2.31.5
