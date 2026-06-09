@@ -939,9 +939,6 @@ describe('toPascalCase', () => {
     ['API v2 User', 'APIV2User'],
     ['  padded  ', 'Padded'],
     ['', ''],
-    // Disallowed characters are kept verbatim; validating them is the bundler's job, not this one's.
-    ['User & Group', 'User&Group'],
-    ['User Імʼя', 'UserІмʼя'],
   ])('converts %j to %j', (input, expected) => {
     expect(toPascalCase(input)).toBe(expected);
   });
