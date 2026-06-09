@@ -56,9 +56,13 @@ function waitForShutdownSignal(): Promise<void> {
 }
 
 export async function handleProxy({ argv, config, version }: CommandArgs<ProxyArgv>) {
+  const targetInput = /^[a-z][a-z0-9+.-]*:\/\//i.test(argv.target)
+    ? argv.target
+    : `http://${argv.target}`;
+
   let target: URL;
   try {
-    target = new URL(argv.target);
+    target = new URL(targetInput);
   } catch {
     return exitWithError(`Invalid --target URL: ${argv.target}`);
   }
