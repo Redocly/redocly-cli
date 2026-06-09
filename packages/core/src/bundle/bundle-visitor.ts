@@ -1,5 +1,5 @@
 import { type RuleSeverity } from '../config/types.js';
-import { type SpecMajorVersion } from '../oas-types.js';
+import { COMPONENT_NAME_PATTERN, type SpecMajorVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
   replaceRef,
@@ -23,14 +23,7 @@ import { type UserContext, type ResolveResult } from '../walk.js';
 
 type ComponentTarget = { node: unknown; location: Location };
 
-/**
- * Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs — the same
- * pattern the `spec-components-invalid-map-name` rule enforces.
- */
-const COMPONENT_NAME_PATTERN = /^[a-zA-Z0-9.\-_]+$/;
-
-/** A schema's `title`, trimmed; `''` when it is missing or not a string. */
-function schemaTitle(node: unknown): string {
+function getTitle(node: unknown): string {
   return isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
 }
 
@@ -327,7 +320,7 @@ export function makeBundleVisitor({
     componentsGroup: Record<string, unknown>,
     ctx: UserContext
   ) {
-    const title = schemaTitle(target.node);
+    const title = getTitle(target.node);
     const key = toPascalCase(title);
     const titleLocation = target.location.child('title');
 
@@ -338,7 +331,7 @@ export function makeBundleVisitor({
       });
     }
 
-    if (!COMPONENT_NAME_PATTERN.test(key)) {
+    if (!new RegExp(COMPONENT_NAME_PATTERN).test(key)) {
       return fallbackName(target, componentsGroup, ctx, {
         message:
           `Title "${title}" can't be turned into a component name. ` +

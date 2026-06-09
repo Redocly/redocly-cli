@@ -1,19 +1,18 @@
+import { COMPONENT_NAME_PATTERN } from '../../oas-types.js';
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Rule } from '../../visitors.js';
 import type { Problem, UserContext } from '../../walk.js';
 
 export const SpecComponentsInvalidMapName: Oas3Rule = () => {
-  const KEYS_REGEX = '^[a-zA-Z0-9\\.\\-_]+$';
-
   function validateKey(
     key: string | number,
     report: (problem: Problem) => void,
     location: Location,
     component: string
   ) {
-    if (!new RegExp(KEYS_REGEX).test(key as string)) {
+    if (!new RegExp(COMPONENT_NAME_PATTERN).test(key as string)) {
       report({
-        message: `The map key in ${component} "${key}" does not match the regular expression "${KEYS_REGEX}"`,
+        message: `The map key in ${component} "${key}" does not match the regular expression "${COMPONENT_NAME_PATTERN}"`,
         location: location.key(),
         reference: 'https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name',
       });
