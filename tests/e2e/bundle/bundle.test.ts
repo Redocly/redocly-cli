@@ -14,7 +14,6 @@ describe('bundle', () => {
     'bundle-remove-unused-components-from-api-config',
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
-    'bundle-use-titles-for-component-names',
     'bundle-use-titles-for-component-names-collision',
   ];
   const folderPath = __dirname;
@@ -204,14 +203,6 @@ describe('bundle with long description', () => {
 });
 
 describe('bundle with option: use-titles-for-component-names', () => {
-  test('renames external Schema refs from their title (happy path)', async () => {
-    const testPath = join(__dirname, 'bundle-use-titles-for-component-names');
-    const entryPoints = getEntrypoints(testPath);
-    const args = [indexEntryPoint, 'bundle', '--use-titles-for-component-names', ...entryPoints];
-    const result = getCommandOutput(args, { testPath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
-  });
-
   test('fails when two schemas share a title-based name', async () => {
     const testPath = join(__dirname, 'bundle-use-titles-for-component-names-collision');
     const entryPoints = getEntrypoints(testPath);

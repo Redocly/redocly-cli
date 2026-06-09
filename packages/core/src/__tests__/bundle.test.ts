@@ -8,7 +8,6 @@ import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
 import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
 import { BaseResolver } from '../resolve.js';
-import { toPascalCase } from '../utils/to-pascal-case.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -927,19 +926,5 @@ describe('bundle with --use-titles-for-component-names', () => {
     expect(parsed.paths['/users'].get.responses['200'].schema).toEqual({
       $ref: '#/definitions/UserAccount',
     });
-  });
-});
-
-describe('toPascalCase', () => {
-  it.each([
-    ['Authority model', 'AuthorityModel'],
-    ['authority-model', 'Authority-model'],
-    ['user_profile', 'User_profile'],
-    ['foo.bar', 'Foo.bar'],
-    ['API v2 User', 'APIV2User'],
-    ['  padded  ', 'Padded'],
-    ['', ''],
-  ])('converts %j to %j', (input, expected) => {
-    expect(toPascalCase(input)).toBe(expected);
   });
 });
