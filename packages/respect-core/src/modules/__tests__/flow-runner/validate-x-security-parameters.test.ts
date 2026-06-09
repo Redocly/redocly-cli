@@ -150,6 +150,46 @@ describe('validateXSecurityParameters', () => {
     );
   });
 
+  it('should accept username + password for oauth2 when both flows are declared', () => {
+    const scheme: OAuth2Auth = {
+      type: 'oauth2',
+      flows: {
+        clientCredentials: {
+          tokenUrl: 'https://example.com/token',
+          scopes: { read: 'Read access' },
+        },
+        password: {
+          tokenUrl: 'https://example.com/token',
+          scopes: { read: 'Read access' },
+        },
+      },
+    };
+    const values = { username: 'alice', password: 'hunter2' };
+
+    const result = validateXSecurityParameters({ scheme, values });
+    expect(result).toEqual({ scheme, values });
+  });
+
+  it('should accept clientId + clientSecret for oauth2 when both flows are declared', () => {
+    const scheme: OAuth2Auth = {
+      type: 'oauth2',
+      flows: {
+        clientCredentials: {
+          tokenUrl: 'https://example.com/token',
+          scopes: { read: 'Read access' },
+        },
+        password: {
+          tokenUrl: 'https://example.com/token',
+          scopes: { read: 'Read access' },
+        },
+      },
+    };
+    const values = { clientId: 'id', clientSecret: 'secret' };
+
+    const result = validateXSecurityParameters({ scheme, values });
+    expect(result).toEqual({ scheme, values });
+  });
+
   it('should require accessToken for oauth2 implicit flow', () => {
     const scheme: OAuth2Auth = {
       type: 'oauth2',

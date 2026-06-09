@@ -225,7 +225,7 @@ describe('resolveXSecurityParameters', () => {
     expect(parameters).toEqual([
       { name: 'Authorization', in: 'header', value: 'Bearer exchanged-cc-token' },
     ]);
-    expect(step['x-security']?.[0]?.values?.accessToken).toBe('exchanged-cc-token');
+    expect(step['x-security']?.[0]?.values?.accessToken).toBeUndefined();
   });
 
   it('should skip OAuth2 token exchange when an accessToken is already provided', async () => {
