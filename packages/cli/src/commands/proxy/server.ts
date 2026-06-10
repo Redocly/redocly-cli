@@ -226,13 +226,16 @@ export function startProxyServer(options: ProxyServerOptions): Promise<RunningPr
 }
 
 function buildForwardUrl(requestUrl: string, targetUrl: URL): URL {
-  const forwardUrl = new URL(requestUrl, targetUrl);
+  const requested = new URL(requestUrl, targetUrl);
   const basePath = targetUrl.pathname.endsWith('/')
     ? targetUrl.pathname.slice(0, -1)
     : targetUrl.pathname;
-  if (basePath) {
-    forwardUrl.pathname = `${basePath}${forwardUrl.pathname}`;
-  }
+  const requestPath = requested.pathname;
+  const alreadyPrefixed = requestPath === basePath || requestPath.startsWith(`${basePath}/`);
+
+  const forwardUrl = new URL(targetUrl.toString());
+  forwardUrl.pathname = basePath && !alreadyPrefixed ? `${basePath}${requestPath}` : requestPath;
+  forwardUrl.search = requested.search;
   return forwardUrl;
 }
 

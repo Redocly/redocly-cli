@@ -88,23 +88,29 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
     });
   }
 
+  let exchangeQueue: Promise<void> = Promise.resolve();
+
   let server: RunningProxyServer;
   try {
     server = await startProxyServer({
       target: target.toString(),
       port: argv.port,
       host: argv.host,
-      onExchange: async ({ exchange, harEntry }) => {
-        await harWriter.add(harEntry);
+      onExchange: ({ exchange, harEntry }) => {
+        const task = exchangeQueue.then(async () => {
+          await harWriter.add(harEntry);
 
-        if (!session) {
-          return;
-        }
+          if (!session) {
+            return;
+          }
 
-        const findings = await session.process(exchange);
-        for (const finding of findings) {
-          logger.info(`${formatLiveFinding(finding)}\n`);
-        }
+          const findings = await session.process(exchange);
+          for (const finding of findings) {
+            logger.info(`${formatLiveFinding(finding)}\n`);
+          }
+        });
+        exchangeQueue = task.catch(() => undefined);
+        return task;
       },
       onError: (error) => {
         logger.error(`Proxy request failed: ${error.message}\n`);
@@ -125,6 +131,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
 
   logger.info('\nShutting down proxy…\n');
   await server.close();
+  await exchangeQueue;
   await harWriter.flush();
   logger.info(`Captured ${harWriter.entryCount} exchange(s) to ${harPath}\n`);
 

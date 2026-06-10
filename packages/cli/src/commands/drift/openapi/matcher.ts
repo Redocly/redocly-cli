@@ -44,6 +44,14 @@ function hostMatches(operationServer: OpenApiServer, requestHost: string | undef
   return operationServer.host === requestHost.toLowerCase();
 }
 
+function decodePathParam(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 function scoreCandidate(
   operation: OpenApiOperation,
   server: OpenApiServer,
@@ -87,7 +95,7 @@ export function matchOperation(
         const paramName = operation.pathParams[index];
         const paramValue = pathMatch[index + 1];
         if (paramName && paramValue !== undefined) {
-          params[paramName] = decodeURIComponent(paramValue);
+          params[paramName] = decodePathParam(paramValue);
         }
       }
 
