@@ -206,7 +206,14 @@ describe('bundle with option: use-titles-for-component-names', () => {
   test('fails when two schemas share a title-based name', async () => {
     const testPath = join(__dirname, 'bundle-use-titles-for-component-names-collision');
     const entryPoints = getEntrypoints(testPath);
-    const args = [indexEntryPoint, 'bundle', '--use-titles-for-component-names', ...entryPoints];
+    const args = [
+      indexEntryPoint,
+      'bundle',
+      '--use-titles-for-component-names',
+      '--component-renaming-conflicts-severity',
+      'error',
+      ...entryPoints,
+    ];
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
