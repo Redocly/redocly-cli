@@ -111,6 +111,7 @@ export class AjvValidator {
         allowUnionTypes: true,
         validateFormats: true,
         passContext: true,
+        logger: false,
         loadSchemaSync(base: string, $ref: string, $id: string) {
           const decodedBase = decodeURI(base.split('#')[0]);
           const resolvedRef = resolve({ $ref }, decodedBase);
@@ -121,7 +122,6 @@ export class AjvValidator {
             ...resolvedRef.node,
           };
         },
-        logger: false,
       };
 
       this.instances[dialect] =
