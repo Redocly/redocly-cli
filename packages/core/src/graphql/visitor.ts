@@ -12,6 +12,9 @@ export type GraphqlProblem = {
   node?: ASTNode;
   loc?: { start: Loc; end?: Loc };
   suggest?: string[];
+  // Override the reporting rule id/severity (used by configurable rules so each one reports under its own id/severity instead of the shared ones).
+  ruleId?: string;
+  severity?: ProblemSeverity;
 };
 
 export type GraphqlUserContext = {
@@ -29,7 +32,7 @@ export type GraphqlVisitorNode =
 // Mirrors the OAS visitor shape: keyed by node kind, `enter` shorthand supported.
 export type GraphqlVisitor = Partial<Record<GraphqlNodeKind, GraphqlVisitorNode>>;
 
-export type GraphqlRule = (options: Record<string, any>) => GraphqlVisitor;
+export type GraphqlRule = (options: Record<string, any>) => GraphqlVisitor | GraphqlVisitor[];
 
 type ContextOptions = {
   ruleId: string;
@@ -76,8 +79,8 @@ function makeContext(currentNode: ASTNode | undefined, opts: ContextOptions): Gr
         end: loc?.end,
       };
       problems.push({
-        ruleId,
-        severity,
+        ruleId: problem.ruleId ?? ruleId,
+        severity: problem.severity ?? severity,
         message: message ? message.replace('{{message}}', problem.message) : problem.message,
         suggest: problem.suggest ?? [],
         location: [location],
