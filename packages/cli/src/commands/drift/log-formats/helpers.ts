@@ -4,7 +4,13 @@ import { readFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline';
 
 import type { NormalizedExchange, NormalizedRequest, NormalizedResponse } from '../types/index.js';
-import { normalizeHeaders, parseJsonBodyIfPresent, parseUrl, isJsonMime } from '../utils/http.js';
+import {
+  normalizeHeaders,
+  parseJsonBodyIfPresent,
+  parseUrl,
+  isJsonMime,
+  isSyntheticHost,
+} from '../utils/http.js';
 
 /**
  * Loosely-typed view of parsed JSON used by traffic parsers. Every property
@@ -98,8 +104,17 @@ export function createNormalizedExchange(
     return null;
   }
 
-  const parsedUrl = parseUrl(url);
   const requestHeaders = normalizeHeaders(seed.requestHeaders);
+  let parsedUrl = parseUrl(url);
+  if (isSyntheticHost(parsedUrl.host) && requestHeaders.host) {
+    try {
+      parsedUrl = new URL(
+        `${parsedUrl.protocol}//${requestHeaders.host}${parsedUrl.pathname}${parsedUrl.search}`
+      );
+    } catch {
+      parsedUrl = parseUrl(url);
+    }
+  }
   const requestContentType = seed.requestContentType ?? requestHeaders['content-type'];
   const requestBodyText = decodeBody(seed.requestBody);
 
@@ -110,7 +125,7 @@ export function createNormalizedExchange(
     query: parsedUrl.searchParams,
     protocol: parsedUrl.protocol,
     protocolKnown: seed.schemeKnown ?? /^https?:\/\//i.test(url),
-    host: parsedUrl.host || undefined,
+    host: isSyntheticHost(parsedUrl.host) ? undefined : parsedUrl.host || undefined,
     headers: requestHeaders,
     contentType: requestContentType,
     bodyText: requestBodyText,

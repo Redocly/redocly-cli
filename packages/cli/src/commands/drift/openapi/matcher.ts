@@ -33,12 +33,8 @@ function toRelativePath(requestPath: string, server: OpenApiServer): string | nu
 }
 
 function hostMatches(operationServer: OpenApiServer, requestHost: string | undefined): boolean {
-  if (!operationServer.host) {
+  if (!operationServer.host || !requestHost) {
     return true;
-  }
-
-  if (!requestHost) {
-    return false;
   }
 
   return operationServer.host === requestHost.toLowerCase();
