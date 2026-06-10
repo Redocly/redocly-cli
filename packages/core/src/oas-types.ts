@@ -126,7 +126,7 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
 
 // GraphQL has a separate engine: it reuses the common struct rule but not no-unresolved-refs/assertions.
 export type GraphqlRuleSet<T = undefined> = RuleMap<
-  BuiltInGraphqlRuleId | 'struct',
+  BuiltInGraphqlRuleId | 'struct' | 'assertions',
   GraphqlRule,
   T
 >;
