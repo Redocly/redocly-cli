@@ -1,6 +1,7 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
 import type { Finding, RuleContext, RulePlugin } from '../../types/index.js';
+import { splitSetCookieHeader } from '../../utils/http.js';
 
 const MAX_EXPOSED_PATHS = 6;
 const MAX_SCAN_NODES = 2000;
@@ -250,60 +251,63 @@ function detectWeakCookieAttributes(context: RuleContext): Finding[] {
   }
 
   const findings: Finding[] = [];
-  const cookieHeader = setCookie.toLowerCase();
 
-  if (context.exchange.request.protocol === 'https:' && !/\bsecure\b/.test(cookieHeader)) {
-    findings.push(
-      buildSecurityFinding(
-        context,
-        'Set-Cookie header is missing "Secure" attribute',
-        'response',
-        'warning',
-        {
-          issueId: 'API2:2023',
-          issueTitle: 'Broken Authentication',
-          summary:
-            'Session cookies over HTTPS should include "Secure" to prevent transmission over plain HTTP.',
-          setCookiePreview: setCookie.slice(0, 200),
-        }
-      )
-    );
-  }
+  for (const cookie of splitSetCookieHeader(setCookie)) {
+    const cookieHeader = cookie.toLowerCase();
 
-  if (!/\bhttponly\b/.test(cookieHeader)) {
-    findings.push(
-      buildSecurityFinding(
-        context,
-        'Set-Cookie header is missing "HttpOnly" attribute',
-        'response',
-        'warning',
-        {
-          issueId: 'API2:2023',
-          issueTitle: 'Broken Authentication',
-          summary:
-            'Session cookies should include "HttpOnly" to reduce risk of token theft via client-side script access.',
-          setCookiePreview: setCookie.slice(0, 200),
-        }
-      )
-    );
-  }
+    if (context.exchange.request.protocol === 'https:' && !/\bsecure\b/.test(cookieHeader)) {
+      findings.push(
+        buildSecurityFinding(
+          context,
+          'Set-Cookie header is missing "Secure" attribute',
+          'response',
+          'warning',
+          {
+            issueId: 'API2:2023',
+            issueTitle: 'Broken Authentication',
+            summary:
+              'Session cookies over HTTPS should include "Secure" to prevent transmission over plain HTTP.',
+            setCookiePreview: cookie.slice(0, 200),
+          }
+        )
+      );
+    }
 
-  if (!/\bsamesite\s*=/.test(cookieHeader)) {
-    findings.push(
-      buildSecurityFinding(
-        context,
-        'Set-Cookie header is missing "SameSite" attribute',
-        'response',
-        'info',
-        {
-          issueId: 'API8:2023',
-          issueTitle: 'Security Misconfiguration',
-          summary:
-            'Set "SameSite" on session cookies to reduce CSRF risk for state-changing requests.',
-          setCookiePreview: setCookie.slice(0, 200),
-        }
-      )
-    );
+    if (!/\bhttponly\b/.test(cookieHeader)) {
+      findings.push(
+        buildSecurityFinding(
+          context,
+          'Set-Cookie header is missing "HttpOnly" attribute',
+          'response',
+          'warning',
+          {
+            issueId: 'API2:2023',
+            issueTitle: 'Broken Authentication',
+            summary:
+              'Session cookies should include "HttpOnly" to reduce risk of token theft via client-side script access.',
+            setCookiePreview: cookie.slice(0, 200),
+          }
+        )
+      );
+    }
+
+    if (!/\bsamesite\s*=/.test(cookieHeader)) {
+      findings.push(
+        buildSecurityFinding(
+          context,
+          'Set-Cookie header is missing "SameSite" attribute',
+          'response',
+          'info',
+          {
+            issueId: 'API8:2023',
+            issueTitle: 'Security Misconfiguration',
+            summary:
+              'Set "SameSite" on session cookies to reduce CSRF risk for state-changing requests.',
+            setCookiePreview: cookie.slice(0, 200),
+          }
+        )
+      );
+    }
   }
 
   return findings;

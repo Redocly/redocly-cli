@@ -201,9 +201,11 @@ function buildPostData(body: Buffer, contentType: string | undefined): PostData 
 
 export function startProxyServer(options: ProxyServerOptions): Promise<RunningProxyServer> {
   const targetUrl = new URL(options.target);
+  let exchangeIndex = 0;
+  const nextExchangeIndex = () => exchangeIndex++;
 
   const server: Server = createServer((req, res) => {
-    void handleRequest(req, res, targetUrl, options);
+    void handleRequest(req, res, targetUrl, options, nextExchangeIndex);
   });
 
   return new Promise((resolve, reject) => {
@@ -223,15 +225,27 @@ export function startProxyServer(options: ProxyServerOptions): Promise<RunningPr
   });
 }
 
+function buildForwardUrl(requestUrl: string, targetUrl: URL): URL {
+  const forwardUrl = new URL(requestUrl, targetUrl);
+  const basePath = targetUrl.pathname.endsWith('/')
+    ? targetUrl.pathname.slice(0, -1)
+    : targetUrl.pathname;
+  if (basePath) {
+    forwardUrl.pathname = `${basePath}${forwardUrl.pathname}`;
+  }
+  return forwardUrl;
+}
+
 async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
   targetUrl: URL,
-  options: ProxyServerOptions
+  options: ProxyServerOptions,
+  nextExchangeIndex: () => number
 ): Promise<void> {
   const startedAt = new Date();
   const method = toHttpMethod(req.method);
-  const forwardUrl = new URL(req.url ?? '/', targetUrl);
+  const forwardUrl = buildForwardUrl(req.url ?? '/', targetUrl);
 
   try {
     const requestBody = await readRequestBody(req);
@@ -250,6 +264,7 @@ async function handleRequest(
 
     const elapsedMs = Date.now() - startedAt.getTime();
     const captured = buildCapturedExchange({
+      index: nextExchangeIndex(),
       method,
       forwardUrl,
       req,
@@ -274,6 +289,7 @@ async function handleRequest(
 }
 
 function buildCapturedExchange(params: {
+  index: number;
   method: string;
   forwardUrl: URL;
   req: IncomingMessage;
@@ -300,7 +316,7 @@ function buildCapturedExchange(params: {
       responseContentType,
       startedAt: params.startedAt.toISOString(),
     },
-    0,
+    params.index,
     '(proxy)'
   );
 

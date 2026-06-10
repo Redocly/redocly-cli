@@ -26,6 +26,7 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
   });
 
   let supportedTrafficFileCount = 0;
+  let exchangeIndex = 0;
 
   for (const trafficFile of trafficFiles) {
     let parser;
@@ -44,7 +45,8 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
     supportedTrafficFileCount += 1;
 
     for await (const exchange of parser.parse(trafficFile)) {
-      await session.process(exchange);
+      await session.process({ ...exchange, index: exchangeIndex });
+      exchangeIndex += 1;
     }
   }
 

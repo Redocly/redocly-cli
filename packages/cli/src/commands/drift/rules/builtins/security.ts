@@ -321,10 +321,10 @@ function createSecuritySummary(issues: SecurityIssue[]): string {
 
   const optionSummaries = Array.from(groupedByRequirement.entries())
     .sort((a, b) => a[0] - b[0])
-    .map(([, optionIssues], index) => {
+    .map(([requirement, optionIssues]) => {
       const schemeNames = optionIssues.map((issue) => issue.schemeName).join(' + ');
       const reasons = optionIssues.map((issue) => issue.reason).join(' ');
-      return `Option ${index + 1} (${schemeNames}): ${reasons}`;
+      return `Option ${requirement} (${schemeNames}): ${reasons}`;
     });
 
   if (optionSummaries.length === 1) {
@@ -416,8 +416,8 @@ export class SecurityRule implements RulePlugin {
           details: {
             summary: skippedChecks
               .map(
-                (check, index) =>
-                  `Skipped option ${index + 1} (${check.schemeName}): ${check.reason}`
+                (check) =>
+                  `Skipped option ${check.requirement} (${check.schemeName}): ${check.reason}`
               )
               .join(' '),
             skippedChecks,

@@ -71,37 +71,56 @@ const IGNORED_UNDOCUMENTED_HEADER_PREFIXES = [
   'x-forwarded-',
 ];
 
+const SET_COOKIE_SEPARATOR = '\n';
+
+export function splitSetCookieHeader(value: string): string[] {
+  return value.split(SET_COOKIE_SEPARATOR);
+}
+
+function appendHeaderValue(result: Record<string, string>, name: string, value: string): void {
+  const key = name.toLowerCase();
+  const existing = result[key];
+  if (existing === undefined) {
+    result[key] = value;
+    return;
+  }
+  result[key] =
+    key === 'set-cookie' ? `${existing}${SET_COOKIE_SEPARATOR}${value}` : `${existing},${value}`;
+}
+
 export function normalizeHeaders(input: unknown): Record<string, string> {
   if (!isPlainObject(input) && !Array.isArray(input)) {
     return {};
   }
 
+  const result: Record<string, string> = {};
+
   if (Array.isArray(input)) {
-    const result: Record<string, string> = {};
     for (const item of input) {
       if (!isPlainObject(item)) {
         continue;
       }
       const { name, value } = item as { name?: unknown; value?: unknown };
       if (typeof name === 'string' && value !== undefined) {
-        result[name.toLowerCase()] = String(value);
+        appendHeaderValue(result, name, String(value));
       }
     }
     return result;
   }
 
-  const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
     if (value === undefined || value === null) {
       continue;
     }
 
     if (Array.isArray(value)) {
-      result[key.toLowerCase()] = value.map((item) => String(item)).join(',');
+      for (const item of value) {
+        appendHeaderValue(result, key, String(item));
+      }
       continue;
     }
 
-    result[key.toLowerCase()] = String(value);
+    appendHeaderValue(result, key, String(value));
   }
 
   return result;
