@@ -317,7 +317,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
   },
   graphqlRules: {
     'type-description': 'warn',
-    'type-pascal-case': 'warn',
   },
 };
 

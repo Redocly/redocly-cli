@@ -192,7 +192,7 @@ const builtInOpenRpc1Rules = [
 ] as const;
 export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
-const builtInGraphqlRules = ['type-description', 'type-pascal-case'] as const;
+const builtInGraphqlRules = ['type-description'] as const;
 export type BuiltInGraphqlRuleId = (typeof builtInGraphqlRules)[number];
 
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
