@@ -16,6 +16,7 @@
   "scripts": {
     "compile": "tsc",
     "copy-assets": "cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs ",
+    "postinstall": "node ./bin/postinstall.js",
     "prepack": "npm run copy-assets",
     "prepublishOnly": "npm run copy-assets && cp ../../README.md ."
   },
