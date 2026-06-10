@@ -1,6 +1,8 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import path from 'node:path';
 
 import type { TrafficParser, NormalizedExchange } from '../types/index.js';
+import { normalizeContentType } from '../utils/http.js';
 import {
   createNormalizedExchange,
   coerceString,
@@ -9,6 +11,32 @@ import {
   iterateJsonArray,
   type JsonNode,
 } from './helpers.js';
+
+function formParamsToBody(mimeType: string | undefined, params: unknown): string | undefined {
+  if (normalizeContentType(mimeType) !== 'application/x-www-form-urlencoded') {
+    return undefined;
+  }
+
+  if (!Array.isArray(params)) {
+    return undefined;
+  }
+
+  const searchParams = new URLSearchParams();
+  for (const param of params) {
+    if (!isPlainObject(param)) {
+      continue;
+    }
+
+    const name = coerceString(param.name);
+    if (name === undefined) {
+      continue;
+    }
+
+    searchParams.append(name, coerceString(param.value) ?? '');
+  }
+
+  return searchParams.size > 0 ? searchParams.toString() : undefined;
+}
 
 function normalizeHarEntry(
   entry: JsonNode,
@@ -22,8 +50,10 @@ function normalizeHarEntry(
     return null;
   }
 
-  const requestBody = request?.postData?.text;
-  const requestEncoding = coerceString(request?.postData?.encoding);
+  const postData = request?.postData;
+  const requestContentType = coerceString(postData?.mimeType);
+  const requestBody = postData?.text ?? formParamsToBody(requestContentType, postData?.params);
+  const requestEncoding = coerceString(postData?.encoding);
   const responseBody = response?.content?.text;
   const responseEncoding = coerceString(response?.content?.encoding);
   const responseStatus = coerceNumber(response?.status);
@@ -34,7 +64,7 @@ function normalizeHarEntry(
       url: coerceString(request?.url),
       requestHeaders: request?.headers,
       requestBody: decodeBody(requestBody, requestEncoding),
-      requestContentType: coerceString(request?.postData?.mimeType),
+      requestContentType,
       responseStatus: responseStatus === 0 ? undefined : responseStatus,
       responseStatusText: coerceString(response?.statusText),
       responseHeaders: response?.headers,

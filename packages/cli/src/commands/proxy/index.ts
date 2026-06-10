@@ -98,7 +98,11 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
       host: argv.host,
       onExchange: ({ exchange, harEntry }) => {
         const task = exchangeQueue.then(async () => {
-          await harWriter.add(harEntry);
+          try {
+            await harWriter.add(harEntry);
+          } catch (error) {
+            logger.error(`Failed to write HAR entry: ${(error as Error).message}\n`);
+          }
 
           if (!session) {
             return;
