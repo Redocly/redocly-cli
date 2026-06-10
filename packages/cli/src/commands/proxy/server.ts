@@ -250,6 +250,7 @@ async function handleRequest(
   const method = toHttpMethod(req.method);
   const forwardUrl = buildForwardUrl(req.url ?? '/', targetUrl);
 
+  let captured: CapturedExchange | null = null;
   try {
     const requestBody = await readRequestBody(req);
     const hasBody = method !== 'GET' && method !== 'HEAD' && requestBody.length > 0;
@@ -266,7 +267,7 @@ async function handleRequest(
     res.end(responseBody);
 
     const elapsedMs = Date.now() - startedAt.getTime();
-    const captured = buildCapturedExchange({
+    captured = buildCapturedExchange({
       index: nextExchangeIndex(),
       method,
       forwardUrl,
@@ -278,16 +279,23 @@ async function handleRequest(
       startedAt,
       elapsedMs,
     });
-
-    if (captured) {
-      await options.onExchange(captured);
-    }
   } catch (error) {
-    if (!res.headersSent) {
-      res.writeHead(502, { 'content-type': 'text/plain' });
-    }
-    res.end(`Proxy error: ${(error as Error).message}`);
     options.onError(error as Error);
+    if (!res.writableEnded) {
+      if (!res.headersSent) {
+        res.writeHead(502, { 'content-type': 'text/plain' });
+      }
+      res.end(`Proxy error: ${(error as Error).message}`);
+    }
+    return;
+  }
+
+  if (captured) {
+    try {
+      await options.onExchange(captured);
+    } catch (error) {
+      options.onError(error as Error);
+    }
   }
 }
 

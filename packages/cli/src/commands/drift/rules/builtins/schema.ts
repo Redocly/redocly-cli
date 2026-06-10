@@ -16,6 +16,10 @@ import {
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
+function hasBodyContent(bodyText: string | undefined): boolean {
+  return bodyText !== undefined && bodyText !== '';
+}
+
 function parseCookies(headerValue: string | undefined): Record<string, string> {
   if (!headerValue) {
     return {};
@@ -437,11 +441,9 @@ export class SchemaConsistencyRule implements RulePlugin {
       requestContentType
     );
 
-    if (
-      matchedOperation.operation.requestBodyRequired &&
-      requestSchema &&
-      context.exchange.request.bodyText === undefined
-    ) {
+    const hasRequestBody = hasBodyContent(context.exchange.request.bodyText);
+
+    if (matchedOperation.operation.requestBodyRequired && !hasRequestBody) {
       findings.push({
         ruleId: this.id,
         severity: 'error',
@@ -454,7 +456,7 @@ export class SchemaConsistencyRule implements RulePlugin {
       });
     }
 
-    if (requestSchema && context.exchange.request.bodyText !== undefined) {
+    if (requestSchema && hasRequestBody) {
       if (isJsonMime(requestContentType) && context.exchange.request.bodyJson === undefined) {
         findings.push({
           ruleId: this.id,
@@ -474,7 +476,11 @@ export class SchemaConsistencyRule implements RulePlugin {
     }
 
     const responseSchema = pickResponseSchema(context, matchedOperation);
-    if (responseSchema && context.exchange.response) {
+    if (
+      responseSchema &&
+      context.exchange.response &&
+      hasBodyContent(context.exchange.response.bodyText)
+    ) {
       const responseContentType = context.exchange.response.headers['content-type'];
       if (isJsonMime(responseContentType) && context.exchange.response.bodyJson === undefined) {
         findings.push({

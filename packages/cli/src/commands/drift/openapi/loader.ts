@@ -1,4 +1,4 @@
-import { bundle, isPlainObject, type Config } from '@redocly/openapi-core';
+import { bundle, isPlainObject, logger, type Config } from '@redocly/openapi-core';
 import { stat } from 'node:fs/promises';
 
 import type {
@@ -266,12 +266,14 @@ export function buildOpenApiIndex(
  * Resolve the OpenAPI spec input (a single file or a folder) into a flat list
  * of spec file paths that openapi-core can bundle individually.
  */
-async function resolveSpecFiles(specPath: string): Promise<string[]> {
+async function resolveSpecFiles(
+  specPath: string
+): Promise<{ specFiles: string[]; fromDirectory: boolean }> {
   const stats = await stat(specPath);
   if (stats.isDirectory()) {
-    return listOpenApiFiles(specPath);
+    return { specFiles: await listOpenApiFiles(specPath), fromDirectory: true };
   }
-  return [specPath];
+  return { specFiles: [specPath], fromDirectory: false };
 }
 
 /**
@@ -280,7 +282,7 @@ async function resolveSpecFiles(specPath: string): Promise<string[]> {
  * single spec file or a folder of specs.
  */
 export async function loadOpenApiIndex(specPath: string, config: Config): Promise<OpenApiIndex> {
-  const specFiles = await resolveSpecFiles(specPath);
+  const { specFiles, fromDirectory } = await resolveSpecFiles(specPath);
   const operationsByMethod = new Map<string, OpenApiOperation[]>();
   let loadedSpecs = 0;
 
@@ -289,11 +291,17 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
     try {
       const { bundle: bundled } = await bundle({ config, ref: specFile, dereference: true });
       document = bundled.parsed;
-    } catch {
+    } catch (error) {
+      logger.warn(
+        `Failed to bundle OpenAPI description ${specFile}: ${(error as Error).message}\n`
+      );
       continue;
     }
 
     if (!isOpenApi3Document(document)) {
+      if (!fromDirectory) {
+        logger.warn(`Skipping ${specFile}: not an OpenAPI 3.x description.\n`);
+      }
       continue;
     }
 
