@@ -142,7 +142,7 @@ export function makeBundleVisitor({
   // Location of the schema that first claimed each title-based component name, used for a collision's `from`.
   const titleNameLocations = new Map<string, Location>();
 
-  const schemaComponentType = mapTypeToComponent('Schema', version);
+  const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -223,7 +223,6 @@ export function makeBundleVisitor({
   };
 
   if (version === 'oas3') {
-    const componentType = schemaComponentType!;
     visitor.Discriminator = {
       leave(discriminator: Oas3Discriminator, ctx: UserContext) {
         if (
@@ -239,7 +238,7 @@ export function makeBundleVisitor({
           return;
         }
 
-        discriminator.defaultMapping = saveComponent(componentType, resolved, ctx);
+        discriminator.defaultMapping = saveComponent(schemaComponentType, resolved, ctx);
       },
       DiscriminatorMapping: {
         leave(mapping, ctx) {
@@ -254,7 +253,7 @@ export function makeBundleVisitor({
               return;
             }
 
-            mapping[name] = saveComponent(componentType, resolved, ctx);
+            mapping[name] = saveComponent(schemaComponentType, resolved, ctx);
           }
         },
       },

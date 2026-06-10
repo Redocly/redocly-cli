@@ -443,6 +443,116 @@ components:
 
 `;
 
+exports[`bundle with --use-titles-for-component-names > leaves non-schema components (parameters) untouched when the flag is on 1`] = `
+- ruleId: bundler
+  severity: warn
+  message: >-
+    Two schemas are referenced with the same name but different content. Renamed
+    param-b to param-b-2.
+  location:
+    - source: fixtures/refs/openapi-with-external-refs-conflicting-names.yaml
+      pointer: '#/paths/~1pet/put/parameters/1'
+      reportOnKey: false
+  forceSeverity: warn
+  suggest: []
+
+`;
+
+exports[`bundle with --use-titles-for-component-names > reports a separate error for a missing title and for an unusable title 1`] = `
+- ruleId: bundler
+  severity: error
+  message: Schema must define a \`title\` to build a component name.
+  location:
+    - source: fixtures/refs/title-naming-bad-title/schemas/NoTitle.yaml
+      pointer: '#/'
+      reportOnKey: false
+  forceSeverity: error
+  suggest: []
+- ruleId: bundler
+  severity: error
+  message: >-
+    Title "User & Group" can't be turned into a component name. Use only
+    letters, digits, \`.\`, \`-\`, \`_\`, and spaces.
+  location:
+    - source: fixtures/refs/title-naming-bad-title/schemas/BadTitle.yaml
+      pointer: '#/title'
+      reportOnKey: false
+  forceSeverity: error
+  suggest: []
+
+`;
+
+exports[`bundle with --use-titles-for-component-names > reports a title collision once and points \`from\` at the first schema, even when referenced repeatedly 1`] = `
+- ruleId: bundler
+  severity: warn
+  message: >-
+    Title "User" maps to component name \`User\`, already used by another schema.
+    Rename one of the titles.
+  location:
+    - source: fixtures/refs/title-naming-collision/schemas/b/User.yaml
+      pointer: '#/title'
+      reportOnKey: false
+  from:
+    source: fixtures/refs/title-naming-collision/schemas/a/User.yaml
+    pointer: '#/title'
+  forceSeverity: warn
+  suggest: []
+
+`;
+
+exports[`bundle with --use-titles-for-component-names > should build Schema component names from title when flag is on 1`] = `
+openapi: 3.1.0
+info:
+  title: title-naming fixture
+  version: 1.0.0
+paths:
+  /authorities:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityModel'
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorityRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityModel'
+components:
+  schemas:
+    AuthorityModel:
+      type: object
+      title: Authority model
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - name
+    AuthorityRequest:
+      type: object
+      title: Authority request
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+`;
+
 exports[`sibling $ref resolution by spec > should not resolve non-description/summary sibling ref 1`] = `
 openapi: 3.1.0
 info:

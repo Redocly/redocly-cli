@@ -217,4 +217,19 @@ describe('bundle with option: use-titles-for-component-names', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
+
+  test('bundles the same collision silently with --component-renaming-conflicts-severity off', async () => {
+    const testPath = join(__dirname, 'bundle-use-titles-for-component-names-collision');
+    const entryPoints = getEntrypoints(testPath);
+    const args = [
+      indexEntryPoint,
+      'bundle',
+      '--use-titles-for-component-names',
+      '--component-renaming-conflicts-severity',
+      'off',
+      ...entryPoints,
+    ];
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-off.txt'));
+  });
 });

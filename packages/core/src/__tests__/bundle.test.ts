@@ -2,7 +2,11 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  yamlSerializer,
+} from '../../__tests__/utils.js';
 import { bundleDocument } from '../bundle/bundle-document.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
@@ -853,64 +857,34 @@ describe('bundle with --use-titles-for-component-names', () => {
       useTitlesForComponentNames: true,
     });
     expect(problems).toHaveLength(0);
-    const parsed = res.parsed as any;
-    expect(Object.keys(parsed.components.schemas).sort()).toEqual([
-      'AuthorityModel',
-      'AuthorityRequest',
-    ]);
-    expect(
-      parsed.paths['/authorities'].get.responses['200'].content['application/json'].schema
-    ).toEqual({ $ref: '#/components/schemas/AuthorityModel' });
-    expect(
-      parsed.paths['/authorities'].post.requestBody.content['application/json'].schema
-    ).toEqual({ $ref: '#/components/schemas/AuthorityRequest' });
+    expect(res.parsed).toMatchSnapshot();
   });
 
-  it('errors when a schema title is missing or unusable and flag is on', async () => {
+  it('reports a separate error for a missing title and for an unusable title', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/title-naming-bad-title/openapi.yaml'),
       useTitlesForComponentNames: true,
     });
-    // One schema has no `title`, the other a title with an unsupported character — distinct errors.
-    expect(problems).toHaveLength(2);
-    expect(problems.every((p) => p.severity === 'error')).toBe(true);
-    expect(problems.map((p) => p.message)).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/must define a `title`/),
-        expect.stringMatching(/can't be turned into a component name/),
-      ])
-    );
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchSnapshot();
   });
 
-  it('reports a collision once even when the conflicting schema is referenced repeatedly', async () => {
+  it('reports a title collision once and points `from` at the first schema, even when referenced repeatedly', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/title-naming-collision/openapi.yaml'),
       useTitlesForComponentNames: true,
     });
-    // `b/User.yaml` is referenced twice yet collides with `a/User.yaml` — reported exactly once.
     expect(problems).toHaveLength(1);
-    expect(problems[0].severity).toBe('warn');
-    // Caret on the second schema's title; `from` links to the first (conflicting) schema.
-    expect(problems[0].location[0].source.absoluteRef).toMatch(/schemas\/b\/User\.yaml$/);
-    expect(problems[0].from?.source.absoluteRef).toMatch(/schemas\/a\/User\.yaml$/);
-    expect(problems[0].message).toMatch(
-      /maps to component name `User`, already used by another schema/
-    );
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchSnapshot();
   });
 
-  it('does not affect non-schema components when --use-titles-for-component-names is on', async () => {
+  it('leaves non-schema components (parameters) untouched when the flag is on', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
       useTitlesForComponentNames: true,
     });
-    // Same warning as without the flag — parameters are out of scope.
-    expect(problems).toHaveLength(1);
-    expect(problems[0].severity).toBe('warn');
-    expect(problems[0].message).toEqual(
-      'Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.'
-    );
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchSnapshot();
   });
 });

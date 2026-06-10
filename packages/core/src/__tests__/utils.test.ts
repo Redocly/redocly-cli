@@ -142,14 +142,14 @@ describe('utils', () => {
 
   describe('toPascalCase', () => {
     it.each([
-      ['Authority model', 'AuthorityModel'],
-      ['authority-model', 'Authority-model'],
-      ['user_profile', 'User_profile'],
-      ['foo.bar', 'Foo.bar'],
-      ['API v2 User', 'APIV2User'],
-      ['  padded  ', 'Padded'],
-      ['', ''],
-    ])('converts %j to %j', (input, expected) => {
+      { input: 'Authority model', expected: 'AuthorityModel' },
+      { input: 'authority-model', expected: 'Authority-model' },
+      { input: 'user_profile', expected: 'User_profile' },
+      { input: 'foo.bar', expected: 'Foo.bar' },
+      { input: 'API v2 User', expected: 'APIV2User' },
+      { input: '  padded  ', expected: 'Padded' },
+      { input: '', expected: '' },
+    ])('converts "$input" to "$expected"', ({ input, expected }) => {
       expect(toPascalCase(input)).toBe(expected);
     });
   });
