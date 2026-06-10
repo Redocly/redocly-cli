@@ -891,7 +891,7 @@ describe('bundle with --use-titles-for-component-names', () => {
     });
     // `b/User.yaml` is referenced twice yet collides with `a/User.yaml` — reported exactly once.
     expect(problems).toHaveLength(1);
-    expect(problems[0].severity).toBe('error');
+    expect(problems[0].severity).toBe('warn');
     // Caret on the second schema's title; `from` links to the first (conflicting) schema.
     expect(problems[0].location[0].source.absoluteRef).toMatch(/schemas\/b\/User\.yaml$/);
     expect(problems[0].from?.source.absoluteRef).toMatch(/schemas\/a\/User\.yaml$/);

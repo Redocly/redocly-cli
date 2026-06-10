@@ -22,6 +22,7 @@ import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult } from '../walk.js';
 
 type ComponentTarget = { node: unknown; location: Location };
+type ComponentsGroup = Record<string, unknown>;
 
 function getTitle(node: unknown): string {
   return isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
@@ -135,7 +136,7 @@ export function makeBundleVisitor({
   componentRenamingConflicts?: RuleSeverity;
   useTitlesForComponentNames?: boolean;
 }) {
-  let components: Record<string, Record<string, unknown>>;
+  let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
 
   // Location of the schema that first claimed each title-based component name, used for a collision's `from`.
@@ -301,7 +302,7 @@ export function makeBundleVisitor({
 
   function componentNameFromBasename(
     target: ComponentTarget,
-    componentsGroup: Record<string, unknown>,
+    componentsGroup: ComponentsGroup,
     ctx: UserContext
   ) {
     const prevName =
@@ -317,7 +318,7 @@ export function makeBundleVisitor({
 
   function componentNameFromTitle(
     target: ComponentTarget,
-    componentsGroup: Record<string, unknown>,
+    componentsGroup: ComponentsGroup,
     ctx: UserContext
   ) {
     const title = getTitle(target.node);
@@ -342,12 +343,15 @@ export function makeBundleVisitor({
 
     const existing = componentsGroup[key];
     if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
+      // A title collision is the same kind of event as a basename collision,
+      // so it honours `--component-renaming-conflicts-severity` too.
       return fallbackName(target, componentsGroup, ctx, {
         message:
           `Title "${title}" maps to component name \`${key}\`, ` +
           `already used by another schema. Rename one of the titles.`,
         location: titleLocation,
         from: titleNameLocations.get(key),
+        severity: componentRenamingConflicts,
       });
     }
 
@@ -357,13 +361,14 @@ export function makeBundleVisitor({
 
   function fallbackName(
     target: ComponentTarget,
-    componentsGroup: Record<string, unknown>,
+    componentsGroup: ComponentsGroup,
     ctx: UserContext,
-    problem: { message: string; location: Location; from?: Location }
+    problem: { message: string; location: Location; from?: Location; severity?: RuleSeverity }
   ) {
+    const { severity = 'error', ...report } = problem;
     const name = componentNameFromBasename(target, componentsGroup, ctx).name;
     if (!componentsGroup[name]) {
-      ctx.report({ ...problem, forceSeverity: 'error' });
+      ctx.report({ ...report, forceSeverity: severity });
       titleNameLocations.set(name, target.location);
     }
     return name;
