@@ -17,12 +17,12 @@ export class SchemaValidator {
   private readonly objectSchemaCache = new WeakMap<object, ValidateFunction>();
   private readonly scalarSchemaCache = new Map<string, ValidateFunction>();
 
-  public constructor() {
+  public constructor(options?: { coerceTypes?: boolean }) {
     this.ajv = new AjvConstructor({
       strict: false,
       allErrors: true,
       allowUnionTypes: true,
-      coerceTypes: true,
+      coerceTypes: options?.coerceTypes ?? false,
       validateFormats: true,
       verbose: true,
       formats: {

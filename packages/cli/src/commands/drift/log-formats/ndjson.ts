@@ -87,8 +87,27 @@ export class NdjsonTrafficParser implements TrafficParser {
       return true;
     }
 
-    const normalizedProbe = probe.trim();
-    return normalizedProbe.startsWith('{') && normalizedProbe.includes('\n');
+    const lastNewlineIndex = probe.lastIndexOf('\n');
+    if (lastNewlineIndex === -1) {
+      return false;
+    }
+
+    const firstLine = probe
+      .slice(0, lastNewlineIndex)
+      .split('\n')
+      .map((line) => line.trim())
+      .find(Boolean);
+
+    if (!firstLine?.startsWith('{') || !firstLine.endsWith('}')) {
+      return false;
+    }
+
+    try {
+      JSON.parse(firstLine);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   public async *parse(filePath: string): AsyncIterable<NormalizedExchange> {

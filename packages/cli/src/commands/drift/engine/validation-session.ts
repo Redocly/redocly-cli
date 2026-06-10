@@ -161,6 +161,7 @@ export class ValidationSession {
   private readonly previewLimit: number;
   private readonly rules: RulePlugin[];
   private readonly schemaValidator = new SchemaValidator();
+  private readonly coercingSchemaValidator = new SchemaValidator({ coerceTypes: true });
   private readonly options: ValidationSessionOptions;
 
   private readonly counters = createInitialCounters();
@@ -220,7 +221,10 @@ export class ValidationSession {
       matchedOperation,
       matchMode: this.options.matchMode,
       ignoreCookies: this.options.ignoreCookies ?? false,
-      validateSchema: this.schemaValidator.validate.bind(this.schemaValidator),
+      validateSchema: (schema, value, options) =>
+        options?.coerce
+          ? this.coercingSchemaValidator.validate(schema, value)
+          : this.schemaValidator.validate(schema, value),
     });
 
     const records: FindingRecord[] = [];

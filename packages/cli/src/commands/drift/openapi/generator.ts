@@ -417,6 +417,12 @@ export async function generateSpecFromTraffic(
     throw new Error('No supported traffic files found to generate an OpenAPI description from.');
   }
 
+  if (operations.size === 0) {
+    throw new Error(
+      'No HTTP exchanges were observed in the traffic. Cannot generate an OpenAPI description.'
+    );
+  }
+
   const serverUrls = apiPrefix ? [apiPrefix] : Array.from(observedServers).sort();
   return buildDocument(operations, options.title ?? 'Generated API', serverUrls);
 }

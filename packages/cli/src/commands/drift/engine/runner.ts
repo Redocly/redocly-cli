@@ -56,5 +56,9 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
     );
   }
 
+  if (exchangeIndex === 0) {
+    throw new Error('No HTTP exchanges were parsed from the provided traffic files.');
+  }
+
   return session.finalize();
 }

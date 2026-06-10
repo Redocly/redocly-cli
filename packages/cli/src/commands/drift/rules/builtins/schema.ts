@@ -235,7 +235,7 @@ function validateParameter(
     return;
   }
 
-  const result = context.validateSchema(parameter.schema, actualValue);
+  const result = context.validateSchema(parameter.schema, actualValue, { coerce: true });
   if (result.valid) {
     return;
   }

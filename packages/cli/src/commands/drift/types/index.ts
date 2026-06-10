@@ -127,7 +127,8 @@ export interface RuleContext {
   ignoreCookies?: boolean;
   validateSchema: (
     schema: unknown,
-    value: unknown
+    value: unknown,
+    options?: { coerce?: boolean }
   ) => { valid: boolean; errors: SchemaValidationError[] };
 }
 
