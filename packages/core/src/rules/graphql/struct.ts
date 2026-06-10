@@ -2,8 +2,6 @@ import { buildASTSchema, GraphQLError, validateSchema, type DocumentNode } from 
 
 import type { GraphqlRule, GraphqlUserContext } from '../../graphql/visitor.js';
 
-// Structural validity for GraphQL SDL: builds the schema from the AST and runs
-// the schema-validity checks (undefined types, duplicate fields, missing root, ...).
 export const Struct: GraphqlRule = () => {
   return {
     Document: {
@@ -28,7 +26,7 @@ function reportThrown(e: unknown, ctx: GraphqlUserContext) {
   if (e instanceof GraphQLError) {
     reportGraphqlError(e, ctx);
   } else if (e instanceof Error) {
-    // `buildASTSchema` aggregates SDL validation errors into a single Error.
+    // buildASTSchema aggregates SDL validation errors into a single Error.
     ctx.report({ message: e.message });
   } else {
     throw e;
