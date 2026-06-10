@@ -1,4 +1,4 @@
-import { lstat, open, readdir } from 'node:fs/promises';
+import { open, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 const SPEC_FILE_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
@@ -19,13 +19,14 @@ export async function listOpenApiFiles(rootDir: string): Promise<string[]> {
         continue;
       }
 
-      if (SPEC_FILE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+      if (entry.isFile() && SPEC_FILE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
         output.push(absolutePath);
       }
     }
   }
 
   await walk(rootDir);
+  output.sort();
   return output;
 }
 
@@ -45,7 +46,7 @@ export function normalizeFsPath(value: string): string {
 }
 
 export async function listFilesRecursively(rootPath: string): Promise<string[]> {
-  const stats = await lstat(rootPath);
+  const stats = await stat(rootPath);
   if (stats.isFile()) {
     return [rootPath];
   }

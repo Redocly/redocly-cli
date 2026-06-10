@@ -18,23 +18,26 @@ function getResponseCandidate(record: JsonNode): JsonNode {
   return record?.response ?? record?.res ?? record?.httpResponse ?? record?.http?.response;
 }
 
-function buildUrl(record: JsonNode, request: JsonNode): string | undefined {
+function buildUrl(record: JsonNode, request: JsonNode): { url?: string; schemeKnown?: boolean } {
   const directUrl = coerceString(
     request?.url ?? request?.uri ?? request?.requestUrl ?? record?.url
   );
   if (directUrl) {
-    return directUrl;
+    return { url: directUrl };
   }
 
   const host = coerceString(request?.host ?? request?.headers?.host ?? record?.host);
   const path = coerceString(request?.path ?? record?.path ?? request?.pathname);
-  const scheme = coerceString(request?.scheme ?? record?.scheme ?? 'http');
+  const explicitScheme = coerceString(request?.scheme ?? record?.scheme);
 
   if (host && path) {
-    return `${scheme}://${host}${path}`;
+    return {
+      url: `${explicitScheme ?? 'http'}://${host}${path}`,
+      schemeKnown: Boolean(explicitScheme),
+    };
   }
 
-  return path;
+  return { url: path, schemeKnown: Boolean(explicitScheme) };
 }
 
 function normalizeGenericRecord(
@@ -55,12 +58,15 @@ function normalizeGenericRecord(
     response?.data ??
     response?.rawBody;
 
+  const { url, schemeKnown } = buildUrl(record, request);
+
   return createNormalizedExchange(
     {
       method: coerceString(
         request?.method ?? request?.httpMethod ?? record?.method ?? record?.httpMethod
       ),
-      url: buildUrl(record, request),
+      url,
+      schemeKnown,
       requestHeaders: request?.headers,
       requestBody,
       requestContentType: pickHeaderContentType(request?.headers),

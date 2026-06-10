@@ -28,6 +28,8 @@ export interface NormalizedRequest extends NormalizedHttpMessage {
   path: string;
   query: URLSearchParams;
   protocol: string;
+  /** False when the capture did not record the scheme and a default was assumed. */
+  protocolKnown: boolean;
   host?: string;
 }
 

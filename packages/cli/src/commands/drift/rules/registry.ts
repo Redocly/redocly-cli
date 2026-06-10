@@ -37,19 +37,7 @@ export async function loadRulePlugins(
   activeRuleIds: string[] | undefined,
   pluginModules: string[]
 ): Promise<RulePlugin[]> {
-  const selectedRuleIds =
-    activeRuleIds && activeRuleIds.length > 0 ? activeRuleIds : DEFAULT_BUILTIN_RULE_IDS;
-
-  const builtins: RulePlugin[] = selectedRuleIds.map((ruleId) => {
-    const factory = BUILTIN_RULE_FACTORIES[ruleId];
-    if (!factory) {
-      throw new Error(`Unknown builtin rule id: ${ruleId}`);
-    }
-
-    return factory();
-  });
-
-  const externalPlugins: RulePlugin[] = [];
+  const externalPluginsById = new Map<string, RulePlugin>();
   for (const modulePath of pluginModules) {
     const absolutePath = path.resolve(process.cwd(), modulePath);
     const moduleUrl = pathToFileURL(absolutePath).toString();
@@ -62,15 +50,38 @@ export async function loadRulePlugins(
       throw new Error(`Plugin module "${modulePath}" does not export a rule plugin`);
     }
 
-    externalPlugins.push(...exportedRules);
-  }
-
-  const allRules = [...builtins, ...externalPlugins];
-  for (const plugin of allRules) {
-    if (!plugin || typeof plugin.id !== 'string' || typeof plugin.analyze !== 'function') {
-      throw new Error('Invalid rule plugin. Expected shape: { id: string, analyze: function }.');
+    for (const plugin of exportedRules) {
+      if (!plugin || typeof plugin.id !== 'string' || typeof plugin.analyze !== 'function') {
+        throw new Error('Invalid rule plugin. Expected shape: { id: string, analyze: function }.');
+      }
+      if (BUILTIN_RULE_FACTORIES[plugin.id] || externalPluginsById.has(plugin.id)) {
+        throw new Error(`Rule id "${plugin.id}" from plugin "${modulePath}" is already registered`);
+      }
+      externalPluginsById.set(plugin.id, plugin);
     }
   }
 
-  return allRules;
+  if (!activeRuleIds || activeRuleIds.length === 0) {
+    return [
+      ...DEFAULT_BUILTIN_RULE_IDS.map((ruleId) => BUILTIN_RULE_FACTORIES[ruleId]()),
+      ...externalPluginsById.values(),
+    ];
+  }
+
+  return [...new Set(activeRuleIds)].map((ruleId) => {
+    const factory = BUILTIN_RULE_FACTORIES[ruleId];
+    if (factory) {
+      return factory();
+    }
+
+    const plugin = externalPluginsById.get(ruleId);
+    if (plugin) {
+      return plugin;
+    }
+
+    const availableRuleIds = [...BUILTIN_RULE_IDS, ...externalPluginsById.keys()];
+    throw new Error(
+      `Unknown rule id: "${ruleId}". Available rules: ${availableRuleIds.join(', ')}`
+    );
+  });
 }

@@ -1,5 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
+import type { VerifyConfigOptions } from '../../types.js';
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderReport, type ReportFormat } from '../drift/engine/reporter.js';
@@ -22,8 +23,7 @@ export type ProxyArgv = {
   'max-findings': number;
   rules?: string;
   plugin?: string[];
-  config?: string;
-};
+} & VerifyConfigOptions;
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
 

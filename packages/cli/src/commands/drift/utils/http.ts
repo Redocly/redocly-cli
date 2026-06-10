@@ -19,6 +19,7 @@ const IGNORED_UNDOCUMENTED_HEADERS = new Set([
   'cookie',
   'connection',
   'content-length',
+  'content-type',
   'dpr',
   'dnt',
   'downlink',
@@ -153,7 +154,8 @@ export function compileOpenApiPath(pathTemplate: string): {
   const params: string[] = [];
   let score = 0;
 
-  const normalizedPath = pathTemplate.startsWith('/') ? pathTemplate : `/${pathTemplate}`;
+  const absolutePath = pathTemplate.startsWith('/') ? pathTemplate : `/${pathTemplate}`;
+  const normalizedPath = getPathWithoutTrailingSlash(absolutePath);
   const regexBody = normalizedPath
     .split('/')
     .map((segment) => {

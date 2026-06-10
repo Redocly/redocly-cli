@@ -1,5 +1,5 @@
 import type { OpenApiServer } from '../types/index.js';
-import { parseUrl, getPathWithoutTrailingSlash } from './http.js';
+import { parseUrl, getPathWithoutTrailingSlash, isSyntheticHost } from './http.js';
 
 export interface ServerVariable {
   default?: unknown;
@@ -22,7 +22,7 @@ export function resolveServerUrl(
   });
 
   const parsedUrl = parseUrl(resolvedUrl);
-  const hasExplicitHost = Boolean(parsedUrl.host && !parsedUrl.host.includes('drift.local'));
+  const hasExplicitHost = Boolean(parsedUrl.host && !isSyntheticHost(parsedUrl.host));
 
   return {
     rawUrl,

@@ -1,7 +1,20 @@
+import { logger } from '@redocly/openapi-core';
+
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
-import type { NormalizedExchange, NormalizedHttpMessage, TrafficFormat } from '../types/index.js';
+import type {
+  NormalizedExchange,
+  NormalizedHttpMessage,
+  NormalizedRequest,
+  TrafficFormat,
+} from '../types/index.js';
 import { listFilesRecursively } from '../utils/files.js';
-import { isJsonMime, isSyntheticHost, normalizeContentType } from '../utils/http.js';
+import {
+  getPathWithoutTrailingSlash,
+  isJsonMime,
+  isSyntheticHost,
+  normalizeContentType,
+  parseUrl,
+} from '../utils/http.js';
 
 export interface GenerateSpecOptions {
   trafficPath: string;
@@ -105,6 +118,9 @@ function inferSchema(value: unknown): JsonSchema {
   }
 
   if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return { type: 'array' };
+    }
     const itemSchemas = value.slice(0, 20).map(inferSchema);
     return { type: 'array', items: mergeSchemas(itemSchemas) };
   }
@@ -154,12 +170,11 @@ function inferSchema(value: unknown): JsonSchema {
 
 /** Shallow merge of inferred schemas observed across multiple samples. */
 function mergeSchemas(schemas: JsonSchema[]): JsonSchema {
-  const nonEmpty = schemas.filter((schema) => Object.keys(schema).length > 0);
-  if (nonEmpty.length === 0) {
+  if (schemas.length === 0) {
     return {};
   }
 
-  const [first, ...rest] = nonEmpty;
+  const [first, ...rest] = schemas;
   let merged: JsonSchema = first;
   for (const next of rest) {
     merged = mergeTwo(merged, next);
@@ -167,8 +182,22 @@ function mergeSchemas(schemas: JsonSchema[]): JsonSchema {
   return merged;
 }
 
+function isUnconstrainedSchema(schema: JsonSchema): boolean {
+  return Object.keys(schema).length === 0;
+}
+
 function mergeTwo(a: JsonSchema, b: JsonSchema): JsonSchema {
+  if (isUnconstrainedSchema(a) || isUnconstrainedSchema(b)) {
+    return {};
+  }
+
   if (a.type !== b.type) {
+    if (
+      (a.type === 'integer' && b.type === 'number') ||
+      (a.type === 'number' && b.type === 'integer')
+    ) {
+      return { type: 'number' };
+    }
     // Divergent types — fall back to an unconstrained schema for the PoC.
     return {};
   }
@@ -201,7 +230,11 @@ function mergeTwo(a: JsonSchema, b: JsonSchema): JsonSchema {
   }
 
   if (a.type === 'array') {
-    return { type: 'array', items: mergeSchemas([a.items ?? {}, b.items ?? {}]) };
+    if (!a.items || !b.items) {
+      const items = a.items ?? b.items;
+      return items ? { type: 'array', items } : { type: 'array' };
+    }
+    return { type: 'array', items: mergeTwo(a.items, b.items) };
   }
 
   return a;
@@ -280,22 +313,39 @@ function normalizeApiPrefix(prefix: string | undefined): string | undefined {
   return trimmed || undefined;
 }
 
+function stripPrefixFromPath(pathname: string, prefixPath: string): string | undefined {
+  if (!prefixPath || prefixPath === '/') {
+    return pathname || '/';
+  }
+
+  if (pathname === prefixPath) {
+    return '/';
+  }
+
+  if (!pathname.startsWith(`${prefixPath}/`)) {
+    return undefined;
+  }
+
+  return pathname.slice(prefixPath.length) || '/';
+}
+
 /**
- * Match a request URL against the API prefix. Returns the path relative to the
- * prefix, or undefined when the URL belongs to another host or path subtree.
+ * Match a request against the API prefix. Returns the path relative to the
+ * prefix, or undefined when the request belongs to another host or path subtree.
+ * A prefix starting with "/" matches by path only; otherwise it is parsed as a
+ * URL and the host must match too.
  */
-function resolvePathForPrefix(url: string, prefix: string): string | undefined {
-  if (!url.startsWith(prefix)) {
+function resolvePathForPrefix(request: NormalizedRequest, prefix: string): string | undefined {
+  if (prefix.startsWith('/')) {
+    return stripPrefixFromPath(request.path, prefix);
+  }
+
+  const prefixUrl = parseUrl(prefix.includes('://') ? prefix : `http://${prefix}`);
+  if (isSyntheticHost(prefixUrl.host) || request.host !== prefixUrl.host) {
     return undefined;
   }
 
-  const remainder = url.slice(prefix.length);
-  if (remainder !== '' && !remainder.startsWith('/') && !remainder.startsWith('?')) {
-    return undefined;
-  }
-
-  const path = remainder.split('?')[0].split('#')[0];
-  return path || '/';
+  return stripPrefixFromPath(request.path, getPathWithoutTrailingSlash(prefixUrl.pathname));
 }
 
 /**
@@ -325,7 +375,7 @@ export async function generateSpecFromTraffic(
 
     let rawPath = exchange.request.path || '/';
     if (apiPrefix) {
-      const prefixedPath = resolvePathForPrefix(exchange.request.url, apiPrefix);
+      const prefixedPath = resolvePathForPrefix(exchange.request, apiPrefix);
       if (prefixedPath === undefined) {
         return;
       }
@@ -334,7 +384,7 @@ export async function generateSpecFromTraffic(
       observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
     }
 
-    const { template, params } = templatizePath(rawPath);
+    const { template, params } = templatizePath(getPathWithoutTrailingSlash(rawPath));
     const key = `${method} ${template}`;
     let accumulator = operations.get(key);
     if (!accumulator) {
@@ -395,16 +445,10 @@ export async function generateSpecFromTraffic(
   };
 
   for (const trafficFile of trafficFiles) {
-    let parser;
-    try {
-      parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
-    } catch (error) {
-      if (options.format === 'auto') {
-        continue;
-      }
-      throw new Error(
-        `Failed to select parser for file "${trafficFile}" using format "${options.format}": ${(error as Error).message}`
-      );
+    const parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
+    if (!parser) {
+      logger.warn(`Skipping traffic file with unrecognized format: ${trafficFile}\n`);
+      continue;
     }
 
     supportedTrafficFileCount += 1;
@@ -419,7 +463,9 @@ export async function generateSpecFromTraffic(
 
   if (operations.size === 0) {
     throw new Error(
-      'No HTTP exchanges were observed in the traffic. Cannot generate an OpenAPI description.'
+      apiPrefix
+        ? `No HTTP exchanges in the traffic matched the API prefix "${apiPrefix}".`
+        : 'No HTTP exchanges were observed in the traffic. Cannot generate an OpenAPI description.'
     );
   }
 

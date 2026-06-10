@@ -34,11 +34,11 @@ function parseRequestLine(requestLine: string | undefined): {
   };
 }
 
-function buildUrl(record: JsonNode, request: JsonNode): string | undefined {
+function buildUrl(record: JsonNode, request: JsonNode): { url?: string; schemeKnown?: boolean } {
   const directUrl = coerceString(
     request?.url ??
-      request?.uri ??
       request?.request_uri ??
+      request?.uri ??
       record?.url ??
       record?.request_url ??
       record?.absolute_uri
@@ -51,7 +51,7 @@ function buildUrl(record: JsonNode, request: JsonNode): string | undefined {
     ) ?? requestLine.path;
 
   if (directUrl?.startsWith('http://') || directUrl?.startsWith('https://')) {
-    return directUrl;
+    return { url: directUrl };
   }
 
   const host = coerceString(
@@ -63,19 +63,19 @@ function buildUrl(record: JsonNode, request: JsonNode): string | undefined {
       record?.vhost
   );
 
-  const scheme = coerceString(
-    record?.scheme ?? request?.scheme ?? record?.request_scheme ?? 'http'
-  );
+  const explicitScheme = coerceString(record?.scheme ?? request?.scheme ?? record?.request_scheme);
+  const schemeKnown = Boolean(explicitScheme);
 
   if (host && (directUrl || requestPath)) {
+    const scheme = explicitScheme ?? 'http';
     const targetPath = directUrl ?? requestPath;
     if (targetPath?.startsWith('/')) {
-      return `${scheme}://${host}${targetPath}`;
+      return { url: `${scheme}://${host}${targetPath}`, schemeKnown };
     }
-    return `${scheme}://${host}/${targetPath}`;
+    return { url: `${scheme}://${host}/${targetPath}`, schemeKnown };
   }
 
-  return directUrl ?? requestPath;
+  return { url: directUrl ?? requestPath, schemeKnown };
 }
 
 function normalizeWebServerRecord(
@@ -84,7 +84,7 @@ function normalizeWebServerRecord(
   source: string
 ): NormalizedExchange | null {
   const request = isPlainObject<JsonNode>(record?.request) ? record.request : record;
-  const response = isPlainObject<JsonNode>(record?.response) ? record.response : record;
+  const response = isPlainObject<JsonNode>(record?.response) ? record.response : undefined;
   const requestLine = parseRequestLine(coerceString(record?.request));
 
   const method =
@@ -92,12 +92,13 @@ function normalizeWebServerRecord(
       request?.method ?? request?.request_method ?? record?.request_method ?? record?.method
     ) ?? requestLine.method;
 
-  const url = buildUrl(record, request);
+  const { url, schemeKnown } = buildUrl(record, request);
 
   return createNormalizedExchange(
     {
       method,
       url,
+      schemeKnown,
       requestHeaders:
         request?.headers ?? request?.request_headers ?? record?.request_headers ?? record?.headers,
       requestBody: request?.body ?? request?.request_body ?? record?.request_body ?? record?.body,

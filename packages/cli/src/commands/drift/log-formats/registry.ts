@@ -69,7 +69,7 @@ export async function selectTrafficParser(
   filePath: string,
   format: TrafficFormat,
   externalParsers: TrafficParser[] = []
-): Promise<TrafficParser> {
+): Promise<TrafficParser | undefined> {
   const parserPool = [...externalParsers, ...PARSERS];
 
   if (format !== 'auto') {
@@ -81,12 +81,5 @@ export async function selectTrafficParser(
   }
 
   const probe = await readProbe(filePath);
-  const parser = parserPool.find((candidate) => candidate.canParse(filePath, probe));
-  if (!parser) {
-    throw new Error(
-      'Unable to auto-detect traffic log format. Provide --format with one of: har, kong, nginx-json, apache-json, ndjson.'
-    );
-  }
-
-  return parser;
+  return parserPool.find((candidate) => candidate.canParse(filePath, probe));
 }

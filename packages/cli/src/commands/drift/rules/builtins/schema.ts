@@ -204,7 +204,6 @@ function createFallbackSchemaErrorSummary(
 }
 
 function createSchemaErrorDetails(
-  schema: unknown,
   value: unknown,
   error: SchemaValidationError,
   target: 'request' | 'response'
@@ -216,7 +215,7 @@ function createSchemaErrorDetails(
   return {
     summary,
     keyword: error.keyword ?? null,
-    path: highlightedDataPath ?? '/',
+    path: highlightedDataPath || '/',
     expected: createExpectedHint(error) ?? null,
     actual: compactActualValue(actualValue),
     suggestion: null,
@@ -241,7 +240,7 @@ function validateParameter(
   }
 
   for (const error of result.errors) {
-    const details = createSchemaErrorDetails(parameter.schema, actualValue, error, 'request');
+    const details = createSchemaErrorDetails(actualValue, error, 'request');
     findings.push({
       ruleId: 'schema-consistency',
       severity: 'error',
@@ -274,8 +273,17 @@ function getActualParameterValue(
   switch (parameter.in) {
     case 'path':
       return context.matchedOperation?.pathParams[parameter.name];
-    case 'query':
-      return context.exchange.request.query.get(parameter.name) ?? undefined;
+    case 'query': {
+      const values = context.exchange.request.query.getAll(parameter.name);
+      if (values.length === 0) {
+        return undefined;
+      }
+      const schemaType = isPlainObject(parameter.schema) ? parameter.schema.type : undefined;
+      if (schemaType === 'array' || values.length > 1) {
+        return values;
+      }
+      return values[0];
+    }
     case 'header':
       return context.exchange.request.headers[parameter.name.toLowerCase()];
     case 'cookie':
@@ -297,13 +305,15 @@ function createUndocumentedParameterFindings(
   };
 
   for (const parameter of matchedOperation.operation.requestParameters) {
-    if (parameter.in === 'header' || parameter.in === 'query' || parameter.in === 'cookie') {
-      paramsByLocation[parameter.in].add(parameter.name.toLowerCase());
+    if (parameter.in === 'header') {
+      paramsByLocation.header.add(parameter.name.toLowerCase());
+    } else if (parameter.in === 'query' || parameter.in === 'cookie') {
+      paramsByLocation[parameter.in].add(parameter.name);
     }
   }
 
-  for (const [name] of context.exchange.request.query.entries()) {
-    if (!paramsByLocation.query.has(name.toLowerCase())) {
+  for (const name of new Set(context.exchange.request.query.keys())) {
+    if (!paramsByLocation.query.has(name)) {
       findings.push({
         ruleId: 'schema-consistency',
         severity: 'warning',
@@ -353,13 +363,14 @@ function pickResponseSchema(
   const responseContentMap =
     matchedOperation.operation.responseBodyContent[statusCode] ??
     matchedOperation.operation.responseBodyContent[statusClass] ??
+    matchedOperation.operation.responseBodyContent[statusClass.toLowerCase()] ??
     matchedOperation.operation.responseBodyContent.default;
 
   if (!responseContentMap) {
     return undefined;
   }
 
-  return pickSchemaByMime(responseContentMap, response.headers['content-type']);
+  return pickSchemaByMime(responseContentMap, response.contentType);
 }
 
 function validateSchemaResult(
@@ -374,7 +385,7 @@ function validateSchemaResult(
   }
 
   return result.errors.map((error) => {
-    const details = createSchemaErrorDetails(schema, value, error, target);
+    const details = createSchemaErrorDetails(value, error, target);
     return {
       ruleId: 'schema-consistency',
       severity: 'error' as const,
@@ -415,10 +426,7 @@ export class SchemaConsistencyRule implements RulePlugin {
 
       const actualValue = getActualParameterValue(parameter, context, cookies);
 
-      if (
-        parameter.required &&
-        (actualValue === undefined || actualValue === null || actualValue === '')
-      ) {
+      if (parameter.required && (actualValue === undefined || actualValue === null)) {
         findings.push({
           ruleId: this.id,
           severity: 'error',
@@ -435,7 +443,7 @@ export class SchemaConsistencyRule implements RulePlugin {
       validateParameter(parameter, actualValue, context, findings);
     }
 
-    const requestContentType = context.exchange.request.headers['content-type'];
+    const requestContentType = context.exchange.request.contentType;
     const requestSchema = pickSchemaByMime(
       matchedOperation.operation.requestBodyContent,
       requestContentType
@@ -456,8 +464,8 @@ export class SchemaConsistencyRule implements RulePlugin {
       });
     }
 
-    if (requestSchema && hasRequestBody) {
-      if (isJsonMime(requestContentType) && context.exchange.request.bodyJson === undefined) {
+    if (requestSchema && hasRequestBody && isJsonMime(requestContentType)) {
+      if (context.exchange.request.bodyJson === undefined) {
         findings.push({
           ruleId: this.id,
           severity: 'error',
@@ -469,9 +477,14 @@ export class SchemaConsistencyRule implements RulePlugin {
           target: 'request',
         });
       } else {
-        const requestPayload =
-          context.exchange.request.bodyJson ?? context.exchange.request.bodyText;
-        findings.push(...validateSchemaResult(requestSchema, requestPayload, context, 'request'));
+        findings.push(
+          ...validateSchemaResult(
+            requestSchema,
+            context.exchange.request.bodyJson,
+            context,
+            'request'
+          )
+        );
       }
     }
 
@@ -481,24 +494,29 @@ export class SchemaConsistencyRule implements RulePlugin {
       context.exchange.response &&
       hasBodyContent(context.exchange.response.bodyText)
     ) {
-      const responseContentType = context.exchange.response.headers['content-type'];
-      if (isJsonMime(responseContentType) && context.exchange.response.bodyJson === undefined) {
-        findings.push({
-          ruleId: this.id,
-          severity: 'error',
-          category: 'schema',
-          message: 'Response body is not valid JSON for JSON content-type',
-          exchangeIndex: context.exchange.index,
-          operationId: matchedOperation.operation.operationId,
-          specSource: matchedOperation.operation.specSource,
-          target: 'response',
-        });
-      } else {
-        const responsePayload =
-          context.exchange.response.bodyJson ?? context.exchange.response.bodyText;
-        findings.push(
-          ...validateSchemaResult(responseSchema, responsePayload, context, 'response')
-        );
+      const responseContentType = context.exchange.response.contentType;
+      if (isJsonMime(responseContentType)) {
+        if (context.exchange.response.bodyJson === undefined) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'schema',
+            message: 'Response body is not valid JSON for JSON content-type',
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'response',
+          });
+        } else {
+          findings.push(
+            ...validateSchemaResult(
+              responseSchema,
+              context.exchange.response.bodyJson,
+              context,
+              'response'
+            )
+          );
+        }
       }
     }
 

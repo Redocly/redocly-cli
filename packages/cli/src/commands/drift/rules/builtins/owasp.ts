@@ -34,11 +34,11 @@ interface OwaspMeta {
 }
 
 function maskValue(value: string): string {
-  if (value.length <= 6) {
+  if (value.length <= 8) {
     return '***';
   }
 
-  return `${value.slice(0, 4)}…${value.slice(-2)}`;
+  return `${value.slice(0, 4)}…`;
 }
 
 function normalizeJsonPointerSegment(segment: string): string {
@@ -253,9 +253,14 @@ function detectWeakCookieAttributes(context: RuleContext): Finding[] {
   const findings: Finding[] = [];
 
   for (const cookie of splitSetCookieHeader(setCookie)) {
-    const cookieHeader = cookie.toLowerCase();
+    const attributeNames = new Set(
+      cookie
+        .split(';')
+        .slice(1)
+        .map((attribute) => attribute.split('=')[0].trim().toLowerCase())
+    );
 
-    if (context.exchange.request.protocol === 'https:' && !/\bsecure\b/.test(cookieHeader)) {
+    if (context.exchange.request.protocol === 'https:' && !attributeNames.has('secure')) {
       findings.push(
         buildSecurityFinding(
           context,
@@ -273,7 +278,7 @@ function detectWeakCookieAttributes(context: RuleContext): Finding[] {
       );
     }
 
-    if (!/\bhttponly\b/.test(cookieHeader)) {
+    if (!attributeNames.has('httponly')) {
       findings.push(
         buildSecurityFinding(
           context,
@@ -291,7 +296,7 @@ function detectWeakCookieAttributes(context: RuleContext): Finding[] {
       );
     }
 
-    if (!/\bsamesite\s*=/.test(cookieHeader)) {
+    if (!attributeNames.has('samesite')) {
       findings.push(
         buildSecurityFinding(
           context,

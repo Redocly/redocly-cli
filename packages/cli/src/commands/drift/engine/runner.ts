@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
 import type { RunnerOptions } from '../types/index.js';
 import { listFilesRecursively } from '../utils/files.js';
@@ -29,17 +31,10 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
   let exchangeIndex = 0;
 
   for (const trafficFile of trafficFiles) {
-    let parser;
-    try {
-      parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
-    } catch (error) {
-      if (options.format === 'auto') {
-        continue;
-      }
-
-      throw new Error(
-        `Failed to select parser for file "${trafficFile}" using format "${options.format}": ${(error as Error).message}`
-      );
+    const parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
+    if (!parser) {
+      logger.warn(`Skipping traffic file with unrecognized format: ${trafficFile}\n`);
+      continue;
     }
 
     supportedTrafficFileCount += 1;

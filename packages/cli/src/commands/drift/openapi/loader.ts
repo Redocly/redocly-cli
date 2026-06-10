@@ -56,6 +56,11 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
   return normalized;
 }
 
+function parameterKey(parameter: OpenApiParameter): string {
+  const caseInsensitive = parameter.in === 'header';
+  return `${parameter.in}:${caseInsensitive ? parameter.name.toLowerCase() : parameter.name}`;
+}
+
 function mergeParameters(
   baseParameters: OpenApiParameter[],
   operationParameters: OpenApiParameter[]
@@ -63,11 +68,11 @@ function mergeParameters(
   const map = new Map<string, OpenApiParameter>();
 
   for (const parameter of baseParameters) {
-    map.set(`${parameter.in}:${parameter.name.toLowerCase()}`, parameter);
+    map.set(parameterKey(parameter), parameter);
   }
 
   for (const parameter of operationParameters) {
-    map.set(`${parameter.in}:${parameter.name.toLowerCase()}`, parameter);
+    map.set(parameterKey(parameter), parameter);
   }
 
   return Array.from(map.values());

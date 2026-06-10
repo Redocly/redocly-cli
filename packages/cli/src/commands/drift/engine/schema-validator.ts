@@ -1,11 +1,11 @@
+import { isPlainObject } from '@redocly/openapi-core';
+import addFormats from 'ajv-formats';
 import Ajv2020, {
   type AnySchema,
   type Options,
   type ValidateFunction,
   type Ajv2020 as Ajv2020Instance,
-} from '@redocly/ajv/dist/2020.js';
-import { isPlainObject } from '@redocly/openapi-core';
-import addFormats from 'ajv-formats';
+} from 'ajv/dist/2020.js';
 
 import type { SchemaValidationError } from '../types/index.js';
 
@@ -22,7 +22,7 @@ export class SchemaValidator {
       strict: false,
       allErrors: true,
       allowUnionTypes: true,
-      coerceTypes: options?.coerceTypes ?? false,
+      coerceTypes: options?.coerceTypes ? 'array' : false,
       validateFormats: true,
       verbose: true,
       formats: {
@@ -59,7 +59,7 @@ export class SchemaValidator {
     }
 
     const valid = Boolean(validate(value));
-    const errors = (validate.errors as SchemaValidationError[] | null | undefined) ?? [];
+    const errors: SchemaValidationError[] = validate.errors ?? [];
     return { valid, errors };
   }
 

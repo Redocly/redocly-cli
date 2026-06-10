@@ -12,27 +12,24 @@ import {
   type JsonNode,
 } from './helpers.js';
 
-function buildKongUrl(record: JsonNode): string | undefined {
-  const request = record?.request ?? {};
-
+function buildKongUrl(request: JsonNode): { url?: string; schemeKnown?: boolean } {
   const directUrl = coerceString(request.url ?? request.uri);
   if (directUrl) {
-    return directUrl;
+    return { url: directUrl };
   }
 
   const host = coerceString(request.host ?? request.headers?.host);
-  const path = coerceString(request.path ?? request.request_uri ?? request.uri ?? '/');
-  const scheme = coerceString(request.scheme ?? request.forwarded_proto ?? 'http');
+  const requestPath = coerceString(request.path ?? request.request_uri);
+  const explicitScheme = coerceString(request.scheme ?? request.forwarded_proto);
 
-  if (host && path) {
-    return `${scheme}://${host}${path}`;
+  if (host && requestPath) {
+    return {
+      url: `${explicitScheme ?? 'http'}://${host}${requestPath}`,
+      schemeKnown: Boolean(explicitScheme),
+    };
   }
 
-  if (path) {
-    return path;
-  }
-
-  return undefined;
+  return { url: requestPath, schemeKnown: Boolean(explicitScheme) };
 }
 
 function normalizeKongRecord(
@@ -51,10 +48,13 @@ function normalizeKongRecord(
 
   const requestBody = request?.body ?? request?.raw_body ?? request?.payload ?? request?.data;
 
+  const { url, schemeKnown } = buildKongUrl(request);
+
   return createNormalizedExchange(
     {
       method: coerceString(request?.method ?? request?.http_method),
-      url: buildKongUrl(record),
+      url,
+      schemeKnown,
       requestHeaders: request?.headers,
       requestBody,
       requestContentType: pickHeaderContentType(request?.headers),

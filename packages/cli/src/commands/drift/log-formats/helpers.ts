@@ -18,6 +18,7 @@ export interface JsonNode {
 export interface ExchangeSeed {
   method?: string;
   url?: string;
+  schemeKnown?: boolean;
   requestHeaders?: unknown;
   requestBody?: unknown;
   requestContentType?: string;
@@ -108,6 +109,7 @@ export function createNormalizedExchange(
     path: parsedUrl.pathname,
     query: parsedUrl.searchParams,
     protocol: parsedUrl.protocol,
+    protocolKnown: seed.schemeKnown ?? /^https?:\/\//i.test(url),
     host: parsedUrl.host || undefined,
     headers: requestHeaders,
     contentType: requestContentType,

@@ -30,7 +30,7 @@ export class HarWriter {
   }
 
   flush(): Promise<void> {
-    this.writeChain = this.writeChain.then(() => this.persist());
+    this.writeChain = this.writeChain.catch(() => undefined).then(() => this.persist());
     return this.writeChain;
   }
 

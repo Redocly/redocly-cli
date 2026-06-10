@@ -351,7 +351,7 @@ function shouldFlagInsecureTransport(context: RuleContext): {
   hasAuthHeader: boolean;
   sensitiveQueryKeys: string[];
 } {
-  if (context.exchange.request.protocol !== 'http:') {
+  if (context.exchange.request.protocol !== 'http:' || !context.exchange.request.protocolKnown) {
     return {
       flag: false,
       hasAuthHeader: false,

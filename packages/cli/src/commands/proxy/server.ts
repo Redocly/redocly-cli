@@ -15,23 +15,13 @@ import { createNormalizedExchange } from '../drift/log-formats/helpers.js';
 import type { NormalizedExchange } from '../drift/types/index.js';
 import { isJsonMime } from '../drift/utils/http.js';
 
-const HTTP_METHODS = [
-  'GET',
-  'HEAD',
-  'POST',
-  'PUT',
-  'DELETE',
-  'CONNECT',
-  'OPTIONS',
-  'TRACE',
-  'PATCH',
-] as const;
+const HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'PATCH'] as const;
 
 type HttpMethod = (typeof HTTP_METHODS)[number];
 
-function toHttpMethod(value: string | undefined): HttpMethod {
+function toHttpMethod(value: string | undefined): HttpMethod | undefined {
   const upper = (value ?? 'GET').toUpperCase();
-  return HTTP_METHODS.find((method) => method === upper) ?? 'GET';
+  return HTTP_METHODS.find((method) => method === upper);
 }
 
 const HOP_BY_HOP_HEADERS = new Set([
@@ -248,6 +238,11 @@ async function handleRequest(
 ): Promise<void> {
   const startedAt = new Date();
   const method = toHttpMethod(req.method);
+  if (!method) {
+    res.writeHead(501, { 'content-type': 'text/plain' });
+    res.end(`Unsupported HTTP method: ${req.method}`);
+    return;
+  }
   const forwardUrl = buildForwardUrl(req.url ?? '/', targetUrl);
 
   let captured: CapturedExchange | null = null;

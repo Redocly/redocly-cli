@@ -26,6 +26,7 @@ function normalizeHarEntry(
   const requestEncoding = coerceString(request?.postData?.encoding);
   const responseBody = response?.content?.text;
   const responseEncoding = coerceString(response?.content?.encoding);
+  const responseStatus = coerceNumber(response?.status);
 
   return createNormalizedExchange(
     {
@@ -34,7 +35,7 @@ function normalizeHarEntry(
       requestHeaders: request?.headers,
       requestBody: decodeBody(requestBody, requestEncoding),
       requestContentType: coerceString(request?.postData?.mimeType),
-      responseStatus: coerceNumber(response?.status),
+      responseStatus: responseStatus === 0 ? undefined : responseStatus,
       responseStatusText: coerceString(response?.statusText),
       responseHeaders: response?.headers,
       responseBody: decodeBody(responseBody, responseEncoding),

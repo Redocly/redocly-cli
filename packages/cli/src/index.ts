@@ -956,6 +956,11 @@ yargs(hideBin(process.argv))
             type: 'string',
           },
           config: { describe: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            describe: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
         }),
     (argv) => {
       commandWrapper(handleDrift)(argv as Arguments<DriftArgv>);
@@ -1021,6 +1026,11 @@ yargs(hideBin(process.argv))
           array: true,
         },
         config: { describe: 'Path to the config file.', type: 'string' },
+        'lint-config': {
+          describe: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
       }),
     (argv) => {
       commandWrapper(handleProxy)(argv as Arguments<ProxyArgv>);

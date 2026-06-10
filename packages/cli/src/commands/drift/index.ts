@@ -2,6 +2,7 @@ import { logger, stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import type { VerifyConfigOptions } from '../../types.js';
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
@@ -24,8 +25,7 @@ export type DriftArgv = {
   'traffic-plugin'?: string[];
   'generate-output'?: string;
   'api-prefix'?: string;
-  config?: string;
-};
+} & VerifyConfigOptions;
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
 
