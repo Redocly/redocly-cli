@@ -293,7 +293,6 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
   },
   graphqlRules: {
     'type-description': 'error',
-    'type-pascal-case': 'error',
   },
 };
 

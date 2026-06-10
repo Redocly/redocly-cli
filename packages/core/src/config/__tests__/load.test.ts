@@ -186,7 +186,6 @@ describe('loadConfig', () => {
             "decorators": {},
             "graphqlRules": {
               "type-description": "off",
-              "type-pascal-case": "off",
             },
             "name": "Baseline",
             "oas2Decorators": {},
@@ -514,7 +513,6 @@ describe('loadConfig', () => {
             "decorators": {},
             "graphqlRules": {
               "type-description": "warn",
-              "type-pascal-case": "warn",
             },
             "name": "Silver",
             "oas2Decorators": {},
@@ -847,7 +845,6 @@ describe('loadConfig', () => {
             "decorators": {},
             "graphqlRules": {
               "type-description": "off",
-              "type-pascal-case": "off",
             },
             "name": "Gold",
             "oas2Decorators": {},
@@ -1264,7 +1261,6 @@ describe('loadConfig', () => {
             "decorators": {},
             "graphqlRules": {
               "type-description": "off",
-              "type-pascal-case": "off",
             },
             "name": "Baseline",
             "oas2Decorators": {},
@@ -1592,7 +1588,6 @@ describe('loadConfig', () => {
             "decorators": {},
             "graphqlRules": {
               "type-description": "warn",
-              "type-pascal-case": "warn",
             },
             "name": "Silver",
             "oas2Decorators": {},
@@ -1925,7 +1920,6 @@ describe('loadConfig', () => {
             "decorators": {},
             "graphqlRules": {
               "type-description": "off",
-              "type-pascal-case": "off",
             },
             "name": "Gold",
             "oas2Decorators": {},

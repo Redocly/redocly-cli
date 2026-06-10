@@ -7,4 +7,3 @@ extends:
 
 rules:
   type-description: error
-  type-pascal-case: error

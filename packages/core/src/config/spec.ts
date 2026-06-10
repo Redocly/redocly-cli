@@ -293,7 +293,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
   },
   graphqlRules: {
     'type-description': 'off',
-    'type-pascal-case': 'off',
   },
 };
 

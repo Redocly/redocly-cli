@@ -286,7 +286,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
   },
   graphqlRules: {
     'type-description': 'off',
-    'type-pascal-case': 'off',
   },
   openrpc1Rules: {
     'info-contact': 'off',
