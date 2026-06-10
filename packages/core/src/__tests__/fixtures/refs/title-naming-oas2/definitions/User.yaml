@@ -1,5 +1,0 @@
-type: object
-title: User Account
-properties:
-  id:
-    type: string

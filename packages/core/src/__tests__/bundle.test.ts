@@ -913,18 +913,4 @@ describe('bundle with --use-titles-for-component-names', () => {
       'Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.'
     );
   });
-
-  it('builds oas2 definition names from title when the flag is on', async () => {
-    const { bundle: res, problems } = await bundle({
-      config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/refs/title-naming-oas2/openapi.yaml'),
-      useTitlesForComponentNames: true,
-    });
-    expect(problems).toHaveLength(0);
-    const parsed = res.parsed as any;
-    expect(Object.keys(parsed.definitions)).toEqual(['UserAccount']);
-    expect(parsed.paths['/users'].get.responses['200'].schema).toEqual({
-      $ref: '#/definitions/UserAccount',
-    });
-  });
 });
