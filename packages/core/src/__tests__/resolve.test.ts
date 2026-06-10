@@ -411,6 +411,34 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
   });
 
+  it('should reject external refs with mismatched file path casing', async () => {
+    const { root } = path.parse(process.cwd());
+    const wrongCasePath = path.join(root, 'tmp', 'externalInfo.yaml');
+    const tmpPath = path.join(root, 'tmp');
+
+    const readdirMock = vi.spyOn(fs, 'readdirSync').mockImplementation((dirPath) => {
+      if (dirPath === root) return ['tmp'] as any;
+      if (dirPath === tmpPath) return ['externalinfo.yaml'] as any;
+      return [] as any;
+    });
+    const lstatMock = vi
+      .spyOn(fs, 'lstatSync')
+      .mockImplementation(() => ({ isDirectory: () => false }) as any);
+    const readFileMock = vi
+      .spyOn(fs.promises, 'readFile')
+      .mockResolvedValue('openapi: 3.0.0' as any);
+
+    try {
+      await expect(new BaseResolver().loadExternalRef(wrongCasePath)).rejects.toThrow(
+        `ENOENT: no such file or directory '${wrongCasePath}'`
+      );
+    } finally {
+      readdirMock.mockRestore();
+      lstatMock.mockRestore();
+      readFileMock.mockRestore();
+    }
+  });
+
   it('should throw error if ref is folder', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const rootDocument = parseYamlToDocument(
