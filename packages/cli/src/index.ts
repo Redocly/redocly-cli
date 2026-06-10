@@ -950,6 +950,11 @@ yargs(hideBin(process.argv))
               'When generating a description from traffic, write it to this file instead of stdout.',
             type: 'string',
           },
+          'api-prefix': {
+            describe:
+              'When generating a description from traffic, only include requests whose URL starts with this prefix; it becomes the server URL and is stripped from the generated paths.',
+            type: 'string',
+          },
           config: { describe: 'Path to the config file.', type: 'string' },
         }),
     (argv) => {

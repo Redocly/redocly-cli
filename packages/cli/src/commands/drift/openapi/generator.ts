@@ -1,18 +1,20 @@
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
-import type { NormalizedExchange, TrafficFormat } from '../types/index.js';
+import type { NormalizedExchange, NormalizedHttpMessage, TrafficFormat } from '../types/index.js';
 import { listFilesRecursively } from '../utils/files.js';
-import { isJsonMime } from '../utils/http.js';
+import { isJsonMime, isSyntheticHost, normalizeContentType } from '../utils/http.js';
 
 export interface GenerateSpecOptions {
   trafficPath: string;
   format: TrafficFormat;
   trafficParserModules?: string[];
   title?: string;
+  apiPrefix?: string;
 }
 
 interface JsonSchema {
   type?: string;
   properties?: Record<string, JsonSchema>;
+  additionalProperties?: JsonSchema;
   required?: string[];
   items?: JsonSchema;
 }
@@ -39,15 +41,19 @@ interface GeneratedOperation {
 export interface GeneratedDocument {
   openapi: string;
   info: { title: string; version: string };
+  servers?: { url: string }[];
   paths: Record<string, Record<string, GeneratedOperation>>;
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const NUMERIC_RE = /^\d+$/;
 const HTTP_METHODS = new Set(['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace']);
+const BODYLESS_METHODS = new Set(['get', 'head']);
+const FORM_URLENCODED_MIME = 'application/x-www-form-urlencoded';
 
 function looksLikeIdentifier(segment: string): boolean {
   if (!segment) return false;
-  if (/^\d+$/.test(segment)) return true;
+  if (NUMERIC_RE.test(segment)) return true;
   if (UUID_RE.test(segment)) return true;
   // long hex / opaque token
   return /^[0-9a-f]{16,}$/i.test(segment);
@@ -59,13 +65,18 @@ function singularize(value: string): string {
   return value;
 }
 
+interface TemplatizedParam {
+  name: string;
+  value: string;
+}
+
 /**
  * Turn a concrete request path into an OpenAPI path template, replacing
  * identifier-like segments with named path parameters.
  */
-function templatizePath(rawPath: string): { template: string; params: string[] } {
+function templatizePath(rawPath: string): { template: string; params: TemplatizedParam[] } {
   const segments = rawPath.split('/');
-  const params: string[] = [];
+  const params: TemplatizedParam[] = [];
   const used = new Set<string>();
 
   const templated = segments.map((segment, index) => {
@@ -81,7 +92,7 @@ function templatizePath(rawPath: string): { template: string; params: string[] }
       name = previous ? `${singularize(previous)}Id${suffix}` : `id${suffix}`;
     }
     used.add(name);
-    params.push(name);
+    params.push({ name, value: segment });
     return `{${name}}`;
   });
 
@@ -106,9 +117,27 @@ function inferSchema(value: unknown): JsonSchema {
     case 'number':
       return Number.isInteger(value) ? { type: 'integer' } : { type: 'number' };
     case 'object': {
+      const entries = Object.entries(value as Record<string, unknown>);
+
+      // Objects keyed by identifiers (all-numeric or all-UUID keys) are maps,
+      // not fixed shapes — describe them with additionalProperties.
+      if (entries.length > 0) {
+        const keysAreGeneric =
+          entries.every(([key]) => NUMERIC_RE.test(key)) ||
+          entries.every(([key]) => UUID_RE.test(key));
+        if (keysAreGeneric) {
+          return {
+            type: 'object',
+            additionalProperties: mergeSchemas(
+              entries.map(([, propValue]) => inferSchema(propValue))
+            ),
+          };
+        }
+      }
+
       const properties: Record<string, JsonSchema> = {};
       const required: string[] = [];
-      for (const [key, propValue] of Object.entries(value as Record<string, unknown>)) {
+      for (const [key, propValue] of entries) {
         properties[key] = inferSchema(propValue);
         required.push(key);
       }
@@ -145,6 +174,17 @@ function mergeTwo(a: JsonSchema, b: JsonSchema): JsonSchema {
   }
 
   if (a.type === 'object') {
+    if (a.additionalProperties || b.additionalProperties) {
+      if (a.additionalProperties && b.additionalProperties) {
+        return {
+          type: 'object',
+          additionalProperties: mergeSchemas([a.additionalProperties, b.additionalProperties]),
+        };
+      }
+      // One sample looked like a map, the other like a fixed shape.
+      return { type: 'object' };
+    }
+
     const properties: Record<string, JsonSchema> = { ...(a.properties ?? {}) };
     for (const [key, schema] of Object.entries<JsonSchema>(b.properties ?? {})) {
       properties[key] = properties[key] ? mergeTwo(properties[key], schema) : schema;
@@ -167,17 +207,95 @@ function mergeTwo(a: JsonSchema, b: JsonSchema): JsonSchema {
   return a;
 }
 
+function sniffJson(bodyText: string | undefined): unknown {
+  if (!bodyText) {
+    return undefined;
+  }
+
+  const trimmed = bodyText.trim();
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Infer a body schema and the content type to file it under. JSON declared via
+ * the content type wins; form-urlencoded bodies are parsed into flat objects;
+ * undeclared JSON (e.g. sent as text/plain) is detected by sniffing the body.
+ */
+function inferBodySchema(
+  message: NormalizedHttpMessage
+): { mime: string; schema: JsonSchema } | undefined {
+  const mime = normalizeContentType(message.contentType);
+
+  if (message.bodyJson !== undefined) {
+    return {
+      mime: isJsonMime(mime) ? mime : 'application/json',
+      schema: inferSchema(message.bodyJson),
+    };
+  }
+
+  if (mime === FORM_URLENCODED_MIME && message.bodyText) {
+    const fields: Record<string, unknown> = {};
+    for (const [key, value] of new URLSearchParams(message.bodyText)) {
+      fields[key] = value;
+    }
+    if (Object.keys(fields).length === 0) {
+      return undefined;
+    }
+    return { mime: FORM_URLENCODED_MIME, schema: inferSchema(fields) };
+  }
+
+  const sniffed = sniffJson(message.bodyText);
+  if (sniffed !== undefined) {
+    return { mime: 'application/json', schema: inferSchema(sniffed) };
+  }
+
+  return undefined;
+}
+
+interface ResponseAccumulator {
+  statusText?: string;
+  bodies: Map<string, JsonSchema[]>;
+}
+
 interface OperationAccumulator {
   method: string;
   template: string;
-  pathParams: Set<string>;
-  queryParams: Set<string>;
-  requestBodies: JsonSchema[];
-  responses: Map<string, JsonSchema[]>;
+  /** Parameter name → whether every observed value was numeric. */
+  pathParams: Map<string, boolean>;
+  queryParams: Map<string, boolean>;
+  requestBodies: Map<string, JsonSchema[]>;
+  responses: Map<string, ResponseAccumulator>;
 }
 
-function getContentType(headers: Record<string, string>): string | undefined {
-  return headers['content-type'];
+function normalizeApiPrefix(prefix: string | undefined): string | undefined {
+  const trimmed = prefix?.replace(/\/+$/, '');
+  return trimmed || undefined;
+}
+
+/**
+ * Match a request URL against the API prefix. Returns the path relative to the
+ * prefix, or undefined when the URL belongs to another host or path subtree.
+ */
+function resolvePathForPrefix(url: string, prefix: string): string | undefined {
+  if (!url.startsWith(prefix)) {
+    return undefined;
+  }
+
+  const remainder = url.slice(prefix.length);
+  if (remainder !== '' && !remainder.startsWith('/') && !remainder.startsWith('?')) {
+    return undefined;
+  }
+
+  const path = remainder.split('?')[0].split('#')[0];
+  return path || '/';
 }
 
 /**
@@ -193,8 +311,10 @@ export async function generateSpecFromTraffic(
     throw new Error('No traffic files found in the provided traffic path.');
   }
 
+  const apiPrefix = normalizeApiPrefix(options.apiPrefix);
   const externalParsers = await loadTrafficParsers(options.trafficParserModules ?? []);
   const operations = new Map<string, OperationAccumulator>();
+  const observedServers = new Set<string>();
   let supportedTrafficFileCount = 0;
 
   const observe = (exchange: NormalizedExchange) => {
@@ -203,46 +323,73 @@ export async function generateSpecFromTraffic(
       return;
     }
 
-    const { template, params } = templatizePath(exchange.request.path || '/');
+    let rawPath = exchange.request.path || '/';
+    if (apiPrefix) {
+      const prefixedPath = resolvePathForPrefix(exchange.request.url, apiPrefix);
+      if (prefixedPath === undefined) {
+        return;
+      }
+      rawPath = prefixedPath;
+    } else if (exchange.request.host && !isSyntheticHost(exchange.request.host)) {
+      observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
+    }
+
+    const { template, params } = templatizePath(rawPath);
     const key = `${method} ${template}`;
     let accumulator = operations.get(key);
     if (!accumulator) {
       accumulator = {
         method,
         template,
-        pathParams: new Set(),
-        queryParams: new Set(),
-        requestBodies: [],
+        pathParams: new Map(),
+        queryParams: new Map(),
+        requestBodies: new Map(),
         responses: new Map(),
       };
       operations.set(key, accumulator);
     }
 
-    for (const param of params) {
-      accumulator.pathParams.add(param);
+    for (const { name, value } of params) {
+      const wasNumeric = accumulator.pathParams.get(name);
+      const isNumeric = NUMERIC_RE.test(value);
+      accumulator.pathParams.set(
+        name,
+        wasNumeric === undefined ? isNumeric : wasNumeric && isNumeric
+      );
     }
-    for (const queryKey of exchange.request.query.keys()) {
-      accumulator.queryParams.add(queryKey);
+    for (const queryKey of new Set(exchange.request.query.keys())) {
+      const values = exchange.request.query.getAll(queryKey);
+      const wasNumeric = accumulator.queryParams.get(queryKey);
+      const isNumeric = values.length > 0 && values.every((value) => NUMERIC_RE.test(value));
+      accumulator.queryParams.set(
+        queryKey,
+        wasNumeric === undefined ? isNumeric : wasNumeric && isNumeric
+      );
     }
 
-    if (
-      exchange.request.bodyJson !== undefined &&
-      isJsonMime(getContentType(exchange.request.headers))
-    ) {
-      accumulator.requestBodies.push(inferSchema(exchange.request.bodyJson));
+    if (!BODYLESS_METHODS.has(method)) {
+      const requestBody = inferBodySchema(exchange.request);
+      if (requestBody) {
+        const list = accumulator.requestBodies.get(requestBody.mime) ?? [];
+        list.push(requestBody.schema);
+        accumulator.requestBodies.set(requestBody.mime, list);
+      }
     }
 
     if (exchange.response) {
       const status = String(exchange.response.status || 'default');
-      if (
-        exchange.response.bodyJson !== undefined &&
-        isJsonMime(getContentType(exchange.response.headers))
-      ) {
-        const list = accumulator.responses.get(status) ?? [];
-        list.push(inferSchema(exchange.response.bodyJson));
-        accumulator.responses.set(status, list);
-      } else if (!accumulator.responses.has(status)) {
-        accumulator.responses.set(status, []);
+      let responseAccumulator = accumulator.responses.get(status);
+      if (!responseAccumulator) {
+        responseAccumulator = { bodies: new Map() };
+        accumulator.responses.set(status, responseAccumulator);
+      }
+      responseAccumulator.statusText ??= exchange.response.statusText || undefined;
+
+      const responseBody = inferBodySchema(exchange.response);
+      if (responseBody) {
+        const list = responseAccumulator.bodies.get(responseBody.mime) ?? [];
+        list.push(responseBody.schema);
+        responseAccumulator.bodies.set(responseBody.mime, list);
       }
     }
   };
@@ -270,12 +417,14 @@ export async function generateSpecFromTraffic(
     throw new Error('No supported traffic files found to generate an OpenAPI description from.');
   }
 
-  return buildDocument(operations, options.title ?? 'Generated API');
+  const serverUrls = apiPrefix ? [apiPrefix] : Array.from(observedServers).sort();
+  return buildDocument(operations, options.title ?? 'Generated API', serverUrls);
 }
 
 function buildDocument(
   operations: Map<string, OperationAccumulator>,
-  title: string
+  title: string,
+  serverUrls: string[]
 ): GeneratedDocument {
   const paths: Record<string, Record<string, GeneratedOperation>> = {};
 
@@ -284,19 +433,19 @@ function buildDocument(
 
     const parameters: GeneratedParameter[] = [
       ...Array.from(accumulator.pathParams).map(
-        (name): GeneratedParameter => ({
+        ([name, numeric]): GeneratedParameter => ({
           name,
           in: 'path',
           required: true,
-          schema: { type: 'string' },
+          schema: { type: numeric ? 'integer' : 'string' },
         })
       ),
       ...Array.from(accumulator.queryParams).map(
-        (name): GeneratedParameter => ({
+        ([name, numeric]): GeneratedParameter => ({
           name,
           in: 'query',
           required: false,
-          schema: { type: 'string' },
+          schema: { type: numeric ? 'integer' : 'string' },
         })
       ),
     ];
@@ -310,21 +459,27 @@ function buildDocument(
       operation.parameters = parameters;
     }
 
-    if (accumulator.requestBodies.length > 0) {
-      operation.requestBody = {
-        content: {
-          'application/json': { schema: mergeSchemas(accumulator.requestBodies) },
-        },
-      };
+    if (accumulator.requestBodies.size > 0) {
+      const content: Record<string, { schema: JsonSchema }> = {};
+      for (const [mime, schemas] of accumulator.requestBodies) {
+        content[mime] = { schema: mergeSchemas(schemas) };
+      }
+      operation.requestBody = { content };
     }
 
     if (accumulator.responses.size === 0) {
       operation.responses['default'] = { description: 'Observed response' };
     } else {
-      for (const [status, schemas] of accumulator.responses) {
-        const response: GeneratedResponse = { description: 'Observed response' };
-        if (schemas.length > 0) {
-          response.content = { 'application/json': { schema: mergeSchemas(schemas) } };
+      for (const [status, responseAccumulator] of accumulator.responses) {
+        const response: GeneratedResponse = {
+          description: responseAccumulator.statusText || 'Observed response',
+        };
+        if (responseAccumulator.bodies.size > 0) {
+          const content: Record<string, { schema: JsonSchema }> = {};
+          for (const [mime, schemas] of responseAccumulator.bodies) {
+            content[mime] = { schema: mergeSchemas(schemas) };
+          }
+          response.content = content;
         }
         operation.responses[status] = response;
       }
@@ -336,6 +491,7 @@ function buildDocument(
   return {
     openapi: '3.1.0',
     info: { title, version: '1.0.0' },
+    ...(serverUrls.length > 0 ? { servers: serverUrls.map((url) => ({ url })) } : {}),
     paths,
   };
 }

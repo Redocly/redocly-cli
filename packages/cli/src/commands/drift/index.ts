@@ -23,6 +23,7 @@ export type DriftArgv = {
   plugin?: string[];
   'traffic-plugin'?: string[];
   'generate-output'?: string;
+  'api-prefix'?: string;
   config?: string;
 };
 
@@ -55,6 +56,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
       trafficFormat,
       trafficParserModules,
       output: argv['generate-output'],
+      apiPrefix: argv['api-prefix'],
     });
     return;
   }
@@ -111,11 +113,13 @@ async function handleGenerate(params: {
   trafficFormat: TrafficFormat;
   trafficParserModules: string[];
   output?: string;
+  apiPrefix?: string;
 }): Promise<void> {
   const document = await generateSpecFromTraffic({
     trafficPath: params.trafficPath,
     format: params.trafficFormat,
     trafficParserModules: params.trafficParserModules,
+    apiPrefix: params.apiPrefix,
   });
 
   // Sanity-check that the generated document yields a usable index.

@@ -22,6 +22,7 @@ export interface ExchangeSeed {
   requestBody?: unknown;
   requestContentType?: string;
   responseStatus?: number;
+  responseStatusText?: string;
   responseHeaders?: unknown;
   responseBody?: unknown;
   responseContentType?: string;
@@ -109,6 +110,7 @@ export function createNormalizedExchange(
     protocol: parsedUrl.protocol,
     host: parsedUrl.host || undefined,
     headers: requestHeaders,
+    contentType: requestContentType,
     bodyText: requestBodyText,
     bodyJson: parseJsonBodyIfPresent(requestContentType, requestBodyText),
   };
@@ -122,7 +124,9 @@ export function createNormalizedExchange(
 
     response = {
       status: responseStatus,
+      statusText: seed.responseStatusText,
       headers: responseHeaders,
+      contentType: responseContentType,
       bodyText: responseBodyText,
       bodyJson: parseJsonBodyIfPresent(responseContentType, responseBodyText),
     };

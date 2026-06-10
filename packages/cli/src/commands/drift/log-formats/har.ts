@@ -35,6 +35,7 @@ function normalizeHarEntry(
       requestBody: decodeBody(requestBody, requestEncoding),
       requestContentType: coerceString(request?.postData?.mimeType),
       responseStatus: coerceNumber(response?.status),
+      responseStatusText: coerceString(response?.statusText),
       responseHeaders: response?.headers,
       responseBody: decodeBody(responseBody, responseEncoding),
       responseContentType: coerceString(response?.content?.mimeType),

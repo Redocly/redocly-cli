@@ -92,6 +92,15 @@ describe('drift - generate mode', () => {
     const { output } = runDrift(['generate-traffic.ndjson']);
     await matchSnapshot('generate-stdout', output);
   });
+
+  test('filters by api prefix and handles form, sniffed-json, and map-like bodies', async () => {
+    const { output } = runDrift([
+      'generate-edge-cases.ndjson',
+      '--api-prefix',
+      'http://api.example.com',
+    ]);
+    await matchSnapshot('generate-api-prefix', output);
+  });
 });
 
 describe('drift - input formats', () => {

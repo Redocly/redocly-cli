@@ -35,6 +35,7 @@ Generate a description from traffic (omit `--api`):
 ```bash
 redocly drift ./traffic.har                  # prints YAML to stdout
 redocly drift ./traffic.har -o ./generated.yaml
+redocly drift ./traffic.har --api-prefix https://api.example.com/v1
 ```
 
 ## Options
@@ -50,6 +51,9 @@ redocly drift ./traffic.har -o ./generated.yaml
 - `--plugin <path>`: external rule plugin module (repeatable)
 - `--traffic-plugin <path>`: external traffic parser module (repeatable)
 - `--generate-output, -o <path>`: write the generated description to a file instead of stdout
+- `--api-prefix <url>`: when generating, only include requests whose URL starts with this
+  prefix; it becomes the `servers` URL and is stripped from the generated paths. Without it,
+  all hosts are merged and every observed origin is listed under `servers`.
 
 ## Exit codes
 

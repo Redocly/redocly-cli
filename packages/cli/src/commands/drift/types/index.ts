@@ -16,6 +16,8 @@ export interface SchemaValidationError {
 
 export interface NormalizedHttpMessage {
   headers: Record<string, string>;
+  /** Content type resolved from the capture-specific field or the headers. */
+  contentType?: string;
   bodyText?: string;
   bodyJson?: unknown;
 }
@@ -31,6 +33,7 @@ export interface NormalizedRequest extends NormalizedHttpMessage {
 
 export interface NormalizedResponse extends NormalizedHttpMessage {
   status: number;
+  statusText?: string;
 }
 
 export interface NormalizedExchange {

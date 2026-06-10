@@ -1,6 +1,11 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-const DUMMY_BASE_URL = 'http://drift.local';
+const DUMMY_HOST = 'drift.local';
+const DUMMY_BASE_URL = `http://${DUMMY_HOST}`;
+
+export function isSyntheticHost(host: string | undefined): boolean {
+  return host === DUMMY_HOST;
+}
 
 const IGNORED_UNDOCUMENTED_HEADERS = new Set([
   'accept',

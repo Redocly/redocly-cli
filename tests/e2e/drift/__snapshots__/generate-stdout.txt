@@ -2,6 +2,8 @@ openapi: 3.1.0
 info:
   title: Generated API
   version: 1.0.0
+servers:
+  - url: http://api.example.com
 paths:
   /products:
     get:
@@ -73,5 +75,5 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
 
