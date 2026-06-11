@@ -1,0 +1,9 @@
+get:
+  summary: List pets
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Pet.yaml

@@ -1,0 +1,9 @@
+openapi: 3.0.0
+info:
+  title: Graph fixture
+  version: 1.0.0
+paths:
+  /pets:
+    $ref: paths/pets.yaml
+  /users:
+    $ref: paths/users.yaml
