@@ -316,7 +316,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-no-required-params-after-optional': 'error',
   },
   graphqlRules: {
-    'type-description': 'warn',
+    'type-description': 'off',
   },
 };
 

@@ -101,7 +101,7 @@ describe('GraphQL SDL linting', () => {
     `);
   });
 
-  it('lets config redefine the severity of a recommended rule', async () => {
+  it('lets config redefine the severity of a ruleset rule', async () => {
     const results = await lintFromString({
       source: outdent`
         type Query {
@@ -110,8 +110,8 @@ describe('GraphQL SDL linting', () => {
       `,
       absoluteRef: 'schema.graphql',
       config: await createConfig({
-        extends: ['recommended'],
-        rules: { 'type-description': 'error' },
+        extends: ['all'],
+        rules: { 'type-description': 'warn' },
       }),
     });
 
@@ -134,7 +134,7 @@ describe('GraphQL SDL linting', () => {
           ],
           "message": "Type \`Query\` should have a non-empty description.",
           "ruleId": "type-description",
-          "severity": "error",
+          "severity": "warn",
           "suggest": [],
         },
       ]
@@ -150,7 +150,7 @@ describe('GraphQL SDL linting', () => {
       `,
       absoluteRef: 'schema.graphql',
       config: await createConfig({
-        extends: ['recommended'],
+        extends: ['all'],
         rules: { 'type-description': 'off' },
       }),
     });
