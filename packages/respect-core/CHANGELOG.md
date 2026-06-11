@@ -1,5 +1,21 @@
 # @redocly/respect-core
 
+## 2.32.2
+
+### Patch Changes
+
+- Fixed `respect` schema checks to honor `readOnly` and `writeOnly` based on context.
+
+  **Warning:** `writeOnly` properties in responses are reported as errors.
+
+- Updated @redocly/openapi-core to v2.32.2.
+
+## 2.32.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
 ## 2.32.0
 
 ### Patch Changes

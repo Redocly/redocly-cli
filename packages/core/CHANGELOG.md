@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 2.32.2
+
+## 2.32.1
+
+### Patch Changes
+
+- Fixed spurious "can't resolve reference" warnings when linting multiple APIs concurrently.
+
 ## 2.32.0
 
 ### Minor Changes
