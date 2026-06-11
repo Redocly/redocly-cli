@@ -18,6 +18,8 @@
           page: commands/eject.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
+        - label: graph
+          page: commands/graph.md
         - label: join
           page: commands/join.md
         - label: lint
