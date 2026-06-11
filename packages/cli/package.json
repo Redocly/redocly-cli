@@ -16,7 +16,7 @@
   "scripts": {
     "build": "node ./scripts/build.mjs",
     "prepare:publish-dir": "node ./scripts/prepare-publish-dir.mjs",
-    "clean:publish-dir": "node ./scripts/clean-publish-dir.mjs"
+    "clean:publish-dir": "rm -rf .publish"
   },
   "publishConfig": {
     "directory": ".publish"

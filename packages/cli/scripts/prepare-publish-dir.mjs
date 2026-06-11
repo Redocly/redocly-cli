@@ -2,40 +2,44 @@ import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'no
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Build the bundle and stage a dependency-free package in `.publish` for npm to publish.
-
-// Runs the bundle (top-level await in build.mjs).
 await import('./build.mjs');
 
-const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const packageDir = path.resolve(scriptDir, '..');
 const rootDir = path.resolve(packageDir, '..', '..');
 
-const pkg = JSON.parse(readFileSync(path.join(packageDir, 'package.json'), 'utf-8'));
-const binEntrypoint = pkg.bin.redocly;
-const publishDir = path.join(packageDir, pkg.publishConfig.directory);
+const packageJsonPath = path.join(packageDir, 'package.json');
+const readmeSourcePath = path.join(rootDir, 'README.md');
+const licenseSourcePath = path.join(rootDir, 'LICENSE.md');
+
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+const binEntrypoint = packageJson.bin?.redocly ?? 'bin/cli.js';
+const publishDirName = packageJson.publishConfig?.directory ?? '.publish';
+const publishDir = path.join(packageDir, publishDirName);
 
 rmSync(publishDir, { recursive: true, force: true });
-mkdirSync(path.join(publishDir, path.dirname(binEntrypoint)), { recursive: true });
+mkdirSync(publishDir, { recursive: true });
+mkdirSync(path.dirname(binTargetPath), { recursive: true });
 mkdirSync(path.join(publishDir, 'lib'), { recursive: true });
 
 copyFileSync(path.join(packageDir, binEntrypoint), path.join(publishDir, binEntrypoint));
 copyFileSync(path.join(packageDir, 'lib/index.js'), path.join(publishDir, 'lib/index.js'));
-copyFileSync(path.join(rootDir, 'README.md'), path.join(publishDir, 'README.md'));
-copyFileSync(path.join(rootDir, 'LICENSE.md'), path.join(publishDir, 'LICENSE'));
+copyFileSync(readmeSourcePath, path.join(publishDir, 'README.md'));
+copyFileSync(licenseSourcePath, path.join(publishDir, 'LICENSE'));
 
 const publishPackageJson = {
-  name: pkg.name,
-  version: pkg.version,
-  description: pkg.description,
-  license: pkg.license,
-  type: pkg.type,
-  bin: pkg.bin,
-  repository: pkg.repository,
-  homepage: pkg.homepage,
-  keywords: pkg.keywords,
-  contributors: pkg.contributors,
-  engines: pkg.engines,
-  engineStrict: pkg.engineStrict,
+  name: packageJson.name,
+  version: packageJson.version,
+  description: packageJson.description,
+  license: packageJson.license,
+  type: packageJson.type,
+  bin: packageJson.bin,
+  repository: packageJson.repository,
+  homepage: packageJson.homepage,
+  keywords: packageJson.keywords,
+  contributors: packageJson.contributors,
+  engines: packageJson.engines,
+  engineStrict: packageJson.engineStrict,
   files: [binEntrypoint, 'lib/index.js', 'README.md', 'LICENSE'],
 };
 
