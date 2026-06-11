@@ -135,8 +135,7 @@ export function makeBundleVisitor({
   let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
 
-  // Component name -> location of the schema that first claimed it; powers a title collision's `from`.
-  const firstClaimByName = new Map<string, Location>();
+  const firstSchemaLocationByName = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
@@ -335,7 +334,7 @@ export function makeBundleVisitor({
             `Title "${title}" maps to component name \`${key}\`, ` +
             `already used by another schema. Rename one of the titles.`,
           location: titleLocation,
-          from: firstClaimByName.get(key),
+          from: firstSchemaLocationByName.get(key),
           forceSeverity: componentRenamingConflicts,
         },
       };
@@ -367,13 +366,13 @@ export function makeBundleVisitor({
     if (useTitlesForComponentNames && componentType === schemaComponentType) {
       const { key, problem } = componentNameFromTitle(target, componentsGroup, ctx);
       if (!problem) {
-        firstClaimByName.set(key, target.location.child('title'));
+        firstSchemaLocationByName.set(key, target.location.child('title'));
         return key;
       }
       const { name } = componentNameFromBasename(target, componentsGroup, ctx);
       if (!componentsGroup[name]) {
         ctx.report(problem);
-        firstClaimByName.set(name, target.location);
+        firstSchemaLocationByName.set(name, target.location);
       }
       return name;
     }

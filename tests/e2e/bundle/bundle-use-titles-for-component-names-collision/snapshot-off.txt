@@ -27,13 +27,13 @@ components:
       type: object
       title: User
       properties:
-        id:
+        a:
           type: string
     User-2:
       type: object
       title: User
       properties:
-        email:
+        b:
           type: string
 
 bundling openapi.yaml using configuration for api 'main'...

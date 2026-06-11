@@ -8,7 +8,7 @@ Title "User" maps to component name `User`, already used by another schema. Rena
 2 | title: User
   |        ^^^^
 3 | properties:
-4 |   email: { type: string }
+4 |   b: { type: string }
 
 referenced from schemas/a/User.yaml:2:8 at #/title 
 

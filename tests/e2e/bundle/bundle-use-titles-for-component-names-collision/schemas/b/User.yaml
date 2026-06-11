@@ -1,4 +1,4 @@
 type: object
 title: User
 properties:
-  email: { type: string }
+  b: { type: string }
