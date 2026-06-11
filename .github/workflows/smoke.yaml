@@ -30,7 +30,6 @@ jobs:
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-          enableCrossOsArchive: true
 
   run-smoke--npm--node-24:
     needs: prepare-smoke

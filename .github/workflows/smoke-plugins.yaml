@@ -30,7 +30,6 @@ jobs:
         with:
           path: tests/smoke/plugins/
           key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
-          enableCrossOsArchive: true
 
   run-smoke-plugins--npm--node-24:
     needs: prepare-smoke-plugins
