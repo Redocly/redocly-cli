@@ -101,7 +101,7 @@ Reverse BFS over edges starting from the given files: collect every file that re
 - Input paths are resolved against cwd to absolute form and matched to node ids; output stays cwd-relative.
 - Multiple files: the affected sets are unioned. The flag is passed once per file (`--affected-by a.yaml --affected-by b.yaml`) — the CLI's global `greedy-arrays: false` parser setting means space-separated values after one flag would be read as extra API positionals.
 - `stylish` prunes the tree to affected branches, marks the queried files with a `← changed` suffix, and appends a summary line, e.g. `2 of 6 files affected · affected roots: openapi.yaml`.
-- A queried file that is not part of the graph produces a **stderr** warning (`schemas/Unused.yaml is not referenced by any processed API`) and exit code `0` — for AI Review "nothing depends on this" is a legitimate answer, not an error. If no queried file is in the graph, the output is an empty graph in the chosen format (`stylish` prints `No files affected.`).
+- A queried file that is not part of the graph produces a **stderr** warning (`schemas/Unused.yaml is not referenced by any of the processed APIs.`) and exit code `0` — for AI Review "nothing depends on this" is a legitimate answer, not an error. If no queried file is in the graph, the output is an empty graph in the chosen format (`stylish` prints `No files affected.`).
 - stdout stays pure for `json` and `mermaid` (no banners or progress text) so output can be piped.
 
 ## Output Formats
