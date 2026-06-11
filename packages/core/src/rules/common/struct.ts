@@ -136,18 +136,32 @@ export const Struct:
 
         if (propSchema.items && propSchema.items?.enum && Array.isArray(propValue)) {
           for (let i = 0; i < propValue.length; i++) {
-            validateSchemaEnumType(propSchema.items?.enum, propValue[i], propName, refLocation, {
-              report,
-              location: location.child([propName, i]),
-            } as UserContext);
+            validateSchemaEnumType(
+              propSchema.items?.enum,
+              propValue[i],
+              propName,
+              refLocation,
+              {
+                report,
+                location: location.child([propName, i]),
+              } as UserContext,
+              propSchema.items?.documentationLink
+            );
           }
         }
 
         if (propSchema.enum) {
-          validateSchemaEnumType(propSchema.enum, propValue, propName, refLocation, {
-            report,
-            location: location.child([propName]),
-          } as UserContext);
+          validateSchemaEnumType(
+            propSchema.enum,
+            propValue,
+            propName,
+            refLocation,
+            {
+              report,
+              location: location.child([propName]),
+            } as UserContext,
+            propSchema.documentationLink
+          );
         } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
           report({
             message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,
