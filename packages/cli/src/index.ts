@@ -16,6 +16,8 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import { handleGraph } from './commands/graph/index.js';
+import type { GraphFormat } from './commands/graph/types.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -72,6 +74,36 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'graph [apis...]',
+    'Show the $ref dependency graph of API description files.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_GRAPH')
+        .positional('apis', { array: true, type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json', 'mermaid'] as ReadonlyArray<GraphFormat>,
+            default: 'stylish' as GraphFormat,
+          },
+          'affected-by': {
+            description: 'Show only the part of the graph affected by changes to the given files.',
+            array: true,
+            type: 'string',
+            requiresArg: true,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleGraph)(argv);
     }
   )
   .command(
