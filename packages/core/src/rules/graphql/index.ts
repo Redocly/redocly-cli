@@ -9,5 +9,3 @@ export const rules: GraphqlRuleSet<'built-in'> = {
   assertions: GraphqlAssertions as GraphqlRule,
   'type-description': TypeDescription,
 };
-
-export const preprocessors = {};
