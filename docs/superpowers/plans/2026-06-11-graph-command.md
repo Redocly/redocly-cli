@@ -1206,7 +1206,7 @@ Use it to:
 ```bash
 redocly graph
 redocly graph <apis...>
-redocly graph <apis...> [--format=<value>] [--affected-by=<files...>] [--config=<path>]
+redocly graph <apis...> [--format=<value>] [--affected-by=<file>] [--config=<path>]
 ```
 ````
 
@@ -1214,15 +1214,15 @@ If you don't pass any API to the command, it processes all APIs defined in your 
 
 ## Options
 
-| Option        | Type     | Description                                                                                                                        |
-| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| apis          | [string] | Paths to API description files. Defaults to all APIs from the Redocly configuration file.                                          |
-| --affected-by | [string] | Show only the part of the graph affected by changes to the given files: the files themselves plus everything that references them. |
-| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                   |
-| --format      | string   | Output format: `stylish` (default, tree view), `json`, or `mermaid`.                                                               |
-| --help        | boolean  | Show help.                                                                                                                         |
-| --lint-config | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
-| --version     | boolean  | Show version number.                                                                                                               |
+| Option        | Type     | Description                                                                                                                                                                                                              |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apis          | [string] | Paths to API description files. Defaults to all APIs from the Redocly configuration file.                                                                                                                                |
+| --affected-by | [string] | Show only the part of the graph affected by changes to the given files: the files themselves plus everything that references them. Repeat the option to pass several files: `--affected-by a.yaml --affected-by b.yaml`. |
+| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                         |
+| --format      | string   | Output format: `stylish` (default, tree view), `json`, or `mermaid`.                                                                                                                                                     |
+| --help        | boolean  | Show help.                                                                                                                                                                                                               |
+| --lint-config | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                       |
+| --version     | boolean  | Show version number.                                                                                                                                                                                                     |
 
 ## Examples
 
