@@ -133,9 +133,11 @@ function formatJson(result: DriftRunResult): string {
       format: result.meta.format,
       matchMode: result.meta.matchMode,
       generatedSpec: result.meta.generatedSpec,
+      server: result.meta.server,
       totalExchanges: result.summary.totalExchanges,
       documentedExchanges: result.summary.documentedExchanges,
       undocumentedExchanges: result.summary.undocumentedExchanges,
+      skippedExchanges: result.summary.skippedExchanges,
       findingsBySeverity: result.summary.findingsBySeverity,
       findingsByRule: result.summary.findingsByRule,
       totalProblems: result.summary.totalProblemGroups,
@@ -285,10 +287,16 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
   lines.push(`┃ Run: ${result.runId}`);
   lines.push(`┃ Spec: ${meta.specSource}${meta.generatedSpec ? ' (generated from traffic)' : ''}`);
   lines.push(`┃ Traffic: ${meta.trafficPath}`);
-  lines.push(`┃ Match mode: ${meta.matchMode}`);
+  lines.push(
+    meta.server
+      ? `┃ Server: ${meta.server} (overrides description servers)`
+      : `┃ Match mode: ${meta.matchMode}`
+  );
   lines.push(`┃ Traffic format: ${meta.format}${meta.format === 'auto' ? ' (auto-detect)' : ''}`);
   lines.push(
-    `┃ Exchanges: total=${summary.totalExchanges} documented=${summary.documentedExchanges} undocumented=${summary.undocumentedExchanges}`
+    `┃ Exchanges: total=${summary.totalExchanges} documented=${summary.documentedExchanges} undocumented=${summary.undocumentedExchanges}${
+      summary.skippedExchanges > 0 ? ` skipped=${summary.skippedExchanges}` : ''
+    }`
   );
   lines.push(
     `┃ Findings: total=${findingsCount} ${colorize(`error=${summary.findingsBySeverity.error}`, ANSI.red)} ${colorize(

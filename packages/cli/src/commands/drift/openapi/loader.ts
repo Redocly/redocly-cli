@@ -7,7 +7,7 @@ import type {
   OpenApiParameter,
   OpenApiServer,
 } from '../types/index.js';
-import { listOpenApiFiles } from '../utils/files.js';
+import { listOpenApiFiles, readProbe } from '../utils/files.js';
 import { compileOpenApiPath } from '../utils/http.js';
 import { ensureLeadingSlash, resolveServerUrl, type ServerVariable } from '../utils/openapi.js';
 
@@ -281,6 +281,24 @@ async function resolveSpecFiles(
   return { specFiles: [specPath], fromDirectory: false };
 }
 
+const YAML_OPENAPI_ROOT_KEY_RE = /^(['"]?)openapi\1\s*:/m;
+const JSON_OPENAPI_KEY_RE = /"openapi"\s*:/;
+const SPEC_PROBE_BYTES = 65536;
+
+/**
+ * Cheap pre-filter for folder mode: only files declaring a root-level
+ * `openapi` key are bundled, so component/parameter files referenced by a root
+ * description are skipped without noisy bundling warnings.
+ */
+async function looksLikeOpenApiRootDocument(specFile: string): Promise<boolean> {
+  try {
+    const probe = await readProbe(specFile, SPEC_PROBE_BYTES);
+    return YAML_OPENAPI_ROOT_KEY_RE.test(probe) || JSON_OPENAPI_KEY_RE.test(probe);
+  } catch {
+    return true;
+  }
+}
+
 /**
  * Load and index every OpenAPI operation reachable from `specPath` using
  * @redocly/openapi-core for bundling and full dereferencing. Accepts either a
@@ -292,6 +310,10 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
   let loadedSpecs = 0;
 
   for (const specFile of specFiles) {
+    if (fromDirectory && !(await looksLikeOpenApiRootDocument(specFile))) {
+      continue;
+    }
+
     let document: unknown;
     try {
       const { bundle: bundled } = await bundle({ config, ref: specFile, dereference: true });

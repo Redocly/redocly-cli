@@ -1,27 +1,22 @@
 import { logger } from '@redocly/openapi-core';
 
 import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
-import type {
-  NormalizedExchange,
-  NormalizedHttpMessage,
-  NormalizedRequest,
-  TrafficFormat,
-} from '../types/index.js';
+import type { NormalizedExchange, NormalizedHttpMessage, TrafficFormat } from '../types/index.js';
 import { listFilesRecursively } from '../utils/files.js';
 import {
   getPathWithoutTrailingSlash,
   isJsonMime,
   isSyntheticHost,
   normalizeContentType,
-  parseUrl,
 } from '../utils/http.js';
+import { normalizeServerPrefix, resolvePathForServer } from '../utils/server.js';
 
 export interface GenerateSpecOptions {
   trafficPath: string;
   format: TrafficFormat;
   trafficParserModules?: string[];
   title?: string;
-  apiPrefix?: string;
+  server?: string;
 }
 
 interface JsonSchema {
@@ -60,6 +55,10 @@ export interface GeneratedDocument {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NUMERIC_RE = /^\d+$/;
+// Crockford base32 (ULID alphabet, no I/L/O/U), e.g. 01ARZ3NDEKTSV4RRFFQ69G5FAV.
+const ULID_RE = /^[0-9a-hjkmnp-tv-z]{26}$/i;
+// Type-prefixed opaque token with at least one digit, e.g. org_01ks7rnqsyy0g6h37rfmen7zv9.
+const PREFIXED_ID_RE = /^[a-z][a-z0-9]*_(?=[0-9a-z]*\d)[0-9a-z]{10,}$/i;
 const HTTP_METHODS = new Set(['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace']);
 const BODYLESS_METHODS = new Set(['get', 'head']);
 const FORM_URLENCODED_MIME = 'application/x-www-form-urlencoded';
@@ -68,6 +67,8 @@ function looksLikeIdentifier(segment: string): boolean {
   if (!segment) return false;
   if (NUMERIC_RE.test(segment)) return true;
   if (UUID_RE.test(segment)) return true;
+  if (ULID_RE.test(segment)) return true;
+  if (PREFIXED_ID_RE.test(segment)) return true;
   // long hex / opaque token
   return /^[0-9a-f]{16,}$/i.test(segment);
 }
@@ -308,46 +309,6 @@ interface OperationAccumulator {
   responses: Map<string, ResponseAccumulator>;
 }
 
-function normalizeApiPrefix(prefix: string | undefined): string | undefined {
-  const trimmed = prefix?.replace(/\/+$/, '');
-  return trimmed || undefined;
-}
-
-function stripPrefixFromPath(pathname: string, prefixPath: string): string | undefined {
-  if (!prefixPath || prefixPath === '/') {
-    return pathname || '/';
-  }
-
-  if (pathname === prefixPath) {
-    return '/';
-  }
-
-  if (!pathname.startsWith(`${prefixPath}/`)) {
-    return undefined;
-  }
-
-  return pathname.slice(prefixPath.length) || '/';
-}
-
-/**
- * Match a request against the API prefix. Returns the path relative to the
- * prefix, or undefined when the request belongs to another host or path subtree.
- * A prefix starting with "/" matches by path only; otherwise it is parsed as a
- * URL and the host must match too.
- */
-function resolvePathForPrefix(request: NormalizedRequest, prefix: string): string | undefined {
-  if (prefix.startsWith('/')) {
-    return stripPrefixFromPath(request.path, prefix);
-  }
-
-  const prefixUrl = parseUrl(prefix.includes('://') ? prefix : `http://${prefix}`);
-  if (isSyntheticHost(prefixUrl.host) || request.host !== prefixUrl.host) {
-    return undefined;
-  }
-
-  return stripPrefixFromPath(request.path, getPathWithoutTrailingSlash(prefixUrl.pathname));
-}
-
 /**
  * Generate an OpenAPI 3.1 document by observing recorded traffic. Returns the
  * document object; the caller decides whether to print it, write it, or index
@@ -361,7 +322,7 @@ export async function generateSpecFromTraffic(
     throw new Error('No traffic files found in the provided traffic path.');
   }
 
-  const apiPrefix = normalizeApiPrefix(options.apiPrefix);
+  const server = normalizeServerPrefix(options.server);
   const externalParsers = await loadTrafficParsers(options.trafficParserModules ?? []);
   const operations = new Map<string, OperationAccumulator>();
   const observedServers = new Set<string>();
@@ -374,12 +335,12 @@ export async function generateSpecFromTraffic(
     }
 
     let rawPath = exchange.request.path || '/';
-    if (apiPrefix) {
-      const prefixedPath = resolvePathForPrefix(exchange.request, apiPrefix);
-      if (prefixedPath === undefined) {
+    if (server) {
+      const serverRelativePath = resolvePathForServer(exchange.request, server);
+      if (serverRelativePath === undefined) {
         return;
       }
-      rawPath = prefixedPath;
+      rawPath = serverRelativePath;
     } else if (exchange.request.host && !isSyntheticHost(exchange.request.host)) {
       observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
     }
@@ -463,13 +424,13 @@ export async function generateSpecFromTraffic(
 
   if (operations.size === 0) {
     throw new Error(
-      apiPrefix
-        ? `No HTTP exchanges in the traffic matched the API prefix "${apiPrefix}".`
+      server
+        ? `No HTTP exchanges in the traffic matched the server "${server}".`
         : 'No HTTP exchanges were observed in the traffic. Cannot generate an OpenAPI description.'
     );
   }
 
-  const serverUrls = apiPrefix ? [apiPrefix] : Array.from(observedServers).sort();
+  const serverUrls = server ? [server] : Array.from(observedServers).sort();
   return buildDocument(operations, options.title ?? 'Generated API', serverUrls);
 }
 

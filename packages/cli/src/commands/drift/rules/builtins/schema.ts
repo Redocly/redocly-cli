@@ -379,7 +379,7 @@ function validateSchemaResult(
   context: RuleContext,
   target: 'request' | 'response'
 ): Finding[] {
-  const result = context.validateSchema(schema, value);
+  const result = context.validateSchema(schema, value, { target });
   if (result.valid) {
     return [];
   }

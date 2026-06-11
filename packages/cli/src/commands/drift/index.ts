@@ -9,7 +9,13 @@ import { renderReport, type ReportFormat } from './engine/reporter.js';
 import { runTrafficValidation } from './engine/runner.js';
 import { generateSpecFromTraffic } from './openapi/generator.js';
 import { buildOpenApiIndex, loadOpenApiIndex } from './openapi/loader.js';
-import type { MatchMode, TrafficFormat } from './types/index.js';
+import type {
+  FindingSeverity,
+  MatchMode,
+  OpenApiIndex,
+  RunSummary,
+  TrafficFormat,
+} from './types/index.js';
 import { normalizeFsPath } from './utils/files.js';
 
 export type DriftArgv = {
@@ -17,14 +23,15 @@ export type DriftArgv = {
   api?: string;
   'traffic-format': TrafficFormat;
   format: ReportFormat;
-  'match-mode': MatchMode;
+  'match-mode'?: MatchMode;
   'ignore-cookies'?: boolean;
   'max-findings': number;
   rules?: string;
   plugin?: string[];
   'traffic-plugin'?: string[];
-  'generate-output'?: string;
-  'api-prefix'?: string;
+  output?: string;
+  server?: string;
+  'min-severity': FindingSeverity;
 } & VerifyConfigOptions;
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
@@ -34,6 +41,46 @@ function parseCsv(input: string): string[] {
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean);
+}
+
+function collectSpecServerUrls(openApiIndex: OpenApiIndex): string[] {
+  const urls = new Set<string>();
+  for (const operations of openApiIndex.operationsByMethod.values()) {
+    for (const operation of operations) {
+      for (const server of operation.servers) {
+        urls.add(server.rawUrl);
+      }
+    }
+  }
+  return Array.from(urls).sort();
+}
+
+function warnWhenNothingMatched(
+  summary: RunSummary,
+  openApiIndex: OpenApiIndex,
+  server: string | undefined
+): void {
+  const validatedExchanges = summary.totalExchanges - summary.skippedExchanges;
+  if (validatedExchanges === 0 && summary.skippedExchanges > 0) {
+    logger.warn(
+      `All ${summary.skippedExchanges} exchange(s) were outside the --server "${server}" and were skipped. Check that the server matches the traffic URLs.\n`
+    );
+    return;
+  }
+
+  if (summary.documentedExchanges > 0 || validatedExchanges === 0) {
+    return;
+  }
+
+  const serverUrls = collectSpecServerUrls(openApiIndex);
+  const hint = server
+    ? `Check that the --server "${server}" matches the traffic URLs and that the description paths align with the remainder.`
+    : `Check that the traffic host and base path match the description servers (${serverUrls.join(
+        ', '
+      )}), or use --server to declare the server the traffic was captured against.`;
+  logger.warn(
+    `None of the ${validatedExchanges} validated exchange(s) matched a documented operation. ${hint}\n`
+  );
 }
 
 async function writeOutput(outputPath: string, content: string): Promise<void> {
@@ -55,11 +102,19 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
       trafficPath,
       trafficFormat,
       trafficParserModules,
-      output: argv['generate-output'],
-      apiPrefix: argv['api-prefix'],
+      output: argv.output,
+      server: argv.server,
     });
     return;
   }
+
+  const server = argv.server;
+  if (server && argv['match-mode']) {
+    return exitWithError(
+      'The --server and --match-mode options are mutually exclusive: --match-mode controls how requests are located via the description servers, while --server replaces the description servers with the one the traffic was captured against.'
+    );
+  }
+  const matchMode = argv['match-mode'] ?? 'strict-host';
 
   const specPath = normalizeFsPath(argv.api);
   const openApiIndex = await loadOpenApiIndex(specPath, config);
@@ -70,14 +125,18 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   const { runId, summary, findings } = await runTrafficValidation({
     trafficPath,
     format: trafficFormat,
-    matchMode: argv['match-mode'],
+    matchMode,
     ignoreCookies: argv['ignore-cookies'],
     previewFindingsLimit: argv['max-findings'],
     trafficParserModules,
     pluginModules,
     activeRules,
     openApiIndex,
+    server,
+    minSeverity: argv['min-severity'],
   });
+
+  warnWhenNothingMatched(summary, openApiIndex, server);
 
   const report = renderReport(
     {
@@ -88,18 +147,24 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
         specSource: specPath,
         trafficPath,
         format: trafficFormat,
-        matchMode: argv['match-mode'],
+        matchMode,
         generatedSpec: false,
+        server,
       },
     },
     {
       format: argv.format,
-      color: USE_COLOR && argv.format === 'pretty',
+      color: USE_COLOR && argv.format === 'pretty' && !argv.output,
       maxFindings: argv['max-findings'],
     }
   );
 
-  logger.output(report);
+  if (argv.output) {
+    await writeOutput(argv.output, report);
+    logger.info(`Drift report written to: ${normalizeFsPath(argv.output)}\n`);
+  } else {
+    logger.output(report);
+  }
 
   // Signal a non-zero exit when error-level drift is found, without printing an
   // extra error line (AbortFlowError is swallowed by the command wrapper).
@@ -113,13 +178,13 @@ async function handleGenerate(params: {
   trafficFormat: TrafficFormat;
   trafficParserModules: string[];
   output?: string;
-  apiPrefix?: string;
+  server?: string;
 }): Promise<void> {
   const document = await generateSpecFromTraffic({
     trafficPath: params.trafficPath,
     format: params.trafficFormat,
     trafficParserModules: params.trafficParserModules,
-    apiPrefix: params.apiPrefix,
+    server: params.server,
   });
 
   // Sanity-check that the generated document yields a usable index.

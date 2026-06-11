@@ -13,7 +13,7 @@ import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { handleDrift, type DriftArgv } from './commands/drift/index.js';
-import type { MatchMode, TrafficFormat } from './commands/drift/types/index.js';
+import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
@@ -916,9 +916,10 @@ yargs(hideBin(process.argv))
             default: 'pretty' as ReportFormat,
           },
           'match-mode': {
-            describe: 'Endpoint matching mode.',
+            describe:
+              'Endpoint matching mode (how requests are located via the description servers). Mutually exclusive with --server.',
             choices: ['strict-host', 'basepath'] as ReadonlyArray<MatchMode>,
-            default: 'strict-host' as MatchMode,
+            defaultDescription: 'strict-host',
           },
           'ignore-cookies': {
             describe: 'Ignore cookie-based checks (useful for logs exported without cookies).',
@@ -929,6 +930,11 @@ yargs(hideBin(process.argv))
             describe: 'Maximum findings shown in pretty output.',
             type: 'number',
             default: 10,
+          },
+          'min-severity': {
+            describe: 'Discard findings below this severity from the report.',
+            choices: ['info', 'warning', 'error'] as ReadonlyArray<FindingSeverity>,
+            default: 'info' as FindingSeverity,
           },
           rules: {
             describe: 'Comma-separated builtin rules to run.',
@@ -944,15 +950,15 @@ yargs(hideBin(process.argv))
             type: 'string',
             array: true,
           },
-          'generate-output': {
+          output: {
             alias: 'o',
             describe:
-              'When generating a description from traffic, write it to this file instead of stdout.',
+              'Write the result to this file instead of stdout: the drift report when validating with --api, the generated description otherwise.',
             type: 'string',
           },
-          'api-prefix': {
+          server: {
             describe:
-              'When generating a description from traffic, only include requests whose URL starts with this prefix; it becomes the server URL and is stripped from the generated paths.',
+              'Server URL the traffic was captured against: only requests under it are considered, and the rest of their URL is treated as the API path. When validating with --api, it replaces the description servers and the remaining path is matched against the description paths directly; when generating, it becomes the servers URL of the generated description. Mutually exclusive with --match-mode.',
             type: 'string',
           },
           config: { describe: 'Path to the config file.', type: 'string' },

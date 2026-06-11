@@ -9,6 +9,7 @@
     "totalExchanges": 2,
     "documentedExchanges": 0,
     "undocumentedExchanges": 2,
+    "skippedExchanges": 0,
     "findingsBySeverity": {
       "info": 0,
       "warning": 0,
@@ -50,3 +51,4 @@
   ]
 }
 
+None of the 2 validated exchange(s) matched a documented operation. Check that the traffic host and base path match the description servers (http://api.example.com), or use --server to declare the server the traffic was captured against.

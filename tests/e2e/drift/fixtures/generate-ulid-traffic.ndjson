@@ -1,0 +1,4 @@
+{"request":{"method":"GET","url":"http://api.example.com/orgs/org_01ks7rnqsyy0g6h37rfmen7zv9/projects/prj_01kt1k0cpj6ckw11ppgdzqbc2h/builds","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/orgs/org_01hzx2m4qq9b7y3w5d8e6f1g2h/projects/prj_01ka9b8c7d6e5f4g3h2j1k0m9n/builds","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/tickets/01ARZ3NDEKTSV4RRFFQ69G5FAV","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"status\":\"open\"}"}}
+{"request":{"method":"GET","url":"http://api.example.com/system-health","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"ok\":true}"}}

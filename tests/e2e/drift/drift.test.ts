@@ -1,4 +1,6 @@
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -85,6 +87,69 @@ describe('drift - validate mode', () => {
     ]);
     await matchSnapshot('validate-security', output);
   });
+
+  test('server override maps traffic onto spec paths and skips other hosts', async () => {
+    const { output } = runDrift([
+      'traffic-prefixed.ndjson',
+      '--api',
+      'openapi.yaml',
+      '--server',
+      'localhost:9000',
+      '--rules',
+      'undocumented-endpoint,schema-consistency',
+    ]);
+    await matchSnapshot('validate-server', output);
+  });
+
+  test('readOnly and writeOnly required fields are not enforced on the wrong side', async () => {
+    const { output } = runDrift([
+      'traffic-readonly.ndjson',
+      '--api',
+      'readonly-openapi.yaml',
+      '--rules',
+      'schema-consistency',
+    ]);
+    await matchSnapshot('validate-readonly', output);
+  });
+
+  test('discards findings below --min-severity', async () => {
+    const { output } = runDrift([
+      'traffic-mixed-severity.ndjson',
+      '--api',
+      'openapi.yaml',
+      '--rules',
+      'undocumented-endpoint,schema-consistency',
+      '--min-severity',
+      'error',
+    ]);
+    await matchSnapshot('validate-min-severity', output);
+  });
+
+  test('writes the drift report to a file with --output', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'drift-report-'));
+    const outputFile = join(outputDir, 'report.json');
+    try {
+      const { output, code } = runDrift([
+        'traffic-undocumented.ndjson',
+        '--api',
+        'openapi.yaml',
+        '--rules',
+        'undocumented-endpoint',
+        '--format',
+        'json',
+        '--output',
+        outputFile,
+      ]);
+      expect(code).toBe(1);
+      expect(output).toContain('Drift report written to:');
+      expect(output).not.toContain('"problems"');
+      const report = JSON.parse(readFileSync(outputFile, 'utf-8'));
+      expect(report.run.undocumentedExchanges).toBe(2);
+      expect(report.problems).toHaveLength(2);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('drift - generate mode', () => {
@@ -93,13 +158,18 @@ describe('drift - generate mode', () => {
     await matchSnapshot('generate-stdout', output);
   });
 
-  test('filters by api prefix and handles form, sniffed-json, and map-like bodies', async () => {
+  test('filters by server and handles form, sniffed-json, and map-like bodies', async () => {
     const { output } = runDrift([
       'generate-edge-cases.ndjson',
-      '--api-prefix',
+      '--server',
       'http://api.example.com',
     ]);
-    await matchSnapshot('generate-api-prefix', output);
+    await matchSnapshot('generate-server', output);
+  });
+
+  test('templatizes ULID and prefixed identifiers in paths', async () => {
+    const { output } = runDrift(['generate-ulid-traffic.ndjson']);
+    await matchSnapshot('generate-ulid-ids', output);
   });
 });
 
@@ -232,5 +302,19 @@ describe('drift - exit codes', () => {
       'undocumented-endpoint',
     ]);
     expect(code).toBe(1);
+  });
+
+  test('rejects --server combined with --match-mode', () => {
+    const { code, output } = runDrift([
+      'traffic-prefixed.ndjson',
+      '--api',
+      'openapi.yaml',
+      '--server',
+      'localhost:9000',
+      '--match-mode',
+      'basepath',
+    ]);
+    expect(code).toBe(1);
+    expect(output).toContain('mutually exclusive');
   });
 });

@@ -57,15 +57,55 @@ function scoreCandidate(
   return operation.pathScore * 10 + hostScore;
 }
 
+function extractPathParams(
+  operation: OpenApiOperation,
+  pathMatch: RegExpExecArray
+): Record<string, string> {
+  const params: Record<string, string> = {};
+  for (let index = 0; index < operation.pathParams.length; index += 1) {
+    const paramName = operation.pathParams[index];
+    const paramValue = pathMatch[index + 1];
+    if (paramName && paramValue !== undefined) {
+      params[paramName] = decodePathParam(paramValue);
+    }
+  }
+  return params;
+}
+
+/**
+ * Match an exchange whose path was already resolved relative to an explicit
+ * API prefix: path templates are applied directly, ignoring spec servers.
+ */
+function matchOperationByRelativePath(
+  operationCandidates: OpenApiOperation[],
+  relativePath: string
+): MatchedOperation | null {
+  const normalizedPath = getPathWithoutTrailingSlash(relativePath) || '/';
+
+  for (const operation of operationCandidates) {
+    const pathMatch = operation.pathRegex.exec(normalizedPath);
+    if (pathMatch) {
+      return { operation, pathParams: extractPathParams(operation, pathMatch) };
+    }
+  }
+
+  return null;
+}
+
 export function matchOperation(
   index: OpenApiIndex,
   exchange: NormalizedExchange,
-  mode: MatchMode
+  mode: MatchMode,
+  relativePathOverride?: string
 ): MatchedOperation | null {
   const method = exchange.request.method.toLowerCase();
   const operationCandidates = index.operationsByMethod.get(method);
   if (!operationCandidates || operationCandidates.length === 0) {
     return null;
+  }
+
+  if (relativePathOverride !== undefined) {
+    return matchOperationByRelativePath(operationCandidates, relativePathOverride);
   }
 
   let bestCandidate: CandidateMatch | null = null;
@@ -86,20 +126,11 @@ export function matchOperation(
         continue;
       }
 
-      const params: Record<string, string> = {};
-      for (let index = 0; index < operation.pathParams.length; index += 1) {
-        const paramName = operation.pathParams[index];
-        const paramValue = pathMatch[index + 1];
-        if (paramName && paramValue !== undefined) {
-          params[paramName] = decodePathParam(paramValue);
-        }
-      }
-
       const candidate: CandidateMatch = {
         score: scoreCandidate(operation, server, mode),
         matched: {
           operation,
-          pathParams: params,
+          pathParams: extractPathParams(operation, pathMatch),
         },
       };
 

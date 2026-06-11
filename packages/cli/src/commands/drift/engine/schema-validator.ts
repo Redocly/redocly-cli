@@ -12,9 +12,53 @@ import type { SchemaValidationError } from '../types/index.js';
 const AjvConstructor = Ajv2020 as unknown as new (options?: Options) => Ajv2020Instance;
 const applyFormats = addFormats as unknown as (ajv: Ajv2020Instance) => void;
 
+export type ValidationTarget = 'request' | 'response';
+
+function isPropertyExcludedFromTarget(propertySchema: unknown, target: ValidationTarget): boolean {
+  if (!isPlainObject(propertySchema)) {
+    return false;
+  }
+  return target === 'request'
+    ? propertySchema.readOnly === true
+    : propertySchema.writeOnly === true;
+}
+
+/**
+ * Per OpenAPI semantics, readOnly properties are absent from requests and
+ * writeOnly properties are absent from responses, so they must not be enforced
+ * via `required` when validating the corresponding message.
+ */
+function relaxRequiredForTarget(schema: unknown, target: ValidationTarget): unknown {
+  if (Array.isArray(schema)) {
+    return schema.map((item) => relaxRequiredForTarget(item, target));
+  }
+
+  if (!isPlainObject(schema)) {
+    return schema;
+  }
+
+  const output: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(schema)) {
+    output[key] = relaxRequiredForTarget(value, target);
+  }
+
+  const properties = schema.properties;
+  if (Array.isArray(schema.required) && isPlainObject(properties)) {
+    output.required = schema.required.filter(
+      (name) => typeof name !== 'string' || !isPropertyExcludedFromTarget(properties[name], target)
+    );
+  }
+
+  return output;
+}
+
 export class SchemaValidator {
   private readonly ajv: Ajv2020Instance;
-  private readonly objectSchemaCache = new WeakMap<object, ValidateFunction>();
+  private readonly objectSchemaCaches = {
+    none: new WeakMap<object, ValidateFunction>(),
+    request: new WeakMap<object, ValidateFunction>(),
+    response: new WeakMap<object, ValidateFunction>(),
+  };
   private readonly scalarSchemaCache = new Map<string, ValidateFunction>();
 
   public constructor(options?: { coerceTypes?: boolean }) {
@@ -37,7 +81,8 @@ export class SchemaValidator {
 
   public validate(
     schema: unknown,
-    value: unknown
+    value: unknown,
+    target?: ValidationTarget
   ): { valid: boolean; errors: SchemaValidationError[] } {
     if (schema === undefined) {
       return { valid: true, errors: [] };
@@ -46,7 +91,7 @@ export class SchemaValidator {
     let validate: ValidateFunction;
 
     try {
-      validate = this.getOrCompileValidator(schema);
+      validate = this.getOrCompileValidator(schema, target);
     } catch (error) {
       return {
         valid: false,
@@ -63,19 +108,21 @@ export class SchemaValidator {
     return { valid, errors };
   }
 
-  private getOrCompileValidator(schema: unknown): ValidateFunction {
+  private getOrCompileValidator(schema: unknown, target?: ValidationTarget): ValidateFunction {
     if (isPlainObject(schema)) {
-      const cached = this.objectSchemaCache.get(schema);
+      const cache = this.objectSchemaCaches[target ?? 'none'];
+      const cached = cache.get(schema);
       if (cached) {
         return cached;
       }
 
-      const compiled = this.ajv.compile(schema as AnySchema);
-      this.objectSchemaCache.set(schema, compiled);
+      const effectiveSchema = target ? relaxRequiredForTarget(schema, target) : schema;
+      const compiled = this.ajv.compile(effectiveSchema as AnySchema);
+      cache.set(schema, compiled);
       return compiled;
     }
 
-    const cacheKey = JSON.stringify(schema);
+    const cacheKey = `${target ?? 'none'}:${JSON.stringify(schema)}`;
     const cached = this.scalarSchemaCache.get(cacheKey);
     if (cached) {
       return cached;

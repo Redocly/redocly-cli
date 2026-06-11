@@ -130,7 +130,7 @@ export interface RuleContext {
   validateSchema: (
     schema: unknown,
     value: unknown,
-    options?: { coerce?: boolean }
+    options?: { coerce?: boolean; target?: 'request' | 'response' }
   ) => { valid: boolean; errors: SchemaValidationError[] };
 }
 
@@ -151,6 +151,8 @@ export interface RunSummary {
   totalExchanges: number;
   documentedExchanges: number;
   undocumentedExchanges: number;
+  /** Exchanges outside the configured server, excluded from validation. */
+  skippedExchanges: number;
   findingsBySeverity: Record<FindingSeverity, number>;
   findingsByRule: Record<string, number>;
   problemGroupsByRule: Record<string, number>;
@@ -172,6 +174,8 @@ export interface RunnerOptions {
   activeRules?: string[];
   /** Pre-loaded OpenAPI index (provided or generated from traffic). */
   openApiIndex: OpenApiIndex;
+  server?: string;
+  minSeverity?: FindingSeverity;
 }
 
 /**
@@ -196,6 +200,7 @@ export interface DriftRunResult {
     matchMode: MatchMode;
     /** True when the spec was generated from traffic rather than provided. */
     generatedSpec: boolean;
+    server?: string;
   };
   summary: RunSummary;
   findings: FindingRecord[];

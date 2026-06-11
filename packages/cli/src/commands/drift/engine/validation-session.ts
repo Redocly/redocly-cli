@@ -7,6 +7,7 @@ import type {
   Finding,
   FindingPreview,
   FindingRecord,
+  FindingSeverity,
   MatchMode,
   NormalizedExchange,
   OpenApiIndex,
@@ -15,14 +16,22 @@ import type {
   RunSummary,
 } from '../types/index.js';
 import { createProblemKey } from '../utils/finding-groups.js';
+import { normalizeServerPrefix, resolvePathForServer } from '../utils/server.js';
 import { SchemaValidator } from './schema-validator.js';
 
 const DEFAULT_FINDINGS_PREVIEW_LIMIT = 10;
+
+const SEVERITY_RANK: Record<FindingSeverity, number> = {
+  info: 0,
+  warning: 1,
+  error: 2,
+};
 
 interface CounterState {
   totalExchanges: number;
   documentedExchanges: number;
   undocumentedExchanges: number;
+  skippedExchanges: number;
   findingsBySeverity: RunSummary['findingsBySeverity'];
   findingsByRule: Record<string, number>;
 }
@@ -32,6 +41,7 @@ function createInitialCounters(): CounterState {
     totalExchanges: 0,
     documentedExchanges: 0,
     undocumentedExchanges: 0,
+    skippedExchanges: 0,
     findingsBySeverity: {
       info: 0,
       warning: 0,
@@ -147,6 +157,14 @@ export interface ValidationSessionOptions {
   previewFindingsLimit?: number;
   activeRules?: string[];
   pluginModules: string[];
+  /**
+   * Server the traffic was captured against. When set, only requests under it
+   * are validated (others are skipped) and paths are matched relative to it
+   * instead of the spec servers.
+   */
+  server?: string;
+  /** Findings below this severity are discarded. */
+  minSeverity?: FindingSeverity;
 }
 
 /**
@@ -174,9 +192,14 @@ export class ValidationSession {
   >();
   private totalProblemGroups = 0;
 
+  private readonly server: string | undefined;
+  private readonly minSeverityRank: number;
+
   private constructor(options: ValidationSessionOptions, rules: RulePlugin[]) {
     this.options = options;
     this.rules = rules;
+    this.server = normalizeServerPrefix(options.server);
+    this.minSeverityRank = SEVERITY_RANK[options.minSeverity ?? 'info'];
     this.previewLimit =
       options.previewFindingsLimit && options.previewFindingsLimit > 0
         ? options.previewFindingsLimit
@@ -205,10 +228,20 @@ export class ValidationSession {
   async process(exchange: NormalizedExchange): Promise<FindingRecord[]> {
     this.counters.totalExchanges += 1;
 
+    let relativePathOverride: string | undefined;
+    if (this.server !== undefined) {
+      relativePathOverride = resolvePathForServer(exchange.request, this.server);
+      if (relativePathOverride === undefined) {
+        this.counters.skippedExchanges += 1;
+        return [];
+      }
+    }
+
     const matchedOperation = matchOperation(
       this.options.openApiIndex,
       exchange,
-      this.options.matchMode
+      this.options.matchMode,
+      relativePathOverride
     );
     if (matchedOperation) {
       this.counters.documentedExchanges += 1;
@@ -223,12 +256,16 @@ export class ValidationSession {
       ignoreCookies: this.options.ignoreCookies ?? false,
       validateSchema: (schema, value, options) =>
         options?.coerce
-          ? this.coercingSchemaValidator.validate(schema, value)
-          : this.schemaValidator.validate(schema, value),
+          ? this.coercingSchemaValidator.validate(schema, value, options?.target)
+          : this.schemaValidator.validate(schema, value, options?.target),
     });
 
     const records: FindingRecord[] = [];
     for (const finding of exchangeFindings) {
+      if (SEVERITY_RANK[finding.severity] < this.minSeverityRank) {
+        continue;
+      }
+
       ensureOperationContextInFinding(finding, matchedOperation);
       const record = toFindingRecord(finding, exchange);
       this.findings.push(record);
@@ -278,6 +315,7 @@ export class ValidationSession {
       totalExchanges: this.counters.totalExchanges,
       documentedExchanges: this.counters.documentedExchanges,
       undocumentedExchanges: this.counters.undocumentedExchanges,
+      skippedExchanges: this.counters.skippedExchanges,
       findingsBySeverity: this.counters.findingsBySeverity,
       findingsByRule: this.counters.findingsByRule,
       problemGroupsByRule: this.problemGroupsByRule,
