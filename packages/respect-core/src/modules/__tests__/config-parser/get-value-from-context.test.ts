@@ -208,6 +208,76 @@ describe('getValueFromContext', () => {
     ).toEqual(undefined);
   });
 
+  it('should return workflow from $sourceDescriptions using the spec form without `workflows` segment', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.test.workflowTestId',
+        ctx,
+        logger,
+      })
+    ).toEqual({
+      workflowId: 'workflowTestId',
+      steps: [],
+    });
+  });
+
+  it('should fall back to field access for the spec form when no workflow matches', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          url: './test.yaml',
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.test.url',
+        ctx,
+        logger,
+      })
+    ).toEqual('./test.yaml');
+  });
+
+  it('should return undefined for the spec form when the source description exists but has no matching workflow or field', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(() =>
+      getValueFromContext({
+        value: '$sourceDescriptions.test.notExistingWorkflow',
+        ctx,
+        logger,
+      })
+    ).toThrow();
+  });
+
   it('should return undefined if getFakeData had error resolving value', () => {
     const ctx = {
       $sourceDescriptions: {
