@@ -292,7 +292,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'spec-no-required-params-after-optional': 'error',
   },
   graphqlRules: {
-    'type-description': 'error',
+    'type-description': 'off',
   },
 };
 

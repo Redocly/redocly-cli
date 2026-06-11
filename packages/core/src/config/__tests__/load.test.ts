@@ -512,7 +512,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
-              "type-description": "warn",
+              "type-description": "off",
             },
             "name": "Silver",
             "oas2Decorators": {},
@@ -1587,7 +1587,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
-              "type-description": "warn",
+              "type-description": "off",
             },
             "name": "Silver",
             "oas2Decorators": {},

@@ -3,7 +3,4 @@ apis:
     root: ./schema.graphql
 
 extends:
-  - recommended
-
-rules:
-  type-description: error
+  - all
