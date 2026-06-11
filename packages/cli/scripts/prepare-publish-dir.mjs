@@ -18,8 +18,7 @@ const publishDirName = packageJson.publishConfig?.directory ?? '.publish';
 const publishDir = path.join(packageDir, publishDirName);
 
 rmSync(publishDir, { recursive: true, force: true });
-mkdirSync(publishDir, { recursive: true });
-mkdirSync(path.dirname(binTargetPath), { recursive: true });
+mkdirSync(path.join(publishDir, path.dirname(binEntrypoint)), { recursive: true });
 mkdirSync(path.join(publishDir, 'lib'), { recursive: true });
 
 copyFileSync(path.join(packageDir, binEntrypoint), path.join(publishDir, binEntrypoint));
