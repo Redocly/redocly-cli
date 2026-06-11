@@ -18,7 +18,7 @@
 - Successful target file = `resolvedRef.document.source.absoluteRef`. Failed file load = `document: undefined` + `error`; recover the attempted path via `resolver.resolveExternalRef(sourceAbsoluteRef, uriPartOf$ref)` (public method, `resolve.ts:101`).
 - Root loading: `await externalRefResolver.resolveDocument(null, apiPath, true)` returns `Document | ResolveError | YamlParseError` (both errors extend `Error`).
 - Root type derivation (same as `lint.ts`/`stats`): `detectSpec(parsed)` → `normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config)` → pass `types.Root` to `resolveDocument({ rootDocument, rootType, externalRefResolver })`.
-- Public core exports used: `BaseResolver`, `resolveDocument`, `detectSpec`, `getTypes`, `normalizeTypes`, `Source`, `logger`, `isAbsoluteUrl`, types `Document`, `ResolvedRefMap`.
+- Public core exports used: `BaseResolver`, `resolveDocument`, `detectSpec`, `getTypes`, `normalizeTypes`, `Source`, `ResolveError`, `logger`, `isAbsoluteUrl`, `slash`, types `Document`, `ResolvedRefMap`.
 - `logger.output()` → stdout; `logger.info/warn/error` → stderr. JSON/mermaid purity relies on using ONLY `logger.output` for graph content.
 - `CommandArgv` (`packages/cli/src/types.ts:30-45`) is a closed union — `GraphArgv` must be added.
 - `getFallbackApisOrExit(argsApis: string[] | undefined, config)` → `Promise<Entrypoint[]>` (`{ path, alias?, output? }`); with no args falls back to all APIs from `redocly.yaml`.
@@ -112,7 +112,7 @@ export type DependencyGraph = {
 `packages/cli/src/commands/graph/__tests__/build-graph.test.ts`:
 
 ```typescript
-import { Source, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
+import { ResolveError, Source, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import { buildGraph } from '../build-graph.js';
@@ -223,7 +223,7 @@ describe('buildGraph', () => {
           resolved: false as const,
           isRemote: true,
           document: undefined,
-          error: new Error('ENOENT'),
+          error: new ResolveError(new Error('ENOENT')),
         },
       ],
     ]);
@@ -290,14 +290,14 @@ Expected: FAIL — cannot find module `../build-graph.js`.
 `packages/cli/src/commands/graph/build-graph.ts`:
 
 ```typescript
-import { isAbsoluteUrl, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
+import { isAbsoluteUrl, slash, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
-/** Converts an absolute file path or URL into a stable node id (cwd-relative path; URLs as-is). */
+/** Converts an absolute file path or URL into a stable node id (cwd-relative posix path; URLs as-is). */
 function toNodeId(absoluteRef: string, cwd: string): string {
-  return isAbsoluteUrl(absoluteRef) ? absoluteRef : path.relative(cwd, absoluteRef);
+  return isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));
 }
 
 /**
@@ -312,6 +312,7 @@ export function buildGraph(
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
 
+  /** Merges-or-creates a node, OR-ing its resolved/root/external flags. */
   const upsertNode = (id: string, resolved: boolean, root?: boolean) => {
     const node = nodes.get(id) ?? { id, resolved: false };
     if (resolved) node.resolved = true;
@@ -366,6 +367,9 @@ Note on node shape: `root`/`external` are set only when true (optional props), s
 
 Run: `npm run unit -- packages/cli/src/commands/graph/__tests__/build-graph.test.ts`
 Expected: 6 passed.
+
+Also run: `npm run typecheck`
+Expected: exit 0 (vitest does not typecheck — catch type errors now, not in Task 4).
 
 - [ ] **Step 1.6: Commit**
 
@@ -487,6 +491,9 @@ export function filterAffected(graph: DependencyGraph, changedIds: string[]): De
 
 Run: `npm run unit -- packages/cli/src/commands/graph/__tests__/filter-affected.test.ts`
 Expected: 3 passed.
+
+Also run: `npm run typecheck`
+Expected: exit 0.
 
 - [ ] **Step 2.5: Commit**
 
@@ -779,6 +786,9 @@ If the output differs from the spec's intent (wrong markers, missing summary), f
 
 Run: `npm run unit -- packages/cli/src/commands/graph`
 Expected: build-graph (6) + filter-affected (3) + print (5) all pass.
+
+Also run: `npm run typecheck`
+Expected: exit 0.
 
 - [ ] **Step 3.6: Commit**
 
