@@ -1,0 +1,8 @@
+openapi.yaml
+├── paths/pets.yaml
+│   └── components/schemas/Pet.yaml
+└── paths/users.yaml
+    └── components/schemas/User.yaml
+        ├── components/schemas/Address.yaml
+        └── components/schemas/Pet.yaml ↺
+

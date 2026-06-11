@@ -1,0 +1,6 @@
+type: object
+properties:
+  address:
+    $ref: Address.yaml
+  pet:
+    $ref: Pet.yaml
