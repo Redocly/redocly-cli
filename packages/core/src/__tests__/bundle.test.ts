@@ -857,7 +857,57 @@ describe('bundle with --use-titles-for-component-names', () => {
       useTitlesForComponentNames: true,
     });
     expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchSnapshot();
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      info:
+        title: title-naming fixture
+        version: 1.0.0
+      paths:
+        /authorities:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/AuthorityModel'
+          post:
+            requestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/AuthorityRequest'
+            responses:
+              '201':
+                description: Created
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/AuthorityModel'
+      components:
+        schemas:
+          AuthorityModel:
+            type: object
+            title: Authority model
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+            required:
+              - id
+              - name
+          AuthorityRequest:
+            type: object
+            title: Authority request
+            properties:
+              name:
+                type: string
+            required:
+              - name
+    `);
   });
 
   it('reports a separate error for a missing title and for an unusable title', async () => {
@@ -866,7 +916,28 @@ describe('bundle with --use-titles-for-component-names', () => {
       ref: path.join(__dirname, 'fixtures/refs/title-naming-bad-title/openapi.yaml'),
       useTitlesForComponentNames: true,
     });
-    expect(replaceSourceWithRef(problems, __dirname)).toMatchSnapshot();
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: error
+        message: Schema must define a \`title\` to build a component name.
+        location:
+          - source: fixtures/refs/title-naming-bad-title/schemas/NoTitle.yaml
+            pointer: '#/'
+            reportOnKey: false
+        forceSeverity: error
+        suggest: []
+      - ruleId: bundler
+        severity: error
+        message: >-
+          Title "User & Group" can't be turned into a component name. Use only
+          letters, digits, \`.\`, \`-\`, \`_\`, and spaces.
+        location:
+          - source: fixtures/refs/title-naming-bad-title/schemas/BadTitle.yaml
+            pointer: '#/title'
+            reportOnKey: false
+        forceSeverity: error
+        suggest: []
+    `);
   });
 
   it('reports a title collision once and points `from` at the first schema, even when referenced repeatedly', async () => {
@@ -876,7 +947,22 @@ describe('bundle with --use-titles-for-component-names', () => {
       useTitlesForComponentNames: true,
     });
     expect(problems).toHaveLength(1);
-    expect(replaceSourceWithRef(problems, __dirname)).toMatchSnapshot();
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: warn
+        message: >-
+          Title "User" maps to component name \`User\`, already used by another schema.
+          Rename one of the titles.
+        location:
+          - source: fixtures/refs/title-naming-collision/schemas/b/User.yaml
+            pointer: '#/title'
+            reportOnKey: false
+        from:
+          source: fixtures/refs/title-naming-collision/schemas/a/User.yaml
+          pointer: '#/title'
+        forceSeverity: warn
+        suggest: []
+    `);
   });
 
   it('leaves non-schema components (parameters) untouched when the flag is on', async () => {
@@ -885,6 +971,18 @@ describe('bundle with --use-titles-for-component-names', () => {
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
       useTitlesForComponentNames: true,
     });
-    expect(replaceSourceWithRef(problems, __dirname)).toMatchSnapshot();
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: warn
+        message: >-
+          Two schemas are referenced with the same name but different content. Renamed
+          param-b to param-b-2.
+        location:
+          - source: fixtures/refs/openapi-with-external-refs-conflicting-names.yaml
+            pointer: '#/paths/~1pet/put/parameters/1'
+            reportOnKey: false
+        forceSeverity: warn
+        suggest: []
+    `);
   });
 });
