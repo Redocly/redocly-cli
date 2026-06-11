@@ -5,6 +5,7 @@ import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { BundleArgv } from './commands/bundle.js';
 import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
+import type { GraphArgv } from './commands/graph/index.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
@@ -29,6 +30,7 @@ export const outputExtensions = ['json', 'yaml', 'yml'] as const;
 export type OutputExtension = (typeof outputExtensions)[number];
 export type CommandArgv =
   | StatsArgv
+  | GraphArgv
   | SplitArgv
   | JoinArgv
   | LintArgv
