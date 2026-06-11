@@ -19,14 +19,10 @@ import { isString } from '../utils/is-string.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { toPascalCase } from '../utils/to-pascal-case.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
-import { type UserContext, type ResolveResult } from '../walk.js';
+import { type UserContext, type ResolveResult, type Problem } from '../walk.js';
 
 type ComponentTarget = { node: unknown; location: Location };
 type ComponentsGroup = Record<string, unknown>;
-
-function getTitle(node: unknown): string {
-  return isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
-}
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -139,8 +135,8 @@ export function makeBundleVisitor({
   let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
 
-  // Location of the schema that first claimed each title-based component name, used for a collision's `from`.
-  const titleNameLocations = new Map<string, Location>();
+  // Component name -> location of the schema that first claimed it; powers a title collision's `from`.
+  const firstClaimByName = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
@@ -299,85 +295,87 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
-  function componentNameFromBasename(
-    target: ComponentTarget,
-    componentsGroup: ComponentsGroup,
-    ctx: UserContext
-  ) {
-    const prevName =
-      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
-    let name = prevName;
-    let serialId = 2;
-    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      name = `${prevName}-${serialId}`;
-      serialId++;
-    }
-    return { name, prevName };
-  }
-
   function componentNameFromTitle(
     target: ComponentTarget,
     componentsGroup: ComponentsGroup,
     ctx: UserContext
-  ) {
-    const title = getTitle(target.node);
+  ): { key: string; problem?: Problem } {
+    const { node } = target;
+    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
     const key = toPascalCase(title);
     const titleLocation = target.location.child('title');
 
     if (title === '') {
-      return fallbackName(target, componentsGroup, ctx, {
-        message: 'Schema must define a `title` to build a component name.',
-        location: target.location,
-      });
+      return {
+        key,
+        problem: {
+          message: 'Schema must define a `title` to build a component name.',
+          location: target.location,
+          forceSeverity: 'error',
+        },
+      };
     }
-
     if (!new RegExp(COMPONENT_NAME_PATTERN).test(key)) {
-      return fallbackName(target, componentsGroup, ctx, {
-        message:
-          `Title "${title}" can't be turned into a component name. ` +
-          `Use only letters, digits, \`.\`, \`-\`, \`_\`, and spaces.`,
-        location: titleLocation,
-      });
+      return {
+        key,
+        problem: {
+          message:
+            `Title "${title}" can't be turned into a component name. ` +
+            `Use only letters, digits, \`.\`, \`-\`, \`_\`, and spaces.`,
+          location: titleLocation,
+          forceSeverity: 'error',
+        },
+      };
     }
-
-    const existing = componentsGroup[key];
-    if (existing && !isEqualOrEqualRef(existing, target, ctx)) {
-      // A title collision is the same kind of event as a basename collision,
-      // so it honours `--component-renaming-conflicts-severity` too.
-      return fallbackName(target, componentsGroup, ctx, {
-        message:
-          `Title "${title}" maps to component name \`${key}\`, ` +
-          `already used by another schema. Rename one of the titles.`,
-        location: titleLocation,
-        from: titleNameLocations.get(key),
-        severity: componentRenamingConflicts,
-      });
+    if (componentsGroup[key] && !isEqualOrEqualRef(componentsGroup[key], target, ctx)) {
+      return {
+        key,
+        problem: {
+          message:
+            `Title "${title}" maps to component name \`${key}\`, ` +
+            `already used by another schema. Rename one of the titles.`,
+          location: titleLocation,
+          from: firstClaimByName.get(key),
+          forceSeverity: componentRenamingConflicts,
+        },
+      };
     }
-
-    titleNameLocations.set(key, titleLocation);
-    return key;
+    return { key };
   }
 
-  function fallbackName(
+  function componentNameFromBasename(
     target: ComponentTarget,
     componentsGroup: ComponentsGroup,
-    ctx: UserContext,
-    problem: { message: string; location: Location; from?: Location; severity?: RuleSeverity }
-  ) {
-    const { severity = 'error', ...report } = problem;
-    const name = componentNameFromBasename(target, componentsGroup, ctx).name;
-    if (!componentsGroup[name]) {
-      ctx.report({ ...report, forceSeverity: severity });
-      titleNameLocations.set(name, target.location);
+    ctx: UserContext
+  ): { name: string; prevName: string } {
+    const prevName =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    let name = prevName;
+    for (
+      let serialId = 2;
+      componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx);
+      serialId++
+    ) {
+      name = `${prevName}-${serialId}`;
     }
-    return name;
+    return { name, prevName };
   }
 
   function getComponentName(target: ComponentTarget, componentType: string, ctx: UserContext) {
     const componentsGroup = components[componentType];
 
     if (useTitlesForComponentNames && componentType === schemaComponentType) {
-      return componentNameFromTitle(target, componentsGroup, ctx);
+      const { key, problem } = componentNameFromTitle(target, componentsGroup, ctx);
+      if (!problem) {
+        firstClaimByName.set(key, target.location.child('title'));
+        return key;
+      }
+      const { name } = componentNameFromBasename(target, componentsGroup, ctx);
+      if (!componentsGroup[name]) {
+        ctx.report(problem);
+        firstClaimByName.set(name, target.location);
+      }
+      return name;
     }
 
     const { name, prevName } = componentNameFromBasename(target, componentsGroup, ctx);
@@ -388,7 +386,6 @@ export function makeBundleVisitor({
         forceSeverity: componentRenamingConflicts,
       });
     }
-
     return name;
   }
 

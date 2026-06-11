@@ -11,7 +11,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Foo'
+                $ref: '#/components/schemas/User'
   /b:
     get:
       responses:
@@ -20,20 +20,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Foo-2'
+                $ref: '#/components/schemas/User-2'
 components:
   schemas:
-    Foo:
+    User:
       type: object
-      title: Foo
+      title: User
       properties:
-        foo:
+        id:
           type: string
-    Foo-2:
+    User-2:
       type: object
-      title: Foo
+      title: User
       properties:
-        bar:
+        email:
           type: string
 
 bundling openapi.yaml using configuration for api 'main'...
