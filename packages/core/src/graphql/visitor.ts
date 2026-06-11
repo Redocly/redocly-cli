@@ -1,10 +1,12 @@
-import { getLocation, type ASTNode, type ASTVisitor } from 'graphql';
+import { getLocation, Kind, type ASTNode, type ASTVisitor } from 'graphql';
 
 import type { Config } from '../config/index.js';
 import type { Source } from '../resolve.js';
 import type { LineColLocationObject, NormalizedProblem, ProblemSeverity, Loc } from '../walk.js';
 
 export type GraphqlNodeKind = ASTNode['kind'];
+
+export const graphqlNodeKinds = Object.values(Kind) as string[];
 
 export type GraphqlProblem = {
   message: string;

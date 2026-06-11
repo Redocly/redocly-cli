@@ -3,6 +3,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
 import type { Config, RawGovernanceConfig } from '../config/index.js';
+import { graphqlNodeKinds } from '../graphql/visitor.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { normalizeTypes } from '../types/index.js';
@@ -489,6 +490,7 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
       type: {
         enum: [...new Set(['any', ...nodeNames, 'SpecExtension'])],
         description: 'REQUIRED. Locates the OpenAPI node type that the lint command evaluates.',
+        documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
       },
       property: (value: unknown) => {
         if (Array.isArray(value)) {
@@ -728,7 +730,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ...CoreConfigTypes,
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
-    Subject: createAssertionDefinitionSubject(nodeNames),
+    Subject: createAssertionDefinitionSubject([...nodeNames, ...graphqlNodeKinds]),
     ...nodeTypes,
     [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]:
       createScorecardLevelsItems(nodeTypes),
