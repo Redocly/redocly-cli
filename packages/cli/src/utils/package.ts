@@ -1,5 +1,5 @@
-import { createRequire } from 'node:module';
-
-const packageJson = createRequire(import.meta.url ?? __dirname)('../../package.json');
+// esbuild inlines this; the attribute is required by nodenext resolution.
+import packageJson from '../../package.json' with { type: 'json' };
 
 export const { version, name, engines } = packageJson;
+export const redocVersion = packageJson.dependencies.redoc;

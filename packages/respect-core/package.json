@@ -7,16 +7,16 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
     },
     "./runtime-expressions": {
-      "import": "./lib/modules/runtime-expressions/index.js",
-      "types": "./lib/modules/runtime-expressions/index.d.ts"
+      "types": "./lib/modules/runtime-expressions/index.d.ts",
+      "import": "./lib/modules/runtime-expressions/index.js"
     },
     "./run": {
-      "import": "./lib/run.js",
-      "types": "./lib/run.d.ts"
+      "types": "./lib/run.d.ts",
+      "import": "./lib/run.js"
     }
   },
   "engines": {
