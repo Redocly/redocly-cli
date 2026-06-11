@@ -21,6 +21,8 @@ export type GraphqlUserContext = {
   report(problem: GraphqlProblem): void;
   source: Source;
   config?: Config;
+  // Ancestor AST nodes of the visited node, outermost (Document) first.
+  ancestors: ASTNode[];
 };
 
 export type GraphqlVisitFunction = (node: any, ctx: GraphqlUserContext) => void;
@@ -59,16 +61,30 @@ export function toAstVisitor(visitor: GraphqlVisitor, opts: ContextOptions): AST
 }
 
 function wrap(fn: GraphqlVisitFunction, opts: ContextOptions) {
-  return (node: ASTNode) => {
-    fn(node, makeContext(node, opts));
+  return (
+    node: ASTNode,
+    _key: unknown,
+    _parent: unknown,
+    _path: unknown,
+    ancestors: (ASTNode | ASTNode[])[]
+  ) => {
+    fn(node, makeContext(node, opts, ancestors));
   };
 }
 
-function makeContext(currentNode: ASTNode | undefined, opts: ContextOptions): GraphqlUserContext {
+function makeContext(
+  currentNode: ASTNode | undefined,
+  opts: ContextOptions,
+  rawAncestors: (ASTNode | ASTNode[])[] = []
+): GraphqlUserContext {
   const { ruleId, severity, message, source, config, problems } = opts;
+  const ancestors = rawAncestors.filter(
+    (ancestor): ancestor is ASTNode => !Array.isArray(ancestor)
+  );
   return {
     source,
     config,
+    ancestors,
     report(problem: GraphqlProblem) {
       const node = problem.node ?? currentNode;
       const loc = problem.loc ?? nodeToLoc(node);
