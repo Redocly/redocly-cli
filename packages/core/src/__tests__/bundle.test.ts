@@ -857,57 +857,7 @@ describe('bundle with --use-titles-for-component-names', () => {
       useTitlesForComponentNames: true,
     });
     expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.1.0
-      info:
-        title: title-naming fixture
-        version: 1.0.0
-      paths:
-        /authorities:
-          get:
-            responses:
-              '200':
-                description: OK
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/AuthorityModel'
-          post:
-            requestBody:
-              required: true
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/AuthorityRequest'
-            responses:
-              '201':
-                description: Created
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/AuthorityModel'
-      components:
-        schemas:
-          AuthorityModel:
-            type: object
-            title: Authority model
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-            required:
-              - id
-              - name
-          AuthorityRequest:
-            type: object
-            title: Authority request
-            properties:
-              name:
-                type: string
-            required:
-              - name
-    `);
+    expect(res.parsed).toMatchSnapshot();
   });
 
   it('reports a separate error for a missing title and for an unusable title', async () => {
