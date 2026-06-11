@@ -161,7 +161,7 @@ flowchart LR
   classDef root font-weight:bold
 ```
 
-Labels are escaped for Mermaid syntax (quotes, brackets).
+Labels are double-quoted (Mermaid's mechanism for special characters such as brackets); literal `"` inside a label is escaped as `#quot;`.
 
 ## Error Handling
 
