@@ -24,21 +24,19 @@ jobs:
         run: npm ci
       - name: Prepare Smoke
         run: bash ./tests/smoke/basic/prepare-smoke.sh
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
-          include-hidden-files: true
-          retention-days: 1
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   run-smoke--npm--node-24:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
@@ -48,10 +46,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
@@ -63,10 +61,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
@@ -76,10 +74,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
@@ -91,10 +89,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
@@ -109,10 +107,11 @@ jobs:
   #   needs: prepare-smoke
   #   runs-on: windows-latest
   #   steps:
-  #     - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+  #     - uses: actions/cache@v3
   #       with:
-  #         name: smoke-basic
   #         path: tests/smoke/basic/
+  #         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+  #         enableCrossOsArchive: true
   #     - uses: actions/setup-node@v3
   #       with:
   #         node-version: 24
@@ -122,10 +121,11 @@ jobs:
   #   needs: prepare-smoke
   #   runs-on: windows-latest
   #   steps:
-  #     - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+  #     - uses: actions/cache@v3
   #       with:
-  #         name: smoke-basic
   #         path: tests/smoke/basic/
+  #         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+  #         enableCrossOsArchive: true
   #     - uses: actions/setup-node@v3
   #       with:
   #         node-version: 24
@@ -135,10 +135,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -148,10 +148,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -163,10 +163,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -176,10 +176,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -191,10 +191,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -208,10 +208,11 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -221,10 +222,11 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
@@ -234,10 +236,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
@@ -247,10 +249,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
@@ -262,10 +264,10 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
@@ -275,10 +277,11 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
@@ -288,10 +291,11 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          name: smoke-basic
           path: tests/smoke/basic/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
