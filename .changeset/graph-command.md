@@ -2,4 +2,4 @@
 '@redocly/cli': minor
 ---
 
-Added the `graph` command that prints the file-level `$ref` dependency graph of API descriptions as a tree (`stylish`), `json`, or `mermaid` output. The `--affected-by` option filters the graph to the files impacted by changes to the given files.
+Added the `tree` command that displays the structure of an API description — paths, operations, and their component dependency chains — as `stylish` (tree), `json`, or `mermaid` output. The `--affected-by` option filters the tree to what is impacted by a change to a component, path, or file, and `--files` switches to the file-level `$ref` graph.

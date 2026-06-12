@@ -18,8 +18,6 @@
           page: commands/eject.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
-        - label: graph
-          page: commands/graph.md
         - label: join
           page: commands/join.md
         - label: lint
@@ -46,6 +44,8 @@
           page: commands/stats.md
         - label: translate
           page: commands/translate.md
+        - label: tree
+          page: commands/tree.md
     - group: Guides
       page: guides/index.md
       items:

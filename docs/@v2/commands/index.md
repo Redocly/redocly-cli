@@ -14,11 +14,11 @@ Documentation commands:
 API management commands:
 
 - [`bundle`](bundle.md) Bundle API description.
-- [`graph`](graph.md) Show the `$ref` dependency graph of API description files.
 - [`join`](join.md) Join API descriptions [experimental feature].
 - [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
 - [`split`](split.md) Split API description into a multi-file structure.
 - [`stats`](stats.md) Gather statistics for a document.
+- [`tree`](tree.md) Display the structure of an API description as a tree.
 
 Linting commands:
 
