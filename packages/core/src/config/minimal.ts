@@ -309,6 +309,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'info-contact': 'off',
   },
   graphqlRules: {
+    'no-unused-types': 'off',
     'type-description': 'off',
   },
   openrpc1Rules: {
