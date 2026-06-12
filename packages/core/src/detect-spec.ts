@@ -1,6 +1,19 @@
 import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
-import { VERSION_PATTERN } from './typings/arazzo.js';
+import { ARAZZO_1_1_VERSION_PATTERN, VERSION_PATTERN } from './typings/arazzo.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+
+export const specVersions = [
+  'oas2',
+  'oas3_0',
+  'oas3_1',
+  'oas3_2',
+  'async2',
+  'async3',
+  'arazzo1',
+  'arazzo1_1',
+  'overlay1',
+  'openrpc1',
+] as const;
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
   if (version.startsWith('oas3')) {
@@ -11,7 +24,9 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'async3';
   } else if (version === 'async2') {
     return 'async2';
-  } else if (version === 'arazzo1') {
+  } else if (version === 'async3') {
+    return 'async3';
+  } else if (version === 'arazzo1' || version === 'arazzo1_1') {
     return 'arazzo1';
   } else if (version === 'overlay1') {
     return 'overlay1';
@@ -69,6 +84,14 @@ export function detectSpec(root: unknown): SpecVersion {
 
   if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
     return 'arazzo1';
+  }
+
+  if (typeof root.arazzo === 'string' && ARAZZO_1_1_VERSION_PATTERN.test(root.arazzo)) {
+    return 'arazzo1_1';
+  }
+
+  if (root.arazzo) {
+    throw new Error(`Unsupported Arazzo version: ${root.arazzo}`);
   }
 
   if (typeof root.overlay === 'string' && VERSION_PATTERN.test(root.overlay)) {

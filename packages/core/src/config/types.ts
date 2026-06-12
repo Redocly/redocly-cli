@@ -91,6 +91,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
   arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
+  arazzo1_1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
 
@@ -114,6 +115,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Preprocessors?: Record<string, PreprocessorConfig>;
   async3Preprocessors?: Record<string, PreprocessorConfig>;
   arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
+  arazzo1_1Preprocessors?: Record<string, PreprocessorConfig>;
   overlay1Preprocessors?: Record<string, PreprocessorConfig>;
   openrpc1Preprocessors?: Record<string, PreprocessorConfig>;
 
@@ -134,6 +136,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Decorators?: Record<string, DecoratorConfig>;
   async3Decorators?: Record<string, DecoratorConfig>;
   arazzo1Decorators?: Record<string, DecoratorConfig>;
+  arazzo1_1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
 };

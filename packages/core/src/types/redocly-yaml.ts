@@ -265,6 +265,7 @@ const configGovernanceProperties: Record<
   async2Rules: 'Rules',
   async3Rules: 'Rules',
   arazzo1Rules: 'Rules',
+  arazzo1_1Rules: 'Rules',
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
   preprocessors: 'Preprocessors',
@@ -275,6 +276,7 @@ const configGovernanceProperties: Record<
   async2Preprocessors: 'Preprocessors',
   async3Preprocessors: 'Preprocessors',
   arazzo1Preprocessors: 'Preprocessors',
+  arazzo1_1Preprocessors: 'Preprocessors',
   overlay1Preprocessors: 'Preprocessors',
   openrpc1Preprocessors: 'Preprocessors',
   decorators: 'Decorators',
@@ -285,6 +287,7 @@ const configGovernanceProperties: Record<
   async2Decorators: 'Decorators',
   async3Decorators: 'Decorators',
   arazzo1Decorators: 'Decorators',
+  arazzo1_1Decorators: 'Decorators',
   overlay1Decorators: 'Decorators',
   openrpc1Decorators: 'Decorators',
 };
