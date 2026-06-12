@@ -8,7 +8,6 @@ import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { handleLogin, handleLogout } from './commands/auth.js';
-import { handlerBuildCommand } from './commands/build-docs/index.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
@@ -652,6 +651,7 @@ yargs(hideBin(process.argv))
           return true;
         }),
     async (argv) => {
+      const { handlerBuildCommand } = await import('./commands/build-docs/index.js');
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )

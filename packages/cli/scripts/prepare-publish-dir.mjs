@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,10 +19,9 @@ const publishDir = path.join(packageDir, publishDirName);
 
 rmSync(publishDir, { recursive: true, force: true });
 mkdirSync(path.join(publishDir, path.dirname(binEntrypoint)), { recursive: true });
-mkdirSync(path.join(publishDir, 'lib'), { recursive: true });
 
 copyFileSync(path.join(packageDir, binEntrypoint), path.join(publishDir, binEntrypoint));
-copyFileSync(path.join(packageDir, 'lib/index.js'), path.join(publishDir, 'lib/index.js'));
+cpSync(path.join(packageDir, 'lib'), path.join(publishDir, 'lib'), { recursive: true });
 copyFileSync(readmeSourcePath, path.join(publishDir, 'README.md'));
 copyFileSync(licenseSourcePath, path.join(publishDir, 'LICENSE'));
 
@@ -39,7 +38,7 @@ const publishPackageJson = {
   contributors: packageJson.contributors,
   engines: packageJson.engines,
   engineStrict: packageJson.engineStrict,
-  files: [binEntrypoint, 'lib/index.js', 'README.md', 'LICENSE'],
+  files: [binEntrypoint, 'lib/', 'README.md', 'LICENSE'],
 };
 
 writeFileSync(

@@ -7,8 +7,10 @@ const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.
 await build({
   absWorkingDir: packageDir,
   entryPoints: ['src/index.ts'],
-  outfile: 'lib/index.js',
+  outdir: 'lib',
+  chunkNames: 'chunks/[hash]',
   bundle: true,
+  splitting: true,
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
