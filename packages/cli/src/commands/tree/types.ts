@@ -1,5 +1,7 @@
 export type TreeFormat = 'stylish' | 'json' | 'mermaid';
 
+export type NodeKind = 'root' | 'path' | 'operation' | 'component' | 'file';
+
 export type GraphNode = {
   /** Path relative to cwd; http(s) refs keep the full URL. */
   id: string;
