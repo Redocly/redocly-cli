@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: Tree fixture
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      summary: List pets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+    post:
+      summary: Create pet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetInput'
+      responses:
+        '201':
+          description: Created
+  /pets/{petId}:
+    parameters:
+      - $ref: '#/components/parameters/PetId'
+    get:
+      summary: Get pet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+  /users:
+    get:
+      summary: List users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  parameters:
+    PetId:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Address:
+      type: object
+      properties:
+        city:
+          type: string
+    Orphan:
+      type: object
+      properties:
+        unused:
+          type: boolean
+    Pet:
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        name:
+          type: string
+    PetInput:
+      type: object
+      properties:
+        pet:
+          $ref: '#/components/schemas/Pet'
+    User:
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
