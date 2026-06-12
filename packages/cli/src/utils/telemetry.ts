@@ -313,7 +313,17 @@ function collectSensitiveValues(
 }
 
 export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
-  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'clientCert', 'clientKey', 'caCert'];
+  const KEYS_TO_CLEAN = [
+    'organization',
+    'o',
+    'input',
+    'i',
+    'clientCert',
+    'clientKey',
+    'caCert',
+    'server',
+    'S',
+  ];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[] | object> = {};
 

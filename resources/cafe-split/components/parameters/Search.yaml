@@ -1,0 +1,13 @@
+name: search
+in: query
+description: |-
+  Performs a case-insensitive text search across relevant fields in the collection.
+
+  **Fields searched depend on the endpoint:**
+  - **Menu items:** `name`, `photoTextDescription`
+  - **Orders:** `customerName`, `id`
+
+  Returns items where any of the searchable fields contain the search term as a substring.
+required: false
+schema:
+  type: string
