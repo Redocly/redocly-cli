@@ -3,8 +3,10 @@ import type { DependencyGraph } from '../types.js';
 export type StylishOptions = {
   /** Node ids queried via --affected-by that exist in the graph. */
   changed?: string[];
-  /** Node count of the unfiltered graph; enables the affected summary line. */
-  totalNodeCount?: number;
+  /** Pre-composed summary line; appended after a blank line when set. */
+  summary?: string;
+  /** Message returned for an empty graph. */
+  emptyMessage?: string;
 };
 
 /**
@@ -13,7 +15,7 @@ export type StylishOptions = {
  */
 export function renderStylish(graph: DependencyGraph, options: StylishOptions = {}): string {
   if (graph.nodes.length === 0) {
-    return 'No files affected.';
+    return options.emptyMessage ?? 'No files affected.';
   }
 
   const childrenByNode = new Map<string, string[]>();
@@ -61,13 +63,9 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     renderSubtree(root, '', new Set([root]));
   });
 
-  if (options.totalNodeCount !== undefined) {
+  if (options.summary !== undefined) {
     lines.push('');
-    lines.push(
-      `${graph.nodes.length} of ${options.totalNodeCount} files affected · affected roots: ${
-        graph.roots.join(', ') || 'none'
-      }`
-    );
+    lines.push(options.summary);
   }
 
   return lines.join('\n');

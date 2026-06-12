@@ -62,8 +62,12 @@ describe('renderStylish', () => {
       ],
     };
 
-    expect(renderStylish(affected, { changed: ['components/Pet.yaml'], totalNodeCount: 7 }))
-      .toMatchInlineSnapshot(`
+    expect(
+      renderStylish(affected, {
+        changed: ['components/Pet.yaml'],
+        summary: '5 of 7 files affected · affected roots: openapi.yaml',
+      })
+    ).toMatchInlineSnapshot(`
       "openapi.yaml
       ├── paths/pets.yaml
       │   └── components/Pet.yaml ← changed
@@ -77,7 +81,7 @@ describe('renderStylish', () => {
 
   it('reports when nothing is affected', () => {
     expect(
-      renderStylish({ roots: [], nodes: [], edges: [] }, { changed: [], totalNodeCount: 7 })
+      renderStylish({ roots: [], nodes: [], edges: [] }, { changed: [] })
     ).toMatchInlineSnapshot(`"No files affected."`);
   });
 
