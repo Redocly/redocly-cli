@@ -1,0 +1,17 @@
+openapi.yaml
+├── /pets
+│   ├── GET /pets
+│   │   └── schemas/Pet
+│   │       └── schemas/Address
+│   └── POST /pets
+│       └── schemas/PetInput
+│           └── schemas/Pet ↺
+├── /pets/{petId}
+│   ├── GET /pets/{petId}
+│   │   └── schemas/Pet ↺
+│   └── parameters/PetId
+└── /users
+    └── GET /users
+        └── schemas/User
+            └── schemas/Address ↺
+

@@ -1,0 +1,77 @@
+{
+  "roots": [
+    "openapi.yaml"
+  ],
+  "nodes": [
+    {
+      "id": "components/schemas/Address.yaml",
+      "resolved": true
+    },
+    {
+      "id": "components/schemas/Pet.yaml",
+      "resolved": true
+    },
+    {
+      "id": "components/schemas/User.yaml",
+      "resolved": true
+    },
+    {
+      "id": "openapi.yaml",
+      "resolved": true,
+      "root": true
+    },
+    {
+      "id": "paths/pets.yaml",
+      "resolved": true
+    },
+    {
+      "id": "paths/users.yaml",
+      "resolved": true
+    }
+  ],
+  "edges": [
+    {
+      "from": "components/schemas/User.yaml",
+      "to": "components/schemas/Address.yaml",
+      "refs": [
+        "Address.yaml"
+      ]
+    },
+    {
+      "from": "components/schemas/User.yaml",
+      "to": "components/schemas/Pet.yaml",
+      "refs": [
+        "Pet.yaml"
+      ]
+    },
+    {
+      "from": "openapi.yaml",
+      "to": "paths/pets.yaml",
+      "refs": [
+        "paths/pets.yaml"
+      ]
+    },
+    {
+      "from": "openapi.yaml",
+      "to": "paths/users.yaml",
+      "refs": [
+        "paths/users.yaml"
+      ]
+    },
+    {
+      "from": "paths/pets.yaml",
+      "to": "components/schemas/Pet.yaml",
+      "refs": [
+        "../components/schemas/Pet.yaml"
+      ]
+    },
+    {
+      "from": "paths/users.yaml",
+      "to": "components/schemas/User.yaml",
+      "refs": [
+        "../components/schemas/User.yaml"
+      ]
+    }
+  ]
+}
+

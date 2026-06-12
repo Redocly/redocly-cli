@@ -44,6 +44,8 @@
           page: commands/stats.md
         - label: translate
           page: commands/translate.md
+        - label: tree
+          page: commands/tree.md
     - group: Guides
       page: guides/index.md
       items:
