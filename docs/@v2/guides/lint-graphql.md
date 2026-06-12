@@ -6,12 +6,11 @@ seo:
 
 # Lint GraphQL with Redocly CLI
 
-{% admonition type="warning" name="Experimental GraphQL support" %}
-This feature is at an early stage, please use with caution and send us feedback!
-GraphQL support is experimental and its behavior, rules, and configuration may change in future releases.
+{% admonition type="warning" name="Experimental" %}
+This is an experimental feature. Its behavior may change in future releases.
 {% /admonition %}
 
-In addition to providing lint functionality for multiple OpenAPI formats, Redocly CLI also has experimental support for GraphQL.
+In addition to providing lint functionality for multiple OpenAPI formats, Redocly CLI also supports GraphQL.
 Redocly CLI supports the following linting approaches with GraphQL documents:
 
 - GraphQL SDL syntax and schema validation.
@@ -21,7 +20,7 @@ Redocly CLI supports the following linting approaches with GraphQL documents:
 ## Lint an existing GraphQL file
 
 Redocly CLI takes its settings from a `redocly.yaml` configuration file.
-Below is an example of a simple configuration file for validating that a GraphQL SDL file is well-formed and structurally valid:
+The following is an example of a simple configuration file that checks if a GraphQL SDL file is well-formed and has a valid structure:
 
 ```yaml
 rules:
@@ -36,19 +35,21 @@ With this configuration file, and your GraphQL schema file, run the linting comm
 redocly lint schema.graphql
 ```
 
-The output describes any structural problems with the document, or reports that it is valid.
+The output describes structural problems with the document, or reports that it is valid.
 
 {% admonition type="info" name="Syntax errors always stop linting" %}
-A GraphQL syntax error is always reported as an error and short-circuits linting for that file, regardless of how `struct` is configured.
+A GraphQL syntax error is always reported as an error and ends linting for that file, regardless of how `struct` is configured.
 {% /admonition %}
 
 ## GraphQL rules
 
 To expand the linting checks for a GraphQL schema, enable the built-in GraphQL rules.
 Unlike the shared `struct` rule (configured under `rules`), GraphQL-specific built-in rules are configured under the `graphqlRules` section.
-The currently supported rules are:
+The supported rules are:
 
-- `no-unused-types`: Every declared type must be referenced by another type, directive, or operation (or be a root operation type: `Query`, `Mutation`, or `Subscription`). Types that are declared but never referenced are reported. If the document has no root operation type, this rule reports nothing.
+- `no-unused-types`: Every declared type must be referenced by another type, directive, or operation (or be a root operation type: `Query`, `Mutation`, or `Subscription`).
+    Types that are declared but never referenced are reported.
+    If the document has no root operation type, this rule reports nothing.
 - `type-description`: Every type definition (object, interface, enum, input object, union, and scalar) must have a non-empty description.
 
 We expect the list to expand over time, so keep checking back - and let us know if you have any requests by [opening an issue on the GitHub repo](https://github.com/Redocly/redocly-cli/issues).
@@ -64,7 +65,7 @@ graphqlRules:
 
 ## Configurable rule example
 
-Redocly CLI also offers [configurable rules](../rules/configurable-rules.md) that allow you to set assertions about the document being linted.
+Redocly CLI also offers [configurable rules](../rules/configurable-rules.md) that enable you to set assertions about the document being linted.
 This functionality works for GraphQL too.
 Instead of OpenAPI node types, the `subject.type` targets GraphQL AST node kinds, such as `ObjectTypeDefinition`, `FieldDefinition`, `EnumTypeDefinition`, or `ScalarTypeDefinition`.
 
