@@ -1324,6 +1324,8 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "OpenAPISourceDescription",
           "ArazzoSourceDescription",
           "Parameters",
+          "ActionParameters",
+          "ActionParameter",
           "ReusableObject",
           "Workflows",
           "Workflow",

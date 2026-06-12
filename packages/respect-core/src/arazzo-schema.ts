@@ -150,6 +150,7 @@ export const reusableObject = {
   required: ['reference'],
   additionalProperties: false,
 } as const;
+
 export const parameter = {
   type: 'object',
   oneOf: [
@@ -169,10 +170,35 @@ export const parameter = {
     reusableObject,
   ],
 } as const;
+
 const parameters = {
   type: 'array',
   items: parameter,
 } as const;
+
+export const actionParameter = {
+  type: 'object',
+  oneOf: [
+    {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        value: {
+          oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+        },
+      },
+      required: ['name', 'value'],
+      additionalProperties: false,
+    },
+    reusableObject,
+  ],
+} as const;
+
+const actionParameters = {
+  type: 'array',
+  items: actionParameter,
+} as const;
+
 export const infoObject = {
   type: 'object',
   properties: {
@@ -260,6 +286,7 @@ export const onSuccessObject = {
     type: { type: 'string', enum: ['goto', 'end'] },
     stepId: { type: 'string' },
     workflowId: { type: 'string' },
+    parameters: actionParameters,
     criteria: criteriaObjects,
   },
   additionalProperties: false,
@@ -280,6 +307,7 @@ export const onFailureObject = {
     stepId: { type: 'string' },
     retryAfter: { type: 'number', minimum: 0 },
     retryLimit: { type: 'number', minimum: 0 },
+    parameters: actionParameters,
     criteria: criteriaObjects,
   },
   additionalProperties: false,

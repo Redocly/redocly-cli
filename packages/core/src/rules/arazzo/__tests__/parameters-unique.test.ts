@@ -112,4 +112,87 @@ describe('Arazzo parameters-unique', () => {
       ]
     `);
   });
+
+  it('should report on duplicated `parameters` defined on success/failure actions', async () => {
+    const actionDocument = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+          description: A cool API
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: outer
+            steps:
+              - stepId: step-1
+                operationId: museum-api.getMuseumHours
+                onSuccess:
+                  - name: go-next
+                    type: goto
+                    workflowId: inner
+                    parameters:
+                      - name: token
+                        value: a
+                      - name: token
+                        value: b
+                onFailure:
+                  - name: recover
+                    type: goto
+                    workflowId: inner
+                    parameters:
+                      - name: retryToken
+                        value: a
+                      - name: retryToken
+                        value: b
+          - workflowId: inner
+            steps:
+              - stepId: noop
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: actionDocument,
+      config: await createConfig({
+        rules: { 'parameters-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`name\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onFailure/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`name\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

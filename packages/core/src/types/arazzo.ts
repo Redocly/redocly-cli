@@ -161,6 +161,29 @@ const Parameters: NodeType = {
     }
   },
 };
+const ActionParameter: NodeType = {
+  properties: {
+    name: {
+      type: 'string',
+      description: 'REQUIRED. The name of the parameter. Parameter names are case sensitive.',
+    },
+    value: {},
+  },
+  required: ['name', 'value'],
+  extensionsPrefix: 'x-',
+  description:
+    'Describes a single parameter passed to a workflow referenced by a success or failure action. Action parameters map to the referenced workflow inputs, so the `in` field MUST NOT be used.',
+};
+const ActionParameters: NodeType = {
+  properties: {},
+  items: (value: any) => {
+    if (value?.reference) {
+      return 'ReusableObject';
+    } else {
+      return 'ActionParameter';
+    }
+  },
+};
 const Workflow: NodeType = {
   properties: {
     workflowId: {
@@ -397,6 +420,7 @@ const SuccessActionObject: NodeType = {
       description:
         'The workflowId referencing an existing workflow within the Arazzo Description to transfer to upon success of the step. This field is only relevant when the type field value is "goto". If the referenced workflow is contained within an arazzo type sourceDescription, then the workflowId MUST be specified using a Runtime Expression (e.g., $sourceDescriptions.<name>.<workflowId>) to avoid ambiguity or potential clashes. This field is mutually exclusive to stepId.',
     },
+    parameters: 'ActionParameters',
     criteria: listOf('CriterionObject', {
       description:
         'A list of assertions to determine if this action SHALL be executed. Each assertion is described using a Criterion Object. All criteria assertions MUST be satisfied for the action to be executed.',
@@ -450,6 +474,7 @@ const FailureActionObject: NodeType = {
       description:
         'A non-negative integer indicating how many attempts to retry the step MAY be attempted before failing the overall step. If not specified then a single retry SHALL be attempted. This field only applies when the type field value is "retry". The retryLimit MUST be exhausted prior to executing subsequent failure actions.',
     },
+    parameters: 'ActionParameters',
     criteria: listOf('CriterionObject', {
       description:
         'A list of assertions to determine if this action SHALL be executed. Each assertion is described using a Criterion Object.',
@@ -478,6 +503,8 @@ export const Arazzo1Types: Record<string, NodeType> = {
   ArazzoSourceDescription,
   Parameters,
   Parameter,
+  ActionParameters,
+  ActionParameter,
   ReusableObject,
   Workflows,
   Workflow,
