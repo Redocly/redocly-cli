@@ -2,7 +2,6 @@ name: Performance Benchmark
 
 permissions:
   contents: read
-  pull-requests: write
 
 on:
   pull_request:
@@ -55,9 +54,15 @@ jobs:
           cat benchmark_bundle.md benchmark_lint.md benchmark_check-config.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
-      - name: Comment PR
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+      # This job runs untrusted PR code, so it has no write token to comment. It uploads the
+      # result and performance-comment.yaml posts it (which also works for fork PRs).
+      - name: Save PR number
+        run: echo "${{ github.event.number }}" > tests/performance/pr-number.txt
+
+      - name: Upload benchmark result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          file-path: tests/performance/benchmark_chart.md
-          comment-tag: historical-versions-comparison
+          name: performance-benchmark
+          path: |
+            tests/performance/benchmark_chart.md
+            tests/performance/pr-number.txt
