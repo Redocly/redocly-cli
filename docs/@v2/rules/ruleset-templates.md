@@ -179,6 +179,18 @@ rules:
   workflowId-unique: error
 ```
 
+### Minimal ruleset: Arazzo 1.1
+
+```yaml
+rules:
+  no-enum-type-mismatch: warn
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  stepId-unique: error
+  struct: error
+  workflowId-unique: error
+```
+
 ## Recommended rulesets
 
 The default behavior is to use a recommended ruleset.
@@ -385,7 +397,30 @@ rules:
   no-mixed-number-range-constraints: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
-  outputs-defined: error
+  outputs-defined: warn
+  parameters-unique: error
+  requestBody-replacements-unique: warn
+  sourceDescription-name-unique: error
+  sourceDescription-type: error
+  sourceDescriptions-not-empty: error
+  step-onFailure-unique: warn
+  step-onSuccess-unique: warn
+  stepId-unique: error
+  struct: error
+  workflow-dependsOn: error
+  workflowId-unique: error
+```
+
+### Recommended ruleset: Arazzo 1.1
+
+```yaml
+rules:
+  criteria-unique: warn
+  no-enum-type-mismatch: error
+  no-mixed-number-range-constraints: warn
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: error
+  outputs-defined: warn
   parameters-unique: error
   requestBody-replacements-unique: warn
   sourceDescription-name-unique: error

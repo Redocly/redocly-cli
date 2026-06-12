@@ -99,15 +99,18 @@ export async function sendTelemetry({
         spec_keyword,
         spec_full_version,
         respect_x_security_auth_types:
-          spec_version === 'arazzo1' && respect_x_security_auth_types?.length
+          (spec_version === 'arazzo1' || spec_version === 'arazzo1_1') &&
+          respect_x_security_auth_types?.length
             ? JSON.stringify(respect_x_security_auth_types)
             : undefined,
         respect_source_description_types:
-          spec_version === 'arazzo1' && respect_source_description_types?.length
+          (spec_version === 'arazzo1' || spec_version === 'arazzo1_1') &&
+          respect_source_description_types?.length
             ? JSON.stringify(respect_source_description_types)
             : undefined,
         respect_criterion_object_types:
-          spec_version === 'arazzo1' && respect_criterion_object_types?.length
+          (spec_version === 'arazzo1' || spec_version === 'arazzo1_1') &&
+          respect_criterion_object_types?.length
             ? JSON.stringify(respect_criterion_object_types)
             : undefined,
       },

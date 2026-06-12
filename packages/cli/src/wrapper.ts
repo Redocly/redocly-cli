@@ -68,7 +68,7 @@ export function commandWrapper<T extends CommandArgv>(
         specFullVersion = undefined;
       }
 
-      if (specVersion === 'arazzo1') {
+      if (specVersion === 'arazzo1' || specVersion === 'arazzo1_1') {
         const arazzoDocument = document as Partial<ArazzoDefinition>;
         collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypes);
         collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
