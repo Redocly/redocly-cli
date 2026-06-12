@@ -11,6 +11,10 @@ export type GraphNode = {
   external?: boolean;
   /** False: the file is referenced but could not be loaded. */
   resolved: boolean;
+  /** Node category in the structure view; absent in --files mode. */
+  kind?: NodeKind;
+  /** Cwd-relative source file the node is defined in; absent in --files mode. */
+  file?: string;
 };
 
 export type GraphEdge = {
