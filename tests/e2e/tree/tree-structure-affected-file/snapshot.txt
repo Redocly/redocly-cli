@@ -1,0 +1,8 @@
+openapi.yaml
+└── /users
+    └── paths/users.yaml
+        └── components/schemas/User.yaml
+            └── components/schemas/Address.yaml ← changed
+
+5 of 8 nodes affected
+

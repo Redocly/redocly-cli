@@ -1,0 +1,18 @@
+openapi.yaml
+├── /pets
+│   ├── GET /pets
+│   │   └── schemas/Pet
+│   │       └── schemas/Address ← changed
+│   └── POST /pets
+│       └── schemas/PetInput
+│           └── schemas/Pet ↺
+├── /pets/{petId}
+│   └── GET /pets/{petId}
+│       └── schemas/Pet ↺
+└── /users
+    └── GET /users
+        └── schemas/User
+            └── schemas/Address ↺ ← changed
+
+4 of 4 operations affected · affected paths: /pets, /pets/{petId}, /users
+

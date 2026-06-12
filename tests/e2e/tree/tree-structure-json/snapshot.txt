@@ -1,0 +1,180 @@
+{
+  "roots": [
+    "openapi.yaml"
+  ],
+  "nodes": [
+    {
+      "id": "/pets",
+      "resolved": true,
+      "kind": "path",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "/pets/{petId}",
+      "resolved": true,
+      "kind": "path",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "/users",
+      "resolved": true,
+      "kind": "path",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "GET /pets",
+      "resolved": true,
+      "kind": "operation",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "GET /pets/{petId}",
+      "resolved": true,
+      "kind": "operation",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "GET /users",
+      "resolved": true,
+      "kind": "operation",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "POST /pets",
+      "resolved": true,
+      "kind": "operation",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "openapi.yaml",
+      "resolved": true,
+      "kind": "root",
+      "file": "openapi.yaml",
+      "root": true
+    },
+    {
+      "id": "parameters/PetId",
+      "resolved": true,
+      "kind": "component",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "schemas/Address",
+      "resolved": true,
+      "kind": "component",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "schemas/Pet",
+      "resolved": true,
+      "kind": "component",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "schemas/PetInput",
+      "resolved": true,
+      "kind": "component",
+      "file": "openapi.yaml"
+    },
+    {
+      "id": "schemas/User",
+      "resolved": true,
+      "kind": "component",
+      "file": "openapi.yaml"
+    }
+  ],
+  "edges": [
+    {
+      "from": "/pets",
+      "to": "GET /pets",
+      "refs": []
+    },
+    {
+      "from": "/pets",
+      "to": "POST /pets",
+      "refs": []
+    },
+    {
+      "from": "/pets/{petId}",
+      "to": "GET /pets/{petId}",
+      "refs": []
+    },
+    {
+      "from": "/pets/{petId}",
+      "to": "parameters/PetId",
+      "refs": [
+        "#/components/parameters/PetId"
+      ]
+    },
+    {
+      "from": "/users",
+      "to": "GET /users",
+      "refs": []
+    },
+    {
+      "from": "GET /pets",
+      "to": "schemas/Pet",
+      "refs": [
+        "#/components/schemas/Pet"
+      ]
+    },
+    {
+      "from": "GET /pets/{petId}",
+      "to": "schemas/Pet",
+      "refs": [
+        "#/components/schemas/Pet"
+      ]
+    },
+    {
+      "from": "GET /users",
+      "to": "schemas/User",
+      "refs": [
+        "#/components/schemas/User"
+      ]
+    },
+    {
+      "from": "POST /pets",
+      "to": "schemas/PetInput",
+      "refs": [
+        "#/components/schemas/PetInput"
+      ]
+    },
+    {
+      "from": "openapi.yaml",
+      "to": "/pets",
+      "refs": []
+    },
+    {
+      "from": "openapi.yaml",
+      "to": "/pets/{petId}",
+      "refs": []
+    },
+    {
+      "from": "openapi.yaml",
+      "to": "/users",
+      "refs": []
+    },
+    {
+      "from": "schemas/Pet",
+      "to": "schemas/Address",
+      "refs": [
+        "#/components/schemas/Address"
+      ]
+    },
+    {
+      "from": "schemas/PetInput",
+      "to": "schemas/Pet",
+      "refs": [
+        "#/components/schemas/Pet"
+      ]
+    },
+    {
+      "from": "schemas/User",
+      "to": "schemas/Address",
+      "refs": [
+        "#/components/schemas/Address"
+      ]
+    }
+  ]
+}
+
