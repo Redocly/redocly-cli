@@ -106,6 +106,9 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case 'graphql':
+      // GraphQL SDL is never bundled/$ref-resolved.
+      return null;
   }
 }
 

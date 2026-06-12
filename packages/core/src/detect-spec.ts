@@ -12,6 +12,7 @@ export const specVersions = [
   'arazzo1',
   'overlay1',
   'openrpc1',
+  'graphql',
 ] as const;
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
@@ -27,6 +28,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'overlay1';
   } else if (version === 'openrpc1') {
     return 'openrpc1';
+  } else if (version === 'graphql') {
+    return 'graphql';
   } else {
     return 'oas3';
   }

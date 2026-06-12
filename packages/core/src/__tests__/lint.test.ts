@@ -557,6 +557,41 @@ describe('lint', () => {
     `);
   });
 
+  it('lintConfig should suggest the correct GraphQL node kind for a misspelled configurable rule subject.type', async () => {
+    const testConfigContent = outdent`
+        rules:
+          rule/graphql-type-casing:
+            subject:
+              type: ObjectTypeDefinitio
+              property: name
+            assertions:
+              casing: PascalCase
+      `;
+    const config = await createConfig(testConfigContent);
+    const results = await lintConfig({ config });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/rules/rule~1graphql-type-casing/subject/type",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`type\` "ObjectTypeDefinitio" is not a valid value. See the supported values: https://redocly.com/docs/cli/rules/configurable-rules#subject-object.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [
+            "ObjectTypeDefinition",
+          ],
+        },
+      ]
+    `);
+  });
+
   it("'plugins' shouldn't be allowed in 'apis'", async () => {
     const testConfigContent = outdent`
         apis:

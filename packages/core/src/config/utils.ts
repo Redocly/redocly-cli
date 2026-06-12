@@ -6,6 +6,7 @@ import type {
   Arazzo1RuleSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
+  GraphqlRuleSet,
 } from '../oas-types.js';
 import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -28,7 +29,8 @@ export function prefixRules<
     | Async2RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
-    | OpenRpc1RuleSet,
+    | OpenRpc1RuleSet
+    | GraphqlRuleSet,
 >(rules: T, prefix: string) {
   if (!prefix) return rules;
 
@@ -52,6 +54,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1Rules: {},
     overlay1Rules: {},
     openrpc1Rules: {},
+    graphqlRules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -102,6 +105,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Rules, rulesConf.rules);
     assignConfig(result.openrpc1Rules, rulesConf.openrpc1Rules);
     assignOnlyExistingConfig(result.openrpc1Rules, rulesConf.rules);
+    assignConfig(result.graphqlRules, rulesConf.graphqlRules);
+    assignOnlyExistingConfig(result.graphqlRules, rulesConf.rules);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);

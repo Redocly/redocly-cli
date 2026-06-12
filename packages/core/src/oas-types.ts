@@ -1,6 +1,8 @@
+import type { GraphqlRule } from './graphql/visitor.js';
 import { Arazzo1Types } from './types/arazzo.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
+import type { NodeType } from './types/index.js';
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
@@ -16,6 +18,7 @@ import type {
   BuiltInOverlay1RuleId,
   BuiltInCommonRuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInGraphqlRuleId,
   BuiltInOas2DecoratorId,
   BuiltInOas3DecoratorId,
 } from './types/redocly-yaml.js';
@@ -46,6 +49,7 @@ export const specVersions = [
   'arazzo1',
   'overlay1',
   'openrpc1',
+  'graphql',
 ] as const;
 export type SpecVersion = (typeof specVersions)[number];
 
@@ -56,7 +60,8 @@ export type SpecMajorVersion =
   | 'async3'
   | 'arazzo1'
   | 'overlay1'
-  | 'openrpc1';
+  | 'openrpc1'
+  | 'graphql';
 
 const typesMap = {
   oas2: Oas2Types,
@@ -112,6 +117,13 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
+// GraphQL has a separate engine: it reuses the common struct rule but not no-unresolved-refs/assertions.
+export type GraphqlRuleSet<T = undefined> = RuleMap<
+  BuiltInGraphqlRuleId | 'struct' | 'assertions',
+  GraphqlRule,
+  T
+>;
+
 export type Oas3DecoratorsSet<T = undefined> = Record<
   T extends 'built-in' ? BuiltInOas3DecoratorId : string,
   Oas3Decorator
@@ -126,6 +138,8 @@ export type Arazzo1DecoratorsSet = Record<string, Arazzo1Decorator>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
 export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
 
-export function getTypes(spec: SpecVersion) {
+export function getTypes(spec: SpecVersion): Record<string, NodeType> {
+  if (spec === 'graphql') return {}; // graphql is linted by a separate engine so it has no NodeType
+
   return typesMap[spec];
 }

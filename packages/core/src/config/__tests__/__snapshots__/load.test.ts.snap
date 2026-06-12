@@ -10,6 +10,7 @@ Config {
     "arazzo1": {},
     "async2": {},
     "async3": {},
+    "graphql": {},
     "oas2": {},
     "oas3_0": {},
     "oas3_1": {},
@@ -25,6 +26,7 @@ Config {
     "arazzo1": {},
     "async2": {},
     "async3": {},
+    "graphql": {},
     "oas2": {},
     "oas3_0": {},
     "oas3_1": {},
@@ -51,6 +53,7 @@ Config {
         "async3Preprocessors": {},
         "async3Rules": {},
         "decorators": {},
+        "graphqlRules": {},
         "oas2Decorators": {},
         "oas2Preprocessors": {},
         "oas2Rules": {},
@@ -143,6 +146,22 @@ Config {
       "operation-summary": "error",
     },
     "async3": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "graphql": {
       "assertions": [
         {
           "assertionId": "rule/test",
