@@ -752,6 +752,43 @@ describe('cleanArgs', () => {
     );
   });
 
+  it('should remove server values from parsed args and raw CLI input', () => {
+    const serverValue =
+      'cafe-api=https://example.com/api-endpoint,another-api=https://example.com/another-api';
+    const rawInput = [
+      'redocly',
+      'respect',
+      './fixtures/openapi.yaml',
+      '--server',
+      serverValue,
+      '-S',
+      serverValue,
+    ];
+    const parsedArgs = {
+      files: ['./fixtures/openapi.yaml'],
+      server: serverValue,
+      S: serverValue,
+      'max-steps': 100,
+      'max-fetch-timeout': 100,
+      'execution-timeout': 100,
+      'no-secrets-masking': false,
+    };
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly respect file-yaml --server *** -S ***');
+    expect(result.arguments).toEqual(
+      JSON.stringify({
+        files: ['file-yaml'],
+        server: '***',
+        S: '***',
+        'max-steps': 100,
+        'max-fetch-timeout': 100,
+        'execution-timeout': 100,
+        'no-secrets-masking': false,
+      })
+    );
+  });
+
   it('should preserve safe data from raw CLI input', () => {
     const rawInput = [
       'redocly',
