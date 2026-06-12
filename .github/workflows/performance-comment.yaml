@@ -1,8 +1,5 @@
 name: Performance Benchmark Comment
 
-# Posts the benchmark result on the PR. Runs via workflow_run so it has a write token even for
-# fork PRs, without granting one to the untrusted benchmark job.
-
 on:
   workflow_run:
     workflows: ['Performance Benchmark']

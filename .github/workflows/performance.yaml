@@ -54,8 +54,6 @@ jobs:
           cat benchmark_bundle.md benchmark_lint.md benchmark_check-config.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
-      # This job runs untrusted PR code, so it has no write token to comment. It uploads the
-      # result and performance-comment.yaml posts it (which also works for fork PRs).
       - name: Save PR number
         run: echo "${{ github.event.number }}" > tests/performance/pr-number.txt
 
