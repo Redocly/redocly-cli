@@ -47,7 +47,8 @@ To expand the linting checks for a GraphQL schema, enable the built-in GraphQL r
 Unlike the shared `struct` rule (configured under `rules`), GraphQL-specific built-in rules are configured under the `graphqlRules` section.
 The supported rules are:
 
-- `no-unused-types`: Every declared type must be referenced by another type, directive, or operation (or be a root operation type: `Query`, `Mutation`, or `Subscription`).
+- `no-unused-types`: Every declared type must be referenced by another type or directive, or serve as a root operation type.
+  Root types are the ones named in the `schema` definition or its extensions; when there is no `schema` definition, types named `Query`, `Mutation`, or `Subscription` are the roots.
   Types that are declared but never referenced are reported.
   If the document has no root operation type, this rule reports nothing.
 - `type-description`: Every type definition (object, interface, enum, input object, union, and scalar) must have a non-empty description.
