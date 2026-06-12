@@ -1,0 +1,24 @@
+[
+  {
+    "started_at": "2024-01-01T00:00:00Z",
+    "request": {
+      "method": "GET",
+      "url": "http://api.example.com/users",
+      "headers": { "host": "api.example.com" }
+    },
+    "response": { "status": 200, "headers": { "content-type": "application/json" }, "body": "[]" },
+    "route": { "id": "r1", "paths": ["/users"] },
+    "latencies": { "request": 1, "kong": 1, "proxy": 1 }
+  },
+  {
+    "started_at": "2024-01-01T00:00:01Z",
+    "request": {
+      "method": "GET",
+      "url": "http://api.example.com/unknown",
+      "headers": { "host": "api.example.com" }
+    },
+    "response": { "status": 404, "headers": { "content-type": "application/json" }, "body": "{}" },
+    "route": { "id": "r2", "paths": ["/unknown"] },
+    "latencies": { "request": 1, "kong": 1, "proxy": 1 }
+  }
+]

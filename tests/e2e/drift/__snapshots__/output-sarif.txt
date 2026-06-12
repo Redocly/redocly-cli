@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "<version>",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "drift",
+          "rules": [
+            {
+              "id": "undocumented-endpoint",
+              "name": "undocumented-endpoint",
+              "shortDescription": {
+                "text": "documentation detection"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "undocumented-endpoint",
+          "level": "error",
+          "message": {
+            "text": "Undocumented endpoint: GET /unknown"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://api.example.com/unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "runId": "<uuid>",
+            "exchangeIndex": 0,
+            "method": "GET",
+            "path": "/unknown",
+            "status": 404,
+            "target": "request"
+          }
+        },
+        {
+          "ruleId": "undocumented-endpoint",
+          "level": "error",
+          "message": {
+            "text": "Undocumented endpoint: DELETE /users/42"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://api.example.com/users/42"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "runId": "<uuid>",
+            "exchangeIndex": 1,
+            "method": "DELETE",
+            "path": "/users/42",
+            "status": 405,
+            "target": "request"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+None of the 2 validated exchange(s) matched a documented operation. Check that the traffic host and base path match the description servers (http://api.example.com), or use --server to declare the server the traffic was captured against.

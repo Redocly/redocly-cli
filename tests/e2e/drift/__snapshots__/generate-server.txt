@@ -1,0 +1,62 @@
+openapi: 3.1.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /login:
+    post:
+      operationId: post-login
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                required:
+                  - token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                remember:
+                  type: string
+              required:
+                - username
+                - password
+                - remember
+  /sessions:
+    get:
+      operationId: get-sessions
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    active:
+                      type: boolean
+                  required:
+                    - active
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+

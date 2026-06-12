@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /orgs/{orgId}/projects/{projectId}/builds:
+    get:
+      operationId: get-orgs-orgId-projects-projectId-builds
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: array
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+  /tickets/{ticketId}:
+    get:
+      operationId: get-tickets-ticketId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema:
+            type: string
+  /system-health:
+    get:
+      operationId: get-system-health
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required:
+                  - ok
+

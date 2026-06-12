@@ -1,0 +1,54 @@
+{
+  "run": {
+    "id": "<uuid>",
+    "specSource": "./tests/e2e/drift/fixtures/openapi.yaml",
+    "trafficPath": "./tests/e2e/drift/fixtures/traffic-undocumented.ndjson",
+    "format": "auto",
+    "matchMode": "strict-host",
+    "generatedSpec": false,
+    "totalExchanges": 2,
+    "documentedExchanges": 0,
+    "undocumentedExchanges": 2,
+    "skippedExchanges": 0,
+    "findingsBySeverity": {
+      "info": 0,
+      "warning": 0,
+      "error": 2
+    },
+    "findingsByRule": {
+      "undocumented-endpoint": 2
+    },
+    "totalProblems": 2,
+    "durationMs": <ms>
+  },
+  "problems": [
+    {
+      "occurrences": 1,
+      "exchangeIndex": 0,
+      "ruleId": "undocumented-endpoint",
+      "severity": "error",
+      "category": "documentation",
+      "message": "Undocumented endpoint: GET /unknown",
+      "target": "request",
+      "method": "GET",
+      "url": "http://api.example.com/unknown",
+      "path": "/unknown",
+      "status": 404
+    },
+    {
+      "occurrences": 1,
+      "exchangeIndex": 1,
+      "ruleId": "undocumented-endpoint",
+      "severity": "error",
+      "category": "documentation",
+      "message": "Undocumented endpoint: DELETE /users/42",
+      "target": "request",
+      "method": "DELETE",
+      "url": "http://api.example.com/users/42",
+      "path": "/users/42",
+      "status": 405
+    }
+  ]
+}
+
+None of the 2 validated exchange(s) matched a documented operation. Check that the traffic host and base path match the description servers (http://api.example.com), or use --server to declare the server the traffic was captured against.
