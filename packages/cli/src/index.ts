@@ -16,8 +16,6 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
-import { handleGraph } from './commands/graph/index.js';
-import type { GraphFormat } from './commands/graph/types.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -33,6 +31,8 @@ import type {
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
+import { handleTree } from './commands/tree/index.js';
+import type { TreeFormat } from './commands/tree/types.js';
 import { handlePushStatus } from './reunite/commands/push-status.js';
 import { handlePush } from './reunite/commands/push.js';
 import { outputExtensions } from './types.js';
@@ -77,11 +77,11 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'graph [apis...]',
-    'Show the $ref dependency graph of API description files.',
+    'tree [apis...]',
+    'Display the structure of an API description as a tree.',
     (yargs) =>
       yargs
-        .env('REDOCLY_CLI_GRAPH')
+        .env('REDOCLY_CLI_TREE')
         .positional('apis', { array: true, type: 'string' })
         .option({
           config: { description: 'Path to the config file.', type: 'string' },
@@ -92,8 +92,8 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'mermaid'] as ReadonlyArray<GraphFormat>,
-            default: 'stylish' as GraphFormat,
+            choices: ['stylish', 'json', 'mermaid'] as ReadonlyArray<TreeFormat>,
+            default: 'stylish' as TreeFormat,
           },
           'affected-by': {
             description: 'Show only the part of the graph affected by changes to the given files.',
@@ -103,7 +103,7 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      commandWrapper(handleGraph)(argv);
+      commandWrapper(handleTree)(argv);
     }
   )
   .command(

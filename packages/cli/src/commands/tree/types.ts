@@ -1,4 +1,4 @@
-export type GraphFormat = 'stylish' | 'json' | 'mermaid';
+export type TreeFormat = 'stylish' | 'json' | 'mermaid';
 
 export type GraphNode = {
   /** Path relative to cwd; http(s) refs keep the full URL. */
