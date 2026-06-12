@@ -38,7 +38,7 @@ const assertionMessageTemplates = {
   pointer: '{{pointer}}',
 } as const;
 
-export type PlaceholderKeys = keyof typeof assertionMessageTemplates;
+type PlaceholderKeys = keyof typeof assertionMessageTemplates;
 
 function getPredicatesFromLocators(
   locators: AssertionLocators
