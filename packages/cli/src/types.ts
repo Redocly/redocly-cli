@@ -5,7 +5,6 @@ import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { BundleArgv } from './commands/bundle.js';
 import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
-import type { GraphArgv } from './commands/graph/index.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
@@ -13,6 +12,7 @@ import type { RespectArgv } from './commands/respect/index.js';
 import type { SplitArgv } from './commands/split/types.js';
 import type { StatsArgv } from './commands/stats/index.js';
 import type { TranslationsArgv } from './commands/translations.js';
+import type { TreeArgv } from './commands/tree/index.js';
 import type { PushStatusArgv } from './reunite/commands/push-status.js';
 import type { PushArgv } from './reunite/commands/push.js';
 
@@ -30,7 +30,7 @@ export const outputExtensions = ['json', 'yaml', 'yml'] as const;
 export type OutputExtension = (typeof outputExtensions)[number];
 export type CommandArgv =
   | StatsArgv
-  | GraphArgv
+  | TreeArgv
   | SplitArgv
   | JoinArgv
   | LintArgv

@@ -20,16 +20,16 @@ import { filterAffected } from './filter-affected.js';
 import { renderJson } from './print/json.js';
 import { renderMermaid } from './print/mermaid.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
-import type { GraphFormat } from './types.js';
+import type { TreeFormat } from './types.js';
 
-export type GraphArgv = {
+export type TreeArgv = {
   apis?: string[];
-  format: GraphFormat;
+  format: TreeFormat;
   'affected-by'?: string[];
 } & VerifyConfigOptions;
 
-/** Resolves the given API descriptions and prints their file-level $ref dependency graph. */
-export async function handleGraph({ argv, config, collectSpecData }: CommandArgs<GraphArgv>) {
+/** Resolves the given API descriptions and prints their file-level $ref dependency tree. */
+export async function handleTree({ argv, config, collectSpecData }: CommandArgs<TreeArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const cwd = process.cwd();

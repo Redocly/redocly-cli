@@ -6,49 +6,49 @@ import { getCommandOutput, getParams, cleanupOutput } from '../helpers.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 
-describe('graph', () => {
+describe('tree', () => {
   const folderPath = __dirname;
-  const fixturePath = join(folderPath, 'graph-multi-file');
+  const fixturePath = join(folderPath, 'tree-multi-file');
 
-  test('graph should print a stylish tree', async () => {
-    const args = getParams(indexEntryPoint, ['graph', 'openapi.yaml']);
+  test('tree should print a stylish tree', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml']);
     const result = getCommandOutput(args, { testPath: fixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      join(folderPath, 'graph-stylish', 'snapshot.txt')
+      join(folderPath, 'tree-files-stylish', 'snapshot.txt')
     );
   });
 
-  test('graph should print pure JSON', async () => {
-    const args = getParams(indexEntryPoint, ['graph', 'openapi.yaml', '--format=json']);
+  test('tree should print pure JSON', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json']);
     const result = getCommandOutput(args, { testPath: fixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      join(folderPath, 'graph-json', 'snapshot.txt')
+      join(folderPath, 'tree-files-json', 'snapshot.txt')
     );
   });
 
-  test('graph should print only the affected subgraph', async () => {
+  test('tree should print only the affected subgraph', async () => {
     const args = getParams(indexEntryPoint, [
-      'graph',
+      'tree',
       'openapi.yaml',
       '--affected-by',
       'components/schemas/Address.yaml',
     ]);
     const result = getCommandOutput(args, { testPath: fixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      join(folderPath, 'graph-affected-by', 'snapshot.txt')
+      join(folderPath, 'tree-files-affected-by', 'snapshot.txt')
     );
   });
 
-  test('graph should warn when the affected-by file is not in the graph', async () => {
+  test('tree should warn when the affected-by file is not in the graph', async () => {
     const args = getParams(indexEntryPoint, [
-      'graph',
+      'tree',
       'openapi.yaml',
       '--affected-by',
       'components/schemas/Unknown.yaml',
     ]);
     const result = getCommandOutput(args, { testPath: fixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      join(folderPath, 'graph-affected-by-unknown', 'snapshot.txt')
+      join(folderPath, 'tree-files-affected-by-unknown', 'snapshot.txt')
     );
   });
 });
