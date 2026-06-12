@@ -70,7 +70,12 @@ export async function handleTree({ argv, config, collectSpecData }: CommandArgs<
     }
     const knownChanged = changedIds.filter((id) => knownIds.has(id));
     printedGraph = filterAffected(graph, knownChanged);
-    stylishOptions = { changed: knownChanged, totalNodeCount: graph.nodes.length };
+    stylishOptions = {
+      changed: knownChanged,
+      summary: `${printedGraph.nodes.length} of ${graph.nodes.length} files affected · affected roots: ${
+        printedGraph.roots.join(', ') || 'none'
+      }`,
+    };
   }
 
   switch (argv.format) {
