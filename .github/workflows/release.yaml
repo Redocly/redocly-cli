@@ -214,8 +214,8 @@ jobs:
 
           # Update CLI package version and dependencies
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
-          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
-          jq ".dependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".devDependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".devDependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
           # Add comment with installation instructions
           COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.
@@ -251,4 +251,6 @@ jobs:
           sleep 10
 
           cd ../cli
-          npm publish --tag snapshot
+          npm run prepare:publish-dir
+          npm publish ./.publish --tag snapshot
+          npm run clean:publish-dir

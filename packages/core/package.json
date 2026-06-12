@@ -6,14 +6,14 @@
   "types": "lib/index.d.ts",
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
-      "require": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "require": "./lib/index.js"
     },
     "./lib/bundle-oas": {
+      "types": "./lib/bundle/bundle-oas.d.ts",
       "import": "./lib/bundle/bundle-oas.js",
-      "require": "./lib/bundle/bundle-oas.js",
-      "types": "./lib/bundle/bundle-oas.d.ts"
+      "require": "./lib/bundle/bundle-oas.js"
     }
   },
   "engines": {
