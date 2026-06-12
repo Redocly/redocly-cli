@@ -224,6 +224,159 @@ describe('GraphQL no-unused-types', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('still infers default roots when a schema extension only adds directives', async () => {
+    const results = await lintFromString({
+      source: outdent`
+        extend schema @link(url: "https://specs.example.com/v1")
+
+        type Query {
+          me: User
+        }
+
+        type User {
+          id: ID
+        }
+
+        type Orphan {
+          x: Int
+        }
+      `,
+      absoluteRef: 'schema.graphql',
+      config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "end": {
+                "col": 12,
+                "line": 11,
+              },
+              "pointer": undefined,
+              "source": "schema.graphql",
+              "start": {
+                "col": 6,
+                "line": 11,
+              },
+            },
+          ],
+          "message": "Type \`Orphan\` is declared but never used.",
+          "ruleId": "no-unused-types",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('combines roots from a schema extension with inferred default roots', async () => {
+    const results = await lintFromString({
+      source: outdent`
+        extend schema {
+          mutation: Mutation
+        }
+
+        type Query {
+          ping: String
+        }
+
+        type Mutation {
+          noop: Boolean
+        }
+
+        type Orphan {
+          x: Int
+        }
+      `,
+      absoluteRef: 'schema.graphql',
+      config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
+    });
+
+    // No schema *definition*, so `Query` is still a default root; the extension adds `Mutation`.
+    // `Orphan` proves the rule is active and not short-circuiting on empty roots.
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "end": {
+                "col": 12,
+                "line": 13,
+              },
+              "pointer": undefined,
+              "source": "schema.graphql",
+              "start": {
+                "col": 6,
+                "line": 13,
+              },
+            },
+          ],
+          "message": "Type \`Orphan\` is declared but never used.",
+          "ruleId": "no-unused-types",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('lets a schema definition opt out of default roots while an extension adds more', async () => {
+    const results = await lintFromString({
+      source: outdent`
+        schema {
+          query: RootQuery
+        }
+
+        extend schema {
+          mutation: RootMutation
+        }
+
+        type RootQuery {
+          ping: String
+        }
+
+        type RootMutation {
+          noop: Boolean
+        }
+
+        type Query {
+          unused: String
+        }
+      `,
+      absoluteRef: 'schema.graphql',
+      config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
+    });
+
+    // The definition disables default root names, so `Query` is an ordinary unused type,
+    // while the extension's `RootMutation` still counts as a root.
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "end": {
+                "col": 11,
+                "line": 17,
+              },
+              "pointer": undefined,
+              "source": "schema.graphql",
+              "start": {
+                "col": 6,
+                "line": 17,
+              },
+            },
+          ],
+          "message": "Type \`Query\` is declared but never used.",
+          "ruleId": "no-unused-types",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('reports nothing when the document has no root operation type', async () => {
     const results = await lintFromString({
       source: outdent`
