@@ -5,6 +5,7 @@ import type {
   NameNode,
   ObjectTypeDefinitionNode,
   SchemaDefinitionNode,
+  SchemaExtensionNode,
   TypeNode,
   UnionTypeDefinitionNode,
 } from 'graphql';
@@ -26,7 +27,7 @@ export const NoUnusedTypes: GraphqlRule = () => {
   const declarations = new Map<string, NameNode>();
   const used = new Set<string>();
   const roots = new Set<string>();
-  let hasExplicitSchema = false;
+  let hasSchemaDefinition = false;
 
   const markUsed = (type: TypeNode) => used.add(namedTypeName(type));
 
@@ -57,16 +58,19 @@ export const NoUnusedTypes: GraphqlRule = () => {
     }
   };
 
-  const collectSchema = (node: SchemaDefinitionNode) => {
-    hasExplicitSchema = true;
+  const collectSchemaRoots = (node: SchemaDefinitionNode | SchemaExtensionNode) => {
     for (const operation of node.operationTypes ?? []) {
       roots.add(operation.type.name.value);
     }
   };
 
   return {
-    SchemaDefinition: collectSchema,
-    SchemaExtension: collectSchema,
+    SchemaDefinition: (node: SchemaDefinitionNode) => {
+      // Extensions (e.g. `extend schema @link(...)`) add roots but never opt out of default names.
+      hasSchemaDefinition = true;
+      collectSchemaRoots(node);
+    },
+    SchemaExtension: collectSchemaRoots,
     DirectiveDefinition: (node: DirectiveDefinitionNode) => {
       for (const arg of node.arguments ?? []) {
         markUsed(arg.type);
@@ -98,7 +102,7 @@ export const NoUnusedTypes: GraphqlRule = () => {
 
     Document: {
       leave: (_node, ctx) => {
-        if (!hasExplicitSchema) {
+        if (!hasSchemaDefinition) {
           for (const name of DEFAULT_ROOT_TYPES) {
             if (declarations.has(name)) roots.add(name);
           }
