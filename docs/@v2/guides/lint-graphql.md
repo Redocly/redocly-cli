@@ -48,8 +48,8 @@ Unlike the shared `struct` rule (configured under `rules`), GraphQL-specific bui
 The supported rules are:
 
 - `no-unused-types`: Every declared type must be referenced by another type, directive, or operation (or be a root operation type: `Query`, `Mutation`, or `Subscription`).
-    Types that are declared but never referenced are reported.
-    If the document has no root operation type, this rule reports nothing.
+  Types that are declared but never referenced are reported.
+  If the document has no root operation type, this rule reports nothing.
 - `type-description`: Every type definition (object, interface, enum, input object, union, and scalar) must have a non-empty description.
 
 We expect the list to expand over time, so keep checking back - and let us know if you have any requests by [opening an issue on the GitHub repo](https://github.com/Redocly/redocly-cli/issues).
