@@ -96,10 +96,16 @@ yargs(hideBin(process.argv))
             default: 'stylish' as TreeFormat,
           },
           'affected-by': {
-            description: 'Show only the part of the graph affected by changes to the given files.',
+            description:
+              'Show only the part of the tree affected by changes to the given components, paths, or files.',
             array: true,
             type: 'string',
             requiresArg: true,
+          },
+          files: {
+            description: 'Show the file-level $ref graph instead of the document structure.',
+            type: 'boolean',
+            default: false,
           },
         }),
     (argv) => {
