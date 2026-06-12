@@ -1,8 +1,11 @@
 import { build } from 'esbuild';
+import { rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
 await build({
   absWorkingDir: packageDir,
