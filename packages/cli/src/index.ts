@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import './utils/assert-node-version.js';
 
-import { logger, type OutputFormat, type RuleSeverity } from '@redocly/openapi-core';
+import {
+  logger,
+  type OutputFormat,
+  type RuleSeverity,
+  type ComponentNamesStrategy,
+} from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
@@ -492,10 +497,11 @@ yargs(hideBin(process.argv))
               'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           },
-          'use-titles-for-component-names': {
-            description: "Build Schema component names from each schema's `title` field.",
-            type: 'boolean',
-            default: false,
+          'component-names-strategy': {
+            description:
+              "How to name inlined Schema components: 'basename' (default) or 'title' (from each schema's `title`).",
+            choices: ['basename', 'title'] as ReadonlyArray<ComponentNamesStrategy>,
+            default: 'basename' as ComponentNamesStrategy,
           },
         })
         .check((argv) => {

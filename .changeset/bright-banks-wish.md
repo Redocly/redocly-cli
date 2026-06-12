@@ -3,4 +3,4 @@
 '@redocly/cli': minor
 ---
 
-Added the `--use-titles-for-component-names` flag to the `bundle` command to build Schema component names from each schema's `title` field.
+Added the `--component-names-strategy` option to the `bundle` command to choose how inlined Schema components are named: `basename` (default) or `title` (from each schema's `title` field).

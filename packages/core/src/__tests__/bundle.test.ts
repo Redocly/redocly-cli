@@ -849,52 +849,51 @@ describe('sibling $ref resolution by spec', () => {
   });
 });
 
-describe('bundle with --use-titles-for-component-names', () => {
+describe('bundle with --component-names-strategy title', () => {
   it('should build Schema component names from title when flag is on', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/title-naming/openapi.yaml'),
-      useTitlesForComponentNames: true,
+      componentNamesStrategy: 'title',
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('reports a separate error for a missing title and for an unusable title', async () => {
+  it('reports an error when a schema has no `title`', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/refs/title-naming-bad-title/openapi.yaml'),
-      useTitlesForComponentNames: true,
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-missing-title/openapi.yaml'),
+      componentNamesStrategy: 'title',
     });
     expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
       - ruleId: bundler
         severity: error
-        message: Schema must define a \`title\` to build a component name.
+        message: Schema must define a \`title\` when using \`--component-names-strategy title\`.
         location:
-          - source: fixtures/refs/title-naming-bad-title/schemas/NoTitle.yaml
+          - source: fixtures/refs/title-naming-missing-title/schemas/NoTitle.yaml
             pointer: '#/'
-            reportOnKey: false
-        forceSeverity: error
-        suggest: []
-      - ruleId: bundler
-        severity: error
-        message: >-
-          Title "User & Group" can't be turned into a component name. Use only
-          letters, digits, \`.\`, \`-\`, \`_\`, and spaces.
-        location:
-          - source: fixtures/refs/title-naming-bad-title/schemas/BadTitle.yaml
-            pointer: '#/title'
             reportOnKey: false
         forceSeverity: error
         suggest: []
     `);
   });
 
+  it('sanitizes unsupported characters in a title into the component name', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-unsupported-title/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
   it('reports a title collision once and points `from` at the first schema, even when referenced repeatedly', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/title-naming-collision/openapi.yaml'),
-      useTitlesForComponentNames: true,
+      componentNamesStrategy: 'title',
     });
     expect(problems).toHaveLength(1);
     expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
@@ -919,7 +918,7 @@ describe('bundle with --use-titles-for-component-names', () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
-      useTitlesForComponentNames: true,
+      componentNamesStrategy: 'title',
     });
     expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
       - ruleId: bundler

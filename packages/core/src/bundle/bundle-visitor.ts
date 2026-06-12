@@ -1,5 +1,5 @@
 import { type RuleSeverity } from '../config/types.js';
-import { COMPONENT_NAME_PATTERN, type SpecMajorVersion } from '../oas-types.js';
+import { COMPONENT_NAME_CHARS, type SpecMajorVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
   replaceRef,
@@ -20,6 +20,7 @@ import { makeRefId } from '../utils/make-ref-id.js';
 import { toPascalCase } from '../utils/to-pascal-case.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult, type Problem } from '../walk.js';
+import { type ComponentNamesStrategy } from './bundle-document.js';
 
 type ComponentTarget = { node: unknown; location: Location };
 type ComponentsGroup = Record<string, unknown>;
@@ -122,7 +123,7 @@ export function makeBundleVisitor({
   resolvedRefMap,
   keepUrlRefs,
   componentRenamingConflicts = 'warn',
-  useTitlesForComponentNames = false,
+  componentNamesStrategy = 'basename',
 }: {
   version: SpecMajorVersion;
   dereference: boolean;
@@ -130,7 +131,7 @@ export function makeBundleVisitor({
   resolvedRefMap: ResolvedRefMap;
   keepUrlRefs: boolean;
   componentRenamingConflicts?: RuleSeverity;
-  useTitlesForComponentNames?: boolean;
+  componentNamesStrategy?: ComponentNamesStrategy;
 }) {
   let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
@@ -301,31 +302,20 @@ export function makeBundleVisitor({
   ): { key: string; problem?: Problem } {
     const { node } = target;
     const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
-    const key = toPascalCase(title);
+    const key = toPascalCase(title).replace(new RegExp(`[^${COMPONENT_NAME_CHARS}]`, 'g'), '-');
     const titleLocation = target.location.child('title');
 
     if (title === '') {
       return {
         key,
         problem: {
-          message: 'Schema must define a `title` to build a component name.',
+          message: 'Schema must define a `title` when using `--component-names-strategy title`.',
           location: target.location,
           forceSeverity: 'error',
         },
       };
     }
-    if (!new RegExp(COMPONENT_NAME_PATTERN).test(key)) {
-      return {
-        key,
-        problem: {
-          message:
-            `Title "${title}" can't be turned into a component name. ` +
-            `Use only letters, digits, \`.\`, \`-\`, \`_\`, and spaces.`,
-          location: titleLocation,
-          forceSeverity: 'error',
-        },
-      };
-    }
+
     if (componentsGroup[key] && !isEqualOrEqualRef(componentsGroup[key], target, ctx)) {
       return {
         key,
@@ -363,7 +353,7 @@ export function makeBundleVisitor({
   function getComponentName(target: ComponentTarget, componentType: string, ctx: UserContext) {
     const componentsGroup = components[componentType];
 
-    if (useTitlesForComponentNames && componentType === schemaComponentType) {
+    if (componentNamesStrategy === 'title' && componentType === schemaComponentType) {
       const { key, problem } = componentNameFromTitle(target, componentsGroup, ctx);
       if (!problem) {
         firstSchemaLocationByName.set(key, target.location.child('title'));

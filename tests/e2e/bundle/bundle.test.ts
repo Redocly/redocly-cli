@@ -202,14 +202,15 @@ describe('bundle with long description', () => {
   });
 });
 
-describe('bundle with option: use-titles-for-component-names', () => {
+describe('bundle with option: component-names-strategy title', () => {
   test('fails when two schemas share a title-based name', async () => {
     const testPath = join(__dirname, 'bundle-use-titles-for-component-names-collision');
     const entryPoints = getEntrypoints(testPath);
     const args = [
       indexEntryPoint,
       'bundle',
-      '--use-titles-for-component-names',
+      '--component-names-strategy',
+      'title',
       '--component-renaming-conflicts-severity',
       'error',
       ...entryPoints,
@@ -224,7 +225,8 @@ describe('bundle with option: use-titles-for-component-names', () => {
     const args = [
       indexEntryPoint,
       'bundle',
-      '--use-titles-for-component-names',
+      '--component-names-strategy',
+      'title',
       '--component-renaming-conflicts-severity',
       'off',
       ...entryPoints,

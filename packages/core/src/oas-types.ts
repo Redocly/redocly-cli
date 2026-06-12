@@ -50,7 +50,7 @@ export const specVersions = [
 export type SpecVersion = (typeof specVersions)[number];
 
 /** Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs. */
-export const COMPONENT_NAME_PATTERN = '^[a-zA-Z0-9\\.\\-_]+$';
+export const COMPONENT_NAME_CHARS = 'a-zA-Z0-9\\.\\-_';
 
 export type SpecMajorVersion =
   | 'oas2'

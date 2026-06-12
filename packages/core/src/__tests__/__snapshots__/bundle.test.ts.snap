@@ -443,7 +443,33 @@ components:
 
 `;
 
-exports[`bundle with --use-titles-for-component-names > should build Schema component names from title when flag is on 1`] = `
+exports[`bundle with --component-names-strategy title > sanitizes unsupported characters in a title into the component name 1`] = `
+openapi: 3.1.0
+info:
+  title: title-naming unsupported-title fixture
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Foo-Bar'
+components:
+  schemas:
+    Foo-Bar:
+      type: object
+      title: Foo & Bar
+      properties:
+        foo:
+          type: string
+
+`;
+
+exports[`bundle with --component-names-strategy title > should build Schema component names from title when flag is on 1`] = `
 openapi: 3.1.0
 info:
   title: title-naming fixture

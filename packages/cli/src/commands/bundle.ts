@@ -6,6 +6,7 @@ import {
   type Oas2Definition,
   type Oas3Definition,
   type RuleSeverity,
+  type ComponentNamesStrategy,
   type Async2Definition,
   type Async3Definition,
 } from '@redocly/openapi-core';
@@ -39,7 +40,7 @@ export type BundleArgv = {
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
   'component-renaming-conflicts-severity'?: RuleSeverity;
-  'use-titles-for-component-names'?: boolean;
+  'component-names-strategy'?: ComponentNamesStrategy;
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
 } & VerifyConfigOptions;
@@ -79,7 +80,7 @@ export async function handleBundle({
         removeUnusedComponents: argv['remove-unused-components'],
         keepUrlRefs: argv['keep-url-references'],
         componentRenamingConflicts: argv['component-renaming-conflicts-severity'],
-        useTitlesForComponentNames: argv['use-titles-for-component-names'],
+        componentNamesStrategy: argv['component-names-strategy'],
         collectSpecData,
       });
 
