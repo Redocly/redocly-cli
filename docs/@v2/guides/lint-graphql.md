@@ -13,9 +13,9 @@ This is an experimental feature. Its behavior may change in future releases.
 In addition to providing lint functionality for multiple OpenAPI formats, Redocly CLI also supports GraphQL.
 Redocly CLI supports the following linting approaches with GraphQL documents:
 
-- GraphQL SDL syntax and schema validation.
-- Built-in rules for checking common standards requirements (see the [list of GraphQL rules](#graphql-rules)).
-- [Configurable rules](../rules/configurable-rules.md) so that you can build your own rules following common patterns.
+- GraphQL SDL syntax and schema validation
+- built-in rules for checking common standards requirements (see the [list of GraphQL rules](#graphql-rules))
+- [configurable rules](../rules/configurable-rules.md) for building rules following common patterns
 
 ## Lint an existing GraphQL file
 
