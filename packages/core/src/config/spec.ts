@@ -292,6 +292,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-no-required-params-after-optional': 'error',
   },
   graphqlRules: {
+    'no-unused-types': 'off',
     'type-description': 'off',
   },
 };

@@ -185,6 +185,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
+              "no-unused-types": "off",
               "type-description": "off",
             },
             "name": "Baseline",
@@ -512,6 +513,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
+              "no-unused-types": "warn",
               "type-description": "off",
             },
             "name": "Silver",
@@ -844,6 +846,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
+              "no-unused-types": "off",
               "type-description": "off",
             },
             "name": "Gold",
@@ -1260,6 +1263,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
+              "no-unused-types": "off",
               "type-description": "off",
             },
             "name": "Baseline",
@@ -1587,6 +1591,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
+              "no-unused-types": "warn",
               "type-description": "off",
             },
             "name": "Silver",
@@ -1919,6 +1924,7 @@ describe('loadConfig', () => {
             },
             "decorators": {},
             "graphqlRules": {
+              "no-unused-types": "off",
               "type-description": "off",
             },
             "name": "Gold",
