@@ -11,7 +11,7 @@ describe('tree', () => {
   const fixturePath = join(folderPath, 'tree-multi-file');
 
   test('tree should print a stylish tree', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml']);
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--files']);
     const result = getCommandOutput(args, { testPath: fixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       join(folderPath, 'tree-files-stylish', 'snapshot.txt')
@@ -19,7 +19,7 @@ describe('tree', () => {
   });
 
   test('tree should print pure JSON', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json']);
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--files', '--format=json']);
     const result = getCommandOutput(args, { testPath: fixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       join(folderPath, 'tree-files-json', 'snapshot.txt')
@@ -30,6 +30,7 @@ describe('tree', () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
+      '--files',
       '--affected-by',
       'components/schemas/Address.yaml',
     ]);
@@ -43,6 +44,7 @@ describe('tree', () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
+      '--files',
       '--affected-by',
       'components/schemas/Unknown.yaml',
     ]);
