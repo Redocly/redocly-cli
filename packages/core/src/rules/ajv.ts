@@ -7,10 +7,9 @@ import Ajv2020, {
 import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
 import addFormats from 'ajv-formats';
 
-import type { SpecVersion } from '../oas-types.js';
 import { escapePointerFragment, type Location } from '../ref-utils.js';
 import type { Oas3Schema, Oas3_1Schema } from '../typings/openapi.js';
-import type { ResolveFn } from '../walk.js';
+import type { ResolveFn, UserContext } from '../walk.js';
 
 type AjvDialect = '2020' | 'draft4';
 
@@ -18,7 +17,7 @@ function getSchemaIdKey(dialect: AjvDialect) {
   return dialect === 'draft4' ? 'id' : '$id';
 }
 
-function getDialectBySpecVersion(specVersion: SpecVersion): AjvDialect {
+function getDialectBySpecVersion(specVersion: UserContext['specVersion']): AjvDialect {
   if (specVersion === 'oas2' || specVersion === 'oas3_0') return 'draft4';
   return '2020';
 }
@@ -35,7 +34,7 @@ export class AjvValidator {
       resolve: ResolveFn;
       allowAdditionalProperties: boolean;
       ajvContext?: AjvContext;
-      specVersion: SpecVersion;
+      specVersion: UserContext['specVersion'];
     }
   ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
     const { schemaLoc, instancePath, resolve, allowAdditionalProperties, ajvContext, specVersion } =

@@ -1,7 +1,6 @@
 import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import { default as levenshtein } from 'js-levenshtein';
 
-import { type SpecVersion } from '../oas-types.js';
 import { isRef, Location } from '../ref-utils.js';
 import type {
   Oas3Schema,
@@ -193,7 +192,7 @@ export function validateExample({
       resolve,
       allowAdditionalProperties,
       ajvContext,
-      specVersion: specVersion as SpecVersion,
+      specVersion,
     });
     if (!valid) {
       for (const error of errors) {
