@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.32.2 (2026-06-11)
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.32.2.
+
+## 2.32.1 (2026-06-11)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
 ## 2.32.0 (2026-06-08)
 
 ### Minor Changes
