@@ -33,7 +33,7 @@ function pointsToSecurityScheme(pointer: string): boolean {
 
 export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
-  let rootServers: Record<string, Async3Server> | undefined;
+  let rootServers: Record<string, Referenced<Async3Server>> | undefined;
   let rootOperations: Record<string, Referenced<Async3Operation>> | undefined;
   let rootLocation: Location | undefined;
 

@@ -2,7 +2,7 @@ import type { Referenced } from './openapi.js';
 
 export interface Async3Definition {
   asyncapi: string;
-  servers?: Record<string, Async3Server>;
+  servers?: Record<string, Referenced<Async3Server>>;
   info: Async3Info;
   channels?: Record<string, Async3Channel>;
   components?: Async3Components;
@@ -57,7 +57,7 @@ export interface Async3Components {
   operationBindings?: Record<string, unknown>;
   messageBindings?: Record<string, unknown>;
   channels?: Record<string, Async3Channel>;
-  servers?: Record<string, Async3Server>;
+  servers?: Record<string, Referenced<Async3Server>>;
 }
 
 export interface Async3SecurityScheme {
@@ -90,7 +90,7 @@ export interface Async3Channel {
   description?: string;
   servers?: Array<Referenced<Async3Server>>;
   parameters?: Record<string, unknown>;
-  tags?: Record<string, unknown>;
+  tags?: Tag[];
   externalDocs?: ExternalDocumentation;
   bindings?: Record<string, unknown>;
 }
@@ -104,8 +104,8 @@ export interface Async3OperationTrait {
   title?: string;
   summary?: string;
   description?: string;
-  tags?: unknown[];
-  externalDocs?: unknown;
+  tags?: Tag[];
+  externalDocs?: ExternalDoc;
   bindings?: unknown;
   security?: Array<Referenced<Async3SecurityScheme>>;
 }
@@ -116,8 +116,8 @@ export interface Async3Operation {
   title?: string;
   summary?: string;
   description?: string;
-  tags?: unknown[];
-  externalDocs?: unknown;
+  tags?: Tag[];
+  externalDocs?: ExternalDoc;
   operationId?: string;
   security?: Array<Referenced<Async3SecurityScheme>>;
   bindings?: unknown;
