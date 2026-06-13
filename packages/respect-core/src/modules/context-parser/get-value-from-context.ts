@@ -126,26 +126,43 @@ const resolveValue = (
     return path.slice(7, -2);
   }
 
+  // $sourceDescriptions.<name>.<workflowId>
   // $sourceDescriptions.<name>.workflows.<workflowId>
-  if (path.startsWith('$sourceDescriptions.') && path.includes('.workflows.')) {
+  if (path.startsWith('$sourceDescriptions.')) {
     const parts = path.split('.');
 
     const sourceDescriptionName = parts[1];
-    const workflowId = parts[3];
+    const isLegacyForm = parts.length === 4 && parts[2] === 'workflows';
 
-    if (!sourceDescriptionName || !workflowId) {
-      return undefined;
+    if (isLegacyForm) {
+      const workflowId = parts[3];
+
+      if (!sourceDescriptionName || !workflowId) {
+        return undefined;
+      }
+
+      const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
+
+      if (!sourceDescriptions?.[sourceDescriptionName]) {
+        return undefined;
+      }
+
+      return sourceDescriptions[sourceDescriptionName].workflows.find(
+        (workflow: Workflow) => workflow.workflowId === workflowId
+      );
     }
+    const workflowId = parts.length === 3 ? parts[2] : undefined;
 
-    const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
+    if (sourceDescriptionName && workflowId) {
+      const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
+      const workflow = sourceDescriptions?.[sourceDescriptionName]?.workflows?.find(
+        (workflow: Workflow) => workflow.workflowId === workflowId
+      );
 
-    if (!sourceDescriptions[sourceDescriptionName]) {
-      return undefined;
+      if (workflow) {
+        return workflow;
+      }
     }
-
-    return sourceDescriptions[sourceDescriptionName].workflows.find(
-      (workflow: Workflow) => workflow.workflowId === workflowId
-    );
   }
 
   if (path && path.trim().startsWith('faker.')) {
