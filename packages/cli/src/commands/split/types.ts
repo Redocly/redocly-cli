@@ -45,6 +45,9 @@ export type AsyncApi3SplittableComponent = (typeof ASYNCAPI3_SPLITTABLE_COMPONEN
 
 export type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 export type AnyAsyncApiDefinition = Async2Definition | Async3Definition;
+export type AnyAsyncApiComponents = Partial<
+  Record<AsyncApi2SplittableComponent | AsyncApi3SplittableComponent, Record<string, unknown>>
+>;
 export type AnyDefinition = AnyOas3Definition | AnyAsyncApiDefinition;
 
 export type SplitArgv = {

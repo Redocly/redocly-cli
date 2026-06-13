@@ -16,9 +16,23 @@ import type {
   Step,
   Workflow,
 } from './typings/arazzo.js';
-import type { Async2Definition } from './typings/asyncapi.js';
-import type { Async3Definition } from './typings/asyncapi3.js';
 import type {
+  Async2Channel,
+  Async2Definition,
+  Async2Operation,
+  Async2SecurityRequirement,
+  Async2SecurityScheme,
+  Async2Server,
+} from './typings/asyncapi.js';
+import type {
+  Async3Channel,
+  Async3Definition,
+  Async3Operation,
+  Async3SecurityScheme,
+  Async3Server,
+} from './typings/asyncapi3.js';
+import type {
+  Referenced,
   Oas3Definition,
   Oas3_1Definition,
   Oas3_2Definition,
@@ -260,11 +274,23 @@ type Oas2FlatVisitor = {
 type Async2FlatVisitor = {
   Root?: VisitFunctionOrObject<Async2Definition>;
   Schema?: VisitFunctionOrObject<Oas3_1Schema>;
+  Channel?: VisitFunctionOrObject<Async2Channel>;
+  Operation?: VisitFunctionOrObject<Async2Operation>;
+  Server?: VisitFunctionOrObject<Async2Server>;
+  SecurityRequirement?: VisitFunctionOrObject<Async2SecurityRequirement>;
+  SecurityScheme?: VisitFunctionOrObject<Async2SecurityScheme>;
+  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Async2SecurityScheme>>;
 };
 
 type Async3FlatVisitor = {
   Root?: VisitFunctionOrObject<Async3Definition>;
   Schema?: VisitFunctionOrObject<Oas3_1Schema>;
+  Channel?: VisitFunctionOrObject<Async3Channel>;
+  Operation?: VisitFunctionOrObject<Async3Operation>;
+  Server?: VisitFunctionOrObject<Async3Server>;
+  SecurityScheme?: VisitFunctionOrObject<Async3SecurityScheme>;
+  SecuritySchemeList?: VisitFunctionOrObject<Array<Referenced<Async3SecurityScheme>>>;
+  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Async3SecurityScheme>>;
 };
 
 type ArazzoFlatVisitor = {

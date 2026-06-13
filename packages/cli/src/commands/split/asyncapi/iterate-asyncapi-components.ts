@@ -6,11 +6,12 @@ import * as path from 'node:path';
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { COMPONENTS } from '../constants.js';
 import {
-  type ChannelsFiles,
-  type ComponentsFiles,
+  type AnyAsyncApiComponents,
   type AnyAsyncApiDefinition,
   type AsyncApi2SplittableComponent,
   type AsyncApi3SplittableComponent,
+  type ChannelsFiles,
+  type ComponentsFiles,
 } from '../types.js';
 import { createComponentDir } from '../utils/create-component-dir.js';
 import { doesFileDiffer } from '../utils/does-file-differ.js';
@@ -35,7 +36,7 @@ export function iterateAsyncApiComponents({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const { components } = asyncapi;
+  const components: AnyAsyncApiComponents | undefined = asyncapi.components;
   if (components) {
     const componentsDir = path.join(asyncapiDir, COMPONENTS);
     fs.mkdirSync(componentsDir, { recursive: true });
@@ -63,7 +64,7 @@ export function iterateAsyncApiComponents({
           writeToFileByExtension(componentData, filename);
         }
 
-        delete asyncapi.components?.[componentType]?.[componentName];
+        delete components?.[componentType]?.[componentName];
       }
       removeAsyncApiEmptyComponents(asyncapi, componentType);
     }
