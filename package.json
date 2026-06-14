@@ -65,7 +65,7 @@
     "oxlint": "^1.48.0",
     "pegjs": "0.11.0-master.b7b87ea",
     "slackify-markdown": "^4.3.1",
-    "tsx": "^4.19.3",
+    "tsx": "^4.22.4",
     "typescript": "6.0.2",
     "vitest": "^4.1.8"
   },
