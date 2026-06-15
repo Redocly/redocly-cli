@@ -3,7 +3,9 @@ import type { DependencyGraph } from '../types.js';
 /** Renders the dependency graph as a Mermaid flowchart definition. */
 export function renderMermaid(graph: DependencyGraph): string {
   const mermaidIds = new Map(graph.nodes.map((node, index) => [node.id, `n${index}`]));
-  const escapeLabel = (label: string) => label.replace(/"/g, '#quot;');
+  // Escape `#` first: it starts Mermaid HTML-entity codes (e.g. `#quot;`), so a literal `#`
+  // in an id (foreign-component ids look like `file.yaml#/components/...`) must become `#35;`.
+  const escapeLabel = (label: string) => label.replace(/#/g, '#35;').replace(/"/g, '#quot;');
   const lines = ['flowchart LR'];
 
   for (const node of graph.nodes) {
