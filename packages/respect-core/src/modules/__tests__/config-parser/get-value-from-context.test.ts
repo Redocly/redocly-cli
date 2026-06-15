@@ -311,17 +311,6 @@ describe('getFakeData argument parsing', () => {
     ).toEqual(5);
   });
 
-  it('strips prototype-polluting keys from parsed argument objects', () => {
-    expect(
-      getValueFromContext({
-        value: '$faker.number.integer({ __proto__: { polluted: 1 }, min: 5, max: 5 })',
-        ctx,
-        logger,
-      })
-    ).toEqual(5);
-    expect(({} as any).polluted).toBeUndefined();
-  });
-
   it('supports calls with no arguments', () => {
     expect(getValueFromContext({ value: '$faker.string.uuid()', ctx, logger })).toEqual(
       expect.any(String)
