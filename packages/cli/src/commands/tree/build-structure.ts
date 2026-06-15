@@ -1,7 +1,6 @@
 import {
   isAbsoluteUrl,
   normalizeVisitors,
-  slash,
   walkDocument,
   type Document,
   type Location,
@@ -10,28 +9,17 @@ import {
   type ResolvedRefMap,
   type WalkContext,
 } from '@redocly/openapi-core';
-import * as path from 'node:path';
 
 import {
+  byString,
   mapForeignLocation,
   mapRootPointer,
+  OPERATION_METHODS,
   parsePointerSegments,
+  toNodeId,
   type MappedNode,
 } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
-
-const OPERATION_METHODS = new Set([
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-  'query',
-  'x-query',
-]);
 
 /**
  * Builds the internal structure graph of one API description: root -> paths -> operations and the
@@ -49,7 +37,7 @@ export function buildStructure(options: {
   const { document, types, resolvedRefMap, ctx, cwd, resolveRef } = options;
 
   const rootAbs = document.source.absoluteRef;
-  const rootId = isAbsoluteUrl(rootAbs) ? rootAbs : slash(path.relative(cwd, rootAbs));
+  const rootId = toNodeId(rootAbs, cwd);
 
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
@@ -78,10 +66,6 @@ export function buildStructure(options: {
     edges.set(edgeKey, edge);
   };
 
-  /** Converts a non-root file's absolute ref into its node id (URLs as-is, else cwd-relative). */
-  const toFileId = (absoluteRef: string): string =>
-    isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));
-
   /**
    * Materializes the node for a resolved Location and, when the mapping carries an ancestry,
    * wires the structural spine `root -> ancestry[0] -> ... -> node` (spine edges carry no refs).
@@ -91,7 +75,7 @@ export function buildStructure(options: {
     const inRootFile = location.source.absoluteRef === rootAbs;
     const mapped: MappedNode & { file: string } = inRootFile
       ? { ...mapRootPointer(location.pointer, rootId), file: rootId }
-      : mapForeignLocation(toFileId(location.source.absoluteRef), location.pointer);
+      : mapForeignLocation(toNodeId(location.source.absoluteRef, cwd), location.pointer);
 
     upsertNode(mapped, true);
     wireSpine(mapped);
@@ -127,9 +111,9 @@ export function buildStructure(options: {
       mapped =
         siteFile === rootAbs
           ? { ...mapRootPointer(pointer, rootId), file: rootId }
-          : mapForeignLocation(toFileId(siteFile), pointer);
+          : mapForeignLocation(toNodeId(siteFile, cwd), pointer);
     } else {
-      const fileId = toFileId(resolveRef(siteFile, uri));
+      const fileId = toNodeId(resolveRef(siteFile, uri), cwd);
       mapped =
         fragment !== undefined
           ? mapForeignLocation(fileId, '#' + fragment)
@@ -177,7 +161,6 @@ export function buildStructure(options: {
     },
   };
 
-  // Root node: always present, marks the entry point of the structure.
   upsertNode({ id: rootId, kind: 'root', file: rootId }, true);
   nodes.get(rootId)!.root = true;
 
@@ -192,7 +175,7 @@ export function buildStructure(options: {
 
 /**
  * Drops nodes unreachable from the root via directed BFS over the edges, then codepoint-sorts the
- * nodes (id), edges (from, then to), and each edge's refs — the same comparator as build-graph.ts.
+ * nodes (id), edges (from, then to), and each edge's refs with the shared `byString` comparator.
  */
 function prune(
   rootId: string,
@@ -217,9 +200,6 @@ function prune(
       }
     }
   }
-
-  // Codepoint comparison (not localeCompare): deterministic across Node ICU builds → stable output.
-  const byString = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
   return {
     roots: [rootId],
