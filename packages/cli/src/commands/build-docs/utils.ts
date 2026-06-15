@@ -15,7 +15,7 @@ const __internalDirname = import.meta.url
   ? path.dirname(url.fileURLToPath(import.meta.url))
   : __dirname;
 const DEFAULT_TEMPLATE_FILE_NAME = path.join(__internalDirname, './template.hbs');
-const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
+export const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 <html>
 
 <head>

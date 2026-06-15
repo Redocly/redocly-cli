@@ -24,7 +24,7 @@ export async function evaluatePluginsFromCode(
   }
 
   try {
-    const dirname = pathToFileURL(basePath ?? process.cwd()).href;
+    const dirname = pathToFileURL(basePath ?? process.cwd()).href + '/';
     const pluginsCodeWithDirname = pluginsCode.replaceAll('__redocly_dirname', `"${dirname}"`);
 
     if (verbose) {

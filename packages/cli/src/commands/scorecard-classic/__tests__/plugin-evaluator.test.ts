@@ -43,7 +43,7 @@ describe('evaluatePluginsFromCode', () => {
 
     const result = await evaluatePluginsFromCode(pluginCodeWithDirname);
     expect(result).toHaveLength(1);
-    expect((result[0] as any).dirname).toMatch(/^file:\/\//);
+    expect((result[0] as any).dirname).toMatch(/^file:\/\/.*\/$/);
   });
 
   it('should use basePath for __redocly_dirname when provided', async () => {
@@ -54,7 +54,7 @@ describe('evaluatePluginsFromCode', () => {
 
     const result = await evaluatePluginsFromCode(pluginCodeWithDirname, false, '/some/config/dir');
     expect(result).toHaveLength(1);
-    expect((result[0] as any).dirname).toBe('file:///some/config/dir');
+    expect((result[0] as any).dirname).toBe('file:///some/config/dir/');
   });
 
   it('should handle verbose flag', async () => {

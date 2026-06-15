@@ -24,6 +24,10 @@ copyFileSync(path.join(packageDir, binEntrypoint), path.join(publishDir, binEntr
 cpSync(path.join(packageDir, 'lib'), path.join(publishDir, 'lib'), { recursive: true });
 copyFileSync(readmeSourcePath, path.join(publishDir, 'README.md'));
 copyFileSync(licenseSourcePath, path.join(publishDir, 'LICENSE'));
+copyFileSync(
+  path.join(packageDir, 'THIRD_PARTY_NOTICES'),
+  path.join(publishDir, 'THIRD_PARTY_NOTICES')
+);
 
 const publishPackageJson = {
   name: packageJson.name,
@@ -38,7 +42,7 @@ const publishPackageJson = {
   contributors: packageJson.contributors,
   engines: packageJson.engines,
   engineStrict: packageJson.engineStrict,
-  files: [binEntrypoint, 'lib/', 'README.md', 'LICENSE'],
+  files: [binEntrypoint, 'lib/', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES'],
 };
 
 writeFileSync(
