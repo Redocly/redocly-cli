@@ -12,14 +12,14 @@ describe('getValueFromContext', () => {
   it('should return value from context', () => {
     const ctx = {
       $some: 'test',
-    } as unknown as TestContext;
+    } as any;
     expect(getValueFromContext({ value: '$some', ctx, logger })).toEqual('test');
   });
 
   it('should return custom list of objects value', () => {
     const ctx = {
       $some: 'John Wick',
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({ value: [{ name: '$some' }, { name: 'Jonny Mnemonic' }], ctx, logger })
     ).toEqual([{ name: 'John Wick' }, { name: 'Jonny Mnemonic' }]);
@@ -28,7 +28,7 @@ describe('getValueFromContext', () => {
   it('should return custom list value', () => {
     const ctx = {
       $some: 'John Wick',
-    } as unknown as TestContext;
+    } as any;
     expect(getValueFromContext({ value: ['Jonny Mnemonic', 'John Wick'], ctx, logger })).toEqual([
       'Jonny Mnemonic',
       'John Wick',
@@ -38,7 +38,7 @@ describe('getValueFromContext', () => {
   it('should return custom object value', () => {
     const ctx = {
       $some: 'John',
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({ value: { name: '$some', lastname: 'Mnemonic' }, ctx, logger })
     ).toEqual({
@@ -52,7 +52,7 @@ describe('getValueFromContext', () => {
       $env: {
         token: 'test',
       },
-    } as unknown as TestContext;
+    } as any;
     expect(getValueFromContext({ value: 'bearer {$env.token}', ctx, logger })).toEqual(
       'bearer test'
     );
@@ -64,7 +64,7 @@ describe('getValueFromContext', () => {
         token: 'test',
       },
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({
         value: 'bearer {$env.token} {$faker.number.integer({min:5,max:5})}',
@@ -80,7 +80,7 @@ describe('getValueFromContext', () => {
         token: 'test',
       },
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({
         value:
@@ -96,7 +96,7 @@ describe('getValueFromContext', () => {
       secret: {
         token: 'test',
       },
-    } as unknown as TestContext;
+    } as any;
     expect(getValueFromContext({ value: 'custom.domain.com', ctx, logger })).toEqual(
       'custom.domain.com'
     );
@@ -105,7 +105,7 @@ describe('getValueFromContext', () => {
   it('should return faker generated data', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({ value: '$faker.number.integer({ min: 5, max: 5 })', ctx, logger })
     ).toEqual(5);
@@ -114,7 +114,7 @@ describe('getValueFromContext', () => {
   it('should return faker generated data with additional text', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({
         value: 'number is {$faker.number.integer({min:5,max:5})}',
@@ -127,7 +127,7 @@ describe('getValueFromContext', () => {
   it('should return faker generated data', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({ value: 'city is {$faker.address.city}', ctx, logger })
     ).not.toMatch('{$faker.address.city}');
@@ -136,7 +136,7 @@ describe('getValueFromContext', () => {
   it('should remove `$file` identifier from the value', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     expect(getValueFromContext({ value: "$file('./test.yaml')", ctx, logger })).toEqual(
       './test.yaml'
     );
@@ -155,7 +155,7 @@ describe('getValueFromContext', () => {
           ],
         },
       },
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({
         value: '$sourceDescriptions.test.workflows.workflowTestId',
@@ -180,7 +180,7 @@ describe('getValueFromContext', () => {
           ],
         },
       },
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({
         value: '$sourceDescriptions.notExistingName.workflows.workflowTestId',
@@ -202,7 +202,7 @@ describe('getValueFromContext', () => {
           ],
         },
       },
-    } as unknown as TestContext;
+    } as any;
     expect(
       getValueFromContext({ value: '$sourceDescriptions.notExistingName.workflows.', ctx, logger })
     ).toEqual(undefined);
@@ -220,14 +220,14 @@ describe('getValueFromContext', () => {
           ],
         },
       },
-    } as unknown as TestContext;
+    } as any;
     expect(getValueFromContext({ value: '{$faker.city}', ctx, logger })).toEqual('undefined');
   });
 
   it('should not execute arbitrary code via the $faker constructor escape', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     (globalThis as any).__respectPwned = false;
     const payload =
       '$faker.constructor.constructor(\'globalThis["__respectPwned"]=true;return 1\')()';
@@ -242,7 +242,7 @@ describe('getValueFromContext', () => {
   it('should not execute arbitrary code via bracket-notation $faker payloads', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
     (globalThis as any).__respectPwned2 = false;
     const payload =
       '$faker.string["constructor"]["constructor"](\'globalThis["__respectPwned2"]=true\')()';
@@ -257,7 +257,7 @@ describe('getValueFromContext', () => {
   it('should not resolve prototype-chain properties via $faker', () => {
     const ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
 
     expect(
       getValueFromContext({ value: '$faker.__proto__.polluted', ctx, logger })
@@ -272,7 +272,7 @@ describe('getFakeData argument parsing', () => {
   beforeEach(() => {
     ctx = {
       $faker: createFaker(),
-    } as unknown as TestContext;
+    } as any;
   });
 
   it('parses float arguments without being mangled by dots in the pointer', () => {
