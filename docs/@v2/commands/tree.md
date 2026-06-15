@@ -43,7 +43,7 @@ With no API argument, the command takes the API from the Redocly configuration f
 redocly tree openapi.yaml
 ```
 
-```
+```treeview
 openapi.yaml
 ├── /pets
 │   ├── GET /pets
@@ -78,7 +78,7 @@ Pass a component pointer, name, or file path to `--affected-by` to see only the 
 redocly tree openapi.yaml --affected-by '#/components/schemas/Address'
 ```
 
-```
+```treeview
 openapi.yaml
 ├── /pets
 │   ├── GET /pets
@@ -130,7 +130,7 @@ Prints a [Mermaid](https://mermaid.js.org/) `flowchart` definition. GitHub rende
 redocly tree openapi.yaml --files
 ```
 
-```
+```treeview
 openapi.yaml
 ├── paths/pets.yaml
 │   └── components/schemas/Pet.yaml
