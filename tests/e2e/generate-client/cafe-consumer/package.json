@@ -1,0 +1,5 @@
+{
+  "name": "cafe-consumer",
+  "private": true,
+  "type": "module"
+}

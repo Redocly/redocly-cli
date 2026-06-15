@@ -16,6 +16,10 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import {
+  handleGenerateClient,
+  type GenerateClientCommandArgv,
+} from './commands/generate-client.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -837,6 +841,120 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
+    }
+  )
+  .command(
+    'generate-client [input]',
+    'Generate a TypeScript client from an OpenAPI description.',
+    (yargs) => {
+      return yargs
+        .env('REDOCLY_CLI_GENERATE_CLIENT')
+        .positional('input', {
+          describe: 'OpenAPI description file path (or alias from redocly.yaml `apis:`).',
+          type: 'string',
+        })
+        .options({
+          output: {
+            alias: 'o',
+            describe: 'Output file path for the generated client (must end in .ts).',
+            type: 'string',
+            requiresArg: true,
+          },
+          'config-file': {
+            describe: 'Path to a generate-client config file (defineConfig).',
+            type: 'string',
+            requiresArg: true,
+          },
+          'base-url': {
+            describe:
+              'Override the BASE URL inlined into the generated runtime. Defaults to `servers[0].url`.',
+            type: 'string',
+            requiresArg: true,
+          },
+          'enum-style': {
+            describe:
+              'How named string enums are emitted: `const-object` (default) emits a runtime `as const` object alongside the union type; `union` emits only the union.',
+            choices: ['union', 'const-object'] as const,
+            requiresArg: true,
+          },
+          'output-mode': {
+            describe:
+              'How the client is split across files: `single` (default, one file), `split` (endpoints, schemas, and runtime in sibling files), `tags` (one endpoints file per OpenAPI tag), or `tags-split` (a folder per tag), all sharing the schemas and runtime modules.',
+            choices: ['single', 'split', 'tags', 'tags-split'] as const,
+            requiresArg: true,
+          },
+          facade: {
+            describe:
+              'Developer-facing operation shape: `functions` (default) emits standalone async functions; `service-class` groups operations as class methods (one `Client` class in single/split, one service class per tag in tags/tags-split).',
+            choices: ['functions', 'service-class'] as const,
+            requiresArg: true,
+          },
+          'args-style': {
+            describe:
+              'How operation inputs are passed: `flat` (default) spreads path params as positional arguments followed by `params`/`body`/`headers`; `grouped` bundles every input into a single `args` object (the per-call request `init` stays a separate trailing argument).',
+            choices: ['flat', 'grouped'] as const,
+            requiresArg: true,
+          },
+          'error-mode': {
+            describe:
+              "Error handling: 'throw' (default) throws ApiError on non-2xx; 'result' returns { data, error, response }.",
+            choices: ['throw', 'result'] as const,
+            requiresArg: true,
+          },
+          'date-type': {
+            describe:
+              "How `date-time`/`date` string fields are typed: 'string' (default) keeps the ISO wire shape; 'Date' emits a `Date` (pair with --generators transformers so the runtime value matches).",
+            choices: ['string', 'Date'] as const,
+            requiresArg: true,
+          },
+          'query-framework': {
+            describe:
+              'TanStack Query adapter the `tanstack-query` generator imports from: `react` (default), `vue`, `svelte`, or `solid`. Only the import specifier changes — the emitted factory module is byte-identical across frameworks.',
+            choices: ['react', 'vue', 'svelte', 'solid'] as const,
+            requiresArg: true,
+          },
+          'mock-data': {
+            describe:
+              "How the `mock` generator produces data: 'baked' (default) inlines deterministic literals (zero-dep); 'faker' emits @faker-js/faker calls for realistic data (install @faker-js/faker as a dev dependency).",
+            choices: ['baked', 'faker'] as const,
+            requiresArg: true,
+          },
+          'mock-seed': {
+            describe:
+              'Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in baked mode.',
+            type: 'number',
+            requiresArg: true,
+          },
+          name: {
+            describe:
+              'Class name for the `service-class` facade in single/split layouts (ignored otherwise). Defaults to `Client`.',
+            type: 'string',
+            requiresArg: true,
+          },
+          generators: {
+            describe:
+              'Generators to run, comma-separated (default: sdk). Built-in names (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generators sdk,zod or --generators sdk,./my-generator.ts',
+            type: 'string',
+            coerce: (value: string | undefined): string[] | undefined => {
+              // Parse only — built-in names, inline custom names, and plugin specifiers are all
+              // valid here; the generator resolver validates each (and reports unknown/unloadable
+              // entries with an actionable message) once the config is assembled.
+              if (value === undefined) return undefined;
+              return value
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean);
+            },
+          },
+          config: {
+            describe: 'Path to the config file.',
+            type: 'string',
+            requiresArg: true,
+          },
+        });
+    },
+    async (argv) => {
+      commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
     }
   )
   .command(

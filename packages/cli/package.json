@@ -43,6 +43,7 @@
     "@opentelemetry/sdk-trace-node": "2.6.1",
     "@opentelemetry/semantic-conventions": "1.40.0",
     "@redocly/cli-otel": "0.3.1",
+    "@redocly/openapi-typescript": "0.0.0",
     "@redocly/openapi-core": "2.31.4",
     "@redocly/respect-core": "2.31.4",
     "ajv": "npm:@redocly/ajv@8.18.1",
@@ -63,6 +64,7 @@
     "set-cookie-parser": "^2.3.5",
     "simple-websocket": "^9.0.0",
     "styled-components": "6.4.1",
+    "typescript": "6.0.2",
     "ulid": "^3.0.1",
     "undici": "6.24.0",
     "yargs": "17.0.1"
@@ -75,7 +77,6 @@
     "@types/react-dom": "^17.0.0 || ^18.2.7 || ^19.2.1",
     "@types/semver": "^7.5.0",
     "@types/set-cookie-parser": "2.4.10",
-    "@types/yargs": "17.0.32",
-    "typescript": "6.0.2"
+    "@types/yargs": "17.0.32"
   }
 }

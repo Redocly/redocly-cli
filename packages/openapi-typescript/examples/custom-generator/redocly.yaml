@@ -1,0 +1,10 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+# The `generators` list mixes a built-in (`sdk`) with a custom generator referenced by path
+# (the experimental plugin API). The path is resolved against this file's directory.
+x-openapi-typescript:
+  input: ./openapi.yaml
+  output: ./src/api/client.ts
+  generators:
+    - sdk
+    - ./route-map-generator.mjs
+  facade: functions

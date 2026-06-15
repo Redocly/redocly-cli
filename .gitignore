@@ -14,3 +14,6 @@ redoc-static.html
 packages/cli/README.md
 .env
 packages/respect-core/src/modules/runtime-expressions/abnf-parser.js
+tests/e2e/generate-client/base-consumer/api.ts
+tests/e2e/generate-client/cafe-consumer/api.ts
+tests/e2e/generate-client/sse-consumer/api.ts

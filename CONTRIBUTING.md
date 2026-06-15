@@ -226,15 +226,88 @@ When running tests, make sure the code is compiled (`npm run compile`).
 Having `redocly.yaml` in the root of the project affects the unit tests, and console logs affect the e2e tests, so make sure to get rid of both before running tests.
 Run `npm test` to start both unit and e2e tests (and additionally typecheck the code).
 
+### Monorepo test conventions
+
+This is a monorepo with NPM workspaces.
+All tests share a single Vitest installation and a single configuration file at the repository root.
+Do not add a per-package `vitest.config.ts`, a per-package `test` script, or per-package `vitest` / `@vitest/*` dependencies — they will be ignored or conflict with the root setup.
+
+The root configuration is in [`vitest.config.ts`](./vitest.config.ts) and defines:
+
+- The `unit` suite, which discovers tests via the glob `packages/*/src/**/*.test.ts`.
+- The `e2e` suite, which discovers tests under `tests/e2e/**`.
+- Coverage (Istanbul provider) collected for packages enumerated in `coverage.include`.
+- Repo-wide minimum coverage thresholds, plus optional per-glob overrides for packages that want stricter limits.
+
+Vitest globals (`describe`, `it`, `expect`, `vi`, `beforeEach`, `afterEach`, …) are enabled and the TypeScript types for them are provided through [`tsconfig.json`](./tsconfig.json)'s `"types": ["vitest/globals", "node"]`.
+Do **not** add `import { describe, it, expect } from 'vitest'` to test files — those names are already in scope.
+
+### Where tests live
+
+Tests live next to the source they cover, inside a sibling `__tests__/` folder, and use the `.test.ts` suffix:
+
+```text
+packages/<your-package>/
+  src/
+    feature.ts
+    __tests__/
+      feature.test.ts        ← unit tests
+    submodule/
+      thing.ts
+      __tests__/
+        thing.test.ts
+```
+
+The root config automatically picks them up; no additional wiring is needed for **discovery**.
+
+### Adding tests for a new package
+
+When introducing a new package under `packages/`, do the following to plug it into the existing test infrastructure:
+
+1. Author tests under `packages/<your-package>/src/**/__tests__/*.test.ts`. Use the Vitest globals — no imports from `'vitest'`.
+2. Open the root [`vitest.config.ts`](./vitest.config.ts) and append your package's source glob to `coverage.include`, for example:
+
+   ```typescript
+   include: [
+     'packages/cli/src/**/*.ts',
+     'packages/core/src/**/*.ts',
+     'packages/respect-core/src/**/*.ts',
+     'packages/<your-package>/src/**/*.ts',
+   ],
+   ```
+
+3. If your package contains pure type-definition modules (files that compile to empty `.js` like `types.ts` or `model.ts`), add them to `coverage.exclude` so they don't dilute the coverage signal.
+4. Optionally enforce stricter per-file coverage for your package using a per-glob threshold alongside the repo-wide minimums:
+
+   ```typescript
+   thresholds: {
+     lines: 80,
+     functions: 83,
+     statements: 80,
+     branches: 72,
+     'packages/<your-package>/src/**/*.ts': {
+       lines: 100,
+       functions: 100,
+       statements: 100,
+       branches: 100,
+     },
+   },
+   ```
+
+5. Do not declare `vitest` or `@vitest/coverage-istanbul` in the new package's `package.json`. They are workspace-wide dev dependencies, installed once at the root.
+
 ### Unit tests
 
 Run unit tests with this command: `npm run unit`.
+This runs the suite for every package whose tests match the discovery glob — there is no per-package `npm test` script.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
-To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
+To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`.
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
+
+Run `npm run unit` with coverage reporting always enabled (the `coverage` block in the root config sets `enabled: true`); the HTML report is written to `coverage/`.
 
 ### E2E tests
 
@@ -242,7 +315,7 @@ Run e2e tests with this command: `npm run e2e`.
 
 E2E tests are sensitive to any additional output (like `console.log`) in the source code.
 
-To update snapshots, run `npm run e2e -- -u`.
+To update snapshots, run `npm run e2e -- -u`. This includes the file-based snapshots used by some tests via `toMatchFileSnapshot` (for example, `tests/e2e/generate-client/cafe.snapshot.ts` — the committed full-file output of the TypeScript client generator). Always review snapshot diffs in the pull request to confirm the change is intentional.
 
 If you made any changes, make sure to compile the code before running the tests.
 

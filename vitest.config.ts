@@ -12,6 +12,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/**/*.ts',
           'packages/core/src/**/*.ts',
           'packages/respect-core/src/**/*.ts',
+          'packages/openapi-typescript/src/**/*.ts',
         ],
         provider: 'istanbul',
         exclude: [
@@ -24,6 +25,14 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           functions: 83,
           statements: 80,
           branches: 72,
+          // Strict per-file 100% coverage for the new client generator. Per-glob thresholds run
+          // alongside the repo-wide minimums above, so other packages stay unaffected.
+          'packages/openapi-typescript/src/**/*.ts': {
+            lines: 100,
+            functions: 100,
+            statements: 100,
+            branches: 100,
+          },
         },
       },
     },

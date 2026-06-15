@@ -5,6 +5,7 @@
   "experimentalSortPackageJson": false,
   "ignorePatterns": [
     "coverage/",
+    "packages/openapi-typescript/examples/*/src/api/",
     "lib/",
     "output/",
     "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
@@ -12,6 +13,7 @@
     "tests/performance/api-definitions/",
     "LICENSE.md",
     "snapshot*.txt",
+    "*.snapshot.ts",
     ".changeset/pre.json",
     "*.html",
     "tests/e2e/**/*.yaml",

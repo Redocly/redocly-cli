@@ -1,0 +1,13 @@
+import { useQuery } from '@tanstack/react-query';
+
+import { configure } from './api/client';
+import { listMenuItemsOptions } from './api/client.tanstack';
+
+configure({ baseUrl: 'https://cafe.cloud.redocly.com' });
+
+export function App() {
+  const { data, error, isLoading } = useQuery(listMenuItemsOptions({}));
+  if (isLoading) return <p>Loading…</p>;
+  if (error) return <p>Error: {String(error)}</p>;
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+}

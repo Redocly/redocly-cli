@@ -9,7 +9,14 @@
     "builtin": true,
     "es2026": true
   },
-  "ignorePatterns": ["packages/*/lib/**", "*.js", "*.cjs"],
+  "ignorePatterns": [
+    "packages/*/lib/**",
+    "packages/openapi-typescript/examples/*/src/api/**",
+    "packages/openapi-typescript/examples/*/generate.ts",
+    "*.js",
+    "*.cjs",
+    "tests/e2e/generate-client/*.snapshot.ts"
+  ],
   "rules": {
     "eslint/no-array-constructor": "error",
     "eslint/no-case-declarations": "error",

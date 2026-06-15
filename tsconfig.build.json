@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/cli" },
-    { "path": "packages/respect-core" }
+    { "path": "packages/respect-core" },
+    { "path": "packages/openapi-typescript" }
   ]
 }

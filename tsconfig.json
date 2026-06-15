@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "types": ["vitest/globals", "node"],
+    "types": [
+      "vitest/globals",
+      "node"
+    ],
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -17,10 +20,27 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
-    "lib": ["ES2023", "DOM", "dom.iterable"],
-    "paths": { "*": ["./packages/*"] },
+    "lib": [
+      "ES2023",
+      "DOM",
+      "dom.iterable"
+    ],
+    "paths": {
+      "*": [
+        "./packages/*"
+      ]
+    },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "esModuleInterop": true
-  }
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/__tests__/**/*.ts",
+    "tests/**/*.ts",
+    "vitest.config.ts"
+  ]
 }

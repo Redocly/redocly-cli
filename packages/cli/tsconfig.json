@@ -4,7 +4,11 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "references": [{ "path": "../core" }, { "path": "../respect-core" }],
+  "references": [
+    { "path": "../core" },
+    { "path": "../respect-core" },
+    { "path": "../openapi-typescript" }
+  ],
   "include": ["src/**/*.ts"],
   "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }
