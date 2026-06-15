@@ -4,4 +4,4 @@
 ---
 
 Added the `--component-names-strategy` option to the `bundle` command.
-THis option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).
+This option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).

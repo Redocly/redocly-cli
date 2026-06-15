@@ -201,6 +201,7 @@ The output uses `OrderModel` and `OrderRequest`.
 
 {% admonition type="warning" name="Title sanitization" %}
 The OpenAPI and AsyncAPI specifications allow only ASCII letters (`a`–`z`, `A`–`Z`), digits, `.`, `-`, and `_` in a Components Object key.
-Those characters are kept; any other character — including non-ASCII letters such as `é` or `я` — is replaced with `-` (for example, `User & Group` becomes `User-Group`).
-A schema without a `title` can't be named this way, so bundling reports an error for that schema.
+All other characters, including non-ASCII letters such as `é` or `я`, are replaced with `-` (for example, `User & Group` becomes `User-Group`).
+Schemas without `title` can't be named using the `--component-names-strategy=title` strategy.
+The bundling process reports an error for such schemas.
 {% /admonition %}
