@@ -1,0 +1,152 @@
+arazzo: 1.1.0
+$self: https://cafe.cloud.redocly.com/workflows/cafe-workflows.yaml
+info:
+  title: Redocly Cafe operations workflows
+  summary: Place an order and react to account events.
+  description: Workflows for cafe operators built on the Cafe API and the account service.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+  - name: account-events
+    type: asyncapi
+    url: ../../../../resources/asyncapi3.yaml
+
+workflows:
+  - workflowId: place-and-track-order
+    summary: Place an order and track it to completion.
+    inputs:
+      type: object
+      properties:
+        customerName:
+          type: string
+        search:
+          type: string
+    parameters:
+      - in: header
+        name: Authorization
+        value: Basic Og==
+      - in: querystring
+        name: rawQuery
+        value: 'category:beverage limit:5'
+    steps:
+      - stepId: list-menu
+        description: List the available menu items.
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: customer
+            value:
+              context: $inputs
+              selector: $.customerName
+              type: jsonpath
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            condition: $.items[?(@.category == 'beverage')]
+            type:
+              type: jsonpath
+              version: rfc9535
+        outputs:
+          firstItemId:
+            context: $response.body
+            selector: $.items[0].id
+            type: jsonpath
+      - stepId: create-order
+        description: Create an order for the first beverage on the menu.
+        operationId: cafe-api.createOrder
+        dependsOn:
+          - list-menu
+        requestBody:
+          contentType: application/json
+          payload:
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: $steps.list-menu.outputs.firstItemId
+                quantity: 1
+          replacements:
+            - target: /orderItems/0/quantity
+              targetSelectorType: jsonpointer
+              value: 2
+            - target: $.customerName
+              targetSelectorType:
+                type: jsonpath
+                version: rfc9535
+              value:
+                context: $inputs
+                selector: $.customerName
+                type: jsonpath
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          orderId: $response.body#/id
+      - stepId: get-order
+        description: Fetch the order and confirm its status.
+        operationId: cafe-api.getOrderById
+        dependsOn:
+          - create-order
+        timeout: 5000
+        parameters:
+          - in: path
+            name: orderId
+            value: $steps.create-order.outputs.orderId
+        successCriteria:
+          - context: $response.body
+            condition: '/status'
+            type:
+              type: xpath
+              version: xpath-31
+        onSuccess:
+          - name: hand-off-to-notify
+            type: goto
+            workflowId: notify-customer
+            parameters:
+              - name: orderId
+                value: $steps.create-order.outputs.orderId
+            criteria:
+              - condition: $response.body.status == 'completed'
+        onFailure:
+          - name: retry-then-hand-off
+            type: retry
+            retryAfter: 2
+            retryLimit: 3
+            parameters:
+              - name: orderId
+                value: $steps.create-order.outputs.orderId
+    outputs:
+      placedOrderId: $steps.create-order.outputs.orderId
+
+  - workflowId: notify-customer
+    summary: React to an account event from the account service.
+    dependsOn:
+      - place-and-track-order
+    inputs:
+      type: object
+      properties:
+        orderId:
+          type: string
+    steps:
+      - stepId: await-signup
+        description: Receive a user signup event from the account service.
+        channelPath: $sourceDescriptions.account-events#/channels/userSignedup
+        action: receive
+        correlationId: $message.payload#/email
+        timeout: 10000
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $message.payload
+            condition: $.email
+            type:
+              type: jsonpath
+              version: rfc9535
+        outputs:
+          customerEmail:
+            context: $message.payload
+            selector: /email
+            type:
+              type: jsonpointer
+              version: rfc6901
+    outputs:
+      customerEmail: $steps.await-signup.outputs.customerEmail

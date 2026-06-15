@@ -21,7 +21,7 @@ describe('lint', () => {
     const dirName = 'arazzo-1-1-valid-description';
     const testPath = join(__dirname, `${dirName}`);
 
-    const args = getParams(indexEntryPoint, ['lint', 'museum.yaml']);
+    const args = getParams(indexEntryPoint, ['lint', 'cafe-workflows.yaml']);
 
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
