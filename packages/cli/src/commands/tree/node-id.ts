@@ -1,8 +1,22 @@
-import { escapePointerFragment, unescapePointerFragment } from '@redocly/openapi-core';
+import {
+  escapePointerFragment,
+  isAbsoluteUrl,
+  slash,
+  unescapePointerFragment,
+} from '@redocly/openapi-core';
+import * as path from 'node:path';
 
 import type { NodeKind } from './types.js';
 
-const OPERATION_METHODS = new Set([
+/** Codepoint comparison (not localeCompare): deterministic across Node ICU builds → stable output. */
+export const byString = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
+/** Converts an absolute file path or URL into a stable node id (cwd-relative posix path; URLs as-is). */
+export function toNodeId(absoluteRef: string, cwd: string): string {
+  return isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));
+}
+
+export const OPERATION_METHODS = new Set([
   'get',
   'put',
   'post',

@@ -1,12 +1,7 @@
-import { isAbsoluteUrl, slash, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
-import * as path from 'node:path';
+import { isAbsoluteUrl, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
 
+import { byString, toNodeId } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
-
-/** Converts an absolute file path or URL into a stable node id (cwd-relative posix path; URLs as-is). */
-function toNodeId(absoluteRef: string, cwd: string): string {
-  return isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));
-}
 
 /**
  * Builds the file-level dependency graph from the resolver's ref maps of one or more roots.
@@ -56,14 +51,11 @@ export function buildGraph(
     }
   }
 
-  // Codepoint comparison (not localeCompare): deterministic across Node ICU builds → stable snapshots.
-  const byString = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-
   return {
     roots: resolutions.map(({ rootDocument }) => toNodeId(rootDocument.source.absoluteRef, cwd)),
     nodes: [...nodes.values()].sort((a, b) => byString(a.id, b.id)),
     edges: [...edges.values()]
-      .map((edge) => ({ ...edge, refs: [...edge.refs].sort() }))
+      .map((edge) => ({ ...edge, refs: [...edge.refs].sort(byString) }))
       .sort((a, b) => byString(a.from, b.from) || byString(a.to, b.to)),
   };
 }
