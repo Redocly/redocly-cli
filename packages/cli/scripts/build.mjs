@@ -33,7 +33,9 @@ if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'
   );
 }
 
-const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) => Object.keys(chunk.inputs));
+const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
+  Object.keys(chunk.inputs)
+);
 
 const pkgRoots = new Map();
 for (const relInput of allInputs) {
