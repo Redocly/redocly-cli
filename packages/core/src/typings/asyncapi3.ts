@@ -1,16 +1,18 @@
+import type { Referenced } from './openapi.js';
+
 export type Async3Definition = {
   asyncapi: string;
   servers?: Record<string, any>;
   info: Async3Info;
-  channels?: Record<string, Channel>;
+  channels?: Record<string, Referenced<Channel>>;
   components?: Record<string, any>;
-  operations?: Record<string, Async3Operation>;
+  operations?: Record<string, Referenced<Async3Operation>>;
   defaultContentType?: string;
 };
 
 export type Async3Operation = {
   action: 'send' | 'receive';
-  channel: Channel;
+  channel: Referenced<Channel>;
   title?: string;
   summary?: string;
   description?: string;
@@ -21,7 +23,7 @@ export type Async3Operation = {
   traits?: Record<string, any>[];
   messages?: Record<string, any>[];
   reply?: Record<string, any>;
-  'x-send-operations'?: string[]; //
+  'x-send-operations'?: string[];
 };
 
 export interface Async3Info {
