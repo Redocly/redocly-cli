@@ -123,14 +123,11 @@ export async function getPageHTML(
 }
 
 function resolveTemplateSource(templateFileName: string): string {
-  if (templateFileName !== DEFAULT_TEMPLATE_FILE_NAME) {
-    return readFileSync(templateFileName, 'utf-8');
-  }
-
   try {
     return readFileSync(templateFileName, 'utf-8');
-  } catch {
-    // Bundling may not include template.hbs as a real file; fallback to the embedded template.
+  } catch (error) {
+    if (templateFileName !== DEFAULT_TEMPLATE_FILE_NAME) throw error;
+    // template.hbs is not bundled as a file; fall back to the embedded constant.
     return DEFAULT_TEMPLATE_SOURCE;
   }
 }

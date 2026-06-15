@@ -33,7 +33,6 @@ if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'
   );
 }
 
-// Collect unique bundled node_modules packages and generate THIRD_PARTY_NOTICES.
 const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) => Object.keys(chunk.inputs));
 
 const pkgRoots = new Map();
