@@ -379,6 +379,30 @@ describe('resolveWorkflowContext', async () => {
     );
   });
 
+  it('should call createTestContext for arazzo type using the spec form without `workflows` segment', async () => {
+    const workflowId = '$sourceDescriptions.tickets-from-museum-api.get-museum-tickets';
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, config);
+
+    expect(createTestContext).toHaveBeenCalledWith(
+      commonCtx.$sourceDescriptions['tickets-from-museum-api'],
+      {
+        input: undefined,
+        skip: undefined,
+        workflow: ['get-museum-tickets'],
+        filePath: expect.stringContaining('examples/museum-api/museum-tickets.yaml'),
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
+        verbose: undefined,
+        metadata: commonCtx.options.metadata,
+      },
+      apiClient
+    );
+  });
+
   it('should call createTestContext with empty filePath when there are no ctx.sourceDescriptions', async () => {
     const ctx = {
       ...commonCtx,
@@ -555,6 +579,35 @@ describe('resolveWorkflowContext', async () => {
       },
     } as any;
     const workflowId = '$sourceDescriptions.wrong-api.workflows.get-museum-tickets';
+
+    await expect(
+      resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)
+    ).rejects.toThrowError('Unknown source description type invalid');
+  });
+
+  it('should throw an error when sourceDescription.type is not openapi or arazzo using the spec form', async () => {
+    const localCtx = {
+      ...commonCtx,
+      sourceDescriptions: [
+        { name: 'wrong-api', type: 'invalid', url: 'museum-api.yaml' },
+        {
+          name: 'tickets-from-museum-api',
+          type: 'arazzo',
+          url: 'museum-tickets.yaml',
+        },
+      ],
+    } as any;
+    const ctx = {
+      ...localCtx,
+      $sourceDescriptions: {
+        'wrong-api': {
+          paths: {},
+          servers: [{ url: 'https://redocly.com/_mock/docs/openapi/museum-api/' }],
+          info: { title: 'Redocly Museum API', version: '1.1.1' },
+        },
+      },
+    } as any;
+    const workflowId = '$sourceDescriptions.wrong-api.get-museum-tickets';
 
     await expect(
       resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)
