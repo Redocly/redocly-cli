@@ -139,4 +139,25 @@ describe('renderMermaid', () => {
         classDef root font-weight:bold"
     `);
   });
+
+  it('escapes "#" in labels so mermaid does not read it as an entity', () => {
+    const withHash: DependencyGraph = {
+      roots: ['openapi.yaml'],
+      nodes: [
+        { id: 'openapi.yaml', root: true, resolved: true },
+        { id: 'components.yaml#/components/schemas/Pet', resolved: true },
+      ],
+      edges: [
+        {
+          from: 'openapi.yaml',
+          to: 'components.yaml#/components/schemas/Pet',
+          refs: ['./components.yaml#/components/schemas/Pet'],
+        },
+      ],
+    };
+
+    const output = renderMermaid(withHash);
+    expect(output).toContain('["components.yaml#35;/components/schemas/Pet"]');
+    expect(output).not.toContain('["components.yaml#/components/schemas/Pet"]');
+  });
 });

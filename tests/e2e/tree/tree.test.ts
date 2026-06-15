@@ -71,6 +71,14 @@ describe('tree', () => {
     );
   });
 
+  test('tree should print the document structure as a mermaid diagram', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=mermaid']);
+    const result = getCommandOutput(args, { testPath: singleFilePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(folderPath, 'tree-structure-mermaid', 'snapshot.txt')
+    );
+  });
+
   test('tree should show what a component pointer affects', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
