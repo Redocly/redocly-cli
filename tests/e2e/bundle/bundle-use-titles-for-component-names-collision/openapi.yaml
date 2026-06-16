@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info:
+  title: e2e collision
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/a/User.yaml'
+  /b:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/b/User.yaml'
