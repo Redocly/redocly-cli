@@ -27,7 +27,6 @@ export function lintGraphqlDocument(opts: {
     ast = parse(new GraphqlSource(source.body, source.absoluteRef));
   } catch (e) {
     if (e instanceof GraphQLError) {
-      // Syntax errors are always reported as errors and short-circuit the file.
       return [syntaxErrorToProblem(e, source)];
     }
     throw e;

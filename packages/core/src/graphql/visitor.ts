@@ -14,7 +14,7 @@ export type GraphqlProblem = {
   node?: ASTNode;
   loc?: { start: Loc; end?: Loc };
   suggest?: string[];
-  // Override the reporting rule id/severity (used by configurable rules so each one reports under its own id/severity instead of the shared ones).
+  // Override the reporting rule id/severity (used by configurable rules).
   ruleId?: string;
   severity?: ProblemSeverity;
 };
