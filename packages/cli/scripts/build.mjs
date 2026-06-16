@@ -25,7 +25,6 @@ const result = await build({
   logLevel: 'info',
 });
 
-// Guard: redoc must stay in the lazy build-docs chunk, not the entry point.
 const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
 if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
   throw new Error(
@@ -38,7 +37,7 @@ const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
 );
 
 const seenPkgRoots = new Set();
-const licenseGroups = new Map(); // spdx -> { text, packages: ['name@version — Copyright ...'] }
+const licenseGroups = new Map();
 
 for (const relInput of allInputs) {
   const absInput = path.resolve(packageDir, relInput);
