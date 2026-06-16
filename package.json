@@ -12,7 +12,7 @@
   "scripts": {
     "test": "npm run compile && npm run typecheck && npm run unit && npm run e2e",
     "unit": "VITEST_SUITE=unit vitest run",
-    "e2e": "npm run compile:cli:bundle && VITEST_SUITE=e2e vitest run",
+    "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
