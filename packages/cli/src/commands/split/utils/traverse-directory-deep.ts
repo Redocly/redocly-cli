@@ -1,8 +1,8 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { isSupportedExtension } from '@redocly/openapi-core';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import { readYaml, writeToFileByExtension } from '../../../utils/miscellaneous.js';
-import { isSupportedExtension } from './is-supported-extension.js';
 import { replace$Refs } from './replace-$-refs.js';
 
 export function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object) {

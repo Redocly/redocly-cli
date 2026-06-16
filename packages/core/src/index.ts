@@ -127,8 +127,8 @@ export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
+export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
-
 export type { CollectFn, Exact } from './utils/types.js';
 export type {
   Oas3Definition,
