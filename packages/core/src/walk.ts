@@ -179,6 +179,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
+    setTimeout(() => {}, 1000); // TESTING
+
     if (nodeIsRef) {
       const refEnterVisitors = normalizedVisitors.ref.enter;
       for (const { visit: visitor, ruleId, severity, message, context } of refEnterVisitors) {
