@@ -40,7 +40,7 @@ const seenPkgRoots = new Set();
 const licenseGroups = new Map();
 
 for (const relInput of allInputs) {
-  const absInput = path.resolve(packageDir, relInput);
+  const absInput = path.resolve(packageDir, relInput).replace(/\\/g, '/');
   const pkgRootMatch = absInput.match(/^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)/);
   if (!pkgRootMatch) continue;
   const pkgRoot = pkgRootMatch[1];
