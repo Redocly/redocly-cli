@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.33.2
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/openapi-core to v2.33.2.
+
 ## 2.33.1
 
 ### Patch Changes
