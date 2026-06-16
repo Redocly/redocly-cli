@@ -4,6 +4,7 @@ import * as path from 'node:path';
 
 import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
+import { assertWithinDir } from '../utils/assert-within-dir.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import { replaceChannelRefs } from '../utils/replace-channel-refs.js';
 import {
@@ -39,6 +40,8 @@ export function iterateAsyncApiOperations({
     const operationData = operations[operationName];
 
     if (isRef(operationData)) continue;
+
+    assertWithinDir(asyncapiDir, operationFile, operationName);
 
     replace$Refs(operationData, path.dirname(operationFile), componentsFiles);
     replaceChannelRefs(operationData, path.dirname(operationFile), channelsFiles);

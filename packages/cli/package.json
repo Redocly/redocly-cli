@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.33.0",
+  "version": "2.33.1",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -40,13 +40,13 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "devDependencies": {
-    "@opentelemetry/exporter-trace-otlp-http": "0.214.0",
-    "@opentelemetry/resources": "2.6.1",
-    "@opentelemetry/sdk-trace-node": "2.6.1",
-    "@opentelemetry/semantic-conventions": "1.40.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
+    "@opentelemetry/resources": "2.8.0",
+    "@opentelemetry/sdk-trace-node": "2.8.0",
+    "@opentelemetry/semantic-conventions": "1.41.1",
     "@redocly/cli-otel": "0.3.1",
-    "@redocly/openapi-core": "2.33.0",
-    "@redocly/respect-core": "2.33.0",
+    "@redocly/openapi-core": "2.33.1",
+    "@redocly/respect-core": "2.33.1",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",

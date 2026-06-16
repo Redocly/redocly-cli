@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.33.1
+
+### Patch Changes
+
+- Improved AsyncAPI 3 types.
+- Updated js-yaml from `4.1.1` to `4.2.0`.
+
 ## 2.33.0
 
 ### Minor Changes
