@@ -16,7 +16,7 @@ const result = await build({
   splitting: true,
   platform: 'node',
   format: 'esm',
-  target: 'node22',
+  target: 'node20.19',
   metafile: true,
   // Avoid errors when external dependencies use CJS syntax.
   banner: {

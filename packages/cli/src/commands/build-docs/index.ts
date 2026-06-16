@@ -6,7 +6,7 @@ import { default as redoc } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
-import { redocVersion } from '../../utils/package.js';
+import { redocVersion as redocCurrentVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { BuildDocsArgv } from './types.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
@@ -28,8 +28,6 @@ export const handlerBuildCommand = async ({
     templateOptions: argv.templateOptions || {},
     redocOptions: getObjectOrJSON(argv.theme?.openapi, config.forAlias(alias)),
   };
-
-  const redocCurrentVersion = redocVersion;
 
   try {
     const elapsed = getExecutionTime(startedAt);
