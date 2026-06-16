@@ -1,9 +1,10 @@
+import { COMPONENT_NAME_CHARS } from '../../oas-types.js';
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Rule } from '../../visitors.js';
 import type { Problem, UserContext } from '../../walk.js';
 
 export const SpecComponentsInvalidMapName: Oas3Rule = () => {
-  const KEYS_REGEX = '^[a-zA-Z0-9\\.\\-_]+$';
+  const componentNamePattern = `^[${COMPONENT_NAME_CHARS}]+$`;
 
   function validateKey(
     key: string | number,
@@ -11,9 +12,9 @@ export const SpecComponentsInvalidMapName: Oas3Rule = () => {
     location: Location,
     component: string
   ) {
-    if (!new RegExp(KEYS_REGEX).test(key as string)) {
+    if (!new RegExp(componentNamePattern).test(key as string)) {
       report({
-        message: `The map key in ${component} "${key}" does not match the regular expression "${KEYS_REGEX}"`,
+        message: `The map key in ${component} "${key}" does not match the regular expression "${componentNamePattern}"`,
         location: location.key(),
         reference: 'https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name',
       });
