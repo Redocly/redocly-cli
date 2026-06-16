@@ -12,6 +12,7 @@ import { isTruthy } from '../utils/is-truthy.js';
 import { hasComponent } from '../utils/oas-has-component.js';
 import { slash } from '../utils/slash.js';
 import { splitCamelCaseIntoWords } from '../utils/split-camel-case-into-words.js';
+import { toPascalCase } from '../utils/to-pascal-case.js';
 import { validateMimeTypeOAS2, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
 
 vi.mock('node:fs');
@@ -136,6 +137,20 @@ describe('utils', () => {
 
     it('should split camel case into words with multiple words and spaces', () => {
       expect(splitCamelCaseIntoWords('')).toEqual(new Set());
+    });
+  });
+
+  describe('toPascalCase', () => {
+    it.each([
+      { input: 'Authority model', expected: 'AuthorityModel' },
+      { input: 'authority-model', expected: 'Authority-model' },
+      { input: 'user_profile', expected: 'User_profile' },
+      { input: 'foo.bar', expected: 'Foo.bar' },
+      { input: 'API v2 User', expected: 'APIV2User' },
+      { input: '  padded  ', expected: 'Padded' },
+      { input: '', expected: '' },
+    ])('converts "$input" to "$expected"', ({ input, expected }) => {
+      expect(toPascalCase(input)).toBe(expected);
     });
   });
 
