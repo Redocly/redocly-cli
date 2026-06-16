@@ -67,7 +67,10 @@ for (const relInput of allInputs) {
 const sections = [...licenseGroups.entries()]
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([spdx, { text, packages }]) => {
-    const packageList = packages.sort().map((pkg) => `  ${pkg}`).join('\n');
+    const packageList = packages
+      .sort()
+      .map((pkg) => `  ${pkg}`)
+      .join('\n');
     const licenseBody = text ?? '(no license text found)';
     return `${'='.repeat(60)}\n${spdx}\n\nPackages:\n${packageList}\n\nLicense text:\n${licenseBody}`;
   });
