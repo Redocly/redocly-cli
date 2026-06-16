@@ -16,7 +16,7 @@ const result = await build({
   splitting: true,
   platform: 'node',
   format: 'esm',
-  target: 'node20.19',
+  target: 'node24',
   metafile: true,
   // Avoid errors when external dependencies use CJS syntax.
   banner: {
@@ -37,27 +37,40 @@ const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
   Object.keys(chunk.inputs)
 );
 
-const pkgRoots = new Map();
+const seenPkgRoots = new Set();
+const licenseGroups = new Map(); // spdx -> { text, packages: ['name@version — Copyright ...'] }
+
 for (const relInput of allInputs) {
   const absInput = path.resolve(packageDir, relInput);
   const pkgRootMatch = absInput.match(/^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)/);
   if (!pkgRootMatch) continue;
   const pkgRoot = pkgRootMatch[1];
-  if (pkgRoots.has(pkgRoot)) continue;
+  if (seenPkgRoots.has(pkgRoot)) continue;
+  seenPkgRoots.add(pkgRoot);
+
   const pkgJsonPath = path.join(pkgRoot, 'package.json');
   if (!existsSync(pkgJsonPath)) continue;
+
   const name = pkgRoot.replace(/^.*\/node_modules\//, '');
   const { version, license } = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'));
-  pkgRoots.set(pkgRoot, { name, version, license, pkgRoot });
+  const spdx = license ?? 'unknown';
+  const licenseText = findLicenseText(pkgRoot);
+  const copyrightLine = licenseText?.match(/Copyright.+/i)?.[0]?.trim();
+
+  if (!licenseGroups.has(spdx)) {
+    licenseGroups.set(spdx, { text: licenseText, packages: [] });
+  }
+  const entry = copyrightLine ? `${name}@${version} — ${copyrightLine}` : `${name}@${version}`;
+  licenseGroups.get(spdx).packages.push(entry);
 }
 
-const entries = [...pkgRoots.values()].sort((a, b) => a.name.localeCompare(b.name));
-
-const sections = entries.map(({ name, version, license, pkgRoot }) => {
-  const licenseText =
-    findLicenseText(pkgRoot) ?? `(no LICENSE file; declared: ${license ?? 'unknown'})`;
-  return `${'='.repeat(60)}\n${name} ${version}\nSPDX-License-Identifier: ${license ?? 'unknown'}\n\n${licenseText}`;
-});
+const sections = [...licenseGroups.entries()]
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([spdx, { text, packages }]) => {
+    const packageList = packages.sort().map((pkg) => `  ${pkg}`).join('\n');
+    const licenseBody = text ?? '(no license text found)';
+    return `${'='.repeat(60)}\n${spdx}\n\nPackages:\n${packageList}\n\nLicense text:\n${licenseBody}`;
+  });
 
 writeFileSync(
   path.join(packageDir, 'THIRD_PARTY_NOTICES'),
