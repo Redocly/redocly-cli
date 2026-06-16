@@ -24,6 +24,21 @@ describe('isSubdir', () => {
     });
   });
 
+  it('allows two-character subdir names and still blocks traversal', () => {
+    (
+      [
+        ['/a/b', '/a/b/c.png', true], // direct child
+        ['/a/b', '/a/b/ab/logo.png', true], // regression: two-char subdir was wrongly rejected
+        ['/a/b', '/a/b/xy', true], // two-char name, no traversal
+        ['/a/b', '/a/c', false], // sibling (../c)
+        ['/a/b', '/etc/passwd', false], // escapes upward
+        ['/a/b', '/a/b', false], // same dir (relative is '')
+      ] as [string, string, boolean][]
+    ).forEach(([parent, child, expectRes]) => {
+      expect(isSubdir(parent, child)).toBe(expectRes);
+    });
+  });
+
   it('can correctly determine if subdir for windows-based paths', () => {
     const os = require('os');
     os.platform.mockImplementation(() => 'win32');

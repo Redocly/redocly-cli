@@ -321,5 +321,5 @@ export function exitWithError(message: string) {
  */
 export function isSubdir(parent: string, dir: string): boolean {
   const relative = path.relative(parent, dir);
-  return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
+  return !!relative && !/^\.\.($|[\\/])/.test(relative) && !path.isAbsolute(relative);
 }
