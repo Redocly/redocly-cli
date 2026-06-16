@@ -103,33 +103,33 @@ jobs:
       - run: bash ./tests/smoke/basic/run-smoke.sh "pnpm install" "pnpm run"
 
   # Skipped due to a known Windows + NodeJS v24 issue: https://github.com/nodejs/node/issues/56645
-  run-smoke--npm--node-24--windows:
-    needs: prepare-smoke
-    runs-on: windows-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: tests/smoke/basic/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-          enableCrossOsArchive: true
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 24
-      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+  # run-smoke--npm--node-24--windows:
+  #   needs: prepare-smoke
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: tests/smoke/basic/
+  #         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+  #         enableCrossOsArchive: true
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 24
+  #     - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
-  run-smoke--yarn--node-24--windows:
-    needs: prepare-smoke
-    runs-on: windows-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: tests/smoke/basic/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-          enableCrossOsArchive: true
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 24
-      - run: bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile" "yarn"
+  # run-smoke--yarn--node-24--windows:
+  #   needs: prepare-smoke
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: tests/smoke/basic/
+  #         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+  #         enableCrossOsArchive: true
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 24
+  #     - run: bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile" "yarn"
 
   run-smoke--npm--node-22:
     needs: prepare-smoke
