@@ -26,9 +26,8 @@ type WhereMatcher = {
 };
 
 /**
- * GraphQL-native adapter for configurable rules.
- * It reuses the shared `asserts` check functions and `getAssertsToApply`, but targets GraphQL AST Kinds and reports by AST node instead of walking the JSON tree.
- * @param configurableRulesObject - The object containing the configurable rules.
+ * GraphQL-native adapter for configurable rules. Reuses the shared `asserts` check functions
+ * and `getAssertsToApply`, but targets GraphQL AST Kinds and reports by AST node.
  */
 export const GraphqlAssertions: GraphqlRule = (
   configurableRulesObject: Record<string, unknown>
@@ -126,7 +125,7 @@ function runGraphqlAssertion(
   const target = property === undefined ? node : node[property];
   const value = extractValue(node, assertion.subject.property);
 
-  // The shared asserts report against a `Location`; GraphQL reports by node, so the location is unused.
+  // The shared asserts report against a `Location`; GraphQL reports by node, so it's unused.
   const baseLocation = new Location(ctx.source, '#/');
 
   const problems = assertsToApply.flatMap((assert) =>
@@ -138,7 +137,6 @@ function runGraphqlAssertion(
 
   if (!problems.length) return;
 
-  // Same default message and placeholders as the OAS `buildSubjectVisitor`;
   // {{pointer}} and {{key}} stay empty — SDL has no JSON pointers or parent keys.
   const defaultMessage =
     `${colorize.blue(assertion.assertionId)} failed because the ${colorize.blue(
@@ -161,7 +159,6 @@ function runGraphqlAssertion(
     node: isAstNode(target) ? target : node,
     suggest: assertion.suggest,
     ruleId: assertion.assertionId,
-    // 'off' assertions are skipped above, so the remaining severities are reportable.
     severity: assertion.severity as ProblemSeverity | undefined,
   });
 }
