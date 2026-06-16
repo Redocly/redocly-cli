@@ -434,6 +434,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       customMessage: string | undefined
     ) {
       const report = (opts: Problem) => reportFn(ruleId, severity, customMessage, opts);
+      // `parentLocations` is read by only a minority of rules, yet eagerly
+      // collecting it walks the full parent chain and allocates a record on every
+      // visitor invocation (the hot path). Defer it to a lazy getter and cache the
+      // result within this single visit — safe because the `activatedOn` stack the
+      // chain walk reads is stable for the duration of the call.
+      let cachedParentLocations: Record<string, Location> | undefined;
       visit(
         resolvedNode,
         {
@@ -445,7 +451,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           type,
           parent,
           key,
-          parentLocations: collectParentsLocations(context),
+          get parentLocations() {
+            if (cachedParentLocations === undefined) {
+              cachedParentLocations = collectParentsLocations(context);
+            }
+            return cachedParentLocations;
+          },
           specVersion: ctx.specVersion,
           config: ctx.config,
           ignoreNextVisitorsOnNode: () => {
