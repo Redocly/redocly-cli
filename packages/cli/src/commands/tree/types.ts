@@ -3,11 +3,8 @@ export type TreeFormat = 'stylish' | 'json' | 'mermaid';
 export type NodeKind = 'root' | 'path' | 'operation' | 'component' | 'file';
 
 export type GraphNode = {
-  /** Path relative to cwd; http(s) refs keep the full URL. */
   id: string;
-  /** Entry-point API file. */
   root?: boolean;
-  /** Node is an http(s) URL, not a local file. */
   external?: boolean;
   /** False: the file is referenced but could not be loaded. */
   resolved: boolean;

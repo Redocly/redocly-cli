@@ -3,10 +3,6 @@ import { isAbsoluteUrl, type Document, type ResolvedRefMap } from '@redocly/open
 import { byString, toNodeId } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
-/**
- * Builds the file-level dependency graph from the resolver's ref maps of one or more roots.
- * Only cross-file refs (isRemote) become edges; nodes/edges/refs are sorted for stable output.
- */
 export function buildGraph(
   resolutions: Array<{ rootDocument: Document; refMap: ResolvedRefMap }>,
   options: { cwd: string; resolveRef: (base: string, uri: string) => string }
@@ -15,7 +11,6 @@ export function buildGraph(
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
 
-  /** Merges-or-creates a node, OR-ing its resolved/root/external flags. */
   const upsertNode = (id: string, resolved: boolean, root?: boolean) => {
     const node = nodes.get(id) ?? { id, resolved: false };
     if (resolved) node.resolved = true;

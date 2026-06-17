@@ -1,6 +1,5 @@
 import type { DependencyGraph } from '../types.js';
 
-/** Renders the dependency graph as a Mermaid flowchart definition. */
 export function renderMermaid(graph: DependencyGraph): string {
   const mermaidIds = new Map(graph.nodes.map((node, index) => [node.id, `n${index}`]));
   // Escape `#` first: it starts Mermaid HTML-entity codes (e.g. `#quot;`), so a literal `#`

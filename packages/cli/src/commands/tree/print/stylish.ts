@@ -2,11 +2,8 @@ import { byString } from '../node-id.js';
 import type { DependencyGraph } from '../types.js';
 
 export type StylishOptions = {
-  /** Node ids queried via --affected-by that exist in the graph. */
   changed?: string[];
-  /** Pre-composed summary line; appended after a blank line when set. */
   summary?: string;
-  /** Message returned for an empty graph. */
   emptyMessage?: string;
 };
 
@@ -33,7 +30,6 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
   const changed = new Set(options.changed ?? []);
   const lines: string[] = [];
 
-  /** Formats one node line: id plus external/broken/repeat/changed markers. */
   const label = (id: string, isRepeat: boolean): string => {
     const node = nodesById.get(id);
     let text = id;
@@ -44,7 +40,6 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     return text;
   };
 
-  /** Recursively prints the children of a node with tree connectors. */
   const renderSubtree = (id: string, prefix: string, printed: Set<string>) => {
     const children = childrenByNode.get(id) ?? [];
     children.forEach((child, index) => {
