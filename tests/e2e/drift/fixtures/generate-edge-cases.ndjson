@@ -1,3 +1,0 @@
-{"request":{"method":"POST","url":"http://api.example.com/login","headers":{"content-type":"application/x-www-form-urlencoded"},"body":"username=alice&password=secret&remember=1"},"response":{"status":200,"headers":{"content-type":"text/plain"},"body":"{\"token\":\"abc\"}"}}
-{"request":{"method":"GET","url":"http://api.example.com/sessions?limit=10","headers":{}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"101\":{\"active\":true},\"102\":{\"active\":false}}"}}
-{"request":{"method":"GET","url":"http://cdn.example.net/analytics.js","headers":{}},"response":{"status":200,"headers":{"content-type":"text/javascript"},"body":"var x=1;"}}

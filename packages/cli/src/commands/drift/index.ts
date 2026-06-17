@@ -1,4 +1,4 @@
-import { logger, stringifyYaml } from '@redocly/openapi-core';
+import { logger } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -7,8 +7,7 @@ import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
 import { runTrafficValidation } from './engine/runner.js';
-import { generateSpecFromTraffic } from './openapi/generator.js';
-import { buildOpenApiIndex, loadOpenApiIndex } from './openapi/loader.js';
+import { loadOpenApiIndex } from './openapi/loader.js';
 import type {
   FindingSeverity,
   MatchMode,
@@ -20,7 +19,7 @@ import { normalizeFsPath } from './utils/files.js';
 
 export type DriftArgv = {
   traffic: string;
-  api?: string;
+  api: string;
   'traffic-format': TrafficFormat;
   format: ReportFormat;
   'match-mode'?: MatchMode;
@@ -96,18 +95,6 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   const trafficParserModules = (argv['traffic-plugin'] ?? []).map(normalizeFsPath);
   const pluginModules = (argv.plugin ?? []).map(normalizeFsPath);
 
-  // No spec provided → generate an OpenAPI description from the traffic itself.
-  if (!argv.api) {
-    await handleGenerate({
-      trafficPath,
-      trafficFormat,
-      trafficParserModules,
-      output: argv.output,
-      server: argv.server,
-    });
-    return;
-  }
-
   const server = argv.server;
   if (server && argv['match-mode']) {
     return exitWithError(
@@ -148,7 +135,6 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
         trafficPath,
         format: trafficFormat,
         matchMode,
-        generatedSpec: false,
         server,
       },
     },
@@ -171,35 +157,4 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   if (summary.findingsBySeverity.error > 0) {
     throw new AbortFlowError('Drift detected.');
   }
-}
-
-async function handleGenerate(params: {
-  trafficPath: string;
-  trafficFormat: TrafficFormat;
-  trafficParserModules: string[];
-  output?: string;
-  server?: string;
-}): Promise<void> {
-  const document = await generateSpecFromTraffic({
-    trafficPath: params.trafficPath,
-    format: params.trafficFormat,
-    trafficParserModules: params.trafficParserModules,
-    server: params.server,
-  });
-
-  // Sanity-check that the generated document yields a usable index.
-  const index = buildOpenApiIndex([{ document, source: '(generated)' }]);
-  const yaml = stringifyYaml(document);
-
-  if (params.output) {
-    await writeOutput(params.output, yaml);
-    logger.info(
-      `Generated OpenAPI description from traffic: ${index.loadedOperations} operation(s).\nWritten to: ${normalizeFsPath(
-        params.output
-      )}\n`
-    );
-    return;
-  }
-
-  logger.output(yaml);
 }

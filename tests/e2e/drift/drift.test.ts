@@ -152,27 +152,6 @@ describe('drift - validate mode', () => {
   });
 });
 
-describe('drift - generate mode', () => {
-  test('generates an OpenAPI description from traffic when no spec is given', async () => {
-    const { output } = runDrift(['generate-traffic.ndjson']);
-    await matchSnapshot('generate-stdout', output);
-  });
-
-  test('filters by server and handles form, sniffed-json, and map-like bodies', async () => {
-    const { output } = runDrift([
-      'generate-edge-cases.ndjson',
-      '--server',
-      'http://api.example.com',
-    ]);
-    await matchSnapshot('generate-server', output);
-  });
-
-  test('templatizes ULID and prefixed identifiers in paths', async () => {
-    const { output } = runDrift(['generate-ulid-traffic.ndjson']);
-    await matchSnapshot('generate-ulid-ids', output);
-  });
-});
-
 describe('drift - input formats', () => {
   test('parses HAR traffic', async () => {
     const { output } = runDrift([

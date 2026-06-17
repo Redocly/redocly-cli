@@ -153,7 +153,6 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
       trafficPath: harPath,
       format: 'har',
       matchMode: argv['match-mode'],
-      generatedSpec: false,
     },
   };
 

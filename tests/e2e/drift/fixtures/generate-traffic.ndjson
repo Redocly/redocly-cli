@@ -1,3 +1,0 @@
-{"request":{"method":"GET","url":"http://api.example.com/products","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[{\"id\":1,\"title\":\"Pen\"}]"}}
-{"request":{"method":"GET","url":"http://api.example.com/products/1","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"id\":1,\"title\":\"Pen\"}"}}
-{"request":{"method":"POST","url":"http://api.example.com/products","headers":{"host":"api.example.com","content-type":"application/json"},"body":"{\"title\":\"Cup\"}"},"response":{"status":201,"headers":{"content-type":"application/json"},"body":"{\"id\":2,\"title\":\"Cup\"}"}}

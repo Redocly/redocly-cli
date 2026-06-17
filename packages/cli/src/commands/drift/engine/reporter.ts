@@ -125,7 +125,6 @@ function formatJson(result: DriftRunResult): string {
       trafficPath: result.meta.trafficPath,
       format: result.meta.format,
       matchMode: result.meta.matchMode,
-      generatedSpec: result.meta.generatedSpec,
       server: result.meta.server,
       totalExchanges: result.summary.totalExchanges,
       documentedExchanges: result.summary.documentedExchanges,
@@ -278,7 +277,7 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
   const lines: string[] = [];
   lines.push(colorize('┏━ Drift Report', cyanBold));
   lines.push(`┃ Run: ${result.runId}`);
-  lines.push(`┃ Spec: ${meta.specSource}${meta.generatedSpec ? ' (generated from traffic)' : ''}`);
+  lines.push(`┃ Spec: ${meta.specSource}`);
   lines.push(`┃ Traffic: ${meta.trafficPath}`);
   lines.push(
     meta.server

@@ -895,7 +895,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'drift <traffic>',
-    'Detect drift between recorded HTTP traffic and an OpenAPI description, or generate one from traffic [experimental].',
+    'Detect drift between recorded HTTP traffic and an OpenAPI description [experimental].',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_DRIFT')
@@ -905,9 +905,9 @@ yargs(hideBin(process.argv))
         })
         .option({
           api: {
-            describe:
-              'OpenAPI description file or folder to validate against. Omit to generate a description from traffic.',
+            describe: 'OpenAPI description file or folder to validate against.',
             type: 'string',
+            demandOption: true,
           },
           'traffic-format': {
             describe: 'Traffic input format.',
@@ -964,12 +964,12 @@ yargs(hideBin(process.argv))
           output: {
             alias: 'o',
             describe:
-              'Write the result to this file instead of stdout: the drift report when validating with --api, the generated description otherwise.',
+              'Write the drift report (in the format selected with --format) to this file instead of stdout.',
             type: 'string',
           },
           server: {
             describe:
-              'Server URL the traffic was captured against: only requests under it are considered, and the rest of their URL is treated as the API path. When validating with --api, it replaces the description servers and the remaining path is matched against the description paths directly; when generating, it becomes the servers URL of the generated description. Mutually exclusive with --match-mode.',
+              'Server URL the traffic was captured against: only requests under it are considered, and the rest of their URL is treated as the API path. It replaces the description servers and the remaining path is matched against the description paths directly. Mutually exclusive with --match-mode.',
             type: 'string',
           },
           config: { describe: 'Path to the config file.', type: 'string' },

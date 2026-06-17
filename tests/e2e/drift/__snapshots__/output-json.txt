@@ -5,7 +5,6 @@
     "trafficPath": "./tests/e2e/drift/fixtures/traffic-undocumented.ndjson",
     "format": "auto",
     "matchMode": "strict-host",
-    "generatedSpec": false,
     "totalExchanges": 2,
     "documentedExchanges": 0,
     "undocumentedExchanges": 2,

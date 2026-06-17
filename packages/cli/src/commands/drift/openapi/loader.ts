@@ -247,27 +247,6 @@ function finalizeIndex(
 }
 
 /**
- * Build an OpenApiIndex from already-parsed OpenAPI documents (e.g. a spec
- * generated in memory from traffic).
- */
-export function buildOpenApiIndex(
-  documents: Array<{ document: unknown; source: string }>
-): OpenApiIndex {
-  const operationsByMethod = new Map<string, OpenApiOperation[]>();
-  let loadedSpecs = 0;
-
-  for (const { document, source } of documents) {
-    if (!isOpenApi3Document(document)) {
-      continue;
-    }
-    loadedSpecs += 1;
-    indexDocument(document, source, operationsByMethod);
-  }
-
-  return finalizeIndex(operationsByMethod, loadedSpecs);
-}
-
-/**
  * Resolve the OpenAPI spec input (a single file or a folder) into a flat list
  * of spec file paths that openapi-core can bundle individually.
  */

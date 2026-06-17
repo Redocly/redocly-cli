@@ -172,7 +172,7 @@ export interface RunnerOptions {
   trafficParserModules: string[];
   pluginModules: string[];
   activeRules?: string[];
-  /** Pre-loaded OpenAPI index (provided or generated from traffic). */
+  /** Pre-loaded OpenAPI index. */
   openApiIndex: OpenApiIndex;
   server?: string;
   minSeverity?: FindingSeverity;
@@ -198,8 +198,6 @@ export interface DriftRunResult {
     trafficPath: string;
     format: TrafficFormat;
     matchMode: MatchMode;
-    /** True when the spec was generated from traffic rather than provided. */
-    generatedSpec: boolean;
     server?: string;
   };
   summary: RunSummary;

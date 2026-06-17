@@ -1,7 +1,6 @@
 # drift (experimental)
 
-Detect drift between **recorded HTTP traffic** and an **OpenAPI description** — or
-generate a description from traffic when none is provided.
+Detect drift between **recorded HTTP traffic** and an **OpenAPI description**.
 
 > Experimental: the command, flags, and output are subject to change.
 
@@ -15,7 +14,6 @@ generate a description from traffic when none is provided.
   - missing required parameters/body,
   - request/response schema mismatches,
   - baseline security issues (opt-in OWASP API risk heuristics).
-- When no spec is provided, infers an OpenAPI 3.1 description from the traffic.
 
 It has **no extra runtime dependencies** beyond what `@redocly/cli` already ships:
 spec loading reuses `@redocly/openapi-core` and schema validation reuses the bundled
@@ -32,17 +30,9 @@ redocly drift ./traffic.har --api ./openapi/ --server localhost:9000
 redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report.json
 ```
 
-Generate a description from traffic (omit `--api`):
-
-```bash
-redocly drift ./traffic.har                  # prints YAML to stdout
-redocly drift ./traffic.har -o ./generated.yaml
-redocly drift ./traffic.har --server https://api.example.com/v1
-```
-
 ## Options
 
-- `--api <path>`: OpenAPI file or folder to validate against. Omit to generate.
+- `--api <path>`: OpenAPI file or folder to validate against (required).
 - `--traffic-format <auto|har|kong|nginx-json|apache-json|ndjson>` (default: `auto`)
 - `--format <pretty|json|csv|sarif>` (default: `pretty`)
 - `--match-mode <strict-host|basepath>` (default: `strict-host`): how requests are located
@@ -56,30 +46,24 @@ redocly drift ./traffic.har --server https://api.example.com/v1
   (`undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`)
 - `--plugin <path>`: external rule plugin module (repeatable)
 - `--traffic-plugin <path>`: external traffic parser module (repeatable)
-- `--output, -o <path>`: write the result to a file instead of stdout - the drift report
-  (in the format selected with `--format`) when validating with `--api`, the generated
-  description otherwise
+- `--output, -o <path>`: write the drift report (in the format selected with `--format`)
+  to a file instead of stdout
 - `--server <url>`: server URL the traffic was captured against (host, host + base path,
   or a path-only prefix like `/api`). Only requests under it are considered, and the rest
-  of their URL is treated as the API path. When validating with `--api`, it replaces the
-  description `servers` and the remainder is matched against the description paths
-  directly - useful when the captured traffic does not carry the documented host or base
-  path (e.g. `--server localhost:9000` for traffic captured behind a gateway that adds
-  `/api`). When generating, it becomes the `servers` URL of the generated description
-  (without it, all hosts are merged and every observed origin is listed under `servers`).
-  Mutually exclusive with `--match-mode`: use `--match-mode` when the traffic URLs align
-  with the description `servers`, use `--server` to declare the actual server when they
-  do not.
+  of their URL is treated as the API path. It replaces the description `servers` and the
+  remainder is matched against the description paths directly - useful when the captured
+  traffic does not carry the documented host or base path (e.g. `--server localhost:9000`
+  for traffic captured behind a gateway that adds `/api`). Mutually exclusive with
+  `--match-mode`: use `--match-mode` when the traffic URLs align with the description
+  `servers`, use `--server` to declare the actual server when they do not.
 
 ## Exit codes
 
-- `0`: no error-level findings (or generation succeeded)
+- `0`: no error-level findings
 - `1`: error-level drift detected
 
 ## Notes / PoC limitations
 
 - JSON-array traffic files (HAR/Kong/webserver-json) are read fully into memory.
   For very large captures, prefer the NDJSON format.
-- Spec generation infers schemas from observed samples (path templating, required
-  fields = intersection across samples) and is intentionally rough.
 - Builtin `owasp-api-top10` is opt-in via `--rules owasp-api-top10`.
