@@ -99,6 +99,7 @@ export async function callAPIAndAnalyzeResults({
     },
     descriptionOperation: requestData.openapiOperation,
     ctx,
+    ajvContext: { apiContext: 'response' },
   });
 
   if (schemaChecks.length) {
