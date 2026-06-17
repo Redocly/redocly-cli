@@ -136,7 +136,7 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: use config-specific version
+    specVersion: 'config',
     config,
     visitorsData: {},
   };

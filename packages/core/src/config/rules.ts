@@ -30,7 +30,7 @@ export function initRules(
   )[],
   config: Config,
   type: 'rules' | 'preprocessors' | 'decorators',
-  oasVersion: SpecVersion
+  specVersion: SpecVersion
 ): InitializedRule[] {
   return rules
     .flatMap((ruleset) =>
@@ -39,10 +39,10 @@ export function initRules(
 
         const ruleSettings =
           type === 'rules'
-            ? config.getRuleSettings(ruleId, oasVersion)
+            ? config.getRuleSettings(ruleId, specVersion)
             : type === 'preprocessors'
-              ? config.getPreprocessorSettings(ruleId, oasVersion)
-              : config.getDecoratorSettings(ruleId, oasVersion);
+              ? config.getPreprocessorSettings(ruleId, specVersion)
+              : config.getDecoratorSettings(ruleId, specVersion);
 
         if (ruleSettings.severity === 'off') {
           return undefined;

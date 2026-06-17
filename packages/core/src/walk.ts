@@ -18,6 +18,8 @@ import type {
   VisitorNode,
 } from './visitors.js';
 
+type ExtendedSpecVersion = SpecVersion | 'config' | 'entity';
+
 export type NonUndefined =
   | string
   | number
@@ -46,7 +48,7 @@ export type UserContext = {
   type: NormalizedNodeType;
   key: string | number;
   parent: any;
-  specVersion: SpecVersion;
+  specVersion: ExtendedSpecVersion;
   config?: Config;
   getVisitorData: () => Record<string, unknown>;
 };
@@ -95,7 +97,7 @@ export type NormalizedProblem = {
 
 export type WalkContext = {
   problems: NormalizedProblem[];
-  specVersion: SpecVersion;
+  specVersion: ExtendedSpecVersion;
   config?: Config;
   visitorsData: Record<string, Record<string, unknown>>; // custom data store that visitors can use for various purposes
   refTypes?: Map<string, NormalizedNodeType>;

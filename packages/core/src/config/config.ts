@@ -1,18 +1,18 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { specVersions } from '../detect-spec.js';
 import { stringifyYaml } from '../js-yaml/index.js';
-import type {
-  Oas2RuleSet,
-  Oas3RuleSet,
-  Async2RuleSet,
-  Async3RuleSet,
-  Arazzo1RuleSet,
-  Overlay1RuleSet,
-  OpenRpc1RuleSet,
-  SpecVersion,
-  SpecMajorVersion,
+import {
+  type Oas2RuleSet,
+  type Oas3RuleSet,
+  type Async2RuleSet,
+  type Async3RuleSet,
+  type Arazzo1RuleSet,
+  type Overlay1RuleSet,
+  type OpenRpc1RuleSet,
+  type SpecVersion,
+  type SpecMajorVersion,
+  specVersions,
 } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
@@ -322,7 +322,7 @@ export class Config {
     };
   }
 
-  // TODO: add default case for redocly.yaml
+  // TODO: add rules for redocly.yaml / entities?
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
       case 'oas3':

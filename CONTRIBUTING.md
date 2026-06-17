@@ -242,6 +242,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
+To skip coverage, run it with `--coverage=false`.
 
 ### E2E tests
 

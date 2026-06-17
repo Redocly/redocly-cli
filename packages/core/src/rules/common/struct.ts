@@ -10,11 +10,13 @@ import type {
   Arazzo1Rule,
   Overlay1Rule,
   OpenRpc1Rule,
+  ConfigRule,
 } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
 
 export const Struct:
+  | ConfigRule
   | Oas3Rule
   | Oas2Rule
   | Async2Rule
