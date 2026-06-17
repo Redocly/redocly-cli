@@ -125,4 +125,20 @@ describe('tree', () => {
       join(folderPath, 'tree-structure-affected-file', 'snapshot.txt')
     );
   });
+
+  test('tree should reject multiple APIs in the default view', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', 'admin.yaml']);
+    const result = getCommandOutput(args, { testPath: fixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(folderPath, 'tree-multi-api-error', 'snapshot.txt')
+    );
+  });
+
+  test('tree --files should merge multiple APIs into one graph', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', 'admin.yaml', '--files']);
+    const result = getCommandOutput(args, { testPath: fixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(folderPath, 'tree-files-multi-api', 'snapshot.txt')
+    );
+  });
 });
