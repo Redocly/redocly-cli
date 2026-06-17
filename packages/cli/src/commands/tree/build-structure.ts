@@ -124,8 +124,8 @@ export function buildStructure(options: {
     return mapped.id;
   };
 
-  // PathItem/Operation build the spine; the ref hook wires every dependency edge. Keys absent from
-  // a non-OpenAPI type map (AsyncAPI/Arazzo) are silently ignored by normalizeVisitors.
+  // Keys absent from a non-OpenAPI type map (AsyncAPI/Arazzo) are silently ignored by
+  // normalizeVisitors, so this OAS3-shaped visitor is safe to run against any detected spec.
   const visitor: Oas3Visitor = {
     PathItem: {
       enter(_node, vctx) {

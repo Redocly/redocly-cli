@@ -1,3 +1,4 @@
+import { byString } from '../node-id.js';
 import type { DependencyGraph } from '../types.js';
 
 export type StylishOptions = {
@@ -25,7 +26,7 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     childrenByNode.set(edge.from, children);
   }
   for (const children of childrenByNode.values()) {
-    children.sort();
+    children.sort(byString);
   }
 
   const nodesById = new Map(graph.nodes.map((node) => [node.id, node]));
