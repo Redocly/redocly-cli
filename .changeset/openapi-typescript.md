@@ -3,4 +3,4 @@
 '@redocly/cli': minor
 ---
 
-Add the `generate-client` command (**experimental**): generate a typed, zero-dependency TypeScript client from an OpenAPI description.
+Added an **experimental** `generate-client` command that generates a typed, zero-dependency TypeScript client from an OpenAPI description.

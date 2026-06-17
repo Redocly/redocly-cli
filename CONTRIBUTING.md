@@ -240,7 +240,7 @@ The root configuration is in [`vitest.config.ts`](./vitest.config.ts) and define
 - Repo-wide minimum coverage thresholds, plus optional per-glob overrides for packages that want stricter limits.
 
 Vitest globals (`describe`, `it`, `expect`, `vi`, `beforeEach`, `afterEach`, …) are enabled and the TypeScript types for them are provided through [`tsconfig.json`](./tsconfig.json)'s `"types": ["vitest/globals", "node"]`.
-Do **not** add `import { describe, it, expect } from 'vitest'` to test files — those names are already in scope.
+Do **not** add `import { describe, it, expect } from 'vitest'` to test files — these names are already in scope.
 
 ### Where tests live
 
@@ -258,13 +258,15 @@ packages/<your-package>/
         thing.test.ts
 ```
 
-The root config automatically picks them up; no additional wiring is needed for **discovery**.
+The root config picks up the test files automatically.
+There is no need to add additional wiring for **discovery**.
 
 ### Adding tests for a new package
 
-When introducing a new package under `packages/`, do the following to plug it into the existing test infrastructure:
+When introducing a new package under `packages/`, plug it into the existing test infrastructure:
 
-1. Author tests under `packages/<your-package>/src/**/__tests__/*.test.ts`. Use the Vitest globals — no imports from `'vitest'`.
+1. Author tests under `packages/<your-package>/src/**/__tests__/*.test.ts`.
+    Use the Vitest globals — no imports from `'vitest'`.
 2. Open the root [`vitest.config.ts`](./vitest.config.ts) and append your package's source glob to `coverage.include`, for example:
 
    ```typescript
@@ -277,7 +279,7 @@ When introducing a new package under `packages/`, do the following to plug it in
    ```
 
 3. If your package contains pure type-definition modules (files that compile to empty `.js` like `types.ts` or `model.ts`), add them to `coverage.exclude` so they don't dilute the coverage signal.
-4. Optionally enforce stricter per-file coverage for your package using a per-glob threshold alongside the repo-wide minimums:
+4. (Optional) Enforce stricter per-file coverage for your package using a per-glob threshold alongside the repo-wide minimums:
 
    ```typescript
    thresholds: {
@@ -294,12 +296,13 @@ When introducing a new package under `packages/`, do the following to plug it in
    },
    ```
 
-5. Do not declare `vitest` or `@vitest/coverage-istanbul` in the new package's `package.json`. They are workspace-wide dev dependencies, installed once at the root.
+5. Do not declare `vitest` or `@vitest/coverage-istanbul` in the new package's `package.json`.
+    These are workspace-wide dev dependencies, installed once at the root.
 
 ### Unit tests
 
 Run unit tests with this command: `npm run unit`.
-This runs the suite for every package whose tests match the discovery glob — there is no per-package `npm test` script.
+This command runs the suite for every package whose tests match the discovery glob — there is no per-package `npm test` script.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
@@ -315,7 +318,10 @@ Run e2e tests with this command: `npm run e2e`.
 
 E2E tests are sensitive to any additional output (like `console.log`) in the source code.
 
-To update snapshots, run `npm run e2e -- -u`. This includes the file-based snapshots used by some tests via `toMatchFileSnapshot` (for example, `tests/e2e/generate-client/cafe.snapshot.ts` — the committed full-file output of the TypeScript client generator). Always review snapshot diffs in the pull request to confirm the change is intentional.
+To update snapshots, run `npm run e2e -- -u`.
+This command includes the file-based snapshots used by some tests via `toMatchFileSnapshot`.
+For example, `tests/e2e/generate-client/cafe.snapshot.ts` is the committed full-file output of the TypeScript client generator.
+Always review snapshot diffs in the pull request to confirm the change is intentional.
 
 If you made any changes, make sure to compile the code before running the tests.
 

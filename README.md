@@ -143,19 +143,16 @@ Learn more about [Respect](https://redocly.com/respect) and [get started with AP
 
 > ⚠️ **Experimental** — flags, output, and configuration may change in any minor release until declared stable.
 
-Turn an OpenAPI description (3.0/3.1/3.2 or Swagger 2.0) into a typed TypeScript client with the
-`generate-client` command. The emitted client has **zero runtime dependencies** — it uses only
-web-standard APIs (`fetch`, `AbortController`, …), so it runs in browsers, Node, Bun, Deno, and edge
-runtimes.
+Turn an OpenAPI description (3.0/3.1/3.2 or Swagger 2.0) into a typed TypeScript client with the `generate-client` command.
+The emitted client has **zero runtime dependencies** — it uses only web-standard APIs (`fetch`, `AbortController`, …), so it runs in browsers, Node, Bun, Deno, and edge runtimes.
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts
 ```
 
-Inline types plus one async function per operation (or `--facade service-class` for class methods),
-with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events. The same command can
-also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generators`.
-[Read the `generate-client` docs](./docs/@v2/commands/generate-client.md).
+Inline types plus one async function per operation (or `--facade service-class` for class methods), with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events.
+The same command can also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generators`.
+For detailed information, read the [ `generate-client` docs](./docs/@v2/commands/generate-client.md).
 
 ### Transform an OpenAPI description
 
