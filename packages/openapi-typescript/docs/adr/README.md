@@ -1,12 +1,11 @@
 # Architecture Decision Records
 
-Immutable, point-in-time records of the significant, hard-to-reverse decisions behind
-`@redocly/openapi-typescript`. Each ADR captures the **context**, the **decision**, and its
-**consequences** at the time it was made. ADRs are not edited as the code evolves — when a decision is
-revisited, add a new ADR that supersedes the old one (and mark the old one `Superseded by ADR-NNNN`).
+Immutable, point-in-time records of the significant, hard-to-reverse decisions behind `@redocly/openapi-typescript`.
+Each ADR captures the **context**, the **decision**, and its **consequences** at the time it was made.
+ADRs are not edited as the code evolves — when a decision is revisited, add a new ADR that supersedes the old one (and mark the old one `Superseded by ADR-NNNN`).
 
-For the **descriptive** map of how the package is built today (pipeline, module map, seams), see
-[`../../ARCHITECTURE.md`](../../ARCHITECTURE.md). ARCHITECTURE.md says _what is_; these ADRs say _why_.
+For the **descriptive** map of how the package is built today (pipeline, module map, seams), see [`../../ARCHITECTURE.md`](../../ARCHITECTURE.md).
+ARCHITECTURE.md says _what is_; these ADRs say _why_.
 
 ## Index
 
