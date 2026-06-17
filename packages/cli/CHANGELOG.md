@@ -1,5 +1,29 @@
 # @redocly/cli
 
+## 2.33.2
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0
+
+### Minor Changes
+
+- Added the `--component-names-strategy` option to the `bundle` command.
+  This option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.0.
+
 ## 2.32.2
 
 ### Patch Changes

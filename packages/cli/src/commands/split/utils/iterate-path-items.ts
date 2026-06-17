@@ -15,6 +15,7 @@ import {
   writeToFileByExtension,
 } from '../../../utils/miscellaneous.js';
 import { OPENAPI3_METHOD_NAMES } from '../oas/constants.js';
+import { assertWithinDir } from './assert-within-dir.js';
 import { traverseDirectoryDeep, traverseDirectoryDeepCallback } from './traverse-directory-deep.js';
 
 export function iteratePathItems(
@@ -35,6 +36,8 @@ export function iteratePathItems(
 
     if (isRef(pathData)) continue;
 
+    assertWithinDir(openapiDir, pathFile, pathName);
+
     for (const method of OPENAPI3_METHOD_NAMES) {
       const methodData = pathData[method];
       const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
@@ -50,6 +53,8 @@ export function iteratePathItems(
           codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator),
           method + langToExt(sample.lang)
         );
+
+        assertWithinDir(openapiDir, sampleFileName, sample.lang);
 
         fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
         fs.writeFileSync(sampleFileName, sample.source);

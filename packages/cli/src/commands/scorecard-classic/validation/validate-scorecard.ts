@@ -8,6 +8,7 @@ import {
   type BaseResolver,
   type Config,
 } from '@redocly/openapi-core';
+import * as path from 'node:path';
 
 import { exitWithError } from '../../../utils/error.js';
 import { getTarget, resolveConfigForTarget } from '../targets-handler/targets-handler.js';
@@ -55,7 +56,11 @@ export async function validateScorecard({
 
   const plugins =
     typeof pluginsCodeOrPlugins === 'string'
-      ? await evaluatePluginsFromCode(pluginsCodeOrPlugins, verbose)
+      ? await evaluatePluginsFromCode(
+          pluginsCodeOrPlugins,
+          verbose,
+          configPath ? path.dirname(configPath) : undefined
+        )
       : pluginsCodeOrPlugins;
 
   const pluginsList = Array.isArray(plugins) ? plugins : [];

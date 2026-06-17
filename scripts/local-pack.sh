@@ -3,7 +3,6 @@
 # Backup package.json files
 cp packages/core/package.json packages/core/package.json.bak
 cp packages/respect-core/package.json packages/respect-core/package.json.bak
-cp packages/cli/package.json packages/cli/package.json.bak
 
 # Build and pack core package
 cd packages/core
@@ -18,15 +17,14 @@ respect_core=$(npm pack | tail -n 1)
 mv $respect_core ../../respect-core.tgz
 cd ../../
 
-# Update and pack cli package
+# Pack cli from its staged, dependency-free publish directory
 cd packages/cli
-jq '.dependencies["@redocly/openapi-core"] = "./openapi-core.tgz"' package.json > tmp.json && mv tmp.json package.json
-jq '.dependencies["@redocly/respect-core"] = "./respect-core.tgz"' package.json > tmp.json && mv tmp.json package.json
-cli=$(npm pack | tail -n 1)
+npm run prepare:publish-dir
+cli=$(npm pack ./.publish | tail -n 1)
+npm run clean:publish-dir
 mv $cli ../../redocly-cli.tgz
 cd ../../
 
 # Restore original package.json files
 mv packages/core/package.json.bak packages/core/package.json
 mv packages/respect-core/package.json.bak packages/respect-core/package.json
-mv packages/cli/package.json.bak packages/cli/package.json

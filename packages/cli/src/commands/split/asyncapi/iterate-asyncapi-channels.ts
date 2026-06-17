@@ -4,6 +4,7 @@ import * as path from 'node:path';
 
 import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
+import { assertWithinDir } from '../utils/assert-within-dir.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import {
   traverseDirectoryDeep,
@@ -34,6 +35,8 @@ export function iterateAsyncApiChannels({
     const channelData = channels[channelName];
 
     if (isRef(channelData)) continue;
+
+    assertWithinDir(asyncapiDir, channelFile, channelName);
 
     channelsFiles[channelName] = channelFile;
     replace$Refs(channelData, path.dirname(channelFile), componentsFiles);

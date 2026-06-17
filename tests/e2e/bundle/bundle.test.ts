@@ -14,6 +14,7 @@ describe('bundle', () => {
     'bundle-remove-unused-components-from-api-config',
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
+    'bundle-use-titles-for-component-names-collision',
   ];
   const folderPath = __dirname;
   const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -198,5 +199,39 @@ describe('bundle with long description', () => {
 
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
+  });
+});
+
+describe('bundle with option: component-names-strategy title', () => {
+  test('fails when two schemas share a title-based name', async () => {
+    const testPath = join(__dirname, 'bundle-use-titles-for-component-names-collision');
+    const entryPoints = getEntrypoints(testPath);
+    const args = [
+      indexEntryPoint,
+      'bundle',
+      '--component-names-strategy',
+      'title',
+      '--component-renaming-conflicts-severity',
+      'error',
+      ...entryPoints,
+    ];
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundles the same collision silently with --component-renaming-conflicts-severity off', async () => {
+    const testPath = join(__dirname, 'bundle-use-titles-for-component-names-collision');
+    const entryPoints = getEntrypoints(testPath);
+    const args = [
+      indexEntryPoint,
+      'bundle',
+      '--component-names-strategy',
+      'title',
+      '--component-renaming-conflicts-severity',
+      'off',
+      ...entryPoints,
+    ];
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-off.txt'));
   });
 });

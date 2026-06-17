@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: e2e collision
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /b:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User-2'
+components:
+  schemas:
+    User:
+      type: object
+      title: User
+      properties:
+        a:
+          type: string
+    User-2:
+      type: object
+      title: User
+      properties:
+        b:
+          type: string
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
