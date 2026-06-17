@@ -174,6 +174,7 @@ rules:
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  spec-step-mutually-exclusive-fields: warn
   stepId-unique: error
   struct: error
   workflowId-unique: error
@@ -186,6 +187,7 @@ rules:
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  spec-step-mutually-exclusive-fields: warn
   stepId-unique: error
   struct: error
   workflowId-unique: error
@@ -403,6 +405,7 @@ rules:
   sourceDescription-name-unique: error
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
+  spec-step-mutually-exclusive-fields: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn
   stepId-unique: error
@@ -426,6 +429,7 @@ rules:
   sourceDescription-name-unique: error
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
+  spec-step-mutually-exclusive-fields: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn
   stepId-unique: error

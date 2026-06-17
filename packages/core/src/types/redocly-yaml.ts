@@ -160,6 +160,7 @@ const builtInArazzo1Rules = [
   'stepId-unique',
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
+  'spec-step-mutually-exclusive-fields',
   'workflow-dependsOn',
   'outputs-defined',
   'parameters-unique',

@@ -135,6 +135,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
 - [sourceDescription-name-unique](./arazzo/sourceDescription-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
 - [sourceDescription-type](./arazzo/sourceDescription-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
+- [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md): a step must use only one of its mutually exclusive operation fields
 - [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
