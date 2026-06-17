@@ -16,7 +16,7 @@ import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
-import { handleDrift, type DriftArgv } from './commands/drift/index.js';
+import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
@@ -27,7 +27,7 @@ import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
-import { handleProxy, type ProxyArgv } from './commands/proxy/index.js';
+import { type ProxyArgv } from './commands/proxy/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
@@ -979,7 +979,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleDrift } = await import('./commands/drift/index.js');
       commandWrapper(handleDrift)(argv as Arguments<DriftArgv>);
     }
   )
@@ -1049,7 +1050,8 @@ yargs(hideBin(process.argv))
           default: 'warn' as RuleSeverity,
         },
       }),
-    (argv) => {
+    async (argv) => {
+      const { handleProxy } = await import('./commands/proxy/index.js');
       commandWrapper(handleProxy)(argv as Arguments<ProxyArgv>);
     }
   )

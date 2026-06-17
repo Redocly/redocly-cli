@@ -1,3 +1,4 @@
+import { blue, bold, cyan, dim, gray, green, red, yellow } from 'colorette';
 import path from 'node:path';
 
 import type { DriftRunResult, FindingPreview, FindingRecord, RunSummary } from '../types/index.js';
@@ -11,17 +12,9 @@ export interface RenderReportOptions {
   maxFindings?: number;
 }
 
-const ANSI = {
-  reset: '[0m',
-  bold: '[1m',
-  dim: '[2m',
-  green: '[32m',
-  red: '[31m',
-  yellow: '[33m',
-  blue: '[34m',
-  cyan: '[36m',
-  gray: '[90m',
-} as const;
+type Colorize = (text: string) => string;
+
+const cyanBold: Colorize = (text) => bold(cyan(text));
 
 function mapSeverityToSarifLevel(severity: string): 'error' | 'warning' | 'note' {
   if (severity === 'error') return 'error';
@@ -255,35 +248,35 @@ function totalFindings(summary: RunSummary): number {
   );
 }
 
-function statusColorCode(status: number): string {
-  if (status >= 500) return ANSI.red;
-  if (status >= 400) return ANSI.yellow;
-  if (status >= 300) return ANSI.blue;
-  if (status >= 200) return ANSI.green;
-  return ANSI.gray;
+function statusColor(status: number): Colorize {
+  if (status >= 500) return red;
+  if (status >= 400) return yellow;
+  if (status >= 300) return blue;
+  if (status >= 200) return green;
+  return gray;
 }
 
 function formatPretty(result: DriftRunResult, color: boolean, maxFindings: number): string {
-  const colorize = (text: string, code: string) => (color ? `${code}${text}${ANSI.reset}` : text);
+  const colorize = (text: string, paint: Colorize) => (color ? paint(text) : text);
   const severityIcon = (severity: FindingPreview['severity']) =>
     severity === 'error'
-      ? colorize('✖', ANSI.red)
+      ? colorize('✖', red)
       : severity === 'warning'
-        ? colorize('▲', ANSI.yellow)
-        : colorize('●', ANSI.blue);
+        ? colorize('▲', yellow)
+        : colorize('●', blue);
   const severityLabel = (severity: FindingPreview['severity']) =>
     severity === 'error'
-      ? colorize('ERROR', ANSI.red)
+      ? colorize('ERROR', red)
       : severity === 'warning'
-        ? colorize('WARN', ANSI.yellow)
-        : colorize('INFO', ANSI.blue);
+        ? colorize('WARN', yellow)
+        : colorize('INFO', blue);
 
   const { summary, meta } = result;
   const findingsCount = totalFindings(summary);
   const findingsToRender = summary.previewFindings.slice(0, maxFindings);
 
   const lines: string[] = [];
-  lines.push(colorize('┏━ Drift Report', `${ANSI.cyan}${ANSI.bold}`));
+  lines.push(colorize('┏━ Drift Report', cyanBold));
   lines.push(`┃ Run: ${result.runId}`);
   lines.push(`┃ Spec: ${meta.specSource}${meta.generatedSpec ? ' (generated from traffic)' : ''}`);
   lines.push(`┃ Traffic: ${meta.trafficPath}`);
@@ -299,31 +292,26 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
     }`
   );
   lines.push(
-    `┃ Findings: total=${findingsCount} ${colorize(`error=${summary.findingsBySeverity.error}`, ANSI.red)} ${colorize(
+    `┃ Findings: total=${findingsCount} ${colorize(`error=${summary.findingsBySeverity.error}`, red)} ${colorize(
       `warning=${summary.findingsBySeverity.warning}`,
-      ANSI.yellow
-    )} ${colorize(`info=${summary.findingsBySeverity.info}`, ANSI.blue)}`
+      yellow
+    )} ${colorize(`info=${summary.findingsBySeverity.info}`, blue)}`
   );
   lines.push(`┃ Problems: total=${summary.totalProblemGroups}`);
   lines.push(`┗ Duration: ${summary.durationMs}ms`);
 
   if (findingsToRender.length === 0) {
     lines.push('');
-    lines.push(colorize('✔ No findings.', ANSI.cyan));
+    lines.push(colorize('✔ No findings.', cyan));
     return `${lines.join('\n')}\n`;
   }
 
   lines.push('');
-  lines.push(
-    colorize(
-      `Types (${Object.keys(summary.problemGroupsByRule).length})`,
-      `${ANSI.cyan}${ANSI.bold}`
-    )
-  );
+  lines.push(colorize(`Types (${Object.keys(summary.problemGroupsByRule).length})`, cyanBold));
   for (const [ruleId, problemsCount] of sortRuleCounts(summary.problemGroupsByRule)) {
     const findingsForRule = summary.findingsByRule[ruleId] ?? problemsCount;
     lines.push(
-      `  ${colorize('•', ANSI.gray)} ${ruleId}: ${problemsCount} problems / ${findingsForRule} findings`
+      `  ${colorize('•', gray)} ${ruleId}: ${problemsCount} problems / ${findingsForRule} findings`
     );
   }
 
@@ -347,7 +335,7 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
   lines.push(
     colorize(
       `Problems by type (showing first ${findingsToRender.length} of ${summary.totalProblemGroups})`,
-      `${ANSI.cyan}${ANSI.bold}`
+      cyanBold
     )
   );
 
@@ -362,9 +350,9 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
     const ruleFindingTotal = summary.findingsByRule[ruleId] ?? ruleProblemTotal;
     lines.push('');
     lines.push(
-      `${colorize('◉', ANSI.cyan)} ${colorize(ruleId, `${ANSI.cyan}${ANSI.bold}`)} ${colorize(
+      `${colorize('◉', cyan)} ${colorize(ruleId, cyanBold)} ${colorize(
         `(${group.length} problems shown / ${ruleProblemTotal} total, ${ruleFindingTotal} findings)`,
-        ANSI.gray
+        gray
       )}`
     );
 
@@ -373,46 +361,40 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
       const occurrences = finding.occurrences;
       const statusText =
         finding.status !== undefined
-          ? colorize(String(finding.status), statusColorCode(finding.status))
-          : colorize('-', ANSI.gray);
+          ? colorize(String(finding.status), statusColor(finding.status))
+          : colorize('-', gray);
       const displayPath = getOperationTemplatePath(finding.details) ?? finding.path;
-      const operationLabel = finding.operationId
-        ? ` ${colorize(finding.operationId, ANSI.dim)}`
-        : '';
+      const operationLabel = finding.operationId ? ` ${colorize(finding.operationId, dim)}` : '';
       lines.push(
         `${severityIcon(finding.severity)} ${severityLabel(finding.severity)} #${renderedIndex}${
-          occurrences > 1 ? ` ${colorize(`×${occurrences}`, ANSI.gray)}` : ''
-        } ${colorize('→', ANSI.gray)} ${finding.message}`
+          occurrences > 1 ? ` ${colorize(`×${occurrences}`, gray)}` : ''
+        } ${colorize('→', gray)} ${finding.message}`
       );
       lines.push(
-        `  ↳ sample exchange=${finding.exchangeIndex} ${colorize(finding.method, ANSI.cyan)} ${displayPath} (${statusText})${operationLabel}`
+        `  ↳ sample exchange=${finding.exchangeIndex} ${colorize(finding.method, cyan)} ${displayPath} (${statusText})${operationLabel}`
       );
       lines.push('');
-      lines.push(`    ${colorize(finding.url, ANSI.gray)}`);
+      lines.push(`    ${colorize(finding.url, gray)}`);
 
       if (finding.specSource || finding.schemaPath || finding.dataPath) {
         lines.push('');
         if (finding.specSource) {
           lines.push(
-            `    ${colorize('spec:', ANSI.dim)} ${colorize(toRelativeSpecPath(finding.specSource), ANSI.cyan)}`
+            `    ${colorize('spec:', dim)} ${colorize(toRelativeSpecPath(finding.specSource), cyan)}`
           );
         }
         if (finding.schemaPath) {
-          lines.push(
-            `    ${colorize('schemaPath=', ANSI.dim)} ${colorize(finding.schemaPath, ANSI.dim)}`
-          );
+          lines.push(`    ${colorize('schemaPath=', dim)} ${colorize(finding.schemaPath, dim)}`);
         }
         if (finding.dataPath) {
-          lines.push(
-            `    ${colorize('dataPath=', ANSI.dim)} ${colorize(finding.dataPath, ANSI.cyan)}`
-          );
+          lines.push(`    ${colorize('dataPath=', dim)} ${colorize(finding.dataPath, cyan)}`);
         }
       }
 
       if (finding.details) {
         lines.push('');
         if (finding.ruleId === 'security-baseline' && typeof finding.details.summary === 'string') {
-          lines.push(`    ${colorize('security:', ANSI.dim)} ${finding.details.summary}`);
+          lines.push(`    ${colorize('security:', dim)} ${finding.details.summary}`);
         } else if (
           finding.ruleId === 'owasp-api-top10' &&
           typeof finding.details.summary === 'string'
@@ -421,10 +403,10 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
             typeof finding.details.issueId === 'string' ? finding.details.issueId : null;
           const issueTitle =
             typeof finding.details.issueTitle === 'string' ? finding.details.issueTitle : null;
-          lines.push(`    ${colorize('owasp:', ANSI.dim)} ${finding.details.summary}`);
+          lines.push(`    ${colorize('owasp:', dim)} ${finding.details.summary}`);
           if (issueId || issueTitle) {
             lines.push(
-              `    ${colorize('issue:', ANSI.dim)} ${[issueId, issueTitle].filter(Boolean).join(' - ')}`
+              `    ${colorize('issue:', dim)} ${[issueId, issueTitle].filter(Boolean).join(' - ')}`
             );
           }
         } else if (
@@ -438,24 +420,24 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
           const suggestion =
             typeof finding.details.suggestion === 'string' ? finding.details.suggestion : null;
 
-          lines.push(`    ${colorize('schema:', ANSI.dim)} ${finding.details.summary}`);
+          lines.push(`    ${colorize('schema:', dim)} ${finding.details.summary}`);
           if (detailPath) {
-            lines.push(`    ${colorize('path:', ANSI.dim)} ${colorize(detailPath, ANSI.cyan)}`);
+            lines.push(`    ${colorize('path:', dim)} ${colorize(detailPath, cyan)}`);
           }
           if (expected) {
-            lines.push(`    ${colorize('expected:', ANSI.dim)} ${expected}`);
+            lines.push(`    ${colorize('expected:', dim)} ${expected}`);
           }
           if (actual) {
-            lines.push(`    ${colorize('actual:', ANSI.dim)} ${actual}`);
+            lines.push(`    ${colorize('actual:', dim)} ${actual}`);
           }
           if (suggestion) {
-            lines.push(`    ${colorize('hint:', ANSI.dim)}`);
+            lines.push(`    ${colorize('hint:', dim)}`);
             for (const suggestionLine of suggestion.split('\n')) {
               lines.push(`      ${suggestionLine}`);
             }
           }
         } else {
-          lines.push(`    ${colorize('details:', ANSI.dim)} ${JSON.stringify(finding.details)}`);
+          lines.push(`    ${colorize('details:', dim)} ${JSON.stringify(finding.details)}`);
         }
       }
 
@@ -471,7 +453,7 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
     lines.push(
       colorize(
         `… ${omittedProblemsCount} problems omitted from terminal output. Use --format json/csv/sarif for the complete export.`,
-        ANSI.gray
+        gray
       )
     );
   } else if (lines[lines.length - 1] === '') {
