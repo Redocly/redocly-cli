@@ -1,10 +1,6 @@
 import type { DependencyGraph } from './types.js';
 
-/**
- * Returns the induced subgraph affected by changes to the given files:
- * the changed nodes plus every transitive dependent (reverse closure up to the roots).
- * `changedIds` must already be node ids of the graph (cwd-relative paths).
- */
+/** Returns `changedIds` plus every node that transitively depends on them (reverse closure up to the roots). */
 export function filterAffected(graph: DependencyGraph, changedIds: string[]): DependencyGraph {
   const dependentsByTarget = new Map<string, string[]>();
   for (const edge of graph.edges) {

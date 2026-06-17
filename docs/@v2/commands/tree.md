@@ -122,7 +122,7 @@ Prints the graph as JSON with `roots`, `nodes` (`resolved` and `external` on eve
 redocly tree openapi.yaml --format=mermaid
 ```
 
-Prints a [Mermaid](https://mermaid.js.org/) `flowchart` definition. GitHub renders Mermaid code blocks in Markdown automatically, so you can paste the output into a pull request comment or documentation page to get a diagram.
+Prints a [Mermaid](https://mermaid.js.org/) `flowchart` definition.
 
 ### File-level graph
 
@@ -140,4 +140,4 @@ openapi.yaml
         └── components/schemas/Pet.yaml ↺
 ```
 
-Unlike the default view, `--files` accepts multiple APIs in a single run (their graphs merge). In this mode `--affected-by` takes file paths, and the summary reports affected files and roots.
+`--files` shows only which files reference which other files — not the paths, operations, and components inside them. (The default view already traverses those, following `$ref`s across files.) It also accepts multiple APIs in one run, merging their graphs; in this mode `--affected-by` takes file paths and the summary counts affected files and roots.

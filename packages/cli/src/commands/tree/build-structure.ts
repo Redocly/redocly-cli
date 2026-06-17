@@ -21,11 +21,6 @@ import {
 } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
-/**
- * Builds the internal structure graph of one API description: root -> paths -> operations and the
- * component dependency chains reached through every `$ref`. The result is pruned to nodes reachable
- * from the root and sorted by codepoint so all three renderers agree byte-for-byte.
- */
 export function buildStructure(options: {
   document: Document;
   types: Record<string, NormalizedNodeType>;
@@ -42,11 +37,6 @@ export function buildStructure(options: {
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
 
-  /**
-   * Adds or updates a node. `resolved` is OR-ed; `kind`/`file` take the latest mapping —
-   * distinct mappings of one id are expected to agree (a component literally named like a
-   * sibling file path is the known, accepted exception: last writer in document order wins).
-   */
   const upsertNode = (mapped: MappedNode & { file: string }, resolved: boolean) => {
     const node = nodes.get(mapped.id) ?? { id: mapped.id, resolved: false };
     if (resolved) node.resolved = true;
@@ -56,7 +46,6 @@ export function buildStructure(options: {
     nodes.set(mapped.id, node);
   };
 
-  /** Adds (or extends) a directed edge, deduping by `from -> to` and collecting distinct refs. */
   const addEdge = (from: string, to: string, refString?: string) => {
     const edgeKey = `${from} -> ${to}`;
     const edge = edges.get(edgeKey) ?? { from, to, refs: [] };
@@ -66,23 +55,18 @@ export function buildStructure(options: {
     edges.set(edgeKey, edge);
   };
 
-  /**
-   * Materializes the node for a resolved Location and, when the mapping carries an ancestry,
-   * wires the structural spine `root -> ancestry[0] -> ... -> node` (spine edges carry no refs).
-   * Returns the node id so callers can attach `$ref` edges to it.
-   */
-  const nodeFor = (location: Location): string => {
-    const inRootFile = location.source.absoluteRef === rootAbs;
-    const mapped: MappedNode & { file: string } = inRootFile
-      ? { ...mapRootPointer(location.pointer, rootId), file: rootId }
-      : mapForeignLocation(toNodeId(location.source.absoluteRef, cwd), location.pointer);
+  const mapByFile = (absoluteRef: string, pointer: string): MappedNode & { file: string } =>
+    absoluteRef === rootAbs
+      ? { ...mapRootPointer(pointer, rootId), file: rootId }
+      : mapForeignLocation(toNodeId(absoluteRef, cwd), pointer);
 
+  const nodeFor = (location: Location): string => {
+    const mapped = mapByFile(location.source.absoluteRef, location.pointer);
     upsertNode(mapped, true);
     wireSpine(mapped);
     return mapped.id;
   };
 
-  /** Wires root -> ...ancestry -> node spine edges when the mapping requests a structural link. */
   const wireSpine = (mapped: MappedNode) => {
     if (mapped.ancestry === undefined) return;
     let previous = rootId;
@@ -94,11 +78,8 @@ export function buildStructure(options: {
     addEdge(previous, mapped.id);
   };
 
-  /**
-   * Derives the target id for an unresolved `$ref` from its raw string: a same-file fragment maps
-   * through the root/foreign pointer mappers; a uri part resolves against the ref site's file.
-   * The node is upserted as unresolved (and external for URLs).
-   */
+  // Unresolved `$ref`: derive the target id from the raw string — a same-file fragment, or a uri
+  // resolved against the ref site's file.
   const unresolvedTargetId = (siteLocation: Location, refString: string): string => {
     const hashIndex = refString.indexOf('#');
     const uri = hashIndex === -1 ? refString : refString.slice(0, hashIndex);
@@ -107,11 +88,7 @@ export function buildStructure(options: {
 
     let mapped: MappedNode & { file: string };
     if (uri === '') {
-      const pointer = '#' + (fragment ?? '/');
-      mapped =
-        siteFile === rootAbs
-          ? { ...mapRootPointer(pointer, rootId), file: rootId }
-          : mapForeignLocation(toNodeId(siteFile, cwd), pointer);
+      mapped = mapByFile(siteFile, '#' + (fragment ?? '/'));
     } else {
       const fileId = toNodeId(resolveRef(siteFile, uri), cwd);
       mapped =
@@ -124,8 +101,6 @@ export function buildStructure(options: {
     return mapped.id;
   };
 
-  // Keys absent from a non-OpenAPI type map (AsyncAPI/Arazzo) are silently ignored by
-  // normalizeVisitors, so this OAS3-shaped visitor is safe to run against any detected spec.
   const visitor: Oas3Visitor = {
     PathItem: {
       enter(_node, vctx) {
@@ -173,10 +148,7 @@ export function buildStructure(options: {
   return prune(rootId, nodes, edges);
 }
 
-/**
- * Drops nodes unreachable from the root via directed BFS over the edges, then codepoint-sorts the
- * nodes (id), edges (from, then to), and each edge's refs with the shared `byString` comparator.
- */
+/** Drops nodes unreachable from the root, then codepoint-sorts nodes/edges/refs for stable output. */
 function prune(
   rootId: string,
   nodes: Map<string, GraphNode>,

@@ -15,7 +15,7 @@ import {
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
-import type { VerifyConfigOptions } from '../../types.js';
+import type { Entrypoint, VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -35,7 +35,14 @@ export type TreeArgv = {
   files?: boolean;
 } & VerifyConfigOptions;
 
-/** Resolves the given API descriptions and prints their dependency tree. */
+type TreeModeContext = {
+  argv: TreeArgv;
+  config: CommandArgs<TreeArgv>['config'];
+  collectSpecData: CommandArgs<TreeArgv>['collectSpecData'];
+  externalRefResolver: BaseResolver;
+  cwd: string;
+};
+
 export async function handleTree({ argv, config, collectSpecData }: CommandArgs<TreeArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
@@ -61,7 +68,6 @@ export async function handleTree({ argv, config, collectSpecData }: CommandArgs<
   });
 }
 
-/** Loads and resolves one API description: parses the root, detects the spec, and resolves all refs. */
 async function resolveApi({
   apiPath,
   config,
@@ -93,7 +99,6 @@ async function resolveApi({
   return { rootDocument, specVersion, types, refMap };
 }
 
-/** Resolves all given APIs and prints their file-level $ref dependency graph. */
 async function handleFilesMode({
   apis,
   argv,
@@ -101,14 +106,7 @@ async function handleFilesMode({
   collectSpecData,
   externalRefResolver,
   cwd,
-}: {
-  apis: Array<{ path: string }>;
-  argv: TreeArgv;
-  config: CommandArgs<TreeArgv>['config'];
-  collectSpecData: CommandArgs<TreeArgv>['collectSpecData'];
-  externalRefResolver: BaseResolver;
-  cwd: string;
-}): Promise<void> {
+}: TreeModeContext & { apis: Entrypoint[] }): Promise<void> {
   const resolutions: Array<{ rootDocument: Document; refMap: ResolvedRefMap }> = [];
   for (const { path: apiPath } of apis) {
     const { rootDocument, refMap } = await resolveApi({
@@ -150,7 +148,6 @@ async function handleFilesMode({
   renderOutput(printedGraph, argv.format, stylishOptions);
 }
 
-/** Resolves a single API and prints its internal document structure tree. */
 async function handleStructureMode({
   api,
   argv,
@@ -158,14 +155,7 @@ async function handleStructureMode({
   collectSpecData,
   externalRefResolver,
   cwd,
-}: {
-  api: { path: string };
-  argv: TreeArgv;
-  config: CommandArgs<TreeArgv>['config'];
-  collectSpecData: CommandArgs<TreeArgv>['collectSpecData'];
-  externalRefResolver: BaseResolver;
-  cwd: string;
-}): Promise<void> {
+}: TreeModeContext & { api: Entrypoint }): Promise<void> {
   const {
     rootDocument,
     specVersion,
@@ -233,7 +223,6 @@ async function handleStructureMode({
   renderOutput(printedGraph, argv.format, stylishOptions);
 }
 
-/** Emits the graph in the requested format to logger.output. */
 function renderOutput(
   graph: DependencyGraph,
   format: TreeFormat,

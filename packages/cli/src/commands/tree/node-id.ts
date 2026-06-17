@@ -11,7 +11,6 @@ import type { NodeKind } from './types.js';
 /** Codepoint comparison (not localeCompare): deterministic across Node ICU builds → stable output. */
 export const byString = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
-/** Converts an absolute file path or URL into a stable node id (cwd-relative posix path; URLs as-is). */
 export function toNodeId(absoluteRef: string, cwd: string): string {
   return isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));
 }
@@ -43,7 +42,6 @@ export type MappedNode = {
   ancestry?: string[];
 };
 
-/** Splits a JSON pointer like '#/paths/~1pets/get' into unescaped segments: ['paths', '/pets', 'get']. */
 export function parsePointerSegments(pointer: string): string[] {
   return pointer
     .replace(/^#?\/?/, '')
@@ -52,7 +50,6 @@ export function parsePointerSegments(pointer: string): string[] {
     .map(unescapePointerFragment);
 }
 
-/** Maps a pointer within the root document to the tree node that owns it. */
 export function mapRootPointer(pointer: string, rootId: string): MappedNode {
   const segments = parsePointerSegments(pointer);
   if (segments.length === 0) {
@@ -78,7 +75,6 @@ export function mapRootPointer(pointer: string, rootId: string): MappedNode {
   };
 }
 
-/** Maps a location in a non-root file to a component inside it or to the whole file. */
 export function mapForeignLocation(fileId: string, pointer: string): MappedNode & { file: string } {
   const segments = parsePointerSegments(pointer);
   const componentDepth =
