@@ -149,6 +149,7 @@ export type PreprocessorsConfig = {
   async2?: Async2DecoratorsSet;
   async3?: Async3DecoratorsSet;
   arazzo1?: Arazzo1DecoratorsSet;
+  arazzo1_1?: Arazzo1DecoratorsSet;
   overlay1?: Overlay1DecoratorsSet;
   openrpc1?: OpenRpc1DecoratorsSet;
 };
@@ -159,6 +160,7 @@ export type DecoratorsConfig = {
   async2?: Async2DecoratorsSet;
   async3?: Async3DecoratorsSet;
   arazzo1?: Arazzo1DecoratorsSet;
+  arazzo1_1?: Arazzo1DecoratorsSet;
   overlay1?: Overlay1DecoratorsSet;
   openrpc1?: OpenRpc1DecoratorsSet;
 };
@@ -176,6 +178,7 @@ export type RulesConfig<T> = {
   async2?: Async2RuleSet<T>;
   async3?: Async3RuleSet<T>;
   arazzo1?: Arazzo1RuleSet<T>;
+  arazzo1_1?: Arazzo1RuleSet<T>;
   overlay1?: Overlay1RuleSet<T>;
   openrpc1?: OpenRpc1RuleSet<T>;
 };

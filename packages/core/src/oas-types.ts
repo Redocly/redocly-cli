@@ -60,6 +60,7 @@ export type SpecMajorVersion =
   | 'async2'
   | 'async3'
   | 'arazzo1'
+  | 'arazzo1_1'
   | 'overlay1'
   | 'openrpc1';
 
