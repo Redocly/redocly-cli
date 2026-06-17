@@ -6,7 +6,6 @@ import {
   resolveDocument,
   Source,
   type Document,
-  type ResolvedRefMap,
   type WalkContext,
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
@@ -17,27 +16,18 @@ import type { DependencyGraph } from '../types.js';
 const CWD = '/project';
 const ROOT_ABS = '/project/openapi.yaml';
 
-/** The value type stored in a ResolvedRefMap (not exported from the barrel, so derived here). */
-type ResolvedRef = ResolvedRefMap extends Map<string, infer V> ? V : never;
-
-/** Resolves and builds the structure graph for a parsed root document, like the real command does. */
 async function structureOf(
   parsed: Record<string, unknown>,
-  options?: {
-    mutateRefMap?: (refMap: ResolvedRefMap) => void;
-    externalRefResolver?: BaseResolver;
-  }
+  externalRefResolver: BaseResolver = new BaseResolver()
 ): Promise<DependencyGraph> {
   const document = { source: new Source(ROOT_ABS, ''), parsed } as Document;
   const specVersion = detectSpec(parsed);
   const types = normalizeTypes(getTypes(specVersion), {});
-  const externalRefResolver = options?.externalRefResolver ?? new BaseResolver();
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
   });
-  options?.mutateRefMap?.(resolvedRefMap);
   const ctx = { problems: [], specVersion, visitorsData: {} } as unknown as WalkContext;
   return buildStructure({
     document,
@@ -49,7 +39,6 @@ async function structureOf(
   });
 }
 
-/** Returns the refs of the edge from `from` to `to`, or undefined when the edge is absent. */
 function edgeRefs(graph: DependencyGraph, from: string, to: string): string[] | undefined {
   return graph.edges.find((edge) => edge.from === from && edge.to === to)?.refs;
 }
@@ -348,19 +337,7 @@ describe('buildStructure', () => {
           },
         },
       },
-      {
-        externalRefResolver: new OfflineResolver(),
-        mutateRefMap: (refMap) => {
-          // Make the resolution deterministic regardless of how the offline resolver populated it.
-          refMap.set(ROOT_ABS + '::' + URL_REF, {
-            resolved: true,
-            isRemote: true,
-            node: {},
-            nodePointer: '#/components/schemas/S',
-            document: { source: new Source('https://example.com/shared.yaml', ''), parsed: {} },
-          } as ResolvedRef);
-        },
-      }
+      new OfflineResolver()
     );
 
     expect(graph.nodes).toContainEqual({

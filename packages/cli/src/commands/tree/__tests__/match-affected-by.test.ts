@@ -35,8 +35,6 @@ describe('matchAffectedBy', () => {
   });
 
   it('case 2: exact id wins over bare-name logic — no ambiguity note', () => {
-    // 'schemas/Pet' is an exact id match; even though 'Pet' (bare) would match multiple,
-    // the exact match short-circuits and no ambiguity note is emitted.
     expect(matchAffectedBy(graph, ['schemas/Pet'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['schemas/Pet'],
       markerIds: ['schemas/Pet'],
@@ -89,7 +87,6 @@ describe('matchAffectedBy', () => {
   it('case 6a: bare component name matching multiple — includes all + ambiguity note', () => {
     const result = matchAffectedBy(graph, ['Pet'], { cwd: CWD, rootId: ROOT_ID });
 
-    // All three Pet components in the graph
     expect(result.changedIds).toEqual([
       'common.yaml#/components/schemas/Pet',
       'parameters/Pet',
@@ -141,7 +138,6 @@ describe('matchAffectedBy', () => {
   it('case 8: dedup — Pet + schemas/Pet → schemas/Pet appears once in changedIds', () => {
     const result = matchAffectedBy(graph, ['Pet', 'schemas/Pet'], { cwd: CWD, rootId: ROOT_ID });
 
-    // Pet (bare) matches 3 ids; schemas/Pet is already among them → deduped
     expect(result.changedIds).toEqual([
       'common.yaml#/components/schemas/Pet',
       'parameters/Pet',
