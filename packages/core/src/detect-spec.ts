@@ -20,8 +20,6 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'oas3';
   } else if (version === 'oas2') {
     return 'oas2';
-  } else if (version === 'async3') {
-    return 'async3';
   } else if (version === 'async2') {
     return 'async2';
   } else if (version === 'async3') {
