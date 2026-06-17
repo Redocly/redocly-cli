@@ -63,7 +63,7 @@ export type PointerLocationObject = {
 };
 
 export type LineColLocationObject = Omit<PointerLocationObject, 'pointer'> & {
-  pointer: undefined;
+  pointer?: string;
   start: Loc;
   end?: Loc;
 };

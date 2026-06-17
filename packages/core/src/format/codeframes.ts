@@ -133,7 +133,7 @@ function padSize(line: string): number {
 }
 
 export function getLineColLocation(location: LocationObject): LineColLocationObject {
-  if (location.pointer === undefined) return location;
+  if ('start' in location) return location;
 
   const { source, pointer, reportOnKey } = location;
   const ast = source.getAst(yamlAst.safeLoad) as YAMLNode;

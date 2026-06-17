@@ -4,6 +4,8 @@ import type { Config } from './config/index.js';
 import { initRules } from './config/rules.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { getTypes } from './oas-types.js';
+import { lintProtoDocument } from './protobuf/lint.js';
+import { makeProtoDocumentFromString } from './protobuf/parse.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
@@ -39,6 +41,18 @@ export async function lint(opts: {
   collectSpecData?: CollectFn;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
+  if (isProtoRef(ref)) {
+    const source = await externalRefResolver.loadExternalRef(
+      externalRefResolver.resolveExternalRef(null, ref)
+    );
+    const document = makeProtoDocumentFromString(source.body, source.absoluteRef);
+
+    return lintProtoDocument({
+      document,
+      config: opts.config,
+    });
+  }
+
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
   opts.collectSpecData?.(document.parsed);
 
@@ -47,6 +61,10 @@ export async function lint(opts: {
     ...opts,
     externalRefResolver,
   });
+}
+
+function isProtoRef(ref: string): boolean {
+  return ref.toLowerCase().split(/[?#]/, 1)[0].endsWith('.proto');
 }
 
 export async function lintFromString(opts: {

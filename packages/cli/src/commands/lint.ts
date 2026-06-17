@@ -2,7 +2,6 @@ import {
   formatProblems,
   getTotals,
   lint,
-  lintProto,
   lintConfig,
   pluralize,
   ConfigValidationError,
@@ -83,16 +82,11 @@ export async function handleLint({
 
       assertSupportedProtobufEntrypoint(path);
 
-      const results = isProtoPath(path)
-        ? await lintProto({
-            ref: path,
-            config: aliasConfig,
-          })
-        : await lint({
-            ref: path,
-            config: aliasConfig,
-            collectSpecData,
-          });
+      const results = await lint({
+        ref: path,
+        config: aliasConfig,
+        collectSpecData,
+      });
 
       const fileTotals = getTotals(results);
       totals.errors += fileTotals.errors;

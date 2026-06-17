@@ -10,7 +10,7 @@ export function protoLocationToProblemLocation(location: {
   if (location.start) {
     return {
       source: location.source,
-      pointer: undefined,
+      pointer: location.pointer,
       start: location.start,
       end: location.end,
     };
