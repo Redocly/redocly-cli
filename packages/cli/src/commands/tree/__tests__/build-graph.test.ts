@@ -5,12 +5,10 @@ import { buildGraph } from '../build-graph.js';
 
 const CWD = '/project';
 
-/** Creates a minimal core Document for a given absolute path or URL. */
 function makeDocument(absoluteRef: string): Document {
   return { source: new Source(absoluteRef, ''), parsed: {} };
 }
 
-/** Creates a successfully resolved cross-file ResolvedRefMap entry value. */
 function resolvedEntry(targetAbsoluteRef: string, isRemote = true) {
   return {
     resolved: true as const,
@@ -21,7 +19,6 @@ function resolvedEntry(targetAbsoluteRef: string, isRemote = true) {
   };
 }
 
-/** Resolves a $ref uri against the source file directory, like BaseResolver.resolveExternalRef. */
 const resolveRef = (base: string, uri: string) => path.resolve(path.dirname(base), uri);
 
 describe('buildGraph', () => {
