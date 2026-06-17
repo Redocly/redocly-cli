@@ -6,75 +6,150 @@ import { lintDocument } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 
 describe('Arazzo 1.1 lint', () => {
-  it('lints a document using every new 1.1 feature without struct errors', async () => {
+  it('lints a document using the new 1.1 constructs without struct errors', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.1.0'
-        $self: https://example.com/workflows/museum.arazzo.yaml
+        $self: https://cafe.cloud.redocly.com/workflows/cafe.arazzo.yaml
         info:
-          title: Museum workflows
+          title: Cafe workflows
           version: 1.0.0
         sourceDescriptions:
-          - name: museum-api
+          - name: cafe-api
             type: openapi
-            url: openapi.yaml
-          - name: museum-events
+            url: ../../../../resources/cafe.yaml
+          - name: account-events
             type: asyncapi
-            url: asyncapi.yaml
+            url: ../../../../resources/asyncapi3.yaml
         workflows:
-          - workflowId: events
+          - workflowId: place-order
+            inputs:
+              type: object
+              properties:
+                customerName:
+                  type: string
             steps:
-              - stepId: create-event
-                operationId: museum-api.createEvent
+              - stepId: find-beverage
+                operationId: cafe-api.listMenuItems
                 parameters:
                   - in: querystring
-                    name: raw
-                    value: 'filter=upcoming&limit=5'
-                requestBody:
-                  payload:
-                    name: Mermaid Treasure
-                  replacements:
-                    - target: $.name
-                      targetSelectorType: jsonpath
-                      value: Updated name
+                    name: query
+                    value: 'filter=category:beverage&limit=5'
                 successCriteria:
                   - context: $response.body
-                    condition: $[?(@.name == 'Updated name')]
+                    condition: $.items[?(@.category == 'beverage')]
                     type:
                       type: jsonpath
                       version: rfc9535
                 outputs:
-                  eventId:
+                  beverageId:
                     context: $response.body
-                    selector: $.eventId
+                    selector: $.items[0].id
                     type: jsonpath
-                onSuccess:
-                  - name: notify
-                    type: goto
-                    workflowId: notify
-                    parameters:
-                      - name: eventName
-                        value: Mermaid Treasure
-              - stepId: await-confirmation
-                channelPath: $sourceDescriptions.museum-events#/channels/eventCreated
-                action: receive
-                correlationId: $message.payload#/eventId
-                timeout: 5000
+              - stepId: create-order
+                operationId: cafe-api.createOrder
                 dependsOn:
-                  - create-event
+                  - find-beverage
+                requestBody:
+                  payload:
+                    customerName: ''
+                    orderItems:
+                      - menuItemId: ''
+                        quantity: 1
+                  replacements:
+                    - target: /orderItems/0/menuItemId
+                      targetSelectorType: jsonpointer
+                      value: $steps.find-beverage.outputs.beverageId
+                    - target: $.customerName
+                      targetSelectorType:
+                        type: jsonpath
+                        version: rfc9535
+                      value:
+                        context: $inputs
+                        selector: $.customerName
+                        type: jsonpath
                 successCriteria:
-                  - condition: $statusCode == 200
-          - workflowId: notify
+                  - condition: $statusCode == 201
+                outputs:
+                  orderId: $response.body#/id
+                onSuccess:
+                  - name: notify-customer
+                    type: goto
+                    workflowId: notify-customer
+                    parameters:
+                      - name: orderId
+                        value: $steps.create-order.outputs.orderId
+          - workflowId: notify-customer
             inputs:
               type: object
               properties:
-                eventName:
+                orderId:
                   type: string
             steps:
-              - stepId: send-notification
-                operationId: museum-api.notify
+              - stepId: load-order
+                operationId: cafe-api.getOrderById
+                parameters:
+                  - in: path
+                    name: orderId
+                    value: $inputs.orderId
                 successCriteria:
-                  - condition: $statusCode == 202
+                  - condition: $statusCode == 200
+          - workflowId: await-user-signup
+            inputs:
+              type: object
+              properties:
+                email:
+                  type: string
+            steps:
+              - stepId: await-signup
+                channelPath: $sourceDescriptions.account-events#/channels/userSignedup
+                action: receive
+                correlationId: $inputs.email
+                timeout: 5000
+                successCriteria:
+                  - condition: $statusCode == 200
+                outputs:
+                  email:
+                    context: $message.payload
+                    selector: /email
+                    type:
+                      type: jsonpointer
+                      version: rfc6901
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('accepts an xpath Expression Type Object in a criterion', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: ../../../../resources/cafe.yaml
+        workflows:
+          - workflowId: get-order-feed
+            steps:
+              - stepId: read-feed
+                operationId: cafe-api.getOrderById
+                successCriteria:
+                  - context: $response.body
+                    condition: '/order/status'
+                    type:
+                      type: xpath
+                      version: xpath-31
       `,
       'arazzo.yaml'
     );
@@ -92,22 +167,22 @@ describe('Arazzo 1.1 lint', () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
-        $self: https://example.com/workflows/museum.arazzo.yaml
+        $self: https://cafe.cloud.redocly.com/workflows/cafe.arazzo.yaml
         info:
-          title: Museum workflows
+          title: Cafe workflows
           version: 1.0.0
         sourceDescriptions:
-          - name: museum-api
+          - name: cafe-api
             type: openapi
-            url: openapi.yaml
+            url: ../../../../resources/cafe.yaml
         workflows:
-          - workflowId: events
+          - workflowId: place-order
             steps:
-              - stepId: create-event
-                operationId: museum-api.createEvent
+              - stepId: create-order
+                operationId: cafe-api.createOrder
                 action: send
                 successCriteria:
-                  - condition: $statusCode == 200
+                  - condition: $statusCode == 201
       `,
       'arazzo.yaml'
     );
@@ -128,19 +203,19 @@ describe('Arazzo 1.1 lint', () => {
       outdent`
         arazzo: '1.1.0'
         info:
-          title: Museum workflows
+          title: Cafe workflows
           version: 1.0.0
         sourceDescriptions:
-          - name: museum-api
+          - name: cafe-api
             type: openapi
-            url: openapi.yaml
+            url: ../../../../resources/cafe.yaml
         workflows:
-          - workflowId: events
+          - workflowId: place-order
             steps:
-              - stepId: create-event
-                operationId: museum-api.createEvent
+              - stepId: create-order
+                operationId: cafe-api.createOrder
                 successCriteria:
-                  - condition: $statusCode == 200
+                  - condition: $statusCode == 201
       `,
       'arazzo.yaml'
     );
@@ -169,21 +244,21 @@ describe('Arazzo 1.1 lint', () => {
       outdent`
         arazzo: '1.1.0'
         info:
-          title: Museum workflows
+          title: Cafe workflows
           version: 1.0.0
         sourceDescriptions:
-          - name: museum-api
+          - name: cafe-api
             type: openapi
-            url: openapi.yaml
+            url: ../../../../resources/cafe.yaml
         workflows:
-          - workflowId: events
+          - workflowId: place-order
             steps:
-              - stepId: create-event
-                operationId: museum-api.createEvent
+              - stepId: create-order
+                operationId: cafe-api.createOrder
                 action: deliver
                 successCriteria:
                   - context: $response.body
-                    condition: $.name
+                    condition: $.id
                     type:
                       type: jsonpath
                       version: xpath-30
