@@ -113,6 +113,8 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case 'protobuf':
+      return null;
   }
 }
 
@@ -213,6 +215,8 @@ export function makeBundleVisitor({
           components = root.components = root.components || {};
         } else if (version === 'openrpc1') {
           components = root.components = root.components || {};
+        } else if (version === 'protobuf') {
+          components = {};
         }
       },
     },

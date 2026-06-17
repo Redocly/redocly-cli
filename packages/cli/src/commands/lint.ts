@@ -2,20 +2,23 @@ import {
   formatProblems,
   getTotals,
   lint,
+  lintProto,
   lintConfig,
   pluralize,
   ConfigValidationError,
+  isAbsoluteUrl,
   logger,
   type Config,
   type Exact,
   type OutputFormat,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
+import * as fs from 'node:fs';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
-import { AbortFlowError } from '../utils/error.js';
+import { AbortFlowError, exitWithError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
@@ -78,11 +81,18 @@ export async function handleLint({
         );
       }
 
-      const results = await lint({
-        ref: path,
-        config: aliasConfig,
-        collectSpecData,
-      });
+      assertSupportedProtobufEntrypoint(path);
+
+      const results = isProtoPath(path)
+        ? await lintProto({
+            ref: path,
+            config: aliasConfig,
+          })
+        : await lint({
+            ref: path,
+            config: aliasConfig,
+            collectSpecData,
+          });
 
       const fileTotals = getTotals(results);
       totals.errors += fileTotals.errors;
@@ -136,6 +146,47 @@ export async function handleLint({
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');
   }
+}
+
+function isProtoPath(path: string): boolean {
+  return path.toLowerCase().endsWith('.proto');
+}
+
+function assertSupportedProtobufEntrypoint(path: string): void {
+  if (isProtoPath(path) && isAbsoluteUrl(path)) {
+    exitWithError(
+      'Remote .proto URLs are not supported yet. Use a local .proto file or glob instead.'
+    );
+  }
+
+  if (!isAbsoluteUrl(path) && isLocalDirectory(path) && directoryContainsProto(path)) {
+    exitWithError(
+      'Directory inputs containing .proto files are not supported yet. Use explicit .proto files or a glob instead.'
+    );
+  }
+}
+
+function isLocalDirectory(path: string): boolean {
+  try {
+    return fs.statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+function directoryContainsProto(dir: string): boolean {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const entryPath = `${dir}/${entry.name}`;
+    if (entry.isFile() && isProtoPath(entry.name)) {
+      return true;
+    }
+
+    if (entry.isDirectory() && directoryContainsProto(entryPath)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export async function handleLintConfig(argv: Exact<CommandArgv>, version: string, config: Config) {

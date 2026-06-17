@@ -291,6 +291,11 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
   },
+  protobufRules: {
+    'protobuf/package-defined': 'warn',
+    'protobuf/message-pascal-case': 'warn',
+    'protobuf/field-snake-case': 'warn',
+  },
 };
 
 export default minimal;

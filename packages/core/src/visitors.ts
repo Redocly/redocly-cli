@@ -71,6 +71,18 @@ import type {
 } from './typings/openrpc.js';
 import type { Overlay1Definition } from './typings/overlay.js';
 import type {
+  ProtoDocument,
+  ProtoEnum,
+  ProtoEnumValue,
+  ProtoField,
+  ProtoImport,
+  ProtoMessage,
+  ProtoPackage,
+  ProtoRpc,
+  ProtoService,
+  ProtoSyntax,
+} from './typings/protobuf.js';
+import type {
   Oas2Definition,
   Oas2Tag,
   Oas2ExternalDocs,
@@ -318,6 +330,19 @@ type OpenRpc1FlatVisitor = {
   NamedTags?: VisitFunctionOrObject<Record<string, OpenRpc1Tag>>;
 };
 
+type ProtobufFlatVisitor = {
+  Root?: VisitFunctionOrObject<ProtoDocument>;
+  ProtoSyntax?: VisitFunctionOrObject<ProtoSyntax>;
+  ProtoPackage?: VisitFunctionOrObject<ProtoPackage>;
+  ProtoImport?: VisitFunctionOrObject<ProtoImport>;
+  ProtoMessage?: VisitFunctionOrObject<ProtoMessage>;
+  ProtoField?: VisitFunctionOrObject<ProtoField>;
+  ProtoEnum?: VisitFunctionOrObject<ProtoEnum>;
+  ProtoEnumValue?: VisitFunctionOrObject<ProtoEnumValue>;
+  ProtoService?: VisitFunctionOrObject<ProtoService>;
+  ProtoRpc?: VisitFunctionOrObject<ProtoRpc>;
+};
+
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
@@ -381,6 +406,13 @@ type OpenRpc1NestedVisitor = {
     : OpenRpc1FlatVisitor[T] & NestedVisitor<OpenRpc1NestedVisitor>;
 };
 
+type ProtobufNestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  [T in keyof ProtobufFlatVisitor]: ProtobufFlatVisitor[T] extends Function
+    ? ProtobufFlatVisitor[T]
+    : ProtobufFlatVisitor[T] & NestedVisitor<ProtobufNestedVisitor>;
+};
+
 export type Oas3Visitor = BaseVisitor &
   Oas3NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Oas3NestedVisitor>>;
@@ -408,6 +440,10 @@ export type Overlay1Visitor = BaseVisitor &
 export type OpenRpc1Visitor = BaseVisitor &
   OpenRpc1NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, OpenRpc1NestedVisitor>>;
+
+export type ProtobufVisitor = BaseVisitor &
+  ProtobufNestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, ProtobufNestedVisitor>>;
 
 export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<any>>;
 
@@ -437,6 +473,7 @@ export type Async3Rule = (options: Record<string, any>) => Async3Visitor | Async
 export type Arazzo1Rule = (options: Record<string, any>) => Arazzo1Visitor | Arazzo1Visitor[];
 export type Overlay1Rule = (options: Record<string, any>) => Overlay1Visitor | Overlay1Visitor[];
 export type OpenRpc1Rule = (options: Record<string, any>) => OpenRpc1Visitor | OpenRpc1Visitor[];
+export type ProtobufRule = (options: Record<string, any>) => ProtobufVisitor | ProtobufVisitor[];
 export type CatalogEntityRule = (
   options: Record<string, any>
 ) => CatalogEntityVisitor | CatalogEntityVisitor[];
@@ -454,6 +491,7 @@ export type Async3Decorator = (options: Record<string, any>) => Async3Visitor;
 export type Arazzo1Decorator = (options: Record<string, any>) => Arazzo1Visitor;
 export type Overlay1Decorator = (options: Record<string, any>) => Overlay1Visitor;
 export type OpenRpc1Decorator = (options: Record<string, any>) => OpenRpc1Visitor;
+export type ProtobufDecorator = (options: Record<string, any>) => ProtobufVisitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver

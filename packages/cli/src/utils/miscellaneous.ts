@@ -10,6 +10,8 @@ import {
   isNotEmptyObject,
   pluralize,
   ConfigValidationError,
+  ProtoParseError,
+  ProtoUnsupportedSyntaxError,
   logger,
   HandledError,
   type Config,
@@ -318,6 +320,12 @@ export function handleError(e: Error, ref: string): never {
     case ConfigValidationError:
       exitWithError(e.message);
       break;
+    case ProtoParseError:
+      exitWithError(`Failed to parse Protobuf description at ${ref}:\n\n  - ${e.message}`);
+      break;
+    case ProtoUnsupportedSyntaxError:
+      exitWithError(`Unsupported Protobuf description at ${ref}:\n\n  - ${e.message}`);
+      break;
     default: {
       exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
@@ -546,6 +554,8 @@ export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
     ...rules.async3,
     ...rules.arazzo1,
     ...rules.overlay1,
+    ...rules.openrpc1,
+    ...rules.protobuf,
   };
 
   if (isEmptyObject(ruleset)) {

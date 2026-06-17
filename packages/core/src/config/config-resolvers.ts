@@ -339,10 +339,11 @@ export async function resolvePlugins(
                 !pluginInstance.rules.async3 &&
                 !pluginInstance.rules.arazzo1 &&
                 !pluginInstance.rules.overlay1 &&
-                !pluginInstance.rules.openrpc1
+                !pluginInstance.rules.openrpc1 &&
+                !pluginInstance.rules.protobuf
               ) {
                 throw new Error(
-                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, \`overlay1\`, or \`openrpc1\` rules "${p}.`
+                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, \`overlay1\`, \`openrpc1\`, or \`protobuf\` rules "${p}.`
                 );
               }
               plugin.rules = {};
@@ -367,6 +368,9 @@ export async function resolvePlugins(
               if (pluginInstance.rules.openrpc1) {
                 plugin.rules.openrpc1 = prefixRules(pluginInstance.rules.openrpc1, id);
               }
+              if (pluginInstance.rules.protobuf) {
+                plugin.rules.protobuf = prefixRules(pluginInstance.rules.protobuf, id);
+              }
             }
             if (pluginInstance.preprocessors) {
               if (
@@ -376,10 +380,11 @@ export async function resolvePlugins(
                 !pluginInstance.preprocessors.async3 &&
                 !pluginInstance.preprocessors.arazzo1 &&
                 !pluginInstance.preprocessors.overlay1 &&
-                !pluginInstance.preprocessors.openrpc1
+                !pluginInstance.preprocessors.openrpc1 &&
+                !pluginInstance.preprocessors.protobuf
               ) {
                 throw new Error(
-                  `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, \`overlay1\`, or \`openrpc1\` preprocessors "${p}.`
+                  `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, \`overlay1\`, \`openrpc1\`, or \`protobuf\` preprocessors "${p}.`
                 );
               }
               plugin.preprocessors = {};
@@ -413,6 +418,12 @@ export async function resolvePlugins(
                   id
                 );
               }
+              if (pluginInstance.preprocessors.protobuf) {
+                plugin.preprocessors.protobuf = prefixRules(
+                  pluginInstance.preprocessors.protobuf,
+                  id
+                );
+              }
             }
 
             if (pluginInstance.decorators) {
@@ -423,10 +434,11 @@ export async function resolvePlugins(
                 !pluginInstance.decorators.async3 &&
                 !pluginInstance.decorators.arazzo1 &&
                 !pluginInstance.decorators.overlay1 &&
-                !pluginInstance.decorators.openrpc1
+                !pluginInstance.decorators.openrpc1 &&
+                !pluginInstance.decorators.protobuf
               ) {
                 throw new Error(
-                  `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, \`overlay1\`, or \`openrpc1\` decorators "${p}.`
+                  `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, \`overlay1\`, \`openrpc1\`, or \`protobuf\` decorators "${p}.`
                 );
               }
               plugin.decorators = {};
@@ -450,6 +462,9 @@ export async function resolvePlugins(
               }
               if (pluginInstance.decorators.openrpc1) {
                 plugin.decorators.openrpc1 = prefixRules(pluginInstance.decorators.openrpc1, id);
+              }
+              if (pluginInstance.decorators.protobuf) {
+                plugin.decorators.protobuf = prefixRules(pluginInstance.decorators.protobuf, id);
               }
             }
 

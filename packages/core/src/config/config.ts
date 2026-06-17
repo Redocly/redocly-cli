@@ -11,6 +11,7 @@ import type {
   Arazzo1RuleSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
+  ProtobufRuleSet,
   SpecVersion,
   SpecMajorVersion,
 } from '../oas-types.js';
@@ -87,6 +88,7 @@ export class Config {
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
       openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
+      protobuf: group({ ...resolvedConfig.rules, ...resolvedConfig.protobufRules }),
     };
 
     this.preprocessors = {
@@ -123,6 +125,10 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.openrpc1Preprocessors,
       },
+      protobuf: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.protobufPreprocessors,
+      },
     };
 
     this.decorators = {
@@ -140,6 +146,10 @@ export class Config {
       openrpc1: {
         ...resolvedConfig.decorators,
         ...resolvedConfig.openrpc1Decorators,
+      },
+      protobuf: {
+        ...resolvedConfig.decorators,
+        ...resolvedConfig.protobufDecorators,
       },
     };
 
@@ -249,6 +259,10 @@ export class Config {
           case 'openrpc1':
             if (!plugin.typeExtension.openrpc1) continue;
             extendedTypes = plugin.typeExtension.openrpc1(extendedTypes, version);
+            break;
+          case 'protobuf':
+            if (!plugin.typeExtension.protobuf) continue;
+            extendedTypes = plugin.typeExtension.protobuf(extendedTypes, version);
             break;
           default:
             throw new Error('Not implemented');
@@ -394,6 +408,17 @@ export class Config {
           (p) => p.decorators?.openrpc1 && openrpc1Rules.push(p.decorators.openrpc1)
         );
         return openrpc1Rules;
+      case 'protobuf':
+        // eslint-disable-next-line no-case-declarations
+        const protobufRules: ProtobufRuleSet[] = [];
+        this.plugins.forEach(
+          (p) => p.preprocessors?.protobuf && protobufRules.push(p.preprocessors.protobuf)
+        );
+        this.plugins.forEach((p) => p.rules?.protobuf && protobufRules.push(p.rules.protobuf));
+        this.plugins.forEach(
+          (p) => p.decorators?.protobuf && protobufRules.push(p.decorators.protobuf)
+        );
+        return protobufRules;
     }
   }
 

@@ -7,6 +7,7 @@ import { Oas3_1Types } from './types/oas3_1.js';
 import { Oas3_2Types } from './types/oas3_2.js';
 import { OpenRpcTypes } from './types/openrpc.js';
 import { Overlay1Types } from './types/overlay.js';
+import { ProtobufTypes } from './types/protobuf.js';
 import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,
@@ -34,6 +35,8 @@ import type {
   Overlay1Rule,
   OpenRpc1Decorator,
   OpenRpc1Rule,
+  ProtobufDecorator,
+  ProtobufRule,
 } from './visitors.js';
 
 export const specVersions = [
@@ -46,6 +49,7 @@ export const specVersions = [
   'arazzo1',
   'overlay1',
   'openrpc1',
+  'protobuf',
 ] as const;
 export type SpecVersion = (typeof specVersions)[number];
 
@@ -59,7 +63,8 @@ export type SpecMajorVersion =
   | 'async3'
   | 'arazzo1'
   | 'overlay1'
-  | 'openrpc1';
+  | 'openrpc1'
+  | 'protobuf';
 
 const typesMap = {
   oas2: Oas2Types,
@@ -71,6 +76,7 @@ const typesMap = {
   arazzo1: Arazzo1Types,
   overlay1: Overlay1Types,
   openrpc1: OpenRpcTypes,
+  protobuf: ProtobufTypes,
 };
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
@@ -115,6 +121,11 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
+export type ProtobufRuleSet<T = undefined> = Record<
+  T extends 'built-in' ? string : string,
+  ProtobufRule
+>;
+
 export type Oas3DecoratorsSet<T = undefined> = Record<
   T extends 'built-in' ? BuiltInOas3DecoratorId : string,
   Oas3Decorator
@@ -128,6 +139,7 @@ export type Async3DecoratorsSet = Record<string, Async3Decorator>;
 export type Arazzo1DecoratorsSet = Record<string, Arazzo1Decorator>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
 export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
+export type ProtobufDecoratorsSet = Record<string, ProtobufDecorator>;
 
 export function getTypes(spec: SpecVersion) {
   return typesMap[spec];

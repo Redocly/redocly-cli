@@ -27,6 +27,7 @@ export const configFixture: Config = {
     arazzo1: {},
     overlay1: {},
     openrpc1: {},
+    protobuf: {},
   },
   preprocessors: {
     oas2: {},
@@ -38,6 +39,7 @@ export const configFixture: Config = {
     arazzo1: {},
     overlay1: {},
     openrpc1: {},
+    protobuf: {},
   },
   plugins: [],
   doNotResolveExamples: false,
@@ -51,6 +53,7 @@ export const configFixture: Config = {
     arazzo1: {},
     overlay1: {},
     openrpc1: {},
+    protobuf: {},
   },
   resolveIgnore: vi.fn(),
   addProblemToIgnore: vi.fn(),

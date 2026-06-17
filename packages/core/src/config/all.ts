@@ -312,6 +312,11 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
   },
+  protobufRules: {
+    'protobuf/package-defined': 'error',
+    'protobuf/message-pascal-case': 'error',
+    'protobuf/field-snake-case': 'error',
+  },
 };
 
 export default all;

@@ -21,6 +21,7 @@ export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
 export { Overlay1Types } from './types/overlay.js';
 export { OpenRpcTypes } from './types/openrpc.js';
+export { ProtobufTypes } from './types/protobuf.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export { createEntityTypes } from './types/entity.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
@@ -56,6 +57,13 @@ export {
   type ResolvedRefMap,
 } from './resolve.js';
 export { YamlParseError } from './errors/yaml-parse-error.js';
+export {
+  ProtoParseError,
+  ProtoUnsupportedSyntaxError,
+  ProtoImportResolutionError,
+  ProtoLocationError,
+  ProtoInternalError,
+} from './errors/protobuf-errors.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointerFragment,
@@ -120,6 +128,8 @@ export {
   type Totals,
 } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export { parseProtoDocument } from './protobuf/parse.js';
+export { lintProto, lintProtoDocument } from './protobuf/lint.js';
 export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
@@ -136,6 +146,7 @@ export type * from './typings/asyncapi3.js';
 export type * from './typings/asyncapi.js';
 export type * from './typings/openrpc.js';
 export type * from './typings/arazzo.js';
+export type * from './typings/protobuf.js';
 export type {
   StatsAccumulator,
   OASStatsAccumulator,

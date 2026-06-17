@@ -6,6 +6,7 @@ import type {
   Arazzo1RuleSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
+  ProtobufRuleSet,
 } from '../oas-types.js';
 import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -28,7 +29,8 @@ export function prefixRules<
     | Async2RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
-    | OpenRpc1RuleSet,
+    | OpenRpc1RuleSet
+    | ProtobufRuleSet,
 >(rules: T, prefix: string) {
   if (!prefix) return rules;
 
@@ -52,6 +54,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1Rules: {},
     overlay1Rules: {},
     openrpc1Rules: {},
+    protobufRules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -63,6 +66,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1Preprocessors: {},
     overlay1Preprocessors: {},
     openrpc1Preprocessors: {},
+    protobufPreprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
@@ -74,6 +78,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1Decorators: {},
     overlay1Decorators: {},
     openrpc1Decorators: {},
+    protobufDecorators: {},
   };
 
   for (const rulesConf of rulesConfList) {
@@ -102,6 +107,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Rules, rulesConf.rules);
     assignConfig(result.openrpc1Rules, rulesConf.openrpc1Rules);
     assignOnlyExistingConfig(result.openrpc1Rules, rulesConf.rules);
+    assignConfig(result.protobufRules, rulesConf.protobufRules);
+    assignOnlyExistingConfig(result.protobufRules, rulesConf.rules);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -122,6 +129,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Preprocessors, rulesConf.preprocessors);
     assignConfig(result.openrpc1Preprocessors, rulesConf.openrpc1Preprocessors);
     assignOnlyExistingConfig(result.openrpc1Preprocessors, rulesConf.preprocessors);
+    assignConfig(result.protobufPreprocessors, rulesConf.protobufPreprocessors);
+    assignOnlyExistingConfig(result.protobufPreprocessors, rulesConf.preprocessors);
 
     assignConfig(result.decorators, rulesConf.decorators);
     assignConfig(result.oas2Decorators, rulesConf.oas2Decorators);
@@ -142,6 +151,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
+    assignConfig(result.protobufDecorators, rulesConf.protobufDecorators);
+    assignOnlyExistingConfig(result.protobufDecorators, rulesConf.decorators);
   }
 
   return result;

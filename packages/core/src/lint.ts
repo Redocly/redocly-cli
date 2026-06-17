@@ -20,6 +20,7 @@ import {
   type Oas3Visitor,
   type Overlay1Visitor,
   type OpenRpc1Visitor,
+  type ProtobufVisitor,
   type RuleInstanceConfig,
 } from './visitors.js';
 import { walkDocument, type ProblemSeverity, type WalkContext } from './walk.js';
@@ -162,6 +163,8 @@ export async function lintConfig(opts: {
       | Overlay1Visitor[]
       | OpenRpc1Visitor
       | OpenRpc1Visitor[]
+      | ProtobufVisitor
+      | ProtobufVisitor[]
     >;
   })[] = [
     {

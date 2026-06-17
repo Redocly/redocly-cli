@@ -192,6 +192,9 @@ const builtInOpenRpc1Rules = [
 ] as const;
 export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
+const builtInProtobufRules = [] as const;
+export type BuiltInProtobufRuleId = (typeof builtInProtobufRules)[number];
+
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
 export type BuiltInCommonRuleId = (typeof builtInCommonRules)[number];
 
@@ -203,6 +206,7 @@ const builtInRules = [
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
   ...builtInOpenRpc1Rules,
+  ...builtInProtobufRules,
   ...builtInCommonRules,
 ] as const;
 type BuiltInRuleId = (typeof builtInRules)[number];
@@ -267,6 +271,7 @@ const configGovernanceProperties: Record<
   arazzo1Rules: 'Rules',
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
+  protobufRules: 'Rules',
   preprocessors: 'Preprocessors',
   oas2Preprocessors: 'Preprocessors',
   oas3_0Preprocessors: 'Preprocessors',
@@ -277,6 +282,7 @@ const configGovernanceProperties: Record<
   arazzo1Preprocessors: 'Preprocessors',
   overlay1Preprocessors: 'Preprocessors',
   openrpc1Preprocessors: 'Preprocessors',
+  protobufPreprocessors: 'Preprocessors',
   decorators: 'Decorators',
   oas2Decorators: 'Decorators',
   oas3_0Decorators: 'Decorators',
@@ -287,6 +293,7 @@ const configGovernanceProperties: Record<
   arazzo1Decorators: 'Decorators',
   overlay1Decorators: 'Decorators',
   openrpc1Decorators: 'Decorators',
+  protobufDecorators: 'Decorators',
 };
 
 const ConfigGovernance: NodeType = {

@@ -614,6 +614,7 @@ describe('checkIfRulesetExist', () => {
       arazzo1: {},
       overlay1: {},
       openrpc1: {},
+      protobuf: {},
     };
     expect(() => checkIfRulesetExist(rules)).toThrowError(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
@@ -631,6 +632,7 @@ describe('checkIfRulesetExist', () => {
       arazzo1: {},
       overlay1: {},
       openrpc1: {},
+      protobuf: {},
     };
     checkIfRulesetExist(rules);
   });
