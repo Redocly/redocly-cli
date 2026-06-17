@@ -1,5 +1,6 @@
 import {
   lint,
+  lintProto,
   lintConfig,
   getTotals,
   formatProblems,
@@ -9,7 +10,9 @@ import {
   loadConfig,
 } from '@redocly/openapi-core';
 import { blue } from 'colorette';
-import { resolve } from 'node:path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import { join, resolve } from 'node:path';
 import { performance } from 'perf_hooks';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
@@ -53,6 +56,7 @@ describe('handleLint', () => {
       return {
         ...actual,
         lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
+        lintProto: vi.fn(async (): Promise<NormalizedProblem[]> => []),
         lintConfig: vi.fn(async (): Promise<NormalizedProblem[]> => []),
         getTotals: vi.fn(() => ({ errors: 0, warnings: 0, ignored: 0 }) as Totals),
         doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
@@ -134,6 +138,56 @@ describe('handleLint', () => {
       expect(performance.now).toHaveBeenCalled();
       expect(configFixture.forAlias).toHaveBeenCalledTimes(1);
       expect(lint).toHaveBeenCalled();
+    });
+
+    it('should call lintProto for explicit .proto files', async () => {
+      vi.mocked(lint).mockClear();
+      vi.mocked(lintProto).mockClear();
+
+      await commandWrapper(handleLint)({ ...argvMock, apis: ['service.proto'] });
+
+      expect(lintProto).toHaveBeenCalledWith({
+        ref: 'service.proto',
+        config: configFixture,
+      });
+      expect(lint).not.toHaveBeenCalled();
+    });
+
+    it('should reject remote .proto URLs', async () => {
+      vi.mocked(lintProto).mockClear();
+      vi.mocked(exitWithError).mockImplementationOnce((message: string) => {
+        throw new Error(message);
+      });
+
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['https://example.com/service.proto'],
+      });
+
+      expect(exitWithError).toHaveBeenCalledWith(
+        'Remote .proto URLs are not supported yet. Use a local .proto file or glob instead.'
+      );
+      expect(lintProto).not.toHaveBeenCalled();
+    });
+
+    it('should reject directory inputs containing .proto files', async () => {
+      vi.mocked(lintProto).mockClear();
+      const dir = fs.mkdtempSync(join(os.tmpdir(), 'redocly-proto-test-'));
+      fs.writeFileSync(join(dir, 'service.proto'), 'syntax = "proto3";\n');
+      vi.mocked(exitWithError).mockImplementationOnce((message: string) => {
+        throw new Error(message);
+      });
+
+      try {
+        await commandWrapper(handleLint)({ ...argvMock, apis: [dir] });
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+
+      expect(exitWithError).toHaveBeenCalledWith(
+        'Directory inputs containing .proto files are not supported yet. Use explicit .proto files or a glob instead.'
+      );
+      expect(lintProto).not.toHaveBeenCalled();
     });
 
     it('should call skipRules,skipPreprocessors and addIgnore with argv', async () => {

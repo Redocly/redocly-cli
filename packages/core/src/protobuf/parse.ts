@@ -237,7 +237,11 @@ function createSyntax(source: Source, descriptor: FileDescriptorProto): ProtoSyn
   if (!descriptor.syntax) return undefined;
   return {
     value: descriptor.syntax,
-    location: createLocation(source, findSourceLocation(descriptor, FILE_DESCRIPTOR_SYNTAX_PATH)),
+    location: createLocation(
+      source,
+      findSourceLocation(descriptor, FILE_DESCRIPTOR_SYNTAX_PATH),
+      '#/syntax'
+    ),
   };
 }
 
@@ -245,7 +249,11 @@ function createPackage(source: Source, descriptor: FileDescriptorProto): ProtoPa
   if (!descriptor.package) return undefined;
   return {
     name: descriptor.package,
-    location: createLocation(source, findSourceLocation(descriptor, FILE_DESCRIPTOR_PACKAGE_PATH)),
+    location: createLocation(
+      source,
+      findSourceLocation(descriptor, FILE_DESCRIPTOR_PACKAGE_PATH),
+      '#/package'
+    ),
   };
 }
 
@@ -256,7 +264,8 @@ function createImports(source: Source, descriptor: FileDescriptorProto): ProtoIm
     weak: descriptor.weakDependency.includes(index) || undefined,
     location: createLocation(
       source,
-      findSourceLocation(descriptor, [...FILE_DESCRIPTOR_DEPENDENCY_PATH, index])
+      findSourceLocation(descriptor, [...FILE_DESCRIPTOR_DEPENDENCY_PATH, index]),
+      `#/imports/${index}`
     ),
   }));
 }
