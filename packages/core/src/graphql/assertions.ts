@@ -137,7 +137,7 @@ function runGraphqlAssertion(
 
   if (!problems.length) return;
 
-  // {{pointer}} and {{key}} stay empty — SDL has no JSON pointers or parent keys.
+  // {{pointer}} and {{key}} stay empty - SDL has no JSON pointers or parent keys.
   const defaultMessage =
     `${colorize.blue(assertion.assertionId)} failed because the ${colorize.blue(
       assertion.subject.type
