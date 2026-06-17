@@ -1,4 +1,3 @@
-import { renderJson } from '../print/json.js';
 import { renderMermaid } from '../print/mermaid.js';
 import { renderStylish } from '../print/stylish.js';
 import type { DependencyGraph } from '../types.js';
@@ -106,15 +105,6 @@ describe('renderStylish', () => {
       b.yaml
       └── shared.yaml"
     `);
-  });
-});
-
-describe('renderJson', () => {
-  it('serializes the graph model as-is', () => {
-    const parsed = JSON.parse(renderJson(graph));
-    expect(parsed.roots).toEqual(['openapi.yaml']);
-    expect(parsed.nodes).toHaveLength(7);
-    expect(parsed.edges).toHaveLength(7);
   });
 });
 

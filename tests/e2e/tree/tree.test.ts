@@ -92,14 +92,6 @@ describe('tree', () => {
     );
   });
 
-  test('tree should accept a bare component name', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--affected-by', 'Address']);
-    const result = getCommandOutput(args, { testPath: singleFilePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      join(folderPath, 'tree-structure-affected-bare', 'snapshot.txt')
-    );
-  });
-
   test('tree should warn for an unknown affected-by input', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',

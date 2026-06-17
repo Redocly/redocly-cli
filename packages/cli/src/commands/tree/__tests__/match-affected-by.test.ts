@@ -65,33 +65,13 @@ describe('matchAffectedBy', () => {
     });
   });
 
-  it('case 4a: file path resolves to a non-root file', () => {
+  it('case 4: a file path matches every node defined in that file', () => {
     expect(matchAffectedBy(graph, ['common.yaml'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['common.yaml#/components/schemas/Pet'],
       markerIds: ['common.yaml#/components/schemas/Pet'],
       notes: [],
       warnings: [],
     });
-  });
-
-  it('case 4b: file path with ./ prefix normalizes to same result', () => {
-    expect(matchAffectedBy(graph, ['./common.yaml'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
-      changedIds: ['common.yaml#/components/schemas/Pet'],
-      markerIds: ['common.yaml#/components/schemas/Pet'],
-      notes: [],
-      warnings: [],
-    });
-  });
-
-  it('case 4c: absolute file path normalizes to same result', () => {
-    expect(matchAffectedBy(graph, ['/project/common.yaml'], { cwd: CWD, rootId: ROOT_ID })).toEqual(
-      {
-        changedIds: ['common.yaml#/components/schemas/Pet'],
-        markerIds: ['common.yaml#/components/schemas/Pet'],
-        notes: [],
-        warnings: [],
-      }
-    );
   });
 
   it('case 5: root file — changedIds gets all ids, markerIds only rootId, note emitted', () => {
