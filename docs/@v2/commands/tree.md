@@ -24,16 +24,16 @@ With no API argument, the command takes the API from the Redocly configuration f
 
 ## Options
 
-| Option        | Type     | Description                                                                                                                                                                      |
-| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis          | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.               |
-| --affected-by | [string] | Show only the part of the tree affected by changes to the given components, paths, or files. Repeat the option to pass several values: `--affected-by Pet --affected-by /users`. |
-| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                 |
-| --files       | boolean  | Show the file-level `$ref` graph instead of the document structure.                                                                                                              |
-| --format      | string   | Output format: `stylish` (default, tree view), `json`, or `mermaid`.                                                                                                             |
-| --help        | boolean  | Show help.                                                                                                                                                                       |
-| --lint-config | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                               |
-| --version     | boolean  | Show version number.                                                                                                                                                             |
+| Option        | Type     | Description                                                                                                                                                                                                                                                                              |
+| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis          | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                                       |
+| --affected-by | [string] | Show only the part of the tree affected by the given changes. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path; `--files` mode accepts file paths only. Repeat the option to pass several values: `--affected-by Pet --affected-by /users`. |
+| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                         |
+| --files       | boolean  | Show the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                                      |
+| --format      | string   | Output format: `stylish` (default, tree view), `json`, or `mermaid`.                                                                                                                                                                                                                     |
+| --help        | boolean  | Show help.                                                                                                                                                                                                                                                                               |
+| --lint-config | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                       |
+| --version     | boolean  | Show version number.                                                                                                                                                                                                                                                                     |
 
 ## Examples
 
@@ -72,7 +72,7 @@ For multi-file APIs, components living in other files appear as file nodes (for 
 
 ### Find what a change affects
 
-Pass a component pointer, name, or file path to `--affected-by` to see only the impacted part of the tree — useful in CI and automated review.
+Pass one or more components, paths, or files to `--affected-by` to see only the impacted part of the tree:
 
 ```bash
 redocly tree openapi.yaml --affected-by '#/components/schemas/Address'
@@ -101,7 +101,7 @@ openapi.yaml
 `--affected-by` accepts several input forms:
 
 - Full JSON pointer: `#/components/schemas/Address`
-- Shorthand pointer: `schemas/Address`
+- Shorthand pointer (the node id, without `#/components/`): `schemas/Address`
 - Bare component name: `Address` — ambiguous bare names match all candidates and print a note to stderr (impact analysis over-reports rather than under-reports)
 - A file path (for multi-file specs): `schemas/address.yaml`
 - The root file itself: the whole tree is affected
@@ -116,7 +116,7 @@ Unknown inputs print a warning to stderr and exit with code `0`.
 redocly tree openapi.yaml --format=json
 ```
 
-Prints the structure as JSON with `roots`, `nodes` (including `kind`, `file`, `resolved`, and `external` fields), and `edges` (including the exact `$ref` strings). Only the JSON is written to stdout, so the output is safe to pipe.
+Prints the graph as JSON with `roots`, `nodes` (`resolved` and `external` on every node; `kind` and `file` in the default view only), and `edges` (with the exact `$ref` strings). Only the JSON is written to stdout, so the output is safe to pipe.
 
 ```bash
 redocly tree openapi.yaml --format=mermaid
@@ -140,4 +140,4 @@ openapi.yaml
         └── components/schemas/Pet.yaml ↺
 ```
 
-This is the multi-file `$ref` view: it shows which files reference which other files. The `--files` flag supports multiple APIs in a single run.
+Unlike the default view, `--files` accepts multiple APIs in a single run (their graphs merge). In this mode `--affected-by` takes file paths, and the summary reports affected files and roots.
