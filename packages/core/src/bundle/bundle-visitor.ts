@@ -113,6 +113,8 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    default:
+      return null;
   }
 }
 
