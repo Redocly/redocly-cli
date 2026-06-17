@@ -43,10 +43,9 @@ A GraphQL syntax error is always reported as an error and ends linting for that 
 
 ## GraphQL rules
 
-To expand the linting checks for a GraphQL schema, enable the built-in GraphQL rules.
-Unlike the shared `struct` rule (configured under `rules`), GraphQL-specific built-in rules are configured under the `graphqlRules` section.
 The supported rules are:
 
+- `struct`: Ensures that the GraphQL SDL is well-formed and that the schema is structurally valid.
 - `no-unused-types`: Every declared type must be referenced by another type or directive, or serve as a root operation type.
   Root types are the ones named in the `schema` definition or its extensions; when there is no `schema` definition, types named `Query`, `Mutation`, or `Subscription` are the roots.
   Types that are declared but never referenced are reported.
@@ -55,13 +54,12 @@ The supported rules are:
 
 We expect the list to expand over time, so keep checking back - and let us know if you have any requests by [opening an issue on the GitHub repo](https://github.com/Redocly/redocly-cli/issues).
 
-To use a rule, add its name to the `graphqlRules` configuration section (or just under the `rules` section if you don't need a clear separation), and declare the severity level (either `error`, `warn`, or `off`):
+The rules are available in our predefined rulesets.
+To tweak a rule's severity, configure it in your `redocly.yaml` file, for example:
 
 ```yaml
 rules:
-  struct: error
-graphqlRules:
-  type-description: warn
+  type-description: error
 ```
 
 ## Configurable rule example
