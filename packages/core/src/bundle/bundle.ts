@@ -28,7 +28,7 @@ export function collectConfigPlugins(
   const visitorsData: PluginsCollectorVisitorData = { plugins: [], rootConfigDir };
   const ctx: BundleContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: change it to a config-specific type
+    specVersion: 'config',
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [PLUGINS_COLLECTOR_VISITOR_ID]: visitorsData,
@@ -54,7 +54,7 @@ export function bundleConfig(
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: change it to a config-specific type
+    specVersion: 'config',
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,

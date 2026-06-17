@@ -2,7 +2,6 @@ import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 import { outdent } from 'outdent';
 import { describe, it, expect } from 'vitest';
 
-import { type SpecVersion } from '../../../oas-types.js';
 import { makeDocumentFromString } from '../../../resolve.js';
 import { createEntityTypes } from '../../../types/entity.js';
 import { normalizeTypes } from '../../../types/index.js';
@@ -17,7 +16,7 @@ function lintEntityKey(source: string): WalkContext['problems'] {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'entity' as SpecVersion, // FIXME: this should be proper SpecVersion
+    specVersion: 'entity',
     visitorsData: {},
   };
 
