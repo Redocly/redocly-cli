@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 import './utils/assert-node-version.js';
 
-import { logger, type OutputFormat, type RuleSeverity } from '@redocly/openapi-core';
+import {
+  logger,
+  type OutputFormat,
+  type RuleSeverity,
+  type ComponentNamesStrategy,
+} from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { handleLogin, handleLogout } from './commands/auth.js';
-import { handlerBuildCommand } from './commands/build-docs/index.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
@@ -530,6 +534,12 @@ yargs(hideBin(process.argv))
               'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           },
+          'component-names-strategy': {
+            description:
+              "How to name inlined Schema components: 'basename' (default) or 'title' (from each schema's `title`).",
+            choices: ['basename', 'title'] as ReadonlyArray<ComponentNamesStrategy>,
+            default: 'basename' as ComponentNamesStrategy,
+          },
         })
         .check((argv) => {
           if (argv.output && (!argv.apis || argv.apis.length === 0)) {
@@ -690,6 +700,7 @@ yargs(hideBin(process.argv))
           return true;
         }),
     async (argv) => {
+      const { handlerBuildCommand } = await import('./commands/build-docs/index.js');
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )

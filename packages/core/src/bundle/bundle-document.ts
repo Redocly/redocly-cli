@@ -10,6 +10,8 @@ import { normalizeTypes, type NormalizedNodeType, type NodeType } from '../types
 import { normalizeVisitors } from '../visitors.js';
 import { walkDocument, type WalkContext, type NormalizedProblem } from '../walk.js';
 
+export type ComponentNamesStrategy = 'basename' | 'title';
+
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
@@ -18,6 +20,7 @@ export type CoreBundleOptions = {
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
   componentRenamingConflicts?: RuleSeverity;
+  componentNamesStrategy?: ComponentNamesStrategy;
 };
 
 type BundleContext = WalkContext;
@@ -40,6 +43,7 @@ export async function bundleDocument(opts: {
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
   componentRenamingConflicts?: RuleSeverity;
+  componentNamesStrategy?: ComponentNamesStrategy;
 }): Promise<BundleResult> {
   const {
     document,
@@ -50,6 +54,7 @@ export async function bundleDocument(opts: {
     removeUnusedComponents = false,
     keepUrlRefs = false,
     componentRenamingConflicts,
+    componentNamesStrategy = 'basename',
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
@@ -101,6 +106,7 @@ export async function bundleDocument(opts: {
           resolvedRefMap,
           keepUrlRefs,
           componentRenamingConflicts,
+          componentNamesStrategy,
         }),
       },
       ...decorators.filter((decorator) => decorator.ruleId !== 'remove-unused-components'),
