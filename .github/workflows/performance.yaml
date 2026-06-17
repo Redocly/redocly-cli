@@ -2,7 +2,6 @@ name: Performance Benchmark
 
 permissions:
   contents: read
-  # For the inline comment on same-repo PRs below (forks get read-only and comment via workflow_run).
   pull-requests: write
 
 on:
