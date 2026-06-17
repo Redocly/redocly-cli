@@ -41,15 +41,17 @@ redocly generate-client cafe -o src/client.ts
 
 ---
 
-- `input` {% required=true %}
+- `input`
 - `string`
-- Positional argument: OpenAPI description file path, or an alias from the `apis:` section of `redocly.yaml`.
+- **REQUIRED.**
+  Positional argument: OpenAPI description file path, or an alias from the `apis:` section of `redocly.yaml`.
 
 ---
 
-- `--output`, `-o` {% required=true %}
+- `--output`, `-o`
 - `string`
-- Output path for the generated client. Must end in `.ts`.
+- **REQUIRED.**
+  Output path for the generated client. Must end in `.ts`.
   In multi-file modes it is the entry file; sibling files derive from its name and directory.
 
 ---
@@ -75,25 +77,31 @@ redocly generate-client cafe -o src/client.ts
 
 - `--query-framework`
 - `string`
-- TanStack Query adapter the `tanstack-query` generator imports from: `react` (default), `vue`, `svelte`, or `solid`. Only the import specifier changes — the emitted factory module is byte-identical across frameworks.
+- TanStack Query adapter the `tanstack-query` generator imports from: `react` (default), `vue`, `svelte`, or `solid`.
+  Only the import specifier changes — the emitted factory module is byte-identical across frameworks.
 
 ---
 
 - `--mock-data`
 - `string`
-- How the `mock` generator produces data: `baked` (default) inlines deterministic literals (zero runtime dependency); `faker` emits `@faker-js/faker` calls for realistic data (install `@faker-js/faker` as a dev dependency).
+- How the `mock` generator produces data: `baked` (default) inlines deterministic literals (zero runtime dependency).
+  `faker` emits `@faker-js/faker` calls for realistic data (install `@faker-js/faker` as a dev dependency).
 
 ---
 
 - `--mock-seed`
 - `number`
-- Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in `baked` mode.
+- Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs.
+  Ignored in `baked` mode.
 
 ---
 
 - `--date-type`
 - `string`
-- How `date-time`/`date` string fields are typed: `string` (default) keeps the ISO wire shape, byte-identical to before; `Date` emits a `Date` instead. Pair `--date-type Date` with `--generators sdk,transformers` so the runtime value (parsed by `transform<Name>`) matches the type. `int64` → `bigint` is deferred to a follow-up.
+- How `date-time`/`date` string fields are typed: `string` (default) keeps the ISO wire shape, byte-identical to before.
+  `Date` emits a `Date` instead.
+  Pair `--date-type Date` with `--generators sdk,transformers` so the runtime value (parsed by `transform<Name>`) matches the type.
+  `int64` → `bigint` is deferred to a follow-up.
 
 ---
 
@@ -111,7 +119,8 @@ redocly generate-client cafe -o src/client.ts
 
 - `--args-style`
 - `string`
-- How operation inputs are passed: `flat` (default) spreads path params as positional arguments followed by `params`/`body`/`headers`; `grouped` bundles every input into a single `vars` object (typed as the operation's `<Op>Variables`). The per-call request `init` stays a separate trailing argument in both styles.
+- How operation inputs are passed: `flat` (default) spreads path params as positional arguments followed by `params`/`body`/`headers`; `grouped` bundles every input into a single `vars` object (typed as the operation's `<Op>Variables`).
+  The per-call request `init` stays a separate trailing argument in both styles.
 
 ---
 
@@ -123,25 +132,29 @@ redocly generate-client cafe -o src/client.ts
 
 - `--error-mode`
 - `string`
-- Error-handling shape: `throw` (default) throws `ApiError` on a non-2xx response; `result` returns a discriminated `{ data, error, response }` object instead, with `error` typed from the spec's 4xx/5xx response bodies.
+- Error-handling shape: `throw` (default) throws `ApiError` on a non-2xx response.
+  `result` returns a discriminated `{ data, error, response }` object instead, with `error` typed from the spec's 4xx/5xx response bodies.
 
 ---
 
 - `--base-url`
 - `string`
-- Override the `BASE` URL inlined into the generated runtime. Defaults to `servers[0].url` from the description. Must be a valid URL.
+- Override the `BASE` URL inlined into the generated runtime.
+  Defaults to `servers[0].url` from the description. Must be a valid URL.
 
 ---
 
 - `--config`
 - `string`
-- Path to the `redocly.yaml` configuration file (where the `x-openapi-typescript` block lives). Defaults to the `redocly.yaml` discovered in the working directory.
+- Path to the `redocly.yaml` configuration file (where the `x-openapi-typescript` block lives).
+  Defaults to the `redocly.yaml` discovered in the working directory.
 
 ---
 
 - `--config-file`
 - `string`
-- Path to a dedicated `defineConfig` config file (`*.config.ts`/`.mjs`/`.js`), as an alternative to the `redocly.yaml` `x-openapi-typescript` block. Useful when the config lives outside the project or in a nested folder.
+- Path to a dedicated `defineConfig` config file (`*.config.ts`/`.mjs`/`.js`), as an alternative to the `redocly.yaml` `x-openapi-typescript` block.
+  Useful when the config lives outside the project or in a nested folder.
 
 {% /table %}
 
@@ -160,7 +173,7 @@ x-openapi-typescript:
   facade: service-class
 ```
 
-Then simply run:
+Then run:
 
 ```sh
 redocly generate-client
@@ -224,7 +237,8 @@ A setter is generated for each `securityScheme` the runtime can apply, and each 
 | `apiKey` in query      | `setApiKey(key)` / `setApiKey<Name>(key)` | the named URL query parameter   |
 | `apiKey` in cookie     | `setApiKey(key)` / `setApiKey<Name>(key)` | folded into the `Cookie` header |
 
-`setApiKey` is unsuffixed when the spec declares a single apiKey scheme; otherwise each gets a `setApiKey<SchemeName>` setter.
+`setApiKey` is unsuffixed when the spec declares a single apiKey scheme.
+Otherwise, each gets a `setApiKey<SchemeName>` setter.
 `mutualTLS` is not injectable.
 
 Bearer and apiKey credentials accept a **`TokenProvider`** — a string, or a (possibly async) function called per request, which is handy for refresh-token flows:
@@ -281,7 +295,8 @@ const order = await updateOrder({
 });
 ```
 
-The grouped style is order-independent and additive — new path or query params show up as new keys rather than shifting positions — which makes it a good fit as specs evolve and for wiring operations into React Query / SWR `mutationFn`s.
+The grouped style is order-independent and additive — new path or query params show up as new keys rather than shifting positions.
+This strategy makes it a good fit as specs evolve and for wiring operations into React Query / SWR `mutationFn`s.
 Operations with no inputs take no `vars` object at all (just the optional `init`).
 
 ```sh
@@ -538,12 +553,14 @@ Retries stop immediately when the request's `AbortSignal` aborts.
 
 {% /table %}
 
-A per-call override is merged field-by-field over the global policy, so a single field (such as `retries: 0`) can disable retry for one call without restating the whole policy.
+A per-call override is merged field-by-field over the global policy.
+A single field (such as `retries: 0`) can disable retry for one call without restating the whole policy.
 
 ### Custom `retryOn`
 
 `retryOn` receives a `RetryContext` for the attempt that just failed and returns whether to retry.
-A custom predicate **fully replaces** the idempotent-only default — so it is also how you opt a `POST`/`PATCH` into retrying (the method is no longer checked for you).
+A custom predicate **fully replaces** the idempotent-only default.
+This way you opt a `POST`/`PATCH` into retrying (the method is no longer checked for you).
 
 {% table %}
 
@@ -567,13 +584,15 @@ A custom predicate **fully replaces** the idempotent-only default — so it is a
 
 - `response`
 - `Response | undefined`
-- Present when the server returned a (non-ok) response. Absent on a transport error.
+- Present when the server returned a (non-ok) response.
+  Absent on a transport error.
 
 ---
 
 - `error`
 - `unknown`
-- Present when the transport threw (network error, DNS, connection reset). Absent on an HTTP response.
+- Present when the transport threw (network error, DNS, connection reset).
+  Absent on an HTTP response.
 
 {% /table %}
 
@@ -607,12 +626,14 @@ await pushRemoteContent(
 
 {% admonition type="warning" name="Read the body via clone()" %}
 `ctx.response` is the raw `Response` — its body can be read only once.
-Always inspect it through `ctx.response.clone()`; calling `.json()`/`.text()` on `ctx.response` directly consumes the stream and the client can no longer decode the result.
+Always inspect it through `ctx.response.clone()`.
+Calling `.json()`/`.text()` on `ctx.response` directly consumes the stream and the client can no longer decode the result.
 {% /admonition %}
 
 ## Multipart uploads
 
-A `multipart/form-data` request body whose schema is an **object** is generated as a typed object — you pass a plain object and the client serializes it to `FormData` for you.
+A `multipart/form-data` request body whose schema is an **object** is generated as a typed object.
+When you pass a plain object, the client serializes it to `FormData` for you.
 Binary fields (`type: string, format: binary`) are typed as `Blob` (a `File` is assignable):
 
 ```ts
@@ -620,8 +641,15 @@ Binary fields (`type: string, format: binary`) are typed as `Blob` (a `File` is 
 await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 ```
 
-Serialization rules: `Blob`/`File` and strings pass through; arrays append one field per item; nested objects are JSON-encoded; other scalars are stringified; `undefined`/`null` are skipped.
-A multipart body whose schema **isn't** a concrete object keeps the raw `FormData` type, so you can build the form yourself when the shape can't be expressed.
+Serialization rules: 
+- `Blob`/`File` and strings pass through
+- arrays append one field per item
+- nested objects are JSON-encoded
+- other scalars are stringified
+- `undefined`/`null` are skipped
+
+A multipart body whose schema **isn't** a concrete object keeps the raw `FormData` type. 
+You can build the form yourself when the shape can't be expressed.
 
 `format: binary` surfaces as `Blob` wherever it appears; `format: byte` (base64) stays a `string`.
 
@@ -642,8 +670,8 @@ for await (const chunk of res as ReadableStream<Uint8Array>) {
 
 {% admonition type="warning" name="Runtime override only" %}
 `parseAs` does not change the operation's static return type.
-Forcing a reader that disagrees with the schema (for example `'blob'` on a JSON endpoint) returns that value at runtime while TypeScript
-still reports the declared type; reconciling the two is the caller's responsibility.
+Forcing a reader that disagrees with the schema (for example `'blob'` on a JSON endpoint) returns that value at runtime while TypeScript still reports the declared type.
+Reconciling the two is the caller's responsibility.
 {% /admonition %}
 
 ## Runtime validation with Zod
@@ -691,8 +719,10 @@ redocly generate-client openapi.yaml --output src/client.ts \
   --generators sdk,tanstack-query --query-framework vue
 ```
 
-Per **query** operation (`GET`/`HEAD`) the module exports a `<op>QueryKey(vars)` and a `<op>Options(vars, init?)` factory that returns `queryOptions({ queryKey, queryFn })`; per **mutation** (every other method) it exports a `<op>Mutation()` factory returning `{ mutationKey, mutationFn }`.
+Per **query** operation (`GET`/`HEAD`) the module exports a `<op>QueryKey(vars)` and a `<op>Options(vars, init?)` factory that returns `queryOptions({ queryKey, queryFn })`.
+Per **mutation** (every other method), it exports a `<op>Mutation()` factory returning `{ mutationKey, mutationFn }`.
 Each factory forwards to the matching sdk function, so the generated client itself stays dependency-free.
+
 Compose them with `useQuery`/`useMutation`:
 
 ```ts
@@ -715,11 +745,15 @@ npm install @tanstack/react-query   # ^5  (or @tanstack/vue-query, /svelte-query
 Select the framework with `--query-framework` (`react` default, `vue`, `svelte`, `solid`).
 Only the import specifier the module reads from changes — the emitted factory module is otherwise **byte-identical** across frameworks, since TanStack Query's `queryOptions`/mutation shapes are framework-agnostic.
 
-The factories wrap the **throw-mode** sdk (the default): TanStack's `queryFn` is expected to throw on error, so use the default (throw-mode) client — a `--error-mode result` client would need an unwrap-and-throw shim, which is out of scope.
+The factories wrap the **throw-mode** sdk (the default): TanStack's `queryFn` is expected to throw on error.
+Use the default (throw-mode) client — a `--error-mode result` client would need an unwrap-and-throw shim, which is out of scope.
 
 {% admonition type="info" name="Compatibility" %}
-`tanstack-query` wraps the sdk's exported throw-mode functions, so it requires `--generators sdk`, `--facade functions`, and `--error-mode throw`. An incompatible selection fails fast with an explanatory message rather than emitting a client that won't compile.
-Server-Sent-Events operations have no request/response function to wrap (you consume them via the sdk's `sse.*` surface), so they are **skipped** with a notice — the rest of the operations are still generated.
+`tanstack-query` wraps the sdk's exported throw-mode functions, so it requires `--generators sdk`, `--facade functions`, and `--error-mode throw`.
+An incompatible selection fails fast with an explanatory message rather than emitting a client that doesn't compile.
+
+Server-Sent-Events operations have no request/response function to wrap: you consume them via the sdk's `sse.*` surface.
+These operations they are **skipped** with a notice, and the rest of the operations are still generated.
 {% /admonition %}
 
 ## SWR
@@ -731,7 +765,8 @@ redocly generate-client openapi.yaml --output src/client.ts --generators sdk,swr
 # → src/client.ts (the zero-dependency client) + src/client.swr.ts (the SWR hooks)
 ```
 
-Each **query** operation (`GET`/`HEAD`) exports a `<op>Key(vars)` tuple factory and a `use<Op>(vars, init?)` hook returning `useSWR(key, fetcher)`; each **mutation** exports a `use<Op>()` hook returning `useSWRMutation(key, trigger)`.
+Each **query** operation (`GET`/`HEAD`) exports a `<op>Key(vars)` tuple factory and a `use<Op>(vars, init?)` hook returning `useSWR(key, fetcher)`.
+Each **mutation** exports a `use<Op>()` hook returning `useSWRMutation(key, trigger)`.
 Call them straight from a component:
 
 ```ts
@@ -742,7 +777,8 @@ const { trigger } = useCreatePet();
 await trigger({ body: { name: 'Rex' } });
 ```
 
-The generated client stays dependency-free; only the `*.swr.ts` module imports SWR (`swr` for queries, `swr/mutation` for mutations).
+The generated client stays dependency-free.
+Only the `*.swr.ts` module imports SWR (`swr` for queries, `swr/mutation` for mutations).
 Install it in your app as a peer — any `swr` `^2`:
 
 ```sh
@@ -751,7 +787,7 @@ npm install swr   # ^2
 
 {% admonition type="info" name="Compatibility" %}
 The hooks wrap the **throw-mode** sdk (the default), since SWR's fetcher is expected to throw an error.
-`swr` requires `--generators sdk`, `--facade functions`, and `--error-mode throw`. 
+`swr` requires `--generators sdk`, `--facade functions`, and `--error-mode throw`.
 An incompatible selection fails fast.
 SSE operations are **skipped** with a notice (consume them via the sdk's `sse.*` surface).
 {% /admonition %}
@@ -782,10 +818,9 @@ The transformers module imports only the schema **types** from the client, so th
 `int64` → `bigint` is deferred to a follow-up; without `--date-type Date` the date fields stay `string` and the output is byte-identical to before.
 
 {% admonition type="info" name="Compatibility" %}
-`transformers` requires `--generators sdk` and `--date-type Date`: it assigns `Date` values to the
-sdk's date fields, so it only type-checks when the sdk types them as `Date`. Selecting it without
-`--date-type Date` fails fast with an explanatory message rather than emitting a module that won't
-compile.
+`transformers` requires `--generators sdk` and `--date-type Date`.
+`transformers` assigns `Date` values to the sdk's date fields, so it only type-checks when the sdk types them as `Date`.
+Selecting it without `--date-type Date` fails fast with an explanatory message rather than emitting a module that doesn't compile.
 {% /admonition %}
 
 ## MSW mocks
@@ -797,7 +832,8 @@ redocly generate-client openapi.yaml --output src/client.ts --generators sdk,moc
 # → src/client.ts (the zero-dependency client) + src/client.mocks.ts (MSW handlers + factories)
 ```
 
-Each handler intercepts its operation's method + path and responds with a fixture baked from the spec (prefers `example`/`default`; `format: binary` → `new Blob([])`; recursive schemas terminate at the cycle with an empty array/record).
+Each handler intercepts its operation's method + path and responds with a fixture baked from the spec (prefers `example`/`default`; `format: binary` → `new Blob([])`.
+Recursive schemas terminate at the cycle with an empty array/record).
 Each `create<Schema>` factory builds the same default object and merges in any `overrides`, so factories double as test builders:
 
 ```ts
@@ -824,7 +860,9 @@ redocly generate-client openapi.yaml --output src/client.ts \
 ```
 
 {% admonition type="info" name="Compatibility" %}
-`mock` requires `--generators sdk` (the factories reference its types). Install MSW in your app as a dev dependency (`msw` `^2`); for `--mock-data faker`, also install `@faker-js/faker`.
+`mock` requires `--generators sdk` (the factories reference its types).
+Install MSW in your app as a dev dependency (`msw` `^2`).
+For `--mock-data faker`, also install `@faker-js/faker`.
 The generated client itself stays dependency-free — only the `*.mocks.ts` module imports them.
 {% /admonition %}
 
@@ -861,9 +899,14 @@ export default defineGenerator({
 
 The `@redocly/openapi-typescript/plugin` entry also exports the **codegen toolkit** the built-in generators use — `ts` (the `ts.factory` wrapper), `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, `safeIdent` — and the IR types (`ApiModel`, `OperationModel`, `SchemaModel`, …), so a custom generator can emit TypeScript exactly as the first-party ones do.
 
-### Selecting a custom generator
+### Select a custom generator
 
-A `generators` entry that is not a built-in name is either an **inline** generator (registered via `customGenerators` in a `defineConfig` file) or an **import specifier** — a path (resolved against the config's directory) or an installed package — that default-exports the generator:
+A `generators` entry that is not a built-in name is either:
+- an **inline** generator (registered via `customGenerators` in a `defineConfig` file)
+- an **import specifier** — a path (resolved against the config's directory)
+- an installed package — that default-exports the generator
+
+For example:
 
 ```yaml
 # redocly.yaml — by path or by published package
@@ -893,14 +936,18 @@ A worked example lives in [`examples/custom-generator`](https://github.com/Redoc
 
 {% admonition type="info" name="Compatibility & trust" %}
 A custom generator declares the same `requires` / `facades` / `errorModes` / `dateTypes` contract as the built-ins, validated up front — an incompatible selection, a name that collides with another generator, or an unloadable specifier fails fast with an actionable message.
-The generated client stays dependency-free: a generator's output is its own file(s), and any libraries it targets are peers of _your app_.
-Import-specifier generators execute at generation time — the same trust level as any installed dependency or `defineConfig` file.
+The generated client stays dependency-free. 
+A generator's output is its own file(s), and any libraries it targets are peers of _your app_.
+Import-specifier generators execute at generation time.'
+It has the same trust level as any installed dependency or `defineConfig` file.
 {% /admonition %}
 
 ## Server-Sent Events (streaming)
 
-An operation whose `2xx` response declares `text/event-stream` is generated as a typed async iterator under an `sse` namespace instead of as a regular call — no flag is required; it is detected from the description.
-Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`); when the payload is a structured type the runtime `JSON.parse`s `data` for you, otherwise it passes the raw string.
+An operation whose `2xx` response declares `text/event-stream` is generated as a typed async iterator under an `sse` namespace instead of as a regular call — no flag is required.
+It is detected from the description.
+Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`).
+When the payload is a structured type the runtime `JSON.parse`s `data` for you, otherwise it passes the raw string.
 
 ```ts
 import { sse } from './client.ts';
