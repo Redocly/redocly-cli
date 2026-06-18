@@ -386,6 +386,7 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(fetchMock).toHaveBeenCalledWith('https://someexternal.schema', {
       headers: {},
+      redirect: 'manual',
     });
     expect(res.parsed).toMatchSnapshot();
   });
