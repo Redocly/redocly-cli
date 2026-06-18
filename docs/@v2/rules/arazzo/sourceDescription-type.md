@@ -8,7 +8,7 @@ The `type` property of the Source Description object must be a supported type.
 
 ## Design principles
 
-Arazzo supports either an OpenAPI file or another Arazzo file as the source description.
+Arazzo 1.0.x supports either an OpenAPI file or another Arazzo file as the source description.
 Arazzo 1.1.0 additionally supports AsyncAPI files as source descriptions.
 This rule makes sure that the type is clearly identified and is one of the supported types.
 

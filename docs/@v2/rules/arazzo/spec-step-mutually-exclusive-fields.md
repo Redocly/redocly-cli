@@ -12,8 +12,8 @@ The Arazzo specification defines several fields that point a step to the operati
 These fields are mutually exclusive: a step must reference exactly one of them.
 This rule reports a step that uses more than one of these fields at the same time.
 
-For Arazzo 1.0.x, the mutually exclusive fields are `operationId`, `operationPath`, `workflowId`.
-For Arazzo 1.1.0, the field `channelPath` is also included.
+In Arazzo 1.0.x, the mutually exclusive fields are: `operationId`, `operationPath`, `workflowId`.
+In Arazzo 1.1.0, `operationId`, `operationPath`, `workflowId`, and `channelPath` are mutually exclusive.
 
 ## Configuration
 
