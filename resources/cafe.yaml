@@ -15,7 +15,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: https://redocly.com/subscription-agreement
 servers:
-  - url: https://cafe.cloud.redocly.com
+  - url: https://api.cafe.redocly.com
     description: Live server.
 tags:
   - name: Authorization
@@ -520,7 +520,7 @@ paths:
                 dataValue:
                   name: auth
                   redirectUris:
-                    - https://cafe.cloud.redocly.com/callback
+                    - https://api.cafe.redocly.com/callback
                   scopes:
                     - menu:read
                     - menu:write
@@ -571,8 +571,8 @@ components:
       description: OAuth2 authorization for API access.
       flows:
         authorizationCode:
-          authorizationUrl: https://cafe.cloud.redocly.com/oauth2/authorize
-          tokenUrl: https://cafe.cloud.redocly.com/oauth2/token
+          authorizationUrl: https://api.cafe.redocly.com/oauth2/authorize
+          tokenUrl: https://api.cafe.redocly.com/oauth2/token
           scopes:
             menu:read: Read access to menu items and images
             menu:write: Write access to menu items (create, delete)
@@ -580,7 +580,7 @@ components:
             orders:write: Write access to orders (create, update, delete)
             revenue:read: Read access to revenue statistics
         clientCredentials:
-          tokenUrl: https://cafe.cloud.redocly.com/oauth2/token
+          tokenUrl: https://api.cafe.redocly.com/oauth2/token
           scopes:
             menu:read: Read access to menu items and images
             menu:write: Write access to menu items (create, delete)
