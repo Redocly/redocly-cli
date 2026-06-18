@@ -37,6 +37,12 @@ export interface Parameter {
   reference?: string;
 }
 
+export interface ActionParameter {
+  name: string;
+  value: string | number | boolean;
+  reference?: string;
+}
+
 export type ExtendedSecurity =
   | {
       schemeName: string;
@@ -144,6 +150,7 @@ export interface OnSuccessObject {
   type: 'goto' | 'end';
   stepId?: string;
   workflowId?: string;
+  parameters?: ActionParameter[];
   criteria?: CriterionObject[];
 }
 
@@ -154,6 +161,7 @@ export interface OnFailureObject {
   stepId?: string;
   retryAfter?: number;
   retryLimit?: number;
+  parameters?: ActionParameter[];
   criteria?: CriterionObject[];
 }
 
