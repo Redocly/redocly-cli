@@ -437,6 +437,9 @@ export type OpenRpc1Visitor = BaseVisitor &
 
 export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<any>>;
 
+export type ConfigVisitor = BaseVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, BaseVisitor>>;
+
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
@@ -466,6 +469,7 @@ export type OpenRpc1Rule = (options: Record<string, any>) => OpenRpc1Visitor | O
 export type CatalogEntityRule = (
   options: Record<string, any>
 ) => CatalogEntityVisitor | CatalogEntityVisitor[];
+export type ConfigRule = (options: Record<string, any>) => ConfigVisitor | ConfigVisitor[];
 export type Oas3Preprocessor = Oas3Decorator;
 export type Oas2Preprocessor = Oas2Decorator;
 export type Async2Preprocessor = Async2Decorator;

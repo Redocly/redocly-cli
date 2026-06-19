@@ -13,6 +13,7 @@ import {
   type ChannelsFiles,
   type ComponentsFiles,
 } from '../types.js';
+import { assertWithinDir } from '../utils/assert-within-dir.js';
 import { createComponentDir } from '../utils/create-component-dir.js';
 import { doesFileDiffer } from '../utils/does-file-differ.js';
 import { getFileNamePath } from '../utils/get-file-name-path.js';
@@ -50,6 +51,7 @@ export function iterateAsyncApiComponents({
       createComponentDir(componentDirPath, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
         const filename = getFileNamePath(componentDirPath, componentName, ext);
+        assertWithinDir(asyncapiDir, filename, componentName);
         const componentData = components?.[componentType]?.[componentName];
         replace$Refs(componentData, path.dirname(filename), componentsFiles);
         replaceChannelRefs(componentData, path.dirname(filename), channelsFiles);

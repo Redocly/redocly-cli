@@ -62,12 +62,33 @@ const renderRow = (version) =>
     })
     .join(' | ')} |`;
 
+const regressions = columns.flatMap(({ name, data }) => {
+  const next = data.get('cli-next');
+  const latest = data.get('cli-latest');
+  if (!next || !latest) return [];
+
+  const slowdown = next.median / latest.median - 1;
+  const noise = Math.sqrt((next.mad / next.median) ** 2 + (latest.mad / latest.median) ** 2);
+  if (slowdown <= 0.05 || slowdown <= noise) return [];
+
+  return [`> - **${name}**: ${(slowdown * 100).toFixed(1)}% slower`];
+});
+
 const output = [
   '## Performance Benchmark (Lower is Faster)',
   '',
   `| CLI Version | ${columns.map((c) => c.name).join(' | ')} |`,
   `|---|${columns.map(() => '---').join('|')}|`,
   ...versions.map(renderRow),
-].join('\n');
+];
 
-process.stdout.write(output);
+if (regressions.length) {
+  output.push(
+    '',
+    '> [!WARNING]',
+    '> This PR may introduce a performance regression vs the latest released version:',
+    ...regressions
+  );
+}
+
+process.stdout.write(output.join('\n'));

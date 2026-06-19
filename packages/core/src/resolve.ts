@@ -18,6 +18,7 @@ import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/ind
 import type { OasRef } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+import { isSupportedExtension } from './utils/is-supported-extension.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { nextTick } from './utils/next-tick.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
@@ -130,9 +131,8 @@ export class BaseResolver {
   }
 
   parseDocument(source: Source, isRoot: boolean = false): Document {
-    const ext = source.absoluteRef.substr(source.absoluteRef.lastIndexOf('.'));
     if (
-      !['.json', '.json', '.yml', '.yaml'].includes(ext) &&
+      !isSupportedExtension(source.absoluteRef) &&
       !source.mimeType?.match(/(json|yaml|openapi)/) &&
       !isRoot // always parse root
     ) {
