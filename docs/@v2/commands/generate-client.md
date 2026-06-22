@@ -14,7 +14,7 @@ We'd love your feedback while we stabilize it.
 
 Generate a typed TypeScript client from an OpenAPI description.
 
-Accepts **OpenAPI 3.0, 3.1, and 3.2.0**, plus **Swagger 2.0** (normalized to the 3.x shape before generation).
+Accepts **OpenAPI 3.x**, plus **Swagger 2.0** (normalized to the 3.x shape before generation).
 `<input>` is a file path, a URL, or an `apis:` alias from `redocly.yaml`.
 
 The generated client has **zero runtime dependencies** — it uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`, …), so it runs in browsers, Node, Bun, Deno, and edge runtimes.
