@@ -171,4 +171,15 @@ describe('matchAffectedBy', () => {
       warnings: ['pets does not match any path, operation, or component of openapi.yaml.'],
     });
   });
+
+  it('points an unmatched file path to --files (structure mode is bundled)', () => {
+    expect(matchAffectedBy(graph, ['paths/pets.yaml'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
+      changedIds: [],
+      markerIds: [],
+      notes: [],
+      warnings: [
+        'paths/pets.yaml does not match any path, operation, or component of openapi.yaml. For file-level analysis, use `--files`.',
+      ],
+    });
+  });
 });

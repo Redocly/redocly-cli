@@ -1,5 +1,6 @@
 import {
   BaseResolver,
+  createConfig,
   detectSpec,
   getTypes,
   normalizeTypes,
@@ -10,7 +11,7 @@ import {
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
-import { buildStructure } from '../build-structure.js';
+import { buildStructureGraph, walkStructure } from '../build-structure.js';
 import type { DependencyGraph } from '../types.js';
 
 const CWD = '/project';
@@ -29,7 +30,7 @@ async function structureOf(
     externalRefResolver,
   });
   const ctx = { problems: [], specVersion, visitorsData: {} } as unknown as WalkContext;
-  return buildStructure({
+  return walkStructure({
     document,
     types,
     resolvedRefMap,
@@ -43,7 +44,7 @@ function edgeRefs(graph: DependencyGraph, from: string, to: string): string[] | 
   return graph.edges.find((edge) => edge.from === from && edge.to === to)?.refs;
 }
 
-describe('buildStructure', () => {
+describe('walkStructure', () => {
   it('builds the root -> path -> operation spine without refs', async () => {
     const graph = await structureOf({
       openapi: '3.0.0',
@@ -473,5 +474,43 @@ describe('buildStructure', () => {
     expect(edgeRefs(graph, 'GET /users', 'schemas/Shared')).toEqual([
       '#/components/schemas/Shared',
     ]);
+  });
+});
+
+describe('buildStructureGraph (multi-file parity)', () => {
+  const multiFile = path.join(process.cwd(), 'tests/e2e/tree/tree-multi-file/openapi.yaml');
+
+  async function structureGraphOf(apiPath: string): Promise<DependencyGraph> {
+    const config = await createConfig({});
+    const externalRefResolver = new BaseResolver();
+    const rootDocument = await externalRefResolver.resolveDocument(null, apiPath, true);
+    if (rootDocument instanceof Error) throw rootDocument;
+    const specVersion = detectSpec(rootDocument.parsed);
+    const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+    return buildStructureGraph({
+      rootDocument,
+      specVersion,
+      types,
+      config,
+      externalRefResolver,
+      cwd: path.dirname(apiPath),
+    });
+  }
+
+  it('bundles referenced path-items and components into a single-file-equivalent tree', async () => {
+    const graph = await structureGraphOf(multiFile);
+    const nodes = graph.nodes.map((node) => ({ id: node.id, kind: node.kind }));
+    expect(nodes).toContainEqual({ id: 'GET /pets', kind: 'operation' });
+    expect(nodes).toContainEqual({ id: 'GET /users', kind: 'operation' });
+    expect(nodes).toContainEqual({ id: 'schemas/Pet', kind: 'component' });
+    expect(nodes).toContainEqual({ id: 'schemas/User', kind: 'component' });
+    expect(nodes).toContainEqual({ id: 'schemas/Address', kind: 'component' });
+    expect(graph.nodes.some((node) => node.kind === 'file')).toBe(false);
+
+    expect(graph.edges).toContainEqual({
+      from: 'schemas/User',
+      to: 'schemas/Address',
+      refs: ['#/components/schemas/Address'],
+    });
   });
 });

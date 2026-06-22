@@ -11,7 +11,6 @@ import {
   type NormalizedNodeType,
   type ResolvedRefMap,
   type SpecVersion,
-  type WalkContext,
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
@@ -20,7 +19,7 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
-import { buildStructure } from './build-structure.js';
+import { buildStructureGraph } from './build-structure.js';
 import { filterAffected } from './filter-affected.js';
 import { matchAffectedBy } from './match-affected-by.js';
 import { renderJson } from './print/json.js';
@@ -68,7 +67,7 @@ export async function handleTree({ argv, config, collectSpecData }: CommandArgs<
   });
 }
 
-async function resolveApi({
+async function loadApi({
   apiPath,
   config,
   collectSpecData,
@@ -82,7 +81,6 @@ async function resolveApi({
   rootDocument: Document;
   specVersion: SpecVersion;
   types: Record<string, NormalizedNodeType>;
-  refMap: ResolvedRefMap;
 }> {
   const rootDocument = await externalRefResolver.resolveDocument(null, apiPath, true);
   if (rootDocument instanceof Error) {
@@ -91,12 +89,7 @@ async function resolveApi({
   collectSpecData?.(rootDocument.parsed);
   const specVersion = detectSpec(rootDocument.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  const refMap = await resolveDocument({
-    rootDocument,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-  return { rootDocument, specVersion, types, refMap };
+  return { rootDocument, specVersion, types };
 }
 
 async function handleFilesMode({
@@ -109,10 +102,15 @@ async function handleFilesMode({
 }: TreeModeContext & { apis: Entrypoint[] }): Promise<void> {
   const resolutions: Array<{ rootDocument: Document; refMap: ResolvedRefMap }> = [];
   for (const { path: apiPath } of apis) {
-    const { rootDocument, refMap } = await resolveApi({
+    const { rootDocument, types } = await loadApi({
       apiPath,
       config,
       collectSpecData,
+      externalRefResolver,
+    });
+    const refMap = await resolveDocument({
+      rootDocument,
+      rootType: types.Root,
       externalRefResolver,
     });
     resolutions.push({ rootDocument, refMap });
@@ -156,34 +154,23 @@ async function handleStructureMode({
   externalRefResolver,
   cwd,
 }: TreeModeContext & { api: Entrypoint }): Promise<void> {
-  const {
-    rootDocument,
-    specVersion,
-    types,
-    refMap: resolvedRefMap,
-  } = await resolveApi({
+  const { rootDocument, specVersion, types } = await loadApi({
     apiPath: api.path,
     config,
     collectSpecData,
     externalRefResolver,
   });
 
-  const ctx: WalkContext = {
-    problems: [],
+  const graph = await buildStructureGraph({
+    rootDocument,
     specVersion,
-    config,
-    visitorsData: {},
-  };
-
-  const graph = buildStructure({
-    document: rootDocument,
     types,
-    resolvedRefMap,
-    ctx,
+    config,
+    externalRefResolver,
     cwd,
-    resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
   });
 
+  // Structure mode resolves exactly one API (handleTree rejects more), so there is a single root.
   const rootId = graph.roots[0];
 
   let printedGraph = graph;
