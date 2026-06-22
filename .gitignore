@@ -11,7 +11,8 @@ output/
 *.tsbuildinfo
 *.tgz
 redoc-static.html
-packages/cli/README.md
+packages/cli/.publish/
+packages/cli/THIRD_PARTY_NOTICES
 .env
 packages/respect-core/src/modules/runtime-expressions/abnf-parser.js
 tests/e2e/generate-client/base-consumer/api.ts

@@ -20,6 +20,7 @@ export const SpecNoInvalidTagParents: Oas3Rule = () => {
           report({
             message: `Tag parent '${tag.parent}' is not defined in the API description.`,
             location: location.child('parent'),
+            reference: 'https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents',
           });
           return;
         }
@@ -30,6 +31,7 @@ export const SpecNoInvalidTagParents: Oas3Rule = () => {
             report({
               message: `Circular reference detected in tag parent hierarchy for tag '${tag.name}'.`,
               location: location.child('parent'),
+              reference: 'https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents',
             });
             return;
           }

@@ -20,14 +20,14 @@
     "lint:fix": "oxlint --fix",
     "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "compile": "tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run build-docs:copy-assets",
+    "compile": "tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run compile:cli:bundle",
+    "compile:cli:bundle": "npm --workspace packages/cli run build",
     "prepare": "husky && npm run compile",
     "cli": "node --import tsx packages/cli/src/index.ts",
     "precli": "npm run compile",
-    "release": "changeset publish",
+    "release": "node ./scripts/release-publish.mjs",
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format es --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
-    "build-docs:copy-assets": "cp packages/cli/src/commands/build-docs/template.hbs packages/cli/lib/commands/build-docs/template.hbs ",
     "json-server": "json-server --watch tests/e2e/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
   "workspaces": [
@@ -58,7 +58,7 @@
     "@tanstack/react-query": "^5.0.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.15.3",
-    "@vitest/coverage-istanbul": "^4.0.18",
+    "@vitest/coverage-istanbul": "^4.1.8",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",
@@ -75,13 +75,13 @@
     "swr": "^2.4.1",
     "tsx": "^4.19.3",
     "typescript": "6.0.2",
-    "vitest": "^4.0.18",
+    "vitest": "^4.1.8",
     "zod": "^4.0.0"
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
       "npm run lint",
-      "npm run format"
+      "oxfmt --write"
     ],
     "packages/**/*.ts": [
       "npm run lint:fix"

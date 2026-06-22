@@ -28,6 +28,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
               specVersion === 'oas3_1' || specVersion === 'oas3_2' ? ' or "examples"' : ''
             } defined.`,
             location: location.child(propName).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/scalar-property-missing-example',
           });
         }
       }

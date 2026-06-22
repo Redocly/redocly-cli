@@ -336,6 +336,7 @@ describe('lint', () => {
             },
           ],
           "message": "Operation object should contain \`operationId\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-operationId",
           "ruleId": "operation-operationId",
           "severity": "warn",
           "suggest": [],
@@ -2003,6 +2004,26 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not produce spurious example validation errors when linting concurrently', async () => {
+    const config = await createConfig({
+      rules: { 'no-invalid-media-type-examples': 'error' },
+    });
+
+    const [resultsA, resultsB] = await Promise.all([
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-a.yaml'),
+        config,
+      }),
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-b.yaml'),
+        config,
+      }),
+    ]);
+
+    expect(resultsA).toHaveLength(0);
+    expect(resultsB).toHaveLength(0);
+  });
+
   it('should report no unresolved extends when scorecardClassic extends contains a ref to non existing preset', async () => {
     const testConfigContent = outdent`
       scorecardClassic:
@@ -2025,6 +2046,7 @@ describe('lint', () => {
             },
           ],
           "message": "Can't resolve $ref: ENOENT: no such file or directory 'custom-rules.yaml'",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
           "ruleId": "configuration no-unresolved-refs",
           "severity": "error",
           "suggest": [],

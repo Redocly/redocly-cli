@@ -7,6 +7,81 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.34.0 (2026-06-17)
+
+### Minor Changes
+
+- Improved CLI install speed by bundling the CLI into a dependency-free package.
+
+  **Warning:** The published package no longer ships runtime dependencies in `node_modules`.
+  Plugins that relied on importing packages hoisted from the CLI (such as `@redocly/openapi-core`) must now declare those packages as their own dependencies.
+
+## 2.33.2 (2026-06-16)
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1 (2026-06-16)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0 (2026-06-16)
+
+### Minor Changes
+
+- Added the `--component-names-strategy` option to the `bundle` command.
+  This option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.0.
+
+## 2.32.2 (2026-06-11)
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.32.2.
+
+## 2.32.1 (2026-06-11)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
+## 2.32.0 (2026-06-08)
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
+## 2.31.6 (2026-06-03)
+
+### Patch Changes
+
+- Fixed `lint --format=checkstyle` to produce a single combined XML document when multiple APIs are passed to the command, instead of concatenated per-file documents.
+- Updated redoc to v2.5.3, styled-components to v6.4.2, and react to v19.2.7.
+- Updated @redocly/openapi-core to v2.31.6.
+
+## 2.31.5 (2026-05-27)
+
+### Patch Changes
+
+- Updated the `no-unused-components` rule to validate unused security schemes.
+- Pinned the official Docker image base to `node:24-alpine`.
+- Fixed the `remove-unused-components` decorator to remove unused security schemes.
+
+  **Warning:** The bundler may now remove more unused components than before.
+
+- Updated @redocly/openapi-core to v2.31.5.
+
 ## 2.31.4 (2026-05-22)
 
 ### Patch Changes

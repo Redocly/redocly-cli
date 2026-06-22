@@ -11,6 +11,7 @@ export const ChannelsKebabCase: Async2Rule = () => {
         report({
           message: `\`${key}\` does not use kebab-case.`,
           location: { reportOnKey: true },
+          reference: 'https://redocly.com/docs/cli/rules/async/channels-kebab-case',
         });
       }
     },

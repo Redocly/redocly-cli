@@ -7,7 +7,12 @@ import { validateDefinedAndNonEmpty } from '../utils.js';
 export const OperationDescription: Oas3Rule | Oas2Rule = () => {
   return {
     Operation(operation: Oas2Operation | Oas3Operation, ctx: UserContext) {
-      validateDefinedAndNonEmpty('description', operation, ctx);
+      validateDefinedAndNonEmpty({
+        fieldName: 'description',
+        value: operation,
+        ctx,
+        reference: 'https://redocly.com/docs/cli/rules/oas/operation-description',
+      });
     },
   };
 };

@@ -14,6 +14,7 @@ export const StepIdUnique: Arazzo1Rule = () => {
             report({
               message: 'The `stepId` must be unique amongst all steps described in the workflow.',
               location: location.child(['steps', workflow.steps.indexOf(step)]),
+              reference: 'https://redocly.com/docs/cli/rules/arazzo/stepid-unique',
             });
           }
           seenSteps.add(step.stepId);

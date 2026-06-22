@@ -8,6 +8,7 @@ export const SpecExampleValues: Oas3Rule = () => {
           message:
             "The 'value' and 'externalValue' fields of an example object are mutually exclusive.",
           location: location,
+          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
         });
       }
 
@@ -16,6 +17,7 @@ export const SpecExampleValues: Oas3Rule = () => {
           message:
             "The 'serializedValue' and 'externalValue' fields of an example object are mutually exclusive.",
           location: location,
+          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
         });
       }
 
@@ -24,6 +26,7 @@ export const SpecExampleValues: Oas3Rule = () => {
           message:
             "The 'value' filed must be absent if 'dataValue' is present in an example object.",
           location: location.child('value').key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
         });
       }
 
@@ -32,6 +35,7 @@ export const SpecExampleValues: Oas3Rule = () => {
           message:
             "The 'value' filed must be absent if 'serializedValue' is present in an example object.",
           location: location.child('value').key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
         });
       }
     },

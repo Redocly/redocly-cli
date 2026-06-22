@@ -44,10 +44,12 @@ Before submitting a pull request, please make sure the following is done:
    This creates a file in the `.changeset` folder.
    Commit this file with your changes.
    If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the `no changeset needed` label to the PR.
-1. When merging a PR, make sure to remove all redundant commit information (like intermediate commit descriptions).
-   Please leave only the main commit description (plus co-authors if needed).
-   If you think it makes sense to keep several commit descriptions, please rebase your PR instead of squashing it to preserve the commits.
-   Please use the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
+1. Use the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format for commit messages.
+
+**Please do not modify the PR template.**
+
+**Maintainers (when merging):** remove redundant intermediate commit descriptions and keep the main commit description (plus co-authors if needed).
+If several commit descriptions should be preserved, rebase instead of squashing.
 
 ## Development setup
 
@@ -148,14 +150,19 @@ When you open a pull request, we lint the prose using [Vale](https://vale.sh/).
 You can also install this tool locally and run it from the root of the project with:
 
 ```bash
-vale docs/
+vale README.md docs/ .changeset
 ```
 
 The configuration is in `.vale.ini` in the root of the project.
 
 ### Markdown linting
 
-We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that the Markdown in our docs is well formatted. The checks run as part of the pull request, and you can also run this tool locally. Follow the instructions from the markdownlint project page, and then run `markdownlint docs/` in the top-level folder of this repository.
+We use [Markdownlint](https://github.com/DavidAnson/markdownlint-cli2) to check that the Markdown in our docs is well formatted (config: `.markdownlint.yaml`).
+The checks run on pull requests; locally, from the repository root:
+
+```bash
+npx markdownlint-cli2 "docs/**/*.md"
+```
 
 > Note that formatter also runs and reformats Markdown files. Use `npm run format` from the root of the project.
 
@@ -180,7 +187,7 @@ Also add the rule to the built-in rules list in [the config types tree](./packag
 If the rule reflects a specification requirement, prefix it with `spec-` and add it to the [spec ruleset](./packages/core/src/config/spec.ts).
 If a rule already exists for another specification flavor, reuse the existing name so the same concept stays discoverable across specs.
 
-Separately, open a merge request with the corresponding documentation changes.
+Separately, open a pull request with the corresponding documentation changes.
 To make changes to documentation:
 
 1. Create a new page for the rule in the `docs/@v2` folder.
@@ -309,6 +316,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`.
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
+To skip coverage, run it with `--coverage=false`.
 
 Run `npm run unit` with coverage reporting always enabled (the `coverage` block in the root config sets `enabled: true`); the HTML report is written to `coverage/`.
 
@@ -326,21 +334,11 @@ Always review snapshot diffs in the pull request to confirm the change is intent
 If you made any changes, make sure to compile the code before running the tests.
 
 The e2e tests are written and run with [Vitest](https://vitest.dev/).
-Most of them are encapsulated inside the `commands.test.ts` file.
-However, when adding new e2e tests, it's best to follow the approach of the `respect` command tests.
+They live under `tests/e2e/`, grouped by command.
 
-Note that the snapshot does not always match the command output because of the way the stdout and stderr outputs are combined in tests.
-
-Here's how the output is processed in tests:
-
-```typescript
-const out = result.stdout ? result.stdout.toString() : '';
-const err = result.stderr ? result.stderr.toString() : '';
-return `${out}\n${err}`;
-```
-
-This is intentional behavior to have consistent command outputs where NodeJS handles the output buffering.
-When writing tests, keep in mind that the order of stdout and stderr messages in the actual output might differ from what you see in the terminal, but the combined output will be consistent for snapshot testing.
+Note that the snapshot does not always match the command output because of the way stdout and stderr are combined in [`getCommandOutput`](./tests/e2e/helpers.ts).
+This is intentional so outputs stay consistent for snapshot testing.
+The order of stdout and stderr in a snapshot may differ from what you see in the terminal, but the combined output is stable.
 
 ### Smoke tests
 
@@ -401,13 +399,10 @@ What should be verified when changes are applied to the `respect-core` package:
 - **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](./README.md).
     - **`packages/cli/src`**: contains CLI package source code.
-      - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
   - **`packages/core`**: contains Redocly CLI core functionality like rules, decorators, etc.
-    - **`packages/core/__tests__`**: contains unit tests.
     - **`packages/core/src`**: contains core package source code.
-      - **`packages/core/src/__tests__`**: contains unit tests.
       - **`packages/core/src/config`**: contains the base configuration options.
       - **`packages/core/src/decorators`**: contains the built-in [decorators](docs/@v2/decorators.md) code.
       - **`packages/core/src/format`**: contains the format options.

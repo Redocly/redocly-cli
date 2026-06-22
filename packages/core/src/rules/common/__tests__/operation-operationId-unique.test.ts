@@ -42,6 +42,7 @@ describe('Oas3 operation-operationId-unique', () => {
             },
           ],
           "message": "Every operation must have a unique \`operationId\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-operationId-unique",
           "ruleId": "operation-operationId-unique",
           "severity": "error",
           "suggest": [],

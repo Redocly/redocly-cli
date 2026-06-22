@@ -55,7 +55,8 @@ export type OutputFormat =
   | 'codeclimate'
   | 'summary'
   | 'github-actions'
-  | 'markdown';
+  | 'markdown'
+  | 'junit';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -110,7 +111,7 @@ export function formatProblems(
     .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity))
     .slice(0, maxProblems);
 
-  if (!totalProblems && format !== 'json') return;
+  if (!totalProblems && format !== 'json' && format !== 'junit') return;
 
   switch (format) {
     case 'json':
@@ -184,6 +185,40 @@ export function formatProblems(
       }
 
       logger.output(`</checkstyle>\n`);
+      break;
+    }
+    case 'junit': {
+      const totalErrors = problems.filter((p) => p.severity === 'error').length;
+      const totalWarnings = problems.filter((p) => p.severity === 'warn').length;
+
+      const groupedByFile: Record<string, NormalizedProblem[]> = {};
+      for (const problem of problems) {
+        const absoluteRef = problem.location[0].source.absoluteRef;
+        if (!groupedByFile[absoluteRef]) {
+          groupedByFile[absoluteRef] = [];
+        }
+        groupedByFile[absoluteRef].push(problem);
+      }
+
+      logger.output('<?xml version="1.0" encoding="UTF-8"?>\n');
+      logger.output(
+        `<testsuites name="redocly lint" tests="${problems.length}" errors="${totalErrors}" failures="${totalWarnings}" skipped="0">\n`
+      );
+
+      for (const [file, fileProblems] of Object.entries(groupedByFile)) {
+        const relativePath = isAbsoluteUrl(file) ? file : path.relative(cwd, file);
+        const fileErrors = fileProblems.filter((p) => p.severity === 'error').length;
+        const fileWarnings = fileProblems.filter((p) => p.severity === 'warn').length;
+        logger.output(
+          `<testsuite name="${xmlEscape(relativePath)}" tests="${
+            fileProblems.length
+          }" errors="${fileErrors}" failures="${fileWarnings}">\n`
+        );
+        fileProblems.forEach((problem) => formatJunit(problem, relativePath));
+        logger.output(`</testsuite>\n`);
+      }
+
+      logger.output(`</testsuites>\n`);
       break;
     }
     case 'codeclimate':
@@ -328,6 +363,36 @@ export function formatProblems(
     logger.output(
       `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`
     );
+  }
+
+  function formatJunit(problem: NormalizedProblem, relativePath: string) {
+    const location = problem.location[0];
+    const { start } = getLineColLocation(location);
+    const element = problem.severity === 'error' ? 'error' : 'failure';
+    const ruleId = xmlEscape(problem.ruleId);
+    const message = xmlEscape(problem.message);
+
+    const details = [
+      `Rule: ${ruleId}`,
+      `Severity: ${xmlEscape(problem.severity)}`,
+      `File: ${xmlEscape(relativePath)}`,
+      `Line: ${start.line}`,
+      `Column: ${start.col}`,
+    ];
+    if (location.pointer) {
+      details.push(`Pointer: ${xmlEscape(location.pointer)}`);
+    }
+    details.push(`Message: ${message}`);
+
+    logger.output(
+      `<testcase classname="${ruleId}" name="${ruleId}" file="${xmlEscape(
+        relativePath
+      )}" line="${start.line}">\n`
+    );
+    logger.output(
+      `<${element} message="${message}" type="${ruleId}">${details.join('\n')}</${element}>\n`
+    );
+    logger.output(`</testcase>\n`);
   }
 }
 

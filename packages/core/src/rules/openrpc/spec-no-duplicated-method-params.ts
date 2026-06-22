@@ -20,6 +20,8 @@ export const NoDuplicatedMethodParams: OpenRpc1Rule = () => {
             report({
               message: `Parameter names must be unique. Duplicate parameter name '${param.name}' found.`,
               location: location.child([index, 'name']),
+              reference:
+                'https://redocly.com/docs/cli/rules/openrpc/spec-no-duplicated-method-params',
             });
           }
           seenParams.add(paramName);

@@ -12,7 +12,7 @@ import type {
 import type { Oas2Tag } from '../typings/swagger.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import { validateJsonSchema } from './ajv.js';
+import type { AjvValidator } from './ajv.js';
 
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
@@ -84,7 +84,17 @@ export function fieldNonEmpty(type: string, field: string): string {
   return `${type} object \`${field}\` must be non-empty string.`;
 }
 
-export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: UserContext) {
+export function validateDefinedAndNonEmpty({
+  fieldName,
+  value,
+  ctx,
+  reference,
+}: {
+  fieldName: string;
+  value: any;
+  ctx: UserContext;
+  reference?: string;
+}) {
   if (!isPlainObject(value)) {
     return;
   }
@@ -93,36 +103,44 @@ export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: U
     ctx.report({
       message: missingRequiredField(ctx.type.name, fieldName),
       location: ctx.location.child([fieldName]).key(),
+      reference,
     });
   } else if (!value[fieldName]) {
     ctx.report({
       message: fieldNonEmpty(ctx.type.name, fieldName),
       location: ctx.location.child([fieldName]).key(),
+      reference,
     });
   }
 }
 
-export function validateOneOfDefinedAndNonEmpty(
-  fieldNames: string[],
-  value: any,
-  ctx: UserContext
-) {
+export function validateOneOfDefinedAndNonEmpty({
+  fieldNames,
+  value,
+  ctx,
+  reference,
+}: {
+  fieldNames: string[];
+  value: any;
+  ctx: UserContext;
+  reference?: string;
+}) {
   if (!isPlainObject(value)) {
     return;
   }
-
   if (!fieldNames.some((fieldName) => value.hasOwnProperty(fieldName))) {
     ctx.report({
       message: missingRequiredOneOfFields(ctx.type.name, fieldNames),
       location: ctx.location.key(),
+      reference,
     });
   }
-
   for (const fieldName of fieldNames) {
     if (value.hasOwnProperty(fieldName) && !value[fieldName]) {
       ctx.report({
         message: fieldNonEmpty(ctx.type.name, fieldName),
         location: ctx.location.child([fieldName]).key(),
+        reference,
       });
     }
   }
@@ -148,20 +166,27 @@ export function getSuggest(given: string, variants: string[]): string[] {
   return distances.map((d) => d.variant);
 }
 
-export function validateExample(
-  example: any,
-  schema: Referenced<Oas3Schema | Oas3_1Schema>,
+export function validateExample({
+  example,
+  schema,
+  options,
+  reference,
+}: {
+  example: any;
+  schema: Referenced<Oas3Schema | Oas3_1Schema>;
   options: {
     location: Location;
     ctx: UserContext;
+    validator: AjvValidator;
     allowAdditionalProperties: boolean;
     ajvContext?: AjvContext;
-  }
-) {
-  const { location, ctx, allowAdditionalProperties, ajvContext } = options;
+  };
+  reference?: string;
+}) {
+  const { location, ctx, validator, allowAdditionalProperties, ajvContext } = options;
   const { resolve, location: parentLocation, report, specVersion } = ctx;
   try {
-    const { valid, errors } = validateJsonSchema(example, schema, {
+    const { valid, errors } = validator.validate(example, schema, {
       schemaLoc: parentLocation.child('schema'),
       instancePath: location.pointer,
       resolve,
@@ -180,6 +205,7 @@ export function validateExample(
           },
           from: parentLocation,
           suggest: error.suggest,
+          reference,
         });
       }
     }
@@ -192,6 +218,7 @@ export function validateExample(
       message: `Example validation errored: ${e.message}.`,
       location: parentLocation.child('schema'),
       from: parentLocation,
+      reference,
     });
   }
 }
@@ -218,11 +245,17 @@ export function validateSchemaEnumType(
   }
 }
 
-export function validateResponseCodes(
-  responseCodes: string[],
-  codeRange: string,
-  { report }: UserContext
-) {
+export function validateResponseCodes({
+  responseCodes,
+  codeRange,
+  report,
+  reference,
+}: {
+  responseCodes: string[];
+  codeRange: string;
+  report: UserContext['report'];
+  reference?: string;
+}) {
   const responseCodeRegexp = new RegExp(`^${codeRange[0]}[0-9Xx]{2}$`);
 
   const containsNeededCode = responseCodes.some(
@@ -235,6 +268,7 @@ export function validateResponseCodes(
     report({
       message: `Operation must have at least one \`${codeRange}\` response.`,
       location: { reportOnKey: true },
+      reference,
     });
   }
 }

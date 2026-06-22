@@ -1,5 +1,5 @@
 import { type RuleSeverity } from '../config/types.js';
-import { type SpecMajorVersion } from '../oas-types.js';
+import { COMPONENT_NAME_CHARS, type SpecMajorVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
   replaceRef,
@@ -14,9 +14,16 @@ import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { makeRefId } from '../utils/make-ref-id.js';
+import { toPascalCase } from '../utils/to-pascal-case.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
-import { type UserContext, type ResolveResult } from '../walk.js';
+import { type UserContext, type ResolveResult, type Problem } from '../walk.js';
+import { type ComponentNamesStrategy } from './bundle-document.js';
+
+type ComponentTarget = { node: unknown; location: Location };
+type ComponentsGroup = Record<string, unknown>;
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -106,6 +113,8 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    default:
+      return null;
   }
 }
 
@@ -116,6 +125,7 @@ export function makeBundleVisitor({
   resolvedRefMap,
   keepUrlRefs,
   componentRenamingConflicts = 'warn',
+  componentNamesStrategy = 'basename',
 }: {
   version: SpecMajorVersion;
   dereference: boolean;
@@ -123,9 +133,14 @@ export function makeBundleVisitor({
   resolvedRefMap: ResolvedRefMap;
   keepUrlRefs: boolean;
   componentRenamingConflicts?: RuleSeverity;
+  componentNamesStrategy?: ComponentNamesStrategy;
 }) {
-  let components: Record<string, Record<string, unknown>>;
+  let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
+
+  const firstSchemaLocationByName = new Map<string, Location>();
+
+  const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -206,7 +221,6 @@ export function makeBundleVisitor({
   };
 
   if (version === 'oas3') {
-    const componentType = mapTypeToComponent('Schema', version)!;
     visitor.Discriminator = {
       leave(discriminator: Oas3Discriminator, ctx: UserContext) {
         if (
@@ -222,7 +236,7 @@ export function makeBundleVisitor({
           return;
         }
 
-        discriminator.defaultMapping = saveComponent(componentType, resolved, ctx);
+        discriminator.defaultMapping = saveComponent(schemaComponentType, resolved, ctx);
       },
       DiscriminatorMapping: {
         leave(mapping, ctx) {
@@ -237,7 +251,7 @@ export function makeBundleVisitor({
               return;
             }
 
-            mapping[name] = saveComponent(componentType, resolved, ctx);
+            mapping[name] = saveComponent(schemaComponentType, resolved, ctx);
           }
         },
       },
@@ -255,11 +269,7 @@ export function makeBundleVisitor({
     });
   }
 
-  function saveComponent(
-    componentType: string,
-    target: { node: unknown; location: Location },
-    ctx: UserContext
-  ) {
+  function saveComponent(componentType: string, target: ComponentTarget, ctx: UserContext) {
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
@@ -275,11 +285,7 @@ export function makeBundleVisitor({
     }
   }
 
-  function isEqualOrEqualRef(
-    node: unknown,
-    target: { node: unknown; location: Location },
-    ctx: UserContext
-  ) {
+  function isEqualOrEqualRef(node: unknown, target: ComponentTarget, ctx: UserContext) {
     if (
       isRef(node) &&
       ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer ===
@@ -291,22 +297,79 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
-  function getComponentName(
-    target: { node: unknown; location: Location },
-    componentType: string,
+  function componentNameFromTitle(
+    target: ComponentTarget,
+    componentsGroup: ComponentsGroup,
     ctx: UserContext
-  ) {
-    const componentsGroup = components[componentType];
-    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
-    let name = pointerBaseName(pointer) || refBaseName(fileRef);
+  ): { key: string; problem?: Problem } {
+    const { node } = target;
+    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
+    const key = toPascalCase(title).replace(new RegExp(`[^${COMPONENT_NAME_CHARS}]`, 'g'), '-');
+    const titleLocation = target.location.child('title');
 
-    const prevName = name;
-    let serialId = 2;
-    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      name = `${prevName}-${serialId}`;
-      serialId++;
+    if (title === '') {
+      return {
+        key,
+        problem: {
+          message: 'Schema must define a `title` when using `--component-names-strategy title`.',
+          location: target.location,
+          forceSeverity: 'error',
+        },
+      };
     }
 
+    if (componentsGroup[key] && !isEqualOrEqualRef(componentsGroup[key], target, ctx)) {
+      return {
+        key,
+        problem: {
+          message:
+            `Title "${title}" maps to component name \`${key}\`, ` +
+            `already used by another schema. Rename one of the titles.`,
+          location: titleLocation,
+          from: firstSchemaLocationByName.get(key),
+          forceSeverity: componentRenamingConflicts,
+        },
+      };
+    }
+    return { key };
+  }
+
+  function componentNameFromBasename(
+    target: ComponentTarget,
+    componentsGroup: ComponentsGroup,
+    ctx: UserContext
+  ): { name: string; prevName: string } {
+    const prevName =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    let name = prevName;
+    for (
+      let serialId = 2;
+      componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx);
+      serialId++
+    ) {
+      name = `${prevName}-${serialId}`;
+    }
+    return { name, prevName };
+  }
+
+  function getComponentName(target: ComponentTarget, componentType: string, ctx: UserContext) {
+    const componentsGroup = components[componentType];
+
+    if (componentNamesStrategy === 'title' && componentType === schemaComponentType) {
+      const { key, problem } = componentNameFromTitle(target, componentsGroup, ctx);
+      if (!problem) {
+        firstSchemaLocationByName.set(key, target.location.child('title'));
+        return key;
+      }
+      const { name } = componentNameFromBasename(target, componentsGroup, ctx);
+      if (!componentsGroup[name]) {
+        ctx.report(problem);
+        firstSchemaLocationByName.set(name, target.location);
+      }
+      return name;
+    }
+
+    const { name, prevName } = componentNameFromBasename(target, componentsGroup, ctx);
     if (!componentsGroup[name] && prevName !== name) {
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
@@ -314,7 +377,6 @@ export function makeBundleVisitor({
         forceSeverity: componentRenamingConflicts,
       });
     }
-
     return name;
   }
 

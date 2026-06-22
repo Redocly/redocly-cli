@@ -21,10 +21,10 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/utils/assert-node-version.ts',
         ],
         thresholds: {
-          lines: 80,
-          functions: 83,
+          lines: 81,
+          functions: 84,
           statements: 80,
-          branches: 72,
+          branches: 73,
           // Strict per-file 100% coverage for the new client generator. Per-glob thresholds run
           // alongside the repo-wide minimums above, so other packages stay unaffected.
           'packages/openapi-typescript/src/**/*.ts': {

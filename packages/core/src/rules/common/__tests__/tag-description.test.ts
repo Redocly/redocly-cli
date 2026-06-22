@@ -35,6 +35,7 @@ describe('Oas3 tag-description', () => {
             },
           ],
           "message": "Tag object should contain \`description\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/tag-description",
           "ruleId": "tag-description",
           "severity": "error",
           "suggest": [],

@@ -18,6 +18,8 @@ export const NoXSecurityBothSchemeAndSchemeName: Arazzo1Rule = () => {
         report({
           message: '`x-security` item must not contain both `scheme` and `schemeName`.',
           location: location.child(['x-security', extendedSecurity.indexOf(security)]),
+          reference:
+            'https://redocly.com/docs/cli/rules/respect/no-x-security-both-scheme-and-scheme-name',
         });
       }
     }

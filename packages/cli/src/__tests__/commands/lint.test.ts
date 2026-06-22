@@ -1,5 +1,6 @@
 import {
   lint,
+  lintConfig,
   getTotals,
   formatProblems,
   logger,
@@ -13,7 +14,7 @@ import { performance } from 'perf_hooks';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
-import { handleLint, type LintArgv } from '../../commands/lint.js';
+import { handleLint, handleLintConfig, type LintArgv } from '../../commands/lint.js';
 import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
@@ -52,7 +53,8 @@ describe('handleLint', () => {
       return {
         ...actual,
         lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        getTotals: vi.fn(() => ({ errors: 0 }) as Totals),
+        lintConfig: vi.fn(async (): Promise<NormalizedProblem[]> => []),
+        getTotals: vi.fn(() => ({ errors: 0, warnings: 0, ignored: 0 }) as Totals),
         doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
         logger: {
           info: vi.fn(),
@@ -211,11 +213,43 @@ describe('handleLint', () => {
       expect(formatProblems).toHaveBeenCalledWith(['problem'], {
         format: 'stylish',
         maxProblems: 2,
-        totals: { errors: 0 },
+        totals: { errors: 0, warnings: 0, ignored: 0 },
         version: '2.0.0',
         command: 'lint',
       });
       expect(getExecutionTime).toHaveBeenCalledWith(42);
+    });
+
+    it('should aggregate problems from multiple APIs into a single formatProblems call', async () => {
+      vi.mocked(lint)
+        .mockResolvedValueOnce(['problem-a'] as any)
+        .mockResolvedValueOnce(['problem-b'] as any);
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['a.yaml', 'b.yaml'],
+        format: 'checkstyle',
+      });
+      expect(formatProblems).toHaveBeenCalledTimes(1);
+      expect(formatProblems).toHaveBeenCalledWith(
+        ['problem-a', 'problem-b'],
+        expect.objectContaining({ format: 'checkstyle' })
+      );
+    });
+
+    it('should aggregate problems from multiple APIs into a single formatProblems call for junit', async () => {
+      vi.mocked(lint)
+        .mockResolvedValueOnce(['problem-a'] as any)
+        .mockResolvedValueOnce(['problem-b'] as any);
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['a.yaml', 'b.yaml'],
+        format: 'junit',
+      });
+      expect(formatProblems).toHaveBeenCalledTimes(1);
+      expect(formatProblems).toHaveBeenCalledWith(
+        ['problem-a', 'problem-b'],
+        expect.objectContaining({ format: 'junit' })
+      );
     });
 
     it('should catch error in handleError if something fails', async () => {
@@ -270,5 +304,38 @@ describe('handleLint', () => {
         )} configuration by default.\n\n`
       );
     });
+  });
+});
+
+describe('handleLintConfig', () => {
+  const configWithDocument = { ...configFixture, document: { parsed: {} } } as any;
+
+  it.each(['json', 'junit', 'checkstyle'] as const)(
+    'should not print config lint results for the single-document %s format',
+    async (format) => {
+      vi.mocked(lintConfig).mockResolvedValue(['config-problem'] as any);
+      vi.mocked(formatProblems).mockClear();
+
+      await handleLintConfig(
+        { ...argvMock, 'lint-config': 'warn', format } as any,
+        '2.0.0',
+        configWithDocument
+      );
+
+      expect(formatProblems).not.toHaveBeenCalled();
+    }
+  );
+
+  it('should print config lint results for text formats', async () => {
+    vi.mocked(lintConfig).mockResolvedValue([] as any);
+    vi.mocked(formatProblems).mockClear();
+
+    await handleLintConfig(
+      { ...argvMock, 'lint-config': 'warn', format: 'stylish' } as any,
+      '2.0.0',
+      configWithDocument
+    );
+
+    expect(formatProblems).toHaveBeenCalledWith([], expect.objectContaining({ format: 'stylish' }));
   });
 });

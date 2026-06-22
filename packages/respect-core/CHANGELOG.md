@@ -1,5 +1,65 @@
 # @redocly/respect-core
 
+## 2.34.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.34.0.
+
+## 2.33.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0
+
+### Patch Changes
+
+- Fixed a remote code execution vulnerability where a crafted `$faker` expression in an Arazzo description could execute arbitrary JavaScript during Redocly Respect runs.
+  Reported by Hamza Haroon (GitHub: @thegr1ffyn).
+- Updated @redocly/openapi-core to v2.33.0.
+
+## 2.32.2
+
+### Patch Changes
+
+- Fixed `respect` schema checks to honor `readOnly` and `writeOnly` based on context.
+
+  **Warning:** `writeOnly` properties in responses are reported as errors.
+
+- Updated @redocly/openapi-core to v2.32.2.
+
+## 2.32.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
+## 2.32.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
+## 2.31.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.6.
+
+## 2.31.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.5.
+
 ## 2.31.4
 
 ### Patch Changes
