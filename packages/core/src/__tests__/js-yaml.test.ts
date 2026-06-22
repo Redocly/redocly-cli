@@ -68,8 +68,7 @@ describe('js-yaml', () => {
 
   it('should keep quotes around strings that look like numbers with underscores', () => {
     // Regression test for: js-yaml >=4.2.0
-    // no longer quotes such strings on its own, so they must stay quoted here to avoid being
-    // read back as numbers by YAML 1.1 parsers. Actual numbers must remain unquoted.
+    // Actual numbers must remain unquoted.
     expect(
       stringifyYaml({
         underscoreNumber: 1234,
