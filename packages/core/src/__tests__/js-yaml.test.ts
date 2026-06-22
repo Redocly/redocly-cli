@@ -66,6 +66,30 @@ describe('js-yaml', () => {
     expect(parseYaml(stringifyYaml(jsObject))).toEqual(jsObject);
   });
 
+  it('should keep quotes around strings that look like numbers with underscores', () => {
+    // Regression test for: js-yaml >=4.2.0
+    // no longer quotes such strings on its own, so they must stay quoted here to avoid being
+    // read back as numbers by YAML 1.1 parsers. Actual numbers must remain unquoted.
+    expect(
+      stringifyYaml({
+        underscoreNumber: 1234,
+        underscoreInt: '12_34',
+        underscoreThousands: '1_000',
+        underscoreHex: '0x1_2',
+        underscoreFloat: '1_2.3',
+        plain: 'hello',
+      })
+    ).toMatchInlineSnapshot(`
+    "underscoreNumber: 1234
+    underscoreInt: '12_34'
+    underscoreThousands: '1_000'
+    underscoreHex: '0x1_2'
+    underscoreFloat: '1_2.3'
+    plain: hello
+    "
+    `);
+  });
+
   it('should throw an error for unsupported types', () => {
     expect(() => stringifyYaml({ foo: () => {} })).toThrow(
       'unacceptable kind of an object to dump [object Function]'
