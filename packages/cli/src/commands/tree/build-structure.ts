@@ -1,12 +1,18 @@
 import {
+  bundleDocument,
+  getTypes,
   isAbsoluteUrl,
   normalizeVisitors,
+  resolveDocument,
   walkDocument,
+  type BaseResolver,
+  type Config,
   type Document,
   type Location,
   type NormalizedNodeType,
   type Oas3Visitor,
   type ResolvedRefMap,
+  type SpecVersion,
   type WalkContext,
 } from '@redocly/openapi-core';
 
@@ -22,7 +28,42 @@ import {
 } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
-export function buildStructure(options: {
+export async function buildStructureGraph(options: {
+  rootDocument: Document;
+  specVersion: SpecVersion;
+  types: Record<string, NormalizedNodeType>;
+  config: Config;
+  externalRefResolver: BaseResolver;
+  cwd: string;
+}): Promise<DependencyGraph> {
+  const { rootDocument, specVersion, types, config, externalRefResolver, cwd } = options;
+
+  const { bundle } = await bundleDocument({
+    document: rootDocument,
+    config,
+    types: getTypes(specVersion),
+    externalRefResolver,
+  });
+
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: bundle,
+    rootType: types.Root,
+    externalRefResolver,
+  });
+
+  const ctx: WalkContext = { problems: [], specVersion, config, visitorsData: {} };
+
+  return walkStructure({
+    document: bundle,
+    types,
+    resolvedRefMap,
+    ctx,
+    cwd,
+    resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
+  });
+}
+
+export function walkStructure(options: {
   document: Document;
   types: Record<string, NormalizedNodeType>;
   resolvedRefMap: ResolvedRefMap;
@@ -80,9 +121,7 @@ export function buildStructure(options: {
   };
 
   const unresolvedTargetId = (siteLocation: Location, refString: string): string => {
-    const hashIndex = refString.indexOf('#');
-    const uri = hashIndex === -1 ? refString : refString.slice(0, hashIndex);
-    const fragment = hashIndex === -1 ? undefined : refString.slice(hashIndex + 1);
+    const [uri, fragment] = refString.split('#');
     const siteFile = siteLocation.source.absoluteRef;
 
     let mapped: MappedNode & { file: string };
@@ -147,6 +186,7 @@ export function buildStructure(options: {
   return finalizeGraph(rootId, nodes, edges);
 }
 
+/** Keeps only nodes reachable from the root, sorted for stable output. */
 function finalizeGraph(
   rootId: string,
   nodeMap: Map<string, GraphNode>,

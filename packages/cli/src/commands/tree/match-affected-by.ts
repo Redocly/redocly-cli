@@ -79,7 +79,11 @@ export function matchAffectedBy(
       }
     }
 
-    warnings.push(`${input} does not match any path, operation, or component of ${rootId}.`);
+    let warning = `${input} does not match any path, operation, or component of ${rootId}.`;
+    if (/\.(ya?ml|json)$/i.test(input)) {
+      warning += ' For file-level analysis, use `--files`.';
+    }
+    warnings.push(warning);
   }
 
   return {

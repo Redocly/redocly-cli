@@ -136,4 +136,36 @@ describe('mapForeignLocation', () => {
       file: 'schemas/pet.yaml',
     });
   });
+
+  it('treats a path-item parameters array as the whole file, not an OAS2 component', () => {
+    expect(mapForeignLocation('paths/pets.yaml', '#/parameters/0')).toEqual({
+      id: 'paths/pets.yaml',
+      kind: 'file',
+      file: 'paths/pets.yaml',
+    });
+  });
+
+  it('still maps a named OAS2 parameters component in another file', () => {
+    expect(mapForeignLocation('common.yaml', '#/parameters/PetId')).toEqual({
+      id: 'common.yaml#/parameters/PetId',
+      kind: 'component',
+      file: 'common.yaml',
+    });
+  });
+
+  it('treats a path-item parameters array as the whole file, not an OAS2 component', () => {
+    expect(mapForeignLocation('paths/pets.yaml', '#/parameters/0')).toEqual({
+      id: 'paths/pets.yaml',
+      kind: 'file',
+      file: 'paths/pets.yaml',
+    });
+  });
+
+  it('still maps a named OAS2 parameters component in another file', () => {
+    expect(mapForeignLocation('common.yaml', '#/parameters/PetId')).toEqual({
+      id: 'common.yaml#/parameters/PetId',
+      kind: 'component',
+      file: 'common.yaml',
+    });
+  });
 });
