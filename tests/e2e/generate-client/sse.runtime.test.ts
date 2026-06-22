@@ -91,8 +91,9 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     if (serverProcess) {
       await killServer(serverProcess);
     }
-    // The generated `api.ts` is intentionally left in place (gitignored), matching
-    // the other consumer harnesses — `tsc --noEmit` over the repo expects it present.
+    // The generated `api.ts` is intentionally left in place, matching the other
+    // consumer harnesses — it's committed (regeneration is deterministic) so the
+    // repo-wide `tsc --noEmit` typecheck finds it present on a fresh checkout.
   });
 
   test('reconnect: events stream across a dropped connection, resuming via Last-Event-ID', () => {
