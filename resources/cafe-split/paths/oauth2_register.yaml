@@ -33,7 +33,7 @@ post:
             dataValue:
               name: auth
               redirectUris:
-                - https://cafe.cloud.redocly.com/callback
+                - https://api.cafe.redocly.com/callback
               scopes:
                 - menu:read
                 - menu:write
