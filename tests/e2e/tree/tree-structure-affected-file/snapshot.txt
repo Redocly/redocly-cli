@@ -1,8 +1,3 @@
-openapi.yaml
-└── /users
-    └── paths/users.yaml
-        └── components/schemas/User.yaml
-            └── components/schemas/Address.yaml ← changed
+No nodes affected.
 
-5 of 8 nodes affected
-
+components/schemas/Address.yaml does not match any path, operation, or component of openapi.yaml. For file-level analysis, use `--files`.
