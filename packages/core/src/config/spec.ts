@@ -48,6 +48,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'error',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'off',
@@ -107,6 +108,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'spec-example-values': 'off',
     'spec-strict-refs': 'error',
+    'spec-ref-siblings': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
   },
@@ -165,6 +167,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'spec-example-values': 'off',
     'spec-strict-refs': 'error',
+    'spec-ref-siblings': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
   },
@@ -226,6 +229,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-no-invalid-tag-parents': 'error',
     'spec-querystring-parameters': 'error',
     'spec-strict-refs': 'error',
+    'spec-ref-siblings': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
   },
@@ -242,6 +246,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'off',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'error',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
@@ -256,6 +261,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'off',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
@@ -290,6 +296,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'off',
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
+    'spec-ref-siblings': 'error',
   },
 };
 

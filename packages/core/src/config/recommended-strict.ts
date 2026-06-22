@@ -48,6 +48,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'off',
@@ -106,6 +107,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'security-defined': 'error',
     'spec-components-invalid-map-name': 'error',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
@@ -164,6 +166,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'security-defined': 'error',
     'spec-components-invalid-map-name': 'error',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
@@ -222,6 +225,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
+    'spec-ref-siblings': 'off',
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-no-invalid-tag-parents': 'error',
     'spec-querystring-parameters': 'error',
@@ -242,6 +246,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
@@ -256,6 +261,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
@@ -290,6 +296,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'error',
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
+    'spec-ref-siblings': 'off',
   },
 };
 

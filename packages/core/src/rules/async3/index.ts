@@ -10,6 +10,7 @@ import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schem
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { OperationOperationId } from '../common/operation-operationId.js';
+import { SpecRefSiblings } from '../common/spec-ref-siblings.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
@@ -32,6 +33,7 @@ export const rules: Async3RuleSet<'built-in'> = {
   'no-enum-type-mismatch': NoEnumTypeMismatch as Async3Rule,
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Async3Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Async3Rule,
+  'spec-ref-siblings': SpecRefSiblings as Async3Rule,
 };
 
 export const preprocessors = {};
