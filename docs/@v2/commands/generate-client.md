@@ -641,14 +641,14 @@ Binary fields (`type: string, format: binary`) are typed as `Blob` (a `File` is 
 await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 ```
 
-Serialization rules: 
+Serialization rules:
 - `Blob`/`File` and strings pass through
 - arrays append one field per item
 - nested objects are JSON-encoded
 - other scalars are stringified
 - `undefined`/`null` are skipped
 
-A multipart body whose schema **isn't** a concrete object keeps the raw `FormData` type. 
+A multipart body whose schema **isn't** a concrete object keeps the raw `FormData` type.
 You can build the form yourself when the shape can't be expressed.
 
 `format: binary` surfaces as `Blob` wherever it appears; `format: byte` (base64) stays a `string`.
@@ -936,7 +936,7 @@ A worked example lives in [`examples/custom-generator`](https://github.com/Redoc
 
 {% admonition type="info" name="Compatibility & trust" %}
 A custom generator declares the same `requires` / `facades` / `errorModes` / `dateTypes` contract as the built-ins, validated up front — an incompatible selection, a name that collides with another generator, or an unloadable specifier fails fast with an actionable message.
-The generated client stays dependency-free. 
+The generated client stays dependency-free.
 A generator's output is its own file(s), and any libraries it targets are peers of _your app_.
 Import-specifier generators execute at generation time.'
 It has the same trust level as any installed dependency or `defineConfig` file.
