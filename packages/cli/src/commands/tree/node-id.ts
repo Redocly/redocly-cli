@@ -8,8 +8,7 @@ import * as path from 'node:path';
 
 import type { NodeKind } from './types.js';
 
-/** Codepoint comparison (not localeCompare): deterministic across Node ICU builds → stable output. */
-export const byString = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+export const compareStrings = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 export function toNodeId(absoluteRef: string, cwd: string): string {
   return isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));

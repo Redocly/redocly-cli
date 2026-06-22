@@ -10,8 +10,9 @@ import {
   type WalkContext,
 } from '@redocly/openapi-core';
 
+import { collectConnectedIds } from './filter-affected.js';
 import {
-  byString,
+  compareStrings,
   mapForeignLocation,
   mapRootPointer,
   OPERATION_METHODS,
@@ -37,7 +38,7 @@ export function buildStructure(options: {
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
 
-  const upsertNode = (mapped: MappedNode & { file: string }, resolved: boolean) => {
+  const addOrUpdateNode = (mapped: MappedNode & { file: string }, resolved: boolean) => {
     const node = nodes.get(mapped.id) ?? { id: mapped.id, resolved: false };
     if (resolved) node.resolved = true;
     if (isAbsoluteUrl(mapped.id)) node.external = true;
@@ -55,31 +56,29 @@ export function buildStructure(options: {
     edges.set(edgeKey, edge);
   };
 
-  const mapByFile = (absoluteRef: string, pointer: string): MappedNode & { file: string } =>
+  const mapToNode = (absoluteRef: string, pointer: string): MappedNode & { file: string } =>
     absoluteRef === rootAbs
       ? { ...mapRootPointer(pointer, rootId), file: rootId }
       : mapForeignLocation(toNodeId(absoluteRef, cwd), pointer);
 
   const nodeFor = (location: Location): string => {
-    const mapped = mapByFile(location.source.absoluteRef, location.pointer);
-    upsertNode(mapped, true);
-    wireSpine(mapped);
+    const mapped = mapToNode(location.source.absoluteRef, location.pointer);
+    addOrUpdateNode(mapped, true);
+    linkToRoot(mapped);
     return mapped.id;
   };
 
-  const wireSpine = (mapped: MappedNode) => {
+  const linkToRoot = (mapped: MappedNode) => {
     if (mapped.ancestry === undefined) return;
     let previous = rootId;
     for (const ancestorId of mapped.ancestry) {
-      upsertNode({ id: ancestorId, kind: 'path', file: rootId }, true);
+      addOrUpdateNode({ id: ancestorId, kind: 'path', file: rootId }, true);
       addEdge(previous, ancestorId);
       previous = ancestorId;
     }
     addEdge(previous, mapped.id);
   };
 
-  // Unresolved `$ref`: derive the target id from the raw string — a same-file fragment, or a uri
-  // resolved against the ref site's file.
   const unresolvedTargetId = (siteLocation: Location, refString: string): string => {
     const hashIndex = refString.indexOf('#');
     const uri = hashIndex === -1 ? refString : refString.slice(0, hashIndex);
@@ -88,7 +87,7 @@ export function buildStructure(options: {
 
     let mapped: MappedNode & { file: string };
     if (uri === '') {
-      mapped = mapByFile(siteFile, '#' + (fragment ?? '/'));
+      mapped = mapToNode(siteFile, '#' + (fragment ?? '/'));
     } else {
       const fileId = toNodeId(resolveRef(siteFile, uri), cwd);
       mapped =
@@ -97,7 +96,7 @@ export function buildStructure(options: {
           : { id: fileId, kind: 'file', file: fileId };
     }
 
-    upsertNode(mapped, false);
+    addOrUpdateNode(mapped, false);
     return mapped.id;
   };
 
@@ -136,7 +135,7 @@ export function buildStructure(options: {
     },
   };
 
-  upsertNode({ id: rootId, kind: 'root', file: rootId }, true);
+  addOrUpdateNode({ id: rootId, kind: 'root', file: rootId }, true);
   nodes.get(rootId)!.root = true;
 
   const normalizedVisitors = normalizeVisitors(
@@ -145,42 +144,24 @@ export function buildStructure(options: {
   );
   walkDocument({ document, rootType: types.Root, normalizedVisitors, resolvedRefMap, ctx });
 
-  return prune(rootId, nodes, edges);
+  return finalizeGraph(rootId, nodes, edges);
 }
 
-/** Drops nodes unreachable from the root, then codepoint-sorts nodes/edges/refs for stable output. */
-function prune(
+function finalizeGraph(
   rootId: string,
-  nodes: Map<string, GraphNode>,
-  edges: Map<string, GraphEdge>
+  nodeMap: Map<string, GraphNode>,
+  edgeMap: Map<string, GraphEdge>
 ): DependencyGraph {
-  const adjacency = new Map<string, string[]>();
-  for (const { from, to } of edges.values()) {
-    const targets = adjacency.get(from) ?? [];
-    targets.push(to);
-    adjacency.set(from, targets);
-  }
+  const connectedIds = collectConnectedIds([rootId], [...edgeMap.values()]);
 
-  const reachable = new Set<string>([rootId]);
-  const queue = [rootId];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    for (const next of adjacency.get(current) ?? []) {
-      if (!reachable.has(next)) {
-        reachable.add(next);
-        queue.push(next);
-      }
-    }
-  }
+  const nodes = [...nodeMap.values()]
+    .filter((node) => connectedIds.has(node.id))
+    .sort((a, b) => compareStrings(a.id, b.id));
 
-  return {
-    roots: [rootId],
-    nodes: [...nodes.values()]
-      .filter((node) => reachable.has(node.id))
-      .sort((a, b) => byString(a.id, b.id)),
-    edges: [...edges.values()]
-      .filter((edge) => reachable.has(edge.from) && reachable.has(edge.to))
-      .map((edge) => ({ ...edge, refs: [...edge.refs].sort(byString) }))
-      .sort((a, b) => byString(a.from, b.from) || byString(a.to, b.to)),
-  };
+  const edges = [...edgeMap.values()]
+    .filter((edge) => connectedIds.has(edge.from) && connectedIds.has(edge.to))
+    .map((edge) => ({ ...edge, refs: [...edge.refs].sort(compareStrings) }))
+    .sort((a, b) => compareStrings(a.from, b.from) || compareStrings(a.to, b.to));
+
+  return { roots: [rootId], nodes, edges };
 }

@@ -1,6 +1,6 @@
 import { isAbsoluteUrl, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
 
-import { byString, toNodeId } from './node-id.js';
+import { compareStrings, toNodeId } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
 export function buildGraph(
@@ -48,9 +48,9 @@ export function buildGraph(
 
   return {
     roots: resolutions.map(({ rootDocument }) => toNodeId(rootDocument.source.absoluteRef, cwd)),
-    nodes: [...nodes.values()].sort((a, b) => byString(a.id, b.id)),
+    nodes: [...nodes.values()].sort((a, b) => compareStrings(a.id, b.id)),
     edges: [...edges.values()]
-      .map((edge) => ({ ...edge, refs: [...edge.refs].sort(byString) }))
-      .sort((a, b) => byString(a.from, b.from) || byString(a.to, b.to)),
+      .map((edge) => ({ ...edge, refs: [...edge.refs].sort(compareStrings) }))
+      .sort((a, b) => compareStrings(a.from, b.from) || compareStrings(a.to, b.to)),
   };
 }
