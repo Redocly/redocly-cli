@@ -69,7 +69,7 @@
     "styled-components": "6.4.2",
     "typescript": "6.0.2",
     "ulid": "^3.0.1",
-    "undici": "6.24.0",
+    "undici": "^6.27.0",
     "yargs": "17.0.1"
   }
 }
