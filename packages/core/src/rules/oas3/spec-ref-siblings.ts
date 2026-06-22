@@ -4,14 +4,14 @@ export const SpecRefSiblings: Oas3Rule = () => {
   return {
     ref: {
       leave(ref, { report, location, type, specVersion }) {
-        const honorsSiblings = specVersion === 'oas3_1' || specVersion === 'oas3_2';
+        const allowsRefSiblings = specVersion !== 'oas3_0';
 
-        if (honorsSiblings && type.name === 'Schema') return;
+        if (allowsRefSiblings && type.name === 'Schema') return;
 
         for (const key of Object.keys(ref)) {
           if (key === '$ref' || key.startsWith('x-')) continue;
 
-          if (honorsSiblings && (key === 'summary' || key === 'description')) continue;
+          if (allowsRefSiblings && (key === 'summary' || key === 'description')) continue;
 
           report({
             message: `Property \`${key}\` is not expected here because it is defined alongside \`$ref\`.`,
