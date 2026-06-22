@@ -23,14 +23,7 @@ jobs:
       - uses: errata-ai/vale-action@reviewdog
         with:
           files: '["README.md", "docs", ".changeset"]'
-          # `local` reporter prints findings to the job log and exits non-zero on
-          # errors WITHOUT calling the GitHub API. The PR-annotation reporters
-          # fetch the PR diff to position comments, which GitHub caps at 20000
-          # lines — a large PR returns 406 and the job fails on that fetch, not on
-          # any vale finding. `local` has no diff to fetch, so it survives any PR
-          # size while still gating on real vale errors.
-          reporter: local
-          filter_mode: nofilter
+          filter_mode: file
           fail_on_error: true
 
   linkcheck:

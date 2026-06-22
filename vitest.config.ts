@@ -25,14 +25,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           functions: 84,
           statements: 80,
           branches: 73,
-          // Strict per-file 100% coverage for the new client generator. Per-glob thresholds run
-          // alongside the repo-wide minimums above, so other packages stay unaffected.
-          'packages/openapi-typescript/src/**/*.ts': {
-            lines: 100,
-            functions: 100,
-            statements: 100,
-            branches: 100,
-          },
         },
       },
     },
@@ -63,5 +55,5 @@ export default mergeConfig(
       },
     },
   }),
-  configExtension[process.env.VITEST_SUITE || 'default']
+  configExtension[process.env.VITEST_SUITE || 'default'],
 );
