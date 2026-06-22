@@ -1,7 +1,7 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef, refHasSibling } from './ref-utils.js';
+import { Location, isRef } from './ref-utils.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
@@ -320,55 +320,16 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             );
           }
 
-          if (nodeIsRef) {
-            props.push(...Object.keys(node).filter((k) => k !== '$ref' && !props.includes(k))); // properties on the same level as $ref
+          for (const propName of props) {
+            walkProperty(resolvedNode[propName], resolvedLocation, resolvedNode, propName);
           }
 
-          for (const propName of props) {
-            let value = resolvedNode[propName];
-
-            let loc = resolvedLocation;
-
-            if (value === undefined) {
-              value = node[propName];
-              loc = location; // properties on the same level as $ref should resolve against original location, not target
+          if (nodeIsRef) {
+            for (const propName of Object.keys(node)) {
+              if (propName !== '$ref') {
+                walkProperty(getOwn(node, propName), location, node, propName);
+              }
             }
-
-            let propType = getOwn(type.properties, propName);
-            if (propType === undefined) propType = type.additionalProperties;
-            if (typeof propType === 'function') propType = propType(value, propName);
-
-            if (
-              propType === undefined &&
-              type.extensionsPrefix &&
-              propName.startsWith(type.extensionsPrefix)
-            ) {
-              propType = SpecExtension;
-            }
-
-            if (!isNamedType(propType) && propType?.directResolveAs) {
-              propType = propType.directResolveAs;
-              value = { $ref: value };
-            }
-
-            if (propType && propType.name === undefined && propType.resolvable !== false) {
-              propType = { name: 'scalar', properties: {} };
-            }
-
-            if (!isNamedType(propType)) {
-              continue;
-            }
-
-            if (nodeIsRef && refHasSibling(node, propName)) {
-              walkNode(node[propName], propType, location.child([propName]), node, propName);
-              continue;
-            }
-
-            if (propType.name === 'scalar' && !isRef(value)) {
-              continue;
-            }
-
-            walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
           }
         }
       }
@@ -427,6 +388,34 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           );
         }
       }
+    }
+
+    function walkProperty(value: unknown, loc: Location, parent: unknown, propName: string) {
+      let propType = getOwn(type.properties, propName);
+      if (propType === undefined) propType = type.additionalProperties;
+      if (typeof propType === 'function') propType = propType(value, propName);
+
+      if (
+        propType === undefined &&
+        type.extensionsPrefix &&
+        propName.startsWith(type.extensionsPrefix)
+      ) {
+        propType = SpecExtension;
+      }
+
+      if (!isNamedType(propType) && propType?.directResolveAs) {
+        propType = propType.directResolveAs;
+        value = { $ref: value };
+      }
+
+      if (propType && propType.name === undefined && propType.resolvable !== false) {
+        propType = { name: 'scalar', properties: {} };
+      }
+
+      if (!isNamedType(propType)) return;
+      if (propType.name === 'scalar' && !isRef(value)) return;
+
+      walkNode(value, propType, loc.child([propName]), parent, propName);
     }
 
     // returns true ignores all the next visitors on the specific node

@@ -15,6 +15,7 @@ describe('bundle', () => {
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
     'bundle-use-titles-for-component-names-collision',
+    'ref-siblings',
   ];
   const folderPath = __dirname;
   const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));

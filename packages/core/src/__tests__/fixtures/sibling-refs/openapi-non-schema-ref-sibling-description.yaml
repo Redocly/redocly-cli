@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Description $ref sibling on a non-Schema Reference Object
+  version: 1.0.0
+paths:
+  /orders:
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/OrderBody'
+        description:
+          $ref: ./description.md
+      responses:
+        '201':
+          description: created
+components:
+  requestBodies:
+    OrderBody:
+      description: Shared order body.
+      content:
+        application/json:
+          schema:
+            type: object

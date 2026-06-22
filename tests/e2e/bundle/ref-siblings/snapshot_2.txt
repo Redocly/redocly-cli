@@ -1,75 +1,131 @@
 openapi: 3.1.0
 info:
-  title: E2E bundle - ref with sibling keys
+  title: Cafe API - ref with sibling keys
   version: 1.0.0
 servers:
-  - url: https://api.redocly.com
+  - url: https://api.cafe.example.com
 security: []
 paths:
-  /sample:
+  /menu/{menuItemId}:
     get:
-      operationId: getSample
-      description: parameter $ref with sibling name
+      operationId: getMenuItem
+      description: Reference Object $ref (parameter) with sibling description and required override
       parameters:
-        - name: Referenced model
-          in: query
+        - description: Identifier of the menu item to fetch.
           required: false
-          schema: &ref_0
+          name: menuItemId
+          in: path
+          schema: &ref_2
             type: string
       responses:
         '200':
-          description: JSON schema using $ref and sibling properties
+          description: Schema $ref with scalar siblings (readOnly, description-from-$ref)
+          content:
+            application/json:
+              schema:
+                readOnly: true
+                description: |
+                  Read-only view of a menu item, resolved from an external file.
+                type: object
+                properties: &ref_0
+                  id:
+                    description: Menu item ID.
+                    type: string
+                    readOnly: true
+                  name:
+                    description: Menu item name.
+                    type: string
+                  price:
+                    description: Price in cents.
+                    type: integer
+                    minimum: 0
+                required: &ref_1
+                  - id
+                  - name
+                  - price
+  /menu:
+    get:
+      operationId: listMenu
+      description: Schema $ref with structural siblings, one of which is an external $ref
+      responses:
+        '200':
+          description: A list of menu items.
           content:
             application/json:
               schema:
                 properties:
-                  second:
-                    title: Referenced model
-                    type: string
-                  third:
-                    type: array
-                    items:
-                      title: Referenced model
-                      type: string
-                additionalProperties:
-                  title: Referenced model
-                  type: string
+                  featured:
+                    allOf: &ref_3
+                      - type: object
+                        properties:
+                          volume:
+                            description: Size of the beverage in milliliters.
+                            type: number
+                            exclusiveMinimum: 0
+                        required:
+                          - volume
+                      - type: object
+                        properties: *ref_0
+                        required: *ref_1
+                additionalProperties: false
                 type: object
-  /submit:
+                required: &ref_4
+                  - object
+                  - items
+  /orders:
     post:
-      description: requestBody $ref with sibling description
-      operationId: postSubmit
+      operationId: createOrder
+      description: Reference Object $ref (requestBody) with a sibling description
       requestBody:
-        description: Referenced model
+        description: Order payload for this operation.
         required: true
-        content: &ref_1
+        content: &ref_5
           application/json:
             schema:
               type: object
               properties:
-                value:
+                menuItemId:
                   type: string
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '201':
+          description: Created.
 components:
   parameters:
-    id:
-      name: id
-      in: query
-      required: false
-      schema: *ref_0
+    MenuItemId:
+      name: menuItemId
+      in: path
+      description: ID of the menu item to retrieve.
+      required: true
+      schema: *ref_2
   schemas:
-    test:
+    MenuBaseItem:
+      type: object
+      properties: *ref_0
+      required: *ref_1
+    Beverage:
+      allOf: *ref_3
+    MenuItemList:
       type: object
       properties:
-        first:
-          type: integer
-      additionalProperties: false
-    reference:
-      title: Referenced model
-      type: string
+        object:
+          description: Entity name.
+          type: string
+          const: list
+        items:
+          type: array
+          items:
+            type: object
+            properties: *ref_0
+            required: *ref_1
+      required: *ref_4
   requestBodies:
-    SampleBody:
+    OrderBody:
+      description: Shared order request body.
       required: true
-      content: *ref_1
+      content: *ref_5
 
 bundling openapi.yaml using configuration for api 'main'...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
