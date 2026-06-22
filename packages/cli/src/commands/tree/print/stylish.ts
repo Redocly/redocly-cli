@@ -1,4 +1,4 @@
-import { byString } from '../node-id.js';
+import { compareStrings } from '../node-id.js';
 import type { DependencyGraph } from '../types.js';
 
 export type StylishOptions = {
@@ -7,10 +7,6 @@ export type StylishOptions = {
   emptyMessage?: string;
 };
 
-/**
- * Renders one ASCII tree per root. A node already expanded in the current tree
- * is printed with `↺` and not expanded again (handles cycles and fan-in).
- */
 export function renderStylish(graph: DependencyGraph, options: StylishOptions = {}): string {
   if (graph.nodes.length === 0) {
     return options.emptyMessage ?? 'No files affected.';
@@ -23,7 +19,7 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     childrenByNode.set(edge.from, children);
   }
   for (const children of childrenByNode.values()) {
-    children.sort(byString);
+    children.sort(compareStrings);
   }
 
   const nodesById = new Map(graph.nodes.map((node) => [node.id, node]));
@@ -40,6 +36,8 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     return text;
   };
 
+  // A child already expanded in this tree is printed with `↺` and not expanded again —
+  // this is what makes cycles and fan-in terminate.
   const renderSubtree = (id: string, prefix: string, printed: Set<string>) => {
     const children = childrenByNode.get(id) ?? [];
     children.forEach((child, index) => {
