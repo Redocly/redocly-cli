@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Added the `spec-ref-siblings` rule, which report properties placed next to a `$ref` that the specification did not allow.
+Added the `spec-ref-siblings` rule, which reports properties placed next to a `$ref` that the specification does not allow.
