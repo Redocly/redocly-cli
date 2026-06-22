@@ -2,7 +2,11 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  yamlSerializer,
+} from '../../__tests__/utils.js';
 import { bundleDocument } from '../bundle/bundle-document.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
@@ -842,5 +846,92 @@ describe('sibling $ref resolution by spec', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+});
+
+describe('bundle with --component-names-strategy title', () => {
+  it('should build Schema component names from title when flag is on', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('reports an error when a schema has no `title`', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-missing-title/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: error
+        message: Schema must define a \`title\` when using \`--component-names-strategy title\`.
+        location:
+          - source: fixtures/refs/title-naming-missing-title/schemas/NoTitle.yaml
+            pointer: '#/'
+            reportOnKey: false
+        forceSeverity: error
+        suggest: []
+    `);
+  });
+
+  it('sanitizes unsupported characters in a title into the component name', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-unsupported-title/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('reports a title collision once and points `from` at the first schema, even when referenced repeatedly', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-collision/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(1);
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: warn
+        message: >-
+          Title "User" maps to component name \`User\`, already used by another schema.
+          Rename one of the titles.
+        location:
+          - source: fixtures/refs/title-naming-collision/schemas/b/User.yaml
+            pointer: '#/title'
+            reportOnKey: false
+        from:
+          source: fixtures/refs/title-naming-collision/schemas/a/User.yaml
+          pointer: '#/title'
+        forceSeverity: warn
+        suggest: []
+    `);
+  });
+
+  it('leaves non-schema components (parameters) untouched when the flag is on', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: warn
+        message: >-
+          Two schemas are referenced with the same name but different content. Renamed
+          param-b to param-b-2.
+        location:
+          - source: fixtures/refs/openapi-with-external-refs-conflicting-names.yaml
+            pointer: '#/paths/~1pet/put/parameters/1'
+            reportOnKey: false
+        forceSeverity: warn
+        suggest: []
+    `);
   });
 });

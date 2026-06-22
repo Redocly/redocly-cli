@@ -69,11 +69,201 @@ export function replaceFakerVariablesInString(
   }
 }
 
-function runInContext(code: string, context: any) {
-  const contextKeys = Object.keys(context);
-  const contextValues = Object.values(context);
+// Property names that would allow escaping the faker object and reaching the
+// prototype chain (and therefore `Function`/`constructor`-based code execution).
+const FORBIDDEN_FAKER_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const SAFE_FAKER_KEY = /^[a-zA-Z_][a-zA-Z0-9_-]*$/;
 
-  return new Function(...contextKeys, `return ${code}`)(...contextValues);
+// Safely parses the single options object of a faker function call (e.g. the
+// `{ min: 5, max: 5 }` in `faker.number.integer({ min: 5, max: 5 })`) WITHOUT
+// evaluating it as JavaScript. Faker functions take at most one options object
+// whose values are strings or numbers.
+class FakerArgumentParser {
+  private pos = 0;
+
+  constructor(private readonly src: string) {}
+
+  parseArguments(): unknown[] {
+    this.skipWhitespace();
+    if (this.pos >= this.src.length) return [];
+
+    const value = this.parseValue();
+    this.skipWhitespace();
+    if (this.pos < this.src.length) {
+      throw new Error(`Unexpected token "${this.src[this.pos]}" in faker arguments`);
+    }
+    return [value];
+  }
+
+  private parseValue(): unknown {
+    this.skipWhitespace();
+    const char = this.src[this.pos];
+
+    if (char === '{') return this.parseObject();
+    if (char === '"' || char === "'") return this.parseString(char);
+    if (char === '-' || (char >= '0' && char <= '9')) return this.parseNumber();
+    throw new Error(`Unexpected token "${char}" in faker arguments`);
+  }
+
+  private parseObject(): Record<string, unknown> {
+    this.pos++; // consume '{'
+    const obj: Record<string, unknown> = {};
+    this.skipWhitespace();
+
+    if (this.src[this.pos] === '}') {
+      this.pos++;
+      return obj;
+    }
+
+    while (true) {
+      this.skipWhitespace();
+      const key = this.parseKey();
+      this.skipWhitespace();
+      if (this.src[this.pos] !== ':') {
+        throw new Error('Expected ":" in faker arguments object');
+      }
+      this.pos++; // consume ':'
+      const value = this.parseValue();
+      // Reject keys that could pollute the prototype of the options object.
+      if (!FORBIDDEN_FAKER_KEYS.has(key)) {
+        obj[key] = value;
+      }
+      this.skipWhitespace();
+
+      const next = this.src[this.pos];
+      if (next === ',') {
+        this.pos++;
+        this.skipWhitespace();
+      } else if (next === '}') {
+        this.pos++;
+        return obj;
+      } else {
+        throw new Error('Expected "," or "}" in faker arguments object');
+      }
+
+      if (this.src[this.pos] === '}') {
+        this.pos++; // allow a trailing comma
+        return obj;
+      }
+    }
+  }
+
+  private parseKey(): string {
+    const char = this.src[this.pos];
+    if (char === '"' || char === "'") return this.parseString(char);
+
+    const start = this.pos;
+    while (this.pos < this.src.length && /[a-zA-Z0-9_$]/.test(this.src[this.pos])) {
+      this.pos++;
+    }
+    if (this.pos === start) {
+      throw new Error('Expected property name in faker arguments object');
+    }
+    return this.src.slice(start, this.pos);
+  }
+
+  private parseString(quote: string): string {
+    this.pos++; // consume opening quote
+    let result = '';
+    while (this.pos < this.src.length) {
+      const char = this.src[this.pos++];
+      if (char === '\\') {
+        result += this.src[this.pos++] ?? '';
+      } else if (char === quote) {
+        return result;
+      } else {
+        result += char;
+      }
+    }
+    throw new Error('Unterminated string in faker arguments');
+  }
+
+  private parseNumber(): number {
+    const start = this.pos;
+    if (this.src[this.pos] === '-') this.pos++;
+    while (this.pos < this.src.length && /[0-9.]/.test(this.src[this.pos])) {
+      this.pos++;
+    }
+    const raw = this.src.slice(start, this.pos);
+    const value = Number(raw);
+    if (Number.isNaN(value)) {
+      throw new Error(`Invalid number "${raw}" in faker arguments`);
+    }
+    return value;
+  }
+
+  private skipWhitespace(): void {
+    while (this.pos < this.src.length && /\s/.test(this.src[this.pos])) {
+      this.pos++;
+    }
+  }
+}
+
+// Splits a faker pointer on `.`, ignoring dots inside a function call's
+// arguments (parentheses) or string literals, e.g. `faker.number.float({ min: 0.5 })`.
+function splitFakerPointer(pointer: string): string[] {
+  const segments: string[] = [];
+  let current = '';
+  let quote: string | null = null;
+  let depth = 0;
+
+  for (let i = 0; i < pointer.length; i++) {
+    const char = pointer[i];
+
+    if (quote) {
+      current += char;
+      if (char === '\\') {
+        current += pointer[++i] ?? '';
+      } else if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+    } else if (char === '(') {
+      depth++;
+    } else if (char === ')') {
+      depth--;
+    } else if (char === '.' && depth === 0) {
+      segments.push(current.trim());
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  segments.push(current.trim());
+  return segments;
+}
+
+// Only own properties of the faker object are allowed,
+// which prevents reaching `constructor`/`__proto__` and the `Function` escape.
+function resolveFakerSegment(target: unknown, segment: string): unknown {
+  const callMatch = segment.match(/^([^()]+)\((.*)\)$/s);
+  const name = (callMatch ? callMatch[1] : segment).trim();
+
+  if (!SAFE_FAKER_KEY.test(name) || FORBIDDEN_FAKER_KEYS.has(name)) {
+    throw new Error(`Unsupported faker reference: "${name}"`);
+  }
+
+  if (target == null || !Object.prototype.hasOwnProperty.call(target, name)) {
+    throw new Error(`Unknown faker reference: "${name}"`);
+  }
+
+  const member = (target as Record<string, unknown>)[name];
+
+  if (callMatch) {
+    if (typeof member !== 'function') {
+      throw new Error(`Faker reference "${name}" is not callable`);
+    }
+    const args = new FakerArgumentParser(callMatch[2]).parseArguments();
+    return (member as (...args: unknown[]) => unknown).apply(target, args);
+  }
+
+  return member;
 }
 
 function replaceVariablesInString(
@@ -218,20 +408,17 @@ export function getFakeData({
   ctx: TestContext | RuntimeExpressionContext;
   logger: LoggerInterface;
 }): any {
-  const segments = pointer.split('.');
-  const fakerContext = { ctx: { faker: ctx.$faker } };
+  const segments = splitFakerPointer(pointer);
 
   try {
-    const escapedSegments = segments
-      .map((segment) => segment.trim())
-      .map((segment, idx) =>
-        // Dumb function check (if ends by ')'), if function goes first dont need to put '.',
-        // if goes second and so on - must be prepended by '.', like ["escaped-field"].func()
-        segment.endsWith(')') ? `${idx == 0 ? '' : '.'}${segment}` : `["${segment}"]`
-      )
-      .join('');
+    // The pointer always starts with `faker` (e.g. `faker.number.integer(...)`).
+    if (segments[0] !== 'faker') {
+      throw new Error(`Unsupported faker reference: "${segments[0]}"`);
+    }
 
-    return runInContext(`ctx${escapedSegments}`, fakerContext);
+    return segments
+      .slice(1)
+      .reduce<unknown>((target, segment) => resolveFakerSegment(target, segment), ctx.$faker);
   } catch (err: any) {
     logger.error(red(err.toString()));
 

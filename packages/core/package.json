@@ -1,19 +1,19 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "2.32.2",
+  "version": "2.34.0",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
-      "require": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "require": "./lib/index.js"
     },
     "./lib/bundle-oas": {
+      "types": "./lib/bundle/bundle-oas.d.ts",
       "import": "./lib/bundle/bundle-oas.js",
-      "require": "./lib/bundle/bundle-oas.js",
-      "types": "./lib/bundle/bundle-oas.d.ts"
+      "require": "./lib/bundle/bundle-oas.js"
     }
   },
   "engines": {
@@ -58,7 +58,7 @@
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "picomatch": "^4.0.4",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
