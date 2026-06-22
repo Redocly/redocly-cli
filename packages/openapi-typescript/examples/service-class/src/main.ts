@@ -1,4 +1,4 @@
-import { Client, ApiError } from './api/client';
+import { Client, ApiError } from './api/client.js';
 
 const client = new Client({ baseUrl: 'https://api.cafe.redocly.com' });
 

@@ -1,7 +1,7 @@
 import { setupWorker } from 'msw/browser';
 
-import { configure, listMenuItems, ApiError } from './api/client';
-import { handlers } from './api/client.mocks';
+import { configure, listMenuItems, ApiError } from './api/client.js';
+import { handlers } from './api/client.mocks.js';
 
 const out = document.querySelector<HTMLPreElement>('#out')!;
 

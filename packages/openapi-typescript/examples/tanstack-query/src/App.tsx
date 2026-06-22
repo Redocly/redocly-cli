@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { configure } from './api/client';
-import { listMenuItemsOptions } from './api/client.tanstack';
+import { configure } from './api/client.js';
+import { listMenuItemsOptions } from './api/client.tanstack.js';
 
 configure({ baseUrl: 'https://api.cafe.redocly.com' });
 

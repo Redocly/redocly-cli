@@ -1,5 +1,5 @@
-import { configure, listMenuItems, ApiError } from './api/client';
-import { MenuItemListSchema } from './api/client.zod';
+import { configure, listMenuItems, ApiError } from './api/client.js';
+import { MenuItemListSchema } from './api/client.zod.js';
 
 configure({ baseUrl: 'https://api.cafe.redocly.com' });
 

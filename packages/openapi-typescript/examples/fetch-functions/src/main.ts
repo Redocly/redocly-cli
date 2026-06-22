@@ -1,4 +1,4 @@
-import { configure, use, listMenuItems, ApiError } from './api/client';
+import { configure, use, listMenuItems, ApiError } from './api/client.js';
 
 configure({ baseUrl: 'https://api.cafe.redocly.com' });
 

@@ -23,11 +23,5 @@
     "moduleResolution": "nodenext",
     "esModuleInterop": true
   },
-  "exclude": ["node_modules"],
-  "include": [
-    "packages/*/src/**/*.ts",
-    "packages/*/__tests__/**/*.ts",
-    "tests/**/*.ts",
-    "vitest.config.ts"
-  ]
+  "exclude": ["packages/openapi-typescript/examples"]
 }
