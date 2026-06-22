@@ -54,6 +54,7 @@ const builtInOAS2Rules = [
   'response-contains-property',
   'response-mime-type',
   'no-duplicated-tag-names',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInOAS2RuleId = (typeof builtInOAS2Rules)[number];
 
@@ -119,6 +120,7 @@ const builtInOAS3Rules = [
   'spec-discriminator-defaultMapping',
   'spec-example-values',
   'spec-querystring-parameters',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInOAS3RuleId = (typeof builtInOAS3Rules)[number];
 
@@ -135,6 +137,7 @@ const builtInAsync2Rules = [
   'no-enum-type-mismatch',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
 
@@ -151,6 +154,7 @@ const builtInAsync3Rules = [
   'no-enum-type-mismatch',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
 
@@ -189,6 +193,7 @@ const builtInOpenRpc1Rules = [
   'no-unused-components',
   'spec-no-duplicated-method-params',
   'spec-no-required-params-after-optional',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
