@@ -10,23 +10,6 @@ export type Async3Definition = {
   defaultContentType?: string;
 };
 
-export type Async3Operation = {
-  action: 'send' | 'receive';
-  channel: Channel;
-  title?: string;
-  summary?: string;
-  description?: string;
-  security?: Record<string, any>[];
-  tags?: Tag[];
-  externalDocs?: ExternalDocumentation;
-  bindings?: Record<string, any>;
-  traits?: Record<string, any>[];
-  messages?: Record<string, any>[];
-  reply?: Record<string, any>;
-
-  'x-send-operations'?: string[]; // internal type
-};
-
 export interface Async3Info {
   title: string;
   version: string;
@@ -142,6 +125,8 @@ export interface Async3Operation {
   bindings?: unknown;
   traits?: Array<Referenced<Async3OperationTrait>>;
   reply?: unknown;
+
+  'x-send-operations'?: string[]; // internal type
 }
 
 export interface ExternalDocumentation {
