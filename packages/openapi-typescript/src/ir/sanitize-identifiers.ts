@@ -133,7 +133,8 @@ function rewriteRefs(schema: SchemaModel, fixRef: (name: string) => string): voi
     case 'union':
       for (const member of schema.members) rewriteRefs(member, fixRef);
       if (schema.discriminator) {
-        for (const entry of schema.discriminator.mapping) entry.schemaName = fixRef(entry.schemaName);
+        for (const entry of schema.discriminator.mapping)
+          entry.schemaName = fixRef(entry.schemaName);
       }
       break;
     case 'intersection':

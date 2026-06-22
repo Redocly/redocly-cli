@@ -58,7 +58,15 @@ describe('per-instance auth (service-class config.auth)', () => {
       writeFileSync(join(dir, 'package.json'), '{ "type": "module" }', 'utf-8');
       const gen = spawnSync(
         'node',
-        [cli, 'generate-client', join(dir, 'openapi.yaml'), '--output', join(dir, 'client.ts'), '--facade', 'service-class'],
+        [
+          cli,
+          'generate-client',
+          join(dir, 'openapi.yaml'),
+          '--output',
+          join(dir, 'client.ts'),
+          '--facade',
+          'service-class',
+        ],
         { encoding: 'utf-8', cwd: repoRoot }
       );
       expect(gen.status, gen.stderr).toBe(0);

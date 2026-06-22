@@ -19,16 +19,23 @@ const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 function generate(dir: string, extraArgs: string[] = []): void {
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   const out = join(dir, 'client.ts');
-  const result = spawnSync('node', [cliEntry, 'generate-client', fixture, '--output', out, ...extraArgs], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
+  const result = spawnSync(
+    'node',
+    [cliEntry, 'generate-client', fixture, '--output', out, ...extraArgs],
+    {
+      encoding: 'utf-8',
+      cwd: repoRoot,
+    }
+  );
   if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
 }
 
 function runConsumer(dir: string, script: string): unknown {
   writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
+  const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
+    encoding: 'utf-8',
+    cwd: repoRoot,
+  });
   if (result.status !== 0) {
     throw new Error(`consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
   }

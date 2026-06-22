@@ -54,10 +54,14 @@ describe('generate-client typed multipart body (#5)', () => {
     writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     const out = join(dir, 'client.ts');
-    const gen = spawnSync('node', [cli, 'generate-client', join(dir, 'api.yaml'), '--output', out], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
+    const gen = spawnSync(
+      'node',
+      [cli, 'generate-client', join(dir, 'api.yaml'), '--output', out],
+      {
+        encoding: 'utf-8',
+        cwd: repoRoot,
+      }
+    );
     expect(gen.status, gen.stderr).toBe(0);
 
     writeFileSync(
@@ -103,7 +107,15 @@ console.log(JSON.stringify({
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     const gen = spawnSync(
       'node',
-      [cli, 'generate-client', join(dir, 'api.yaml'), '--output', join(dir, 'client.ts'), '--output-mode', 'tags'],
+      [
+        cli,
+        'generate-client',
+        join(dir, 'api.yaml'),
+        '--output',
+        join(dir, 'client.ts'),
+        '--output-mode',
+        'tags',
+      ],
       { encoding: 'utf-8', cwd: repoRoot }
     );
     expect(gen.status, gen.stderr).toBe(0);

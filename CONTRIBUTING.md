@@ -273,7 +273,7 @@ There is no need to add additional wiring for **discovery**.
 When introducing a new package under `packages/`, plug it into the existing test infrastructure:
 
 1. Author tests under `packages/<your-package>/src/**/__tests__/*.test.ts`.
-    Use the Vitest globals — no imports from `'vitest'`.
+   Use the Vitest globals — no imports from `'vitest'`.
 2. Open the root [`vitest.config.ts`](./vitest.config.ts) and append your package's source glob to `coverage.include`, for example:
 
    ```typescript
@@ -304,7 +304,7 @@ When introducing a new package under `packages/`, plug it into the existing test
    ```
 
 5. Do not declare `vitest` or `@vitest/coverage-istanbul` in the new package's `package.json`.
-    These are workspace-wide dev dependencies, installed once at the root.
+   These are workspace-wide dev dependencies, installed once at the root.
 
 ### Unit tests
 

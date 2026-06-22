@@ -39,7 +39,8 @@ export function typeGuardStatements(schemas: NamedSchemaModel[]): ts.FunctionDec
 
   for (const named of schemas) {
     for (const site of collectUnionSites(named)) {
-      const discriminator = site.union.discriminator ?? detectImplicitDiscriminator(site.union, byName);
+      const discriminator =
+        site.union.discriminator ?? detectImplicitDiscriminator(site.union, byName);
       if (!discriminator) continue;
 
       // Group discriminant values by target schema so two mapping keys pointing at
@@ -57,7 +58,13 @@ export function typeGuardStatements(schemas: NamedSchemaModel[]): ts.FunctionDec
         if (emitted.has(guardName)) continue;
         emitted.add(guardName);
         nodes.push(
-          buildTypeGuard(site.makeParamType(), site.label, discriminator.propertyName, schemaName, values)
+          buildTypeGuard(
+            site.makeParamType(),
+            site.label,
+            discriminator.propertyName,
+            schemaName,
+            values
+          )
         );
       }
     }
@@ -176,9 +183,7 @@ function buildTypeGuard(
     undefined,
     `is${schemaName}`,
     undefined,
-    [
-      factory.createParameterDeclaration(undefined, undefined, 'value', undefined, paramType),
-    ],
+    [factory.createParameterDeclaration(undefined, undefined, 'value', undefined, paramType)],
     factory.createTypePredicateNode(
       undefined,
       'value',

@@ -995,4 +995,3 @@ function renderOperationDoc(op: OperationModel): string | undefined {
 function withDoc<T extends ts.Node>(node: T, doc: string | undefined): T {
   return doc === undefined ? node : jsdoc(node, doc);
 }
-

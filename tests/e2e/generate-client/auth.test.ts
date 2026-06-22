@@ -64,7 +64,9 @@ describe('generate-client auth breadth (auth.yaml)', () => {
 
     // Per-kind injection inside __auth — each prefers per-instance config.auth, then the global slot.
     expect(generated).toContain('headers["Authorization"] = `Bearer ${v}`');
-    expect(generated).toContain('const basic = b ? btoa(`${b.username}:${b.password}`) : __basicAuth;');
+    expect(generated).toContain(
+      'const basic = b ? btoa(`${b.username}:${b.password}`) : __basicAuth;'
+    );
     expect(generated).toContain('headers["Authorization"] = `Basic ${basic}`');
     expect(generated).toContain('query["api_key"] = v'); // apiKeyQuery
     expect(generated).toContain('cookies.push("sid=" + v)'); // apiKeyCookie

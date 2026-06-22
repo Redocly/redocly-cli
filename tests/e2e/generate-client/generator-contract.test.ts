@@ -2,8 +2,7 @@
 // fail fast with an actionable message (never emit a client that won't compile), and
 // `tanstack-query` must gracefully skip SSE operations (which the sdk doesn't export).
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,7 +24,13 @@ function run(args: string[]): { status: number | null; out: string } {
 describe('generate-client generator compatibility contract', () => {
   it('rejects tanstack-query without sdk, naming the fix', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([cafe, '--output', join(dir, 'c.ts'), '--generators', 'tanstack-query']);
+    const { status, out } = run([
+      cafe,
+      '--output',
+      join(dir, 'c.ts'),
+      '--generators',
+      'tanstack-query',
+    ]);
     expect(status).not.toBe(0);
     expect(out).toMatch(/requires the "sdk" generator/);
     expect(out).toMatch(/--generators sdk,tanstack-query/);
@@ -66,7 +71,13 @@ describe('generate-client generator compatibility contract', () => {
 
   it('rejects transformers without --date-type Date', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([cafe, '--output', join(dir, 'c.ts'), '--generators', 'sdk,transformers']);
+    const { status, out } = run([
+      cafe,
+      '--output',
+      join(dir, 'c.ts'),
+      '--generators',
+      'sdk,transformers',
+    ]);
     expect(status).not.toBe(0);
     expect(out).toMatch(/requires --date-type Date/);
     rmSync(dir, { recursive: true, force: true });
@@ -122,7 +133,9 @@ components:
       'sdk,tanstack-query',
     ]);
     expect(status, out).toBe(0);
-    expect(out).toMatch(/tanstack-query skipped \d+ operation\(s\) whose variables type name collides/);
+    expect(out).toMatch(
+      /tanstack-query skipped \d+ operation\(s\) whose variables type name collides/
+    );
     const tanstack = readFileSync(join(dir, 'c.tanstack.ts'), 'utf-8');
     expect(tanstack).not.toContain('getUserOptions'); // colliding op skipped
     expect(tanstack).toContain('listUsersOptions'); // the rest still wrapped
@@ -130,7 +143,19 @@ components:
     const files = [join(dir, 'c.ts'), join(dir, 'c.tanstack.ts')];
     const tsc = spawnSync(
       join(repoRoot, 'node_modules/.bin/tsc'),
-      ['--noEmit', '--strict', '--target', 'ES2020', '--module', 'esnext', '--moduleResolution', 'bundler', '--lib', 'ES2020,DOM', ...files],
+      [
+        '--noEmit',
+        '--strict',
+        '--target',
+        'ES2020',
+        '--module',
+        'esnext',
+        '--moduleResolution',
+        'bundler',
+        '--lib',
+        'ES2020,DOM',
+        ...files,
+      ],
       { encoding: 'utf-8', cwd: dir }
     );
     // `@tanstack/react-query` isn't installed in the temp dir; ignore only that missing-module error.

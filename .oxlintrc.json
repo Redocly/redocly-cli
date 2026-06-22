@@ -15,7 +15,8 @@
     "packages/openapi-typescript/examples/*/generate.ts",
     "*.js",
     "*.cjs",
-    "tests/e2e/generate-client/*.snapshot.ts"
+    "tests/e2e/generate-client/*.snapshot.ts",
+    "tests/e2e/generate-client/*-consumer/api.ts"
   ],
   "rules": {
     "eslint/no-array-constructor": "error",

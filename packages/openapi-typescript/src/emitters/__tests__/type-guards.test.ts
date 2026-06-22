@@ -371,11 +371,15 @@ describe('discriminated-union type guards (C6.4)', () => {
         schemas: [
           namedSchema('SuccessItem', {
             kind: 'object',
-            properties: [{ name: 'status', schema: { kind: 'literal', value: 'ok' }, required: true }],
+            properties: [
+              { name: 'status', schema: { kind: 'literal', value: 'ok' }, required: true },
+            ],
           }),
           namedSchema('ErrorItem', {
             kind: 'object',
-            properties: [{ name: 'status', schema: { kind: 'literal', value: 'error' }, required: true }],
+            properties: [
+              { name: 'status', schema: { kind: 'literal', value: 'error' }, required: true },
+            ],
           }),
           // The union is the array's *items*, not a top-level named union.
           namedSchema('BulkResponse', {
@@ -414,11 +418,15 @@ describe('discriminated-union type guards (C6.4)', () => {
         schemas: [
           namedSchema('Cat', {
             kind: 'object',
-            properties: [{ name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true }],
+            properties: [
+              { name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true },
+            ],
           }),
           namedSchema('Dog', {
             kind: 'object',
-            properties: [{ name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true }],
+            properties: [
+              { name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true },
+            ],
           }),
           namedSchema('PetMap', {
             kind: 'record',
@@ -443,11 +451,15 @@ describe('discriminated-union type guards (C6.4)', () => {
         schemas: [
           namedSchema('Cat', {
             kind: 'object',
-            properties: [{ name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true }],
+            properties: [
+              { name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true },
+            ],
           }),
           namedSchema('Dog', {
             kind: 'object',
-            properties: [{ name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true }],
+            properties: [
+              { name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true },
+            ],
           }),
           namedSchema('Envelope', {
             kind: 'object',
@@ -499,7 +511,12 @@ describe('discriminated-union type guards (C6.4)', () => {
       });
     const out = emitSingleFile(
       apiModel({
-        schemas: [item('Ok', 'ok'), item('Err', 'error'), arrayOfUnion('ListA'), arrayOfUnion('ListB')],
+        schemas: [
+          item('Ok', 'ok'),
+          item('Err', 'error'),
+          arrayOfUnion('ListA'),
+          arrayOfUnion('ListB'),
+        ],
       })
     );
     expect(out.match(/export function isOk\(/g)).toHaveLength(1);

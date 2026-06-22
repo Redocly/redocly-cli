@@ -5,10 +5,9 @@
 // default (or `generator`) export validated, and registered under its declared name. Built-ins are
 // seeded fresh per call (see `builtinGenerators`), so registration never mutates the built-in table.
 
+import { isPlainObject } from '@redocly/openapi-core';
 import { isAbsolute, resolve as resolvePath } from 'node:path';
 import { pathToFileURL } from 'node:url';
-
-import { isPlainObject } from '@redocly/openapi-core';
 
 import { NotSupportedError } from '../errors.js';
 import { builtinGenerators } from './index.js';

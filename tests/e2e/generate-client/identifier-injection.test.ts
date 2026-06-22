@@ -56,10 +56,14 @@ describe('generate-client identifier / comment injection', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-injection-'));
     writeFileSync(join(dir, 'openapi.yaml'), HOSTILE_SPEC, 'utf-8');
     const entry = join(dir, 'client.ts');
-    const res = spawnSync('node', [cli, 'generate-client', join(dir, 'openapi.yaml'), '--output', entry], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
+    const res = spawnSync(
+      'node',
+      [cli, 'generate-client', join(dir, 'openapi.yaml'), '--output', entry],
+      {
+        encoding: 'utf-8',
+        cwd: repoRoot,
+      }
+    );
     expect(res.status, res.stderr).toBe(0);
     // The unsafe operationId is reported and rewritten, not silently accepted.
     expect(res.stderr).toMatch(/is not a valid TypeScript identifier/);

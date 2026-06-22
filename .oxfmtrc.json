@@ -14,6 +14,7 @@
     "LICENSE.md",
     "snapshot*.txt",
     "*.snapshot.ts",
+    "tests/e2e/generate-client/*-consumer/api.ts",
     ".changeset/pre.json",
     "*.html",
     "tests/e2e/**/*.yaml",

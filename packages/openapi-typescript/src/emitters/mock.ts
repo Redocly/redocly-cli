@@ -12,10 +12,10 @@ import type {
   ResponseBodyModel,
   SchemaModel,
 } from '../ir/model.js';
-import { sampleValue, SampleExpression } from './sample.js';
 import { allOperations } from '../writers/util.js';
 import { fakerExpression } from './faker.js';
 import { safeIdent } from './identifier.js';
+import { sampleValue, SampleExpression } from './sample.js';
 import { pascalCase } from './support.js';
 import { parseExpression, printStatements, ts } from './ts.js';
 import type { DateType } from './types.js';

@@ -642,6 +642,7 @@ await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 ```
 
 Serialization rules:
+
 - `Blob`/`File` and strings pass through
 - arrays append one field per item
 - nested objects are JSON-encoded
@@ -902,6 +903,7 @@ The `@redocly/openapi-typescript/plugin` entry also exports the **codegen toolki
 ### Select a custom generator
 
 A `generators` entry that is not a built-in name is either:
+
 - an **inline** generator (registered via `customGenerators` in a `defineConfig` file)
 - an **import specifier** — a path (resolved against the config's directory)
 - an installed package — that default-exports the generator

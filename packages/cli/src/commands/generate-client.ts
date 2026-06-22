@@ -115,7 +115,13 @@ export async function handleGenerateClient({
 
   try {
     logger.info(gray('\n  Generating TypeScript client... \n'));
-    const result = await generateClient({ ...merged, input, output: outputPath, config, configDir });
+    const result = await generateClient({
+      ...merged,
+      input,
+      output: outputPath,
+      config,
+      configDir,
+    });
     const summary =
       result.files.length === 1
         ? `TypeScript client successfully generated to ${yellow(result.outputPath)} (${result.bytes} bytes).`

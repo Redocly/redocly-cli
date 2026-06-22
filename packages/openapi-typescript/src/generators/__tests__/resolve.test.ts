@@ -1,8 +1,8 @@
-import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import type { CustomGenerator } from '../types.js';
 import { resolveGenerators } from '../resolve.js';
+import type { CustomGenerator } from '../types.js';
 
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
 
@@ -63,9 +63,9 @@ describe('resolveGenerators', () => {
   });
 
   it('throws an actionable error when a specifier cannot be loaded', async () => {
-    await expect(resolveGenerators(['./does-not-exist.ts'], { configDir: fixtures })).rejects.toThrow(
-      /Could not load generator "\.\/does-not-exist\.ts"/
-    );
+    await expect(
+      resolveGenerators(['./does-not-exist.ts'], { configDir: fixtures })
+    ).rejects.toThrow(/Could not load generator "\.\/does-not-exist\.ts"/);
   });
 
   it('treats a non-built-in entry with no configDir as a package specifier (resolved from cwd)', async () => {
@@ -77,8 +77,8 @@ describe('resolveGenerators', () => {
   });
 
   it('throws when a loaded module does not export a generator', async () => {
-    await expect(
-      resolveGenerators(['./empty-plugin.ts'], { configDir: fixtures })
-    ).rejects.toThrow(/must export a generator/);
+    await expect(resolveGenerators(['./empty-plugin.ts'], { configDir: fixtures })).rejects.toThrow(
+      /must export a generator/
+    );
   });
 });
