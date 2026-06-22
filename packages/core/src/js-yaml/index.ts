@@ -17,6 +17,7 @@ const DEFAULT_SCHEMA_WITHOUT_TIMESTAMP = JSON_SCHEMA.extend({
   explicit: [types.binary, types.omap, types.pairs, types.set],
 });
 
+// TODO: remove this after js-yaml update.
 // js-yaml >=4.2.0 stopped resolving numbers with underscores (e.g. `12_34`, `1_000`, `0x1_2`,
 // `1_2.3`) as numeric scalars (https://github.com/nodeca/js-yaml/issues/627). As a side effect
 // the dumper no longer quotes strings that look like such numbers, so YAML 1.1 parsers read
