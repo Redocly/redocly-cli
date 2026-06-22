@@ -446,7 +446,7 @@ export type OperationMetadata = {
     readonly path: string;
 };
 
-let BASE = "https://cafe.cloud.redocly.com";
+let BASE = "https://api.cafe.redocly.com";
 
 /** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`). */
 export type RequestContext = {

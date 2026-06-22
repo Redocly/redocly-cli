@@ -1,6 +1,6 @@
 import { Client, ApiError } from './api/client';
 
-const client = new Client({ baseUrl: 'https://cafe.cloud.redocly.com' });
+const client = new Client({ baseUrl: 'https://api.cafe.redocly.com' });
 
 const out = document.querySelector<HTMLPreElement>('#out')!;
 

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { configure } from './api/client';
 import { listMenuItemsOptions } from './api/client.tanstack';
 
-configure({ baseUrl: 'https://cafe.cloud.redocly.com' });
+configure({ baseUrl: 'https://api.cafe.redocly.com' });
 
 export function App() {
   const { data, error, isLoading } = useQuery(listMenuItemsOptions({}));

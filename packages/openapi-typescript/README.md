@@ -159,6 +159,47 @@ import { OPERATIONS, getOrderById } from './client.ts';
 const queryKey = [OPERATIONS.getOrderById.path, orderId]; // "/orders/{orderId}"
 ```
 
+## Testing the generated client
+
+The client is plain `fetch` code, so you test it like any HTTP code — there is no special harness.
+
+**In Node** (scripts, Vitest/Jest) there is **no CORS** — point it at any reachable API and call it:
+
+```ts
+import { configure, listMenuItems } from './client.ts';
+
+configure({ baseUrl: 'https://api.example.com' });
+const items = await listMenuItems(); // resolves or throws ApiError
+```
+
+**In the browser, CORS applies** — and it's the **target API's** policy, not the client's. Two things
+to watch:
+
+- The API must allow your origin (`Access-Control-Allow-Origin`).
+- Any **custom request header** you add (e.g. `X-Request-Id` via `use({ onRequest })` middleware)
+  triggers a **CORS preflight**, so the API must also list that header in `Access-Control-Allow-Headers`
+  — otherwise the browser blocks the request and `fetch` throws `TypeError: Failed to fetch`. If the
+  API doesn't allow it, drop the header, use a dev proxy (e.g. Vite's `server.proxy`), or mock the API.
+
+**Without a backend (recommended for tests and local dev), use MSW mocks.** Add `mock` to
+`generators` to emit an MSW handler module; requests are intercepted in-process, so there's **no real
+network and no CORS** — the same client runs unchanged against the mocks:
+
+```ts
+import { setupServer } from 'msw/node'; // or 'msw/browser' for the browser
+import { handlers } from './client.mocks.ts';
+
+const server = setupServer(...handlers);
+beforeAll(() => server.listen());
+afterAll(() => server.close());
+
+// now calls to the generated client resolve from the mocks
+```
+
+The repo's [`examples/`](./examples) are runnable end-to-end: `npm install && npm run dev` in an
+example directory serves it on `http://localhost:5173` against the live demo API (a CORS-enabled
+`GET`), and `examples/mock` shows the MSW-backed flow.
+
 ## Generators
 
 `generators` (default `['sdk']`) selects which files to emit.
