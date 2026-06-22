@@ -1,10 +1,10 @@
 openapi.yaml
 ├── /pets
-│   └── paths/pets.yaml
-│       └── components/schemas/Pet.yaml
+│   └── GET /pets
+│       └── schemas/Pet
 └── /users
-    └── paths/users.yaml
-        └── components/schemas/User.yaml
-            ├── components/schemas/Address.yaml
-            └── components/schemas/Pet.yaml ↺
+    └── GET /users
+        └── schemas/User
+            ├── schemas/Address
+            └── schemas/Pet ↺
 

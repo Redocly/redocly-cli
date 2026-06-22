@@ -113,7 +113,7 @@ describe('tree', () => {
     );
   });
 
-  test('tree should show what a changed file affects in default mode', async () => {
+  test('tree should point a changed file to --files in the default view', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
