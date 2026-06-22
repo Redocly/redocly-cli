@@ -23,7 +23,11 @@ jobs:
       - uses: errata-ai/vale-action@reviewdog
         with:
           files: '["README.md", "docs", ".changeset"]'
-          filter_mode: file
+          # `nofilter` instead of `file`: file-level filtering makes reviewdog
+          # fetch the PR diff, which GitHub caps at 20000 lines (large PRs get a
+          # 406 and the job fails on the post step, not on any vale finding).
+          # nofilter skips the diff fetch and lints the full files directly.
+          filter_mode: nofilter
           fail_on_error: true
 
   linkcheck:
