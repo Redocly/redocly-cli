@@ -61,8 +61,12 @@ export async function handleGenerateClient({
 
   // Config sources, lowest → highest precedence: redocly.yaml `x-openapi-typescript`
   // (the ambient base) → an explicit `--config-file` *.config.ts → CLI flags.
+  // Only an explicit `--config-file` is loaded — no implicit cwd discovery, so a stray
+  // `redocly-openapi-typescript.config.*` can't silently override `redocly.yaml`.
   const redoclyExtension = readRedoclyExtension(config);
-  const fileConfig = (await loadConfigFile(argv['config-file'])) ?? {};
+  const fileConfig = argv['config-file']
+    ? ((await loadConfigFile(argv['config-file'])) ?? {})
+    : {};
   const merged = mergeConfig(mergeConfig(redoclyExtension as typeof fileConfig, fileConfig), {
     input: argv.input,
     output: argv.output,

@@ -53,4 +53,27 @@ describe('generate-client config file', () => {
     expect(existsSync(join(dir, 'split/client.http.ts'))).toBe(true);
     expect(existsSync(join(dir, 'split/client.schemas.ts'))).toBe(true);
   }, 30_000);
+
+  it('does not auto-discover a cwd config file without --config-file (no silent override of redocly.yaml)', () => {
+    const subdir = mkdtempSync(join(tmpdir(), 'ots-nodiscover-'));
+    const fromYaml = join(subdir, 'from-yaml.ts');
+    const fromStray = join(subdir, 'from-stray.ts');
+    writeFileSync(
+      join(subdir, 'redocly.yaml'),
+      `x-openapi-typescript:\n  input: ${JSON.stringify(fixture)}\n  output: ./from-yaml.ts\n`,
+      'utf-8'
+    );
+    // A stray default-named config in cwd that, if discovered, would redirect output.
+    writeFileSync(
+      join(subdir, 'redocly-openapi-typescript.config.mjs'),
+      `export default { output: ${JSON.stringify(fromStray)} };\n`,
+      'utf-8'
+    );
+    const res = spawnSync('node', [cli, 'generate-client'], { encoding: 'utf-8', cwd: subdir });
+    expect(res.status, res.stderr).toBe(0);
+    // redocly.yaml's output wins; the un-requested cwd config file is ignored.
+    expect(existsSync(fromYaml)).toBe(true);
+    expect(existsSync(fromStray)).toBe(false);
+    rmSync(subdir, { recursive: true, force: true });
+  }, 30_000);
 });
