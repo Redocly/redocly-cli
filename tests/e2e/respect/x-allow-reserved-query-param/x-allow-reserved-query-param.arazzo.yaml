@@ -14,8 +14,8 @@ workflows:
         parameters:
           - in: query
             name: startDate
-            value: "2023-02-23"
+            value: 2023-02-23
           - in: query
             name: filter
-            value: "https://example.com/path/to;x,y(z)a*b.c[1]@v"
+            value: 'https://example.com/path/to;x,y(z)a*b.c[1]@v'
             x-allowReserved: true
