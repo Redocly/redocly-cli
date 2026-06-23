@@ -1,6 +1,6 @@
 # drift (experimental)
 
-Detect drift between **recorded HTTP traffic** and an **OpenAPI description**.
+Detect drift between recorded HTTP traffic and an OpenAPI description file.
 
 > Experimental: the command, flags, and output are subject to change.
 
