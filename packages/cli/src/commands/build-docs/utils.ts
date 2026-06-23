@@ -8,6 +8,7 @@ import { default as redoc } from 'redoc';
 import { ServerStyleSheet } from 'styled-components';
 
 import { exitWithError } from '../../utils/error.js';
+import { redocStandaloneSri } from '../../utils/package.js';
 import type { BuildDocsOptions } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
@@ -111,7 +112,7 @@ export async function getPageHTML(
 
       </script>`,
     redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js"></script>` +
+      `<script src="https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js" integrity="${redocStandaloneSri}" crossorigin="anonymous"></script>` +
       css,
     title: title || api.info.title || 'ReDoc documentation',
     disableGoogleFont,
