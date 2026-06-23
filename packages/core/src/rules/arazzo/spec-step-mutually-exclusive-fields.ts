@@ -1,24 +1,19 @@
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-const MUTUALLY_EXCLUSIVE_FIELDS_1_0 = ['x-operation', 'operationId', 'operationPath', 'workflowId'];
-const MUTUALLY_EXCLUSIVE_FIELDS_1_1 = [
+const MUTUALLY_EXCLUSIVE_FIELDS = [
   'x-operation',
   'operationId',
   'operationPath',
-  'channelPath',
+  'channelPath', // added in Arazzo 1.1
   'workflowId',
 ];
 
 export const SpecStepMutuallyExclusiveFields: Arazzo1Rule = () => {
   return {
     Step: {
-      enter(step, { report, location, specVersion }: UserContext) {
-        const fields =
-          specVersion === 'arazzo1_1'
-            ? MUTUALLY_EXCLUSIVE_FIELDS_1_1
-            : MUTUALLY_EXCLUSIVE_FIELDS_1_0;
-        const usedFields = fields.filter((field) =>
+      enter(step, { report, location }: UserContext) {
+        const usedFields = MUTUALLY_EXCLUSIVE_FIELDS.filter((field) =>
           Object.prototype.hasOwnProperty.call(step, field)
         );
         if (usedFields.length > 1) {

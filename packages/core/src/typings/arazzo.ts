@@ -37,10 +37,10 @@ export interface AsyncAPISourceDescription {
 export type SourceDescription =
   | OpenAPISourceDescription
   | ArazzoSourceDescription
-  | AsyncAPISourceDescription;
+  | AsyncAPISourceDescription; // added in Arazzo 1.1
 
 export interface Parameter {
-  in?: 'header' | 'query' | 'path' | 'cookie' | 'querystring';
+  in?: 'header' | 'query' | 'path' | 'cookie' | 'querystring'; // added in Arazzo 1.1
   name: string;
   value: string | number | boolean;
   reference?: string;
@@ -121,7 +121,7 @@ export interface ExtendedOperation {
 export interface Replacement {
   target: string;
   value: string | object | any[];
-  targetSelectorType?: ExpressionType['type'] | ExpressionType;
+  targetSelectorType?: ExpressionType['type'] | ExpressionType; // added in Arazzo 1.1
 }
 
 export interface RequestBody {
@@ -175,7 +175,7 @@ export interface OnSuccessObject {
   stepId?: string;
   workflowId?: string;
   criteria?: CriterionObject[];
-  parameters?: Parameter[];
+  parameters?: Parameter[]; // added in Arazzo 1.1
 }
 
 export interface OnFailureObject {
@@ -200,16 +200,16 @@ export interface Step {
   onSuccess?: OnSuccessObject[];
   onFailure?: OnFailureObject[];
   outputs?: {
-    [key: string]: string | object | any[] | boolean | number | SelectorObject;
+    [key: string]: string | object | any[] | boolean | number | SelectorObject; // added in Arazzo 1.1
   };
   'x-operation'?: ExtendedOperation;
   'x-security'?: ExtendedSecurity[];
   requestBody?: RequestBody;
-  channelPath?: string;
-  action?: 'send' | 'receive';
-  correlationId?: string;
-  timeout?: number;
-  dependsOn?: string[];
+  channelPath?: string; // added in Arazzo 1.1
+  action?: 'send' | 'receive'; // added in Arazzo 1.1
+  correlationId?: string; // added in Arazzo 1.1
+  timeout?: number; // added in Arazzo 1.1
+  dependsOn?: string[]; // added in Arazzo 1.1
 }
 
 export interface Workflow {
@@ -229,7 +229,7 @@ export interface Workflow {
     };
   };
   outputs?: {
-    [key: string]: string | SelectorObject;
+    [key: string]: string | SelectorObject; // added in Arazzo 1.1
   };
   steps: Step[];
   successActions?: OnSuccessObject[];
@@ -239,7 +239,7 @@ export interface Workflow {
 
 export interface ArazzoDefinition {
   arazzo: string;
-  $self?: string;
+  $self?: string; // added in Arazzo 1.1
   info: InfoObject;
   sourceDescriptions: SourceDescription[];
   workflows: Workflow[];
