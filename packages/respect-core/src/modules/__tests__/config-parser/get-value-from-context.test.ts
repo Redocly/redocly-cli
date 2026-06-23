@@ -269,13 +269,35 @@ describe('getValueFromContext', () => {
         },
       },
     } as unknown as TestContext;
-    expect(() =>
+    expect(
       getValueFromContext({
         value: '$sourceDescriptions.test.notExistingWorkflow',
         ctx,
         logger,
       })
-    ).toThrow();
+    ).toEqual(undefined);
+  });
+
+  it('should return undefined for the spec form when the source description does not exist', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.notExistingName.someWorkflow',
+        ctx,
+        logger,
+      })
+    ).toEqual(undefined);
   });
 
   it('should return undefined if getFakeData had error resolving value', () => {

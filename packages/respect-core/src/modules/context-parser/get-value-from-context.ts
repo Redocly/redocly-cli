@@ -322,16 +322,21 @@ const resolveValue = (
     const parts = path.split('.');
     const sourceDescriptionName = parts[1];
     const isLegacyForm = parts.length === 4 && parts[2] === 'workflows';
-    const workflowId = isLegacyForm ? parts[3] : parts.length === 3 ? parts[2] : undefined;
+    const isSpecForm = parts.length === 3;
+    const workflowId = isLegacyForm ? parts[3] : isSpecForm ? parts[2] : undefined;
 
     if (sourceDescriptionName && workflowId) {
       const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
-      const workflow = sourceDescriptions?.[sourceDescriptionName]?.workflows?.find(
+      const sourceDescription = sourceDescriptions?.[sourceDescriptionName];
+      const workflow = sourceDescription?.workflows?.find(
         (workflow: Workflow) => workflow.workflowId === workflowId
       );
 
       if (workflow) {
         return workflow;
+      }
+      if (isSpecForm) {
+        return sourceDescription?.[workflowId];
       }
     }
 
