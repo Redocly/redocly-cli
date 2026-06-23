@@ -123,13 +123,32 @@ const JSONPointerExpression: NodeType = {
   required: ['type', 'version'],
 };
 
+const ExpressionType: NodeType = {
+  properties: {
+    type: {
+      type: 'string',
+      enum: ['jsonpath', 'xpath', 'jsonpointer'],
+      description:
+        'REQUIRED. The selector type. The options allowed are jsonpath, xpath, or jsonpointer.',
+    },
+    version: {
+      type: 'string',
+      description:
+        'REQUIRED. A short hand string representing the version of the expression type being used.',
+    },
+  },
+  required: ['type', 'version'],
+};
+
 const expressionTypeResolver = (value: any) => {
   if (value?.type === 'jsonpath') {
     return 'JSONPathExpression';
+  } else if (value?.type === 'xpath') {
+    return 'XPathExpression';
   } else if (value?.type === 'jsonpointer') {
     return 'JSONPointerExpression';
   } else {
-    return 'XPathExpression';
+    return 'ExpressionType';
   }
 };
 
@@ -240,6 +259,7 @@ export const Arazzo1_1Types: Record<string, NodeType> = {
   JSONPathExpression,
   XPathExpression,
   JSONPointerExpression,
+  ExpressionType,
   SelectorObject,
   Outputs,
   Replacement,

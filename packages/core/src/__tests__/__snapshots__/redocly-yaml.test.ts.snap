@@ -1360,6 +1360,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "JSONPathExpression",
           "XPathExpression",
           "JSONPointerExpression",
+          "ExpressionType",
           "SelectorObject",
           "Actions",
           "Action",

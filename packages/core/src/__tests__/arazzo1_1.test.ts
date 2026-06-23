@@ -278,4 +278,42 @@ describe('Arazzo 1.1 lint', () => {
       '`version` can be one of the following only: "rfc9535", "draft-goessner-dispatch-jsonpath-00".'
     );
   });
+
+  it('reports an unknown Expression Type Object type instead of assuming xpath', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: ../../../../resources/cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                successCriteria:
+                  - context: $response.body
+                    condition: $.id
+                    type:
+                      type: jspath
+                      version: rfc9535
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    const messages = results.map((r) => r.message);
+    expect(messages).toContain(
+      '`type` can be one of the following only: "jsonpath", "xpath", "jsonpointer".'
+    );
+  });
 });
