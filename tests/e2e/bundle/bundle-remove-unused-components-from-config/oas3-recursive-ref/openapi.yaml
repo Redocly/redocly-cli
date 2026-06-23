@@ -10,15 +10,15 @@ paths:
           content:
             application/json:
               schema: {}
-components: 
-  schemas: 
+components:
+  schemas:
     RecursiveRef:
       type: object
-      properties: 
+      properties:
         prop:
           type: array
-          items: 
-            anyOf: 
+          items:
+            anyOf:
               - $ref: '#/components/schemas/RecursiveRef'
     UnusedComponent:
       type: string

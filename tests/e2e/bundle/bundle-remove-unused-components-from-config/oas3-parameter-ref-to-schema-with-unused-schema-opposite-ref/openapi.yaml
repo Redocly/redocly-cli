@@ -15,7 +15,7 @@ paths:
           content:
             application/json:
               schema: {}
-components: 
-  schemas: 
+components:
+  schemas:
     User:
       $ref: schemas.yaml#/User
