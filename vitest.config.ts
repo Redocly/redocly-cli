@@ -55,5 +55,5 @@ export default mergeConfig(
       },
     },
   }),
-  configExtension[process.env.VITEST_SUITE || 'default'],
+  configExtension[process.env.VITEST_SUITE || 'default']
 );
