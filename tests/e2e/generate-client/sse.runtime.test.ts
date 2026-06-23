@@ -16,6 +16,7 @@ const generatedFile = join(consumerDir, 'api.ts');
 const serverScript = join(consumerDir, 'server.ts');
 const indexScript = join(consumerDir, 'index.ts');
 const abortScript = join(consumerDir, 'index-abort.ts');
+const finiteScript = join(consumerDir, 'index-finite.ts');
 
 const SERVER_PORT = 3104;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
@@ -119,6 +120,31 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     expect(parsed.ids).toEqual(['1', '2', '3']);
     // The reconnect carried `Last-Event-ID: 2` (1st connection: none; 2nd: '2').
     expect(parsed.lastEventIds).toEqual([null, '2']);
+  }, 30_000);
+
+  test('clean close: a finite stream finishes (no endless reconnect) and flushes the final undelimited frame', () => {
+    const runResult = spawnSync('npx', ['tsx', finiteScript, SERVER_BASE], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 20_000,
+    });
+    expect(
+      runResult.status,
+      `finite consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      events: string[];
+      ids: Array<string | undefined>;
+      finished: boolean;
+    };
+
+    // The loop ran to completion: a clean server close finished the stream rather than
+    // reconnecting forever. `c` was delivered only via the final-frame flush (the third
+    // frame had no trailing delimiter before the server closed).
+    expect(parsed.finished).toBe(true);
+    expect(parsed.events).toEqual(['a', 'b', 'c']);
+    expect(parsed.ids).toEqual(['1', '2', '3']);
   }, 30_000);
 
   test('abort: aborting the stream via AbortSignal completes the loop without throwing', () => {

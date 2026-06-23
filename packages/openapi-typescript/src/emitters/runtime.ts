@@ -183,8 +183,7 @@ ${ex}async function* __sse<T>(
       try {
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
+          buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
           let index: number;
           while ((index = buffer.search(/\\r\\n\\r\\n|\\n\\n|\\r\\r/)) !== -1) {
             const raw = buffer.slice(0, index);
@@ -195,6 +194,17 @@ ${ex}async function* __sse<T>(
               if (event.retry !== undefined) serverRetry = event.retry;
               yield event as ServerSentEvent<T>;
             }
+          }
+          if (done) {
+            // Stream closed cleanly. Flush a final event that arrived without a trailing
+            // delimiter, then finish — a clean end is not a dropped connection, so do not reconnect.
+            const event = buffer.length > 0 ? __parseSseFrame(buffer, dataKind) : undefined;
+            if (event) {
+              if (event.id !== undefined) lastEventId = event.id;
+              if (event.retry !== undefined) serverRetry = event.retry;
+              yield event as ServerSentEvent<T>;
+            }
+            return;
           }
           // Bound memory: a server that never sends a frame delimiter would otherwise
           // grow \`buffer\` without limit. 1 MiB is far above any real SSE frame.

@@ -42,15 +42,19 @@ const server = http.createServer((req, res) => {
       Connection: 'keep-alive',
     });
     if (lastEventId === '2') {
-      // Reconnect: deliver the next frame and close.
-      writeFrame(res, 'id: 3\ndata: {"text":"c","seq":3}\n\n');
+      // Reconnect: deliver the final frame WITHOUT a trailing delimiter, then close
+      // cleanly. The client must flush this dangling frame on stream end (final frame
+      // not dropped) and then finish — a clean close is not a dropped connection.
+      writeFrame(res, 'id: 3\ndata: {"text":"c","seq":3}');
       res.end();
       return;
     }
-    // First connect: deliver two frames then drop the connection (simulates a drop).
+    // First connect: deliver two frames then abruptly destroy the socket (no chunked
+    // terminator) to simulate a real drop. The client's reader throws → it reconnects
+    // via Last-Event-ID. (A clean res.end() here would instead finish, not reconnect.)
     writeFrame(res, 'id: 1\nevent: msg\ndata: {"text":"a","seq":1}\n\n');
     writeFrame(res, 'id: 2\ndata: {"text":"b","seq":2}\n\n');
-    res.end();
+    setTimeout(() => res.destroy(), 100);
     return;
   }
 
