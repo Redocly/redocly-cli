@@ -2628,7 +2628,7 @@ describe('runStep', () => {
   it('should run step with workflowId from external workflowSpec', async () => {
     const step: Step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
       checks: [],
       response: {} as any,
     };
@@ -2958,7 +2958,7 @@ describe('runStep', () => {
           steps: [
             {
               stepId: 'get-bird',
-              workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+              workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
               checks: [],
             },
           ],
@@ -3029,7 +3029,7 @@ describe('runStep', () => {
   it('should run step with workflowId from external workflow and populate inputs from the parameters', async () => {
     const step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
       parameters: [
         {
           name: 'workflowLevelParam',
@@ -3375,7 +3375,7 @@ describe('runStep', () => {
           steps: [
             {
               stepId: 'get-bird',
-              workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+              workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
               parameters: [
                 {
                   name: 'workflowLevelParam',
@@ -3471,7 +3471,7 @@ describe('runStep', () => {
     });
 
     expect(resolveWorkflowContext).toHaveBeenCalledWith(
-      '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      '$sourceDescriptions.reusable-api.reusable-external-workflow',
       {
         inputs: {
           properties: {

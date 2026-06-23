@@ -7,7 +7,7 @@ vi.mock('../../../flow-runner/context/create-test-context.js');
 
 describe('resolveWorkflowContext', async () => {
   const config = await createConfig({});
-  const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';
+  const workflowId = '$sourceDescriptions.tickets-from-museum-api.get-museum-tickets';
   const apiClient = new ApiFetcher({});
   const resolvedWorkflow = {
     workflowId: 'get-museum-tickets',
@@ -379,8 +379,8 @@ describe('resolveWorkflowContext', async () => {
     );
   });
 
-  it('should call createTestContext for arazzo type using the spec form without `workflows` segment', async () => {
-    const workflowId = '$sourceDescriptions.tickets-from-museum-api.get-museum-tickets';
+  it('should still resolve the legacy `$sourceDescriptions.<name>.workflows.<workflowId>` form for backward compatibility', async () => {
+    const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';
     await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, config);
 
     expect(createTestContext).toHaveBeenCalledWith(
@@ -575,35 +575,6 @@ describe('resolveWorkflowContext', async () => {
               },
             },
           },
-        },
-      },
-    } as any;
-    const workflowId = '$sourceDescriptions.wrong-api.workflows.get-museum-tickets';
-
-    await expect(
-      resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)
-    ).rejects.toThrowError('Unknown source description type invalid');
-  });
-
-  it('should throw an error when sourceDescription.type is not openapi or arazzo using the spec form', async () => {
-    const localCtx = {
-      ...commonCtx,
-      sourceDescriptions: [
-        { name: 'wrong-api', type: 'invalid', url: 'museum-api.yaml' },
-        {
-          name: 'tickets-from-museum-api',
-          type: 'arazzo',
-          url: 'museum-tickets.yaml',
-        },
-      ],
-    } as any;
-    const ctx = {
-      ...localCtx,
-      $sourceDescriptions: {
-        'wrong-api': {
-          paths: {},
-          servers: [{ url: 'https://redocly.com/_mock/docs/openapi/museum-api/' }],
-          info: { title: 'Redocly Museum API', version: '1.1.1' },
         },
       },
     } as any;

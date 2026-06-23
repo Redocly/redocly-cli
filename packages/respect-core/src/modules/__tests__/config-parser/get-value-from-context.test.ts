@@ -143,7 +143,7 @@ describe('getValueFromContext', () => {
   });
 
   // $sourceDescriptions.<name>.workflows.<workflowId>
-  it('should return workflow from $sourceDescriptions', () => {
+  it('should resolve the legacy `$sourceDescriptions.<name>.workflows.<workflowId>` form for backward compatibility', () => {
     const ctx = {
       $sourceDescriptions: {
         test: {
@@ -168,7 +168,7 @@ describe('getValueFromContext', () => {
     });
   });
 
-  it('should return undefined from $sourceDescriptions if there is no such sourceDescription', () => {
+  it('should return undefined for the legacy form when there is no such sourceDescription', () => {
     const ctx = {
       $sourceDescriptions: {
         test: {
@@ -190,7 +190,7 @@ describe('getValueFromContext', () => {
     ).toEqual(undefined);
   });
 
-  it('should return undefined from $sourceDescriptions if there is no workflowId provided', () => {
+  it('should return undefined for the legacy form when there is no workflowId provided', () => {
     const ctx = {
       $sourceDescriptions: {
         test: {
