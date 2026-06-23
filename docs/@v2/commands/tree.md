@@ -4,7 +4,7 @@
 
 The `tree` command prints the structure of an API description: its paths, operations, and the component dependency chains between them through `$ref`.
 The command works fully with OpenAPI 2.0 and 3.x.
-AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of their top-level referenced (`$ref`)components rather than a paths and operations tree.
+AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of their top-level referenced (`$ref`) components rather than a paths and operations tree.
 
 Use `tree` to:
 
@@ -69,8 +69,6 @@ openapi.yaml
 
 Markers legend:
 
-- `↺` — the node was already expanded earlier in the tree; its dependencies are not repeated. This is also how recursive schemas render.
-- `✗ not found` — an unresolvable `$ref`.
 - `↺` — the node was already expanded earlier in the tree. Its dependencies are not repeated. This is also how recursive schemas render.
 - `✗ not found` — an unresolvable `$ref`
 - `(external)` — a reference to a URL
@@ -108,10 +106,6 @@ openapi.yaml
 
 `--affected-by` accepts several input forms:
 
-- Full JSON pointer: `#/components/schemas/Address`
-- Shorthand pointer (the node id, without `#/components/`): `schemas/Address`
-- Bare component name: `Address` — ambiguous bare names match all candidates and print a note to stderr (impact analysis over-reports rather than under-reports)
-- A file path (for multi-file specs): `schemas/address.yaml`
 - full JSON pointer: `#/components/schemas/Address`
 - shorthand pointer (the node id, without `#/components/`): `schemas/Address`
 - bare component name: `Address` — ambiguous bare names match all candidates and print a note to `stderr` (impact analysis over-reports rather than under-reports)
