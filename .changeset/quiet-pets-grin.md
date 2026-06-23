@@ -2,4 +2,5 @@
 '@redocly/openapi-core': patch
 ---
 
-Fixed bundling of strings that look like numbers with underscores (e.g. `'12_34'`). Since js-yaml `4.2.0` such strings were emitted unquoted and could be read back as numbers by YAML 1.1 parsers; they are now kept quoted in the output.
+Fixed an issue in bundling where strings with numeric characters and underscores (e.g. `'12_34'`) were emitted unquoted.
+These strings could then be read back as numbers by YAML 1.1 parsers.
