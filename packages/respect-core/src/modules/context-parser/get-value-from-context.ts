@@ -320,28 +320,9 @@ const resolveValue = (
   // $sourceDescriptions.<name>.workflows.<workflowId>
   if (path.startsWith('$sourceDescriptions.')) {
     const parts = path.split('.');
-
     const sourceDescriptionName = parts[1];
     const isLegacyForm = parts.length === 4 && parts[2] === 'workflows';
-
-    if (isLegacyForm) {
-      const workflowId = parts[3];
-
-      if (!sourceDescriptionName || !workflowId) {
-        return undefined;
-      }
-
-      const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
-
-      if (!sourceDescriptions?.[sourceDescriptionName]) {
-        return undefined;
-      }
-
-      return sourceDescriptions[sourceDescriptionName].workflows.find(
-        (workflow: Workflow) => workflow.workflowId === workflowId
-      );
-    }
-    const workflowId = parts.length === 3 ? parts[2] : undefined;
+    const workflowId = isLegacyForm ? parts[3] : parts.length === 3 ? parts[2] : undefined;
 
     if (sourceDescriptionName && workflowId) {
       const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
@@ -352,6 +333,10 @@ const resolveValue = (
       if (workflow) {
         return workflow;
       }
+    }
+
+    if (isLegacyForm) {
+      return undefined;
     }
   }
 
