@@ -76,7 +76,7 @@ export async function getPageHTML(
     templateFileName,
     templateOptions,
     redocOptions = {},
-    redocCurrentVersion,
+    redocVersion,
   }: BuildDocsOptions,
   configPath?: string
 ) {
@@ -111,7 +111,7 @@ export async function getPageHTML(
 
       </script>`,
     redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>` +
+      `<script src="https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js"></script>` +
       css,
     title: title || api.info.title || 'ReDoc documentation',
     disableGoogleFont,
