@@ -51,7 +51,7 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
   Mutually exclusive with `--match-mode`.
   Use `--match-mode` when the traffic URLs align with the description
   `servers`.
-  Use  to declare the actual server when they do not.
+  Use to declare the actual server when they do not.
 
 ## Exit codes
 
