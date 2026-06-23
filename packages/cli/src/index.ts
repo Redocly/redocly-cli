@@ -952,10 +952,13 @@ yargs(hideBin(process.argv))
               // valid here; the generator resolver validates each (and reports unknown/unloadable
               // entries with an actionable message) once the config is assembled.
               if (value === undefined) return undefined;
-              return value
+              const names = value
                 .split(',')
                 .map((s) => s.trim())
                 .filter(Boolean);
+              // Treat an empty value (`--generators ` or `,`) as unset, so it neither
+              // replaces the default sdk generator nor clobbers a config-file selection.
+              return names.length ? names : undefined;
             },
           },
           config: {

@@ -85,7 +85,10 @@ export async function generateClient(
 
   // Resolve the selection into a registry: built-in names pass through, inline `customGenerators`
   // register, and any other entry is imported as a plugin specifier (path/package).
-  const { selected, registry } = await resolveGenerators(options.generators ?? ['sdk'], {
+  // An empty list (e.g. `generators: []` in config, or `--generators ,`) means
+  // "unspecified" — fall back to the default sdk client rather than emitting nothing.
+  const requested = options.generators?.length ? options.generators : ['sdk'];
+  const { selected, registry } = await resolveGenerators(requested, {
     customGenerators: options.customGenerators,
     configDir: options.configDir,
   });

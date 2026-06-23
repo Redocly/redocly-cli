@@ -83,6 +83,18 @@ describe('generate-client generator compatibility contract', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
+  it('treats an empty --generators value as unset, defaulting to the sdk client', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
+    const outFile = join(dir, 'c.ts');
+    // `--generators ,` coerces to an empty list; it must fall back to the default sdk
+    // generator and emit a client, not silently report success with no output.
+    const { status, out } = run([cafe, '--output', outFile, '--generators', ',']);
+    expect(status, out).toBe(0);
+    expect(existsSync(outFile)).toBe(true);
+    expect(readFileSync(outFile, 'utf-8')).toContain('export async function');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
   it('skips SSE operations in tanstack-query (reporting them) and still emits the rest', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
     const { status, out } = run([
