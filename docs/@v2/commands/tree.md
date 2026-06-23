@@ -120,7 +120,7 @@ openapi.yaml
 
 The summary line reports how many operations are affected.
 A change that only affects path-level parameters can report `0 of N operations affected` while still listing the affected path. The path itself is impacted, not its operations.
-When the tree has no operation nodes at all (an AsyncAPI or Arazzo description, or a multi-file OpenAPI description whose path items live in `$ref`'d files), the summary falls back to counting nodes. 
+When the tree has no operation nodes at all (an AsyncAPI or Arazzo description, or a multi-file OpenAPI description whose path items live in `$ref`'d files), the summary falls back to counting nodes.
 For example: `5 of 8 nodes affected`.
 
 Unknown inputs print a warning to `stderr` and exit with code `0`.
