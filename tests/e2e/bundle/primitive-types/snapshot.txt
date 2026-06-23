@@ -35,7 +35,7 @@ paths:
                   object:
                     key1: 1
                     key2: 2
-                  underscoreNumberTransformedToString: 12_34 // yaml 1.2.0+
+                  underscoreNumberTransformedToString: '12_34'
                   underscoreNumberString: '12_34'
 components: {}
 
