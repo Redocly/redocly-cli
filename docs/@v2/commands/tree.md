@@ -2,14 +2,17 @@
 
 ## Introduction
 
-The `tree` command prints the structure of an API description: its paths, operations, and the component dependency chains between them through `$ref`. It works fully with OpenAPI 2.0 and 3.x. AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of their top-level `$ref`'d components rather than a paths and operations tree.
+The `tree` command prints the structure of an API description: its paths, operations, and the component dependency chains between them through `$ref`.
+The command works fully with OpenAPI 2.0 and 3.x.
+AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of their top-level referenced (`$ref`)components rather than a paths and operations tree.
 
-Use it to:
+Use `tree` to:
 
-- get quick orientation in any API, whether single-file or multi-file;
-- run impact analysis with `--affected-by` — which paths and operations are affected by a change to a component or file, useful in CI and automated code review;
-- produce machine-readable JSON or a Mermaid diagram with `--format`;
-- view the file-level `$ref` graph with `--files`.
+- Get quick orientation in any API, whether single-file or multi-file.
+- Run impact analysis with `--affected-by` — which paths and operations are affected by a change to a component or file.
+  This analysis is useful in CI and automated code review.
+- Produce machine-readable JSON or a Mermaid diagram with `--format`.
+- View the file-level `$ref` graph with `--files`.
 
 ## Usage
 
@@ -20,20 +23,22 @@ redocly tree <api> [--format=<value>] [--affected-by=<value>] [--config=<path>]
 redocly tree --files [apis...]
 ```
 
-With no API argument, the command takes the API from the Redocly configuration file. The default structure view shows one API at a time — use `--files` for the multi-API file graph.
+With no API argument, the command takes the API from the Redocly configuration file.
+The default structure view displays one API at a time.
+Use `--files` for the multi-API file graph.
 
 ## Options
 
 | Option        | Type     | Description                                                                                                                                                                                                                                                                              |
 | ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis          | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                                       |
-| --affected-by | [string] | Show only the part of the tree affected by the given changes. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path; `--files` mode accepts file paths only. Repeat the option to pass several values: `--affected-by Pet --affected-by /users`. |
+| --affected-by | [string] | Display only the part of the tree affected by the given changes. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values: `--affected-by Pet --affected-by /users`. |
 | --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                         |
-| --files       | boolean  | Show the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                                      |
+| --files       | boolean  | Display the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                                      |
 | --format      | string   | Output format: `stylish` (default, tree view), `json`, or `mermaid`.                                                                                                                                                                                                                     |
-| --help        | boolean  | Show help.                                                                                                                                                                                                                                                                               |
+| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                               |
 | --lint-config | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                       |
-| --version     | boolean  | Show version number.                                                                                                                                                                                                                                                                     |
+| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                                     |
 
 ## Examples
 
@@ -66,9 +71,12 @@ Markers legend:
 
 - `↺` — the node was already expanded earlier in the tree; its dependencies are not repeated. This is also how recursive schemas render.
 - `✗ not found` — an unresolvable `$ref`.
-- `(external)` — a reference to a URL.
+- `↺` — the node was already expanded earlier in the tree. Its dependencies are not repeated. This is also how recursive schemas render.
+- `✗ not found` — an unresolvable `$ref`
+- `(external)` — a reference to a URL
 
-For multi-file APIs, components living in other files appear as file nodes (for example, `paths/pets.yaml`). Operations defined inside a `$ref`'d path-item file are represented by that file node, not expanded individually.
+For multi-file APIs, components living in other files appear as file nodes (for example, `paths/pets.yaml`).
+Operations defined inside a `$ref`'d path-item file are represented by that file node, not expanded individually.
 
 ### Find what a change affects
 
@@ -104,11 +112,18 @@ openapi.yaml
 - Shorthand pointer (the node id, without `#/components/`): `schemas/Address`
 - Bare component name: `Address` — ambiguous bare names match all candidates and print a note to stderr (impact analysis over-reports rather than under-reports)
 - A file path (for multi-file specs): `schemas/address.yaml`
-- The root file itself: the whole tree is affected
+- full JSON pointer: `#/components/schemas/Address`
+- shorthand pointer (the node id, without `#/components/`): `schemas/Address`
+- bare component name: `Address` — ambiguous bare names match all candidates and print a note to `stderr` (impact analysis over-reports rather than under-reports)
+- a file path (for multi-file specs): `schemas/address.yaml`
+- the root file itself: the whole tree is affected
 
-The summary line reports how many operations are affected. A change that only affects path-level parameters can report `0 of N operations affected` while still listing the affected path — the path itself is impacted, not its operations. When the tree has no operation nodes at all (an AsyncAPI or Arazzo description, or a multi-file OpenAPI description whose path items live in `$ref`'d files), the summary falls back to counting nodes, for example `5 of 8 nodes affected`.
+The summary line reports how many operations are affected.
+A change that only affects path-level parameters can report `0 of N operations affected` while still listing the affected path. The path itself is impacted, not its operations.
+When the tree has no operation nodes at all (an AsyncAPI or Arazzo description, or a multi-file OpenAPI description whose path items live in `$ref`'d files), the summary falls back to counting nodes. 
+For example: `5 of 8 nodes affected`.
 
-Unknown inputs print a warning to stderr and exit with code `0`.
+Unknown inputs print a warning to `stderr` and exit with code `0`.
 
 ### Machine-readable output
 
@@ -116,7 +131,8 @@ Unknown inputs print a warning to stderr and exit with code `0`.
 redocly tree openapi.yaml --format=json
 ```
 
-Prints the graph as JSON with `roots`, `nodes` (`resolved` and `external` on every node; `kind` and `file` in the default view only), and `edges` (with the exact `$ref` strings). Only the JSON is written to stdout, so the output is safe to pipe.
+Prints the graph as JSON with `roots`, `nodes` (`resolved` and `external` on every node; `kind` and `file` in the default view only), and `edges` (with the exact `$ref` strings).
+Only the JSON is written to `stdout`, so the output is safe to pipe.
 
 ```bash
 redocly tree openapi.yaml --format=mermaid
@@ -140,4 +156,7 @@ openapi.yaml
         └── components/schemas/Pet.yaml ↺
 ```
 
-`--files` shows only which files reference which other files — not the paths, operations, and components inside them. (The default view already traverses those, following `$ref`s across files.) It also accepts multiple APIs in one run, merging their graphs; in this mode `--affected-by` takes file paths and the summary counts affected files and roots.
+`--files` displays only which files reference other files - not the paths, operations, and components inside them.
+The default view already traverses those elements, following `$ref`s across files.
+`--files` also accepts multiple APIs in one run, merging their graphs.
+In this mode, `--affected-by` takes file paths, and the summary counts affected files and roots.
