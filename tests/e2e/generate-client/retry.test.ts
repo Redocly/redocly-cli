@@ -84,6 +84,39 @@ console.log(JSON.stringify({ defaultThrew, defaultCalls, retryCalls }));
     expect(result.retryCalls).toBe(3); // 2 failures + 1 success
   }, 60_000);
 
+  test('drains the unread body of a retried response before the next attempt', () => {
+    const result = runConsumer(
+      dir,
+      `
+import { configure, listPets } from './client.ts';
+
+let calls = 0;
+let cancelled = 0;
+// A 503 whose body cancellation is observable, then a 200 success.
+const makeFetch = () =>
+  (async () => {
+    calls++;
+    if (calls === 1) {
+      const body = new ReadableStream({
+        start(c) { c.enqueue(new TextEncoder().encode('busy')); c.close(); },
+        cancel() { cancelled++; },
+      });
+      return new Response(body, { status: 503, headers: { 'content-type': 'text/plain' } });
+    }
+    return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+  }) as unknown as typeof fetch;
+
+configure({ fetch: makeFetch(), retry: { retries: 3, retryDelay: 1 } });
+await listPets();
+
+console.log(JSON.stringify({ calls, cancelled }));
+`
+    ) as { calls: number; cancelled: number };
+
+    expect(result.calls).toBe(2); // 1 failure + 1 success
+    expect(result.cancelled).toBe(1); // the abandoned 503 body was cancelled before retrying
+  }, 60_000);
+
   test('does NOT retry a non-idempotent POST by default, but does when retryOn opts in', () => {
     const result = runConsumer(
       dir,

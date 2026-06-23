@@ -783,7 +783,12 @@ async function __send(config: ClientConfig, url: string, init: RequestOptions, b
             attempt < maxAttempts &&
             !signal?.aborted &&
             (await retryOn({ attempt, request: context, response }))) {
-            await __sleep(__retryDelay(retry, attempt, response.headers.get('retry-after')), signal);
+            const retryAfter = response.headers.get('retry-after');
+            // Drain the abandoned response body before the next attempt: an unread body
+            // keeps the connection checked out (and can stall the pool) under Node/undici
+            // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
+            await response.body?.cancel().catch(() => undefined);
+            await __sleep(__retryDelay(retry, attempt, retryAfter), signal);
             continue;
         }
         return { response, context };
