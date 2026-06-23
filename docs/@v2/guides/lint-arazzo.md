@@ -74,21 +74,15 @@ Choose from the ready-made rulesets (`spec`, `minimal`, `recommended` or `recomm
 There's a full [list of built-in rules for Arazzo](../rules/built-in-rules.md#arazzo-rules) to refer to.
 
 Add the rules to `redocly.yaml`.
-For Arazzo description files, add rules in their own version-specific configuration section:
-- `arazzo1Rules` for Arazzo 1.0.x documents
-- `arazzo1_1Rules` for Arazzo 1.1.x documents
 The following example shows configuration for the minimal ruleset with some additional rules configuration:
 
 ```yaml
 extends:
   - minimal
 
-arazzo1Rules:
+rules:
   sourceDescription-name-unique: warn
   respect-supported-versions: error
-
-arazzo1_1Rules:
-  sourceDescription-name-unique: warn
   sourceDescription-type: error
 ```
 
