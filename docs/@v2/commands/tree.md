@@ -30,7 +30,7 @@ Use `--files` for the multi-API file graph.
 ## Options
 
 | Option        | Type     | Description                                                                                                                                                                                                                                                                                 |
-|---------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis          | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                                          |
 | --affected-by | [string] | Display only the part of the tree affected by the given changes. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values: `--affected-by Pet --affected-by /users`. |
 | --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                            |
@@ -154,4 +154,3 @@ openapi.yaml
 The default view already traverses those elements, following `$ref`s across files.
 `--files` also accepts multiple APIs in one run, merging their graphs.
 In this mode, `--affected-by` takes file paths, and the summary counts affected files and roots.
-
