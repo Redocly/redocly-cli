@@ -154,3 +154,4 @@ openapi.yaml
 The default view already traverses those elements, following `$ref`s across files.
 `--files` also accepts multiple APIs in one run, merging their graphs.
 In this mode, `--affected-by` takes file paths, and the summary counts affected files and roots.
+
