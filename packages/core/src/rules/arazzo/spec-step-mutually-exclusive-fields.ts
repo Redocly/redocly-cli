@@ -13,9 +13,7 @@ export const SpecStepMutuallyExclusiveFields: Arazzo1Rule = () => {
   return {
     Step: {
       enter(step, { report, location }: UserContext) {
-        const usedFields = MUTUALLY_EXCLUSIVE_FIELDS.filter((field) =>
-          Object.prototype.hasOwnProperty.call(step, field)
-        );
+        const usedFields = MUTUALLY_EXCLUSIVE_FIELDS.filter((field) => Object.hasOwn(step, field));
         if (usedFields.length > 1) {
           report({
             message: `A step can only use one of the following mutually exclusive fields: ${usedFields

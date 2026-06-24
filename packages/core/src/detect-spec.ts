@@ -2,19 +2,6 @@ import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
 import { ARAZZO_1_1_VERSION_PATTERN, VERSION_PATTERN } from './typings/arazzo.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
-export const specVersions = [
-  'oas2',
-  'oas3_0',
-  'oas3_1',
-  'oas3_2',
-  'async2',
-  'async3',
-  'arazzo1',
-  'arazzo1_1',
-  'overlay1',
-  'openrpc1',
-] as const;
-
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
   if (version.startsWith('oas3')) {
     return 'oas3';
