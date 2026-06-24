@@ -17,7 +17,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
           - name: account-events
             type: asyncapi
             url: ../../../../resources/asyncapi3.yaml
@@ -138,7 +138,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: get-order-feed
             steps:
@@ -174,7 +174,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:
@@ -208,7 +208,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:
@@ -249,7 +249,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:
@@ -289,7 +289,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:
@@ -327,7 +327,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:
@@ -367,7 +367,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:
@@ -407,7 +407,7 @@ describe('Arazzo 1.1 lint', () => {
         sourceDescriptions:
           - name: cafe-api
             type: openapi
-            url: ../../../../resources/cafe.yaml
+            url: cafe.yaml
         workflows:
           - workflowId: place-order
             steps:

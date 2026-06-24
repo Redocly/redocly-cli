@@ -40,7 +40,12 @@ export type SourceDescription =
   | AsyncAPISourceDescription; // added in Arazzo 1.1
 
 export interface Parameter {
-  in?: 'header' | 'query' | 'path' | 'cookie' | 'querystring'; // added in Arazzo 1.1
+  in?:
+    | 'header'
+    | 'query'
+    | 'querystring' // added in Arazzo 1.1
+    | 'path'
+    | 'cookie';
   name: string;
   value: string | number | boolean;
   reference?: string;
@@ -186,7 +191,7 @@ export interface OnFailureObject {
   retryAfter?: number;
   retryLimit?: number;
   criteria?: CriterionObject[];
-  parameters?: Parameter[];
+  parameters?: Parameter[]; // added in Arazzo 1.1
 }
 
 export interface Step {
@@ -200,7 +205,13 @@ export interface Step {
   onSuccess?: OnSuccessObject[];
   onFailure?: OnFailureObject[];
   outputs?: {
-    [key: string]: string | object | any[] | boolean | number | SelectorObject; // added in Arazzo 1.1
+    [key: string]:
+      | SelectorObject // added in Arazzo 1.1
+      | string
+      | object
+      | any[]
+      | boolean
+      | number;
   };
   'x-operation'?: ExtendedOperation;
   'x-security'?: ExtendedSecurity[];
@@ -229,7 +240,9 @@ export interface Workflow {
     };
   };
   outputs?: {
-    [key: string]: string | SelectorObject; // added in Arazzo 1.1
+    [key: string]:
+      | SelectorObject // added in Arazzo 1.1
+      | string;
   };
   steps: Step[];
   successActions?: OnSuccessObject[];

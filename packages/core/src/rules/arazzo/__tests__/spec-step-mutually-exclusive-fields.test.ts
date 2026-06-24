@@ -72,7 +72,7 @@ describe('Arazzo spec-step-mutually-exclusive-fields', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        arazzo1_1Rules: { 'spec-step-mutually-exclusive-fields': 'error' },
+        rules: { 'spec-step-mutually-exclusive-fields': 'error' },
       }),
     });
 
@@ -107,7 +107,7 @@ describe('Arazzo spec-step-mutually-exclusive-fields', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        arazzo1_1Rules: { 'spec-step-mutually-exclusive-fields': 'error' },
+        rules: { 'spec-step-mutually-exclusive-fields': 'error' },
       }),
     });
 

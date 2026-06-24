@@ -390,31 +390,7 @@ rules:
   tag-description: warn
 ```
 
-### Recommended ruleset: Arazzo 1.0
-
-```yaml
-rules:
-  criteria-unique: warn
-  no-enum-type-mismatch: error
-  no-mixed-number-range-constraints: warn
-  no-required-schema-properties-undefined: warn
-  no-schema-type-mismatch: error
-  outputs-defined: warn
-  parameters-unique: error
-  requestBody-replacements-unique: warn
-  sourceDescription-name-unique: error
-  sourceDescription-type: error
-  sourceDescriptions-not-empty: error
-  spec-step-mutually-exclusive-fields: error
-  step-onFailure-unique: warn
-  step-onSuccess-unique: warn
-  stepId-unique: error
-  struct: error
-  workflow-dependsOn: error
-  workflowId-unique: error
-```
-
-### Recommended ruleset: Arazzo 1.1
+### Recommended ruleset: Arazzo 1.0, Arazzo 1.1
 
 ```yaml
 rules:

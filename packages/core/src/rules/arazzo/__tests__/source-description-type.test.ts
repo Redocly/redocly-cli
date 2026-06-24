@@ -104,7 +104,7 @@ describe('Arazzo sourceDescription-type', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ arazzo1_1Rules: { 'sourceDescription-type': 'error' } }),
+      config: await createConfig({ rules: { 'sourceDescription-type': 'error' } }),
     });
     expect(replaceSourceWithRef(results)).toEqual([]);
   });

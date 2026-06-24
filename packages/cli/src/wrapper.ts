@@ -8,6 +8,8 @@ import {
   type CollectFn,
   type ArazzoDefinition,
   type Exact,
+  getMajorSpecVersion,
+  type SpecVersion,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
@@ -49,6 +51,7 @@ export function commandWrapper<T extends CommandArgv>(
       } catch (err) {
         specVersion = `unsupported`;
       }
+
       if (!isPlainObject(document)) return;
       specKeyword = document?.openapi
         ? 'openapi'
@@ -68,7 +71,8 @@ export function commandWrapper<T extends CommandArgv>(
         specFullVersion = undefined;
       }
 
-      if (specVersion === 'arazzo1' || specVersion === 'arazzo1_1') {
+      const majorSpecVersion = getMajorSpecVersion(specVersion as SpecVersion);
+      if (majorSpecVersion === 'arazzo1') {
         const arazzoDocument = document as Partial<ArazzoDefinition>;
         collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypes);
         collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);

@@ -46,8 +46,6 @@ workflows:
       - stepId: list-menu-items
         operationId: cafe-api.listMenuItems
         workflowId: place-order
-        successCriteria:
-          - condition: $statusCode == 200
 ```
 
 Example of a **correct** step that uses a single operation field:
@@ -58,8 +56,6 @@ workflows:
     steps:
       - stepId: list-menu-items
         operationId: cafe-api.listMenuItems
-        successCriteria:
-          - condition: $statusCode == 200
 ```
 
 ## Related rules

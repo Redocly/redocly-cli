@@ -7,7 +7,7 @@ export const SourceDescriptionType: Arazzo1Rule = () => {
       enter(sourceDescriptions, { report, location, specVersion }: UserContext) {
         if (!sourceDescriptions.length) return;
         const allowedTypes =
-          specVersion === 'arazzo1_1' ? ['openapi', 'arazzo', 'asyncapi'] : ['openapi', 'arazzo'];
+          specVersion === 'arazzo1' ? ['openapi', 'arazzo'] : ['openapi', 'arazzo', 'asyncapi'];
         for (const sourceDescription of sourceDescriptions) {
           if (!allowedTypes.includes(sourceDescription?.type)) {
             report({
