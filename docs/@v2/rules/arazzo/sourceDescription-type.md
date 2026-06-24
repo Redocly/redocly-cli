@@ -12,9 +12,6 @@ Arazzo 1.0.x supports either an OpenAPI file or another Arazzo file as the sourc
 Arazzo 1.1.0 additionally supports AsyncAPI files as source descriptions.
 This rule makes sure that the type is clearly identified and is one of the supported types.
 
-For Arazzo 1.0.x, the allowed values are `openapi` and `arazzo`.
-For Arazzo 1.1.x, the allowed values are `openapi`, `arazzo`, and `asyncapi`.
-
 ## Configuration
 
 | Option   | Type   | Description                                             |

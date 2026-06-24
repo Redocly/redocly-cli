@@ -1,5 +1,5 @@
 import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
-import { ARAZZO_1_1_VERSION_PATTERN, VERSION_PATTERN } from './typings/arazzo.js';
+import { VERSION_PATTERN } from './typings/arazzo.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
@@ -71,7 +71,7 @@ export function detectSpec(root: unknown): SpecVersion {
     return 'arazzo1';
   }
 
-  if (typeof root.arazzo === 'string' && ARAZZO_1_1_VERSION_PATTERN.test(root.arazzo)) {
+  if (typeof root.arazzo === 'string' && root.arazzo.startsWith('1.1.')) {
     return 'arazzo1_1';
   }
 
