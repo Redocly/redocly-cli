@@ -155,11 +155,11 @@ redocly bundle tmp.yaml -o joined.yaml
 ### Changes in YAML parsing behavior
 
 Since v2.0, Redocly CLI uses the latest specification when parsing YAML files (v1.2 at this time).
-This changes how some YAML features are interpreted compared to v1.x:
+This update changes how some YAML features are interpreted compared to v1.x:
 
 - Numbers with underscores are treated as strings (e.g. `3_14` is treated literally as a string instead of `314`).
-- Stricter indentation requirements for mixed YAML and JSON content.
-  Now everything related to a property must be indented, including the closing brace:
+- Indentation requirements are stricter for mixed YAML and JSON content.
+  Everything related to a property must be indented, including the closing brace:
 
   ```yaml
   foo: {
