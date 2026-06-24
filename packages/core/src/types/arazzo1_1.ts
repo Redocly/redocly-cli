@@ -152,22 +152,26 @@ const expressionTypeResolver = (value: any) => {
   }
 };
 
+const expressionTypeOrEnumResolver =
+  (enumValues: string[], description: string, { optional = true } = {}) =>
+  (value: any) => {
+    if (optional && !value) {
+      return undefined;
+    } else if (typeof value === 'string') {
+      return { enum: enumValues, description };
+    } else {
+      return expressionTypeResolver(value);
+    }
+  };
+
 const CriterionObject: NodeType = {
   ...Arazzo1Types.CriterionObject,
   properties: {
     ...Arazzo1Types.CriterionObject.properties,
-    type: (value: any) => {
-      if (!value) {
-        return undefined;
-      } else if (typeof value === 'string') {
-        return {
-          enum: ['regex', 'jsonpath', 'simple', 'xpath'],
-          description: 'The type of condition to be applied.',
-        };
-      } else {
-        return expressionTypeResolver(value);
-      }
-    },
+    type: expressionTypeOrEnumResolver(
+      ['regex', 'jsonpath', 'simple', 'xpath'],
+      'The type of condition to be applied.'
+    ),
   },
 };
 
@@ -183,16 +187,11 @@ const SelectorObject: NodeType = {
       description:
         'REQUIRED. The selector expression (JSONPath, XPath, or JSON Pointer) used to extract data from the context.',
     },
-    type: (value: any) => {
-      if (typeof value === 'string') {
-        return {
-          enum: ['jsonpath', 'xpath', 'jsonpointer'],
-          description: 'The type of selector to be applied.',
-        };
-      } else {
-        return expressionTypeResolver(value);
-      }
-    },
+    type: expressionTypeOrEnumResolver(
+      ['jsonpath', 'xpath', 'jsonpointer'],
+      'The type of selector to be applied.',
+      { optional: false }
+    ),
   },
   required: ['context', 'selector', 'type'],
   extensionsPrefix: 'x-',
@@ -217,18 +216,14 @@ const Replacement: NodeType = {
   ...Arazzo1Types.Replacement,
   properties: {
     ...Arazzo1Types.Replacement.properties,
-    targetSelectorType: (value: any) => {
-      if (!value) {
-        return undefined;
-      } else if (typeof value === 'string') {
-        return {
-          enum: ['jsonpath', 'xpath', 'jsonpointer'],
-          description: 'The type of selector used in the target field.',
-        };
-      } else {
-        return expressionTypeResolver(value);
-      }
-    },
+    // The value can be a constant (including a plain object), a runtime expression,
+    // or a Selector Object. Only validate it as a Selector Object when it carries the
+    // selector-specific `selector` key; otherwise keep the permissive "any" behavior.
+    value: (value: any) => (isPlainObject(value) && 'selector' in value ? 'SelectorObject' : {}),
+    targetSelectorType: expressionTypeOrEnumResolver(
+      ['jsonpath', 'xpath', 'jsonpointer'],
+      'The type of selector used in the target field.'
+    ),
   },
 };
 

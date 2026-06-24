@@ -316,4 +316,123 @@ describe('Arazzo 1.1 lint', () => {
       '`type` can be one of the following only: "jsonpath", "xpath", "jsonpointer".'
     );
   });
+
+  it('accepts a Selector Object as a requestBody replacement value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: ../../../../resources/cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                requestBody:
+                  payload:
+                    customerName: ''
+                  replacements:
+                    - target: $.customerName
+                      value:
+                        context: $inputs
+                        selector: $.customerName
+                        type: jsonpath
+                successCriteria:
+                  - condition: $statusCode == 201
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('reports a malformed Selector Object used as a requestBody replacement value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: ../../../../resources/cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                requestBody:
+                  payload:
+                    customerName: ''
+                  replacements:
+                    - target: $.customerName
+                      value:
+                        selector: $.customerName
+                successCriteria:
+                  - condition: $statusCode == 201
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    const messages = results.map((r) => r.message);
+    expect(messages).toContain('The field `context` must be present on this level.');
+    expect(messages).toContain('The field `type` must be present on this level.');
+  });
+
+  it('accepts a constant object as a requestBody replacement value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: ../../../../resources/cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                requestBody:
+                  payload:
+                    address: ''
+                  replacements:
+                    - target: $.address
+                      value:
+                        street: Main St
+                        city: Springfield
+                successCriteria:
+                  - condition: $statusCode == 201
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
 });
