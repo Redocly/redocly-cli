@@ -1,3 +1,5 @@
+import { renderDot } from '../print/dot.js';
+import { renderJson } from '../print/json.js';
 import { renderMermaid } from '../print/mermaid.js';
 import { renderStylish } from '../print/stylish.js';
 import type { DependencyGraph } from '../types.js';
@@ -36,13 +38,13 @@ describe('renderStylish', () => {
       │   └── components/Pet.yaml
       └── paths/users.yaml
           └── components/User.yaml
-              ├── components/Pet.yaml ↺
+              ├── components/Pet.yaml
               ├── components/missing.yaml ✗ not found
               └── https://example.com/shared.yaml (external)"
     `);
   });
 
-  it('marks changed files and appends a summary in affected mode', () => {
+  it('appends a summary in affected mode', () => {
     const affected: DependencyGraph = {
       roots: ['openapi.yaml'],
       nodes: [
@@ -63,25 +65,24 @@ describe('renderStylish', () => {
 
     expect(
       renderStylish(affected, {
-        changed: ['components/Pet.yaml'],
         summary: '5 of 7 files affected · affected roots: openapi.yaml',
       })
     ).toMatchInlineSnapshot(`
       "openapi.yaml
       ├── paths/pets.yaml
-      │   └── components/Pet.yaml ← changed
+      │   └── components/Pet.yaml
       └── paths/users.yaml
           └── components/User.yaml
-              └── components/Pet.yaml ↺ ← changed
+              └── components/Pet.yaml
 
       5 of 7 files affected · affected roots: openapi.yaml"
     `);
   });
 
   it('reports when nothing is affected', () => {
-    expect(
-      renderStylish({ roots: [], nodes: [], edges: [] }, { changed: [] })
-    ).toMatchInlineSnapshot(`"No files affected."`);
+    expect(renderStylish({ roots: [], nodes: [], edges: [] }, {})).toMatchInlineSnapshot(
+      `"No files affected."`
+    );
   });
 
   it('renders one tree per root and re-expands shared files in each tree', () => {
@@ -104,6 +105,53 @@ describe('renderStylish', () => {
 
       b.yaml
       └── shared.yaml"
+    `);
+  });
+
+  it('marks a true cycle with ↺ but leaves fan-in repeats unmarked', () => {
+    const cyclic: DependencyGraph = {
+      roots: ['root.yaml'],
+      nodes: [
+        { id: 'root.yaml', root: true, resolved: true },
+        { id: 'A.yaml', resolved: true },
+        { id: 'B.yaml', resolved: true },
+      ],
+      edges: [
+        { from: 'root.yaml', to: 'A.yaml', refs: ['A.yaml'] },
+        { from: 'A.yaml', to: 'B.yaml', refs: ['B.yaml'] },
+        { from: 'B.yaml', to: 'A.yaml', refs: ['A.yaml'] },
+      ],
+    };
+
+    expect(renderStylish(cyclic)).toMatchInlineSnapshot(`
+      "root.yaml
+      └── A.yaml
+          └── B.yaml
+              └── A.yaml ↺"
+    `);
+  });
+
+  it('renders operations as the method only under their path', () => {
+    const structure: DependencyGraph = {
+      roots: ['openapi.yaml'],
+      nodes: [
+        { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
+        { id: '/pets', resolved: true, kind: 'path' },
+        { id: 'GET /pets', resolved: true, kind: 'operation' },
+        { id: 'POST /pets', resolved: true, kind: 'operation' },
+      ],
+      edges: [
+        { from: 'openapi.yaml', to: '/pets', refs: [] },
+        { from: '/pets', to: 'GET /pets', refs: [] },
+        { from: '/pets', to: 'POST /pets', refs: [] },
+      ],
+    };
+
+    expect(renderStylish(structure)).toMatchInlineSnapshot(`
+      "openapi.yaml
+      └── /pets
+          ├── GET
+          └── POST"
     `);
   });
 });
@@ -149,5 +197,28 @@ describe('renderMermaid', () => {
     const output = renderMermaid(withHash);
     expect(output).toContain('["components.yaml#35;/components/schemas/Pet"]');
     expect(output).not.toContain('["components.yaml#/components/schemas/Pet"]');
+  });
+});
+
+describe('renderJson', () => {
+  it('emits a nodes/links graph (D3 shape) without roots/edges keys', () => {
+    const json = JSON.parse(renderJson(graph));
+    expect(json.nodes).toEqual(graph.nodes);
+    expect(json.links).toContainEqual({
+      source: 'openapi.yaml',
+      target: 'paths/pets.yaml',
+      refs: ['paths/pets.yaml'],
+    });
+    expect(json).not.toHaveProperty('roots');
+    expect(json).not.toHaveProperty('edges');
+  });
+});
+
+describe('renderDot', () => {
+  it('emits a Graphviz digraph with quoted ids and directed edges', () => {
+    const dot = renderDot(graph);
+    expect(dot.startsWith('digraph')).toBe(true);
+    expect(dot).toContain('"openapi.yaml" -> "paths/pets.yaml"');
+    expect(dot).toContain('"https://example.com/shared.yaml"');
   });
 });

@@ -1,31 +1,28 @@
 flowchart LR
-  n0["/pets"]
-  n1["/pets/{petId}"]
-  n2["/users"]
-  n3["GET /pets"]
-  n4["GET /pets/{petId}"]
-  n5["GET /users"]
-  n6["POST /pets"]
-  n7["openapi.yaml"]:::root
-  n8["parameters/PetId"]
-  n9["schemas/Address"]
-  n10["schemas/Pet"]
-  n11["schemas/PetInput"]
-  n12["schemas/User"]
+  n0["/orders"]
+  n1["/orders/{orderId}"]
+  n2["DELETE /orders/{orderId}"]
+  n3["GET /orders"]
+  n4["GET /orders/{orderId}"]
+  n5["POST /orders"]
+  n6["openapi.yaml"]:::root
+  n7["schemas/Error"]
+  n8["schemas/MenuItem"]
+  n9["schemas/Order"]
+  n10["schemas/OrderList"]
+  n11["schemas/OrderStatus"]
   n0 --> n3
-  n0 --> n6
+  n0 --> n5
+  n1 --> n2
   n1 --> n4
-  n1 --> n8
-  n2 --> n5
+  n2 --> n7
   n3 --> n10
-  n4 --> n10
-  n5 --> n12
-  n6 --> n11
-  n7 --> n0
-  n7 --> n1
-  n7 --> n2
+  n4 --> n9
+  n5 --> n9
+  n6 --> n0
+  n6 --> n1
+  n9 --> n8
+  n9 --> n11
   n10 --> n9
-  n11 --> n10
-  n12 --> n9
   classDef root font-weight:bold
 

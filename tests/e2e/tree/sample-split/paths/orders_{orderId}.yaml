@@ -1,0 +1,30 @@
+get:
+  summary: Get an order by id
+  parameters:
+    - name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: The requested order.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Order.yaml
+delete:
+  summary: Cancel an order by id
+  parameters:
+    - name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '404':
+      description: Order not found.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Error.yaml

@@ -1,16 +1,12 @@
 openapi.yaml
-├── components/schemas/Error.yaml
-├── components/schemas/MenuItem.yaml
 ├── components/schemas/Order.yaml
-│   ├── components/schemas/MenuItem.yaml
-│   └── components/schemas/OrderStatus.yaml
 ├── components/schemas/OrderList.yaml
 │   └── components/schemas/Order.yaml
-├── components/schemas/OrderStatus.yaml
 ├── paths/orders.yaml
 │   ├── components/schemas/Order.yaml
 │   └── components/schemas/OrderList.yaml
 └── paths/orders_{orderId}.yaml
-    ├── components/schemas/Error.yaml
     └── components/schemas/Order.yaml
+
+5 of 8 files affected · affected roots: openapi.yaml
 

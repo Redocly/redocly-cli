@@ -6,7 +6,6 @@ import type { DependencyGraph } from './types.js';
 
 export type AffectedByMatch = {
   changedIds: string[];
-  markerIds: string[];
   notes: string[];
   warnings: string[];
 };
@@ -20,16 +19,8 @@ export function matchAffectedBy(
   const nodeIds = new Set(graph.nodes.map((n) => n.id));
 
   const changedSet = new Set<string>();
-  const markerSet = new Set<string>();
   const notes: string[] = [];
   const warnings: string[] = [];
-
-  function addIds(ids: string[]): void {
-    for (const id of ids) {
-      changedSet.add(id);
-      markerSet.add(id);
-    }
-  }
 
   for (const input of inputs) {
     const rel = slash(path.relative(cwd, path.resolve(cwd, input)));
@@ -37,14 +28,14 @@ export function matchAffectedBy(
     // Exact id wins — unless the input is the root file itself, which must fall through to the
     // whole-tree branch below rather than matching only the root node.
     if (nodeIds.has(input) && rel !== rootId) {
-      addIds([input]);
+      changedSet.add(input);
       continue;
     }
 
     if (input.startsWith('#')) {
       const mapped = mapRootPointer(input, rootId);
       if (nodeIds.has(mapped.id)) {
-        addIds([mapped.id]);
+        changedSet.add(mapped.id);
         continue;
       }
     }
@@ -53,13 +44,12 @@ export function matchAffectedBy(
       for (const node of graph.nodes) {
         changedSet.add(node.id);
       }
-      markerSet.add(rootId);
       notes.push(`${rootId} is the root document — the whole tree is affected.`);
       continue;
     }
     const fileMatches = graph.nodes.filter((n) => n.file === rel).map((n) => n.id);
     if (fileMatches.length > 0) {
-      addIds(fileMatches);
+      for (const id of fileMatches) changedSet.add(id);
       continue;
     }
 
@@ -69,7 +59,7 @@ export function matchAffectedBy(
         .filter((n) => n.id.split('/').at(-1) === input)
         .map((n) => n.id);
       if (componentMatches.length > 0) {
-        addIds(componentMatches);
+        for (const id of componentMatches) changedSet.add(id);
         if (componentMatches.length > 1) {
           notes.push(
             `"${input}" matches multiple components: ${componentMatches.join(', ')} — including all of them.`
@@ -88,7 +78,6 @@ export function matchAffectedBy(
 
   return {
     changedIds: Array.from(changedSet),
-    markerIds: Array.from(markerSet),
     notes,
     warnings,
   };

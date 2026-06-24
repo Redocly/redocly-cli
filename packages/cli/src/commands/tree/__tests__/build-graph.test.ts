@@ -32,7 +32,7 @@ describe('buildGraph', () => {
     ]);
 
     const graph = buildGraph([{ rootDocument: makeDocument('/project/openapi.yaml'), refMap }], {
-      cwd: CWD,
+      base: CWD,
       resolveRef,
     });
 
@@ -63,7 +63,7 @@ describe('buildGraph', () => {
     ]);
 
     const graph = buildGraph([{ rootDocument: makeDocument('/project/openapi.yaml'), refMap }], {
-      cwd: CWD,
+      base: CWD,
       resolveRef,
     });
 
@@ -85,7 +85,7 @@ describe('buildGraph', () => {
         { rootDocument: makeDocument('/project/a.yaml'), refMap: refMapA },
         { rootDocument: makeDocument('/project/b.yaml'), refMap: refMapB },
       ],
-      { cwd: CWD, resolveRef }
+      { base: CWD, resolveRef }
     );
 
     expect(graph.roots).toEqual(['a.yaml', 'b.yaml']);
@@ -112,7 +112,7 @@ describe('buildGraph', () => {
     ]);
 
     const graph = buildGraph([{ rootDocument: makeDocument('/project/openapi.yaml'), refMap }], {
-      cwd: CWD,
+      base: CWD,
       resolveRef,
     });
 
@@ -134,7 +134,7 @@ describe('buildGraph', () => {
     ]);
 
     const graph = buildGraph([{ rootDocument: makeDocument('/project/openapi.yaml'), refMap }], {
-      cwd: CWD,
+      base: CWD,
       resolveRef,
     });
 
@@ -151,7 +151,7 @@ describe('buildGraph', () => {
     ]);
 
     const graph = buildGraph([{ rootDocument: makeDocument('/project/a.yaml'), refMap }], {
-      cwd: CWD,
+      base: CWD,
       resolveRef,
     });
 

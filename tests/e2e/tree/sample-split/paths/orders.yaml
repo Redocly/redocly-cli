@@ -1,0 +1,24 @@
+get:
+  summary: List orders
+  responses:
+    '200':
+      description: A list of orders.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/OrderList.yaml
+post:
+  summary: Create an order
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/Order.yaml
+  responses:
+    '201':
+      description: The created order.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Order.yaml

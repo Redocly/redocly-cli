@@ -5,9 +5,9 @@ import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
 export function buildGraph(
   resolutions: Array<{ rootDocument: Document; refMap: ResolvedRefMap }>,
-  options: { cwd: string; resolveRef: (base: string, uri: string) => string }
+  options: { base: string; resolveRef: (base: string, uri: string) => string }
 ): DependencyGraph {
-  const { cwd, resolveRef } = options;
+  const { base, resolveRef } = options;
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
 
@@ -20,7 +20,7 @@ export function buildGraph(
   };
 
   for (const { rootDocument, refMap } of resolutions) {
-    upsertNode(toNodeId(rootDocument.source.absoluteRef, cwd), true, true);
+    upsertNode(toNodeId(rootDocument.source.absoluteRef, base), true, true);
 
     for (const [refId, resolvedRef] of refMap) {
       if (!resolvedRef.isRemote) continue;
@@ -32,8 +32,8 @@ export function buildGraph(
         resolvedRef.document?.source.absoluteRef ??
         resolveRef(sourceAbsolute, refString.split('#')[0]);
 
-      const from = toNodeId(sourceAbsolute, cwd);
-      const to = toNodeId(targetAbsolute, cwd);
+      const from = toNodeId(sourceAbsolute, base);
+      const to = toNodeId(targetAbsolute, base);
       upsertNode(from, true);
       upsertNode(to, resolvedRef.document !== undefined);
 
@@ -47,7 +47,7 @@ export function buildGraph(
   }
 
   return {
-    roots: resolutions.map(({ rootDocument }) => toNodeId(rootDocument.source.absoluteRef, cwd)),
+    roots: resolutions.map(({ rootDocument }) => toNodeId(rootDocument.source.absoluteRef, base)),
     nodes: [...nodes.values()].sort((a, b) => compareStrings(a.id, b.id)),
     edges: [...edges.values()]
       .map((edge) => ({ ...edge, refs: [...edge.refs].sort(compareStrings) }))

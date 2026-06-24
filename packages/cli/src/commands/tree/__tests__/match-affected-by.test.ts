@@ -28,7 +28,6 @@ describe('matchAffectedBy', () => {
   it('case 1: exact node id match', () => {
     expect(matchAffectedBy(graph, ['schemas/Address'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['schemas/Address'],
-      markerIds: ['schemas/Address'],
       notes: [],
       warnings: [],
     });
@@ -37,7 +36,6 @@ describe('matchAffectedBy', () => {
   it('case 2: exact id wins over bare-name logic — no ambiguity note', () => {
     expect(matchAffectedBy(graph, ['schemas/Pet'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['schemas/Pet'],
-      markerIds: ['schemas/Pet'],
       notes: [],
       warnings: [],
     });
@@ -48,7 +46,6 @@ describe('matchAffectedBy', () => {
       matchAffectedBy(graph, ['#/components/schemas/Pet'], { cwd: CWD, rootId: ROOT_ID })
     ).toEqual({
       changedIds: ['schemas/Pet'],
-      markerIds: ['schemas/Pet'],
       notes: [],
       warnings: [],
     });
@@ -57,7 +54,6 @@ describe('matchAffectedBy', () => {
   it('case 3b: pointer form — operation pointer', () => {
     expect(matchAffectedBy(graph, ['#/paths/~1pets/get'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['GET /pets'],
-      markerIds: ['GET /pets'],
       notes: [],
       warnings: [],
     });
@@ -66,18 +62,16 @@ describe('matchAffectedBy', () => {
   it('case 4: a file path matches every node defined in that file', () => {
     expect(matchAffectedBy(graph, ['common.yaml'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['common.yaml#/components/schemas/Pet'],
-      markerIds: ['common.yaml#/components/schemas/Pet'],
       notes: [],
       warnings: [],
     });
   });
 
-  it('case 5: root file — changedIds gets all ids, markerIds only rootId, note emitted', () => {
+  it('case 5: root file — changedIds gets all ids, note emitted', () => {
     const result = matchAffectedBy(graph, ['openapi.yaml'], { cwd: CWD, rootId: ROOT_ID });
 
     const allIds = graph.nodes.map((n) => n.id);
     expect(result.changedIds).toEqual(allIds);
-    expect(result.markerIds).toEqual(['openapi.yaml']);
     expect(result.warnings).toEqual([]);
     expect(result.notes).toEqual([
       'openapi.yaml is the root document — the whole tree is affected.',
@@ -92,11 +86,6 @@ describe('matchAffectedBy', () => {
       'parameters/Pet',
       'schemas/Pet',
     ]);
-    expect(result.markerIds).toEqual([
-      'common.yaml#/components/schemas/Pet',
-      'parameters/Pet',
-      'schemas/Pet',
-    ]);
     expect(result.warnings).toEqual([]);
     expect(result.notes).toEqual([
       '"Pet" matches multiple components: common.yaml#/components/schemas/Pet, parameters/Pet, schemas/Pet — including all of them.',
@@ -106,7 +95,6 @@ describe('matchAffectedBy', () => {
   it('case 6b: bare component name matching exactly one — no note', () => {
     expect(matchAffectedBy(graph, ['Address'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['schemas/Address'],
-      markerIds: ['schemas/Address'],
       notes: [],
       warnings: [],
     });
@@ -115,7 +103,6 @@ describe('matchAffectedBy', () => {
   it('case 7: unknown input — empty arrays + warning', () => {
     expect(matchAffectedBy(graph, ['Ghost'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: [],
-      markerIds: [],
       notes: [],
       warnings: ['Ghost does not match any path, operation, or component of openapi.yaml.'],
     });
@@ -128,7 +115,6 @@ describe('matchAffectedBy', () => {
     });
 
     expect(result.changedIds).toEqual(['schemas/Address']);
-    expect(result.markerIds).toEqual(['schemas/Address']);
     expect(result.warnings).toEqual([
       'Ghost does not match any path, operation, or component of openapi.yaml.',
     ]);
@@ -143,11 +129,6 @@ describe('matchAffectedBy', () => {
       'parameters/Pet',
       'schemas/Pet',
     ]);
-    expect(result.markerIds).toEqual([
-      'common.yaml#/components/schemas/Pet',
-      'parameters/Pet',
-      'schemas/Pet',
-    ]);
   });
 
   it('warns for a pointer that maps to no node instead of bare-name matching', () => {
@@ -155,7 +136,6 @@ describe('matchAffectedBy', () => {
       matchAffectedBy(graph, ['#/components/schemas/Missing'], { cwd: CWD, rootId: 'openapi.yaml' })
     ).toEqual({
       changedIds: [],
-      markerIds: [],
       notes: [],
       warnings: [
         '#/components/schemas/Missing does not match any path, operation, or component of openapi.yaml.',
@@ -166,7 +146,6 @@ describe('matchAffectedBy', () => {
   it('does not bare-match non-component nodes', () => {
     expect(matchAffectedBy(graph, ['pets'], { cwd: CWD, rootId: 'openapi.yaml' })).toEqual({
       changedIds: [],
-      markerIds: [],
       notes: [],
       warnings: ['pets does not match any path, operation, or component of openapi.yaml.'],
     });
@@ -175,7 +154,6 @@ describe('matchAffectedBy', () => {
   it('points an unmatched file path to --files (structure mode is bundled)', () => {
     expect(matchAffectedBy(graph, ['paths/pets.yaml'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: [],
-      markerIds: [],
       notes: [],
       warnings: [
         'paths/pets.yaml does not match any path, operation, or component of openapi.yaml. For file-level analysis, use `--files`.',

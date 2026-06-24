@@ -1,3 +1,0 @@
-No files affected.
-
-components/schemas/Unknown.yaml is not referenced by any of the processed APIs.

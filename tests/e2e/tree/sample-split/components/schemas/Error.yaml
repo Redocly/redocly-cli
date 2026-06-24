@@ -1,4 +1,6 @@
 type: object
 properties:
-  city:
+  code:
+    type: integer
+  message:
     type: string

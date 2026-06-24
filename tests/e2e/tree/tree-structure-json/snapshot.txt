@@ -1,46 +1,37 @@
 {
-  "roots": [
-    "openapi.yaml"
-  ],
   "nodes": [
     {
-      "id": "/pets",
+      "id": "/orders",
       "resolved": true,
       "kind": "path",
       "file": "openapi.yaml"
     },
     {
-      "id": "/pets/{petId}",
+      "id": "/orders/{orderId}",
       "resolved": true,
       "kind": "path",
       "file": "openapi.yaml"
     },
     {
-      "id": "/users",
-      "resolved": true,
-      "kind": "path",
-      "file": "openapi.yaml"
-    },
-    {
-      "id": "GET /pets",
+      "id": "DELETE /orders/{orderId}",
       "resolved": true,
       "kind": "operation",
       "file": "openapi.yaml"
     },
     {
-      "id": "GET /pets/{petId}",
+      "id": "GET /orders",
       "resolved": true,
       "kind": "operation",
       "file": "openapi.yaml"
     },
     {
-      "id": "GET /users",
+      "id": "GET /orders/{orderId}",
       "resolved": true,
       "kind": "operation",
       "file": "openapi.yaml"
     },
     {
-      "id": "POST /pets",
+      "id": "POST /orders",
       "resolved": true,
       "kind": "operation",
       "file": "openapi.yaml"
@@ -53,126 +44,114 @@
       "root": true
     },
     {
-      "id": "parameters/PetId",
+      "id": "schemas/Error",
       "resolved": true,
       "kind": "component",
       "file": "openapi.yaml"
     },
     {
-      "id": "schemas/Address",
+      "id": "schemas/MenuItem",
       "resolved": true,
       "kind": "component",
       "file": "openapi.yaml"
     },
     {
-      "id": "schemas/Pet",
+      "id": "schemas/Order",
       "resolved": true,
       "kind": "component",
       "file": "openapi.yaml"
     },
     {
-      "id": "schemas/PetInput",
+      "id": "schemas/OrderList",
       "resolved": true,
       "kind": "component",
       "file": "openapi.yaml"
     },
     {
-      "id": "schemas/User",
+      "id": "schemas/OrderStatus",
       "resolved": true,
       "kind": "component",
       "file": "openapi.yaml"
     }
   ],
-  "edges": [
+  "links": [
     {
-      "from": "/pets",
-      "to": "GET /pets",
+      "source": "/orders",
+      "target": "GET /orders",
       "refs": []
     },
     {
-      "from": "/pets",
-      "to": "POST /pets",
+      "source": "/orders",
+      "target": "POST /orders",
       "refs": []
     },
     {
-      "from": "/pets/{petId}",
-      "to": "GET /pets/{petId}",
+      "source": "/orders/{orderId}",
+      "target": "DELETE /orders/{orderId}",
       "refs": []
     },
     {
-      "from": "/pets/{petId}",
-      "to": "parameters/PetId",
-      "refs": [
-        "#/components/parameters/PetId"
-      ]
-    },
-    {
-      "from": "/users",
-      "to": "GET /users",
+      "source": "/orders/{orderId}",
+      "target": "GET /orders/{orderId}",
       "refs": []
     },
     {
-      "from": "GET /pets",
-      "to": "schemas/Pet",
+      "source": "DELETE /orders/{orderId}",
+      "target": "schemas/Error",
       "refs": [
-        "#/components/schemas/Pet"
+        "#/components/schemas/Error"
       ]
     },
     {
-      "from": "GET /pets/{petId}",
-      "to": "schemas/Pet",
+      "source": "GET /orders",
+      "target": "schemas/OrderList",
       "refs": [
-        "#/components/schemas/Pet"
+        "#/components/schemas/OrderList"
       ]
     },
     {
-      "from": "GET /users",
-      "to": "schemas/User",
+      "source": "GET /orders/{orderId}",
+      "target": "schemas/Order",
       "refs": [
-        "#/components/schemas/User"
+        "#/components/schemas/Order"
       ]
     },
     {
-      "from": "POST /pets",
-      "to": "schemas/PetInput",
+      "source": "POST /orders",
+      "target": "schemas/Order",
       "refs": [
-        "#/components/schemas/PetInput"
+        "#/components/schemas/Order"
       ]
     },
     {
-      "from": "openapi.yaml",
-      "to": "/pets",
+      "source": "openapi.yaml",
+      "target": "/orders",
       "refs": []
     },
     {
-      "from": "openapi.yaml",
-      "to": "/pets/{petId}",
+      "source": "openapi.yaml",
+      "target": "/orders/{orderId}",
       "refs": []
     },
     {
-      "from": "openapi.yaml",
-      "to": "/users",
-      "refs": []
-    },
-    {
-      "from": "schemas/Pet",
-      "to": "schemas/Address",
+      "source": "schemas/Order",
+      "target": "schemas/MenuItem",
       "refs": [
-        "#/components/schemas/Address"
+        "#/components/schemas/MenuItem"
       ]
     },
     {
-      "from": "schemas/PetInput",
-      "to": "schemas/Pet",
+      "source": "schemas/Order",
+      "target": "schemas/OrderStatus",
       "refs": [
-        "#/components/schemas/Pet"
+        "#/components/schemas/OrderStatus"
       ]
     },
     {
-      "from": "schemas/User",
-      "to": "schemas/Address",
+      "source": "schemas/OrderList",
+      "target": "schemas/Order",
       "refs": [
-        "#/components/schemas/Address"
+        "#/components/schemas/Order"
       ]
     }
   ]
