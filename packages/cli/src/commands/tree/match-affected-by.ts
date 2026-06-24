@@ -24,27 +24,25 @@ export function matchAffectedBy(
 
   for (const input of inputs) {
     const rel = slash(path.relative(cwd, path.resolve(cwd, input)));
+    const pointer = input.startsWith('#') ? mapRootPointer(input, rootId) : undefined;
 
-    // Exact id wins — unless the input is the root file itself, which must fall through to the
-    // whole-tree branch below rather than matching only the root node.
-    if (nodeIds.has(input) && rel !== rootId) {
-      changedSet.add(input);
+    // The root — as the root file path or the `#/` pointer — affects the whole tree. Seed just the
+    // root id; `filterAffected` expands it to the full subtree.
+    if (rel === rootId || pointer?.id === rootId) {
+      changedSet.add(rootId);
+      notes.push(`${rootId} is the root document — the whole tree is affected.`);
       continue;
     }
 
-    if (input.startsWith('#')) {
-      const mapped = mapRootPointer(input, rootId);
-      if (nodeIds.has(mapped.id)) {
-        changedSet.add(mapped.id);
-        continue;
-      }
+    // Exact node id (shorthand) wins, tolerating a `./`-relative spelling.
+    const exactId = nodeIds.has(input) ? input : nodeIds.has(rel) ? rel : undefined;
+    if (exactId) {
+      changedSet.add(exactId);
+      continue;
     }
 
-    if (rel === rootId) {
-      for (const node of graph.nodes) {
-        changedSet.add(node.id);
-      }
-      notes.push(`${rootId} is the root document — the whole tree is affected.`);
+    if (pointer && nodeIds.has(pointer.id)) {
+      changedSet.add(pointer.id);
       continue;
     }
     const fileMatches = graph.nodes.filter((n) => n.file === rel).map((n) => n.id);

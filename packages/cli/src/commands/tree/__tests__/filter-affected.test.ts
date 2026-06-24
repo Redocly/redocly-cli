@@ -65,3 +65,52 @@ describe('filterAffected', () => {
     expect(filterAffected(graph, ['ghost.yaml'])).toEqual({ roots: [], nodes: [], edges: [] });
   });
 });
+
+describe('filterAffected — container seeds include their subtree', () => {
+  const structure: DependencyGraph = {
+    roots: ['openapi.yaml'],
+    nodes: [
+      { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
+      { id: '/pets', resolved: true, kind: 'path' },
+      { id: 'GET /pets', resolved: true, kind: 'operation' },
+      { id: 'schemas/Pet', resolved: true, kind: 'component' },
+      { id: 'schemas/Tag', resolved: true, kind: 'component' },
+      { id: '/other', resolved: true, kind: 'path' },
+      { id: 'GET /other', resolved: true, kind: 'operation' },
+    ],
+    edges: [
+      { from: 'openapi.yaml', to: '/pets', refs: [] },
+      { from: '/pets', to: 'GET /pets', refs: [] },
+      { from: 'GET /pets', to: 'schemas/Pet', refs: ['#/components/schemas/Pet'] },
+      { from: 'schemas/Pet', to: 'schemas/Tag', refs: ['#/components/schemas/Tag'] },
+      { from: 'openapi.yaml', to: '/other', refs: [] },
+      { from: '/other', to: 'GET /other', refs: [] },
+    ],
+  };
+
+  it('a path seed includes its operations and component chain (forward) plus the root (reverse)', () => {
+    const affected = filterAffected(structure, ['/pets']);
+    expect(affected.nodes.map((node) => node.id).sort()).toEqual([
+      '/pets',
+      'GET /pets',
+      'openapi.yaml',
+      'schemas/Pet',
+      'schemas/Tag',
+    ]);
+  });
+
+  it('a root seed yields the whole tree', () => {
+    const affected = filterAffected(structure, ['openapi.yaml']);
+    expect(affected.nodes.length).toBe(structure.nodes.length);
+  });
+
+  it('a component seed stays reverse-only — its users, not its own dependencies', () => {
+    const affected = filterAffected(structure, ['schemas/Pet']);
+    expect(affected.nodes.map((node) => node.id).sort()).toEqual([
+      '/pets',
+      'GET /pets',
+      'openapi.yaml',
+      'schemas/Pet',
+    ]);
+  });
+});

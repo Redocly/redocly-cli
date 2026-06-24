@@ -33,6 +33,14 @@ describe('matchAffectedBy', () => {
     });
   });
 
+  it('matches a shorthand id written with a leading ./', () => {
+    expect(matchAffectedBy(graph, ['./schemas/Address'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
+      changedIds: ['schemas/Address'],
+      notes: [],
+      warnings: [],
+    });
+  });
+
   it('case 2: exact id wins over bare-name logic — no ambiguity note', () => {
     expect(matchAffectedBy(graph, ['schemas/Pet'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: ['schemas/Pet'],
@@ -67,12 +75,20 @@ describe('matchAffectedBy', () => {
     });
   });
 
-  it('case 5: root file — changedIds gets all ids, note emitted', () => {
+  it('case 5: root file — changedIds gets just the root id (subtree expanded downstream), note emitted', () => {
     const result = matchAffectedBy(graph, ['openapi.yaml'], { cwd: CWD, rootId: ROOT_ID });
 
-    const allIds = graph.nodes.map((n) => n.id);
-    expect(result.changedIds).toEqual(allIds);
+    expect(result.changedIds).toEqual(['openapi.yaml']);
     expect(result.warnings).toEqual([]);
+    expect(result.notes).toEqual([
+      'openapi.yaml is the root document — the whole tree is affected.',
+    ]);
+  });
+
+  it('case 5b: root pointer `#/` behaves like the root file', () => {
+    const result = matchAffectedBy(graph, ['#/'], { cwd: CWD, rootId: ROOT_ID });
+
+    expect(result.changedIds).toEqual(['openapi.yaml']);
     expect(result.notes).toEqual([
       'openapi.yaml is the root document — the whole tree is affected.',
     ]);
