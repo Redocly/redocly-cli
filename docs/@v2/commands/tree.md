@@ -30,17 +30,16 @@ Use `--files` for the multi-API file graph.
 
 ## Options
 
-| Option        | Type     | Description                                                                                                                                                                                                                                                                      |
-| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis          | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                               |
-| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                 |
-| --files       | boolean  | Display the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                           |
-| --format      | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                      |
-| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                    |
-| --lint-config | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                               |
-| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                  |
-| --used-by     | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values. |
-| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                          |
+| Option       | Type     | Description                                                                                                                                                                                                                                                                      |
+| ------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| apis         | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                               |
+| --config     | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                 |
+| --files      | boolean  | Display the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                           |
+| --format     | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                      |
+| --help       | boolean  | Display help.                                                                                                                                                                                                                                                                    |     |
+| --output, -o | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                  |
+| --used-by    | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values. |
+| --version    | boolean  | Display version number.                                                                                                                                                                                                                                                          |
 
 ## Examples
 
@@ -150,13 +149,13 @@ menu.yaml
 {% /tab  %}
 {% /tabs  %}
 
-In `--files` mode, an unresolvable `$ref` is shown as `✗ not found`, and a URL reference is marked `(external)`:
+`✗ not found` and `(external)` appear only with `--files`. In the default view an unresolvable `$ref` is a bundling error instead (see _Invalid descriptions_ below), so this example must be run with `--files`:
 
 {% tabs %}
 {% tab label="API description" %}
 
 ```yaml
-# openapi.yaml
+# openapi.yaml — has a missing-file ref and an unreachable URL ref
 openapi: 3.2.0
 info:
   title: Cafe
