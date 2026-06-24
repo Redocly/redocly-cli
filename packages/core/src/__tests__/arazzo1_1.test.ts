@@ -20,7 +20,7 @@ describe('Arazzo 1.1 lint', () => {
             url: cafe.yaml
           - name: account-events
             type: asyncapi
-            url: ../../../../resources/asyncapi3.yaml
+            url: asyncapi3.yaml
         workflows:
           - workflowId: place-order
             inputs:
