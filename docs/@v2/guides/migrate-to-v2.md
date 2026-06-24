@@ -152,6 +152,23 @@ redocly join foo.yaml bar.yaml -o tmp.yaml
 redocly bundle tmp.yaml -o joined.yaml
 ```
 
+### Changes in YAML parsing behavior
+
+Since v2.0, Redocly CLI uses the latest specification when parsing YAML files (v1.2 at this time).
+This update changes how some YAML features are interpreted compared to v1.x:
+
+- Numbers with underscores are treated as strings (e.g. `3_14` is treated literally as a string instead of `314`).
+- Indentation requirements are stricter for mixed YAML and JSON content.
+  Everything related to a property must be indented, including the closing brace:
+
+  ```yaml
+  foo: {
+    bar: something
+  } # [!code --]
+    } # [!code ++]
+  baz: something else
+  ```
+
 ### Platform changes
 
 - **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
@@ -209,6 +226,7 @@ paths:
 1. **Update configurable rules** to use `rule/` prefix instead of `assert/`.
 1. **Replace `undefined` assertions** with `defined: true`.
 1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
+1. **Revise your YAML files** to comply with the latest YAML specification (v1.2).
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`
