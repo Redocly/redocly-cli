@@ -31,10 +31,9 @@ describe('build-docs', () => {
     expect(cleanupOutput(result)).toMatchInlineSnapshot(`
       "
       Found nested/redocly.yaml and using 'openapi' options
-      An unexpected error occurred. This is likely a bug that should be reported.
-      TypeError: Cannot read properties of undefined (reading 'redoc')
-          at handlerBuildCommand (file://./packages/cli/lib/commands/build-docs/index.js:23:58)
-          at async file://./packages/cli/lib/wrapper.js:60:17
+      Prerendering docs
+
+      🎉 bundled successfully in: nested/redoc-static.html (36 KiB) [⏱ <test>ms].
       "
     `);
 
@@ -56,10 +55,9 @@ describe('build-docs', () => {
       const result = getCommandOutput(args, { testPath });
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
-        An unexpected error occurred. This is likely a bug that should be reported.
-        TypeError: Cannot read properties of undefined (reading 'redoc')
-            at handlerBuildCommand (file://./packages/cli/lib/commands/build-docs/index.js:23:58)
-            at async file://./packages/cli/lib/wrapper.js:60:17
+        Prerendering docs
+
+        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -78,10 +76,9 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
         Found config.yaml and using 'openapi' options
-        An unexpected error occurred. This is likely a bug that should be reported.
-        TypeError: Cannot read properties of undefined (reading 'redoc')
-            at handlerBuildCommand (file://./packages/cli/lib/commands/build-docs/index.js:23:58)
-            at async file://./packages/cli/lib/wrapper.js:60:17
+        Prerendering docs
+
+        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -99,10 +96,9 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
         Found config-with-alias.yaml and using 'openapi' options
-        An unexpected error occurred. This is likely a bug that should be reported.
-        TypeError: Cannot read properties of undefined (reading 'redoc')
-            at handlerBuildCommand (file://./packages/cli/lib/commands/build-docs/index.js:23:58)
-            at async file://./packages/cli/lib/wrapper.js:60:17
+        Prerendering docs
+
+        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -120,10 +116,9 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
         Found config-with-alias.yaml and using 'openapi' options
-        An unexpected error occurred. This is likely a bug that should be reported.
-        TypeError: Cannot read properties of undefined (reading 'redoc')
-            at handlerBuildCommand (file://./packages/cli/lib/commands/build-docs/index.js:23:58)
-            at async file://./packages/cli/lib/wrapper.js:60:17
+        Prerendering docs
+
+        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -141,10 +136,9 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
-        An unexpected error occurred. This is likely a bug that should be reported.
-        TypeError: Cannot read properties of undefined (reading 'redoc')
-            at handlerBuildCommand (file://./packages/cli/lib/commands/build-docs/index.js:23:58)
-            at async file://./packages/cli/lib/wrapper.js:60:17
+        Prerendering docs
+
+        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
