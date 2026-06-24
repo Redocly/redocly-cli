@@ -276,5 +276,3 @@ export interface ArazzoDefinition {
     };
   };
 }
-
-export const VERSION_PATTERN = /^1\.0\.\d+(-.+)?$/;

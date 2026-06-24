@@ -1,5 +1,5 @@
 import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
-import { VERSION_PATTERN } from './typings/arazzo.js';
+import { VERSION_PATTERN } from './typings/overlay.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
@@ -67,7 +67,7 @@ export function detectSpec(root: unknown): SpecVersion {
     throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
   }
 
-  if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
+  if (typeof root.arazzo === 'string' && root.arazzo.startsWith('1.0.')) {
     return 'arazzo1';
   }
 
