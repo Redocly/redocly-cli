@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../..');
+const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
 const examplesDir = join(repoRoot, 'packages/openapi-typescript/examples');
