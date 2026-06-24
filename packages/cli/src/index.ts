@@ -96,12 +96,17 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'mermaid'] as ReadonlyArray<TreeFormat>,
+            choices: ['stylish', 'json', 'mermaid', 'dot'] as ReadonlyArray<TreeFormat>,
             default: 'stylish' as TreeFormat,
           },
-          'affected-by': {
+          output: {
+            alias: 'o',
+            description: 'Write the output to a file instead of stdout.',
+            type: 'string',
+          },
+          'used-by': {
             description:
-              'Show only the part of the tree affected by changes to the given components, paths, or files.',
+              'Show only the part of the tree that uses (depends on) the given components, paths, or files.',
             array: true,
             type: 'string',
             requiresArg: true,

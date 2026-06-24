@@ -3,13 +3,11 @@ openapi.yaml
 │   ├── GET
 │   │   └── schemas/OrderList
 │   │       └── schemas/Order
-│   │           ├── schemas/MenuItem
-│   │           └── schemas/OrderStatus
 │   └── POST
 │       └── schemas/Order
 └── /orders/{orderId}
-    ├── DELETE
-    │   └── schemas/Error
     └── GET
         └── schemas/Order
+
+3 of 4 operations affected · affected paths: /orders, /orders/{orderId}
 

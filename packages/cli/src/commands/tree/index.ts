@@ -12,6 +12,7 @@ import {
   type ResolvedRefMap,
   type SpecVersion,
 } from '@redocly/openapi-core';
+import { writeFileSync } from 'node:fs';
 import * as path from 'node:path';
 
 import type { Entrypoint, VerifyConfigOptions } from '../../types.js';
@@ -22,6 +23,8 @@ import { buildGraph } from './build-graph.js';
 import { buildStructureGraph } from './build-structure.js';
 import { filterAffected } from './filter-affected.js';
 import { matchAffectedBy } from './match-affected-by.js';
+import { commonDir } from './node-id.js';
+import { renderDot } from './print/dot.js';
 import { renderJson } from './print/json.js';
 import { renderMermaid } from './print/mermaid.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
@@ -30,7 +33,8 @@ import type { DependencyGraph, TreeFormat } from './types.js';
 export type TreeArgv = {
   apis?: string[];
   format: TreeFormat;
-  'affected-by'?: string[];
+  output?: string;
+  'used-by'?: string[];
   files?: boolean;
 } & VerifyConfigOptions;
 
@@ -116,16 +120,20 @@ async function handleFilesMode({
     resolutions.push({ rootDocument, refMap });
   }
 
+  const base = commonDir(
+    resolutions.map(({ rootDocument }) => path.dirname(rootDocument.source.absoluteRef))
+  );
+
   const graph = buildGraph(resolutions, {
-    cwd,
-    resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
+    base,
+    resolveRef: (refBase, uri) => externalRefResolver.resolveExternalRef(refBase, uri),
   });
 
   let printedGraph = graph;
   let stylishOptions: StylishOptions = {};
-  if (argv['affected-by']) {
-    const changedIds = argv['affected-by'].map((file) =>
-      slash(path.relative(cwd, path.resolve(cwd, file)))
+  if (argv['used-by']) {
+    const changedIds = argv['used-by'].map((file) =>
+      slash(path.relative(base, path.resolve(cwd, file)))
     );
     const knownIds = new Set(graph.nodes.map((node) => node.id));
     for (const id of changedIds) {
@@ -136,14 +144,13 @@ async function handleFilesMode({
     const knownChanged = changedIds.filter((id) => knownIds.has(id));
     printedGraph = filterAffected(graph, knownChanged);
     stylishOptions = {
-      changed: knownChanged,
       summary: `${printedGraph.nodes.length} of ${graph.nodes.length} files affected · affected roots: ${
         printedGraph.roots.join(', ') || 'none'
       }`,
     };
   }
 
-  renderOutput(printedGraph, argv.format, stylishOptions);
+  renderOutput(printedGraph, argv, stylishOptions);
 }
 
 async function handleStructureMode({
@@ -161,7 +168,7 @@ async function handleStructureMode({
     externalRefResolver,
   });
 
-  const graph = await buildStructureGraph({
+  const { graph, problems } = await buildStructureGraph({
     rootDocument,
     specVersion,
     types,
@@ -170,14 +177,21 @@ async function handleStructureMode({
     cwd,
   });
 
+  for (const problem of problems) {
+    logger.warn(`${problem.message}\n`);
+  }
+  if (problems.some((problem) => problem.severity === 'error')) {
+    return exitWithError(`Cannot display the tree: ${api.path} has bundling errors (see above).`);
+  }
+
   // Structure mode resolves exactly one API (handleTree rejects more), so there is a single root.
   const rootId = graph.roots[0];
 
   let printedGraph = graph;
   let stylishOptions: StylishOptions = {};
 
-  if (argv['affected-by']) {
-    const match = matchAffectedBy(graph, argv['affected-by'], { cwd, rootId });
+  if (argv['used-by']) {
+    const match = matchAffectedBy(graph, argv['used-by'], { cwd, rootId });
 
     for (const note of match.notes) {
       logger.warn(note + '\n');
@@ -201,28 +215,41 @@ async function handleStructureMode({
         : `${printedGraph.nodes.length} of ${graph.nodes.length} nodes affected`;
 
     stylishOptions = {
-      changed: match.markerIds,
       summary,
       emptyMessage: 'No nodes affected.',
     };
   }
 
-  renderOutput(printedGraph, argv.format, stylishOptions);
+  renderOutput(printedGraph, argv, stylishOptions);
 }
 
 function renderOutput(
   graph: DependencyGraph,
-  format: TreeFormat,
+  argv: TreeArgv,
   stylishOptions: StylishOptions
 ): void {
+  const rendered = renderGraph(graph, argv.format, stylishOptions);
+  if (argv.output) {
+    writeFileSync(argv.output, rendered + '\n');
+    logger.info(`Tree written to ${argv.output}\n`);
+    return;
+  }
+  logger.output(rendered + '\n');
+}
+
+function renderGraph(
+  graph: DependencyGraph,
+  format: TreeFormat,
+  stylishOptions: StylishOptions
+): string {
   switch (format) {
     case 'json':
-      logger.output(renderJson(graph) + '\n');
-      break;
+      return renderJson(graph);
     case 'mermaid':
-      logger.output(renderMermaid(graph) + '\n');
-      break;
+      return renderMermaid(graph);
+    case 'dot':
+      return renderDot(graph);
     default:
-      logger.output(renderStylish(graph, stylishOptions) + '\n');
+      return renderStylish(graph, stylishOptions);
   }
 }

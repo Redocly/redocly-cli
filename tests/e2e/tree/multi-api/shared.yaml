@@ -1,0 +1,7 @@
+components:
+  schemas:
+    Shared:
+      type: object
+      properties:
+        id:
+          type: string

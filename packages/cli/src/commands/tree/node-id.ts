@@ -14,6 +14,19 @@ export function toNodeId(absoluteRef: string, cwd: string): string {
   return isAbsoluteUrl(absoluteRef) ? absoluteRef : slash(path.relative(cwd, absoluteRef));
 }
 
+export function commonDir(dirs: string[]): string {
+  if (dirs.length === 0) return '';
+  const segmented = dirs.map((dir) => slash(dir).split('/'));
+  const [first, ...rest] = segmented;
+  let end = first.length;
+  for (const parts of rest) {
+    let i = 0;
+    while (i < end && parts[i] === first[i]) i++;
+    end = i;
+  }
+  return first.slice(0, end).join('/') || '/';
+}
+
 export const OPERATION_METHODS = new Set([
   'get',
   'put',

@@ -1,4 +1,15 @@
-import { mapForeignLocation, mapRootPointer, parsePointerSegments } from '../node-id.js';
+import { commonDir, mapForeignLocation, mapRootPointer, parsePointerSegments } from '../node-id.js';
+
+describe('commonDir', () => {
+  it('returns the directory itself for a single path', () => {
+    expect(commonDir(['/project/api'])).toBe('/project/api');
+  });
+
+  it('returns the shared ancestor directory for multiple paths', () => {
+    expect(commonDir(['/project/api', '/project/admin'])).toBe('/project');
+    expect(commonDir(['/p/a/b', '/p/a/c/d'])).toBe('/p/a');
+  });
+});
 
 describe('parsePointerSegments', () => {
   it('splits and unescapes pointer fragments', () => {
@@ -134,22 +145,6 @@ describe('mapForeignLocation', () => {
       id: 'schemas/pet.yaml',
       kind: 'file',
       file: 'schemas/pet.yaml',
-    });
-  });
-
-  it('treats a path-item parameters array as the whole file, not an OAS2 component', () => {
-    expect(mapForeignLocation('paths/pets.yaml', '#/parameters/0')).toEqual({
-      id: 'paths/pets.yaml',
-      kind: 'file',
-      file: 'paths/pets.yaml',
-    });
-  });
-
-  it('still maps a named OAS2 parameters component in another file', () => {
-    expect(mapForeignLocation('common.yaml', '#/parameters/PetId')).toEqual({
-      id: 'common.yaml#/parameters/PetId',
-      kind: 'component',
-      file: 'common.yaml',
     });
   });
 

@@ -10,6 +10,7 @@ import {
   type Document,
   type Location,
   type NormalizedNodeType,
+  type NormalizedProblem,
   type Oas3Visitor,
   type ResolvedRefMap,
   type SpecVersion,
@@ -35,10 +36,10 @@ export async function buildStructureGraph(options: {
   config: Config;
   externalRefResolver: BaseResolver;
   cwd: string;
-}): Promise<DependencyGraph> {
+}): Promise<{ graph: DependencyGraph; problems: NormalizedProblem[] }> {
   const { rootDocument, specVersion, types, config, externalRefResolver, cwd } = options;
 
-  const { bundle } = await bundleDocument({
+  const { bundle, problems } = await bundleDocument({
     document: rootDocument,
     config,
     types: getTypes(specVersion),
@@ -53,7 +54,7 @@ export async function buildStructureGraph(options: {
 
   const ctx: WalkContext = { problems: [], specVersion, config, visitorsData: {} };
 
-  return walkStructure({
+  const graph = walkStructure({
     document: bundle,
     types,
     resolvedRefMap,
@@ -61,6 +62,8 @@ export async function buildStructureGraph(options: {
     cwd,
     resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
   });
+
+  return { graph, problems };
 }
 
 export function walkStructure(options: {

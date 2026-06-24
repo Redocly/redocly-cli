@@ -1,7 +1,0 @@
-openapi.yaml
-└── paths/users.yaml
-    └── components/schemas/User.yaml
-        └── components/schemas/Address.yaml ← changed
-
-4 of 6 files affected · affected roots: openapi.yaml
-

@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: B
+  version: '1.0'
+paths:
+  /b:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: ./shared.yaml#/components/schemas/Shared

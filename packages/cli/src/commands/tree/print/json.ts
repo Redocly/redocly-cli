@@ -1,5 +1,9 @@
 import type { DependencyGraph } from '../types.js';
 
 export function renderJson(graph: DependencyGraph): string {
-  return JSON.stringify(graph, null, 2);
+  const data = {
+    nodes: graph.nodes,
+    links: graph.edges.map(({ from, to, refs }) => ({ source: from, target: to, refs })),
+  };
+  return JSON.stringify(data, null, 2);
 }

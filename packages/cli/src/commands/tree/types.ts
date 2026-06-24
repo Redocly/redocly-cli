@@ -1,4 +1,4 @@
-export type TreeFormat = 'stylish' | 'json' | 'mermaid';
+export type TreeFormat = 'stylish' | 'json' | 'mermaid' | 'dot';
 
 export type NodeKind = 'root' | 'path' | 'operation' | 'component' | 'file';
 

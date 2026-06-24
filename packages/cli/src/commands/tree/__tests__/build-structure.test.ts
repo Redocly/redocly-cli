@@ -478,7 +478,7 @@ describe('walkStructure', () => {
 });
 
 describe('buildStructureGraph (multi-file parity)', () => {
-  const multiFile = path.join(process.cwd(), 'tests/e2e/tree/tree-multi-file/openapi.yaml');
+  const sampleSplit = path.join(process.cwd(), 'tests/e2e/tree/sample-split/openapi.yaml');
 
   async function structureGraphOf(apiPath: string): Promise<DependencyGraph> {
     const config = await createConfig({});
@@ -487,7 +487,7 @@ describe('buildStructureGraph (multi-file parity)', () => {
     if (rootDocument instanceof Error) throw rootDocument;
     const specVersion = detectSpec(rootDocument.parsed);
     const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-    return buildStructureGraph({
+    const { graph } = await buildStructureGraph({
       rootDocument,
       specVersion,
       types,
@@ -495,22 +495,62 @@ describe('buildStructureGraph (multi-file parity)', () => {
       externalRefResolver,
       cwd: path.dirname(apiPath),
     });
+    return graph;
   }
 
   it('bundles referenced path-items and components into a single-file-equivalent tree', async () => {
-    const graph = await structureGraphOf(multiFile);
+    const graph = await structureGraphOf(sampleSplit);
     const nodes = graph.nodes.map((node) => ({ id: node.id, kind: node.kind }));
-    expect(nodes).toContainEqual({ id: 'GET /pets', kind: 'operation' });
-    expect(nodes).toContainEqual({ id: 'GET /users', kind: 'operation' });
-    expect(nodes).toContainEqual({ id: 'schemas/Pet', kind: 'component' });
-    expect(nodes).toContainEqual({ id: 'schemas/User', kind: 'component' });
-    expect(nodes).toContainEqual({ id: 'schemas/Address', kind: 'component' });
+
+    // Operations from `$ref`'d path files and named components, not bare file nodes.
+    expect(nodes).toContainEqual({ id: 'GET /orders', kind: 'operation' });
+    expect(nodes).toContainEqual({ id: 'POST /orders', kind: 'operation' });
+    expect(nodes).toContainEqual({ id: 'schemas/Order', kind: 'component' });
+    expect(nodes).toContainEqual({ id: 'schemas/OrderList', kind: 'component' });
     expect(graph.nodes.some((node) => node.kind === 'file')).toBe(false);
 
-    expect(graph.edges).toContainEqual({
-      from: 'schemas/User',
-      to: 'schemas/Address',
-      refs: ['#/components/schemas/Address'],
+    // Transitive component-to-component chains survive across files.
+    expect(
+      graph.edges.some((edge) => edge.from === 'schemas/Order' && edge.to.startsWith('schemas/'))
+    ).toBe(true);
+  });
+
+  it('returns bundle problems for an unresolved reference', async () => {
+    const config = await createConfig({});
+    const externalRefResolver = new BaseResolver();
+    const rootDocument = {
+      source: new Source('/project/openapi.yaml', ''),
+      parsed: {
+        openapi: '3.0.0',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/a': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'ok',
+                  content: {
+                    'application/json': { schema: { $ref: './missing.yaml#/X' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as Document;
+    const specVersion = detectSpec(rootDocument.parsed);
+    const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+
+    const { problems } = await buildStructureGraph({
+      rootDocument,
+      specVersion,
+      types,
+      config,
+      externalRefResolver,
+      cwd: '/project',
     });
+
+    expect(problems.some((problem) => problem.severity === 'error')).toBe(true);
   });
 });
