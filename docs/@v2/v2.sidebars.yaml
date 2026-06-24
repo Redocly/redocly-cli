@@ -158,7 +158,6 @@
             - page: rules/openrpc/spec-no-required-params-after-optional.md
             - separator: Arazzo
             - page: rules/respect/no-criteria-xpath.md
-            - page: rules/respect/respect-supported-versions.md
             - page: rules/respect/no-x-security-both-scheme-and-scheme-name.md
             - page: rules/respect/no-x-security-scheme-name-without-openapi.md
             - page: rules/respect/x-security-scheme-name-reference.md
@@ -168,6 +167,7 @@
             - page: rules/arazzo/requestBody-replacements-unique.md
             - page: rules/arazzo/sourceDescription-name-unique.md
             - page: rules/arazzo/sourceDescription-type.md
+            - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md

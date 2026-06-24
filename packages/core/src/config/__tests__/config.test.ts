@@ -32,6 +32,7 @@ describe('Config.forAlias', () => {
         "configPath": "redocly.yaml",
         "decorators": {
           "arazzo1": {},
+          "arazzo1_1": {},
           "async2": {},
           "async3": {},
           "oas2": {},
@@ -73,6 +74,7 @@ describe('Config.forAlias', () => {
         "plugins": [],
         "preprocessors": {
           "arazzo1": {},
+          "arazzo1_1": {},
           "async2": {},
           "async3": {},
           "oas2": {},
@@ -92,6 +94,9 @@ describe('Config.forAlias', () => {
           "arazzo1Decorators": {},
           "arazzo1Preprocessors": {},
           "arazzo1Rules": {},
+          "arazzo1_1Decorators": {},
+          "arazzo1_1Preprocessors": {},
+          "arazzo1_1Rules": {},
           "async2Decorators": {},
           "async2Preprocessors": {},
           "async2Rules": {},
@@ -133,6 +138,10 @@ describe('Config.forAlias', () => {
         "resolvedRefMap": Map {},
         "rules": {
           "arazzo1": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "arazzo1_1": {
             "no-empty-servers": "error",
             "operation-summary": "warn",
           },
