@@ -514,21 +514,13 @@ async function* __sse<T>(config: ClientConfig, url: string, init: SseOptions, da
         if (signal?.aborted)
             return;
         const sendHeaders = lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
-        let response: Response;
         try {
-            ({ response } = await __send(config, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders }));
-        }
-        catch (error) {
-            if (signal?.aborted)
-                return;
-            throw error;
-        }
-        if (!response.ok) {
-            const errorBody = await readError(response);
-            throw new ApiError(url, response.status, response.statusText, errorBody);
-        }
-        failures = 0;
-        try {
+            const { response } = await __send(config, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders });
+            if (!response.ok) {
+                const errorBody = await readError(response);
+                throw new ApiError(url, response.status, response.statusText, errorBody);
+            }
+            failures = 0;
             const body = response.body;
             if (!body)
                 return;
@@ -579,6 +571,12 @@ async function* __sse<T>(config: ClientConfig, url: string, init: SseOptions, da
         catch (error) {
             if (signal?.aborted)
                 return;
+            // A non-OK HTTP response is a definitive error (4xx/5xx), not a transient drop —
+            // surface it instead of reconnecting in a loop.
+            if (error instanceof ApiError)
+                throw error;
+            // A transport failure (connect/DNS/reset) when opening the request, or a mid-stream
+            // read error, is a dropped connection: fall through to backoff/reconnect when enabled.
             if (!reconnect)
                 throw error;
         }

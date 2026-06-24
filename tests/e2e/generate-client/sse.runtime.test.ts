@@ -17,6 +17,7 @@ const serverScript = join(consumerDir, 'server.ts');
 const indexScript = join(consumerDir, 'index.ts');
 const abortScript = join(consumerDir, 'index-abort.ts');
 const finiteScript = join(consumerDir, 'index-finite.ts');
+const connectRetryScript = join(consumerDir, 'index-connect-retry.ts');
 
 const SERVER_PORT = 3104;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
@@ -145,6 +146,30 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     expect(parsed.finished).toBe(true);
     expect(parsed.events).toEqual(['a', 'b', 'c']);
     expect(parsed.ids).toEqual(['1', '2', '3']);
+  }, 30_000);
+
+  test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', () => {
+    const runResult = spawnSync('npx', ['tsx', connectRetryScript], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 20_000,
+    });
+    expect(
+      runResult.status,
+      `connect-retry consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      calls: number;
+      events: string[];
+      finished: boolean;
+    };
+
+    // The first __send threw (simulated connection failure); the iterator reconnected
+    // and the second attempt streamed the event, then finished.
+    expect(parsed.calls).toBe(2);
+    expect(parsed.events).toEqual(['a']);
+    expect(parsed.finished).toBe(true);
   }, 30_000);
 
   test('abort: aborting the stream via AbortSignal completes the loop without throwing', () => {
