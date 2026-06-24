@@ -53,26 +53,45 @@ redocly tree cafe.yaml
 ```treeview
 cafe.yaml
 ├── /menu
-│   └── GET
-│       ├── responses/BadRequest
-│       │   └── schemas/Error
-│       └── schemas/MenuItemList
-│           ├── schemas/MenuItem
-│           │   ├── schemas/Beverage
-│           │   │   └── schemas/MenuBaseItem
-│           │   └── schemas/Dessert
-│           │       └── schemas/MenuBaseItem
-│           └── schemas/Page
-├── /orders
 │   ├── GET
-│   │   └── schemas/OrderList
-│   │       └── schemas/Order
+│   │   ├── parameters/After
+│   │   ├── parameters/Before
+│   │   ├── parameters/Filter
+│   │   ├── parameters/Limit
+│   │   ├── parameters/Search
+│   │   ├── parameters/Sort
+│   │   ├── responses/BadRequest
+│   │   │   └── schemas/Error
+│   │   ├── responses/InternalServerError
+│   │   │   └── schemas/Error
+│   │   └── schemas/MenuItemList
+│   │       ├── schemas/MenuItem
+│   │       │   ├── schemas/Beverage
+│   │       │   │   └── schemas/MenuBaseItem
+│   │       │   └── schemas/Dessert
+│   │       │       └── schemas/MenuBaseItem
+│   │       └── schemas/Page
 │   └── POST
-│       └── schemas/Order
+│       ├── responses/BadRequest
+│       ├── responses/Conflict
+│       │   └── schemas/Error
+│       ├── responses/Forbidden
+│       │   └── schemas/Error
+│       ├── responses/InternalServerError
+│       ├── responses/Unauthorized
+│       │   └── schemas/Error
+│       └── schemas/MenuItem
+├── /menu-item-images/{menuItemId}
+│   ├── GET
+│   │   ├── parameters/PhotoSize
+│   │   ├── responses/InternalServerError
+│   │   └── responses/NotFound
+│   │       └── schemas/Error
+│   └── parameters/MenuItemId
 └── … (other paths)
 ```
 
-The tree above is abbreviated for readability — shared parameters and the repeated error responses are omitted.
+The tree above is truncated for readability (`… (other paths)`); the full output lists every path.
 An operation is shown as the method only (`GET`) under its path, since the path is its parent.
 
 Markers legend:
@@ -80,6 +99,103 @@ Markers legend:
 - `↺` — a cycle: the node references one of its ancestors (a recursive schema). It is not expanded again. A node that simply appears in more than one place (fan-in) is shown without a marker.
 - `✗ not found` — an unresolvable `$ref` (only in `--files` mode; in the default view an unresolvable `$ref` is an error, see below)
 - `(external)` — a reference to a URL
+
+A recursive schema produces the `↺` marker:
+
+{% tabs %}
+{% tab label="API description" %}
+
+```yaml
+# menu.yaml
+openapi: 3.2.0
+info:
+  title: Cafe menu
+  version: 1.0.0
+paths:
+  /menu:
+    get:
+      responses:
+        '200':
+          description: A menu section with nested subsections.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuSection'
+components:
+  schemas:
+    MenuSection:
+      type: object
+      properties:
+        name:
+          type: string
+        subsections:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuSection'
+```
+
+{% /tab  %}
+{% tab label="Output" %}
+
+```treeview
+menu.yaml
+└── /menu
+    └── GET
+        └── schemas/MenuSection
+            └── schemas/MenuSection ↺
+```
+
+`MenuSection` references itself, so the repeat is marked `↺` and not expanded again.
+
+{% /tab  %}
+{% /tabs  %}
+
+In `--files` mode, an unresolvable `$ref` is shown as `✗ not found`, and a URL reference is marked `(external)`:
+
+{% tabs %}
+{% tab label="API description" %}
+
+```yaml
+# openapi.yaml
+openapi: 3.2.0
+info:
+  title: Cafe
+  version: 1.0.0
+paths:
+  /orders:
+    get:
+      responses:
+        '200':
+          description: An order.
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/Order.yaml'
+        '500':
+          description: Shared remote error.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://example.com/schemas/Error.yaml'
+```
+
+{% /tab  %}
+{% tab label="Output" %}
+
+```bash
+redocly tree openapi.yaml --files
+```
+
+```treeview
+openapi.yaml
+├── https://example.com/schemas/Error.yaml (external) ✗ not found
+└── schemas/Order.yaml ✗ not found
+```
+
+`schemas/Order.yaml` does not exist, so it is `✗ not found`. The URL is `(external)`; here it is also unreachable, so it is `✗ not found` too.
+
+{% /tab  %}
+{% /tabs  %}
 
 The default view bundles the description, so components and operations split across files are resolved to their canonical place.
 A multi-file API therefore produces the same tree as its single-file equivalent — operations and named components, not file nodes.
@@ -97,11 +213,15 @@ cafe.yaml
 ├── /orders
 │   ├── GET
 │   │   └── schemas/OrderList
-│   │       └── schemas/Order│   └── POST
-│       └── schemas/Order└── /orders/{orderId}
+│   │       └── schemas/Order
+│   └── POST
+│       └── schemas/Order
+└── /orders/{orderId}
     ├── GET
-    │   └── schemas/Order    └── PATCH
+    │   └── schemas/Order
+    └── PATCH
         └── schemas/Order
+
 4 of 12 operations affected · affected paths: /orders, /orders/{orderId}
 ```
 
@@ -113,38 +233,132 @@ cafe.yaml
 - a file path (in `--files` mode): `components/schemas/Order.yaml`
 - the root file itself: the whole tree is affected
 
+Examples of the different input forms:
+
+```bash
+# full JSON pointer
+redocly tree cafe.yaml --used-by '#/components/schemas/Order'
+
+# shorthand pointer (the node id)
+redocly tree cafe.yaml --used-by schemas/Order
+
+# bare component name — matches any component with that name
+redocly tree cafe.yaml --used-by Order
+
+# several values at once — repeat the flag
+redocly tree cafe.yaml --used-by schemas/Order --used-by schemas/MenuItem
+
+# file-level: which files depend on a given file
+redocly tree cafe.yaml --files --used-by components/schemas/Order.yaml
+```
+
 The summary line reports how many operations are affected.
 A change that only affects path-level parameters can report `0 of N operations affected` while still listing the affected path: the path itself is impacted, not its operations.
 For AsyncAPI or Arazzo descriptions, which have no operation nodes, the summary counts nodes instead — for example, `5 of 8 nodes affected`.
 
-A file path that matches no node prints a warning and points you to `--files`; other unknown inputs print a warning. Both exit with code `0`.
+An unknown `--used-by` value (a typo, or a component that no longer exists) prints a warning and still exits with code `0`, so a stale query never fails a CI run.
+A file path that matches nothing also points you to `--files`.
 
 ### Machine-readable output
 
-```bash
-redocly tree cafe.yaml --format=json
+`--format` produces output for other tools: `json`, `mermaid`, or `dot`.
+
+{% tabs %}
+{% tab label="API description" %}
+
+```yaml
+# orders.yaml
+openapi: 3.2.0
+info:
+  title: Cafe orders
+  version: 1.0.0
+paths:
+  /orders:
+    get:
+      responses:
+        '200':
+          description: An order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        total:
+          type: number
 ```
 
-Prints the graph as JSON in the common `nodes`/`links` shape (compatible with D3, force-graph, and similar tools). Every node carries `resolved` and `external`; `kind` and `file` are present in the default view. Each link carries the exact `$ref` strings.
+{% /tab  %}
+{% tab label="json" %}
 
-```bash
-redocly tree cafe.yaml --format=mermaid
+The graph in the common `nodes`/`links` shape (compatible with D3, force-graph, and similar tools).
+Every node carries `resolved` and `external`; `kind` and `file` are present in the default view.
+Each link carries the exact `$ref` strings.
+
+```json
+{
+  "nodes": [
+    { "id": "/orders", "resolved": true, "kind": "path", "file": "orders.yaml" },
+    { "id": "GET /orders", "resolved": true, "kind": "operation", "file": "orders.yaml" },
+    { "id": "orders.yaml", "resolved": true, "kind": "root", "file": "orders.yaml", "root": true },
+    { "id": "schemas/Order", "resolved": true, "kind": "component", "file": "orders.yaml" }
+  ],
+  "links": [
+    { "source": "/orders", "target": "GET /orders", "refs": [] },
+    { "source": "GET /orders", "target": "schemas/Order", "refs": ["#/components/schemas/Order"] },
+    { "source": "orders.yaml", "target": "/orders", "refs": [] }
+  ]
+}
 ```
 
-Prints a [Mermaid](https://mermaid.js.org/) `flowchart` definition.
+{% /tab  %}
+{% tab label="mermaid" %}
 
-```bash
-redocly tree cafe.yaml --format=dot
+A [Mermaid](https://mermaid.js.org/) `flowchart` definition. It renders as:
+
+```mermaid
+flowchart LR
+  n0["/orders"]
+  n1["GET /orders"]
+  n2["orders.yaml"]:::root
+  n3["schemas/Order"]
+  n0 --> n1
+  n1 --> n3
+  n2 --> n0
+  classDef root font-weight:bold
 ```
 
-Prints a [Graphviz](https://graphviz.org/) `digraph`, consumable by Graphviz and most graph-drawing tools.
+{% /tab  %}
+{% tab label="dot" %}
+
+A [DOT](https://graphviz.org/doc/info/lang.html) `digraph`, consumable by Graphviz and most graph-drawing tools.
+
+```text
+digraph tree {
+  "/orders";
+  "GET /orders";
+  "orders.yaml" [shape=box, style=bold];
+  "schemas/Order";
+  "/orders" -> "GET /orders";
+  "GET /orders" -> "schemas/Order";
+  "orders.yaml" -> "/orders";
+}
+```
+
+{% /tab  %}
+{% /tabs  %}
 
 ### Write the output to a file
 
 Use `--output` (`-o`) to write any format to a file instead of `stdout`:
 
 ```bash
-redocly tree cafe.yaml --format=mermaid --output cafe.mmd
+redocly tree cafe.yaml --format=mermaid --output cafe.md
 ```
 
 ### Invalid descriptions
