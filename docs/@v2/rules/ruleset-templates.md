@@ -167,20 +167,7 @@ rules:
   tag-description: warn
 ```
 
-### Minimal ruleset: Arazzo 1.0
-
-```yaml
-rules:
-  no-enum-type-mismatch: warn
-  no-required-schema-properties-undefined: warn
-  no-schema-type-mismatch: warn
-  spec-step-mutually-exclusive-fields: warn
-  stepId-unique: error
-  struct: error
-  workflowId-unique: error
-```
-
-### Minimal ruleset: Arazzo 1.1
+### Minimal ruleset: Arazzo 1.0, Arazzo 1.1
 
 ```yaml
 rules:
