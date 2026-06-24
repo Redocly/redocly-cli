@@ -269,7 +269,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'outputs-defined': 'error',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'error',
-    'respect-supported-versions': 'off',
     'sourceDescription-name-unique': 'error',
     'sourceDescription-type': 'error',
     'sourceDescriptions-not-empty': 'error',

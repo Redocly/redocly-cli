@@ -11,7 +11,6 @@ import { Struct } from '../common/struct.js';
 import { NoCriteriaXpath } from '../respect/no-criteria-xpath.js';
 import { NoXSecurityBothSchemeAndSchemeName } from '../respect/no-x-security-both-scheme-and-scheme-name.js';
 import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
-import { RespectSupportedVersions } from '../respect/respect-supported-versions.js';
 import { XSecuritySchemeNameReference } from '../respect/x-security-scheme-name-reference.js';
 import { XSecuritySchemaRequiredValues } from '../respect/x-security-scheme-required-values.js';
 import { CriteriaUnique } from './criteria-unique.js';
@@ -41,7 +40,6 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'outputs-defined': OutputsDefined,
   'parameters-unique': ParametersUnique,
   'requestBody-replacements-unique': RequestBodyReplacementsUnique,
-  'respect-supported-versions': RespectSupportedVersions,
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,
   'sourceDescription-type': SourceDescriptionType,
   'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty,

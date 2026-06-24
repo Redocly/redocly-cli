@@ -158,7 +158,6 @@
             - page: rules/openrpc/spec-no-required-params-after-optional.md
             - separator: Arazzo
             - page: rules/respect/no-criteria-xpath.md
-            - page: rules/respect/respect-supported-versions.md
             - page: rules/respect/no-x-security-both-scheme-and-scheme-name.md
             - page: rules/respect/no-x-security-scheme-name-without-openapi.md
             - page: rules/respect/x-security-scheme-name-reference.md

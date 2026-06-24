@@ -267,5 +267,3 @@ export interface ArazzoDefinition {
 export const VERSION_PATTERN = /^1\.0\.\d+(-.+)?$/;
 
 export const ARAZZO_1_1_VERSION_PATTERN = /^1\.1\.\d+(-.+)?$/;
-
-export const ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT = ['1.0.1'];
