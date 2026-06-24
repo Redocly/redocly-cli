@@ -71,8 +71,7 @@ export function commandWrapper<T extends CommandArgv>(
         specFullVersion = undefined;
       }
 
-      const majorSpecVersion = getMajorSpecVersion(specVersion as SpecVersion);
-      if (majorSpecVersion === 'arazzo1') {
+      if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
         const arazzoDocument = document as Partial<ArazzoDefinition>;
         collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypes);
         collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
