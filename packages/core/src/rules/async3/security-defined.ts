@@ -50,7 +50,7 @@ export const SecurityDefined: Async3Rule = () => {
     if (applicableServers.length === 0) return false;
     return applicableServers.every((server) => {
       const serverNode = isRef(server) ? resolve<Async3Server>(server).node : server;
-      return Boolean(serverNode?.security);
+      return Array.isArray(serverNode?.security) && serverNode.security.length > 0;
     });
   };
 

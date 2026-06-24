@@ -440,6 +440,62 @@ describe('Async3 security-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should report when an applicable server has an empty security array', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '3.0.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            host: kafka.example.com
+            protocol: kafka
+            security: []
+        channels:
+          some/channel:
+            address: some/channel
+        operations:
+          sendMessage:
+            action: send
+            channel:
+              $ref: '#/channels/some~1channel'
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/operations/sendMessage",
+              "reportOnKey": true,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "Every operation should have security defined on it.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report when the operation channel is bound only to servers without security', async () => {
     const document = parseYamlToDocument(
       outdent`

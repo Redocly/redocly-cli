@@ -75,7 +75,10 @@ export const SecurityDefined: Async2Rule = () => {
     },
     Server(server: Async2Server, { key }: UserContext) {
       if (inComponents) return;
-      serverHasSecurity.set(key.toString(), Boolean(server?.security));
+      serverHasSecurity.set(
+        key.toString(),
+        Array.isArray(server?.security) && server.security.length > 0
+      );
     },
     Channel: {
       enter(channel: Async2Channel) {
