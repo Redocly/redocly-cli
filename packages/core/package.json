@@ -58,14 +58,13 @@
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^5.1.0",
     "picomatch": "^4.0.4",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
   "devDependencies": {
     "@types/js-levenshtein": "^1.1.0",
-    "@types/js-yaml": "^4.0.3",
     "@types/picomatch": "^4.0.2",
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",

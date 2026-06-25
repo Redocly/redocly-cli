@@ -635,7 +635,7 @@ describe('no-invalid-media-type-examples', () => {
                       example: {
                         "a": "test",
                         "b": "test"
-                      }
+                        }
                       schema:
                         $ref: '#/components/schemas/C'
 
