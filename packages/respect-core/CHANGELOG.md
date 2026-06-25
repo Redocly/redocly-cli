@@ -1,5 +1,11 @@
 # @redocly/respect-core
 
+## 2.35.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.35.1.
+
 ## 2.35.0
 
 ### Patch Changes

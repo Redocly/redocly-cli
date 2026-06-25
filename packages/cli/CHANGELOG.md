@@ -1,5 +1,11 @@
 # @redocly/cli
 
+## 2.35.1
+
+### Patch Changes
+
+- Updated `undici` to the `6.27.0` version.
+
 ## 2.35.0
 
 ### Minor Changes
