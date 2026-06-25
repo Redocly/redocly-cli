@@ -60,6 +60,35 @@ describe('GraphQL SDL linting', () => {
     `);
   });
 
+  it('reports a clear message for an empty document instead of a raw EOF syntax error', async () => {
+    const results = await lintFromString({
+      source: '   \n  ',
+      absoluteRef: 'schema.graphql',
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": undefined,
+              "source": "schema.graphql",
+              "start": {
+                "col": 1,
+                "line": 1,
+              },
+            },
+          ],
+          "message": "The GraphQL document is empty. Expected at least one type definition.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('reports schema-validity errors via the struct rule and suggests a correction if possible', async () => {
     const results = await lintFromString({
       source: outdent`

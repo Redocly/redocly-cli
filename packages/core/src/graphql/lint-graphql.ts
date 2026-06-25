@@ -22,6 +22,18 @@ export function lintGraphqlDocument(opts: {
   const { document, config } = opts;
   const source = document.source;
 
+  if (source.body.trim() === '') {
+    return [
+      {
+        ruleId: 'struct',
+        severity: 'error',
+        message: 'The GraphQL document is empty. Expected at least one type definition.',
+        suggest: [],
+        location: [{ source, pointer: undefined, start: { line: 1, col: 1 } }],
+      },
+    ];
+  }
+
   let ast: DocumentNode;
   try {
     ast = parse(new GraphqlSource(source.body, source.absoluteRef));
