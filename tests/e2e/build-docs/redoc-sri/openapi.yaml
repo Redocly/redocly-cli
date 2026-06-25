@@ -1,0 +1,227 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe
+tags:
+  - name: Products
+    description: Operations related to products.
+paths:
+  /menu:
+    get:
+      tags:
+        - Products
+      summary: List all menu items
+      description: Retrieve a collection of menu items with optional filtering and pagination.
+      operationId: listMenuItems
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  schemas:
+    Page:
+      type: object
+      properties:
+        endCursor:
+          type:
+            - string
+            - 'null'
+          description: |-
+            Use with the `after` query parameter to load the next page of data.
+            When `null`, there is no data.
+            The cursor is opaque and internal structure is subject to change.
+        startCursor:
+          type:
+            - string
+            - 'null'
+          description: |-
+            Use with the `before` query parameter to load the previous page of data.
+            When `null`, there is no data.
+            The cursor is opaque and internal structure is subject to change.
+        hasNextPage:
+          type: boolean
+          description: Indicates if there is a next page with items.
+        hasPrevPage:
+          type: boolean
+          description: Indicates if there is a previous page with items.
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          description: Value showing how many items are in the page limit.
+        total:
+          type: integer
+          description: Count of items across all pages.
+          minimum: 0
+      required:
+        - endCursor
+        - startCursor
+        - hasNextPage
+        - hasPrevPage
+        - limit
+        - total
+    MenuBaseItem:
+      type: object
+      properties:
+        createdAt:
+          description: Created date.
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          description: Updated date.
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          description: Menu item ID. Unique identifier prefixed with `prd_`.
+          type: string
+          readOnly: true
+          pattern: ^prd_[0-9abcdefghjkmnpqrstvwxyz]{26}$
+          example: prd_01h1s5z6vf2mm1mz3hevnn9va7
+        object:
+          description: Entity name.
+          type: string
+          const: menuItem
+          readOnly: true
+        name:
+          description: Menu item name.
+          type: string
+          minLength: 1
+          maxLength: 50
+        price:
+          description: Price in cents.
+          type: integer
+          minimum: 0
+        photo:
+          writeOnly: true
+          type:
+            - string
+            - 'null'
+          format: binary
+          description: Photo of the menu item. Must be a PNG image and less than 1MB.
+        photoUrl:
+          readOnly: true
+          type: string
+          format: uri
+          description: Photo URL of the menu item.
+        photoTextDescription:
+          type:
+            - string
+            - 'null'
+      required:
+        - id
+        - name
+        - price
+        - createdAt
+        - updatedAt
+        - object
+    Beverage:
+      allOf:
+        - type: object
+          properties:
+            category:
+              description: Menu item category.
+              type: string
+              const: beverage
+            volume:
+              type: number
+              description: Size of the beverage in milliliters.
+              exclusiveMinimum: 0
+            containsCaffeine:
+              type: boolean
+              description: Indicates if the beverage contains caffeine.
+          required:
+            - category
+            - volume
+            - containsCaffeine
+        - $ref: '#/components/schemas/MenuBaseItem'
+    Dessert:
+      allOf:
+        - type: object
+          properties:
+            category:
+              description: Menu item category.
+              type: string
+              const: dessert
+            calories:
+              type: number
+              exclusiveMinimum: 0
+              description: Amount of calories.
+          required:
+            - category
+            - calories
+        - $ref: '#/components/schemas/MenuBaseItem'
+    MenuItem:
+      discriminator:
+        propertyName: category
+        mapping:
+          beverage: '#/components/schemas/Beverage'
+          dessert: '#/components/schemas/Dessert'
+      oneOf:
+        - $ref: '#/components/schemas/Beverage'
+        - $ref: '#/components/schemas/Dessert'
+      required:
+        - category
+    MenuItemList:
+      type: object
+      properties:
+        object:
+          type: string
+          const: list
+          description: Entity name.
+        page:
+          $ref: '#/components/schemas/Page'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+      required:
+        - object
+        - page
+        - items
+    Error:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: URI reference that identifies the problem type.
+          default: about:blank
+        title:
+          type: string
+          description: Short summary of the problem type.
+        status:
+          type: integer
+          format: int32
+          description: |
+            HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          exclusiveMaximum: 600
+        instance:
+          type: string
+          format: uri-reference
+          description: |
+            URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type.
+            May be used to locate the root of this problem in the source code.
+          example: /some/uri-reference#specific-occurrence-context
+        details:
+          description: Additional error details.
+          type: object
+          additionalProperties: true
+      required:
+        - type
+        - title
+        - status
+  responses:
+    BadRequest:
+      description: Bad request - invalid input parameters.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
