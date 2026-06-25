@@ -1,9 +1,13 @@
 import { colorize } from '../logger.js';
 import { Location } from '../ref-utils.js';
-import { asserts, type AssertionFnContext } from '../rules/common/assertions/asserts.js';
+import {
+  asserts,
+  runOnKeysSet,
+  runOnValuesSet,
+  type AssertionFnContext,
+} from '../rules/common/assertions/asserts.js';
 import type { Assertion, AssertionDefinition } from '../rules/common/assertions/index.js';
 import {
-  getAssertsToApply,
   getFilenameFromPath,
   getProblemsMessage,
   interpolateMessagePlaceholders,
@@ -11,6 +15,7 @@ import {
 } from '../rules/common/assertions/utils.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
+import { keysOf } from '../utils/keys-of.js';
 import type { ProblemSeverity } from '../walk.js';
 import type {
   GraphqlNodeKind,
@@ -25,10 +30,20 @@ type WhereMatcher = {
   assertsToApply: AssertToApply[];
 };
 
-/**
- * GraphQL-native adapter for configurable rules. Reuses the shared `asserts` check functions
- * and `getAssertsToApply`, but targets GraphQL AST Kinds and reports by AST node.
- */
+// Duplicates the core of getAssertsToApply from rules/common/assertions/utils.ts.
+// The shared version also validates property usage (key-only vs value-only assertions),
+// which does not apply to GraphQL's AST semantics.
+function getGraphqlAssertsToApply(assertion: AssertionDefinition): AssertToApply[] {
+  return keysOf(asserts)
+    .filter((assertName) => assertion.assertions[assertName] !== undefined)
+    .map((assertName) => ({
+      name: assertName,
+      conditions: assertion.assertions[assertName],
+      runsOnKeys: runOnKeysSet.has(assertName),
+      runsOnValues: runOnValuesSet.has(assertName),
+    }));
+}
+
 export const GraphqlAssertions: GraphqlRule = (
   configurableRulesObject: Record<string, unknown>
 ): GraphqlVisitor[] => {
@@ -41,7 +56,7 @@ export const GraphqlAssertions: GraphqlRule = (
     const kind = assertion.subject?.type as GraphqlNodeKind | undefined;
     if (!kind) continue;
 
-    const assertsToApply = getAssertsToApply(assertion);
+    const assertsToApply = getGraphqlAssertsToApply(assertion);
     const whereMatchers = buildWhereMatchers(assertion);
 
     visitors.push({
@@ -67,16 +82,11 @@ function buildWhereMatchers(assertion: Assertion): WhereMatcher[] {
     return {
       kind: definition.subject.type as GraphqlNodeKind,
       definition,
-      assertsToApply: getAssertsToApply(definition),
+      assertsToApply: getGraphqlAssertsToApply(definition),
     };
   });
 }
 
-/**
- * Mirrors the OAS `where` semantics: matchers describe the context chain, outermost first,
- * and each must pass on an ancestor of its kind (in order) for the subject to be checked.
- * A trailing matcher of the subject's own kind narrows the subject node itself.
- */
 function matchesWhere(node: any, ctx: GraphqlUserContext, matchers: WhereMatcher[]): boolean {
   let ancestorMatchers = matchers;
 
@@ -125,7 +135,6 @@ function runGraphqlAssertion(
   const target = property === undefined ? node : node[property];
   const value = extractValue(node, assertion.subject.property);
 
-  // The shared asserts report against a `Location`; GraphQL reports by node, so it's unused.
   const baseLocation = new Location(ctx.source, '#/');
 
   const problems = assertsToApply.flatMap((assert) =>
@@ -163,28 +172,22 @@ function runGraphqlAssertion(
   });
 }
 
+function memberName(node: any): unknown {
+  return node?.name?.value ?? node?.value ?? node;
+}
+
 function extractValue(node: any, property: Assertion['subject']['property']): unknown {
   const single = singleProperty(property);
-  // Mirrors the OAS behavior: without `property`, key asserts run against the node's keys.
-  return single === undefined ? nodeKeys(node) : unwrapValue(node[single]);
-}
-
-// graphql-js nodes carry `kind`/`loc` bookkeeping and set absent optional fields to undefined; neither counts as a key of the GraphQL construct itself.
-function nodeKeys(node: any): string[] {
-  return Object.keys(node).filter(
-    (key) => key !== 'kind' && key !== 'loc' && node[key] !== undefined
-  );
-}
-
-function singleProperty(property: Assertion['subject']['property']): string | undefined {
-  return Array.isArray(property) ? property[0] : property;
-}
-
-// GraphQL name-bearing properties (e.g. `name`) are `{ kind, value }` nodes; unwrap to the scalar the asserts expect, leaving plain scalars untouched.
-function unwrapValue(target: unknown): unknown {
-  return isPlainObject(target) && 'value' in target ? target.value : target;
+  if (single === undefined) return memberName(node);
+  const target = node[single];
+  if (Array.isArray(target)) return target.map(memberName);
+  return memberName(target);
 }
 
 function isAstNode(target: unknown): boolean {
   return isPlainObject(target) && 'kind' in target;
+}
+
+function singleProperty(property: Assertion['subject']['property']): string | undefined {
+  return Array.isArray(property) ? property[0] : property;
 }
