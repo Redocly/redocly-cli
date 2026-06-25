@@ -36,6 +36,7 @@ Errors:
 - [spec-example-values](./oas/spec-example-values.md)
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
+- [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
 - [struct](./common/struct.md)
 - [workflow-dependsOn](./arazzo/workflow-dependsOn.md)

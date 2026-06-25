@@ -85,6 +85,7 @@ export class Config {
       async2: group({ ...resolvedConfig.rules, ...resolvedConfig.async2Rules }),
       async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
+      arazzo1_1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1_1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
       openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
     };
@@ -115,6 +116,10 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.arazzo1Preprocessors,
       },
+      arazzo1_1: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.arazzo1_1Preprocessors,
+      },
       overlay1: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
@@ -133,6 +138,7 @@ export class Config {
       async2: { ...resolvedConfig.decorators, ...resolvedConfig.async2Decorators },
       async3: { ...resolvedConfig.decorators, ...resolvedConfig.async3Decorators },
       arazzo1: { ...resolvedConfig.decorators, ...resolvedConfig.arazzo1Decorators },
+      arazzo1_1: { ...resolvedConfig.decorators, ...resolvedConfig.arazzo1_1Decorators },
       overlay1: {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
@@ -239,6 +245,7 @@ export class Config {
             extendedTypes = plugin.typeExtension.async3(extendedTypes, version);
             break;
           case 'arazzo1':
+          case 'arazzo1_1':
             if (!plugin.typeExtension.arazzo1) continue;
             extendedTypes = plugin.typeExtension.arazzo1(extendedTypes, version);
             break;
@@ -372,6 +379,17 @@ export class Config {
           (p) => p.decorators?.arazzo1 && arazzo1Rules.push(p.decorators.arazzo1)
         );
         return arazzo1Rules;
+      case 'arazzo1_1':
+        // eslint-disable-next-line no-case-declarations
+        const arazzo1_1Rules: Arazzo1RuleSet[] = [];
+        this.plugins.forEach(
+          (p) => p.preprocessors?.arazzo1_1 && arazzo1_1Rules.push(p.preprocessors.arazzo1_1)
+        );
+        this.plugins.forEach((p) => p.rules?.arazzo1_1 && arazzo1_1Rules.push(p.rules.arazzo1_1));
+        this.plugins.forEach(
+          (p) => p.decorators?.arazzo1_1 && arazzo1_1Rules.push(p.decorators.arazzo1_1)
+        );
+        return arazzo1_1Rules;
       case 'overlay1':
         // eslint-disable-next-line no-case-declarations
         const overlay1Rules: Overlay1RuleSet[] = [];
