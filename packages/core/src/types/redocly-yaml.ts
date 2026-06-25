@@ -489,7 +489,7 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
     properties: {
       type: {
         enum: [...new Set(['any', ...nodeNames, 'SpecExtension'])],
-        description: 'REQUIRED. Locates the OpenAPI node type that the lint command evaluates.',
+        description: 'REQUIRED. Locates the API node type that the lint command evaluates.',
         documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
       },
       property: (value: unknown) => {
@@ -498,7 +498,7 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
             type: 'array',
             items: { type: 'string' },
             description:
-              'Property name corresponding to the OpenAPI node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
+              'Property name corresponding to the API node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
             documentationLink:
               'https://redocly.com/docs/cli/rules/configurable-rules#property-example',
           };
@@ -508,7 +508,7 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
           return {
             type: 'string',
             description:
-              'Property name corresponding to the OpenAPI node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
+              'Property name corresponding to the API node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
             documentationLink:
               'https://redocly.com/docs/cli/rules/configurable-rules#property-example',
           };
