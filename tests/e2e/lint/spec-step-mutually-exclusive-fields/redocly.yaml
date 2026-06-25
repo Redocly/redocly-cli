@@ -1,0 +1,6 @@
+apis:
+  main:
+    root: ./arazzo.yaml
+
+rules:
+  spec-step-mutually-exclusive-fields: error

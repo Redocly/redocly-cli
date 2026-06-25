@@ -1,5 +1,7 @@
 name: Performance Benchmark Comment
 
+# Comments on fork PRs only. Same-repo PRs comment inline from performance.yaml (writable token).
+
 on:
   workflow_run:
     workflows: ['Performance Benchmark']
@@ -13,7 +15,8 @@ jobs:
   comment:
     if: >-
       github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Download benchmark result

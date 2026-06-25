@@ -3,6 +3,7 @@ import { SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
+  AsyncAPISourceDescription,
   CriterionObject,
   ExtendedOperation,
   InfoObject,
@@ -12,6 +13,7 @@ import type {
   Parameter,
   Replacement,
   RequestBody,
+  SelectorObject,
   SourceDescription,
   Step,
   Workflow,
@@ -273,6 +275,7 @@ type ArazzoFlatVisitor = {
   InfoObject?: VisitFunctionOrObject<InfoObject>;
   OpenAPISourceDescription?: VisitFunctionOrObject<OpenAPISourceDescription>;
   ArazzoSourceDescription?: VisitFunctionOrObject<ArazzoSourceDescription>;
+  AsyncAPISourceDescription?: VisitFunctionOrObject<AsyncAPISourceDescription>;
   SourceDescription?: VisitFunctionOrObject<SourceDescription>;
   ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
   Replacement?: VisitFunctionOrObject<Replacement>;
@@ -281,6 +284,7 @@ type ArazzoFlatVisitor = {
   OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
   OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
   Schema?: VisitFunctionOrObject<Oas3_1Schema>;
+  SelectorObject?: VisitFunctionOrObject<SelectorObject>;
   Step?: VisitFunctionOrObject<Step>;
   Steps?: VisitFunctionOrObject<Step[]>;
   Workflow?: VisitFunctionOrObject<Workflow>;
@@ -411,6 +415,9 @@ export type OpenRpc1Visitor = BaseVisitor &
 
 export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<any>>;
 
+export type ConfigVisitor = BaseVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, BaseVisitor>>;
+
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
@@ -440,6 +447,7 @@ export type OpenRpc1Rule = (options: Record<string, any>) => OpenRpc1Visitor | O
 export type CatalogEntityRule = (
   options: Record<string, any>
 ) => CatalogEntityVisitor | CatalogEntityVisitor[];
+export type ConfigRule = (options: Record<string, any>) => ConfigVisitor | ConfigVisitor[];
 export type Oas3Preprocessor = Oas3Decorator;
 export type Oas2Preprocessor = Oas2Decorator;
 export type Async2Preprocessor = Async2Decorator;
