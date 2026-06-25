@@ -31,8 +31,7 @@ type WhereMatcher = {
 };
 
 // Duplicates the core of getAssertsToApply from rules/common/assertions/utils.ts.
-// The shared version also validates property usage (key-only vs value-only assertions),
-// which does not apply to GraphQL's AST semantics.
+// Skips the OAS key/value guards, because keys-only asserts like required/disallowed legitimately run against a property here
 function getGraphqlAssertsToApply(assertion: AssertionDefinition): AssertToApply[] {
   return keysOf(asserts)
     .filter((assertName) => assertion.assertions[assertName] !== undefined)
@@ -90,9 +89,10 @@ function buildWhereMatchers(assertion: Assertion): WhereMatcher[] {
 function matchesWhere(node: any, ctx: GraphqlUserContext, matchers: WhereMatcher[]): boolean {
   let ancestorMatchers = matchers;
 
-  const last = matchers.at(-1);
-  if (last && last.kind === node.kind) {
-    if (!passesAsserts(node, last, ctx)) return false;
+  // A trailing `where` entry of the subject's own type constrains the node itself, not an ancestor.
+  const lastMatcher = matchers.at(-1);
+  if (lastMatcher && lastMatcher.kind === node.kind) {
+    if (!passesAsserts(node, lastMatcher, ctx)) return false;
     ancestorMatchers = matchers.slice(0, -1);
   }
 
@@ -113,7 +113,7 @@ function matchesWhere(node: any, ctx: GraphqlUserContext, matchers: WhereMatcher
 }
 
 function passesAsserts(node: any, matcher: WhereMatcher, ctx: GraphqlUserContext): boolean {
-  const value = extractValue(node, matcher.definition.subject.property);
+  const { value } = resolveSubject(node, matcher.definition.subject.property);
   const baseLocation = new Location(ctx.source, '#/');
 
   return matcher.assertsToApply.every(
@@ -132,8 +132,7 @@ function runGraphqlAssertion(
   assertsToApply: AssertToApply[]
 ): void {
   const property = singleProperty(assertion.subject.property);
-  const target = property === undefined ? node : node[property];
-  const value = extractValue(node, assertion.subject.property);
+  const { value, locNode } = resolveSubject(node, assertion.subject.property);
 
   const baseLocation = new Location(ctx.source, '#/');
 
@@ -165,29 +164,40 @@ function runGraphqlAssertion(
       pointer: '',
       file: getFilenameFromPath(ctx.source.absoluteRef),
     }),
-    node: isAstNode(target) ? target : node,
+    node: locNode,
     suggest: assertion.suggest,
     ruleId: assertion.assertionId,
     severity: assertion.severity as ProblemSeverity | undefined,
   });
 }
 
-function memberName(node: any): unknown {
-  return node?.name?.value ?? node?.value ?? node;
+type ResolvedSubject = { value: unknown; locNode: any };
+
+function unwrapNode(node: any): ResolvedSubject {
+  if (node?.name?.value !== undefined) return { value: node.name.value, locNode: node.name };
+  if (node?.value !== undefined) return { value: node.value, locNode: node };
+  return { value: node, locNode: node };
 }
 
-function extractValue(node: any, property: Assertion['subject']['property']): unknown {
-  const single = singleProperty(property);
-  if (single === undefined) return memberName(node);
-  const target = node[single];
-  if (Array.isArray(target)) return target.map(memberName);
-  return memberName(target);
+function resolveSubject(node: any, property: Assertion['subject']['property']): ResolvedSubject {
+  const propertyName = singleProperty(property);
+  if (propertyName === undefined) return unwrapNode(node);
+
+  const target = node[propertyName];
+  if (Array.isArray(target)) {
+    return { value: target.map((item) => unwrapNode(item).value), locNode: node };
+  }
+
+  const resolved = unwrapNode(target);
+  // A non-AST property value has no location of its own - report the parent node.
+  return { value: resolved.value, locNode: isAstNode(resolved.locNode) ? resolved.locNode : node };
 }
 
 function isAstNode(target: unknown): boolean {
   return isPlainObject(target) && 'kind' in target;
 }
 
+// GraphQL subjects target a single property. Arrays are accepted only for config-shape parity with OAS; the first entry is used.
 function singleProperty(property: Assertion['subject']['property']): string | undefined {
   return Array.isArray(property) ? property[0] : property;
 }
