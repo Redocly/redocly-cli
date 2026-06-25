@@ -7,6 +7,12 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.35.1 (2026-06-25)
+
+### Patch Changes
+
+- Updated `undici` to the `6.27.0` version.
+
 ## 2.35.0 (2026-06-24)
 
 ### Minor Changes
