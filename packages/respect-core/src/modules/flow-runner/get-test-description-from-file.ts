@@ -49,7 +49,6 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
       'no-x-security-both-scheme-and-scheme-name': 'error',
       'no-x-security-scheme-name-without-openapi': 'error',
       'outputs-defined': 'error',
-      'respect-supported-versions': 'warn',
       'x-security-scheme-name-reference': 'error',
       'x-security-scheme-required-values': 'error',
     },

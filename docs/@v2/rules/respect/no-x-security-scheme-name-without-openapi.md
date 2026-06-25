@@ -24,7 +24,7 @@ You must use an OpenAPI operation in a step to be able to reference `schemeName`
 An example configuration:
 
 ```yaml
-arazzo1Rules:
+rules:
   no-x-security-scheme-name-without-openapi: error
 ```
 
@@ -33,7 +33,7 @@ arazzo1Rules:
 Given the following configuration:
 
 ```yaml
-arazzo1Rules:
+rules:
   no-x-security-scheme-name-without-openapi: error
 ```
 

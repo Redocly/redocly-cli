@@ -1,0 +1,19 @@
+arazzo: 1.1.0
+info:
+  title: Mutually exclusive step fields
+  version: 1.0.0
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./cafe.yaml
+  - name: account-events
+    type: asyncapi
+    url: ./account-events.yaml
+workflows:
+  - workflowId: await-user-signup
+    steps:
+      - stepId: await-signup
+        channelPath: $sourceDescriptions.account-events#/channels/userSignedup
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200

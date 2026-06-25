@@ -8,6 +8,7 @@ Config {
   "configPath": "redocly.yaml",
   "decorators": {
     "arazzo1": {},
+    "arazzo1_1": {},
     "async2": {},
     "async3": {},
     "oas2": {},
@@ -23,6 +24,7 @@ Config {
   "plugins": [],
   "preprocessors": {
     "arazzo1": {},
+    "arazzo1_1": {},
     "async2": {},
     "async3": {},
     "oas2": {},
@@ -44,6 +46,9 @@ Config {
         "arazzo1Decorators": {},
         "arazzo1Preprocessors": {},
         "arazzo1Rules": {},
+        "arazzo1_1Decorators": {},
+        "arazzo1_1Preprocessors": {},
+        "arazzo1_1Rules": {},
         "async2Decorators": {},
         "async2Preprocessors": {},
         "async2Rules": {},
@@ -111,6 +116,22 @@ Config {
   "resolvedRefMap": undefined,
   "rules": {
     "arazzo1": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "arazzo1_1": {
       "assertions": [
         {
           "assertionId": "rule/test",

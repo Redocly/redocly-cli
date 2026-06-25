@@ -19,6 +19,7 @@ export { Oas3_2Types } from './types/oas3_2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
+export { Arazzo1_1Types } from './types/arazzo1_1.js';
 export { Overlay1Types } from './types/overlay.js';
 export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';

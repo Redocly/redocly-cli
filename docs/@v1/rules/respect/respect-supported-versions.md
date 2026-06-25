@@ -45,4 +45,4 @@ arazzo: 1.0.1
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/respect-supported-versions.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/v1/packages/core/src/rules/respect/respect-supported-versions.ts)

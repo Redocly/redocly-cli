@@ -3,6 +3,7 @@ import { SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
+  AsyncAPISourceDescription,
   CriterionObject,
   ExtendedOperation,
   InfoObject,
@@ -12,6 +13,7 @@ import type {
   Parameter,
   Replacement,
   RequestBody,
+  SelectorObject,
   SourceDescription,
   Step,
   Workflow,
@@ -273,6 +275,7 @@ type ArazzoFlatVisitor = {
   InfoObject?: VisitFunctionOrObject<InfoObject>;
   OpenAPISourceDescription?: VisitFunctionOrObject<OpenAPISourceDescription>;
   ArazzoSourceDescription?: VisitFunctionOrObject<ArazzoSourceDescription>;
+  AsyncAPISourceDescription?: VisitFunctionOrObject<AsyncAPISourceDescription>;
   SourceDescription?: VisitFunctionOrObject<SourceDescription>;
   ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
   Replacement?: VisitFunctionOrObject<Replacement>;
@@ -281,6 +284,7 @@ type ArazzoFlatVisitor = {
   OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
   OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
   Schema?: VisitFunctionOrObject<Oas3_1Schema>;
+  SelectorObject?: VisitFunctionOrObject<SelectorObject>;
   Step?: VisitFunctionOrObject<Step>;
   Steps?: VisitFunctionOrObject<Step[]>;
   Workflow?: VisitFunctionOrObject<Workflow>;

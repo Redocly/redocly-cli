@@ -1,0 +1,166 @@
+arazzo: 1.1.0
+$self: https://cafe.cloud.redocly.com/workflows/cafe.arazzo.yaml
+info:
+  title: Redocly Cafe ordering workflows
+  summary: Place an order and react to new user signups.
+  description: Workflows for cafe operators built on the Cafe API and the account service.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+  - name: account-events
+    type: asyncapi
+    url: ../../../../resources/asyncapi3.yaml
+
+workflows:
+  - workflowId: place-order
+    summary: Order the first available beverage and confirm it was placed.
+    inputs:
+      type: object
+      properties:
+        customerName:
+          type: string
+      required:
+        - customerName
+    steps:
+      - stepId: find-beverage
+        description: List the beverages on the menu and capture the first item.
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: querystring
+            name: query
+            value: 'filter=category:beverage&limit=5'
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            condition: $.items[?(@.category == 'beverage')]
+            type:
+              type: jsonpath
+              version: rfc9535
+        outputs:
+          beverageId:
+            context: $response.body
+            selector: $.items[0].id
+            type: jsonpath
+      - stepId: create-order
+        description: Place an order for the selected beverage.
+        operationId: cafe-api.createOrder
+        dependsOn:
+          - find-beverage
+        requestBody:
+          contentType: application/json
+          payload:
+            customerName: ''
+            orderItems:
+              - menuItemId: ''
+                quantity: 1
+          replacements:
+            - target: /orderItems/0/menuItemId
+              targetSelectorType: jsonpointer
+              value: $steps.find-beverage.outputs.beverageId
+            - target: $.customerName
+              targetSelectorType:
+                type: jsonpath
+                version: rfc9535
+              value:
+                context: $inputs
+                selector: $.customerName
+                type: jsonpath
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          orderId: $response.body#/id
+      - stepId: confirm-order
+        description: Fetch the order and confirm it was placed.
+        operationId: cafe-api.getOrderById
+        dependsOn:
+          - create-order
+        timeout: 5000
+        parameters:
+          - in: path
+            name: orderId
+            value: $steps.create-order.outputs.orderId
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            condition: $[?(@.status == 'placed')]
+            type:
+              type: jsonpath
+              version: rfc9535
+        onSuccess:
+          - name: notify-customer
+            type: goto
+            workflowId: notify-customer
+            parameters:
+              - name: orderId
+                value: $steps.create-order.outputs.orderId
+        onFailure:
+          - name: retry-confirmation
+            type: retry
+            retryAfter: 2
+            retryLimit: 3
+            parameters:
+              - name: orderId
+                value: $steps.create-order.outputs.orderId
+    outputs:
+      placedOrderId: $steps.create-order.outputs.orderId
+
+  - workflowId: notify-customer
+    summary: Load an order so the customer can be notified about it.
+    inputs:
+      type: object
+      properties:
+        orderId:
+          type: string
+      required:
+        - orderId
+    steps:
+      - stepId: load-order
+        description: Load the order that the notification refers to.
+        operationId: cafe-api.getOrderById
+        parameters:
+          - in: path
+            name: orderId
+            value: $inputs.orderId
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          customerName: $response.body#/customerName
+
+  - workflowId: await-user-signup
+    summary: Wait for a specific user's signup event from the account service.
+    inputs:
+      type: object
+      properties:
+        email:
+          type: string
+      required:
+        - email
+    steps:
+      - stepId: await-signup
+        description: Receive the signup event that matches the expected email.
+        channelPath: $sourceDescriptions.account-events#/channels/userSignedup
+        action: receive
+        correlationId: $inputs.email
+        timeout: 10000
+        successCriteria:
+          - context: $message.payload
+            condition: $.email
+            type:
+              type: jsonpath
+              version: rfc9535
+        outputs:
+          displayName:
+            context: $message.payload
+            selector: $.displayName
+            type: jsonpath
+          email:
+            context: $message.payload
+            selector: /email
+            type:
+              type: jsonpointer
+              version: rfc6901
+    outputs:
+      newUserEmail: $steps.await-signup.outputs.email
