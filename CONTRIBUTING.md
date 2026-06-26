@@ -200,9 +200,9 @@ To make changes to documentation:
 2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
 3. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
-## Updating Redoc
+## Update Redoc
 
-When updating Redoc, recompute the subresource integrity (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
+When updating Redoc, recompute the subresource integrity [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
 
 ```bash
 openssl dgst -sha384 -binary node_modules/redoc/bundles/redoc.standalone.js | openssl base64 -A
