@@ -34,7 +34,7 @@ export type TreeArgv = {
   apis?: string[];
   format: TreeFormat;
   output?: string;
-  'used-by'?: string[];
+  uses?: string[];
   files?: boolean;
 } & VerifyConfigOptions;
 
@@ -131,11 +131,16 @@ async function handleFilesMode({
 
   let printedGraph = graph;
   let stylishOptions: StylishOptions = {};
-  if (argv['used-by']) {
-    const changedIds = argv['used-by'].map((file) =>
-      slash(path.relative(base, path.resolve(cwd, file)))
-    );
+  if (argv['uses']) {
     const knownIds = new Set(graph.nodes.map((node) => node.id));
+    // Match paths the way they are displayed — relative to the API root — and fall
+    // back to paths relative to the current working directory.
+    const changedIds = argv['uses'].map((file) => {
+      const fromRoot = slash(path.relative(base, path.resolve(base, file)));
+      if (knownIds.has(fromRoot)) return fromRoot;
+      const fromCwd = slash(path.relative(base, path.resolve(cwd, file)));
+      return knownIds.has(fromCwd) ? fromCwd : fromRoot;
+    });
     for (const id of changedIds) {
       if (!knownIds.has(id)) {
         logger.warn(`${id} is not referenced by any of the processed APIs.\n`);
@@ -190,8 +195,8 @@ async function handleStructureMode({
   let printedGraph = graph;
   let stylishOptions: StylishOptions = {};
 
-  if (argv['used-by']) {
-    const match = matchAffectedBy(graph, argv['used-by'], { cwd, rootId });
+  if (argv['uses']) {
+    const match = matchAffectedBy(graph, argv['uses'], { cwd, rootId });
 
     for (const note of match.notes) {
       logger.warn(note + '\n');

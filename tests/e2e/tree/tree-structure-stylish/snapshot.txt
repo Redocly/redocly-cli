@@ -7,9 +7,13 @@ openapi.yaml
 │   │           └── schemas/OrderStatus
 │   └── POST
 │       └── schemas/Order
+│           ├── schemas/MenuItem
+│           └── schemas/OrderStatus
 └── /orders/{orderId}
     ├── DELETE
     │   └── schemas/Error
     └── GET
         └── schemas/Order
+            ├── schemas/MenuItem
+            └── schemas/OrderStatus
 

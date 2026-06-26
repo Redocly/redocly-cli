@@ -5,6 +5,7 @@ openapi.yaml
 ├── paths/orders.yaml
 │   ├── components/schemas/Order.yaml
 │   └── components/schemas/OrderList.yaml
+│       └── components/schemas/Order.yaml
 └── paths/orders_{orderId}.yaml
     └── components/schemas/Order.yaml
 

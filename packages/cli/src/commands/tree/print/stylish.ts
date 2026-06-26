@@ -31,32 +31,25 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     if (node?.kind === 'operation' && parentId && id.endsWith(` ${parentId}`)) {
       text = id.slice(0, -parentId.length - 1);
     }
-    if (node?.external) text += ' (external)';
-    if (node && !node.resolved) text += ' ✗ not found';
-    if (isCycle) text += ' ↺';
+    if (node?.external) text += ' 🔗';
+    if (node && !node.resolved) text += ' ❌';
+    if (isCycle) text += ' 🔁';
     return text;
   };
 
   // `ancestors` is the path from the root to the current node. A child already on that path is a
-  // cycle: mark it with `↺` and stop. A child printed elsewhere (fan-in) is shown once, unmarked,
-  // and not expanded again.
-  const renderSubtree = (
-    id: string,
-    prefix: string,
-    printed: Set<string>,
-    ancestors: Set<string>
-  ) => {
+  // cycle: mark it with `🔁` and stop, so traversal terminates. A fan-in dependency (the same file
+  // reached from several parents, without forming a cycle) is expanded under each parent.
+  const renderSubtree = (id: string, prefix: string, ancestors: Set<string>) => {
     const children = childrenByNode.get(id) ?? [];
     children.forEach((child, index) => {
       const isLast = index === children.length - 1;
       const isCycle = ancestors.has(child);
       lines.push(`${prefix}${isLast ? '└── ' : '├── '}${label(child, id, isCycle)}`);
-      if (!isCycle && !printed.has(child)) {
-        printed.add(child);
+      if (!isCycle) {
         renderSubtree(
           child,
           `${prefix}${isLast ? '    ' : '│   '}`,
-          printed,
           new Set([...ancestors, child])
         );
       }
@@ -66,7 +59,7 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
   graph.roots.forEach((root, index) => {
     if (index > 0) lines.push('');
     lines.push(label(root, undefined, false));
-    renderSubtree(root, '', new Set([root]), new Set([root]));
+    renderSubtree(root, '', new Set([root]));
   });
 
   if (options.summary !== undefined) {

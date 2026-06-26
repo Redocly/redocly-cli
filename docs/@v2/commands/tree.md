@@ -10,7 +10,7 @@ AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of
 Use `tree` to:
 
 - Get quick orientation in any API, whether single-file or multi-file.
-- Run impact analysis with `--used-by` — which paths and operations use a given component or file.
+- Run impact analysis with `--uses` — which paths and operations use a given component or file.
   This analysis is useful in CI and automated code review.
 - Produce machine-readable JSON, a Mermaid diagram, or a Graphviz DOT graph with `--format`.
 - View the file-level `$ref` graph with `--files`.
@@ -20,7 +20,7 @@ Use `tree` to:
 ```bash
 redocly tree
 redocly tree <api>
-redocly tree <api> [--format=<value>] [--used-by=<value>] [--output=<file>] [--config=<path>]
+redocly tree <api> [--format=<value>] [--uses=<value>] [--output=<file>] [--config=<path>]
 redocly tree --files [apis...]
 ```
 
@@ -38,7 +38,7 @@ Use `--files` for the multi-API file graph.
 | --format     | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                      |
 | --help       | boolean  | Display help.                                                                                                                                                                                                                                                                    |     |
 | --output, -o | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                  |
-| --used-by    | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values. |
+| --uses       | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values. |
 | --version    | boolean  | Display version number.                                                                                                                                                                                                                                                          |
 
 ## Examples
@@ -72,18 +72,25 @@ cafe.yaml
 │   │       └── schemas/Page
 │   └── POST
 │       ├── responses/BadRequest
+│       │   └── schemas/Error
 │       ├── responses/Conflict
 │       │   └── schemas/Error
 │       ├── responses/Forbidden
 │       │   └── schemas/Error
 │       ├── responses/InternalServerError
+│       │   └── schemas/Error
 │       ├── responses/Unauthorized
 │       │   └── schemas/Error
 │       └── schemas/MenuItem
+│           ├── schemas/Beverage
+│           │   └── schemas/MenuBaseItem
+│           └── schemas/Dessert
+│               └── schemas/MenuBaseItem
 ├── /menu-item-images/{menuItemId}
 │   ├── GET
 │   │   ├── parameters/PhotoSize
 │   │   ├── responses/InternalServerError
+│   │   │   └── schemas/Error
 │   │   └── responses/NotFound
 │   │       └── schemas/Error
 │   └── parameters/MenuItemId
@@ -95,11 +102,11 @@ An operation is shown as the method only (`GET`) under its path, since the path 
 
 Markers legend:
 
-- `↺` — a cycle: the node references one of its ancestors (a recursive schema). It is not expanded again. A node that simply appears in more than one place (fan-in) is shown without a marker.
-- `✗ not found` — an unresolvable `$ref` (only in `--files` mode; in the default view an unresolvable `$ref` is an error, see below)
-- `(external)` — a reference to a URL
+- `🔁` — a cycle: the node references one of its ancestors (a recursive schema). It is marked and not expanded further, so traversal terminates. A node that simply appears in more than one place (fan-in, without forming a cycle) is shown without a marker and expanded under each parent.
+- `❌` — an unresolvable `$ref` (only in `--files` mode; in the default view an unresolvable `$ref` is an error, see below)
+- `🔗` — a reference to a URL
 
-A recursive schema produces the `↺` marker:
+A recursive schema produces the `🔁` marker:
 
 {% tabs %}
 {% tab label="API description" %}
@@ -141,15 +148,15 @@ menu.yaml
 └── /menu
     └── GET
         └── schemas/MenuSection
-            └── schemas/MenuSection ↺
+            └── schemas/MenuSection 🔁
 ```
 
-`MenuSection` references itself, so the repeat is marked `↺` and not expanded again.
+`MenuSection` references itself, so the cycle is marked `🔁` and not expanded again.
 
 {% /tab  %}
 {% /tabs  %}
 
-`✗ not found` and `(external)` appear only with `--files`. In the default view an unresolvable `$ref` is a bundling error instead (see _Invalid descriptions_ below), so this example must be run with `--files`:
+`❌` and `🔗` appear only with `--files`. In the default view an unresolvable `$ref` is a bundling error instead (see _Invalid descriptions_ below), so this example must be run with `--files`:
 
 {% tabs %}
 {% tab label="API description" %}
@@ -187,11 +194,11 @@ redocly tree openapi.yaml --files
 
 ```treeview
 openapi.yaml
-├── https://example.com/schemas/Error.yaml (external) ✗ not found
-└── schemas/Order.yaml ✗ not found
+├── https://example.com/schemas/Error.yaml 🔗 ❌
+└── schemas/Order.yaml ❌
 ```
 
-`schemas/Order.yaml` does not exist, so it is `✗ not found`. The URL is `(external)`; here it is also unreachable, so it is `✗ not found` too.
+`schemas/Order.yaml` does not exist, so it is `❌`. The URL is `🔗`; here it is also unreachable, so it is `❌` too.
 
 {% /tab  %}
 {% /tabs  %}
@@ -201,10 +208,10 @@ A multi-file API therefore produces the same tree as its single-file equivalent 
 
 ### Find what uses a component, path, or file
 
-Pass one or more components, paths, or files to `--used-by` to see only the part of the tree that depends on them:
+Pass one or more components, paths, or files to `--uses` to see only the part of the tree that depends on them:
 
 ```bash
-redocly tree cafe.yaml --used-by schemas/Order
+redocly tree cafe.yaml --uses schemas/Order
 ```
 
 ```treeview
@@ -224,7 +231,7 @@ cafe.yaml
 4 of 12 operations affected · affected paths: /orders, /orders/{orderId}
 ```
 
-`--used-by` accepts several input forms:
+`--uses` accepts several input forms:
 
 - full JSON pointer: `#/components/schemas/Order`
 - shorthand pointer (the node id): `schemas/Order`
@@ -236,26 +243,26 @@ Examples of the different input forms:
 
 ```bash
 # full JSON pointer
-redocly tree cafe.yaml --used-by '#/components/schemas/Order'
+redocly tree cafe.yaml --uses '#/components/schemas/Order'
 
 # shorthand pointer (the node id)
-redocly tree cafe.yaml --used-by schemas/Order
+redocly tree cafe.yaml --uses schemas/Order
 
 # bare component name — matches any component with that name
-redocly tree cafe.yaml --used-by Order
+redocly tree cafe.yaml --uses Order
 
 # several values at once — repeat the flag
-redocly tree cafe.yaml --used-by schemas/Order --used-by schemas/MenuItem
+redocly tree cafe.yaml --uses schemas/Order --uses schemas/MenuItem
 
 # file-level: which files depend on a given file
-redocly tree cafe.yaml --files --used-by components/schemas/Order.yaml
+redocly tree cafe.yaml --files --uses components/schemas/Order.yaml
 ```
 
 The summary line reports how many operations are affected.
 A change that only affects path-level parameters can report `0 of N operations affected` while still listing the affected path: the path itself is impacted, not its operations.
 For AsyncAPI or Arazzo descriptions, which have no operation nodes, the summary counts nodes instead — for example, `5 of 8 nodes affected`.
 
-An unknown `--used-by` value (a typo, or a component that no longer exists) prints a warning and still exits with code `0`, so a stale query never fails a CI run.
+An unknown `--uses` value (a typo, or a component that no longer exists) prints a warning and still exits with code `0`, so a stale query never fails a CI run.
 A file path that matches nothing also points you to `--files`.
 
 ### Machine-readable output
@@ -367,6 +374,9 @@ If the description cannot be bundled — for example, it has unresolvable or inv
 
 ### File-level graph
 
+`--files` shows how a description is split across files, so the examples below use a multi-file version of the API.
+A single bundled file has no file-level `$ref`s, so its `--files` graph is just the root.
+
 ```bash
 redocly tree cafe.yaml --files
 ```
@@ -389,4 +399,30 @@ The tree above is abbreviated; the real output lists every file.
 Paths are shown relative to the directory of the root description, so the folder you run the command from does not appear as a prefix.
 The default view already traverses those elements, following `$ref`s across files.
 `--files` also accepts multiple APIs in one run, merging their graphs.
-In this mode, `--used-by` takes file paths, and the summary counts affected files and roots.
+In this mode, `--uses` takes file paths.
+They are matched relative to the API root — the same way they appear in the output — and paths relative to your current working directory also work.
+The summary counts affected files and roots.
+
+### Combine `--files`, `--uses`, and `--format`
+
+The flags compose. For example, render just the files that depend on `Order.yaml` as a Mermaid graph:
+
+```bash
+redocly tree cafe.yaml --files --uses components/schemas/Order.yaml --format=mermaid
+```
+
+```mermaid
+flowchart LR
+  n0["cafe.yaml"]:::root
+  n1["components/schemas/Order.yaml"]
+  n2["components/schemas/OrderList.yaml"]
+  n3["paths/orders.yaml"]
+  n4["paths/orders_{orderId}.yaml"]
+  n0 --> n3
+  n0 --> n4
+  n2 --> n1
+  n3 --> n1
+  n3 --> n2
+  n4 --> n1
+  classDef root font-weight:bold
+```

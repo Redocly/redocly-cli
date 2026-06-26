@@ -104,7 +104,7 @@ yargs(hideBin(process.argv))
             description: 'Write the output to a file instead of stdout.',
             type: 'string',
           },
-          'used-by': {
+          uses: {
             description:
               'Show only the part of the tree that uses (depends on) the given components, paths, or files.',
             array: true,
