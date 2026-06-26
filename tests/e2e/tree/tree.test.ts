@@ -40,7 +40,7 @@ describe('tree', () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
-      '--used-by',
+      '--uses',
       '#/components/schemas/Order',
     ]);
     const result = getCommandOutput(args, { testPath: samplePath });
@@ -48,12 +48,7 @@ describe('tree', () => {
   });
 
   test('tree warns for an unknown used-by input', async () => {
-    const args = getParams(indexEntryPoint, [
-      'tree',
-      'openapi.yaml',
-      '--used-by',
-      'schemas/Unknown',
-    ]);
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--uses', 'schemas/Unknown']);
     const result = getCommandOutput(args, { testPath: samplePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       snapshot('tree-structure-used-by-unknown')
@@ -64,7 +59,7 @@ describe('tree', () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
-      '--used-by',
+      '--uses',
       'components/schemas/Order.yaml',
     ]);
     const result = getCommandOutput(args, { testPath: samplePath });
@@ -90,10 +85,24 @@ describe('tree', () => {
       'tree',
       'openapi.yaml',
       '--files',
-      '--used-by',
+      '--uses',
       'components/schemas/Order.yaml',
     ]);
     const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-used-by'));
+  });
+
+  test('tree --files resolves --uses relative to the API root, regardless of cwd', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'sample-split/openapi.yaml',
+      '--files',
+      '--uses',
+      'components/schemas/Order.yaml',
+    ]);
+    // Run from the parent directory so cwd is not the API's directory; the path
+    // is still resolved relative to the API root, so it matches the same files.
+    const result = getCommandOutput(args, { testPath: folderPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-used-by'));
   });
 

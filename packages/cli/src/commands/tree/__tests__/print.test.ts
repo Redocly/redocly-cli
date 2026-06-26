@@ -31,7 +31,7 @@ const graph: DependencyGraph = {
 };
 
 describe('renderStylish', () => {
-  it('renders a tree with repeat, broken-ref, and external markers', () => {
+  it('renders a tree with broken-ref and external markers', () => {
     expect(renderStylish(graph)).toMatchInlineSnapshot(`
       "openapi.yaml
       ├── paths/pets.yaml
@@ -39,8 +39,8 @@ describe('renderStylish', () => {
       └── paths/users.yaml
           └── components/User.yaml
               ├── components/Pet.yaml
-              ├── components/missing.yaml ✗ not found
-              └── https://example.com/shared.yaml (external)"
+              ├── components/missing.yaml ❌
+              └── https://example.com/shared.yaml 🔗"
     `);
   });
 
@@ -108,7 +108,7 @@ describe('renderStylish', () => {
     `);
   });
 
-  it('marks a true cycle with ↺ but leaves fan-in repeats unmarked', () => {
+  it('marks a true cycle with 🔁 and stops expanding', () => {
     const cyclic: DependencyGraph = {
       roots: ['root.yaml'],
       nodes: [
@@ -127,7 +127,37 @@ describe('renderStylish', () => {
       "root.yaml
       └── A.yaml
           └── B.yaml
-              └── A.yaml ↺"
+              └── A.yaml 🔁"
+    `);
+  });
+
+  it('re-expands a fan-in dependency (shared, non-cyclic) under every parent', () => {
+    const fanIn: DependencyGraph = {
+      roots: ['root.yaml'],
+      nodes: [
+        { id: 'root.yaml', root: true, resolved: true },
+        { id: 'P1.yaml', resolved: true },
+        { id: 'P2.yaml', resolved: true },
+        { id: 'Response.yaml', resolved: true },
+        { id: 'Error.yaml', resolved: true },
+      ],
+      edges: [
+        { from: 'root.yaml', to: 'P1.yaml', refs: ['P1.yaml'] },
+        { from: 'root.yaml', to: 'P2.yaml', refs: ['P2.yaml'] },
+        { from: 'P1.yaml', to: 'Response.yaml', refs: ['Response.yaml'] },
+        { from: 'P2.yaml', to: 'Response.yaml', refs: ['Response.yaml'] },
+        { from: 'Response.yaml', to: 'Error.yaml', refs: ['Error.yaml'] },
+      ],
+    };
+
+    expect(renderStylish(fanIn)).toMatchInlineSnapshot(`
+      "root.yaml
+      ├── P1.yaml
+      │   └── Response.yaml
+      │       └── Error.yaml
+      └── P2.yaml
+          └── Response.yaml
+              └── Error.yaml"
     `);
   });
 

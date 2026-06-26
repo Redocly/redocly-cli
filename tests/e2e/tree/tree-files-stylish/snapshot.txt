@@ -6,11 +6,20 @@ openapi.yaml
 │   └── components/schemas/OrderStatus.yaml
 ├── components/schemas/OrderList.yaml
 │   └── components/schemas/Order.yaml
+│       ├── components/schemas/MenuItem.yaml
+│       └── components/schemas/OrderStatus.yaml
 ├── components/schemas/OrderStatus.yaml
 ├── paths/orders.yaml
 │   ├── components/schemas/Order.yaml
+│   │   ├── components/schemas/MenuItem.yaml
+│   │   └── components/schemas/OrderStatus.yaml
 │   └── components/schemas/OrderList.yaml
+│       └── components/schemas/Order.yaml
+│           ├── components/schemas/MenuItem.yaml
+│           └── components/schemas/OrderStatus.yaml
 └── paths/orders_{orderId}.yaml
     ├── components/schemas/Error.yaml
     └── components/schemas/Order.yaml
+        ├── components/schemas/MenuItem.yaml
+        └── components/schemas/OrderStatus.yaml
 
