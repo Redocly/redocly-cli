@@ -149,13 +149,6 @@ redocly generate-client cafe -o src/client.ts
 - Path to the `redocly.yaml` configuration file (where the `x-openapi-typescript` block lives).
   Defaults to the `redocly.yaml` discovered in the working directory.
 
----
-
-- `--config-file`
-- `string`
-- Path to a dedicated `defineConfig` config file (`*.config.ts`/`.mjs`/`.js`), as an alternative to the `redocly.yaml` `x-openapi-typescript` block.
-  Useful when the config lives outside the project or in a nested folder.
-
 {% /table %}
 
 ## Configuration
@@ -180,15 +173,15 @@ redocly generate-client
 ```
 
 Relative `input`/`output` are resolved against the `redocly.yaml` directory, so the command works the same from any working directory.
-
-A dedicated `defineConfig` file is also supported via `--config-file` (useful when the config lives outside the project or in a nested folder):
+Point at a `redocly.yaml` elsewhere with the standard `--config` flag:
 
 ```sh
-redocly generate-client --config-file ./config/openapi-typescript.config.ts
+redocly generate-client --config ./config/redocly.yaml
 ```
 
-**Precedence** (lowest to highest): the `redocly.yaml` `x-openapi-typescript` block → an explicit `--config-file` → individual CLI flags.
+**Precedence** (lowest to highest): the `redocly.yaml` `x-openapi-typescript` block → individual CLI flags.
 Each layer overrides per setting, so you can keep a base config and override one value on the command line.
+For code-level control — including registering custom generators inline — use the programmatic API instead (see [Custom generators](#custom-generators)).
 
 ## Examples
 
@@ -902,13 +895,10 @@ The `@redocly/openapi-typescript/plugin` entry also exports the **codegen toolki
 
 ### Select a custom generator
 
-A `generators` entry that is not a built-in name is either:
+In `redocly.yaml`, a `generators` entry that is not a built-in name is an **import specifier**:
 
-- an **inline** generator (registered via `customGenerators` in a `defineConfig` file)
-- an **import specifier** — a path (resolved against the config's directory)
+- a path (resolved against the `redocly.yaml` directory), or
 - an installed package — that default-exports the generator
-
-For example:
 
 ```yaml
 # redocly.yaml — by path or by published package
@@ -921,12 +911,14 @@ x-openapi-typescript:
     - '@acme/openapi-valibot' # npm package
 ```
 
+To register a generator **inline** (the function itself, with full type-safety and no install), use the programmatic API and pass it via `customGenerators`:
+
 ```ts
-// redocly-openapi-typescript.config.ts — inline (full type-safety, no install)
-import { defineConfig } from '@redocly/openapi-typescript';
+// generate.ts — run with `node --import tsx generate.ts`
+import { generateClient } from '@redocly/openapi-typescript';
 import routeMap from './tools/route-map-generator.ts';
 
-export default defineConfig({
+await generateClient({
   input: './openapi.yaml',
   output: './src/api/client.ts',
   customGenerators: [routeMap], // register…
@@ -940,8 +932,8 @@ A worked example lives in [`examples/custom-generator`](https://github.com/Redoc
 A custom generator declares the same `requires` / `facades` / `errorModes` / `dateTypes` contract as the built-ins, validated up front — an incompatible selection, a name that collides with another generator, or an unloadable specifier fails fast with an actionable message.
 The generated client stays dependency-free.
 A generator's output is its own file(s), and any libraries it targets are peers of _your app_.
-Import-specifier generators execute at generation time.'
-It has the same trust level as any installed dependency or `defineConfig` file.
+Import-specifier generators execute at generation time.
+It has the same trust level as any installed dependency you run.
 {% /admonition %}
 
 ## Server-Sent Events (streaming)

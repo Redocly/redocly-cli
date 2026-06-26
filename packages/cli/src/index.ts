@@ -872,11 +872,6 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
-          'config-file': {
-            describe: 'Path to a generate-client config file (defineConfig).',
-            type: 'string',
-            requiresArg: true,
-          },
           'base-url': {
             describe:
               'Override the BASE URL inlined into the generated runtime. Defaults to `servers[0].url`.',
@@ -957,7 +952,7 @@ yargs(hideBin(process.argv))
                 .map((s) => s.trim())
                 .filter(Boolean);
               // Treat an empty value (`--generators ` or `,`) as unset, so it neither
-              // replaces the default sdk generator nor clobbers a config-file selection.
+              // replaces the default sdk generator nor clobbers a redocly.yaml selection.
               return names.length ? names : undefined;
             },
           },

@@ -1,4 +1,5 @@
 import { type Config, HandledError, isPlainObject, logger } from '@redocly/openapi-core';
+import { type Config as OpenApiTsConfig } from '@redocly/openapi-typescript';
 import { blue, gray, yellow } from 'colorette';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 
@@ -35,7 +36,6 @@ function readRedoclyExtension(config: Config): Record<string, unknown> {
 export type GenerateClientCommandArgv = {
   input?: string;
   output?: string;
-  'config-file'?: string;
   config?: string;
   'base-url'?: string;
   'enum-style'?: 'union' | 'const-object';
@@ -57,15 +57,12 @@ export async function handleGenerateClient({
   config,
 }: CommandArgs<GenerateClientCommandArgv>) {
   const { generateClient } = await import('@redocly/openapi-typescript');
-  const { loadConfigFile, mergeConfig } = await import('@redocly/openapi-typescript/config-file');
+  const { mergeConfig } = await import('@redocly/openapi-typescript/config-file');
 
-  // Config sources, lowest → highest precedence: redocly.yaml `x-openapi-typescript`
-  // (the ambient base) → an explicit `--config-file` *.config.ts → CLI flags.
-  // Only an explicit `--config-file` is loaded — no implicit cwd discovery, so a stray
-  // `redocly-openapi-typescript.config.*` can't silently override `redocly.yaml`.
+  // Config sources, lowest → highest precedence: the `redocly.yaml` `x-openapi-typescript`
+  // block (located via the standard `--config` flag, else discovered in cwd) → CLI flags.
   const redoclyExtension = readRedoclyExtension(config);
-  const fileConfig = argv['config-file'] ? ((await loadConfigFile(argv['config-file'])) ?? {}) : {};
-  const merged = mergeConfig(mergeConfig(redoclyExtension as typeof fileConfig, fileConfig), {
+  const merged = mergeConfig(redoclyExtension as Partial<OpenApiTsConfig>, {
     input: argv.input,
     output: argv.output,
     baseUrl: argv['base-url'],
@@ -92,13 +89,9 @@ export async function handleGenerateClient({
   const input = getAliasOrPath(config, merged.input).path;
   const outputPath = resolvePath(merged.output);
 
-  // Relative-path generator specifiers (and inline plugins) resolve against the config's location:
-  // the explicit `--config-file`, else the discovered `redocly.yaml`, else the working directory.
-  const configDir = argv['config-file']
-    ? dirname(resolvePath(argv['config-file']))
-    : config.configPath
-      ? dirname(config.configPath)
-      : process.cwd();
+  // Relative-path generator specifiers (and inline plugins) resolve against the
+  // `redocly.yaml` directory (the config's location), else the working directory.
+  const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
   if (!outputPath.endsWith('.ts')) {
     throw new HandledError(

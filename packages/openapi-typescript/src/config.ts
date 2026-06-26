@@ -4,9 +4,9 @@ import type { CustomGenerator } from './generators/types.js';
 import type { OutputMode } from './writers/types.js';
 
 /**
- * The user-facing generation config — what `defineConfig` accepts and what a
- * `*.config.ts` default-exports. A superset of the programmatic options plus the
- * `generators` list. `redocly.yaml` ingestion is intentionally not modeled here
+ * The user-facing generation config: the options `generateClient()` accepts, plus the
+ * `generators` list. Annotate a standalone config object with `satisfies Config` for
+ * type-safe authoring. `redocly.yaml` ingestion is intentionally not modeled here
  * (roadmap P7.5).
  */
 export type Config = {
@@ -54,11 +54,3 @@ export type Config = {
    */
   customGenerators?: CustomGenerator[];
 };
-
-/**
- * Identity helper for type-safe config authoring in a `*.config.ts` file:
- * `export default defineConfig({ … })`. Returns its argument unchanged.
- */
-export function defineConfig(config: Config): Config {
-  return config;
-}

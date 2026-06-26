@@ -21,7 +21,7 @@ export type ResolvedGenerators = {
 };
 
 export type ResolveOptions = {
-  /** Inline custom generators (from a `defineConfig` file) registered before resolution. */
+  /** Inline custom generators (via the programmatic `generateClient` API) registered before resolution. */
   customGenerators?: CustomGenerator[];
   /** Directory relative-path specifiers resolve against (the config's location). Defaults to cwd. */
   configDir?: string;

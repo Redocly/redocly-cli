@@ -13,7 +13,6 @@ import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 import type { GeneratedFile, OutputMode } from './writers/types.js';
 
 export { NotSupportedError } from './errors.js';
-export { defineConfig } from './config.js';
 export type { Config } from './config.js';
 export type { Generator, GeneratorInput, GeneratorName } from './generators/index.js';
 export type {
