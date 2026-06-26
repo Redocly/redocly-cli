@@ -49,7 +49,7 @@
     "concat-stream": "2.0.0",
     "cookie": "0.7.2",
     "dotenv": "16.4.7",
-    "form-data": "4.0.4",
+    "form-data": "4.0.6",
     "jest-diff": "29.7.0",
     "jest-matcher-utils": "29.7.0",
     "js-yaml": "4.2.0",
@@ -59,7 +59,7 @@
     "openapi-sampler": "1.7.0",
     "outdent": "0.8.0",
     "set-cookie-parser": "2.7.1",
-    "undici": "6.24.1"
+    "undici": "6.27.0"
   },
   "files": [
     "lib"
