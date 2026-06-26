@@ -34,6 +34,7 @@ export type ScoreArgv = {
   format: OutputFormat;
   'operation-details'?: boolean;
   'debug-operation-id'?: string;
+  suggestions?: boolean;
 } & VerifyConfigOptions;
 
 export async function handleScore({ argv, config, collectSpecData }: CommandArgs<ScoreArgv>) {
@@ -92,6 +93,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     startedAt,
     argv.format,
     !!argv['operation-details'],
+    !!argv.suggestions,
     debugOpId ? { operationId: debugOpId, logs: debugLogs } : undefined
   );
 }
@@ -102,17 +104,18 @@ function printScore(
   startedAt: number,
   format: string,
   operationDetails: boolean,
+  suggestions: boolean,
   debugData?: { operationId: string; logs: DebugMediaTypeLog[] }
 ): void {
   logger.info(`Document: ${colors.magenta(api)} score:\n`);
 
   switch (format) {
     case 'json':
-      printScoreJson(result);
+      printScoreJson(result, api, suggestions);
       break;
     case 'stylish':
     default:
-      printScoreStylish(result, operationDetails);
+      printScoreStylish(result, operationDetails, api, suggestions);
       break;
   }
 
