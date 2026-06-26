@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.16 (2026-06-26)
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.2.0` version.
+- Updated @redocly/respect-core to v1.34.16.
+
 ## 1.34.15 (2026-05-25)
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.34.16
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.2.0` version.
+
 ## 1.34.15
 
 ### Patch Changes
