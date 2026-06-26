@@ -1,4 +1,4 @@
-// generate-client reads its settings from a `redocly.yaml` `x-openapi-typescript`
+// generate-client reads its settings from a `redocly.yaml` `x-client-generator`
 // block (discovered in the cwd, or located via `--config`), with CLI flags overriding it.
 // This is the only declarative config surface — the examples use it.
 import { spawnSync } from 'node:child_process';
@@ -23,11 +23,11 @@ const fixture = join(__dirname, 'fixtures', 'cafe.yaml');
 function project(xConfig: string): string {
   const dir = mkdtempSync(join(tmpdir(), 'ots-redocly-'));
   copyFileSync(fixture, join(dir, 'openapi.yaml'));
-  writeFileSync(join(dir, 'redocly.yaml'), `x-openapi-typescript:\n${xConfig}`, 'utf-8');
+  writeFileSync(join(dir, 'redocly.yaml'), `x-client-generator:\n${xConfig}`, 'utf-8');
   return dir;
 }
 
-describe('generate-client redocly.yaml config (x-openapi-typescript)', () => {
+describe('generate-client redocly.yaml config (x-client-generator)', () => {
   it('generates from the redocly.yaml block with no flags', () => {
     const dir = project(
       [

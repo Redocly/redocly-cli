@@ -3,6 +3,6 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/respect-core" },
-    { "path": "packages/openapi-typescript" }
+    { "path": "packages/client-generator" }
   ]
 }

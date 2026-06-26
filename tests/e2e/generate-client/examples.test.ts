@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
-const examplesDir = join(repoRoot, 'packages/openapi-typescript/examples');
+const examplesDir = join(repoRoot, 'packages/client-generator/examples');
 
 const EXAMPLES = [
   'fetch-functions',
@@ -21,7 +21,7 @@ const EXAMPLES = [
 
 /**
  * Regenerate an example's client into `outFile`. A `redocly.yaml` example uses the CLI
- * (auto-discovering its `x-openapi-typescript` block); the programmatic example runs its
+ * (auto-discovering its `x-client-generator` block); the programmatic example runs its
  * `generate.ts` with `OUT` redirecting the output.
  */
 function regenerate(
@@ -69,7 +69,7 @@ describe('examples are in sync with the generator', () => {
         for (const rel of committedFiles) {
           expect(
             readFileSync(join(tmp, rel), 'utf-8'),
-            `${name}/src/api/${rel} is stale — run \`npm run examples:regen -w @redocly/openapi-typescript\``
+            `${name}/src/api/${rel} is stale — run \`npm run examples:regen -w @redocly/client-generator\``
           ).toBe(readFileSync(join(committed, rel), 'utf-8'));
         }
       } finally {

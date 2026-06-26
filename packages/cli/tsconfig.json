@@ -7,7 +7,7 @@
   "references": [
     { "path": "../core" },
     { "path": "../respect-core" },
-    { "path": "../openapi-typescript" }
+    { "path": "../client-generator" }
   ],
   "include": ["src/**/*.ts"],
   "exclude": ["lib", "**/__tests__", "**/*.test.ts"]

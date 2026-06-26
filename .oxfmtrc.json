@@ -5,7 +5,7 @@
   "experimentalSortPackageJson": false,
   "ignorePatterns": [
     "coverage/",
-    "packages/openapi-typescript/examples/*/src/api/",
+    "packages/client-generator/examples/*/src/api/",
     "lib/",
     "output/",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",

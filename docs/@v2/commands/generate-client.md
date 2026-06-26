@@ -146,19 +146,19 @@ redocly generate-client cafe -o src/client.ts
 
 - `--config`
 - `string`
-- Path to the `redocly.yaml` configuration file (where the `x-openapi-typescript` block lives).
+- Path to the `redocly.yaml` configuration file (where the `x-client-generator` block lives).
   Defaults to the `redocly.yaml` discovered in the working directory.
 
 {% /table %}
 
 ## Configuration
 
-Instead of passing flags every time, you can put the settings in your `redocly.yaml` under an `x-openapi-typescript` block.
+Instead of passing flags every time, you can put the settings in your `redocly.yaml` under an `x-client-generator` block.
 `generate-client` reads it automatically — from a `redocly.yaml` in the working directory, or one pointed to by the standard `--config` flag:
 
 ```yaml
 # redocly.yaml
-x-openapi-typescript:
+x-client-generator:
   input: ./openapi.yaml
   output: ./src/api/client.ts
   generators:
@@ -179,7 +179,7 @@ Point at a `redocly.yaml` elsewhere with the standard `--config` flag:
 redocly generate-client --config ./config/redocly.yaml
 ```
 
-**Precedence** (lowest to highest): the `redocly.yaml` `x-openapi-typescript` block → individual CLI flags.
+**Precedence** (lowest to highest): the `redocly.yaml` `x-client-generator` block → individual CLI flags.
 Each layer overrides per setting, so you can keep a base config and override one value on the command line.
 For code-level control — including registering custom generators inline — use the programmatic API instead (see [Custom generators](#custom-generators)).
 
@@ -871,7 +871,7 @@ A generator is `{ name, run }` (plus optional compatibility metadata).
 
 ```ts
 // route-map-generator.ts
-import { defineGenerator } from '@redocly/openapi-typescript/plugin';
+import { defineGenerator } from '@redocly/client-generator/plugin';
 
 export default defineGenerator({
   name: 'route-map',
@@ -891,7 +891,7 @@ export default defineGenerator({
 });
 ```
 
-The `@redocly/openapi-typescript/plugin` entry also exports the **codegen toolkit** the built-in generators use — `ts` (the `ts.factory` wrapper), `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, `safeIdent` — and the IR types (`ApiModel`, `OperationModel`, `SchemaModel`, …), so a custom generator can emit TypeScript exactly as the first-party ones do.
+The `@redocly/client-generator/plugin` entry also exports the **codegen toolkit** the built-in generators use — `ts` (the `ts.factory` wrapper), `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, `safeIdent` — and the IR types (`ApiModel`, `OperationModel`, `SchemaModel`, …), so a custom generator can emit TypeScript exactly as the first-party ones do.
 
 ### Select a custom generator
 
@@ -902,7 +902,7 @@ In `redocly.yaml`, a `generators` entry that is not a built-in name is an **impo
 
 ```yaml
 # redocly.yaml — by path or by published package
-x-openapi-typescript:
+x-client-generator:
   input: ./openapi.yaml
   output: ./src/api/client.ts
   generators:
@@ -915,7 +915,7 @@ To register a generator **inline** (the function itself, with full type-safety a
 
 ```ts
 // generate.ts — run with `node --import tsx generate.ts`
-import { generateClient } from '@redocly/openapi-typescript';
+import { generateClient } from '@redocly/client-generator';
 import routeMap from './tools/route-map-generator.ts';
 
 await generateClient({
@@ -926,7 +926,7 @@ await generateClient({
 });
 ```
 
-A worked example lives in [`examples/custom-generator`](https://github.com/Redocly/redocly-cli/tree/main/packages/openapi-typescript/examples/custom-generator).
+A worked example lives in [`examples/custom-generator`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/custom-generator).
 
 {% admonition type="info" name="Compatibility & trust" %}
 A custom generator declares the same `requires` / `facades` / `errorModes` / `dateTypes` contract as the built-ins, validated up front — an incompatible selection, a name that collides with another generator, or an unloadable specifier fails fast with an actionable message.

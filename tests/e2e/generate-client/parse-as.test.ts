@@ -7,7 +7,7 @@
 // that proves the option is accepted by the generated operation signatures.
 //
 // No mock-server behavioral assertion here: `parseAs` is a pure runtime branch in
-// `__parse` (covered by the openapi-typescript unit suite) and the cafe-consumer
+// `__parse` (covered by the client-generator unit suite) and the cafe-consumer
 // harness already exercises the default decoding path. Strict-tsc + string +
 // type-usage assertions are sufficient and keep this test process-light.
 import { spawnSync } from 'node:child_process';

@@ -1,5 +1,5 @@
 import { type Config, HandledError, isPlainObject, logger } from '@redocly/openapi-core';
-import { type Config as OpenApiTsConfig } from '@redocly/openapi-typescript';
+import { type Config as OpenApiTsConfig } from '@redocly/client-generator';
 import { blue, gray, yellow } from 'colorette';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 
@@ -7,14 +7,14 @@ import { getAliasOrPath } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 
 /**
- * Read generate-client settings from a `redocly.yaml`'s `x-openapi-typescript`
+ * Read generate-client settings from a `redocly.yaml`'s `x-client-generator`
  * extension block (the auto-discovered config, or the one at `--config`). Relative
  * `input`/`output` are resolved against the config file's directory so they mean the
  * same thing regardless of the current working directory. Returns `{}` when the block
  * is absent. (A URL/registry `input` is left untouched.)
  */
 function readRedoclyExtension(config: Config): Record<string, unknown> {
-  const raw = (config.resolvedConfig as Record<string, unknown>)['x-openapi-typescript'];
+  const raw = (config.resolvedConfig as Record<string, unknown>)['x-client-generator'];
   if (!isPlainObject(raw)) return {};
   const ext: Record<string, unknown> = { ...raw };
   const baseDir = config.configPath ? dirname(config.configPath) : undefined;
@@ -56,10 +56,10 @@ export async function handleGenerateClient({
   argv,
   config,
 }: CommandArgs<GenerateClientCommandArgv>) {
-  const { generateClient } = await import('@redocly/openapi-typescript');
-  const { mergeConfig } = await import('@redocly/openapi-typescript/config-file');
+  const { generateClient } = await import('@redocly/client-generator');
+  const { mergeConfig } = await import('@redocly/client-generator/config-file');
 
-  // Config sources, lowest → highest precedence: the `redocly.yaml` `x-openapi-typescript`
+  // Config sources, lowest → highest precedence: the `redocly.yaml` `x-client-generator`
   // block (located via the standard `--config` flag, else discovered in cwd) → CLI flags.
   const redoclyExtension = readRedoclyExtension(config);
   const merged = mergeConfig(redoclyExtension as Partial<OpenApiTsConfig>, {

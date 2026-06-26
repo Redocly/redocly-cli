@@ -11,8 +11,8 @@
   },
   "ignorePatterns": [
     "packages/*/lib/**",
-    "packages/openapi-typescript/examples/*/src/api/**",
-    "packages/openapi-typescript/examples/*/generate.ts",
+    "packages/client-generator/examples/*/src/api/**",
+    "packages/client-generator/examples/*/generate.ts",
     "*.js",
     "*.cjs",
     "tests/e2e/generate-client/*.snapshot.ts",

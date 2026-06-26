@@ -23,5 +23,5 @@
     "moduleResolution": "nodenext",
     "esModuleInterop": true
   },
-  "exclude": ["packages/openapi-typescript/examples"]
+  "exclude": ["packages/client-generator/examples"]
 }

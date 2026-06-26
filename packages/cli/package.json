@@ -46,7 +46,7 @@
     "@opentelemetry/semantic-conventions": "1.41.1",
     "@redocly/cli-otel": "0.3.1",
     "@redocly/openapi-core": "2.34.0",
-    "@redocly/openapi-typescript": "0.0.0",
+    "@redocly/client-generator": "0.0.0",
     "@redocly/respect-core": "2.34.0",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",

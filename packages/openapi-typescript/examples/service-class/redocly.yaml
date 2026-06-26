@@ -1,9 +1,0 @@
-# redocly.yaml — drives `redocly generate-client` for this example.
-# generate-client settings live under the `x-openapi-typescript` extension for now
-# (first-class config support is planned in @redocly/config).
-x-openapi-typescript:
-  input: ./openapi.yaml
-  output: ./src/api/client.ts
-  generators:
-    - sdk
-  facade: service-class
