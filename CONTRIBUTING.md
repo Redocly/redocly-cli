@@ -208,7 +208,7 @@ When updating Redoc, recompute the subresource integrity [SRI](https://developer
 openssl dgst -sha384 -binary node_modules/redoc/bundles/redoc.standalone.js | openssl base64 -A
 ```
 
-Also needs to be updated in test snapshots.
+Also needs to be updated in [test snapshots](#e2e-tests).
 
 ## Arguments usage
 
