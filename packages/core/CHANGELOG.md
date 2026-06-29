@@ -1,5 +1,14 @@
 # @redocly/openapi-core
 
+## 2.35.1
+
+## 2.35.0
+
+### Minor Changes
+
+- Added support for validating Arazzo 1.1.0 descriptions syntax in the `lint` command.
+- Added the `spec-step-mutually-exclusive-fields` Arazzo rule to flag steps that use more than one mutually exclusive operation field (`operationId`, `operationPath`, `workflowId`, `channelPath`, or `x-operation`).
+
 ## 2.34.0
 
 ## 2.33.2
