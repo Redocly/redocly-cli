@@ -68,6 +68,46 @@ describe('split', () => {
     );
   });
 
+  it('aborts instead of writing a component file outside the output directory', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/path-traversal.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await expect(
+      handleSplit({
+        argv: {
+          api: filePath,
+          outDir: openapiDir,
+          separator: '_',
+        },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(openapiCore.HandledError);
+
+    expect(utils.writeToFileByExtension).not.toHaveBeenCalled();
+  });
+
+  it('aborts instead of writing a path file outside the output directory', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/path-traversal-paths.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await expect(
+      handleSplit({
+        argv: {
+          api: filePath,
+          outDir: openapiDir,
+          separator: '/',
+        },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(openapiCore.HandledError);
+
+    expect(utils.writeToFileByExtension).not.toHaveBeenCalled();
+  });
+
   it('should use the correct separator', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 

@@ -1,5 +1,46 @@
 # @redocly/openapi-core
 
+## 2.35.1
+
+## 2.35.0
+
+### Minor Changes
+
+- Added support for validating Arazzo 1.1.0 descriptions syntax in the `lint` command.
+- Added the `spec-step-mutually-exclusive-fields` Arazzo rule to flag steps that use more than one mutually exclusive operation field (`operationId`, `operationPath`, `workflowId`, `channelPath`, or `x-operation`).
+
+## 2.34.0
+
+## 2.33.2
+
+## 2.33.1
+
+### Patch Changes
+
+- Improved AsyncAPI 3 types.
+- Updated js-yaml from `4.1.1` to `4.2.0`.
+
+## 2.33.0
+
+### Minor Changes
+
+- Added the `--component-names-strategy` option to the `bundle` command.
+  This option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).
+
+## 2.32.2
+
+## 2.32.1
+
+### Patch Changes
+
+- Fixed spurious "can't resolve reference" warnings when linting multiple APIs concurrently.
+
+## 2.32.0
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
 ## 2.31.6
 
 ## 2.31.5

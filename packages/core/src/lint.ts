@@ -5,7 +5,6 @@ import { initRules } from './config/rules.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { getTypes } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
-import { releaseAjvInstance } from './rules/ajv.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
 import { normalizeTypes, type NodeType } from './types/index.js';
@@ -71,12 +70,9 @@ export async function lintDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
-  releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
-
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
-  const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForSpecVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(getMajorSpecVersion(specVersion));
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
@@ -139,7 +135,7 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: use config-specific version
+    specVersion: 'config',
     config,
     visitorsData: {},
   };

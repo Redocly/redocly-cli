@@ -19,6 +19,7 @@ export { Oas3_2Types } from './types/oas3_2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
+export { Arazzo1_1Types } from './types/arazzo1_1.js';
 export { Overlay1Types } from './types/overlay.js';
 export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
@@ -122,56 +123,20 @@ export {
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
 export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
-export { bundleDocument } from './bundle/bundle-document.js';
+export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
+export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
-
 export type { CollectFn, Exact } from './utils/types.js';
-export type {
-  Oas3Definition,
-  Oas3_1Definition,
-  Oas3_2Definition,
-  Oas3Components,
-  Oas3_1Components,
-  Oas3PathItem,
-  Oas3Paths,
-  Oas3ComponentName,
-  Oas3Schema,
-  Oas3_1Schema,
-  Oas3Tag,
-  Oas3_2Tag,
-  Referenced,
-  OasRef,
-  Oas3Parameter,
-  Oas3Server,
-  Oas3Operation,
-  Oas3MediaType,
-  Oas3Responses,
-  ApiKeyAuth,
-  HttpAuth,
-  BasicAuth,
-  BearerAuth,
-  DigestAuth,
-  MutualTLSAuth,
-  OAuth2Auth,
-  OpenIDAuth,
-  Oas3SecurityScheme,
-  Oas3SecurityRequirement,
-  Oas3Example,
-} from './typings/openapi.js';
-export type { Oas2Definition } from './typings/swagger.js';
-export type { Async3Definition } from './typings/asyncapi3.js';
-export type { Async2Definition } from './typings/asyncapi.js';
-export type { OpenRpc1Definition } from './typings/openrpc.js';
-export type {
-  ArazzoDefinition,
-  ExtendedOperation,
-  ExtendedSecurity,
-  ResolvedSecurity,
-} from './typings/arazzo.js';
+export type * from './typings/openapi.js';
+export type * from './typings/swagger.js';
+export type * from './typings/asyncapi3.js';
+export type * from './typings/asyncapi.js';
+export type * from './typings/openrpc.js';
+export type * from './typings/arazzo.js';
 export type {
   StatsAccumulator,
   OASStatsAccumulator,

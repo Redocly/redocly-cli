@@ -91,10 +91,11 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
    - `logger.warn()` for warnings
    - `logger.error()` for errors
 
-3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
-   - Command output that needs to be parsed
-   - Interactive outputs (like login/logout responses)
-   - Data that needs to be piped to other commands
+3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools).
+   This includes:
+   - command output that needs to be parsed
+   - interactive outputs (like login/logout responses)
+   - data that needs to be piped to other commands
 
    ```typescript
    logger.output(JSON.stringify(stats, null, 2));
@@ -109,7 +110,8 @@ There are two options for testing local changes in other local applications: NPM
 
 ### NPM linking
 
-To test the local source code of the packages in other local applications, you can use npm linking. See the [docs](https://docs.npmjs.com/cli/v9/commands/npm-link).
+To test the local source code of the packages in other local applications, you can use npm linking.
+See the [docs](https://docs.npmjs.com/cli/v9/commands/npm-link).
 
 ### Local packing and installing
 
@@ -130,7 +132,8 @@ You can find the documentation in the `docs/` folder, and this is published to h
 
 To preview your documentation changes locally:
 
-1. Make sure `redocly` is already installed on your local computer. See [installation](https://redocly.com/docs/cli/installation/).
+1. Make sure `redocly` is already installed on your local computer.
+   See [installation](https://redocly.com/docs/cli/installation/).
 
 2. Run this command from the `docs/` folder:
 
@@ -164,7 +167,10 @@ The checks run on pull requests; locally, from the repository root:
 npx markdownlint-cli2 "docs/**/*.md"
 ```
 
-> Note that formatter also runs and reformats Markdown files. Use `npm run format` from the root of the project.
+> Note that formatter also runs and reformats Markdown files.
+> Use `npm run format` from the root of the project.
+
+> Please use semantic line breaks in markdown files (preferably splitting sentences into separate lines).
 
 ### Markdown link checking
 
@@ -193,6 +199,16 @@ To make changes to documentation:
 1. Create a new page for the rule in the `docs/@v2` folder.
 2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
 3. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
+
+## Update Redoc
+
+When updating Redoc, recompute the subresource integrity [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
+
+```bash
+openssl dgst -sha384 -binary node_modules/redoc/bundles/redoc.standalone.js | openssl base64 -A
+```
+
+Also needs to be updated in [test snapshots](#e2e-tests).
 
 ## Arguments usage
 
@@ -242,6 +258,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
+To skip coverage, run it with `--coverage=false`.
 
 ### E2E tests
 
@@ -303,7 +320,8 @@ There are also other commands available for your convenience to test specific co
 
 What should be verified when changes are applied to the `respect-core` package:
 
-- `mTLS` is working. Can be done by calling API endpoint with mTLS authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
+- `mTLS` is working. Can be done by calling API endpoint with mTLS authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`.
+  [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
 - File upload is working for both `multipart/form-data` and `application/octet-stream`.
 
 ## Project structure

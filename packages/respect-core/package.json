@@ -1,22 +1,22 @@
 {
   "name": "@redocly/respect-core",
-  "version": "2.31.6",
+  "version": "2.35.1",
   "description": "API testing framework core",
   "type": "module",
   "types": "lib/index.d.ts",
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
     },
     "./runtime-expressions": {
-      "import": "./lib/modules/runtime-expressions/index.js",
-      "types": "./lib/modules/runtime-expressions/index.d.ts"
+      "types": "./lib/modules/runtime-expressions/index.d.ts",
+      "import": "./lib/modules/runtime-expressions/index.js"
     },
     "./run": {
-      "import": "./lib/run.js",
-      "types": "./lib/run.d.ts"
+      "types": "./lib/run.d.ts",
+      "import": "./lib/run.js"
     }
   },
   "engines": {
@@ -48,7 +48,7 @@
     "@faker-js/faker": "^7.6.0",
     "@noble/hashes": "^1.8.0",
     "@redocly/ajv": "^8.18.1",
-    "@redocly/openapi-core": "2.31.6",
+    "@redocly/openapi-core": "2.35.1",
     "ajv": "npm:@redocly/ajv@8.18.1",
     "better-ajv-errors": "^2.0.3",
     "colorette": "^2.0.20",

@@ -1,7 +1,9 @@
 import { CloudEvents, type EventPayload, type EventType } from '@redocly/cli-otel';
 import {
+  getMajorSpecVersion,
   isAbsoluteUrl,
   isPlainObject,
+  type SpecVersion,
   type ArazzoDefinition,
   type Config,
   type Exact,
@@ -78,6 +80,7 @@ export async function sendTelemetry({
       cacheAnonymousId(anonymous_id);
     }
 
+    const majorSpecVersion = getMajorSpecVersion(spec_version as SpecVersion);
     const eventData: EventPayload<EventType> = [
       {
         id: 'cli-command-run',
@@ -99,15 +102,15 @@ export async function sendTelemetry({
         spec_keyword,
         spec_full_version,
         respect_x_security_auth_types:
-          spec_version === 'arazzo1' && respect_x_security_auth_types?.length
+          majorSpecVersion === 'arazzo1' && respect_x_security_auth_types?.length
             ? JSON.stringify(respect_x_security_auth_types)
             : undefined,
         respect_source_description_types:
-          spec_version === 'arazzo1' && respect_source_description_types?.length
+          majorSpecVersion === 'arazzo1' && respect_source_description_types?.length
             ? JSON.stringify(respect_source_description_types)
             : undefined,
         respect_criterion_object_types:
-          spec_version === 'arazzo1' && respect_criterion_object_types?.length
+          majorSpecVersion === 'arazzo1' && respect_criterion_object_types?.length
             ? JSON.stringify(respect_criterion_object_types)
             : undefined,
       },
@@ -313,7 +316,17 @@ function collectSensitiveValues(
 }
 
 export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
-  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'clientCert', 'clientKey', 'caCert'];
+  const KEYS_TO_CLEAN = [
+    'organization',
+    'o',
+    'input',
+    'i',
+    'clientCert',
+    'clientKey',
+    'caCert',
+    'server',
+    'S',
+  ];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[] | object> = {};
 

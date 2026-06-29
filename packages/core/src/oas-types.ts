@@ -1,4 +1,5 @@
 import { Arazzo1Types } from './types/arazzo.js';
+import { Arazzo1_1Types } from './types/arazzo1_1.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Oas2Types } from './types/oas2.js';
@@ -44,10 +45,14 @@ export const specVersions = [
   'async2',
   'async3',
   'arazzo1',
+  'arazzo1_1',
   'overlay1',
   'openrpc1',
 ] as const;
 export type SpecVersion = (typeof specVersions)[number];
+
+/** Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs. */
+export const COMPONENT_NAME_CHARS = 'a-zA-Z0-9\\.\\-_';
 
 export type SpecMajorVersion =
   | 'oas2'
@@ -55,6 +60,7 @@ export type SpecMajorVersion =
   | 'async2'
   | 'async3'
   | 'arazzo1'
+  | 'arazzo1_1'
   | 'overlay1'
   | 'openrpc1';
 
@@ -66,6 +72,7 @@ const typesMap = {
   async2: AsyncApi2Types,
   async3: AsyncApi3Types,
   arazzo1: Arazzo1Types,
+  arazzo1_1: Arazzo1_1Types,
   overlay1: Overlay1Types,
   openrpc1: OpenRpcTypes,
 };

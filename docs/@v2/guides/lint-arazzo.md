@@ -73,19 +73,19 @@ run `redocly lint --generate-ignore-file` to add all problems to the ignore file
 Choose from the ready-made rulesets (`spec`, `minimal`, `recommended` or `recommended-strict`), or go one better and configure the rules that suit your use case.
 There's a full [list of built-in rules for Arazzo](../rules/built-in-rules.md#arazzo-rules) to refer to.
 
-Add the rules to `redocly.yaml`, but for Arazzo specifications, the rules go in their own configuration section called `arazzo1Rules`.
+Add the rules to `redocly.yaml`.
 The following example shows configuration for the minimal ruleset with some additional rules configuration:
 
 ```yaml
 extends:
   - minimal
 
-arazzo1Rules:
+rules:
   sourceDescription-name-unique: warn
-  respect-supported-versions: error
+  sourceDescription-type: error
 ```
 
-The configuration shown here gives some good entry-level linting using the `minimal` standard, and adds checks that we're using a supported version of Arazzo, and warns if each source description doesn't have a unique name.
+The configuration shown here gives some good entry-level linting using the `minimal` standard and warns if each source description doesn't have a unique name.
 
 ## Choose output format
 

@@ -1,5 +1,73 @@
 # @redocly/cli
 
+## 2.35.1
+
+### Patch Changes
+
+- Updated `undici` to the `6.27.0` version.
+
+## 2.35.0
+
+### Minor Changes
+
+- Added support for validating Arazzo 1.1.0 descriptions syntax in the `lint` command.
+- Added the `spec-step-mutually-exclusive-fields` Arazzo rule to flag steps that use more than one mutually exclusive operation field (`operationId`, `operationPath`, `workflowId`, `channelPath`, or `x-operation`).
+
+## 2.34.0
+
+### Minor Changes
+
+- Improved CLI install speed by bundling the CLI into a dependency-free package.
+
+  **Warning:** The published package no longer ships runtime dependencies in `node_modules`.
+  Plugins that relied on importing packages hoisted from the CLI (such as `@redocly/openapi-core`) must now declare those packages as their own dependencies.
+
+## 2.33.2
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0
+
+### Minor Changes
+
+- Added the `--component-names-strategy` option to the `bundle` command.
+  This option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.0.
+
+## 2.32.2
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.32.2.
+
+## 2.32.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
+## 2.32.0
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
 ## 2.31.6
 
 ### Patch Changes
