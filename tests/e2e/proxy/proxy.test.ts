@@ -1,5 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -109,10 +109,10 @@ describe('proxy - capture and live validation', () => {
     });
     await fetch(`${proxyUrl}/pets/42`);
 
+    const entriesPath = `${harPath}.entries.tmp`;
     await poll(() => {
       try {
-        const har = JSON.parse(readFileSync(harPath, 'utf8'));
-        return har.log.entries.length === 2;
+        return readFileSync(entriesPath, 'utf8').split('\n').filter(Boolean).length === 2;
       } catch {
         return false;
       }
@@ -122,6 +122,8 @@ describe('proxy - capture and live validation', () => {
       child.on('exit', (code) => resolve(code));
       child.kill('SIGINT');
     });
+
+    expect(existsSync(entriesPath)).toBe(false);
 
     const har = JSON.parse(readFileSync(harPath, 'utf8'));
     const summary = har.log.entries.map(

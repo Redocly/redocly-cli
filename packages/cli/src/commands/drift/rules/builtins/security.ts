@@ -25,12 +25,6 @@ interface SecurityIssue {
   reason: string;
 }
 
-interface SkippedSecurityCheck {
-  requirement: number;
-  schemeName: string;
-  reason: string;
-}
-
 function extractAuthorizationScheme(authorizationHeader: string | undefined): string | null {
   if (!authorizationHeader) {
     return null;
@@ -286,10 +280,8 @@ function collectSecurityIssues(evaluation: SecurityEvaluationResult): SecurityIs
   return issues;
 }
 
-function collectSkippedSecurityChecks(
-  evaluation: SecurityEvaluationResult
-): SkippedSecurityCheck[] {
-  const skippedChecks: SkippedSecurityCheck[] = [];
+function collectSkippedSecurityChecks(evaluation: SecurityEvaluationResult): SecurityIssue[] {
+  const skippedChecks: SecurityIssue[] = [];
   for (const requirement of evaluation.requirements) {
     for (const schemeResult of requirement.schemeResults) {
       if (schemeResult.skipped) {

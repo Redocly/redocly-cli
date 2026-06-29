@@ -7,12 +7,16 @@ optionally validate it against an **OpenAPI description** in real time.
 
 The `proxy` command:
 
-- Starts a reverse proxy that forwards every request to an upstream `--target` and records each request/response exchange into a HAR file.
-- The HAR file is written incrementally (after each exchange) and flushed on shutdown.
-  The file stays durable if the process is interrupted.
-- When `--api` is provided, each captured exchange is validated live against the spec using the same engine as [`drift`](../drift/README.md).
-  Findings are printed as they happen and a full report is rendered on shutdown.
-- The resulting HAR file can be replayed through `drift` later: `redocly drift ./capture.har --api ./openapi.yaml`.
+- Starts a reverse proxy that forwards every request to an upstream `--target`
+  and records each request/response exchange into a HAR file.
+- Each exchange is appended to a temporary file on disk as it is captured (nothing
+  is held in memory), and that file is converted into the final HAR document on
+  shutdown.
+- When `--api` is provided, each captured exchange is validated live against the
+  spec using the same engine as [`drift`](../drift/README.md); findings are
+  printed as they happen and a full report is rendered on shutdown.
+- The resulting HAR file can be replayed through `drift` later:
+  `redocly drift ./capture.har --api ./openapi.yaml`.
 
 The `proxy` command reuses `@redocly/openapi-core` for spec loading and the bundled `@redocly/ajv` for schema validation, plus `undici` (already shipped) for the upstream client.
 There are no additional runtime dependencies.
@@ -60,10 +64,10 @@ redocly drift ./capture.har --api ./openapi.yaml
 
 ## Notes / PoC limitations
 
-- Reverse proxy only: clients must target the proxy directly.
-  There is no forward/`CONNECT` mode and no inbound TLS termination.
-- `accept-encoding` is stripped from forwarded requests so captured bodies are stored decoded.
-  Binary response bodies are stored base64-encoded in the HAR.
-- Captured exchanges are held in memory and the HAR is rewritten in full on each
-  exchange.
-  This strategy suits development-rate traffic rather than high-volume capture.
+- Reverse proxy only: clients must target the proxy directly; there is no
+  forward/`CONNECT` mode and no inbound TLS termination.
+- `accept-encoding` is stripped from forwarded requests so captured bodies are
+  stored decoded; binary response bodies are stored base64-encoded in the HAR.
+- Captured exchanges are streamed to a temporary file (`<har>.entries.tmp`) and
+  assembled into the final HAR only on shutdown; if the process is killed before
+  shutdown the temporary file remains but the final HAR is not written.

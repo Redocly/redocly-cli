@@ -1,11 +1,11 @@
-import { isPlainObject } from '@redocly/openapi-core';
-import addFormats from 'ajv-formats';
 import Ajv2020, {
   type AnySchema,
   type Options,
   type ValidateFunction,
   type Ajv2020 as Ajv2020Instance,
-} from 'ajv/dist/2020.js';
+} from '@redocly/ajv/dist/2020.js';
+import { isPlainObject } from '@redocly/openapi-core';
+import addFormats from 'ajv-formats';
 
 import type { SchemaValidationError } from '../types/index.js';
 

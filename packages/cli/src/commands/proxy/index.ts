@@ -136,7 +136,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
   logger.info('\nShutting down proxy…\n');
   await server.close();
   await exchangeQueue;
-  await harWriter.flush();
+  await harWriter.finalize();
   logger.info(`Captured ${harWriter.entryCount} exchange(s) to ${harPath}\n`);
 
   if (!session) {

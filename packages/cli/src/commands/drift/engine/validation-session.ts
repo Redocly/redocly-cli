@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, logger } from '@redocly/openapi-core';
 import { randomUUID } from 'node:crypto';
 
 import { matchOperation } from '../openapi/matcher.js';
@@ -129,15 +129,7 @@ async function executeRules(rules: RulePlugin[], context: RuleContext): Promise<
         findings.push(...ruleFindings);
       }
     } catch (error) {
-      findings.push({
-        ruleId: rule.id,
-        severity: 'error',
-        category: 'schema',
-        message: `Rule execution failed: ${(error as Error).message}`,
-        exchangeIndex: context.exchange.index,
-        operationId: context.matchedOperation?.operation.operationId,
-        specSource: context.matchedOperation?.operation.specSource,
-      });
+      logger.warn(`Rule "${rule.id}" failed to execute: ${(error as Error).message}\n`);
     }
   }
 

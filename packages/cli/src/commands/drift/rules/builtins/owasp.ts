@@ -33,12 +33,15 @@ interface OwaspMeta {
   summary: string;
 }
 
+const MASK_REVEALED_PREFIX_LENGTH = 4;
+const MASK_FULL_THRESHOLD = MASK_REVEALED_PREFIX_LENGTH * 2;
+
 function maskValue(value: string): string {
-  if (value.length <= 8) {
+  if (value.length <= MASK_FULL_THRESHOLD) {
     return '***';
   }
 
-  return `${value.slice(0, 4)}…`;
+  return `${value.slice(0, MASK_REVEALED_PREFIX_LENGTH)}…`;
 }
 
 function normalizeJsonPointerSegment(segment: string): string {
