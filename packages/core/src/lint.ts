@@ -72,8 +72,7 @@ export async function lintDocument(opts: {
 }) {
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
-  const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForSpecVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(getMajorSpecVersion(specVersion));
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
@@ -136,7 +135,7 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: use config-specific version
+    specVersion: 'config',
     config,
     visitorsData: {},
   };

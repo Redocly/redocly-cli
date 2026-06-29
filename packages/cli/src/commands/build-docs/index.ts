@@ -6,7 +6,7 @@ import { default as redoc } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
-import { redocVersion as redocCurrentVersion } from '../../utils/package.js';
+import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { BuildDocsArgv } from './types.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
@@ -36,12 +36,7 @@ export const handlerBuildCommand = async ({
       isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi)
     );
     collectSpecData?.(api);
-    const pageHTML = await getPageHTML(
-      api,
-      pathToApi,
-      { ...options, redocCurrentVersion },
-      argv.config
-    );
+    const pageHTML = await getPageHTML(api, pathToApi, { ...options, redocVersion }, argv.config);
 
     mkdirSync(dirname(options.output), { recursive: true });
     writeFileSync(options.output, pageHTML);

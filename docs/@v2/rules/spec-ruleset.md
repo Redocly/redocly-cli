@@ -32,6 +32,7 @@ All the rules are of severity `error`:
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
 - [spec-strict-refs](./oas/spec-strict-refs.md)
+- [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
