@@ -146,7 +146,7 @@ redocly generate-client cafe -o src/client.ts
 
 - `--setup`
 - `string`
-- Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades. See [Baking defaults into a published SDK](#baking-defaults-into-a-published-sdk-setup).
+- Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades. See [Baking defaults into a published SDK](#baking-defaults-into-a-published-sdk---setup).
 
 ---
 
