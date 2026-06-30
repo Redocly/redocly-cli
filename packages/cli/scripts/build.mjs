@@ -18,9 +18,20 @@ const result = await build({
   format: 'esm',
   target: 'node20.19',
   metafile: true,
-  // Avoid errors when external dependencies use CJS syntax.
+  // Avoid errors when external dependencies use CJS syntax. The bundled
+  // `typescript` compiler (used by generate-client) references `require`,
+  // `__filename`, and `__dirname` at runtime — none exist in ESM scope. Shim
+  // them per output file. `var` (not `const`) so these coexist with the
+  // self-declared `var __dirname` some deps already inline for ESM compat.
   banner: {
-    js: "import { createRequire as __createRequire } from 'node:module';\nconst require = __createRequire(import.meta.url);",
+    js: [
+      "import { createRequire as __createRequire } from 'node:module';",
+      "import { fileURLToPath as __fileURLToPath } from 'node:url';",
+      "import { dirname as __pathDirname } from 'node:path';",
+      'const require = __createRequire(import.meta.url);',
+      'var __filename = __fileURLToPath(import.meta.url);',
+      'var __dirname = __pathDirname(__filename);',
+    ].join('\n'),
   },
   logLevel: 'info',
 });

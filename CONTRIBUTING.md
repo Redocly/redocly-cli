@@ -252,13 +252,16 @@ Run `npm test` to start both unit and e2e tests (and additionally typecheck the 
 ### Unit tests
 
 Run unit tests with this command: `npm run unit`.
+This command runs the suite for every package whose tests match the discovery glob — there is no per-package `npm test` script.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
-To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
+To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`.
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
 To skip coverage, run it with `--coverage=false`.
+
+Run `npm run unit` with coverage reporting always enabled (the `coverage` block in the root config sets `enabled: true`); the HTML report is written to `coverage/`.
 
 ### E2E tests
 

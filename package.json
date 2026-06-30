@@ -53,6 +53,10 @@
   "license": "MIT",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
+    "@faker-js/faker": "^9.9.0",
+    "@redocly/mock-server": "^0.7.0",
+    "@tanstack/react-query": "^5.0.0",
+    "@testing-library/react": "^16.0.0",
     "@types/node": "^22.15.3",
     "@vitest/coverage-istanbul": "^4.1.8",
     "husky": "^9.1.7",
@@ -60,14 +64,19 @@
     "json-schema-to-ts": "^3.0.0",
     "json-server": "1.0.0-beta.3",
     "lint-staged": "^15.4.3",
+    "msw": "^2.14.6",
     "outdent": "^0.7.1",
     "oxfmt": "^0.33.0",
     "oxlint": "^1.48.0",
     "pegjs": "0.11.0-master.b7b87ea",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "slackify-markdown": "^4.3.1",
+    "swr": "^2.4.1",
     "tsx": "^4.19.3",
     "typescript": "6.0.2",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "zod": "^4.0.0"
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [

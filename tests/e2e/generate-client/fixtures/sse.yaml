@@ -1,0 +1,58 @@
+openapi: 3.2.0
+$self: https://example.com/openapi
+info: { title: SSE API, version: 1.0.0 }
+servers:
+  - { url: http://localhost:3104, name: production }
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags: [Health]
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /messages:
+    get:
+      operationId: streamMessages
+      tags: [Messages]
+      responses:
+        '200':
+          description: a stream of messages
+          content:
+            text/event-stream:
+              itemSchema: { $ref: '#/components/schemas/Message' }
+  /abort-messages:
+    get:
+      operationId: streamAbort
+      tags: [Messages]
+      responses:
+        '200':
+          description: a long-lived stream of messages (for the abort scenario)
+          content:
+            text/event-stream:
+              itemSchema: { $ref: '#/components/schemas/Message' }
+  /ticks:
+    get:
+      operationId: streamTicks
+      tags: [Ticks]
+      responses:
+        '200':
+          description: a stream of raw ticks
+          content:
+            text/event-stream: {}
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    Message:
+      type: object
+      required: [text, seq]
+      properties:
+        text: { type: string }
+        seq: { type: integer }

@@ -22,5 +22,6 @@
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "esModuleInterop": true
-  }
+  },
+  "exclude": ["packages/client-generator/examples"]
 }

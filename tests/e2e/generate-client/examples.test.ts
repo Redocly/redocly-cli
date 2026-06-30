@@ -1,0 +1,82 @@
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, '../../..');
+const cli = join(repoRoot, 'packages/cli/lib/index.js');
+const tsx = join(repoRoot, 'node_modules/.bin/tsx');
+const examplesDir = join(repoRoot, 'packages/client-generator/examples');
+
+const EXAMPLES = [
+  'fetch-functions',
+  'customization',
+  'baked-setup',
+  'service-class',
+  'zod',
+  'mock',
+  'tanstack-query',
+  'programmatic',
+];
+
+/**
+ * Regenerate an example's client into `outFile`. A `redocly.yaml` example uses the CLI
+ * (auto-discovering its `x-client-generator` block); the programmatic example runs its
+ * `generate.ts` with `OUT` redirecting the output.
+ */
+function regenerate(
+  exampleDir: string,
+  outFile: string
+): { status: number | null; stderr: string } {
+  if (existsSync(join(exampleDir, 'redocly.yaml'))) {
+    return spawnSync('node', [cli, 'generate-client', '--output', outFile], {
+      cwd: exampleDir,
+      encoding: 'utf-8',
+    });
+  }
+  return spawnSync(tsx, [join(exampleDir, 'generate.ts')], {
+    cwd: exampleDir,
+    encoding: 'utf-8',
+    env: { ...process.env, OUT: outFile },
+  });
+}
+
+/** All files (relative paths) under a dir, recursively. */
+function listFiles(dir: string, base = dir): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...listFiles(full, base));
+    else out.push(full.slice(base.length + 1));
+  }
+  return out;
+}
+
+describe('examples are in sync with the generator', () => {
+  for (const name of EXAMPLES) {
+    it(`${name}: committed src/api matches a fresh local generation`, () => {
+      const exampleDir = join(examplesDir, name);
+      const committed = join(exampleDir, 'src/api');
+      const tmp = mkdtempSync(join(tmpdir(), `ex-${name}-`));
+      try {
+        // Regenerate to a temp dir so the committed client isn't touched.
+        const res = regenerate(exampleDir, join(tmp, 'client.ts'));
+        expect(res.status, res.stderr).toBe(0);
+
+        const committedFiles = listFiles(committed).sort();
+        const freshFiles = listFiles(tmp).sort();
+        expect(freshFiles, `file set differs for ${name}`).toEqual(committedFiles);
+        for (const rel of committedFiles) {
+          expect(
+            readFileSync(join(tmp, rel), 'utf-8'),
+            `${name}/src/api/${rel} is stale — run \`npm run examples:regen -w @redocly/client-generator\``
+          ).toBe(readFileSync(join(committed, rel), 'utf-8'));
+        }
+      } finally {
+        rmSync(tmp, { recursive: true, force: true });
+      }
+    }, 60_000);
+  }
+});
