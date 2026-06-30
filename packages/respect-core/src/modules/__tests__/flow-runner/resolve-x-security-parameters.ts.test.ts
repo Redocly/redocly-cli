@@ -11,7 +11,7 @@ describe('resolveXSecurityParameters', () => {
     },
   } as TestContext;
 
-  it('should resolve x-security parameters', () => {
+  it('should resolve x-security parameters', async () => {
     const runtimeContext = {
       $steps: {
         basicAuth: {
@@ -38,7 +38,7 @@ describe('resolveXSecurityParameters', () => {
       ],
     } as unknown as Step;
 
-    const parameters = resolveXSecurityParameters({
+    const parameters = await resolveXSecurityParameters({
       ctx,
       runtimeContext,
       step,
@@ -55,7 +55,7 @@ describe('resolveXSecurityParameters', () => {
     });
   });
 
-  it('should merge x-security schemes on workflow level to steps', () => {
+  it('should merge x-security schemes on workflow level to steps', async () => {
     const runtimeContext = {
       $steps: {
         basicAuth: {
@@ -135,7 +135,7 @@ describe('resolveXSecurityParameters', () => {
       securitySchemes: { MuseumPlaceholderAuth: { type: 'http', scheme: 'basic' } },
     } as any;
 
-    const parameters = resolveXSecurityParameters({
+    const parameters = await resolveXSecurityParameters({
       ctx,
       runtimeContext,
       step,
@@ -182,7 +182,179 @@ describe('resolveXSecurityParameters', () => {
     ]);
   });
 
-  it('should throw when schemeName is provided but scheme cannot be resolved', () => {
+  it('should exchange OAuth2 clientCredentials for an accessToken and inject it', async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ access_token: 'exchanged-cc-token' }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+    ) as unknown as typeof fetch;
+
+    const ctxWithFetch = {
+      secretsSet: new Set<string>(),
+      options: { logger, fetch: fetchMock, maxFetchTimeout: 30_000 },
+    } as unknown as TestContext;
+
+    const runtimeContext = {} as RuntimeExpressionContext;
+    const step = {
+      stepId: 'getPet',
+      'x-security': [
+        {
+          scheme: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: { read: 'Read access' },
+              },
+            },
+          },
+          values: { clientId: 'id', clientSecret: 'secret' },
+        },
+      ],
+    } as unknown as Step;
+
+    const parameters = await resolveXSecurityParameters({
+      ctx: ctxWithFetch,
+      runtimeContext,
+      step,
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(parameters).toEqual([
+      { name: 'Authorization', in: 'header', value: 'Bearer exchanged-cc-token' },
+    ]);
+    expect(step['x-security']?.[0]?.values?.accessToken).toBe('exchanged-cc-token');
+  });
+
+  it('refreshes the exchanged accessToken when the cache entry expires', async () => {
+    let call = 0;
+    const fetchMock = vi.fn(async () => {
+      call += 1;
+      return new Response(JSON.stringify({ access_token: `cc-token-${call}`, expires_in: 1 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }) as unknown as typeof fetch;
+
+    const ctxWithFetch = {
+      secretsSet: new Set<string>(),
+      options: { logger, fetch: fetchMock, maxFetchTimeout: 30_000 },
+    } as unknown as TestContext;
+
+    const sharedSecurity = {
+      scheme: {
+        type: 'oauth2',
+        flows: {
+          clientCredentials: {
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: { read: 'Read access' },
+          },
+        },
+      },
+      values: { clientId: 'id', clientSecret: 'secret' },
+    };
+
+    const stepA = { stepId: 'a', 'x-security': [sharedSecurity] } as unknown as Step;
+    const firstParams = await resolveXSecurityParameters({
+      ctx: ctxWithFetch,
+      runtimeContext: {} as RuntimeExpressionContext,
+      step: stepA,
+    });
+
+    const [[, cached]] = Array.from(ctxWithFetch.oauth2TokenCache!.entries());
+    cached.expiresAt = Date.now();
+
+    const stepB = { stepId: 'b', 'x-security': [sharedSecurity] } as unknown as Step;
+    const secondParams = await resolveXSecurityParameters({
+      ctx: ctxWithFetch,
+      runtimeContext: {} as RuntimeExpressionContext,
+      step: stepB,
+    });
+
+    expect(firstParams[0].value).toBe('Bearer cc-token-1');
+    expect(secondParams[0].value).toBe('Bearer cc-token-2');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('should fail validation before calling the token endpoint when OAuth2 credentials are incomplete', async () => {
+    const fetchMock = vi.fn() as unknown as typeof fetch;
+    const ctxWithFetch = {
+      secretsSet: new Set<string>(),
+      options: { logger, fetch: fetchMock, maxFetchTimeout: 30_000 },
+    } as unknown as TestContext;
+
+    const step = {
+      stepId: 'getPet',
+      'x-security': [
+        {
+          scheme: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: { read: 'Read access' },
+              },
+            },
+          },
+          // Only clientId — clientSecret is missing.
+          values: { clientId: 'id' },
+        },
+      ],
+    } as unknown as Step;
+
+    await expect(
+      resolveXSecurityParameters({
+        ctx: ctxWithFetch,
+        runtimeContext: {} as RuntimeExpressionContext,
+        step,
+      })
+    ).rejects.toThrow('Missing required value `clientSecret` for oauth2 security scheme');
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('should skip OAuth2 token exchange when an accessToken is already provided', async () => {
+    const fetchMock = vi.fn() as unknown as typeof fetch;
+
+    const ctxWithFetch = {
+      secretsSet: new Set<string>(),
+      options: { logger, fetch: fetchMock, maxFetchTimeout: 30_000 },
+    } as unknown as TestContext;
+
+    const runtimeContext = {} as RuntimeExpressionContext;
+    const step = {
+      stepId: 'getPet',
+      'x-security': [
+        {
+          scheme: {
+            type: 'oauth2',
+            flows: {
+              password: {
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: { read: 'Read access' },
+              },
+            },
+          },
+          values: { accessToken: 'pre-fetched' },
+        },
+      ],
+    } as unknown as Step;
+
+    const parameters = await resolveXSecurityParameters({
+      ctx: ctxWithFetch,
+      runtimeContext,
+      step,
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(parameters).toEqual([
+      { name: 'Authorization', in: 'header', value: 'Bearer pre-fetched' },
+    ]);
+  });
+
+  it('should throw when schemeName is provided but scheme cannot be resolved', async () => {
     const runtimeContext = {} as RuntimeExpressionContext;
     const step = {
       stepId: 'getPet',
@@ -196,8 +368,8 @@ describe('resolveXSecurityParameters', () => {
       $sourceDescriptions: { 'museum-api': { components: { securitySchemes: {} } } },
     };
 
-    expect(() => resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })).toThrow(
-      'Security scheme "$sourceDescriptions.museum-api.Missing" not found'
-    );
+    await expect(
+      resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })
+    ).rejects.toThrow('Security scheme "$sourceDescriptions.museum-api.Missing" not found');
   });
 });
