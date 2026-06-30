@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.17
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/respect-core to v1.34.17.
+
 ## 1.34.16
 
 ### Patch Changes
