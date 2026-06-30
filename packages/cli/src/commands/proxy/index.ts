@@ -17,7 +17,7 @@ export type ProxyArgv = {
   host: string;
   har: string;
   api?: string;
-  format: ReportFormat;
+  'report-format': ReportFormat;
   'match-mode': MatchMode;
   'ignore-cookies'?: boolean;
   'max-findings': number;
@@ -157,8 +157,8 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
   };
 
   const report = renderReport(result, {
-    format: argv.format,
-    color: USE_COLOR && argv.format === 'pretty',
+    format: argv['report-format'],
+    color: USE_COLOR && argv['report-format'] === 'pretty',
     maxFindings: argv['max-findings'],
   });
 

@@ -21,7 +21,7 @@ export type DriftArgv = {
   traffic: string;
   api: string;
   'traffic-format': TrafficFormat;
-  format: ReportFormat;
+  'report-format': ReportFormat;
   'match-mode'?: MatchMode;
   'ignore-cookies'?: boolean;
   'max-findings': number;
@@ -139,8 +139,8 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
       },
     },
     {
-      format: argv.format,
-      color: USE_COLOR && argv.format === 'pretty' && !argv.output,
+      format: argv['report-format'],
+      color: USE_COLOR && argv['report-format'] === 'pretty' && !argv.output,
       maxFindings: argv['max-findings'],
     }
   );

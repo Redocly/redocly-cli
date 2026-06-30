@@ -921,8 +921,9 @@ yargs(hideBin(process.argv))
             ] as ReadonlyArray<TrafficFormat>,
             default: 'auto' as TrafficFormat,
           },
-          format: {
+          'report-format': {
             describe: 'Output format.',
+            alias: 'format',
             choices: ['pretty', 'json', 'csv', 'sarif'] as ReadonlyArray<ReportFormat>,
             default: 'pretty' as ReportFormat,
           },
@@ -1014,8 +1015,9 @@ yargs(hideBin(process.argv))
             'OpenAPI description file or folder to validate captured traffic against (live).',
           type: 'string',
         },
-        format: {
+        'report-format': {
           describe: 'Output format for the validation report printed on shutdown.',
+          alias: 'format',
           choices: ['pretty', 'json', 'csv', 'sarif'] as ReadonlyArray<ReportFormat>,
           default: 'pretty' as ReportFormat,
         },
