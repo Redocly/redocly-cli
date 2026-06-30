@@ -1,0 +1,80 @@
+/**
+ * Proves the generated client types `ctx.operation.{id,path,tags}` as literal unions: a valid
+ * comparison compiles, a misspelled operationId/tag does NOT. The whole point of the feature is
+ * compile-time typo-catching, so it gets a dedicated strict-`tsc` check.
+ */
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, '../../..');
+const cli = join(repoRoot, 'packages/cli/lib/index.js');
+const tsc = join(repoRoot, 'node_modules/.bin/tsc');
+const fixture = join(__dirname, 'fixtures/base.yaml');
+
+function gen(dir: string): void {
+  const r = spawnSync('node', [cli, 'generate-client', fixture, '--output', join(dir, 'client.ts')], {
+    cwd: repoRoot,
+    encoding: 'utf-8',
+  });
+  if (r.status !== 0) throw new Error(r.stderr);
+  writeFileSync(
+    join(dir, 'tsconfig.json'),
+    JSON.stringify({
+      compilerOptions: {
+        strict: true,
+        target: 'ES2022',
+        module: 'NodeNext',
+        moduleResolution: 'NodeNext',
+        noEmit: true,
+        allowImportingTsExtensions: true,
+        lib: ['ES2022', 'DOM'],
+        skipLibCheck: true,
+      },
+      include: ['*.ts'],
+    }),
+    'utf-8'
+  );
+}
+function typechecks(dir: string, consumer: string): boolean {
+  writeFileSync(join(dir, 'consumer.ts'), consumer, 'utf-8');
+  return spawnSync(tsc, ['-p', join(dir, 'tsconfig.json')], { cwd: dir, encoding: 'utf-8' }).status === 0;
+}
+
+describe('typed ctx.operation rejects typos at compile time', () => {
+  let dir = '';
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'optypes-'));
+    gen(dir);
+  }, 60_000);
+  afterAll(() => {
+    if (dir) rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('a valid operationId/path comparison compiles', () => {
+    expect(
+      typechecks(
+        dir,
+        `
+import { use, type RequestContext } from './client.ts';
+use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPets' || ctx.operation.path === '/pets') {} } });
+`
+      )
+    ).toBe(true);
+  }, 60_000);
+
+  test('a misspelled operationId fails to compile', () => {
+    expect(
+      typechecks(
+        dir,
+        `
+import { use, type RequestContext } from './client.ts';
+use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPetss') {} } });
+`
+      )
+    ).toBe(false);
+  }, 60_000);
+});

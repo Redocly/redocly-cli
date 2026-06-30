@@ -2,6 +2,41 @@ import { renderRuntime, runtimeStatements, PUBLIC_RUNTIME_TYPES } from '../runti
 import { printStatements } from '../ts.js';
 
 describe('renderRuntime — shared core + terminal selection', () => {
+  describe('operation context', () => {
+    it('emits OperationContext, the operation field, and threads op through __send', () => {
+      const out = renderRuntime('https://api.example.com', false, false);
+      expect(out).toContain('export type OperationContext = {');
+      expect(out).toContain('tags: string[];');
+      expect(out).toContain('operation: op');
+      expect(out).toContain('op: OperationContext,');
+    });
+
+    it('lists OperationContext in PUBLIC_RUNTIME_TYPES', () => {
+      expect(PUBLIC_RUNTIME_TYPES).toContain('OperationContext');
+    });
+
+    it('narrows OperationContext field types when given operation-union types', () => {
+      const out = renderRuntime('https://x', false, false, 'throw', false, false, false, {
+        id: 'OperationId',
+        path: 'OperationPath',
+        tags: 'OperationTag[]',
+      });
+      expect(out).toContain('id: OperationId;');
+      expect(out).toContain('path: OperationPath;');
+      expect(out).toContain('tags: OperationTag[];');
+    });
+
+    it('serializes the body from context.body after the onRequest chain', () => {
+      const out = renderRuntime('https://api.example.com', false, false);
+      const sendStart = out.indexOf('async function __send(');
+      const onReq = out.indexOf('mw.onRequest(context)', sendStart);
+      const serialize = out.indexOf('payload = JSON.stringify(value)', sendStart);
+      expect(onReq).toBeGreaterThan(-1);
+      // Serialization must happen after the onRequest hook so body mutations are sent.
+      expect(serialize).toBeGreaterThan(onReq);
+    });
+  });
+
   describe('throw mode (default)', () => {
     it('emits __send, __parse, and __request<T> and no result terminal', () => {
       const out = renderRuntime('https://api.example.com', false, false);
@@ -178,12 +213,12 @@ describe('renderRuntime — shared core + terminal selection', () => {
       [
         'throw',
         renderRuntime('https://api.example.com', false, false, 'throw'),
-        'const { response, context } = await __send(config, url, sendInit, body);',
+        'const { response, context } = await __send(config, op, url, sendInit, body);',
       ],
       [
         'result',
         renderRuntime('https://api.example.com', false, true, 'result'),
-        'const { response } = await __send(config, url, sendInit, body);',
+        'const { response } = await __send(config, op, url, sendInit, body);',
       ],
     ];
     it.each(terminals)(

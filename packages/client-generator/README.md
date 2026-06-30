@@ -150,14 +150,75 @@ else console.log(data.id); // `data` is the success body
 
 Transport/abort failures still throw in both modes.
 
-The client also exports an `OPERATIONS` map (operationId → `{ method, path }`) plus `OperationId` / `OperationMetadata` types.
-The string-literal keys and path templates survive minification, so they're the stable handle for cache/query keys, tracing span names, and request logging:
+The client also exports an `OPERATIONS` map (operationId → `{ method, path, tags }`) plus the `OperationId` / `OperationPath` / `OperationTag` / `OperationMetadata` types.
+The string-literal keys, path templates, and tags survive minification, so they're the stable handle for cache/query keys, tracing span names, and request logging:
 
 ```ts
 import { OPERATIONS, getOrderById } from './client.ts';
 
 const queryKey = [OPERATIONS.getOrderById.path, orderId]; // "/orders/{orderId}"
 ```
+
+### Customizing requests and responses
+
+You shape requests and responses from your own code — never by editing the generated client, so changes survive regeneration.
+Middleware (`use(...)` for the functions facade, `client.use(...)` per instance for the service-class facade) hooks the request lifecycle, and each `RequestContext` carries the operation's identity so you can target by operationId or tag instead of brittle URL matching.
+`onRequest` may mutate `ctx.url` / `ctx.method` / `ctx.headers` **and `ctx.body`**; `onResponse` may observe or replace the `Response`:
+
+```ts
+import { configure, use, listMenuItems } from './client.ts';
+
+// A custom transport — proxy, instrument, or (here) swap fetch entirely.
+configure({ fetch: myFetch });
+
+use({
+  onRequest: (ctx) => {
+    // Target specific operations by identity, not URL shape.
+    if (ctx.operation.id === 'createOrder' || ctx.operation.tags.includes('Orders')) {
+      ctx.headers['X-Idempotency-Key'] = crypto.randomUUID();
+      (ctx.body as { source?: string }).source = 'web'; // body edits are sent
+    }
+  },
+  onResponse: (response, ctx) => {
+    console.debug(ctx.operation.id, response.status);
+  },
+});
+
+// A header for one call only goes in the trailing RequestOptions.
+await listMenuItems({}, { headers: { 'X-Request-Id': '42' } });
+```
+
+`ctx.operation` is `{ id, path, tags }` — the operationId, the path template (`{param}` placeholders intact), and the operation's tags. All three are **typed literal unions** (`OperationId` / `OperationPath` / `OperationTag`, exported alongside the `OPERATIONS` map), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete and reject typos at compile time.
+See the [`customization` example](./examples/customization) for a runnable end-to-end version, and [ADR-0014](./docs/adr/0014-request-response-customization.md) for the rationale.
+
+### Baking defaults into a published SDK
+
+The customization above is composed by the **consumer**. If you instead **publish an SDK** and want those defaults already active for *your* users, bake them in at generation time with `--setup <file>`. The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable before the client is generated) and returns a `defineClientSetup({ config, middleware })`:
+
+```ts
+// client-setup.ts
+import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
+
+export default defineClientSetup({
+  config: { baseUrl: 'https://api.acme.com', retry: { retries: 3 } },
+  middleware: [
+    {
+      onRequest: (ctx: RequestContext) => {
+        ctx.headers['X-Acme-SDK'] = '1.4.0';
+        if (ctx.operation.tags.includes('Orders')) ctx.headers['X-Idempotency-Key'] = crypto.randomUUID();
+      },
+    },
+  ],
+});
+```
+
+```sh
+redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
+```
+
+The generator bakes the `config`/`middleware` into the generated client, so the published package applies them on import — your users call operations with no setup of their own, and can still override (their `configure`/`use` run after the baked ones). Works across all output modes and both facades (functions and service-class — `new Client()` picks up the baked defaults). A setup file may import **only** from `@redocly/client-generator`, keeping the client zero-dependency.
+
+See the [`baked-setup` example](./examples/baked-setup) and [ADR-0015](./docs/adr/0015-publisher-setup-bake-in.md).
 
 ## Testing the generated client
 

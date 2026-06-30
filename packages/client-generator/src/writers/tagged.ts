@@ -28,7 +28,7 @@ export function buildTaggedClient(
   const importPrefix = nested ? '../' : './';
 
   const files: GeneratedFile[] = [
-    { path: join(dir, `${stem}.http.ts`), content: m.http },
+    { path: join(dir, `${stem}.http.ts`), content: m.http(stem) },
     { path: join(dir, `${stem}.schemas.ts`), content: m.schemas },
   ];
 

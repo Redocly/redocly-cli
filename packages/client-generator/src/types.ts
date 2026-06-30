@@ -93,6 +93,12 @@ export type GenerateClientOptions = {
    * location). Defaults to the current working directory.
    */
   configDir?: string;
+  /**
+   * Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`)
+   * baked into the generated client. Resolved against `configDir`. Works across all output modes
+   * and both facades (functions: global `configure`/`use`; service-class: constructor merge).
+   */
+  setup?: string;
 };
 
 export type GenerateClientResult = {

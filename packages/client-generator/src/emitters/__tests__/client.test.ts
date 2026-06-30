@@ -1,6 +1,75 @@
 import type { ApiModel, OperationModel } from '../../ir/model.js';
-import { emitModules, emitSingleFile } from '../client.js';
+import { emitModules, emitSingleFile, setupApply } from '../client.js';
 import { apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';
+
+describe('typed ctx.operation (OperationContext narrowing)', () => {
+  const tagged = apiModel({
+    services: [
+      { name: 'Default', operations: [operation({ name: 'listPets', path: '/pets', tags: ['Pets'] })] },
+    ],
+  });
+
+  it('single-file narrows OperationContext to the operation unions', () => {
+    const out = emitSingleFile(tagged, {});
+    // The TS printer expands the type literal across lines.
+    expect(out).toContain('id: OperationId;');
+    expect(out).toContain('path: OperationPath;');
+    expect(out).toContain('tags: OperationTag[];');
+  });
+
+  it('multi-file http module type-imports the operation unions from schemas', () => {
+    const mods = emitModules(tagged, {});
+    expect(mods.http('client')).toContain(
+      'import type { OperationId, OperationPath, OperationTag } from "./client.schemas.js";'
+    );
+  });
+
+  it('falls back to all-string OperationContext (and no import) when there are no operations', () => {
+    const out = emitSingleFile(apiModel(), {});
+    expect(out).toContain('id: string;');
+    expect(out).toContain('tags: string[];');
+    expect(out).not.toContain('id: OperationId;');
+    expect(emitModules(apiModel(), {}).http('client')).not.toContain('from "./client.schemas.js"');
+  });
+});
+
+describe('setupApply — baked publisher setup (--setup)', () => {
+  const EXPR = '{ config: { baseUrl: "https://x" }, middleware: [] }';
+
+  it('functions facade: declares __redoclySetup then applies it via configure/use', () => {
+    const out = setupApply(EXPR, 'functions', false);
+    expect(out).toContain(
+      'const __redoclySetup: { config?: ClientConfig; middleware?: Middleware[] } = ' + EXPR + ';'
+    );
+    expect(out).toContain('configure(__redoclySetup.config ?? {});');
+    expect(out).toContain('use(...(__redoclySetup.middleware ?? []));');
+    expect(out).not.toContain('export const');
+  });
+
+  it('service-class facade: declaration only (no configure/use); exported when asked', () => {
+    const out = setupApply(EXPR, 'service-class', true);
+    expect(out).toContain('export const __redoclySetup');
+    expect(out).not.toContain('configure(');
+    expect(out).not.toContain('use(...');
+  });
+
+  it('single-file service-class constructor merges __redoclySetup into this.config', () => {
+    const out = emitSingleFile(apiModel(), { facade: 'service-class', setup: EXPR });
+    expect(out).toContain('...__redoclySetup.config');
+    expect(out).toContain('this.config = {');
+  });
+
+  it('single-file functions facade appends the configure/use application', () => {
+    const out = emitSingleFile(apiModel(), { setup: EXPR });
+    expect(out).toContain('configure(__redoclySetup.config ?? {});');
+  });
+
+  it('multi-file: the http module carries the baked setup', () => {
+    const mods = emitModules(apiModel(), { setup: EXPR });
+    expect(mods.http('client')).toContain('const __redoclySetup');
+    expect(mods.http('client')).toContain('configure(__redoclySetup.config ?? {});');
+  });
+});
 
 /** An SSE operation streaming `Message` events (event-stream success + itemSchema $ref). */
 function sseOperation(overrides: Partial<OperationModel> = {}): OperationModel {
@@ -98,7 +167,7 @@ describe('emitSingleFile — service-class facade', () => {
     const cls = emitModules(model, { facade: 'service-class' });
     // The facade changes only the endpoints; the shared http (runtime + auth) and
     // schemas (types + guards) modules are byte-identical across facades.
-    expect(cls.http).toBe(fns.http);
+    expect(cls.http('client')).toBe(fns.http('client'));
     expect(cls.schemas).toBe(fns.schemas);
   });
 });
@@ -118,6 +187,11 @@ describe('extension contract (ClientConfig)', () => {
     expect(out).toContain('__buildUrl(__config, `/p`)');
     // __request receives __config as its first argument.
     expect(out).toContain('return __request<void>(__config,');
+  });
+
+  it('passes the operation { id, path, tags } literal into the runtime call', () => {
+    const out = emitWithOp({ name: 'ping', path: '/p' });
+    expect(out).toContain('__request<void>(__config, { id: "ping", path: "/p", tags: [] }');
   });
 
   it('runtime resolves config.baseUrl ?? BASE and config.fetch ?? fetch', () => {
@@ -199,8 +273,8 @@ describe('renderRuntime contents (smoke)', () => {
 describe('emitModules — writer-facing module interface', () => {
   it('exposes the http module (runtime + auth helpers exported) and the endpoints', () => {
     const m = emitModules(apiModel({ services: [{ name: 'Default', operations: [operation()] }] }));
-    expect(m.http).toContain('export function __buildUrl(');
-    expect(m.http).toContain('export async function __request<T>(');
+    expect(m.http('client')).toContain('export function __buildUrl(');
+    expect(m.http('client')).toContain('export async function __request<T>(');
     expect(m.operations).toContain('export async function op(');
   });
 
@@ -261,7 +335,7 @@ describe('emitModules — writer-facing module interface', () => {
     const m = emitModules(apiModel());
     const reexport = m.publicReexport('client');
     expect(reexport).toContain(
-      'export { ApiError, configure, setBaseUrl } from "./client.http.js";'
+      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
     );
     expect(reexport).toContain('export type {');
   });
@@ -284,7 +358,7 @@ describe('SSE plumbing (single + multi-file)', () => {
 
   it('emitModules http exports the __sse generator for an SSE model', () => {
     const m = emitModules(sseModel());
-    expect(m.http).toContain('export async function* __sse');
+    expect(m.http('client')).toContain('export async function* __sse');
   });
 
   it('publicReexport re-exports ServerSentEvent + SseOptions only for an SSE model', () => {

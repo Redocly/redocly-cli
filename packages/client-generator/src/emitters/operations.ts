@@ -13,7 +13,7 @@ import {
 } from './operation-types.js';
 import { isSseOp, partitionOps, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase, splitLines } from './support.js';
-import { jsdoc, printStatements, ts } from './ts.js';
+import { jsdoc, parseStatements, printStatements, ts } from './ts.js';
 import { type DateType, schemaToTypeNode } from './types.js';
 
 // `isTypedMultipart` lives in operation-types now; re-export it so existing importers
@@ -75,6 +75,15 @@ export function operationsMetaStatements(ops: OperationModel[]): ts.Statement[] 
             factory.createStringLiteral(op.method.toUpperCase())
           ),
           factory.createPropertyAssignment('path', factory.createStringLiteral(op.path)),
+          // No inner `as const`: the enclosing `OPERATIONS … as const` already makes this a
+          // readonly tuple of string literals, which is what `["tags"][number]` needs.
+          factory.createPropertyAssignment(
+            'tags',
+            factory.createArrayLiteralExpression(
+              op.tags.map((t) => factory.createStringLiteral(t)),
+              false
+            )
+          ),
         ],
         false
       )
@@ -123,12 +132,35 @@ export function operationsMetaStatements(ops: OperationModel[]): ts.Statement[] 
       [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
       'OperationMetadata',
       undefined,
-      factory.createTypeLiteralNode([readonlyStringProp('method'), readonlyStringProp('path')])
+      factory.createTypeLiteralNode([
+        readonlyStringProp('method'),
+        readonlyStringProp('path'),
+        factory.createPropertySignature(
+          [factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)],
+          'tags',
+          undefined,
+          factory.createTypeOperatorNode(
+            ts.SyntaxKind.ReadonlyKeyword,
+            factory.createArrayTypeNode(factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword))
+          )
+        ),
+      ])
     ),
-    'Static metadata describing one operation: its HTTP method and path template.'
+    'Static metadata describing one operation: its HTTP method, path template, and tags.'
   );
 
-  return [operations, operationId, operationMetadata];
+  // Derived literal unions of every path template and tag — used to narrow `RequestContext.operation`.
+  // `OperationTag` is omitted when no operation has a tag (its `["tags"][number]` would be `never`),
+  // so the narrowed `tags` field falls back to `string[]`.
+  const hasTags = ops.some((op) => op.tags.length > 0);
+  const derived = parseStatements(
+    'export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];' +
+      (hasTags
+        ? '\nexport type OperationTag = (typeof OPERATIONS)[OperationId]["tags"][number];'
+        : '')
+  );
+
+  return [operations, operationId, operationMetadata, ...derived];
 }
 
 /** A `readonly <name>: string` property signature for the `OperationMetadata` type. */
@@ -171,6 +203,12 @@ export type OperationsBlockOptions = {
    * per-tag SSE bundles from colliding.
    */
   sseExportName?: string;
+  /**
+   * Whether a publisher `--setup` was baked in. When true, the service-class constructor merges the
+   * module-scoped `__redoclySetup` ({@link setupApply}) into each instance's config. Functions-facade
+   * blocks are unaffected (the setup applies globally via `configure`/`use`).
+   */
+  bakedSetup?: boolean;
 };
 
 /**
@@ -188,6 +226,8 @@ export type EmitContext = {
   queryAuthKeys: Set<string>;
   /** Names of every exported schema, used for `<Op>*` alias collision suppression. */
   schemaNames: Set<string>;
+  /** Whether a publisher `--setup` was baked in (service-class constructor merges `__redoclySetup`). */
+  bakedSetup: boolean;
 };
 
 export function renderOperationsBlock(
@@ -208,6 +248,7 @@ export function operationsBlockStatements(
     dateType: options.dateType ?? 'string',
     queryAuthKeys: options.queryAuthKeys ?? new Set<string>(),
     schemaNames: options.schemaNames ?? new Set<string>(),
+    bakedSetup: options.bakedSetup ?? false,
   };
   const sseExportName = options.sseExportName ?? 'sse';
   if (options.facade === 'service-class')
@@ -375,6 +416,105 @@ function serviceUseMethod(): ts.ClassElement {
  * `this.config` to the runtime, so each instance is independently configured.
  * With no config it falls back to the global `BASE` + auth (back-compat).
  */
+/**
+ * The service-class constructor (+ its `config` field). Without a baked setup it is the historical
+ * parameter-property form (`private readonly config: ClientConfig = {}`) — byte-identical. With a
+ * baked setup, the constructor merges the module-scoped `__redoclySetup` into each instance's config:
+ * `{ ...__redoclySetup.config, ...config, middleware: [...baked, ...passed] }` — so `new Client()`
+ * gets the publisher defaults and a passed `config` overrides them (consumer wins; baked middleware
+ * runs first).
+ */
+function constructorMembers(bakedSetup: boolean): ts.ClassElement[] {
+  const configType = factory.createTypeReferenceNode('ClientConfig');
+  if (!bakedSetup) {
+    return [
+      factory.createConstructorDeclaration(
+        undefined,
+        [
+          factory.createParameterDeclaration(
+            [
+              factory.createModifier(ts.SyntaxKind.PrivateKeyword),
+              factory.createModifier(ts.SyntaxKind.ReadonlyKeyword),
+            ],
+            undefined,
+            'config',
+            undefined,
+            configType,
+            factory.createObjectLiteralExpression([], false)
+          ),
+        ],
+        factory.createBlock([], false)
+      ),
+    ];
+  }
+
+  const id = (n: string) => factory.createIdentifier(n);
+  const setupMember = (name: string) =>
+    factory.createPropertyAccessExpression(id('__redoclySetup'), name);
+  const orEmptyArray = (e: ts.Expression) =>
+    factory.createBinaryExpression(
+      e,
+      factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+      factory.createArrayLiteralExpression([], false)
+    );
+  const merged = factory.createObjectLiteralExpression(
+    [
+      factory.createSpreadAssignment(setupMember('config')),
+      factory.createSpreadAssignment(id('config')),
+      factory.createPropertyAssignment(
+        'middleware',
+        factory.createArrayLiteralExpression(
+          [
+            factory.createSpreadElement(orEmptyArray(setupMember('middleware'))),
+            factory.createSpreadElement(
+              orEmptyArray(factory.createPropertyAccessExpression(id('config'), 'middleware'))
+            ),
+          ],
+          false
+        )
+      ),
+    ],
+    true
+  );
+  return [
+    factory.createPropertyDeclaration(
+      [
+        factory.createModifier(ts.SyntaxKind.PrivateKeyword),
+        factory.createModifier(ts.SyntaxKind.ReadonlyKeyword),
+      ],
+      'config',
+      undefined,
+      configType,
+      undefined
+    ),
+    factory.createConstructorDeclaration(
+      undefined,
+      [
+        factory.createParameterDeclaration(
+          undefined,
+          undefined,
+          'config',
+          undefined,
+          configType,
+          factory.createObjectLiteralExpression([], false)
+        ),
+      ],
+      factory.createBlock(
+        [
+          factory.createExpressionStatement(
+            factory.createBinaryExpression(
+              factory.createPropertyAccessExpression(factory.createThis(), 'config'),
+              factory.createToken(ts.SyntaxKind.EqualsToken),
+              merged
+            )
+          ),
+        ],
+        true
+      )
+    ),
+  ];
+}
+
 function serviceClassStatements(
   ops: OperationModel[],
   className: string,
@@ -382,23 +522,7 @@ function serviceClassStatements(
 ): ts.Statement[] {
   const aliases: ts.Statement[] = [];
   const members: ts.ClassElement[] = [
-    factory.createConstructorDeclaration(
-      undefined,
-      [
-        factory.createParameterDeclaration(
-          [
-            factory.createModifier(ts.SyntaxKind.PrivateKeyword),
-            factory.createModifier(ts.SyntaxKind.ReadonlyKeyword),
-          ],
-          undefined,
-          'config',
-          undefined,
-          factory.createTypeReferenceNode('ClientConfig'),
-          factory.createObjectLiteralExpression([], false)
-        ),
-      ],
-      factory.createBlock([], false)
-    ),
+    ...constructorMembers(ctx.bakedSetup),
     serviceUseMethod(),
   ];
 
@@ -577,7 +701,13 @@ function renderOperationParts(
           factory.createCallExpression(
             factory.createIdentifier('__sse'),
             [eventType],
-            [configExpr(configRef), urlExpr, initExpr, factory.createStringLiteral(sseDataKind(op))]
+            [
+              configExpr(configRef),
+              operationMetaExpr(op),
+              urlExpr,
+              initExpr,
+              factory.createStringLiteral(sseDataKind(op)),
+            ]
           )
         )
       )
@@ -944,6 +1074,24 @@ function headersHelperCall(op: OperationModel, groupedMode: boolean): ts.Express
  * still passes `undefined` as the body placeholder so the kind lands in the right
  * position.
  */
+/** The `{ id, path, tags }` literal passed to the runtime as the operation's identity. */
+function operationMetaExpr(op: OperationModel): ts.Expression {
+  return factory.createObjectLiteralExpression(
+    [
+      factory.createPropertyAssignment('id', factory.createStringLiteral(op.name)),
+      factory.createPropertyAssignment('path', factory.createStringLiteral(op.path)),
+      factory.createPropertyAssignment(
+        'tags',
+        factory.createArrayLiteralExpression(
+          op.tags.map((t) => factory.createStringLiteral(t)),
+          false
+        )
+      ),
+    ],
+    false
+  );
+}
+
 function renderRequestArgs(
   op: OperationModel,
   configRef: string,
@@ -952,7 +1100,7 @@ function renderRequestArgs(
   groupedMode: boolean,
   responseKind: 'json' | 'blob' | 'text' | 'void'
 ): ts.Expression[] {
-  const args: ts.Expression[] = [configExpr(configRef), urlExpr, initExpr];
+  const args: ts.Expression[] = [configExpr(configRef), operationMetaExpr(op), urlExpr, initExpr];
   if (op.requestBody) {
     const bodyExpr = groupedMode
       ? factory.createPropertyAccessExpression(factory.createIdentifier('vars'), 'body')

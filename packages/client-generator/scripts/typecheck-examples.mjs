@@ -12,6 +12,8 @@ const tsc = join(repoRoot, 'node_modules/.bin/tsc');
 const examplesDir = join(pkgRoot, 'examples');
 const examples = [
   'fetch-functions',
+  'customization',
+  'baked-setup',
   'service-class',
   'zod',
   'tanstack-query',

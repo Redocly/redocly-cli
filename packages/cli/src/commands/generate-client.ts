@@ -29,6 +29,9 @@ function readRedoclyExtension(config: Config): Record<string, unknown> {
     if (typeof ext.output === 'string' && !isAbsolute(ext.output)) {
       ext.output = resolvePath(baseDir, ext.output);
     }
+    if (typeof ext.setup === 'string' && !isAbsolute(ext.setup)) {
+      ext.setup = resolvePath(baseDir, ext.setup);
+    }
   }
   return ext;
 }
@@ -50,6 +53,8 @@ export type GenerateClientCommandArgv = {
   name?: string;
   // Built-in names, inline custom-generator names, or plugin import specifiers (path/package).
   generators?: string[];
+  // Path to a publisher setup module baked into the generated client.
+  setup?: string;
 };
 
 export async function handleGenerateClient({
@@ -77,6 +82,7 @@ export async function handleGenerateClient({
     mockSeed: argv['mock-seed'],
     name: argv.name,
     generators: argv.generators,
+    setup: argv.setup,
   });
 
   if (!merged.input)

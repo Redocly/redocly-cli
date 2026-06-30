@@ -53,4 +53,10 @@ export type Config = {
    * `generators` by `name`. Authored with `defineGenerator` from `@redocly/client-generator/plugin`.
    */
   customGenerators?: CustomGenerator[];
+  /**
+   * Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`)
+   * baked into the generated client, so a published SDK ships its request/response defaults built
+   * in. Resolved against the config dir. Works across all output modes and both facades.
+   */
+  setup?: string;
 };

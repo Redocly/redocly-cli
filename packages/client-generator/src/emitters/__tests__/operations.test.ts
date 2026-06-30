@@ -8,6 +8,28 @@ import { emitSingleFile } from '../client.js';
 import { renderOperationsBlock, renderOperationsMeta, serviceClassName } from '../operations.js';
 import { SCALAR, apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';
 
+describe('OPERATIONS carries tags + derived path/tag unions', () => {
+  it('emits tags on each entry and the derived OperationPath/OperationTag', () => {
+    const out = renderOperationsMeta([
+      operation({ name: 'listPets', method: 'get', path: '/pets', tags: ['Pets'] }),
+    ]);
+    expect(out).toContain('tags: ["Pets"]');
+    expect(out).toContain('export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];');
+    expect(out).toContain(
+      'export type OperationTag = (typeof OPERATIONS)[OperationId]["tags"][number];'
+    );
+    expect(out).toContain('readonly tags: readonly string[];');
+  });
+
+  it('omits OperationTag when no operation has a tag (avoids never)', () => {
+    const out = renderOperationsMeta([
+      operation({ name: 'ping', method: 'get', path: '/p', tags: [] }),
+    ]);
+    expect(out).toContain('tags: []');
+    expect(out).not.toContain('export type OperationTag');
+  });
+});
+
 describe('serviceClassName', () => {
   it('PascalCases the label and appends Service', () => {
     expect(serviceClassName('products')).toBe('ProductsService');
@@ -602,7 +624,7 @@ describe('auth — await __auth, spread headers, merge query', () => {
     expect(out).not.toContain('__a');
     expect(out).not.toContain('__auth');
     expect(out).toContain(
-      'return __request<void>(__config, __buildUrl(__config, `/p`), { method: "GET", ...init }, undefined, "void");'
+      'return __request<void>(__config, { id: "op", path: "/p", tags: [] }, __buildUrl(__config, `/p`), { method: "GET", ...init }, undefined, "void");'
     );
   });
 });
@@ -1850,9 +1872,11 @@ describe('renderOperationsMeta — OPERATIONS metadata map', () => {
       }),
     ]);
     expect(out).toContain(
-      'getProjectById: { method: "GET", path: "/orgs/{orgId}/projects/{projectId}" }'
+      'getProjectById: { method: "GET", path: "/orgs/{orgId}/projects/{projectId}", tags: [] }'
     );
-    expect(out).toContain('createProject: { method: "POST", path: "/orgs/{orgId}/projects" }');
+    expect(out).toContain(
+      'createProject: { method: "POST", path: "/orgs/{orgId}/projects", tags: [] }'
+    );
   });
 
   it('emits the OperationId and OperationMetadata helper types', () => {
@@ -1861,13 +1885,13 @@ describe('renderOperationsMeta — OPERATIONS metadata map', () => {
     expect(out).toContain('} as const;');
     expect(out).toContain('export type OperationId = keyof typeof OPERATIONS;');
     expect(out).toMatch(
-      /export type OperationMetadata = \{\n {4}readonly method: string;\n {4}readonly path: string;\n\};/
+      /export type OperationMetadata = \{\n {4}readonly method: string;\n {4}readonly path: string;\n {4}readonly tags: readonly string\[\];\n\};/
     );
   });
 
   it('quotes operationIds that are not bare identifiers', () => {
     const out = renderOperationsMeta([operation({ name: 'weird-op', path: '/w' })]);
-    expect(out).toContain('"weird-op": { method: "GET", path: "/w" }');
+    expect(out).toContain('"weird-op": { method: "GET", path: "/w", tags: [] }');
   });
 
   it('is included in single-file output between the type guards and the runtime', () => {
@@ -1877,7 +1901,7 @@ describe('renderOperationsMeta — OPERATIONS metadata map', () => {
       path: '/things',
     });
     expect(out).toContain('export const OPERATIONS = {');
-    expect(out).toContain('listThings: { method: "GET", path: "/things" }');
+    expect(out).toContain('listThings: { method: "GET", path: "/things", tags: [] }');
     // Metadata is declarative data, so it precedes the runtime (`let BASE`).
     expect(out.indexOf('export const OPERATIONS = {')).toBeLessThan(out.indexOf('let BASE ='));
   });

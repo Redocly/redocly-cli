@@ -54,25 +54,6 @@ describe('middleware — functions facade (use)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('onRequest can mutate ctx.body and the change is sent', () => {
-    const captured = runConsumer(
-      dir,
-      `
-import { configure, use, createPet } from './client.ts';
-
-let sent = '';
-configure({
-  fetch: (async (_url: string, init: RequestInit) => { sent = init.body as string; return ${OK}; }) as unknown as typeof fetch,
-});
-use({ onRequest: (ctx) => { (ctx.body as { name: string }).name = 'Mutated'; } });
-await createPet({ name: 'Rex' });
-console.log(JSON.stringify({ sent }));
-`
-    ) as { sent: string };
-
-    expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
-  }, 60_000);
-
   test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', () => {
     const captured = runConsumer(
       dir,
@@ -163,6 +144,71 @@ console.log(JSON.stringify({ order }));
     ) as { order: string[] };
 
     expect(captured.order).toEqual(['config', 'mw']);
+  }, 60_000);
+
+  test('onRequest sees ctx.operation { id, path, tags }', () => {
+    const captured = runConsumer(
+      dir,
+      `
+import { configure, use, createPet } from './client.ts';
+
+let op: unknown;
+configure({ fetch: (async () => ${OK}) as unknown as typeof fetch });
+use({ onRequest: (ctx) => { op = ctx.operation; } });
+await createPet({ name: 'Rex' });
+console.log(JSON.stringify({ op }));
+`
+    ) as { op: { id: string; path: string; tags: string[] } };
+
+    expect(captured.op.id).toBe('createPet');
+    expect(captured.op.path).toBe('/pets');
+    expect(Array.isArray(captured.op.tags)).toBe(true);
+  }, 60_000);
+
+  test('onRequest can mutate ctx.body and the change is sent', () => {
+    const captured = runConsumer(
+      dir,
+      `
+import { configure, use, createPet } from './client.ts';
+
+let sent = '';
+configure({
+  fetch: (async (_url: string, init: RequestInit) => { sent = init.body as string; return ${OK}; }) as unknown as typeof fetch,
+});
+use({ onRequest: (ctx) => { (ctx.body as { name: string }).name = 'Mutated'; } });
+await createPet({ name: 'Rex' });
+console.log(JSON.stringify({ sent }));
+`
+    ) as { sent: string };
+
+    expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
+  }, 60_000);
+});
+
+describe('middleware — multi-file output (split)', () => {
+  let dir = '';
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'mw-split-'));
+    generate(dir, ['--output-mode', 'split']);
+  }, 60_000);
+  afterAll(() => {
+    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('configure() and use() are re-exported by the entry barrel and affect operations', () => {
+    const captured = runConsumer(
+      dir,
+      `
+import { configure, use, listPets } from './client.ts';
+let url = '', header = '';
+configure({ baseUrl: 'https://multi.example.com', fetch: (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-MW']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
+use({ onRequest: (ctx) => { ctx.headers['X-MW'] = 'yes'; } });
+await listPets();
+console.log(JSON.stringify({ url, header }));
+`
+    ) as { url: string; header: string };
+    expect(captured.url.startsWith('https://multi.example.com')).toBe(true);
+    expect(captured.header).toBe('yes');
   }, 60_000);
 });
 

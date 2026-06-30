@@ -890,6 +890,12 @@ yargs(hideBin(process.argv))
             choices: ['single', 'split', 'tags', 'tags-split'] as const,
             requiresArg: true,
           },
+          setup: {
+            describe:
+              'Path to a publisher setup module (export default defineClientSetup({ config, middleware })) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades.',
+            type: 'string',
+            requiresArg: true,
+          },
           facade: {
             describe:
               'Developer-facing operation shape: `functions` (default) emits standalone async functions; `service-class` groups operations as class methods (one `Client` class in single/split, one service class per tag in tags/tags-split).',

@@ -144,6 +144,12 @@ redocly generate-client cafe -o src/client.ts
 
 ---
 
+- `--setup`
+- `string`
+- Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades. See [Baking defaults into a published SDK](#baking-defaults-into-a-published-sdk-setup).
+
+---
+
 - `--config`
 - `string`
 - Path to the `redocly.yaml` configuration file (where the `x-client-generator` block lives).
@@ -367,18 +373,22 @@ redocly generate-client openapi.yaml --output src/client.ts --error-mode result
 
 ## Operation metadata
 
-Alongside the operations, the client exports an `OPERATIONS` map keyed by operationId, holding each operation's HTTP method and path template (with `{param}` placeholders intact):
+Alongside the operations, the client exports an `OPERATIONS` map keyed by operationId, holding each operation's HTTP method, path template (with `{param}` placeholders intact), and tags:
 
 ```ts
 export const OPERATIONS = {
-  listMenuItems: { method: 'GET', path: '/menu' },
-  getOrderById: { method: 'GET', path: '/orders/{orderId}' },
+  listMenuItems: { method: 'GET', path: '/menu', tags: ['Products'] },
+  getOrderById: { method: 'GET', path: '/orders/{orderId}', tags: ['Orders'] },
   // …
 } as const;
 
 export type OperationId = keyof typeof OPERATIONS;
-export type OperationMetadata = { readonly method: string; readonly path: string };
+export type OperationPath = (typeof OPERATIONS)[OperationId]['path'];
+export type OperationTag = (typeof OPERATIONS)[OperationId]['tags'][number];
+export type OperationMetadata = { readonly method: string; readonly path: string; readonly tags: readonly string[] };
 ```
+
+These same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.operation` in middleware (above), so you get autocomplete and typo-checking there too.
 
 Because the keys and values are plain string literals — not function or method names — they survive bundling and minification.
 That makes `OPERATIONS` the stable handle to reach for when building cache/query keys, tracing span names, or request log labels, instead of reflecting over a function (`fn.name` / `fn.toString()`), which a minifier can rename:
@@ -464,7 +474,23 @@ client.use(logging); // …or imperatively (chainable)
 
 `onRequest` runs in registration order; `onResponse` runs in **reverse** — an onion, so the last-registered middleware wraps closest to the network.
 `onError` (throw mode only) is threaded through each middleware in turn, so any can map the failure.
-`onRequest` may mutate the request context (`url` / `method` / `headers`); `onResponse` may return a replacement `Response`.
+`onRequest` may mutate the request context (`url` / `method` / `headers` / `body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`.
+
+Each `RequestContext` also carries `operation: { id, path, tags }` — the operationId, path template, and tags — so middleware can **target by operation identity** instead of brittle URL matching. All three are typed literal unions (`OperationId` / `OperationPath` / `OperationTag`), so the comparisons below autocomplete and reject typos at compile time:
+
+```ts
+use({
+  onRequest: (ctx) => {
+    if (ctx.operation.id === 'createOrder' || ctx.operation.tags.includes('Orders')) {
+      ctx.headers['X-Idempotency-Key'] = crypto.randomUUID();
+      (ctx.body as { source?: string }).source = 'web'; // mutate the body in flight
+    }
+  },
+});
+```
+
+A header for a single call instead goes in that operation's trailing `RequestOptions` argument (`await listMenuItems({}, { headers: { 'X-Request-Id': '42' } })`).
+See the [`customization` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/customization) for a runnable end-to-end version.
 
 `onRequest` and `onResponse` run for every request — under both `throw` and `result` error modes, and around each Server-Sent-Events connect/reconnect.
 `onError` only fires when a non-2xx response would be **thrown**, so it is a no-op in `result` mode (inspect `result.error` instead) and for SSE (which throws its own `ApiError`).
@@ -474,6 +500,44 @@ Transport/network failures are not routed through `onError`.
 The `onRequest` / `onResponse` / `onError` fields on `ClientConfig` still work — they run as one implicit, first middleware.
 `use()` simply appends to the same chain (`ClientConfig.middleware`), so existing code is unaffected.
 {% /admonition %}
+
+## Baking defaults into a published SDK (`--setup`)
+
+The middleware above is composed by the **consumer**. If you **publish an SDK** and want those defaults already active for *your* users, bake them in at generation time with `--setup <file>`.
+
+The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable before the client is generated) and returns a `defineClientSetup({ config, middleware })`:
+
+```ts
+// client-setup.ts
+import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
+
+export default defineClientSetup({
+  config: { baseUrl: 'https://api.acme.com', retry: { retries: 3 } },
+  middleware: [
+    {
+      onRequest: (ctx: RequestContext) => {
+        ctx.headers['X-Acme-SDK'] = '1.4.0';
+        if (ctx.operation.tags.includes('Orders')) ctx.headers['X-Idempotency-Key'] = crypto.randomUUID();
+      },
+    },
+  ],
+});
+```
+
+```sh
+redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
+```
+
+The generator bakes the `config`/`middleware` into the generated client, so the published package applies them on import. It works across **all output modes and both facades** (functions: the global `configure`/`use`; service-class: `new Client()` merges the baked defaults). Downstream users call operations with no setup of their own and can still customize on top — the baked block runs first, then theirs:
+
+- **Config values** (`fetch`/transport, `baseUrl`, `headers`, `retry`, single hooks) are last-write-wins, so a consumer **overrides** the baked default — a consumer `config.fetch` *replaces* a baked transport rather than wrapping it.
+- **Middleware** (`use`) **composes** — baked middleware runs first, then the consumer's (`onRequest` in order, `onResponse` reversed). A publisher who needs un-bypassable behavior should express it as middleware, not a baked `fetch`.
+
+{% admonition type="warning" name="Constraints" %}
+A setup file may import **only** from `@redocly/client-generator`, keeping the client zero-dependency.
+{% /admonition %}
+
+See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/baked-setup) and ADR-0015.
 
 ## Retries
 

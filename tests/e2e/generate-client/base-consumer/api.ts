@@ -102,13 +102,13 @@ export function isPetBulkErrorItem(value: PetBulkSuccessItem | PetBulkErrorItem)
  * without re-deriving them at each call site.
  */
 export const OPERATIONS = {
-    getPetById: { method: "GET", path: "/pets/{id}" },
-    listPets: { method: "GET", path: "/pets" },
-    createPet: { method: "POST", path: "/pets" },
-    getSlowPet: { method: "GET", path: "/pets/{id}/cancel-test" },
-    search: { method: "POST", path: "/search" },
-    bulkUpsertPets: { method: "POST", path: "/pets/bulk" },
-    getStatus: { method: "GET", path: "/status" }
+    getPetById: { method: "GET", path: "/pets/{id}", tags: [] },
+    listPets: { method: "GET", path: "/pets", tags: [] },
+    createPet: { method: "POST", path: "/pets", tags: [] },
+    getSlowPet: { method: "GET", path: "/pets/{id}/cancel-test", tags: [] },
+    search: { method: "POST", path: "/search", tags: [] },
+    bulkUpsertPets: { method: "POST", path: "/pets/bulk", tags: [] },
+    getStatus: { method: "GET", path: "/status", tags: [] }
 } as const;
 
 /**
@@ -117,14 +117,24 @@ export const OPERATIONS = {
 export type OperationId = keyof typeof OPERATIONS;
 
 /**
- * Static metadata describing one operation: its HTTP method and path template.
+ * Static metadata describing one operation: its HTTP method, path template, and tags.
  */
 export type OperationMetadata = {
     readonly method: string;
     readonly path: string;
+    readonly tags: readonly string[];
 };
 
+export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+
 let BASE = "http://localhost:3102";
+
+/** Identity of the operation a request belongs to. Stable across path interpolation. */
+export type OperationContext = {
+    id: OperationId;
+    path: OperationPath;
+    tags: string[];
+};
 
 /** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`/`body`). */
 export type RequestContext = {
@@ -132,6 +142,8 @@ export type RequestContext = {
     method: string;
     headers: Record<string, string>;
     body?: unknown;
+    /** The operation being called: its id (operationId), path template, and tags. */
+    operation: OperationContext;
 };
 
 /**
@@ -382,7 +394,7 @@ function __buildUrl(config: ClientConfig, path: string, query?: Record<string, Q
     return qs ? `${url}?${qs}` : url;
 }
 
-async function __send(config: ClientConfig, url: string, init: RequestOptions, body?: unknown): Promise<{
+async function __send(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown): Promise<{
     response: Response;
     context: RequestContext;
 }> {
@@ -394,7 +406,7 @@ async function __send(config: ClientConfig, url: string, init: RequestOptions, b
         ...extra,
         ...(fetchInit.headers as Record<string, string> | undefined),
     };
-    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body };
+    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body, operation: op };
     const middleware = __middleware(config);
     for (const mw of middleware)
         if (mw.onRequest)
@@ -492,9 +504,9 @@ async function __parse(response: Response, kind: ParseAs | 'void'): Promise<unkn
     return response.blob();
 }
 
-async function __request<T>(config: ClientConfig, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
+async function __request<T>(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
     const { parseAs, ...sendInit } = init;
-    const { response, context } = await __send(config, url, sendInit, body);
+    const { response, context } = await __send(config, op, url, sendInit, body);
     if (!response.ok) {
         const errorBody = await readError(response);
         let error: globalThis.Error = new ApiError(context.url, response.status, response.statusText, errorBody);
@@ -577,7 +589,7 @@ export type GetPetByIdVariables = {
 };
 
 export async function getPetById(id: number, init: RequestOptions = {}): Promise<Pet> {
-    return __request<Pet>(__config, __buildUrl(__config, `/pets/${encodeURIComponent(String(id))}`), { method: "GET", ...init });
+    return __request<Pet>(__config, { id: "getPetById", path: "/pets/{id}", tags: [] }, __buildUrl(__config, `/pets/${encodeURIComponent(String(id))}`), { method: "GET", ...init });
 }
 
 export type ListPetsResult = Pet[];
@@ -599,7 +611,7 @@ export async function listPets(params: {
      */
     filter?: PetFilter;
 } = {}, init: RequestOptions = {}): Promise<Pet[]> {
-    return __request<Pet[]>(__config, __buildUrl(__config, `/pets`, params, { "filter": { style: "deepObject", explode: true } }), { method: "GET", ...init });
+    return __request<Pet[]>(__config, { id: "listPets", path: "/pets", tags: [] }, __buildUrl(__config, `/pets`, params, { "filter": { style: "deepObject", explode: true } }), { method: "GET", ...init });
 }
 
 export type CreatePetResult = Pet;
@@ -611,7 +623,7 @@ export type CreatePetVariables = {
 };
 
 export async function createPet(body: Omit<Pet, "id">, init: RequestOptions = {}): Promise<Pet> {
-    return __request<Pet>(__config, __buildUrl(__config, `/pets`), { method: "POST", ...init }, body);
+    return __request<Pet>(__config, { id: "createPet", path: "/pets", tags: [] }, __buildUrl(__config, `/pets`), { method: "POST", ...init }, body);
 }
 
 export type GetSlowPetResult = Pet;
@@ -621,7 +633,7 @@ export type GetSlowPetVariables = {
 };
 
 export async function getSlowPet(id: number, init: RequestOptions = {}): Promise<Pet> {
-    return __request<Pet>(__config, __buildUrl(__config, `/pets/${encodeURIComponent(String(id))}/cancel-test`), { method: "GET", ...init });
+    return __request<Pet>(__config, { id: "getSlowPet", path: "/pets/{id}/cancel-test", tags: [] }, __buildUrl(__config, `/pets/${encodeURIComponent(String(id))}/cancel-test`), { method: "GET", ...init });
 }
 
 export type SearchBody = PetFilter;
@@ -636,7 +648,7 @@ export type SearchVariables = {
  * self-referential alias (TS2440/TS2308 in multi-file output).
  */
 export async function search(body: PetFilter, init: RequestOptions = {}): Promise<SearchResult> {
-    return __request<SearchResult>(__config, __buildUrl(__config, `/search`), { method: "POST", ...init }, body);
+    return __request<SearchResult>(__config, { id: "search", path: "/search", tags: [] }, __buildUrl(__config, `/search`), { method: "POST", ...init }, body);
 }
 
 export type BulkUpsertPetsResult = PetBulkResult;
@@ -653,7 +665,7 @@ export type BulkUpsertPetsVariables = {
  * union, narrowing the items to the named member types.
  */
 export async function bulkUpsertPets(body: Pet[], init: RequestOptions = {}): Promise<PetBulkResult> {
-    return __request<PetBulkResult>(__config, __buildUrl(__config, `/pets/bulk`), { method: "POST", ...init }, body);
+    return __request<PetBulkResult>(__config, { id: "bulkUpsertPets", path: "/pets/bulk", tags: [] }, __buildUrl(__config, `/pets/bulk`), { method: "POST", ...init }, body);
 }
 
 /**
@@ -663,5 +675,5 @@ export async function bulkUpsertPets(body: Pet[], init: RequestOptions = {}): Pr
  * (a duplicate-identifier error).
  */
 export async function getStatus(init: RequestOptions = {}): Promise<Pet> {
-    return __request<Pet>(__config, __buildUrl(__config, `/status`), { method: "GET", ...init });
+    return __request<Pet>(__config, { id: "getStatus", path: "/status", tags: [] }, __buildUrl(__config, `/status`), { method: "GET", ...init });
 }

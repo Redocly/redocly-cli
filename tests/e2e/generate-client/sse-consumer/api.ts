@@ -21,10 +21,10 @@ export type Message = {
  * without re-deriving them at each call site.
  */
 export const OPERATIONS = {
-    getHealth: { method: "GET", path: "/health" },
-    streamMessages: { method: "GET", path: "/messages" },
-    streamAbort: { method: "GET", path: "/abort-messages" },
-    streamTicks: { method: "GET", path: "/ticks" }
+    getHealth: { method: "GET", path: "/health", tags: ["Health"] },
+    streamMessages: { method: "GET", path: "/messages", tags: ["Messages"] },
+    streamAbort: { method: "GET", path: "/abort-messages", tags: ["Messages"] },
+    streamTicks: { method: "GET", path: "/ticks", tags: ["Ticks"] }
 } as const;
 
 /**
@@ -33,14 +33,26 @@ export const OPERATIONS = {
 export type OperationId = keyof typeof OPERATIONS;
 
 /**
- * Static metadata describing one operation: its HTTP method and path template.
+ * Static metadata describing one operation: its HTTP method, path template, and tags.
  */
 export type OperationMetadata = {
     readonly method: string;
     readonly path: string;
+    readonly tags: readonly string[];
 };
 
+export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+
+export type OperationTag = (typeof OPERATIONS)[OperationId]["tags"][number];
+
 let BASE = "http://localhost:3104";
+
+/** Identity of the operation a request belongs to. Stable across path interpolation. */
+export type OperationContext = {
+    id: OperationId;
+    path: OperationPath;
+    tags: OperationTag[];
+};
 
 /** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`/`body`). */
 export type RequestContext = {
@@ -48,6 +60,8 @@ export type RequestContext = {
     method: string;
     headers: Record<string, string>;
     body?: unknown;
+    /** The operation being called: its id (operationId), path template, and tags. */
+    operation: OperationContext;
 };
 
 /**
@@ -298,7 +312,7 @@ function __buildUrl(config: ClientConfig, path: string, query?: Record<string, Q
     return qs ? `${url}?${qs}` : url;
 }
 
-async function __send(config: ClientConfig, url: string, init: RequestOptions, body?: unknown): Promise<{
+async function __send(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown): Promise<{
     response: Response;
     context: RequestContext;
 }> {
@@ -310,7 +324,7 @@ async function __send(config: ClientConfig, url: string, init: RequestOptions, b
         ...extra,
         ...(fetchInit.headers as Record<string, string> | undefined),
     };
-    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body };
+    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body, operation: op };
     const middleware = __middleware(config);
     for (const mw of middleware)
         if (mw.onRequest)
@@ -408,9 +422,9 @@ async function __parse(response: Response, kind: ParseAs | 'void'): Promise<unkn
     return response.blob();
 }
 
-async function __request<T>(config: ClientConfig, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
+async function __request<T>(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
     const { parseAs, ...sendInit } = init;
-    const { response, context } = await __send(config, url, sendInit, body);
+    const { response, context } = await __send(config, op, url, sendInit, body);
     if (!response.ok) {
         const errorBody = await readError(response);
         let error: globalThis.Error = new ApiError(context.url, response.status, response.statusText, errorBody);
@@ -502,7 +516,7 @@ export type SseOptions = RequestInit & {
     reconnectDelay?: number;
 };
 
-async function* __sse<T>(config: ClientConfig, url: string, init: SseOptions, dataKind: 'json' | 'text' = 'text'): AsyncGenerator<ServerSentEvent<T>> {
+async function* __sse<T>(config: ClientConfig, op: OperationContext, url: string, init: SseOptions, dataKind: 'json' | 'text' = 'text'): AsyncGenerator<ServerSentEvent<T>> {
     const { reconnect = true, reconnectDelay, ...rest } = init;
     const signal = rest.signal ?? undefined;
     const headers: Record<string, string> = {
@@ -517,7 +531,7 @@ async function* __sse<T>(config: ClientConfig, url: string, init: SseOptions, da
             return;
         const sendHeaders = lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
         try {
-            const { response } = await __send(config, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders });
+            const { response } = await __send(config, op, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders });
             if (!response.ok) {
                 const errorBody = await readError(response);
                 throw new ApiError(url, response.status, response.statusText, errorBody);
@@ -636,19 +650,19 @@ function __parseSseFrame(raw: string, dataKind: 'json' | 'text'): ServerSentEven
 export type GetHealthResult = Health;
 
 export async function getHealth(init: RequestOptions = {}): Promise<Health> {
-    return __request<Health>(__config, __buildUrl(__config, `/health`), { method: "GET", ...init });
+    return __request<Health>(__config, { id: "getHealth", path: "/health", tags: ["Health"] }, __buildUrl(__config, `/health`), { method: "GET", ...init });
 }
 
 async function* streamMessages(init: SseOptions = {}): AsyncGenerator<ServerSentEvent<Message>> {
-    yield* __sse<Message>(__config, __buildUrl(__config, `/messages`), { method: "GET", ...init }, "json");
+    yield* __sse<Message>(__config, { id: "streamMessages", path: "/messages", tags: ["Messages"] }, __buildUrl(__config, `/messages`), { method: "GET", ...init }, "json");
 }
 
 async function* streamAbort(init: SseOptions = {}): AsyncGenerator<ServerSentEvent<Message>> {
-    yield* __sse<Message>(__config, __buildUrl(__config, `/abort-messages`), { method: "GET", ...init }, "json");
+    yield* __sse<Message>(__config, { id: "streamAbort", path: "/abort-messages", tags: ["Messages"] }, __buildUrl(__config, `/abort-messages`), { method: "GET", ...init }, "json");
 }
 
 async function* streamTicks(init: SseOptions = {}): AsyncGenerator<ServerSentEvent<string>> {
-    yield* __sse<string>(__config, __buildUrl(__config, `/ticks`), { method: "GET", ...init }, "text");
+    yield* __sse<string>(__config, { id: "streamTicks", path: "/ticks", tags: ["Ticks"] }, __buildUrl(__config, `/ticks`), { method: "GET", ...init }, "text");
 }
 
 export const sse = { streamMessages, streamAbort, streamTicks };

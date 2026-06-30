@@ -1,0 +1,9 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+# `setup` bakes the publisher's defineClientSetup module into the generated client.
+x-client-generator:
+  input: ./openapi.yaml
+  output: ./src/api/client.ts
+  generators:
+    - sdk
+  facade: functions
+  setup: ./client-setup.ts

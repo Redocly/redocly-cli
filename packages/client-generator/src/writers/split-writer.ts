@@ -33,7 +33,7 @@ export const splitWriter: Writer = ({ model, outputPath, emit }) => {
   ]);
 
   return [
-    { path: join(dir, `${stem}.http.ts`), content: m.http },
+    { path: join(dir, `${stem}.http.ts`), content: m.http(stem) },
     { path: join(dir, `${stem}.schemas.ts`), content: m.schemas },
     { path: outputPath, content: entryContent },
   ];

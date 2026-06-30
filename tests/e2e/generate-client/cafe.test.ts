@@ -193,12 +193,12 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(generated).toContain('} as const;');
     expect(generated).toContain('export type OperationId = keyof typeof OPERATIONS;');
     expect(generated).toMatch(
-      /export type OperationMetadata = \{\s*readonly method: string;\s*readonly path: string;\s*\};/
+      /export type OperationMetadata = \{\s*readonly method: string;\s*readonly path: string;\s*readonly tags: readonly string\[\];\s*\};/
     );
-    // A path-param operation keeps its `{param}` template and uppercased method.
-    expect(generated).toContain('getOrderById: { method: "GET", path: "/orders/{orderId}" }');
-    expect(generated).toContain('updateOrder: { method: "PATCH", path: "/orders/{orderId}" }');
-    expect(generated).toContain('createOrder: { method: "POST", path: "/orders" }');
+    // A path-param operation keeps its `{param}` template, uppercased method, and tags.
+    expect(generated).toContain('getOrderById: { method: "GET", path: "/orders/{orderId}", tags: ["Orders"] }');
+    expect(generated).toContain('updateOrder: { method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"] }');
+    expect(generated).toContain('createOrder: { method: "POST", path: "/orders", tags: ["Orders"] }');
   });
 
   test('generated file uses ergonomic signatures (positional path params + params object + body)', () => {

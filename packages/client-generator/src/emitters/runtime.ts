@@ -20,6 +20,7 @@
 export const PUBLIC_RUNTIME_TYPES = [
   'ClientConfig',
   'Middleware',
+  'OperationContext',
   'ParseAs',
   'RequestContext',
   'RequestOptions',
@@ -30,6 +31,18 @@ export const PUBLIC_RUNTIME_TYPES = [
 
 import { printStatements, parseStatements, type ts } from './ts.js';
 
+/**
+ * TS *type* source strings for the `RequestContext.operation` fields. Defaults to the spec-agnostic
+ * all-`string` form; the emitter narrows them to the client's `OperationId`/`OperationPath`/
+ * `OperationTag` literal unions when the spec has operations (and tags).
+ */
+export type OperationContextTypes = { id: string; path: string; tags: string };
+const DEFAULT_OPERATION_CONTEXT: OperationContextTypes = {
+  id: 'string',
+  path: 'string',
+  tags: 'string[]',
+};
+
 export function renderRuntime(
   baseUrl: string,
   needsHeaderHelper: boolean,
@@ -37,7 +50,8 @@ export function renderRuntime(
   errorMode: 'throw' | 'result' = 'throw',
   needsSse: boolean = false,
   authConfig: boolean = false,
-  needsMultipart: boolean = false
+  needsMultipart: boolean = false,
+  opCtx: OperationContextTypes = DEFAULT_OPERATION_CONTEXT
 ): string {
   return printStatements(
     runtimeStatements(
@@ -47,7 +61,8 @@ export function renderRuntime(
       errorMode,
       needsSse,
       authConfig,
-      needsMultipart
+      needsMultipart,
+      opCtx
     )
   );
 }
@@ -64,7 +79,8 @@ export function runtimeStatements(
   errorMode: 'throw' | 'result' = 'throw',
   needsSse: boolean = false,
   authConfig: boolean = false,
-  needsMultipart: boolean = false
+  needsMultipart: boolean = false,
+  opCtx: OperationContextTypes = DEFAULT_OPERATION_CONTEXT
 ): ts.Statement[] {
   return parseStatements(
     runtimeSource(
@@ -74,7 +90,8 @@ export function runtimeStatements(
       errorMode,
       needsSse,
       authConfig,
-      needsMultipart
+      needsMultipart,
+      opCtx
     )
   );
 }
@@ -86,7 +103,8 @@ function runtimeSource(
   errorMode: 'throw' | 'result',
   needsSse: boolean,
   authConfig: boolean,
-  needsMultipart: boolean
+  needsMultipart: boolean,
+  opCtx: OperationContextTypes
 ): string {
   const base = JSON.stringify(baseUrl);
   const ex = exportHelpers ? 'export ' : '';
@@ -146,6 +164,7 @@ export type SseOptions = RequestInit & {
 
 ${ex}async function* __sse<T>(
   config: ClientConfig,
+  op: OperationContext,
   url: string,
   init: SseOptions,
   dataKind: 'json' | 'text' = 'text'
@@ -163,7 +182,7 @@ ${ex}async function* __sse<T>(
     if (signal?.aborted) return;
     const sendHeaders = lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
     try {
-      const { response } = await __send(config, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders });
+      const { response } = await __send(config, op, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders });
       if (!response.ok) {
         const errorBody = await readError(response);
         throw new ApiError(url, response.status, response.statusText, errorBody);
@@ -270,13 +289,14 @@ export type Result<TData, TError> =
 
 ${ex}async function __requestResult<TData, TError>(
   config: ClientConfig,
+  op: OperationContext,
   url: string,
   init: RequestOptions,
   body?: unknown,
   responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'
 ): Promise<Result<TData, TError>> {
   const { parseAs, ...sendInit } = init;
-  const { response } = await __send(config, url, sendInit, body);
+  const { response } = await __send(config, op, url, sendInit, body);
   if (!response.ok) {
     const error = (await readError(response)) as TError;
     return { data: undefined, error, response };
@@ -287,13 +307,14 @@ ${ex}async function __requestResult<TData, TError>(
 }`
       : `${ex}async function __request<T>(
   config: ClientConfig,
+  op: OperationContext,
   url: string,
   init: RequestOptions,
   body?: unknown,
   responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'
 ): Promise<T> {
   const { parseAs, ...sendInit } = init;
-  const { response, context } = await __send(config, url, sendInit, body);
+  const { response, context } = await __send(config, op, url, sendInit, body);
   if (!response.ok) {
     const errorBody = await readError(response);
     let error: globalThis.Error = new ApiError(context.url, response.status, response.statusText, errorBody);
@@ -322,12 +343,17 @@ ${ex}async function __requestResult<TData, TError>(
     : '';
   return `let BASE = ${base};
 
+/** Identity of the operation a request belongs to. Stable across path interpolation. */
+export type OperationContext = { id: ${opCtx.id}; path: ${opCtx.path}; tags: ${opCtx.tags} };
+
 /** The mutable request context handed to \`onRequest\` (mutate \`url\`/\`method\`/\`headers\`/\`body\`). */
 export type RequestContext = {
   url: string;
   method: string;
   headers: Record<string, string>;
   body?: unknown;
+  /** The operation being called: its id (operationId), path template, and tags. */
+  operation: OperationContext;
 };
 
 /**
@@ -577,6 +603,7 @@ ${ex}function __buildUrl(
 
 ${ex}async function __send(
   config: ClientConfig,
+  op: OperationContext,
   url: string,
   init: RequestOptions,
   body?: unknown
@@ -589,7 +616,7 @@ ${ex}async function __send(
     ...extra,
     ...(fetchInit.headers as Record<string, string> | undefined),
   };
-  const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body };
+  const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body, operation: op };
   const middleware = __middleware(config);
   for (const mw of middleware) if (mw.onRequest) await mw.onRequest(context);
   // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.

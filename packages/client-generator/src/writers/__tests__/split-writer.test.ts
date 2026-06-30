@@ -126,10 +126,10 @@ describe('splitWriter — entry imports & re-exports', () => {
     );
     expect(entry.content).toContain("export * from './client.schemas.js';");
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl } from "./client.http.js";'
+      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
     );
     expect(entry.content).toContain(
-      'export type { ClientConfig, Middleware, ParseAs, RequestContext, RequestOptions, RetryConfig, RetryContext, RetryStrategy } from "./client.http.js";'
+      'export type { ClientConfig, Middleware, OperationContext, ParseAs, RequestContext, RequestOptions, RetryConfig, RetryContext, RetryStrategy } from "./client.http.js";'
     );
     expect(entry.content).toContain('export async function getPet(');
     // No auth/header helpers used by this operation.
@@ -166,7 +166,7 @@ describe('splitWriter — entry imports & re-exports', () => {
       'import { __auth, __buildUrl, __config, __headers, __request, type RequestOptions } from "./client.http.js";'
     );
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl, setBearer } from "./client.http.js";'
+      'export { ApiError, configure, setBaseUrl, setBearer, use } from "./client.http.js";'
     );
     expect(http.content).toContain('export async function __auth(');
     expect(http.content).toContain('export function setBearer(');
@@ -186,7 +186,7 @@ describe('splitWriter — entry imports & re-exports', () => {
     const { entry } = run(model());
     expect(entry.content).not.toContain('.schemas.js');
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl } from "./client.http.js";'
+      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
     );
   });
 
@@ -203,7 +203,7 @@ describe('splitWriter — entry imports & re-exports', () => {
     );
     // No named schemas, but the metadata map still belongs in the schemas module…
     expect(schemas.content).toContain('export const OPERATIONS = {');
-    expect(schemas.content).toContain('ping: { method: "GET", path: "/ping" }');
+    expect(schemas.content).toContain('ping: { method: "GET", path: "/ping", tags: [] }');
     expect(schemas.content).not.toContain('export type Pet');
     // …so the barrel re-exports it, while the endpoint file imports no named types.
     expect(entry.content).toContain("export * from './client.schemas.js';");

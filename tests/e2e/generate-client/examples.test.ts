@@ -12,6 +12,8 @@ const examplesDir = join(repoRoot, 'packages/client-generator/examples');
 
 const EXAMPLES = [
   'fetch-functions',
+  'customization',
+  'baked-setup',
   'service-class',
   'zod',
   'mock',

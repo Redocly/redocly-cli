@@ -24,6 +24,8 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0011](./0011-wrapper-generators.md)       | Data-fetching wrapper generators (`swr`, `tanstack-query`)         | Accepted                |
 | [0012](./0012-plugin-api.md)               | Experimental custom-generator (plugin) API                         | Accepted (experimental) |
 | [0013](./0013-experimental-status.md)      | Experimental release status & stabilization criteria               | Accepted                |
+| [0014](./0014-request-response-customization.md) | Request/response customization as a runtime contract         | Accepted                |
+| [0015](./0015-publisher-setup-bake-in.md)  | Publisher setup bake-in via `--setup`                              | Accepted                |
 
 ## Template
 

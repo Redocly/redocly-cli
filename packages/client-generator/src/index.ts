@@ -1,7 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 import type { EmitOptions } from './emitters/client.js';
+import { bakeSetup } from './emitters/setup-bake.js';
 import { builtinGenerators, validateGenerators } from './generators/index.js';
 import { resolveGenerators } from './generators/resolve.js';
 import type { GeneratorDescriptor } from './generators/types.js';
@@ -13,6 +14,17 @@ import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 import type { GeneratedFile, OutputMode } from './writers/types.js';
 
 export { NotSupportedError } from './errors.js';
+export { defineClientSetup } from './runtime-contract.js';
+export type {
+  ClientSetup,
+  ClientSetupConfig,
+  Middleware,
+  OperationContext,
+  RequestContext,
+  RetryConfig,
+  RetryContext,
+  RetryStrategy,
+} from './runtime-contract.js';
 export type { Config } from './config.js';
 export type { Generator, GeneratorInput, GeneratorName } from './generators/index.js';
 export type {
@@ -82,6 +94,14 @@ export async function generateClient(
       : document;
   const model = buildApiModel(normalized);
 
+  // A publisher `--setup` module is read, validated, and transformed into the neutral setup
+  // expression baked into the client. Applied per facade and across all output modes by the emitter.
+  let setupBlock: string | undefined;
+  if (options.setup) {
+    const setupPath = resolve(options.configDir ?? process.cwd(), options.setup);
+    setupBlock = bakeSetup(await readFile(setupPath, 'utf-8'));
+  }
+
   // Resolve the selection into a registry: built-in names pass through, inline `customGenerators`
   // register, and any other entry is imported as a plugin specifier (path/package).
   // An empty list (e.g. `generators: []` in config, or `--generators ,`) means
@@ -106,6 +126,7 @@ export async function generateClient(
       queryFramework: options.queryFramework,
       mockData: options.mockData,
       mockSeed: options.mockSeed,
+      setup: setupBlock,
     },
     generators: selected,
     registry,

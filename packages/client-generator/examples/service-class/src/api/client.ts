@@ -419,18 +419,18 @@ export function isDessert(value: MenuItem): value is Dessert {
  * without re-deriving them at each call site.
  */
 export const OPERATIONS = {
-    listMenuItems: { method: "GET", path: "/menu" },
-    createMenuItem: { method: "POST", path: "/menu" },
-    deleteMenuItem: { method: "DELETE", path: "/menu/{menuItemId}" },
-    getMenuItemPhoto: { method: "GET", path: "/menu-item-images/{menuItemId}" },
-    listOrders: { method: "GET", path: "/orders" },
-    createOrder: { method: "POST", path: "/orders" },
-    getOrderById: { method: "GET", path: "/orders/{orderId}" },
-    deleteOrder: { method: "DELETE", path: "/orders/{orderId}" },
-    updateOrder: { method: "PATCH", path: "/orders/{orderId}" },
-    listOrderItems: { method: "GET", path: "/order-items" },
-    getRevenue: { method: "GET", path: "/revenue" },
-    registerOAuth2Client: { method: "POST", path: "/oauth2/register" }
+    listMenuItems: { method: "GET", path: "/menu", tags: ["Products"] },
+    createMenuItem: { method: "POST", path: "/menu", tags: ["Products"] },
+    deleteMenuItem: { method: "DELETE", path: "/menu/{menuItemId}", tags: ["Products"] },
+    getMenuItemPhoto: { method: "GET", path: "/menu-item-images/{menuItemId}", tags: ["Products"] },
+    listOrders: { method: "GET", path: "/orders", tags: ["Orders"] },
+    createOrder: { method: "POST", path: "/orders", tags: ["Orders"] },
+    getOrderById: { method: "GET", path: "/orders/{orderId}", tags: ["Orders"] },
+    deleteOrder: { method: "DELETE", path: "/orders/{orderId}", tags: ["Orders"] },
+    updateOrder: { method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"] },
+    listOrderItems: { method: "GET", path: "/order-items", tags: ["Orders"] },
+    getRevenue: { method: "GET", path: "/revenue", tags: ["Statistics"] },
+    registerOAuth2Client: { method: "POST", path: "/oauth2/register", tags: ["Authorization"] }
 } as const;
 
 /**
@@ -439,14 +439,26 @@ export const OPERATIONS = {
 export type OperationId = keyof typeof OPERATIONS;
 
 /**
- * Static metadata describing one operation: its HTTP method and path template.
+ * Static metadata describing one operation: its HTTP method, path template, and tags.
  */
 export type OperationMetadata = {
     readonly method: string;
     readonly path: string;
+    readonly tags: readonly string[];
 };
 
+export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+
+export type OperationTag = (typeof OPERATIONS)[OperationId]["tags"][number];
+
 let BASE = "https://api.cafe.redocly.com";
+
+/** Identity of the operation a request belongs to. Stable across path interpolation. */
+export type OperationContext = {
+    id: OperationId;
+    path: OperationPath;
+    tags: OperationTag[];
+};
 
 /** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`/`body`). */
 export type RequestContext = {
@@ -454,6 +466,8 @@ export type RequestContext = {
     method: string;
     headers: Record<string, string>;
     body?: unknown;
+    /** The operation being called: its id (operationId), path template, and tags. */
+    operation: OperationContext;
 };
 
 /**
@@ -711,7 +725,7 @@ function __buildUrl(config: ClientConfig, path: string, query?: Record<string, Q
     return qs ? `${url}?${qs}` : url;
 }
 
-async function __send(config: ClientConfig, url: string, init: RequestOptions, body?: unknown): Promise<{
+async function __send(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown): Promise<{
     response: Response;
     context: RequestContext;
 }> {
@@ -723,7 +737,7 @@ async function __send(config: ClientConfig, url: string, init: RequestOptions, b
         ...extra,
         ...(fetchInit.headers as Record<string, string> | undefined),
     };
-    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body };
+    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body, operation: op };
     const middleware = __middleware(config);
     for (const mw of middleware)
         if (mw.onRequest)
@@ -821,9 +835,9 @@ async function __parse(response: Response, kind: ParseAs | 'void'): Promise<unkn
     return response.blob();
 }
 
-async function __request<T>(config: ClientConfig, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
+async function __request<T>(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
     const { parseAs, ...sendInit } = init;
-    const { response, context } = await __send(config, url, sendInit, body);
+    const { response, context } = await __send(config, op, url, sendInit, body);
     if (!response.ok) {
         const errorBody = await readError(response);
         let error: globalThis.Error = new ApiError(context.url, response.status, response.statusText, errorBody);
@@ -1313,7 +1327,7 @@ export class Client {
          */
         limit?: number;
     } = {}, init: RequestOptions = {}): Promise<MenuItemList> {
-        return __request<MenuItemList>(this.config, __buildUrl(this.config, `/menu`, params), { method: "GET", ...init });
+        return __request<MenuItemList>(this.config, { id: "listMenuItems", path: "/menu", tags: ["Products"] }, __buildUrl(this.config, `/menu`, params), { method: "GET", ...init });
     }
     /**
      * Create menu item
@@ -1322,7 +1336,7 @@ export class Client {
      */
     async createMenuItem(body: FormData, init: RequestOptions = {}): Promise<MenuItem> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<MenuItem>(this.config, __buildUrl(this.config, `/menu`), { method: "POST", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, body);
+        return __request<MenuItem>(this.config, { id: "createMenuItem", path: "/menu", tags: ["Products"] }, __buildUrl(this.config, `/menu`), { method: "POST", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, body);
     }
     /**
      * Delete a menu item
@@ -1331,7 +1345,7 @@ export class Client {
      */
     async deleteMenuItem(menuItemId: string, init: RequestOptions = {}): Promise<void> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<void>(this.config, __buildUrl(this.config, `/menu/${encodeURIComponent(String(menuItemId))}`), { method: "DELETE", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, undefined, "void");
+        return __request<void>(this.config, { id: "deleteMenuItem", path: "/menu/{menuItemId}", tags: ["Products"] }, __buildUrl(this.config, `/menu/${encodeURIComponent(String(menuItemId))}`), { method: "DELETE", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, undefined, "void");
     }
     /**
      * Retrieve a menu item photo
@@ -1344,7 +1358,7 @@ export class Client {
          */
         photoSize?: "thumbnail" | "medium" | "large";
     } = {}, init: RequestOptions = {}): Promise<Blob | string> {
-        return __request<Blob | string>(this.config, __buildUrl(this.config, `/menu-item-images/${encodeURIComponent(String(menuItemId))}`, params), { method: "GET", ...init }, undefined, "blob");
+        return __request<Blob | string>(this.config, { id: "getMenuItemPhoto", path: "/menu-item-images/{menuItemId}", tags: ["Products"] }, __buildUrl(this.config, `/menu-item-images/${encodeURIComponent(String(menuItemId))}`, params), { method: "GET", ...init }, undefined, "blob");
     }
     /**
      * List all orders
@@ -1402,7 +1416,7 @@ export class Client {
         search?: string;
     } = {}, init: RequestOptions = {}): Promise<OrderList> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<OrderList>(this.config, __buildUrl(this.config, `/orders`, params), { method: "GET", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } });
+        return __request<OrderList>(this.config, { id: "listOrders", path: "/orders", tags: ["Orders"] }, __buildUrl(this.config, `/orders`, params), { method: "GET", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } });
     }
     /**
      * Create order
@@ -1412,7 +1426,7 @@ export class Client {
      */
     async createOrder(body: Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">, init: RequestOptions = {}): Promise<Order> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<Order>(this.config, __buildUrl(this.config, `/orders`), { method: "POST", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, body);
+        return __request<Order>(this.config, { id: "createOrder", path: "/orders", tags: ["Orders"] }, __buildUrl(this.config, `/orders`), { method: "POST", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, body);
     }
     /**
      * Retrieve an order
@@ -1427,7 +1441,7 @@ export class Client {
         "X-Request-Id"?: string;
     } = {}, init: RequestOptions = {}): Promise<Order> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<Order>(this.config, __buildUrl(this.config, `/orders/${encodeURIComponent(String(orderId))}`), { method: "GET", ...init, headers: { ...__a.headers, ...__headers(headers), ...init.headers as Record<string, string> | undefined } });
+        return __request<Order>(this.config, { id: "getOrderById", path: "/orders/{orderId}", tags: ["Orders"] }, __buildUrl(this.config, `/orders/${encodeURIComponent(String(orderId))}`), { method: "GET", ...init, headers: { ...__a.headers, ...__headers(headers), ...init.headers as Record<string, string> | undefined } });
     }
     /**
      * Delete an order
@@ -1437,7 +1451,7 @@ export class Client {
      */
     async deleteOrder(orderId: string, init: RequestOptions = {}): Promise<void> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<void>(this.config, __buildUrl(this.config, `/orders/${encodeURIComponent(String(orderId))}`), { method: "DELETE", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, undefined, "void");
+        return __request<void>(this.config, { id: "deleteOrder", path: "/orders/{orderId}", tags: ["Orders"] }, __buildUrl(this.config, `/orders/${encodeURIComponent(String(orderId))}`), { method: "DELETE", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, undefined, "void");
     }
     /**
      * Partially update an order
@@ -1449,7 +1463,7 @@ export class Client {
         status: OrderStatus;
     }, init: RequestOptions = {}): Promise<Order> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<Order>(this.config, __buildUrl(this.config, `/orders/${encodeURIComponent(String(orderId))}`), { method: "PATCH", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, body);
+        return __request<Order>(this.config, { id: "updateOrder", path: "/orders/{orderId}", tags: ["Orders"] }, __buildUrl(this.config, `/orders/${encodeURIComponent(String(orderId))}`), { method: "PATCH", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } }, body);
     }
     /**
      * List all order items with menu item details
@@ -1478,7 +1492,7 @@ export class Client {
         filter?: string;
     } = {}, init: RequestOptions = {}): Promise<OrderItem[]> {
         const __a = await __auth(["OAuth2"], this.config);
-        return __request<OrderItem[]>(this.config, __buildUrl(this.config, `/order-items`, params), { method: "GET", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } });
+        return __request<OrderItem[]>(this.config, { id: "listOrderItems", path: "/order-items", tags: ["Orders"] }, __buildUrl(this.config, `/order-items`, params), { method: "GET", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } });
     }
     /**
      * Get revenue statistics
@@ -1501,7 +1515,7 @@ export class Client {
         endDate?: string;
     } = {}, init: RequestOptions = {}): Promise<RevenueStatistics> {
         const __a = await __auth(["ApiKey"], this.config);
-        return __request<RevenueStatistics>(this.config, __buildUrl(this.config, `/revenue`, params), { method: "GET", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } });
+        return __request<RevenueStatistics>(this.config, { id: "getRevenue", path: "/revenue", tags: ["Statistics"] }, __buildUrl(this.config, `/revenue`, params), { method: "GET", ...init, headers: { ...__a.headers, ...init.headers as Record<string, string> | undefined } });
     }
     /**
      * Create OAuth2 client
@@ -1514,6 +1528,6 @@ export class Client {
      * - `clientId` and `clientSecret` (must be stored securely) - `clientIdIssuedAt` and `clientSecretExpiresAt` timestamps - All registered client metadata (name, redirectUris, scopes, grantTypes)
      */
     async registerOAuth2Client(body: RegisterClientObject, init: RequestOptions = {}): Promise<OAuth2Client> {
-        return __request<OAuth2Client>(this.config, __buildUrl(this.config, `/oauth2/register`), { method: "POST", ...init }, body);
+        return __request<OAuth2Client>(this.config, { id: "registerOAuth2Client", path: "/oauth2/register", tags: ["Authorization"] }, __buildUrl(this.config, `/oauth2/register`), { method: "POST", ...init }, body);
     }
 }

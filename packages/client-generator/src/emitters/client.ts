@@ -9,7 +9,7 @@ import {
   operationsMetaStatements,
   serviceClassName,
 } from './operations.js';
-import { PUBLIC_RUNTIME_TYPES, runtimeStatements } from './runtime.js';
+import { PUBLIC_RUNTIME_TYPES, runtimeStatements, type OperationContextTypes } from './runtime.js';
 import { isSseOp, sseFragmentName } from './sse.js';
 import { splitLines } from './support.js';
 import { escapeJsDoc, printNodes, printStatements, ts } from './ts.js';
@@ -82,6 +82,11 @@ export type EmitOptions = {
   mockData?: 'baked' | 'faker';
   /** Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so runs reproduce. */
   mockSeed?: number;
+  /**
+   * A pre-baked publisher setup block (from `bakeSetup`) appended at the end of the single-file
+   * client, after the runtime + `configure`/`use` definitions. Absent when no `--setup` is given.
+   */
+  setup?: string;
 };
 
 /**
@@ -105,6 +110,32 @@ type ClientFragments = {
   auth: ts.Statement[];
   operations: ts.Statement[];
 };
+
+/**
+ * The operation-union wiring derived from the model: `opCtx` narrows the runtime's `OperationContext`
+ * field types, and `opNames` is the type-only import list the http module pulls from the schemas
+ * module in multi-file layouts. Falls back to all-`string` (and no import) when the spec has no
+ * operations; tags fall back to `string[]` (no `OperationTag`) when no operation is tagged.
+ */
+function operationUnionInfo(allOps: OperationModel[]): {
+  opCtx: OperationContextTypes;
+  opNames: string[];
+} {
+  const hasOps = allOps.length > 0;
+  const hasTags = allOps.some((op) => op.tags.length > 0);
+  return {
+    opCtx: {
+      id: hasOps ? 'OperationId' : 'string',
+      path: hasOps ? 'OperationPath' : 'string',
+      tags: hasTags ? 'OperationTag[]' : 'string[]',
+    },
+    opNames: hasOps
+      ? hasTags
+        ? ['OperationId', 'OperationPath', 'OperationTag']
+        : ['OperationId', 'OperationPath']
+      : [],
+  };
+}
 
 function renderFragments(
   model: ApiModel,
@@ -142,7 +173,8 @@ function renderFragments(
       errorMode,
       needsSse,
       authConfig,
-      needsMultipart
+      needsMultipart,
+      operationUnionInfo(allOps).opCtx
     ),
     auth: authStatements(model.securitySchemes, needsAuthHelper, exportHelpers),
     operations: operationsBlockStatements(allOps, {
@@ -153,6 +185,7 @@ function renderFragments(
       dateType,
       queryAuthKeys: queryAuthKeysFor(model.securitySchemes),
       schemaNames: new Set(model.schemas.map((s) => s.name)),
+      bakedSetup: !!options.setup,
     }),
   };
 }
@@ -170,7 +203,26 @@ export function emitSingleFile(model: ApiModel, options: EmitOptions = {}): stri
       ...f.auth,
       ...f.operations,
     ]),
+    // Publisher setup baked in last, so `configure`/`use` are already defined when it runs.
+    ...(options.setup ? [setupApply(options.setup, options.facade ?? 'functions', false)] : []),
   ]);
+}
+
+/**
+ * Render the baked publisher setup (`--setup`). `setupExpr` is the neutral expression from
+ * `bakeSetup`; it becomes a module-scoped `const __redoclySetup`. Applied per facade:
+ * - `functions`: also call `configure`/`use` so the global config + middleware chain are set.
+ * - `service-class`: declaration only — the generated class constructor merges `__redoclySetup`
+ *   into each instance's `config`. `exported` re-exports it from the http module so per-tag service
+ *   classes in multi-file layouts can import it.
+ */
+export function setupApply(setupExpr: string, facade: Facade, exported: boolean): string {
+  // Annotated so `.config`/`.middleware` are always accessible (a setup with only `config` would
+  // otherwise infer a type without a `middleware` property, breaking the service-class merge).
+  const decl = `${exported ? 'export ' : ''}const __redoclySetup: { config?: ClientConfig; middleware?: Middleware[] } = ${setupExpr};`;
+  const header = '// ─── Baked-in setup (--setup) ───';
+  if (facade === 'service-class') return `${header}\n${decl}`;
+  return `${header}\n${decl}\nconfigure(__redoclySetup.config ?? {});\nuse(...(__redoclySetup.middleware ?? []));`;
 }
 
 /**
@@ -193,8 +245,12 @@ function banner(sections: string[]): string {
 export type ClientModules = {
   /** The generated-by header comment, prepended to every emitted file. */
   header: string;
-  /** Shared http module: runtime + auth state + public setters. */
-  http: string;
+  /**
+   * Shared http module: runtime + auth state + public setters. A method (not a string) because the
+   * narrowed `OperationContext` type-imports `OperationId`/`OperationPath`/`OperationTag` from the
+   * `<stem>.schemas` module, so the content depends on the writer's chosen stem.
+   */
+  http(stem: string): string;
   /** Shared schemas module: model types + type guards + operation metadata. */
   schemas: string;
   /** Whether the schemas module exports anything (else its file + re-export are skipped). */
@@ -231,10 +287,12 @@ export function emitModules(model: ApiModel, options: EmitOptions = {}): ClientM
   const dateType: DateType = options.dateType ?? 'string';
   const queryAuthKeys = queryAuthKeysFor(model.securitySchemes);
   const schemaNames = new Set(model.schemas.map((s) => s.name));
-  const hasSse = model.services.flatMap((s) => s.operations).some(isSseOp);
+  const allOps = model.services.flatMap((s) => s.operations);
+  const hasSse = allOps.some(isSseOp);
+  const { opNames } = operationUnionInfo(allOps);
   return {
     header: HEADER,
-    http: httpModuleContent(f),
+    http: (stem) => httpModuleContent(f, options, stem, opNames),
     schemas: schemasModuleContent(f),
     hasSchemas: hasSchemas(f),
     operations: printStatements(f.operations),
@@ -248,13 +306,14 @@ export function emitModules(model: ApiModel, options: EmitOptions = {}): ClientM
           dateType,
           queryAuthKeys,
           schemaNames,
+          bakedSetup: !!options.setup,
           // Per-tag SSE aggregates carry the class-derived name so the barrel can
           // re-merge them without collisions.
           sseExportName: sseFragmentName(className),
         })
       ),
     endpointImports: (ops, stem, prefix) =>
-      printNodes(endpointImportNodes(ops, stem, facade, errorMode, prefix)),
+      printNodes(endpointImportNodes(ops, stem, facade, errorMode, prefix, !!options.setup)),
     publicReexport: (stem) =>
       printNodes(publicReexportNodes(stem, model.securitySchemes, options.errorMode, hasSse)),
     sseBarrel: (groups) => {
@@ -284,8 +343,24 @@ export function moduleSpecifier(stem: string, kind: 'schemas' | 'http', prefix =
 }
 
 /** The shared http module's content: runtime + auth state + public setters. */
-function httpModuleContent(f: ClientFragments): string {
-  return banner([HEADER, printStatements([...f.runtime, ...f.auth])]);
+function httpModuleContent(
+  f: ClientFragments,
+  options: EmitOptions,
+  stem: string,
+  opNames: string[]
+): string {
+  const facade = options.facade ?? 'functions';
+  // The narrowed `OperationContext` references the operation unions, which live in the schemas
+  // module; pull them in type-only (erased, zero-dep, acyclic). Empty when the spec has no operations.
+  const importLine =
+    opNames.length > 0
+      ? `import type { ${opNames.join(', ')} } from "${moduleSpecifier(stem, 'schemas')}";`
+      : '';
+  // The baked setup lives in the shared http module: `configure`/`use` are defined here, and every
+  // layout's entry imports it, so it runs on load. Service-class exports `__redoclySetup` so each
+  // per-tag class module can import and merge it.
+  const setup = options.setup ? [setupApply(options.setup, facade, facade === 'service-class')] : [];
+  return banner([HEADER, importLine, printStatements([...f.runtime, ...f.auth]), ...setup].filter(Boolean));
 }
 
 /** The shared schemas module's content: model types + type guards + operation metadata. */
@@ -339,11 +414,14 @@ function endpointImportNodes(
   stem: string,
   facade: Facade,
   errorMode: 'throw' | 'result',
-  prefix = './'
+  prefix = './',
+  bakedSetup = false
 ): ts.ImportDeclaration[] {
   const typeNames = typeNamesFor(ops, errorMode);
   const httpValues = helperNamesFor(ops, errorMode);
   if (facade === 'functions') httpValues.push('__config');
+  // A service-class constructor merges the baked `__redoclySetup` (exported from the http module).
+  if (facade === 'service-class' && bakedSetup) httpValues.push('__redoclySetup');
   httpValues.sort();
   // The class constructor needs the `ClientConfig` *type*; pull it from the http
   // module via an inline `type` modifier so the value/type imports stay one
@@ -393,7 +471,7 @@ function publicReexportNodes(
   errorMode: 'throw' | 'result' | undefined,
   hasSse: boolean
 ): ts.ExportDeclaration[] {
-  const values = ['ApiError', 'configure', 'setBaseUrl', ...authSetterNames(schemes)].sort();
+  const values = ['ApiError', 'configure', 'use', 'setBaseUrl', ...authSetterNames(schemes)].sort();
   const types = [
     ...PUBLIC_RUNTIME_TYPES,
     ...authTypeNames(schemes),
