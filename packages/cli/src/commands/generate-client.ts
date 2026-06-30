@@ -94,6 +94,10 @@ export async function handleGenerateClient({
   // alias's `root`, relative to the config dir); a plain path/URL passes through.
   const input = getAliasOrPath(config, merged.input).path;
   const outputPath = resolvePath(merged.output);
+  // A relative `--setup` resolves against the cwd, like `--output` (a config-file
+  // `setup` was already resolved against the config dir in readRedoclyExtension);
+  // passing an absolute path makes generateClient's own resolution a no-op.
+  const setupPath = merged.setup === undefined ? undefined : resolvePath(merged.setup);
 
   // Relative-path generator specifiers (and inline plugins) resolve against the
   // `redocly.yaml` directory (the config's location), else the working directory.
@@ -106,10 +110,13 @@ export async function handleGenerateClient({
   }
   if (merged.baseUrl !== undefined) {
     try {
-      new URL(merged.baseUrl);
+      // Accept absolute URLs (https://api.example.com) and relative bases (/v1):
+      // OpenAPI allows relative `servers[].url`, and the runtime concatenates
+      // baseUrl + path, so a relative base needs no absolute origin.
+      new URL(merged.baseUrl, 'http://localhost');
     } catch {
       throw new HandledError(
-        `\n❌  --base-url must be a valid URL (parseable by \`new URL(...)\`).\n   Got: ${merged.baseUrl}\n`
+        `\n❌  --base-url must be a valid URL — absolute (https://api.example.com) or relative (/v1).\n   Got: ${merged.baseUrl}\n`
       );
     }
   }
@@ -120,6 +127,7 @@ export async function handleGenerateClient({
       ...merged,
       input,
       output: outputPath,
+      setup: setupPath,
       config,
       configDir,
     });
