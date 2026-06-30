@@ -261,6 +261,14 @@ function getFileNamePath(componentDirPath: string, componentName: string, ext: s
   return path.join(componentDirPath, componentName) + `.${ext}`;
 }
 
+function assertWithinDir(baseDir: string, targetPath: string, subject: string) {
+  const base = path.resolve(baseDir);
+  const target = path.resolve(targetPath);
+  if (target !== base && !target.startsWith(base + path.sep)) {
+    exitWithError(`Refusing to write "${subject}" outside the output directory.`);
+  }
+}
+
 function gatherComponentsFiles(
   components: Oas3Components | Oas3_1Components,
   componentsFiles: ComponentsFiles,
@@ -298,6 +306,8 @@ function iteratePathItems(
 
     if (isRef(pathData)) continue;
 
+    assertWithinDir(openapiDir, pathFile, pathName);
+
     for (const method of OPENAPI3_METHOD_NAMES) {
       const methodData = pathData[method];
       const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
@@ -313,6 +323,8 @@ function iteratePathItems(
           codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator),
           method + langToExt(sample.lang)
         );
+
+        assertWithinDir(openapiDir, sampleFileName, sample.lang);
 
         fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
         fs.writeFileSync(sampleFileName, sample.source);
@@ -353,6 +365,7 @@ function iterateComponents(
       const componentDirPath = path.join(componentsDir, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
         const filename = getFileNamePath(componentDirPath, componentName, ext);
+        assertWithinDir(openapiDir, filename, componentName);
         gatherComponentsFiles(components!, componentsFiles, componentType, componentName, filename);
       }
     }
