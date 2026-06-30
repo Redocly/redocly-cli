@@ -1,5 +1,5 @@
 import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
-import { VERSION_PATTERN } from './typings/arazzo.js';
+import { VERSION_PATTERN } from './typings/overlay.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
@@ -7,11 +7,11 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'oas3';
   } else if (version === 'oas2') {
     return 'oas2';
-  } else if (version === 'async3') {
-    return 'async3';
   } else if (version === 'async2') {
     return 'async2';
-  } else if (version === 'arazzo1') {
+  } else if (version === 'async3') {
+    return 'async3';
+  } else if (version === 'arazzo1' || version === 'arazzo1_1') {
     return 'arazzo1';
   } else if (version === 'overlay1') {
     return 'overlay1';
@@ -67,8 +67,16 @@ export function detectSpec(root: unknown): SpecVersion {
     throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
   }
 
-  if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
+  if (typeof root.arazzo === 'string' && root.arazzo.startsWith('1.0.')) {
     return 'arazzo1';
+  }
+
+  if (typeof root.arazzo === 'string' && root.arazzo.startsWith('1.1.')) {
+    return 'arazzo1_1';
+  }
+
+  if (root.arazzo) {
+    throw new Error(`Unsupported Arazzo version: ${root.arazzo}`);
   }
 
   if (typeof root.overlay === 'string' && VERSION_PATTERN.test(root.overlay)) {

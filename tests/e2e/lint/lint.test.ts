@@ -17,6 +17,16 @@ describe('lint', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('lint valid Arazzo 1.1 description', async () => {
+    const dirName = 'arazzo-1-1-valid-description';
+    const testPath = join(__dirname, `${dirName}`);
+
+    const args = getParams(indexEntryPoint, ['lint', 'cafe-workflows.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test('lint not valid Arazzo description', async () => {
     const dirName = 'arazzo-not-valid-test-description';
     const testPath = join(__dirname, `${dirName}`);
