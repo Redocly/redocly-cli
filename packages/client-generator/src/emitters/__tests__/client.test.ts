@@ -5,7 +5,10 @@ import { apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.
 describe('typed ctx.operation (OperationContext narrowing)', () => {
   const tagged = apiModel({
     services: [
-      { name: 'Default', operations: [operation({ name: 'listPets', path: '/pets', tags: ['Pets'] })] },
+      {
+        name: 'Default',
+        operations: [operation({ name: 'listPets', path: '/pets', tags: ['Pets'] })],
+      },
     ],
   });
 

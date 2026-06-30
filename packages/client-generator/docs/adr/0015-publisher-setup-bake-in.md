@@ -5,9 +5,9 @@
 
 ## Context
 
-[ADR-0014](./0014-request-response-customization.md) settled request/response customization as a **runtime** contract a *consumer* composes (`configure`/`use` from their own module), and deliberately ruled out stitching consumer code into the generated output.
+[ADR-0014](./0014-request-response-customization.md) settled request/response customization as a **runtime** contract a _consumer_ composes (`configure`/`use` from their own module), and deliberately ruled out stitching consumer code into the generated output.
 
-But an API provider **publishing an SDK on npm** has a different need: they want the generated client to ship with *their* cross-cutting defaults already wired in — base URL, retry, a header injector, an idempotency-key middleware — so their downstream users `npm install` it and call operations with no `configure`/`use` of their own. Today only `baseUrl` can be baked (it is inlined); everything else is runtime-only.
+But an API provider **publishing an SDK on npm** has a different need: they want the generated client to ship with _their_ cross-cutting defaults already wired in — base URL, retry, a header injector, an idempotency-key middleware — so their downstream users `npm install` it and call operations with no `configure`/`use` of their own. Today only `baseUrl` can be baked (it is inlined); everything else is runtime-only.
 
 The obvious shape — a setup file that imports `configure`/`use` from `./client` and calls them — fails twice: the generated client does not exist when the setup is authored (the import will not resolve), and side-effecting calls against a per-client `configure`/`use` cannot be meaningfully unit-tested. The publisher actor is therefore a distinct, opt-in **build-time** concern, and must not break the zero-dependency guarantee ([ADR-0002](./0002-typescript-peer-dep.md)).
 
@@ -30,9 +30,9 @@ The baker (`setup-bake.ts`) parses the module, **rejects any import other than `
 - **Functions facade**: after `configure`/`use` are defined, the emitter applies `configure(__redoclySetup.config ?? {})` + `use(...(__redoclySetup.middleware ?? []))`. In multi-file this lives in the http module, which the entry imports, so it runs on load for every layout.
 - **Service-class facade**: the generated class constructor merges `__redoclySetup` into its per-instance `this.config` (`{ ...baked, ...passed }`, baked middleware first), so `new Client()` gets the defaults and `new Client(override)` merges on top.
 
-This **refines** ADR-0014 (it does not supersede it): ADR-0014's "no stitching consumer code" governs *consumer self-customization*; publisher bake-in is a separate, explicit build-time seam.
+This **refines** ADR-0014 (it does not supersede it): ADR-0014's "no stitching consumer code" governs _consumer self-customization_; publisher bake-in is a separate, explicit build-time seam.
 
-**Override semantics.** The baked block runs first (at import). A consumer's own customization then layers on with two distinct rules: scalar `ClientConfig` fields (`fetch`/transport, `baseUrl`, `headers`, `retry`, the single hooks) are a single slot set via `configure` (`Object.assign`) — **last write wins, so the consumer overrides the baked default** (a consumer `config.fetch` *replaces* a baked transport rather than wrapping it). Middleware registered via `use` **composes** — baked middleware appended first, consumer middleware after; both run (`onRequest` in order, `onResponse` reversed). A publisher who needs un-bypassable behavior should express it as middleware, not a baked `config.fetch`.
+**Override semantics.** The baked block runs first (at import). A consumer's own customization then layers on with two distinct rules: scalar `ClientConfig` fields (`fetch`/transport, `baseUrl`, `headers`, `retry`, the single hooks) are a single slot set via `configure` (`Object.assign`) — **last write wins, so the consumer overrides the baked default** (a consumer `config.fetch` _replaces_ a baked transport rather than wrapping it). Middleware registered via `use` **composes** — baked middleware appended first, consumer middleware after; both run (`onRequest` in order, `onResponse` reversed). A publisher who needs un-bypassable behavior should express it as middleware, not a baked `config.fetch`.
 
 ## Consequences
 

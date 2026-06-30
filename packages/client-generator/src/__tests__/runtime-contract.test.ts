@@ -1,5 +1,5 @@
-import { defineClientSetup } from '../runtime-contract.js';
 import { renderRuntime } from '../emitters/runtime.js';
+import { defineClientSetup } from '../runtime-contract.js';
 
 describe('defineClientSetup', () => {
   it('returns its argument unchanged (identity helper)', () => {

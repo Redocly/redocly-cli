@@ -16,10 +16,14 @@ const tsc = join(repoRoot, 'node_modules/.bin/tsc');
 const fixture = join(__dirname, 'fixtures/base.yaml');
 
 function gen(dir: string): void {
-  const r = spawnSync('node', [cli, 'generate-client', fixture, '--output', join(dir, 'client.ts')], {
-    cwd: repoRoot,
-    encoding: 'utf-8',
-  });
+  const r = spawnSync(
+    'node',
+    [cli, 'generate-client', fixture, '--output', join(dir, 'client.ts')],
+    {
+      cwd: repoRoot,
+      encoding: 'utf-8',
+    }
+  );
   if (r.status !== 0) throw new Error(r.stderr);
   writeFileSync(
     join(dir, 'tsconfig.json'),
@@ -41,7 +45,9 @@ function gen(dir: string): void {
 }
 function typechecks(dir: string, consumer: string): boolean {
   writeFileSync(join(dir, 'consumer.ts'), consumer, 'utf-8');
-  return spawnSync(tsc, ['-p', join(dir, 'tsconfig.json')], { cwd: dir, encoding: 'utf-8' }).status === 0;
+  return (
+    spawnSync(tsc, ['-p', join(dir, 'tsconfig.json')], { cwd: dir, encoding: 'utf-8' }).status === 0
+  );
 }
 
 describe('typed ctx.operation rejects typos at compile time', () => {

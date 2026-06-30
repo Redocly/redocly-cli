@@ -1,5 +1,5 @@
-import { type Config, HandledError, isPlainObject, logger } from '@redocly/openapi-core';
 import { type Config as OpenApiTsConfig } from '@redocly/client-generator';
+import { type Config, HandledError, isPlainObject, logger } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 

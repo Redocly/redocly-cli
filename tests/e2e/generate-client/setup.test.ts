@@ -24,7 +24,10 @@ export default defineClientSetup({
 });
 `;
 
-function generate(dir: string, extraArgs: string[] = []): { status: number | null; stderr: string } {
+function generate(
+  dir: string,
+  extraArgs: string[] = []
+): { status: number | null; stderr: string } {
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   writeFileSync(join(dir, 'setup.ts'), SETUP, 'utf-8');
   return spawnSync(

@@ -6,16 +6,16 @@ generator in CI** (`tests/e2e/examples.test.ts`). The first five are Vite apps t
 generated via the `redocly generate-client` CLI (a `redocly.yaml`); `programmatic` _generates_ one with
 the `generateClient(...)` API.
 
-| Example                              | How it's generated            | Shows                                           |
-| ------------------------------------ | ----------------------------- | ----------------------------------------------- |
-| [fetch-functions](./fetch-functions) | CLI · `sdk`, functions        | free functions + `ApiError`                     |
+| Example                              | How it's generated            | Shows                                                                                   |
+| ------------------------------------ | ----------------------------- | --------------------------------------------------------------------------------------- |
+| [fetch-functions](./fetch-functions) | CLI · `sdk`, functions        | free functions + `ApiError`                                                             |
 | [customization](./customization)     | CLI · `sdk`, functions        | request/response middleware, `ctx.operation` targeting, body mutation, custom transport |
-| [baked-setup](./baked-setup)         | CLI · `sdk`, functions        | publisher defaults baked into the client via `--setup` (`defineClientSetup`) |
-| [service-class](./service-class)     | CLI · `sdk`, service-class    | `new Client({ baseUrl })`, per-instance `auth`  |
-| [zod](./zod)                         | CLI · `sdk`, `zod`            | validating responses with generated zod schemas |
-| [tanstack-query](./tanstack-query)   | CLI · `sdk`, `tanstack-query` | React `useQuery(<op>Options())`                 |
-| [mock](./mock)                       | CLI · `sdk`, `mock`           | MSW handlers from generated `handlers`          |
-| [programmatic](./programmatic)       | `generateClient(...)` API     | generating the client from a Node script        |
+| [baked-setup](./baked-setup)         | CLI · `sdk`, functions        | publisher defaults baked into the client via `--setup` (`defineClientSetup`)            |
+| [service-class](./service-class)     | CLI · `sdk`, service-class    | `new Client({ baseUrl })`, per-instance `auth`                                          |
+| [zod](./zod)                         | CLI · `sdk`, `zod`            | validating responses with generated zod schemas                                         |
+| [tanstack-query](./tanstack-query)   | CLI · `sdk`, `tanstack-query` | React `useQuery(<op>Options())`                                                         |
+| [mock](./mock)                       | CLI · `sdk`, `mock`           | MSW handlers from generated `handlers`                                                  |
+| [programmatic](./programmatic)       | `generateClient(...)` API     | generating the client from a Node script                                                |
 
 ## Run one
 

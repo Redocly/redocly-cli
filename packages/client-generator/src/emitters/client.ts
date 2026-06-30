@@ -359,8 +359,12 @@ function httpModuleContent(
   // The baked setup lives in the shared http module: `configure`/`use` are defined here, and every
   // layout's entry imports it, so it runs on load. Service-class exports `__redoclySetup` so each
   // per-tag class module can import and merge it.
-  const setup = options.setup ? [setupApply(options.setup, facade, facade === 'service-class')] : [];
-  return banner([HEADER, importLine, printStatements([...f.runtime, ...f.auth]), ...setup].filter(Boolean));
+  const setup = options.setup
+    ? [setupApply(options.setup, facade, facade === 'service-class')]
+    : [];
+  return banner(
+    [HEADER, importLine, printStatements([...f.runtime, ...f.auth]), ...setup].filter(Boolean)
+  );
 }
 
 /** The shared schemas module's content: model types + type guards + operation metadata. */

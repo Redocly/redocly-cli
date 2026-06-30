@@ -193,7 +193,7 @@ See the [`customization` example](./examples/customization) for a runnable end-t
 
 ### Baking defaults into a published SDK
 
-The customization above is composed by the **consumer**. If you instead **publish an SDK** and want those defaults already active for *your* users, bake them in at generation time with `--setup <file>`. The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable before the client is generated) and returns a `defineClientSetup({ config, middleware })`:
+The customization above is composed by the **consumer**. If you instead **publish an SDK** and want those defaults already active for _your_ users, bake them in at generation time with `--setup <file>`. The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable before the client is generated) and returns a `defineClientSetup({ config, middleware })`:
 
 ```ts
 // client-setup.ts
@@ -205,7 +205,8 @@ export default defineClientSetup({
     {
       onRequest: (ctx: RequestContext) => {
         ctx.headers['X-Acme-SDK'] = '1.4.0';
-        if (ctx.operation.tags.includes('Orders')) ctx.headers['X-Idempotency-Key'] = crypto.randomUUID();
+        if (ctx.operation.tags.includes('Orders'))
+          ctx.headers['X-Idempotency-Key'] = crypto.randomUUID();
       },
     },
   ],

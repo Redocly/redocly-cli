@@ -521,10 +521,7 @@ function serviceClassStatements(
   ctx: EmitContext
 ): ts.Statement[] {
   const aliases: ts.Statement[] = [];
-  const members: ts.ClassElement[] = [
-    ...constructorMembers(ctx.bakedSetup),
-    serviceUseMethod(),
-  ];
+  const members: ts.ClassElement[] = [...constructorMembers(ctx.bakedSetup), serviceUseMethod()];
 
   const { regular, sse } = partitionOps(ops);
   for (const op of regular) {

@@ -22,7 +22,7 @@ The codegen-time alternatives considered (a dedicated plugin, extending the `tra
 Auditing the surface against real needs leaves three genuine gaps:
 
 1. **Targeting by operation identity.** Middleware can only match on `ctx.url` / `ctx.method`, so "all `admin`-tagged operations" or "the `createOrder` operation" can only be expressed as brittle URL regexes — `RequestContext` carries no `operationId`, `tags`, or path template.
-2. **Request body mutation is silently ignored.** The body is serialized into the fetch payload *before* `onRequest` runs, and the fetch sends that payload — not `ctx.body`. So mutating `ctx.body` (case conversion, enveloping, signing) is a footgun: it type-checks and does nothing.
+2. **Request body mutation is silently ignored.** The body is serialized into the fetch payload _before_ `onRequest` runs, and the fetch sends that payload — not `ctx.body`. So mutating `ctx.body` (case conversion, enveloping, signing) is a footgun: it type-checks and does nothing.
 3. **Typed-result enrichment.** Middleware sees only the raw `Response`, not the deserialized value, so enriching the typed result is impossible without reconstructing a `Response`.
 
 ## Decision
@@ -32,7 +32,7 @@ Auditing the surface against real needs leaves three genuine gaps:
 We close the prioritized gaps by **extending the same runtime contract**, additively:
 
 1. **Operation metadata in `RequestContext`.** Thread the operation's identity into the context the runtime builds — at minimum `operationId`, plus `tags` and the path template (the `path` before parameter interpolation). Middleware then targets requests semantically (`ctx.operationId === 'createOrder'`, `ctx.tags.includes('admin')`) instead of by URL shape. Emitted into every client; the existing `url`/`method`/`headers` fields are unchanged.
-2. **Make the request body mutable in `onRequest`.** Serialize the payload from `ctx.body` *after* the `onRequest` chain runs, so body transforms take effect. The default behavior (JSON-encode a plain object, pass through `Blob`/`FormData`/string) is unchanged when no hook touches the body.
+2. **Make the request body mutable in `onRequest`.** Serialize the payload from `ctx.body` _after_ the `onRequest` chain runs, so body transforms take effect. The default behavior (JSON-encode a plain object, pass through `Blob`/`FormData`/string) is unchanged when no hook touches the body.
 
 We **defer typed-result enrichment** (gap 3): it weakens the contract's type safety and has no concrete demand — the raw-`Response` `onResponse` hook covers the asked-for cases. Revisit only on a real need.
 

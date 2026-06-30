@@ -1,6 +1,6 @@
 # baked-setup
 
-Shows the **publisher** story: an SDK that ships request/response defaults *built into* the generated
+Shows the **publisher** story: an SDK that ships request/response defaults _built into_ the generated
 client, so downstream users call operations with no setup of their own (see
 [ADR-0015](../../docs/adr/0015-publisher-setup-bake-in.md)).
 
