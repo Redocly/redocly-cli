@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 1.34.17
+
+### Patch Changes
+
+- Fixed a code execution vulnerability where a crafted `$faker` expression in an Arazzo description could execute arbitrary JavaScript during Redocly Respect runs.
+- Updated @redocly/openapi-core to v1.34.17.
+
 ## 1.34.16
 
 ### Patch Changes
