@@ -31,10 +31,15 @@ export class HarWriter {
   }
 
   add(entry: Entry): Promise<void> {
-    this.count += 1;
     const line = `${JSON.stringify(entry)}\n`;
-    this.writeChain = this.writeChain.catch(() => undefined).then(() => this.append(line));
-    return this.writeChain;
+    const append = this.writeChain
+      .catch(() => undefined)
+      .then(() => this.append(line))
+      .then(() => {
+        this.count += 1;
+      });
+    this.writeChain = append.catch(() => undefined);
+    return append;
   }
 
   async finalize(): Promise<void> {

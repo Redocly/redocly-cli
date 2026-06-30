@@ -1,4 +1,21 @@
-import { bundle, isPlainObject, logger, type Config } from '@redocly/openapi-core';
+import {
+  BaseResolver,
+  bundle,
+  detectSpec,
+  getMajorSpecVersion,
+  getTypes,
+  isPlainObject,
+  logger,
+  normalizeTypes,
+  normalizeVisitors,
+  resolveDocument,
+  walkDocument,
+  type Config,
+  type Document,
+  type Oas3Visitor,
+  type SpecVersion,
+  type WalkContext,
+} from '@redocly/openapi-core';
 import { stat } from 'node:fs/promises';
 
 import type {
@@ -17,12 +34,28 @@ type HttpMethod = (typeof HTTP_METHODS)[number];
 
 const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
 
-interface RawDocument {
-  openapi?: unknown;
-  paths?: Record<string, unknown>;
+function isHttpMethod(value: string): value is HttpMethod {
+  return (HTTP_METHODS as readonly string[]).includes(value);
+}
+
+interface RootNode {
   servers?: unknown;
   security?: unknown;
-  components?: { securitySchemes?: unknown };
+  components?: unknown;
+}
+
+interface PathItemNode {
+  parameters?: unknown;
+  servers?: unknown;
+}
+
+interface OperationNode {
+  operationId?: unknown;
+  parameters?: unknown;
+  requestBody?: unknown;
+  responses?: unknown;
+  servers?: unknown;
+  security?: unknown;
 }
 
 function isParameterLocation(value: string): value is OpenApiParameter['in'] {
@@ -153,81 +186,132 @@ function toOperationId(
   return `${method.toUpperCase()} ${pathTemplate}`;
 }
 
-function isOpenApi3Document(document: unknown): document is RawDocument {
-  return Boolean(
-    isPlainObject(document) &&
-    typeof document.openapi === 'string' &&
-    document.openapi.startsWith('3.')
-  );
+function detectOpenApi3Spec(document: Document): SpecVersion | null {
+  try {
+    const specVersion = detectSpec(document.parsed);
+    return getMajorSpecVersion(specVersion) === 'oas3' ? specVersion : null;
+  } catch {
+    return null;
+  }
 }
 
 function normalizeSecurity(value: unknown): Record<string, string[]>[] | undefined {
   return Array.isArray(value) ? (value as Record<string, string[]>[]) : undefined;
 }
 
-function indexDocument(
-  document: RawDocument,
+function createIndexVisitor(
   specSource: string,
   operationsByMethod: Map<string, OpenApiOperation[]>
-): void {
-  const paths = document.paths ?? {};
-  const componentsSecuritySchemes = isPlainObject(document.components)
-    ? document.components.securitySchemes
-    : undefined;
-  const securitySchemes: Record<string, unknown> = isPlainObject(componentsSecuritySchemes)
-    ? componentsSecuritySchemes
-    : {};
+): Oas3Visitor {
+  let rootServers: unknown;
+  let rootSecurity: unknown;
+  let securitySchemes: Record<string, unknown> = {};
+  let currentPathTemplate = '/';
+  let currentPathParameters: OpenApiParameter[] = [];
+  let currentPathServers: unknown;
 
-  for (const [rawPathTemplate, pathItem] of Object.entries(paths)) {
-    if (!isPlainObject(pathItem)) {
-      continue;
-    }
+  return {
+    Root: {
+      enter(root: RootNode) {
+        rootServers = root.servers;
+        rootSecurity = root.security;
+        const componentsSecuritySchemes = isPlainObject(root.components)
+          ? root.components.securitySchemes
+          : undefined;
+        securitySchemes = isPlainObject(componentsSecuritySchemes) ? componentsSecuritySchemes : {};
+      },
+    },
+    Paths: {
+      PathItem: {
+        enter(pathItem: PathItemNode, ctx) {
+          currentPathTemplate = ensureLeadingSlash(String(ctx.key));
+          currentPathParameters = normalizeParameters(pathItem.parameters);
+          currentPathServers = pathItem.servers;
+        },
+        Operation: {
+          enter(operation: OperationNode, ctx) {
+            const method = String(ctx.key);
+            if (!isHttpMethod(method)) {
+              return;
+            }
 
-    const pathTemplate = ensureLeadingSlash(rawPathTemplate);
-    const pathParameters = normalizeParameters(pathItem.parameters);
+            const mergedParameters = mergeParameters(
+              currentPathParameters,
+              normalizeParameters(operation.parameters)
+            );
+            const compiledPath = compileOpenApiPath(currentPathTemplate);
+            const servers = resolveOperationServers(
+              operation.servers,
+              currentPathServers,
+              rootServers
+            );
+            const requestBody = operation.requestBody;
 
-    for (const method of HTTP_METHODS) {
-      const operation = pathItem[method];
-      if (!isPlainObject(operation)) {
-        continue;
-      }
+            const item: OpenApiOperation = {
+              operationId: toOperationId(
+                method,
+                currentPathTemplate,
+                typeof operation.operationId === 'string' ? operation.operationId : undefined
+              ),
+              method,
+              pathTemplate: currentPathTemplate,
+              pathRegex: compiledPath.regex,
+              pathParams: compiledPath.params,
+              pathScore: compiledPath.score,
+              servers,
+              requestParameters: mergedParameters,
+              requestBodyContent: extractRequestBodyContent(requestBody),
+              requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
+              responseBodyContent: extractResponseBodyContent(operation.responses),
+              security: normalizeSecurity(operation.security) ?? normalizeSecurity(rootSecurity),
+              securitySchemes,
+              specSource,
+            };
 
-      const operationParameters = normalizeParameters(operation.parameters);
-      const mergedParameters = mergeParameters(pathParameters, operationParameters);
-      const compiledPath = compileOpenApiPath(pathTemplate);
-      const servers = resolveOperationServers(
-        operation.servers,
-        pathItem.servers,
-        document.servers
-      );
-      const requestBody = operation.requestBody;
+            const methodOperations = operationsByMethod.get(method) ?? [];
+            methodOperations.push(item);
+            operationsByMethod.set(method, methodOperations);
+          },
+        },
+      },
+    },
+  };
+}
 
-      const item: OpenApiOperation = {
-        operationId: toOperationId(
-          method,
-          pathTemplate,
-          typeof operation.operationId === 'string' ? operation.operationId : undefined
-        ),
-        method,
-        pathTemplate,
-        pathRegex: compiledPath.regex,
-        pathParams: compiledPath.params,
-        pathScore: compiledPath.score,
-        servers,
-        requestParameters: mergedParameters,
-        requestBodyContent: extractRequestBodyContent(requestBody),
-        requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
-        responseBodyContent: extractResponseBodyContent(operation.responses),
-        security: normalizeSecurity(operation.security) ?? normalizeSecurity(document.security),
-        securitySchemes,
-        specSource,
-      };
+async function indexDocument(
+  document: Document,
+  specVersion: SpecVersion,
+  config: Config,
+  externalRefResolver: BaseResolver,
+  specSource: string,
+  operationsByMethod: Map<string, OpenApiOperation[]>
+): Promise<void> {
+  const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.Root,
+    externalRefResolver,
+  });
 
-      const methodOperations = operationsByMethod.get(method) ?? [];
-      methodOperations.push(item);
-      operationsByMethod.set(method, methodOperations);
-    }
-  }
+  const ctx: WalkContext = { problems: [], specVersion, config, visitorsData: {} };
+  const normalizedVisitors = normalizeVisitors(
+    [
+      {
+        severity: 'warn',
+        ruleId: 'drift-index',
+        visitor: createIndexVisitor(specSource, operationsByMethod),
+      },
+    ],
+    types
+  );
+
+  walkDocument({
+    document,
+    rootType: types.Root,
+    normalizedVisitors,
+    resolvedRefMap,
+    ctx,
+  });
 }
 
 function finalizeIndex(
@@ -286,6 +370,7 @@ async function looksLikeOpenApiRootDocument(specFile: string): Promise<boolean> 
 export async function loadOpenApiIndex(specPath: string, config: Config): Promise<OpenApiIndex> {
   const { specFiles, fromDirectory } = await resolveSpecFiles(specPath);
   const operationsByMethod = new Map<string, OpenApiOperation[]>();
+  const externalRefResolver = new BaseResolver(config.resolve);
   let loadedSpecs = 0;
 
   for (const specFile of specFiles) {
@@ -293,10 +378,10 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
       continue;
     }
 
-    let document: unknown;
+    let document: Document;
     try {
       const { bundle: bundled } = await bundle({ config, ref: specFile, dereference: true });
-      document = bundled.parsed;
+      document = bundled;
     } catch (error) {
       logger.warn(
         `Failed to bundle OpenAPI description ${specFile}: ${(error as Error).message}\n`
@@ -304,7 +389,8 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
       continue;
     }
 
-    if (!isOpenApi3Document(document)) {
+    const specVersion = detectOpenApi3Spec(document);
+    if (!specVersion) {
       if (!fromDirectory) {
         logger.warn(`Skipping ${specFile}: not an OpenAPI 3.x description.\n`);
       }
@@ -312,7 +398,14 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
     }
 
     loadedSpecs += 1;
-    indexDocument(document, specFile, operationsByMethod);
+    await indexDocument(
+      document,
+      specVersion,
+      config,
+      externalRefResolver,
+      specFile,
+      operationsByMethod
+    );
   }
 
   return finalizeIndex(operationsByMethod, loadedSpecs);
