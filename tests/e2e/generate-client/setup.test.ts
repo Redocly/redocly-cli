@@ -78,7 +78,7 @@ await listPets();
 console.log(JSON.stringify({ url, header }));
 `
     ) as { url: string; header: string };
-    expect(captured.url.startsWith('https://baked.example.com')).toBe(true);
+    expect(new URL(captured.url).origin).toBe('https://baked.example.com');
     expect(captured.header).toBe('yes');
   }, 60_000);
 
@@ -93,7 +93,7 @@ await listPets();
 console.log(JSON.stringify({ url }));
 `
     ) as { url: string };
-    expect(captured.url.startsWith('https://override.example.com')).toBe(true);
+    expect(new URL(captured.url).origin).toBe('https://override.example.com');
   }, 60_000);
 
   test('applies in a multi-file layout (split) with no consumer setup', () => {
@@ -111,7 +111,7 @@ await listPets();
 console.log(JSON.stringify({ url, header }));
 `
       ) as { url: string; header: string };
-      expect(captured.url.startsWith('https://baked.example.com')).toBe(true);
+      expect(new URL(captured.url).origin).toBe('https://baked.example.com');
       expect(captured.header).toBe('yes');
     } finally {
       rmSync(dir2, { recursive: true, force: true });
@@ -143,8 +143,8 @@ await new PetClient({ baseUrl: 'https://override.example.com', fetch: fetchSpy(o
 console.log(JSON.stringify({ baked, overridden }));
 `
     ) as { baked: { url: string; header: string }; overridden: { url: string } };
-    expect(captured.baked.url.startsWith('https://baked.example.com')).toBe(true);
+    expect(new URL(captured.baked.url).origin).toBe('https://baked.example.com');
     expect(captured.baked.header).toBe('yes');
-    expect(captured.overridden.url.startsWith('https://override.example.com')).toBe(true);
+    expect(new URL(captured.overridden.url).origin).toBe('https://override.example.com');
   }, 60_000);
 });

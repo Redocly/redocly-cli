@@ -87,12 +87,7 @@ const server = http.createServer(async (req, res) => {
     res.end(response.body);
   } catch (error) {
     res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(
-      JSON.stringify({
-        error: 'mock-server failed',
-        message: error instanceof Error ? error.message : String(error),
-      })
-    );
+    res.end(JSON.stringify({ error: 'mock-server failed' }));
   }
 });
 

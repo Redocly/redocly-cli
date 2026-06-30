@@ -207,7 +207,7 @@ await listPets();
 console.log(JSON.stringify({ url, header }));
 `
     ) as { url: string; header: string };
-    expect(captured.url.startsWith('https://multi.example.com')).toBe(true);
+    expect(new URL(captured.url).origin).toBe('https://multi.example.com');
     expect(captured.header).toBe('yes');
   }, 60_000);
 });

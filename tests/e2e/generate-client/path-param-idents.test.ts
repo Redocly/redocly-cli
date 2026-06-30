@@ -11,7 +11,7 @@
  * built from the argument value).
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -103,7 +103,7 @@ describe('non-identifier path parameters', () => {
   });
 
   test('emits safe argument names and matching URL substitutions', () => {
-    const client = spawnSync('cat', [join(dir, 'client.ts')], { encoding: 'utf-8' }).stdout;
+    const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
     // `widget-id` → `widget_id`; the URL uses the same identifier, not a literal.
     expect(client).toContain('widget_id: string');
     expect(client).toContain('${encodeURIComponent(String(widget_id))}');

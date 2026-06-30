@@ -953,7 +953,7 @@ function pathTemplate(
   const exprs: ts.Expression[] = [];
   let buffer = '';
   let last = 0;
-  for (const match of path.matchAll(/\{([^}]+)\}/g)) {
+  for (const match of path.matchAll(/\{([^{}]+)\}/g)) {
     const ident = pathParamIdent.get(match[1]);
     if (!ident) continue;
     buffer += path.slice(last, match.index);

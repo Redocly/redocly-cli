@@ -401,7 +401,7 @@ function spreadOverrides(value: ts.Expression, spreadName: string): ts.Expressio
 
 /** `/pets/{petId}` → `*​/pets/:petId` — MSW path with a wildcard origin and `:param` segments. */
 function mswPath(path: string): string {
-  return `*${path.replace(/\{([^}]+)\}/g, ':$1')}`;
+  return `*${path.replace(/\{([^{}]+)\}/g, ':$1')}`;
 }
 
 /** Recursively print a sampled JS value as a TypeScript literal expression. */

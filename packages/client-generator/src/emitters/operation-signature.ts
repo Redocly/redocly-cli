@@ -31,7 +31,7 @@ export type OperationSignature = {
 export function operationSignature(op: OperationModel): OperationSignature {
   const byName = new Map(op.pathParams.map((p) => [p.name, p] as const));
   const ordered: ParamModel[] = [];
-  for (const match of op.path.matchAll(/\{([^}]+)\}/g)) {
+  for (const match of op.path.matchAll(/\{([^{}]+)\}/g)) {
     const p = byName.get(match[1]);
     if (p) ordered.push(p);
   }
