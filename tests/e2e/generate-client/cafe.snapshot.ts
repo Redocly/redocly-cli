@@ -448,7 +448,7 @@ export type OperationMetadata = {
 
 let BASE = "https://api.cafe.redocly.com";
 
-/** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`). */
+/** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`/`body`). */
 export type RequestContext = {
     url: string;
     method: string;
@@ -723,28 +723,30 @@ async function __send(config: ClientConfig, url: string, init: RequestOptions, b
         ...extra,
         ...(fetchInit.headers as Record<string, string> | undefined),
     };
-    let payload: BodyInit | undefined;
-    if (body !== undefined) {
-        const isBinary = body instanceof Blob ||
-            body instanceof ArrayBuffer ||
-            ArrayBuffer.isView(body as ArrayBufferView);
-        const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
-        const isURLSearchParams = body instanceof URLSearchParams;
-        if (isFormData || isURLSearchParams || isBinary || typeof body === 'string') {
-            payload = body as BodyInit;
-        }
-        else {
-            payload = JSON.stringify(body);
-            if (!('Content-Type' in headers) && !('content-type' in headers)) {
-                headers['Content-Type'] = 'application/json';
-            }
-        }
-    }
     const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body };
     const middleware = __middleware(config);
     for (const mw of middleware)
         if (mw.onRequest)
             await mw.onRequest(context);
+    // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
+    let payload: BodyInit | undefined;
+    if (context.body !== undefined) {
+        const value = context.body;
+        const isBinary = value instanceof Blob ||
+            value instanceof ArrayBuffer ||
+            ArrayBuffer.isView(value as ArrayBufferView);
+        const isFormData = typeof FormData !== 'undefined' && value instanceof FormData;
+        const isURLSearchParams = value instanceof URLSearchParams;
+        if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
+            payload = value as BodyInit;
+        }
+        else {
+            payload = JSON.stringify(value);
+            if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
+                context.headers['Content-Type'] = 'application/json';
+            }
+        }
+    }
     const doFetch = config.fetch ?? fetch;
     const maxAttempts = 1 + (retry.retries ?? 0);
     const retryOn = retry.retryOn ?? __defaultRetryOn;

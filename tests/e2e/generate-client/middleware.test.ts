@@ -54,6 +54,25 @@ describe('middleware — functions facade (use)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
+  test('onRequest can mutate ctx.body and the change is sent', () => {
+    const captured = runConsumer(
+      dir,
+      `
+import { configure, use, createPet } from './client.ts';
+
+let sent = '';
+configure({
+  fetch: (async (_url: string, init: RequestInit) => { sent = init.body as string; return ${OK}; }) as unknown as typeof fetch,
+});
+use({ onRequest: (ctx) => { (ctx.body as { name: string }).name = 'Mutated'; } });
+await createPet({ name: 'Rex' });
+console.log(JSON.stringify({ sent }));
+`
+    ) as { sent: string };
+
+    expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
+  }, 60_000);
+
   test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', () => {
     const captured = runConsumer(
       dir,
