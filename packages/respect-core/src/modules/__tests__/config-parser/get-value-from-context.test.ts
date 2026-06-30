@@ -244,19 +244,13 @@ describe('getFakeData argument parsing', () => {
   });
 
   it('parses float arguments without being mangled by dots in the pointer', () => {
-    const result = getValueFromContext(
-      '$faker.number.float({ min: 0.5, max: 1.5 })',
-      ctx
-    );
+    const result = getValueFromContext('$faker.number.float({ min: 0.5, max: 1.5 })', ctx);
     expect(result).toBeGreaterThanOrEqual(0.5);
     expect(result).toBeLessThanOrEqual(1.5);
   });
 
   it('parses negative numbers', () => {
-    const result = getValueFromContext(
-      '$faker.number.integer({ min: -5, max: -1 })',
-      ctx
-    );
+    const result = getValueFromContext('$faker.number.integer({ min: -5, max: -1 })', ctx);
     expect(result).toBeGreaterThanOrEqual(-5);
     expect(result).toBeLessThanOrEqual(-1);
   });
