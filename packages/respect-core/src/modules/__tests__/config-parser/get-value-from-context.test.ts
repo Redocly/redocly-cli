@@ -193,6 +193,83 @@ describe('getValueFromContext', () => {
     } as unknown as TestContext;
     expect(getValueFromContext('{$faker.city}', ctx)).toEqual('undefined');
   });
+
+  it('should not execute arbitrary code via the $faker constructor escape', () => {
+    const ctx = {
+      $faker: createFaker(),
+    } as any;
+    (globalThis as any).__respectPwned = false;
+    const payload =
+      '$faker.constructor.constructor(\'globalThis["__respectPwned"]=true;return 1\')()';
+
+    const result = getValueFromContext(payload, ctx);
+
+    expect((globalThis as any).__respectPwned).toBe(false);
+    expect(result).toBeUndefined();
+    delete (globalThis as any).__respectPwned;
+  });
+
+  it('should not execute arbitrary code via bracket-notation $faker payloads', () => {
+    const ctx = {
+      $faker: createFaker(),
+    } as any;
+    (globalThis as any).__respectPwned2 = false;
+    const payload =
+      '$faker.string["constructor"]["constructor"](\'globalThis["__respectPwned2"]=true\')()';
+
+    const result = getValueFromContext(payload, ctx);
+
+    expect((globalThis as any).__respectPwned2).toBe(false);
+    expect(result).toBeUndefined();
+    delete (globalThis as any).__respectPwned2;
+  });
+
+  it('should not resolve prototype-chain properties via $faker', () => {
+    const ctx = {
+      $faker: createFaker(),
+    } as any;
+
+    expect(getValueFromContext('$faker.__proto__.polluted', ctx)).toBeUndefined();
+    expect(getValueFromContext('$faker.constructor', ctx)).toBeUndefined();
+  });
+});
+
+describe('getFakeData argument parsing', () => {
+  let ctx: TestContext;
+
+  beforeEach(() => {
+    ctx = {
+      $faker: createFaker(),
+    } as any;
+  });
+
+  it('parses float arguments without being mangled by dots in the pointer', () => {
+    const result = getValueFromContext('$faker.number.float({ min: 0.5, max: 1.5 })', ctx) as number;
+    expect(result).toBeGreaterThanOrEqual(0.5);
+    expect(result).toBeLessThanOrEqual(1.5);
+  });
+
+  it('parses negative numbers', () => {
+    const result = getValueFromContext('$faker.number.integer({ min: -5, max: -1 })', ctx) as number;
+    expect(result).toBeGreaterThanOrEqual(-5);
+    expect(result).toBeLessThanOrEqual(-1);
+  });
+
+  it('parses string arguments and dotted values', () => {
+    expect(
+      getValueFromContext("$faker.string.email({ provider: 'example', domain: 'org' })", ctx)
+    ).toContain('example.org');
+  });
+
+  it('supports calls with no arguments', () => {
+    expect(getValueFromContext('$faker.string.uuid()', ctx)).toEqual(expect.any(String));
+  });
+
+  it('returns undefined for malformed argument lists', () => {
+    expect(getValueFromContext('$faker.number.integer({ min: })', ctx)).toBeUndefined();
+    expect(getValueFromContext("$faker.string.email('unterminated)", ctx)).toBeUndefined();
+    expect(getValueFromContext('$faker.number.integer(@)', ctx)).toBeUndefined();
+  });
 });
 
 describe('parsePath', () => {
