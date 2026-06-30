@@ -146,7 +146,7 @@ redocly generate-client cafe -o src/client.ts
 
 - `--setup`
 - `string`
-- Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades. See [Baking defaults into a published SDK](#baking-defaults-into-a-published-sdk---setup).
+- Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades. See [Bake defaults into a published SDK](#bake-defaults-into-a-published-sdk---setup).
 
 ---
 
@@ -505,7 +505,7 @@ The `onRequest` / `onResponse` / `onError` fields on `ClientConfig` still work â
 `use()` simply appends to the same chain (`ClientConfig.middleware`), so existing code is unaffected.
 {% /admonition %}
 
-## Baking defaults into a published SDK (`--setup`)
+## Bake defaults into a published SDK (`--setup`)
 
 The middleware above is composed by the **consumer**. If you **publish an SDK** and want those defaults already active for _your_ users, bake them in at generation time with `--setup <file>`.
 
