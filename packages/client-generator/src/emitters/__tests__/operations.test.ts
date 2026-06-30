@@ -329,15 +329,17 @@ describe('renderOperationsBlock — facade seam', () => {
       },
     });
 
-    it('emits a typed body (binary→Blob) instead of raw FormData, serialized via __toFormData', () => {
+    it('emits a typed body (binary→Blob) and defers FormData serialization to the runtime', () => {
       const out = renderOperationsBlock([uploadOp], { facade: 'functions', className: 'C' });
       expect(out).toContain('export type UploadBody = {');
       expect(out).toContain('file: Blob;');
       expect(out).toContain('orgId: string;');
       expect(out).toContain('tags?: string[];');
       expect(out).not.toContain('UploadBody = FormData');
-      // The typed object is serialized to FormData at the call site.
-      expect(out).toContain('__toFormData(body)');
+      // The call passes the plain object plus the multipart flag (trailing `true`); __send
+      // serializes it to FormData AFTER onRequest, so there is no inline __toFormData here.
+      expect(out).not.toContain('__toFormData');
+      expect(out).toContain('body, "void", true);');
     });
 
     it('falls back to raw FormData when the multipart schema is not an object', () => {

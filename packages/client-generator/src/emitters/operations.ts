@@ -1098,22 +1098,22 @@ function renderRequestArgs(
   responseKind: 'json' | 'blob' | 'text' | 'void'
 ): ts.Expression[] {
   const args: ts.Expression[] = [configExpr(configRef), operationMetaExpr(op), urlExpr, initExpr];
+  const multipart = !!op.requestBody && isTypedMultipart(op.requestBody);
   if (op.requestBody) {
-    const bodyExpr = groupedMode
-      ? factory.createPropertyAccessExpression(factory.createIdentifier('vars'), 'body')
-      : factory.createIdentifier('body');
-    // A typed multipart body is a plain object; serialize it to FormData on the way out.
+    // Pass the plain body object; __send serializes it (JSON or, for a typed multipart
+    // body, FormData) AFTER the onRequest chain, so a middleware that mutates or replaces
+    // ctx.body has its change sent.
     args.push(
-      isTypedMultipart(op.requestBody)
-        ? factory.createCallExpression(factory.createIdentifier('__toFormData'), undefined, [
-            bodyExpr,
-          ])
-        : bodyExpr
+      groupedMode
+        ? factory.createPropertyAccessExpression(factory.createIdentifier('vars'), 'body')
+        : factory.createIdentifier('body')
     );
   } else if (responseKind !== 'json') {
     args.push(factory.createIdentifier('undefined'));
   }
-  if (responseKind !== 'json') args.push(factory.createStringLiteral(responseKind));
+  // responseKind must be present (even when 'json') when the multipart flag follows it.
+  if (responseKind !== 'json' || multipart) args.push(factory.createStringLiteral(responseKind));
+  if (multipart) args.push(factory.createTrue());
   return args;
 }
 

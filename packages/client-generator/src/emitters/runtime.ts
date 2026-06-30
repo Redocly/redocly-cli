@@ -293,10 +293,10 @@ ${ex}async function __requestResult<TData, TError>(
   url: string,
   init: RequestOptions,
   body?: unknown,
-  responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'
+  responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'${needsMultipart ? ',\n  multipart: boolean = false' : ''}
 ): Promise<Result<TData, TError>> {
   const { parseAs, ...sendInit } = init;
-  const { response } = await __send(config, op, url, sendInit, body);
+  const { response } = await __send(config, op, url, sendInit, body${needsMultipart ? ', multipart' : ''});
   if (!response.ok) {
     const error = (await readError(response)) as TError;
     return { data: undefined, error, response };
@@ -311,10 +311,10 @@ ${ex}async function __requestResult<TData, TError>(
   url: string,
   init: RequestOptions,
   body?: unknown,
-  responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'
+  responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'${needsMultipart ? ',\n  multipart: boolean = false' : ''}
 ): Promise<T> {
   const { parseAs, ...sendInit } = init;
-  const { response, context } = await __send(config, op, url, sendInit, body);
+  const { response, context } = await __send(config, op, url, sendInit, body${needsMultipart ? ', multipart' : ''});
   if (!response.ok) {
     const errorBody = await readError(response);
     let error: globalThis.Error = new ApiError(context.url, response.status, response.statusText, errorBody);
@@ -606,7 +606,7 @@ ${ex}async function __send(
   op: OperationContext,
   url: string,
   init: RequestOptions,
-  body?: unknown
+  body?: unknown${needsMultipart ? ',\n  multipart: boolean = false' : ''}
 ): Promise<{ response: Response; context: RequestContext }> {
   const { retry: callRetry, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
@@ -631,7 +631,7 @@ ${ex}async function __send(
     const isURLSearchParams = value instanceof URLSearchParams;
     if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
       payload = value as BodyInit;
-    } else {
+    }${needsMultipart ? ' else if (multipart) {\n      payload = __toFormData(value as Record<string, unknown>);\n    }' : ''} else {
       payload = JSON.stringify(value);
       if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
         context.headers['Content-Type'] = 'application/json';

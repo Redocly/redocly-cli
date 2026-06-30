@@ -102,7 +102,50 @@ console.log(JSON.stringify({
     expect(result.meta).toBe('{"k":"v"}'); // nested object → JSON part
   }, 60_000);
 
-  it('compiles in multi-file output (the __toFormData helper is imported into the endpoints module)', () => {
+  it('serializes the multipart body AFTER onRequest, so middleware can mutate it', () => {
+    dir = mkdtempSync(join(tmpdir(), 'ots-multipart-mw-'));
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
+    writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
+    const out = join(dir, 'client.ts');
+    const gen = spawnSync('node', [cli, 'generate-client', join(dir, 'api.yaml'), '--output', out], {
+      encoding: 'utf-8',
+      cwd: repoRoot,
+    });
+    expect(gen.status, gen.stderr).toBe(0);
+
+    writeFileSync(
+      join(dir, 'consumer.ts'),
+      `
+import { configure, use, upload } from './client.ts';
+
+let body: unknown;
+configure({
+  fetch: (async (_url: string, init: RequestInit) => {
+    body = init.body;
+    return new Response('', { status: 200 });
+  }) as unknown as typeof fetch,
+});
+// A multipart op must expose the plain body object to onRequest (not pre-built FormData);
+// mutating it has to be reflected in the FormData that __send serializes afterwards.
+use({ onRequest: (ctx) => { (ctx.body as { orgId: string }).orgId = 'mutated'; } });
+
+const file = new Blob(['hi'], { type: 'text/plain' });
+await upload({ file, orgId: 'org_1' });
+
+const fd = body as FormData;
+console.log(JSON.stringify({ isFormData: fd instanceof FormData, orgId: fd.get('orgId') }));
+`,
+      'utf-8'
+    );
+    const run = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
+    expect(run.status, `${run.stdout}\n${run.stderr}`).toBe(0);
+    const result = JSON.parse(run.stdout.trim()) as Record<string, unknown>;
+
+    expect(result.isFormData).toBe(true);
+    expect(result.orgId).toBe('mutated');
+  }, 60_000);
+
+  it('compiles in multi-file output (multipart serialization lives in the shared runtime)', () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-multipart-tags-'));
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     const gen = spawnSync(

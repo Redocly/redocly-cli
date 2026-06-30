@@ -272,4 +272,28 @@ describe('renderRuntime — shared core + terminal selection', () => {
       expect(out).not.toContain('export async function __parseSseFrame');
     });
   });
+
+  describe('multipart runtime (gated on needsMultipart)', () => {
+    it('omits the __toFormData helper and the multipart serialization path when false', () => {
+      const out = renderRuntime('https://api.example.com', false, false, 'throw', false, false, false);
+      expect(out).not.toContain('__toFormData');
+      expect(out).not.toContain('multipart: boolean');
+    });
+
+    it('emits __toFormData, the multipart flag, and the FormData serialization branch when true', () => {
+      const out = renderRuntime('https://api.example.com', false, false, 'throw', false, false, true);
+      expect(out).toContain('function __toFormData(');
+      // The body-serializing helpers thread a `multipart` flag through to __send.
+      expect(out).toContain('multipart: boolean = false');
+      // __send converts a plain body to FormData AFTER onRequest when the flag is set.
+      expect(out).toContain('else if (multipart) {');
+      expect(out).toContain('__toFormData(value as Record<string, unknown>)');
+    });
+
+    it('threads the multipart flag through the result-mode request helper too', () => {
+      const out = renderRuntime('https://api.example.com', false, false, 'result', false, false, true);
+      expect(out).toContain('multipart: boolean = false');
+      expect(out).toContain('__send(config, op, url, sendInit, body, multipart)');
+    });
+  });
 });
