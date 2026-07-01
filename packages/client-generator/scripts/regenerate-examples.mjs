@@ -23,7 +23,7 @@ const examples = [
 ];
 
 for (const name of examples) {
-  const cwd = join(pkgRoot, 'examples', name);
+  const cwd = join(repoRoot, 'tests/e2e/generate-client/examples', name);
   const res = existsSync(join(cwd, 'redocly.yaml'))
     ? spawnSync('node', [cli, 'generate-client'], { cwd, stdio: 'inherit' })
     : spawnSync(tsx, [join(cwd, 'generate.ts')], { cwd, stdio: 'inherit' });

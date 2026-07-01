@@ -494,7 +494,7 @@ use({
 ```
 
 A header for a single call instead goes in that operation's trailing `RequestOptions` argument (`await listMenuItems({}, { headers: { 'X-Request-Id': '42' } })`).
-See the [`customization` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/customization) for a runnable end-to-end version.
+See the [`customization` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/customization) for a runnable end-to-end version.
 
 `onRequest` and `onResponse` run for every request — under both `throw` and `result` error modes, and around each Server-Sent-Events connect/reconnect.
 `onError` only fires when a non-2xx response would be **thrown**, so it is a no-op in `result` mode (inspect `result.error` instead) and for SSE (which throws its own `ApiError`).
@@ -542,7 +542,7 @@ The generator bakes the `config`/`middleware` into the generated client, so the 
 A setup file may import **only** from `@redocly/client-generator`, keeping the client zero-dependency.
 {% /admonition %}
 
-See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/baked-setup) and ADR-0015.
+See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup) and ADR-0015.
 
 ## Retries
 
@@ -995,7 +995,7 @@ await generateClient({
 });
 ```
 
-A worked example lives in [`examples/custom-generator`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/custom-generator).
+A worked example lives in [`examples/custom-generator`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator).
 
 {% admonition type="info" name="Compatibility & trust" %}
 A custom generator declares the same `requires` / `facades` / `errorModes` / `dateTypes` contract as the built-ins, validated up front — an incompatible selection, a name that collides with another generator, or an unloadable specifier fails fast with an actionable message.

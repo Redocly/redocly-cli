@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
-const examplesDir = join(repoRoot, 'packages/client-generator/examples');
+const examplesDir = join(__dirname, 'examples');
 
 const EXAMPLES = [
   'fetch-functions',

@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const tsc = join(repoRoot, 'node_modules/.bin/tsc');
-const examplesDir = join(pkgRoot, 'examples');
+const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
 const examples = [
   'fetch-functions',
   'customization',
