@@ -63,6 +63,7 @@ import { SpecExampleValues } from './spec-example-values.js';
 import { SpecNoInvalidEncodingCombinations } from './spec-no-invalid-encoding-combinations.js';
 import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
 import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
+import { SpecRefSiblings } from './spec-ref-siblings.js';
 
 export const rules: Oas3RuleSet<'built-in'> = {
   struct: Struct as Oas3Rule,
@@ -129,6 +130,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
   'spec-example-values': SpecExampleValues,
   'spec-querystring-parameters': SpecQuerystringParameters,
+  'spec-ref-siblings': SpecRefSiblings as Oas3Rule,
 };
 
 export const preprocessors = {};

@@ -4,6 +4,7 @@ import { Assertions } from '../common/assertions/index.js';
 import { InfoContact } from '../common/info-contact.js';
 import { InfoLicense } from '../common/info-license.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
+import { SpecRefSiblings } from '../common/spec-ref-siblings.js';
 import { Struct } from '../common/struct.js';
 import { NoUnusedComponents } from './no-unused-components.js';
 import { NoDuplicatedMethodParams } from './spec-no-duplicated-method-params.js';
@@ -18,6 +19,7 @@ export const rules: OpenRpc1RuleSet<'built-in'> = {
   'info-contact': InfoContact as OpenRpc1Rule,
   'spec-no-duplicated-method-params': NoDuplicatedMethodParams,
   'spec-no-required-params-after-optional': NoRequiredParamsAfterOptional,
+  'spec-ref-siblings': SpecRefSiblings as OpenRpc1Rule,
 };
 
 export const preprocessors = {};

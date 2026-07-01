@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info:
+  title: Non-allowed sibling on an OAS Reference Object is still resolved
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/SharedLimit'
+          schema:
+            $ref: ./schema-ref-sibling-external-value.yaml#/Second
+      responses:
+        '200':
+          description: ok
+components:
+  parameters:
+    SharedLimit:
+      name: limit
+      in: query

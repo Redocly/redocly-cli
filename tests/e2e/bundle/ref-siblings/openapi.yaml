@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: Cafe API - ref with sibling keys
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.example.com
+security: []
+paths:
+  /menu/{menuItemId}:
+    get:
+      operationId: getMenuItem
+      description: Reference Object $ref (parameter) with sibling description and required override
+      parameters:
+        - $ref: ./components/parameters/MenuItemId.yaml
+          description: Identifier of the menu item to fetch.
+          required: false
+      responses:
+        '200':
+          description: Schema $ref with scalar siblings (readOnly, description-from-$ref)
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/MenuBaseItem.yaml
+                readOnly: true
+                description:
+                  $ref: ./menu-item-description.md
+  /menu:
+    get:
+      operationId: listMenu
+      description: Schema $ref with structural siblings, one of which is an external $ref
+      responses:
+        '200':
+          description: A list of menu items.
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/MenuItemList.yaml
+                properties:
+                  featured:
+                    $ref: ./components/schemas/Beverage.yaml
+                additionalProperties: false
+  /orders:
+    post:
+      operationId: createOrder
+      description: Reference Object $ref (requestBody) with a sibling description
+      requestBody:
+        $ref: ./components/requestBodies/OrderBody.yaml
+        description: Order payload for this operation.
+      responses:
+        '201':
+          description: Created.

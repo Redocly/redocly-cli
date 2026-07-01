@@ -54,6 +54,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
+    'spec-ref-siblings': 'error',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'error',
@@ -118,6 +119,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
     'spec-example-values': 'error',
+    'spec-ref-siblings': 'error',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'error',
@@ -182,6 +184,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
     'spec-example-values': 'error',
+    'spec-ref-siblings': 'error',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'error',
@@ -248,6 +251,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
+    'spec-ref-siblings': 'error',
     'spec-querystring-parameters': 'error',
   },
   async2Rules: {
@@ -263,6 +267,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-mixed-number-range-constraints': 'error',
     'no-schema-type-mismatch': 'error',
+    'spec-ref-siblings': 'error',
   },
   async3Rules: {
     'channels-kebab-case': 'error',
@@ -277,6 +282,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-mixed-number-range-constraints': 'error',
     'no-schema-type-mismatch': 'error',
+    'spec-ref-siblings': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
@@ -335,6 +341,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'error',
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
+    'spec-ref-siblings': 'error',
   },
 };
 

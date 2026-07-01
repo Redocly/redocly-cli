@@ -1,0 +1,13 @@
+type: object
+properties:
+  object:
+    description: Entity name.
+    type: string
+    const: list
+  items:
+    type: array
+    items:
+      $ref: ./MenuBaseItem.yaml
+required:
+  - object
+  - items

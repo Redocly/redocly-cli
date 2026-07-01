@@ -1,0 +1,121 @@
+openapi: 3.1.0
+info:
+  title: Cafe API - ref with sibling keys
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.example.com
+security: []
+paths:
+  /menu/{menuItemId}:
+    get:
+      operationId: getMenuItem
+      description: Reference Object $ref (parameter) with sibling description and required override
+      parameters:
+        - $ref: '#/components/parameters/MenuItemId'
+          description: Identifier of the menu item to fetch.
+          required: false
+      responses:
+        '200':
+          description: Schema $ref with scalar siblings (readOnly, description-from-$ref)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuBaseItem'
+                readOnly: true
+                description: |
+                  Read-only view of a menu item, resolved from an external file.
+  /menu:
+    get:
+      operationId: listMenu
+      description: Schema $ref with structural siblings, one of which is an external $ref
+      responses:
+        '200':
+          description: A list of menu items.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemList'
+                properties:
+                  featured:
+                    $ref: '#/components/schemas/Beverage'
+                additionalProperties: false
+  /orders:
+    post:
+      operationId: createOrder
+      description: Reference Object $ref (requestBody) with a sibling description
+      requestBody:
+        $ref: '#/components/requestBodies/OrderBody'
+        description: Order payload for this operation.
+      responses:
+        '201':
+          description: Created.
+components:
+  parameters:
+    MenuItemId:
+      name: menuItemId
+      in: path
+      description: ID of the menu item to retrieve.
+      required: true
+      schema:
+        type: string
+  schemas:
+    MenuBaseItem:
+      type: object
+      properties:
+        id:
+          description: Menu item ID.
+          type: string
+          readOnly: true
+        name:
+          description: Menu item name.
+          type: string
+        price:
+          description: Price in cents.
+          type: integer
+          minimum: 0
+      required:
+        - id
+        - name
+        - price
+    Beverage:
+      allOf:
+        - type: object
+          properties:
+            volume:
+              description: Size of the beverage in milliliters.
+              type: number
+              exclusiveMinimum: 0
+          required:
+            - volume
+        - $ref: '#/components/schemas/MenuBaseItem'
+    MenuItemList:
+      type: object
+      properties:
+        object:
+          description: Entity name.
+          type: string
+          const: list
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuBaseItem'
+      required:
+        - object
+        - items
+  requestBodies:
+    OrderBody:
+      description: Shared order request body.
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              menuItemId:
+                type: string
+              quantity:
+                type: integer
+                minimum: 1
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
