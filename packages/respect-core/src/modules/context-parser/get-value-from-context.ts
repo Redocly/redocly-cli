@@ -316,26 +316,33 @@ const resolveValue = (
     return path.slice(7, -2);
   }
 
+  // $sourceDescriptions.<name>.<workflowId>
   // $sourceDescriptions.<name>.workflows.<workflowId>
-  if (path.startsWith('$sourceDescriptions.') && path.includes('.workflows.')) {
+  if (path.startsWith('$sourceDescriptions.')) {
     const parts = path.split('.');
-
     const sourceDescriptionName = parts[1];
-    const workflowId = parts[3];
+    const isLegacyForm = parts.length === 4 && parts[2] === 'workflows';
+    const isSpecForm = parts.length === 3;
+    const workflowId = isLegacyForm ? parts[3] : isSpecForm ? parts[2] : undefined;
 
-    if (!sourceDescriptionName || !workflowId) {
-      return undefined;
+    if (sourceDescriptionName && workflowId) {
+      const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
+      const sourceDescription = sourceDescriptions?.[sourceDescriptionName];
+      const workflow = sourceDescription?.workflows?.find(
+        (workflow: Workflow) => workflow.workflowId === workflowId
+      );
+
+      if (workflow) {
+        return workflow;
+      }
+      if (isSpecForm) {
+        return sourceDescription?.[workflowId];
+      }
     }
 
-    const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
-
-    if (!sourceDescriptions[sourceDescriptionName]) {
+    if (isLegacyForm) {
       return undefined;
     }
-
-    return sourceDescriptions[sourceDescriptionName].workflows.find(
-      (workflow: Workflow) => workflow.workflowId === workflowId
-    );
   }
 
   if (path && path.trim().startsWith('faker.')) {
