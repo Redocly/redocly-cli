@@ -1,8 +1,8 @@
 # `drift`
 
-## Introduction
 
-The `drift` command detects drift between recorded HTTP traffic and an OpenAPI description. It reads a traffic log (or a folder of logs), matches each request/response exchange to a documented operation, and reports the discrepancies it finds.
+The `drift` command detects drift between recorded HTTP traffic and an OpenAPI description.
+The command reads a traffic log (or a folder of logs), matches each request/response exchange to a documented operation, and reports the discrepancies it finds.
 
 The `drift` command reports:
 
@@ -14,15 +14,17 @@ The `drift` command reports:
 
 Spec loading reuses the same engine as the other commands (`@redocly/openapi-core`), and schema validation reuses the bundled `@redocly/ajv`, so there are no extra runtime dependencies.
 
-{% admonition type="warning" name="Important" %}
-The `drift` command is considered an experimental feature. This means it's still a work in progress and may go through major changes. The command, flags, and output are subject to change.
+{% admonition type="warning" name="Experimental" %}
+This is an experimental feature.
+Its behavior, command, flags, and output may change in future releases.
 
 The `drift` command supports OpenAPI 3.x descriptions only.
 {% /admonition %}
 
 ### Supported traffic formats
 
-The traffic input can be provided in any of the following formats. By default the format is detected automatically from the file contents:
+The traffic input can be provided in any of the following formats.
+By default the format is detected automatically from the file contents:
 
 - HAR
 - Kong
@@ -30,9 +32,8 @@ The traffic input can be provided in any of the following formats. By default th
 - Apache JSON
 - NDJSON
 
-{% admonition type="info" name="Large captures" %}
-JSON-array traffic files (HAR, Kong, and webserver JSON) are read fully into memory. For very large captures, prefer the NDJSON format, which is streamed.
-{% /admonition %}
+JSON-array traffic files (HAR, Kong, and webserver JSON) are read fully into memory.
+For very large captures, prefer the NDJSON format, which is streamed.
 
 ## Usage
 
@@ -63,8 +64,8 @@ redocly drift <traffic> --api <api> [--match-mode=<option>]
 | --output, -o     | string  | Write the drift report (in the format selected with `--format`) to this file instead of stdout.                                                                                                                                                                                   |
 | --config         | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                                              |
 | --lint-config    | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                  |
-| --help           | boolean | Show help.                                                                                                                                                                                                                                                                        |
-| --version        | boolean | Show version number.                                                                                                                                                                                                                                                              |
+| --help           | boolean | Display help.                                                                                                                                                                                                                                                                        |
+| --version        | boolean | Display version number.                                                                                                                                                                                                                                                              |
 
 The `owasp-api-top10` rule is opt-in and only runs when included in `--rules`.
 
@@ -84,7 +85,8 @@ redocly drift ./traffic-logs/ --api ./openapi/ --format json
 
 ### Declare the server the traffic was captured against
 
-When the captured traffic does not carry the documented host or base path (for example, behind a gateway that adds `/api`), use `--server` to declare the actual server. Only requests under it are considered, and the remaining path is matched against the description paths directly:
+When the captured traffic does not carry the documented host or base path (for example, behind a gateway that adds `/api`), use `--server` to declare the actual server.
+Only requests under it are considered, and the remaining path is matched against the description paths directly:
 
 ```bash
 redocly drift ./traffic.har --api ./openapi.yaml --server localhost:9000

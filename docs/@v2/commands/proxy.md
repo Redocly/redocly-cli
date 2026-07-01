@@ -1,6 +1,5 @@
 # `proxy`
 
-## Introduction
 
 The `proxy` command captures live HTTP traffic through a reverse proxy into a HAR file, and optionally validates it against an OpenAPI description in real time.
 
@@ -14,17 +13,18 @@ The resulting HAR file can be replayed through `drift` later.
 
 Spec loading reuses `@redocly/openapi-core`, schema validation reuses the bundled `@redocly/ajv`, and the upstream client uses `undici` (already shipped), so there are no extra runtime dependencies.
 
-{% admonition type="warning" name="Important" %}
-The `proxy` command is considered an experimental feature. This means it's still a work in progress and may go through major changes. The command, flags, and output are subject to change.
+{% admonition type="warning" name="Experimental" %}
+This is an experimental feature.
+Its behavior, command, flags, and output may change in future releases.
 
 The `proxy` command supports OpenAPI 3.x descriptions only.
 {% /admonition %}
 
-{% admonition type="info" name="Reverse proxy only" %}
-Clients must target the proxy directly; there is no forward/`CONNECT` mode and no inbound TLS termination. The `accept-encoding` header is stripped from forwarded requests so captured bodies are stored decoded; binary response bodies are stored base64-encoded in the HAR.
+Clients must target the proxy directly; there is no forward/`CONNECT` mode and no inbound TLS termination.
+The `accept-encoding` header is stripped from forwarded requests so captured bodies are stored decoded; binary response bodies are stored base64-encoded in the HAR.
 
-Captured exchanges are streamed to a temporary file (`<har>.entries.tmp`) and assembled into the final HAR only on shutdown. If the process is killed before shutdown, the temporary file remains but the final HAR is not written.
-{% /admonition %}
+Captured exchanges are streamed to a temporary file (`<har>.entries.tmp`) and assembled into the final HAR only on shutdown.
+If the process is terminated before shutdown, the temporary file remains but the final HAR is not written.
 
 ## Usage
 
@@ -47,12 +47,12 @@ redocly proxy --target <url> --har <path> [--port=<number>] [--host=<string>]
 | --match-mode     | string  | Endpoint matching mode.<br/>**Possible values:** `strict-host`, `basepath`. Default value is `strict-host`.                                        |
 | --ignore-cookies | boolean | Ignore cookie-based checks. Default value is `false`.                                                                                              |
 | --max-findings   | number  | Maximum findings shown in pretty output. Default value is `10`.                                                                                    |
-| --rules          | string  | Comma-separated subset of builtin rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.             |
+| --rules          | string  | Comma-separated subset of built-in rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.             |
 | --plugin         | string  | Path to an external rule plugin module. Repeatable.                                                                                                |
-| --config         | string  | Specify path to the [configuration file](../configuration/index.md).                                                                               |
+| --config         | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                               |
 | --lint-config    | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                   |
-| --help           | boolean | Show help.                                                                                                                                         |
-| --version        | boolean | Show version number.                                                                                                                               |
+| --help           | boolean | Display help.                                                                                                                                         |
+| --version        | boolean | Display version number.                                                                                                                               |
 
 ## Examples
 
