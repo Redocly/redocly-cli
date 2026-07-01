@@ -1,7 +1,13 @@
 # `proxy`
 
-
 The `proxy` command captures live HTTP traffic through a reverse proxy into a HAR file, and optionally validates it against an OpenAPI description in real time.
+
+{% admonition type="warning" name="Experimental" %}
+This is an experimental feature.
+Its behavior, command, flags, and output may change in future releases.
+
+The `proxy` command supports OpenAPI 3.x descriptions only.
+{% /admonition %}
 
 The `proxy` command:
 
@@ -12,13 +18,6 @@ The `proxy` command:
 The resulting HAR file can be replayed through `drift` later.
 
 Spec loading reuses `@redocly/openapi-core`, schema validation reuses the bundled `@redocly/ajv`, and the upstream client uses `undici` (already shipped), so there are no extra runtime dependencies.
-
-{% admonition type="warning" name="Experimental" %}
-This is an experimental feature.
-Its behavior, command, flags, and output may change in future releases.
-
-The `proxy` command supports OpenAPI 3.x descriptions only.
-{% /admonition %}
 
 Clients must target the proxy directly; there is no forward/`CONNECT` mode and no inbound TLS termination.
 The `accept-encoding` header is stripped from forwarded requests so captured bodies are stored decoded; binary response bodies are stored base64-encoded in the HAR.
