@@ -41,6 +41,7 @@ toc:
 
 - Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
 - Updated @redocly/openapi-core to v2.33.2.
+- Updated @redocly/respect-core to v2.33.2.
 
 ## 2.33.1 (2026-06-16)
 
@@ -58,6 +59,7 @@ toc:
 ### Patch Changes
 
 - Updated @redocly/openapi-core to v2.33.0.
+- Updated @redocly/respect-core to v2.33.0.
 
 ## 2.32.2 (2026-06-11)
 
