@@ -1,5 +1,10 @@
-import * as redoclyConfig from '@redocly/config';
-import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
+import {
+  entityFileDefaultSchema,
+  entityFileSchema,
+  type EntityFileSchema,
+  type EntityBaseFileSchema,
+  type ScorecardConfig,
+} from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import { createConfig, type Config } from './config/index.js';
@@ -168,8 +173,8 @@ export async function lintEntityWithScorecardLevel(
 
   const entityProblems = await lintEntityFile({
     document: entityDocument,
-    entitySchema: redoclyConfig.entityFileSchema,
-    entityDefaultSchema: redoclyConfig.entityFileDefaultSchema,
+    entitySchema: entityFileSchema,
+    entityDefaultSchema: entityFileDefaultSchema,
     externalRefResolver,
     assertionConfig: entityRules,
   });

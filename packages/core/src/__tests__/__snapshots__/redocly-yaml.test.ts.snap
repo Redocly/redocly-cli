@@ -996,6 +996,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "ScorecardClassicLevel.arazzo1_1Rules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "ScorecardClassicLevel.async2Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -1415,6 +1423,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "arazzo1Rules": "rootRedoclyConfigSchema.arazzo1Rules",
+      "arazzo1_1Decorators": {
+        "type": "object",
+      },
+      "arazzo1_1Preprocessors": {
+        "type": "object",
+      },
+      "arazzo1_1Rules": "rootRedoclyConfigSchema.arazzo1_1Rules",
       "async2Decorators": {
         "type": "object",
       },
@@ -2381,6 +2396,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "arazzo1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.arazzo1Rules",
+      "arazzo1_1Decorators": {
+        "type": "object",
+      },
+      "arazzo1_1Preprocessors": {
+        "type": "object",
+      },
+      "arazzo1_1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.arazzo1_1Rules",
       "async2Decorators": {
         "type": "object",
       },
@@ -2476,6 +2498,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     ],
   },
   "rootRedoclyConfigSchema.apis_additionalProperties.arazzo1Rules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.arazzo1_1Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
@@ -8302,6 +8332,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.arazzo1_1Rules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.async2Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -9942,6 +9980,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "arazzo1Rules": "rootRedoclyConfigSchema.env_additionalProperties.arazzo1Rules",
+      "arazzo1_1Decorators": {
+        "type": "object",
+      },
+      "arazzo1_1Preprocessors": {
+        "type": "object",
+      },
+      "arazzo1_1Rules": "rootRedoclyConfigSchema.env_additionalProperties.arazzo1_1Rules",
       "async2Decorators": {
         "type": "object",
       },
@@ -10901,6 +10946,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "arazzo1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.arazzo1Rules",
+      "arazzo1_1Decorators": {
+        "type": "object",
+      },
+      "arazzo1_1Preprocessors": {
+        "type": "object",
+      },
+      "arazzo1_1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.arazzo1_1Rules",
       "async2Decorators": {
         "type": "object",
       },
@@ -10996,6 +11048,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.arazzo1Rules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.arazzo1_1Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
@@ -16815,6 +16875,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.arazzo1Rules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.arazzo1_1Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
