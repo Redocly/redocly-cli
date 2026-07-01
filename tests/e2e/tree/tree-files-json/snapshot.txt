@@ -1,0 +1,138 @@
+{
+  "nodes": [
+    {
+      "id": "components/schemas/Error.yaml",
+      "resolved": true
+    },
+    {
+      "id": "components/schemas/MenuItem.yaml",
+      "resolved": true
+    },
+    {
+      "id": "components/schemas/Order.yaml",
+      "resolved": true
+    },
+    {
+      "id": "components/schemas/OrderList.yaml",
+      "resolved": true
+    },
+    {
+      "id": "components/schemas/OrderStatus.yaml",
+      "resolved": true
+    },
+    {
+      "id": "openapi.yaml",
+      "resolved": true,
+      "root": true
+    },
+    {
+      "id": "paths/orders.yaml",
+      "resolved": true
+    },
+    {
+      "id": "paths/orders_{orderId}.yaml",
+      "resolved": true
+    }
+  ],
+  "links": [
+    {
+      "source": "components/schemas/Order.yaml",
+      "target": "components/schemas/MenuItem.yaml",
+      "refs": [
+        "MenuItem.yaml"
+      ]
+    },
+    {
+      "source": "components/schemas/Order.yaml",
+      "target": "components/schemas/OrderStatus.yaml",
+      "refs": [
+        "OrderStatus.yaml"
+      ]
+    },
+    {
+      "source": "components/schemas/OrderList.yaml",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "Order.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "components/schemas/Error.yaml",
+      "refs": [
+        "components/schemas/Error.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "components/schemas/MenuItem.yaml",
+      "refs": [
+        "components/schemas/MenuItem.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "components/schemas/Order.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "components/schemas/OrderList.yaml",
+      "refs": [
+        "components/schemas/OrderList.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "components/schemas/OrderStatus.yaml",
+      "refs": [
+        "components/schemas/OrderStatus.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "paths/orders.yaml",
+      "refs": [
+        "paths/orders.yaml"
+      ]
+    },
+    {
+      "source": "openapi.yaml",
+      "target": "paths/orders_{orderId}.yaml",
+      "refs": [
+        "paths/orders_{orderId}.yaml"
+      ]
+    },
+    {
+      "source": "paths/orders.yaml",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "../components/schemas/Order.yaml"
+      ]
+    },
+    {
+      "source": "paths/orders.yaml",
+      "target": "components/schemas/OrderList.yaml",
+      "refs": [
+        "../components/schemas/OrderList.yaml"
+      ]
+    },
+    {
+      "source": "paths/orders_{orderId}.yaml",
+      "target": "components/schemas/Error.yaml",
+      "refs": [
+        "../components/schemas/Error.yaml"
+      ]
+    },
+    {
+      "source": "paths/orders_{orderId}.yaml",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "../components/schemas/Order.yaml"
+      ]
+    }
+  ]
+}
+

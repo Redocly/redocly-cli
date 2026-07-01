@@ -35,6 +35,8 @@ import type {
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
+import { handleTree } from './commands/tree/index.js';
+import type { TreeFormat } from './commands/tree/types.js';
 import { handlePushStatus } from './reunite/commands/push-status.js';
 import { handlePush } from './reunite/commands/push.js';
 import { outputExtensions } from './types.js';
@@ -76,6 +78,47 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'tree [apis...]',
+    'Display the structure of an API description as a tree.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_TREE')
+        .positional('apis', { array: true, type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json', 'mermaid', 'dot'] as ReadonlyArray<TreeFormat>,
+            default: 'stylish' as TreeFormat,
+          },
+          output: {
+            alias: 'o',
+            description: 'Write the output to a file instead of stdout.',
+            type: 'string',
+          },
+          uses: {
+            description:
+              'Show only the part of the tree that uses (depends on) the given components, paths, or files.',
+            array: true,
+            type: 'string',
+            requiresArg: true,
+          },
+          files: {
+            description: 'Show the file-level $ref graph instead of the document structure.',
+            type: 'boolean',
+            default: false,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleTree)(argv);
     }
   )
   .command(

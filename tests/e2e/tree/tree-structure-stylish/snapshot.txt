@@ -1,0 +1,19 @@
+openapi.yaml
+├── /orders
+│   ├── GET
+│   │   └── schemas/OrderList
+│   │       └── schemas/Order
+│   │           ├── schemas/MenuItem
+│   │           └── schemas/OrderStatus
+│   └── POST
+│       └── schemas/Order
+│           ├── schemas/MenuItem
+│           └── schemas/OrderStatus
+└── /orders/{orderId}
+    ├── DELETE
+    │   └── schemas/Error
+    └── GET
+        └── schemas/Order
+            ├── schemas/MenuItem
+            └── schemas/OrderStatus
+
