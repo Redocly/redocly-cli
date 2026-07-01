@@ -17,12 +17,8 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
 import { keysOf } from '../utils/keys-of.js';
 import type { ProblemSeverity } from '../walk.js';
-import type {
-  GraphqlNodeKind,
-  GraphqlRule,
-  GraphqlUserContext,
-  GraphqlVisitor,
-} from './visitor.js';
+import type { GraphqlNodeKind } from './node-kinds.js';
+import type { GraphqlRule, GraphqlUserContext, GraphqlVisitor } from './visitor.js';
 
 type WhereMatcher = {
   kind: GraphqlNodeKind;

@@ -3,7 +3,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
 import type { Config, RawGovernanceConfig } from '../config/index.js';
-import { graphqlNodeKinds } from '../graphql/visitor.js';
+import { graphqlNodeKinds } from '../graphql/node-kinds.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { normalizeTypes } from '../types/index.js';
