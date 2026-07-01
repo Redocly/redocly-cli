@@ -1,8 +1,14 @@
 # `drift`
 
-
 The `drift` command detects drift between recorded HTTP traffic and an OpenAPI description.
 The command reads a traffic log (or a folder of logs), matches each request/response exchange to a documented operation, and reports the discrepancies it finds.
+
+{% admonition type="warning" name="Experimental" %}
+This is an experimental feature.
+Its behavior, command, flags, and output may change in future releases.
+
+The `drift` command supports OpenAPI 3.x descriptions only.
+{% /admonition %}
 
 The `drift` command reports:
 
@@ -13,13 +19,6 @@ The `drift` command reports:
 - baseline security issues (opt-in OWASP API risk heuristics)
 
 Spec loading reuses the same engine as the other commands (`@redocly/openapi-core`), and schema validation reuses the bundled `@redocly/ajv`, so there are no extra runtime dependencies.
-
-{% admonition type="warning" name="Experimental" %}
-This is an experimental feature.
-Its behavior, command, flags, and output may change in future releases.
-
-The `drift` command supports OpenAPI 3.x descriptions only.
-{% /admonition %}
 
 ### Supported traffic formats
 
