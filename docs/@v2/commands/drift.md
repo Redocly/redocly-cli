@@ -20,7 +20,7 @@ The `drift` command reports:
 
 Spec loading reuses the same engine as the other commands (`@redocly/openapi-core`), and schema validation reuses the bundled `@redocly/ajv`, so there are no extra runtime dependencies.
 
-### Supported traffic formats
+## Supported traffic formats
 
 The traffic input can be provided in any of the following formats.
 By default the format is detected automatically from the file contents:
@@ -63,8 +63,8 @@ redocly drift <traffic> --api <api> [--match-mode=<option>]
 | --output, -o     | string  | Write the drift report (in the format selected with `--format`) to this file instead of stdout.                                                                                                                                                                                   |
 | --config         | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                                              |
 | --lint-config    | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                  |
-| --help           | boolean | Display help.                                                                                                                                                                                                                                                                        |
-| --version        | boolean | Display version number.                                                                                                                                                                                                                                                              |
+| --help           | boolean | Display help.                                                                                                                                                                                                                                                                     |
+| --version        | boolean | Display version number.                                                                                                                                                                                                                                                           |
 
 The `owasp-api-top10` rule is opt-in and only runs when included in `--rules`.
 
