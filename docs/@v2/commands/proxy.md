@@ -48,7 +48,7 @@ redocly proxy --target <url> --har <path> [--port=<number>] [--host=<string>]
 | --max-findings   | number  | Maximum findings shown in pretty output. Default value is `10`.                                                                                    |
 | --rules          | string  | Comma-separated subset of built-in rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.            |
 | --plugin         | string  | Path to an external rule plugin module. Repeatable.                                                                                                |
-| --config         | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                               |
+| --config         | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                           |
 | --lint-config    | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                   |
 | --help           | boolean | Display help.                                                                                                                                      |
 | --version        | boolean | Display version number.                                                                                                                            |
