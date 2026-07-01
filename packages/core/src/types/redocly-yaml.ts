@@ -1,4 +1,4 @@
-import * as redoclyConfig from '@redocly/config';
+import { CONFIG_NODE_TYPE_NAMES, rootRedoclyConfigSchema } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
@@ -533,9 +533,9 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
 
 function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
   return {
-    ...nodeTypes[redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
+    ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
     properties: {
-      ...nodeTypes[redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
+      ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
       ...configGovernanceProperties,
     },
   };
@@ -724,8 +724,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     Subject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
-    [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]:
-      createScorecardLevelsItems(nodeTypes),
+    [CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: createScorecardLevelsItems(nodeTypes),
   };
 }
 
@@ -749,9 +748,9 @@ const CoreConfigTypes: Record<string, NodeType> = {
 };
 
 // FIXME: remove this once we remove `theme` from the schema
-const { theme: _, ...propertiesWithoutTheme } = redoclyConfig.rootRedoclyConfigSchema.properties;
+const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
 const redoclyConfigSchemaWithoutTheme = {
-  ...redoclyConfig.rootRedoclyConfigSchema,
+  ...rootRedoclyConfigSchema,
   properties: propertiesWithoutTheme,
 };
 
