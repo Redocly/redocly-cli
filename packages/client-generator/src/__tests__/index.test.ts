@@ -52,9 +52,9 @@ describe('generateClient — end-to-end orchestration', () => {
   });
 
   it('writes the generated file to disk and reports its size', async () => {
-    const input = join(workDir, 'spec.yaml');
+    const api = join(workDir, 'spec.yaml');
     await writeFile(
-      input,
+      api,
       `openapi: 3.0.3
 info:
   title: Tiny
@@ -74,7 +74,7 @@ paths:
     );
 
     const output = join(workDir, 'nested/dir/api.ts');
-    const result = await generateClient({ input, output });
+    const result = await generateClient({ api, output });
 
     expect(result.outputPath).toBe(output);
     expect(result.bytes).toBeGreaterThan(0);
@@ -87,9 +87,9 @@ paths:
   });
 
   it('emits the result shape when errorMode is `result`', async () => {
-    const input = join(workDir, 'errmode.yaml');
+    const api = join(workDir, 'errmode.yaml');
     await writeFile(
-      input,
+      api,
       `openapi: 3.0.3
 info:
   title: Tiny
@@ -109,22 +109,22 @@ paths:
     );
 
     const resultOutput = join(workDir, 'result.ts');
-    await generateClient({ input, output: resultOutput, errorMode: 'result' });
+    await generateClient({ api, output: resultOutput, errorMode: 'result' });
     const resultContents = await readFile(resultOutput, 'utf-8');
     expect(resultContents).toContain('__requestResult');
     expect(resultContents).toContain('export type Result<');
 
     const throwOutput = join(workDir, 'throw.ts');
-    await generateClient({ input, output: throwOutput });
+    await generateClient({ api, output: throwOutput });
     const throwContents = await readFile(throwOutput, 'utf-8');
     expect(throwContents).not.toContain('__requestResult');
     expect(throwContents).not.toContain('export type Result<');
   });
 
   it('normalizes a Swagger 2.0 document before generating', async () => {
-    const input = join(workDir, 'swagger2.yaml');
+    const api = join(workDir, 'swagger2.yaml');
     await writeFile(
-      input,
+      api,
       `swagger: '2.0'
 info:
   title: Tiny2
@@ -154,7 +154,7 @@ definitions:
     );
 
     const output = join(workDir, 'api2.ts');
-    const result = await generateClient({ input, output });
+    const result = await generateClient({ api, output });
 
     expect(result.bytes).toBeGreaterThan(0);
     const contents = await readFile(output, 'utf-8');

@@ -10,8 +10,8 @@ import type { OutputMode } from './writers/types.js';
  * (roadmap P7.5).
  */
 export type Config = {
-  /** Path or URL to the OpenAPI document. */
-  input: string;
+  /** Path or URL to the OpenAPI document (or an `apis:` alias from `redocly.yaml`). */
+  api: string;
   /** Output anchor path (a `.ts` file; multi-file modes derive siblings from it). */
   output: string;
   /** File partitioning. Defaults to `single`. */

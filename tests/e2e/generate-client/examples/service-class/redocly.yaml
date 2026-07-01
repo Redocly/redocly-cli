@@ -2,7 +2,7 @@
 # generate-client settings live under the `x-client-generator` extension for now
 # (first-class config support is planned in @redocly/config).
 x-client-generator:
-  input: ./openapi.yaml
+  api: ./openapi.yaml
   output: ./src/api/client.ts
   generators:
     - sdk

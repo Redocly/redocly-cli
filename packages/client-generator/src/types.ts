@@ -5,7 +5,8 @@ import type { CustomGenerator } from './generators/types.js';
 import type { OutputMode } from './writers/types.js';
 
 export type GenerateClientOptions = {
-  input: string;
+  /** Path or URL to the OpenAPI document (or an `apis:` alias from `redocly.yaml`). */
+  api: string;
   output: string;
   /** Resolved Redocly config for spec loading. */
   config?: RedoclyConfig;

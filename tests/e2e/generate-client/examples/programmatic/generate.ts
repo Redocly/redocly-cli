@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 
 const result = await generateClient({
-  input: join(here, 'openapi.yaml'),
+  api: join(here, 'openapi.yaml'),
   output: process.env.OUT ?? join(here, 'src/api/client.ts'),
   outputMode: 'single', // 'single' | 'split' | 'tags' | 'tags-split'
   facade: 'functions', // 'functions' | 'service-class'

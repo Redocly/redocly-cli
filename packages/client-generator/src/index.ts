@@ -87,7 +87,7 @@ export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
   const outputPath = resolve(options.output);
-  const { document, version } = await loadSpec(options.input, options.config);
+  const { document, version } = await loadSpec(options.api, options.config);
   const normalized =
     version === 'oas2'
       ? normalizeSwagger2(document as unknown as Record<string, unknown>)

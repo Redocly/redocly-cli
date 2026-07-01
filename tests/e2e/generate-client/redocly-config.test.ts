@@ -31,7 +31,7 @@ describe('generate-client redocly.yaml config (x-client-generator)', () => {
   it('generates from the redocly.yaml block with no flags', () => {
     const dir = project(
       [
-        '  input: ./openapi.yaml',
+        '  api: ./openapi.yaml',
         '  output: ./src/api/client.ts',
         '  generators: [sdk]',
         '  facade: service-class',
@@ -46,7 +46,7 @@ describe('generate-client redocly.yaml config (x-client-generator)', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('resolves an `apis:` alias passed as <input> to that API’s root', () => {
+  it('resolves an `apis:` alias passed as <api> to that API’s root', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-alias-'));
     copyFileSync(fixture, join(dir, 'openapi.yaml'));
     writeFileSync(join(dir, 'redocly.yaml'), 'apis:\n  cafe:\n    root: ./openapi.yaml\n', 'utf-8');
@@ -70,7 +70,7 @@ describe('generate-client redocly.yaml config (x-client-generator)', () => {
   it('lets a CLI flag override the redocly.yaml block (flags win)', () => {
     const dir = project(
       [
-        '  input: ./openapi.yaml',
+        '  api: ./openapi.yaml',
         '  output: ./src/api/client.ts',
         '  generators: [sdk]',
         '  facade: service-class',
@@ -88,9 +88,9 @@ describe('generate-client redocly.yaml config (x-client-generator)', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('resolves the block’s relative input/output against the redocly.yaml directory', () => {
+  it('resolves the block’s relative api/output against the redocly.yaml directory', () => {
     const dir = project(
-      ['  input: ./openapi.yaml', '  output: ./out/client.ts', '  generators: [sdk]'].join('\n') +
+      ['  api: ./openapi.yaml', '  output: ./out/client.ts', '  generators: [sdk]'].join('\n') +
         '\n'
     );
     // Run from the repo root, pointing at the config elsewhere via --config.
@@ -99,7 +99,7 @@ describe('generate-client redocly.yaml config (x-client-generator)', () => {
       encoding: 'utf-8',
     });
     expect(res.status, res.stderr).toBe(0);
-    // input/output resolved relative to the redocly.yaml dir, not the cwd.
+    // api/output resolved relative to the redocly.yaml dir, not the cwd.
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

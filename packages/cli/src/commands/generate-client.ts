@@ -9,9 +9,9 @@ import { type CommandArgs } from '../wrapper.js';
 /**
  * Read generate-client settings from a `redocly.yaml`'s `x-client-generator`
  * extension block (the auto-discovered config, or the one at `--config`). Relative
- * `input`/`output` are resolved against the config file's directory so they mean the
+ * `api`/`output` are resolved against the config file's directory so they mean the
  * same thing regardless of the current working directory. Returns `{}` when the block
- * is absent. (A URL/registry `input` is left untouched.)
+ * is absent. (A URL/registry `api` is left untouched.)
  */
 function readRedoclyExtension(config: Config): Record<string, unknown> {
   const raw = (config.resolvedConfig as Record<string, unknown>)['x-client-generator'];
@@ -19,12 +19,8 @@ function readRedoclyExtension(config: Config): Record<string, unknown> {
   const ext: Record<string, unknown> = { ...raw };
   const baseDir = config.configPath ? dirname(config.configPath) : undefined;
   if (baseDir) {
-    if (
-      typeof ext.input === 'string' &&
-      !isAbsolute(ext.input) &&
-      !/^https?:\/\//i.test(ext.input)
-    ) {
-      ext.input = resolvePath(baseDir, ext.input);
+    if (typeof ext.api === 'string' && !isAbsolute(ext.api) && !/^https?:\/\//i.test(ext.api)) {
+      ext.api = resolvePath(baseDir, ext.api);
     }
     if (typeof ext.output === 'string' && !isAbsolute(ext.output)) {
       ext.output = resolvePath(baseDir, ext.output);
@@ -37,7 +33,7 @@ function readRedoclyExtension(config: Config): Record<string, unknown> {
 }
 
 export type GenerateClientCommandArgv = {
-  input?: string;
+  api?: string;
   output?: string;
   config?: string;
   'base-url'?: string;
@@ -68,7 +64,7 @@ export async function handleGenerateClient({
   // block (located via the standard `--config` flag, else discovered in cwd) → CLI flags.
   const redoclyExtension = readRedoclyExtension(config);
   const merged = mergeConfig(redoclyExtension as Partial<OpenApiTsConfig>, {
-    input: argv.input,
+    api: argv.api,
     output: argv.output,
     baseUrl: argv['base-url'],
     enumStyle: argv['enum-style'],
@@ -85,14 +81,14 @@ export async function handleGenerateClient({
     setup: argv.setup,
   });
 
-  if (!merged.input)
-    throw new HandledError(`\n❌  No input. Pass <input> or set it in a config file.\n`);
+  if (!merged.api)
+    throw new HandledError(`\n❌  No API. Pass <api> or set it in a config file.\n`);
   if (!merged.output)
     throw new HandledError(`\n❌  No output. Pass --output or set it in a config file.\n`);
 
-  // Resolve `<input>` as a `redocly.yaml` `apis:` alias when it matches one (to the
+  // Resolve `<api>` as a `redocly.yaml` `apis:` alias when it matches one (to the
   // alias's `root`, relative to the config dir); a plain path/URL passes through.
-  const input = getAliasOrPath(config, merged.input).path;
+  const api = getAliasOrPath(config, merged.api).path;
   const outputPath = resolvePath(merged.output);
   // A relative `--setup` resolves against the cwd, like `--output` (a config-file
   // `setup` was already resolved against the config dir in readRedoclyExtension);
@@ -125,7 +121,7 @@ export async function handleGenerateClient({
     logger.info(gray('\n  Generating TypeScript client... \n'));
     const result = await generateClient({
       ...merged,
-      input,
+      api,
       output: outputPath,
       setup: setupPath,
       config,
@@ -141,7 +137,7 @@ export async function handleGenerateClient({
     throw new HandledError(
       '\n' +
         `❌  Failed to generate TypeScript client.\n   ${message}\n` +
-        '   Check the input file path and that the OpenAPI document is valid.'
+        '   Check the API description file path and that the OpenAPI document is valid.'
     );
   }
 }

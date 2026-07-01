@@ -15,7 +15,7 @@ The rest of this README covers using the package **programmatically**.
 ## Features
 
 - **Broad input** — OpenAPI **3.0, 3.1, and 3.2.0**, plus **Swagger 2.0** (normalized to 3.x before generation)
-  `input` is a file path or URL.
+  `api` is a file path or URL.
 - **Zero-dependency client** built via the TS AST, with `typescript` as the only peer dep
 - **Output modes** — `single`, `split`, `tags`, `tags-split` (`outputMode`)
 - **Facades** — standalone `functions` or a `service-class` (`facade`), the latter supporting **per-instance configuration and credentials** (`new Client({ auth, baseUrl, … })`)
@@ -48,7 +48,7 @@ Every add-on generator keeps the emitted client dependency-free; its peer librar
 import { generateClient } from '@redocly/client-generator';
 
 const result = await generateClient({
-  input: 'openapi.yaml', // file path or URL
+  api: 'openapi.yaml', // file path or URL
   output: 'src/client.ts', // entry file; siblings derive from it in multi-file modes
   outputMode: 'single', // 'single' | 'split' | 'tags' | 'tags-split'
   facade: 'functions', // 'functions' | 'service-class'
@@ -69,7 +69,7 @@ For type-safe option authoring, `defineConfig` returns its argument unchanged:
 import { defineConfig } from '@redocly/client-generator';
 
 export default defineConfig({
-  input: './openapi.yaml',
+  api: './openapi.yaml',
   output: './src/api/client.ts',
   generators: ['sdk', 'zod'],
 });
@@ -397,7 +397,7 @@ import generateClient from '@redocly/client-generator';
 import routeMap from './tools/route-map-generator.ts';
 
 await generateClient({
-  input: './openapi.yaml',
+  api: './openapi.yaml',
   output: './src/api/client.ts',
   customGenerators: [routeMap], // register…
   generators: ['sdk', 'route-map'], // …then select by name (or pass './tools/route-map-generator.ts')

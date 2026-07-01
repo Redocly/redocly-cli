@@ -856,12 +856,12 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'generate-client [input]',
+    'generate-client [api]',
     'Generate a TypeScript client from an OpenAPI description.',
     (yargs) => {
       return yargs
         .env('REDOCLY_CLI_GENERATE_CLIENT')
-        .positional('input', {
+        .positional('api', {
           describe: 'OpenAPI description file path (or alias from redocly.yaml `apis:`).',
           type: 'string',
         })

@@ -19,18 +19,18 @@ By default it emits a single file with inline types and one async function per o
 ## Usage
 
 ```sh
-redocly generate-client <input> --output <file.ts>
+redocly generate-client <api> --output <file.ts>
 redocly generate-client openapi.yaml --output src/client.ts
 redocly generate-client cafe -o src/client.ts
 ```
 
-`<input>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md) from `redocly.yaml`.
+`<api>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md) from `redocly.yaml`.
 
 ## Options
 
 | Option | Type | Description |
 | --- | --- | --- |
-| `input` | `string` | **REQUIRED.** OpenAPI description file path, URL, or an `apis:` alias from `redocly.yaml`. |
+| `api` | `string` | **REQUIRED.** OpenAPI description file path, URL, or an `apis:` alias from `redocly.yaml`. |
 | `--output`, `-o` | `string` | **REQUIRED.** Output path; must end in `.ts`. In multi-file modes it's the entry file. |
 | `--output-mode` | `string` | File layout: `single` (default), `split` (endpoints/schemas/runtime in sibling files), `tags` (one endpoints file per tag), or `tags-split` (a folder per tag). |
 | `--generators` | `string` | Comma-separated generators to run (default `sdk`). See [Generators](#generators). |
@@ -50,12 +50,12 @@ redocly generate-client cafe -o src/client.ts
 ## Configuration
 
 Instead of passing flags every time, put the settings in `redocly.yaml` under an `x-client-generator` block.
-`generate-client` reads it automatically (relative `input`/`output` resolve against the config file's directory):
+`generate-client` reads it automatically (relative `api`/`output` resolve against the config file's directory):
 
 ```yaml
 # redocly.yaml
 x-client-generator:
-  input: ./openapi.yaml
+  api: ./openapi.yaml
   output: ./src/api/client.ts
   generators:
     - sdk
@@ -334,7 +334,7 @@ import { generateClient } from '@redocly/client-generator';
 import routeMap from './tools/route-map-generator.ts';
 
 await generateClient({
-  input: './openapi.yaml',
+  api: './openapi.yaml',
   output: './src/api/client.ts',
   customGenerators: [routeMap],
   generators: ['sdk', 'route-map'],
@@ -347,4 +347,4 @@ Import-specifier generators execute at generation time — they carry the same t
 
 - [Lint command](./lint.md) to validate your API description before generating a client.
 - [Bundle command](./bundle.md) to combine a multi-file description into a single input file.
-- [Configuration](../configuration/index.md) reference for `redocly.yaml`, including the `apis:` aliases you can pass as `<input>`.
+- [Configuration](../configuration/index.md) reference for `redocly.yaml`, including the `apis:` aliases you can pass as `<api>`.
