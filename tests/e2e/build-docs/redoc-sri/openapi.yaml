@@ -1,0 +1,27 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe
+paths:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  responses:
+    BadRequest:
+      description: Bad request - invalid input parameters.
+      content:
+        application/problem+json:
+          schema:
+            type: object

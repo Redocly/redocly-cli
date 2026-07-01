@@ -9,6 +9,19 @@ import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
 import { getPageHTML } from '../../commands/build-docs/utils.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
+vi.mock('redoc');
+vi.mock('node:fs');
+vi.mock('../../utils/miscellaneous.js');
+vi.mock('react-dom/server', () => ({
+  renderToString: vi.fn(),
+}));
+vi.mock('handlebars', () => ({
+  compile: vi.fn(() => vi.fn(() => '<html></html>')),
+  default: {
+    compile: vi.fn(() => vi.fn(() => '<html></html>')),
+  },
+}));
+
 const config = {
   output: '',
   title: 'Test',
@@ -20,25 +33,10 @@ const config = {
 
 describe('build-docs', () => {
   beforeEach(() => {
-    vi.mock('redoc');
     vi.mocked(loadAndBundleSpec).mockResolvedValue({ openapi: '3.0.0' } as OpenAPISpec);
     vi.mocked(createStore).mockResolvedValue({ toJS: vi.fn(async () => '{}' as any) } as any);
 
-    vi.mock('node:fs');
     vi.mocked(fs.readFileSync).mockImplementation(() => '');
-
-    vi.mock('../../utils/miscellaneous.js');
-
-    vi.mock('react-dom/server', () => ({
-      renderToString: vi.fn(),
-    }));
-
-    vi.mock('handlebars', () => ({
-      compile: vi.fn(() => vi.fn(() => '<html></html>')),
-      default: {
-        compile: vi.fn(() => vi.fn(() => '<html></html>')),
-      },
-    }));
 
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
@@ -48,10 +46,10 @@ describe('build-docs', () => {
   it('should return correct html and call function for ssr', async () => {
     const result = await getPageHTML({}, '../some-path/openapi.yaml', {
       ...config,
-      redocCurrentVersion: '2.0.0',
+      redocVersion: '2.0.0',
     });
-    expect(renderToString).toBeCalledTimes(1);
-    expect(createStore).toBeCalledTimes(1);
+    expect(renderToString).toHaveBeenCalledTimes(1);
+    expect(createStore).toHaveBeenCalledTimes(1);
     expect(result).toBe('<html></html>');
   });
 
