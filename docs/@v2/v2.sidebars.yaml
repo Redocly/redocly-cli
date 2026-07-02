@@ -20,6 +20,8 @@
           page: commands/generate-arazzo.md
         - label: generate-client
           page: commands/generate-client.md
+        - label: generate-client (client usage)
+          page: commands/generate-client-usage.md
         - label: join
           page: commands/join.md
         - label: lint
@@ -198,6 +200,7 @@
         - page: configuration/extends.md
         - page: configuration/rules.md
         - page: configuration/apis.md
+        - page: configuration/client.md
         - group: Reference
           items:
             - page: configuration/reference/apis.md
