@@ -97,6 +97,8 @@ use({
 
 `onRequest` runs in registration order; `onResponse` runs in reverse (onion). `onRequest` may mutate `ctx` (`url`/`method`/`headers`/`body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`. `onError` (throw mode only) is threaded through each middleware. `ctx.operation`'s fields are typed literal unions (`OperationId`/`OperationPath`/`OperationTag`) for autocomplete and typo-checking. A single call's header instead goes in that operation's trailing `init` argument.
 
+`use()` **appends** to the middleware chain (it composes with any already-registered or baked-in middleware). `configure({ middleware: [...] })` **replaces** the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
+
 See the [`customization` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/customization) for a runnable version.
 
 ## Publisher defaults
@@ -136,6 +138,8 @@ await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 ```
 
 By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`). `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe. Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
+
+A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts. To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
 
 | `RetryConfig` field | Type                                                 | Default                                            |
 | ------------------- | ---------------------------------------------------- | -------------------------------------------------- |
