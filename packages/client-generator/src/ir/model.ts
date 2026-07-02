@@ -222,7 +222,7 @@ export type ApiModel = {
   title: string;
   version: string;
   description?: string;
-  baseUrl: string;
+  serverUrl: string;
   services: ServiceModel[];
   schemas: NamedSchemaModel[];
   securitySchemes: SecuritySchemeModel[];

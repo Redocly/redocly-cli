@@ -20,7 +20,7 @@ function model(ops: OperationModel[]): ApiModel {
   return {
     title: 'T',
     version: '1.0.0',
-    baseUrl: '',
+    serverUrl: '',
     services: [{ name: 'Default', operations: ops }],
     schemas: [],
     securitySchemes: [],

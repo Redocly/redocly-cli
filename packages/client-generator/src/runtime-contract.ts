@@ -43,7 +43,7 @@ export type RetryConfig = {
  * (everything except the spec-derived `auth`).
  */
 export type ClientSetupConfig = {
-  baseUrl?: string;
+  serverUrl?: string;
   headers?:
     | Record<string, string>
     | (() => Record<string, string> | Promise<Record<string, string>>);

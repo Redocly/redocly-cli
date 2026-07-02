@@ -15,7 +15,7 @@ export type GeneratorInput = {
   outputPath: string;
   /** File partitioning the generator should honor. */
   outputMode: OutputMode;
-  /** Emit options (baseUrl/enumStyle/facade/argsStyle/name). */
+  /** Emit options (serverUrl/enumStyle/facade/argsStyle/name). */
   emit: EmitOptions;
 };
 

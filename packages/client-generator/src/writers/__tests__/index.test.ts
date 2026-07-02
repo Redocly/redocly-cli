@@ -8,7 +8,7 @@ import { tagsWriter } from '../tags-writer.js';
 const model: ApiModel = {
   title: 'Tiny',
   version: '1.0.0',
-  baseUrl: 'https://api.example.com',
+  serverUrl: 'https://api.example.com',
   services: [
     {
       name: 'Default',

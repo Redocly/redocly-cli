@@ -39,7 +39,7 @@ export type EmitOptions = {
    * Override the BASE URL inlined into the emitted runtime. When omitted, the
    * value is derived from `servers[0].url` in the source OpenAPI document.
    */
-  baseUrl?: string;
+  serverUrl?: string;
   /**
    * How named string enums are emitted:
    * - `'union'`: only the string-literal union type (`type X = "a" | "b"`).
@@ -142,7 +142,7 @@ function renderFragments(
   options: EmitOptions,
   exportHelpers: boolean
 ): ClientFragments {
-  const baseUrl = options.baseUrl ?? model.baseUrl;
+  const serverUrl = options.serverUrl ?? model.serverUrl;
   const enumStyle: EnumStyle = options.enumStyle ?? 'const-object';
   const errorMode = options.errorMode ?? 'throw';
   const dateType: DateType = options.dateType ?? 'string';
@@ -167,7 +167,7 @@ function renderFragments(
     typeGuards: typeGuardStatements(model.schemas),
     operationsMeta: operationsMetaStatements(allOps),
     runtime: runtimeStatements(
-      baseUrl,
+      serverUrl,
       needsHeaderHelper,
       exportHelpers,
       errorMode,

@@ -70,7 +70,7 @@ describe('buildApiModel — operationId fallback naming', () => {
 });
 
 describe('buildApiModel — top-level metadata', () => {
-  it('reads title/version/description/baseUrl from info & servers', () => {
+  it('reads title/version/description/serverUrl from info & servers', () => {
     const model = buildApiModel(
       doc({
         info: { title: 'My API', version: '2.0.0', description: 'docs here' },
@@ -80,7 +80,7 @@ describe('buildApiModel — top-level metadata', () => {
     expect(model.title).toBe('My API');
     expect(model.version).toBe('2.0.0');
     expect(model.description).toBe('docs here');
-    expect(model.baseUrl).toBe('https://api.example.com');
+    expect(model.serverUrl).toBe('https://api.example.com');
   });
 
   it('falls back to defaults when info/servers are missing', () => {
@@ -88,7 +88,7 @@ describe('buildApiModel — top-level metadata', () => {
     expect(model.title).toBe('Api');
     expect(model.version).toBe('0.0.0');
     expect(model.description).toBeUndefined();
-    expect(model.baseUrl).toBe('');
+    expect(model.serverUrl).toBe('');
   });
 
   it('emits an empty schemas array when components.schemas is absent', () => {

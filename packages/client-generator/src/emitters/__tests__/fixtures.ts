@@ -16,7 +16,7 @@ export function apiModel(overrides: Partial<ApiModel> = {}): ApiModel {
   return {
     title: 'T',
     version: '1.0.0',
-    baseUrl: 'https://api.example.com',
+    serverUrl: 'https://api.example.com',
     services: [{ name: 'Default', operations: [] }],
     schemas: [],
     securitySchemes: [],

@@ -202,7 +202,7 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
   const title = doc.info?.title ?? 'Api';
   const version = doc.info?.version ?? '0.0.0';
   const description = doc.info?.description;
-  const baseUrl = doc.servers?.[0]?.url ?? '';
+  const serverUrl = doc.servers?.[0]?.url ?? '';
 
   const schemas = buildNamedSchemas(doc);
   const securitySchemes = buildSecuritySchemes(doc);
@@ -212,7 +212,7 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
     title,
     version,
     description,
-    baseUrl,
+    serverUrl,
     services,
     schemas,
     securitySchemes,

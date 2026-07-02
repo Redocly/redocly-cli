@@ -4,7 +4,7 @@ import { renderTransformersModule } from '../transformers.js';
 const base: Omit<ApiModel, 'schemas'> = {
   title: 'T',
   version: '1',
-  baseUrl: 'https://x',
+  serverUrl: 'https://x',
   services: [],
   securitySchemes: [],
 };

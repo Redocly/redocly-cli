@@ -38,7 +38,7 @@ export type GenerateClientOptions = {
    * Validation (e.g. `new URL(value)`) is the caller's responsibility — the
    * CLI handler validates before calling.
    */
-  baseUrl?: string;
+  serverUrl?: string;
   /**
    * How named string enums are emitted. `'const-object'` (default) emits a
    * runtime `as const` companion object alongside the union type; `'union'`

@@ -21,7 +21,7 @@ function model(overrides: Partial<ApiModel> = {}): ApiModel {
   return {
     title: 'Tiny',
     version: '1.0.0',
-    baseUrl: 'https://api.example.com',
+    serverUrl: 'https://api.example.com',
     services: [{ name: 'Default', operations: [] }],
     schemas: [],
     securitySchemes: [],

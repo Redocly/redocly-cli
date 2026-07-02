@@ -9,7 +9,7 @@ function model(): ApiModel {
   return {
     title: 'T',
     version: '1',
-    baseUrl: 'https://x',
+    serverUrl: 'https://x',
     services: [{ name: 'Default', operations: [] }],
     schemas: [],
     securitySchemes: [],

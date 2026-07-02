@@ -44,7 +44,7 @@ const DEFAULT_OPERATION_CONTEXT: OperationContextTypes = {
 };
 
 export function renderRuntime(
-  baseUrl: string,
+  serverUrl: string,
   needsHeaderHelper: boolean,
   exportHelpers: boolean,
   errorMode: 'throw' | 'result' = 'throw',
@@ -55,7 +55,7 @@ export function renderRuntime(
 ): string {
   return printStatements(
     runtimeStatements(
-      baseUrl,
+      serverUrl,
       needsHeaderHelper,
       exportHelpers,
       errorMode,
@@ -73,7 +73,7 @@ export function renderRuntime(
  * into the single-file / module statement lists. `renderRuntime` prints these.
  */
 export function runtimeStatements(
-  baseUrl: string,
+  serverUrl: string,
   needsHeaderHelper: boolean,
   exportHelpers: boolean,
   errorMode: 'throw' | 'result' = 'throw',
@@ -84,7 +84,7 @@ export function runtimeStatements(
 ): ts.Statement[] {
   return parseStatements(
     runtimeSource(
-      baseUrl,
+      serverUrl,
       needsHeaderHelper,
       exportHelpers,
       errorMode,
@@ -97,7 +97,7 @@ export function runtimeStatements(
 }
 
 function runtimeSource(
-  baseUrl: string,
+  serverUrl: string,
   needsHeaderHelper: boolean,
   exportHelpers: boolean,
   errorMode: 'throw' | 'result',
@@ -106,7 +106,7 @@ function runtimeSource(
   needsMultipart: boolean,
   opCtx: OperationContextTypes
 ): string {
-  const base = JSON.stringify(baseUrl);
+  const base = JSON.stringify(serverUrl);
   const ex = exportHelpers ? 'export ' : '';
   const multipartBlock = needsMultipart
     ? `
@@ -363,7 +363,7 @@ export type RequestContext = {
  */
 export type ClientConfig = {
   /** Base URL for this client; overrides the inlined default and \`setBaseUrl()\`. */
-  baseUrl?: string;
+  serverUrl?: string;
   /** Extra headers merged into every request; a function is invoked per request. */
   headers?: Record<string, string> | (() => Record<string, string> | Promise<Record<string, string>>);
   /** Transport used to issue requests. Defaults to the global \`fetch\`. */
@@ -457,7 +457,7 @@ export type RequestOptions = RequestInit & { retry?: Partial<RetryConfig>; parse
  * (e.g. dev / staging / prod toggles in a single-page app).
  *
  * Mutates a module-scoped binding shared by the functions facade. For multiple
- * bases at once, use the service-class facade with \`new Client({ baseUrl })\`.
+ * bases at once, use the service-class facade with \`new Client({ serverUrl })\`.
  */
 export function setBaseUrl(url: string): void {
   BASE = url;
@@ -545,7 +545,7 @@ ${ex}function __buildUrl(
   query?: Record<string, QueryValue>,
   styles?: Record<string, QueryStyle>
 ): string {
-  const url = (config.baseUrl ?? BASE).replace(/\\/+$/, '') + path;
+  const url = (config.serverUrl ?? BASE).replace(/\\/+$/, '') + path;
   if (!query) return url;
   const params = new URLSearchParams();
   const raw: string[] = [];

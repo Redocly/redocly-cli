@@ -37,7 +37,7 @@ describe('typed ctx.operation (OperationContext narrowing)', () => {
 });
 
 describe('setupApply — baked publisher setup (--setup)', () => {
-  const EXPR = '{ config: { baseUrl: "https://x" }, middleware: [] }';
+  const EXPR = '{ config: { serverUrl: "https://x" }, middleware: [] }';
 
   it('functions facade: declares __redoclySetup then applies it via configure/use', () => {
     const out = setupApply(EXPR, 'functions', false);
@@ -107,21 +107,21 @@ describe('emitSingleFile — top-level layout', () => {
     expect(out.endsWith('\n')).toBe(true);
   });
 
-  it('inlines the baseUrl as a mutable `let` binding so setBaseUrl() can update it', () => {
-    const out = emitSingleFile(apiModel({ baseUrl: 'https://api.example.com/v1' }));
+  it('inlines the serverUrl as a mutable `let` binding so setBaseUrl() can update it', () => {
+    const out = emitSingleFile(apiModel({ serverUrl: 'https://api.example.com/v1' }));
     expect(out).toContain('let BASE = "https://api.example.com/v1";');
     expect(out).not.toContain('const BASE = ');
   });
 
   it('always exports a setBaseUrl() helper that reassigns the BASE binding', () => {
-    const out = emitSingleFile(apiModel({ baseUrl: 'https://api.example.com' }));
+    const out = emitSingleFile(apiModel({ serverUrl: 'https://api.example.com' }));
     expect(out).toContain('export function setBaseUrl(url: string): void');
     expect(out).toMatch(/BASE\s*=\s*url/);
   });
 
-  it('lets a caller override the spec-derived baseUrl via options.baseUrl', () => {
-    const out = emitSingleFile(apiModel({ baseUrl: 'https://from-spec.example.com' }), {
-      baseUrl: 'http://127.0.0.1:3101',
+  it('lets a caller override the spec-derived serverUrl via options.serverUrl', () => {
+    const out = emitSingleFile(apiModel({ serverUrl: 'https://from-spec.example.com' }), {
+      serverUrl: 'http://127.0.0.1:3101',
     });
     expect(out).toContain('let BASE = "http://127.0.0.1:3101";');
     expect(out).not.toContain('from-spec.example.com');
@@ -197,9 +197,9 @@ describe('extension contract (ClientConfig)', () => {
     expect(out).toContain('__request<void>(__config, { id: "ping", path: "/p", tags: [] }');
   });
 
-  it('runtime resolves config.baseUrl ?? BASE and config.fetch ?? fetch', () => {
+  it('runtime resolves config.serverUrl ?? BASE and config.fetch ?? fetch', () => {
     const out = emitSingleFile(apiModel());
-    expect(out).toContain('(config.baseUrl ?? BASE)');
+    expect(out).toContain('(config.serverUrl ?? BASE)');
     expect(out).toContain('const doFetch = config.fetch ?? fetch;');
   });
 

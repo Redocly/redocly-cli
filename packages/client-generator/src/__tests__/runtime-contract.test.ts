@@ -3,7 +3,7 @@ import { defineClientSetup } from '../runtime-contract.js';
 
 describe('defineClientSetup', () => {
   it('returns its argument unchanged (identity helper)', () => {
-    const setup = { config: { baseUrl: 'https://x' }, middleware: [] };
+    const setup = { config: { serverUrl: 'https://x' }, middleware: [] };
     expect(defineClientSetup(setup)).toBe(setup);
   });
 });

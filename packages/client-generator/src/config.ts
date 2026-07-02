@@ -23,7 +23,7 @@ export type Config = {
   /** Class name for the service-class facade. Defaults to `Client`. */
   name?: string;
   /** Override the inlined base URL (else derived from `servers[0].url`). */
-  baseUrl?: string;
+  serverUrl?: string;
   /** Named-enum emission. Defaults to `const-object`. */
   enumStyle?: 'union' | 'const-object';
   /** Error-handling shape of the generated client. `'throw'` (default) throws `ApiError`

@@ -66,7 +66,7 @@ export async function handleGenerateClient({
   const merged = mergeConfig(redoclyExtension as Partial<OpenApiTsConfig>, {
     api: argv.api,
     output: argv.output,
-    baseUrl: argv['base-url'],
+    serverUrl: argv['base-url'],
     enumStyle: argv['enum-style'],
     outputMode: argv['output-mode'],
     facade: argv.facade,
@@ -104,15 +104,15 @@ export async function handleGenerateClient({
       `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
     );
   }
-  if (merged.baseUrl !== undefined) {
+  if (merged.serverUrl !== undefined) {
     try {
       // Accept absolute URLs (https://api.example.com) and relative bases (/v1):
       // OpenAPI allows relative `servers[].url`, and the runtime concatenates
-      // baseUrl + path, so a relative base needs no absolute origin.
-      new URL(merged.baseUrl, 'http://localhost');
+      // serverUrl + path, so a relative base needs no absolute origin.
+      new URL(merged.serverUrl, 'http://localhost');
     } catch {
       throw new HandledError(
-        `\n❌  --base-url must be a valid URL — absolute (https://api.example.com) or relative (/v1).\n   Got: ${merged.baseUrl}\n`
+        `\n❌  --base-url must be a valid URL — absolute (https://api.example.com) or relative (/v1).\n   Got: ${merged.serverUrl}\n`
       );
     }
   }

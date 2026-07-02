@@ -119,7 +119,7 @@ export async function generateClient(
     outputPath,
     outputMode: options.outputMode ?? 'single',
     emit: {
-      baseUrl: options.baseUrl,
+      serverUrl: options.serverUrl,
       enumStyle: options.enumStyle,
       facade: options.facade,
       argsStyle: options.argsStyle,

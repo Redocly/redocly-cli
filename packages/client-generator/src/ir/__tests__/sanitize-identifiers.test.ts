@@ -5,7 +5,7 @@ function model(schemas: ApiModel['schemas'], operations: OperationModel[] = []):
   return {
     title: 'T',
     version: '1',
-    baseUrl: '',
+    serverUrl: '',
     services: [{ name: 'Default', operations }],
     schemas,
     securitySchemes: [],
