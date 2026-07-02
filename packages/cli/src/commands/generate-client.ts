@@ -1,42 +1,16 @@
 import { type Config as OpenApiTsConfig } from '@redocly/client-generator';
-import { type Config, HandledError, isPlainObject, logger } from '@redocly/openapi-core';
+import { HandledError, isPlainObject, logger } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
-import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
+import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
 import { getAliasOrPath } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
-
-/**
- * Read generate-client settings from a `redocly.yaml`'s `x-client-generator`
- * extension block (the auto-discovered config, or the one at `--config`). Relative
- * `api`/`output` are resolved against the config file's directory so they mean the
- * same thing regardless of the current working directory. Returns `{}` when the block
- * is absent. (A URL/registry `api` is left untouched.)
- */
-function readRedoclyExtension(config: Config): Record<string, unknown> {
-  const raw = (config.resolvedConfig as Record<string, unknown>)['x-client-generator'];
-  if (!isPlainObject(raw)) return {};
-  const ext: Record<string, unknown> = { ...raw };
-  const baseDir = config.configPath ? dirname(config.configPath) : undefined;
-  if (baseDir) {
-    if (typeof ext.api === 'string' && !isAbsolute(ext.api) && !/^https?:\/\//i.test(ext.api)) {
-      ext.api = resolvePath(baseDir, ext.api);
-    }
-    if (typeof ext.output === 'string' && !isAbsolute(ext.output)) {
-      ext.output = resolvePath(baseDir, ext.output);
-    }
-    if (typeof ext.setup === 'string' && !isAbsolute(ext.setup)) {
-      ext.setup = resolvePath(baseDir, ext.setup);
-    }
-  }
-  return ext;
-}
 
 export type GenerateClientCommandArgv = {
   api?: string;
   output?: string;
   config?: string;
-  'base-url'?: string;
+  'server-url'?: string;
   'enum-style'?: 'union' | 'const-object';
   'output-mode'?: 'single' | 'split' | 'tags' | 'tags-split';
   facade?: 'functions' | 'service-class';
@@ -53,6 +27,25 @@ export type GenerateClientCommandArgv = {
   setup?: string;
 };
 
+type ClientConfig = Partial<OpenApiTsConfig>;
+
+/** A single client to generate: which API to read, where to write it, and its per-API `client` block. */
+type Job = { name: string; api: string; clientOutput?: string; perApiClient: ClientConfig };
+
+/** Resolve a `client` block's relative `setup` path against the config dir (URLs/absolute left as-is). */
+function resolveSetup(client: ClientConfig, configDir: string): ClientConfig {
+  const { setup } = client;
+  if (typeof setup === 'string' && !isAbsolute(setup) && !/^https?:\/\//i.test(setup)) {
+    return { ...client, setup: resolvePath(configDir, setup) };
+  }
+  return client;
+}
+
+/** Make an API name safe as a filename segment (path separators would escape the target dir). */
+function fileNameFor(name: string): string {
+  return `${name.replace(/[\\/]/g, '_')}.client.ts`;
+}
+
 export async function handleGenerateClient({
   argv,
   config,
@@ -60,13 +53,22 @@ export async function handleGenerateClient({
   const { generateClient } = await import('@redocly/client-generator');
   const { mergeConfig } = await import('@redocly/client-generator/config-file');
 
-  // Config sources, lowest → highest precedence: the `redocly.yaml` `x-client-generator`
-  // block (located via the standard `--config` flag, else discovered in cwd) → CLI flags.
-  const redoclyExtension = readRedoclyExtension(config);
-  const merged = mergeConfig(redoclyExtension as Partial<OpenApiTsConfig>, {
-    api: argv.api,
-    output: argv.output,
-    serverUrl: argv['base-url'],
+  const resolved = config.resolvedConfig as Record<string, unknown>;
+  const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
+  // Top-level `client` block: shared defaults (relative `setup` resolved against the config dir).
+  const topClient = resolveSetup(
+    (isPlainObject(resolved.client) ? resolved.client : {}) as ClientConfig,
+    configDir
+  );
+  const apisCfg = (isPlainObject(resolved.apis) ? resolved.apis : {}) as Record<
+    string,
+    Record<string, unknown>
+  >;
+
+  // CLI setting flags override both the top-level and per-API `client` blocks. `--setup` is
+  // relative to the cwd (like `--output`); `api`/`output` are not settings and stay out of the merge.
+  const cliFlags: ClientConfig = {
+    serverUrl: argv['server-url'],
     enumStyle: argv['enum-style'],
     outputMode: argv['output-mode'],
     facade: argv.facade,
@@ -78,66 +80,96 @@ export async function handleGenerateClient({
     mockSeed: argv['mock-seed'],
     name: argv.name,
     generators: argv.generators,
-    setup: argv.setup,
-  });
+    setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
+  };
 
-  if (!merged.api)
-    throw new HandledError(`\n❌  No API. Pass <api> or set it in a config file.\n`);
-  if (!merged.output)
-    throw new HandledError(`\n❌  No output. Pass --output or set it in a config file.\n`);
+  const perApiJob = (name: string): Job => {
+    const apiCfg = apisCfg[name];
+    return {
+      name,
+      api: getAliasOrPath(config, name).path,
+      clientOutput: typeof apiCfg?.clientOutput === 'string' ? apiCfg.clientOutput : undefined,
+      perApiClient: isPlainObject(apiCfg?.client)
+        ? resolveSetup(apiCfg.client as ClientConfig, configDir)
+        : {},
+    };
+  };
 
-  // Resolve `<api>` as a `redocly.yaml` `apis:` alias when it matches one (to the
-  // alias's `root`, relative to the config dir); a plain path/URL passes through.
-  const api = getAliasOrPath(config, merged.api).path;
-  const outputPath = resolvePath(merged.output);
-  // A relative `--setup` resolves against the cwd, like `--output` (a config-file
-  // `setup` was already resolved against the config dir in readRedoclyExtension);
-  // passing an absolute path makes generateClient's own resolution a no-op.
-  const setupPath = merged.setup === undefined ? undefined : resolvePath(merged.setup);
-
-  // Relative-path generator specifiers (and inline plugins) resolve against the
-  // `redocly.yaml` directory (the config's location), else the working directory.
-  const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
-
-  if (!outputPath.endsWith('.ts')) {
-    throw new HandledError(
-      `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
-    );
-  }
-  if (merged.serverUrl !== undefined) {
-    try {
-      // Accept absolute URLs (https://api.example.com) and relative bases (/v1):
-      // OpenAPI allows relative `servers[].url`, and the runtime concatenates
-      // serverUrl + path, so a relative base needs no absolute origin.
-      new URL(merged.serverUrl, 'http://localhost');
-    } catch {
+  // Three invocation modes, keyed off the positional argument.
+  const jobs: Job[] = [];
+  if (argv.api === undefined) {
+    // Fan-out: generate for every API that opts in with a `client` block.
+    if (argv.output) {
       throw new HandledError(
-        `\n❌  --base-url must be a valid URL — absolute (https://api.example.com) or relative (/v1).\n   Got: ${merged.serverUrl}\n`
+        `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
       );
     }
+    for (const [name, apiCfg] of Object.entries(apisCfg)) {
+      if (isPlainObject(apiCfg.client)) jobs.push(perApiJob(name));
+    }
+    if (jobs.length === 0) {
+      throw new HandledError(
+        `\n❌  No API to generate. Add a \`client\` block under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+      );
+    }
+  } else if (apisCfg[argv.api]) {
+    // Named `apis:` alias: use its root, its `client` block (if any), and its `clientOutput`.
+    jobs.push(perApiJob(argv.api));
+  } else {
+    // Plain file/URL: ignore the `apis:` registry; use the top-level `client` defaults only.
+    jobs.push({ name: basename(argv.api, extname(argv.api)), api: argv.api, perApiClient: {} });
   }
 
-  try {
-    logger.info(gray('\n  Generating TypeScript client... \n'));
-    const result = await generateClient({
-      ...merged,
-      api,
-      output: outputPath,
-      setup: setupPath,
-      config,
-      configDir,
-    });
-    const summary =
-      result.files.length === 1
-        ? `TypeScript client successfully generated to ${yellow(result.outputPath)} (${result.bytes} bytes).`
-        : `TypeScript client successfully generated: ${result.files.length} files (${result.bytes} bytes), entry at ${yellow(result.outputPath)}.`;
-    logger.info('\n' + blue(summary) + '\n');
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new HandledError(
-      '\n' +
-        `❌  Failed to generate TypeScript client.\n   ${message}\n` +
-        '   Check the API description file path and that the OpenAPI document is valid.'
-    );
+  for (const job of jobs) {
+    const merged = mergeConfig(mergeConfig(topClient, job.perApiClient), cliFlags);
+
+    // Output: an explicit `--output` (single-API modes) wins; else the per-API `clientOutput`
+    // (config-dir-relative); else `<name>.client.ts` in the config dir.
+    const outputPath =
+      argv.output !== undefined
+        ? resolvePath(argv.output)
+        : job.clientOutput !== undefined
+          ? resolvePath(configDir, job.clientOutput)
+          : resolvePath(configDir, fileNameFor(job.name));
+
+    if (!outputPath.endsWith('.ts')) {
+      throw new HandledError(
+        `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
+      );
+    }
+    if (merged.serverUrl !== undefined) {
+      try {
+        // Accept absolute URLs (https://api.example.com) and relative bases (/v1): OpenAPI allows
+        // relative `servers[].url`, and the runtime concatenates serverUrl + path.
+        new URL(merged.serverUrl, 'http://localhost');
+      } catch {
+        throw new HandledError(
+          `\n❌  --server-url must be a valid URL — absolute (https://api.example.com) or relative (/v1).\n   Got: ${merged.serverUrl}\n`
+        );
+      }
+    }
+
+    try {
+      logger.info(gray(`\n  Generating TypeScript client${job.name ? ` for ${job.name}` : ''}... \n`));
+      const result = await generateClient({
+        ...merged,
+        api: job.api,
+        output: outputPath,
+        config,
+        configDir,
+      });
+      const summary =
+        result.files.length === 1
+          ? `TypeScript client successfully generated to ${yellow(result.outputPath)} (${result.bytes} bytes).`
+          : `TypeScript client successfully generated: ${result.files.length} files (${result.bytes} bytes), entry at ${yellow(result.outputPath)}.`;
+      logger.info('\n' + blue(summary) + '\n');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new HandledError(
+        '\n' +
+          `❌  Failed to generate TypeScript client${job.name ? ` for ${job.name}` : ''}.\n   ${message}\n` +
+          '   Check the API description file path and that the OpenAPI document is valid.'
+      );
+    }
   }
 }

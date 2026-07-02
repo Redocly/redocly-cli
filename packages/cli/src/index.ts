@@ -872,9 +872,9 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
-          'base-url': {
+          'server-url': {
             describe:
-              'Override the BASE URL inlined into the generated runtime. Defaults to `servers[0].url`.',
+              'Override the server URL inlined into the generated runtime. Defaults to `servers[0].url`.',
             type: 'string',
             requiresArg: true,
           },
