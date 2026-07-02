@@ -11,10 +11,10 @@
   },
   "ignorePatterns": [
     "packages/*/lib/**",
-    "tests/e2e/generate-client/examples/*/src/api/**",
-    "tests/e2e/generate-client/examples/*/generate.ts",
     "*.js",
     "*.cjs",
+    "tests/e2e/generate-client/examples/*/src/api/**",
+    "tests/e2e/generate-client/examples/*/generate.ts",
     "tests/e2e/generate-client/*.snapshot.ts",
     "tests/e2e/generate-client/*-consumer/api.ts"
   ],
