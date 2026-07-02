@@ -1,7 +1,7 @@
 /**
  * Behavioral e2e for the extension contract (D3). Rather than a live server, we
  * inject a fake `fetch` via `configure()` / `new Client(config)` and capture what
- * the generated runtime actually produced — proving that `baseUrl`, `config.headers`,
+ * the generated runtime actually produced — proving that `serverUrl`, `config.headers`,
  * `onRequest`, transport-swap, and per-instance config observably take effect.
  */
 import { spawnSync } from 'node:child_process';
@@ -50,7 +50,7 @@ describe('extension contract — functions facade (configure)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('configure() applies baseUrl, config.headers, onRequest, and the fetch transport-swap', () => {
+  test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', () => {
     const captured = runConsumer(
       dir,
       `
@@ -58,7 +58,7 @@ import { configure, listPets } from './client.ts';
 
 const seen: { url?: string; headers?: Record<string, string> } = {};
 configure({
-  baseUrl: 'https://configured.example',
+  serverUrl: 'https://configured.example',
   headers: { 'X-Tenant': 'acme' },
   onRequest: (ctx) => { ctx.headers['X-Trace'] = 'trace-123'; },
   fetch: (async (url: string, init: RequestInit) => {
@@ -73,7 +73,7 @@ console.log(JSON.stringify(seen));
 `
     ) as { url: string; headers: Record<string, string> };
 
-    // baseUrl override was honored (not the spec's localhost:3102).
+    // serverUrl override was honored (not the spec's localhost:3102).
     expect(captured.url).toBe('https://configured.example/pets');
     // The fake fetch was actually used, and both config.headers + onRequest applied.
     expect(captured.headers['X-Tenant']).toBe('acme');
@@ -118,7 +118,7 @@ describe('extension contract — service-class facade (per-instance config)', ()
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('two instances carry independent baseUrl + headers (multi-tenant isolation)', () => {
+  test('two instances carry independent serverUrl + headers (multi-tenant isolation)', () => {
     const calls = runConsumer(
       dir,
       `
@@ -132,8 +132,8 @@ const make = (tag: string) =>
     return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
   }) as unknown as typeof fetch;
 
-const a = new PetClient({ baseUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
-const b = new PetClient({ baseUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
+const a = new PetClient({ serverUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
+const b = new PetClient({ serverUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
 
 await a.listPets();
 await b.listPets();
@@ -164,7 +164,7 @@ console.log(JSON.stringify({ captured }));
 `
     ) as { captured: string };
 
-    // No baseUrl in config → falls back to the inlined BASE from base.yaml.
+    // No serverUrl in config → falls back to the inlined BASE from base.yaml.
     expect(seen.captured).toBe('http://localhost:3102/pets');
   }, 60_000);
 });

@@ -201,7 +201,7 @@ describe('middleware — multi-file output (split)', () => {
       `
 import { configure, use, listPets } from './client.ts';
 let url = '', header = '';
-configure({ baseUrl: 'https://multi.example.com', fetch: (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-MW']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
+configure({ serverUrl: 'https://multi.example.com', fetch: (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-MW']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
 use({ onRequest: (ctx) => { ctx.headers['X-MW'] = 'yes'; } });
 await listPets();
 console.log(JSON.stringify({ url, header }));

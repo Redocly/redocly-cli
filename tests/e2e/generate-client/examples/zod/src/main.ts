@@ -1,7 +1,7 @@
 import { configure, listMenuItems, ApiError } from './api/client.js';
 import { MenuItemListSchema } from './api/client.zod.js';
 
-configure({ baseUrl: 'https://api.cafe.redocly.com' });
+configure({ serverUrl: 'https://api.cafe.redocly.com' });
 
 const out = document.querySelector<HTMLPreElement>('#out')!;
 

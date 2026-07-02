@@ -8,7 +8,7 @@ const out = document.querySelector<HTMLPreElement>('#out')!;
 async function main() {
   try {
     await setupWorker(...handlers).start();
-    configure({ baseUrl: 'https://api.cafe.redocly.com' });
+    configure({ serverUrl: 'https://api.cafe.redocly.com' });
     const response = await listMenuItems();
     out.textContent = `Mocked ${response.items.length} items:\n${JSON.stringify(
       response,

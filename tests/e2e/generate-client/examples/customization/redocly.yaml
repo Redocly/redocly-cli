@@ -1,9 +1,11 @@
 # redocly.yaml — drives `redocly generate-client` for this example.
-# generate-client settings live under the `x-client-generator` extension for now
-# (first-class config support is planned in @redocly/config).
-x-client-generator:
-  api: ./openapi.yaml
-  output: ./src/api/client.ts
-  generators:
-    - sdk
-  facade: functions
+# The client is generated for the api that declares a `client` block
+# (run `redocly generate-client` with no args to build every such api).
+apis:
+  customization:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+      facade: functions

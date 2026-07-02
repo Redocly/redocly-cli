@@ -11,7 +11,7 @@ the `generateClient(...)` API.
 | [fetch-functions](./fetch-functions) | CLI · `sdk`, functions        | free functions + `ApiError`                                                             |
 | [customization](./customization)     | CLI · `sdk`, functions        | request/response middleware, `ctx.operation` targeting, body mutation, custom transport |
 | [baked-setup](./baked-setup)         | CLI · `sdk`, functions        | publisher defaults baked into the client via `--setup` (`defineClientSetup`)            |
-| [service-class](./service-class)     | CLI · `sdk`, service-class    | `new Client({ baseUrl })`, per-instance `auth`                                          |
+| [service-class](./service-class)     | CLI · `sdk`, service-class    | `new Client({ serverUrl })`, per-instance `auth`                                          |
 | [zod](./zod)                         | CLI · `sdk`, `zod`            | validating responses with generated zod schemas                                         |
 | [tanstack-query](./tanstack-query)   | CLI · `sdk`, `tanstack-query` | React `useQuery(<op>Options())`                                                         |
 | [mock](./mock)                       | CLI · `sdk`, `mock`           | MSW handlers from generated `handlers`                                                  |

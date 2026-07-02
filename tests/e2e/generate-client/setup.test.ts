@@ -19,7 +19,7 @@ const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 const SETUP = `
 import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
 export default defineClientSetup({
-  config: { baseUrl: 'https://baked.example.com' },
+  config: { serverUrl: 'https://baked.example.com' },
   middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Baked'] = 'yes'; } }],
 });
 `;
@@ -88,7 +88,7 @@ console.log(JSON.stringify({ url, header }));
       `
 import { configure, listPets } from './client.ts';
 let url = '';
-configure({ baseUrl: 'https://override.example.com', fetch: (async (u: string) => { url = u; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
+configure({ serverUrl: 'https://override.example.com', fetch: (async (u: string) => { url = u; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
 await listPets();
 console.log(JSON.stringify({ url }));
 `
@@ -139,7 +139,7 @@ const fetchSpy = (sink: { url: string; header: string }) => (async (u: string, i
 const baked = { url: '', header: '' };
 await new PetClient({ fetch: fetchSpy(baked) }).listPets();
 const overridden = { url: '', header: '' };
-await new PetClient({ baseUrl: 'https://override.example.com', fetch: fetchSpy(overridden) }).listPets();
+await new PetClient({ serverUrl: 'https://override.example.com', fetch: fetchSpy(overridden) }).listPets();
 console.log(JSON.stringify({ baked, overridden }));
 `
     ) as { baked: { url: string; header: string }; overridden: { url: string } };

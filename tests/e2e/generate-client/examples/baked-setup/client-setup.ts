@@ -4,7 +4,7 @@ import { defineClientSetup, type RequestContext } from '@redocly/client-generato
 // by `setup:` in redocly.yaml. Imports the contract from the package (not the generated client),
 // so this file resolves and is unit-testable before the client even exists.
 export default defineClientSetup({
-  config: { baseUrl: 'https://api.cafe.redocly.com', retry: { retries: 2 } },
+  config: { serverUrl: 'https://api.cafe.redocly.com', retry: { retries: 2 } },
   middleware: [
     {
       onRequest: (ctx: RequestContext) => {

@@ -1,7 +1,7 @@
 # service-class example
 
 Generated TypeScript client using the **service-class facade** (`generators: ['sdk']`). Operations are
-methods on a `Client` configured per instance (`new Client({ baseUrl })`).
+methods on a `Client` configured per instance (`new Client({ serverUrl })`).
 
 ## Run
 

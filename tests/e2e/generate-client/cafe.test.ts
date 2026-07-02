@@ -73,7 +73,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   let log: LogEntry[] = [];
   /** Raw generator output — what the CLI emits from cafe.yaml without any overrides. */
   let rawGenerated = '';
-  /** Generator output the consumer imports — same source, but BASE pinned at the mock via --base-url. */
+  /** Generator output the consumer imports — same source, but BASE pinned at the mock via --server-url. */
   let generated = '';
 
   beforeAll(async () => {
@@ -105,11 +105,11 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
     rawGenerated = readFileSync(generatedFile, 'utf-8');
 
-    // Second pass: regenerate with --base-url so the consumer's import targets the mock.
+    // Second pass: regenerate with --server-url so the consumer's import targets the mock.
     // This is the file the consumer actually loads — and replaces the old string-replace hack.
     const consumerGen = spawnSync(
       'node',
-      [cliEntry, 'generate-client', fixture, '--output', generatedFile, '--base-url', SERVER_BASE],
+      [cliEntry, 'generate-client', fixture, '--output', generatedFile, '--server-url', SERVER_BASE],
       { encoding: 'utf-8', cwd: repoRoot }
     );
     if (consumerGen.status !== 0) {
@@ -117,7 +117,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
     generated = readFileSync(generatedFile, 'utf-8');
     if (!generated.includes(`let BASE = "${SERVER_BASE}"`)) {
-      throw new Error(`--base-url was not honoured; expected \`let BASE = "${SERVER_BASE}"\``);
+      throw new Error(`--server-url was not honoured; expected \`let BASE = "${SERVER_BASE}"\``);
     }
 
     // Type-check the consumer.

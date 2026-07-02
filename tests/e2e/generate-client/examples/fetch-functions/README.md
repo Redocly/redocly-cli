@@ -12,4 +12,4 @@ npm run dev        # open the printed local URL
 ```
 
 The generated client under `src/api/` is committed and drift-checked against the generator in CI.
-Point `configure({ baseUrl })` at your own server or a mock as needed.
+Point `configure({ serverUrl })` at your own server or a mock as needed.

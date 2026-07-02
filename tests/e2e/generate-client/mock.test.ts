@@ -75,7 +75,7 @@ import { configure, getPetById } from './client.ts';
 
 const server = setupServer(...handlers);
 server.listen({ onUnhandledRequest: 'error' });
-configure({ baseUrl: 'https://api.example.com' });
+configure({ serverUrl: 'https://api.example.com' });
 try {
   const pet = await getPetById(1);
   process.stdout.write(JSON.stringify({ ok: pet !== undefined, id: pet.id, name: pet.name }));

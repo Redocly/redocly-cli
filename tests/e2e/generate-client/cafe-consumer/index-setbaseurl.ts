@@ -33,7 +33,7 @@ async function step(name: string, run: () => Promise<unknown>): Promise<StepResu
 async function main(): Promise<void> {
   const results: StepResult[] = [];
 
-  // 1) Baseline: the file was generated with --base-url ${CAFE_BASE}, so the first
+  // 1) Baseline: the file was generated with --server-url ${CAFE_BASE}, so the first
   //    call should succeed against the mock server.
   results.push(await step('initial-call-against-mock', () => listMenuItems({ limit: 1 })));
 

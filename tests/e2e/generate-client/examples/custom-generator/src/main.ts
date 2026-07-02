@@ -3,7 +3,7 @@
 import { configure, listMenuItems } from './api/client.js';
 import { routes } from './api/client.routes.js';
 
-configure({ baseUrl: 'https://api.cafe.redocly.com' });
+configure({ serverUrl: 'https://api.cafe.redocly.com' });
 
 const out = document.querySelector<HTMLPreElement>('#out')!;
 

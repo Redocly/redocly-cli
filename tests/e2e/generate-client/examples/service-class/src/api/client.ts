@@ -477,7 +477,7 @@ export type RequestContext = {
  */
 export type ClientConfig = {
     /** Base URL for this client; overrides the inlined default and `setBaseUrl()`. */
-    baseUrl?: string;
+    serverUrl?: string;
     /** Extra headers merged into every request; a function is invoked per request. */
     headers?: Record<string, string> | (() => Record<string, string> | Promise<Record<string, string>>);
     /** Transport used to issue requests. Defaults to the global `fetch`. */
@@ -581,7 +581,7 @@ export type RequestOptions = RequestInit & {
  * (e.g. dev / staging / prod toggles in a single-page app).
  *
  * Mutates a module-scoped binding shared by the functions facade. For multiple
- * bases at once, use the service-class facade with `new Client({ baseUrl })`.
+ * bases at once, use the service-class facade with `new Client({ serverUrl })`.
  */
 export function setBaseUrl(url: string): void {
     BASE = url;
@@ -656,7 +656,7 @@ function __encodeReserved(value: string): string {
 }
 
 function __buildUrl(config: ClientConfig, path: string, query?: Record<string, QueryValue>, styles?: Record<string, QueryStyle>): string {
-    const url = (config.baseUrl ?? BASE).replace(/\/+$/, '') + path;
+    const url = (config.serverUrl ?? BASE).replace(/\/+$/, '') + path;
     if (!query)
         return url;
     const params = new URLSearchParams();

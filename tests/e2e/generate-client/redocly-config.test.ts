@@ -1,15 +1,9 @@
-// generate-client reads its settings from a `redocly.yaml` `x-client-generator`
-// block (discovered in the cwd, or located via `--config`), with CLI flags overriding it.
-// This is the only declarative config surface — the examples use it.
+// generate-client reads its settings from a `redocly.yaml` `client` block (top-level
+// shared defaults) and per-API `apis.<name>.client` / `clientOutput`. Three invocation
+// modes: fan-out (no arg, over apis with a `client` block), an `apis:` alias, and a plain
+// file path (which ignores `apis:`). CLI flags override the config.
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-  copyFileSync,
-} from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, copyFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,79 +13,158 @@ const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures', 'cafe.yaml');
 
-/** Write a temp project: a vendored spec + a redocly.yaml carrying the extension block. */
-function project(xConfig: string): string {
+/** Write a temp project: the cafe spec + a redocly.yaml with the given contents. */
+function project(redoclyYaml: string): string {
   const dir = mkdtempSync(join(tmpdir(), 'ots-redocly-'));
   copyFileSync(fixture, join(dir, 'openapi.yaml'));
-  writeFileSync(join(dir, 'redocly.yaml'), `x-client-generator:\n${xConfig}`, 'utf-8');
+  writeFileSync(join(dir, 'redocly.yaml'), redoclyYaml, 'utf-8');
   return dir;
 }
+const run = (dir: string, args: string[] = []) =>
+  spawnSync('node', [cli, 'generate-client', ...args], { cwd: dir, encoding: 'utf-8' });
 
-describe('generate-client redocly.yaml config (x-client-generator)', () => {
-  it('generates from the redocly.yaml block with no flags', () => {
+describe('generate-client redocly.yaml config', () => {
+  it('fan-out (no arg) builds every api with a `client` block, to its clientOutput', () => {
     const dir = project(
       [
-        '  api: ./openapi.yaml',
-        '  output: ./src/api/client.ts',
-        '  generators: [sdk]',
-        '  facade: service-class',
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./src/cafe.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      facade: service-class',
+        '  lintOnly:', // no `client` block -> skipped by the fan-out
+        '    root: ./openapi.yaml',
       ].join('\n') + '\n'
     );
-    const res = spawnSync('node', [cli, 'generate-client'], { cwd: dir, encoding: 'utf-8' });
+    const res = run(dir);
     expect(res.status, res.stderr).toBe(0);
-    const out = join(dir, 'src/api/client.ts');
-    expect(existsSync(out)).toBe(true);
-    // facade + generators came from the redocly.yaml block.
-    expect(readFileSync(out, 'utf-8')).toContain('export class Client');
+    expect(existsSync(join(dir, 'src/cafe.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'lintOnly.client.ts'))).toBe(false);
+    expect(readFileSync(join(dir, 'src/cafe.ts'), 'utf-8')).toContain('export class Client');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('resolves an `apis:` alias passed as <api> to that API’s root', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-alias-'));
-    copyFileSync(fixture, join(dir, 'openapi.yaml'));
-    writeFileSync(join(dir, 'redocly.yaml'), 'apis:\n  cafe:\n    root: ./openapi.yaml\n', 'utf-8');
-    // `cafe` is an alias, not a file path — it must resolve to ./openapi.yaml.
-    const res = spawnSync(
-      'node',
-      [cli, 'generate-client', 'cafe', '--output', join(dir, 'out.ts')],
-      {
-        cwd: dir,
-        encoding: 'utf-8',
-      }
+  it('defaults the output to `<name>.client.ts` in the config dir when clientOutput is omitted', () => {
+    const dir = project(
+      ['apis:', '  cafe:', '    root: ./openapi.yaml', '    client:', '      generators: [sdk]'].join(
+        '\n'
+      ) + '\n'
     );
+    const res = run(dir);
     expect(res.status, res.stderr).toBe(0);
-    expect(existsSync(join(dir, 'out.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'cafe.client.ts'))).toBe(true);
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('resolves an `apis:` alias passed as <api>, using its client block + clientOutput', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      facade: service-class',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain('export class Client');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('a named alias falls back to the top-level `client` when it has no per-api block', () => {
+    const dir = project(
+      [
+        'client:',
+        '  generators: [sdk]',
+        '  facade: service-class',
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    // service-class came from the top-level client block (the api declares none).
+    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain('export class Client');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('a plain file path ignores `apis:` and uses the top-level `client` defaults', () => {
+    const dir = project(
+      [
+        'client:',
+        '  generators: [sdk]',
+        '  facade: functions',
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    client:',
+        '      facade: service-class', // must NOT apply to a path invocation
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['./openapi.yaml', '--output', './out.ts']);
+    expect(res.status, res.stderr).toBe(0);
+    const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
+    expect(out).toContain('export async function listMenuItems'); // functions facade (top-level)
+    expect(out).not.toContain('export class Client'); // per-api service-class ignored
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('CLI flags override the client block', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      facade: service-class',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe', '--facade', 'functions']);
+    expect(res.status, res.stderr).toBe(0);
     expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
       'export async function listMenuItems'
     );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('lets a CLI flag override the redocly.yaml block (flags win)', () => {
+  it('rejects --output in fan-out mode', () => {
     const dir = project(
-      [
-        '  api: ./openapi.yaml',
-        '  output: ./src/api/client.ts',
-        '  generators: [sdk]',
-        '  facade: service-class',
-      ].join('\n') + '\n'
+      ['apis:', '  cafe:', '    root: ./openapi.yaml', '    client:', '      generators: [sdk]'].join(
+        '\n'
+      ) + '\n'
     );
-    // Override facade: service-class (in redocly.yaml) → functions (flag).
-    const res = spawnSync('node', [cli, 'generate-client', '--facade', 'functions'], {
-      cwd: dir,
-      encoding: 'utf-8',
-    });
-    expect(res.status, res.stderr).toBe(0);
-    const src = readFileSync(join(dir, 'src/api/client.ts'), 'utf-8');
-    expect(src).toContain('export async function');
-    expect(src).not.toContain('export class Client');
+    const res = run(dir, ['--output', './out.ts']);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toContain("--output can't target multiple APIs");
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('resolves the block’s relative api/output against the redocly.yaml directory', () => {
+  it('errors when no api has a `client` block and none is named', () => {
+    const dir = project(['apis:', '  cafe:', '    root: ./openapi.yaml'].join('\n') + '\n');
+    const res = run(dir);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toContain('No API to generate');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('resolves a relative clientOutput against the redocly.yaml dir (via --config)', () => {
     const dir = project(
-      ['  api: ./openapi.yaml', '  output: ./out/client.ts', '  generators: [sdk]'].join('\n') +
-        '\n'
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out/client.ts',
+        '    client:',
+        '      generators: [sdk]',
+      ].join('\n') + '\n'
     );
     // Run from the repo root, pointing at the config elsewhere via --config.
     const res = spawnSync('node', [cli, 'generate-client', '--config', join(dir, 'redocly.yaml')], {
@@ -99,7 +172,6 @@ describe('generate-client redocly.yaml config (x-client-generator)', () => {
       encoding: 'utf-8',
     });
     expect(res.status, res.stderr).toBe(0);
-    // api/output resolved relative to the redocly.yaml dir, not the cwd.
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
