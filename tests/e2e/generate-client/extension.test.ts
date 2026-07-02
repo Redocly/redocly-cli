@@ -9,6 +9,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -53,24 +54,24 @@ describe('extension contract — functions facade (configure)', () => {
   test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', () => {
     const captured = runConsumer(
       dir,
+      outdent`
+        import { configure, listPets } from './client.ts';
+
+        const seen: { url?: string; headers?: Record<string, string> } = {};
+        configure({
+          serverUrl: 'https://configured.example',
+          headers: { 'X-Tenant': 'acme' },
+          onRequest: (ctx) => { ctx.headers['X-Trace'] = 'trace-123'; },
+          fetch: (async (url: string, init: RequestInit) => {
+            seen.url = String(url);
+            seen.headers = init.headers as Record<string, string>;
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch,
+        });
+
+        await listPets();
+        console.log(JSON.stringify(seen));
       `
-import { configure, listPets } from './client.ts';
-
-const seen: { url?: string; headers?: Record<string, string> } = {};
-configure({
-  serverUrl: 'https://configured.example',
-  headers: { 'X-Tenant': 'acme' },
-  onRequest: (ctx) => { ctx.headers['X-Trace'] = 'trace-123'; },
-  fetch: (async (url: string, init: RequestInit) => {
-    seen.url = String(url);
-    seen.headers = init.headers as Record<string, string>;
-    return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
-  }) as unknown as typeof fetch,
-});
-
-await listPets();
-console.log(JSON.stringify(seen));
-`
     ) as { url: string; headers: Record<string, string> };
 
     // serverUrl override was honored (not the spec's localhost:3102).
@@ -83,23 +84,23 @@ console.log(JSON.stringify(seen));
   test('onError maps a failed request to a custom error', () => {
     const result = runConsumer(
       dir,
+      outdent`
+        import { configure, getPetById, ApiError } from './client.ts';
+
+        class NotFound extends Error {}
+        configure({
+          fetch: (async () =>
+            new Response('{"detail":"nope"}', { status: 404, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
+          onError: (error: ApiError) => new NotFound('mapped:' + error.status),
+        });
+
+        try {
+          await getPetById(1);
+          console.log(JSON.stringify({ threw: false }));
+        } catch (e) {
+          console.log(JSON.stringify({ threw: true, name: (e as Error).constructor.name, message: (e as Error).message }));
+        }
       `
-import { configure, getPetById, ApiError } from './client.ts';
-
-class NotFound extends Error {}
-configure({
-  fetch: (async () =>
-    new Response('{"detail":"nope"}', { status: 404, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
-  onError: (error: ApiError) => new NotFound('mapped:' + error.status),
-});
-
-try {
-  await getPetById(1);
-  console.log(JSON.stringify({ threw: false }));
-} catch (e) {
-  console.log(JSON.stringify({ threw: true, name: (e as Error).constructor.name, message: (e as Error).message }));
-}
-`
     ) as { threw: boolean; name: string; message: string };
 
     expect(result.threw).toBe(true);
@@ -121,24 +122,24 @@ describe('extension contract — service-class facade (per-instance config)', ()
   test('two instances carry independent serverUrl + headers (multi-tenant isolation)', () => {
     const calls = runConsumer(
       dir,
+      outdent`
+        import { PetClient } from './client.ts';
+
+        const calls: Array<{ tag: string; url: string; tenant: string }> = [];
+        const make = (tag: string) =>
+          (async (url: string, init: RequestInit) => {
+            const headers = init.headers as Record<string, string>;
+            calls.push({ tag, url: String(url), tenant: headers['X-Tenant'] });
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch;
+
+        const a = new PetClient({ serverUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
+        const b = new PetClient({ serverUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
+
+        await a.listPets();
+        await b.listPets();
+        console.log(JSON.stringify(calls));
       `
-import { PetClient } from './client.ts';
-
-const calls: Array<{ tag: string; url: string; tenant: string }> = [];
-const make = (tag: string) =>
-  (async (url: string, init: RequestInit) => {
-    const headers = init.headers as Record<string, string>;
-    calls.push({ tag, url: String(url), tenant: headers['X-Tenant'] });
-    return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
-  }) as unknown as typeof fetch;
-
-const a = new PetClient({ serverUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
-const b = new PetClient({ serverUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
-
-await a.listPets();
-await b.listPets();
-console.log(JSON.stringify(calls));
-`
     ) as Array<{ tag: string; url: string; tenant: string }>;
 
     expect(calls).toHaveLength(2);
@@ -149,19 +150,19 @@ console.log(JSON.stringify(calls));
   test('an instance with no config falls back to the spec-derived BASE', () => {
     const seen = runConsumer(
       dir,
-      `
-import { PetClient } from './client.ts';
+      outdent`
+        import { PetClient } from './client.ts';
 
-let captured = '';
-const client = new PetClient({
-  fetch: (async (url: string) => {
-    captured = String(url);
-    return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
-  }) as unknown as typeof fetch,
-});
-await client.listPets();
-console.log(JSON.stringify({ captured }));
-`
+        let captured = '';
+        const client = new PetClient({
+          fetch: (async (url: string) => {
+            captured = String(url);
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch,
+        });
+        await client.listPets();
+        console.log(JSON.stringify({ captured }));
+      `
     ) as { captured: string };
 
     // No serverUrl in config → falls back to the inlined BASE from base.yaml.

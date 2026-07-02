@@ -1,11 +1,13 @@
+import { outdent } from 'outdent';
+
 import { bakeSetup } from '../setup-bake.js';
 
-const FILE = `
-import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
-export default defineClientSetup({
-  config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
-  middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Acme'] = '1'; } }],
-});
+const FILE = outdent`
+  import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
+  export default defineClientSetup({
+    config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
+    middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Acme'] = '1'; } }],
+  });
 `;
 
 describe('bakeSetup', () => {
@@ -36,11 +38,11 @@ describe('bakeSetup', () => {
   });
 
   it('wraps file-level helper declarations in an IIFE so they are preserved and scoped', () => {
-    const out = bakeSetup(
-      `import { defineClientSetup } from '@redocly/client-generator';
-const VERSION = '9.9';
-export default defineClientSetup({ config: { headers: { 'X-V': VERSION } } });`
-    );
+    const out = bakeSetup(outdent`
+      import { defineClientSetup } from '@redocly/client-generator';
+      const VERSION = '9.9';
+      export default defineClientSetup({ config: { headers: { 'X-V': VERSION } } });
+    `);
     expect(out.startsWith('(() => {')).toBe(true);
     expect(out).toContain("const VERSION = '9.9'");
     expect(out).toContain("'X-V': VERSION");

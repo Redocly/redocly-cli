@@ -8,6 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -64,10 +65,10 @@ describe('typed ctx.operation rejects typos at compile time', () => {
     expect(
       typechecks(
         dir,
+        outdent`
+          import { use, type RequestContext } from './client.ts';
+          use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPets' || ctx.operation.path === '/pets') {} } });
         `
-import { use, type RequestContext } from './client.ts';
-use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPets' || ctx.operation.path === '/pets') {} } });
-`
       )
     ).toBe(true);
   }, 60_000);
@@ -76,10 +77,10 @@ use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPets' 
     expect(
       typechecks(
         dir,
+        outdent`
+          import { use, type RequestContext } from './client.ts';
+          use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPetss') {} } });
         `
-import { use, type RequestContext } from './client.ts';
-use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPetss') {} } });
-`
       )
     ).toBe(false);
   }, 60_000);

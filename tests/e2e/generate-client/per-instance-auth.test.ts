@@ -8,44 +8,47 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
 
-const SPEC = `openapi: 3.1.0
-info: { title: Thing API, version: '1.0.0' }
-servers: [{ url: https://api.example.com }]
-components:
-  securitySchemes:
-    basicAuth: { type: http, scheme: basic }
-paths:
-  /thing:
-    get:
-      operationId: getThing
-      security: [{ basicAuth: [] }]
-      responses:
-        '200': { description: ok, content: { application/json: { schema: { type: object } } } }
+const SPEC = outdent`
+  openapi: 3.1.0
+  info: { title: Thing API, version: '1.0.0' }
+  servers: [{ url: https://api.example.com }]
+  components:
+    securitySchemes:
+      basicAuth: { type: http, scheme: basic }
+  paths:
+    /thing:
+      get:
+        operationId: getThing
+        security: [{ basicAuth: [] }]
+        responses:
+          '200': { description: ok, content: { application/json: { schema: { type: object } } } }
 `;
 
-const DRIVER = `import { Client } from './client.js';
+const DRIVER = outdent`
+  import { Client } from './client.js';
 
-const calls: (string | null)[] = [];
-const fakeFetch = (async (_url: string, init?: RequestInit) => {
-  const h = (init?.headers ?? {}) as Record<string, string>;
-  calls.push(h['Authorization'] ?? null);
-  return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
-}) as unknown as typeof fetch;
+  const calls: (string | null)[] = [];
+  const fakeFetch = (async (_url: string, init?: RequestInit) => {
+    const h = (init?.headers ?? {}) as Record<string, string>;
+    calls.push(h['Authorization'] ?? null);
+    return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+  }) as unknown as typeof fetch;
 
-async function main() {
-  const authed = new Client({ fetch: fakeFetch, auth: { basic: { username: 'alice', password: 'pw' } } });
-  const anon = new Client({ fetch: fakeFetch });
-  await authed.getThing();
-  await anon.getThing();
-  console.log(JSON.stringify(calls));
-}
-void main();
+  async function main() {
+    const authed = new Client({ fetch: fakeFetch, auth: { basic: { username: 'alice', password: 'pw' } } });
+    const anon = new Client({ fetch: fakeFetch });
+    await authed.getThing();
+    await anon.getThing();
+    console.log(JSON.stringify(calls));
+  }
+  void main();
 `;
 
 describe('per-instance auth (service-class config.auth)', () => {

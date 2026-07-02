@@ -6,6 +6,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -119,22 +120,23 @@ describe('generate-client generator compatibility contract', () => {
     // Schema `GetUserVariables` collides with the `getUser` op's derived variables alias.
     writeFileSync(
       join(dir, 'api.yaml'),
-      `openapi: 3.1.0
-info: { title: C, version: '1.0.0' }
-paths:
-  /users/{id}:
-    get:
-      operationId: getUser
-      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
-      responses: { '200': { description: ok } }
-  /users:
-    get:
-      operationId: listUsers
-      responses: { '200': { description: ok } }
-components:
-  schemas:
-    GetUserVariables: { type: object, properties: { ready: { type: boolean } } }
-`,
+      outdent`
+        openapi: 3.1.0
+        info: { title: C, version: '1.0.0' }
+        paths:
+          /users/{id}:
+            get:
+              operationId: getUser
+              parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+              responses: { '200': { description: ok } }
+          /users:
+            get:
+              operationId: listUsers
+              responses: { '200': { description: ok } }
+        components:
+          schemas:
+            GetUserVariables: { type: object, properties: { ready: { type: boolean } } }
+      `,
       'utf-8'
     );
     const { status, out } = run([

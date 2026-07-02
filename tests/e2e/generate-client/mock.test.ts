@@ -10,6 +10,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -68,21 +69,21 @@ describe('mock generator — generated client through MSW', () => {
   test('handlers installed in setupServer intercept the generated fetch and return baked data', () => {
     const result = runConsumer(
       dir,
-      `
-import { setupServer } from 'msw/node';
-import { handlers } from './client.mocks.ts';
-import { configure, getPetById } from './client.ts';
+      outdent`
+        import { setupServer } from 'msw/node';
+        import { handlers } from './client.mocks.ts';
+        import { configure, getPetById } from './client.ts';
 
-const server = setupServer(...handlers);
-server.listen({ onUnhandledRequest: 'error' });
-configure({ serverUrl: 'https://api.example.com' });
-try {
-  const pet = await getPetById(1);
-  process.stdout.write(JSON.stringify({ ok: pet !== undefined, id: pet.id, name: pet.name }));
-} finally {
-  server.close();
-}
-`
+        const server = setupServer(...handlers);
+        server.listen({ onUnhandledRequest: 'error' });
+        configure({ serverUrl: 'https://api.example.com' });
+        try {
+          const pet = await getPetById(1);
+          process.stdout.write(JSON.stringify({ ok: pet !== undefined, id: pet.id, name: pet.name }));
+        } finally {
+          server.close();
+        }
+      `
     ) as { ok: boolean; id: number; name: string };
 
     // Deterministic sampler output for the Pet schema in base.yaml.

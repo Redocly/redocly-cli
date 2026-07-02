@@ -1,6 +1,7 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { outdent } from 'outdent';
 
 import { collectGeneratedFiles, generateClient } from '../index.js';
 import type { ApiModel } from '../intermediate-representation/model.js';
@@ -55,21 +56,22 @@ describe('generateClient — end-to-end orchestration', () => {
     const api = join(workDir, 'spec.yaml');
     await writeFile(
       api,
-      `openapi: 3.0.3
-info:
-  title: Tiny
-  version: 1.0.0
-paths:
-  /ping:
-    get:
-      operationId: ping
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { type: string }
-`,
+      outdent`
+        openapi: 3.0.3
+        info:
+          title: Tiny
+          version: 1.0.0
+        paths:
+          /ping:
+            get:
+              operationId: ping
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema: { type: string }
+      `,
       'utf-8'
     );
 
@@ -90,21 +92,22 @@ paths:
     const api = join(workDir, 'errmode.yaml');
     await writeFile(
       api,
-      `openapi: 3.0.3
-info:
-  title: Tiny
-  version: 1.0.0
-paths:
-  /ping:
-    get:
-      operationId: ping
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { type: string }
-`,
+      outdent`
+        openapi: 3.0.3
+        info:
+          title: Tiny
+          version: 1.0.0
+        paths:
+          /ping:
+            get:
+              operationId: ping
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema: { type: string }
+      `,
       'utf-8'
     );
 
@@ -125,31 +128,32 @@ paths:
     const api = join(workDir, 'swagger2.yaml');
     await writeFile(
       api,
-      `swagger: '2.0'
-info:
-  title: Tiny2
-  version: 1.0.0
-host: api.example.com
-basePath: /v1
-schemes: [https]
-consumes: [application/json]
-produces: [application/json]
-paths:
-  /items:
-    get:
-      operationId: listItems
-      parameters:
-        - { name: page, in: query, required: false, type: integer }
-      responses:
-        '200':
-          description: ok
-          schema: { $ref: '#/definitions/Item' }
-definitions:
-  Item:
-    type: object
-    properties:
-      id: { type: integer }
-`,
+      outdent`
+        swagger: '2.0'
+        info:
+          title: Tiny2
+          version: 1.0.0
+        host: api.example.com
+        basePath: /v1
+        schemes: [https]
+        consumes: [application/json]
+        produces: [application/json]
+        paths:
+          /items:
+            get:
+              operationId: listItems
+              parameters:
+                - { name: page, in: query, required: false, type: integer }
+              responses:
+                '200':
+                  description: ok
+                  schema: { $ref: '#/definitions/Item' }
+        definitions:
+          Item:
+            type: object
+            properties:
+              id: { type: integer }
+      `,
       'utf-8'
     );
 

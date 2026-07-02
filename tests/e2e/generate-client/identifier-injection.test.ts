@@ -9,46 +9,48 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 
-const HOSTILE_SPEC = `openapi: 3.1.0
-info:
-  title: "Evil */ ;globalThis.PWNED_TITLE=1; /*"
-  version: "1.0.0"
-  description: "desc */ ;globalThis.PWNED_DESC=1; /*"
-servers: [{ url: https://api.example.com }]
-paths:
-  /x:
-    get:
-      operationId: "foo(a){}; globalThis.PWNED_OPID=1; export async function bar"
-      security:
-        - "k(){}; globalThis.PWNED_KEY=1; export const z": []
-      responses:
-        '200':
-          description: "ok */ ;globalThis.PWNED_RESP=1; /*"
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Thing' }
-components:
-  securitySchemes:
-    "k(){}; globalThis.PWNED_KEY=1; export const z":
-      type: apiKey
-      in: header
-      name: X-Api-Key
-    other:
-      type: apiKey
-      in: header
-      name: X-Other
-  schemas:
-    Thing:
-      description: "schema */ ;globalThis.PWNED_SCHEMA=1; /*"
-      type: object
-      properties:
-        n: { type: integer }
+const HOSTILE_SPEC = outdent`
+  openapi: 3.1.0
+  info:
+    title: "Evil */ ;globalThis.PWNED_TITLE=1; /*"
+    version: "1.0.0"
+    description: "desc */ ;globalThis.PWNED_DESC=1; /*"
+  servers: [{ url: https://api.example.com }]
+  paths:
+    /x:
+      get:
+        operationId: "foo(a){}; globalThis.PWNED_OPID=1; export async function bar"
+        security:
+          - "k(){}; globalThis.PWNED_KEY=1; export const z": []
+        responses:
+          '200':
+            description: "ok */ ;globalThis.PWNED_RESP=1; /*"
+            content:
+              application/json:
+                schema: { $ref: '#/components/schemas/Thing' }
+  components:
+    securitySchemes:
+      "k(){}; globalThis.PWNED_KEY=1; export const z":
+        type: apiKey
+        in: header
+        name: X-Api-Key
+      other:
+        type: apiKey
+        in: header
+        name: X-Other
+    schemas:
+      Thing:
+        description: "schema */ ;globalThis.PWNED_SCHEMA=1; /*"
+        type: object
+        properties:
+          n: { type: integer }
 `;
 
 describe('generate-client identifier / comment injection', () => {

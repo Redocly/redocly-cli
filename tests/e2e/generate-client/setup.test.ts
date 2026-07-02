@@ -9,6 +9,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -16,12 +17,12 @@ const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/base.yaml');
 const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 
-const SETUP = `
-import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
-export default defineClientSetup({
-  config: { serverUrl: 'https://baked.example.com' },
-  middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Baked'] = 'yes'; } }],
-});
+const SETUP = outdent`
+  import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
+  export default defineClientSetup({
+    config: { serverUrl: 'https://baked.example.com' },
+    middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Baked'] = 'yes'; } }],
+  });
 `;
 
 function generate(
@@ -67,16 +68,16 @@ describe('--setup bakes publisher defaults into the single-file client', () => {
   test('a consumer with no configure/use still sends the baked URL + header', () => {
     const captured = runConsumer(
       dir,
+      outdent`
+        import { listPets } from './client.ts';
+        let url = '', header = '';
+        globalThis.fetch = (async (u: string, init: RequestInit) => {
+          url = u; header = (init.headers as Record<string,string>)['X-Baked'];
+          return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+        }) as unknown as typeof fetch;
+        await listPets();
+        console.log(JSON.stringify({ url, header }));
       `
-import { listPets } from './client.ts';
-let url = '', header = '';
-globalThis.fetch = (async (u: string, init: RequestInit) => {
-  url = u; header = (init.headers as Record<string,string>)['X-Baked'];
-  return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
-}) as unknown as typeof fetch;
-await listPets();
-console.log(JSON.stringify({ url, header }));
-`
     ) as { url: string; header: string };
     expect(new URL(captured.url).origin).toBe('https://baked.example.com');
     expect(captured.header).toBe('yes');
@@ -85,13 +86,13 @@ console.log(JSON.stringify({ url, header }));
   test('a consumer configure() overrides the baked default', () => {
     const captured = runConsumer(
       dir,
+      outdent`
+        import { configure, listPets } from './client.ts';
+        let url = '';
+        configure({ serverUrl: 'https://override.example.com', fetch: (async (u: string) => { url = u; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
+        await listPets();
+        console.log(JSON.stringify({ url }));
       `
-import { configure, listPets } from './client.ts';
-let url = '';
-configure({ serverUrl: 'https://override.example.com', fetch: (async (u: string) => { url = u; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
-await listPets();
-console.log(JSON.stringify({ url }));
-`
     ) as { url: string };
     expect(new URL(captured.url).origin).toBe('https://override.example.com');
   }, 60_000);
@@ -103,13 +104,13 @@ console.log(JSON.stringify({ url }));
       expect(r.status, r.stderr).toBe(0);
       const captured = runConsumer(
         dir2,
+        outdent`
+          import { listPets } from './client.ts';
+          let url = '', header = '';
+          globalThis.fetch = (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-Baked']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch;
+          await listPets();
+          console.log(JSON.stringify({ url, header }));
         `
-import { listPets } from './client.ts';
-let url = '', header = '';
-globalThis.fetch = (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-Baked']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch;
-await listPets();
-console.log(JSON.stringify({ url, header }));
-`
       ) as { url: string; header: string };
       expect(new URL(captured.url).origin).toBe('https://baked.example.com');
       expect(captured.header).toBe('yes');
@@ -133,15 +134,15 @@ describe('--setup with the service-class facade', () => {
   test('new Client() with no args picks up the baked defaults; a passed config overrides', () => {
     const captured = runConsumer(
       dir,
+      outdent`
+        import { PetClient } from './client.ts';
+        const fetchSpy = (sink: { url: string; header: string }) => (async (u: string, init: RequestInit) => { sink.url = u; sink.header = (init.headers as Record<string,string>)['X-Baked']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch;
+        const baked = { url: '', header: '' };
+        await new PetClient({ fetch: fetchSpy(baked) }).listPets();
+        const overridden = { url: '', header: '' };
+        await new PetClient({ serverUrl: 'https://override.example.com', fetch: fetchSpy(overridden) }).listPets();
+        console.log(JSON.stringify({ baked, overridden }));
       `
-import { PetClient } from './client.ts';
-const fetchSpy = (sink: { url: string; header: string }) => (async (u: string, init: RequestInit) => { sink.url = u; sink.header = (init.headers as Record<string,string>)['X-Baked']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch;
-const baked = { url: '', header: '' };
-await new PetClient({ fetch: fetchSpy(baked) }).listPets();
-const overridden = { url: '', header: '' };
-await new PetClient({ serverUrl: 'https://override.example.com', fetch: fetchSpy(overridden) }).listPets();
-console.log(JSON.stringify({ baked, overridden }));
-`
     ) as { baked: { url: string; header: string }; overridden: { url: string } };
     expect(new URL(captured.baked.url).origin).toBe('https://baked.example.com');
     expect(captured.baked.header).toBe('yes');

@@ -15,6 +15,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -22,51 +23,52 @@ const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 
-const SPEC = `openapi: 3.0.3
-info:
-  title: Odd Names API
-  version: 1.0.0
-servers:
-  - url: https://api.example.com
-paths:
-  /widgets/{widget-id}:
-    get:
-      operationId: getWidget
-      parameters:
-        - name: widget-id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-  /items/{new}:
-    get:
-      operationId: getItem
-      parameters:
-        - name: new
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
+const SPEC = outdent`
+  openapi: 3.0.3
+  info:
+    title: Odd Names API
+    version: 1.0.0
+  servers:
+    - url: https://api.example.com
+  paths:
+    /widgets/{widget-id}:
+      get:
+        operationId: getWidget
+        parameters:
+          - name: widget-id
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: ok
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+    /items/{new}:
+      get:
+        operationId: getItem
+        parameters:
+          - name: new
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: ok
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: string
 `;
 
 const TSCONFIG = JSON.stringify({
@@ -123,21 +125,21 @@ describe('non-identifier path parameters', () => {
   }, 60_000);
 
   test('builds the request URL from the argument value', () => {
-    const consumer = `
-import { configure, getWidget, getItem } from './client.ts';
+    const consumer = outdent`
+      import { configure, getWidget, getItem } from './client.ts';
 
-const urls: string[] = [];
-configure({
-  fetch: (async (url: string) => {
-    urls.push(url);
-    return new Response('{"id":"x"}', { status: 200, headers: { 'content-type': 'application/json' } });
-  }) as unknown as typeof fetch,
-});
+      const urls: string[] = [];
+      configure({
+        fetch: (async (url: string) => {
+          urls.push(url);
+          return new Response('{"id":"x"}', { status: 200, headers: { 'content-type': 'application/json' } });
+        }) as unknown as typeof fetch,
+      });
 
-await getWidget('abc');
-await getItem('xyz');
-console.log(JSON.stringify(urls));
-`;
+      await getWidget('abc');
+      await getItem('xyz');
+      console.log(JSON.stringify(urls));
+    `;
     writeFileSync(join(dir, 'consumer.ts'), consumer, 'utf-8');
     const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
       encoding: 'utf-8',

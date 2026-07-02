@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -132,29 +133,30 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     const driver = join(dir, 'driver.ts');
     writeFileSync(
       driver,
-      `import * as http from 'node:http';
-import { getBearer, getQuery, setServerUrl, setBearer, setApiKeyQueryKey } from './client.js';
+      outdent`
+        import * as http from 'node:http';
+        import { getBearer, getQuery, setServerUrl, setBearer, setApiKeyQueryKey } from './client.js';
 
-const captured: Array<{ url: string; auth?: string }> = [];
-const server = http.createServer((req, res) => {
-  captured.push({ url: req.url ?? '', auth: req.headers['authorization'] as string | undefined });
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ id: 'x' }));
-});
+        const captured: Array<{ url: string; auth?: string }> = [];
+        const server = http.createServer((req, res) => {
+          captured.push({ url: req.url ?? '', auth: req.headers['authorization'] as string | undefined });
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ id: 'x' }));
+        });
 
-async function main() {
-  await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
-  const port = (server.address() as { port: number }).port;
-  setServerUrl('http://127.0.0.1:' + port);
-  setBearer(async () => 'tok');
-  await getBearer();
-  setApiKeyQueryKey('secret-key');
-  await getQuery({ limit: 5 });
-  await new Promise<void>((r) => server.close(() => r()));
-  process.stdout.write(JSON.stringify(captured));
-}
-main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
-`,
+        async function main() {
+          await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+          const port = (server.address() as { port: number }).port;
+          setServerUrl('http://127.0.0.1:' + port);
+          setBearer(async () => 'tok');
+          await getBearer();
+          setApiKeyQueryKey('secret-key');
+          await getQuery({ limit: 5 });
+          await new Promise<void>((r) => server.close(() => r()));
+          process.stdout.write(JSON.stringify(captured));
+        }
+        main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
+      `,
       'utf-8'
     );
     const run = spawnSync('npx', ['tsx', driver], { encoding: 'utf-8', cwd: repoRoot });

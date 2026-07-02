@@ -7,6 +7,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -49,34 +50,34 @@ describe('retry behavior', () => {
   test('retries a GET on 503 then succeeds; default is no retry', () => {
     const result = runConsumer(
       dir,
+      outdent`
+        import { configure, listPets } from './client.ts';
+
+        let calls = 0;
+        const makeFetch = (failures: number) =>
+          (async () => {
+            calls++;
+            if (calls <= failures) {
+              return new Response('busy', { status: 503, headers: { 'content-type': 'text/plain' } });
+            }
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch;
+
+        // retries: 0 (default) → one call, throws.
+        calls = 0;
+        configure({ fetch: makeFetch(1) });
+        let defaultThrew = false;
+        try { await listPets(); } catch { defaultThrew = true; }
+        const defaultCalls = calls;
+
+        // retries: 3, fast backoff → recovers after 2 failures.
+        calls = 0;
+        configure({ fetch: makeFetch(2), retry: { retries: 3, retryDelay: 1 } });
+        await listPets();
+        const retryCalls = calls;
+
+        console.log(JSON.stringify({ defaultThrew, defaultCalls, retryCalls }));
       `
-import { configure, listPets } from './client.ts';
-
-let calls = 0;
-const makeFetch = (failures: number) =>
-  (async () => {
-    calls++;
-    if (calls <= failures) {
-      return new Response('busy', { status: 503, headers: { 'content-type': 'text/plain' } });
-    }
-    return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
-  }) as unknown as typeof fetch;
-
-// retries: 0 (default) → one call, throws.
-calls = 0;
-configure({ fetch: makeFetch(1) });
-let defaultThrew = false;
-try { await listPets(); } catch { defaultThrew = true; }
-const defaultCalls = calls;
-
-// retries: 3, fast backoff → recovers after 2 failures.
-calls = 0;
-configure({ fetch: makeFetch(2), retry: { retries: 3, retryDelay: 1 } });
-await listPets();
-const retryCalls = calls;
-
-console.log(JSON.stringify({ defaultThrew, defaultCalls, retryCalls }));
-`
     ) as { defaultThrew: boolean; defaultCalls: number; retryCalls: number };
 
     expect(result.defaultThrew).toBe(true);
@@ -87,30 +88,30 @@ console.log(JSON.stringify({ defaultThrew, defaultCalls, retryCalls }));
   test('drains the unread body of a retried response before the next attempt', () => {
     const result = runConsumer(
       dir,
+      outdent`
+        import { configure, listPets } from './client.ts';
+
+        let calls = 0;
+        let cancelled = 0;
+        // A 503 whose body cancellation is observable, then a 200 success.
+        const makeFetch = () =>
+          (async () => {
+            calls++;
+            if (calls === 1) {
+              const body = new ReadableStream({
+                start(c) { c.enqueue(new TextEncoder().encode('busy')); c.close(); },
+                cancel() { cancelled++; },
+              });
+              return new Response(body, { status: 503, headers: { 'content-type': 'text/plain' } });
+            }
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch;
+
+        configure({ fetch: makeFetch(), retry: { retries: 3, retryDelay: 1 } });
+        await listPets();
+
+        console.log(JSON.stringify({ calls, cancelled }));
       `
-import { configure, listPets } from './client.ts';
-
-let calls = 0;
-let cancelled = 0;
-// A 503 whose body cancellation is observable, then a 200 success.
-const makeFetch = () =>
-  (async () => {
-    calls++;
-    if (calls === 1) {
-      const body = new ReadableStream({
-        start(c) { c.enqueue(new TextEncoder().encode('busy')); c.close(); },
-        cancel() { cancelled++; },
-      });
-      return new Response(body, { status: 503, headers: { 'content-type': 'text/plain' } });
-    }
-    return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
-  }) as unknown as typeof fetch;
-
-configure({ fetch: makeFetch(), retry: { retries: 3, retryDelay: 1 } });
-await listPets();
-
-console.log(JSON.stringify({ calls, cancelled }));
-`
     ) as { calls: number; cancelled: number };
 
     expect(result.calls).toBe(2); // 1 failure + 1 success
@@ -120,29 +121,29 @@ console.log(JSON.stringify({ calls, cancelled }));
   test('does NOT retry a non-idempotent POST by default, but does when retryOn opts in', () => {
     const result = runConsumer(
       dir,
+      outdent`
+        import { configure, createPet } from './client.ts';
+
+        let calls = 0;
+        const failing = (async () => {
+          calls++;
+          return new Response('err', { status: 503, headers: { 'content-type': 'text/plain' } });
+        }) as unknown as typeof fetch;
+
+        // default predicate: POST is not idempotent → no retry.
+        calls = 0;
+        configure({ fetch: failing, retry: { retries: 3, retryDelay: 1 } });
+        try { await createPet({ name: 'x' } as any); } catch {}
+        const defaultCalls = calls;
+
+        // retryOn: () => true → POST retried.
+        calls = 0;
+        configure({ fetch: failing, retry: { retries: 3, retryDelay: 1, retryOn: () => true } });
+        try { await createPet({ name: 'x' } as any); } catch {}
+        const optInCalls = calls;
+
+        console.log(JSON.stringify({ defaultCalls, optInCalls }));
       `
-import { configure, createPet } from './client.ts';
-
-let calls = 0;
-const failing = (async () => {
-  calls++;
-  return new Response('err', { status: 503, headers: { 'content-type': 'text/plain' } });
-}) as unknown as typeof fetch;
-
-// default predicate: POST is not idempotent → no retry.
-calls = 0;
-configure({ fetch: failing, retry: { retries: 3, retryDelay: 1 } });
-try { await createPet({ name: 'x' } as any); } catch {}
-const defaultCalls = calls;
-
-// retryOn: () => true → POST retried.
-calls = 0;
-configure({ fetch: failing, retry: { retries: 3, retryDelay: 1, retryOn: () => true } });
-try { await createPet({ name: 'x' } as any); } catch {}
-const optInCalls = calls;
-
-console.log(JSON.stringify({ defaultCalls, optInCalls }));
-`
     ) as { defaultCalls: number; optInCalls: number };
 
     expect(result.defaultCalls).toBe(1); // POST not retried by default
@@ -152,28 +153,28 @@ console.log(JSON.stringify({ defaultCalls, optInCalls }));
   test('aborting during backoff stops retries and rejects', () => {
     const result = runConsumer(
       dir,
+      outdent`
+        import { configure, listPets } from './client.ts';
+
+        let calls = 0;
+        const failing = (async () => {
+          calls++;
+          return new Response('err', { status: 503, headers: { 'content-type': 'text/plain' } });
+        }) as unknown as typeof fetch;
+
+        configure({ fetch: failing, retry: { retries: 5, retryDelay: 50 } });
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 10);
+
+        let aborted = false;
+        try {
+          // listPets takes (params, init); the signal belongs on init.
+          await listPets({}, { signal: controller.signal });
+        } catch (e) {
+          aborted = (e as Error).name === 'AbortError';
+        }
+        console.log(JSON.stringify({ aborted, calls }));
       `
-import { configure, listPets } from './client.ts';
-
-let calls = 0;
-const failing = (async () => {
-  calls++;
-  return new Response('err', { status: 503, headers: { 'content-type': 'text/plain' } });
-}) as unknown as typeof fetch;
-
-configure({ fetch: failing, retry: { retries: 5, retryDelay: 50 } });
-const controller = new AbortController();
-setTimeout(() => controller.abort(), 10);
-
-let aborted = false;
-try {
-  // listPets takes (params, init); the signal belongs on init.
-  await listPets({}, { signal: controller.signal });
-} catch (e) {
-  aborted = (e as Error).name === 'AbortError';
-}
-console.log(JSON.stringify({ aborted, calls }));
-`
     ) as { aborted: boolean; calls: number };
 
     expect(result.aborted).toBe(true);

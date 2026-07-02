@@ -9,6 +9,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -57,24 +58,24 @@ describe('middleware — functions facade (use)', () => {
   test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', () => {
     const captured = runConsumer(
       dir,
-      `
-import { configure, use, listPets } from './client.ts';
+      outdent`
+        import { configure, use, listPets } from './client.ts';
 
-const order: string[] = [];
-let headers: Record<string, string> = {};
-configure({
-  fetch: (async (_url: string, init: RequestInit) => {
-    headers = init.headers as Record<string, string>;
-    return ${OK};
-  }) as unknown as typeof fetch,
-});
-use(
-  { onRequest: (ctx) => { order.push('req-A'); ctx.headers['X-A'] = '1'; }, onResponse: () => { order.push('res-A'); } },
-  { onRequest: (ctx) => { order.push('req-B'); ctx.headers['X-B'] = '1'; }, onResponse: () => { order.push('res-B'); } },
-);
-await listPets();
-console.log(JSON.stringify({ order, hasA: 'X-A' in headers, hasB: 'X-B' in headers }));
-`
+        const order: string[] = [];
+        let headers: Record<string, string> = {};
+        configure({
+          fetch: (async (_url: string, init: RequestInit) => {
+            headers = init.headers as Record<string, string>;
+            return ${OK};
+          }) as unknown as typeof fetch,
+        });
+        use(
+          { onRequest: (ctx) => { order.push('req-A'); ctx.headers['X-A'] = '1'; }, onResponse: () => { order.push('res-A'); } },
+          { onRequest: (ctx) => { order.push('req-B'); ctx.headers['X-B'] = '1'; }, onResponse: () => { order.push('res-B'); } },
+        );
+        await listPets();
+        console.log(JSON.stringify({ order, hasA: 'X-A' in headers, hasB: 'X-B' in headers }));
+      `
     ) as { order: string[]; hasA: boolean; hasB: boolean };
 
     expect(captured.order).toEqual(['req-A', 'req-B', 'res-B', 'res-A']);
@@ -85,23 +86,23 @@ console.log(JSON.stringify({ order, hasA: 'X-A' in headers, hasB: 'X-B' in heade
   test('onError threads through each middleware in turn', () => {
     const result = runConsumer(
       dir,
-      `
-import { configure, use, getPetById, type ApiError } from './client.ts';
+      outdent`
+        import { configure, use, getPetById, type ApiError } from './client.ts';
 
-configure({
-  fetch: (async () => new Response('{}', { status: 500, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
-});
-use(
-  { onError: (e: ApiError) => new Error('first:' + e.status) },
-  { onError: (e) => new Error('second:' + e.message) },
-);
-try {
-  await getPetById(1);
-  console.log(JSON.stringify({ threw: false }));
-} catch (e) {
-  console.log(JSON.stringify({ threw: true, message: (e as Error).message }));
-}
-`
+        configure({
+          fetch: (async () => new Response('{}', { status: 500, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
+        });
+        use(
+          { onError: (e: ApiError) => new Error('first:' + e.status) },
+          { onError: (e) => new Error('second:' + e.message) },
+        );
+        try {
+          await getPetById(1);
+          console.log(JSON.stringify({ threw: false }));
+        } catch (e) {
+          console.log(JSON.stringify({ threw: true, message: (e as Error).message }));
+        }
+      `
     ) as { threw: boolean; message: string };
 
     expect(result.threw).toBe(true);
@@ -111,15 +112,15 @@ try {
   test('use() does not mutate a caller-provided middleware array (no cross-client leak)', () => {
     const result = runConsumer(
       dir,
-      `
-import { configure, use, listPets, type Middleware } from './client.ts';
+      outdent`
+        import { configure, use, listPets, type Middleware } from './client.ts';
 
-const mine: Middleware[] = [];
-configure({ middleware: mine, fetch: (async () => ${OK}) as unknown as typeof fetch });
-use({ onRequest: () => {} });
-await listPets();
-console.log(JSON.stringify({ mineLength: mine.length }));
-`
+        const mine: Middleware[] = [];
+        configure({ middleware: mine, fetch: (async () => ${OK}) as unknown as typeof fetch });
+        use({ onRequest: () => {} });
+        await listPets();
+        console.log(JSON.stringify({ mineLength: mine.length }));
+      `
     ) as { mineLength: number };
 
     // use() must append to a fresh array, not push into the array the caller passed.
@@ -129,18 +130,18 @@ console.log(JSON.stringify({ mineLength: mine.length }));
   test('the single config.onRequest hook still runs (as an implicit first middleware)', () => {
     const captured = runConsumer(
       dir,
-      `
-import { configure, use, listPets } from './client.ts';
+      outdent`
+        import { configure, use, listPets } from './client.ts';
 
-const order: string[] = [];
-configure({
-  onRequest: () => { order.push('config'); },
-  fetch: (async () => ${OK}) as unknown as typeof fetch,
-});
-use({ onRequest: () => { order.push('mw'); } });
-await listPets();
-console.log(JSON.stringify({ order }));
-`
+        const order: string[] = [];
+        configure({
+          onRequest: () => { order.push('config'); },
+          fetch: (async () => ${OK}) as unknown as typeof fetch,
+        });
+        use({ onRequest: () => { order.push('mw'); } });
+        await listPets();
+        console.log(JSON.stringify({ order }));
+      `
     ) as { order: string[] };
 
     expect(captured.order).toEqual(['config', 'mw']);
@@ -149,15 +150,15 @@ console.log(JSON.stringify({ order }));
   test('onRequest sees ctx.operation { id, path, tags }', () => {
     const captured = runConsumer(
       dir,
-      `
-import { configure, use, createPet } from './client.ts';
+      outdent`
+        import { configure, use, createPet } from './client.ts';
 
-let op: unknown;
-configure({ fetch: (async () => ${OK}) as unknown as typeof fetch });
-use({ onRequest: (ctx) => { op = ctx.operation; } });
-await createPet({ name: 'Rex' });
-console.log(JSON.stringify({ op }));
-`
+        let op: unknown;
+        configure({ fetch: (async () => ${OK}) as unknown as typeof fetch });
+        use({ onRequest: (ctx) => { op = ctx.operation; } });
+        await createPet({ name: 'Rex' });
+        console.log(JSON.stringify({ op }));
+      `
     ) as { op: { id: string; path: string; tags: string[] } };
 
     expect(captured.op.id).toBe('createPet');
@@ -168,17 +169,17 @@ console.log(JSON.stringify({ op }));
   test('onRequest can mutate ctx.body and the change is sent', () => {
     const captured = runConsumer(
       dir,
-      `
-import { configure, use, createPet } from './client.ts';
+      outdent`
+        import { configure, use, createPet } from './client.ts';
 
-let sent = '';
-configure({
-  fetch: (async (_url: string, init: RequestInit) => { sent = init.body as string; return ${OK}; }) as unknown as typeof fetch,
-});
-use({ onRequest: (ctx) => { (ctx.body as { name: string }).name = 'Mutated'; } });
-await createPet({ name: 'Rex' });
-console.log(JSON.stringify({ sent }));
-`
+        let sent = '';
+        configure({
+          fetch: (async (_url: string, init: RequestInit) => { sent = init.body as string; return ${OK}; }) as unknown as typeof fetch,
+        });
+        use({ onRequest: (ctx) => { (ctx.body as { name: string }).name = 'Mutated'; } });
+        await createPet({ name: 'Rex' });
+        console.log(JSON.stringify({ sent }));
+      `
     ) as { sent: string };
 
     expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
@@ -198,14 +199,14 @@ describe('middleware — multi-file output (split)', () => {
   test('configure() and use() are re-exported by the entry barrel and affect operations', () => {
     const captured = runConsumer(
       dir,
+      outdent`
+        import { configure, use, listPets } from './client.ts';
+        let url = '', header = '';
+        configure({ serverUrl: 'https://multi.example.com', fetch: (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-MW']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
+        use({ onRequest: (ctx) => { ctx.headers['X-MW'] = 'yes'; } });
+        await listPets();
+        console.log(JSON.stringify({ url, header }));
       `
-import { configure, use, listPets } from './client.ts';
-let url = '', header = '';
-configure({ serverUrl: 'https://multi.example.com', fetch: (async (u: string, init: RequestInit) => { url = u; header = (init.headers as Record<string,string>)['X-MW']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch });
-use({ onRequest: (ctx) => { ctx.headers['X-MW'] = 'yes'; } });
-await listPets();
-console.log(JSON.stringify({ url, header }));
-`
     ) as { url: string; header: string };
     expect(new URL(captured.url).origin).toBe('https://multi.example.com');
     expect(captured.header).toBe('yes');
@@ -225,21 +226,21 @@ describe('middleware — result error mode', () => {
   test('onRequest/onResponse run; onError does not fire (the error is returned, not thrown)', () => {
     const result = runConsumer(
       dir,
-      `
-import { configure, use, getPetById } from './client.ts';
+      outdent`
+        import { configure, use, getPetById } from './client.ts';
 
-const ran: string[] = [];
-configure({
-  fetch: (async () => new Response('{"bad":true}', { status: 500, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
-});
-use({
-  onRequest: () => { ran.push('req'); },
-  onResponse: () => { ran.push('res'); },
-  onError: () => { ran.push('err'); return new Error('should-not-run'); },
-});
-const r = await getPetById(1) as { error: unknown; data: unknown };
-console.log(JSON.stringify({ ran, hasError: r.error !== undefined, hasData: r.data !== undefined }));
-`
+        const ran: string[] = [];
+        configure({
+          fetch: (async () => new Response('{"bad":true}', { status: 500, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
+        });
+        use({
+          onRequest: () => { ran.push('req'); },
+          onResponse: () => { ran.push('res'); },
+          onError: () => { ran.push('err'); return new Error('should-not-run'); },
+        });
+        const r = await getPetById(1) as { error: unknown; data: unknown };
+        console.log(JSON.stringify({ ran, hasError: r.error !== undefined, hasData: r.data !== undefined }));
+      `
     ) as { ran: string[]; hasError: boolean; hasData: boolean };
 
     // onRequest + onResponse ran; onError did NOT (result mode returns the error).
@@ -262,18 +263,18 @@ describe('middleware — service-class facade (use + constructor)', () => {
   test('constructor middleware runs before instance .use() middleware', () => {
     const captured = runConsumer(
       dir,
-      `
-import { PetClient } from './client.ts';
+      outdent`
+        import { PetClient } from './client.ts';
 
-const order: string[] = [];
-const client = new PetClient({
-  fetch: (async () => ${OK}) as unknown as typeof fetch,
-  middleware: [{ onRequest: () => { order.push('ctor'); } }],
-});
-client.use({ onRequest: () => { order.push('use'); } });
-await client.listPets();
-console.log(JSON.stringify({ order }));
-`
+        const order: string[] = [];
+        const client = new PetClient({
+          fetch: (async () => ${OK}) as unknown as typeof fetch,
+          middleware: [{ onRequest: () => { order.push('ctor'); } }],
+        });
+        client.use({ onRequest: () => { order.push('use'); } });
+        await client.listPets();
+        console.log(JSON.stringify({ order }));
+      `
     ) as { order: string[] };
 
     expect(captured.order).toEqual(['ctor', 'use']);

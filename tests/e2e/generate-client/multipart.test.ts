@@ -8,6 +8,7 @@ import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync }
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
@@ -22,25 +23,26 @@ function collectTsFiles(d: string): string[] {
   });
 }
 
-const SPEC = `openapi: 3.1.0
-info: { title: M, version: 1.0.0 }
-paths:
-  /upload:
-    post:
-      operationId: upload
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [file, orgId]
-              properties:
-                file: { type: string, format: binary }
-                orgId: { type: string }
-                tags: { type: array, items: { type: string } }
-                meta: { type: object }
-      responses: { '200': { description: ok } }
+const SPEC = outdent`
+  openapi: 3.1.0
+  info: { title: M, version: 1.0.0 }
+  paths:
+    /upload:
+      post:
+        operationId: upload
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                required: [file, orgId]
+                properties:
+                  file: { type: string, format: binary }
+                  orgId: { type: string }
+                  tags: { type: array, items: { type: string } }
+                  meta: { type: object }
+        responses: { '200': { description: ok } }
 `;
 
 describe('generate-client typed multipart body (#5)', () => {
@@ -66,29 +68,29 @@ describe('generate-client typed multipart body (#5)', () => {
 
     writeFileSync(
       join(dir, 'consumer.ts'),
-      `
-import { configure, upload } from './client.ts';
+      outdent`
+        import { configure, upload } from './client.ts';
 
-let body: unknown;
-configure({
-  fetch: (async (_url: string, init: RequestInit) => {
-    body = init.body;
-    return new Response('', { status: 200 });
-  }) as unknown as typeof fetch,
-});
+        let body: unknown;
+        configure({
+          fetch: (async (_url: string, init: RequestInit) => {
+            body = init.body;
+            return new Response('', { status: 200 });
+          }) as unknown as typeof fetch,
+        });
 
-const file = new Blob(['hello'], { type: 'text/plain' });
-await upload({ file, orgId: 'org_1', tags: ['a', 'b'], meta: { k: 'v' } });
+        const file = new Blob(['hello'], { type: 'text/plain' });
+        await upload({ file, orgId: 'org_1', tags: ['a', 'b'], meta: { k: 'v' } });
 
-const fd = body as FormData;
-console.log(JSON.stringify({
-  isFormData: fd instanceof FormData,
-  orgId: fd.get('orgId'),
-  fileIsBlob: fd.get('file') instanceof Blob,
-  tags: fd.getAll('tags'),
-  meta: fd.get('meta'),
-}));
-`,
+        const fd = body as FormData;
+        console.log(JSON.stringify({
+          isFormData: fd instanceof FormData,
+          orgId: fd.get('orgId'),
+          fileIsBlob: fd.get('file') instanceof Blob,
+          tags: fd.getAll('tags'),
+          meta: fd.get('meta'),
+        }));
+      `,
       'utf-8'
     );
     const run = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
@@ -119,26 +121,26 @@ console.log(JSON.stringify({
 
     writeFileSync(
       join(dir, 'consumer.ts'),
-      `
-import { configure, use, upload } from './client.ts';
+      outdent`
+        import { configure, use, upload } from './client.ts';
 
-let body: unknown;
-configure({
-  fetch: (async (_url: string, init: RequestInit) => {
-    body = init.body;
-    return new Response('', { status: 200 });
-  }) as unknown as typeof fetch,
-});
-// A multipart op must expose the plain body object to onRequest (not pre-built FormData);
-// mutating it has to be reflected in the FormData that __send serializes afterwards.
-use({ onRequest: (ctx) => { (ctx.body as { orgId: string }).orgId = 'mutated'; } });
+        let body: unknown;
+        configure({
+          fetch: (async (_url: string, init: RequestInit) => {
+            body = init.body;
+            return new Response('', { status: 200 });
+          }) as unknown as typeof fetch,
+        });
+        // A multipart op must expose the plain body object to onRequest (not pre-built FormData);
+        // mutating it has to be reflected in the FormData that __send serializes afterwards.
+        use({ onRequest: (ctx) => { (ctx.body as { orgId: string }).orgId = 'mutated'; } });
 
-const file = new Blob(['hi'], { type: 'text/plain' });
-await upload({ file, orgId: 'org_1' });
+        const file = new Blob(['hi'], { type: 'text/plain' });
+        await upload({ file, orgId: 'org_1' });
 
-const fd = body as FormData;
-console.log(JSON.stringify({ isFormData: fd instanceof FormData, orgId: fd.get('orgId') }));
-`,
+        const fd = body as FormData;
+        console.log(JSON.stringify({ isFormData: fd instanceof FormData, orgId: fd.get('orgId') }));
+      `,
       'utf-8'
     );
     const run = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
