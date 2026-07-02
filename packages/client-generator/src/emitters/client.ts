@@ -1,4 +1,8 @@
-import type { ApiModel, OperationModel, SecuritySchemeModel } from '../intermediate-representation/model.js';
+import type {
+  ApiModel,
+  OperationModel,
+  SecuritySchemeModel,
+} from '../intermediate-representation/model.js';
 import { collectOperationRefs } from '../intermediate-representation/refs.js';
 import { authSetterNames, authStatements, authTypeNames } from './auth.js';
 import {
@@ -473,7 +477,13 @@ function publicReexportNodes(
   errorMode: 'throw' | 'result' | undefined,
   hasSse: boolean
 ): ts.ExportDeclaration[] {
-  const values = ['ApiError', 'configure', 'use', 'setServerUrl', ...authSetterNames(schemes)].sort();
+  const values = [
+    'ApiError',
+    'configure',
+    'use',
+    'setServerUrl',
+    ...authSetterNames(schemes),
+  ].sort();
   const types = [
     ...PUBLIC_RUNTIME_TYPES,
     ...authTypeNames(schemes),

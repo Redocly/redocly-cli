@@ -9,7 +9,12 @@
 // consumer can flip `mockData` without touching call sites; `@faker-js/faker`
 // becomes their dev-dep while the real client stays dependency-free.
 
-import type { NamedSchemaModel, ScalarKind, SchemaMetadata, SchemaModel } from '../intermediate-representation/model.js';
+import type {
+  NamedSchemaModel,
+  ScalarKind,
+  SchemaMetadata,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
 import { constArray, ts } from './ts.js';
 

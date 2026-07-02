@@ -1,6 +1,11 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import type { NamedSchemaModel, ScalarKind, SchemaMetadata, SchemaModel } from '../intermediate-representation/model.js';
+import type {
+  NamedSchemaModel,
+  ScalarKind,
+  SchemaMetadata,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
 import type { DateType } from './types.js';
 
 /** A sampled value the emitter must print as a raw TS expression rather than a JSON

@@ -1,4 +1,8 @@
-import type { OperationModel, ResponseBodyModel, SchemaModel } from '../intermediate-representation/model.js';
+import type {
+  OperationModel,
+  ResponseBodyModel,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
 import { ts } from './ts.js';
 import { type DateType, schemaToTypeNode } from './types.js';
 

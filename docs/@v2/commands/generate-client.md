@@ -28,24 +28,24 @@ With **no argument**, a client is generated for every api that declares a `clien
 
 ## Options
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `api` | `string` | OpenAPI description file path, URL, or an `apis:` alias. Omit it to generate for every api that has a `client` block. |
-| `--output`, `-o` | `string` | Output path (must end in `.ts`); the entry file in multi-file modes. Defaults to the api's `clientOutput`, else `<name>.client.ts` in the config dir. Not allowed when generating for multiple apis. |
-| `--output-mode` | `string` | File layout: `single` (default), `split` (endpoints/schemas/runtime in sibling files), `tags` (one endpoints file per tag), or `tags-split` (a folder per tag). |
-| `--generators` | `string` | Comma-separated generators to run (default `sdk`). See [Generators](#generators). |
-| `--facade` | `string` | Operation shape: `functions` (default, standalone functions) or `service-class` (methods on a `Client` class). |
-| `--name` | `string` | Class name for the `service-class` facade in `single`/`split` layouts. Default `Client`. |
-| `--args-style` | `string` | Operation inputs: `flat` (default, positional) or `grouped` (a single `vars` object). See [Argument style](#argument-style). |
-| `--enum-style` | `string` | Named string enums: `const-object` (default, `as const` object + union) or `union` (union only). |
-| `--error-mode` | `string` | `throw` (default, throws `ApiError`) or `result` (returns `{ data, error, response }`). See [Error handling](#error-handling). |
-| `--date-type` | `string` | `date`/`date-time` fields as `string` (default) or `Date` (pair with the `transformers` generator). |
-| `--query-framework` | `string` | TanStack Query adapter: `react` (default), `vue`, `svelte`, or `solid`. |
-| `--mock-data` | `string` | `mock` generator data: `baked` (default, deterministic literals) or `faker` (`@faker-js/faker` calls). |
-| `--mock-seed` | `number` | Seed for `faker`-mode mocks, for reproducible data. Ignored in `baked` mode. |
-| `--server-url` | `string` | Override the server URL inlined into the runtime. Defaults to `servers[0].url`. Accepts absolute (`https://api.example.com`) or relative (`/v1`). |
-| `--setup` | `string` | Path to a publisher setup module baked into the client. See [Publisher defaults](#publisher-defaults). |
-| `--config` | `string` | Path to the `redocly.yaml` (the `client` config and `apis:` live there). Defaults to the one in the working directory. |
+| Option              | Type     | Description                                                                                                                                                                                          |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api`               | `string` | OpenAPI description file path, URL, or an `apis:` alias. Omit it to generate for every api that has a `client` block.                                                                                |
+| `--output`, `-o`    | `string` | Output path (must end in `.ts`); the entry file in multi-file modes. Defaults to the api's `clientOutput`, else `<name>.client.ts` in the config dir. Not allowed when generating for multiple apis. |
+| `--output-mode`     | `string` | File layout: `single` (default), `split` (endpoints/schemas/runtime in sibling files), `tags` (one endpoints file per tag), or `tags-split` (a folder per tag).                                      |
+| `--generators`      | `string` | Comma-separated generators to run (default `sdk`). See [Generators](#generators).                                                                                                                    |
+| `--facade`          | `string` | Operation shape: `functions` (default, standalone functions) or `service-class` (methods on a `Client` class).                                                                                       |
+| `--name`            | `string` | Class name for the `service-class` facade in `single`/`split` layouts. Default `Client`.                                                                                                             |
+| `--args-style`      | `string` | Operation inputs: `flat` (default, positional) or `grouped` (a single `vars` object). See [Argument style](#argument-style).                                                                         |
+| `--enum-style`      | `string` | Named string enums: `const-object` (default, `as const` object + union) or `union` (union only).                                                                                                     |
+| `--error-mode`      | `string` | `throw` (default, throws `ApiError`) or `result` (returns `{ data, error, response }`). See [Error handling](#error-handling).                                                                       |
+| `--date-type`       | `string` | `date`/`date-time` fields as `string` (default) or `Date` (pair with the `transformers` generator).                                                                                                  |
+| `--query-framework` | `string` | TanStack Query adapter: `react` (default), `vue`, `svelte`, or `solid`.                                                                                                                              |
+| `--mock-data`       | `string` | `mock` generator data: `baked` (default, deterministic literals) or `faker` (`@faker-js/faker` calls).                                                                                               |
+| `--mock-seed`       | `number` | Seed for `faker`-mode mocks, for reproducible data. Ignored in `baked` mode.                                                                                                                         |
+| `--server-url`      | `string` | Override the server URL inlined into the runtime. Defaults to `servers[0].url`. Accepts absolute (`https://api.example.com`) or relative (`/v1`).                                                    |
+| `--setup`           | `string` | Path to a publisher setup module baked into the client. See [Publisher defaults](#publisher-defaults).                                                                                               |
+| `--config`          | `string` | Path to the `redocly.yaml` (the `client` config and `apis:` live there). Defaults to the one in the working directory.                                                                               |
 
 ## Configuration
 
@@ -77,14 +77,14 @@ Settings resolve **top-level `client` → per-API `client` → CLI flags** (late
 
 `--generators` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so it stays dependency-free. Incompatible selections fail fast with an explanation.
 
-| Generator | Emits | App peer dependency |
-| --- | --- | --- |
-| `sdk` | The typed client (default). | none |
-| `zod` | `<output>.zod.ts` — [Zod](https://zod.dev) schemas. | `zod` `^3.23 \|\| ^4` |
-| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories. | `@tanstack/<framework>-query` `^5` |
-| `swr` | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks. | `swr` `^2` |
-| `mock` | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories. | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
-| `transformers` | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`. | none |
+| Generator        | Emits                                                                                     | App peer dependency                                      |
+| ---------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `sdk`            | The typed client (default).                                                               | none                                                     |
+| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas.                                       | `zod` `^3.23 \|\| ^4`                                    |
+| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories.       | `@tanstack/<framework>-query` `^5`                       |
+| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                  | `swr` `^2`                                               |
+| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.   | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
+| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`. | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generators sdk,zod,mock
@@ -96,10 +96,10 @@ redocly generate-client openapi.yaml --output src/client.ts --generators sdk,zod
 
 A setter is generated for each `securityScheme` the runtime can apply, and each operation automatically sends the credentials its `security` requires:
 
-| Scheme | Setter | Applied as |
-| --- | --- | --- |
-| HTTP `bearer` / OAuth2 | `setBearer(token)` | `Authorization: Bearer <token>` |
-| HTTP `basic` | `setBasicAuth(user, pass)` | `Authorization: Basic <base64>` |
+| Scheme                         | Setter                                    | Applied as                               |
+| ------------------------------ | ----------------------------------------- | ---------------------------------------- |
+| HTTP `bearer` / OAuth2         | `setBearer(token)`                        | `Authorization: Bearer <token>`          |
+| HTTP `basic`                   | `setBasicAuth(user, pass)`                | `Authorization: Basic <base64>`          |
 | `apiKey` (header/query/cookie) | `setApiKey(key)` / `setApiKey<Name>(key)` | the named header, query param, or cookie |
 
 `setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`. `mutualTLS` is not injectable. Bearer and apiKey setters accept a **`TokenProvider`** — a string or a (possibly async) function called per request, handy for refresh flows:
@@ -180,7 +180,13 @@ import { defineClientSetup, type RequestContext } from '@redocly/client-generato
 
 export default defineClientSetup({
   config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
-  middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Acme-SDK'] = '1.4.0'; } }],
+  middleware: [
+    {
+      onRequest: (ctx: RequestContext) => {
+        ctx.headers['X-Acme-SDK'] = '1.4.0';
+      },
+    },
+  ],
 });
 ```
 
@@ -195,20 +201,20 @@ The baked block runs before the consumer's own setup. **Config values** are last
 Retry is **opt-in**, configured through `ClientConfig` with an optional per-call override:
 
 ```ts
-configure({ retry: { retries: 3 } });                          // global (functions facade)
-const client = new Client({ retry: { retries: 3 } });          // per instance (service-class)
-await getOrderById('ord_123', {}, { retry: { retries: 5 } });  // per call
+configure({ retry: { retries: 3 } }); // global (functions facade)
+const client = new Client({ retry: { retries: 3 } }); // per instance (service-class)
+await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 ```
 
 By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`). `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe. Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
 
-| `RetryConfig` field | Type | Default |
-| --- | --- | --- |
-| `retries` | `number` | `0` (extra attempts after the first; `0` disables) |
-| `retryDelay` | `number` | `1000` (base delay, ms) |
-| `retryStrategy` | `'fixed' \| 'exponential'` | `'exponential'` |
-| `jitter` | `boolean` | `true` |
-| `retryOn` | `(ctx: RetryContext) => boolean \| Promise<boolean>` | idempotent-only predicate |
+| `RetryConfig` field | Type                                                 | Default                                            |
+| ------------------- | ---------------------------------------------------- | -------------------------------------------------- |
+| `retries`           | `number`                                             | `0` (extra attempts after the first; `0` disables) |
+| `retryDelay`        | `number`                                             | `1000` (base delay, ms)                            |
+| `retryStrategy`     | `'fixed' \| 'exponential'`                           | `'exponential'`                                    |
+| `jitter`            | `boolean`                                            | `true`                                             |
+| `retryOn`           | `(ctx: RetryContext) => boolean \| Promise<boolean>` | idempotent-only predicate                          |
 
 A custom `retryOn` receives the failed attempt's `RetryContext` (`attempt`, `request`, and exactly one of `response` / `error`) and **fully replaces** the default. To inspect a response body, read `ctx.response.clone()` — the body is a single-use stream:
 
@@ -217,8 +223,8 @@ await createOrder(body, {
   retry: {
     retries: 3,
     retryOn: async (ctx) => {
-      if (ctx.error) return true;                 // transport error
-      return (ctx.response?.status ?? 0) >= 500;  // server error
+      if (ctx.error) return true; // transport error
+      return (ctx.response?.status ?? 0) >= 500; // server error
     },
   },
 });
@@ -228,12 +234,12 @@ await createOrder(body, {
 
 Query parameters follow their OpenAPI `style` / `explode` / `allowReserved`. The default (`form`, `explode: true`) repeats array values:
 
-| `style` | `explode` | `['a', 'b']` on the wire |
-| --- | --- | --- |
-| `form` (default) | `true` | `key=a&key=b` |
-| `form` | `false` | `key=a,b` |
-| `spaceDelimited` | `false` | `key=a%20b` |
-| `pipeDelimited` | `false` | `key=a\|b` |
+| `style`          | `explode` | `['a', 'b']` on the wire |
+| ---------------- | --------- | ------------------------ |
+| `form` (default) | `true`    | `key=a&key=b`            |
+| `form`           | `false`   | `key=a,b`                |
+| `spaceDelimited` | `false`   | `key=a%20b`              |
+| `pipeDelimited`  | `false`   | `key=a\|b`               |
 
 Delimiters are literal (values are still percent-encoded). `allowReserved: true` leaves the RFC-3986 reserved set un-encoded. Object-valued params serialize as `deepObject` brackets (`key[sub]=val`).
 
@@ -314,7 +320,12 @@ export default defineGenerator({
       .flatMap((s) => s.operations)
       .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`)
       .join('\n');
-    return [{ path: outputPath.replace(/\.ts$/, '.routes.ts'), content: `export const routes = {\n${routes}\n} as const;\n` }];
+    return [
+      {
+        path: outputPath.replace(/\.ts$/, '.routes.ts'),
+        content: `export const routes = {\n${routes}\n} as const;\n`,
+      },
+    ];
   },
 });
 ```

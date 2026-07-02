@@ -261,8 +261,6 @@ To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
 To skip coverage, run it with `--coverage=false`.
 
-Run `npm run unit` with coverage reporting always enabled (the `coverage` block in the root config sets `enabled: true`); the HTML report is written to `coverage/`.
-
 ### E2E tests
 
 Run e2e tests with this command: `npm run e2e`.

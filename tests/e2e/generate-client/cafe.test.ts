@@ -109,7 +109,15 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     // This is the file the consumer actually loads — and replaces the old string-replace hack.
     const consumerGen = spawnSync(
       'node',
-      [cliEntry, 'generate-client', fixture, '--output', generatedFile, '--server-url', SERVER_BASE],
+      [
+        cliEntry,
+        'generate-client',
+        fixture,
+        '--output',
+        generatedFile,
+        '--server-url',
+        SERVER_BASE,
+      ],
       { encoding: 'utf-8', cwd: repoRoot }
     );
     if (consumerGen.status !== 0) {

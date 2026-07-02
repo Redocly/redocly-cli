@@ -2,7 +2,11 @@
 // builders: turn an operation's params / body / responses into `ts` type and parameter nodes.
 // Leaf module — depends only on the IR types and the codegen foundation, never back on operations.ts.
 
-import type { ParamModel, RequestBodyModel, ResponseBodyModel } from '../intermediate-representation/model.js';
+import type {
+  ParamModel,
+  RequestBodyModel,
+  ResponseBodyModel,
+} from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
 import { jsdocText } from './jsdoc.js';
 import { jsdoc, printNodes, ts } from './ts.js';

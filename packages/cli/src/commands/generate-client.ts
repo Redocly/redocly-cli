@@ -144,7 +144,9 @@ export async function handleGenerateClient({
     }
 
     try {
-      logger.info(gray(`\n  Generating TypeScript client${job.name ? ` for ${job.name}` : ''}... \n`));
+      logger.info(
+        gray(`\n  Generating TypeScript client${job.name ? ` for ${job.name}` : ''}... \n`)
+      );
       const result = await generateClient({
         ...merged,
         api: job.api,

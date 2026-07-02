@@ -3,7 +3,14 @@
 // modes: fan-out (no arg, over apis with a `client` block), an `apis:` alias, and a plain
 // file path (which ignores `apis:`). CLI flags override the config.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, copyFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  copyFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,9 +55,13 @@ describe('generate-client redocly.yaml config', () => {
 
   it('defaults the output to `<name>.client.ts` in the config dir when clientOutput is omitted', () => {
     const dir = project(
-      ['apis:', '  cafe:', '    root: ./openapi.yaml', '    client:', '      generators: [sdk]'].join(
-        '\n'
-      ) + '\n'
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    client:',
+        '      generators: [sdk]',
+      ].join('\n') + '\n'
     );
     const res = run(dir);
     expect(res.status, res.stderr).toBe(0);
@@ -137,9 +148,13 @@ describe('generate-client redocly.yaml config', () => {
 
   it('rejects --output in fan-out mode', () => {
     const dir = project(
-      ['apis:', '  cafe:', '    root: ./openapi.yaml', '    client:', '      generators: [sdk]'].join(
-        '\n'
-      ) + '\n'
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    client:',
+        '      generators: [sdk]',
+      ].join('\n') + '\n'
     );
     const res = run(dir, ['--output', './out.ts']);
     expect(res.status).not.toBe(0);
