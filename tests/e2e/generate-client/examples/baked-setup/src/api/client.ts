@@ -476,7 +476,7 @@ export type RequestContext = {
  * (functions facade).
  */
 export type ClientConfig = {
-    /** Base URL for this client; overrides the inlined default and `setBaseUrl()`. */
+    /** Base URL for this client; overrides the inlined default and `setServerUrl()`. */
     serverUrl?: string;
     /** Extra headers merged into every request; a function is invoked per request. */
     headers?: Record<string, string> | (() => Record<string, string> | Promise<Record<string, string>>);
@@ -583,7 +583,7 @@ export type RequestOptions = RequestInit & {
  * Mutates a module-scoped binding shared by the functions facade. For multiple
  * bases at once, use the service-class facade with `new Client({ serverUrl })`.
  */
-export function setBaseUrl(url: string): void {
+export function setServerUrl(url: string): void {
     BASE = url;
 }
 

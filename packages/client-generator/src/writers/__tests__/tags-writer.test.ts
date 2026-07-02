@@ -157,7 +157,7 @@ describe('tagsWriter', () => {
     const entry = find('/out/client.ts')!;
     expect(entry.content).toContain("export * from './client.schemas.js';");
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl, setBearer, use } from "./client.http.js";'
+      'export { ApiError, configure, setBearer, setServerUrl, use } from "./client.http.js";'
     );
     expect(entry.content).toContain(
       'export type { AuthCredentials, ClientConfig, Middleware, OperationContext, ParseAs, RequestContext, RequestOptions, RetryConfig, RetryContext, RetryStrategy, TokenProvider } from "./client.http.js";'
@@ -239,7 +239,7 @@ describe('tagsWriter', () => {
     const entry = find('/out/client.ts')!;
     expect(entry.content).not.toContain("export * from './client.schemas.js';");
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
+      'export { ApiError, configure, setServerUrl, use } from "./client.http.js";'
     );
   });
 });

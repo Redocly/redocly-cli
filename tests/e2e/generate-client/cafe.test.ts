@@ -391,22 +391,22 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
   });
 
-  // `setBaseUrl()` is exercised mid-flight: the first call hits the mock, the
+  // `setServerUrl()` is exercised mid-flight: the first call hits the mock, the
   // second (after flipping to an unreachable host) fails to connect, and the
   // third (after restoring) succeeds again.
-  test('setBaseUrl() switches the BASE binding for subsequent operations', () => {
+  test('setServerUrl() switches the BASE binding for subsequent operations', () => {
     const run = spawnSync('npx', ['tsx', setBaseUrlScript], {
       encoding: 'utf-8',
       cwd: consumerDir,
       env: { ...process.env, CAFE_BASE: SERVER_BASE },
     });
-    expect(run.status, `setBaseUrl consumer stderr:\n${run.stderr}`).toBe(0);
+    expect(run.status, `setServerUrl consumer stderr:\n${run.stderr}`).toBe(0);
     const steps = JSON.parse(run.stdout.trim()) as Array<
       { kind: 'ok'; name: string } | { kind: 'err'; name: string; error: string }
     >;
     expect(steps.find((s) => s.name === 'initial-call-against-mock')?.kind).toBe('ok');
-    const flipped = steps.find((s) => s.name === 'call-after-setBaseUrl-to-unreachable');
+    const flipped = steps.find((s) => s.name === 'call-after-setServerUrl-to-unreachable');
     expect(flipped?.kind).toBe('err');
-    expect(steps.find((s) => s.name === 'call-after-setBaseUrl-restored')?.kind).toBe('ok');
+    expect(steps.find((s) => s.name === 'call-after-setServerUrl-restored')?.kind).toBe('ok');
   });
 });

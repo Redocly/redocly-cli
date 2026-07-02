@@ -465,7 +465,7 @@ function endpointImportNodes(
 
 /**
  * Re-export the public runtime surface from the http module: the values
- * (`ApiError`, `setBaseUrl`, `configure`, auth setters) and the config types
+ * (`ApiError`, `setServerUrl`, `configure`, auth setters) and the config types
  * (`PUBLIC_RUNTIME_TYPES` — `ClientConfig`, `RequestContext`, `RequestOptions`,
  * and the retry types) so callers get the whole surface from the entry.
  */
@@ -475,7 +475,7 @@ function publicReexportNodes(
   errorMode: 'throw' | 'result' | undefined,
   hasSse: boolean
 ): ts.ExportDeclaration[] {
-  const values = ['ApiError', 'configure', 'use', 'setBaseUrl', ...authSetterNames(schemes)].sort();
+  const values = ['ApiError', 'configure', 'use', 'setServerUrl', ...authSetterNames(schemes)].sort();
   const types = [
     ...PUBLIC_RUNTIME_TYPES,
     ...authTypeNames(schemes),

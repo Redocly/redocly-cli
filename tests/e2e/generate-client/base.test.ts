@@ -96,7 +96,7 @@ describe('generate-client base consumer (single-file output)', () => {
     expect(generated).toContain('export async function getPetById');
     expect(generated).toContain('export async function getSlowPet');
     expect(generated).toContain('export async function listPets');
-    // BASE is emitted as a mutable binding so setBaseUrl() can override it.
+    // BASE is emitted as a mutable binding so setServerUrl() can override it.
     expect(generated).toContain('let BASE = "http://localhost:3102"');
     // An OAS 3.1 enum that includes null renders as a nullable union.
     expect(generated).toMatch(/status\?:\s*\("available" \| "pending" \| "sold"\) \| null;/);

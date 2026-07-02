@@ -119,7 +119,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   // header and (b) a query-key scheme lands `api_key=` in the request URL.
   it('async setBearer resolves onto Authorization and query-key lands in the URL', () => {
     // The driver owns its own throwaway http server (and binds BASE to it at
-    // runtime via setBaseUrl), so a single `spawnSync` runs the whole behavioral
+    // runtime via setServerUrl), so a single `spawnSync` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-run-'));
     const out = join(dir, 'client.ts');
@@ -133,7 +133,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     writeFileSync(
       driver,
       `import * as http from 'node:http';
-import { getBearer, getQuery, setBaseUrl, setBearer, setApiKeyQueryKey } from './client.js';
+import { getBearer, getQuery, setServerUrl, setBearer, setApiKeyQueryKey } from './client.js';
 
 const captured: Array<{ url: string; auth?: string }> = [];
 const server = http.createServer((req, res) => {
@@ -145,7 +145,7 @@ const server = http.createServer((req, res) => {
 async function main() {
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
   const port = (server.address() as { port: number }).port;
-  setBaseUrl('http://127.0.0.1:' + port);
+  setServerUrl('http://127.0.0.1:' + port);
   setBearer(async () => 'tok');
   await getBearer();
   setApiKeyQueryKey('secret-key');

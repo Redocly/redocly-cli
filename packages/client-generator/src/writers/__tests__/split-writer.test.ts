@@ -62,7 +62,7 @@ describe('splitWriter — http module', () => {
         services: [{ name: 'Default', operations: [operation()] }],
       })
     );
-    expect(http.content).toContain('export function setBaseUrl(');
+    expect(http.content).toContain('export function setServerUrl(');
     expect(http.content).toContain('export class ApiError');
     expect(http.content).toContain('export function __buildUrl(');
     expect(http.content).toContain('export async function __request<T>(');
@@ -126,7 +126,7 @@ describe('splitWriter — entry imports & re-exports', () => {
     );
     expect(entry.content).toContain("export * from './client.schemas.js';");
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
+      'export { ApiError, configure, setServerUrl, use } from "./client.http.js";'
     );
     expect(entry.content).toContain(
       'export type { ClientConfig, Middleware, OperationContext, ParseAs, RequestContext, RequestOptions, RetryConfig, RetryContext, RetryStrategy } from "./client.http.js";'
@@ -166,7 +166,7 @@ describe('splitWriter — entry imports & re-exports', () => {
       'import { __auth, __buildUrl, __config, __headers, __request, type RequestOptions } from "./client.http.js";'
     );
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl, setBearer, use } from "./client.http.js";'
+      'export { ApiError, configure, setBearer, setServerUrl, use } from "./client.http.js";'
     );
     expect(http.content).toContain('export async function __auth(');
     expect(http.content).toContain('export function setBearer(');
@@ -186,7 +186,7 @@ describe('splitWriter — entry imports & re-exports', () => {
     const { entry } = run(model());
     expect(entry.content).not.toContain('.schemas.js');
     expect(entry.content).toContain(
-      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
+      'export { ApiError, configure, setServerUrl, use } from "./client.http.js";'
     );
   });
 

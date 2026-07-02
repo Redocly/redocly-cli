@@ -107,15 +107,15 @@ describe('emitSingleFile — top-level layout', () => {
     expect(out.endsWith('\n')).toBe(true);
   });
 
-  it('inlines the serverUrl as a mutable `let` binding so setBaseUrl() can update it', () => {
+  it('inlines the serverUrl as a mutable `let` binding so setServerUrl() can update it', () => {
     const out = emitSingleFile(apiModel({ serverUrl: 'https://api.example.com/v1' }));
     expect(out).toContain('let BASE = "https://api.example.com/v1";');
     expect(out).not.toContain('const BASE = ');
   });
 
-  it('always exports a setBaseUrl() helper that reassigns the BASE binding', () => {
+  it('always exports a setServerUrl() helper that reassigns the BASE binding', () => {
     const out = emitSingleFile(apiModel({ serverUrl: 'https://api.example.com' }));
-    expect(out).toContain('export function setBaseUrl(url: string): void');
+    expect(out).toContain('export function setServerUrl(url: string): void');
     expect(out).toMatch(/BASE\s*=\s*url/);
   });
 
@@ -338,7 +338,7 @@ describe('emitModules — writer-facing module interface', () => {
     const m = emitModules(apiModel());
     const reexport = m.publicReexport('client');
     expect(reexport).toContain(
-      'export { ApiError, configure, setBaseUrl, use } from "./client.http.js";'
+      'export { ApiError, configure, setServerUrl, use } from "./client.http.js";'
     );
     expect(reexport).toContain('export type {');
   });

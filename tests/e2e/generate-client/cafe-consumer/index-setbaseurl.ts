@@ -1,11 +1,11 @@
-import { listMenuItems, setBaseUrl } from './api.js';
+import { listMenuItems, setServerUrl } from './api.js';
 
 type StepResult = { kind: 'ok'; name: string } | { kind: 'err'; name: string; error: string };
 
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
-    process.stderr.write(`${name} env var required for the setBaseUrl mid-flight test\n`);
+    process.stderr.write(`${name} env var required for the setServerUrl mid-flight test\n`);
     process.exit(1);
   }
   return value;
@@ -38,15 +38,15 @@ async function main(): Promise<void> {
   results.push(await step('initial-call-against-mock', () => listMenuItems({ limit: 1 })));
 
   // 2) Flip BASE to an unreachable host. The same operation should now fail to connect.
-  //    This is the proof that setBaseUrl() actually mutated the module-scoped binding.
-  setBaseUrl(UNREACHABLE);
+  //    This is the proof that setServerUrl() actually mutated the module-scoped binding.
+  setServerUrl(UNREACHABLE);
   results.push(
-    await step('call-after-setBaseUrl-to-unreachable', () => listMenuItems({ limit: 1 }))
+    await step('call-after-setServerUrl-to-unreachable', () => listMenuItems({ limit: 1 }))
   );
 
   // 3) Flip BASE back to the live mock and confirm the binding restored cleanly.
-  setBaseUrl(liveBase);
-  results.push(await step('call-after-setBaseUrl-restored', () => listMenuItems({ limit: 1 })));
+  setServerUrl(liveBase);
+  results.push(await step('call-after-setServerUrl-restored', () => listMenuItems({ limit: 1 })));
 
   process.stdout.write(JSON.stringify(results, null, 2) + '\n');
 }
