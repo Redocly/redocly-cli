@@ -25,6 +25,7 @@ decorators:
 
 apis:
   storefront:
+    root: ./openapi/openapi.yaml
     decorators:
       plugin/change-title:
         title: Storefront APIs
