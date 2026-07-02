@@ -1,5 +1,5 @@
 import { type Config as OpenApiTsConfig } from '@redocly/client-generator';
-import { HandledError, isPlainObject, logger } from '@redocly/openapi-core';
+import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
@@ -152,10 +152,8 @@ export async function handleGenerateClient({
         config,
         configDir,
       });
-      const summary =
-        result.files.length === 1
-          ? `TypeScript client successfully generated to ${yellow(result.outputPath)} (${result.bytes} bytes).`
-          : `TypeScript client successfully generated: ${result.files.length} files (${result.bytes} bytes), entry at ${yellow(result.outputPath)}.`;
+      const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
+      const summary = `TypeScript client successfully generated: ${fileCount} (${result.bytes} bytes) at ${yellow(result.outputPath)}.`;
       logger.info('\n' + blue(summary) + '\n');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
