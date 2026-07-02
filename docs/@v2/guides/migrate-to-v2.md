@@ -29,7 +29,7 @@ apiDefinitions:
 
 # ✅ Use this instead
 apis:
-  main: 
+  main:
     root: ./openapi.yaml
 ```
 
