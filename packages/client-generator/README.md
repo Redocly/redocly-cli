@@ -18,7 +18,7 @@ The rest of this README covers using the package **programmatically**.
   `api` is a file path or URL.
 - **Zero-dependency client** built via the TS AST, with `typescript` as the only peer dep
 - **Output modes** — `single`, `split`, `tags`, `tags-split` (`outputMode`)
-- **Facades** — standalone `functions` or a `service-class` (`facade`), the latter supporting **per-instance configuration and credentials** (`new Client({ auth, baseUrl, … })`)
+- **Facades** — standalone `functions` or a `service-class` (`facade`), the latter supporting **per-instance configuration and credentials** (`new Client({ auth, serverUrl, … })`)
 - **Argument styles** — `flat` positional args or a `grouped` `vars` object (`argsStyle`)
 - **Rich types** — inline types for every schema:
   - string enums as unions or runtime `const` objects (`enumStyle`)
@@ -26,7 +26,7 @@ The rest of this README covers using the package **programmatically**.
   - validation keywords surfaced as JSDoc
   - `dateType: 'Date'`
   - **typed `multipart/form-data` bodies** (object fields, binary → `Blob`) auto-serialized to `FormData`
-- **Runtime** — `setBaseUrl` + a typed `ClientConfig` (headers, `fetch` swap, hooks):
+- **Runtime** — `setServerUrl` + a typed `ClientConfig` (headers, `fetch` swap, hooks):
   - **composable middleware** (`onRequest`/`onResponse`/`onError`)
   - **opt-in, abort-aware retries** with backoff, jitter, `Retry-After`, and a custom `retryOn`
   - per-call response decoding (`parseAs`)
@@ -57,22 +57,24 @@ const result = await generateClient({
   dateType: 'string', // 'string' | 'Date' (pair 'Date' with the 'transformers' generator)
   enumStyle: 'const-object', // 'const-object' | 'union'
   generators: ['sdk'], // see "Generators" below
-  // baseUrl, name, queryFramework, mockData, mockSeed, customGenerators are also accepted
+  // serverUrl, name, queryFramework, mockData, mockSeed, customGenerators are also accepted
 });
 
 console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes.`);
 ```
 
-For type-safe option authoring, `defineConfig` returns its argument unchanged:
+For type-safe authoring of a standalone options object, annotate it with `satisfies Config`:
 
 ```ts
-import { defineConfig } from '@redocly/client-generator';
+import { generateClient, type Config } from '@redocly/client-generator';
 
-export default defineConfig({
+const options = {
   api: './openapi.yaml',
   output: './src/api/client.ts',
   generators: ['sdk', 'zod'],
-});
+} satisfies Config;
+
+await generateClient(options);
 ```
 
 To inspect the output without writing to disk, the lower-level `collectGeneratedFiles(model, opts)` returns the files in memory (see `src/index.ts`).
@@ -200,7 +202,7 @@ The customization above is composed by the **consumer**. If you instead **publis
 import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
 
 export default defineClientSetup({
-  config: { baseUrl: 'https://api.acme.com', retry: { retries: 3 } },
+  config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
   middleware: [
     {
       onRequest: (ctx: RequestContext) => {
@@ -230,7 +232,7 @@ The client is plain `fetch` code, so you test it like any HTTP code — there is
 ```ts
 import { configure, listMenuItems } from './client.ts';
 
-configure({ baseUrl: 'https://api.example.com' });
+configure({ serverUrl: 'https://api.example.com' });
 const items = await listMenuItems(); // resolves or throws ApiError
 ```
 

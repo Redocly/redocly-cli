@@ -92,7 +92,7 @@ Places where behavior varies without editing in place:
 
 ## Configuration
 
-`generate-client` reads its options from an `x-client-generator` block in `redocly.yaml` (auto-discovered), with a dedicated `*.config.ts` (`--config-file`) and CLI flags layering over it.
+`generate-client` reads its options from a `client` block in `redocly.yaml`: top-level shared defaults plus per-API overrides under `apis.<name>.client`, with the input as `apis.<name>.root` and the output as `apis.<name>.clientOutput`. CLI flags layer over the config (top-level `client` → per-API `client` → flags).
 The extraction lives in the CLI command, not this package's core.
 See [ADR-0008](./docs/adr/0008-redocly-yaml-config.md).
 

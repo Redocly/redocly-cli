@@ -2,8 +2,8 @@
 import type { Config } from './config.js';
 
 /**
- * Merge a base config (the `redocly.yaml` `x-client-generator` block) with CLI
- * overrides. Defined keys in `overrides` win; `undefined` override values are ignored
+ * Merge a base config (a `redocly.yaml` `client` block) with CLI overrides.
+ * Defined keys in `overrides` win; `undefined` override values are ignored
  * so absent flags don't clobber the base values.
  */
 export function mergeConfig(base: Partial<Config>, overrides: Partial<Config>): Partial<Config> {

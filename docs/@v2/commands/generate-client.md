@@ -19,19 +19,19 @@ By default it emits a single file with inline types and one async function per o
 ## Usage
 
 ```sh
-redocly generate-client <api> --output <file.ts>
-redocly generate-client openapi.yaml --output src/client.ts
-redocly generate-client cafe -o src/client.ts
+redocly generate-client                          # every api with a `client` block (see Configuration)
+redocly generate-client cafe                     # a single `apis:` alias from redocly.yaml
+redocly generate-client openapi.yaml -o src/client.ts   # a file path (ignores `apis:`)
 ```
 
-`<api>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md) from `redocly.yaml`.
+With **no argument**, a client is generated for every api that declares a `client` block under `apis:` (see [Configuration](#configuration)). Otherwise `<api>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md): an alias uses that api's `client` block and `clientOutput`, while a plain path/URL ignores the `apis:` section and uses the top-level `client` defaults.
 
 ## Options
 
 | Option | Type | Description |
 | --- | --- | --- |
-| `api` | `string` | **REQUIRED.** OpenAPI description file path, URL, or an `apis:` alias from `redocly.yaml`. |
-| `--output`, `-o` | `string` | **REQUIRED.** Output path; must end in `.ts`. In multi-file modes it's the entry file. |
+| `api` | `string` | OpenAPI description file path, URL, or an `apis:` alias. Omit it to generate for every api that has a `client` block. |
+| `--output`, `-o` | `string` | Output path (must end in `.ts`); the entry file in multi-file modes. Defaults to the api's `clientOutput`, else `<name>.client.ts` in the config dir. Not allowed when generating for multiple apis. |
 | `--output-mode` | `string` | File layout: `single` (default), `split` (endpoints/schemas/runtime in sibling files), `tags` (one endpoints file per tag), or `tags-split` (a folder per tag). |
 | `--generators` | `string` | Comma-separated generators to run (default `sdk`). See [Generators](#generators). |
 | `--facade` | `string` | Operation shape: `functions` (default, standalone functions) or `service-class` (methods on a `Client` class). |
@@ -43,31 +43,35 @@ redocly generate-client cafe -o src/client.ts
 | `--query-framework` | `string` | TanStack Query adapter: `react` (default), `vue`, `svelte`, or `solid`. |
 | `--mock-data` | `string` | `mock` generator data: `baked` (default, deterministic literals) or `faker` (`@faker-js/faker` calls). |
 | `--mock-seed` | `number` | Seed for `faker`-mode mocks, for reproducible data. Ignored in `baked` mode. |
-| `--base-url` | `string` | Override the base URL inlined into the runtime. Defaults to `servers[0].url`. Accepts absolute (`https://api.example.com`) or relative (`/v1`). |
+| `--server-url` | `string` | Override the server URL inlined into the runtime. Defaults to `servers[0].url`. Accepts absolute (`https://api.example.com`) or relative (`/v1`). |
 | `--setup` | `string` | Path to a publisher setup module baked into the client. See [Publisher defaults](#publisher-defaults). |
-| `--config` | `string` | Path to the `redocly.yaml` holding the `x-client-generator` block. Defaults to the one in the working directory. |
+| `--config` | `string` | Path to the `redocly.yaml` (the `client` config and `apis:` live there). Defaults to the one in the working directory. |
 
 ## Configuration
 
-Instead of passing flags every time, put the settings in `redocly.yaml` under an `x-client-generator` block.
-`generate-client` reads it automatically (relative `api`/`output` resolve against the config file's directory):
+Put shared settings in a top-level `client` block, and give each API its input (`root`), an optional output (`clientOutput`), and any per-API overrides under `apis.<name>.client`:
 
 ```yaml
 # redocly.yaml
-x-client-generator:
-  api: ./openapi.yaml
-  output: ./src/api/client.ts
+client: # shared defaults for every generated client
   generators:
     - sdk
-  facade: service-class
+  facade: functions
+apis:
+  cafe:
+    root: ./openapi.yaml # the input
+    clientOutput: ./src/api/client.ts # optional; defaults to `cafe.client.ts`
+    client: # per-API overrides (optional)
+      facade: service-class
 ```
 
 ```sh
-redocly generate-client                          # uses redocly.yaml in the cwd
+redocly generate-client              # builds every api with a `client` block, to its clientOutput
+redocly generate-client cafe         # just the `cafe` api (its client block + clientOutput)
 redocly generate-client --config ./config/redocly.yaml
 ```
 
-For code-level control — including registering [custom generators](#custom-generators) inline — use the programmatic `generateClient(...)` API.
+Settings resolve **top-level `client` → per-API `client` → CLI flags** (later wins). The input and output never go in a `client` block: the input is `apis.<name>.root` (or a CLI path/alias), and the output is `clientOutput`, `--output`, or the `<name>.client.ts` default. A plain file-path invocation ignores `apis:` and uses only the top-level `client`. For code-level control — including registering [custom generators](#custom-generators) inline — use the programmatic `generateClient(...)` API.
 
 ## Generators
 
@@ -175,7 +179,7 @@ The middleware above is composed by the **consumer**. If you **publish an SDK**,
 import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
 
 export default defineClientSetup({
-  config: { baseUrl: 'https://api.acme.com', retry: { retries: 3 } },
+  config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
   middleware: [{ onRequest: (ctx: RequestContext) => { ctx.headers['X-Acme-SDK'] = '1.4.0'; } }],
 });
 ```
@@ -320,11 +324,15 @@ The `@redocly/client-generator/plugin` entry also exports the codegen toolkit (`
 Select it in `redocly.yaml` by path or package name:
 
 ```yaml
-x-client-generator:
-  generators:
-    - sdk
-    - ./tools/route-map-generator.ts   # local path (resolved against redocly.yaml)
-    - '@acme/openapi-valibot'          # published package
+apis:
+  cafe:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+        - ./tools/route-map-generator.ts # local path (resolved against redocly.yaml)
+        - '@acme/openapi-valibot' # published package
 ```
 
 Or register one **inline** with the programmatic API and select it by name:

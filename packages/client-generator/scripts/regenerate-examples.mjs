@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Regenerate each example's client in place. A `redocly.yaml` example uses the CLI
-// (auto-discovering its `x-client-generator` block); the programmatic example runs
-// its own `generate.ts`.
+// (a no-arg run fans out over its `apis:` entry's `client` block); the programmatic
+// example runs its own `generate.ts`.
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
