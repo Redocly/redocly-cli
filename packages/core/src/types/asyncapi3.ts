@@ -24,7 +24,6 @@ const Root: NodeType = {
   properties: {
     asyncapi: {
       type: 'string',
-      enum: ['3.0.0'],
       description:
         'REQUIRED. Specifies the AsyncAPI Specification version being used. It can be used by tooling Specifications and clients to interpret the version. The structure shall be major.minor.patch, where patch versions must be compatible with the existing major.minor tooling. Typically patch versions will be introduced to address errors in the documentation, and tooling should typically be compatible with the corresponding major.minor (1.0.*). Patch versions will correspond to patches of this document.',
     },
@@ -519,9 +518,41 @@ const SecurityScheme: NodeType = {
   description: 'Defines a security scheme that can be used by the operations.',
 };
 
+const ServerBindings: NodeType = {
+  ...AsyncApi2Bindings.ServerBindings,
+  allowed(value) {
+    return [...(AsyncApi2Bindings.ServerBindings.allowed?.(value) ?? []), 'ros2'];
+  },
+};
+
+const ChannelBindings: NodeType = {
+  ...AsyncApi2Bindings.ChannelBindings,
+  allowed(value) {
+    return [...(AsyncApi2Bindings.ChannelBindings.allowed?.(value) ?? []), 'ros2'];
+  },
+};
+
+const OperationBindings: NodeType = {
+  ...AsyncApi2Bindings.OperationBindings,
+  allowed(value) {
+    return [...(AsyncApi2Bindings.OperationBindings.allowed?.(value) ?? []), 'ros2'];
+  },
+};
+
+const MessageBindings: NodeType = {
+  ...AsyncApi2Bindings.MessageBindings,
+  allowed(value) {
+    return [...(AsyncApi2Bindings.MessageBindings.allowed?.(value) ?? []), 'ros2'];
+  },
+};
+
 export const AsyncApi3Types: Record<string, NodeType> = {
   // from asyncapi2
   ...AsyncApi2Bindings,
+  ServerBindings,
+  ChannelBindings,
+  OperationBindings,
+  MessageBindings,
   CorrelationId,
   SecuritySchemeFlows,
   ServerVariable,
