@@ -2,7 +2,7 @@
 import type { EmitOptions } from '../emitters/client.js';
 import type { ErrorMode, Facade } from '../emitters/operations.js';
 import type { DateType } from '../emitters/types.js';
-import type { ApiModel } from '../ir/model.js';
+import type { ApiModel } from '../intermediate-representation/model.js';
 import type { GeneratedFile, OutputMode } from '../writers/types.js';
 
 /** The first-party generators the registry knows. Extends as P5 lands (react-query, …). */

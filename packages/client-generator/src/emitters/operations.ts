@@ -1,4 +1,4 @@
-import type { OperationModel, ParamModel } from '../ir/model.js';
+import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
 import { renderOperationAliases, sseAliases, variablesTypeLiteral } from './operation-aliases.js';
 import { operationSignature } from './operation-signature.js';

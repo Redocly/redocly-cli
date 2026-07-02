@@ -7,7 +7,7 @@
 // matching `operations.ts` positional order so the call type-checks against the
 // generated sdk. AST-native via `ts.factory`.
 
-import type { ApiModel, OperationModel } from '../ir/model.js';
+import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import { operationSignature } from './operation-signature.js';
 import {
   arrow,

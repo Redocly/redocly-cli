@@ -1,4 +1,4 @@
-import type { ApiModel, OperationModel } from '../../ir/model.js';
+import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 import { emitModules, emitSingleFile, setupApply } from '../client.js';
 import { apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';
 

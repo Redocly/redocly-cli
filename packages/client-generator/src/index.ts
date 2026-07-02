@@ -6,9 +6,9 @@ import { bakeSetup } from './emitters/setup-bake.js';
 import { builtinGenerators, validateGenerators } from './generators/index.js';
 import { resolveGenerators } from './generators/resolve.js';
 import type { GeneratorDescriptor } from './generators/types.js';
-import { buildApiModel } from './ir/build.js';
-import type { ApiModel } from './ir/model.js';
-import { normalizeSwagger2 } from './ir/normalize-swagger2.js';
+import { buildApiModel } from './intermediate-representation/build.js';
+import type { ApiModel } from './intermediate-representation/model.js';
+import { normalizeSwagger2 } from './intermediate-representation/normalize-swagger2.js';
 import { loadSpec } from './loader.js';
 import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 import type { GeneratedFile, OutputMode } from './writers/types.js';
@@ -38,7 +38,7 @@ export type {
   ScalarKind,
   SchemaModel,
   ServiceModel,
-} from './ir/model.js';
+} from './intermediate-representation/model.js';
 export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
 export type { GeneratedFile, OutputMode } from './writers/index.js';
 export type { ArgsStyle, Facade } from './emitters/client.js';

@@ -1,4 +1,4 @@
-import type { SecuritySchemeModel } from '../../ir/model.js';
+import type { SecuritySchemeModel } from '../../intermediate-representation/model.js';
 import { authSetterNames, authTypeNames, renderAuth } from '../auth.js';
 
 /** A spec exercising all five injectable kinds at once. */

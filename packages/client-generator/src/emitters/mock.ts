@@ -11,7 +11,7 @@ import type {
   OperationModel,
   ResponseBodyModel,
   SchemaModel,
-} from '../ir/model.js';
+} from '../intermediate-representation/model.js';
 import { allOperations } from '../writers/util.js';
 import { fakerExpression } from './faker.js';
 import { safeIdent } from './identifier.js';

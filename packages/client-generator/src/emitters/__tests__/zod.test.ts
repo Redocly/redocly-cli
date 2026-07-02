@@ -1,4 +1,4 @@
-import type { NamedSchemaModel, SchemaModel } from '../../ir/model.js';
+import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { printStatements } from '../ts.js';
 import { renderZodModule, schemaToZodExpression, zodModuleStatements } from '../zod.js';
 

@@ -1,4 +1,4 @@
-import type { ResponseBodyModel, SchemaModel } from '../../ir/model.js';
+import type { ResponseBodyModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { isSseOp, partitionOps, sseDataKind, sseEventType, sseFragmentName } from '../sse.js';
 import { printNodes } from '../ts.js';
 import { operation } from './fixtures.js';

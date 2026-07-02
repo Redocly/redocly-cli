@@ -7,7 +7,7 @@
 
 import { logger } from '@redocly/openapi-core';
 
-import type { ApiModel, OperationModel } from '../ir/model.js';
+import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import { operationSignature } from './operation-signature.js';
 import { isSseOp } from './sse.js';
 import { ts } from './ts.js';

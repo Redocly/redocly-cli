@@ -1,4 +1,4 @@
-import type { ApiModel } from '../../ir/model.js';
+import type { ApiModel } from '../../intermediate-representation/model.js';
 import { getWriter } from '../index.js';
 import { singleFileWriter } from '../single-file-writer.js';
 import { splitWriter } from '../split-writer.js';

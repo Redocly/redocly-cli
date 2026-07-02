@@ -59,7 +59,7 @@ export type {
   SchemaMetadata,
   SchemaModel,
   ServiceModel,
-} from './ir/model.js';
+} from './intermediate-representation/model.js';
 
 // --- Codegen toolkit: build TypeScript the same way the built-in generators do -----------------
 export {

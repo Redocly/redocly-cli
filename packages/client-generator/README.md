@@ -448,4 +448,4 @@ npm run unit                    # unit tests (this package is held at 100% cover
 VITEST_SUITE=e2e npx vitest run tests/e2e/generate-client/   # behavioral e2e
 ```
 
-The emitted runtime lives in `src/emitters/runtime.ts` (a template string), the structural emitters in `src/emitters/`, the IR in `src/ir/`, the generators in `src/generators/`, and the multi-file layout strategies in `src/writers/`.
+The emitted runtime lives in `src/emitters/runtime.ts` (a template string), the structural emitters in `src/emitters/`, the IR in `src/intermediate-representation/`, the generators in `src/generators/`, and the multi-file layout strategies in `src/writers/`.

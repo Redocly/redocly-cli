@@ -1,6 +1,6 @@
 import { parse } from 'node:path';
 
-import type { OperationModel } from '../ir/model.js';
+import type { OperationModel } from '../intermediate-representation/model.js';
 
 /**
  * Derive the directory and base name (stem, without `.ts`) from the `--output`

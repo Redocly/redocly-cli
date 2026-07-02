@@ -5,7 +5,7 @@ import type {
   ParamModel,
   ResponseBodyModel,
   SchemaModel,
-} from '../../ir/model.js';
+} from '../../intermediate-representation/model.js';
 import { emitSingleFile } from '../client.js';
 
 /** A plain `string` scalar — the default schema for params and the most-reused leaf. */

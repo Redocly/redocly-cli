@@ -1,4 +1,4 @@
-import type { ApiModel } from '../../ir/model.js';
+import type { ApiModel } from '../../intermediate-representation/model.js';
 import { getWriter } from '../../writers/index.js';
 import { sdkGenerator } from '../sdk.js';
 

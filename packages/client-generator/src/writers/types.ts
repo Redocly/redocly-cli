@@ -1,5 +1,5 @@
 import type { EmitOptions } from '../emitters/client.js';
-import type { ApiModel } from '../ir/model.js';
+import type { ApiModel } from '../intermediate-representation/model.js';
 
 /**
  * How the generated client is partitioned across files.

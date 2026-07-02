@@ -4,7 +4,7 @@ import type {
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
-} from '../ir/model.js';
+} from '../intermediate-representation/model.js';
 import { isIdentifier, safeIdent } from './identifier.js';
 import { jsdocText } from './jsdoc.js';
 import { jsdoc, printNodes, ts } from './ts.js';

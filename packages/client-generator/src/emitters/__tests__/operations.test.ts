@@ -3,7 +3,7 @@ import type {
   RequestBodyModel,
   ResponseBodyModel,
   SchemaModel,
-} from '../../ir/model.js';
+} from '../../intermediate-representation/model.js';
 import { emitSingleFile } from '../client.js';
 import { renderOperationsBlock, renderOperationsMeta, serviceClassName } from '../operations.js';
 import { SCALAR, apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';

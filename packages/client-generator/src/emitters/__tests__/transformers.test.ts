@@ -1,4 +1,4 @@
-import type { ApiModel, NamedSchemaModel } from '../../ir/model.js';
+import type { ApiModel, NamedSchemaModel } from '../../intermediate-representation/model.js';
 import { renderTransformersModule } from '../transformers.js';
 
 const base: Omit<ApiModel, 'schemas'> = {

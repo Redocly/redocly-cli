@@ -2,7 +2,7 @@
 // public `sse` aggregate must appear ONLY when a model declares a
 // `text/event-stream` operation. A non-streaming model must be byte-free of
 // both — this protects the "non-SSE clients are unchanged" invariant.
-import type { ApiModel } from '../../ir/model.js';
+import type { ApiModel } from '../../intermediate-representation/model.js';
 import { emitSingleFile } from '../client.js';
 import { apiModel, namedSchema, operation } from './fixtures.js';
 

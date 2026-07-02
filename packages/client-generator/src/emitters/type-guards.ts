@@ -1,4 +1,4 @@
-import type { DiscriminatorModel, NamedSchemaModel, SchemaModel } from '../ir/model.js';
+import type { DiscriminatorModel, NamedSchemaModel, SchemaModel } from '../intermediate-representation/model.js';
 import { jsdoc, ts } from './ts.js';
 
 /**

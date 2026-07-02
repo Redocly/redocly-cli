@@ -1,4 +1,4 @@
-import type { ApiModel, OperationModel } from '../../ir/model.js';
+import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 import { splitWriter } from '../split-writer.js';
 
 function operation(overrides: Partial<OperationModel> = {}): OperationModel {

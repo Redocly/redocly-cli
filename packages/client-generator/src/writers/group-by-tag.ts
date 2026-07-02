@@ -1,4 +1,4 @@
-import type { ApiModel, OperationModel } from '../ir/model.js';
+import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
 export type TagGroup = {
   /** The safe file stem for this group (without extension). */

@@ -1,4 +1,4 @@
-import type { ApiModel, OperationModel } from '../../ir/model.js';
+import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 import { groupByTag, sanitizeTagStem } from '../group-by-tag.js';
 
 function op(name: string, tags: string[] = []): OperationModel {

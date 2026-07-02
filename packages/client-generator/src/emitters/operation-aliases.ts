@@ -3,7 +3,7 @@
 // intermediate values. Reuses the shared type builders (operation-types.ts) and the block-wide
 // `EmitContext` (a type-only import from operations.ts — erased, so there is no runtime cycle).
 
-import type { OperationModel, ParamModel } from '../ir/model.js';
+import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
 import { jsdocText } from './jsdoc.js';
 import { operationSignature } from './operation-signature.js';
 import { bodyTypeNode, paramsTypeLiteral } from './operation-types.js';

@@ -1,4 +1,4 @@
-import type { ApiModel, OperationModel } from '../../ir/model.js';
+import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 import { tagsWriter } from '../tags-writer.js';
 
 function operation(overrides: Partial<OperationModel> = {}): OperationModel {

@@ -1,4 +1,4 @@
-import type { NamedSchemaModel, SchemaModel } from '../../ir/model.js';
+import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { fakerExpression } from '../faker.js';
 import { printNodes } from '../ts.js';
 

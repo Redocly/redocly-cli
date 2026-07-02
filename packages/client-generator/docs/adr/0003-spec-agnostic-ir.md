@@ -10,8 +10,8 @@ If emitters read the raw OpenAPI document directly, every emitter would have to 
 
 ## Decision
 
-We interpose a **spec-agnostic intermediate representation** (`ir/model.ts`) between parsing and emission.
-`buildApiModel` (`ir/build.ts`) walks the (bundled, ref-preserved) document once and produces the IR; Swagger 2.0 is first normalized to the 3.x shape (`ir/normalize-swagger2.ts`) so the builder sees one shape.
+We interpose a **spec-agnostic intermediate representation** (`intermediate-representation/model.ts`) between parsing and emission.
+`buildApiModel` (`intermediate-representation/build.ts`) walks the (bundled, ref-preserved) document once and produces the IR; Swagger 2.0 is first normalized to the 3.x shape (`intermediate-representation/normalize-swagger2.ts`) so the builder sees one shape.
 **Everything downstream reads the IR, never the raw spec.**
 The IR is a pure type model — no runtime code — and is the contract between the builder and the emitters.
 

@@ -1,4 +1,4 @@
-import type { SecuritySchemeModel } from '../ir/model.js';
+import type { SecuritySchemeModel } from '../intermediate-representation/model.js';
 import { pascalCase } from './support.js';
 import { constStatement, jsdoc, letStatement, printStatements, ts } from './ts.js';
 

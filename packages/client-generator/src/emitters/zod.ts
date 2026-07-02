@@ -13,7 +13,7 @@ import type {
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
-} from '../ir/model.js';
+} from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
 import { pascalCase } from './support.js';
 import { printStatements, ts } from './ts.js';

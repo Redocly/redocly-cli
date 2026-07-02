@@ -9,7 +9,7 @@
 // `transformPet` calls `transformPerson(data["owner"])` when `Pet.owner` is a
 // `Person` that has dates.
 
-import type { ApiModel, NamedSchemaModel, SchemaModel } from '../ir/model.js';
+import type { ApiModel, NamedSchemaModel, SchemaModel } from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
 import { pascalCase } from './support.js';
 import { arrow, exportConstStatement, printStatements, ts } from './ts.js';

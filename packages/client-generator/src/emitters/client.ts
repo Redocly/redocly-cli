@@ -1,5 +1,5 @@
-import type { ApiModel, OperationModel, SecuritySchemeModel } from '../ir/model.js';
-import { collectOperationRefs } from '../ir/refs.js';
+import type { ApiModel, OperationModel, SecuritySchemeModel } from '../intermediate-representation/model.js';
+import { collectOperationRefs } from '../intermediate-representation/refs.js';
 import { authSetterNames, authStatements, authTypeNames } from './auth.js';
 import {
   type ArgsStyle,

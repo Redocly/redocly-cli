@@ -5,7 +5,7 @@
 // so a flat-mode signature and its call site can never drift. Previously each side
 // recomputed this independently, kept in sync only by a "matching exactly" comment.
 
-import type { OperationModel, ParamModel } from '../ir/model.js';
+import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
 import { uniqueIdent } from './identifier.js';
 import { pascalCase } from './support.js';
 

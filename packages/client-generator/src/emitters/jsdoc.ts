@@ -1,4 +1,4 @@
-import type { SchemaMetadata } from '../ir/model.js';
+import type { SchemaMetadata } from '../intermediate-representation/model.js';
 import { splitLines } from './support.js';
 
 /**

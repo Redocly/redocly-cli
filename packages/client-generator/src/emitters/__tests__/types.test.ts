@@ -1,4 +1,4 @@
-import type { PropertyModel, SchemaModel } from '../../ir/model.js';
+import type { PropertyModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { emitSingleFile } from '../client.js';
 import { printNodes } from '../ts.js';
 import { renderSchema, schemaToTypeNode, typesStatements } from '../types.js';
