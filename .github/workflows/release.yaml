@@ -46,8 +46,8 @@ jobs:
           commit: 'chore: 🔖 release new versions'
           title: 'chore: 🔖 release new versions'
           version: |
-            # Store the changesets status to a file and add deps changesets depending on it 
-            npx changeset status --output=__changesets__.json && node scripts/add-cli-dependency-changesets.js __changesets__.json
+            npx changeset status --output=__changesets__.json
+            node scripts/add-cli-dependency-changesets.js __changesets__.json
             npx changeset version
             npm i
             node scripts/post-changeset.js
