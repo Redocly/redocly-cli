@@ -50,7 +50,7 @@ export type Config = {
   generators?: string[];
   /**
    * Inline custom generators (the experimental plugin API), registered so they can be selected in
-   * `generators` by `name`. Authored with `defineGenerator` from `@redocly/client-generator/plugin`.
+   * `generators` by `name`. Authored with `defineGenerator` from `@redocly/client-generator`.
    */
   customGenerators?: CustomGenerator[];
   /**

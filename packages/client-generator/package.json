@@ -9,14 +9,6 @@
     ".": {
       "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
-    },
-    "./config-file": {
-      "import": "./lib/config-file.js",
-      "types": "./lib/config-file.d.ts"
-    },
-    "./plugin": {
-      "import": "./lib/plugin.js",
-      "types": "./lib/plugin.d.ts"
     }
   },
   "engines": {

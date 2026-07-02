@@ -26,22 +26,11 @@ export type {
   RetryStrategy,
 } from './runtime-contract.js';
 export type { Config } from './config.js';
-export type { Generator, GeneratorInput, GeneratorName } from './generators/index.js';
-export type {
-  ApiModel,
-  NamedSchemaModel,
-  OperationModel,
-  ParamModel,
-  PropertyModel,
-  RequestBodyModel,
-  ResponseBodyModel,
-  ScalarKind,
-  SchemaModel,
-  ServiceModel,
-} from './intermediate-representation/model.js';
 export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
-export type { GeneratedFile, OutputMode } from './writers/index.js';
-export type { ArgsStyle, Facade } from './emitters/client.js';
+export { mergeConfig } from './config-file.js';
+// The custom-generator plugin API + codegen toolkit + IR types (also re-exports the shared
+// `Generator`/`GeneratedFile`/`OutputMode`/`ArgsStyle`/`Facade` types).
+export * from './plugin.js';
 
 /**
  * Validate the generator selection (see `validateGenerators`), then run each

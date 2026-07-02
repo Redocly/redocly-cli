@@ -2,6 +2,11 @@
 
 - Status: Accepted (experimental)
 - Date: 2026-06-13
+- Amended: the plugin surface is no longer a dedicated `@redocly/client-generator/plugin`
+  subpath — it is re-exported from the **package root** (`@redocly/client-generator`), the
+  package's single entry. The `defineConfig` / `*.config.ts` / `--config-file` mechanism was
+  also removed; inline `customGenerators` are passed via the programmatic `generateClient(...)`
+  API. The plugin API decision itself (below) is unchanged.
 
 ## Context
 
@@ -16,7 +21,7 @@ Open the `getGenerator` registry as a **public, experimental** API for **custom 
 A custom generator is the internal `GeneratorDescriptor` plus a `name`: `{ name, run, requires?, facades?, errorModes?, dateTypes? }`, where `run(input) => GeneratedFile[]` receives the same IR the built-ins do.
 
 - **Loading is dual.** A `generators` entry resolves as a built-in name, an inline `customGenerators` entry (from a `defineConfig` file — type-safe, no dynamic import), or an **import specifier** (a path resolved against the config dir, or an installed package) that is dynamically `import()`ed and default-exported (mirroring how config files load). A new `resolveGenerators` performs this before emission, producing a name→descriptor registry that `validateGenerators` and the run loop consume.
-- **Surface + stability.** A dedicated `@redocly/client-generator/plugin` entry exports `defineGenerator`, the IR types, and a curated codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, `safeIdent`) — the same internals the built-in generators use, re-surfaced (no new logic). The whole surface is **`@experimental`**: it may change between minor versions until real plugins exercise it and it is stabilized.
+- **Surface + stability.** The package root (`@redocly/client-generator`) exports `defineGenerator`, the IR types, and a curated codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, `safeIdent`) — the same internals the built-in generators use, re-surfaced (no new logic). The whole surface is **`@experimental`**: it may change between minor versions until real plugins exercise it and it is stabilized.
 - **Fail fast.** Collisions (a custom name equal to a built-in or another custom), invalid exports, unloadable specifiers, and unmet `requires`/`facades`/`errorModes`/`dateTypes` all throw an actionable error before any file is written.
 
 ## Consequences

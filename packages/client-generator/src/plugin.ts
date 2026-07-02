@@ -1,4 +1,5 @@
-// Public entry for authoring custom generators — the EXPERIMENTAL plugin API.
+// The custom-generator authoring API — the EXPERIMENTAL plugin surface, re-exported from the
+// package root (`@redocly/client-generator`).
 //
 // ⚠️ Experimental: this surface (the IR types and the codegen toolkit re-exported here) may change
 // between minor versions until it is stabilized. Pin your version if you depend on it.
@@ -11,7 +12,7 @@
 // libraries are peers of the consumer's app, never of the client.
 //
 //   // my-generator.ts
-//   import { defineGenerator, ts, printStatements } from '@redocly/client-generator/plugin';
+//   import { defineGenerator, ts, printStatements } from '@redocly/client-generator';
 //   export default defineGenerator({
 //     name: 'route-map',
 //     requires: ['sdk'],

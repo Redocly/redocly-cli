@@ -310,7 +310,7 @@ A generator is `{ name, run }` (plus optional compatibility metadata); author it
 
 ```ts
 // route-map-generator.ts
-import { defineGenerator } from '@redocly/client-generator/plugin';
+import { defineGenerator } from '@redocly/client-generator';
 
 export default defineGenerator({
   name: 'route-map',
@@ -330,7 +330,7 @@ export default defineGenerator({
 });
 ```
 
-The `@redocly/client-generator/plugin` entry also exports the codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …) and the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
+The `@redocly/client-generator` entry also exports the codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …) and the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
 
 Select it in `redocly.yaml` by path or package name:
 

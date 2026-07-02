@@ -28,7 +28,7 @@ The feature stays experimental until all of the following hold:
 
 1. **Validated against real-world specs** — exercised on a representative set of production OpenAPI descriptions (incl. internal consumers) with no output-shape surprises.
 2. **Generated-output shape frozen** — no pending changes to the emitted client/types that would break a committed, generated client.
-3. **Plugin IR committed to** — the IR and codegen toolkit re-exported from `@redocly/client-generator/plugin` are reviewed and promoted from `@experimental` to stable.
+3. **Plugin IR committed to** — the IR and codegen toolkit re-exported from `@redocly/client-generator` are reviewed and promoted from `@experimental` to stable.
 4. **Deferrals decided** — `int64`→`bigint`, oauth2 token-flow helpers, and the formatting/pretty-print pass are each either implemented or explicitly declared out of scope.
 5. **Soak period** — a defined window of no breaking changes to flags/output/config before the flag is flipped.
 

@@ -52,7 +52,7 @@ export type GeneratorDescriptor = {
  * A user-authored generator (the public, experimental plugin contract): a `GeneratorDescriptor`
  * plus a unique `name` used to select it in `generators`, to satisfy other generators' `requires`,
  * and to detect collisions. Authors build one via `defineGenerator` from the
- * `@redocly/client-generator/plugin` entry; the resolver registers it under `name`.
+ * `@redocly/client-generator` entry; the resolver registers it under `name`.
  */
 export type CustomGenerator = GeneratorDescriptor & {
   /** Unique name, used in `generators` selection, `requires`, and collision detection. */

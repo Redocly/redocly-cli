@@ -372,7 +372,7 @@ Write a **custom generator**: it reads the same OpenAPI-derived model the built-
 
 ```ts
 // route-map-generator.ts
-import { defineGenerator } from '@redocly/client-generator/plugin';
+import { defineGenerator } from '@redocly/client-generator';
 
 export default defineGenerator({
   name: 'route-map',
@@ -406,7 +406,7 @@ await generateClient({
 });
 ```
 
-`@redocly/client-generator/plugin` also exports the IR types and the codegen toolkit the built-ins use (`ts`, `printStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …).
+`@redocly/client-generator` also exports the IR types and the codegen toolkit the built-ins use (`ts`, `printStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …).
 A generator declares the same `requires`/`facades`/`errorModes`/`dateTypes` contract, validated up front.
 The generated client stays dependency-free.
 See `examples/custom-generator` for a runnable example.

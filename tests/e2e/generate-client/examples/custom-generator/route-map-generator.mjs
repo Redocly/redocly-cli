@@ -4,7 +4,7 @@
 //
 // Plain ESM so the CLI imports it under bare `node`. Authored in TypeScript you would write:
 //
-//   import { defineGenerator } from '@redocly/client-generator/plugin';
+//   import { defineGenerator } from '@redocly/client-generator';
 //   export default defineGenerator({ name: 'route-map', requires: ['sdk'], run({ model, outputPath }) { … } });
 //
 // `defineGenerator` is just an identity helper for types, so a plain object works too:

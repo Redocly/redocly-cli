@@ -50,8 +50,7 @@ export async function handleGenerateClient({
   argv,
   config,
 }: CommandArgs<GenerateClientCommandArgv>) {
-  const { generateClient } = await import('@redocly/client-generator');
-  const { mergeConfig } = await import('@redocly/client-generator/config-file');
+  const { generateClient, mergeConfig } = await import('@redocly/client-generator');
 
   const { client, apis } = config.resolvedConfig;
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();

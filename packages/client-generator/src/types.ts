@@ -86,7 +86,7 @@ export type GenerateClientOptions = {
   /**
    * Inline custom generators (the experimental plugin API), registered before resolution so they
    * can be selected in `generators` by `name`. Authored with `defineGenerator` from
-   * `@redocly/client-generator/plugin`. Path/package specifiers in `generators` don't need this.
+   * `@redocly/client-generator`. Path/package specifiers in `generators` don't need this.
    */
   customGenerators?: CustomGenerator[];
   /**
