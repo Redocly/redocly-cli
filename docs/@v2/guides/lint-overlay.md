@@ -69,7 +69,7 @@ The following example shows configuration for the minimal ruleset with additiona
 
 ```yaml
 extends:
- - minimal
+  - minimal
 
 rules:
   info-contact: warn
