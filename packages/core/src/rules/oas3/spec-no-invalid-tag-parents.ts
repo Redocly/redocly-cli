@@ -1,5 +1,5 @@
-import type { Oas3Rule } from '../../visitors.js';
 import type { Oas3_2Tag } from '../../typings/openapi.js';
+import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const SpecNoInvalidTagParents: Oas3Rule = () => {
@@ -20,6 +20,7 @@ export const SpecNoInvalidTagParents: Oas3Rule = () => {
           report({
             message: `Tag parent '${tag.parent}' is not defined in the API description.`,
             location: location.child('parent'),
+            reference: 'https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents',
           });
           return;
         }
@@ -30,6 +31,7 @@ export const SpecNoInvalidTagParents: Oas3Rule = () => {
             report({
               message: `Circular reference detected in tag parent hierarchy for tag '${tag.name}'.`,
               location: location.child('parent'),
+              reference: 'https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents',
             });
             return;
           }

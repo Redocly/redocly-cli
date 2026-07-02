@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 oas3-no-example-value-and-externalValue', () => {
   it('oas3-no-example-value-and-externalValue: should report on example object with both value and external value', async () => {
@@ -37,6 +38,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
             },
           ],
           "message": "Example object can have either \`value\` or \`externalValue\` fields.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-example-value-and-externalValue",
           "ruleId": "no-example-value-and-externalValue",
           "severity": "error",
           "suggest": [],

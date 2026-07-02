@@ -1,4 +1,5 @@
 import { outdent } from 'outdent';
+
 import { validateDoc } from './utils.js';
 
 it('should not report if summary field is valid', async () => {

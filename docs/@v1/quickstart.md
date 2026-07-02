@@ -98,7 +98,7 @@ For example, let's build a lightweight ruleset using the [minimal ruleset](./rul
 
 ```yaml
 extends:
- - minimal
+  - minimal
 
 rules:
   path-parameters-defined: error

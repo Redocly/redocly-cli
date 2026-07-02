@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 info-license', () => {
   it('should report on info with no license', async () => {
@@ -32,6 +33,7 @@ describe('Oas3 info-license', () => {
             },
           ],
           "message": "Info object should contain \`license\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/info-license",
           "ruleId": "info-license",
           "severity": "error",
           "suggest": [],

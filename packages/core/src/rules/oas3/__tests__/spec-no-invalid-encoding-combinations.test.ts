@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('spec-no-invalid-encoding-combinations', () => {
   it('should report on invalid encoding combinations', async () => {
@@ -75,6 +76,7 @@ describe('spec-no-invalid-encoding-combinations', () => {
             },
           ],
           "message": "The 'encoding' field cannot be used together with 'prefixEncoding' or 'itemEncoding'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-encoding-combinations",
           "ruleId": "spec-no-invalid-encoding-combinations",
           "severity": "error",
           "suggest": [],
@@ -88,6 +90,7 @@ describe('spec-no-invalid-encoding-combinations', () => {
             },
           ],
           "message": "The 'encoding' field cannot be used together with 'prefixEncoding' or 'itemEncoding'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-encoding-combinations",
           "ruleId": "spec-no-invalid-encoding-combinations",
           "severity": "error",
           "suggest": [],

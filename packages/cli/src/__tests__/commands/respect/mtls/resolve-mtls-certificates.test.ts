@@ -4,7 +4,7 @@ import { resolveMtlsCertificates } from '../../../../../src/commands/respect/mtl
 
 // vi.mock must come before any variable declarations
 vi.mock('node:fs', async () => {
-  const actual = await vi.importActual('node:fs');
+  const actual = await vi.importActual<typeof fs>('node:fs');
   const mockReadFileSync = vi.fn();
   const mockAccessSync = vi.fn();
 
@@ -16,8 +16,6 @@ vi.mock('node:fs', async () => {
       readFileSync: mockReadFileSync,
     },
     constants: {
-      // FIXME: this is a temporary fix to make the test pass
-      // @ts-expect-error
       ...actual.constants,
       R_OK: 4,
     },

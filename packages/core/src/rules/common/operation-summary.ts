@@ -1,14 +1,18 @@
-import { validateDefinedAndNonEmpty } from '../utils.js';
-
+import type { Oas3Operation } from '../../typings/openapi.js';
+import type { Oas2Operation } from '../../typings/swagger.js';
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { Oas2Operation } from '../../typings/swagger.js';
-import type { Oas3Operation } from '../../typings/openapi.js';
+import { validateDefinedAndNonEmpty } from '../utils.js';
 
 export const OperationSummary: Oas3Rule | Oas2Rule = () => {
   return {
     Operation(operation: Oas2Operation | Oas3Operation, ctx: UserContext) {
-      validateDefinedAndNonEmpty('summary', operation, ctx);
+      validateDefinedAndNonEmpty({
+        fieldName: 'summary',
+        value: operation,
+        ctx,
+        reference: 'https://redocly.com/docs/cli/rules/oas/operation-summary',
+      });
     },
   };
 };

@@ -1,5 +1,5 @@
-import { listOf, mapOf, type NodeType } from './index.js';
 import { isMappingRef } from '../ref-utils.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
@@ -214,7 +214,7 @@ const License: NodeType = {
 
 const Paths: NodeType = {
   properties: {},
-  additionalProperties: (_value: any, key: string) =>
+  additionalProperties: (_value: unknown, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
   description:
     'The Paths Object is a map of a paths to the path item object. A path starts with a /.',
@@ -346,7 +346,7 @@ const Operation: NodeType = {
     operationId: {
       type: 'string',
       description:
-        'The operationId is path segment or path fragment in deep links to a specific operation.',
+        'Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive.',
       documentationLink:
         'https://redocly.com/learn/openapi/openapi-visual-reference/operation#operationid',
     },
@@ -516,7 +516,7 @@ const Header: NodeType = {
 
 const Responses: NodeType = {
   properties: { default: 'Response' },
-  additionalProperties: (_v: any, key: string) =>
+  additionalProperties: (_v: unknown, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
   description: 'The list of possible responses as they are returned from executing this operation.',
   documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/named-responses',
@@ -611,14 +611,14 @@ const Schema: NodeType = {
     }),
     not: 'Schema',
     properties: 'SchemaProperties',
-    items: (value: any) => {
+    items: (value: unknown) => {
       if (Array.isArray(value)) {
         return listOf('Schema');
       } else {
         return 'Schema';
       }
     },
-    additionalProperties: (value: any) => {
+    additionalProperties: (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
@@ -669,8 +669,8 @@ const SchemaProperties: NodeType = {
 
 const DiscriminatorMapping: NodeType = {
   properties: {},
-  additionalProperties: (value: any) => {
-    if (isMappingRef(value)) {
+  additionalProperties: (value: unknown) => {
+    if (typeof value === 'string' && isMappingRef(value)) {
       return { type: 'string', directResolveAs: 'Schema' };
     } else {
       return { type: 'string' };
@@ -754,7 +754,7 @@ const AuthorizationCode: NodeType = {
     authorizationUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
-    'x-usePkce': (value: any) => {
+    'x-usePkce': (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 operation-operationId-unique', () => {
   it('should report on for non-unique opid', async () => {
@@ -41,6 +42,7 @@ describe('Oas3 operation-operationId-unique', () => {
             },
           ],
           "message": "Every operation must have a unique \`operationId\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-operationId-unique",
           "ruleId": "operation-operationId-unique",
           "severity": "error",
           "suggest": [],

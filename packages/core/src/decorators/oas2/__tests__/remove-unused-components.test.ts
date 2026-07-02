@@ -1,11 +1,12 @@
 import * as path from 'node:path';
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { bundleDocument } from '../../../bundle/bundle-document.js';
 import { bundle } from '../../../bundle/bundle.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 import { Oas2Types } from '../../../index.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('oas2 remove-unused-components', () => {
   it('should remove unused components', async () => {
@@ -243,5 +244,120 @@ describe('oas2 remove-unused-components', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0].ruleId).toEqual('bundler');
     expect(problems[0].message).toEqual("Can't resolve $ref");
+  });
+
+  it('should keep securityDefinitions referenced via SecurityRequirement or a $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        swagger: '2.0'
+        security:
+          - api_key: []
+        paths:
+          /foo:
+            get:
+              security:
+                - api_key: []
+          /bar:
+            get:
+              security:
+                - derived: []
+        securityDefinitions:
+          api_key:
+            type: apiKey
+            name: api_key
+            in: header
+          base:
+            type: apiKey
+            name: base
+            in: header
+          derived:
+            $ref: '#/securityDefinitions/base'
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+      types: Oas2Types,
+    });
+
+    expect(results.bundle.parsed).toMatchInlineSnapshot(`
+      {
+        "paths": {
+          "/bar": {
+            "get": {
+              "security": [
+                {
+                  "derived": [],
+                },
+              ],
+            },
+          },
+          "/foo": {
+            "get": {
+              "security": [
+                {
+                  "api_key": [],
+                },
+              ],
+            },
+          },
+        },
+        "security": [
+          {
+            "api_key": [],
+          },
+        ],
+        "securityDefinitions": {
+          "api_key": {
+            "in": "header",
+            "name": "api_key",
+            "type": "apiKey",
+          },
+          "base": {
+            "in": "header",
+            "name": "base",
+            "type": "apiKey",
+          },
+          "derived": {
+            "$ref": "#/securityDefinitions/base",
+          },
+        },
+        "swagger": "2.0",
+      }
+    `);
+  });
+
+  it('should remove unused securityDefinitions', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        swagger: '2.0'
+        paths: {}
+        securityDefinitions:
+          unused:
+            type: apiKey
+            name: unused
+            in: header
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+      types: Oas2Types,
+    });
+
+    expect(results.bundle.parsed).toMatchInlineSnapshot(`
+      {
+        "paths": {},
+        "swagger": "2.0",
+      }
+    `);
   });
 });

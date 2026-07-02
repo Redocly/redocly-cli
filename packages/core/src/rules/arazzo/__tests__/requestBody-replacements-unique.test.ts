@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo requestBody-replacements-unique', () => {
   const document = parseYamlToDocument(
@@ -45,7 +46,7 @@ describe('Arazzo requestBody-replacements-unique', () => {
               successCriteria:
                 - condition: $statusCode == 201
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type: jsonpath
               outputs:
                 createdEventId: $response.body.eventId
@@ -87,6 +88,7 @@ describe('Arazzo requestBody-replacements-unique', () => {
             },
           ],
           "message": "Every \`replacement\` in \`requestBody\` must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/requestbody-replacements-unique",
           "ruleId": "requestBody-replacements-unique",
           "severity": "error",
           "suggest": [],

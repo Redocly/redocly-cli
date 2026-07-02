@@ -1,8 +1,8 @@
-import JsonPointerLib from 'json-pointer';
 import { red } from 'colorette';
+import JsonPointerLib from 'json-pointer';
 
-import type { OperationDetails } from './get-operation-from-description.js';
 import type { SourceDescription } from '../../types.js';
+import type { OperationDetails } from './get-operation-from-description.js';
 
 export function getOperationByPath(
   operationPath: string,

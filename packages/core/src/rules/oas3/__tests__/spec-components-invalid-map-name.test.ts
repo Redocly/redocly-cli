@@ -1,8 +1,9 @@
-import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { outdent } from 'outdent';
+
+import { parseYamlToDocument } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 spec-components-invalid-map-name', () => {
   it('should report about invalid keys inside components', async () => {
@@ -72,6 +73,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in parameters "my Param" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": [],
@@ -108,6 +110,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in schemas "first schema" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": [],
@@ -144,6 +147,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in responses "400 status" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": [],
@@ -180,6 +184,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in examples "invalid identifier" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": [],
@@ -273,6 +278,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in parameters "my Param" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-components-invalid-map-name",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": [],

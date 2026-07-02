@@ -1,16 +1,15 @@
+import { CONFIG_NODE_TYPE_NAMES, rootRedoclyConfigSchema } from '@redocly/config';
+import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
-import { rootRedoclyConfigSchema } from '@redocly/config';
-import { listOf, mapOf } from './index.js';
+
+import type { Config, RawGovernanceConfig } from '../config/index.js';
 import { specVersions, getTypes } from '../oas-types.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { normalizeTypes } from '../types/index.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
+import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
-import { normalizeTypes } from '../types/index.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
-
-import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType, PropType } from './index.js';
-import type { Config, RawGovernanceConfig } from '../config/index.js';
 
 const builtInOAS2Rules = [
   'info-contact',
@@ -56,8 +55,7 @@ const builtInOAS2Rules = [
   'response-mime-type',
   'no-duplicated-tag-names',
 ] as const;
-
-export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
+export type BuiltInOAS2RuleId = (typeof builtInOAS2Rules)[number];
 
 const builtInOAS3Rules = [
   'info-contact',
@@ -107,6 +105,7 @@ const builtInOAS3Rules = [
   'no-server-variables-empty-enum',
   'no-undefined-server-variable',
   'no-unused-components',
+  'no-mixed-number-range-constraints',
   'operation-4xx-problem-details-rfc7807',
   'request-mime-type',
   'response-contains-property',
@@ -119,9 +118,9 @@ const builtInOAS3Rules = [
   'spec-no-invalid-encoding-combinations',
   'spec-discriminator-defaultMapping',
   'spec-example-values',
+  'spec-querystring-parameters',
 ] as const;
-
-export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
+export type BuiltInOAS3RuleId = (typeof builtInOAS3Rules)[number];
 
 const builtInAsync2Rules = [
   'info-contact',
@@ -134,8 +133,10 @@ const builtInAsync2Rules = [
   'no-duplicated-tag-names',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
+  'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
 ] as const;
+export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
 
 const builtInAsync3Rules = [
   'info-contact',
@@ -148,12 +149,10 @@ const builtInAsync3Rules = [
   'no-duplicated-tag-names',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
+  'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
 ] as const;
-
-export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
-
-export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
+export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
 
 const builtInArazzo1Rules = [
   'sourceDescription-type',
@@ -161,11 +160,12 @@ const builtInArazzo1Rules = [
   'stepId-unique',
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
+  'spec-step-mutually-exclusive-fields',
   'workflow-dependsOn',
+  'outputs-defined',
   'parameters-unique',
   'step-onSuccess-unique',
   'step-onFailure-unique',
-  'respect-supported-versions',
   'requestBody-replacements-unique',
   'no-criteria-xpath',
   'criteria-unique',
@@ -174,15 +174,14 @@ const builtInArazzo1Rules = [
   'no-x-security-both-scheme-and-scheme-name',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
+  'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
   'x-security-scheme-name-reference',
 ] as const;
-
-export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
+export type BuiltInArazzo1RuleId = (typeof builtInArazzo1Rules)[number];
 
 const builtInOverlay1Rules = ['info-contact'] as const;
-
-export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
+export type BuiltInOverlay1RuleId = (typeof builtInOverlay1Rules)[number];
 
 const builtInOpenRpc1Rules = [
   'info-contact',
@@ -191,12 +190,10 @@ const builtInOpenRpc1Rules = [
   'spec-no-duplicated-method-params',
   'spec-no-required-params-after-optional',
 ] as const;
-
-export type BuiltInOpenRpc1RuleId = typeof builtInOpenRpc1Rules[number];
+export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
-
-export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
+export type BuiltInCommonRuleId = (typeof builtInCommonRules)[number];
 
 const builtInRules = [
   ...builtInOAS2Rules,
@@ -208,15 +205,42 @@ const builtInRules = [
   ...builtInOpenRpc1Rules,
   ...builtInCommonRules,
 ] as const;
+type BuiltInRuleId = (typeof builtInRules)[number];
 
-type BuiltInRuleId = typeof builtInRules[number];
+const builtInOas2Decorators = [
+  'operation-description-override',
+  'tag-description-override',
+  'info-description-override',
+  'info-override',
+  'remove-x-internal',
+  'filter-in',
+  'filter-out',
+  'remove-unused-components',
+] as const;
+export type BuiltInOas2DecoratorId = (typeof builtInOas2Decorators)[number];
+
+const builtInOas3Decorators = [
+  'operation-description-override',
+  'tag-description-override',
+  'info-description-override',
+  'info-override',
+  'remove-x-internal',
+  'filter-in',
+  'filter-out',
+  'media-type-examples-override',
+  'remove-unused-components',
+] as const;
+export type BuiltInOas3DecoratorId = (typeof builtInOas3Decorators)[number];
+
+const builtInDecorators = [...builtInOas3Decorators, ...builtInOas2Decorators] as const;
+type BuiltInDecoratorId = (typeof builtInDecorators)[number];
 
 const configGovernanceProperties: Record<
   keyof RawGovernanceConfig,
   NodeType['properties'][string]
 > = {
   extends: {
-    name: 'ConfigRoot.extends',
+    name: 'Extends',
     properties: {},
     items: (node) => {
       // check if it's preset name
@@ -226,10 +250,9 @@ const configGovernanceProperties: Record<
       return {
         ...ConfigGovernance,
         directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
-      } as PropType;
+      };
     },
-    description:
-      'The extends configuration entry allows your project configuration to extend an existing configuration set.',
+    description: 'Use extends to inherit rules and their configurations from other rulesets.',
     documentationLink: 'https://redocly.com/docs/cli/configuration/reference/extends#extends',
   } as PropType,
   plugins: { type: 'array', items: { type: 'string' } },
@@ -242,28 +265,31 @@ const configGovernanceProperties: Record<
   async2Rules: 'Rules',
   async3Rules: 'Rules',
   arazzo1Rules: 'Rules',
+  arazzo1_1Rules: 'Rules',
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
-  preprocessors: { type: 'object' },
-  oas2Preprocessors: { type: 'object' },
-  oas3_0Preprocessors: { type: 'object' },
-  oas3_1Preprocessors: { type: 'object' },
-  oas3_2Preprocessors: { type: 'object' },
-  async2Preprocessors: { type: 'object' },
-  async3Preprocessors: { type: 'object' },
-  arazzo1Preprocessors: { type: 'object' },
-  overlay1Preprocessors: { type: 'object' },
-  openrpc1Preprocessors: { type: 'object' },
-  decorators: { type: 'object' },
-  oas2Decorators: { type: 'object' },
-  oas3_0Decorators: { type: 'object' },
-  oas3_1Decorators: { type: 'object' },
-  oas3_2Decorators: { type: 'object' },
-  async2Decorators: { type: 'object' },
-  async3Decorators: { type: 'object' },
-  arazzo1Decorators: { type: 'object' },
-  overlay1Decorators: { type: 'object' },
-  openrpc1Decorators: { type: 'object' },
+  preprocessors: 'Preprocessors',
+  oas2Preprocessors: 'Preprocessors',
+  oas3_0Preprocessors: 'Preprocessors',
+  oas3_1Preprocessors: 'Preprocessors',
+  oas3_2Preprocessors: 'Preprocessors',
+  async2Preprocessors: 'Preprocessors',
+  async3Preprocessors: 'Preprocessors',
+  arazzo1Preprocessors: 'Preprocessors',
+  arazzo1_1Preprocessors: 'Preprocessors',
+  overlay1Preprocessors: 'Preprocessors',
+  openrpc1Preprocessors: 'Preprocessors',
+  decorators: 'Decorators',
+  oas2Decorators: 'Decorators',
+  oas3_0Decorators: 'Decorators',
+  oas3_1Decorators: 'Decorators',
+  oas3_2Decorators: 'Decorators',
+  async2Decorators: 'Decorators',
+  async3Decorators: 'Decorators',
+  arazzo1Decorators: 'Decorators',
+  arazzo1_1Decorators: 'Decorators',
+  overlay1Decorators: 'Decorators',
+  openrpc1Decorators: 'Decorators',
 };
 
 const ConfigGovernance: NodeType = {
@@ -289,6 +315,9 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
 const ConfigApis: NodeType = {
   properties: {},
   additionalProperties: 'ConfigApisProperties',
+  description:
+    'The `apis` configuration section is used when a project contains multiple API descriptions to set up different rules and settings for individual APIs. It allows defining specific configurations for each API, which must be identified by a unique name.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
 const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
@@ -312,9 +341,9 @@ const ConfigHTTP: NodeType = {
 
 const Rules: NodeType = {
   properties: {},
-  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
   description:
-    'The rules configuration blocks configure linting rules and their severity. Configure built-in rules included by default, configurable rules you add yourself, and rules from plugins.',
+    'The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {
@@ -322,11 +351,17 @@ const Rules: NodeType = {
       } else {
         return 'ConfigurableRule';
       }
-    } else if (builtInRules.includes(key as BuiltInRuleId) || isCustomRuleId(key)) {
+    } else if (builtInRules.includes(key as BuiltInRuleId)) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {
         return 'BuiltinRule';
+      }
+    } else if (isCustomRuleId(key)) {
+      if (typeof value === 'string') {
+        return { enum: ['error', 'warn', 'off'] };
+      } else {
+        return 'CustomRule';
       }
     } else if (key === 'metadata-schema' || key === 'custom-fields-schema') {
       return 'Schema';
@@ -342,6 +377,97 @@ const BuiltinRule: NodeType = {
   },
   additionalProperties: {},
   required: ['severity'],
+  description:
+    'Built-in rules are the default linting rules included with Redocly CLI. They enforce widely accepted API design standards and best practices. Each built-in rule has a default severity of error, but you can change the severity or turn off any built-in rule in your configuration file.',
+  documentationLink: 'https://redocly.com/docs/cli/rules/built-in-rules',
+};
+
+const CustomRule: NodeType = {
+  properties: {
+    severity: { enum: ['error', 'warn', 'off'] },
+  },
+  additionalProperties: {},
+  required: ['severity'],
+  description: 'Custom rules are defined by users via plugins.',
+  documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-rules',
+};
+
+const Decorators: NodeType = {
+  properties: {},
+  description:
+    'Decorators define transformations that can be applied to the API document during the bundle step.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/decorators',
+  additionalProperties: (value: unknown, key: string) => {
+    if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      } else {
+        return 'BuiltinDecorator';
+      }
+    } else if (isCustomRuleId(key)) {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      } else {
+        return 'CustomDecorator';
+      }
+    }
+    // Otherwise is considered as invalid
+    return;
+  },
+};
+
+const BuiltinDecorator: NodeType = {
+  properties: {},
+  additionalProperties: {},
+  description: 'Built-in decorators are the default decorators included with Redocly CLI.',
+  documentationLink: 'https://redocly.com/docs/cli/decorators#list-of-decorators',
+};
+
+const CustomDecorator: NodeType = {
+  properties: {},
+  additionalProperties: {},
+  description: 'Custom decorators are defined by users via plugins.',
+  documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
+};
+
+const Preprocessors: NodeType = {
+  properties: {},
+  description:
+    'Preprocessors define transformations that can be applied to the API document before bundling.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/preprocessors',
+  additionalProperties: (value: unknown, key: string) => {
+    if (builtInDecorators.includes(key as BuiltInDecoratorId)) {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      } else {
+        return 'BuiltinPreprocessor';
+      }
+    } else if (isCustomRuleId(key)) {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      } else {
+        return 'CustomPreprocessor';
+      }
+    }
+    // Otherwise is considered as invalid
+    return;
+  },
+};
+
+const BuiltinPreprocessor: NodeType = {
+  properties: {},
+  additionalProperties: {},
+  description:
+    'Built-in preprocessors are the default preprocessors included with Redocly CLI. The available options are the same for decorators and preprocessors.',
+  documentationLink: 'https://redocly.com/docs/cli/decorators#list-of-decorators',
+};
+
+const CustomPreprocessor: NodeType = {
+  properties: {},
+  additionalProperties: {},
+  description:
+    'Custom preprocessors are defined by users via plugins. The available options are the same for decorators and preprocessors.',
+  documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
 };
 
 // TODO: add better type tree for this
@@ -399,17 +525,17 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
       },
     },
     required: ['type'],
-    documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
     description:
       'REQUIRED. Narrows the subject further by specifying its type, and optionally property, filterParentKeys, etc.',
+    documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
   };
 }
 
 function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
   return {
-    ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'],
+    ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
     properties: {
-      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items']?.properties,
+      ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
       ...configGovernanceProperties,
     },
   };
@@ -474,6 +600,12 @@ const Assertions: NodeType = {
       description:
         'Asserts that at least one of the listed properties (key names only) is defined. ',
       documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#requireany-example',
+    },
+    contains: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Asserts that all listed strings are included in the value array.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#contains-example',
     },
     disallowed: {
       type: 'array',
@@ -546,8 +678,8 @@ const Assertions: NodeType = {
     if (/^\w+\/\w+$/.test(key)) return {};
     return;
   },
-  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#assertion-object',
   description: 'A minimum of one assertion property is required to be defined.',
+  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#assertion-object',
 };
 
 const Where: NodeType = {
@@ -556,9 +688,9 @@ const Where: NodeType = {
     assertions: 'Assertions',
   },
   required: ['subject', 'assertions'],
-  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#where-object',
   description:
     'The where object is part of a where list which must be defined in order from the root node. Each node can only be used in one where object for each assertion. Each subsequent node must be a descendant of the previous one. Rules that use multiple where objects must target each one on a different node. However, the same node could be used in the last where object and in the root subject object. Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.',
+  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#where-object',
 };
 
 const ConfigurableRule: NodeType = {
@@ -568,13 +700,14 @@ const ConfigurableRule: NodeType = {
     where: listOf('Where'),
     message: { type: 'string' },
     suggest: { type: 'array', items: { type: 'string' } },
+    reference: { type: 'string' },
     severity: { enum: ['error', 'warn', 'off'] },
   },
   required: ['subject', 'assertions'],
-  documentationLink:
-    'https://redocly.com/docs/cli/rules/configurable-rules#configurable-rule-object',
   description:
     'Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a rule/ prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions.',
+  documentationLink:
+    'https://redocly.com/docs/cli/rules/configurable-rules#configurable-rule-object',
 };
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
@@ -583,7 +716,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     return Object.keys(types);
   });
   // Create types based on external schemas
-  const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
+  const { ctx: nodeTypes } = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
 
   return {
     ...CoreConfigTypes,
@@ -591,7 +724,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     Subject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
-    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
+    [CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: createScorecardLevelsItems(nodeTypes),
   };
 }
 
@@ -602,8 +735,15 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigHTTP,
   Where,
   BuiltinRule,
+  CustomRule,
+  BuiltinDecorator,
+  CustomDecorator,
+  BuiltinPreprocessor,
+  CustomPreprocessor,
   Schema,
   Rules,
+  Decorators,
+  Preprocessors,
   Assertions,
 };
 

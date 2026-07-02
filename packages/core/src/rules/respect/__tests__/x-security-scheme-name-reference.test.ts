@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo x-security-scheme-name-reference', () => {
   it('should report when multiple sourceDescriptions exist and schemeName is a plain string', async () => {
@@ -51,6 +52,7 @@ describe('Arazzo x-security-scheme-name-reference', () => {
             },
           ],
           "message": "When multiple \`sourceDescriptions\` exist, \`workflow.x-security.schemeName\` must be a reference to a source description (e.g. \`$sourceDescriptions.{name}.{schemeName}\`)",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-name-reference",
           "ruleId": "x-security-scheme-name-reference",
           "severity": "error",
           "suggest": [],

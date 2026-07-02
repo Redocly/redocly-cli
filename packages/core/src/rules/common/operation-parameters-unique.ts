@@ -1,6 +1,6 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { Oas2Parameter } from '../../typings/swagger.js';
 import type { Oas3Parameter } from '../../typings/openapi.js';
+import type { Oas2Parameter } from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
@@ -21,6 +21,7 @@ export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
           report({
             message: `Paths must have unique \`name\` + \`in\` parameters.\nRepeats of \`in:${parameter.in}\` + \`name:${parameter.name}\`.`,
             location: parentLocations.PathItem.child(['parameters', key]),
+            reference: 'https://redocly.com/docs/cli/rules/oas/operation-parameters-unique',
           });
         }
         seenPathParams.add(`${parameter.in}___${parameter.name}`);
@@ -38,6 +39,7 @@ export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
             report({
               message: `Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:${parameter.in}\` + \`name:${parameter.name}\`.`,
               location: parentLocations.Operation.child(['parameters', key]),
+              reference: 'https://redocly.com/docs/cli/rules/oas/operation-parameters-unique',
             });
           }
           seenOperationParams.add(paramId);

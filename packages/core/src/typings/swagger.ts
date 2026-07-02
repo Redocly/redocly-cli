@@ -1,4 +1,5 @@
 import type { Schema } from 'js-yaml';
+
 import type { Referenced } from './openapi.js';
 
 export interface Oas2Definition {
@@ -193,7 +194,7 @@ export type Oas2Header = Oas2Items & { description?: 'string' };
 export interface Oas2Response {
   description?: string;
   schema: Referenced<Schema>;
-  examples?: Record<string, any>;
+  examples?: Record<string, unknown>;
   headers?: Record<string, Oas2Header>;
 }
 

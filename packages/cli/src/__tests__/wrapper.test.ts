@@ -1,9 +1,10 @@
+import { type Config, detectSpec } from '@redocly/openapi-core';
 import * as process from 'node:process';
+
+import { handleLint } from '../commands/lint.js';
 import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
 import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
-import { handleLint } from '../commands/lint.js';
-import { type Config, detectSpec } from '@redocly/openapi-core';
 
 const originalFetch = global.fetch;
 
@@ -56,6 +57,8 @@ describe('commandWrapper', () => {
         spec_keyword: 'openapi',
         spec_full_version: '3.1.0',
         respect_x_security_auth_types: [],
+        respect_source_description_types: [],
+        respect_criterion_object_types: [],
       })
     );
   });
@@ -87,6 +90,8 @@ describe('commandWrapper', () => {
         spec_keyword: undefined,
         spec_full_version: undefined,
         respect_x_security_auth_types: [],
+        respect_source_description_types: [],
+        respect_criterion_object_types: [],
       })
     );
   });

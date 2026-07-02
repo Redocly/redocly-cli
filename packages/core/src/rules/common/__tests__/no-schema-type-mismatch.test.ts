@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/index.js';
 
 describe('no-schema-type-mismatch rule', () => {
   it('should report a warning for object type with items field', async () => {
@@ -42,6 +43,7 @@ describe('no-schema-type-mismatch rule', () => {
           },
         ],
         message: "Schema type mismatch: 'object' type should not contain 'items' field.",
+        reference: 'https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch',
         ruleId: 'no-schema-type-mismatch',
         severity: 'warn',
         suggest: [],
@@ -87,6 +89,7 @@ describe('no-schema-type-mismatch rule', () => {
           },
         ],
         message: "Schema type mismatch: 'array' type should not contain 'properties' field.",
+        reference: 'https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch',
         ruleId: 'no-schema-type-mismatch',
         severity: 'warn',
         suggest: [],
@@ -173,6 +176,7 @@ describe('no-schema-type-mismatch rule', () => {
             },
           ],
           "message": "Schema type mismatch: 'object' type should not contain 'items' field.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch",
           "ruleId": "no-schema-type-mismatch",
           "severity": "error",
           "suggest": [],
@@ -223,6 +227,7 @@ describe('no-schema-type-mismatch rule', () => {
             },
           ],
           "message": "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch",
           "ruleId": "no-schema-type-mismatch",
           "severity": "error",
           "suggest": [],
@@ -275,6 +280,7 @@ describe('no-schema-type-mismatch rule', () => {
             },
           ],
           "message": "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch",
           "ruleId": "no-schema-type-mismatch",
           "severity": "error",
           "suggest": [],

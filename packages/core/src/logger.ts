@@ -1,4 +1,5 @@
 import * as colorette from 'colorette';
+
 import { isBrowser } from './env.js';
 import { identity } from './utils/identity.js';
 
@@ -12,6 +13,7 @@ export const colorize = new Proxy(colorette, {
       return identity;
     }
 
+    // oxlint-disable-next-line typescript/no-explicit-any
     return (target as any)[prop];
   },
 });

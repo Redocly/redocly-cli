@@ -1,7 +1,3 @@
-import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-
-import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 import type {
   Oas3RuleSet,
   Oas2RuleSet,
@@ -11,6 +7,9 @@ import type {
   Overlay1RuleSet,
   OpenRpc1RuleSet,
 } from '../oas-types.js';
+import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -29,7 +28,7 @@ export function prefixRules<
     | Async2RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
-    | OpenRpc1RuleSet
+    | OpenRpc1RuleSet,
 >(rules: T, prefix: string) {
   if (!prefix) return rules;
 
@@ -51,6 +50,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async2Rules: {},
     async3Rules: {},
     arazzo1Rules: {},
+    arazzo1_1Rules: {},
     overlay1Rules: {},
     openrpc1Rules: {},
 
@@ -62,6 +62,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async2Preprocessors: {},
     async3Preprocessors: {},
     arazzo1Preprocessors: {},
+    arazzo1_1Preprocessors: {},
     overlay1Preprocessors: {},
     openrpc1Preprocessors: {},
 
@@ -73,6 +74,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async2Decorators: {},
     async3Decorators: {},
     arazzo1Decorators: {},
+    arazzo1_1Decorators: {},
     overlay1Decorators: {},
     openrpc1Decorators: {},
   };
@@ -99,6 +101,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.async3Rules, rulesConf.rules);
     assignConfig(result.arazzo1Rules, rulesConf.arazzo1Rules);
     assignOnlyExistingConfig(result.arazzo1Rules, rulesConf.rules);
+    assignConfig(result.arazzo1_1Rules, rulesConf.arazzo1_1Rules);
+    assignOnlyExistingConfig(result.arazzo1_1Rules, rulesConf.rules);
     assignConfig(result.overlay1Rules, rulesConf.overlay1Rules);
     assignOnlyExistingConfig(result.overlay1Rules, rulesConf.rules);
     assignConfig(result.openrpc1Rules, rulesConf.openrpc1Rules);
@@ -119,6 +123,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.async3Preprocessors, rulesConf.preprocessors);
     assignConfig(result.arazzo1Preprocessors, rulesConf.arazzo1Preprocessors);
     assignOnlyExistingConfig(result.arazzo1Preprocessors, rulesConf.preprocessors);
+    assignConfig(result.arazzo1_1Preprocessors, rulesConf.arazzo1_1Preprocessors);
+    assignOnlyExistingConfig(result.arazzo1_1Preprocessors, rulesConf.preprocessors);
     assignConfig(result.overlay1Preprocessors, rulesConf.overlay1Preprocessors);
     assignOnlyExistingConfig(result.overlay1Preprocessors, rulesConf.preprocessors);
     assignConfig(result.openrpc1Preprocessors, rulesConf.openrpc1Preprocessors);
@@ -139,6 +145,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.async3Decorators, rulesConf.decorators);
     assignConfig(result.arazzo1Decorators, rulesConf.arazzo1Decorators);
     assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
+    assignConfig(result.arazzo1_1Decorators, rulesConf.arazzo1_1Decorators);
+    assignOnlyExistingConfig(result.arazzo1_1Decorators, rulesConf.decorators);
     assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);

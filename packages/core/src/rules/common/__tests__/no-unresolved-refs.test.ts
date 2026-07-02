@@ -1,10 +1,11 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { fileURLToPath } from 'node:url';
-import { createConfig } from '../../../config/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -43,6 +44,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
             },
           ],
           "message": "Can't resolve $ref: ENOENT: no such file or directory 'invalid.yaml'",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
           "suggest": [],
@@ -102,6 +104,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
             },
           ],
           "message": "Can't resolve $ref: unexpected end of the stream within a single quoted scalar in "fixtures/invalid-yaml.yaml" (2:1)",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
           "suggest": [],
@@ -170,6 +173,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
             },
           ],
           "message": "Can't resolve $ref",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
           "suggest": [],

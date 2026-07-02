@@ -67,7 +67,7 @@ workflows:
         successCriteria:
           - condition: $statusCode == 201
           - context: $response.body
-            condition: $.name == 'Mermaid Treasure Identification and Analysis'
+            condition: "$[?@.name == 'Mermaid Treasure Identification and Analysis']"
             type: jsonpath
         outputs:
           createdEventId: $response.body#/eventId
@@ -104,7 +104,7 @@ workflows:
         successCriteria:
           - condition: $statusCode == 200
           - context: $response.body
-            condition: $.name == 'Orca Identification and Analysis'
+            condition: "$[?@.name == 'Orca Identification and Analysis']"
             type:
               type: jsonpath
               version: draft-goessner-dispatch-jsonpath-00

@@ -7,13 +7,13 @@ import {
   logger,
 } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
+
 import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
 
 vi.mock('@redocly/openapi-core', async () => {
-  const originalModule = await vi.importActual<typeof import('@redocly/openapi-core')>(
-    '@redocly/openapi-core'
-  );
+  const originalModule =
+    await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
 
   return {
     ...originalModule, // Preserve other exports
@@ -122,14 +122,6 @@ describe('runTestFile', () => {
   });
 
   it(`should throw error if file is not valid Arazzo test file`, async () => {
-    const mockDocument = makeDocumentFromString(
-      JSON.stringify({
-        openapi: '1.0.0',
-        info: { title: 'Cat Facts API', version: '1.0' },
-      }),
-      'test.yml'
-    );
-
     await expect(
       runTestFile({
         options: { file: 'test.yaml', ...defaultRespectOptions },
@@ -141,10 +133,6 @@ describe('runTestFile', () => {
   });
 
   it('should throw Found errors in Arazzo description error when contains lint errors', async () => {
-    const testDescription = {
-      workflows: [],
-    };
-
     const mockDocument = makeDocumentFromString(
       JSON.stringify({
         arazzo: '1.0.1',
@@ -440,7 +428,7 @@ describe('runTestFile', () => {
       })
     ).rejects.toThrow(
       expect.objectContaining({
-        // @ts-ignore
+        // @ts-expect-error
         message: expect.stringContaining('Workflow', 'not-existing-workflowId', 'not found'),
       })
     );

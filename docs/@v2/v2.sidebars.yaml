@@ -34,6 +34,8 @@
           page: commands/push-status.md
         - label: respect
           page: commands/respect.md
+        - label: score
+          page: commands/score.md
         - label: scorecard-classic
           page: commands/scorecard-classic.md
         - label: split
@@ -91,6 +93,7 @@
             - page: rules/common/no-enum-type-mismatch.md
             - page: rules/common/no-schema-type-mismatch.md
             - page: rules/common/no-required-schema-properties-undefined.md
+            - page: rules/common/no-mixed-number-range-constraints.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
@@ -110,6 +113,7 @@
             - page: rules/oas/spec-example-values.md
             - page: rules/oas/spec-discriminator-defaultMapping.md
             - page: rules/oas/spec-no-invalid-encoding-combinations.md
+            - page: rules/oas/spec-querystring-parameters.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md
@@ -130,6 +134,7 @@
             - page: rules/oas/operation-tag-defined.md
             - page: rules/oas/parameter-description.md
             - page: rules/oas/path-declaration-must-exist.md
+            - page: rules/oas/path-http-verbs-order.md
             - page: rules/oas/path-not-include-query.md
             - page: rules/oas/path-parameters-defined.md
             - page: rules/oas/path-segment-plural.md
@@ -148,9 +153,11 @@
             - separator: AsyncAPI
             - page: rules/async/channels-kebab-case.md
             - page: rules/async/no-channel-trailing-slash.md
+            - separator: Open-RPC
+            - page: rules/openrpc/spec-no-duplicated-method-params.md
+            - page: rules/openrpc/spec-no-required-params-after-optional.md
             - separator: Arazzo
             - page: rules/respect/no-criteria-xpath.md
-            - page: rules/respect/respect-supported-versions.md
             - page: rules/respect/no-x-security-both-scheme-and-scheme-name.md
             - page: rules/respect/no-x-security-scheme-name-without-openapi.md
             - page: rules/respect/x-security-scheme-name-reference.md
@@ -158,8 +165,9 @@
             - page: rules/arazzo/criteria-unique.md
             - page: rules/arazzo/parameters-unique.md
             - page: rules/arazzo/requestBody-replacements-unique.md
-            - page: rules/arazzo/sourceDescriptions-name-unique.md
-            - page: rules/arazzo/sourceDescriptions-type.md
+            - page: rules/arazzo/sourceDescription-name-unique.md
+            - page: rules/arazzo/sourceDescription-type.md
+            - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md

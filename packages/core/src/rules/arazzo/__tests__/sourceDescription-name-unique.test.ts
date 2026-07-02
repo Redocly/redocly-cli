@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo sourceDescription-name-unique', () => {
   const document = parseYamlToDocument(
@@ -57,6 +58,7 @@ describe('Arazzo sourceDescription-name-unique', () => {
             },
           ],
           "message": "The \`name\` must be unique amongst all SourceDescriptions.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/sourcedescription-name-unique",
           "ruleId": "sourceDescription-name-unique",
           "severity": "error",
           "suggest": [],

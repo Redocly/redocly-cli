@@ -1,39 +1,94 @@
 import fs from 'node:fs';
 
-const content = fs.readFileSync('benchmark_check.json', 'utf8');
-const json = JSON.parse(content);
-const arr = json.results.map((r) => [
-  r.command.replace(/^node node_modules\/([^/]+)\/.*/, (_, cliVersion) => cliVersion),
-  r.mean,
-  r.stddev,
-]);
-const minMean = Math.min(...arr.map(([_, mean]) => mean));
+const calculateMedian = (xs) => {
+  const sorted = [...xs].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
 
-const constructBarForChart = (mean, min) => {
+const calculateMedianAbsoluteDeviation = (xs, centre) =>
+  calculateMedian(xs.map((x) => Math.abs(x - centre)));
+
+const constructBarForChart = (value, min) => {
   if (min <= 0) return 'N/A';
-  const slownessRatio = mean / min;
-  const slownessFactor = slownessRatio - 1;
+  const slownessFactor = value / min - 1;
   const maxBarLength = 30;
-  const visualFactor = Math.min(1, slownessFactor);
-  const length = Math.floor(visualFactor * maxBarLength);
+  const length = Math.floor(Math.min(1, slownessFactor) * maxBarLength);
   return '▓' + '▓'.repeat(length);
 };
 
+const loadResults = (jsonPath) => {
+  const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  return new Map(
+    json.results.map(({ command, median, times }) => {
+      const cliVersion = command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
+      return [cliVersion, { median, mad: calculateMedianAbsoluteDeviation(times, median) }];
+    })
+  );
+};
+
+const findFastest = (results) =>
+  [...results.values()].reduce((best, r) => (r.median < best.median ? r : best));
+
+const renderCell = (entry, fastest) => {
+  const bar = constructBarForChart(entry.median, fastest.median);
+  const factor = entry.median / fastest.median;
+  if (entry === fastest) {
+    return `${bar} ${factor.toFixed(2)}x (Fastest)`;
+  }
+  const relativeUnc =
+    factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
+  return `${bar} ${factor.toFixed(2)}x ± ${Math.round(relativeUnc * 100) / 100}`;
+};
+
+const operations = [
+  { name: 'Bundle', file: 'benchmark_bundle.json' },
+  { name: 'Lint', file: 'benchmark_lint.json' },
+  { name: 'Check Config', file: 'benchmark_check-config.json' },
+];
+
+const columns = operations.map(({ name, file }) => {
+  const data = loadResults(file);
+  return { name, data, fastest: findFastest(data) };
+});
+
+const versions = [...new Set(columns.flatMap((c) => [...c.data.keys()]))];
+
+const renderRow = (version) =>
+  `| ${version} | ${columns
+    .map((c) => {
+      const entry = c.data.get(version);
+      return entry ? renderCell(entry, c.fastest) : '—';
+    })
+    .join(' | ')} |`;
+
+const regressions = columns.flatMap(({ name, data }) => {
+  const next = data.get('cli-next');
+  const latest = data.get('cli-latest');
+  if (!next || !latest) return [];
+
+  const slowdown = next.median / latest.median - 1;
+  const noise = Math.sqrt((next.mad / next.median) ** 2 + (latest.mad / latest.median) ** 2);
+  if (slowdown <= 0.05 || slowdown <= noise) return [];
+
+  return [`> - **${name}**: ${(slowdown * 100).toFixed(1)}% slower`];
+});
+
 const output = [
-  '| CLI Version | Mean Time ± Std Dev (s) | Relative Performance (Lower is Faster) |',
-  '|---|---|---|',
-  ...arr.map(([cliVersion, mean, stddev]) => {
-    const bar = constructBarForChart(mean, minMean);
-    const meanFormatted = mean.toFixed(3);
-    const stddevFormatted = stddev.toFixed(3);
-    const relativeSpeedFactor = (mean / minMean).toFixed(2);
-    const factorSuffix = mean === minMean ? 'x (Fastest)' : 'x';
+  '## Performance Benchmark (Lower is Faster)',
+  '',
+  `| CLI Version | ${columns.map((c) => c.name).join(' | ')} |`,
+  `|---|${columns.map(() => '---').join('|')}|`,
+  ...versions.map(renderRow),
+];
 
-    const timeWithStddev = `${meanFormatted}s ± ${stddevFormatted}s`;
-    const performanceDisplay = `${bar} ${relativeSpeedFactor}${factorSuffix}`;
+if (regressions.length) {
+  output.push(
+    '',
+    '> [!WARNING]',
+    '> This PR may introduce a performance regression vs the latest released version:',
+    ...regressions
+  );
+}
 
-    return `| ${cliVersion} | ${timeWithStddev} | ${performanceDisplay} |`;
-  }),
-].join('\n');
-
-process.stdout.write(output);
+process.stdout.write(output.join('\n'));

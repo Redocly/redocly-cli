@@ -1,8 +1,7 @@
+import type { ExtendedSecurity } from '../../typings/arazzo.js';
 import { getOwn } from '../../utils/get-own.js';
-
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 export const NoXSecurityBothSchemeAndSchemeName: Arazzo1Rule = () => {
   function validate(
@@ -19,6 +18,8 @@ export const NoXSecurityBothSchemeAndSchemeName: Arazzo1Rule = () => {
         report({
           message: '`x-security` item must not contain both `scheme` and `schemeName`.',
           location: location.child(['x-security', extendedSecurity.indexOf(security)]),
+          reference:
+            'https://redocly.com/docs/cli/rules/respect/no-x-security-both-scheme-and-scheme-name',
         });
       }
     }

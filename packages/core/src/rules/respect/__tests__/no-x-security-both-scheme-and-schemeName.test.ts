@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Respect no-x-security-both-scheme-and-schemeName', () => {
   it('should report when both scheme and schemeName are provided at workflow level', async () => {
@@ -51,6 +52,7 @@ describe('Respect no-x-security-both-scheme-and-schemeName', () => {
             },
           ],
           "message": "\`x-security\` item must not contain both \`scheme\` and \`schemeName\`.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/no-x-security-both-scheme-and-scheme-name",
           "ruleId": "no-x-security-both-scheme-and-scheme-name",
           "severity": "error",
           "suggest": [],
@@ -105,6 +107,7 @@ describe('Respect no-x-security-both-scheme-and-schemeName', () => {
             },
           ],
           "message": "\`x-security\` item must not contain both \`scheme\` and \`schemeName\`.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/no-x-security-both-scheme-and-scheme-name",
           "ruleId": "no-x-security-both-scheme-and-scheme-name",
           "severity": "error",
           "suggest": [],

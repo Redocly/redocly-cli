@@ -1,9 +1,9 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
-import { lintExpression } from './lint.js';
-import { replaceJSONPointers } from './replace-json-pointers.js';
-import { getFakeData, parseJson } from '../context-parser/index.js';
 
 import type { RuntimeExpressionContext } from '../../types.js';
+import { getFakeData, parseJson } from '../context-parser/index.js';
+import { lintExpression } from './lint.js';
+import { replaceJSONPointers } from './replace-json-pointers.js';
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.
 export function evaluateRuntimeExpressionPayload({
@@ -50,10 +50,13 @@ export function evaluateRuntimeExpressionPayload({
       ? evaluateRuntimeExpression(payload, context, logger)
       : evaluateExpressionsInString(payload, context, logger);
   } else if (isPlainObject(payload)) {
-    return Object.entries(payload).reduce((acc, [key, value]) => {
-      acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context, logger });
-      return acc;
-    }, {} as Record<string, any>);
+    return Object.entries(payload).reduce(
+      (acc, [key, value]) => {
+        acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context, logger });
+        return acc;
+      },
+      {} as Record<string, any>
+    );
   } else if (Array.isArray(payload)) {
     return payload.map((item) =>
       evaluateRuntimeExpressionPayload({ payload: item, context, logger })
@@ -73,10 +76,13 @@ export function evaluateRuntimeExpression(
   if (typeof expression === 'string') {
     return evaluateExpressionString(expression, context, logger);
   } else if (isPlainObject(expression)) {
-    return Object.entries(expression).reduce((acc, [key, value]) => {
-      acc[key] = value && evaluateRuntimeExpression(value, context, logger);
-      return acc;
-    }, {} as Record<string, any>);
+    return Object.entries(expression).reduce(
+      (acc, [key, value]) => {
+        acc[key] = value && evaluateRuntimeExpression(value, context, logger);
+        return acc;
+      },
+      {} as Record<string, any>
+    );
   } else if (Array.isArray(expression)) {
     return expression.map((exp) => evaluateRuntimeExpression(exp, context, logger));
   } else {
@@ -146,8 +152,17 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
   // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
   const normalizedSymbolsExpression = normalizeSymbolsExpression(modifiedJsExpression);
 
-  // Remove the curly braces surrounding the expression (if any)
-  const cleanedJsExpression = normalizedSymbolsExpression.replace(/{(.*?)}/g, '$1');
+  // Remove the curly braces surrounding the ENTIRE expression (if any), but not braces within JSON
+  let cleanedJsExpression = normalizedSymbolsExpression;
+
+  if (cleanedJsExpression.startsWith('{') && cleanedJsExpression.endsWith('}')) {
+    // A runtime expression wrapper has the form {$variable...} with no nested braces until the end
+    const potentialUnwrapped = cleanedJsExpression.slice(1, -1);
+    // Unwrap if it doesn't look like JSON (i.e., doesn't start with { or [)
+    if (!potentialUnwrapped.trim().startsWith('{') && !potentialUnwrapped.trim().startsWith('[')) {
+      cleanedJsExpression = potentialUnwrapped;
+    }
+  }
 
   // Convert numeric indices (e.g., `.0`) into square bracket notation (e.g., `[0]`)
   const expressionWithBrackets = convertNumericIndices(cleanedJsExpression);
@@ -192,11 +207,14 @@ function normalizeValue(value: unknown) {
 
 // Normalize an object by replacing hyphens with underscores in keys
 function normalizeObject(obj: Record<string, unknown>): Record<string, unknown> {
-  return Object.keys(obj).reduce((acc, key) => {
-    const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
-    acc[normalizedKey] = normalizeValue(obj[key]);
-    return acc;
-  }, {} as Record<string, unknown>);
+  return Object.keys(obj).reduce(
+    (acc, key) => {
+      const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
+      acc[normalizedKey] = normalizeValue(obj[key]);
+      return acc;
+    },
+    {} as Record<string, unknown>
+  );
 }
 
 function convertNumericIndices(expression: string): string {
@@ -222,6 +240,10 @@ function evaluateExpressionsInString(
   return expression.replace(regex, (match) => {
     const exprToEvaluate = match.trim();
 
+    if (!isValidRuntimeExpression(exprToEvaluate) && !exprToEvaluate.includes('$faker.')) {
+      return match;
+    }
+
     // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression
     const evaluatedValue = evaluateRuntimeExpression(exprToEvaluate, context, logger);
 
@@ -231,9 +253,29 @@ function evaluateExpressionsInString(
 }
 
 export function isPureRuntimeExpression(expression: string): boolean {
-  // Regular expression to match runtime expressions
-  const regex = /^\$[^\s{}]+(\([^)]*\))?$|^\{[^{}]*\}$/;
+  const trimmedExpression = expression.trim();
 
-  // Check if the expression matches the runtime expression format
-  return regex.test(expression.trim());
+  if (trimmedExpression.startsWith('$faker.')) {
+    return true;
+  }
+
+  if (
+    !(
+      (trimmedExpression.startsWith('$') && !/\s/.test(trimmedExpression)) ||
+      (trimmedExpression.startsWith('{') && trimmedExpression.endsWith('}'))
+    )
+  ) {
+    return false;
+  }
+
+  return isValidRuntimeExpression(trimmedExpression);
+}
+
+function isValidRuntimeExpression(expression: string): boolean {
+  try {
+    lintExpression(expression);
+    return true;
+  } catch {
+    return false;
+  }
 }

@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Bar
+  version: 1.0.0
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /pets:
+    get:
+      summary: Get pets
+      operationId: getPets
+      responses:
+        200:
+          description: OK
+        400:
+          description: Bad request

@@ -1,14 +1,40 @@
-import * as path from 'node:path';
-import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
+import * as path from 'node:path';
+import * as url from 'node:url';
+
+import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
+import { isBrowser } from '../env.js';
+import { colorize, logger } from '../logger.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString } from '../utils/is-not-string.js';
-import { isString } from '../utils/is-string.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
+import {
+  resolveDocument,
+  BaseResolver,
+  Source,
+  type Document,
+  type ResolvedRefMap,
+} from '../resolve.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { isDefined } from '../utils/is-defined.js';
-import { resolveDocument, BaseResolver, Source } from '../resolve.js';
+import { isNotString } from '../utils/is-not-string.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
+import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
+import { getResolveConfig } from './get-resolve-config.js';
+import {
+  getCachedPlugins,
+  hasCachedPlugin,
+  loadPluginModule,
+  setCachedPlugins,
+} from './plugins-cache.js';
+import type {
+  Plugin,
+  RawUniversalConfig,
+  ResolvedConfig,
+  RawGovernanceConfig,
+  ImportedPlugin,
+} from './types.js';
 import {
   deepCloneMapWithJSON,
   isCommonJsPlugin,
@@ -17,24 +43,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-import { getResolveConfig } from './get-resolve-config.js';
-import { isBrowser } from '../env.js';
-import { colorize, logger } from '../logger.js';
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
-import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
-
-import type {
-  Plugin,
-  RawUniversalConfig,
-  ResolvedConfig,
-  RawGovernanceConfig,
-  ImportedPlugin,
-} from './types.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
-
-// Cache instantiated plugins during a single execution
-const pluginsCache: Map<string, Plugin[]> = new Map();
 
 export type PluginResolveInfo = {
   absolutePath: string;
@@ -64,7 +72,12 @@ export async function resolveConfig({
   if (customExtends !== undefined && isPlainObject(config)) {
     config.extends = customExtends;
   }
-  if (isPlainObject<RawUniversalConfig>(config) && config?.extends?.some(isNotString)) {
+  if (
+    isPlainObject<RawUniversalConfig>(config) &&
+    (config?.extends?.some(isNotString) ||
+      config?.scorecardClassic?.levels?.some((level) => level?.extends?.some(isNotString)) ||
+      config?.scorecard?.levels?.some((level) => level?.extends?.some(isNotString)))
+  ) {
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
@@ -159,20 +172,26 @@ export const preResolvePluginPath = (
 
   const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
 
-  return fs.existsSync(maybeAbsolutePluginPath)
-    ? { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false }
-    : {
-        absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
-          paths: [
-            // Plugins imported from the node_modules in the project directory
-            rootConfigDir,
-            // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-            import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
-          ],
-        }),
-        isModule: true,
-        rawPath: plugin,
-      };
+  if (fs.existsSync(maybeAbsolutePluginPath)) {
+    return { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false };
+  }
+
+  try {
+    return {
+      absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+        paths: [
+          // Plugins imported from the node_modules in the project directory
+          rootConfigDir,
+          // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
+          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
+        ],
+      }),
+      isModule: true,
+      rawPath: plugin,
+    };
+  } catch {
+    throw new Error(`Plugin "${plugin}" not found.`);
+  }
 };
 
 export async function resolvePlugins(
@@ -198,19 +217,9 @@ export async function resolvePlugins(
             ) as PluginResolveInfo
           ).absolutePath;
 
-      if (!pluginsCache.has(absolutePluginPath)) {
-        let requiredPlugin: ImportedPlugin | undefined;
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore FIXME: investigate if we still need this (2.0)
-        if (typeof __webpack_require__ === 'function') {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore FIXME: investigate if we still need this (2.0)
-          requiredPlugin = __non_webpack_require__(absolutePluginPath);
-        } else {
-          const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
-          requiredPlugin = mod.default || mod;
-        }
+      if (!hasCachedPlugin(absolutePluginPath)) {
+        const mod = await loadPluginModule(absolutePluginPath);
+        const requiredPlugin: ImportedPlugin | undefined = mod.default || mod;
 
         const pluginCreatorOptions = { contentDir: configDir };
 
@@ -226,13 +235,13 @@ export async function resolvePlugins(
         const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
           ? requiredPlugin
           : isCommonJsPlugin(requiredPlugin)
-          ? await requiredPlugin(pluginCreatorOptions)
-          : await requiredPlugin?.default?.(pluginCreatorOptions);
+            ? await requiredPlugin(pluginCreatorOptions)
+            : await requiredPlugin?.default?.(pluginCreatorOptions);
 
         const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
 
         if (pluginModule) {
-          pluginsCache.set(
+          setCachedPlugins(
             absolutePluginPath,
             pluginInstances.map((p) => ({
               ...p,
@@ -243,7 +252,7 @@ export async function resolvePlugins(
         }
       }
 
-      return pluginsCache.get(absolutePluginPath);
+      return getCachedPlugins(absolutePluginPath);
     } catch (e) {
       throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
     }

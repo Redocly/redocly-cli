@@ -1,5 +1,6 @@
-import { printScorecardResultsAsJson } from '../formatters/json-formatter.js';
 import * as openapiCore from '@redocly/openapi-core';
+
+import { printScorecardResultsAsJson } from '../formatters/json-formatter.js';
 import type { ScorecardProblem } from '../types.js';
 
 const createMockSource = (absoluteRef: string) => ({
@@ -12,10 +13,6 @@ const createMockSource = (absoluteRef: string) => ({
 describe('printScorecardResultsAsJson', () => {
   beforeEach(() => {
     vi.spyOn(openapiCore.logger, 'output').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it('should print empty results when no problems', () => {
@@ -191,7 +188,7 @@ describe('printScorecardResultsAsJson', () => {
   it('should strip ANSI codes from messages', () => {
     const problems: ScorecardProblem[] = [
       {
-        message: '\u001b[31mError message with color\u001b[0m',
+        message: '\u001b[1;31mError message with color\u001b[0m',
         ruleId: 'test-rule',
         severity: 'error',
         suggest: [],

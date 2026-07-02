@@ -1,93 +1,109 @@
-import { isEmptyObject } from '../../utils/is-empty-object.js';
-
-import type { Location } from '../../ref-utils.js';
-import type { Oas3Decorator } from '../../visitors.js';
+import { isRef, parseRef } from '../../ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
   Oas3_2Definition,
   Oas3Components,
   Oas3_1Components,
+  Oas3_2Components,
+  Oas3Schema,
+  Oas3_1Schema,
 } from '../../typings/openapi.js';
+import { isEmptyObject } from '../../utils/is-empty-object.js';
+import { hasComponent } from '../../utils/oas-has-component.js';
+import type { Oas3Decorator } from '../../visitors.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
+type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
+type ComponentInfo = {
+  usedIn: string[];
+  componentType?: AnyOas3ComponentsKey;
+  name: string;
+  referencesDiscriminator?: boolean;
+};
+
+function getComponentKey(pointer: string): string | undefined {
+  if (!pointer.startsWith('#/components/')) return;
+  const [_component, type, name] = parseRef(pointer).pointer;
+  if (!type || !name) return;
+  return `${type}/${name}`;
+}
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
-  const components = new Map<
-    string,
-    {
-      usedIn: Location[];
-      componentType?: keyof (Oas3Components | Oas3_1Components);
-      name: string;
-    }
-  >();
+  const components = new Map<string, ComponentInfo>();
 
   function registerComponent(
-    location: Location,
-    componentType: keyof (Oas3Components | Oas3_1Components),
-    name: string
+    componentType: AnyOas3ComponentsKey,
+    name: string,
+    referencesDiscriminator: boolean = false
   ): void {
-    components.set(location.absolutePointer, {
-      usedIn: components.get(location.absolutePointer)?.usedIn ?? [],
+    const key = `${componentType}/${name}`;
+    components.set(key, {
+      usedIn: components.get(key)?.usedIn ?? [],
       componentType,
       name,
+      referencesDiscriminator,
     });
   }
 
-  function removeUnusedComponents(root: AnyOas3Definition, removedPaths: string[]): number {
-    const removedLengthStart = removedPaths.length;
+  function removeUnusedComponents(
+    root: AnyOas3Definition,
+    removedKeys: Set<string> = new Set()
+  ): number {
+    const removedCountBefore = removedKeys.size;
 
-    for (const [path, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some(
-        (location) =>
-          !removedPaths.some(
-            (removed) =>
-              location.absolutePointer.startsWith(removed) &&
-              (location.absolutePointer.length === removed.length ||
-                location.absolutePointer[removed.length] === '/')
-          )
-      );
+    for (const [key, { usedIn, name, componentType, referencesDiscriminator }] of components) {
+      const used =
+        usedIn.some((sourceKey) => sourceKey !== key && !removedKeys.has(sourceKey)) ||
+        referencesDiscriminator;
 
-      if (!used && componentType && root.components) {
-        removedPaths.push(path);
+      if (
+        !used &&
+        componentType &&
+        root.components &&
+        hasComponent(root.components, componentType)
+      ) {
+        removedKeys.add(key);
         const componentChild = root.components[componentType];
         delete componentChild![name];
-        components.delete(path);
+        components.delete(key);
         if (isEmptyObject(componentChild)) {
           delete root.components[componentType];
         }
       }
     }
 
-    return removedPaths.length > removedLengthStart
-      ? removeUnusedComponents(root, removedPaths)
-      : removedPaths.length;
+    return removedKeys.size > removedCountBefore
+      ? removeUnusedComponents(root, removedKeys)
+      : removedKeys.size;
   }
 
   return {
     ref: {
-      leave(ref, { location, type, resolve, key }) {
+      leave(ref, { location, type, key }) {
         if (
-          ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(
-            type.name
-          )
+          [
+            'Schema',
+            'Header',
+            'Parameter',
+            'Response',
+            'Example',
+            'RequestBody',
+            'MediaTypesMap',
+            'SecurityScheme',
+          ].includes(type.name)
         ) {
-          const resolvedRef = resolve(ref);
-          if (!resolvedRef.location) return;
+          const targetPointer = getComponentKey(ref.$ref);
+          if (!targetPointer) return;
 
-          const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
-          if (!localPointer) return;
-
-          const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
-          const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
-
-          const registered = components.get(pointer);
+          const sourcePointer = getComponentKey(location.pointer) ?? location.pointer;
+          const registered = components.get(targetPointer);
 
           if (registered) {
-            registered.usedIn.push(location);
+            registered.usedIn.push(sourcePointer);
           } else {
-            components.set(pointer, {
-              usedIn: [location],
+            components.set(targetPointer, {
+              usedIn: [sourcePointer],
               name: key.toString(),
             });
           }
@@ -97,7 +113,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     Root: {
       leave(root, ctx) {
         const data = ctx.getVisitorData() as { removedCount: number };
-        data.removedCount = removeUnusedComponents(root, []);
+        data.removedCount = removeUnusedComponents(root);
 
         if (isEmptyObject(root.components)) {
           delete root.components;
@@ -105,36 +121,62 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
-        if (!schema.allOf) {
-          registerComponent(location, 'schemas', key.toString());
-        }
+      Schema(schema, ctx) {
+        const referencesDiscriminator = schema.allOf?.some(
+          (ref) => isRef(ref) && ctx.resolve<Oas3Schema | Oas3_1Schema>(ref)?.node?.discriminator
+        );
+        registerComponent('schemas', ctx.key.toString(), referencesDiscriminator);
       },
     },
     NamedParameters: {
-      Parameter(_parameter, { location, key }) {
-        registerComponent(location, 'parameters', key.toString());
+      Parameter(_parameter, { key }) {
+        registerComponent('parameters', key.toString());
       },
     },
     NamedResponses: {
-      Response(_response, { location, key }) {
-        registerComponent(location, 'responses', key.toString());
+      Response(_response, { key }) {
+        registerComponent('responses', key.toString());
       },
     },
     NamedExamples: {
-      Example(_example, { location, key }) {
-        registerComponent(location, 'examples', key.toString());
+      Example(_example, { key }) {
+        registerComponent('examples', key.toString());
       },
     },
     NamedRequestBodies: {
-      RequestBody(_requestBody, { location, key }) {
-        registerComponent(location, 'requestBodies', key.toString());
+      RequestBody(_requestBody, { key }) {
+        registerComponent('requestBodies', key.toString());
       },
     },
     NamedHeaders: {
-      Header(_header, { location, key }) {
-        registerComponent(location, 'headers', key.toString());
+      Header(_header, { key }) {
+        registerComponent('headers', key.toString());
       },
+    },
+    NamedMediaTypes: {
+      MediaTypesMap(_mediaTypesMap, { key }) {
+        registerComponent('mediaTypes', key.toString());
+      },
+    },
+    NamedSecuritySchemes: {
+      SecurityScheme(_securityScheme, { key }) {
+        registerComponent('securitySchemes', key.toString());
+      },
+    },
+    SecurityRequirement(requirements) {
+      for (const schemeName of Object.keys(requirements)) {
+        // Security requirements reference security schemes by name, so we know that this security scheme is used in a SecurityRequirement.
+        const key = `securitySchemes/${schemeName}`;
+        const registered = components.get(key);
+        if (registered) {
+          registered.usedIn.push('SecurityRequirement');
+        } else {
+          components.set(key, {
+            usedIn: ['SecurityRequirement'],
+            name: schemeName,
+          });
+        }
+      }
     },
   };
 };

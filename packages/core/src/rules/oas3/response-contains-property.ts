@@ -1,5 +1,4 @@
 import { getMatchingStatusCodeRange } from '../../utils/get-matching-status-code-range.js';
-
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -28,6 +27,7 @@ export const ResponseContainsProperty: Oas3Rule = (options) => {
                 report({
                   message: `Response object must contain a top-level "${expectedProperty}" property.`,
                   location: location.child('properties').key(),
+                  reference: 'https://redocly.com/docs/cli/rules/oas/response-contains-property',
                 });
               }
             }

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 no-server-variables-empty-enum', () => {
   it('should report on server object with empty enum and unknown enum value', async () => {
@@ -39,6 +40,7 @@ describe('Oas3 no-server-variables-empty-enum', () => {
             },
           ],
           "message": "Server variable with \`enum\` must be a non-empty array.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-variables-empty-enum",
           "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
           "suggest": [],
@@ -52,6 +54,7 @@ describe('Oas3 no-server-variables-empty-enum', () => {
             },
           ],
           "message": "Server variable define \`enum\` and \`default\`. \`enum\` must include default value",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-variables-empty-enum",
           "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
           "suggest": [],
@@ -93,6 +96,7 @@ describe('Oas3 no-server-variables-empty-enum', () => {
             },
           ],
           "message": "Server variable with \`enum\` must be a non-empty array.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-variables-empty-enum",
           "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
           "suggest": [],

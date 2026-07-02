@@ -1,13 +1,16 @@
-import { GenerateArazzoCommandArgv, handleGenerateArazzo } from '../../commands/generate-arazzo.js';
-import { generate } from '@redocly/respect-core';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
 import * as openapiCore from '@redocly/openapi-core';
+import { generate } from '@redocly/respect-core';
 import { writeFileSync } from 'node:fs';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
+import {
+  type GenerateArazzoCommandArgv,
+  handleGenerateArazzo,
+} from '../../commands/generate-arazzo.js';
 
 vi.mock('@redocly/respect-core', async () => {
-  const actual = await vi.importActual<typeof import('@redocly/respect-core')>(
-    '@redocly/respect-core'
-  );
+  const actual =
+    await vi.importActual<typeof import('@redocly/respect-core')>('@redocly/respect-core');
   return {
     ...actual,
     generate: vi.fn(),

@@ -4,6 +4,7 @@ import {
   type LoggerInterface,
   type BaseResolver,
 } from '@redocly/openapi-core';
+
 import { runTestFile } from './modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from './modules/logger-output/index.js';
 import { Timer } from './modules/timeout-timer/timer.js';
@@ -46,6 +47,15 @@ export async function run(options: RespectOptions): Promise<RunFileResult[]> {
   const runAllFilesResult = [];
 
   for (const path of files) {
+    // The runner mutates the parsed Arazzo document in place (adds `workflow.time`
+    // and `step.checks`). When `externalRefResolver` is shared across files, its
+    // cache would return those mutated documents to the lint pass of subsequent
+    // files (e.g. ones previously executed via `$sourceDescriptions.*` workflow
+    // references), producing false "property is not expected here" struct errors.
+    // Clear the cache between files so each file starts from freshly parsed
+    // documents while preserving the resolver's transport config (proxy, mTLS, etc).
+    options.externalRefResolver?.cache.clear();
+
     const result = await runFile({
       options: { ...options, file: path },
       startedAt: performance.now(),

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 path-not-include-query', () => {
   it('should report on path object if query params in pathitem', async () => {
@@ -34,6 +35,7 @@ describe('Oas3 path-not-include-query', () => {
             },
           ],
           "message": "Don't put query string items in the path, they belong in parameters with \`in: query\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/path-not-include-query",
           "ruleId": "path-not-include-query",
           "severity": "error",
           "suggest": [],

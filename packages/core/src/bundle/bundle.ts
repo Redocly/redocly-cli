@@ -1,28 +1,24 @@
-import { BaseResolver, makeDocumentFromString } from '../resolve.js';
-import { walkDocument } from '../walk.js';
+import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from '../config/constants.js';
+import type { Plugin, ResolvedConfig } from '../config/types.js';
+import {
+  configBundlerVisitor,
+  pluginsCollectorVisitor,
+  type ConfigBundlerVisitorData,
+  type PluginsCollectorVisitorData,
+} from '../config/visitors.js';
 import { detectSpec } from '../detect-spec.js';
 import { getTypes } from '../oas-types.js';
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { type Config } from '../config/config.js';
-import { configBundlerVisitor, pluginsCollectorVisitor } from '../config/visitors.js';
-import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from '../config/constants.js';
-import { bundleDocument } from './bundle-document.js';
-
-import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from '../config/visitors.js';
-import type { Plugin, ResolvedConfig } from '../config/types.js';
+import {
+  BaseResolver,
+  makeDocumentFromString,
+  type Document,
+  type ResolvedRefMap,
+} from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
-import type { WalkContext, NormalizedProblem } from '../walk.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { CollectFn } from '../utils/types.js';
-
-export type CoreBundleOptions = {
-  externalRefResolver?: BaseResolver;
-  config: Config;
-  dereference?: boolean;
-  base?: string | null;
-  removeUnusedComponents?: boolean;
-  keepUrlRefs?: boolean;
-};
+import { walkDocument, type NormalizedProblem, type WalkContext } from '../walk.js';
+import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
 
 export function collectConfigPlugins(
   document: Document,
@@ -32,7 +28,7 @@ export function collectConfigPlugins(
   const visitorsData: PluginsCollectorVisitorData = { plugins: [], rootConfigDir };
   const ctx: BundleContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: change it to a config-specific type
+    specVersion: 'config',
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [PLUGINS_COLLECTOR_VISITOR_ID]: visitorsData,
@@ -58,7 +54,7 @@ export function bundleConfig(
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: change it to a config-specific type
+    specVersion: 'config',
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,

@@ -7,6 +7,7 @@ export const NoEmptyServers: Oas3Rule = () => {
         report({
           message: 'Servers must be present.',
           location: location.child(['openapi']).key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-empty-servers',
         });
         return;
       }
@@ -15,6 +16,7 @@ export const NoEmptyServers: Oas3Rule = () => {
         report({
           message: 'Servers must be a non-empty array.',
           location: location.child(['servers']).key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-empty-servers',
         });
       }
     },

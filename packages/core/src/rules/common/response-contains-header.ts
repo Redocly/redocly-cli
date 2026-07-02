@@ -1,9 +1,8 @@
-import { getMatchingStatusCodeRange } from '../../utils/get-matching-status-code-range.js';
-
-import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
-import type { UserContext } from '../../walk.js';
 import type { Oas3Response } from '../../typings/openapi.js';
 import type { Oas2Response } from '../../typings/swagger.js';
+import { getMatchingStatusCodeRange } from '../../utils/get-matching-status-code-range.js';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
   const names: Record<string, string[]> = options.names || {};
@@ -26,6 +25,7 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
               report({
                 message: `Response object must contain a "${expectedHeader}" header.`,
                 location: location.child('headers').key(),
+                reference: 'https://redocly.com/docs/cli/rules/oas/response-contains-header',
               });
             }
           }

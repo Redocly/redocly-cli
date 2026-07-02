@@ -1,7 +1,7 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { UserContext } from '../../walk.js';
 import type { Oas3Paths } from '../../typings/openapi.js';
 import type { Oas2Paths } from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
   return {
@@ -16,6 +16,7 @@ export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
           report({
             message: `Paths should resolve unambiguously. Found two ambiguous paths: \`${ambiguousPath}\` and \`${currentPath}\`.`,
             location: location.child([currentPath]).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-ambiguous-paths',
           });
         }
         seenPaths.push(currentPath);

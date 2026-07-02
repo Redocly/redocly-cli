@@ -1,5 +1,5 @@
 import { YamlParseError } from '../../errors/yaml-parse-error.js';
-
+import type { Location } from '../../ref-utils.js';
 import type {
   Oas2Rule,
   Oas3Rule,
@@ -9,7 +9,6 @@ import type {
   Overlay1Rule,
 } from '../../visitors.js';
 import type { ResolveResult, Problem, UserContext } from '../../walk.js';
-import type { Location } from '../../ref-utils.js';
 
 export const NoUnresolvedRefs:
   | Oas3Rule
@@ -64,5 +63,6 @@ export function reportUnresolvedRef(
   report({
     location,
     message: `Can't resolve $ref${message ? ': ' + message : ''}`,
+    reference: 'https://redocly.com/docs/cli/rules/oas/no-unresolved-refs',
   });
 }

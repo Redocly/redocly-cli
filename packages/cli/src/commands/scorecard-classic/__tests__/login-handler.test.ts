@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { handleLoginAndFetchToken } from '../auth/login-handler.js';
-import * as errorUtils from '../../../utils/error.js';
-import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
 import { logger } from '@redocly/openapi-core';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
+import * as errorUtils from '../../../utils/error.js';
+import { handleLoginAndFetchToken } from '../auth/login-handler.js';
 
 vi.mock('../../../auth/oauth-client.js');
 vi.mock('../../../reunite/api/index.js', () => ({
@@ -23,17 +24,15 @@ describe('handleLoginAndFetchToken', () => {
       getAccessToken: vi.fn(),
       login: vi.fn(),
     };
-    vi.mocked(RedoclyOAuthClient).mockImplementation(() => mockOAuthClient);
+    vi.mocked(RedoclyOAuthClient).mockImplementation(function () {
+      return mockOAuthClient;
+    });
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(logger, 'error').mockImplementation(() => {});
     vi.spyOn(errorUtils, 'exitWithError').mockImplementation(() => {
       throw new Error('exitWithError called');
     });
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it('should return existing access token when available', async () => {

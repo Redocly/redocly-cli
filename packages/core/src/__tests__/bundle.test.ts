@@ -1,12 +1,17 @@
-import outdent from 'outdent';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
+
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  yamlSerializer,
+} from '../../__tests__/utils.js';
 import { bundleDocument } from '../bundle/bundle-document.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
-import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { createConfig, loadConfig } from '../config/index.js';
-import { BaseResolver } from '../resolve.js';
 import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
+import { BaseResolver } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -63,7 +68,11 @@ describe('bundle', () => {
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs.yaml'),
     });
-    expect(problems).toHaveLength(0);
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('warn');
+    expect(problems[0].message).toEqual(
+      `Two schemas are referenced with the same name but different content. Renamed first to first-2.`
+    );
     expect(res.parsed).toMatchSnapshot();
   });
 
@@ -89,9 +98,93 @@ describe('bundle', () => {
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
     expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('warn');
     expect(problems[0].message).toEqual(
       `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
     );
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle external refs and do not show warnings for conflicting names', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentRenamingConflicts: 'off',
+    });
+    expect(problems).toHaveLength(0);
+  });
+
+  it('should bundle external refs and show errors for conflicting names', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentRenamingConflicts: 'error',
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('error');
+    expect(problems[0].message).toEqual(
+      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
+    );
+  });
+
+  it('should bundle external pointer refs and warn for conflicting names', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/refs/openapi-with-external-refs-pointer-conflicting-names.yaml'
+      ),
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('warn');
+    expect(problems[0].message).toEqual(
+      `Two schemas are referenced with the same name but different content. Renamed User to User-2.`
+    );
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle external pointer refs and do not show warnings for conflicting names', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/refs/openapi-with-external-refs-pointer-conflicting-names.yaml'
+      ),
+      componentRenamingConflicts: 'off',
+    });
+    expect(problems).toHaveLength(0);
+  });
+
+  it('should report error-severity problems for conflicting pointer ref names', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/refs/openapi-with-external-refs-pointer-conflicting-names.yaml'
+      ),
+      componentRenamingConflicts: 'error',
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('error');
+    expect(problems[0].message).toEqual(
+      `Two schemas are referenced with the same name but different content. Renamed User to User-2.`
+    );
+  });
+
+  it('should keep dotted JSON pointer schema keys and rename conflicting User schemas', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/refs/openapi-bundle-external-schema-names-and-user-conflict.yaml'
+      ),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as { components: { schemas: Record<string, unknown> } }).components
+      .schemas;
+    expect(schemas['my.org.User']).toBeDefined();
+    expect(schemas['my.User']).toBeDefined();
     expect(res.parsed).toMatchSnapshot();
   });
 
@@ -142,6 +235,140 @@ describe('bundle', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle mediaTypes refs correctly (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.2.0"
+        paths:
+          /test:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    $ref: '#/components/mediaTypes/Test'
+        components:
+          mediaTypes:
+            Test:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/User'
+                examples:
+                  example1:
+                    value:
+                      id: 1
+                      name: John
+          schemas:
+            User:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+        `,
+      'test.yaml'
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      types: Oas3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/Test'
+      components:
+        mediaTypes:
+          Test:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
+        schemas:
+          User:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+    `);
+  });
+
+  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/testMediaType'
+      components:
+        mediaTypes:
+          testMediaType:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+              examples:
+                Test:
+                  value:
+                    id: 1
+    `);
+  });
+
+  it('should accept parameter in: querystring (OAS 3.2)', async () => {
+    const document = outdent`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            parameters:
+              - name: filters
+                in: querystring
+                content:
+                  application/x-www-form-urlencoded:
+                    schema:
+                      type: object
+                      properties:
+                        filters:
+                          type: string
+    `;
+
+    const { problems } = await bundleFromString({
+      source: document,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toHaveLength(0);
   });
 
   it('should pull hosted schema', async () => {
@@ -332,12 +559,57 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should resolve discriminator mapping with relative file refs without "./" prefix', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/discriminator-mapping-file-refs/openapi.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    const discriminated = (res.parsed as any).components.schemas.discriminated;
+    expect(discriminated.discriminator.mapping).toEqual({
+      a: '#/components/schemas/type-a',
+      b: '#/components/schemas/type-b',
+    });
+  });
+
+  it('should bundle discriminator with defaultMapping and mapping as component names to the same document', async () => {
+    const document = outdent`
+      openapi: 3.2.0
+      components:
+        schemas:
+          Pet:
+            type: object
+            discriminator:
+              propertyName: kind
+              defaultMapping: Cat
+              mapping:
+                cat: Cat
+          Cat:
+            type: object
+            properties:
+              kind:
+                type: string
+
+    `;
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleFromString({
+      source: document,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toMatchInlineSnapshot(`[]`);
+    expect(parsed).toMatchInlineSnapshot(document);
+  });
 });
 
 describe('bundleFromString', () => {
   it('should bundle from string using bundleFromString', async () => {
     const {
-      bundle: { parsed, ...rest },
+      bundle: { parsed: _parsed, ...rest },
       problems,
     } = await bundleFromString({
       config: await createConfig(`
@@ -574,5 +846,92 @@ describe('sibling $ref resolution by spec', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+});
+
+describe('bundle with --component-names-strategy title', () => {
+  it('should build Schema component names from title when flag is on', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('reports an error when a schema has no `title`', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-missing-title/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: error
+        message: Schema must define a \`title\` when using \`--component-names-strategy title\`.
+        location:
+          - source: fixtures/refs/title-naming-missing-title/schemas/NoTitle.yaml
+            pointer: '#/'
+            reportOnKey: false
+        forceSeverity: error
+        suggest: []
+    `);
+  });
+
+  it('sanitizes unsupported characters in a title into the component name', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-unsupported-title/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('reports a title collision once and points `from` at the first schema, even when referenced repeatedly', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/title-naming-collision/openapi.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(problems).toHaveLength(1);
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: warn
+        message: >-
+          Title "User" maps to component name \`User\`, already used by another schema.
+          Rename one of the titles.
+        location:
+          - source: fixtures/refs/title-naming-collision/schemas/b/User.yaml
+            pointer: '#/title'
+            reportOnKey: false
+        from:
+          source: fixtures/refs/title-naming-collision/schemas/a/User.yaml
+          pointer: '#/title'
+        forceSeverity: warn
+        suggest: []
+    `);
+  });
+
+  it('leaves non-schema components (parameters) untouched when the flag is on', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentNamesStrategy: 'title',
+    });
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
+      - ruleId: bundler
+        severity: warn
+        message: >-
+          Two schemas are referenced with the same name but different content. Renamed
+          param-b to param-b-2.
+        location:
+          - source: fixtures/refs/openapi-with-external-refs-conflicting-names.yaml
+            pointer: '#/paths/~1pet/put/parameters/1'
+            reportOnKey: false
+        forceSeverity: warn
+        suggest: []
+    `);
   });
 });

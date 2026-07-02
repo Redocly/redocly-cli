@@ -1,9 +1,8 @@
-import { getTagName } from '../utils.js';
-
 import type { Oas3Definition, Oas3_1Definition, Oas3_2Definition } from '../../typings/openapi.js';
 import type { Oas2Definition } from '../../typings/swagger.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { getTagName } from '../utils.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
@@ -16,6 +15,7 @@ export const TagsAlphabetical: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) =>
           report({
             message: 'The `tags` array should be in alphabetical order.',
             location: location.child(['tags', i]),
+            reference: 'https://redocly.com/docs/cli/rules/oas/tags-alphabetical',
           });
         }
       }

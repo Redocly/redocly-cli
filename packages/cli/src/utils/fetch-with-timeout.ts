@@ -1,5 +1,6 @@
-import { getProxyUrl } from './proxy-agent.js';
 import { Agent, ProxyAgent } from 'undici';
+
+import { getProxyUrl, shouldBypassProxy } from './proxy-agent.js';
 
 export type FetchWithTimeoutOptions = RequestInit & {
   timeout?: number;
@@ -7,11 +8,12 @@ export type FetchWithTimeoutOptions = RequestInit & {
 
 export default async (url: string, { timeout, ...options }: FetchWithTimeoutOptions = {}) => {
   const proxyUrl = getProxyUrl();
+  const useProxy = proxyUrl && !shouldBypassProxy(url);
   let dispatcher: Agent | ProxyAgent | undefined;
 
   const connectOptions = timeout ? { connect: { timeout } } : {};
 
-  if (proxyUrl) {
+  if (useProxy) {
     dispatcher = new ProxyAgent({
       uri: proxyUrl,
       ...connectOptions,

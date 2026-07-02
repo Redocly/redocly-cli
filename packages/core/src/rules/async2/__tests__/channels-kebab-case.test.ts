@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Async2 channels-kebab-case', () => {
   it('should report on no kebab-case channel path', async () => {
@@ -38,6 +39,7 @@ describe('Async2 channels-kebab-case', () => {
             },
           ],
           "message": "\`NOT_A_KEBAB\` does not use kebab-case.",
+          "reference": "https://redocly.com/docs/cli/rules/async/channels-kebab-case",
           "ruleId": "channels-kebab-case",
           "severity": "error",
           "suggest": [],
@@ -79,6 +81,7 @@ describe('Async2 channels-kebab-case', () => {
             },
           ],
           "message": "\`snake_kebab\` does not use kebab-case.",
+          "reference": "https://redocly.com/docs/cli/rules/async/channels-kebab-case",
           "ruleId": "channels-kebab-case",
           "severity": "error",
           "suggest": [],

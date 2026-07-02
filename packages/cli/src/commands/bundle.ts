@@ -1,6 +1,3 @@
-import { performance } from 'perf_hooks';
-import { blue, gray, green, yellow } from 'colorette';
-import { writeFileSync } from 'fs';
 import {
   formatProblems,
   getTotals,
@@ -8,7 +5,17 @@ import {
   logger,
   type Oas2Definition,
   type Oas3Definition,
+  type RuleSeverity,
+  type ComponentNamesStrategy,
+  type Async2Definition,
+  type Async3Definition,
 } from '@redocly/openapi-core';
+import { blue, gray, green, yellow } from 'colorette';
+import { writeFileSync } from 'fs';
+import { performance } from 'perf_hooks';
+
+import { type OutputExtension, type Totals, type VerifyConfigOptions } from '../types.js';
+import { AbortFlowError } from '../utils/error.js';
 import {
   dumpBundle,
   getExecutionTime,
@@ -17,13 +24,10 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
-  sortTopLevelKeysForOas,
+  sortTopLevelKeys,
   formatPath,
 } from '../utils/miscellaneous.js';
-import { AbortFlowError } from '../utils/error.js';
-
-import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
-import type { CommandArgs } from '../wrapper.js';
+import { type CommandArgs } from '../wrapper.js';
 
 export type BundleArgv = {
   apis?: string[];
@@ -35,6 +39,8 @@ export type BundleArgv = {
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
+  'component-renaming-conflicts-severity'?: RuleSeverity;
+  'component-names-strategy'?: ComponentNamesStrategy;
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
 } & VerifyConfigOptions;
@@ -73,6 +79,8 @@ export async function handleBundle({
         dereference: argv.dereferenced,
         removeUnusedComponents: argv['remove-unused-components'],
         keepUrlRefs: argv['keep-url-references'],
+        componentRenamingConflicts: argv['component-renaming-conflicts-severity'],
+        componentNamesStrategy: argv['component-names-strategy'],
         collectSpecData,
       });
 
@@ -88,14 +96,18 @@ export async function handleBundle({
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
           const bundled = dumpBundle(
-            sortTopLevelKeysForOas(result.parsed as Oas3Definition | Oas2Definition),
+            sortTopLevelKeys(
+              result.parsed as Oas3Definition | Oas2Definition | Async2Definition | Async3Definition
+            ),
             argv.ext || 'yaml',
             argv.dereferenced
           );
           logger.output(bundled);
         } else {
           const bundled = dumpBundle(
-            sortTopLevelKeysForOas(result.parsed as Oas3Definition | Oas2Definition),
+            sortTopLevelKeys(
+              result.parsed as Oas3Definition | Oas2Definition | Async2Definition | Async3Definition
+            ),
             ext,
             argv.dereferenced
           );
@@ -111,6 +123,7 @@ export async function handleBundle({
         format: 'codeframe',
         totals: fileTotals,
         version,
+        command: 'bundle',
       });
 
       if (argv.metafile) {
@@ -131,7 +144,7 @@ export async function handleBundle({
             )} with errors ${green(elapsed)}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
-          logger.info(
+          logger.error(
             `❌ Errors encountered while bundling ${blue(
               formatPath(path)
             )}: bundle not created (use --force to ignore errors).\n`

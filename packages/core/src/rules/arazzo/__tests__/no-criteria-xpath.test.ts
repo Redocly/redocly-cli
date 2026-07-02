@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo no-criteria-xpath', () => {
   const document = parseYamlToDocument(
@@ -40,7 +41,7 @@ describe('Arazzo no-criteria-xpath', () => {
               successCriteria:
                 - condition: $statusCode == 201
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type:
                     type: jsonpath
                     version: draft-goessner-dispatch-jsonpath-00
@@ -92,6 +93,7 @@ describe('Arazzo no-criteria-xpath', () => {
             },
           ],
           "message": "The \`xpath\` type criteria is not supported by Respect.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/no-criteria-xpath",
           "ruleId": "no-criteria-xpath",
           "severity": "error",
           "suggest": [],
@@ -105,6 +107,7 @@ describe('Arazzo no-criteria-xpath', () => {
             },
           ],
           "message": "The \`xpath\` type criteria is not supported by Respect.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/no-criteria-xpath",
           "ruleId": "no-criteria-xpath",
           "severity": "error",
           "suggest": [],

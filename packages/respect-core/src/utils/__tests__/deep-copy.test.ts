@@ -9,7 +9,7 @@ describe('deepCopy', () => {
 
   it('should deep copy an object with circular references', () => {
     const obj = { a: 1 };
-    // @ts-ignore
+    // @ts-expect-error
     obj.b = obj;
     const copy = deepCopy(obj);
     expect(copy).toEqual(obj);
@@ -30,7 +30,7 @@ describe('deepCopy', () => {
 
   it('should deep copy an object with nested objects and circular references', () => {
     const obj = { a: 1, b: { c: 2 } };
-    // @ts-ignore
+    // @ts-expect-error
     obj.b.d = obj;
     const copy = deepCopy(obj);
     expect(copy).toEqual(obj);

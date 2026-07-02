@@ -1,42 +1,48 @@
 #!/usr/bin/env node
-import * as path from 'node:path';
-import * as dotenv from 'dotenv';
 import './utils/assert-node-version.js';
-import yargs from 'yargs';
+
+import {
+  logger,
+  type OutputFormat,
+  type RuleSeverity,
+  type ComponentNamesStrategy,
+} from '@redocly/openapi-core';
+import * as dotenv from 'dotenv';
+import * as path from 'node:path';
+import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { logger } from '@redocly/openapi-core';
-import { outputExtensions } from './types.js';
-import { handleStats } from './commands/stats.js';
-import { handleSplit } from './commands/split/index.js';
-import { handleJoin } from './commands/join.js';
-import { handlePush } from './reunite/commands/push.js';
-import { handlePushStatus } from './reunite/commands/push-status.js';
-import { handleLint } from './commands/lint.js';
-import { handleBundle } from './commands/bundle.js';
+
 import { handleLogin, handleLogout } from './commands/auth.js';
-import { handlerBuildCommand } from './commands/build-docs/index.js';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
-import { commandWrapper } from './wrapper.js';
-import { previewProject } from './commands/preview-project/index.js';
-import { handleTranslations } from './commands/translations.js';
-import { handleEject } from './commands/eject.js';
-import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import { handleBundle } from './commands/bundle.js';
+import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import { handleJoin } from './commands/join/index.js';
+import { handleLint } from './commands/lint.js';
+import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
-import { version } from './utils/package.js';
-import { validatePositiveNumber } from './utils/validate-positive-number.js';
-import { validateMountPath } from './utils/validate-mount-path.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
+import { handleScore } from './commands/score/index.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
-
-import type { Arguments } from 'yargs';
-import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
-import type { EjectArgv } from './commands/eject.js';
+import type {
+  ScorecardClassicArgv,
+  ScorecardClassicOutputFormat,
+} from './commands/scorecard-classic/types.js';
+import { handleSplit } from './commands/split/index.js';
+import { handleStats } from './commands/stats/index.js';
+import { handleTranslations } from './commands/translations.js';
+import { handlePushStatus } from './reunite/commands/push-status.js';
+import { handlePush } from './reunite/commands/push.js';
+import { outputExtensions } from './types.js';
+import { version } from './utils/package.js';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
+import { validateMountPath } from './utils/validate-mount-path.js';
+import { validatePositiveNumber } from './utils/validate-positive-number.js';
+import { commandWrapper } from './wrapper.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
@@ -70,6 +76,39 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'score [api]',
+    'Score an API description for integration simplicity and agent readiness.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_SCORE')
+        .positional('api', { type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+            default: 'stylish' as OutputFormat,
+          },
+          'operation-details': {
+            description: 'Print per-operation metric details.',
+            type: 'boolean' as const,
+            default: false,
+          },
+          'debug-operation-id': {
+            description: 'Print detailed schema breakdown for a specific operation.',
+            type: 'string' as const,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleScore)(argv);
     }
   )
   .command(
@@ -339,6 +378,7 @@ yargs(hideBin(process.argv))
               'summary',
               'markdown',
               'github-actions',
+              'junit',
             ] as ReadonlyArray<OutputFormat>,
             default: 'codeframe' as OutputFormat,
           },
@@ -450,6 +490,17 @@ yargs(hideBin(process.argv))
             description: 'Severity level for config file linting.',
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
+          },
+          'component-renaming-conflicts-severity': {
+            description:
+              'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          },
+          'component-names-strategy': {
+            description:
+              "How to name inlined Schema components: 'basename' (default) or 'title' (from each schema's `title`).",
+            choices: ['basename', 'title'] as ReadonlyArray<ComponentNamesStrategy>,
+            default: 'basename' as ComponentNamesStrategy,
           },
         })
         .check((argv) => {
@@ -611,6 +662,7 @@ yargs(hideBin(process.argv))
           return true;
         }),
     async (argv) => {
+      const { handlerBuildCommand } = await import('./commands/build-docs/index.js');
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
@@ -814,8 +866,13 @@ yargs(hideBin(process.argv))
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json'],
-          default: 'stylish',
+          choices: [
+            'stylish',
+            'json',
+            'checkstyle',
+            'junit',
+          ] as ReadonlyArray<ScorecardClassicOutputFormat>,
+          default: 'stylish' as ScorecardClassicOutputFormat,
         },
         'target-level': {
           describe: 'Target level for the scorecard.',

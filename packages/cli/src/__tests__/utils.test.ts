@@ -1,20 +1,4 @@
 import {
-  getFallbackApisOrExit,
-  pathToFilename,
-  printConfigLintTotals,
-  langToExt,
-  checkIfRulesetExist,
-  handleError,
-  CircularJSONNotSupportedError,
-  sortTopLevelKeysForOas,
-  cleanColors,
-  getAndValidateFileExtension,
-  writeToFileByExtension,
-} from '../utils/miscellaneous.js';
-import { cleanArgs } from '../utils/telemetry.js';
-import * as errorHandling from '../utils/error.js';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
-import {
   type Totals,
   ResolveError,
   YamlParseError,
@@ -22,15 +6,32 @@ import {
   type Config,
   type RawUniversalApiConfig,
   type ResolvedApiConfig,
+  type ResolveConfig,
 } from '@redocly/openapi-core';
-import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
-import * as glob from 'glob';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
+import * as glob from 'glob';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as process from 'node:process';
 import { fileURLToPath } from 'node:url';
+
+import * as errorHandling from '../utils/error.js';
+import {
+  getFallbackApisOrExit,
+  pathToFilename,
+  printConfigLintTotals,
+  langToExt,
+  checkIfRulesetExist,
+  handleError,
+  CircularJSONNotSupportedError,
+  sortTopLevelKeys,
+  cleanColors,
+  getAndValidateFileExtension,
+  writeToFileByExtension,
+} from '../utils/miscellaneous.js';
+import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
+import { cleanArgs } from '../utils/telemetry.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,7 +54,7 @@ vi.mock('@redocly/openapi-core', async () => {
   const actual = await vi.importActual('@redocly/openapi-core');
   return {
     ...actual,
-    stringifyYaml: vi.fn((data, opts) => data as string),
+    stringifyYaml: vi.fn((data, _opts) => data as string),
   };
 });
 vi.mock('../../utils/error.js', async () => {
@@ -138,6 +139,18 @@ describe('getFallbackApisOrExit', async () => {
       await getFallbackApisOrExit([''], apisConfig);
     } catch (e) {
       expect(e.message).toEqual('Path cannot be empty.');
+    }
+  });
+
+  it('should exit with error when no APIs are provided and config has no apis', async () => {
+    const apisConfig = await openapiCore.createConfig({ apis: {} });
+    expect.assertions(1);
+    try {
+      await getFallbackApisOrExit([], apisConfig);
+    } catch (e) {
+      expect(e.message).toEqual(
+        'No APIs were provided. Specify an API via the command argument or define one in your config.'
+      );
     }
   });
 
@@ -336,8 +349,8 @@ describe('getFallbackApisOrExit', async () => {
     const entry = await getFallbackApisOrExit(undefined, config);
     expect(entry).toEqual([
       {
-        path: expect.stringMatching(/project\-folder\/test\.yaml$/),
-        output: expect.stringMatching(/project\-folder\/output\/test\.yaml$/),
+        path: expect.stringMatching(/project-folder\/test\.yaml$/),
+        output: expect.stringMatching(/project-folder\/output\/test\.yaml$/),
         alias: 'main',
       },
     ]);
@@ -381,7 +394,7 @@ describe('langToExt', () => {
   });
 });
 
-describe('sorTopLevelKeysForOas', () => {
+describe('sortTopLevelKeys', () => {
   it('should sort oas3 top level keys', () => {
     const openApi: openapiCore.Oas3Definition = {
       openapi: '3.0.0',
@@ -410,7 +423,7 @@ describe('sorTopLevelKeysForOas', () => {
       'x-webhooks',
       'components',
     ];
-    const result = sortTopLevelKeysForOas(openApi);
+    const result = sortTopLevelKeys(openApi);
 
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);
@@ -452,7 +465,61 @@ describe('sorTopLevelKeysForOas', () => {
       'responses',
       'securityDefinitions',
     ];
-    const result = sortTopLevelKeysForOas(openApi);
+    const result = sortTopLevelKeys(openApi);
+
+    Object.keys(result).forEach((key, index) => {
+      expect(key).toEqual(orderedKeys[index]);
+    });
+  });
+
+  it('should sort asyncapi2 top level keys', () => {
+    const asyncApi: openapiCore.Async2Definition = {
+      asyncapi: '2.0.0',
+      servers: {},
+      channels: {},
+      components: {},
+      tags: [],
+      info: { title: 'Test', version: '1.0.0' },
+      externalDocs: {},
+      defaultContentType: 'application/json',
+    };
+    const orderedKeys = [
+      'asyncapi',
+      'info',
+      'externalDocs',
+      'tags',
+      'defaultContentType',
+      'servers',
+      'channels',
+      'components',
+    ];
+    const result = sortTopLevelKeys(asyncApi);
+
+    Object.keys(result).forEach((key, index) => {
+      expect(key).toEqual(orderedKeys[index]);
+    });
+  });
+
+  it('should sort asyncapi3 top level keys', () => {
+    const asyncApi: openapiCore.Async3Definition = {
+      asyncapi: '3.0.0',
+      channels: {},
+      info: { title: 'Test', version: '1.0.0' },
+      servers: {},
+      components: {},
+      operations: {},
+      defaultContentType: 'application/json',
+    };
+    const orderedKeys = [
+      'asyncapi',
+      'info',
+      'defaultContentType',
+      'servers',
+      'channels',
+      'operations',
+      'components',
+    ];
+    const result = sortTopLevelKeys(asyncApi);
 
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);
@@ -545,6 +612,7 @@ describe('checkIfRulesetExist', () => {
       async2: {},
       async3: {},
       arazzo1: {},
+      arazzo1_1: {},
       overlay1: {},
       openrpc1: {},
     };
@@ -562,6 +630,7 @@ describe('checkIfRulesetExist', () => {
       async2: {},
       async3: {},
       arazzo1: {},
+      arazzo1_1: {},
       overlay1: {},
       openrpc1: {},
     };
@@ -681,6 +750,43 @@ describe('cleanArgs', () => {
         },
         config: 'file-yaml',
         output: 'folder',
+      })
+    );
+  });
+
+  it('should remove server values from parsed args and raw CLI input', () => {
+    const serverValue =
+      'cafe-api=https://example.com/api-endpoint,another-api=https://example.com/another-api';
+    const rawInput = [
+      'redocly',
+      'respect',
+      './fixtures/openapi.yaml',
+      '--server',
+      serverValue,
+      '-S',
+      serverValue,
+    ];
+    const parsedArgs = {
+      files: ['./fixtures/openapi.yaml'],
+      server: serverValue,
+      S: serverValue,
+      'max-steps': 100,
+      'max-fetch-timeout': 100,
+      'execution-timeout': 100,
+      'no-secrets-masking': false,
+    };
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly respect file-yaml --server *** -S ***');
+    expect(result.arguments).toEqual(
+      JSON.stringify({
+        files: ['file-yaml'],
+        server: '***',
+        S: '***',
+        'max-steps': 100,
+        'max-fetch-timeout': 100,
+        'execution-timeout': 100,
+        'no-secrets-masking': false,
       })
     );
   });

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Common path-http-verbs-order', () => {
   it('should report on invalid order', async () => {
@@ -38,6 +39,7 @@ describe('Common path-http-verbs-order', () => {
             },
           ],
           "message": "Operation http verbs must be ordered.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/path-http-verbs-order",
           "ruleId": "path-http-verbs-order",
           "severity": "error",
           "suggest": [],
@@ -51,6 +53,7 @@ describe('Common path-http-verbs-order', () => {
             },
           ],
           "message": "Operation http verbs must be ordered.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/path-http-verbs-order",
           "ruleId": "path-http-verbs-order",
           "severity": "error",
           "suggest": [],

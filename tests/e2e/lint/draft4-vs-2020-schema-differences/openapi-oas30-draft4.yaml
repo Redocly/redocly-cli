@@ -1,0 +1,79 @@
+openapi: 3.0.2
+info:
+  title: OAS 3.0.3-valid keywords
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: Schema diff cases
+      operationId: getTest
+      responses:
+        '200':
+          description: OAS 3.0 schema examples
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestSchema'
+              examples:
+                nullableValid:
+                  summary: nullable valid
+                  value:
+                    name: test
+                    requiredField: value
+                    optionalField: null
+                strictValid:
+                  summary: additionalProperties false valid
+                  value:
+                    name: test
+                    requiredField: value
+                exclusiveMinInvalid:
+                  summary: exclusiveMinimum boolean boundary
+                  value:
+                    name: test
+                    requiredField: value
+                    age: 10
+                exclusiveMaxInvalid:
+                  summary: exclusiveMaximum boolean boundary
+                  value:
+                    name: test
+                    requiredField: value
+                    score: 20
+                maxBoundaryValid:
+                  summary: maxItems boundary valid
+                  value:
+                    name: test
+                    requiredField: value
+                    tags: [first, second, third]
+                additionalPropsInvalid:
+                  summary: additionalProperties invalid
+                  value:
+                    name: test
+                    requiredField: value
+                    forbiddenField: not allowed
+components:
+  schemas:
+    TestSchema:
+      type: object
+      required: [name, requiredField]
+      properties:
+        name:
+          type: string
+        requiredField:
+          type: string
+        optionalField:
+          type: string
+          nullable: true
+        age:
+          type: number
+          minimum: 10
+          exclusiveMinimum: true
+        score:
+          type: number
+          maximum: 20
+          exclusiveMaximum: true
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 3
+      additionalProperties: false

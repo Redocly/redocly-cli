@@ -1,9 +1,8 @@
+import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
+import type { Oas2Schema } from '../../typings/swagger.js';
 import { getOwn } from '../../utils/get-own.js';
-
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { Oas2Schema } from '../../typings/swagger.js';
-import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 
 const SCALAR_TYPES = ['string', 'integer', 'number', 'boolean', 'null'];
 
@@ -29,6 +28,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
               specVersion === 'oas3_1' || specVersion === 'oas3_2' ? ' or "examples"' : ''
             } defined.`,
             location: location.child(propName).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/scalar-property-missing-example',
           });
         }
       }

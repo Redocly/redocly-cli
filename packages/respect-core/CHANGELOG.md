@@ -1,5 +1,389 @@
 # @redocly/respect-core
 
+## 2.36.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.36.0.
+
+## 2.35.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.35.1.
+
+## 2.35.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.35.0.
+
+## 2.34.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.34.0.
+
+## 2.33.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0
+
+### Patch Changes
+
+- Fixed a remote code execution vulnerability where a crafted `$faker` expression in an Arazzo description could execute arbitrary JavaScript during Redocly Respect runs.
+  Reported by Hamza Haroon (GitHub: @thegr1ffyn).
+- Updated @redocly/openapi-core to v2.33.0.
+
+## 2.32.2
+
+### Patch Changes
+
+- Fixed `respect` schema checks to honor `readOnly` and `writeOnly` based on context.
+
+  **Warning:** `writeOnly` properties in responses are reported as errors.
+
+- Updated @redocly/openapi-core to v2.32.2.
+
+## 2.32.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
+## 2.32.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
+## 2.31.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.6.
+
+## 2.31.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.5.
+
+## 2.31.4
+
+### Patch Changes
+
+- Fixed an issue where running `respect` on multiple Arazzo files in a single invocation could surface false-positive `struct` lint errors.
+- Updated @redocly/openapi-core to v2.31.4.
+
+## 2.31.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.3.
+
+## 2.31.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.2.
+
+## 2.31.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.1.
+
+## 2.31.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.31.0.
+
+## 2.30.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.6.
+
+## 2.30.5
+
+### Patch Changes
+
+- Fixed an issue where query-language strings (JSONPath, XPath, SPARQL, OPA) in Respect request bodies were incorrectly treated as runtime expressions.
+- Updated @redocly/openapi-core to v2.30.5.
+
+## 2.30.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.4.
+
+## 2.30.3
+
+### Patch Changes
+
+- Updated `better-ajv-errors` to `v2.0.3`.
+- Updated `@redocly/ajv` to `v8.18.1`
+- Updated @redocly/openapi-core to v2.30.3.
+
+## 2.30.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.2.
+
+## 2.30.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.1.
+
+## 2.30.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.30.0.
+
+## 2.29.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.29.2.
+
+## 2.29.1
+
+### Patch Changes
+
+- Made Respect's JSONPath criteria compliant with RFC 9535.
+  **Warning:** This update may affect existing workflows. Please review your usage for compatibility.
+- Updated @redocly/openapi-core to v2.29.1.
+
+## 2.29.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.29.0.
+
+## 2.28.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.28.1.
+
+## 2.28.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.28.0.
+
+## 2.27.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.27.1.
+
+## 2.27.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.27.0.
+
+## 2.26.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.26.0.
+
+## 2.25.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.25.4.
+
+## 2.25.3
+
+### Patch Changes
+
+- Handled content type wildcards in response validation to improve Respect's accuracy when matching described content types.
+- Updated @redocly/openapi-core to v2.25.3.
+
+## 2.25.2
+
+### Patch Changes
+
+- Updated `picomatch` dependency to `^4.0.4`.
+- Updated @redocly/openapi-core to v2.25.2.
+
+## 2.25.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.25.1.
+
+## 2.25.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.25.0.
+
+## 2.24.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.24.1.
+
+## 2.24.0
+
+### Minor Changes
+
+- Added `x-allowReserved` extension for Respect.
+  This extension enables the use of unencoded reserved characters in query parameter values in Arazzo workflows.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.24.0.
+
+## 2.23.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.23.0.
+
+## 2.22.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.22.1.
+
+## 2.22.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.22.0.
+
+## 2.21.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.1.
+
+## 2.21.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.0.
+
+## 2.20.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.5.
+
+## 2.20.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.4.
+
+## 2.20.3
+
+### Patch Changes
+
+- Updated `openapi-sampler` dependency to v1.7.1.
+- Updated @redocly/openapi-core to v2.20.3.
+
+## 2.20.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.2.
+
+## 2.20.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.0`
+- Updated @redocly/openapi-core to v2.20.1.
+
+## 2.20.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.0.
+
+## 2.19.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.19.2.
+
+## 2.19.1
+
+### Patch Changes
+
+- Fixed an issue in Respect where only the last value for repeated keys in `multipart/form-data` request bodies was shown.
+- Updated @redocly/openapi-core to v2.19.1.
+
+## 2.19.0
+
+### Patch Changes
+
+- Resolved an issue in Respect where the response list with nested object was not correctly assigned to the output.
+- Updated @redocly/openapi-core to v2.19.0.
+
+## 2.18.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.18.2.
+
+## 2.18.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to v8.17.4.
+- Updated @redocly/openapi-core to v2.18.1.
+
+## 2.18.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.18.0.
+
+## 2.17.0
+
+### Minor Changes
+
+- Added new `outputs-defined` Arazzo rule, ensuring outputs are defined before use.
+
+### Patch Changes
+
+- Respect can now send a null payload when an example is described in the OpenAPI schema.
+- Updated @redocly/openapi-core to v2.17.0.
+
+## 2.16.0
+
+### Patch Changes
+
+- Redirected bundling problems (such as lint errors and warnings) to `stderr` instead of `stdout` to avoid interfering with the bundled output.
+- Updated @redocly/openapi-core to v2.16.0.
+
+## 2.15.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.15.2.
+
 ## 2.15.1
 
 ### Patch Changes

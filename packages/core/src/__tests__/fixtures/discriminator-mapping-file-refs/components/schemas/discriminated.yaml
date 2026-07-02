@@ -1,0 +1,8 @@
+discriminator:
+  propertyName: kind
+  mapping:
+    a: type-a.yaml
+    b: type-b.yaml
+anyOf:
+  - $ref: type-a.yaml
+  - $ref: type-b.yaml

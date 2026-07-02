@@ -1,6 +1,6 @@
-import type { RuntimeExpressionContext } from '../../../types.js';
-
 import { logger } from '@redocly/openapi-core';
+
+import type { RuntimeExpressionContext } from '../../../types.js';
 import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,
@@ -96,6 +96,16 @@ const runtimeExpressionContext = {
                 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.',
               dates: ['2023-12-15', '2023-12-22'],
               price: 0,
+              items: [
+                {
+                  name: 'item1',
+                  description: 'item1 description',
+                },
+                {
+                  name: 'item2',
+                  description: 'item2 description',
+                },
+              ],
             },
             statusCode: 201,
             header: {
@@ -229,7 +239,16 @@ const runtimeExpressionContext = {
       eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs.',
       dates: ['2023-12-15', '2023-12-22'],
       price: 0,
-      items: [],
+      items: [
+        {
+          name: 'item1',
+          description: 'item1 description',
+        },
+        {
+          name: 'item2',
+          description: 'item2 description',
+        },
+      ],
       device_code: '123',
       piNumber: 3.14,
     },
@@ -320,6 +339,33 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('2023-12-15');
   });
 
+  it('should not evaluate query-language strings as runtime expressions', () => {
+    const payload = {
+      jsonpath: "$.items[*].attributes[?(@.type=='foo')]",
+      xpath: '$bookstore/book[price>35]/title',
+      sparql: 'SELECT $item WHERE { $item <http://example.com/type> "foo" }',
+      opa: 'data.items[_].type == "foo"',
+    };
+
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual(payload);
+  });
+
+  it('should evaluate {$faker.*} wrapped expression embedded in object payload', () => {
+    const payload = { x: '{$faker.number.integer({ min: 5, max: 5 })}' };
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual({ x: '5' });
+  });
+
+  it('should evaluate {$faker.*} wrapped expression mixed with surrounding text', () => {
+    const payload = '{$faker.number.integer({ min: 5, max: 5 })} suffix';
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual('5 suffix');
+  });
+
   it('should evaluate $faker runtime expression value', () => {
     const payload = '$faker.number.integer({ min: 1, max: 10 })';
     expect(
@@ -333,13 +379,13 @@ describe('evaluateRuntimeExpressionPayload', () => {
 
   it('should evaluate $faker inside string runtime expression value', () => {
     const payload = 'Some text {$faker.number.integer({ min: 1, max: 10 })}';
-    expect(
-      typeof evaluateRuntimeExpressionPayload({
-        payload,
-        context: runtimeExpressionContext,
-        logger,
-      })
-    ).toBe('string');
+    const result = evaluateRuntimeExpressionPayload({
+      payload,
+      context: runtimeExpressionContext,
+      logger,
+    });
+    expect(typeof result).toBe('string');
+    expect(result).toMatch(/^Some text \d+$/);
   });
 
   it('should evaluate multiword runtime expression value', () => {
@@ -394,7 +440,16 @@ describe('evaluateRuntimeExpressionPayload', () => {
       eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs.',
       dates: ['2023-12-15', '2023-12-22'],
       price: 0,
-      items: [],
+      items: [
+        {
+          name: 'item1',
+          description: 'item1 description',
+        },
+        {
+          name: 'item2',
+          description: 'item2 description',
+        },
+      ],
       piNumber: 3.14,
     });
   });
@@ -408,14 +463,14 @@ describe('evaluateRuntimeExpressionPayload', () => {
     } as unknown as RuntimeExpressionContext;
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`some string value == \"some string value\"`);
+    ).toEqual(`some string value == "some string value"`);
   });
 
   it('should evaluate runctime expressions with url comparison', () => {
     const payload = '$url == "http://example.com"';
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`http://example.com == \"http://example.com\"`);
+    ).toEqual(`http://example.com == "http://example.com"`);
   });
 
   it('should evaluate requestBody object with runtime expression values', () => {
@@ -579,9 +634,9 @@ describe('evaluateRuntimeExpression', () => {
 
   it('should evaluate $faker inside string runtime expression value', () => {
     const payload = 'Some text {$faker.number.integer({ min: 1, max: 10 })}';
-    expect(typeof evaluateRuntimeExpression(payload, runtimeExpressionContext, logger)).toBe(
-      'string'
-    );
+    const result = evaluateRuntimeExpression(payload, runtimeExpressionContext, logger);
+    expect(typeof result).toBe('string');
+    expect(result).toMatch(/^Some text \d+$/);
   });
 
   it('should evaluete list runtime expression value', () => {
@@ -616,7 +671,6 @@ describe('evaluateRuntimeExpression', () => {
       '$workflows.workflow1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
     const expression3 =
       '$steps.step1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
-    const expression4 = '$outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression5 =
       '$workflows.workflow1.outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression6 =
@@ -638,5 +692,19 @@ describe('evaluateRuntimeExpression', () => {
     expect(evaluateRuntimeExpression(expression1, runtimeExpressionContext, logger)).toEqual(true);
     expect(evaluateRuntimeExpression(expression2, runtimeExpressionContext, logger)).toEqual(true);
     expect(evaluateRuntimeExpression(expression3, runtimeExpressionContext, logger)).toEqual(false);
+  });
+
+  it('should evaluate list runtime expression value', () => {
+    const expression = '$response.body#/items';
+    expect(evaluateRuntimeExpression(expression, runtimeExpressionContext, logger)).toEqual([
+      {
+        name: 'item1',
+        description: 'item1 description',
+      },
+      {
+        name: 'item2',
+        description: 'item2 description',
+      },
+    ]);
   });
 });

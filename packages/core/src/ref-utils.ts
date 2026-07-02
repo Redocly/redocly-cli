@@ -1,10 +1,10 @@
 import * as path from 'node:path';
-import { isTruthy } from './utils/is-truthy.js';
-import { isPlainObject } from './utils/is-plain-object.js';
 
-import type { ResolveResult, UserContext } from './walk.js';
 import type { Source } from './resolve.js';
-import type { OasRef } from './typings/openapi.js';
+import type { Oas3Example, OasRef } from './typings/openapi.js';
+import { isPlainObject } from './utils/is-plain-object.js';
+import { isTruthy } from './utils/is-truthy.js';
+import type { ResolveResult, UserContext } from './walk.js';
 
 export function joinPointer(base: string, key: string | number) {
   if (base === '') base = '#/';
@@ -15,12 +15,15 @@ export function isRef(node: unknown): node is OasRef {
   return isPlainObject(node) && typeof node.$ref === 'string';
 }
 
-export function isExternalValue(node: unknown) {
+export function isExternalValue(node: unknown): node is Oas3Example & { externalValue: string } {
   return isPlainObject(node) && typeof node.externalValue === 'string';
 }
 
 export class Location {
-  constructor(public source: Source, public pointer: string) {}
+  constructor(
+    public source: Source,
+    public pointer: string
+  ) {}
 
   child(components: (string | number)[] | string | number) {
     return new Location(
@@ -83,7 +86,12 @@ export function refBaseName(ref: string) {
 }
 
 export function isAbsoluteUrl(ref: string) {
-  return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
+  return (
+    ref.startsWith('http://') ||
+    ref.startsWith('https://') ||
+    ref.startsWith('file://') ||
+    ref.startsWith('data:')
+  );
 }
 
 export function getDir(filePath: string): string {
@@ -106,12 +114,13 @@ export function resolvePath(base: string, relative: string): string {
 export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
   return (
-    mapping.startsWith('#') ||
-    mapping.startsWith('https://') ||
-    mapping.startsWith('http://') ||
-    mapping.startsWith('./') ||
-    mapping.startsWith('../') ||
-    mapping.indexOf('/') > -1
+    typeof mapping === 'string' &&
+    (mapping.startsWith('#') ||
+      isAbsoluteUrl(mapping) ||
+      mapping.startsWith('./') ||
+      mapping.startsWith('../') ||
+      mapping.indexOf('/') > -1 ||
+      /\.(ya?ml|json)$/i.test(mapping))
   );
 }
 

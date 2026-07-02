@@ -1,5 +1,3 @@
-import { blue, gray } from 'colorette';
-import { performance } from 'perf_hooks';
 import {
   formatProblems,
   getTotals,
@@ -8,7 +6,17 @@ import {
   pluralize,
   ConfigValidationError,
   logger,
+  type Config,
+  type Exact,
+  type OutputFormat,
 } from '@redocly/openapi-core';
+import { blue, gray } from 'colorette';
+import { performance } from 'perf_hooks';
+import type { Arguments } from 'yargs';
+
+import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
+import { AbortFlowError } from '../utils/error.js';
+import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
   formatPath,
@@ -19,12 +27,6 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
-import { AbortFlowError, exitWithError } from '../utils/error.js';
-import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
-
-import type { Arguments } from 'yargs';
-import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
 export type LintArgv = {
@@ -45,15 +47,10 @@ export async function handleLint({
 }: CommandArgs<LintArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
-  if (!apis.length) {
-    exitWithError('No APIs were provided.');
-  }
-
-  if (argv['generate-ignore-file']) {
-    config.ignore = {}; // clear ignore
-  }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
+  const isAggregatedXmlFormat = argv.format === 'checkstyle' || argv.format === 'junit';
+  const aggregatedResults: Awaited<ReturnType<typeof lint>> = [];
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const { path, alias } of apis) {
@@ -66,7 +63,7 @@ export async function handleLint({
       aliasConfig.skipRules(argv['skip-rule']);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (typeof config.document?.parsed === 'undefined') {
+      if (typeof config.document?.parsed === 'undefined' && !argv.extends) {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -93,16 +90,20 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
+        config.clearIgnoreForRef(path);
         for (const m of results) {
           config.addIgnore(m);
           totalIgnored++;
         }
+      } else if (isAggregatedXmlFormat) {
+        aggregatedResults.push(...results);
       } else {
         formatProblems(results, {
           format: argv.format,
           maxProblems: argv['max-problems'],
           totals: fileTotals,
           version,
+          command: 'lint',
         });
       }
 
@@ -113,11 +114,19 @@ export async function handleLint({
     }
   }
 
+  if (isAggregatedXmlFormat && !argv['generate-ignore-file']) {
+    formatProblems(aggregatedResults, {
+      format: argv.format,
+      maxProblems: argv['max-problems'],
+      totals,
+      version,
+      command: 'lint',
+    });
+  }
+
   if (argv['generate-ignore-file']) {
     config.saveIgnore();
-    logger.info(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
-    );
+    logger.info(`Explicitly ignored ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`);
   } else {
     printLintTotals(totals, apis.length);
   }
@@ -134,8 +143,8 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     return;
   }
 
-  if (argv.format === 'json') {
-    // we can't print config lint results as it will break json output
+  if (argv.format === 'json' || argv.format === 'junit' || argv.format === 'checkstyle') {
+    // these are single-document formats, so a separate config-lint document would break the output
     return;
   }
 
@@ -153,6 +162,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,
+    command: 'check-config',
   });
 
   printConfigLintTotals(fileTotals, command);

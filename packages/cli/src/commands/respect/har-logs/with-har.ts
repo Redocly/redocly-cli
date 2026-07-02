@@ -7,13 +7,14 @@
 // - removed nanoid and replaced with crypto.randomUUID
 // - migrated to be used with undici
 
-import { URL } from 'url';
 import { Client, type fetch } from 'undici';
+import { URL } from 'url';
+
 import { addHeaders } from './helpers/add-headers.js';
-import { getDuration } from './helpers/get-duration.js';
-import { buildRequestCookies } from './helpers/build-request-cookies.js';
 import { buildHeaders } from './helpers/build-headers.js';
+import { buildRequestCookies } from './helpers/build-request-cookies.js';
 import { buildResponseCookies } from './helpers/build-response-cookies.js';
+import { getDuration } from './helpers/get-duration.js';
 
 const HAR_HEADER_NAME = 'x-har-request-id';
 const harEntryMap = new Map<string, any>();
@@ -109,14 +110,15 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     // Make the request
     const response = await baseFetch(input, options);
 
-    // Need to clone response to get both text and arrayBuffer
-    const responseClone = response.clone();
+    // Read from clones so HAR logging does not consume or reconstruct the real response.
+    const responseTextClone = response.clone();
+    const responseBufferClone = response.clone();
 
     // Update firstByte time when we get the response
     entry._timestamps.firstByte = process.hrtime();
 
     // Get the response body and update received time
-    const text = await response.text();
+    const text = response.body === null ? '' : await responseTextClone.text();
     entry._timestamps.received = process.hrtime();
 
     const harEntry = harEntryMap.get(requestId);
@@ -148,7 +150,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     }
 
     if (harEntry._compressed) {
-      const rawBody = await responseClone.arrayBuffer();
+      const rawBody = await responseBufferClone.arrayBuffer();
       harEntry.response.content.size = rawBody.byteLength;
     } else {
       harEntry.response.content.size = text ? Buffer.byteLength(text) : -1;
@@ -210,15 +212,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
       parent.pageref = entry.pageref;
     });
 
-    const Response =
-      defaults.Response || baseFetch.Response || global.Response || response.constructor;
-    const responseCopy = new Response(text, {
-      status: response.statusCode,
-      statusText: response.statusText || '',
-      headers: response.headers,
-      url: response.url,
-    });
-    responseCopy.harEntry = entry;
+    response.harEntry = entry;
 
     if (Array.isArray(har?.log?.entries)) {
       har.log.entries.push(...parents, entry);
@@ -231,6 +225,6 @@ export const withHar: WithHar = function <T extends typeof fetch>(
       onHarEntry(entry);
     }
 
-    return responseCopy;
+    return response;
   } as T;
 };

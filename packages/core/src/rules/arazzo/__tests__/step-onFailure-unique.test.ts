@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo step-onFailure-unique', () => {
   const document = parseYamlToDocument(
@@ -76,6 +77,7 @@ describe('Arazzo step-onFailure-unique', () => {
             },
           ],
           "message": "The action \`name\` must be unique amongst listed \`onFailure\` actions.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/step-onfailure-unique",
           "ruleId": "step-onFailure-unique",
           "severity": "error",
           "suggest": [],
@@ -89,6 +91,7 @@ describe('Arazzo step-onFailure-unique', () => {
             },
           ],
           "message": "The action \`reference\` must be unique amongst listed \`onFailure\` actions.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/step-onfailure-unique",
           "ruleId": "step-onFailure-unique",
           "severity": "error",
           "suggest": [],

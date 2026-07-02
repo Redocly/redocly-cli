@@ -11,6 +11,7 @@ export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
 export { slash } from './utils/slash.js';
+export { regexFromString } from './utils/regex-from-string.js';
 export { Oas2Types } from './types/oas2.js';
 export { Oas3Types } from './types/oas3.js';
 export { Oas3_1Types } from './types/oas3_1.js';
@@ -18,18 +19,21 @@ export { Oas3_2Types } from './types/oas3_2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
+export { Arazzo1_1Types } from './types/arazzo1_1.js';
 export { Overlay1Types } from './types/overlay.js';
 export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
-export { createEntityTypes } from './types/entity-yaml.js';
+export { createEntityTypes } from './types/entity.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
-export { Stats } from './rules/other/stats.js';
+export { StatsOAS, StatsAsync2, StatsAsync3 } from './rules/other/stats.js';
 export {
   loadConfig,
   loadIgnoreConfig,
   createConfig,
   findConfig,
   resolvePlugins,
+  clearPluginsCache,
+  getPluginCacheVersion,
   ConfigValidationError,
   Config, // FIXME: export it as a type
   type RawUniversalConfig,
@@ -40,6 +44,7 @@ export {
   type RuleConfig,
   type RuleSeverity,
   type IgnoreConfig,
+  type ResolveConfig,
 } from './config/index.js';
 export * from './config/constants.js';
 export {
@@ -56,6 +61,7 @@ export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointerFragment,
   isRef,
+  isMappingRef,
   isAbsoluteUrl,
   getDir,
   resolvePath,
@@ -88,13 +94,13 @@ export {
   type Arazzo1Decorator,
   type Overlay1Decorator,
   type OpenRpc1Decorator,
-  type Oas3Preprocessor,
-  type Oas2Preprocessor,
-  type Async2Preprocessor,
-  type Async3Preprocessor,
-  type Arazzo1Preprocessor,
-  type Overlay1Preprocessor,
-  type OpenRpc1Preprocessor,
+  type Oas3Decorator as Oas3Preprocessor,
+  type Oas2Decorator as Oas2Preprocessor,
+  type Async2Decorator as Async2Preprocessor,
+  type Async3Decorator as Async3Preprocessor,
+  type Arazzo1Decorator as Arazzo1Preprocessor,
+  type Overlay1Decorator as Overlay1Preprocessor,
+  type OpenRpc1Decorator as OpenRpc1Preprocessor,
 } from './visitors.js';
 export {
   WalkContext,
@@ -107,62 +113,33 @@ export {
   type UserContext,
 } from './walk.js';
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
-export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
 export {
-  lint,
-  lint as validate,
-  lintDocument,
-  lintFromString,
-  lintConfig,
-  lintEntityFile,
-} from './lint.js';
+  formatProblems,
+  getTotals,
+  xmlEscape,
+  type OutputFormat,
+  type Totals,
+} from './format/format.js';
+export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
-export { bundleDocument } from './bundle/bundle-document.js';
+export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
+export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
-
 export type { CollectFn, Exact } from './utils/types.js';
+export type * from './typings/openapi.js';
+export type * from './typings/swagger.js';
+export type * from './typings/asyncapi3.js';
+export type * from './typings/asyncapi.js';
+export type * from './typings/openrpc.js';
+export type * from './typings/arazzo.js';
 export type {
-  Oas3Definition,
-  Oas3_1Definition,
-  Oas3_2Definition,
-  Oas3Components,
-  Oas3_1Components,
-  Oas3PathItem,
-  Oas3Paths,
-  Oas3ComponentName,
-  Oas3Schema,
-  Oas3_1Schema,
-  Oas3Tag,
-  Oas3_2Tag,
-  Referenced,
-  OasRef,
-  Oas3Parameter,
-  Oas3Server,
-  Oas3Operation,
-  Oas3Responses,
-  ApiKeyAuth,
-  HttpAuth,
-  BasicAuth,
-  BearerAuth,
-  DigestAuth,
-  MutualTLSAuth,
-  OAuth2Auth,
-  OpenIDAuth,
-  Oas3SecurityScheme,
-  Oas3SecurityRequirement,
-} from './typings/openapi.js';
-export type { Oas2Definition } from './typings/swagger.js';
-export type { Async3Definition } from './typings/asyncapi3.js';
-export type { Async2Definition } from './typings/asyncapi.js';
-export type { OpenRpc1Definition } from './typings/openrpc.js';
-export type {
-  ArazzoDefinition,
-  ExtendedOperation,
-  ExtendedSecurity,
-  ResolvedSecurity,
-} from './typings/arazzo.js';
-export type { StatsAccumulator, StatsName } from './typings/common.js';
+  StatsAccumulator,
+  OASStatsAccumulator,
+  AsyncAPIStatsAccumulator,
+  StatsName,
+} from './typings/common.js';

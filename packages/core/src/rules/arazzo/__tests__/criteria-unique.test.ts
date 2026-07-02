@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo criteria-unique', () => {
   const document = parseYamlToDocument(
@@ -41,10 +42,10 @@ describe('Arazzo criteria-unique', () => {
                 - condition: $statusCode == 200
                 - condition: $statusCode == 200
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type: jsonpath
                 - context: $response.body
-                  condition: $.name == 'Mermaid Treasure Identification and Analysis'
+                  condition: $[?@.name == "Mermaid Treasure Identification and Analysis"]
                   type: jsonpath
               onSuccess:
                 - name: 'onSuccessActionName'
@@ -100,6 +101,7 @@ describe('Arazzo criteria-unique', () => {
             },
           ],
           "message": "The Step SuccessCriteria items must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/criteria-unique",
           "ruleId": "criteria-unique",
           "severity": "error",
           "suggest": [],
@@ -113,6 +115,7 @@ describe('Arazzo criteria-unique', () => {
             },
           ],
           "message": "The Step SuccessCriteria items must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/criteria-unique",
           "ruleId": "criteria-unique",
           "severity": "error",
           "suggest": [],
@@ -126,6 +129,7 @@ describe('Arazzo criteria-unique', () => {
             },
           ],
           "message": "The SuccessAction criteria items must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/criteria-unique",
           "ruleId": "criteria-unique",
           "severity": "error",
           "suggest": [],
@@ -139,6 +143,7 @@ describe('Arazzo criteria-unique', () => {
             },
           ],
           "message": "The FailureAction criteria items must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/criteria-unique",
           "ruleId": "criteria-unique",
           "severity": "error",
           "suggest": [],

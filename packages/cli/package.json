@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.15.1",
+  "version": "2.36.0",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -14,10 +14,12 @@
   },
   "engineStrict": true,
   "scripts": {
-    "compile": "tsc",
-    "copy-assets": "cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs ",
-    "prepack": "npm run copy-assets",
-    "prepublishOnly": "npm run copy-assets && cp ../../README.md ."
+    "build": "node ./scripts/build.mjs",
+    "prepare:publish-dir": "node ./scripts/prepare-publish-dir.mjs",
+    "clean:publish-dir": "node -e \"require('fs').rmSync('.publish', {recursive:true, force:true})\""
+  },
+  "publishConfig": {
+    "directory": ".publish"
   },
   "repository": {
     "type": "git",
@@ -37,47 +39,37 @@
   "contributors": [
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
-  "dependencies": {
-    "@opentelemetry/exporter-trace-otlp-http": "0.202.0",
-    "@opentelemetry/resources": "2.0.1",
-    "@opentelemetry/sdk-trace-node": "2.0.1",
-    "@opentelemetry/semantic-conventions": "1.34.0",
-    "@redocly/openapi-core": "2.15.1",
-    "@redocly/respect-core": "2.15.1",
-    "abort-controller": "^3.0.0",
-    "ajv": "npm:@redocly/ajv@8.17.1",
-    "ajv-formats": "^3.0.1",
-    "colorette": "^1.2.0",
-    "cookie": "^0.7.2",
-    "dotenv": "16.4.7",
-    "glob": "^11.0.1",
-    "handlebars": "^4.7.6",
-    "https-proxy-agent": "^7.0.5",
-    "mobx": "^6.0.4",
-    "picomatch": "^4.0.3",
-    "pluralize": "^8.0.0",
-    "react": "^17.0.0 || ^18.2.0 || ^19.2.1",
-    "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.1",
-    "redoc": "2.5.1",
-    "semver": "^7.5.2",
-    "set-cookie-parser": "^2.3.5",
-    "simple-websocket": "^9.0.0",
-    "styled-components": "^6.0.7",
-    "ulid": "^3.0.1",
-    "undici": "^6.23.0",
-    "yargs": "17.0.1"
-  },
   "devDependencies": {
-    "@redocly/cli-otel": "^0.0.4",
-    "@types/configstore": "^5.0.1",
+    "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
+    "@opentelemetry/resources": "2.8.0",
+    "@opentelemetry/sdk-trace-node": "2.8.0",
+    "@opentelemetry/semantic-conventions": "1.41.1",
+    "@redocly/cli-otel": "0.3.1",
+    "@redocly/openapi-core": "2.36.0",
+    "@redocly/respect-core": "2.36.0",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
-    "@types/pluralize": "^0.0.29",
-    "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.1",
-    "@types/react-dom": "^17.0.0 || ^18.2.7 || ^19.2.1",
+    "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",
+    "@types/react-dom": "^17.0.0 || ^18.2.7 || ^19.2.3",
     "@types/semver": "^7.5.0",
     "@types/set-cookie-parser": "2.4.10",
     "@types/yargs": "17.0.32",
-    "typescript": "5.9.3"
+    "colorette": "^1.2.0",
+    "cookie": "^0.7.2",
+    "dotenv": "16.4.7",
+    "esbuild": "^0.28.0",
+    "glob": "^13.0.5",
+    "handlebars": "^4.7.9",
+    "https-proxy-agent": "^7.0.5",
+    "react": "^17.0.0 || ^18.2.0 || ^19.2.7",
+    "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.7",
+    "redoc": "2.5.3",
+    "semver": "^7.5.2",
+    "set-cookie-parser": "^2.3.5",
+    "styled-components": "6.4.2",
+    "typescript": "6.0.2",
+    "ulid": "^3.0.1",
+    "undici": "^6.27.0",
+    "yargs": "17.0.1"
   }
 }

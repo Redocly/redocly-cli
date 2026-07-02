@@ -1,3 +1,4 @@
+import { isPlainObject } from '../utils/is-plain-object.js';
 import { listOf, mapOf, type NodeType } from './index.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
@@ -71,7 +72,7 @@ const License: NodeType = {
 
 const Paths: NodeType = {
   properties: {},
-  additionalProperties: (_value: any, key: string) =>
+  additionalProperties: (_value: unknown, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
 };
 
@@ -217,7 +218,7 @@ const Responses: NodeType = {
   properties: {
     default: 'Response',
   },
-  additionalProperties: (_v: any, key: string) =>
+  additionalProperties: (_v: unknown, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
 };
 
@@ -260,7 +261,7 @@ const Header: NodeType = {
     multipleOf: { type: 'number' },
   },
   required(value) {
-    if (value && value.type === 'array') {
+    if (isPlainObject(value) && value.type === 'array') {
       return ['type', 'items'];
     } else {
       return ['type'];
@@ -313,7 +314,7 @@ const Schema: NodeType = {
       type: 'string',
       enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
     },
-    items: (value: any) => {
+    items: (value: unknown) => {
       if (Array.isArray(value)) {
         return listOf('Schema');
       } else {
@@ -322,7 +323,7 @@ const Schema: NodeType = {
     },
     allOf: listOf('Schema'),
     properties: 'SchemaProperties',
-    additionalProperties: (value: any) => {
+    additionalProperties: (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {

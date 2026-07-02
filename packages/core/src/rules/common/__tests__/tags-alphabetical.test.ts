@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 tags-alphabetical', () => {
   it('should report on tags object if not sorted alphabetically', async () => {
@@ -34,6 +35,7 @@ describe('Oas3 tags-alphabetical', () => {
             },
           ],
           "message": "The \`tags\` array should be in alphabetical order.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/tags-alphabetical",
           "ruleId": "tags-alphabetical",
           "severity": "error",
           "suggest": [],
@@ -92,6 +94,7 @@ describe('Oas3 tags-alphabetical', () => {
             },
           ],
           "message": "The \`tags\` array should be in alphabetical order.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/tags-alphabetical",
           "ruleId": "tags-alphabetical",
           "severity": "error",
           "suggest": [],

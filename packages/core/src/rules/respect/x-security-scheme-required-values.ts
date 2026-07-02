@@ -1,8 +1,7 @@
 import { logger } from '../../logger.js';
-
+import type { ExtendedSecurity } from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
   apiKey: ['apiKey'],
@@ -49,6 +48,8 @@ function validateSecuritySchemas(
           report({
             message: `The \`${requiredValue}\` is required when using the ${authType} authentication security schema.`,
             location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+            reference:
+              'https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values',
           });
         }
       }
@@ -56,6 +57,7 @@ function validateSecuritySchemas(
       report({
         message: `The \`${authType}\` authentication security schema is not supported.`,
         location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+        reference: 'https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values',
       });
     }
   }

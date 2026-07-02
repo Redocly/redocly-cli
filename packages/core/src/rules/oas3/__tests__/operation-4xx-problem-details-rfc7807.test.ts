@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
   it('should report `4xx` must have content type `application/problem+json` ', async () => {
@@ -46,6 +47,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
             },
           ],
           "message": "Response \`4xx\` must have content-type \`application/problem+json\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": [],
@@ -93,6 +95,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
             },
           ],
           "message": "SchemaProperties object should contain \`type\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": [],
@@ -136,6 +139,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
             },
           ],
           "message": "MediaType object should contain \`schema\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": [],

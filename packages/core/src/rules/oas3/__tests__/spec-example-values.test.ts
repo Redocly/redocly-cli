@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('spec-example-values', () => {
   it('should validate example field combinations according to OAS 3.2', async () => {
@@ -69,6 +70,7 @@ describe('spec-example-values', () => {
             },
           ],
           "message": "The 'value' filed must be absent if 'dataValue' is present in an example object.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
@@ -82,6 +84,7 @@ describe('spec-example-values', () => {
             },
           ],
           "message": "The 'value' filed must be absent if 'serializedValue' is present in an example object.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
@@ -95,6 +98,7 @@ describe('spec-example-values', () => {
             },
           ],
           "message": "The 'serializedValue' and 'externalValue' fields of an example object are mutually exclusive.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
@@ -108,6 +112,7 @@ describe('spec-example-values', () => {
             },
           ],
           "message": "The 'value' and 'externalValue' fields of an example object are mutually exclusive.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],

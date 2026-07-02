@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo sourceDescription-type', () => {
   const document = parseYamlToDocument(
@@ -57,6 +58,7 @@ describe('Arazzo sourceDescription-type', () => {
             },
           ],
           "message": "The \`type\` property of the \`sourceDescription\` object must be either \`openapi\` or \`arazzo\`.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/sourcedescription-type",
           "ruleId": "sourceDescription-type",
           "severity": "error",
           "suggest": [],
@@ -75,5 +77,67 @@ describe('Arazzo sourceDescription-type', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('accepts asyncapi sourceDescription type in Arazzo 1.1', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-events
+            type: asyncapi
+            url: asyncapi.yaml
+        workflows:
+          - workflowId: events
+            steps:
+              - stepId: await
+                channelPath: $sourceDescriptions.museum-events#/channels/eventCreated
+                action: receive
+                successCriteria:
+                  - condition: $statusCode == 200
+      `,
+      'arazzo.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'sourceDescription-type': 'error' } }),
+    });
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('rejects asyncapi sourceDescription type in Arazzo 1.0', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-events
+            type: asyncapi
+            url: asyncapi.yaml
+        workflows:
+          - workflowId: events
+            steps:
+              - stepId: await
+                operationId: museum-api.getEvents
+                successCriteria:
+                  - condition: $statusCode == 200
+      `,
+      'arazzo.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ arazzo1Rules: { 'sourceDescription-type': 'error' } }),
+    });
+    expect(results.length).toEqual(1);
+    expect(results[0].message).toEqual(
+      'The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.'
+    );
   });
 });

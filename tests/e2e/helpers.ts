@@ -1,6 +1,7 @@
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+
 import { parseYaml } from '../../packages/core/src/utils/yaml-fs-helper.js'; // not able to import from @redocly/openapi-core
 
 export function getParams(indexEntryPoint: string, args: string[] = []): string[] {
@@ -40,7 +41,7 @@ export function getEntrypoints(folderPath: string) {
 }
 
 function cleanUpVersion(str: string): string {
-  return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
+  return str.replace(/"version":\s(".*")*/g, '"version": "<version>"');
 }
 
 // Vitest serializer does not modify strings, so we need to do it manually

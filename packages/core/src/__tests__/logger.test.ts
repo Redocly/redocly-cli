@@ -1,6 +1,6 @@
-import { MockInstance } from 'vitest';
-
 import * as colorette from 'colorette';
+import { type MockInstance } from 'vitest';
+
 import { logger, colorize } from '../logger.js';
 
 describe('Logger in nodejs', () => {
@@ -71,6 +71,6 @@ describe('colorize in nodejs', () => {
     const colorized = colorize.cyan(color);
 
     expect(colorette.cyan).toBeCalledWith(color);
-    expect(colorized).toEqual(colorette[color](color));
+    expect(colorized).toEqual((colorette as any)[color](color));
   });
 });

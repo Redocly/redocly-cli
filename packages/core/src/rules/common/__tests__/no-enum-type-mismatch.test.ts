@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 typed enum', () => {
   it('should not report on enum object if all items match type', async () => {
@@ -107,6 +108,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "integer" but received "string".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": [],
@@ -155,6 +157,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "Enum value \`string\` must be of allowed types: \`integer,array\`.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": [],
@@ -250,6 +253,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "number" but received "string".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": [],
@@ -293,6 +297,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": [],
@@ -341,6 +346,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": [],

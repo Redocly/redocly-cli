@@ -1,5 +1,5 @@
-import type { OpenRpc1Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
+import type { OpenRpc1Rule } from '../../visitors.js';
 
 export const NoUnusedComponents: OpenRpc1Rule = () => {
   const components = new Map<string, { used: boolean; location: Location; name: string }>();
@@ -41,6 +41,7 @@ export const NoUnusedComponents: OpenRpc1Rule = () => {
             report({
               message: `Component: "${usageInfo.name}" is never used.`,
               location: usageInfo.location.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
             });
           }
         });
@@ -48,9 +49,7 @@ export const NoUnusedComponents: OpenRpc1Rule = () => {
     },
     NamedSchemas: {
       Schema(schema, { location, key }) {
-        if (!schema.allOf) {
-          registerComponent(location, key.toString());
-        }
+        registerComponent(location, key.toString());
       },
     },
     NamedContentDescriptors: {

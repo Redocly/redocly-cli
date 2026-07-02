@@ -57,7 +57,7 @@ describe('faker', () => {
     });
 
     it('should return a float', () => {
-      // @ts-ignore
+      // @ts-expect-error
       expect(faker.number.float()).toBeDefined();
     });
   });

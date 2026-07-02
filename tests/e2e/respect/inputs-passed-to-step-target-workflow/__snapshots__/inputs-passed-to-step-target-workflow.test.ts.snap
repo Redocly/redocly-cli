@@ -50,7 +50,7 @@ exports[`should pass inputs to step target workflow with additional input parame
       } 
  
     ✓ success criteria check - $statusCode == 201
-    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
+    ✓ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check

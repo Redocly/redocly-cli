@@ -1,0 +1,35 @@
+openapi: 3.2.0
+info: {}
+servers: []
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Used'
+components:
+  schemas:
+    Used:
+      type: object
+      properties:
+        base:
+          type: string
+      discriminator:
+        propertyName: test
+        defaultMapping: '#/components/schemas/Foo'
+    Foo:
+      allOf:
+        - $ref: '#/components/schemas/Used'
+        - type: object
+          properties:
+            test:
+              type: string
+              const: foo
+          required:
+            - test
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.

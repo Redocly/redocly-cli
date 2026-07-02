@@ -1,13 +1,11 @@
+import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
+import type { Location } from '../../../ref-utils.js';
+import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
+import { isOrdered, type OrderOptions, type OrderDirection } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
-import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
-import { isOrdered } from '../../../utils/is-ordered.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
-
-import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
-import type { Location } from '../../../ref-utils.js';
-import type { OrderOptions, OrderDirection } from '../../../utils/is-ordered.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
@@ -30,6 +28,7 @@ export type Asserts = {
   requireAny: AssertionFn;
   ref: AssertionFn;
   const: AssertionFn;
+  contains: AssertionFn;
 };
 
 export const runOnKeysSet = new Set<keyof Asserts>([
@@ -61,6 +60,7 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'sortOrder',
   'ref',
   'const',
+  'contains',
 ]);
 
 export const asserts: Asserts = {
@@ -81,8 +81,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -104,8 +104,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -146,6 +146,19 @@ export const asserts: Asserts = {
           !value.includes(requiredKey) && {
             message: `${requiredKey} is required`,
             location: baseLocation.key(),
+          }
+      )
+      .filter(isTruthy);
+  },
+  contains: (value: string[], words: string[], { baseLocation }: AssertionFnContext) => {
+    if (typeof value === 'undefined' || isPlainObject(value)) return [];
+    const list = Array.isArray(value) ? value : [value];
+    return words
+      .map(
+        (word) =>
+          !list.includes(word) && {
+            message: `${word} should be in the list`,
+            location: baseLocation,
           }
       )
       .filter(isTruthy);
@@ -196,11 +209,15 @@ export const asserts: Asserts = {
     }
   },
   nonEmpty: (
-    value: string | undefined | null,
+    value: string | any[] | undefined | null,
     condition: boolean = true,
     { baseLocation }: AssertionFnContext
   ) => {
-    const isEmpty = typeof value === 'undefined' || value === null || value === '';
+    const isEmpty =
+      typeof value === 'undefined' ||
+      value === null ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0);
     const isValid = condition ? !isEmpty : isEmpty;
     return isValid
       ? []

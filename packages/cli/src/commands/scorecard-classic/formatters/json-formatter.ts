@@ -1,5 +1,6 @@
 import { logger, getLineColLocation } from '@redocly/openapi-core';
 
+import { stripAnsiCodes } from '../../../utils/strip-ansi-codes.js';
 import type { ScorecardProblem } from '../types.js';
 
 type ScorecardLevel = {
@@ -44,11 +45,6 @@ function getRuleUrl(ruleId: string): string | undefined {
     return `https://redocly.com/docs/cli/rules/oas/${ruleId}`;
   }
   return undefined;
-}
-
-function stripAnsiCodes(text: string): string {
-  // eslint-disable-next-line no-control-regex
-  return text.replace(/\u001b\[\d+m/g, '');
 }
 
 export function printScorecardResultsAsJson(

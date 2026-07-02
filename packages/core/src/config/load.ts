@@ -1,17 +1,17 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { resolveConfig } from './config-resolvers.js';
-import { Config } from './config.js';
+
+import { isBrowser } from '../env.js';
+import { isAbsoluteUrl, getDir, resolvePath } from '../ref-utils.js';
 import {
   BaseResolver,
   makeDocumentFromString,
   type Document,
   type ResolvedRefMap,
 } from '../resolve.js';
+import { resolveConfig } from './config-resolvers.js';
+import { Config } from './config.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
-import { isAbsoluteUrl, getDir, resolvePath } from '../ref-utils.js';
-import { isBrowser } from '../env.js';
-
 import type { RawUniversalConfig, IgnoreConfig } from './types.js';
 
 type IgnoreFileContent = Record<string, Record<string, string[]>>;

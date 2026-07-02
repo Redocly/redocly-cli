@@ -1,22 +1,8 @@
+asyncapi: 3.0.0
 info:
   title: Account Service
   version: 1.0.0
   description: This service is in charge of processing user signups
-components:
-  messages:
-    UserSignedUp:
-      UserSignedUp:
-        payload:
-          type: object
-          properties:
-            displayName:
-              type: string
-              description: Name of the user
-            email:
-              type: string
-              format: email
-              description: Email of the user
-asyncapi: 3.0.0
 channels:
   userSignedup:
     address: user/signedup
@@ -50,6 +36,20 @@ operations:
                 type: string
                 format: email
                 description: Email of the user
+components:
+  messages:
+    UserSignedUp:
+      UserSignedUp:
+        payload:
+          type: object
+          properties:
+            displayName:
+              type: string
+              description: Name of the user
+            email:
+              type: string
+              format: email
+              description: Email of the user
 
 bundling simple.yml using configuration for api 'main'...
 📦 Created a bundle for simple.yml at stdout <test>ms.

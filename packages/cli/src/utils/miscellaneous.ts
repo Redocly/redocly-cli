@@ -1,11 +1,3 @@
-import { basename, dirname, extname, join, resolve, relative } from 'node:path';
-import { blue, gray, green, red, yellow } from 'colorette';
-import { performance } from 'perf_hooks';
-import { hasMagic, glob } from 'glob';
-import * as fs from 'node:fs';
-import * as readline from 'node:readline';
-import { Writable } from 'node:stream';
-import * as process from 'node:process';
 import {
   ResolveError,
   YamlParseError,
@@ -20,13 +12,31 @@ import {
   ConfigValidationError,
   logger,
   HandledError,
+  type Config,
+  type Oas3Definition,
+  type Oas2Definition,
+  type Exact,
+  type Async3Definition,
+  type Async2Definition,
 } from '@redocly/openapi-core';
-import { outputExtensions } from '../types.js';
-import { exitWithError } from './error.js';
-import { handleLintConfig } from '../commands/lint.js';
+import { blue, gray, green, red, yellow } from 'colorette';
+import { hasMagic, glob } from 'glob';
+import * as fs from 'node:fs';
+import { basename, dirname, extname, join, resolve, relative } from 'node:path';
+import * as process from 'node:process';
+import * as readline from 'node:readline';
+import { Writable } from 'node:stream';
+import { performance } from 'perf_hooks';
 
-import type { Config, Oas3Definition, Oas2Definition, Exact } from '@redocly/openapi-core';
-import type { Totals, Entrypoint, OutputExtension, CommandArgv } from '../types.js';
+import { handleLintConfig } from '../commands/lint.js';
+import {
+  outputExtensions,
+  type Totals,
+  type Entrypoint,
+  type OutputExtension,
+  type CommandArgv,
+} from '../types.js';
+import { exitWithError } from './error.js';
 
 export type ExitCode = 0 | 1 | 2;
 
@@ -46,6 +56,11 @@ export async function getFallbackApisOrExit(
       logger.warn(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`);
     }
     exitWithError('Please provide a valid path.');
+  }
+  if (res.length === 0) {
+    exitWithError(
+      'No APIs were provided. Specify an API via the command argument or define one in your config.'
+    );
   }
   return res;
 }
@@ -70,7 +85,7 @@ function fallbackToAllDefinitions(config: Config): Entrypoint[] {
   }));
 }
 
-function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
   const configDir = getConfigDirectory(config);
   const aliasApi = config.resolvedConfig.apis?.[aliasOrPath];
   return aliasApi
@@ -137,7 +152,7 @@ export function escapeLanguageName(lang: string) {
 }
 
 export function langToExt(lang: string) {
-  const langObj: any = {
+  const langObj: Record<string, string> = {
     php: '.php',
     'c#': '.cs',
     shell: '.sh',
@@ -167,7 +182,7 @@ export function langToExt(lang: string) {
     'visual basic': '.vb',
     'c/al': '.al',
   };
-  return langObj[lang.toLowerCase()];
+  return langObj[lang.toLowerCase()] ?? '';
 }
 
 export class CircularJSONNotSupportedError extends Error {
@@ -438,58 +453,81 @@ export async function loadConfigAndHandleErrors(
   }
 }
 
-export function sortTopLevelKeysForOas(
-  document: Oas3Definition | Oas2Definition
-): Oas3Definition | Oas2Definition {
-  if ('swagger' in document) {
-    return sortOas2Keys(document);
-  }
-  return sortOas3Keys(document as Oas3Definition);
+function isAsync2Definition(doc: Async2Definition | Async3Definition): doc is Async2Definition {
+  return doc.asyncapi?.startsWith('2');
 }
 
-function sortOas2Keys(document: Oas2Definition): Oas2Definition {
-  const orderedKeys = [
-    'swagger',
-    'info',
-    'host',
-    'basePath',
-    'schemes',
-    'consumes',
-    'produces',
-    'security',
-    'tags',
-    'externalDocs',
-    'paths',
-    'definitions',
-    'parameters',
-    'responses',
-    'securityDefinitions',
-  ];
-  const result: any = {};
-  for (const key of orderedKeys as (keyof Oas2Definition)[]) {
-    if (document.hasOwnProperty(key)) {
-      result[key] = document[key];
-    }
+const oas2OrderedKeys = [
+  'swagger',
+  'info',
+  'host',
+  'basePath',
+  'schemes',
+  'consumes',
+  'produces',
+  'security',
+  'tags',
+  'externalDocs',
+  'paths',
+  'definitions',
+  'parameters',
+  'responses',
+  'securityDefinitions',
+];
+
+const oas3OrderedKeys = [
+  'openapi',
+  'info',
+  'jsonSchemaDialect',
+  'servers',
+  'security',
+  'tags',
+  'externalDocs',
+  'paths',
+  'webhooks',
+  'x-webhooks',
+  'components',
+];
+
+const asyncApi2OrderedKeys = [
+  'asyncapi',
+  'id',
+  'info',
+  'externalDocs',
+  'tags',
+  'defaultContentType',
+  'servers',
+  'channels',
+  'components',
+];
+
+const asyncApi3OrderedKeys = [
+  'asyncapi',
+  'info',
+  'defaultContentType',
+  'servers',
+  'channels',
+  'operations',
+  'components',
+];
+
+export function sortTopLevelKeys(
+  document: Oas3Definition | Oas2Definition | Async2Definition | Async3Definition
+): Oas3Definition | Oas2Definition | Async2Definition | Async3Definition {
+  if ('asyncapi' in document) {
+    return isAsync2Definition(document)
+      ? sortDocumentKeys(document, asyncApi2OrderedKeys)
+      : sortDocumentKeys(document, asyncApi3OrderedKeys);
   }
-  // merge any other top-level keys (e.g. vendor extensions)
-  return Object.assign(result, document);
+  if ('swagger' in document) {
+    return sortDocumentKeys(document, oas2OrderedKeys);
+  }
+  return sortDocumentKeys(document, oas3OrderedKeys);
 }
-function sortOas3Keys(document: Oas3Definition): Oas3Definition {
-  const orderedKeys = [
-    'openapi',
-    'info',
-    'jsonSchemaDialect',
-    'servers',
-    'security',
-    'tags',
-    'externalDocs',
-    'paths',
-    'webhooks',
-    'x-webhooks',
-    'components',
-  ];
+
+function sortDocumentKeys<T extends object>(document: T, orderedKeys: string[]): T {
   const result: any = {};
-  for (const key of orderedKeys as (keyof Oas3Definition)[]) {
+  for (const key of orderedKeys as (keyof T)[]) {
     if (document.hasOwnProperty(key)) {
       result[key] = document[key];
     }

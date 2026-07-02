@@ -167,13 +167,14 @@ rules:
   tag-description: warn
 ```
 
-### Minimal ruleset: Arazzo 1.0
+### Minimal ruleset: Arazzo 1.0, Arazzo 1.1
 
 ```yaml
 rules:
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  spec-step-mutually-exclusive-fields: warn
   stepId-unique: error
   struct: error
   workflowId-unique: error
@@ -199,6 +200,7 @@ rules:
   no-invalid-media-type-examples: warn
   no-invalid-parameter-examples: warn
   no-invalid-schema-examples: warn
+  no-mixed-number-range-constraints: warn
   no-path-trailing-slash: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
@@ -244,6 +246,7 @@ rules:
   no-invalid-media-type-examples: warn
   no-invalid-parameter-examples: warn
   no-invalid-schema-examples: warn
+  no-mixed-number-range-constraints: warn
   no-path-trailing-slash: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
@@ -351,6 +354,7 @@ rules:
   info-license-strict: warn
   no-duplicated-tag-names: warn
   no-enum-type-mismatch: error
+  no-mixed-number-range-constraints: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
@@ -365,6 +369,7 @@ rules:
   info-license-strict: warn
   no-duplicated-tag-names: warn
   no-enum-type-mismatch: error
+  no-mixed-number-range-constraints: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
@@ -372,19 +377,22 @@ rules:
   tag-description: warn
 ```
 
-### Recommended ruleset: Arazzo 1.0
+### Recommended ruleset: Arazzo 1.0, Arazzo 1.1
 
 ```yaml
 rules:
   criteria-unique: warn
   no-enum-type-mismatch: error
+  no-mixed-number-range-constraints: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
+  outputs-defined: warn
   parameters-unique: error
   requestBody-replacements-unique: warn
   sourceDescription-name-unique: error
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
+  spec-step-mutually-exclusive-fields: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn
   stepId-unique: error

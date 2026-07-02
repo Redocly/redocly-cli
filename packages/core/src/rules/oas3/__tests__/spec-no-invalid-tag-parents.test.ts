@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3.2 spec-no-invalid-tag-parents', () => {
   it('should report on tag with undefined parent', async () => {
@@ -39,6 +40,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
             },
           ],
           "message": "Tag parent 'products' is not defined in the API description.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents",
           "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
@@ -52,6 +54,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
             },
           ],
           "message": "Tag parent 'products' is not defined in the API description.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents",
           "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
@@ -130,6 +133,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'foo'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents",
           "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
@@ -143,6 +147,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'bar'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents",
           "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
@@ -156,6 +161,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'baz'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents",
           "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
@@ -169,6 +175,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'self'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-tag-parents",
           "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],

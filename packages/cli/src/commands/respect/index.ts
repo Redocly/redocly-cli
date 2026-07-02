@@ -1,17 +1,18 @@
+import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
 import { type JsonLogs } from '@redocly/respect-core';
-import { HandledError, logger } from '@redocly/openapi-core';
-import { type CommandArgs } from '../../wrapper';
+import { blue, green } from 'colorette';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, basename } from 'node:path';
-import { blue, green } from 'colorette';
-import { composeJsonLogsFiles } from './json-logs.js';
-import { displayFilesSummaryTable } from './display-files-summary-table.js';
-import { readEnvVariables } from '../../utils/read-env-variables.js';
-import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
-import { withConnectionClient } from './connection-client.js';
-import { withHar } from './har-logs/index.js';
-import { createHarLog } from './har-logs/har-logs.js';
+
 import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
+import { readEnvVariables } from '../../utils/read-env-variables.js';
+import { type CommandArgs } from '../../wrapper.js';
+import { withConnectionClient } from './connection-client.js';
+import { displayFilesSummaryTable } from './display-files-summary-table.js';
+import { createHarLog } from './har-logs/har-logs.js';
+import { withHar } from './har-logs/index.js';
+import { composeJsonLogsFiles } from './json-logs.js';
+import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
 
 export type MtlsConfig = {
   [domain: string]: {
@@ -62,6 +63,13 @@ export async function handleRespect({
       customFetch = withHar(customFetch, { har: harLogs });
     }
 
+    const externalRefResolver = new BaseResolver({
+      http: {
+        headers: config.resolve?.http?.headers ?? [],
+        customFetch,
+      },
+    });
+
     const options = {
       files: argv.files,
       input: argv.input,
@@ -89,6 +97,7 @@ export async function handleRespect({
       envVariables: readEnvVariables(workingDir) || {},
       logger,
       fetch: customFetch as unknown as typeof fetch,
+      externalRefResolver,
       noSecretsMasking: argv['no-secrets-masking'],
     };
 

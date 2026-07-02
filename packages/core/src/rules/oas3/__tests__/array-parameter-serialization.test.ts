@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/index.js';
 
 describe('oas3 array-parameter-serialization', () => {
   it('should report on array parameter without style and explode', async () => {
@@ -47,6 +48,7 @@ describe('oas3 array-parameter-serialization', () => {
             },
           ],
           "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "reference": "https://redocly.com/docs/cli/rules/oas/array-parameter-serialization",
           "ruleId": "array-parameter-serialization",
           "severity": "error",
           "suggest": [],
@@ -92,6 +94,7 @@ describe('oas3 array-parameter-serialization', () => {
             },
           ],
           "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "reference": "https://redocly.com/docs/cli/rules/oas/array-parameter-serialization",
           "ruleId": "array-parameter-serialization",
           "severity": "error",
           "suggest": [],
@@ -147,6 +150,7 @@ describe('oas3 array-parameter-serialization', () => {
             },
           ],
           "message": "Parameter \`test only type, path level\` should have \`style\` and \`explode \` fields",
+          "reference": "https://redocly.com/docs/cli/rules/oas/array-parameter-serialization",
           "ruleId": "array-parameter-serialization",
           "severity": "error",
           "suggest": [],
@@ -253,6 +257,7 @@ describe('oas3 array-parameter-serialization', () => {
             },
           ],
           "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "reference": "https://redocly.com/docs/cli/rules/oas/array-parameter-serialization",
           "ruleId": "array-parameter-serialization",
           "severity": "error",
           "suggest": [],
@@ -266,6 +271,7 @@ describe('oas3 array-parameter-serialization', () => {
             },
           ],
           "message": "Parameter \`b\` should have \`style\` and \`explode \` fields",
+          "reference": "https://redocly.com/docs/cli/rules/oas/array-parameter-serialization",
           "ruleId": "array-parameter-serialization",
           "severity": "error",
           "suggest": [],

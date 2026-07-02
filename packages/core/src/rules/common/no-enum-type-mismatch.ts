@@ -1,9 +1,8 @@
-import { matchesJsonSchemaType, oasTypeOf } from '../utils.js';
-
-import type { Oas3Rule, Oas2Rule, Async3Rule, Async2Rule, Arazzo1Rule } from '../../visitors.js';
-import type { Oas2Schema } from '../../typings/swagger.js';
 import type { Oas3Schema } from '../../typings/openapi.js';
+import type { Oas2Schema } from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule, Async3Rule, Async2Rule, Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { matchesJsonSchemaType, oasTypeOf } from '../utils.js';
 
 export const NoEnumTypeMismatch:
   | Oas3Rule
@@ -24,6 +23,7 @@ export const NoEnumTypeMismatch:
               schema.type
             }" but received "${oasTypeOf(mismatchedValue)}".`,
             location: location.child(['enum', schema.enum.indexOf(mismatchedValue)]),
+            reference: 'https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch',
           });
         }
       }
@@ -50,6 +50,7 @@ export const NoEnumTypeMismatch:
           report({
             message: `Enum value \`${mismatchedKey}\` must be of allowed types: \`${schema.type}\`.`,
             location: location.child(['enum', schema.enum.indexOf(mismatchedKey)]),
+            reference: 'https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch',
           });
         }
       }

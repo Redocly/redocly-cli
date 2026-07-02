@@ -1,22 +1,34 @@
-import * as os from 'node:os';
-import * as fs from 'node:fs';
+import { CloudEvents, type EventPayload, type EventType } from '@redocly/cli-otel';
+import {
+  getMajorSpecVersion,
+  isAbsoluteUrl,
+  isPlainObject,
+  type SpecVersion,
+  type ArazzoDefinition,
+  type Config,
+  type Exact,
+} from '@redocly/openapi-core';
 import { execSync } from 'node:child_process';
-import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
-import { version } from './package.js';
-import { getReuniteUrl } from '../reunite/api/index.js';
-import { respondWithinMs } from './network-check.js';
+import * as fs from 'node:fs';
+import { existsSync, writeFileSync, readFileSync } from 'node:fs';
+import * as os from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { existsSync, writeFileSync, readFileSync } from 'node:fs';
-import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import { ulid } from 'ulid';
-
-import type { ExitCode } from './miscellaneous.js';
-import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
+import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
+
+import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
+import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
-import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';
+import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
+import type { ExitCode } from './miscellaneous.js';
+import { respondWithinMs } from './network-check.js';
+import { version } from './package.js';
+
+type ArazzoWorkflow = NonNullable<ArazzoDefinition['workflows']>[number];
+type ArazzoSuccessAction = NonNullable<ArazzoWorkflow['successActions']>[number];
+type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number];
 
 const SECRET_REPLACEMENT = '***';
 
@@ -29,6 +41,8 @@ export async function sendTelemetry({
   spec_keyword,
   spec_full_version,
   respect_x_security_auth_types,
+  respect_source_description_types,
+  respect_criterion_object_types,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -38,6 +52,8 @@ export async function sendTelemetry({
   spec_keyword: string | undefined;
   spec_full_version: string | undefined;
   respect_x_security_auth_types: string[] | undefined;
+  respect_source_description_types: string[] | undefined;
+  respect_criterion_object_types: string[] | undefined;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -64,55 +80,55 @@ export async function sendTelemetry({
       cacheAnonymousId(anonymous_id);
     }
 
-    const eventData: EventPayload<EventType> = {
-      id: 'cli-command-run',
-      object: 'command',
-      logged_in: logged_in ? 'yes' : 'no',
-      command: `${command}`,
-      ...cleanArgs(args, process.argv.slice(2)),
-      node_version: process.version,
-      npm_version: execSync('npm -v').toString().replace('\n', ''),
-      version,
-      exit_code,
-      execution_time,
-      metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
-      environment_ci: process.env.CI,
-      has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
-      spec_version,
-      spec_keyword,
-      spec_full_version,
-      respect_x_security_auth_types:
-        spec_version === 'arazzo1' && respect_x_security_auth_types?.length
-          ? JSON.stringify(respect_x_security_auth_types)
-          : undefined,
-    };
+    const majorSpecVersion = getMajorSpecVersion(spec_version as SpecVersion);
+    const eventData: EventPayload<EventType> = [
+      {
+        id: 'cli-command-run',
+        object: 'command',
+        uri: 'urn:redocly:cli',
+        logged_in: logged_in ? 'yes' : 'no',
+        command: `${command}`,
+        ...cleanArgs(args, process.argv.slice(2)),
+        node_version: process.version,
+        npm_version: execSync('npm -v').toString().replace('\n', ''),
+        version,
+        exit_code,
+        execution_time,
+        metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
+        environment_ci: process.env.CI,
+        environment: process.env.REDOCLY_ENVIRONMENT,
+        has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
+        spec_version,
+        spec_keyword,
+        spec_full_version,
+        respect_x_security_auth_types:
+          majorSpecVersion === 'arazzo1' && respect_x_security_auth_types?.length
+            ? JSON.stringify(respect_x_security_auth_types)
+            : undefined,
+        respect_source_description_types:
+          majorSpecVersion === 'arazzo1' && respect_source_description_types?.length
+            ? JSON.stringify(respect_source_description_types)
+            : undefined,
+        respect_criterion_object_types:
+          majorSpecVersion === 'arazzo1' && respect_criterion_object_types?.length
+            ? JSON.stringify(respect_criterion_object_types)
+            : undefined,
+      },
+    ];
 
-    const cloudEvent: CloudEvents.CommandRanMessage = {
-      id: `evt_${ulid()}`,
-      time: new Date().toISOString(),
-      type: 'command.ran',
-      object: 'event',
-      specversion: '1.0',
-      datacontenttype: 'application/json',
+    const cloudEvent = CloudEvents.mapToCloudEvent({
+      type: 'com.redocly.command.ran',
       source: 'com.redocly.cli',
-      origin: 'cli',
-      productType: 'redocly-cli',
-      os_platform: os.platform(),
-      subjects: [
-        {
-          id: ulid(),
-          object: 'command.ran',
-          uri: '',
-        },
-      ],
-      environment: process.env.REDOCLY_ENVIRONMENT,
-      sourceDetails: {
+      origin: 'redocly-cli',
+      osPlatform: os.platform(),
+      actor: {
         id: anonymous_id,
         object: 'user',
         uri: '',
       },
+      category: 'product',
       data: eventData,
-    };
+    });
 
     const { otelTelemetry } = await import('./otel.js');
     otelTelemetry.send(cloudEvent);
@@ -121,9 +137,73 @@ export async function sendTelemetry({
   }
 }
 
+export function collectSourceDescriptionTypes(
+  document: Partial<ArazzoDefinition>,
+  respectSourceDescriptionTypes: Set<string>
+) {
+  for (const sourceDescription of document.sourceDescriptions ?? []) {
+    if (sourceDescription.type) {
+      respectSourceDescriptionTypes.add(sourceDescription.type);
+    }
+  }
+}
+
+export function collectCriterionObjectTypes(
+  document: Partial<ArazzoDefinition>,
+  respectCriterionObjectTypes: Set<string>
+) {
+  for (const workflow of document.workflows ?? []) {
+    collectActionCriteriaTypes(workflow.successActions, respectCriterionObjectTypes);
+    collectActionCriteriaTypes(workflow.failureActions, respectCriterionObjectTypes);
+
+    for (const step of workflow.steps ?? []) {
+      collectCriteriaTypes(step.successCriteria, respectCriterionObjectTypes);
+      collectActionCriteriaTypes(step.onSuccess, respectCriterionObjectTypes);
+      collectActionCriteriaTypes(step.onFailure, respectCriterionObjectTypes);
+    }
+  }
+
+  collectActionCriteriaTypes(
+    Object.values(document.components?.successActions ?? {}),
+    respectCriterionObjectTypes
+  );
+  collectActionCriteriaTypes(
+    Object.values(document.components?.failureActions ?? {}),
+    respectCriterionObjectTypes
+  );
+}
+
+function collectActionCriteriaTypes(
+  actions: readonly (ArazzoSuccessAction | ArazzoFailureAction)[] | undefined,
+  types: Set<string>
+) {
+  for (const action of actions ?? []) {
+    collectCriteriaTypes(action.criteria, types);
+  }
+}
+
+function collectCriteriaTypes(
+  criteria: readonly CriterionObject[] | undefined,
+  types: Set<string>
+) {
+  for (const criterion of criteria ?? []) {
+    const type = getCriterionObjectType(criterion);
+    if (type) {
+      types.add(type);
+    }
+  }
+}
+
+function getCriterionObjectType(criterionObject: CriterionObject) {
+  const type = criterionObject.type;
+  return typeof type === 'string'
+    ? type
+    : type?.type || (criterionObject.condition ? 'simple' : undefined);
+}
+
 export function collectXSecurityAuthTypes(
   document: Partial<ArazzoDefinition>,
-  respectXSecurityAuthTypesAndSchemeName: string[]
+  respectXSecurityAuthTypesAndSchemeName: Set<string>
 ) {
   for (const workflow of document.workflows ?? []) {
     // Collect auth types from workflow-level x-security
@@ -131,8 +211,8 @@ export function collectXSecurityAuthTypes(
       const scheme = (security as ExtendedSecurity).scheme;
       if (scheme?.type) {
         const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-        if (authType && !respectXSecurityAuthTypesAndSchemeName.includes(authType)) {
-          respectXSecurityAuthTypesAndSchemeName.push(authType);
+        if (authType) {
+          respectXSecurityAuthTypesAndSchemeName.add(authType);
         }
       }
     }
@@ -144,15 +224,15 @@ export function collectXSecurityAuthTypes(
         const scheme = (security as ExtendedSecurity).scheme;
         if (scheme?.type) {
           const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-          if (authType && !respectXSecurityAuthTypesAndSchemeName.includes(authType)) {
-            respectXSecurityAuthTypesAndSchemeName.push(authType);
+          if (authType) {
+            respectXSecurityAuthTypesAndSchemeName.add(authType);
           }
         }
 
         // Handle schemeName case
         const schemeName = (security as ExtendedSecurity).schemeName;
-        if (schemeName && !respectXSecurityAuthTypesAndSchemeName.includes(schemeName)) {
-          respectXSecurityAuthTypesAndSchemeName.push(schemeName);
+        if (schemeName) {
+          respectXSecurityAuthTypesAndSchemeName.add(schemeName);
         }
       }
     }
@@ -236,7 +316,17 @@ function collectSensitiveValues(
 }
 
 export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
-  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'clientCert', 'clientKey', 'caCert'];
+  const KEYS_TO_CLEAN = [
+    'organization',
+    'o',
+    'input',
+    'i',
+    'clientCert',
+    'clientKey',
+    'caCert',
+    'server',
+    'S',
+  ];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[] | object> = {};
 

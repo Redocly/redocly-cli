@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
   const document = parseYamlToDocument(
@@ -75,6 +76,7 @@ describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
             },
           ],
           "message": "The \`schemeName\` can be only used in Step with OpenAPI operation, please use \`scheme\` instead.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/no-x-security-scheme-name-without-openapi",
           "ruleId": "no-x-security-scheme-name-without-openapi",
           "severity": "error",
           "suggest": [],

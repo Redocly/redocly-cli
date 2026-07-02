@@ -7,6 +7,89 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.17 (2026-06-30)
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/respect-core to v1.34.17.
+
+## 1.34.16 (2026-06-26)
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.2.0` version.
+- Updated @redocly/respect-core to v1.34.16.
+
+## 1.34.15 (2026-05-25)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.34.15.
+
+## 1.34.14 (2026-04-30)
+
+### Patch Changes
+
+- Updated Handlebars to v4.7.9.
+- Updated @redocly/openapi-core to v1.34.14.
+
+## 1.34.13 (2026-04-27)
+
+### Patch Changes
+
+- Increased the default fetch timeout used by the `push` command to better support slower uploads.
+- Updated @redocly/openapi-core to v1.34.13.
+
+## 1.34.12 (2026-04-20)
+
+### Patch Changes
+
+- Improved the stability of the `push` command.
+- Updated @redocly/openapi-core to v1.34.12.
+
+## 1.34.11 (2026-03-16)
+
+### Patch Changes
+
+- Updated `undici` to the `6.24.1` version to ensure improved performance, security, and compatibility.
+- Updated @redocly/respect-core to v1.34.11.
+
+## 1.34.10 (2026-03-02)
+
+### Patch Changes
+
+- Updated `js-yaml` dependency to v4.1.1.
+- Updated @redocly/openapi-core to v1.34.10.
+
+## 1.34.9 (2026-03-02)
+
+### Patch Changes
+
+- Updated `minimatch` dependency to v5.1.9.
+- Updated @redocly/openapi-core to v1.34.9.
+
+## 1.34.8 (2026-02-24)
+
+### Patch Changes
+
+- Pinned runtime dependency and key tooling versions to improve v1 stability.
+- Updated @redocly/respect-core to v1.34.8.
+
+## 1.34.7
+
+### Patch Changes
+
+- Fixed an issue where running CLI commands would result in "ReferenceError: React is not defined" message.
+- Updated @redocly/openapi-core to v1.34.7.
+
+## 1.34.6
+
+### Patch Changes
+
+- Updated React dependency to avoid vulnerable React version (19.0.0) affected by CVE-2025-55182.
+- Updated @redocly/openapi-core to v1.34.6.
+
 ## 1.34.5 (2025-07-21)
 
 ### Patch Changes

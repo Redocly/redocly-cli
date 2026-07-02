@@ -1,5 +1,5 @@
-import AbortController from 'abort-controller';
 import { Agent, ProxyAgent } from 'undici';
+
 import fetchWithTimeout from '../utils/fetch-with-timeout.js';
 import * as proxyAgent from '../utils/proxy-agent.js';
 
@@ -15,7 +15,7 @@ const mockFetch = vi.fn(() =>
     redirected: false,
     type: 'default',
     url: '',
-    clone: () => ({} as Response),
+    clone: () => ({}) as Response,
     body: null,
     bodyUsed: false,
     arrayBuffer: async () => new ArrayBuffer(0),
@@ -80,5 +80,28 @@ describe('fetchWithTimeout', () => {
     await fetchWithTimeout('url');
 
     expect(global.fetch).toHaveBeenCalledWith('url', {});
+  });
+
+  it('should bypass proxy when URL matches NO_PROXY', async () => {
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce('http://proxy:8080');
+    vi.spyOn(proxyAgent, 'shouldBypassProxy').mockReturnValueOnce(true);
+
+    await fetchWithTimeout('http://localhost:3000/api');
+
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api', {});
+  });
+
+  it('should use proxy when URL does not match NO_PROXY', async () => {
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce('http://proxy:8080');
+    vi.spyOn(proxyAgent, 'shouldBypassProxy').mockReturnValueOnce(false);
+
+    await fetchWithTimeout('http://external.com/api');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://external.com/api',
+      expect.objectContaining({
+        dispatcher: expect.any(ProxyAgent),
+      })
+    );
   });
 });

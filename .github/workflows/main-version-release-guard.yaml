@@ -1,0 +1,32 @@
+name: Major Version Release Guard
+
+permissions:
+  contents: read
+  pull-requests: read
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches:
+      - main
+      - v1
+
+jobs:
+  check-major-version:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'cli-main-version-release') }}
+    name: Confirm major version release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Detect major version changeset
+        run: |
+          MAJOR_FILES=$(grep -rl ': major$' .changeset/ --include="*.md" 2>/dev/null || true)
+          if [ -n "$MAJOR_FILES" ]; then
+            echo "Major version bump found in:"
+            echo "$MAJOR_FILES"
+            echo "❌ Add the 'cli-main-version-release' label to this PR to confirm the major release."
+            exit 1
+          else
+            echo "✅ No major version bump detected."
+          fi

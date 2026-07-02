@@ -1,5 +1,4 @@
 import { isRef } from '../../ref-utils.js';
-
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 
 export const SpecStrictRefs: Oas3Rule | Oas2Rule = () => {
@@ -24,6 +23,7 @@ export const SpecStrictRefs: Oas3Rule | Oas2Rule = () => {
         report({
           message: 'Field $ref is not expected here.',
           location: rawLocation.child('$ref').key(),
+          reference: 'https://redocly.com/docs/cli/rules/oas/spec-strict-refs',
         });
       }
     },

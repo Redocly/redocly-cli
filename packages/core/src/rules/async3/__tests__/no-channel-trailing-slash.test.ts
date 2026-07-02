@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('no-channel-trailing-slash', () => {
   it('should report on trailing slash in a channel path', async () => {
@@ -37,6 +38,7 @@ describe('no-channel-trailing-slash', () => {
             },
           ],
           "message": "\`/trailing/\` should not have a trailing slash.",
+          "reference": "https://redocly.com/docs/cli/rules/async/no-channel-trailing-slash",
           "ruleId": "no-channel-trailing-slash",
           "severity": "error",
           "suggest": [],

@@ -1,5 +1,5 @@
 export function validatePositiveNumber(optionName: string, requireInteger = false) {
-  return (arg: any) => {
+  return (arg: unknown) => {
     const num = Number(arg);
     if (isNaN(num) || num <= 0) {
       throw new Error(`${optionName} must be a positive number`);

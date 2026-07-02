@@ -1,9 +1,16 @@
 import { createHarLog } from '../../../../commands/respect/har-logs/har-logs.js';
 
 describe('createHarLog', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should create a har log', () => {
-    const mockDate = new Date('2024-01-01T00:00:00.000Z');
-    vi.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
+    vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'));
 
     const harLog = createHarLog({ version: '1.0.0' });
     expect(harLog).toEqual({
@@ -27,7 +34,5 @@ describe('createHarLog', () => {
         entries: [],
       },
     });
-
-    vi.restoreAllMocks();
   });
 });

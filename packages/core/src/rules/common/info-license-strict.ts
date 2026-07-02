@@ -1,7 +1,6 @@
 import { detectSpec } from '../../detect-spec.js';
-import { validateDefinedAndNonEmpty, validateOneOfDefinedAndNonEmpty } from '../utils.js';
-
 import type { Oas3Rule, Oas2Rule, Async2Rule, Async3Rule } from '../../visitors.js';
+import { validateDefinedAndNonEmpty, validateOneOfDefinedAndNonEmpty } from '../utils.js';
 
 export const InfoLicenseStrict: Oas2Rule | Oas3Rule | Async2Rule | Async3Rule = () => {
   let specVersion: string | undefined;
@@ -13,9 +12,19 @@ export const InfoLicenseStrict: Oas2Rule | Oas3Rule | Async2Rule | Async3Rule = 
       License: {
         leave(license, ctx) {
           if (specVersion === 'oas3_1' || specVersion === 'oas3_2') {
-            validateOneOfDefinedAndNonEmpty(['url', 'identifier'], license, ctx);
+            validateOneOfDefinedAndNonEmpty({
+              fieldNames: ['url', 'identifier'],
+              value: license,
+              ctx,
+              reference: 'https://redocly.com/docs/cli/rules/oas/info-license-strict',
+            });
           } else {
-            validateDefinedAndNonEmpty('url', license, ctx);
+            validateDefinedAndNonEmpty({
+              fieldName: 'url',
+              value: license,
+              ctx,
+              reference: 'https://redocly.com/docs/cli/rules/oas/info-license-strict',
+            });
           }
         },
       },

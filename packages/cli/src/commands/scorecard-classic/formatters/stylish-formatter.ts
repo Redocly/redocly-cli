@@ -34,14 +34,17 @@ export function printScorecardResults(
   achievedLevel: string,
   targetLevelAchieved: boolean
 ): void {
-  const problemsByLevel = problems.reduce((acc, problem) => {
-    const level = problem.scorecardLevel || 'Unknown';
-    if (!acc[level]) {
-      acc[level] = [];
-    }
-    acc[level].push(problem);
-    return acc;
-  }, {} as Record<string, ScorecardProblem[]>);
+  const problemsByLevel = problems.reduce(
+    (acc, problem) => {
+      const level = problem.scorecardLevel || 'Unknown';
+      if (!acc[level]) {
+        acc[level] = [];
+      }
+      acc[level].push(problem);
+      return acc;
+    },
+    {} as Record<string, ScorecardProblem[]>
+  );
 
   const totalErrors = problems.filter((p) => p.severity === 'error').length;
   const totalWarnings = problems.filter((p) => p.severity === 'warn').length;
@@ -62,10 +65,13 @@ export function printScorecardResults(
   }
 
   for (const [level, levelProblems] of Object.entries(problemsByLevel)) {
-    const severityCounts = levelProblems.reduce((acc, p) => {
-      acc[p.severity] = (acc[p.severity] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const severityCounts = levelProblems.reduce(
+      (acc, p) => {
+        acc[p.severity] = (acc[p.severity] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     logger.output(
       bold(cyan(`\n 📋 ${level}`)) +

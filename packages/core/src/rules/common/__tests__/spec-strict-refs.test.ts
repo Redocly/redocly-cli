@@ -1,8 +1,9 @@
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { outdent } from 'outdent';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 spec-strict-refs', () => {
   it('should report about invalid usage of $ref', async () => {
@@ -47,6 +48,7 @@ describe('Oas3 spec-strict-refs', () => {
             },
           ],
           "message": "Field $ref is not expected here.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-strict-refs",
           "ruleId": "spec-strict-refs",
           "severity": "error",
           "suggest": [],
@@ -60,6 +62,7 @@ describe('Oas3 spec-strict-refs', () => {
             },
           ],
           "message": "Field $ref is not expected here.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-strict-refs",
           "ruleId": "spec-strict-refs",
           "severity": "error",
           "suggest": [],

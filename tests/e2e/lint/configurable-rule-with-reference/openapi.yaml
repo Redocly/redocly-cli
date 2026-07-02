@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Reference field test
+  description: Test that configurable rule reference is rendered.
+  license:
+    name: MIT
+paths: {}
+components:
+  examples:
+    snake_case_example:
+      value: { hello: 'world' }
+    anotherBadExample:
+      value: { foo: 'bar' }

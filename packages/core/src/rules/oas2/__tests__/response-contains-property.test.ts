@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas2 response-contains-property', () => {
   it('should report a response object not containing the property', async () => {
@@ -82,6 +83,7 @@ describe('Oas2 response-contains-property', () => {
             },
           ],
           "message": "Response object must contain a top-level "id" property.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/response-contains-property",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": [],

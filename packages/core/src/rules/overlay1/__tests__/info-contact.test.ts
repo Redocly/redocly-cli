@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/load.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/load.js';
 
 describe('Overlay 1.0 Description', () => {
   it('should not report if the Contact Object is valid', async () => {
@@ -65,6 +66,7 @@ describe('Overlay 1.0 Description', () => {
             },
           ],
           "message": "Info object should contain \`contact\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/info-contact",
           "ruleId": "info-contact",
           "severity": "error",
           "suggest": [],

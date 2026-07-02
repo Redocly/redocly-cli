@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: no-invalid-parameter-examples (readOnly/writeOnly + required)
+  version: 1.0.0
+
+paths:
+  /test:
+    get:
+      operationId: getTest
+      summary: Parameter examples validation fixture
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserFilter'
+          examples:
+            valid:
+              summary: readOnly required is skipped in request context
+              value:
+                name: Doe
+                password: p
+
+            invalid_readOnly_present:
+              summary: readOnly must NOT be present in request (query parameter)
+              value:
+                id: usr_1
+                name: Doe
+                password: p
+
+            invalid_missing_writeOnly_required:
+              summary: missing required writeOnly `password`
+              value:
+                name: Doe
+
+components:
+  schemas:
+    UserFilter:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+        - id
+        - name
+        - password

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 security-defined', () => {
   it('should report on securityRequirements object if security scheme is not defined in components', async () => {
@@ -34,6 +35,7 @@ describe('Oas3 security-defined', () => {
             },
           ],
           "message": "There is no \`some\` security scheme defined.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/security-defined",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": [],
@@ -88,6 +90,7 @@ describe('Oas3 security-defined', () => {
             },
           ],
           "message": "Every operation should have security defined on it or on the root level.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/security-defined",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": [],
@@ -127,6 +130,7 @@ describe('Oas3 security-defined', () => {
             },
           ],
           "message": "There is no \`some\` security scheme defined.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/security-defined",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": [],
@@ -140,6 +144,7 @@ describe('Oas3 security-defined', () => {
             },
           ],
           "message": "Every operation should have security defined on it or on the root level.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/security-defined",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": [],
@@ -237,6 +242,7 @@ describe('Oas3 security-defined', () => {
             },
           ],
           "message": "Every operation should have security defined on it or on the root level.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/security-defined",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": [],
@@ -275,6 +281,7 @@ describe('Oas3 security-defined', () => {
             },
           ],
           "message": "Every operation should have security defined on it or on the root level.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/security-defined",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": [],

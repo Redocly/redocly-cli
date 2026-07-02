@@ -28,10 +28,24 @@ export interface ArazzoSourceDescription {
   url: string;
 }
 
-export type SourceDescription = OpenAPISourceDescription | ArazzoSourceDescription;
+export interface AsyncAPISourceDescription {
+  name: string;
+  type: 'asyncapi';
+  url: string;
+}
+
+export type SourceDescription =
+  | OpenAPISourceDescription
+  | ArazzoSourceDescription
+  | AsyncAPISourceDescription; // added in Arazzo 1.1
 
 export interface Parameter {
-  in?: 'header' | 'query' | 'path' | 'cookie';
+  in?:
+    | 'header'
+    | 'query'
+    | 'querystring' // added in Arazzo 1.1
+    | 'path'
+    | 'cookie';
   name: string;
   value: string | number | boolean;
   reference?: string;
@@ -112,6 +126,7 @@ export interface ExtendedOperation {
 export interface Replacement {
   target: string;
   value: string | object | any[];
+  targetSelectorType?: ExpressionType['type'] | ExpressionType; // added in Arazzo 1.1
 }
 
 export interface RequestBody {
@@ -121,7 +136,7 @@ export interface RequestBody {
   replacements?: Replacement[];
 }
 
-export interface CriteriaObject {
+export interface CriterionObject {
   condition: string;
   context?: string;
   type?:
@@ -131,12 +146,32 @@ export interface CriteriaObject {
     | 'xpath'
     | {
         type: 'jsonpath';
-        version: 'draft-goessner-dispatch-jsonpath-00';
+        version: 'draft-goessner-dispatch-jsonpath-00' | 'rfc9535';
       }
     | {
         type: 'xpath';
-        version: 'xpath-30' | 'xpath-20' | 'xpath-10';
+        version: 'xpath-31' | 'xpath-30' | 'xpath-20' | 'xpath-10';
       };
+}
+
+export type ExpressionType =
+  | {
+      type: 'jsonpath';
+      version: 'rfc9535' | 'draft-goessner-dispatch-jsonpath-00';
+    }
+  | {
+      type: 'xpath';
+      version: 'xpath-31' | 'xpath-30' | 'xpath-20' | 'xpath-10';
+    }
+  | {
+      type: 'jsonpointer';
+      version: 'rfc6901';
+    };
+
+export interface SelectorObject {
+  context: string;
+  selector: string;
+  type: ExpressionType['type'] | ExpressionType;
 }
 
 export interface OnSuccessObject {
@@ -144,7 +179,8 @@ export interface OnSuccessObject {
   type: 'goto' | 'end';
   stepId?: string;
   workflowId?: string;
-  criteria?: CriteriaObject[];
+  criteria?: CriterionObject[];
+  parameters?: Parameter[]; // added in Arazzo 1.1
 }
 
 export interface OnFailureObject {
@@ -154,7 +190,8 @@ export interface OnFailureObject {
   stepId?: string;
   retryAfter?: number;
   retryLimit?: number;
-  criteria?: CriteriaObject[];
+  criteria?: CriterionObject[];
+  parameters?: Parameter[]; // added in Arazzo 1.1
 }
 
 export interface Step {
@@ -164,15 +201,26 @@ export interface Step {
   operationPath?: string;
   workflowId?: string;
   parameters?: Parameter[];
-  successCriteria?: CriteriaObject[];
+  successCriteria?: CriterionObject[];
   onSuccess?: OnSuccessObject[];
   onFailure?: OnFailureObject[];
   outputs?: {
-    [key: string]: string | object | any[] | boolean | number;
+    [key: string]:
+      | SelectorObject // added in Arazzo 1.1
+      | string
+      | object
+      | any[]
+      | boolean
+      | number;
   };
   'x-operation'?: ExtendedOperation;
   'x-security'?: ExtendedSecurity[];
   requestBody?: RequestBody;
+  channelPath?: string; // added in Arazzo 1.1
+  action?: 'send' | 'receive'; // added in Arazzo 1.1
+  correlationId?: string; // added in Arazzo 1.1
+  timeout?: number; // added in Arazzo 1.1
+  dependsOn?: string[]; // added in Arazzo 1.1
 }
 
 export interface Workflow {
@@ -192,7 +240,9 @@ export interface Workflow {
     };
   };
   outputs?: {
-    [key: string]: string;
+    [key: string]:
+      | SelectorObject // added in Arazzo 1.1
+      | string;
   };
   steps: Step[];
   successActions?: OnSuccessObject[];
@@ -201,7 +251,8 @@ export interface Workflow {
 }
 
 export interface ArazzoDefinition {
-  arazzo: '1.0.1';
+  arazzo: string;
+  $self?: string; // added in Arazzo 1.1
   info: InfoObject;
   sourceDescriptions: SourceDescription[];
   workflows: Workflow[];
@@ -225,7 +276,3 @@ export interface ArazzoDefinition {
     };
   };
 }
-
-export const VERSION_PATTERN = /^1\.0\.\d+(-.+)?$/;
-
-export const ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT = ['1.0.1'];

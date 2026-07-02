@@ -1,6 +1,5 @@
-import { logger, pluralize } from '@redocly/openapi-core';
-
-import type { Plugin } from '@redocly/openapi-core';
+import { logger, pluralize, type Plugin } from '@redocly/openapi-core';
+import { pathToFileURL } from 'node:url';
 
 type PluginFunction = () => Plugin;
 
@@ -10,7 +9,8 @@ type PluginsModule = {
 
 export async function evaluatePluginsFromCode(
   pluginsCode?: string,
-  verbose = false
+  verbose = false,
+  basePath?: string
 ): Promise<Plugin[]> {
   if (!pluginsCode) {
     if (verbose) {
@@ -24,7 +24,7 @@ export async function evaluatePluginsFromCode(
   }
 
   try {
-    const dirname = import.meta.url;
+    const dirname = pathToFileURL(basePath ?? process.cwd()).href + '/';
     const pluginsCodeWithDirname = pluginsCode.replaceAll('__redocly_dirname', `"${dirname}"`);
 
     if (verbose) {

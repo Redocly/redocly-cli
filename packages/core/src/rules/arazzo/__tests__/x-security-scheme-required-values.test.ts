@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo x-security-scheme-required-values', () => {
   it('should report when required values are missing for Basic Auth x-security schema', async () => {
@@ -61,6 +62,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`username\` is required when using the basic authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -74,6 +76,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`password\` is required when using the basic authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -87,6 +90,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`username\` is required when using the basic authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -100,6 +104,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`password\` is required when using the basic authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -164,6 +169,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`token\` is required when using the bearer authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -177,6 +183,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`token\` is required when using the bearer authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -243,6 +250,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`apiKey\` is required when using the apiKey authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -256,6 +264,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`apiKey\` is required when using the apiKey authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -330,6 +339,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`accessToken\` is required when using the oauth2 authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -343,6 +353,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`accessToken\` is required when using the oauth2 authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -407,6 +418,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`username\` is required when using the digest authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -420,6 +432,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`password\` is required when using the digest authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -433,6 +446,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`username\` is required when using the digest authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -446,6 +460,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`password\` is required when using the digest authentication security schema.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -506,6 +521,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`PrivateToken\` authentication security schema is not supported.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
@@ -519,6 +535,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
             },
           ],
           "message": "The \`PrivateToken\` authentication security schema is not supported.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],

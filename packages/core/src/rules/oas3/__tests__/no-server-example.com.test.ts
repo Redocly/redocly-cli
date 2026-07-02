@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 oas3-no-server-example.com', () => {
   it('oas3-no-server-example.com: should report on server object with "example.com" url', async () => {
@@ -32,6 +33,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
             },
           ],
           "message": "Server \`url\` should not point to example.com or localhost.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-example-com",
           "ruleId": "no-server-example.com",
           "severity": "error",
           "suggest": [],
@@ -86,6 +88,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
             },
           ],
           "message": "Server \`url\` should not point to example.com or localhost.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-example-com",
           "ruleId": "no-server-example.com",
           "severity": "error",
           "suggest": [],

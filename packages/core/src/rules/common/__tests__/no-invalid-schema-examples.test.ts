@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('no-invalid-schema-examples', () => {
@@ -42,12 +43,46 @@ describe('no-invalid-schema-examples', () => {
             },
           ],
           "message": "Example value must conform to the schema: type must be string.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-schema-examples",
           "ruleId": "no-invalid-schema-examples",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
+  });
+
+  it('should not report on readOnly/writeOnly properties in schema example', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Car:
+              type: object
+              properties:
+                readOnlyProp:
+                  type: string
+                  readOnly: true
+                writeOnlyProp:
+                  type: string
+                  writeOnly: true
+              examples:
+                valid:
+                  value:
+                    readOnlyProp: "propValue"
+                    writeOnlyProp: "propValue"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on nullable example for OAS3', async () => {
@@ -131,11 +166,44 @@ describe('no-invalid-schema-examples', () => {
             },
           ],
           "message": "Example value must conform to the schema: must NOT have unevaluated properties \`extraProperty\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-schema-examples",
           "ruleId": "no-invalid-schema-examples",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
+  });
+
+  it('should not crash when examples in not an array', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          foo:
+                            type: string
+                            examples: Wrong multiple example
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'no-invalid-schema-examples': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 operation-operationId-url-safe', () => {
   it('should report on invalid operationIds', async () => {
@@ -36,6 +37,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
             },
           ],
           "message": "Operation \`operationId\` should not have URL invalid characters.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-operationId-url-safe",
           "ruleId": "operation-operationId-url-safe",
           "severity": "error",
           "suggest": [],

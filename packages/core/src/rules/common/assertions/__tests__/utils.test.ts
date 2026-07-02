@@ -1,10 +1,10 @@
-import { Assertion, AssertionDefinition } from '../index.js';
-import { AssertionContext } from '../../../../config/index.js';
+import { type AssertionContext } from '../../../../config/index.js';
 import { Location } from '../../../../ref-utils.js';
-import { Source } from '../../../../resolve.js';
-import { buildVisitorObject, runAssertion } from '../utils.js';
-import { isOrdered } from '../../../../utils/is-ordered.js';
+import { type Source } from '../../../../resolve.js';
 import { getIntersectionLength } from '../../../../utils/get-intersection-length.js';
+import { isOrdered } from '../../../../utils/is-ordered.js';
+import { type Assertion, type AssertionDefinition } from '../index.js';
+import { buildVisitorObject, runAssertion } from '../utils.js';
 
 describe('Oas3 assertions', () => {
   describe('Utils', () => {

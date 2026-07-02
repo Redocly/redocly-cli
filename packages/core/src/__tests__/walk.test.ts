@@ -1,12 +1,13 @@
-import outdent from 'outdent';
 import path from 'node:path';
-import { lintDocument } from '../lint.js';
+import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
+import { createConfig } from '../config/index.js';
+import { lintDocument } from '../lint.js';
+import { type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
 import { BaseResolver, type Document } from '../resolve.js';
 import { listOf } from '../types/index.js';
-import { type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
-import { createConfig } from '../config/index.js';
-import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -1606,6 +1607,7 @@ describe('context.report', () => {
             },
           ],
           "message": "MY ERR DESCRIPTION: Info object should contain \`contact\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/info-contact",
           "ruleId": "info-contact",
           "severity": "error",
           "suggest": [],

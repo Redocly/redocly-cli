@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 struct', () => {
   it('should report missing schema property', async () => {
@@ -172,6 +173,7 @@ describe('Oas3 struct', () => {
             },
           ],
           "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/nullable-type-sibling",
           "ruleId": "nullable-type-sibling",
           "severity": "error",
           "suggest": [],
@@ -218,6 +220,7 @@ describe('Oas3 struct', () => {
             },
           ],
           "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/nullable-type-sibling",
           "ruleId": "nullable-type-sibling",
           "severity": "error",
           "suggest": [],

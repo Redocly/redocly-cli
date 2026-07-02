@@ -4,16 +4,25 @@ import {
   isPlainObject,
   logger,
   HandledError,
+  type Config,
+  type CollectFn,
+  type ArazzoDefinition,
+  type Exact,
+  getMajorSpecVersion,
+  type SpecVersion,
 } from '@redocly/openapi-core';
-import { version } from './utils/package.js';
-import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
-import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
-import { AbortFlowError, exitWithError } from './utils/error.js';
-
 import type { Arguments } from 'yargs';
-import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
-import type { ExitCode } from './utils/miscellaneous.js';
+
 import type { CommandArgv } from './types.js';
+import { AbortFlowError, exitWithError } from './utils/error.js';
+import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
+import { version } from './utils/package.js';
+import {
+  sendTelemetry,
+  collectXSecurityAuthTypes,
+  collectSourceDescriptionTypes,
+  collectCriterionObjectTypes,
+} from './utils/telemetry.js';
 
 export type CommandArgs<T extends CommandArgv> = {
   argv: T;
@@ -33,25 +42,28 @@ export function commandWrapper<T extends CommandArgv>(
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
     let config: Config | undefined;
-    const respectXSecurityAuthTypes: string[] = [];
+    const respectXSecurityAuthTypes = new Set<string>();
+    const respectSourceDescriptionTypes = new Set<string>();
+    const respectCriterionObjectTypes = new Set<string>();
     const collectSpecData: CollectFn = (document) => {
       try {
         specVersion = detectSpec(document);
       } catch (err) {
         specVersion = `unsupported`;
       }
+
       if (!isPlainObject(document)) return;
       specKeyword = document?.openapi
         ? 'openapi'
         : document?.swagger
-        ? 'swagger'
-        : document?.asyncapi
-        ? 'asyncapi'
-        : document?.arazzo
-        ? 'arazzo'
-        : document?.overlay
-        ? 'overlay'
-        : undefined;
+          ? 'swagger'
+          : document?.asyncapi
+            ? 'asyncapi'
+            : document?.arazzo
+              ? 'arazzo'
+              : document?.overlay
+                ? 'overlay'
+                : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
       } else {
@@ -59,8 +71,11 @@ export function commandWrapper<T extends CommandArgv>(
         specFullVersion = undefined;
       }
 
-      if (specVersion === 'arazzo1') {
-        collectXSecurityAuthTypes(document as Partial<ArazzoDefinition>, respectXSecurityAuthTypes);
+      if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
+        const arazzoDocument = document as Partial<ArazzoDefinition>;
+        collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypes);
+        collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
+        collectCriterionObjectTypes(arazzoDocument, respectCriterionObjectTypes);
       }
     };
 
@@ -98,7 +113,9 @@ export function commandWrapper<T extends CommandArgv>(
           spec_version: specVersion,
           spec_keyword: specKeyword,
           spec_full_version: specFullVersion,
-          respect_x_security_auth_types: respectXSecurityAuthTypes,
+          respect_x_security_auth_types: [...respectXSecurityAuthTypes],
+          respect_source_description_types: [...respectSourceDescriptionTypes],
+          respect_criterion_object_types: [...respectCriterionObjectTypes],
         });
       }
       process.once('beforeExit', () => {

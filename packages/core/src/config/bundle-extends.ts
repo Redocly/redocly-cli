@@ -1,11 +1,11 @@
 import path from 'node:path';
-import { isAbsoluteUrl } from '../ref-utils.js';
-import { resolvePreset } from './config-resolvers.js';
-import { mergeExtends } from './utils.js';
-import { isTruthy } from '../utils/is-truthy.js';
 
-import type { UserContext } from '../walk.js';
-import type { Plugin, RawGovernanceConfig } from './types.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { isTruthy } from '../utils/is-truthy.js';
+import { type UserContext } from '../walk.js';
+import { resolvePreset } from './config-resolvers.js';
+import { type Plugin, type RawGovernanceConfig } from './types.js';
+import { mergeExtends } from './utils.js';
 
 export function bundleExtends({
   node,
@@ -21,6 +21,7 @@ export function bundleExtends({
   }
 
   const resolvedExtends = (node.extends || [])
+    .filter(isTruthy)
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);

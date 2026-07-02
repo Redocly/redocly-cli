@@ -1,22 +1,14 @@
-import util from 'node:util';
-import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
-import { resolveConfig } from '../config-resolvers.js';
-import recommended from '../recommended.js';
-import { fileURLToPath } from 'node:url';
+import nodeModule from 'node:module';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 import { Source } from '../../resolve.js';
+import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
+import { resolveConfig } from '../config-resolvers.js';
 import { Config } from '../config.js';
-import { after } from 'node:test';
-
-vi.mock('node:module', () => ({
-  default: {
-    createRequire: () => ({
-      resolve: (path: string) => `/mock/path/${path}`,
-    }),
-  },
-}));
+import { getCachedPlugins } from '../plugins-cache.js';
+import recommended from '../recommended.js';
+import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,6 +32,17 @@ function makeDocument(rawConfig: RawUniversalConfig, configPath: string = '') {
     source: new Source(configPath, JSON.stringify(rawConfig)),
     parsed: rawConfig,
   };
+}
+
+function mockRequireResolve(overrides: Record<string, string>): void {
+  const realCreateRequire = nodeModule.createRequire;
+  vi.spyOn(nodeModule, 'createRequire').mockImplementation((specifier) => {
+    const req = realCreateRequire(specifier);
+    const realResolve = req.resolve.bind(req);
+    req.resolve = ((id: string, opts?: any) =>
+      overrides[id] ?? realResolve(id, opts)) as typeof req.resolve;
+    return req;
+  });
 }
 
 describe('resolveConfig', () => {
@@ -110,20 +113,19 @@ describe('resolveConfig', () => {
   });
 
   it('should instantiate the plugin once', async () => {
-    // Called by plugin during init
-    const deprecateSpy = vi.spyOn(util, 'deprecate');
-
     const config = {
       ...baseGovernanceConfig,
       extends: ['local-config-with-plugin-init.yaml'],
     };
+    const pluginPath = path.join(__dirname, 'fixtures/resolve-config/plugin-with-init-logic.cjs');
 
     await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
       configPath,
     });
 
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+    const cachedPlugins = getCachedPlugins(pluginPath);
+    expect(cachedPlugins).toBeDefined();
 
     await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
@@ -131,7 +133,7 @@ describe('resolveConfig', () => {
     });
 
     // Should not execute the init logic again
-    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+    expect(getCachedPlugins(pluginPath)).toBe(cachedPlugins);
   });
 
   it('should resolve realm plugin properties', async () => {
@@ -360,9 +362,9 @@ describe('resolveConfig', () => {
         if (section[ruleName] === 'warn') {
           section[ruleName] = 'error';
         }
-        // @ts-ignore
+        // @ts-expect-error
         if (section[ruleName]?.severity === 'warn') {
-          // @ts-ignore
+          // @ts-expect-error
           section[ruleName].severity = 'error';
         }
       }
@@ -468,6 +470,38 @@ describe('resolveConfig', () => {
     expect(apis['petstore']).toMatchSnapshot();
   });
 
+  it('should throw when root extends contains a non-string value', async () => {
+    await expect(
+      resolveConfig({
+        rawConfigDocument: makeDocument({ extends: [2 as any] }),
+      })
+    ).rejects.toThrow('Configuration format not detected in extends: values must be strings.');
+  });
+
+  it('should throw when scorecardClassic level extends contains a non-string value', async () => {
+    await expect(
+      resolveConfig({
+        rawConfigDocument: makeDocument({
+          scorecardClassic: {
+            levels: [{ name: 'Baseline', extends: [null as any] }],
+          },
+        }),
+      })
+    ).rejects.toThrow('Configuration format not detected in extends: values must be strings.');
+  });
+
+  it('should throw when scorecard level extends contains a non-string value', async () => {
+    await expect(
+      resolveConfig({
+        rawConfigDocument: makeDocument({
+          scorecard: {
+            levels: [{ name: 'Baseline', extends: [false as any] }],
+          },
+        }),
+      })
+    ).rejects.toThrow('Configuration format not detected in extends: values must be strings.');
+  });
+
   it('should default to the extends from the main config if no extends defined', async () => {
     const rawConfig: RawUniversalConfig = {
       apis: {
@@ -506,7 +540,7 @@ describe('resolveApis', () => {
       ),
     });
     const {
-      resolvedConfig: { plugins, ...mergedGovernancePresetResolved },
+      resolvedConfig: { plugins: _plugins, ...mergedGovernancePresetResolved },
     } = mergedGovernancePreset;
     const rawConfig: RawUniversalConfig = {
       apis: {
@@ -606,20 +640,12 @@ describe('resolveApis', () => {
   });
 
   it('should work with npm dependencies', async () => {
-    after(() => {
-      (globalThis as any).__webpack_require__ = undefined;
-      (globalThis as any).__non_webpack_require__ = undefined;
+    const fixturesDir = path.join(__dirname, 'fixtures/resolve-config');
+    const pluginPath = path.join(fixturesDir, 'plugin.js');
+    mockRequireResolve({
+      'test-plugin': pluginPath,
+      'fixtures/plugin.cjs': pluginPath,
     });
-
-    (globalThis as any).__webpack_require__ = () => {};
-    (globalThis as any).__non_webpack_require__ = (p: string) =>
-      p === '/mock/path/test-plugin'
-        ? {
-            id: 'npm-test-plugin',
-          }
-        : {
-            id: 'local-test-plugin',
-          };
 
     const { resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(

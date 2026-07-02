@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo stepId-unique', () => {
   const document = parseYamlToDocument(
@@ -73,6 +74,7 @@ describe('Arazzo stepId-unique', () => {
             },
           ],
           "message": "The \`stepId\` must be unique amongst all steps described in the workflow.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/stepid-unique",
           "ruleId": "stepId-unique",
           "severity": "error",
           "suggest": [],

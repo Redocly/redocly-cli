@@ -1,6 +1,4 @@
 import type { Location } from '../../ref-utils.js';
-import type { Problem, UserContext } from '../../walk.js';
-import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -12,6 +10,9 @@ import type {
   Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi.js';
+import { isSupportedExtension } from '../../utils/is-supported-extension.js';
+import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
+import type { Problem, UserContext } from '../../walk.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
@@ -73,6 +74,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               const problem: Problem = {
                 message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is also defined at:\n${definitions}`,
                 location: location,
+                reference: 'https://redocly.com/docs/cli/rules/oas/component-name-unique',
               };
               if (componentSeverity) {
                 problem.forceSeverity = componentSeverity;
@@ -121,11 +123,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   function getComponentNameFromAbsoluteLocation(absoluteLocation: string): string {
     const componentName = absoluteLocation.split('/').slice(-1)[0];
-    if (
-      componentName.endsWith('.yml') ||
-      componentName.endsWith('.yaml') ||
-      componentName.endsWith('.json')
-    ) {
+    if (isSupportedExtension(componentName)) {
       return componentName.slice(0, componentName.lastIndexOf('.'));
     }
     return componentName;

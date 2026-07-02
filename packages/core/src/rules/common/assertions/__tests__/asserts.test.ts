@@ -1,6 +1,11 @@
 import { Location } from '../../../../ref-utils.js';
-import { Source } from '../../../../resolve.js';
-import { AssertionFnContext, Asserts, asserts, buildAssertCustomFunction } from '../asserts.js';
+import { type Source } from '../../../../resolve.js';
+import {
+  type AssertionFnContext,
+  type Asserts,
+  asserts,
+  buildAssertCustomFunction,
+} from '../asserts.js';
 
 let baseLocation = new Location(vi.fn() as any as Source, 'pointer');
 
@@ -202,10 +207,34 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('contains', () => {
+      it('list value should include every required entry (e.g. schema required array)', () => {
+        expect(
+          asserts.contains(['object', 'page', 'items'], ['page', 'items'], assertionProperties)
+        ).toEqual([]);
+        expect(
+          asserts.contains(['object', 'page'], ['page', 'items'], assertionProperties)
+        ).toEqual([
+          {
+            message: 'items should be in the list',
+            location: baseLocation,
+          },
+        ]);
+      });
+    });
+
     describe('nonEmpty', () => {
       it('value should not be empty', () => {
         expect(asserts.nonEmpty('test', true, assertionProperties)).toEqual([]);
+        expect(asserts.nonEmpty(['item'], true, assertionProperties)).toEqual([]);
+        expect(asserts.nonEmpty([1, 2, 3], true, assertionProperties)).toEqual([]);
         expect(asserts.nonEmpty('', true, assertionProperties)).toEqual([
+          {
+            message: 'Should not be empty',
+            location: baseLocation,
+          },
+        ]);
+        expect(asserts.nonEmpty([], true, assertionProperties)).toEqual([
           {
             message: 'Should not be empty',
             location: baseLocation,
@@ -226,9 +255,16 @@ describe('oas3 assertions', () => {
       });
       it('value should be empty', () => {
         expect(asserts.nonEmpty('', false, assertionProperties)).toEqual([]);
+        expect(asserts.nonEmpty([], false, assertionProperties)).toEqual([]);
         expect(asserts.nonEmpty(null, false, assertionProperties)).toEqual([]);
         expect(asserts.nonEmpty(undefined, false, assertionProperties)).toEqual([]);
         expect(asserts.nonEmpty('test', false, assertionProperties)).toEqual([
+          {
+            message: 'Should be empty',
+            location: baseLocation,
+          },
+        ]);
+        expect(asserts.nonEmpty(['item'], false, assertionProperties)).toEqual([
           {
             message: 'Should be empty',
             location: baseLocation,

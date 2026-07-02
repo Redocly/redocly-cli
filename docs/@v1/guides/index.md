@@ -73,4 +73,46 @@ How to change the OAuth2 token URL.
 How to create a custom decorator to hide OpenAPI specification extensions.
 {% /card %}
 
+{% card title="Configure API linting rules"
+    to="./configure-rules"
+  %}
+Combine built-in and custom rules to match your API's standards.
+{% /card %}
+
+{% card title="Set up tab completion"
+    to="./autocomplete"
+  %}
+Generate shell completions for the `redocly` command.
+{% /card %}
+
+{% card title="Update Redocly CLI"
+    to="./update-cli"
+  %}
+Keep your Redocly CLI installation current with the latest features and fixes.
+{% /card %}
+
+{% card title="Migrate from openapi-cli"
+    to="./migrate-from-openapi-cli"
+  %}
+Upgrade from the deprecated openapi-cli by replacing it with `redocly`.
+{% /card %}
+
+{% card title="Migrate from redoc-cli"
+    to="./migrate-from-redoc-cli"
+  %}
+Replace the legacy redoc-cli commands with Redocly CLI equivalents.
+{% /card %}
+
+{% card title="Migrate from Spectral"
+    to="./migrate-from-spectral"
+  %}
+Switch from Spectral to Redocly CLI's linting and tooling.
+{% /card %}
+
+{% card title="Migrate from swagger-cli"
+    to="./migrate-from-swagger-cli"
+  %}
+Replace the deprecated swagger-cli package with Redocly CLI.
+{% /card %}
+
 {% /cards %}

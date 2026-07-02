@@ -1,6 +1,7 @@
-import { validateScorecard } from '../validation/validate-scorecard.js';
 import * as openapiCore from '@redocly/openapi-core';
+
 import { evaluatePluginsFromCode } from '../validation/plugin-evaluator.js';
+import { validateScorecard } from '../validation/validate-scorecard.js';
 
 vi.mock('../validation/plugin-evaluator.js', () => ({
   evaluatePluginsFromCode: vi.fn(),
@@ -22,18 +23,16 @@ describe('validateScorecard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue({} as any);
+    const mockConfig = { forAlias: vi.fn().mockReturnThis() };
+    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(mockConfig as any);
     vi.spyOn(openapiCore, 'lintDocument').mockResolvedValue([]);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it('should return empty array when no scorecard levels defined', async () => {
     const scorecardConfig = { levels: [] };
 
     const result = await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -56,6 +55,7 @@ describe('validateScorecard', () => {
     };
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -83,6 +83,7 @@ describe('validateScorecard', () => {
     vi.mocked(openapiCore.lintDocument).mockResolvedValue(mockProblems as any);
 
     const result = await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -118,6 +119,7 @@ describe('validateScorecard', () => {
     vi.mocked(openapiCore.lintDocument).mockResolvedValue(mockProblems as any);
 
     const result = await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -136,13 +138,14 @@ describe('validateScorecard', () => {
     vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
       pluginsCodeOrPlugins: 'plugin-code',
     });
 
-    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', false);
+    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', false, undefined);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)
@@ -157,6 +160,7 @@ describe('validateScorecard', () => {
     const mockPlugins = [{ id: 'test-plugin' }];
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -179,6 +183,7 @@ describe('validateScorecard', () => {
     vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -186,7 +191,7 @@ describe('validateScorecard', () => {
       verbose: true,
     });
 
-    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', true);
+    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', true, undefined);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)
@@ -206,6 +211,7 @@ describe('validateScorecard', () => {
       vi.mocked(openapiCore.lintDocument).mockResolvedValue([]);
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -237,6 +243,7 @@ describe('validateScorecard', () => {
         ] as any); // Silver: has error
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -267,6 +274,7 @@ describe('validateScorecard', () => {
         ] as any); // Silver: has warning but no errors
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -295,6 +303,7 @@ describe('validateScorecard', () => {
       ] as any);
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -315,6 +324,7 @@ describe('validateScorecard', () => {
       vi.mocked(openapiCore.lintDocument).mockResolvedValue([]);
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -346,6 +356,7 @@ describe('validateScorecard', () => {
         ] as any); // Silver: has error
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,

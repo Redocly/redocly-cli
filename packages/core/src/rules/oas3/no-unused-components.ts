@@ -1,12 +1,27 @@
+import { isRef, type Location } from '../../ref-utils.js';
+import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import type { Oas3Rule } from '../../visitors.js';
-import type { Location } from '../../ref-utils.js';
+
+type ComponentInfo = {
+  used: boolean;
+  location: Location;
+  name: string;
+  referencesDiscriminator?: boolean;
+};
 
 export const NoUnusedComponents: Oas3Rule = () => {
-  const components = new Map<string, { used: boolean; location: Location; name: string }>();
+  const components = new Map<string, ComponentInfo>();
+  const securitySchemeLocations = new Map<string, Location>();
+  const usedSecuritySchemeComponents = new Set<string>();
 
-  function registerComponent(location: Location, name: string): void {
+  function registerComponent(
+    location: Location,
+    name: string,
+    referencesDiscriminator: boolean = false
+  ): void {
     components.set(location.absolutePointer, {
       used: components.get(location.absolutePointer)?.used || false,
+      referencesDiscriminator,
       location,
       name,
     });
@@ -15,7 +30,15 @@ export const NoUnusedComponents: Oas3Rule = () => {
   return {
     ref(ref, { type, resolve, key, location }) {
       if (
-        ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(type.name)
+        [
+          'Schema',
+          'Header',
+          'Parameter',
+          'Response',
+          'Example',
+          'RequestBody',
+          'MediaTypesMap',
+        ].includes(type.name)
       ) {
         const resolvedRef = resolve(ref);
         if (!resolvedRef.location) return;
@@ -29,21 +52,31 @@ export const NoUnusedComponents: Oas3Rule = () => {
     Root: {
       leave(_, { report }) {
         components.forEach((usageInfo) => {
-          if (!usageInfo.used) {
+          if (!usageInfo.used && !usageInfo.referencesDiscriminator) {
             report({
               message: `Component: "${usageInfo.name}" is never used.`,
               location: usageInfo.location.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
+            });
+          }
+        });
+        securitySchemeLocations.forEach((location, name) => {
+          if (!usedSecuritySchemeComponents.has(name)) {
+            report({
+              message: `Security scheme: "${name}" is never used.`,
+              location: location.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
             });
           }
         });
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
-        if (!schema.allOf) {
-          // FIXME: find a better way to detect possible discriminator
-          registerComponent(location, key.toString());
-        }
+      Schema(schema, { location, key, resolve }) {
+        const referencesDiscriminator = schema.allOf?.some(
+          (ref) => isRef(ref) && resolve<Oas3Schema | Oas3_1Schema>(ref)?.node?.discriminator
+        );
+        registerComponent(location, key.toString(), referencesDiscriminator);
       },
     },
     NamedParameters: {
@@ -70,6 +103,21 @@ export const NoUnusedComponents: Oas3Rule = () => {
       Header(_header, { location, key }) {
         registerComponent(location, key.toString());
       },
+    },
+    NamedMediaTypes: {
+      MediaTypesMap(_mediaTypesMap, { location, key }) {
+        registerComponent(location, key.toString());
+      },
+    },
+    NamedSecuritySchemes: {
+      SecurityScheme(_securityScheme, { rawLocation, key }) {
+        securitySchemeLocations.set(key.toString(), rawLocation);
+      },
+    },
+    SecurityRequirement(requirements) {
+      for (const schemeName of Object.keys(requirements)) {
+        usedSecuritySchemeComponents.add(schemeName);
+      }
     },
   };
 };

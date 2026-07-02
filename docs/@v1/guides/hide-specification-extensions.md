@@ -71,18 +71,18 @@ You can name the plugins directory and the file anything you want. Make sure you
    function hideOpenapiExtensions({ pattern }) {
      return {
        any: {
-         enter: node => {
-           pattern.forEach(item => {
-             Object.keys(node).forEach(key => {
+         enter: (node) => {
+           pattern.forEach((item) => {
+             Object.keys(node).forEach((key) => {
                const regex = new RegExp(item, 'i');
                if (regex.test(key)) {
                  delete node[key];
                }
              });
            });
-         }
-       }
-     }
+         },
+       },
+     };
    }
    ```
 
@@ -107,7 +107,7 @@ apis:
         pattern:
           - x-amazon-apigateway
 plugins:
-  - "./plugins/plugin.js"
+  - './plugins/plugin.js'
 extends:
   - recommended
 ```

@@ -11,6 +11,7 @@ The `bundle` command pulls the relevant parts of an API description into a singl
 
 The `bundle` command differs from the [`join`](./join.md) command.
 The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file.
+All components are automatically resolved and included without requiring explicit definitions.
 The `join` command can combine multiple OpenAPI files into a single unified API description file.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
@@ -27,23 +28,25 @@ redocly bundle --version
 
 ## Options
 
-| Option                     | Type     | Description                                                                                                                                                                                                                                               |
-| -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are names defined in the `apis` section of your configuration file.                                                     |
-| --config                   | string   | Specify the path to the [configuration file](#use-alternative-configuration-file).                                                                                                                                                                        |
-| --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                       |
-| --ext                      | string   | Specify the bundled file's extension. The possible values are `json`, `yaml`, or `yml`. The default value is `yaml`.                                                                                                                                      |
-| --extends                  | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). The default values are taken from the Redocly configuration file.                                                                          |
-| --force, -f                | boolean  | Generate a bundle output even when errors occur.                                                                                                                                                                                                          |
-| --help                     | boolean  | Show help.                                                                                                                                                                                                                                                |
-| --keep-url-references, -k  | boolean  | Preserve absolute URL references.                                                                                                                                                                                                                         |
-| --lint-config              | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                                                                                                    |
-| --metafile                 | string   | Path for the bundle metadata file.                                                                                                                                                                                                                        |
-| --output, -o               | string   | Name or folder for the bundle file specified using the command line. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **Overwrites existing bundler output file.** |
-| --remove-unused-components | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                        |
-| --skip-decorator           | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                 |
-| --skip-preprocessor        | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                              |
-| --version                  | boolean  | Show version number.                                                                                                                                                                                                                                      |
+| Option                                  | Type     | Description                                                                                                                                                                                                                                               |
+| --------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis                                    | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are names defined in the `apis` section of your configuration file.                                                     |
+| --config                                | string   | Specify the path to the [configuration file](#use-alternative-configuration-file).                                                                                                                                                                        |
+| --dereferenced, -d                      | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                       |
+| --ext                                   | string   | Specify the bundled file's extension. The possible values are `json`, `yaml`, or `yml`. The default value is `yaml`.                                                                                                                                      |
+| --extends                               | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). The default values are taken from the Redocly configuration file.                                                                          |
+| --force, -f                             | boolean  | Generate a bundle output even when errors occur.                                                                                                                                                                                                          |
+| --help                                  | boolean  | Show help.                                                                                                                                                                                                                                                |
+| --keep-url-references, -k               | boolean  | Preserve absolute URL references.                                                                                                                                                                                                                         |
+| --lint-config                           | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                                                                                                    |
+| --component-renaming-conflicts-severity | string   | Specify the severity level for reporting when schemas are referenced with the same name but different content during bundling. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                            |
+| --metafile                              | string   | Path for the bundle metadata file.                                                                                                                                                                                                                        |
+| --output, -o                            | string   | Name or folder for the bundle file specified using the command line. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **Overwrites existing bundler output file.** |
+| --remove-unused-components              | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                        |
+| --skip-decorator                        | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                 |
+| --skip-preprocessor                     | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                              |
+| --component-names-strategy              | string   | How to name inlined Schema components. <br/> **Possible values:** `basename` (default) or `title`. See [Configure the component names strategy](#configure-the-component-names-strategy).                                                                 |
+| --version                               | boolean  | Show version number.                                                                                                                                                                                                                                      |
 
 ## Examples
 
@@ -133,4 +136,72 @@ redocly bundle --skip-decorator=generate-code-samples --skip-decorator=remove-in
 {% /tabs  %}
 {% admonition type="success" name="Tip" %}
 To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../custom-plugins/index.md) page.
+{% /admonition %}
+
+### Configure component renaming conflicts
+
+When bundling API descriptions that contain external references, you may encounter situations where different schemas use the same name but have different contents.
+By default, Redocly CLI warns you about these naming conflicts and automatically renames the duplicates (for example, renaming `Schema` to `Schema-2`).
+
+You can adjust how the CLI handles these naming conflicts with the `--component-renaming-conflicts-severity` option:
+
+- `off`: No warnings or errors are shown.
+- `warn` (default): Shows a warning and renames conflicting components automatically.
+- `error`: Treats conflicts as errors; the bundling process fails if a naming conflict is detected.
+
+For example, to fail the bundle instead of silently renaming conflicting components:
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --component-renaming-conflicts-severity=error
+```
+
+### Configure the component names strategy
+
+When the bundler inlines an externally-referenced Schema, it must give the component a name.
+The `--component-names-strategy` option controls how that name is derived.
+
+Consider two files that share the `Order.yaml` basename:
+
+```yaml
+# schemas/models/Order.yaml
+type: object
+title: Order model
+
+# schemas/requests/Order.yaml
+type: object
+title: Order request
+```
+
+{% tabs %}
+{% tab label="basename (default)" %}
+
+Names come from the `$ref` — the JSON Pointer fragment, or the file's basename when there's no fragment.
+Because both files are `Order.yaml`, they collide and the duplicate is auto-numbered:
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --component-names-strategy=basename
+```
+
+The output uses `Order` and `Order-2`.
+The auto-numbered suffix is brittle: an unrelated `$ref` change can renumber it.
+
+{% /tab  %}
+{% tab label="title" %}
+
+Names come from each schema's `title`, converted to PascalCase (words are split on spaces, capitalized, and joined), so they don't depend on file paths or `$ref` order:
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --component-names-strategy=title
+```
+
+The output uses `OrderModel` and `OrderRequest`.
+
+{% /tab  %}
+{% /tabs  %}
+
+{% admonition type="warning" name="Title sanitization" %}
+The OpenAPI and AsyncAPI specifications allow only ASCII letters (`a`–`z`, `A`–`Z`), digits, `.`, `-`, and `_` in a Components Object key.
+All other characters, including non-ASCII letters such as `é` or `я`, are replaced with `-` (for example, `User & Group` becomes `User-Group`).
+Schemas without `title` can't be named using the `--component-names-strategy=title` strategy.
+The bundling process reports an error for such schemas.
 {% /admonition %}

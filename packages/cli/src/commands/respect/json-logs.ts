@@ -1,13 +1,13 @@
-import { calculateTotals, conditionallyMaskSecrets } from '@redocly/respect-core';
-
-import type {
-  TestContext,
-  JsonLogs,
-  WorkflowExecutionResult,
-  WorkflowExecutionResultJson,
-  Step,
-  StepExecutionResult,
-  Check,
+import {
+  calculateTotals,
+  conditionallyMaskSecrets,
+  type TestContext,
+  type JsonLogs,
+  type WorkflowExecutionResult,
+  type WorkflowExecutionResultJson,
+  type Step,
+  type StepExecutionResult,
+  type Check,
 } from '@redocly/respect-core';
 
 export function composeJsonLogsFiles(

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 operation-singular-tag', () => {
   it('should report on operation object if more than one tag', async () => {
@@ -39,6 +40,7 @@ describe('Oas3 operation-singular-tag', () => {
             },
           ],
           "message": "Operation \`tags\` object should have only one tag.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-singular-tag",
           "ruleId": "operation-singular-tag",
           "severity": "error",
           "suggest": [],

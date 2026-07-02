@@ -1,4 +1,5 @@
 import { outdent } from 'outdent';
+
 import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
 
 const yaml = `

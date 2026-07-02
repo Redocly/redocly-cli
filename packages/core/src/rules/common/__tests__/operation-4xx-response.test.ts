@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 operation-4xx-response', () => {
   it('should report missing 4xx response', async () => {
@@ -36,6 +37,7 @@ describe('Oas3 operation-4xx-response', () => {
             },
           ],
           "message": "Operation must have at least one \`4XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
           "ruleId": "operation-4xx-response",
           "severity": "error",
           "suggest": [],
@@ -121,6 +123,7 @@ describe('Oas3 operation-4xx-response', () => {
             },
           ],
           "message": "Operation must have at least one \`4XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
           "ruleId": "operation-4xx-response",
           "severity": "error",
           "suggest": [],
@@ -158,6 +161,7 @@ describe('Oas3 operation-4xx-response', () => {
             },
           ],
           "message": "Operation must have at least one \`2XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-2xx-response",
           "ruleId": "operation-2xx-response",
           "severity": "error",
           "suggest": [],
@@ -201,6 +205,7 @@ describe('Oas3 operation-4xx-response', () => {
             },
           ],
           "message": "Operation must have at least one \`4XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
           "ruleId": "operation-4xx-response",
           "severity": "error",
           "suggest": [],

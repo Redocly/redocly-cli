@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 oas3-no-server-trailing-slash', () => {
   it('oas3-no-server-trailing-slash: should report on server object with trailing slash', async () => {
@@ -32,6 +33,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
             },
           ],
           "message": "Server \`url\` should not have a trailing slash.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-server-trailing-slash",
           "ruleId": "no-server-trailing-slash",
           "severity": "error",
           "suggest": [],

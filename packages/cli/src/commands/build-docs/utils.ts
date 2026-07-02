@@ -1,20 +1,40 @@
-import { createElement } from 'react';
-import { default as redoc } from 'redoc';
-import { renderToString } from 'react-dom/server';
-import { ServerStyleSheet } from 'styled-components';
+import { isAbsoluteUrl, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
-import * as path from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
-import * as url from 'node:url';
-import { exitWithError } from '../../utils/error.js';
+import * as path from 'node:path';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { default as redoc } from 'redoc';
+import { ServerStyleSheet } from 'styled-components';
 
-import type { Config } from '@redocly/openapi-core';
+import { exitWithError } from '../../utils/error.js';
+import { redocStandaloneSri } from '../../utils/package.js';
 import type { BuildDocsOptions } from './types.js';
 
-const __internalDirname = import.meta.url
-  ? path.dirname(url.fileURLToPath(import.meta.url))
-  : __dirname;
+const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf8" />
+  <title>{{title}}</title>
+  <!-- needed for adaptive design -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+  {{{redocHead}}}
+  {{#unless disableGoogleFont}}<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">{{/unless}}
+</head>
+
+<body>
+  {{{redocHTML}}}
+</body>
+
+</html>
+`;
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -57,7 +77,7 @@ export async function getPageHTML(
     templateFileName,
     templateOptions,
     redocOptions = {},
-    redocCurrentVersion,
+    redocVersion,
   }: BuildDocsOptions,
   configPath?: string
 ) {
@@ -71,12 +91,16 @@ export async function getPageHTML(
   const state = await store.toJS();
   const css = sheet.getStyleTags();
 
-  templateFileName = templateFileName
-    ? templateFileName
-    : redocOptions?.htmlTemplate
-    ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
-    : path.join(__internalDirname, './template.hbs');
-  const template = handlebars.compile(readFileSync(templateFileName).toString());
+  const customTemplate =
+    templateFileName ||
+    (redocOptions?.htmlTemplate
+      ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
+      : undefined);
+
+  const templateSource = customTemplate
+    ? readFileSync(customTemplate, 'utf-8')
+    : DEFAULT_TEMPLATE_SOURCE;
+  const template = handlebars.compile(templateSource);
   return template({
     redocHTML: `
       <div id="redoc">${html || ''}</div>
@@ -88,7 +112,7 @@ export async function getPageHTML(
 
       </script>`,
     redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>` +
+      `<script src="https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js" integrity="${redocStandaloneSri}" crossorigin="anonymous"></script>` +
       css,
     title: title || api.info.title || 'ReDoc documentation',
     disableGoogleFont,

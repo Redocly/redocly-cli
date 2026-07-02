@@ -1,16 +1,29 @@
-import { isAbsoluteUrl, replaceRef, isExternalValue, isRef, refBaseName } from '../ref-utils.js';
-import { makeRefId } from '../utils/make-ref-id.js';
+import { type RuleSeverity } from '../config/types.js';
+import { COMPONENT_NAME_CHARS, type SpecMajorVersion } from '../oas-types.js';
+import {
+  isAbsoluteUrl,
+  replaceRef,
+  isExternalValue,
+  isRef,
+  pointerBaseName,
+  refBaseName,
+  type Location,
+  isMappingRef,
+} from '../ref-utils.js';
+import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { isTruthy } from '../utils/is-truthy.js';
+import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
+import { makeRefId } from '../utils/make-ref-id.js';
+import { toPascalCase } from '../utils/to-pascal-case.js';
+import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
+import { type UserContext, type ResolveResult, type Problem } from '../walk.js';
+import { type ComponentNamesStrategy } from './bundle-document.js';
 
-import type { OasRef } from '../typings/openapi';
-import type { Location } from '../ref-utils.js';
-import type { Document } from '../resolve.js';
-import type { ResolvedRefMap } from '../resolve';
-import type { SpecMajorVersion } from '../oas-types';
-import type { Oas3Visitor, Oas2Visitor } from '../visitors';
-import type { UserContext, ResolveResult } from '../walk';
+type ComponentTarget = { node: unknown; location: Location };
+type ComponentsGroup = Record<string, unknown>;
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -34,6 +47,8 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
           return 'links';
         case 'Callback':
           return 'callbacks';
+        case 'MediaTypesMap':
+          return 'mediaTypes';
         default:
           return null;
       }
@@ -98,18 +113,34 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    default:
+      return null;
   }
 }
 
-export function makeBundleVisitor(
-  version: SpecMajorVersion,
-  dereference: boolean,
-  rootDocument: Document,
-  resolvedRefMap: ResolvedRefMap,
-  keepUrlRefs: boolean
-) {
-  let components: Record<string, Record<string, any>>;
+export function makeBundleVisitor({
+  version,
+  dereference,
+  rootDocument,
+  resolvedRefMap,
+  keepUrlRefs,
+  componentRenamingConflicts = 'warn',
+  componentNamesStrategy = 'basename',
+}: {
+  version: SpecMajorVersion;
+  dereference: boolean;
+  rootDocument: Document;
+  resolvedRefMap: ResolvedRefMap;
+  keepUrlRefs: boolean;
+  componentRenamingConflicts?: RuleSeverity;
+  componentNamesStrategy?: ComponentNamesStrategy;
+}) {
+  let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
+
+  const firstSchemaLocationByName = new Map<string, Location>();
+
+  const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -165,7 +196,7 @@ export function makeBundleVisitor(
           }
 
           node.value = ctx.resolve({ $ref: node.externalValue }).node;
-          delete node.externalValue;
+          delete (node as Oas3Example).externalValue;
         }
       },
     },
@@ -190,19 +221,39 @@ export function makeBundleVisitor(
   };
 
   if (version === 'oas3') {
-    visitor.DiscriminatorMapping = {
-      leave(mapping: Record<string, string>, ctx: UserContext) {
-        for (const name of Object.keys(mapping)) {
-          const $ref = mapping[name];
-          const resolved = ctx.resolve({ $ref });
-          if (!resolved.location || resolved.node === undefined) {
-            reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
-            return;
-          }
-
-          const componentType = mapTypeToComponent('Schema', version)!;
-          mapping[name] = saveComponent(componentType, resolved, ctx);
+    visitor.Discriminator = {
+      leave(discriminator: Oas3Discriminator, ctx: UserContext) {
+        if (
+          typeof discriminator.defaultMapping !== 'string' ||
+          !isMappingRef(discriminator.defaultMapping)
+        ) {
+          return;
         }
+
+        const resolved = ctx.resolve({ $ref: discriminator.defaultMapping });
+        if (!resolved.location || resolved.node === undefined) {
+          reportUnresolvedRef(resolved, ctx.report, ctx.location.child('defaultMapping'));
+          return;
+        }
+
+        discriminator.defaultMapping = saveComponent(schemaComponentType, resolved, ctx);
+      },
+      DiscriminatorMapping: {
+        leave(mapping, ctx) {
+          for (const name of Object.keys(mapping)) {
+            const $ref = mapping[name];
+            if (!isMappingRef($ref)) {
+              continue;
+            }
+            const resolved = ctx.resolve({ $ref });
+            if (!resolved.location || resolved.node === undefined) {
+              reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
+              return;
+            }
+
+            mapping[name] = saveComponent(schemaComponentType, resolved, ctx);
+          }
+        },
       },
     };
   }
@@ -218,11 +269,7 @@ export function makeBundleVisitor(
     });
   }
 
-  function saveComponent(
-    componentType: string,
-    target: { node: unknown; location: Location },
-    ctx: UserContext
-  ) {
+  function saveComponent(componentType: string, target: ComponentTarget, ctx: UserContext) {
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
@@ -238,11 +285,7 @@ export function makeBundleVisitor(
     }
   }
 
-  function isEqualOrEqualRef(
-    node: unknown,
-    target: { node: unknown; location: Location },
-    ctx: UserContext
-  ) {
+  function isEqualOrEqualRef(node: unknown, target: ComponentTarget, ctx: UserContext) {
     if (
       isRef(node) &&
       ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer ===
@@ -254,48 +297,86 @@ export function makeBundleVisitor(
     return dequal(node, target.node);
   }
 
-  function getComponentName(
-    target: { node: unknown; location: Location },
-    componentType: string,
+  function componentNameFromTitle(
+    target: ComponentTarget,
+    componentsGroup: ComponentsGroup,
     ctx: UserContext
-  ) {
-    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
-    const componentsGroup = components[componentType];
+  ): { key: string; problem?: Problem } {
+    const { node } = target;
+    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
+    const key = toPascalCase(title).replace(new RegExp(`[^${COMPONENT_NAME_CHARS}]`, 'g'), '-');
+    const titleLocation = target.location.child('title');
 
-    let name = '';
-
-    const refParts = pointer.slice(2).split('/').filter(isTruthy); // slice(2) removes "#/"
-    while (refParts.length > 0) {
-      name = refParts.pop() + (name ? `-${name}` : '');
-      if (
-        !componentsGroup ||
-        !componentsGroup[name] ||
-        isEqualOrEqualRef(componentsGroup[name], target, ctx)
-      ) {
-        return name;
-      }
+    if (title === '') {
+      return {
+        key,
+        problem: {
+          message: 'Schema must define a `title` when using `--component-names-strategy title`.',
+          location: target.location,
+          forceSeverity: 'error',
+        },
+      };
     }
 
-    name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
+    if (componentsGroup[key] && !isEqualOrEqualRef(componentsGroup[key], target, ctx)) {
+      return {
+        key,
+        problem: {
+          message:
+            `Title "${title}" maps to component name \`${key}\`, ` +
+            `already used by another schema. Rename one of the titles.`,
+          location: titleLocation,
+          from: firstSchemaLocationByName.get(key),
+          forceSeverity: componentRenamingConflicts,
+        },
+      };
+    }
+    return { key };
+  }
+
+  function componentNameFromBasename(
+    target: ComponentTarget,
+    componentsGroup: ComponentsGroup,
+    ctx: UserContext
+  ): { name: string; prevName: string } {
+    const prevName =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    let name = prevName;
+    for (
+      let serialId = 2;
+      componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx);
+      serialId++
+    ) {
+      name = `${prevName}-${serialId}`;
+    }
+    return { name, prevName };
+  }
+
+  function getComponentName(target: ComponentTarget, componentType: string, ctx: UserContext) {
+    const componentsGroup = components[componentType];
+
+    if (componentNamesStrategy === 'title' && componentType === schemaComponentType) {
+      const { key, problem } = componentNameFromTitle(target, componentsGroup, ctx);
+      if (!problem) {
+        firstSchemaLocationByName.set(key, target.location.child('title'));
+        return key;
+      }
+      const { name } = componentNameFromBasename(target, componentsGroup, ctx);
+      if (!componentsGroup[name]) {
+        ctx.report(problem);
+        firstSchemaLocationByName.set(name, target.location);
+      }
       return name;
     }
 
-    const prevName = name;
-    let serialId = 2;
-    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      name = `${prevName}-${serialId}`;
-      serialId++;
-    }
-
-    if (!componentsGroup[name]) {
+    const { name, prevName } = componentNameFromBasename(target, componentsGroup, ctx);
+    if (!componentsGroup[name] && prevName !== name) {
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
         location: ctx.location,
-        forceSeverity: 'warn',
+        forceSeverity: componentRenamingConflicts,
       });
     }
-
     return name;
   }
 

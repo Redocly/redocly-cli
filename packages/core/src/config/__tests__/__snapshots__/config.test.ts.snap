@@ -8,6 +8,7 @@ Config {
   "configPath": undefined,
   "decorators": {
     "arazzo1": {},
+    "arazzo1_1": {},
     "async2": {},
     "async3": {},
     "oas2": {},
@@ -34,6 +35,7 @@ Config {
   "plugins": [],
   "preprocessors": {
     "arazzo1": {},
+    "arazzo1_1": {},
     "async2": {},
     "async3": {},
     "oas2": {},
@@ -53,6 +55,10 @@ Config {
   "resolvedRefMap": undefined,
   "rules": {
     "arazzo1": {
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "arazzo1_1": {
       "no-empty-servers": "error",
       "operation-summary": "error",
     },

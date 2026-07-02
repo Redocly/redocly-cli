@@ -1,0 +1,9 @@
+openapi: 3.1.0
+paths:
+  /foo:
+    put:
+      parameters:
+        - $ref: 'component-a.yaml#/components/parameters/User'
+    get:
+      parameters:
+        - $ref: 'component-b.yaml#/components/parameters/User'

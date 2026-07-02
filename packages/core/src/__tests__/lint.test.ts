@@ -1,20 +1,14 @@
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
+import { describe, it, expect } from 'vitest';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
+import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
-import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
-import { detectSpec } from '../detect-spec.js';
-import {
-  rootRedoclyConfigSchema,
-  entityFileDefaultSchema,
-  entityFileSchema,
-} from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
-import { fileURLToPath } from 'node:url';
-import { describe, it, expect } from 'vitest';
-import { lintEntityFile } from '../lint.js';
-import { makeDocumentFromString } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -341,6 +335,7 @@ describe('lint', () => {
             },
           ],
           "message": "Operation object should contain \`operationId\` field.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-operationId",
           "ruleId": "operation-operationId",
           "severity": "warn",
           "suggest": [],
@@ -393,6 +388,41 @@ describe('lint', () => {
       ),
     });
     expect(replaceSourceWithRef(results_with_createConfig)).toEqual(replaceSourceWithRef(results));
+  });
+
+  it('lintFromString should propagate reference from a configurable rule to the resulting problem', async () => {
+    const source = outdent`
+      openapi: 3.0.2
+      info:
+        title: Example
+        version: '1.0'
+      paths:
+        /user:
+          get:
+            responses:
+              '200':
+                description: OK
+    `;
+    const results = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await createConfig(outdent`
+        rules:
+          rule/operation-summary-required:
+            subject:
+              type: Operation
+              property: summary
+            assertions:
+              defined: true
+            message: Operation summary is required
+            severity: error
+            reference: https://docs.example.com/style-guide#operation-summary
+      `),
+    });
+
+    const problem = results.find((r) => r.ruleId === 'rule/operation-summary-required');
+    expect(problem).toBeDefined();
+    expect(problem?.reference).toEqual('https://docs.example.com/style-guide#operation-summary');
   });
 
   it('lint should work', async () => {
@@ -1607,48 +1637,6 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('detect OpenAPI should throw an error when version is not string', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        openapi: 3.0
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(
-      `Invalid OpenAPI version: should be a string but got "number"`
-    );
-  });
-
-  it('detect unsupported OpenAPI version', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        openapi: 1.0.4
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported OpenAPI version: 1.0.4`);
-  });
-
-  it('detect unsupported AsyncAPI version', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        asyncapi: 1.0.4
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported AsyncAPI version: 1.0.4`);
-  });
-
-  it('detect unsupported spec format', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        notapi: 3.1.0
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported specification`);
-  });
-
   it("struct rule shouldn't throw an error for named callback", async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -1973,364 +1961,54 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  describe('lintEntityFile', () => {
-    it('should lint a valid user entity file', async () => {
-      const entityYaml = outdent`
-        type: user
-        key: john-doe
-        title: John Doe
-        summary: Senior Software Engineer
-        metadata:
-          email: john@example.com
-        tags:
-          - engineering
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBe(0);
+  it('should not produce spurious example validation errors when linting concurrently', async () => {
+    const config = await createConfig({
+      rules: { 'no-invalid-media-type-examples': 'error' },
     });
 
-    it('should detect missing required fields in entity', async () => {
-      const entityYaml = outdent`
-        type: user
-        key: john-doe
-        # Missing required 'title' field
-        metadata:
-          email: john@example.com
-      `;
+    const [resultsA, resultsB] = await Promise.all([
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-a.yaml'),
+        config,
+      }),
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-b.yaml'),
+        config,
+      }),
+    ]);
 
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
+    expect(resultsA).toHaveLength(0);
+    expect(resultsB).toHaveLength(0);
+  });
 
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
+  it('should report no unresolved extends when scorecardClassic extends contains a ref to non existing preset', async () => {
+    const testConfigContent = outdent`
+      scorecardClassic:
+        levels:
+          - name: Baseline
+            extends:
+              - ./custom-rules.yaml
+    `;
+    const config = await createConfig(testConfigContent);
+    const results = await lintConfig({ config });
 
-      expect(problems.length).toBeGreaterThan(0);
-      expect(problems.some((p) => p.message.includes('title'))).toBe(true);
-    });
-
-    it('should lint array of entities', async () => {
-      const entitiesYaml = outdent`
-        - type: user
-          key: john-doe
-          title: John Doe
-          metadata:
-            email: john@example.com
-        
-        - type: service
-          key: api-service
-          title: API Service
-          summary: Core API service
-        
-        - type: api-description
-          key: users-api
-          title: Users API
-          metadata:
-            specType: openapi
-            descriptionFile: users-api.yaml
-      `;
-
-      const document = makeDocumentFromString(entitiesYaml, '/entities.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBe(0);
-    });
-
-    it('should use default schema when type is missing', async () => {
-      const entityYaml = outdent`
-        key: unknown-entity
-        title: Unknown Entity
-        summary: An entity without a type field
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      expect(problems.some((p) => p.message.includes('type'))).toBe(true);
-    });
-
-    it('should detect missing metadata.email for user entity', async () => {
-      const entityYaml = outdent`
-        type: user
-        key: john-doe
-        title: John Doe
-        metadata:
-          name: John
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      expect(problems.some((p) => p.message.includes('email'))).toBe(true);
-    });
-
-    it('should detect missing metadata for user entity', async () => {
-      const entityYaml = outdent`
-        type: user
-        key: john-doe
-        title: John Doe
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      expect(problems.some((p) => p.message.includes('metadata'))).toBe(true);
-    });
-
-    it('should not validate patterns with Struct rule', async () => {
-      const entityYaml = outdent`
-        type: service
-        key: Invalid_Key_With_Underscores
-        title: Invalid Service
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBe(1);
-      expect(problems[0].ruleId).toBe('entity key-valid');
-      expect(problems[0].message).toContain('lowercase letters');
-    });
-
-    it('should detect missing metadata fields for specific entity types', async () => {
-      const entityYaml = outdent`
-        type: api-description
-        key: my-api
-        title: My API
-        metadata:
-          specType: openapi
-          # Missing descriptionFile
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-    });
-
-    it('should detect invalid entity type in array', async () => {
-      const entitiesYaml = outdent`
-        - type: user
-          key: john-doe
-          title: John Doe
-          metadata:
-            email: john@example.com
-        
-        - type: service
-          key: invalid-service
-          # Missing required title field
-      `;
-
-      const document = makeDocumentFromString(entitiesYaml, '/entities.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      expect(problems.some((p) => p.message.includes('title'))).toBe(true);
-    });
-
-    it('should validate service entity without metadata', async () => {
-      const entityYaml = outdent`
-        type: service
-        key: my-service
-        title: My Service
-        summary: A simple service
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBe(0);
-    });
-
-    it('should detect invalid relation type', async () => {
-      const entityYaml = outdent`
-        type: service
-        key: my-service
-        title: My Service
-        relations:
-          - type: invalidRelationType
-            key: some-entity
-      `;
-
-      const document = makeDocumentFromString(entityYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      expect(
-        problems.some(
-          (p) =>
-            p.message.toLowerCase().includes('enum') ||
-            p.message.includes('invalidRelationType') ||
-            p.message.includes('type')
-        )
-      ).toBe(true);
-    });
-
-    it('should validate type-specific metadata fields correctly', async () => {
-      const apiOperationYaml = outdent`
-        type: api-operation
-        key: test-operation
-        title: Test Operation
-        metadata:
-          wrongField: value
-      `;
-
-      const document = makeDocumentFromString(apiOperationYaml, '/entity.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      const hasMethodOrPathError = problems.some(
-        (p) => p.message.includes('method') || p.message.includes('path')
-      );
-      const hasEmailError = problems.some((p) => p.message.includes('email'));
-
-      expect(hasEmailError).toBe(false);
-      expect(hasMethodOrPathError).toBe(true);
-    });
-
-    it('should validate different metadata schemas in array of mixed entity types', async () => {
-      const mixedEntitiesYaml = outdent`
-        - type: api-description
-          key: my-api
-          title: My API
-          metadata:
-            specType: openapi
-            # Missing descriptionFile
-        
-        - type: api-operation
-          key: my-operation
-          title: My Operation
-          metadata:
-            wrongField: value
-            # Missing method and path
-        
-        - type: data-schema
-          key: my-schema
-          title: My Schema
-          metadata:
-            wrongField: value
-            # Missing specType
-      `;
-
-      const document = makeDocumentFromString(mixedEntitiesYaml, '/entities.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-
-      const hasDescriptionFileError = problems.some((p) => p.message.includes('descriptionFile'));
-
-      const hasMethodError = problems.some((p) => p.message.includes('method'));
-      const hasPathError = problems.some((p) => p.message.includes('path'));
-
-      const hasSpecTypeError = problems.some((p) => p.message.includes('specType'));
-
-      const hasEmailError = problems.some((p) => p.message.includes('email'));
-
-      expect(hasDescriptionFileError).toBe(true);
-      expect(hasMethodError).toBe(true);
-      expect(hasPathError).toBe(true);
-      expect(hasSpecTypeError).toBe(true);
-
-      expect(hasEmailError).toBe(false);
-    });
-
-    it('should handle entity without type in array using default schema', async () => {
-      const mixedEntitiesYaml = outdent`
-        - type: user
-          key: valid-user
-          title: Valid User
-          metadata:
-            email: user@example.com
-        
-        - key: no-type-entity
-          title: Entity Without Type
-          summary: This entity is missing the type field
-          # Missing type - should use EntityFileDefault schema
-        
-        - type: service
-          key: valid-service
-          title: Valid Service
-      `;
-
-      const document = makeDocumentFromString(mixedEntitiesYaml, '/entities.yaml');
-
-      const problems = await lintEntityFile({
-        document,
-        entitySchema: entityFileSchema,
-        entityDefaultSchema: entityFileDefaultSchema,
-      });
-
-      expect(problems.length).toBeGreaterThan(0);
-      const hasTypeError = problems.some((p) => p.message.includes('type'));
-
-      expect(hasTypeError).toBe(true);
-    });
+    expect(replaceSourceWithRef(results, process.cwd())).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/scorecardClassic/levels/0/extends/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'custom-rules.yaml'",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
+          "ruleId": "configuration no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });

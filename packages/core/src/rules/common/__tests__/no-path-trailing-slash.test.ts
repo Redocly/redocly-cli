@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('no-path-trailing-slash', () => {
@@ -34,6 +35,7 @@ describe('no-path-trailing-slash', () => {
             },
           ],
           "message": "\`/bad/\` should not have a trailing slash.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-path-trailing-slash",
           "ruleId": "no-path-trailing-slash",
           "severity": "error",
           "suggest": [],
@@ -75,6 +77,7 @@ describe('no-path-trailing-slash', () => {
             },
           ],
           "message": "\`/bad/\` should not have a trailing slash.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-path-trailing-slash",
           "ruleId": "no-path-trailing-slash",
           "severity": "error",
           "suggest": [],

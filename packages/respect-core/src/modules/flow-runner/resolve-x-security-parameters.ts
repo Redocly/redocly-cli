@@ -1,13 +1,13 @@
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { getSecurityParameter } from '../context-parser/get-security-parameters.js';
-import { validateXSecurityParameters } from './validate-x-security-parameters.js';
-import { resolveSecurityScheme } from './resolve-security-scheme.js';
-
 import type { ExtendedSecurity } from '@redocly/openapi-core';
-import type { ParameterWithIn } from '../context-parser/index.js';
-import type { Step, RuntimeExpressionContext, TestContext } from '../../types.js';
-import type { OperationDetails } from '../description-parser/get-operation-from-description.js';
 import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+
+import type { Step, RuntimeExpressionContext, TestContext } from '../../types.js';
+import { getSecurityParameter } from '../context-parser/get-security-parameters.js';
+import type { ParameterWithIn } from '../context-parser/index.js';
+import type { OperationDetails } from '../description-parser/get-operation-from-description.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { resolveSecurityScheme } from './resolve-security-scheme.js';
+import { validateXSecurityParameters } from './validate-x-security-parameters.js';
 
 export function resolveXSecurityParameters({
   ctx,

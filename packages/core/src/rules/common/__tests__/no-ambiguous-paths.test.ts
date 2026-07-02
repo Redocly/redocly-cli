@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('no-ambiguous-paths', () => {
   it('should report on ambiguous paths', async () => {
@@ -61,6 +62,7 @@ describe('no-ambiguous-paths', () => {
             },
           ],
           "message": "Paths should resolve unambiguously. Found two ambiguous paths: \`/good/{id}\` and \`/{id}/ambiguous\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-ambiguous-paths",
           "ruleId": "no-ambiguous-paths",
           "severity": "error",
           "suggest": [],
@@ -74,6 +76,7 @@ describe('no-ambiguous-paths', () => {
             },
           ],
           "message": "Paths should resolve unambiguously. Found two ambiguous paths: \`/{id}/ambiguous\` and \`/ambiguous/{id}\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-ambiguous-paths",
           "ruleId": "no-ambiguous-paths",
           "severity": "error",
           "suggest": [],
@@ -87,6 +90,7 @@ describe('no-ambiguous-paths', () => {
             },
           ],
           "message": "Paths should resolve unambiguously. Found two ambiguous paths: \`/good/{id}/{pet}\` and \`/{entity}/{id}/last\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-ambiguous-paths",
           "ruleId": "no-ambiguous-paths",
           "severity": "error",
           "suggest": [],

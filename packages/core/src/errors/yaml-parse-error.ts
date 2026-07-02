@@ -1,4 +1,4 @@
-import type { Source } from '../resolve';
+import type { Source } from '../resolve.js';
 
 const jsYamlErrorLineColRegexp = /\((\d+):(\d+)\)$/;
 
@@ -6,7 +6,10 @@ export class YamlParseError extends Error {
   col: number;
   line: number;
 
-  constructor(public originalError: Error, public source: Source) {
+  constructor(
+    public originalError: Error,
+    public source: Source
+  ) {
     super(originalError.message.split('\n')[0]);
     // Set the prototype explicitly.
     Object.setPrototypeOf(this, YamlParseError.prototype);

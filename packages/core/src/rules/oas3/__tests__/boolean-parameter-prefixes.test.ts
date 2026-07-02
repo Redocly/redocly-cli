@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/index.js';
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on boolean param without prefix', async () => {
@@ -37,6 +38,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
             },
           ],
           "message": "Boolean parameter \`a\` should have \`is\` or \`has\` prefix.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/boolean-parameter-prefixes",
           "ruleId": "boolean-parameter-prefixes",
           "severity": "error",
           "suggest": [],

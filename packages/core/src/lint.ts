@@ -1,37 +1,28 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
-import { normalizeVisitors } from './visitors.js';
-import { walkDocument } from './walk.js';
-import { initRules } from './config/rules.js';
-import { normalizeTypes } from './types/index.js';
-import { releaseAjvInstance } from './rules/ajv.js';
-import { getTypes, type SpecVersion } from './oas-types.js';
-import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
-import { createConfigTypes } from './types/redocly-yaml.js';
-import { createEntityTypes, ENTITY_DISCRIMINATOR_NAME } from './types/entity-yaml.js';
-import { Struct } from './rules/common/struct.js';
-import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
-import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
-import { type Config } from './config/index.js';
-import { isPlainObject } from './utils/is-plain-object.js';
 
-import type { Document } from './resolve.js';
-import type { ProblemSeverity, WalkContext } from './walk.js';
-import type { NodeType } from './types/index.js';
-import type {
-  Arazzo1Visitor,
-  Async2Visitor,
-  Async3Visitor,
-  BaseVisitor,
-  NestedVisitObject,
-  Oas2Visitor,
-  Oas3Visitor,
-  Overlay1Visitor,
-  OpenRpc1Visitor,
-  RuleInstanceConfig,
-} from './visitors.js';
+import type { Config } from './config/index.js';
+import { initRules } from './config/rules.js';
+import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
+import { getTypes } from './oas-types.js';
+import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
+import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
+import { Struct } from './rules/common/struct.js';
+import { normalizeTypes, type NodeType } from './types/index.js';
+import { createConfigTypes } from './types/redocly-yaml.js';
 import type { CollectFn } from './utils/types.js';
-import type { JSONSchema } from 'json-schema-to-ts';
+import {
+  normalizeVisitors,
+  type Arazzo1Visitor,
+  type Async2Visitor,
+  type Async3Visitor,
+  type NestedVisitObject,
+  type Oas2Visitor,
+  type Oas3Visitor,
+  type Overlay1Visitor,
+  type OpenRpc1Visitor,
+  type RuleInstanceConfig,
+} from './visitors.js';
+import { walkDocument, type ProblemSeverity, type WalkContext } from './walk.js';
 
 // FIXME: remove this once we remove `theme` from the schema
 const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
@@ -79,12 +70,9 @@ export async function lintDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
-  releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
-
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
-  const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForSpecVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(getMajorSpecVersion(specVersion));
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
@@ -147,7 +135,7 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'oas3_0', // TODO: use config-specific version
+    specVersion: 'config',
     config,
     visitorsData: {},
   };
@@ -197,77 +185,6 @@ export async function lintConfig(opts: {
   walkDocument({
     document: config.document,
     rootType: types.ConfigRoot,
-    normalizedVisitors,
-    resolvedRefMap,
-    ctx,
-  });
-
-  return ctx.problems;
-}
-
-export async function lintEntityFile(opts: {
-  document: Document;
-  entitySchema: JSONSchema;
-  entityDefaultSchema: JSONSchema;
-  severity?: ProblemSeverity;
-  externalRefResolver?: BaseResolver;
-}) {
-  const {
-    document,
-    entitySchema,
-    entityDefaultSchema,
-    severity,
-    externalRefResolver = new BaseResolver(),
-  } = opts;
-  const ctx: WalkContext = {
-    problems: [],
-    specVersion: 'entity' as SpecVersion, // FIXME: this should be proper SpecVersion
-    visitorsData: {},
-  };
-
-  const entityTypes = createEntityTypes(entitySchema, entityDefaultSchema);
-  const types = normalizeTypes(entityTypes);
-
-  let rootType = types.EntityFileDefault;
-  if (Array.isArray(document.parsed)) {
-    rootType = types.EntityFileArray;
-  } else if (isPlainObject(document.parsed)) {
-    const typeValue = document.parsed[ENTITY_DISCRIMINATOR_NAME];
-    if (typeof typeValue === 'string' && types[typeValue]) {
-      rootType = types[typeValue];
-    }
-  }
-
-  const rules: (RuleInstanceConfig & {
-    visitor: NestedVisitObject<unknown, BaseVisitor | BaseVisitor[]>;
-  })[] = [
-    {
-      severity: severity || 'error',
-      ruleId: 'entity struct',
-      visitor: Struct({ severity: 'error' }),
-    },
-    {
-      severity: severity || 'error',
-      ruleId: 'entity no-unresolved-refs',
-      visitor: NoUnresolvedRefs({ severity: 'error' }),
-    },
-    {
-      severity: severity || 'error',
-      ruleId: 'entity key-valid',
-      visitor: EntityKeyValid({ severity: 'error' }),
-    },
-  ];
-
-  const normalizedVisitors = normalizeVisitors(rules, types);
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType,
-    externalRefResolver,
-  });
-
-  walkDocument({
-    document,
-    rootType,
     normalizedVisitors,
     resolvedRefMap,
     ctx,

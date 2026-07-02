@@ -1,12 +1,4 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
-import type { UserContext } from '../../walk.js';
-import type {
-  Oas2Definition,
-  Oas2Operation,
-  Oas2PathItem,
-  Oas2SecurityScheme,
-} from '../../typings/swagger.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -15,6 +7,14 @@ import type {
   Oas3PathItem,
   Oas3SecurityScheme,
 } from '../../typings/openapi.js';
+import type {
+  Oas2Definition,
+  Oas2Operation,
+  Oas2PathItem,
+  Oas2SecurityScheme,
+} from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
@@ -42,6 +42,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
             report({
               message: `There is no \`${name}\` security scheme defined.`,
               location: reportedFromLocation.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/security-defined',
             });
           }
         }
@@ -53,6 +54,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
             report({
               message: `Every operation should have security defined on it or on the root level.`,
               location: operationLocation.key(),
+              reference: 'https://redocly.com/docs/cli/rules/oas/security-defined',
             });
           }
         }

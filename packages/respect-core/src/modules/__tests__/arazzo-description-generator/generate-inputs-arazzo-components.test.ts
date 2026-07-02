@@ -1,4 +1,5 @@
-import { type Oas3SecurityScheme } from '@redocly/openapi-core/lib/typings/openapi.js';
+import { type Oas3SecurityScheme } from '@redocly/openapi-core';
+
 import { generateSecurityInputsArazzoComponents } from '../../arazzo-description-generator/index.js';
 
 describe('generateSecurityInputsArazzoComponents', () => {

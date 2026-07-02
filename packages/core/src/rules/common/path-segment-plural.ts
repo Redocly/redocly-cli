@@ -1,6 +1,6 @@
 import pluralize from 'pluralize';
-import { isPathParameter } from '../../utils/is-path-parameter.js';
 
+import { isPathParameter } from '../../utils/is-path-parameter.js';
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -8,7 +8,7 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
   const { ignoreLastPathSegment, exceptions } = opts;
   return {
     PathItem: {
-      leave(_path: any, { report, key, location }: UserContext) {
+      leave(_path: unknown, { report, key, location }: UserContext) {
         const pathKey = key.toString();
         if (pathKey.startsWith('/')) {
           const pathSegments = pathKey.split('/');
@@ -23,6 +23,7 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
               report({
                 message: `path segment \`${pathSegment}\` should be plural.`,
                 location: location.key(),
+                reference: 'https://redocly.com/docs/cli/rules/oas/path-segment-plural',
               });
             }
           }

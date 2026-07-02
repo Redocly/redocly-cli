@@ -1,5 +1,6 @@
-import { printScorecardResults } from '../formatters/stylish-formatter.js';
 import * as openapiCore from '@redocly/openapi-core';
+
+import { printScorecardResults } from '../formatters/stylish-formatter.js';
 import type { ScorecardProblem } from '../types.js';
 
 const createMockSource = (absoluteRef: string) => ({
@@ -13,10 +14,6 @@ describe('printScorecardResults', () => {
   beforeEach(() => {
     vi.spyOn(openapiCore.logger, 'info').mockImplementation(() => {});
     vi.spyOn(openapiCore.logger, 'output').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it('should handle problems without location', () => {

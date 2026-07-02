@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 paths-kebab-case', () => {
   it('should report on no kebab-case path', async () => {
@@ -37,6 +38,7 @@ describe('Oas3 paths-kebab-case', () => {
             },
           ],
           "message": "\`/someTest\` does not use kebab-case.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/paths-kebab-case",
           "ruleId": "paths-kebab-case",
           "severity": "error",
           "suggest": [],
@@ -76,6 +78,7 @@ describe('Oas3 paths-kebab-case', () => {
             },
           ],
           "message": "\`/some_test\` does not use kebab-case.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/paths-kebab-case",
           "ruleId": "paths-kebab-case",
           "severity": "error",
           "suggest": [],

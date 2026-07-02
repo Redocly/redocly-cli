@@ -1,5 +1,6 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 import { getCommandOutput, getParams } from '../../e2e/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

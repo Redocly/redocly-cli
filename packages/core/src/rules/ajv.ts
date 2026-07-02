@@ -1,113 +1,158 @@
+import Ajv2020, {
+  type ErrorObject,
+  type ValidateFunction,
+  type Context as AjvContext,
+  type Options,
+} from '@redocly/ajv/dist/2020.js';
+import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
 import addFormats from 'ajv-formats';
-import Ajv from '@redocly/ajv/dist/2020.js';
-import { escapePointerFragment } from '../ref-utils.js';
 
-import type { Location } from '../ref-utils.js';
-import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
-import type { ResolveFn } from '../walk.js';
+import { escapePointerFragment, type Location } from '../ref-utils.js';
+import type { Oas3Schema, Oas3_1Schema } from '../typings/openapi.js';
+import type { ResolveFn, UserContext } from '../walk.js';
 
-let ajvInstance: Ajv | null = null;
+type AjvDialect = '2020' | 'draft4';
 
-export function releaseAjvInstance() {
-  ajvInstance = null;
+function getSchemaIdKey(dialect: AjvDialect) {
+  return dialect === 'draft4' ? 'id' : '$id';
 }
 
-function getAjv(resolve: ResolveFn) {
-  if (!ajvInstance) {
-    ajvInstance = new Ajv({
-      schemaId: '$id',
-      meta: true,
-      allErrors: true,
-      strictSchema: false,
-      inlineRefs: false,
-      validateSchema: false,
-      discriminator: true,
-      allowUnionTypes: true,
-      validateFormats: true,
-      loadSchemaSync(base: string, $ref: string, $id: string) {
-        const decodedBase = decodeURI(base.split('#')[0]);
-        const resolvedRef = resolve({ $ref }, decodedBase);
-        if (!resolvedRef || !resolvedRef.location) return false;
-
-        return {
-          $id: encodeURI(resolvedRef.location.source.absoluteRef) + '#' + $id,
-          ...resolvedRef.node,
-        };
-      },
-      logger: false,
-    });
-    addFormats(ajvInstance as any); // TODO: fix type mismatch
-  }
-  return ajvInstance;
+function getDialectBySpecVersion(specVersion: UserContext['specVersion']): AjvDialect {
+  if (specVersion === 'oas2' || specVersion === 'oas3_0') return 'draft4';
+  return '2020';
 }
 
-function getAjvValidator(
-  schema: any,
-  loc: Location,
-  resolve: ResolveFn,
-  allowAdditionalProperties: boolean
-): ValidateFunction | undefined {
-  const ajv = getAjv(resolve);
-  const $id = encodeURI(loc.absolutePointer);
+export class AjvValidator {
+  private instances: Partial<Record<AjvDialect, any>> = {};
 
-  if (!ajv.getSchema($id)) {
-    ajv.setDefaultUnevaluatedProperties(allowAdditionalProperties);
-    ajv.addSchema({ $id, ...schema }, $id);
-  }
-
-  return ajv.getSchema($id);
-}
-
-export function validateJsonSchema(
-  data: any,
-  schema: any,
-  schemaLoc: Location,
-  instancePath: string,
-  resolve: ResolveFn,
-  allowAdditionalProperties: boolean
-): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
-  const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
-  if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
-
-  const valid = validate(data, {
-    instancePath,
-    parentData: { fake: {} },
-    parentDataProperty: 'fake',
-    rootData: {},
-    dynamicAnchors: {},
-  });
-
-  return {
-    valid: !!valid,
-    errors: (validate.errors || []).map(beatifyErrorMessage),
-  };
-
-  function beatifyErrorMessage(error: ErrorObject) {
-    let message = error.message;
-    const suggest = error.keyword === 'enum' ? error.params.allowedValues : undefined;
-    if (suggest) {
-      message += ` ${suggest.map((e: any) => `"${e}"`).join(', ')}`;
+  validate(
+    data: unknown,
+    schema: Oas3Schema | Oas3_1Schema,
+    options: {
+      schemaLoc: Location;
+      instancePath: string;
+      resolve: ResolveFn;
+      allowAdditionalProperties: boolean;
+      ajvContext?: AjvContext;
+      specVersion: UserContext['specVersion'];
     }
+  ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
+    const { schemaLoc, instancePath, resolve, allowAdditionalProperties, ajvContext, specVersion } =
+      options;
 
-    if (error.keyword === 'type') {
-      message = `type ${message}`;
-    }
+    const dialect = getDialectBySpecVersion(specVersion);
+    const validate = this.getValidator(
+      schema,
+      schemaLoc,
+      resolve,
+      allowAdditionalProperties,
+      dialect
+    );
+    if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
-    const relativePath = error.instancePath.substring(instancePath.length + 1);
-    const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
-    if (propName) {
-      message = `\`${propName}\` property ${message}`;
-    }
-    if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
-      const property = error.params.additionalProperty || error.params.unevaluatedProperty;
-      message = `${message} \`${property}\``;
-      error.instancePath += '/' + escapePointerFragment(property);
-    }
+    const dataCxt = {
+      instancePath,
+      parentData: { fake: {} },
+      parentDataProperty: 'fake',
+      rootData: {},
+      dynamicAnchors: {},
+    };
+    const valid = validate.call(ajvContext ?? {}, data, dataCxt);
 
     return {
-      ...error,
-      message,
-      suggest,
+      valid: !!valid,
+      errors: (validate.errors || []).map(beatifyErrorMessage),
     };
+
+    function beatifyErrorMessage(error: ErrorObject) {
+      let message = error.message;
+      const suggest: string[] | undefined =
+        error.keyword === 'enum' ? error.params.allowedValues : undefined;
+      if (suggest) {
+        message += ` ${suggest.map((e) => `"${e}"`).join(', ')}`;
+      }
+
+      if (error.keyword === 'type') {
+        message = `type ${message}`;
+      }
+
+      const relativePath = error.instancePath.substring(instancePath.length + 1);
+      const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
+      if (propName) {
+        message = `\`${propName}\` property ${message}`;
+      }
+      if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
+        const property = error.params.additionalProperty || error.params.unevaluatedProperty;
+        message = `${message} \`${property}\``;
+        error.instancePath += '/' + escapePointerFragment(property);
+      }
+
+      return {
+        ...error,
+        message,
+        suggest,
+      };
+    }
+  }
+
+  private getAjv(resolve: ResolveFn, dialect: AjvDialect): any {
+    if (!this.instances[dialect]) {
+      const schemaIdKey = getSchemaIdKey(dialect);
+
+      const options: Options = {
+        schemaId: schemaIdKey,
+        meta: true,
+        allErrors: true,
+        strictSchema: false,
+        inlineRefs: false,
+        validateSchema: false,
+        discriminator: true,
+        allowUnionTypes: true,
+        validateFormats: true,
+        passContext: true,
+        logger: false,
+        loadSchemaSync(base: string, $ref: string, $id: string) {
+          const decodedBase = decodeURI(base.split('#')[0]);
+          const resolvedRef = resolve({ $ref }, decodedBase);
+          if (!resolvedRef || !resolvedRef.location) return false;
+
+          return {
+            [schemaIdKey]: encodeURI(resolvedRef.location.source.absoluteRef) + '#' + $id,
+            ...resolvedRef.node,
+          };
+        },
+      };
+
+      this.instances[dialect] =
+        dialect === '2020' ? new (Ajv2020 as any)(options) : new (AjvDraft4 as any)(options);
+
+      (addFormats as any)(this.instances[dialect]);
+    }
+    return this.instances[dialect];
+  }
+
+  private getValidator(
+    schema: Oas3Schema | Oas3_1Schema,
+    loc: Location,
+    resolve: ResolveFn,
+    allowAdditionalProperties: boolean,
+    dialect: AjvDialect
+  ): ValidateFunction | undefined {
+    const ajv = this.getAjv(resolve, dialect);
+    const $id = encodeURI(loc.absolutePointer);
+    const schemaIdKey = getSchemaIdKey(dialect);
+
+    if (!ajv.getSchema($id)) {
+      ajv.setDefaultUnevaluatedProperties(allowAdditionalProperties);
+      ajv.addSchema(
+        {
+          [schemaIdKey]: $id,
+          ...schema,
+        },
+        $id
+      );
+    }
+
+    return ajv.getSchema($id);
   }
 }

@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Sample API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+
+bundling openapi.yaml using configuration for api 'test-api'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
+🧹 Removed 2 unused components.

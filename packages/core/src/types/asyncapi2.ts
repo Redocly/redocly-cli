@@ -1,4 +1,4 @@
-import { listOf, mapOf } from './index.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import {
   Dependencies,
   Discriminator,
@@ -6,8 +6,6 @@ import {
   Schema,
   SchemaProperties,
 } from './json-schema-draft7.shared.js';
-
-import type { NodeType } from './index.js';
 
 const Root: NodeType = {
   properties: {
@@ -185,7 +183,7 @@ const Server: NodeType = {
 
 export const ServerMap: NodeType = {
   properties: {},
-  additionalProperties: (_value: any, key: string) =>
+  additionalProperties: (_value: unknown, key: string) =>
     // eslint-disable-next-line no-useless-escape
     key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
 };

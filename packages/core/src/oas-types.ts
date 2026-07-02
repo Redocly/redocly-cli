@@ -1,13 +1,13 @@
+import { Arazzo1Types } from './types/arazzo.js';
+import { Arazzo1_1Types } from './types/arazzo1_1.js';
+import { AsyncApi2Types } from './types/asyncapi2.js';
+import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
 import { Oas3_2Types } from './types/oas3_2.js';
-import { AsyncApi2Types } from './types/asyncapi2.js';
-import { AsyncApi3Types } from './types/asyncapi3.js';
-import { Arazzo1Types } from './types/arazzo.js';
-import { Overlay1Types } from './types/overlay.js';
 import { OpenRpcTypes } from './types/openrpc.js';
-
+import { Overlay1Types } from './types/overlay.js';
 import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,
@@ -17,21 +17,23 @@ import type {
   BuiltInOverlay1RuleId,
   BuiltInCommonRuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInOas2DecoratorId,
+  BuiltInOas3DecoratorId,
 } from './types/redocly-yaml.js';
 import type {
   Oas3Rule,
-  Oas3Preprocessor,
+  Oas3Decorator,
   Oas2Rule,
-  Oas2Preprocessor,
-  Async2Preprocessor,
+  Oas2Decorator,
+  Async2Decorator,
   Async2Rule,
-  Async3Preprocessor,
+  Async3Decorator,
   Async3Rule,
-  Arazzo1Preprocessor,
+  Arazzo1Decorator,
   Arazzo1Rule,
-  Overlay1Preprocessor,
+  Overlay1Decorator,
   Overlay1Rule,
-  OpenRpc1Preprocessor,
+  OpenRpc1Decorator,
   OpenRpc1Rule,
 } from './visitors.js';
 
@@ -43,10 +45,14 @@ export const specVersions = [
   'async2',
   'async3',
   'arazzo1',
+  'arazzo1_1',
   'overlay1',
   'openrpc1',
 ] as const;
-export type SpecVersion = typeof specVersions[number];
+export type SpecVersion = (typeof specVersions)[number];
+
+/** Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs. */
+export const COMPONENT_NAME_CHARS = 'a-zA-Z0-9\\.\\-_';
 
 export type SpecMajorVersion =
   | 'oas2'
@@ -54,6 +60,7 @@ export type SpecMajorVersion =
   | 'async2'
   | 'async3'
   | 'arazzo1'
+  | 'arazzo1_1'
   | 'overlay1'
   | 'openrpc1';
 
@@ -65,6 +72,7 @@ const typesMap = {
   async2: AsyncApi2Types,
   async3: AsyncApi3Types,
   arazzo1: Arazzo1Types,
+  arazzo1_1: Arazzo1_1Types,
   overlay1: Overlay1Types,
   openrpc1: OpenRpcTypes,
 };
@@ -111,21 +119,19 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
-export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
-export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
-export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
-export type Async3PreprocessorsSet = Record<string, Async3Preprocessor>;
-export type Arazzo1PreprocessorsSet = Record<string, Arazzo1Preprocessor>;
-export type Overlay1PreprocessorsSet = Record<string, Overlay1Preprocessor>;
-export type OpenRpc1PreprocessorsSet = Record<string, OpenRpc1Preprocessor>;
-
-export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
-export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
-export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
-export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
-export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
-export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
-export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Preprocessor>;
+export type Oas3DecoratorsSet<T = undefined> = Record<
+  T extends 'built-in' ? BuiltInOas3DecoratorId : string,
+  Oas3Decorator
+>;
+export type Oas2DecoratorsSet<T = undefined> = Record<
+  T extends 'built-in' ? BuiltInOas2DecoratorId : string,
+  Oas2Decorator
+>;
+export type Async2DecoratorsSet = Record<string, Async2Decorator>;
+export type Async3DecoratorsSet = Record<string, Async3Decorator>;
+export type Arazzo1DecoratorsSet = Record<string, Arazzo1Decorator>;
+export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
+export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
 
 export function getTypes(spec: SpecVersion) {
   return typesMap[spec];

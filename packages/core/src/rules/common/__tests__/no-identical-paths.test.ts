@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('no-identical-paths', () => {
   it('should report on identical paths', async () => {
@@ -49,6 +50,7 @@ describe('no-identical-paths', () => {
             },
           ],
           "message": "The path already exists which differs only by path parameter name(s): \`/good/{id}\` and \`/good/{hash}\`.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-identical-paths",
           "ruleId": "no-identical-paths",
           "severity": "error",
           "suggest": [],

@@ -1,0 +1,9 @@
+openapi: 3.2.0
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            $ref: ./testMediaType.yaml

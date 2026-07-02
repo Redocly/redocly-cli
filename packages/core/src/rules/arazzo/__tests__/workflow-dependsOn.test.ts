@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint.js';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo workflow-dependsOn', () => {
   const document = parseYamlToDocument(
@@ -147,6 +148,7 @@ describe('Arazzo workflow-dependsOn', () => {
             },
           ],
           "message": "Every workflow in dependsOn must be unique.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/workflow-dependson",
           "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],
@@ -187,6 +189,7 @@ describe('Arazzo workflow-dependsOn', () => {
             },
           ],
           "message": "Workflow events-crus must be defined in workflows.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/workflow-dependson",
           "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],
@@ -200,6 +203,7 @@ describe('Arazzo workflow-dependsOn', () => {
             },
           ],
           "message": "SourceDescription tickets-from-museum-apis must be defined in sourceDescriptions.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/workflow-dependson",
           "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],

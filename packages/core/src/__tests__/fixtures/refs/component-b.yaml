@@ -1,0 +1,6 @@
+components:
+  parameters:
+    User:
+      name: test
+      in: query
+      description: test-B

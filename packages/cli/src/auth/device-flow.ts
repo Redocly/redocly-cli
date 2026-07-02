@@ -1,6 +1,7 @@
+import { logger } from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
-import { logger } from '@redocly/openapi-core';
+
 import { ReuniteApiClient } from '../reunite/api/api-client.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 
@@ -52,8 +53,8 @@ export class RedoclyOAuthDeviceFlow {
         process.platform === 'win32'
           ? `start ${url}`
           : process.platform === 'darwin'
-          ? `open ${url}`
-          : `xdg-open ${url}`;
+            ? `open ${url}`
+            : `xdg-open ${url}`;
 
       childProcess.execSync(cmd);
     } catch {

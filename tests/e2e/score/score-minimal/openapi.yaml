@@ -1,0 +1,46 @@
+openapi: 3.0.3
+info:
+  title: Minimal API
+  version: 0.1.0
+paths:
+  /items:
+    get:
+      operationId: listItems
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+    post:
+      operationId: createItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '201':
+          description: Created

@@ -1,9 +1,0 @@
-apis:
-  main:
-    root: ./openapi.yaml
-
-rules:
-  asset/path-item-mutually-required:
-    context:
-      - type: PathItem
-    subject: Operation

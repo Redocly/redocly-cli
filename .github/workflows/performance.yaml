@@ -17,8 +17,13 @@ jobs:
   historical-versions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install pnpm for Rebilly/api-definitions
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          run_install: false
+          version: 10.33.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
           cache: npm
@@ -47,12 +52,27 @@ jobs:
         run: |
           cd tests/performance/
           npm run test # This command is generated and injected into package.json in the previous step.
-          cat benchmark_check.md
+          cat benchmark_bundle.md benchmark_lint.md benchmark_check-config.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
 
+      # Same-repo PRs (incl. the bot release PR, which gets no workflow_run event) comment inline.
       - name: Comment PR
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: thollander/actions-comment-pull-request@v2
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          filePath: tests/performance/benchmark_chart.md
-          comment_tag: historical-versions-comparison
+          file-path: tests/performance/benchmark_chart.md
+          comment-tag: historical-versions-comparison
+
+      # Forks get a read-only token, so they hand off via artifact for performance-comment.yaml.
+      - name: Save PR number
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "${{ github.event.number }}" > tests/performance/pr-number.txt
+
+      - name: Upload benchmark result
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: performance-benchmark
+          path: |
+            tests/performance/benchmark_chart.md
+            tests/performance/pr-number.txt

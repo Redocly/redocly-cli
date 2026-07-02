@@ -1,7 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
 import type { Parameter } from '../../../types.js';
-
 import { generateExampleValue } from '../../arazzo-description-generator/index.js';
 
 describe('generateExampleValue', () => {
