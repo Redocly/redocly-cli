@@ -338,7 +338,7 @@ export function emitModules(model: ApiModel, options: EmitOptions = {}): ClientM
 
 /**
  * The relative-import basename for emitting `from './<stem>.<kind>.js'`. The `.js`
- * extension is required for `node16`/`nodenext` module resolution and accepted by
+ * extension is required for `nodenext` (node-style) module resolution and accepted by
  * bundler resolution, so generated imports stay portable. Writers also use this to
  * wire the barrel's cross-module re-exports.
  */

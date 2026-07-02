@@ -30,8 +30,8 @@ const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 
 const TSCONFIG = {
   compilerOptions: {
-    module: 'node16',
-    moduleResolution: 'node16',
+    module: 'nodenext',
+    moduleResolution: 'nodenext',
     target: 'es2022',
     lib: ['ES2022', 'DOM'],
     strict: true,
