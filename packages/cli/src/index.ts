@@ -949,17 +949,12 @@ yargs(hideBin(process.argv))
               'Generators to run, comma-separated (default: sdk). Built-in names (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generators sdk,zod or --generators sdk,./my-generator.ts',
             type: 'string',
             coerce: (value: string | undefined): string[] | undefined => {
-              // Parse only — built-in names, inline custom names, and plugin specifiers are all
-              // valid here; the generator resolver validates each (and reports unknown/unloadable
-              // entries with an actionable message) once the config is assembled.
               if (value === undefined) return undefined;
-              const names = value
+              const generators = value
                 .split(',')
-                .map((s) => s.trim())
+                .map((entry) => entry.trim())
                 .filter(Boolean);
-              // Treat an empty value (`--generators ` or `,`) as unset, so it neither
-              // replaces the default sdk generator nor clobbers a redocly.yaml selection.
-              return names.length ? names : undefined;
+              return generators.length ? generators : undefined;
             },
           },
           config: {
