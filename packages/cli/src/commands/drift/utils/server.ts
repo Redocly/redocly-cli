@@ -26,7 +26,8 @@ function stripPrefixFromPath(pathname: string, prefixPath: string): string | und
  * Match a request against the server URL. Returns the path relative to the
  * server, or undefined when the request belongs to another host or path
  * subtree. A server starting with "/" matches by path only; otherwise it is
- * parsed as a URL and the host must match too.
+ * parsed as a URL and the host must match too, except for requests that did
+ * not record a host (path-only captures), which are matched by path only.
  */
 export function resolvePathForServer(
   request: NormalizedRequest,
@@ -37,7 +38,10 @@ export function resolvePathForServer(
   }
 
   const serverUrl = parseUrl(server.includes('://') ? server : `http://${server}`);
-  if (isSyntheticHost(serverUrl.host) || request.host !== serverUrl.host) {
+  if (
+    isSyntheticHost(serverUrl.host) ||
+    (request.host !== undefined && request.host !== serverUrl.host)
+  ) {
     return undefined;
   }
 

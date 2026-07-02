@@ -50,4 +50,4 @@
   ]
 }
 
-None of the 2 validated exchange(s) matched a documented operation. Check that the traffic host and base path match the description servers (http://api.example.com), or use --server to declare the server the traffic was captured against.
+None of the 2 validated exchange(s) matched a documented operation. The traffic hosts are compatible with the description servers (http://api.example.com), so the endpoints are likely undocumented; if they should be documented, check that the description base paths and paths align with the traffic URLs, or use --server to declare the server the traffic was captured against.

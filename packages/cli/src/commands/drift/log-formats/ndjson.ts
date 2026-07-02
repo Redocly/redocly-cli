@@ -94,12 +94,9 @@ export class NdjsonTrafficParser implements TrafficParser {
     }
 
     const lastNewlineIndex = probe.lastIndexOf('\n');
-    if (lastNewlineIndex === -1) {
-      return false;
-    }
+    const completeLines = lastNewlineIndex === -1 ? probe : probe.slice(0, lastNewlineIndex);
 
-    const firstLine = probe
-      .slice(0, lastNewlineIndex)
+    const firstLine = completeLines
       .split('\n')
       .map((line) => line.trim())
       .find(Boolean);

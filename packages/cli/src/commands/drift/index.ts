@@ -74,9 +74,13 @@ function warnWhenNothingMatched(
   const serverUrls = collectSpecServerUrls(openApiIndex);
   const hint = server
     ? `Check that the --server "${server}" matches the traffic URLs and that the description paths align with the remainder.`
-    : `Check that the traffic host and base path match the description servers (${serverUrls.join(
-        ', '
-      )}), or use --server to declare the server the traffic was captured against.`;
+    : summary.hostCompatibleExchanges > 0
+      ? `The traffic hosts are compatible with the description servers (${serverUrls.join(
+          ', '
+        )}), so the endpoints are likely undocumented; if they should be documented, check that the description base paths and paths align with the traffic URLs, or use --server to declare the server the traffic was captured against.`
+      : `Check that the traffic host and base path match the description servers (${serverUrls.join(
+          ', '
+        )}), or use --server to declare the server the traffic was captured against.`;
   logger.warn(
     `None of the ${validatedExchanges} validated exchange(s) matched a documented operation. ${hint}\n`
   );

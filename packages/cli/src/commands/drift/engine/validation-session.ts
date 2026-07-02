@@ -32,6 +32,7 @@ interface CounterState {
   documentedExchanges: number;
   undocumentedExchanges: number;
   skippedExchanges: number;
+  hostCompatibleExchanges: number;
   findingsBySeverity: RunSummary['findingsBySeverity'];
   findingsByRule: Record<string, number>;
 }
@@ -42,6 +43,7 @@ function createInitialCounters(): CounterState {
     documentedExchanges: 0,
     undocumentedExchanges: 0,
     skippedExchanges: 0,
+    hostCompatibleExchanges: 0,
     findingsBySeverity: {
       info: 0,
       warning: 0,
@@ -119,6 +121,28 @@ function ensureOperationContextInFinding(
   finding.details = existingDetails;
 }
 
+function collectSpecServerHosts(openApiIndex: OpenApiIndex): {
+  specServerHosts: Set<string>;
+  hasHostlessSpecServer: boolean;
+} {
+  const specServerHosts = new Set<string>();
+  let hasHostlessSpecServer = false;
+
+  for (const operations of openApiIndex.operationsByMethod.values()) {
+    for (const operation of operations) {
+      for (const server of operation.servers) {
+        if (server.host) {
+          specServerHosts.add(server.host);
+        } else {
+          hasHostlessSpecServer = true;
+        }
+      }
+    }
+  }
+
+  return { specServerHosts, hasHostlessSpecServer };
+}
+
 async function executeRules(rules: RulePlugin[], context: RuleContext): Promise<Finding[]> {
   const findings: Finding[] = [];
 
@@ -186,11 +210,16 @@ export class ValidationSession {
 
   private readonly server: string | undefined;
   private readonly minSeverityRank: number;
+  private readonly specServerHosts: Set<string>;
+  private readonly hasHostlessSpecServer: boolean;
 
   private constructor(options: ValidationSessionOptions, rules: RulePlugin[]) {
     this.options = options;
     this.rules = rules;
     this.server = normalizeServerPrefix(options.server);
+    const { specServerHosts, hasHostlessSpecServer } = collectSpecServerHosts(options.openApiIndex);
+    this.specServerHosts = specServerHosts;
+    this.hasHostlessSpecServer = hasHostlessSpecServer;
     this.minSeverityRank = SEVERITY_RANK[options.minSeverity ?? 'info'];
     this.previewLimit =
       options.previewFindingsLimit && options.previewFindingsLimit > 0
@@ -227,6 +256,10 @@ export class ValidationSession {
         this.counters.skippedExchanges += 1;
         return [];
       }
+    }
+
+    if (this.isHostCompatible(exchange.request.host)) {
+      this.counters.hostCompatibleExchanges += 1;
     }
 
     const matchedOperation = matchOperation(
@@ -301,6 +334,14 @@ export class ValidationSession {
     return records;
   }
 
+  private isHostCompatible(requestHost: string | undefined): boolean {
+    return (
+      !requestHost ||
+      this.hasHostlessSpecServer ||
+      this.specServerHosts.has(requestHost.toLowerCase())
+    );
+  }
+
   finalize(): RunnerResult {
     const summary: RunSummary = {
       runId: this.runId,
@@ -308,6 +349,7 @@ export class ValidationSession {
       documentedExchanges: this.counters.documentedExchanges,
       undocumentedExchanges: this.counters.undocumentedExchanges,
       skippedExchanges: this.counters.skippedExchanges,
+      hostCompatibleExchanges: this.counters.hostCompatibleExchanges,
       findingsBySeverity: this.counters.findingsBySeverity,
       findingsByRule: this.counters.findingsByRule,
       problemGroupsByRule: this.problemGroupsByRule,

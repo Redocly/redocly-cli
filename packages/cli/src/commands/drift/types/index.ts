@@ -153,6 +153,8 @@ export interface RunSummary {
   undocumentedExchanges: number;
   /** Exchanges outside the configured server, excluded from validation. */
   skippedExchanges: number;
+  /** Validated exchanges whose host is compatible with a description server. */
+  hostCompatibleExchanges: number;
   findingsBySeverity: Record<FindingSeverity, number>;
   findingsByRule: Record<string, number>;
   problemGroupsByRule: Record<string, number>;
