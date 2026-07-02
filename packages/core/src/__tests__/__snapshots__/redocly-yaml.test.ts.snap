@@ -211,6 +211,80 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "severity",
     ],
   },
+  "Client": {
+    "properties": {
+      "argsStyle": {
+        "enum": [
+          "flat",
+          "grouped",
+        ],
+      },
+      "dateType": {
+        "enum": [
+          "string",
+          "Date",
+        ],
+      },
+      "enumStyle": {
+        "enum": [
+          "union",
+          "const-object",
+        ],
+      },
+      "errorMode": {
+        "enum": [
+          "throw",
+          "result",
+        ],
+      },
+      "facade": {
+        "enum": [
+          "functions",
+          "service-class",
+        ],
+      },
+      "generators": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "mockData": {
+        "enum": [
+          "baked",
+          "faker",
+        ],
+      },
+      "mockSeed": {
+        "type": "number",
+      },
+      "name": {
+        "type": "string",
+      },
+      "outputMode": {
+        "enum": [
+          "single",
+          "split",
+          "tags",
+          "tags-split",
+        ],
+      },
+      "queryFramework": {
+        "enum": [
+          "react",
+          "vue",
+          "svelte",
+          "solid",
+        ],
+      },
+      "serverUrl": {
+        "type": "string",
+      },
+      "setup": {
+        "type": "string",
+      },
+    },
+  },
   "ConfigApis": {
     "additionalProperties": "ConfigApisProperties",
     "description": "The \`apis\` configuration section is used when a project contains multiple API descriptions to set up different rules and settings for individual APIs. It allows defining specific configurations for each API, which must be identified by a unique name.",
@@ -235,6 +309,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": "Decorators",
       "async3Preprocessors": "Preprocessors",
       "async3Rules": "Rules",
+      "client": "Client",
+      "clientOutput": {
+        "type": "string",
+      },
       "decorators": "Decorators",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
@@ -376,6 +454,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "catalogClassic": {
         "type": "object",
       },
+      "client": "Client",
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
       "corsProxy": "rootRedoclyConfigSchema.corsProxy",

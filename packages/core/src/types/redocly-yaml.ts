@@ -302,6 +302,7 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
+    client: 'Client', // generate-client shared defaults
     telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
@@ -325,6 +326,8 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    client: 'Client', // per-API generate-client overrides
+    clientOutput: { type: 'string' }, // per-API client output path
   },
 });
 
@@ -336,6 +339,29 @@ const ConfigHTTP: NodeType = {
         type: 'string',
       },
     },
+  },
+};
+
+// `generate-client` settings. Shared defaults live under the top-level `client` key;
+// per-API overrides live under `apis.<name>.client`. The input (`apis.<name>.root` or a
+// CLI path) and output (`apis.<name>.clientOutput` or `--output`) are intentionally NOT
+// part of this block — listing only these properties makes `api`/`output`/`clientOutput`
+// here report as unexpected.
+const Client: NodeType = {
+  properties: {
+    generators: { type: 'array', items: { type: 'string' } },
+    facade: { enum: ['functions', 'service-class'] },
+    name: { type: 'string' },
+    argsStyle: { enum: ['flat', 'grouped'] },
+    serverUrl: { type: 'string' },
+    outputMode: { enum: ['single', 'split', 'tags', 'tags-split'] },
+    enumStyle: { enum: ['union', 'const-object'] },
+    errorMode: { enum: ['throw', 'result'] },
+    dateType: { enum: ['string', 'Date'] },
+    queryFramework: { enum: ['react', 'vue', 'svelte', 'solid'] },
+    mockData: { enum: ['baked', 'faker'] },
+    mockSeed: { type: 'number' },
+    setup: { type: 'string' },
   },
 };
 
@@ -734,6 +760,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigApis,
   ConfigGovernance,
   ConfigHTTP,
+  Client,
   Where,
   BuiltinRule,
   CustomRule,
