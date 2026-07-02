@@ -53,17 +53,11 @@ export async function handleGenerateClient({
   const { generateClient } = await import('@redocly/client-generator');
   const { mergeConfig } = await import('@redocly/client-generator/config-file');
 
-  const resolved = config.resolvedConfig as Record<string, unknown>;
+  const { client, apis } = config.resolvedConfig;
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
   // Top-level `client` block: shared defaults (relative `setup` resolved against the config dir).
-  const topClient = resolveSetup(
-    (isPlainObject(resolved.client) ? resolved.client : {}) as ClientConfig,
-    configDir
-  );
-  const apisCfg = (isPlainObject(resolved.apis) ? resolved.apis : {}) as Record<
-    string,
-    Record<string, unknown>
-  >;
+  const topClient = resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir);
+  const apisCfg = apis ?? {};
 
   // CLI setting flags override both the top-level and per-API `client` blocks. `--setup` is
   // relative to the cwd (like `--output`); `api`/`output` are not settings and stay out of the merge.
@@ -88,7 +82,7 @@ export async function handleGenerateClient({
     return {
       name,
       api: getAliasOrPath(config, name).path,
-      clientOutput: typeof apiCfg?.clientOutput === 'string' ? apiCfg.clientOutput : undefined,
+      clientOutput: apiCfg?.clientOutput,
       perApiClient: isPlainObject(apiCfg?.client)
         ? resolveSetup(apiCfg.client as ClientConfig, configDir)
         : {},
