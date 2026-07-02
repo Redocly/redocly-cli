@@ -14,7 +14,7 @@ export function joinSections(sections: string[]): string {
  * way for a reason.
  *
  * `op.name` reaches here already sanitized into a non-empty, valid TS identifier
- * by the IR builder (see `ir/sanitize-identifiers.ts`), so no empty-string or
+ * by the IR builder (see `intermediate-representation/sanitize-identifiers.ts`), so no empty-string or
  * unsafe-character guard is needed.
  */
 export function pascalCase(name: string): string {

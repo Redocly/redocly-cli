@@ -52,7 +52,7 @@ function isRef<T>(value: Referenced<T> | undefined | null): value is { $ref: str
 
 function resolveRef<T>(doc: Oas3Definition, ref: string): T {
   if (!ref.startsWith('#/')) {
-    throw new NotSupportedError(`External $ref not supported in PoC: ${ref}`);
+    throw new NotSupportedError(`External $ref not supported: ${ref}`);
   }
   const segments = ref
     .slice(2)

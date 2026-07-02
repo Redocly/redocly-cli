@@ -1,7 +1,7 @@
 // Resolves a `generators` selection (a mix of built-in names, inline custom generators, and import
 // specifiers) into a registry keyed by name plus the ordered list of names to run. This is the only
 // async, side-effecting step in the generator pipeline: a specifier that is neither a built-in nor an
-// already-registered custom name is dynamically `import()`ed (mirroring how config files load), its
+// already-registered custom name is dynamically `import()`ed (a standard Node ESM dynamic import), its
 // default (or `generator`) export validated, and registered under its declared name. Built-ins are
 // seeded fresh per call (see `builtinGenerators`), so registration never mutates the built-in table.
 

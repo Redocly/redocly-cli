@@ -63,17 +63,17 @@ export function propertyKey(safe: string): ts.PropertyName {
     : factory.createIdentifier(safe);
 }
 
-/** The request-body TS type: special wrapper types per content-type, else the schema. */
 /**
  * A multipart body whose schema is a concrete object — the case worth typing. Such a body
- * is emitted as its object shape (binary fields → `Blob`) and serialized to `FormData` at
- * the call site (`__toFormData`). Multipart bodies with a non-object schema can't be typed
- * field-by-field, so they keep the raw `FormData` escape hatch.
+ * is emitted as its object shape (binary fields → `Blob`); the runtime's `__send` serializes
+ * it to `FormData` (via `__toFormData`) after the onRequest chain. Multipart bodies with a
+ * non-object schema can't be typed field-by-field, so they keep the raw `FormData` escape hatch.
  */
 export function isTypedMultipart(rb: RequestBodyModel): boolean {
   return rb.contentType === 'multipart/form-data' && rb.schema.kind === 'object';
 }
 
+/** The request-body TS type: special wrapper types per content-type, else the schema. */
 export function bodyTypeNode(rb: RequestBodyModel, dateType: DateType): ts.TypeNode {
   if (isTypedMultipart(rb)) return schemaToTypeNode(rb.schema, dateType);
   switch (rb.contentType) {

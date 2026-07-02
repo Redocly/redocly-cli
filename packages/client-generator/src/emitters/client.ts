@@ -155,7 +155,7 @@ function renderFragments(
   const allOps = model.services.flatMap((s) => s.operations);
   const needsSse = allOps.some(isSseOp);
   // The `__toFormData` runtime helper is emitted only when some operation has a typed
-  // multipart body (object schema) that the call site serializes.
+  // multipart body (object schema); `__send` serializes it after the onRequest chain.
   const needsMultipart = allOps.some((op) => op.requestBody && isTypedMultipart(op.requestBody));
   // ClientConfig gains an `auth?: AuthCredentials` field (per-instance credentials)
   // whenever the client has injectable security schemes — the type the auth emitter
@@ -399,10 +399,8 @@ function helperNamesFor(ops: OperationModel[], errorMode: 'throw' | 'result'): s
   if (ops.some(isSseOp)) helpers.push('__sse');
   if (ops.some((op) => op.security.length > 0)) helpers.push('__auth');
   if (ops.some((op) => op.headerParams.length > 0)) helpers.push('__headers');
-  // A typed multipart body's call site serializes it via `__toFormData` (see operations.ts).
-  if (ops.some((op) => op.requestBody && isTypedMultipart(op.requestBody))) {
-    helpers.push('__toFormData');
-  }
+  // `__toFormData` is not imported here: `__send` (in the runtime module) serializes a
+  // multipart body itself, so the endpoints module never references the helper.
   return helpers.sort();
 }
 

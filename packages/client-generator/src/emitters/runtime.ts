@@ -3,11 +3,12 @@
  * extension contract, the error type, the URL/query builder, the fetch wrapper,
  * and the optional header normalizer.
  *
- * Three things vary by call: the inlined `BASE` value; whether `__headers` is
+ * Several parts are gated by call: the inlined `BASE` value; whether `__headers` is
  * emitted (only when some operation declares header params, so `noUnusedLocals`
- * consumers don't trip over dead code); and whether the operation-facing helpers
- * (`__buildUrl` / `__request` / `__headers` / `__config`) are `export`ed — they
- * are in multi-file modes, module-private in single-file.
+ * consumers don't trip over dead code); whether the operation-facing helpers
+ * (`__buildUrl` / `__request` / `__headers` / `__config`) are `export`ed (multi-file
+ * modes) or module-private (single-file); and the optional SSE, per-instance-auth,
+ * multipart, and result-mode blocks.
  */
 /**
  * The public `export type`s the runtime/http module exposes. Multi-file writers
@@ -69,7 +70,7 @@ export function renderRuntime(
 
 /**
  * The runtime as parsed `ts.Statement[]` — the same hand-authored reference
- * source, embedded via `parseStatements` so the composition (Task 6) can fold it
+ * source, embedded via `parseStatements` so the composition can fold it
  * into the single-file / module statement lists. `renderRuntime` prints these.
  */
 export function runtimeStatements(
@@ -112,11 +113,12 @@ function runtimeSource(
     ? `
 
 /**
- * Serialize a plain object into \`FormData\` for a \`multipart/form-data\` body. \`Blob\`/\`File\`
+ * Serialize a plain object into \`FormData\` for a \`multipart/form-data\` body. Called by
+ * \`__send\` after the onRequest chain — module-private, never imported across files. \`Blob\`/\`File\`
  * and strings pass through; arrays append one field per item; other objects are JSON-encoded;
  * everything else is stringified. \`undefined\` / \`null\` entries are skipped.
  */
-${ex}function __toFormData(body: Record<string, unknown>): FormData {
+function __toFormData(body: Record<string, unknown>): FormData {
   const fd = new FormData();
   const append = (key: string, value: unknown): void => {
     if (value === undefined || value === null) return;
@@ -330,7 +332,7 @@ ${ex}async function __requestResult<TData, TError>(
   // Per-instance credentials field on ClientConfig, emitted only when the client has
   // injectable security schemes (so the `AuthCredentials` type exists). Lets each
   // service-class instance carry its own credentials instead of sharing the module
-  // globals — see ADR-0007.
+  // globals — see ADR-0009.
   const authField = authConfig
     ? `
   /**

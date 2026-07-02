@@ -1065,12 +1065,6 @@ function headersHelperCall(op: OperationModel, groupedMode: boolean): ts.Express
   ]);
 }
 
-/**
- * The positional arguments to `__request<T>(…)`: config, url, init, then an
- * optional body and an explicit response-kind. A non-json response with no body
- * still passes `undefined` as the body placeholder so the kind lands in the right
- * position.
- */
 /** The `{ id, path, tags }` literal passed to the runtime as the operation's identity. */
 function operationMetaExpr(op: OperationModel): ts.Expression {
   return factory.createObjectLiteralExpression(
@@ -1089,6 +1083,12 @@ function operationMetaExpr(op: OperationModel): ts.Expression {
   );
 }
 
+/**
+ * The positional arguments to `__request<T>` / `__requestResult`: config, the operation
+ * identity (`operationMetaExpr`), url, init, then an optional body, an explicit response-kind,
+ * and a trailing `true` for a typed-multipart body. A non-json response with no body still
+ * passes `undefined` as the body placeholder so the later args land in the right positions.
+ */
 function renderRequestArgs(
   op: OperationModel,
   configRef: string,

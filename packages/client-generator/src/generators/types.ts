@@ -15,7 +15,7 @@ export type GeneratorInput = {
   outputPath: string;
   /** File partitioning the generator should honor. */
   outputMode: OutputMode;
-  /** Emit options (serverUrl/enumStyle/facade/argsStyle/name). */
+  /** Emit options — serverUrl, facade, and the generator knobs (dateType, mockData, queryFramework, …); see `EmitOptions`. */
   emit: EmitOptions;
 };
 

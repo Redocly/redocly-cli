@@ -343,10 +343,10 @@ const ConfigHTTP: NodeType = {
 };
 
 // `generate-client` settings. Shared defaults live under the top-level `client` key;
-// per-API overrides live under `apis.<name>.client`. The input (`apis.<name>.root` or a
-// CLI path) and output (`apis.<name>.clientOutput` or `--output`) are intentionally NOT
-// part of this block — listing only these properties makes `api`/`output`/`clientOutput`
-// here report as unexpected.
+// per-API overrides live under `apis.<name>.client`. The input and output are NOT part of
+// this block — they live on the `apis` entry (`root` / `clientOutput`) or on the CLI — so a
+// `client` block accepts only the settings below, and any stray input/output key inside it
+// reports as unexpected.
 const Client: NodeType = {
   properties: {
     generators: { type: 'array', items: { type: 'string' } },

@@ -579,17 +579,12 @@ describe('multipart serialization helper (#5)', () => {
     expect(emitSingleFile(apiModel())).not.toContain('__toFormData');
   });
 
-  it('imports __toFormData into the endpoints module in multi-file output', () => {
+  it('does not import __toFormData into the endpoints module (the runtime serializes)', () => {
     const ops = uploadModel.services[0].operations;
-    // The call site lives in the endpoints module; the helper in the http module — so a
-    // multipart op must pull `__toFormData` across the module boundary (else TS2552).
-    expect(emitModules(uploadModel, {}).endpointImports(ops, 'client')).toContain('__toFormData');
-    // A non-multipart op must NOT import it (noUnusedLocals).
-    const plain = apiModel({
-      services: [{ name: 'Default', operations: [operation({ name: 'ping' })] }],
-    });
-    expect(
-      emitModules(plain, {}).endpointImports(plain.services[0].operations, 'client')
-    ).not.toContain('__toFormData');
+    // `__send` (http module) serializes a multipart body after the onRequest chain, so
+    // `__toFormData` stays module-private there and the endpoints module never imports it.
+    expect(emitModules(uploadModel, {}).endpointImports(ops, 'client')).not.toContain(
+      '__toFormData'
+    );
   });
 });
