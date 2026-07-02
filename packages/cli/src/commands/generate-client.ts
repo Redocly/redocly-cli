@@ -46,6 +46,21 @@ function fileNameFor(name: string): string {
   return `${name.replace(/[\\/]/g, '_')}.client.ts`;
 }
 
+/**
+ * A valid inlined server URL is an absolute URL (`https://api.example.com`) or a root-relative
+ * path (`/v1`, which OpenAPI allows for `servers[].url`). A bare hostname (`api.example.com`) is
+ * rejected — `new URL(value, base)` would treat it as a path and it would concatenate wrongly.
+ */
+function isValidServerUrl(value: string): boolean {
+  if (value.startsWith('/')) return true;
+  try {
+    new URL(value); // no base — only an absolute URL with a scheme parses
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function handleGenerateClient({
   argv,
   config,
@@ -113,6 +128,9 @@ export async function handleGenerateClient({
     jobs.push({ name: basename(argv.api, extname(argv.api)), api: argv.api, perApiClient: {} });
   }
 
+  // Resolved output paths, so two fan-out jobs can't silently overwrite each other.
+  const seenOutputs = new Set<string>();
+
   for (const job of jobs) {
     const merged = mergeConfig(mergeConfig(topClient, job.perApiClient), cliFlags);
 
@@ -130,16 +148,16 @@ export async function handleGenerateClient({
         `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
       );
     }
-    if (merged.serverUrl !== undefined) {
-      try {
-        // Accept absolute URLs (https://api.example.com) and relative bases (/v1): OpenAPI allows
-        // relative `servers[].url`, and the runtime concatenates serverUrl + path.
-        new URL(merged.serverUrl, 'http://localhost');
-      } catch {
-        throw new HandledError(
-          `\n❌  --server-url must be a valid URL — absolute (https://api.example.com) or relative (/v1).\n   Got: ${merged.serverUrl}\n`
-        );
-      }
+    if (seenOutputs.has(outputPath)) {
+      throw new HandledError(
+        `\n❌  Two APIs resolve to the same output path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+      );
+    }
+    seenOutputs.add(outputPath);
+    if (merged.serverUrl !== undefined && !isValidServerUrl(merged.serverUrl)) {
+      throw new HandledError(
+        `\n❌  --server-url must be an absolute URL (https://api.example.com) or a root-relative path (/v1).\n   Got: ${merged.serverUrl}\n`
+      );
     }
 
     try {

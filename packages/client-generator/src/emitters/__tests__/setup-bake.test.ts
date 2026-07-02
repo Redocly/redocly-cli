@@ -37,6 +37,16 @@ describe('bakeSetup', () => {
     expect(out).toBe("{ config: { serverUrl: 'https://x' } }");
   });
 
+  it('unwraps a renamed (aliased) defineClientSetup import', () => {
+    const out = bakeSetup(outdent`
+      import { defineClientSetup as setup } from '@redocly/client-generator';
+      export default setup({ config: { serverUrl: 'https://x' } });
+    `);
+    // The alias is unwrapped to the bare argument — no dangling call to the dropped import.
+    expect(out).toBe("{ config: { serverUrl: 'https://x' } }");
+    expect(out).not.toContain('setup(');
+  });
+
   it('wraps file-level helper declarations in an IIFE so they are preserved and scoped', () => {
     const out = bakeSetup(outdent`
       import { defineClientSetup } from '@redocly/client-generator';

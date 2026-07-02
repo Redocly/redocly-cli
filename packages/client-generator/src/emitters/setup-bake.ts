@@ -26,6 +26,9 @@ export function bakeSetup(source: string): string {
   );
   const kept: string[] = [];
   let argText: string | undefined;
+  // The local name `defineClientSetup` is imported as (it may be aliased:
+  // `import { defineClientSetup as setup }`), so `unwrap` matches the right callee.
+  let defineClientSetupLocal = 'defineClientSetup';
 
   for (const stmt of sf.statements) {
     if (ts.isImportDeclaration(stmt)) {
@@ -36,10 +39,18 @@ export function bakeSetup(source: string): string {
             `Setup code may use web globals and the client contract only (keeps the client zero-dependency).`
         );
       }
+      const named = stmt.importClause?.namedBindings;
+      if (named && ts.isNamedImports(named)) {
+        for (const el of named.elements) {
+          if ((el.propertyName?.text ?? el.name.text) === 'defineClientSetup') {
+            defineClientSetupLocal = el.name.text;
+          }
+        }
+      }
       continue; // drop — the symbols resolve in the baked client's own scope
     }
     if (ts.isExportAssignment(stmt) && !stmt.isExportEquals) {
-      argText = unwrap(stmt.expression).getText(sf);
+      argText = unwrap(stmt.expression, defineClientSetupLocal).getText(sf);
       continue;
     }
     kept.push(stmt.getText(sf));
@@ -55,12 +66,13 @@ export function bakeSetup(source: string): string {
   return `(() => {\n${kept.join('\n')}\nreturn ${argText};\n})()`;
 }
 
-/** `defineClientSetup(<arg>)` → `<arg>`; a bare object literal passes through unchanged. */
-function unwrap(expr: ts.Expression): ts.Expression {
+/** `defineClientSetup(<arg>)` → `<arg>`; a bare object literal passes through unchanged.
+ * `localName` is the (possibly aliased) local binding the setup module imported it as. */
+function unwrap(expr: ts.Expression, localName: string): ts.Expression {
   if (
     ts.isCallExpression(expr) &&
     ts.isIdentifier(expr.expression) &&
-    expr.expression.text === 'defineClientSetup' &&
+    expr.expression.text === localName &&
     expr.arguments.length === 1
   ) {
     return expr.arguments[0];

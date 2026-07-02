@@ -170,6 +170,53 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
+  it('errors when two fan-out apis resolve to the same clientOutput', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  a:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./dupe.ts',
+        '    client: { generators: [sdk] }',
+        '  b:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./dupe.ts',
+        '    client: { generators: [sdk] }',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toContain('resolve to the same output path');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('rejects a bare-hostname serverUrl but accepts absolute and root-relative', () => {
+    const withServerUrl = (serverUrl: string) =>
+      project(
+        [
+          'apis:',
+          '  cafe:',
+          '    root: ./openapi.yaml',
+          '    clientOutput: ./out.ts',
+          '    client:',
+          '      generators: [sdk]',
+          `      serverUrl: ${serverUrl}`,
+        ].join('\n') + '\n'
+      );
+    const bare = withServerUrl('api.example.com');
+    const bad = run(bare, ['cafe']);
+    expect(bad.status).not.toBe(0);
+    expect(bad.stderr).toContain('--server-url must be an absolute URL');
+    rmSync(bare, { recursive: true, force: true });
+
+    for (const ok of ['https://api.example.com', '/v1']) {
+      const dir = withServerUrl(ok);
+      const res = run(dir, ['cafe']);
+      expect(res.status, res.stderr).toBe(0);
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   it('resolves a relative clientOutput against the redocly.yaml dir (via --config)', () => {
     const dir = project(
       [

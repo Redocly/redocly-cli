@@ -23,6 +23,7 @@ async function waitForServerReady(timeoutMs: number): Promise<void> {
     try {
       const response = await fetch(`${SERVER_BASE}/__test__/ready`);
       if (response.ok) return;
+      lastError = `readiness probe returned HTTP ${response.status}`;
     } catch (error) {
       lastError = error;
     }
