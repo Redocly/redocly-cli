@@ -437,7 +437,7 @@ You can also add files and folders by providing them in the `redocly.yaml` confi
 ```yaml
 apis:
   main:
-    root: ./openapi.yam;
+    root: ./openapi.yaml
 files:
   - ./path/to/folder
   - ./path/to/another-folder/file.md
