@@ -1,0 +1,22 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/openapi.yaml
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-prefixed.ndjson
+┃ Server: localhost:9000 (overrides description servers)
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=4 documented=2 undocumented=1 skipped=1
+┃ Findings: total=1 error=1 warning=0 info=0
+┃ Problems: total=1
+┗ Duration: <ms>ms
+
+Types (1)
+  • undocumented-endpoint: 1 problems / 1 findings
+
+Problems by type (showing first 1 of 1)
+
+◉ undocumented-endpoint (1 problems shown / 1 total, 1 findings)
+✖ ERROR #1 → Undocumented endpoint: GET /unknown-endpoint
+  ↳ sample exchange=2 GET /unknown-endpoint (404)
+
+    http://localhost:9000/unknown-endpoint
+

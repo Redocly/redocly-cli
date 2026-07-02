@@ -1,0 +1,31 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/openapi.yaml
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-schema-mismatch.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=1 documented=1 undocumented=0
+┃ Findings: total=1 error=1 warning=0 info=0
+┃ Problems: total=1
+┗ Duration: <ms>ms
+
+Types (1)
+  • schema-consistency: 1 problems / 1 findings
+
+Problems by type (showing first 1 of 1)
+
+◉ schema-consistency (1 problems shown / 1 total, 1 findings)
+✖ ERROR #1 → Response is missing required field "name".
+  ↳ sample exchange=0 GET /users/{id} (200) getUser
+
+    http://api.example.com/users/7
+
+    spec: openapi.yaml
+    schemaPath= #/required
+    dataPath= /name
+
+    schema: Response is missing required field "name".
+    path: /name
+    expected: required field "name"
+    actual: [missing]
+

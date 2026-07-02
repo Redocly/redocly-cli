@@ -1,0 +1,2 @@
+{"vhost":"api.example.com","request_method":"GET","request_uri":"/users","response_status":200,"time":"2024-01-01T00:00:00Z"}
+{"vhost":"api.example.com","request_method":"POST","request_uri":"/orders","response_status":201,"time":"2024-01-01T00:00:01Z"}
