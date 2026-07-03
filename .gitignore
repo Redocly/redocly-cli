@@ -12,3 +12,4 @@ output/
 *.tgz
 redoc-static.html
 .env
+__changesets__.json
