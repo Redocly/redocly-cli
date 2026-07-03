@@ -548,6 +548,7 @@ describe('lint', () => {
             "apis",
             "seo",
             "sso",
+            "idps",
             "mcp",
             "env",
           ],
