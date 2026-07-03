@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.37.0 (2026-07-03)
+
+### Minor Changes
+
+- Added experimental support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.37.0.
+
 ## 2.36.0 (2026-06-30)
 
 ### Minor Changes
