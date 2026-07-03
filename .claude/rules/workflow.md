@@ -19,6 +19,7 @@ them in order.
 ## Commits
 
 - Ask before committing — let the contributor make the commit.
+  Do not execute Git write operations without explicit user confirmation.
 - Before committing, run `npm run lint` and make sure the tests and `npm run typecheck`
   pass.
 - Use one meaningful sentence that follows

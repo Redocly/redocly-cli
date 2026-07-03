@@ -134,6 +134,9 @@ The full list of practices this repo enforces is in
 - Don't create explanation, summary, or design files unless asked. Put the explanation in
   the PR description.
 
+The full documentation and output rules are in
+[`.claude/rules/documentation.md`](./.claude/rules/documentation.md).
+
 ## Changesets and commits
 
 The full release and commit workflow is in

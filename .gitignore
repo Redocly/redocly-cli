@@ -14,6 +14,7 @@ redoc-static.html
 .env
 __changesets__.json
 
+# AI artifacts
 .claude/settings.local.json
 **/.claude/scheduled_tasks.lock
 **/.claude/scheduled_tasks.json
