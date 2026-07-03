@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.37.0
+
+### Minor Changes
+
+- Added experimental support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.37.0.
+
 ## 2.36.0
 
 ### Minor Changes
