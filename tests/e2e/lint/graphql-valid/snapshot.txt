@@ -1,6 +1,6 @@
 
 validating schema.graphql using lint rules for api 'main'...
-schema.graphql: validated in <test>ms
+Failed to parse API description at ./tests/e2e/lint/graphql-valid/schema.graphql:
 
-Woohoo! Your API description is valid. 🎉
+  - end of the stream or a document separator is expected in "./tests/e2e/lint/graphql-valid/schema.graphql" (1:3)
 

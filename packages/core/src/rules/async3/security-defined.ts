@@ -45,8 +45,13 @@ export const SecurityDefined: Async3Rule = () => {
     const channel: Async3Channel | undefined = isRef(channelRef)
       ? resolve<Async3Channel>(channelRef).node
       : channelRef;
+    const channelServers = channel?.servers;
     const applicableServers: Array<Referenced<Async3Server>> =
-      channel?.servers ?? (rootServers ? Object.values(rootServers) : []);
+      channelServers && channelServers.length > 0
+        ? channelServers
+        : rootServers
+          ? Object.values(rootServers)
+          : [];
     if (applicableServers.length === 0) return false;
     return applicableServers.every((server) => {
       const serverNode = isRef(server) ? resolve<Async3Server>(server).node : server;
