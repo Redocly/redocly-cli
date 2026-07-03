@@ -6,9 +6,9 @@ import type {
   Async2SecurityScheme,
   Async2Server,
 } from '../../typings/asyncapi.js';
-import { isOperationSecured } from '../../utils/is-operation-secured.js';
 import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { isAsyncOperationSecured } from '../utils.js';
 
 export const SecurityDefined: Async2Rule = () => {
   const referencedSchemes = new Map<
@@ -81,11 +81,17 @@ export const SecurityDefined: Async2Rule = () => {
       );
     },
     Channel: {
+      skip() {
+        return inComponents;
+      },
       enter(channel: Async2Channel) {
-        currentChannelServers = Array.isArray(channel?.servers) ? channel.servers : undefined;
+        currentChannelServers =
+          Array.isArray(channel?.servers) && channel.servers.length > 0
+            ? channel.servers
+            : undefined;
       },
       Operation(operation: Async2Operation, { location, resolve }: UserContext) {
-        if (isOperationSecured(operation, resolve)) return;
+        if (isAsyncOperationSecured(operation, resolve)) return;
         operationsWithoutSecurity.push({ location, channelServers: currentChannelServers });
       },
     },

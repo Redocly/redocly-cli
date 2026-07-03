@@ -6,9 +6,9 @@ import type {
   Async3Server,
 } from '../../typings/asyncapi3.js';
 import type { Referenced } from '../../typings/openapi.js';
-import { isOperationSecured } from '../../utils/is-operation-secured.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { isAsyncOperationSecured } from '../utils.js';
 
 const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
 
@@ -84,7 +84,7 @@ export const SecurityDefined: Async3Rule = () => {
           for (const [opName, opRef] of Object.entries(rootOperations)) {
             const operation = isRef(opRef) ? resolve<Async3Operation>(opRef).node : opRef;
             if (!operation) continue;
-            if (isOperationSecured(operation, resolve)) continue;
+            if (isAsyncOperationSecured(operation, resolve)) continue;
             if (isOperationSecuredByServers(operation, resolve)) continue;
             report({
               message: `Every operation should have security defined on it.`,

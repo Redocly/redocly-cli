@@ -213,6 +213,45 @@ describe('Async2 security-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not report when a channel has an empty servers list and all servers are secured', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            url: kafka.example.com
+            protocol: kafka
+            security:
+              - apiKeyAuth: []
+        channels:
+          some/channel:
+            servers: []
+            subscribe:
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report when an applicable server has an empty security array', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -412,6 +451,56 @@ describe('Async2 security-defined', () => {
             staging:
               url: kafka.staging.example.com
               protocol: kafka
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should ignore reusable component channels without security when checking applicability', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            url: kafka.example.com
+            protocol: kafka
+            security:
+              - apiKeyAuth: []
+          staging:
+            url: kafka.staging.example.com
+            protocol: kafka
+        channels:
+          some/channel:
+            servers:
+              - production
+            subscribe:
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
+          channels:
+            reusableChannel:
+              servers:
+                - staging
+              subscribe:
+                message:
+                  messageId: Message2
       `,
       'asyncapi.yaml'
     );

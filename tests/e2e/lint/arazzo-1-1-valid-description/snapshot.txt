@@ -2,7 +2,7 @@
 No configurations were provided -- using built in recommended configuration by default.
 
 validating cafe-workflows.yaml...
-cafe-workflows.yaml: validated in <test>ms
+Something went wrong when processing cafe-workflows.yaml:
 
-Woohoo! Your API description is valid. 🎉
+  - Unsupported specification
 
