@@ -339,10 +339,11 @@ export async function resolvePlugins(
                 !pluginInstance.rules.async3 &&
                 !pluginInstance.rules.arazzo1 &&
                 !pluginInstance.rules.overlay1 &&
-                !pluginInstance.rules.openrpc1
+                !pluginInstance.rules.openrpc1 &&
+                !pluginInstance.rules.graphql
               ) {
                 throw new Error(
-                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, \`overlay1\`, or \`openrpc1\` rules "${p}.`
+                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, \`overlay1\`, \`openrpc1\`, or \`graphql\` rules "${p}.`
                 );
               }
               plugin.rules = {};
@@ -366,6 +367,9 @@ export async function resolvePlugins(
               }
               if (pluginInstance.rules.openrpc1) {
                 plugin.rules.openrpc1 = prefixRules(pluginInstance.rules.openrpc1, id);
+              }
+              if (pluginInstance.rules.graphql) {
+                plugin.rules.graphql = prefixRules(pluginInstance.rules.graphql, id);
               }
             }
             if (pluginInstance.preprocessors) {

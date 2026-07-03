@@ -1,7 +1,13 @@
 import fs from 'node:fs';
 import outdent from 'outdent';
 
-const json = JSON.parse(fs.readFileSync('./output/changesets.json', 'utf-8'));
+const filePath = process.argv[2];
+if (!filePath) {
+  console.error('Please provide a path to the changesets JSON file as an argument.');
+  process.exit(1);
+}
+
+const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
 const versions = {};
 for (const { name, newVersion } of json.releases) {

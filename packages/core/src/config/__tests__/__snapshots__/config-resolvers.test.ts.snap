@@ -89,6 +89,10 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "decorators": {},
+  "graphqlRules": {
+    "no-unused-types": "warn",
+    "type-description": "off",
+  },
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -504,6 +508,10 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "tags-alphabetical": "off",
   },
   "decorators": {},
+  "graphqlRules": {
+    "no-unused-types": "warn",
+    "type-description": "off",
+  },
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {

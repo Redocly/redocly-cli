@@ -241,22 +241,31 @@ export function validateExample({
   }
 }
 
+const MAX_ENUM_VALUES_IN_MESSAGE = 10;
+
 export function validateSchemaEnumType(
   schemaEnum: string[],
   propertyValue: string,
   propName: string,
   refLocation: Location | undefined,
-  { report, location }: UserContext
+  { report, location }: UserContext,
+  documentationLink?: string
 ) {
   if (!schemaEnum) {
     return;
   }
   if (!schemaEnum.includes(propertyValue)) {
+    const message =
+      schemaEnum.length > MAX_ENUM_VALUES_IN_MESSAGE
+        ? `\`${propName}\` "${propertyValue}" is not a valid value.${
+            documentationLink ? ` See the supported values: ${documentationLink}.` : ''
+          }`
+        : `\`${propName}\` can be one of the following only: ${schemaEnum
+            .map((type) => `"${type}"`)
+            .join(', ')}.`;
     report({
       location,
-      message: `\`${propName}\` can be one of the following only: ${schemaEnum
-        .map((type) => `"${type}"`)
-        .join(', ')}.`,
+      message,
       from: refLocation,
       suggest: getSuggest(propertyValue, schemaEnum),
     });
