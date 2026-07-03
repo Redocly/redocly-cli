@@ -1,3 +1,7 @@
+---
+description: Remove AI-generated slop from the current branch's diff
+---
+
 Check the diff against main and remove all AI-generated slop introduced in this branch.
 
 This includes:
