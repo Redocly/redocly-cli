@@ -397,6 +397,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "graphql": "rootRedoclyConfigSchema.graphql",
       "graphqlRules": "Rules",
       "i18n": "rootRedoclyConfigSchema.i18n",
+      "idps": [Function],
       "ignore": {
         "items": {
           "type": "string",
@@ -1528,6 +1529,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "footer": "rootRedoclyConfigSchema.footer",
       "graphql": "rootRedoclyConfigSchema.graphql",
       "i18n": "rootRedoclyConfigSchema.i18n",
+      "idps": [Function],
       "ignore": {
         "items": {
           "type": "string",
@@ -1657,10 +1659,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
   },
   "rootRedoclyConfigSchema.access": {
     "additionalProperties": undefined,
-    "description": undefined,
+    "description": "Use either \`access.sso\` (filter by category) or \`access.idps\` (filter by slug), not both.",
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "idps": [Function],
       "logoutReturnUrl": {
         "pattern": "^https?://.*",
         "type": "string",
@@ -10084,6 +10087,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "footer": "rootRedoclyConfigSchema.env_additionalProperties.footer",
       "graphql": "rootRedoclyConfigSchema.env_additionalProperties.graphql",
       "i18n": "rootRedoclyConfigSchema.env_additionalProperties.i18n",
+      "idps": [Function],
       "ignore": {
         "items": {
           "type": "string",
@@ -10208,10 +10212,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
   },
   "rootRedoclyConfigSchema.env_additionalProperties.access": {
     "additionalProperties": undefined,
-    "description": undefined,
+    "description": "Use either \`access.sso\` (filter by category) or \`access.idps\` (filter by slug), not both.",
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "idps": [Function],
       "logoutReturnUrl": {
         "pattern": "^https?://.*",
         "type": "string",
