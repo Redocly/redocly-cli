@@ -3,6 +3,9 @@
 Hi! We're really excited that you are interested in contributing to Redocly CLI.
 Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
+If you're contributing with an AI assistant, make sure it follows the guidelines in [`AGENTS.md`](./AGENTS.md).
+Most tools pick it up automatically; if yours doesn't, point it at the file.
+
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
 - [Development setup](#development-setup)
