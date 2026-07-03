@@ -26,6 +26,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0013](./0013-experimental-status.md)            | Experimental release status & stabilization criteria             | Accepted                |
 | [0014](./0014-request-response-customization.md) | Request/response customization as a runtime contract             | Accepted                |
 | [0015](./0015-publisher-setup-bake-in.md)        | Publisher setup bake-in via `--setup`                            | Accepted                |
+| [0016](./0016-msw-generator-vs-mock-server.md)   | In-process MSW mocks coexist with the out-of-process mock server | Accepted                |
 
 ## Template
 
