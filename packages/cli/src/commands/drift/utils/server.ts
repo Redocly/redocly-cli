@@ -40,7 +40,7 @@ export function resolvePathForServer(
   const serverUrl = parseUrl(server.includes('://') ? server : `http://${server}`);
   if (
     isSyntheticHost(serverUrl.host) ||
-    (request.host !== undefined && request.host !== serverUrl.host)
+    (request.host !== undefined && request.host.toLowerCase() !== serverUrl.host)
   ) {
     return undefined;
   }

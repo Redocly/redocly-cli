@@ -4,7 +4,7 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-prefixed.ndjson
 ┃ Server: localhost:9000 (overrides description servers)
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=4 documented=2 undocumented=1 skipped=1
+┃ Exchanges: total=5 documented=3 undocumented=1 skipped=1
 ┃ Findings: total=1 error=1 warning=0 info=0
 ┃ Problems: total=1
 ┗ Duration: <ms>ms
