@@ -120,7 +120,8 @@ use({
 });
 ```
 
-`onRequest` runs in registration order; `onResponse` runs in reverse (onion). `onRequest` may mutate `ctx` (`url`/`method`/`headers`/`body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`. `onError` (throw mode only) is threaded through each middleware. `ctx.operation`'s fields are typed as the spec's **literal unions** (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete — and a misspelled operation id fails compilation instead of silently never matching. A single call's header instead goes in that operation's trailing `init` argument. Per-request headers merge lowest → highest: injected auth credentials → typed header parameters → the caller's `init.headers` — the caller always wins.
+`onRequest` runs in registration order; `onResponse` runs in reverse (onion). `onRequest` may mutate `ctx` (`url`/`method`/`headers`/`body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`. `onError` (throw mode only) is threaded through each middleware. `ctx.operation`'s fields are typed as the spec's **literal unions** (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete — and a misspelled operation id fails compilation instead of silently never matching. A single call's header instead goes in that operation's trailing `init` argument.
+Per-request headers merge lowest → highest: injected auth credentials → typed header parameters → the caller's `init.headers` — the caller always wins.
 
 `use()` **appends** to the middleware chain (it composes with any already-registered or baked-in middleware). `configure({ middleware: [...] })` **replaces** the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
 
