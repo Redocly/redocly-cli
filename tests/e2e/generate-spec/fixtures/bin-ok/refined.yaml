@@ -1,0 +1,35 @@
+openapi: 3.1.0
+info:
+  title: Users API (refined by stub)
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List users
+      responses:
+        '200':
+          description: A page of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email

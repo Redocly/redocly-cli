@@ -1,0 +1,136 @@
+openapi: 3.1.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /orgs/{orgId}/members:
+    get:
+      operationId: get-orgs-orgId-members
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    role:
+                      type: string
+                  required:
+                    - id
+                    - role
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+  /items/{itemId}:
+    get:
+      operationId: get-items-itemId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sku:
+                    type: string
+                required:
+                  - sku
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+  /jobs/{jobId}:
+    get:
+      operationId: get-jobs-jobId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                required:
+                  - state
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+  /blobs/{blobId}:
+    get:
+      operationId: get-blobs-blobId
+      responses:
+        '200':
+          description: Observed response
+      parameters:
+        - name: blobId
+          in: path
+          required: true
+          schema:
+            type: string
+  /users/{userId}/orders/{orderId}:
+    get:
+      operationId: get-users-userId-orders-orderId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                required:
+                  - total
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+  /categories/{categoryId}:
+    get:
+      operationId: get-categories-categoryId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                required:
+                  - name
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+Inferred a baseline OpenAPI description from traffic: 6 operation(s).

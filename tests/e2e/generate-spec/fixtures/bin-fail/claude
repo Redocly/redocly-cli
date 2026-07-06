@@ -1,0 +1,5 @@
+#!/bin/sh
+# Stub of the "claude" CLI that crashes.
+cat > /dev/null
+echo "stub provider crashed" >&2
+exit 7
