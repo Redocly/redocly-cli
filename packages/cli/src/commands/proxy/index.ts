@@ -23,7 +23,6 @@ export type ProxyArgv = {
   'ignore-cookies'?: boolean;
   'max-findings': number;
   rules?: string;
-  plugin?: string[];
 } & VerifyConfigOptions;
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
@@ -72,13 +71,12 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
       return exitWithError(`No OpenAPI operations were loaded from: ${specPath}`);
     }
 
-    session = await ValidationSession.create({
+    session = ValidationSession.create({
       openApiIndex,
       matchMode: argv['match-mode'],
       ignoreCookies: argv['ignore-cookies'],
       previewFindingsLimit: argv['max-findings'],
       activeRules: argv.rules ? parseCsv(argv.rules) : undefined,
-      pluginModules: (argv.plugin ?? []).map(normalizeFsPath),
     });
   }
 

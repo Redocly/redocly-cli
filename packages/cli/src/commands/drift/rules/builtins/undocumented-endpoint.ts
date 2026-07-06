@@ -1,9 +1,9 @@
-import type { Finding, RulePlugin } from '../../types/index.js';
+import type { Finding, TrafficRule } from '../../types/index.js';
 
-export class UndocumentedEndpointRule implements RulePlugin {
+export class UndocumentedEndpointRule implements TrafficRule {
   public readonly id = 'undocumented-endpoint';
 
-  public analyze(context: Parameters<RulePlugin['analyze']>[0]): Finding[] {
+  public analyze(context: Parameters<TrafficRule['analyze']>[0]): Finding[] {
     if (context.matchedOperation) {
       return [];
     }

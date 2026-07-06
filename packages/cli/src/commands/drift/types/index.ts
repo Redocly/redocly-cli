@@ -136,9 +136,8 @@ export interface RuleContext {
   ) => { valid: boolean; errors: SchemaValidationError[] };
 }
 
-export interface RulePlugin {
+export interface TrafficRule {
   id: string;
-  setup?(): Promise<void> | void;
   analyze(context: RuleContext): Promise<Finding[]> | Finding[];
 }
 
@@ -173,8 +172,6 @@ export interface RunnerOptions {
   matchMode: MatchMode;
   ignoreCookies?: boolean;
   previewFindingsLimit?: number;
-  trafficParserModules: string[];
-  pluginModules: string[];
   activeRules?: string[];
   /** Pre-loaded OpenAPI index. */
   openApiIndex: OpenApiIndex;

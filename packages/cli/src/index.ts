@@ -952,16 +952,6 @@ yargs(hideBin(process.argv))
             describe: 'Comma-separated builtin rules to run.',
             type: 'string',
           },
-          plugin: {
-            describe: 'Path to an external rule plugin module (repeatable).',
-            type: 'string',
-            array: true,
-          },
-          'traffic-plugin': {
-            describe: 'Path to an external traffic parser module (repeatable).',
-            type: 'string',
-            array: true,
-          },
           output: {
             alias: 'o',
             describe:
@@ -1039,11 +1029,6 @@ yargs(hideBin(process.argv))
         rules: {
           describe: 'Comma-separated builtin rules to run.',
           type: 'string',
-        },
-        plugin: {
-          describe: 'Path to an external rule plugin module (repeatable).',
-          type: 'string',
-          array: true,
         },
         config: { describe: 'Path to the config file.', type: 'string' },
         'lint-config': {

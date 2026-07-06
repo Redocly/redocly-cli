@@ -2,7 +2,7 @@ import { isPlainObject, logger } from '@redocly/openapi-core';
 import { randomUUID } from 'node:crypto';
 
 import { matchOperation } from '../openapi/matcher.js';
-import { loadRulePlugins } from '../rules/registry.js';
+import { loadRules } from '../rules/registry.js';
 import type {
   Finding,
   FindingPreview,
@@ -12,7 +12,7 @@ import type {
   NormalizedExchange,
   OpenApiIndex,
   RuleContext,
-  RulePlugin,
+  TrafficRule,
   RunSummary,
 } from '../types/index.js';
 import { createProblemKey } from '../utils/finding-groups.js';
@@ -143,7 +143,7 @@ function collectSpecServerHosts(openApiIndex: OpenApiIndex): {
   return { specServerHosts, hasHostlessSpecServer };
 }
 
-async function executeRules(rules: RulePlugin[], context: RuleContext): Promise<Finding[]> {
+async function executeRules(rules: TrafficRule[], context: RuleContext): Promise<Finding[]> {
   const findings: Finding[] = [];
 
   for (const rule of rules) {
@@ -172,7 +172,6 @@ export interface ValidationSessionOptions {
   ignoreCookies?: boolean;
   previewFindingsLimit?: number;
   activeRules?: string[];
-  pluginModules: string[];
   /**
    * Server the traffic was captured against. When set, only requests under it
    * are validated (others are skipped) and paths are matched relative to it
@@ -193,7 +192,7 @@ export class ValidationSession {
   private readonly startedAt = Date.now();
   private readonly runId = randomUUID();
   private readonly previewLimit: number;
-  private readonly rules: RulePlugin[];
+  private readonly rules: TrafficRule[];
   private readonly schemaValidator = new SchemaValidator();
   private readonly coercingSchemaValidator = new SchemaValidator({ coerceTypes: true });
   private readonly options: ValidationSessionOptions;
@@ -213,7 +212,7 @@ export class ValidationSession {
   private readonly specServerHosts: Set<string>;
   private readonly hasHostlessSpecServer: boolean;
 
-  private constructor(options: ValidationSessionOptions, rules: RulePlugin[]) {
+  private constructor(options: ValidationSessionOptions, rules: TrafficRule[]) {
     this.options = options;
     this.rules = rules;
     this.server = normalizeServerPrefix(options.server);
@@ -227,19 +226,12 @@ export class ValidationSession {
         : DEFAULT_FINDINGS_PREVIEW_LIMIT;
   }
 
-  static async create(options: ValidationSessionOptions): Promise<ValidationSession> {
+  static create(options: ValidationSessionOptions): ValidationSession {
     if (options.openApiIndex.loadedOperations === 0) {
       throw new Error('No OpenAPI operations available to validate traffic against.');
     }
 
-    const rules = await loadRulePlugins(options.activeRules, options.pluginModules);
-    for (const plugin of rules) {
-      if (typeof plugin.setup === 'function') {
-        await plugin.setup();
-      }
-    }
-
-    return new ValidationSession(options, rules);
+    return new ValidationSession(options, loadRules(options.activeRules));
   }
 
   /**

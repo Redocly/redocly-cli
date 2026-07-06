@@ -5,7 +5,7 @@ import type {
   MatchedOperation,
   OpenApiParameter,
   RuleContext,
-  RulePlugin,
+  TrafficRule,
   SchemaValidationError,
 } from '../../types/index.js';
 import {
@@ -405,7 +405,7 @@ function validateSchemaResult(
   });
 }
 
-export class SchemaConsistencyRule implements RulePlugin {
+export class SchemaConsistencyRule implements TrafficRule {
   public readonly id = 'schema-consistency';
 
   public analyze(context: RuleContext): Finding[] {

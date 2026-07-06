@@ -1,6 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
-import { loadTrafficParsers, selectTrafficParser } from '../log-formats/registry.js';
+import { selectTrafficParser } from '../log-formats/registry.js';
 import type { RunnerOptions } from '../types/index.js';
 import { listFilesRecursively } from '../utils/files.js';
 import { ValidationSession, type RunnerResult } from './validation-session.js';
@@ -17,14 +17,12 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
     throw new Error('No traffic files found in the provided traffic path.');
   }
 
-  const externalParsers = await loadTrafficParsers(options.trafficParserModules);
-  const session = await ValidationSession.create({
+  const session = ValidationSession.create({
     openApiIndex: options.openApiIndex,
     matchMode: options.matchMode,
     ignoreCookies: options.ignoreCookies,
     previewFindingsLimit: options.previewFindingsLimit,
     activeRules: options.activeRules,
-    pluginModules: options.pluginModules,
     server: options.server,
     minSeverity: options.minSeverity,
   });
@@ -33,7 +31,7 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
   let exchangeIndex = 0;
 
   for (const trafficFile of trafficFiles) {
-    const parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
+    const parser = await selectTrafficParser(trafficFile, options.format);
     if (!parser) {
       logger.warn(`Skipping traffic file with unrecognized format: ${trafficFile}\n`);
       continue;
@@ -49,7 +47,7 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
 
   if (supportedTrafficFileCount === 0) {
     throw new Error(
-      'No supported traffic files found. In auto mode, files must match built-in or plugin traffic parser signatures.'
+      'No supported traffic files found. In auto mode, files must match built-in traffic parser signatures.'
     );
   }
 

@@ -41,8 +41,6 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
   severity from the report (all formats); e.g. `--min-severity error` reports errors only
 - `--rules <csv>`: subset of builtin rules
   (`undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`)
-- `--plugin <path>`: external rule plugin module (repeatable)
-- `--traffic-plugin <path>`: external traffic parser module (repeatable)
 - `--output, -o <path>`: write the drift report (in the format selected with `--format`) to a file instead of stdout
 - `--server <url>`: server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`).
   Only requests under it are considered, and the rest of their URL is treated as the API path.

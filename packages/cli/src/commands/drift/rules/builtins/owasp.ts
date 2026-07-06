@@ -1,6 +1,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import type { Finding, RuleContext, RulePlugin } from '../../types/index.js';
+import type { Finding, RuleContext, TrafficRule } from '../../types/index.js';
 import { splitSetCookieHeader } from '../../utils/http.js';
 
 const MAX_EXPOSED_PATHS = 6;
@@ -379,7 +379,7 @@ function detectLargeUnpaginatedResponses(context: RuleContext): Finding[] {
   ];
 }
 
-export class OwaspApiTop10Rule implements RulePlugin {
+export class OwaspApiTop10Rule implements TrafficRule {
   public readonly id = 'owasp-api-top10';
 
   public analyze(context: RuleContext): Finding[] {

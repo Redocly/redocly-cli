@@ -55,7 +55,6 @@ redocly drift ./capture.har --api ./openapi.yaml
 - `--max-findings <number>`: max findings shown in pretty output (default: `10`).
 - `--rules <csv>`: subset of builtin rules
   (`undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`).
-- `--plugin <path>`: external rule plugin module (repeatable).
 
 ## Exit codes
 

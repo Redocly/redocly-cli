@@ -27,8 +27,6 @@ export type DriftArgv = {
   'ignore-cookies'?: boolean;
   'max-findings': number;
   rules?: string;
-  plugin?: string[];
-  'traffic-plugin'?: string[];
   output?: string;
   server?: string;
   'min-severity': FindingSeverity;
@@ -90,8 +88,6 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
   const activeRules = argv.rules ? parseCsv(argv.rules) : undefined;
-  const trafficParserModules = (argv['traffic-plugin'] ?? []).map(normalizeFsPath);
-  const pluginModules = (argv.plugin ?? []).map(normalizeFsPath);
 
   const server = argv.server;
   if (server && argv['match-mode']) {
@@ -113,8 +109,6 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     matchMode,
     ignoreCookies: argv['ignore-cookies'],
     previewFindingsLimit: argv['max-findings'],
-    trafficParserModules,
-    pluginModules,
     activeRules,
     openApiIndex,
     server,

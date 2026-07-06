@@ -1,4 +1,4 @@
-import type { Finding, RuleContext, RulePlugin } from '../../types/index.js';
+import type { Finding, RuleContext, TrafficRule } from '../../types/index.js';
 
 interface SecuritySchemeEvaluation {
   schemeName: string;
@@ -361,7 +361,7 @@ function shouldFlagInsecureTransport(context: RuleContext): {
   };
 }
 
-export class SecurityRule implements RulePlugin {
+export class SecurityRule implements TrafficRule {
   public readonly id = 'security-baseline';
 
   public analyze(context: RuleContext): Finding[] {
