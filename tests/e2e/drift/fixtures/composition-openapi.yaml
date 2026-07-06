@@ -29,6 +29,34 @@ paths:
                       name:
                         type: string
   /pets:
+    patch:
+      operationId: renamePet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+                - name
+              anyOf:
+                - type: object
+                  properties:
+                    id:
+                      type: string
+                      readOnly: true
+                    name:
+                      type: string
+                - type: object
+                  properties:
+                    id:
+                      type: integer
+                      readOnly: true
+                    name:
+                      type: string
+      responses:
+        '200':
+          description: Renamed.
     post:
       operationId: createPet
       requestBody:

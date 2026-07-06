@@ -126,6 +126,8 @@ export interface RuleContext {
   exchange: NormalizedExchange;
   matchedOperation: MatchedOperation | null;
   matchMode: MatchMode;
+  /** Whether the request host is compatible with at least one description server. */
+  hostCompatibleWithSpecServers: boolean;
   ignoreCookies?: boolean;
   validateSchema: (
     schema: unknown,

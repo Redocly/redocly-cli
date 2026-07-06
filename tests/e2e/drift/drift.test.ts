@@ -123,6 +123,17 @@ describe('drift - validate mode', () => {
     await matchSnapshot('validate-composition', output);
   });
 
+  test('reports a server mismatch instead of an undocumented endpoint for unknown hosts', async () => {
+    const { output } = runDrift([
+      'traffic-host-mismatch.ndjson',
+      '--api',
+      'openapi.yaml',
+      '--rules',
+      'undocumented-endpoint',
+    ]);
+    await matchSnapshot('validate-host-mismatch', output);
+  });
+
   test('warns when multiple descriptions document the same operation for one server', async () => {
     const { output } = runDrift([
       'traffic-matched.ndjson',

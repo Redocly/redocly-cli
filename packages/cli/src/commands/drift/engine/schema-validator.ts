@@ -37,9 +37,10 @@ function isRequiredNameExcludedFromTarget(
     return true;
   }
 
-  return (
-    Array.isArray(schema.allOf) &&
-    schema.allOf.some((branch) => isRequiredNameExcludedFromTarget(branch, name, target))
+  return [schema.allOf, schema.oneOf, schema.anyOf].some(
+    (branches) =>
+      Array.isArray(branches) &&
+      branches.some((branch) => isRequiredNameExcludedFromTarget(branch, name, target))
   );
 }
 

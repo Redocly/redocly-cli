@@ -258,7 +258,8 @@ export class ValidationSession {
       }
     }
 
-    if (this.isHostCompatible(exchange.request.host)) {
+    const hostCompatible = this.isHostCompatible(exchange.request.host);
+    if (hostCompatible) {
       this.counters.hostCompatibleExchanges += 1;
     }
 
@@ -278,6 +279,7 @@ export class ValidationSession {
       exchange,
       matchedOperation,
       matchMode: this.options.matchMode,
+      hostCompatibleWithSpecServers: relativePathOverride !== undefined || hostCompatible,
       ignoreCookies: this.options.ignoreCookies ?? false,
       validateSchema: (schema, value, options) =>
         options?.coerce
