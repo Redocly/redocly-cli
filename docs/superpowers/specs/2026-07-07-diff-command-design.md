@@ -2,7 +2,7 @@
 
 - **Date:** 2026-07-07
 - **Status:** Approved for implementation planning
-- **Scope:** New CLI command that compares two API descriptions and reports structural changes, with breaking-change classification for OpenAPI 3.x.
+- **Scope:** New **experimental** CLI command that compares two API descriptions and reports structural changes, with breaking-change classification for OpenAPI 3.x. The entire engine lives inside the CLI package; nothing is added to `@redocly/openapi-core`.
 
 ## 1. Goals
 
@@ -12,6 +12,8 @@
 4. Output formats: `stylish` (terminal, default), `json` (stable, versioned), `markdown` (PR comments), `html` (self-contained page).
 5. CI gate: non-zero exit code via `--fail-on`.
 6. Fit the repo's architecture: reuse `bundle`, `detectSpec`, type trees, `walkDocument`; rules follow the lint-rule idiom; no second rule framework.
+7. **Isolation:** the whole diff engine ships inside `packages/cli` and consumes ONLY the existing public `@redocly/openapi-core` API — no new core exports, no core changes.
+8. **Experimental status:** the command is marked `[experimental]` (same convention as `join`); output formats and rule ids may change while it stabilizes.
 
 ### Non-goals (v1)
 
@@ -25,7 +27,7 @@
 ## 2. CLI
 
 ```
-redocly diff <base> <revision>
+redocly diff <base> <revision>                   [experimental]
   --format   stylish | json | markdown | html    (default: stylish)
   --output -o <file>
   --fail-on  breaking | warning | none           (default: breaking)
@@ -47,7 +49,7 @@ redocly diff <base> <revision>
  [6] report        4 serializers from one DiffResult; exit code
 ```
 
-Core (stages 3–5) lives in `packages/core/src/diff/`; the command and serializers live in `packages/cli/src/commands/diff/`.
+The whole engine (stages 3–5) lives in `packages/cli/src/commands/diff/engine/`; the command and serializers live in `packages/cli/src/commands/diff/`. `packages/core` is not modified — the engine consumes only the existing public `@redocly/openapi-core` API (`walkDocument`, `normalizeVisitors`, `normalizeTypes`, `detectSpec`, `getMajorSpecVersion`, `getTypes`, `isRef`, `isPlainObject`, `bundle`, `logger`, and their types).
 
 ## 4. Data contracts
 
@@ -59,6 +61,7 @@ interface NodeEntry {
   typeName: string; // from this side's type tree
   scalars: Record<string, unknown>; // shallow primitives (+ scalar arrays: enum, required)
   refs: Record<string, string>; // $ref-valued properties, recorded as attributes
+  raw: unknown; // the raw node value — subtree payload for added/removed changes
 }
 
 type Compat = 'breaking' | 'warning' | 'non-breaking';
@@ -82,7 +85,7 @@ interface Change {
 }
 
 interface DiffResult {
-  version: '1'; // output schema version — public contract from day one
+  version: '1'; // output schema version; stability is promised once the command leaves experimental
   specVersions: { base: string; revision: string };
   summary: { breaking: number; warning: number; nonBreaking: number };
   changes: Change[];
@@ -165,12 +168,7 @@ interface RuleContext {
 // registry keyed by typeName — same mental model as lint visitors
 export const oas3Rules: Record<string, DiffRule[]> = {
   Operation: [operationRemoved],
-  Parameter: [
-    parameterRemoved,
-    parameterAddedRequired,
-    parameterBecameRequired,
-    parameterInChanged,
-  ],
+  Parameter: [parameterRemoved, parameterAddedRequired, parameterBecameRequired],
   Schema: [schemaTypeChanged, enumChanged, requiredChanged, propertyRemoved],
   Response: [responseRemoved],
   MediaType: [mediaTypeRemoved],
@@ -202,7 +200,9 @@ Shared **predicate helpers** (`narrowed`, `missingItems`, `becameTrue`, …) liv
 
 ### 7.3 Starter rule set (initial, not exhaustive)
 
-`operation-removed`, `path-removed`, `parameter-removed`, `parameter-added-required`, `parameter-became-required`, `parameter-in-changed`, `schema-type-changed` (narrowed in request / widened in response), `enum-values-removed` (request), `enum-values-added` (response), `required-properties-added` (request), `required-properties-removed` (response), `property-removed` (response), `response-removed`, `media-type-removed`, `ref-target-changed` (→ `warning`: content equivalence cannot be verified by pointer-aligned comparison).
+`operation-removed`, `path-removed`, `parameter-removed`, `parameter-added-required`, `parameter-became-required`, `schema-type-changed` (narrowed in request / widened in response), `enum-values-removed` (request), `enum-values-added` (response), `required-properties-added` (request), `required-properties-removed` (response), `property-removed` (response), `response-removed`, `media-type-removed`, `ref-target-changed` (→ `warning`: content equivalence cannot be verified by pointer-aligned comparison).
+
+Note: there is deliberately no `parameter-in-changed` rule — the identity key is `in+name`, so a changed `in` surfaces as a removed+added pair, already judged breaking by `parameter-removed`.
 
 The rule catalog (id + description) is generated into the docs — same honesty format as coverage tables.
 
@@ -226,30 +226,32 @@ Large `before/after` payloads (e.g. `example` objects, whole subtrees) are trunc
 ## 10. File layout
 
 ```
-packages/core/src/diff/
-  index.ts            # diffDocuments() orchestrator
-  types.ts            # NodeEntry, Change, DiffResult, Compat, DiffRule
-  predicates.ts       # narrowed, missingItems, becameTrue, …
-  node-identity.ts    # identity registry + positional fallback
-  collect.ts          # generic visitor → Map + usage edges
-  compare.ts          # two-pass comparison
-  classify/
-    index.ts          # engine: polarity + registry dispatch + worst-wins
-    polarity.ts
-    usage.ts          # usage index, transitive polarity for components
-    oas3.ts           # rule registry
-    oas3_1.ts         # extends oas3
-    rules/            # one file per rule (lint-rule idiom)
-  __tests__/
-
 packages/cli/src/commands/diff/
-  index.ts            # handleDiff: resolve sides, call core, serialize, exit code
+  index.ts            # handleDiff: resolve sides, call the engine, serialize, exit code
+  engine/             # self-contained; imports ONLY public @redocly/openapi-core API
+    index.ts          # diffDocuments() orchestrator, DiffError
+    types.ts          # NodeEntry, Change, DiffResult, Compat, DiffRule
+    output-schema.ts  # versioned JSON Schema for the json format
+    predicates.ts     # narrowed, missingItems, becameTrue, …
+    node-identity.ts  # identity registry + positional fallback
+    collect.ts        # generic visitor → Map + usage edges
+    compare.ts        # two-pass comparison
+    classify/
+      index.ts        # engine: polarity + registry dispatch + worst-wins
+      polarity.ts
+      usage.ts        # usage index, transitive polarity for components
+      oas3.ts         # rule registry
+      oas3_1.ts       # extends oas3
+      rules/          # rule modules (lint-rule idiom)
+    __tests__/
   serializers/
     stylish.ts  json.ts  markdown.ts  html.ts
   __tests__/
 
-docs/commands/diff.md
+docs/@v2/commands/diff.md
 ```
+
+`packages/core` is not touched. Promotion of the engine into `@redocly/openapi-core` is a future step, taken only once the command leaves experimental status — the module is self-contained over core's public API, so the move is mechanical.
 
 ## 11. Implementation order (each step is a testable layer)
 
@@ -297,7 +299,8 @@ Testing: unit tests per layer and per rule (a rule test feeds a hand-built `Chan
 - **`warning` as a third compat level**: honest bucket for "cannot verify automatically" (ref retargets). Mirrors industry practice (oasdiff WARN, Atlassian `unclassified`).
 - **ajv**: not usable for the core compare (validates instances against schemas, not schemas against schemas). Used in v1 only to validate our own JSON output schema in tests. Witness escalation (validating base examples against revision schemas to upgrade warnings with evidence) → future work.
 - **Git refs input** → deferred; **rule severity via redocly.yaml** → deferred (ids are stable, lands on the existing rules/severity model — one rule system in the product).
+- **Engine location: CLI package vs openapi-core — CLI CHOSEN.** The command is experimental; keeping the engine inside `packages/cli` avoids expanding core's public API surface before the model stabilizes. The engine consumes only core's public API, so promoting it into core later is a mechanical move, not a rewrite.
 
 ## 14. Future work
 
-Deprecation/sunset semantics (removal of a deprecated-past-sunset operation is not breaking) · ignore/approval mechanism for legalizing known changes · endpoint-attribution view derived from the usage index ("affected operations") · extensible-enum semantics for response enums · rename detection via content matching · recursive subtree comparison for ref retargets (re-key both prefixes, reuse `compare()`) · ajv witness escalation with counterexample messages · polarity inversion for callbacks/webhooks · `orderSensitive` lists · cross-minor semantic normalization · git revision inputs · selector-form rules refactor at scale · YAML-configurable severities over stable rule ids.
+Deprecation/sunset semantics (removal of a deprecated-past-sunset operation is not breaking) · ignore/approval mechanism for legalizing known changes · endpoint-attribution view derived from the usage index ("affected operations") · extensible-enum semantics for response enums · rename detection via content matching · recursive subtree comparison for ref retargets (re-key both prefixes, reuse `compare()`) · ajv witness escalation with counterexample messages · polarity inversion for callbacks/webhooks · `orderSensitive` lists · cross-minor semantic normalization · git revision inputs · selector-form rules refactor at scale · YAML-configurable severities over stable rule ids · promotion of the engine into `@redocly/openapi-core` once the command leaves experimental status.
