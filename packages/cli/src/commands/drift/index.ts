@@ -15,6 +15,7 @@ import type {
   RunSummary,
   TrafficFormat,
 } from './types/index.js';
+import { parseCsv } from './utils/args.js';
 import { normalizeFsPath } from './utils/files.js';
 
 export type DriftArgv = {
@@ -34,13 +35,6 @@ export type DriftArgv = {
 } & VerifyConfigOptions;
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
-
-function parseCsv(input: string): string[] {
-  return input
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
 
 function collectSpecServerUrls(openApiIndex: OpenApiIndex): string[] {
   const urls = new Set<string>();

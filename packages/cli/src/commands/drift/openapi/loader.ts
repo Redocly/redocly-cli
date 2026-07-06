@@ -8,11 +8,11 @@ import {
   logger,
   normalizeTypes,
   normalizeVisitors,
-  resolveDocument,
   walkDocument,
   type Config,
   type Document,
   type Oas3Visitor,
+  type ResolvedRefMap,
   type SpecVersion,
   type WalkContext,
 } from '@redocly/openapi-core';
@@ -278,20 +278,18 @@ function createIndexVisitor(
   };
 }
 
-async function indexDocument(
+function indexDocument(
   document: Document,
   specVersion: SpecVersion,
   config: Config,
-  externalRefResolver: BaseResolver,
   specSource: string,
   operationsByMethod: Map<string, OpenApiOperation[]>
-): Promise<void> {
+): void {
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
+  // The document is fully dereferenced during bundling, so there are no $refs
+  // left to resolve; recursive schemas become circular objects that
+  // resolveDocument cannot walk safely, hence the empty ref map.
+  const resolvedRefMap: ResolvedRefMap = new Map();
 
   const ctx: WalkContext = { problems: [], specVersion, config, visitorsData: {} };
   const normalizedVisitors = normalizeVisitors(
@@ -430,14 +428,7 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
     }
 
     loadedSpecs += 1;
-    await indexDocument(
-      document,
-      specVersion,
-      config,
-      externalRefResolver,
-      specFile,
-      operationsByMethod
-    );
+    indexDocument(document, specVersion, config, specFile, operationsByMethod);
   }
 
   if (loadedSpecs > 1) {

@@ -7,6 +7,7 @@ import { renderReport, type ReportFormat } from '../drift/engine/reporter.js';
 import { ValidationSession } from '../drift/engine/validation-session.js';
 import { loadOpenApiIndex } from '../drift/openapi/loader.js';
 import type { DriftRunResult, FindingRecord, MatchMode } from '../drift/types/index.js';
+import { parseCsv } from '../drift/utils/args.js';
 import { normalizeFsPath } from '../drift/utils/files.js';
 import { HarWriter } from './har-writer.js';
 import { startProxyServer, type RunningProxyServer } from './server.js';
@@ -26,13 +27,6 @@ export type ProxyArgv = {
 } & VerifyConfigOptions;
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
-
-function parseCsv(input: string): string[] {
-  return input
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
 
 function severityIcon(severity: FindingRecord['severity']): string {
   if (severity === 'error') return '✖';

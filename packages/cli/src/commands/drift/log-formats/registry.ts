@@ -16,10 +16,6 @@ const PARSERS: TrafficParser[] = [
   new NdjsonTrafficParser(),
 ];
 
-export function getBuiltinParsers(): TrafficParser[] {
-  return PARSERS;
-}
-
 function normalizeParserExport(value: unknown): TrafficParser[] {
   if (!value) {
     return [];

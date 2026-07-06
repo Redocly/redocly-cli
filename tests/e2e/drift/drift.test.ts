@@ -145,6 +145,17 @@ describe('drift - validate mode', () => {
     await matchSnapshot('validate-colliding-specs', output);
   });
 
+  test('validates recursive schemas without stack overflow', async () => {
+    const { output } = runDrift([
+      'traffic-recursive.ndjson',
+      '--api',
+      'recursive-openapi.yaml',
+      '--rules',
+      'schema-consistency',
+    ]);
+    await matchSnapshot('validate-recursive', output);
+  });
+
   test('discards findings below --min-severity', async () => {
     const { output } = runDrift([
       'traffic-mixed-severity.ndjson',
