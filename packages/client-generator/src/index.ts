@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 
 import type { EmitOptions } from './emitters/client.js';
 import { bakeSetup } from './emitters/setup-bake.js';
+import { NotSupportedError } from './errors.js';
 import { builtinGenerators, validateGenerators } from './generators/index.js';
 import { resolveGenerators } from './generators/resolve.js';
 import type { GeneratorDescriptor } from './generators/types.js';
@@ -98,6 +99,14 @@ export function collectGeneratedFiles(
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
+  // Setup is a LOCAL module (its code is baked into the generated client) — reject
+  // URL-ish specifiers upfront, before any spec loading, instead of failing later as
+  // an unreadable file path. Two+ letter scheme, so Windows drive paths don't match.
+  if (options.setup && /^[a-z][a-z0-9+.-]+:/i.test(options.setup)) {
+    throw new NotSupportedError(
+      `setup must be a local file path — remote setup modules are not supported (got: ${options.setup})`
+    );
+  }
   const outputPath = resolve(options.output);
   const { document, version } = await loadSpec(options.api, options.config);
   const normalized =

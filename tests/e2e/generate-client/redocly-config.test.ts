@@ -241,6 +241,34 @@ describe('generate-client redocly.yaml config', () => {
       expect(res.status, res.stderr).toBe(0);
       rmSync(dir, { recursive: true, force: true });
     }
+
+    // Non-http(s) schemes and protocol-relative hosts are rejected too — the value is
+    // inlined as the client's default fetch base.
+    for (const hostile of ['javascript:alert(1)', 'file:///etc/passwd', '//evil.example.com']) {
+      const dir = withServerUrl(`"${hostile}"`);
+      const res = run(dir, ['cafe']);
+      expect(res.status, `expected rejection for ${hostile}`).not.toBe(0);
+      expect(res.stderr).toContain('--server-url must be an absolute URL');
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it('rejects a URL `client.setup` upfront (setup is a local module baked into the client)', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      setup: https://cdn.example.com/setup.ts',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toContain('must be a local file path');
+    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('a `client.runtime: package` config block reaches the writer', () => {

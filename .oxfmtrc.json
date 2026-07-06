@@ -5,12 +5,12 @@
   "experimentalSortPackageJson": false,
   "ignorePatterns": [
     "coverage/",
-    "tests/e2e/generate-client/examples/*/src/api/",
     "lib/",
     "output/",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
     "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
     "tests/performance/api-definitions/",
+    "tests/e2e/generate-client/examples/*/src/api/",
     "tests/e2e/generate-client/*-consumer/api.ts",
     "tests/smoke/**/*.yaml",
     "snapshot*.txt",

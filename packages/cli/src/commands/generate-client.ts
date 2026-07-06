@@ -31,10 +31,19 @@ type ClientConfig = Partial<OpenApiTsConfig>;
 /** A single client to generate: which API to read, where to write it, and its per-API `client` block. */
 type Job = { name: string; api: string; clientOutput?: string; perApiClient: ClientConfig };
 
-/** Resolve a `client` block's relative `setup` path against the config dir (URLs/absolute left as-is). */
+/** A URL-ish specifier (`https://…`, `file:…`, `javascript:…`) — two+ letter scheme, so Windows drive paths (`C:\\…`) don't match. */
+const URL_SCHEME = /^[a-z][a-z0-9+.-]+:/i;
+
+/** Resolve a `client` block's relative `setup` path against the config dir. Setup is a LOCAL module — URLs are rejected upfront (they would otherwise fail as an unreadable file at generation time). */
 function resolveSetup(client: ClientConfig, configDir: string): ClientConfig {
   const { setup } = client;
-  if (typeof setup === 'string' && !isAbsolute(setup) && !/^https?:\/\//i.test(setup)) {
+  if (typeof setup !== 'string') return client;
+  if (URL_SCHEME.test(setup)) {
+    throw new HandledError(
+      `\n❌  \`client.setup\` must be a local file path — remote setup modules are not supported.\n   Got: ${setup}\n`
+    );
+  }
+  if (!isAbsolute(setup)) {
     return { ...client, setup: resolvePath(configDir, setup) };
   }
   return client;
@@ -46,15 +55,17 @@ function fileNameFor(name: string): string {
 }
 
 /**
- * A valid inlined server URL is an absolute URL (`https://api.example.com`) or a root-relative
- * path (`/v1`, which OpenAPI allows for `servers[].url`). A bare hostname (`api.example.com`) is
- * rejected — `new URL(value, base)` would treat it as a path and it would concatenate wrongly.
+ * A valid inlined server URL is an absolute **http(s)** URL (`https://api.example.com`) or a
+ * root-relative path (`/v1`, which OpenAPI allows for `servers[].url`). A bare hostname
+ * (`api.example.com`) is rejected — `new URL(value, base)` would treat it as a path and it
+ * would concatenate wrongly. Non-http(s) schemes (`javascript:`, `file:`) and protocol-relative
+ * `//host` values are rejected too: the value is inlined as the client's default fetch base.
  */
 function isValidServerUrl(value: string): boolean {
-  if (value.startsWith('/')) return true;
+  if (value.startsWith('/')) return !value.startsWith('//'); // root-relative, not protocol-relative
   try {
-    new URL(value); // no base — only an absolute URL with a scheme parses
-    return true;
+    const url = new URL(value); // no base — only an absolute URL with a scheme parses
+    return url.protocol === 'http:' || url.protocol === 'https:';
   } catch {
     return false;
   }

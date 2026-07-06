@@ -17,6 +17,22 @@ function model(): ApiModel {
   };
 }
 
+describe('generateClient setup validation', () => {
+  it('rejects a URL setup specifier upfront (local file paths only)', async () => {
+    const { generateClient } = await import('../index.js');
+    for (const url of ['https://cdn.example.com/setup.ts', 'file:///tmp/setup.ts']) {
+      await expect(
+        generateClient({ api: 'unused.yaml', output: '/tmp/never.ts', setup: url })
+      ).rejects.toThrow(/local file path/);
+    }
+    // A Windows-style drive path must NOT be mistaken for a URL scheme (it fails
+    // later on file reading, not on the scheme guard).
+    await expect(
+      generateClient({ api: 'unused.yaml', output: '/tmp/never.ts', setup: 'C:\\team\\setup.ts' })
+    ).rejects.not.toThrow(/local file path/);
+  });
+});
+
 describe('collectGeneratedFiles', () => {
   it('runs the given generators and concatenates their files', () => {
     const files = collectGeneratedFiles(model(), {
