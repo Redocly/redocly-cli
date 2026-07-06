@@ -17,6 +17,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'overlay1';
   } else if (version === 'openrpc1') {
     return 'openrpc1';
+  } else if (version === 'graphql') {
+    return 'graphql';
   } else {
     return 'oas3';
   }

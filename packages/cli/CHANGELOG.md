@@ -1,5 +1,21 @@
 # @redocly/cli
 
+## 2.37.0
+
+### Minor Changes
+
+- Added experimental support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.37.0.
+
+## 2.36.0
+
+### Minor Changes
+
+- Added a Subresource Integrity (SRI) hash to the Redoc standalone script tag in the HTML produced by `build-docs`, ensuring the script's integrity.
+
 ## 2.35.1
 
 ### Patch Changes
