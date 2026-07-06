@@ -45,7 +45,13 @@ jobs:
           publish: npm run release
           commit: 'chore: 🔖 release new versions'
           title: 'chore: 🔖 release new versions'
+          # This calculates the changed packages and creates an additional changeset for internal dependency updates.
+          # Then `changeset version` produces all necessary version bumps in package.json files.
+          # After that, `npm i` ensures the lockfile is updated with the new versions.
+          # Finally, the `post-changeset` script and updates the main changelog.
           version: |
+            npx changeset status --output=__changesets__.json
+            node scripts/add-cli-dependency-changesets.js __changesets__.json
             npx changeset version
             npm i
             node scripts/post-changeset.js

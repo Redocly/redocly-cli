@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.17 (2026-06-30)
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/respect-core to v1.34.17.
+
+## 1.34.16 (2026-06-26)
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.2.0` version.
+- Updated @redocly/respect-core to v1.34.16.
+
 ## 1.34.15 (2026-05-25)
 
 ### Patch Changes

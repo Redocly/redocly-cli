@@ -31,13 +31,13 @@ A configurable rule describes the contents that the linter expects to find in yo
 
 ## Subject object
 
-| Property            | Type                       | Description                                                                                                                                                                                                                                                                                                                            |
-| ------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| type                | string                     | **REQUIRED.** Locates the [OpenAPI node type](#subject-node-types-and-properties) that the [lint command](../commands/lint.md) evaluates.                                                                                                                                                                                              |
-| property            | string \| [string] \| null | Property name corresponding to the [OpenAPI node type](#subject-node-types-and-properties). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example). |
-| filterInParentKeys  | [string]                   | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions. See [example](#mutuallyrequired-example).                                                |
-| filterOutParentKeys | [string]                   | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.                                                                                |
-| matchParentKeys     | string                     | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.                                                                             |
+| Property            | Type                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| type                | string                     | **REQUIRED.** Locates the [OpenAPI node type](#subject-node-types-and-properties) that the [lint command](../commands/lint.md) evaluates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| property            | string \| [string] \| null | Property name corresponding to the [OpenAPI node type](#subject-node-types-and-properties). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example). <br/>For GraphQL rules, when `property` is omitted the rule checks the node's name or literal value (if there's no name); when `property` names a collection (`fields`, `arguments`, `values`, `directives`, `interfaces`, `types`), the rule receives the list of member names — making `required`, `disallowed`, and `contains` work the same way as for OpenAPI maps. |
+| filterInParentKeys  | [string]                   | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions. See [example](#mutuallyrequired-example).                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| filterOutParentKeys | [string]                   | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| matchParentKeys     | string                     | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Assertion object
 
@@ -758,6 +758,51 @@ You can use the following placeholders inside custom rule messages:
 | `{{problems}}`      | Inserts the detailed assertion error message(s).                                           |
 | `{{pointer}}`       | Inserts the JSON Pointer path to the error location (for example, `#/paths/~1users/post`). |
 | `{{file}}`          | Inserts the name of the file where the error occurred.                                     |
+
+## GraphQL examples
+
+**Check field names:**
+
+```yaml
+rule/field-names-camel-case:
+  subject:
+    type: FieldDefinition
+  assertions:
+    casing: camelCase
+```
+
+**Check that an interface declares required fields:**
+
+```yaml
+rule/menuitem-required-fields:
+  subject:
+    type: InterfaceTypeDefinition
+    property: fields
+  assertions:
+    required:
+      - id
+      - name
+  where:
+    - subject:
+        type: InterfaceTypeDefinition
+      assertions:
+        const: MenuItem
+```
+
+**Check that a directive argument value meets a length requirement:**
+
+```yaml
+rule/internal-reason-length:
+  subject:
+    type: StringValue
+  assertions:
+    minLength: 10
+  where:
+    - subject:
+        type: Directive
+      assertions:
+        const: internal
+```
 
 ## Find and share examples
 
