@@ -1,0 +1,84 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/composition-openapi.yaml
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-composition.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=4 documented=4 undocumented=0
+┃ Findings: total=5 error=5 warning=0 info=0
+┃ Problems: total=5
+┗ Duration: <ms>ms
+
+Types (1)
+  • schema-consistency: 5 problems / 5 findings
+
+Problems by type (showing first 5 of 5)
+
+◉ schema-consistency (5 problems shown / 5 total, 5 findings)
+✖ ERROR #1 → Response is missing required field "name".
+  ↳ sample exchange=1 GET /pets/{id} (200) getPet
+
+    http://api.example.com/pets/2
+
+    spec: composition-openapi.yaml
+    schemaPath= #/allOf/1/required
+    dataPath= /name
+
+    schema: Response is missing required field "name".
+    path: /name
+    expected: required field "name"
+    actual: [missing]
+
+✖ ERROR #2 → Request is missing required field "address".
+  ↳ sample exchange=3 POST /notifications (202) sendNotification
+
+    http://api.example.com/notifications
+
+    spec: composition-openapi.yaml
+    schemaPath= #/oneOf/0/required
+    dataPath= /address
+
+    schema: Request is missing required field "address".
+    path: /address
+    expected: required field "address"
+    actual: [missing]
+
+✖ ERROR #3 → Request is missing required field "phone".
+  ↳ sample exchange=3 POST /notifications (202) sendNotification
+
+    http://api.example.com/notifications
+
+    spec: composition-openapi.yaml
+    schemaPath= #/oneOf/1/required
+    dataPath= /phone
+
+    schema: Request is missing required field "phone".
+    path: /phone
+    expected: required field "phone"
+    actual: [missing]
+
+✖ ERROR #4 → Request schema mismatch at "channel": must be equal to constant
+  ↳ sample exchange=3 POST /notifications (202) sendNotification
+
+    http://api.example.com/notifications
+
+    spec: composition-openapi.yaml
+    schemaPath= #/oneOf/1/properties/channel/const
+    dataPath= /channel
+
+    schema: Request schema mismatch at "channel": must be equal to constant
+    path: /channel
+    actual: "email"
+
+✖ ERROR #5 → Request schema mismatch at "root": must match exactly one schema in oneOf
+  ↳ sample exchange=3 POST /notifications (202) sendNotification
+
+    http://api.example.com/notifications
+
+    spec: composition-openapi.yaml
+    schemaPath= #/oneOf
+
+    schema: Request schema mismatch at "root": must match exactly one schema in oneOf
+    path: /
+    actual: {"channel":"email"}
+

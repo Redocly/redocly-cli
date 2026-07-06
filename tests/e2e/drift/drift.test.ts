@@ -112,6 +112,17 @@ describe('drift - validate mode', () => {
     await matchSnapshot('validate-readonly', output);
   });
 
+  test('validates composed schemas (allOf, oneOf, anyOf)', async () => {
+    const { output } = runDrift([
+      'traffic-composition.ndjson',
+      '--api',
+      'composition-openapi.yaml',
+      '--rules',
+      'schema-consistency',
+    ]);
+    await matchSnapshot('validate-composition', output);
+  });
+
   test('discards findings below --min-severity', async () => {
     const { output } = runDrift([
       'traffic-mixed-severity.ndjson',

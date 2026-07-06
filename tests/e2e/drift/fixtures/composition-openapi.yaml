@@ -1,0 +1,86 @@
+openapi: 3.1.0
+info:
+  title: Composition Test API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single pet.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PetBase'
+                  - type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+  /notifications:
+    post:
+      operationId: sendNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/EmailNotification'
+                - $ref: '#/components/schemas/SmsNotification'
+      responses:
+        '202':
+          description: Accepted.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    anyOf:
+                      - type: string
+                      - type: integer
+components:
+  schemas:
+    PetBase:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+    EmailNotification:
+      type: object
+      required:
+        - channel
+        - address
+      properties:
+        channel:
+          type: string
+          const: email
+        address:
+          type: string
+    SmsNotification:
+      type: object
+      required:
+        - channel
+        - phone
+      properties:
+        channel:
+          type: string
+          const: sms
+        phone:
+          type: string
