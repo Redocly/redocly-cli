@@ -4,17 +4,19 @@
 
 **Goal:** A new `redocly diff <base> <revision>` command that compares two API descriptions and reports added/removed/changed parts, with breaking-change classification for OpenAPI 3.x and stylish/json/markdown/html output.
 
-**Architecture:** Each side is bundled and collected (via the existing `walkDocument` + type trees) into a flat `Map<stablePointer, NodeEntry>`; the two maps are compared with a dumb two-pass union iteration into flat `Change[]`; a classifier (polarity engine + lint-style rule registry, worst-verdict-wins) assigns `breaking | warning | non-breaking`. Spec: `docs/superpowers/specs/2026-07-07-diff-command-design.md`.
+**Architecture:** Each side is bundled and collected (via the existing `walkDocument` + type trees) into a flat `Map<stablePointer, NodeEntry>`; the two maps are compared with a dumb two-pass union iteration into flat `Change[]`; a classifier (polarity engine + lint-style rule registry, worst-verdict-wins) assigns `breaking | warning | non-breaking`. **The entire engine lives inside the CLI package (`packages/cli/src/commands/diff/engine/`) and consumes ONLY the public `@redocly/openapi-core` API — nothing is added or changed in `packages/core`. The command is experimental.** Spec: `docs/superpowers/specs/2026-07-07-diff-command-design.md`.
 
 **Tech Stack:** TypeScript ESM, vitest, existing `@redocly/openapi-core` machinery (`bundle`, `walkDocument`, `normalizeTypes`, `detectSpec`), `colorette`, `@redocly/ajv` (tests only).
 
 ## Global Constraints
 
 - **Node version:** the default shell node is v16 which cannot run the repo tooling. Before ANY `npm`, `npx`, or `git commit` command run: `export PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH"` (repo requires node >=20.19; pre-commit hooks fail on v16).
-- **ESM:** every relative import inside `packages/` ends with `.js` (e.g. `import { isRef } from '../ref-utils.js'`).
+- **ESM:** every relative import inside `packages/` ends with `.js` (e.g. `import { compareMaps } from './compare.js'`).
 - **Run a single unit test file:** `VITEST_SUITE=unit npx vitest run <path> --coverage.enabled=false` (coverage thresholds are global; disable for single-file runs).
 - **Commits:** conventional commits (`feat:`, `test:`, `docs:`). Pre-commit runs oxlint + oxfmt via lint-staged automatically.
 - **No new runtime dependencies.** `colorette` and `@redocly/ajv` are already dependencies.
+- **Do NOT touch `packages/core`.** The engine imports everything from `@redocly/openapi-core`'s existing public API (`walkDocument`, `normalizeVisitors`, `normalizeTypes`, `detectSpec`, `getMajorSpecVersion`, `getTypes`, `isRef`, `isPlainObject`, `makeDocumentFromString`, `createConfig`, `bundle`, `logger`, and their types). If something seems missing from that API, find a public equivalent — do not add core exports. Reading core sources for debugging is fine; modifying them is not.
+- **The command is experimental:** the yargs description carries the `[experimental]` suffix (same convention as `join` in `packages/cli/src/index.ts`), and the docs page states it.
 - **Working directory:** repo root (the worktree root). All paths below are relative to it.
 
 ---
@@ -23,18 +25,18 @@
 
 **Files:**
 
-- Create: `packages/core/src/diff/types.ts`
-- Test: `packages/core/src/diff/__tests__/types.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/types.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/types.test.ts`
 
 **Interfaces:**
 
-- Consumes: `SpecVersion` from `../oas-types.js`.
+- Consumes: `SpecVersion` type from `@redocly/openapi-core`.
 - Produces (used by every later task): `Compat`, `ChangeKind`, `NodeEntry`, `ChangeSide`, `Change`, `RawChange`, `DiffSummary`, `DiffResult`, `Verdict`, `Polarity`, `RuleContext`, `DiffRule`, `DiffRuleRegistry`, `compatRank(c: Compat): number`, `worstOf(a: Compat, b: Compat): Compat`, `breaking(message: string): Verdict`, `warning(message: string): Verdict`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/types.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/types.test.ts
 import { worstOf, compatRank, breaking, warning } from '../types.js';
 
 describe('diff types helpers', () => {
@@ -58,14 +60,14 @@ describe('diff types helpers', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/types.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/types.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../types.js`.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/types.ts
-import type { SpecVersion } from '../oas-types.js';
+// packages/cli/src/commands/diff/engine/types.ts
+import type { SpecVersion } from '@redocly/openapi-core';
 
 export type Compat = 'breaking' | 'warning' | 'non-breaking';
 
@@ -157,14 +159,14 @@ export function warning(message: string): Verdict {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/types.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/types.test.ts --coverage.enabled=false`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/types.ts packages/core/src/diff/__tests__/types.test.ts
-git commit -m "feat(core): add diff data model and verdict helpers"
+git add packages/cli/src/commands/diff/engine/types.ts packages/cli/src/commands/diff/engine/__tests__/types.test.ts
+git commit -m "feat(cli): add diff data model and verdict helpers"
 ```
 
 ---
@@ -173,8 +175,8 @@ git commit -m "feat(core): add diff data model and verdict helpers"
 
 **Files:**
 
-- Create: `packages/core/src/diff/predicates.ts`
-- Test: `packages/core/src/diff/__tests__/predicates.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/predicates.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/predicates.test.ts`
 
 **Interfaces:**
 
@@ -183,7 +185,7 @@ git commit -m "feat(core): add diff data model and verdict helpers"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/predicates.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/predicates.test.ts
 import {
   isScalar,
   isScalarArray,
@@ -248,13 +250,13 @@ describe('diff predicates', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/predicates.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/predicates.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../predicates.js`.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/predicates.ts
+// packages/cli/src/commands/diff/engine/predicates.ts
 
 export function isScalar(value: unknown): boolean {
   return (
@@ -308,14 +310,14 @@ export function isTypeWidened(before: unknown, after: unknown): boolean {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/predicates.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/predicates.test.ts --coverage.enabled=false`
 Expected: PASS (5 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/predicates.ts packages/core/src/diff/__tests__/predicates.test.ts
-git commit -m "feat(core): add diff predicate helpers"
+git add packages/cli/src/commands/diff/engine/predicates.ts packages/cli/src/commands/diff/engine/__tests__/predicates.test.ts
+git commit -m "feat(cli): add diff predicate helpers"
 ```
 
 ---
@@ -324,18 +326,18 @@ git commit -m "feat(core): add diff predicate helpers"
 
 **Files:**
 
-- Create: `packages/core/src/diff/node-identity.ts`
-- Test: `packages/core/src/diff/__tests__/node-identity.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/node-identity.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/node-identity.test.ts`
 
 **Interfaces:**
 
-- Consumes: `isPlainObject` from `../utils/is-plain-object.js`.
+- Consumes: `isPlainObject` from `@redocly/openapi-core`.
 - Produces: `getIdentityKey(typeName: string, value: unknown): string | undefined` — returns a stable list-item segment like `{query:limit}`, or `undefined` for positional fallback. Pointer-special characters inside keys are escaped (`~` → `~0`, `/` → `~1`).
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/node-identity.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/node-identity.test.ts
 import { getIdentityKey } from '../node-identity.js';
 
 describe('getIdentityKey', () => {
@@ -367,14 +369,14 @@ describe('getIdentityKey', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/node-identity.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/node-identity.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../node-identity.js`.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/node-identity.ts
-import { isPlainObject } from '../utils/is-plain-object.js';
+// packages/cli/src/commands/diff/engine/node-identity.ts
+import { isPlainObject } from '@redocly/openapi-core';
 
 // JSON Pointer escaping for identity-key content: keys become pointer segments.
 function esc(value: string): string {
@@ -404,14 +406,14 @@ export function getIdentityKey(typeName: string, value: unknown): string | undef
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/node-identity.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/node-identity.test.ts --coverage.enabled=false`
 Expected: PASS (5 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/node-identity.ts packages/core/src/diff/__tests__/node-identity.test.ts
-git commit -m "feat(core): add diff list-item identity registry"
+git add packages/cli/src/commands/diff/engine/node-identity.ts packages/cli/src/commands/diff/engine/__tests__/node-identity.test.ts
+git commit -m "feat(cli): add diff list-item identity registry"
 ```
 
 ---
@@ -420,12 +422,12 @@ git commit -m "feat(core): add diff list-item identity registry"
 
 **Files:**
 
-- Create: `packages/core/src/diff/collect.ts`
-- Test: `packages/core/src/diff/__tests__/collect.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/collect.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/collect.test.ts`
 
 **Interfaces:**
 
-- Consumes: `walkDocument`, `type WalkContext`, `type UserContext` from `../walk.js`; `normalizeVisitors` from `../visitors.js`; `isRef` from `../ref-utils.js`; `isPlainObject` from `../utils/is-plain-object.js`; `getIdentityKey` (Task 3); `isScalar`, `isScalarArray` (Task 2); `NodeEntry` (Task 1); `Document` from `../resolve.js`; `NormalizedNodeType` from `../types/index.js`; `Config` from `../config/index.js`; `SpecVersion` from `../oas-types.js`.
+- Consumes: `walkDocument`, `normalizeVisitors`, `isRef`, `isPlainObject` and types `WalkContext`, `UserContext`, `Document`, `NormalizedNodeType`, `Config`, `SpecVersion` — all from `@redocly/openapi-core`; `getIdentityKey` (Task 3); `isScalar`, `isScalarArray` (Task 2); `NodeEntry` (Task 1).
 - Produces: `collectDocumentMap(opts: { document: Document; types: Record<string, NormalizedNodeType>; specVersion: SpecVersion; config: Config }): CollectedDocument` where `CollectedDocument = { entries: Map<string, NodeEntry>; usageEdges: Array<{ site: string; target: string }> }`.
 
 **Key behaviors under test:** identity keys replace array indexes in stable pointers; real pointers preserved; `$ref` recorded as attribute and NOT followed (empty `resolvedRefMap`); components collected at canonical paths; scalar arrays (`enum`, `required`) snapshotted; identity collision gets `#2` suffix; `parentPointer` derived from the pointer string.
@@ -433,18 +435,20 @@ git commit -m "feat(core): add diff list-item identity registry"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/collect.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/collect.test.ts
+import {
+  createConfig,
+  detectSpec,
+  getTypes,
+  makeDocumentFromString,
+  normalizeTypes,
+} from '@redocly/openapi-core';
 import { outdent } from 'outdent';
 
-import { parseYamlToDocument } from '../../../__tests__/utils.js';
-import { createConfig } from '../../config/index.js';
-import { detectSpec } from '../../detect-spec.js';
-import { getTypes } from '../../oas-types.js';
-import { normalizeTypes } from '../../types/index.js';
 import { collectDocumentMap } from '../collect.js';
 
 async function collect(yaml: string) {
-  const document = parseYamlToDocument(yaml, '');
+  const document = makeDocumentFromString(yaml, '');
   const config = await createConfig({});
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
@@ -569,25 +573,26 @@ describe('collectDocumentMap', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/collect.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/collect.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../collect.js`.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/collect.ts
-import { isRef } from '../ref-utils.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { normalizeVisitors } from '../visitors.js';
-import { walkDocument } from '../walk.js';
+// packages/cli/src/commands/diff/engine/collect.ts
+import { isPlainObject, isRef, normalizeVisitors, walkDocument } from '@redocly/openapi-core';
+
 import { getIdentityKey } from './node-identity.js';
 import { isScalar, isScalarArray } from './predicates.js';
 
-import type { Config } from '../config/index.js';
-import type { SpecVersion } from '../oas-types.js';
-import type { Document } from '../resolve.js';
-import type { NormalizedNodeType } from '../types/index.js';
-import type { UserContext, WalkContext } from '../walk.js';
+import type {
+  Config,
+  Document,
+  NormalizedNodeType,
+  SpecVersion,
+  UserContext,
+  WalkContext,
+} from '@redocly/openapi-core';
 import type { NodeEntry } from './types.js';
 
 export interface CollectedDocument {
@@ -695,21 +700,21 @@ function splitPointer(pointer: string): { parentReal: string | null; segment: st
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/collect.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/collect.test.ts --coverage.enabled=false`
 Expected: PASS (4 tests).
 
 **If the walk throws or skips on the empty `resolvedRefMap`:** inspect `packages/core/src/walk.ts` `resolve()` closure — it must return `{ node: undefined, location: undefined }` for unresolved refs. If it throws instead, wrap the ref lookup result handling in `collect.ts` is NOT the fix; instead pass a `ResolvedRefMap` from `resolveDocument` and add a guard in the visitor: skip any entry whose `realPointer` was already recorded (dedupe by first visit). Re-run the test — the ref must still appear in `refs` and `#/components/schemas/Pet` must exist exactly once.
 
-- [ ] **Step 5: Run the full core diff test suite and typecheck**
+- [ ] **Step 5: Run the full diff test suite and typecheck**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff --coverage.enabled=false && npm run typecheck`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff --coverage.enabled=false && npm run typecheck`
 Expected: all tests PASS; no type errors.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/core/src/diff/collect.ts packages/core/src/diff/__tests__/collect.test.ts
-git commit -m "feat(core): collect documents into flat stable-pointer maps for diff"
+git add packages/cli/src/commands/diff/engine/collect.ts packages/cli/src/commands/diff/engine/__tests__/collect.test.ts
+git commit -m "feat(cli): collect documents into flat stable-pointer maps for diff"
 ```
 
 ---
@@ -718,8 +723,8 @@ git commit -m "feat(core): collect documents into flat stable-pointer maps for d
 
 **Files:**
 
-- Create: `packages/core/src/diff/compare.ts`
-- Test: `packages/core/src/diff/__tests__/compare.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/compare.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/compare.test.ts`
 
 **Interfaces:**
 
@@ -731,7 +736,7 @@ git commit -m "feat(core): collect documents into flat stable-pointer maps for d
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/compare.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/compare.test.ts
 import { compareMaps } from '../compare.js';
 
 import type { NodeEntry } from '../types.js';
@@ -868,13 +873,13 @@ describe('compareMaps', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/compare.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/compare.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../compare.js`.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/compare.ts
+// packages/cli/src/commands/diff/engine/compare.ts
 import { scalarEquals } from './predicates.js';
 
 import type { NodeEntry, RawChange } from './types.js';
@@ -971,14 +976,14 @@ export function compareMaps(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/compare.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/compare.test.ts --coverage.enabled=false`
 Expected: PASS (5 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/compare.ts packages/core/src/diff/__tests__/compare.test.ts
-git commit -m "feat(core): add two-pass flat map comparison for diff"
+git add packages/cli/src/commands/diff/engine/compare.ts packages/cli/src/commands/diff/engine/__tests__/compare.test.ts
+git commit -m "feat(cli): add two-pass flat map comparison for diff"
 ```
 
 ---
@@ -987,9 +992,9 @@ git commit -m "feat(core): add two-pass flat map comparison for diff"
 
 **Files:**
 
-- Create: `packages/core/src/diff/classify/usage.ts`
-- Create: `packages/core/src/diff/classify/polarity.ts`
-- Test: `packages/core/src/diff/__tests__/polarity.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/usage.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/polarity.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/polarity.test.ts`
 
 **Interfaces:**
 
@@ -1001,7 +1006,7 @@ git commit -m "feat(core): add two-pass flat map comparison for diff"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/polarity.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/polarity.test.ts
 import { getPolarity } from '../classify/polarity.js';
 import { UsageIndex, getComponentRoot, mergePolarity } from '../classify/usage.js';
 
@@ -1093,13 +1098,13 @@ describe('getPolarity', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/polarity.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/polarity.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../classify/polarity.js`.
 
 - [ ] **Step 3: Write the implementation (both files)**
 
 ```ts
-// packages/core/src/diff/classify/usage.ts
+// packages/cli/src/commands/diff/engine/classify/usage.ts
 import type { Polarity } from '../types.js';
 
 export function getComponentRoot(pointer: string): string | undefined {
@@ -1148,7 +1153,7 @@ export class UsageIndex {
 ```
 
 ```ts
-// packages/core/src/diff/classify/polarity.ts
+// packages/cli/src/commands/diff/engine/classify/polarity.ts
 import { getComponentRoot, type UsageIndex } from './usage.js';
 
 import type { Polarity } from '../types.js';
@@ -1181,14 +1186,14 @@ function getSitePolarity(pointer: string): Polarity {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/polarity.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/polarity.test.ts --coverage.enabled=false`
 Expected: PASS (8 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/classify/usage.ts packages/core/src/diff/classify/polarity.ts packages/core/src/diff/__tests__/polarity.test.ts
-git commit -m "feat(core): add diff polarity engine with component usage index"
+git add packages/cli/src/commands/diff/engine/classify/usage.ts packages/cli/src/commands/diff/engine/classify/polarity.ts packages/cli/src/commands/diff/engine/__tests__/polarity.test.ts
+git commit -m "feat(cli): add diff polarity engine with component usage index"
 ```
 
 ---
@@ -1197,11 +1202,11 @@ git commit -m "feat(core): add diff polarity engine with component usage index"
 
 **Files:**
 
-- Create: `packages/core/src/diff/classify/index.ts`
-- Create: `packages/core/src/diff/classify/rules/operation-rules.ts`
-- Create: `packages/core/src/diff/classify/oas3.ts`
-- Create: `packages/core/src/diff/classify/oas3_1.ts`
-- Test: `packages/core/src/diff/__tests__/classify.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/index.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/rules/operation-rules.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/oas3.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/oas3_1.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/classify.test.ts`
 
 **Interfaces:**
 
@@ -1216,7 +1221,7 @@ git commit -m "feat(core): add diff polarity engine with component usage index"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/classify.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/classify.test.ts
 import { classifyChanges } from '../classify/index.js';
 import { UsageIndex } from '../classify/usage.js';
 
@@ -1304,13 +1309,13 @@ describe('classifyChanges', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/classify.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/classify.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../classify/index.js`.
 
 - [ ] **Step 3: Write the implementation (four files)**
 
 ```ts
-// packages/core/src/diff/classify/rules/operation-rules.ts
+// packages/cli/src/commands/diff/engine/classify/rules/operation-rules.ts
 import { breaking } from '../../types.js';
 
 import type { DiffRule } from '../../types.js';
@@ -1335,7 +1340,7 @@ export const pathRemoved: DiffRule = {
 ```
 
 ```ts
-// packages/core/src/diff/classify/oas3.ts
+// packages/cli/src/commands/diff/engine/classify/oas3.ts
 import { operationRemoved, pathRemoved } from './rules/operation-rules.js';
 
 import type { DiffRuleRegistry } from '../types.js';
@@ -1347,7 +1352,7 @@ export const oas3Rules: DiffRuleRegistry = {
 ```
 
 ```ts
-// packages/core/src/diff/classify/oas3_1.ts
+// packages/cli/src/commands/diff/engine/classify/oas3_1.ts
 import { oas3Rules } from './oas3.js';
 
 import type { DiffRuleRegistry } from '../types.js';
@@ -1357,13 +1362,13 @@ export const oas3_1Rules: DiffRuleRegistry = { ...oas3Rules };
 ```
 
 ```ts
-// packages/core/src/diff/classify/index.ts
+// packages/cli/src/commands/diff/engine/classify/index.ts
 import { compatRank } from '../types.js';
 import { getPolarity } from './polarity.js';
 import { oas3Rules } from './oas3.js';
 import { oas3_1Rules } from './oas3_1.js';
 
-import type { SpecVersion } from '../../oas-types.js';
+import type { SpecVersion } from '@redocly/openapi-core';
 import type {
   Change,
   DiffRuleRegistry,
@@ -1428,14 +1433,14 @@ export function classifyChanges(opts: {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/classify.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/classify.test.ts --coverage.enabled=false`
 Expected: PASS (5 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/classify packages/core/src/diff/__tests__/classify.test.ts
-git commit -m "feat(core): add diff classification engine with worst-verdict policy"
+git add packages/cli/src/commands/diff/engine/classify packages/cli/src/commands/diff/engine/__tests__/classify.test.ts
+git commit -m "feat(cli): add diff classification engine with worst-verdict policy"
 ```
 
 ---
@@ -1444,10 +1449,10 @@ git commit -m "feat(core): add diff classification engine with worst-verdict pol
 
 **Files:**
 
-- Create: `packages/core/src/diff/classify/rules/parameter-rules.ts`
-- Create: `packages/core/src/diff/classify/rules/response-rules.ts`
-- Modify: `packages/core/src/diff/classify/oas3.ts`
-- Test: `packages/core/src/diff/__tests__/rules-parameter-response.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/rules/parameter-rules.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/rules/response-rules.ts`
+- Modify: `packages/cli/src/commands/diff/engine/classify/oas3.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/rules-parameter-response.test.ts`
 
 **Interfaces:**
 
@@ -1458,7 +1463,7 @@ git commit -m "feat(core): add diff classification engine with worst-verdict pol
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/rules-parameter-response.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/rules-parameter-response.test.ts
 import {
   parameterAddedRequired,
   parameterBecameRequired,
@@ -1546,14 +1551,15 @@ describe('response rules', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/rules-parameter-response.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/rules-parameter-response.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve rule modules.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/classify/rules/parameter-rules.ts
-import { isPlainObject } from '../../../utils/is-plain-object.js';
+// packages/cli/src/commands/diff/engine/classify/rules/parameter-rules.ts
+import { isPlainObject } from '@redocly/openapi-core';
+
 import { becameTrue } from '../../predicates.js';
 import { breaking } from '../../types.js';
 
@@ -1593,7 +1599,7 @@ export const parameterBecameRequired: DiffRule = {
 ```
 
 ```ts
-// packages/core/src/diff/classify/rules/response-rules.ts
+// packages/cli/src/commands/diff/engine/classify/rules/response-rules.ts
 import { breaking } from '../../types.js';
 
 import type { DiffRule } from '../../types.js';
@@ -1620,7 +1626,7 @@ export const mediaTypeRemoved: DiffRule = {
 Update the registry:
 
 ```ts
-// packages/core/src/diff/classify/oas3.ts
+// packages/cli/src/commands/diff/engine/classify/oas3.ts
 import { operationRemoved, pathRemoved } from './rules/operation-rules.js';
 import {
   parameterAddedRequired,
@@ -1642,14 +1648,14 @@ export const oas3Rules: DiffRuleRegistry = {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/rules-parameter-response.test.ts packages/core/src/diff/__tests__/classify.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/rules-parameter-response.test.ts packages/cli/src/commands/diff/engine/__tests__/classify.test.ts --coverage.enabled=false`
 Expected: PASS (both files — the classify engine tests must still pass).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/classify packages/core/src/diff/__tests__/rules-parameter-response.test.ts
-git commit -m "feat(core): add diff parameter and response breaking rules"
+git add packages/cli/src/commands/diff/engine/classify packages/cli/src/commands/diff/engine/__tests__/rules-parameter-response.test.ts
+git commit -m "feat(cli): add diff parameter and response breaking rules"
 ```
 
 ---
@@ -1658,10 +1664,10 @@ git commit -m "feat(core): add diff parameter and response breaking rules"
 
 **Files:**
 
-- Create: `packages/core/src/diff/classify/rules/schema-rules.ts`
-- Create: `packages/core/src/diff/classify/rules/ref-rules.ts`
-- Modify: `packages/core/src/diff/classify/oas3.ts`
-- Test: `packages/core/src/diff/__tests__/rules-schema.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/rules/schema-rules.ts`
+- Create: `packages/cli/src/commands/diff/engine/classify/rules/ref-rules.ts`
+- Modify: `packages/cli/src/commands/diff/engine/classify/oas3.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/rules-schema.test.ts`
 
 **Interfaces:**
 
@@ -1670,7 +1676,7 @@ git commit -m "feat(core): add diff parameter and response breaking rules"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/rules-schema.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/rules-schema.test.ts
 import { refTargetChanged } from '../classify/rules/ref-rules.js';
 import {
   enumValuesAdded,
@@ -1801,13 +1807,13 @@ describe('ref-target-changed', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/rules-schema.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/rules-schema.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve rule modules.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/classify/rules/schema-rules.ts
+// packages/cli/src/commands/diff/engine/classify/rules/schema-rules.ts
 import { addedItems, isTypeNarrowed, isTypeWidened, missingItems } from '../../predicates.js';
 import { breaking } from '../../types.js';
 
@@ -1891,7 +1897,7 @@ export const propertyRemovedFromResponse: DiffRule = {
 ```
 
 ```ts
-// packages/core/src/diff/classify/rules/ref-rules.ts
+// packages/cli/src/commands/diff/engine/classify/rules/ref-rules.ts
 import { warning } from '../../types.js';
 
 import type { DiffRule } from '../../types.js';
@@ -1917,7 +1923,7 @@ export const refTargetChanged: DiffRule = {
 Update the registry (`refTargetChanged` is registered for every type that commonly owns refs):
 
 ```ts
-// packages/core/src/diff/classify/oas3.ts
+// packages/cli/src/commands/diff/engine/classify/oas3.ts
 import { operationRemoved, pathRemoved } from './rules/operation-rules.js';
 import {
   parameterAddedRequired,
@@ -1958,45 +1964,42 @@ export const oas3Rules: DiffRuleRegistry = {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff --coverage.enabled=false`
 Expected: PASS — all diff tests, including earlier tasks'.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff/classify packages/core/src/diff/__tests__/rules-schema.test.ts
-git commit -m "feat(core): add diff schema and ref-target breaking rules"
+git add packages/cli/src/commands/diff/engine/classify packages/cli/src/commands/diff/engine/__tests__/rules-schema.test.ts
+git commit -m "feat(cli): add diff schema and ref-target breaking rules"
 ```
 
 ---
 
-### Task 10: Orchestrator `diffDocuments` + output schema + public export
+### Task 10: Orchestrator `diffDocuments` + output schema
 
 **Files:**
 
-- Create: `packages/core/src/diff/index.ts`
-- Create: `packages/core/src/diff/output-schema.ts`
-- Modify: `packages/core/src/index.ts` (add exports at the end of the file)
-- Test: `packages/core/src/diff/__tests__/diff-documents.test.ts`
+- Create: `packages/cli/src/commands/diff/engine/index.ts`
+- Create: `packages/cli/src/commands/diff/engine/output-schema.ts`
+- Test: `packages/cli/src/commands/diff/engine/__tests__/diff-documents.test.ts`
 
 **Interfaces:**
 
-- Consumes: everything above; `detectSpec`, `getMajorSpecVersion` from `../detect-spec.js`; `getTypes` from `../oas-types.js`; `normalizeTypes` from `../types/index.js`.
-- Produces:
+- Consumes: everything above; `detectSpec`, `getMajorSpecVersion`, `getTypes`, `normalizeTypes` from `@redocly/openapi-core`. The `@redocly/ajv` import in the test resolves via workspace hoisting (it is a dependency of `@redocly/openapi-core`) — test-only, not a new dependency.
+- Produces (all exported from the engine, imported by the command via relative paths — nothing is added to `@redocly/openapi-core`):
   - `diffDocuments(opts: { base: Document; revision: Document; config: Config }): DiffResult` (synchronous — bundling is the caller's job).
   - `class DiffError extends Error` — thrown on major-family mismatch.
   - `DIFF_OUTPUT_SCHEMA` — JSON Schema for `DiffResult`.
-  - Core public exports: `diffDocuments`, `DiffError`, `DIFF_OUTPUT_SCHEMA`, types `DiffResult`, `Change`, `Compat`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-// packages/core/src/diff/__tests__/diff-documents.test.ts
+// packages/cli/src/commands/diff/engine/__tests__/diff-documents.test.ts
 import Ajv from '@redocly/ajv/dist/2020.js';
+import { createConfig, makeDocumentFromString } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
 
-import { parseYamlToDocument } from '../../../__tests__/utils.js';
-import { createConfig } from '../../config/index.js';
 import { DiffError, diffDocuments } from '../index.js';
 import { DIFF_OUTPUT_SCHEMA } from '../output-schema.js';
 
@@ -2039,8 +2042,8 @@ describe('diffDocuments', () => {
   it('produces the running example from the design spec', async () => {
     const config = await createConfig({});
     const result = diffDocuments({
-      base: parseYamlToDocument(BASE, ''),
-      revision: parseYamlToDocument(REVISION, ''),
+      base: makeDocumentFromString(BASE, ''),
+      revision: makeDocumentFromString(REVISION, ''),
       config,
     });
 
@@ -2076,8 +2079,8 @@ describe('diffDocuments', () => {
   it('validates against the published output schema', async () => {
     const config = await createConfig({});
     const result = diffDocuments({
-      base: parseYamlToDocument(BASE, ''),
-      revision: parseYamlToDocument(REVISION, ''),
+      base: makeDocumentFromString(BASE, ''),
+      revision: makeDocumentFromString(REVISION, ''),
       config,
     });
 
@@ -2088,7 +2091,7 @@ describe('diffDocuments', () => {
 
   it('throws DiffError for different spec families', async () => {
     const config = await createConfig({});
-    const oas2 = parseYamlToDocument(
+    const oas2 = makeDocumentFromString(
       outdent`
         swagger: '2.0'
         info: { title: Test, version: '1.0' }
@@ -2097,7 +2100,7 @@ describe('diffDocuments', () => {
       ''
     );
     expect(() =>
-      diffDocuments({ base: oas2, revision: parseYamlToDocument(REVISION, ''), config })
+      diffDocuments({ base: oas2, revision: makeDocumentFromString(REVISION, ''), config })
     ).toThrow(DiffError);
   });
 });
@@ -2105,24 +2108,21 @@ describe('diffDocuments', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff/__tests__/diff-documents.test.ts --coverage.enabled=false`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff/engine/__tests__/diff-documents.test.ts --coverage.enabled=false`
 Expected: FAIL — cannot resolve `../index.js` / `../output-schema.js`.
 
 - [ ] **Step 3: Write the implementation**
 
 ```ts
-// packages/core/src/diff/index.ts
-import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
-import { getTypes } from '../oas-types.js';
-import { normalizeTypes } from '../types/index.js';
+// packages/cli/src/commands/diff/engine/index.ts
+import { detectSpec, getMajorSpecVersion, getTypes, normalizeTypes } from '@redocly/openapi-core';
+
 import { classifyChanges } from './classify/index.js';
 import { UsageIndex } from './classify/usage.js';
 import { collectDocumentMap } from './collect.js';
 import { compareMaps } from './compare.js';
 
-import type { Config } from '../config/index.js';
-import type { SpecVersion } from '../oas-types.js';
-import type { Document } from '../resolve.js';
+import type { Config, Document, SpecVersion } from '@redocly/openapi-core';
 import type { DiffResult, DiffSummary } from './types.js';
 
 export class DiffError extends Error {}
@@ -2185,7 +2185,7 @@ export function diffDocuments(opts: {
 ```
 
 ```ts
-// packages/core/src/diff/output-schema.ts
+// packages/cli/src/commands/diff/engine/output-schema.ts
 
 const changeSideSchema = {
   type: 'object',
@@ -2244,17 +2244,9 @@ export const DIFF_OUTPUT_SCHEMA = {
 } as const;
 ```
 
-Add to the END of `packages/core/src/index.ts`:
-
-```ts
-export { diffDocuments, DiffError } from './diff/index.js';
-export { DIFF_OUTPUT_SCHEMA } from './diff/output-schema.js';
-export type { DiffResult, Change, ChangeSide, Compat, DiffSummary } from './diff/types.js';
-```
-
 - [ ] **Step 4: Run test to verify it passes, then typecheck**
 
-Run: `VITEST_SUITE=unit npx vitest run packages/core/src/diff --coverage.enabled=false && npm run typecheck`
+Run: `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff --coverage.enabled=false && npm run typecheck`
 Expected: all diff tests PASS; no type errors.
 
 **If the parameter reorder produces phantom changes:** debug `collect.ts` stable pointers first (`entries.keys()`), not `compare.ts` — the comparison is deliberately dumb.
@@ -2262,8 +2254,8 @@ Expected: all diff tests PASS; no type errors.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/diff packages/core/src/index.ts
-git commit -m "feat(core): add diffDocuments orchestrator with versioned output schema"
+git add packages/cli/src/commands/diff
+git commit -m "feat(cli): add diffDocuments orchestrator with versioned output schema"
 ```
 
 ---
@@ -2280,7 +2272,7 @@ git commit -m "feat(core): add diffDocuments orchestrator with versioned output 
 
 **Interfaces:**
 
-- Consumes: `diffDocuments`, `DiffError`, `bundle`, `logger`, types from `@redocly/openapi-core`; `getFallbackApisOrExit` from `../../utils/miscellaneous.js`; `AbortFlowError`, `exitWithError` from `../../utils/error.js`; `CommandArgs` from `../../wrapper.js`; `VerifyConfigOptions` from `../../types.js`.
+- Consumes: `bundle`, `logger` from `@redocly/openapi-core`; `diffDocuments`, `DiffError` from `./engine/index.js` (Task 10); `DiffResult` type from `./engine/types.js`; `getFallbackApisOrExit` from `../../utils/miscellaneous.js`; `AbortFlowError`, `exitWithError` from `../../utils/error.js`; `CommandArgs` from `../../wrapper.js`; `VerifyConfigOptions` from `../../types.js`.
 - Produces: `handleDiff(args: CommandArgs<DiffArgv>): Promise<void>`, `DiffArgv`; serializers `stylishDiff(result: DiffResult): string`, `jsonDiff(result: DiffResult): string`.
 
 - [ ] **Step 1: Write the failing serializer test**
@@ -2290,7 +2282,7 @@ git commit -m "feat(core): add diffDocuments orchestrator with versioned output 
 import { jsonDiff } from '../serializers/json.js';
 import { stylishDiff } from '../serializers/stylish.js';
 
-import type { DiffResult } from '@redocly/openapi-core';
+import type { DiffResult } from '../engine/types.js';
 
 const RESULT: DiffResult = {
   version: '1',
@@ -2368,7 +2360,7 @@ Expected: FAIL — cannot resolve serializer modules.
 
 ```ts
 // packages/cli/src/commands/diff/serializers/json.ts
-import type { DiffResult } from '@redocly/openapi-core';
+import type { DiffResult } from '../engine/types.js';
 
 export function jsonDiff(result: DiffResult): string {
   return JSON.stringify(result, null, 2);
@@ -2379,7 +2371,7 @@ export function jsonDiff(result: DiffResult): string {
 // packages/cli/src/commands/diff/serializers/stylish.ts
 import { bold, gray, green, red, yellow } from 'colorette';
 
-import type { Change, Compat, DiffResult } from '@redocly/openapi-core';
+import type { Change, Compat, DiffResult } from '../engine/types.js';
 
 const SEVERITY_ORDER: Compat[] = ['breaking', 'warning', 'non-breaking'];
 
@@ -2429,16 +2421,17 @@ Expected: PASS (2 tests).
 // packages/cli/src/commands/diff/index.ts
 import { writeFileSync } from 'node:fs';
 
-import { DiffError, bundle, diffDocuments, logger } from '@redocly/openapi-core';
+import { bundle, logger } from '@redocly/openapi-core';
 
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { DiffError, diffDocuments } from './engine/index.js';
 import { jsonDiff } from './serializers/json.js';
 import { stylishDiff } from './serializers/stylish.js';
 
-import type { DiffResult } from '@redocly/openapi-core';
 import type { VerifyConfigOptions } from '../../types.js';
 import type { CommandArgs } from '../../wrapper.js';
+import type { DiffResult } from './engine/types.js';
 
 export type DiffOutputFormat = 'stylish' | 'json' | 'markdown' | 'html';
 export type DiffFailOn = 'breaking' | 'warning' | 'none';
@@ -2514,7 +2507,7 @@ Add this `.command(...)` block adjacent to the `stats` registration (same level 
 ```ts
   .command(
     'diff <base> <revision>',
-    'Compare two API descriptions and detect breaking changes.',
+    'Compare two API descriptions and detect breaking changes [experimental].',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_DIFF')
@@ -2616,7 +2609,7 @@ git commit -m "feat(cli): add diff command with stylish and json formats"
 import { htmlDiff } from '../serializers/html.js';
 import { markdownDiff } from '../serializers/markdown.js';
 
-import type { DiffResult } from '@redocly/openapi-core';
+import type { DiffResult } from '../engine/types.js';
 
 const RESULT: DiffResult = {
   version: '1',
@@ -2669,7 +2662,7 @@ Expected: FAIL — cannot resolve serializer modules.
 
 ```ts
 // packages/cli/src/commands/diff/serializers/markdown.ts
-import type { Change, DiffResult } from '@redocly/openapi-core';
+import type { Change, DiffResult } from '../engine/types.js';
 
 const IMPACT_LABEL: Record<Change['compat'], string> = {
   breaking: '🔴 breaking',
@@ -2710,7 +2703,7 @@ export function markdownDiff(result: DiffResult): string {
 
 ```ts
 // packages/cli/src/commands/diff/serializers/html.ts
-import type { Change, DiffResult } from '@redocly/openapi-core';
+import type { Change, DiffResult } from '../engine/types.js';
 
 function escapeHtml(value: unknown): string {
   return String(value)
@@ -2960,14 +2953,16 @@ describe('diff', () => {
 Run: `npm run compile && VITEST_SUITE=e2e npx vitest run tests/e2e/diff`
 Expected: 5 tests PASS; `stylish-snapshot.txt` and `json-snapshot.txt` created in `tests/e2e/diff/breaking-changes/`.
 
-**Review the created snapshots before committing.** The stylish snapshot must show (a) the removed `delete` operation as breaking, (b) `limit` became required as breaking, (c) removal of the `tag` property of the response-only `Pet` schema as breaking (`property-removed-from-response` — this exercises the usage index), (d) the `info.version` change as non-breaking. If any expectation is off, debug the corresponding core layer first (collect → compare → classify), not the snapshot.
+**Review the created snapshots before committing.** The stylish snapshot must show (a) the removed `delete` operation as breaking, (b) `limit` became required as breaking, (c) removal of the `tag` property of the response-only `Pet` schema as breaking (`property-removed-from-response` — this exercises the usage index), (d) the `info.version` change as non-breaking. If any expectation is off, debug the corresponding engine layer first (collect → compare → classify), not the snapshot.
 
 - [ ] **Step 4: Write the docs page**
 
-Open `docs/@v2/commands/stats.md` first and mirror its front-matter/heading conventions exactly. Content for `docs/@v2/commands/diff.md`:
+Open `docs/@v2/commands/stats.md` first and mirror its front-matter/heading conventions exactly (including how admonitions/notes are written in this docs set). Content for `docs/@v2/commands/diff.md`:
 
 ````markdown
 # diff
+
+The `diff` command is **experimental**: its output formats and rule ids may change in future releases.
 
 Compares two API descriptions and reports what was added, removed, and changed. For OpenAPI 3.x, changes are classified as breaking, warning, or non-breaking.
 
@@ -3041,26 +3036,29 @@ redocly diff v1.yaml v2.yaml --format=html -o diff-report.html
 
 ````
 
-- [ ] **Step 5: Create the changeset**
+- [ ] **Step 5: Add the docs page to the sidebar if commands are listed there**
+
+Run: `grep -n "stats" docs/sidebars.yaml`
+If command pages are listed in `docs/sidebars.yaml`, add a `diff` entry next to the `stats` entry, mirroring its format exactly. If `stats` is not listed there, skip this step.
+
+- [ ] **Step 6: Create the changeset**
+
+Only `@redocly/cli` is bumped — `packages/core` is untouched. Content of `.changeset/diff-command.md` (the file starts directly with the `---` front matter):
 
 ```markdown
-<!-- .changeset/diff-command.md -->
 ---
-'@redocly/openapi-core': minor
 '@redocly/cli': minor
 ---
 
-Added the `diff` command that compares two API descriptions and reports added, removed, and changed parts, with breaking-change classification for OpenAPI 3.x. Supports `stylish`, `json`, `markdown`, and `html` output formats and a `--fail-on` CI gate.
+Added the experimental `diff` command that compares two API descriptions and reports added, removed, and changed parts, with breaking-change classification for OpenAPI 3.x. Supports `stylish`, `json`, `markdown`, and `html` output formats and a `--fail-on` CI gate.
 ````
 
-(Remove the `<!-- ... -->` comment line — changeset files start directly with the `---` front matter.)
+- [ ] **Step 7: Run the full verification**
 
-- [ ] **Step 6: Run the full verification**
-
-Run: `npm run typecheck && VITEST_SUITE=unit npx vitest run packages/core/src/diff packages/cli/src/commands/diff --coverage.enabled=false && VITEST_SUITE=e2e npx vitest run tests/e2e/diff`
+Run: `npm run typecheck && VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff --coverage.enabled=false && VITEST_SUITE=e2e npx vitest run tests/e2e/diff`
 Expected: everything PASSES.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add tests/e2e/diff docs/@v2/commands/diff.md .changeset/diff-command.md
@@ -3072,7 +3070,8 @@ git commit -m "test(cli): add diff e2e snapshots, docs page, and changeset"
 ## Final verification (after all tasks)
 
 1. `npm run typecheck` — clean.
-2. `VITEST_SUITE=unit npx vitest run packages/core/src/diff packages/cli/src/commands/diff --coverage.enabled=false` — all green.
+2. `VITEST_SUITE=unit npx vitest run packages/cli/src/commands/diff --coverage.enabled=false` — all green.
 3. `npm run compile && VITEST_SUITE=e2e npx vitest run tests/e2e/diff` — all green.
 4. Manual sanity: `npm run cli -- diff tests/e2e/diff/breaking-changes/base.yaml tests/e2e/diff/breaking-changes/revision.yaml --format html -o /tmp/report.html` and open `/tmp/report.html`.
-5. Confirm the spec's §12 limitations are documented in `docs/@v2/commands/diff.md` (rename blindness, coverage positioning).
+5. Confirm the spec's §12 limitations are documented in `docs/@v2/commands/diff.md` (rename blindness, coverage positioning, experimental status).
+6. **Isolation check:** `git diff main --name-only | grep '^packages/core'` must print NOTHING — `packages/core` is untouched.
