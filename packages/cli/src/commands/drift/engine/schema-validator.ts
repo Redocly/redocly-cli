@@ -23,6 +23,26 @@ function isPropertyExcludedFromTarget(propertySchema: unknown, target: Validatio
     : propertySchema.writeOnly === true;
 }
 
+function isRequiredNameExcludedFromTarget(
+  schema: unknown,
+  name: string,
+  target: ValidationTarget
+): boolean {
+  if (!isPlainObject(schema)) {
+    return false;
+  }
+
+  const properties = schema.properties;
+  if (isPlainObject(properties) && isPropertyExcludedFromTarget(properties[name], target)) {
+    return true;
+  }
+
+  return (
+    Array.isArray(schema.allOf) &&
+    schema.allOf.some((branch) => isRequiredNameExcludedFromTarget(branch, name, target))
+  );
+}
+
 /**
  * Per OpenAPI semantics, readOnly properties are absent from requests and
  * writeOnly properties are absent from responses, so they must not be enforced
@@ -42,10 +62,9 @@ function relaxRequiredForTarget(schema: unknown, target: ValidationTarget): unkn
     output[key] = relaxRequiredForTarget(value, target);
   }
 
-  const properties = schema.properties;
-  if (Array.isArray(schema.required) && isPlainObject(properties)) {
+  if (Array.isArray(schema.required)) {
     output.required = schema.required.filter(
-      (name) => typeof name !== 'string' || !isPropertyExcludedFromTarget(properties[name], target)
+      (name) => typeof name !== 'string' || !isRequiredNameExcludedFromTarget(schema, name, target)
     );
   }
 

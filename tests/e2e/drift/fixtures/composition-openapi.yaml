@@ -28,6 +28,26 @@ paths:
                     properties:
                       name:
                         type: string
+  /pets:
+    post:
+      operationId: createPet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/PetAudit'
+                - type: object
+                  properties:
+                    name:
+                      type: string
+              required:
+                - id
+                - name
+      responses:
+        '201':
+          description: Created.
   /notifications:
     post:
       operationId: sendNotification
@@ -62,6 +82,12 @@ components:
       properties:
         id:
           type: string
+    PetAudit:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
     EmailNotification:
       type: object
       required:

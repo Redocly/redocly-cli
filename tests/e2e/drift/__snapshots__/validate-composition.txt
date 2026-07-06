@@ -4,7 +4,7 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-composition.ndjson
 ┃ Match mode: strict-host
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=4 documented=4 undocumented=0
+┃ Exchanges: total=5 documented=5 undocumented=0
 ┃ Findings: total=5 error=5 warning=0 info=0
 ┃ Problems: total=5
 ┗ Duration: <ms>ms
