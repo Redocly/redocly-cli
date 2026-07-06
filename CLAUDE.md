@@ -2,7 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-The contribution rules that apply to **every** AI tool live in @AGENTS.md — read those first. This file adds Claude Code-specific reference: the command list, the package layout, and the build system.
+The contribution rules that apply to **every** AI tool live in @AGENTS.md — read those first.
+This file adds Claude Code-specific reference: the command list, the package layout, and the build system.
 
 Claude Code also auto-loads the operating rules under `.claude/rules/` — the principles, code-quality standards, testing and QA procedures, security guidelines, the release workflow, and the Walker/Visitors/Nodes guide — plus the `/deslop` command.
 
@@ -52,7 +53,9 @@ This is a TypeScript monorepo with npm workspaces containing three packages:
 
 ### `packages/core` (@redocly/openapi-core)
 
-The heart of the project. Handles all OpenAPI/AsyncAPI linting, validation, bundling, and decoration logic. This package is also used in external apps such as `language-server` and `vs-code-extension`.
+The heart of the project.
+Handles all OpenAPI/AsyncAPI linting, validation, bundling, and decoration logic.
+This package is also used in external apps such as `language-server` and `vs-code-extension`.
 
 Key directories:
 
@@ -82,6 +85,8 @@ API contract testing framework. Validates real API responses against OpenAPI/Ara
 
 ## Build System
 
-`packages/core` and `packages/respect-core` are compiled by TypeScript (`tsc -b tsconfig.build.json`). `packages/cli` is bundled by **esbuild** (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs). The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
+`packages/core` and `packages/respect-core` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
+`packages/cli` is bundled by **esbuild** (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
+The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.

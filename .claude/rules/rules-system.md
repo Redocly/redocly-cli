@@ -4,11 +4,17 @@ This is the most important pattern to understand when working in `packages/core`
 
 ### Concepts
 
-Node — a typed object in the parsed API description AST. Every node has a name that matches its spec concept: `Schema`, `Operation`, `Server`, `Parameter`, `Response`, etc. The full list of node types per spec is in `packages/core/src/types/`.
+Node — a typed object in the parsed API description AST.
+Every node has a name that matches its spec concept: `Schema`, `Operation`, `Server`, `Parameter`, `Response`, etc.
+The full list of node types per spec is in `packages/core/src/types/`.
 
-Visitor — an object whose keys are node names. When the Walker enters or leaves a node of that type, it calls the corresponding visitor hook. Visitor names mirror node names exactly. The full visitor type map is in `packages/core/src/visitors.ts`.
+Visitor — an object whose keys are node names.
+When the Walker enters or leaves a node of that type, it calls the corresponding visitor hook.
+Visitor names mirror node names exactly.
+The full visitor type map is in `packages/core/src/visitors.ts`.
 
-Walker — the engine in `packages/core/src/walk.ts` (`walkDocument`). It recursively traverses the parsed document, resolves `$ref` references, and invokes registered visitors at each node.
+Walker — the engine in `packages/core/src/walk.ts` (`walkDocument`).
+It recursively traverses the parsed document, resolves `$ref` references, and invokes registered visitors at each node.
 
 ### Visitor hooks
 
@@ -37,7 +43,8 @@ Every visitor hook receives a context object with:
 
 ### Rule function signature
 
-A rule is a factory function that receives rule options and returns a visitor object. The type depends on the target spec:
+A rule is a factory function that receives rule options and returns a visitor object.
+The type depends on the target spec:
 
 ```ts
 import type { Oas3Rule } from '../../visitors.js';
@@ -132,7 +139,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
 };
 ```
 
-### Registering a new rule
+### Register a new rule
 
 After creating the rule file, register it in the spec index:
 
@@ -148,7 +155,9 @@ export const Oas3Rules = {
 
 ### Configurable rules (Assertions)
 
-Users can define their own rules in `redocly.yaml` using the built-in `Assertion` system (`packages/core/src/rules/common/assertions/asserts.ts`). Instead of writing TypeScript, the user declares a subject node type and a set of assertion checks. Internally, the subject type is converted into a visitor automatically.
+Users can define their own rules in `redocly.yaml` using the built-in `Assertion` system (`packages/core/src/rules/common/assertions/asserts.ts`).
+Instead of writing TypeScript, the user declares a subject node type and a set of assertion checks.
+Internally, the subject type is converted into a visitor automatically.
 
 ```yaml
 rules:
