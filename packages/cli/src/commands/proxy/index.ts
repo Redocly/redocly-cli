@@ -101,7 +101,12 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
           try {
             await harWriter.add(harEntry);
           } catch (error) {
-            logger.error(`Failed to write HAR entry: ${(error as Error).message}\n`);
+            logger.error(
+              `Failed to write HAR entry, skipping validation for this exchange: ${
+                (error as Error).message
+              }\n`
+            );
+            return;
           }
 
           if (!session) {

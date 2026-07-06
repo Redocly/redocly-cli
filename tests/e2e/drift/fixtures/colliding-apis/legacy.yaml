@@ -1,0 +1,29 @@
+openapi: 3.1.0
+info:
+  title: Legacy Users API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /users/{userId}:
+    get:
+      operationId: getLegacyUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single user.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string

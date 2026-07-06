@@ -123,6 +123,17 @@ describe('drift - validate mode', () => {
     await matchSnapshot('validate-composition', output);
   });
 
+  test('warns when multiple descriptions document the same operation for one server', async () => {
+    const { output } = runDrift([
+      'traffic-matched.ndjson',
+      '--api',
+      'colliding-apis',
+      '--rules',
+      'undocumented-endpoint',
+    ]);
+    await matchSnapshot('validate-colliding-specs', output);
+  });
+
   test('discards findings below --min-severity', async () => {
     const { output } = runDrift([
       'traffic-mixed-severity.ndjson',

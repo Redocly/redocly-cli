@@ -314,6 +314,47 @@ async function indexDocument(
   });
 }
 
+function serverIdentity(server: OpenApiServer): string {
+  return `${server.host ?? ''}|${server.basePath}`;
+}
+
+function warnAboutCollidingOperations(operationsByMethod: Map<string, OpenApiOperation[]>): void {
+  for (const operations of operationsByMethod.values()) {
+    const byPathPattern = new Map<string, OpenApiOperation[]>();
+    for (const operation of operations) {
+      const group = byPathPattern.get(operation.pathRegex.source) ?? [];
+      group.push(operation);
+      byPathPattern.set(operation.pathRegex.source, group);
+    }
+
+    for (const group of byPathPattern.values()) {
+      const sourcesByServer = new Map<string, Set<string>>();
+      for (const operation of group) {
+        for (const server of operation.servers) {
+          const key = serverIdentity(server);
+          const sources = sourcesByServer.get(key) ?? new Set<string>();
+          sources.add(operation.specSource);
+          sourcesByServer.set(key, sources);
+        }
+      }
+
+      for (const sources of sourcesByServer.values()) {
+        if (sources.size > 1) {
+          const [first] = group;
+          logger.warn(
+            `"${first.method.toUpperCase()} ${
+              first.pathTemplate
+            }" is documented for the same server in multiple descriptions (${Array.from(
+              sources
+            ).join(', ')}). Matching traffic is validated against only one of them.\n`
+          );
+          break;
+        }
+      }
+    }
+  }
+}
+
 function finalizeIndex(
   operationsByMethod: Map<string, OpenApiOperation[]>,
   loadedSpecs: number
@@ -397,6 +438,10 @@ export async function loadOpenApiIndex(specPath: string, config: Config): Promis
       specFile,
       operationsByMethod
     );
+  }
+
+  if (loadedSpecs > 1) {
+    warnAboutCollidingOperations(operationsByMethod);
   }
 
   return finalizeIndex(operationsByMethod, loadedSpecs);
