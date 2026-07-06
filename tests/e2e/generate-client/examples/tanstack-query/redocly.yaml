@@ -9,4 +9,3 @@ apis:
       generators:
         - sdk
         - tanstack-query
-      facade: functions

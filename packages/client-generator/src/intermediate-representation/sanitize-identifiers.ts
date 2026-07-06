@@ -74,10 +74,9 @@ export function sanitizeIdentifiers(model: ApiModel): void {
  *
  * This gates the three names that land *directly* in a binding slot from the model:
  * schema names, security-scheme keys, and operation names. Identifiers an emitter
- * *derives* from these — path-parameter binding names (`uniqueIdent`), enum
- * const-object keys (`isIdentifier`-gated), and tag-derived service-class names
- * (`serviceClassName`) — are sanitized at their point of use, not here, so they stay
- * safe even though this gate does not re-check them.
+ * *derives* from these — path-parameter binding names (`uniqueIdent`) and enum
+ * const-object keys (`isIdentifier`-gated) — are sanitized at their point of use,
+ * not here, so they stay safe even though this gate does not re-check them.
  */
 export function assertSafeIdentifiers(model: ApiModel): void {
   for (const schema of model.schemas) {

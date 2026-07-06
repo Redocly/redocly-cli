@@ -6,7 +6,7 @@ const out = document.querySelector<HTMLPreElement>('#out')!;
 
 // Middleware composes cross-cutting concerns (tracing, auth refresh, logging, …).
 // `onRequest` runs in registration order, `onResponse` in reverse (onion); register as many as you
-// like with `use()` (the service-class facade uses `client.use()`). Here we observe the response.
+// like with `use()`. Here we observe the response.
 //
 // Heads-up: adding a *custom request header* in `onRequest` (e.g. `ctx.headers['X-Request-Id'] = …`)
 // makes the browser send a CORS preflight, so the target API must list that header in its

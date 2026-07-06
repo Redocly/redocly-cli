@@ -2,9 +2,9 @@
  * Behavioral e2e for non-identifier path parameters. OpenAPI allows parameter
  * names that are not valid JS identifiers (`widget-id`), start with a digit
  * (`2fa`), or collide with reserved words (`new`). The generator must sanitize
- * each into a safe local argument name and use that same name in the URL
- * substitution — otherwise the emitted client either fails to compile or encodes
- * a literal string instead of the argument value.
+ * each into a safe sugar argument name while routing the value back under the
+ * WIRE name (the descriptor's `ParamSpec.name`) — otherwise the emitted client
+ * either fails to compile or substitutes nothing into the URL template.
  *
  * This generates a client from such a spec, type-checks it under strict mode
  * (proving it compiles), then runs it through a fake `fetch` (proving the URL is
@@ -104,15 +104,18 @@ describe('non-identifier path parameters', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('emits safe argument names and matching URL substitutions', () => {
+  test('emits safe argument names routed back under the wire name', () => {
     const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
-    // `widget-id` → `widget_id`; the URL uses the same identifier, not a literal.
-    expect(client).toContain('widget_id: string');
-    expect(client).toContain('${encodeURIComponent(String(widget_id))}');
-    expect(client).not.toContain('"widget-id": string');
-    // reserved word `new` → `_new`.
-    expect(client).toContain('_new: string');
-    expect(client).toContain('${encodeURIComponent(String(_new))}');
+    // `widget-id` → safe `widget_id` argument, routed under the quoted wire key.
+    expect(client).toContain(
+      'export const getWidget = (widget_id: string, init: RequestOptions = {}) => client.getWidget({ "widget-id": widget_id }, init);'
+    );
+    // The descriptor keeps the WIRE name for URL substitution.
+    expect(client).toContain('params: [{ name: "widget-id", in: "path" }]');
+    // reserved word `new` → `_new` argument, routed under the `new` key.
+    expect(client).toContain(
+      'export const getItem = (_new: string, init: RequestOptions = {}) => client.getItem({ new: _new }, init);'
+    );
   });
 
   test('the generated client type-checks under strict mode', () => {

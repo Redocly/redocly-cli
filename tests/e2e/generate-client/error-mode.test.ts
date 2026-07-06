@@ -1,14 +1,14 @@
 // e2e for `--error-mode result`: the result-shape / typed-errors client.
 //
 // We assert on the generated source (string checks) and strict-tsc the output
-// (single-file and the whole tags-split dir) — this is the same lightweight
+// (single-file and the split two-file set) — this is the same lightweight
 // harness used by spec-versions.test.ts. We deliberately do NOT spin up the
 // mock-server behavioral harness (base.test.ts / cafe.test.ts), which needs a
 // dedicated consumer dir with server.ts/index.ts: strict tsc over the
 // discriminated `Result<TData, TError>` already proves the typed `error` flows
-// through, and the behavioral retry/abort path is shared (`__send`) and covered
-// by the existing throw-mode base e2e. The tags-split case guards the Task-4
-// fix that multi-file modes call `__requestResult` (not `__request`).
+// through, and the behavioral retry/abort path is shared (the runtime's `send`)
+// and covered by the existing throw-mode base e2e. The split case guards that
+// the entry bakes `errorMode: "result"` into the client config too.
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
@@ -73,10 +73,11 @@ describe('generate-client error mode', () => {
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
-    expect(generated).toContain('export async function getThing');
-    expect(generated).toContain('Promise<Result<');
+    expect(generated).toContain('export const getThing = (');
+    expect(generated).toContain('result: Result<GetThingResult, GetThingError>;');
     expect(generated).toContain('export type GetThingError = ProblemDetails;');
-    expect(generated).toContain('__requestResult');
+    // The mode is baked into the client instance config (configure() cannot flip it).
+    expect(generated).toContain('errorMode: "result"');
 
     writeFileSync(
       join(dir, 'tsconfig.json'),
@@ -88,9 +89,9 @@ describe('generate-client error mode', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('tags-split result mode: per-tag endpoints call __requestResult, strict tsc passes over the dir', () => {
+  it('split result mode: the entry bakes errorMode result, strict tsc passes over both files', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-split-'));
-    // Multi-file modes take a `.ts` entry path; per-tag dirs are written beside it.
+    // Split mode takes a `.ts` entry path; the schemas file is written beside it.
     const entry = join(dir, 'client.ts');
     const res = spawnSync(
       'node',
@@ -103,7 +104,7 @@ describe('generate-client error mode', () => {
         '--error-mode',
         'result',
         '--output-mode',
-        'tags-split',
+        'split',
       ],
       { encoding: 'utf-8', cwd: repoRoot }
     );
@@ -111,19 +112,12 @@ describe('generate-client error mode', () => {
     expect(existsSync(entry)).toBe(true);
 
     const files = collectTsFiles(dir);
-    const contents = files.map((f) => ({ f, src: readFileSync(f, 'utf-8') }));
+    expect(files.map((f) => f.split('/').pop()).sort()).toEqual(['client.schemas.ts', 'client.ts']);
 
-    // The endpoint call site must use the result terminal in multi-file modes
-    // (Task-4 fix) — at least one file calls `__requestResult`, and no file
-    // contains a bare throw-mode `__request<` call.
-    expect(contents.some(({ src }) => src.includes('__requestResult'))).toBe(true);
-    for (const { f, src } of contents) {
-      // `__requestResult<` is fine; a bare throw-mode `__request<` is not.
-      expect(
-        /__request</.test(src.replace(/__requestResult/g, '')),
-        `bare __request< in ${f}`
-      ).toBe(false);
-    }
+    // The result shape is baked into the entry: typed Ops results and the instance config.
+    const entrySrc = readFileSync(entry, 'utf-8');
+    expect(entrySrc).toContain('errorMode: "result"');
+    expect(entrySrc).toContain('Result<');
 
     // Strict tsc over the whole tree (bundler resolution handles the `.js` ESM imports).
     const tsc = spawnSync(

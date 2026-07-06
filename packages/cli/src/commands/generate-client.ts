@@ -12,15 +12,14 @@ export type GenerateClientCommandArgv = {
   config?: string;
   'server-url'?: string;
   'enum-style'?: 'union' | 'const-object';
-  'output-mode'?: 'single' | 'split' | 'tags' | 'tags-split';
-  facade?: 'functions' | 'service-class';
+  'output-mode'?: 'single' | 'split';
+  runtime?: 'inline' | 'package';
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
   'query-framework'?: 'react' | 'vue' | 'svelte' | 'solid';
   'mock-data'?: 'baked' | 'faker';
   'mock-seed'?: number;
-  name?: string;
   // Built-in names, inline custom-generator names, or plugin import specifiers (path/package).
   generators?: string[];
   // Path to a publisher setup module baked into the generated client.
@@ -79,14 +78,13 @@ export async function handleGenerateClient({
     serverUrl: argv['server-url'],
     enumStyle: argv['enum-style'],
     outputMode: argv['output-mode'],
-    facade: argv.facade,
+    runtime: argv.runtime,
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
     dateType: argv['date-type'],
     queryFramework: argv['query-framework'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
-    name: argv.name,
     generators: argv.generators,
     setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
   };

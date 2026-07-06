@@ -2,7 +2,7 @@
  * Behavioral e2e for composable middleware/interceptors. Like `extension.test.ts`, we
  * inject a fake `fetch` and exercise the generated runtime in a real consumer, proving
  * that `use()` registers middleware, `onRequest` runs in order, `onResponse` runs in
- * reverse (onion), `onError` chains, and the service-class facade has its own `use()`.
+ * reverse (onion), `onError` chains, and configured middleware precedes `use()`.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -45,7 +45,7 @@ function runConsumer(dir: string, script: string): unknown {
 
 const OK = `new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } })`;
 
-describe('middleware — functions facade (use)', () => {
+describe('middleware — flat surface (use)', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'mw-fn-'));
@@ -250,26 +250,26 @@ describe('middleware — result error mode', () => {
   }, 60_000);
 });
 
-describe('middleware — service-class facade (use + constructor)', () => {
+describe('middleware — configured chain precedes use()', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'mw-sc-'));
-    generate(dir, ['--facade', 'service-class', '--name', 'PetClient']);
+    dir = mkdtempSync(join(tmpdir(), 'mw-cfg-'));
+    generate(dir);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('constructor middleware runs before instance .use() middleware', () => {
+  test('configure({ middleware }) runs before later use() middleware', () => {
     const captured = runConsumer(
       dir,
       outdent`
-        import { PetClient } from './client.ts';
+        import { client } from './client.ts';
 
         const order: string[] = [];
-        const client = new PetClient({
+        client.configure({
           fetch: (async () => ${OK}) as unknown as typeof fetch,
-          middleware: [{ onRequest: () => { order.push('ctor'); } }],
+          middleware: [{ onRequest: () => { order.push('configured'); } }],
         });
         client.use({ onRequest: () => { order.push('use'); } });
         await client.listPets();
@@ -277,6 +277,6 @@ describe('middleware — service-class facade (use + constructor)', () => {
       `
     ) as { order: string[] };
 
-    expect(captured.order).toEqual(['ctor', 'use']);
+    expect(captured.order).toEqual(['configured', 'use']);
   }, 60_000);
 });

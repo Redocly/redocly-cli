@@ -1,9 +1,10 @@
 // Regression: an operation whose `<Op>Result` alias name collides with an existing schema
 // name (operation `search` → the `SearchResult` schema it returns) must NOT emit the
 // self-referential `export type SearchResult = SearchResult;`. That alias is circular and, in
-// multi-file output, conflicts with the imported schema (TS2440) and duplicates the barrel
-// re-export (TS2308). `base.yaml` carries this shape (`operationId: search` → `$ref SearchResult`,
-// plus a `SearchResult` component). We generate the service-class/tags layout and strict-`tsc` it.
+// split output, conflicts with the schema imported from the schemas module (TS2440) and
+// duplicates the `export *` re-export (TS2308). `base.yaml` carries this shape
+// (`operationId: search` → `$ref SearchResult`, plus a `SearchResult` component). We generate
+// the split two-file layout and strict-`tsc` it.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -28,24 +29,12 @@ function collectTsFiles(dir: string): string[] {
 }
 
 describe('generate-client operation/schema name collision', () => {
-  it('does not emit a self-referential *Result alias; strict tsc passes over the tree', () => {
+  it('does not emit a self-referential *Result alias; strict tsc passes over the split set', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-collision-'));
     const entry = join(dir, 'client.ts');
     const res = spawnSync(
       'node',
-      [
-        cli,
-        'generate-client',
-        fixture,
-        '--output',
-        entry,
-        '--facade',
-        'service-class',
-        '--output-mode',
-        'tags',
-        '--args-style',
-        'grouped',
-      ],
+      [cli, 'generate-client', fixture, '--output', entry, '--output-mode', 'split'],
       { encoding: 'utf-8', cwd: repoRoot }
     );
     expect(res.status, res.stderr).toBe(0);
@@ -59,11 +48,11 @@ describe('generate-client operation/schema name collision', () => {
       );
     }
     // Non-self-referential variant: `GetStatusResult` exists as a schema, so the op's
-    // `<Op>Result` alias must be suppressed — exactly one declaration across the tree.
+    // `<Op>Result` alias must be suppressed — exactly one declaration across the set.
     const declarations = allSource.join('\n').match(/export type GetStatusResult\b/g) ?? [];
     expect(declarations).toHaveLength(1);
 
-    // Strict tsc over the whole tree (bundler resolution handles the `.js` ESM imports).
+    // Strict tsc over the whole set (bundler resolution handles the `.js` ESM imports).
     const tsc = spawnSync(
       tscBin,
       [

@@ -1,7 +1,7 @@
 {
   "name": "@redocly/client-generator",
   "version": "0.0.0",
-  "description": "Generate TypeScript clients (types, fetch, service-class) from OpenAPI descriptions.",
+  "description": "Generate typed, zero-dependency TypeScript clients (fetch, auth, retries, middleware, SSE) from OpenAPI descriptions.",
   "type": "module",
   "types": "lib/index.d.ts",
   "sideEffects": false,
@@ -18,6 +18,7 @@
   "engineStrict": true,
   "scripts": {
     "examples:regen": "node scripts/regenerate-examples.mjs",
+    "prepare": "node scripts/generate-runtime-sources.mjs",
     "typecheck:examples": "node scripts/typecheck-examples.mjs"
   },
   "license": "MIT",

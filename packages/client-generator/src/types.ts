@@ -1,6 +1,6 @@
 import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
 
-import type { ArgsStyle, Facade } from './emitters/client.js';
+import type { ArgsStyle } from './emitters/client.js';
 import type { CustomGenerator } from './generators/types.js';
 import type { OutputMode } from './writers/types.js';
 
@@ -16,22 +16,12 @@ export type GenerateClientOptions = {
    */
   outputMode?: OutputMode;
   /**
-   * Developer-facing operation shape: `'functions'` (default) emits standalone
-   * async functions; `'service-class'` groups operations as class methods.
-   */
-  facade?: Facade;
-  /**
    * How operation inputs are passed to each generated function/method:
    * `'flat'` (default) spreads path params as positional args followed by
    * `params`/`body`/`headers` slots; `'grouped'` bundles every input into a single
    * `args` object. The per-call `init` argument stays separate in both styles.
    */
   argsStyle?: ArgsStyle;
-  /**
-   * Class name for the `service-class` facade in single/split layouts (ignored
-   * by `functions` and by per-tag service classes). Defaults to `'Client'`.
-   */
-  name?: string;
   /**
    * Override the BASE URL inlined into the generated runtime. When omitted,
    * the value is derived from `servers[0].url` in the source OpenAPI document.
@@ -96,10 +86,11 @@ export type GenerateClientOptions = {
   configDir?: string;
   /**
    * Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`)
-   * baked into the generated client. Resolved against `configDir`. Works across all output modes
-   * and both facades (functions: global `configure`/`use`; service-class: constructor merge).
+   * baked into the generated client. Resolved against `configDir`. Works across all output modes.
    */
   setup?: string;
+  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
+  runtime?: 'inline' | 'package';
 };
 
 export type GenerateClientResult = {

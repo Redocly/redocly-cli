@@ -1,40 +1,25 @@
 import { join } from 'node:path';
 
-import { emitModules, moduleSpecifier } from '../emitters/client.js';
-import { joinSections } from '../emitters/support.js';
+import { emitClientSplit } from '../emitters/package-client.js';
 import type { Writer } from './types.js';
-import { allOperations, anchor } from './util.js';
+import { anchor } from './util.js';
 
 /**
- * `split` mode: three sibling files derived from the `--output` anchor.
+ * `split` mode: two sibling files derived from the `--output` anchor, for both
+ * runtime distributions.
  *
- *   <stem>.http.ts     shared runtime + auth state + public setters
  *   <stem>.schemas.ts  model types, enums, const-objects, and type guards
- *   <stem>.ts          endpoints + the entry that re-exports the public surface
+ *   <stem>.ts          everything else (runtime, wiring, client, sugar), which
+ *                      `export *`s the schemas module and type-imports exactly
+ *                      the schema names it references
  *
- * The endpoints file imports exactly the types it references (from the schemas
- * module) and exactly the runtime helpers it uses (from the http module), so each
- * file type-checks cleanly under `noUnusedLocals`.
+ * The schemas file is skipped entirely when the document declares no schemas.
  */
 export const splitWriter: Writer = ({ model, outputPath, emit }) => {
   const { dir, stem } = anchor(outputPath);
-  const m = emitModules(model, emit);
-  const ops = allOperations(model.services);
-
-  const reexports: string[] = [];
-  if (m.hasSchemas) reexports.push(`export * from '${moduleSpecifier(stem, 'schemas')}';`);
-  reexports.push(m.publicReexport(stem));
-
-  const entryContent = joinSections([
-    m.header,
-    m.endpointImports(ops, stem),
-    reexports.join('\n'),
-    m.operations,
-  ]);
-
+  const { entry, schemas } = emitClientSplit(model, emit, stem);
   return [
-    { path: join(dir, `${stem}.http.ts`), content: m.http(stem) },
-    { path: join(dir, `${stem}.schemas.ts`), content: m.schemas },
-    { path: outputPath, content: entryContent },
+    ...(schemas === undefined ? [] : [{ path: join(dir, `${stem}.schemas.ts`), content: schemas }]),
+    { path: outputPath, content: entry },
   ];
 };

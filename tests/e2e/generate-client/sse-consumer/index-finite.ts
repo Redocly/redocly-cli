@@ -1,4 +1,4 @@
-import { configure, sse } from './api.js';
+import { configure, streamMessages } from './api.js';
 
 const serverUrl = process.argv[2] ?? process.env.SSE_BASE_URL ?? 'http://127.0.0.1:3104';
 
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   configure({ serverUrl });
 
   const collected: Array<{ text: string; id: string | undefined }> = [];
-  for await (const ev of sse.streamMessages()) {
+  for await (const ev of streamMessages()) {
     collected.push({ text: ev.data.text, id: ev.id });
   }
 

@@ -2,6 +2,10 @@
  * Proves the generated client types `ctx.operation.{id,path,tags}` as literal unions: a valid
  * comparison compiles, a misspelled operationId/tag does NOT. The whole point of the feature is
  * compile-time typo-catching, so it gets a dedicated strict-`tsc` check.
+ *
+ * Mechanism: the wiring instantiates `createClient<Ops, OperationId, OperationPath, …>`, so a
+ * `use()` callback's ctx is contextually narrowed. The exported `RequestContext` TYPE keeps its
+ * string defaults (spec-independent middleware stays assignable — asserted below).
  */
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -61,13 +65,14 @@ describe('typed ctx.operation rejects typos at compile time', () => {
     if (dir) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('a valid operationId/path comparison compiles', () => {
+  test('a valid operationId/path comparison compiles; base-typed middleware stays accepted', () => {
     expect(
       typechecks(
         dir,
         outdent`
           import { use, type RequestContext } from './client.ts';
-          use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPets' || ctx.operation.path === '/pets') {} } });
+          use({ onRequest: (ctx) => { if (ctx.operation.id === 'listPets' || ctx.operation.path === '/pets') {} } });
+          use({ onRequest: (ctx: RequestContext) => { ctx.headers['X-Op'] = ctx.operation.id; } });
         `
       )
     ).toBe(true);
@@ -78,8 +83,8 @@ describe('typed ctx.operation rejects typos at compile time', () => {
       typechecks(
         dir,
         outdent`
-          import { use, type RequestContext } from './client.ts';
-          use({ onRequest: (ctx: RequestContext) => { if (ctx.operation.id === 'listPetss') {} } });
+          import { use } from './client.ts';
+          use({ onRequest: (ctx) => { if (ctx.operation.id === 'listPetss') {} } });
         `
       )
     ).toBe(false);

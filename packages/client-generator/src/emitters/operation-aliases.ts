@@ -4,9 +4,10 @@
 // `EmitContext` (a type-only import from operations.ts — erased, so there is no runtime cycle).
 
 import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
+import { safeIdent } from './identifier.js';
 import { jsdocText } from './jsdoc.js';
 import { operationSignature } from './operation-signature.js';
-import { bodyTypeNode, paramsTypeLiteral } from './operation-types.js';
+import { bodyTypeNode, paramsTypeLiteral, propertyKey } from './operation-types.js';
 import type { EmitContext } from './operations.js';
 import { pascalCase } from './support.js';
 import { jsdoc, ts } from './ts.js';
@@ -32,7 +33,9 @@ export function renderOperationAliases(
   ctx: EmitContext,
   // SSE ops have no one-shot response, so they omit `*Result`/`*Error` and keep only the input
   // aliases. (Previously done by a `.slice(1)` on the result; an explicit flag is collision-safe.)
-  emitResultAndError = true
+  emitResultAndError = true,
+  // Threaded to the `<Op>Variables` body — see `variablesTypeLiteral`.
+  pathKeys: 'ident' | 'wire' = 'ident'
 ): ts.Statement[] {
   const { dateType, schemaNames } = ctx;
   const name = pascalCase(op.name);
@@ -80,7 +83,14 @@ export function renderOperationAliases(
   }
 
   if (!schemaNames.has(`${name}Variables`)) {
-    const variables = renderVariablesAlias(op, name, orderedPathParams, pathParamIdent, ctx);
+    const variables = renderVariablesAlias(
+      op,
+      name,
+      orderedPathParams,
+      pathParamIdent,
+      ctx,
+      pathKeys
+    );
     if (variables) aliases.push(variables);
   }
 
@@ -97,7 +107,8 @@ export function sseAliases(
   op: OperationModel,
   orderedPathParams: ParamModel[],
   pathParamIdent: Map<string, string>,
-  ctx: EmitContext
+  ctx: EmitContext,
+  pathKeys: 'ident' | 'wire' = 'ident'
 ): ts.Statement[] {
   return renderOperationAliases(
     op,
@@ -107,7 +118,8 @@ export function sseAliases(
     '',
     [],
     ctx,
-    false
+    false,
+    pathKeys
   );
 }
 
@@ -144,12 +156,13 @@ function renderVariablesAlias(
   name: string,
   orderedPathParams: ParamModel[],
   pathParamIdent: Map<string, string>,
-  ctx: EmitContext
+  ctx: EmitContext,
+  pathKeys: 'ident' | 'wire'
 ): ts.TypeAliasDeclaration | undefined {
   if (!hasInputs(op)) return undefined;
   return exportType(
     name + 'Variables',
-    variablesTypeLiteral(op, name, orderedPathParams, pathParamIdent, ctx)
+    variablesTypeLiteral(op, name, orderedPathParams, pathParamIdent, ctx, pathKeys)
   );
 }
 
@@ -174,17 +187,21 @@ export function variablesTypeLiteral(
   name: string,
   orderedPathParams: ParamModel[],
   pathParamIdent: Map<string, string>,
-  ctx: EmitContext
+  ctx: EmitContext,
+  // How path-param properties are keyed: `'ident'` (default) uses the sanitized identifier
+  // that doubles as the flat positional argument; `'wire'` (package mode) uses the spec's
+  // param name — quoted when needed — because the runtime routes `args[param.name]`.
+  pathKeys: 'ident' | 'wire' = 'ident'
 ): ts.TypeNode {
   const { dateType, schemaNames } = ctx;
   const props: ts.PropertySignature[] = [];
 
   for (const p of orderedPathParams) {
-    // Same safe identifier the function uses, so a wrapper can map
+    // Ident mode: same safe identifier the function uses, so a wrapper can map
     // `vars.<ident>` straight onto the positional argument.
     const sig = factory.createPropertySignature(
       undefined,
-      pathParamIdent.get(p.name)!,
+      pathKeys === 'wire' ? propertyKey(safeIdent(p.name)) : pathParamIdent.get(p.name)!,
       undefined,
       schemaToTypeNode(p.schema, dateType)
     );

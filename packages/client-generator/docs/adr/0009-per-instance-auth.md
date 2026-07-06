@@ -1,5 +1,7 @@
 # ADR 0009: Per-instance auth via `ClientConfig.auth`
 
+> **Note (2026-07):** The decision (per-instance `ClientConfig.auth`) stands, but the mechanism text is superseded by the runtime-module architecture — the module-global setter slots and `__auth` are gone; the generated `set*` setters are now sugar over `client.auth.*`; see [ADR-0017](./0017-runtime-module-and-descriptor-client.md).
+
 - Status: Accepted
 - Date: 2026-06-10
 

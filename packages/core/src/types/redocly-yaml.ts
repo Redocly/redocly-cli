@@ -350,11 +350,10 @@ const ConfigHTTP: NodeType = {
 const Client: NodeType = {
   properties: {
     generators: { type: 'array', items: { type: 'string' } },
-    facade: { enum: ['functions', 'service-class'] },
-    name: { type: 'string' },
     argsStyle: { enum: ['flat', 'grouped'] },
     serverUrl: { type: 'string' },
-    outputMode: { enum: ['single', 'split', 'tags', 'tags-split'] },
+    outputMode: { enum: ['single', 'split'] },
+    runtime: { enum: ['inline', 'package'] },
     enumStyle: { enum: ['union', 'const-object'] },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },

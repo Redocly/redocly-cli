@@ -69,8 +69,8 @@ export function propertyKey(safe: string): ts.PropertyName {
 
 /**
  * A multipart body whose schema is a concrete object — the case worth typing. Such a body
- * is emitted as its object shape (binary fields → `Blob`); the runtime's `__send` serializes
- * it to `FormData` (via `__toFormData`) after the onRequest chain. Multipart bodies with a
+ * is emitted as its object shape (binary fields → `Blob`); the runtime serializes it to
+ * `FormData` (`runtime/multipart.ts`) after the onRequest chain. Multipart bodies with a
  * non-object schema can't be typed field-by-field, so they keep the raw `FormData` escape hatch.
  */
 export function isTypedMultipart(rb: RequestBodyModel): boolean {

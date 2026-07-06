@@ -12,6 +12,9 @@ const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 // devDependency); map it explicitly so tsc resolves the generated module's
 // `import { queryOptions } from "@tanstack/react-query"` from the temp dir.
 const tanstackPath = join(repoRoot, 'node_modules/@tanstack/react-query');
+// The package-runtime case resolves the sdk's `@redocly/client-generator` import against the
+// BUILT package types (the temp project lives outside the workspace, so no node_modules walk).
+const generatorTypes = join(repoRoot, 'packages/client-generator/lib/index.d.ts');
 
 describe('generate-client tanstack-query generator', () => {
   it('emits a *.tanstack.ts module that strict-tsc-checks against real @tanstack/react-query and composes with the sdk', () => {
@@ -85,6 +88,91 @@ describe('generate-client tanstack-query generator', () => {
           skipLibCheck: true,
           types: [],
           paths: { '@tanstack/react-query': [tanstackPath] },
+        },
+        include: ['client.ts', 'client.tanstack.ts', 'check.ts'],
+      }),
+      'utf-8'
+    );
+
+    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
+    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('--runtime package: the tanstack wrapper composes with the package-runtime sdk and strict-tsc-checks', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-pkg-'));
+    const out = join(dir, 'client.ts');
+    const tanstackOut = join(dir, 'client.tanstack.ts');
+
+    const res = spawnSync(
+      'node',
+      [
+        cli,
+        'generate-client',
+        join(__dirname, 'fixtures', 'base.yaml'),
+        '--output',
+        out,
+        '--runtime',
+        'package',
+        '--generators',
+        'sdk,tanstack-query',
+        '--query-framework',
+        'react',
+      ],
+      { encoding: 'utf-8', cwd: repoRoot }
+    );
+    expect(res.status, res.stderr).toBe(0);
+
+    // The sdk entry imports the runtime instead of embedding it; the wrapper is unchanged
+    // in shape — it consumes the same free functions + <Op>Variables surface.
+    const sdkSource = readFileSync(out, 'utf-8');
+    expect(sdkSource).toContain("from '@redocly/client-generator'");
+    expect(sdkSource).not.toContain('__send');
+    const source = readFileSync(tanstackOut, 'utf-8');
+    expect(source).toContain('import { queryOptions } from "@tanstack/react-query"');
+    expect(source).toContain('export const getPetByIdOptions');
+    expect(source).toContain('export const createPetMutation');
+
+    // Same composition consumer as the inline case — the runtime choice must be
+    // invisible to wrapper consumers.
+    writeFileSync(
+      join(dir, 'check.ts'),
+      [
+        "import { useMutation, useQuery } from '@tanstack/react-query';",
+        "import { createPetMutation, getPetByIdOptions, listPetsOptions } from './client.tanstack.js';",
+        'export function useGetPet(id: number) {',
+        '  return useQuery(getPetByIdOptions({ id }));',
+        '}',
+        'export function useListPets() {',
+        "  return useQuery(listPetsOptions({ params: { filter: { name: 'rex' } } }));",
+        '}',
+        'export function useCreatePet() {',
+        '  return useMutation(createPetMutation());',
+        '}',
+        '',
+      ].join('\n'),
+      'utf-8'
+    );
+
+    // strict-tsc gate: the wrapper + the package-runtime sdk (resolved against the BUILT
+    // @redocly/client-generator types) + the composition consumer, all in one project.
+    writeFileSync(
+      join(dir, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          module: 'nodenext',
+          moduleResolution: 'nodenext',
+          target: 'es2022',
+          lib: ['ES2022', 'DOM'],
+          strict: true,
+          noEmit: true,
+          skipLibCheck: true,
+          types: [],
+          paths: {
+            '@tanstack/react-query': [tanstackPath],
+            '@redocly/client-generator': [generatorTypes],
+          },
         },
         include: ['client.ts', 'client.tanstack.ts', 'check.ts'],
       }),

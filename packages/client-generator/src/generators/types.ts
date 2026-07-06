@@ -1,6 +1,6 @@
 // packages/client-generator/src/generators/types.ts
 import type { EmitOptions } from '../emitters/client.js';
-import type { ErrorMode, Facade } from '../emitters/operations.js';
+import type { ErrorMode } from '../emitters/operations.js';
 import type { DateType } from '../emitters/types.js';
 import type { ApiModel } from '../intermediate-representation/model.js';
 import type { GeneratedFile, OutputMode } from '../writers/types.js';
@@ -15,7 +15,7 @@ export type GeneratorInput = {
   outputPath: string;
   /** File partitioning the generator should honor. */
   outputMode: OutputMode;
-  /** Emit options — serverUrl, facade, and the generator knobs (dateType, mockData, queryFramework, …); see `EmitOptions`. */
+  /** Emit options — serverUrl, runtime, and the generator knobs (dateType, mockData, queryFramework, …); see `EmitOptions`. */
   emit: EmitOptions;
 };
 
@@ -33,19 +33,20 @@ export type Generator = (input: GeneratorInput) => GeneratedFile[];
  *
  * - `requires`: other generators that must also be selected (e.g. `tanstack-query`
  *   imports the sdk's operation functions, so it requires `sdk`).
- * - `facades` / `errorModes` / `dateTypes`: the subset this generator supports;
- *   `undefined` means "all". (`tanstack-query` wraps free throw-mode functions, so it
- *   supports only the `functions` facade in `throw` mode; `transformers` only type-checks
- *   when the sdk types date fields as `Date`, so it supports only `dateType: 'Date'`.)
+ * - `errorModes` / `dateTypes` / `runtimes`: the subset this generator supports;
+ *   `undefined` means "all". (`tanstack-query` wraps throw-mode functions, so it
+ *   supports only `throw` mode; `transformers` only type-checks when the sdk types
+ *   date fields as `Date`, so it supports only `dateType: 'Date'`.)
  */
 export type GeneratorDescriptor = {
   run: Generator;
   // `string[]` (not `GeneratorName[]`) so a custom generator may require a built-in or another
   // custom generator by name; built-in descriptors still type-check (their names are strings).
   requires?: string[];
-  facades?: Facade[];
   errorModes?: ErrorMode[];
   dateTypes?: DateType[];
+  /** Runtime modes this generator supports; absent = compatible with both. */
+  runtimes?: ('inline' | 'package')[];
 };
 
 /**

@@ -14,655 +14,975 @@ export type Message = {
     seq: number;
 };
 
+export type GetHealthResult = Health;
+
 /**
- * Static metadata for every operation, keyed by operationId: the HTTP `method`
- * and the `path` template (with `{param}` placeholders intact). Minification-safe
- * — useful for building cache/query keys, tracing span names, and request logging
- * without re-deriving them at each call site.
+ * Per-operation `args`/`result` shapes (plus `kind: 'sse'` for event streams) — the
+ * type-level companion of `OPERATIONS` that gives `createClient<Ops>` its typed methods.
+ */
+export type Ops = {
+    getHealth: {
+        args: {};
+        result: GetHealthResult;
+    };
+    streamMessages: {
+        args: {};
+        result: Message;
+        kind: "sse";
+    };
+    streamAbort: {
+        args: {};
+        result: Message;
+        kind: "sse";
+    };
+    streamTicks: {
+        args: {};
+        result: string;
+        kind: "sse";
+    };
+};
+
+/**
+ * The wire-shape descriptor for every operation, keyed by operationId — the data the
+ * runtime routes requests by. Also minification-safe static metadata (method, path,
+ * tags) for cache keys, tracing span names, and request logging.
  */
 export const OPERATIONS = {
-    getHealth: { method: "GET", path: "/health", tags: ["Health"] },
-    streamMessages: { method: "GET", path: "/messages", tags: ["Messages"] },
-    streamAbort: { method: "GET", path: "/abort-messages", tags: ["Messages"] },
-    streamTicks: { method: "GET", path: "/ticks", tags: ["Ticks"] }
-} as const;
+    getHealth: { id: "getHealth", method: "GET", path: "/health", tags: ["Health"] },
+    streamMessages: { id: "streamMessages", method: "GET", path: "/messages", tags: ["Messages"], responseKind: "sse", sseDataKind: "json" },
+    streamAbort: { id: "streamAbort", method: "GET", path: "/abort-messages", tags: ["Messages"], responseKind: "sse", sseDataKind: "json" },
+    streamTicks: { id: "streamTicks", method: "GET", path: "/ticks", tags: ["Ticks"], responseKind: "sse", sseDataKind: "text" }
+} as const satisfies Record<string, OperationDescriptor>;
 
-/**
- * The operationId of any operation in this client.
- */
 export type OperationId = keyof typeof OPERATIONS;
-
-/**
- * Static metadata describing one operation: its HTTP method, path template, and tags.
- */
-export type OperationMetadata = {
-    readonly method: string;
-    readonly path: string;
-    readonly tags: readonly string[];
-};
 
 export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
 
-export type OperationTag = (typeof OPERATIONS)[OperationId]["tags"][number];
+export type OperationTag = Extract<(typeof OPERATIONS)[OperationId], {
+    tags: readonly string[];
+}>["tags"][number];
 
-let BASE = "http://localhost:3104";
-
-/** Identity of the operation a request belongs to. Stable across path interpolation. */
-export type OperationContext = {
-    id: OperationId;
-    path: OperationPath;
-    tags: OperationTag[];
-};
-
-/** The mutable request context handed to `onRequest` (mutate `url`/`method`/`headers`/`body`). */
-export type RequestContext = {
-    url: string;
-    method: string;
-    headers: Record<string, string>;
-    body?: unknown;
-    /** The operation being called: its id (operationId), path template, and tags. */
-    operation: OperationContext;
-};
+// ─── Embedded runtime (@redocly/client-generator, assembled per this API's needs) ───
 
 /**
- * Configuration and extension hooks for a client. Supplied per-instance via
- * `new <Client>(config)` (service-class facade) or globally via `configure(config)`
- * (functions facade).
+ * The public type surface of the client runtime — `@redocly/client-generator`'s
+ * app-facing runtime module. Pure types, no runtime code (excluded from coverage).
+ * The generator emits `OPERATIONS` literals typed
+ * `satisfies Record<string, OperationDescriptor>` against this module, so an
+ * incompatible runtime/generated pair fails the consumer's build (the semver skew guard).
  */
-export type ClientConfig = {
-    /** Base URL for this client; overrides the inlined default and `setServerUrl()`. */
-    serverUrl?: string;
-    /** Extra headers merged into every request; a function is invoked per request. */
-    headers?: Record<string, string> | (() => Record<string, string> | Promise<Record<string, string>>);
-    /** Transport used to issue requests. Defaults to the global `fetch`. */
-    fetch?: typeof fetch;
-    /** Mutate the request (`url` / `method` / `headers`) before it is sent. */
-    onRequest?: (ctx: RequestContext) => void | Promise<void>;
-    /** Observe — or replace, by returning a `Response` — the response before parsing. */
-    onResponse?: (response: Response, ctx: RequestContext) => Response | void | Promise<Response | void>;
-    /**
-     * Map a failed request's `ApiError` into a custom error to throw instead (throw mode only).
-     * Synchronous, kept so for backward compatibility; `Middleware.onError` additionally allows async.
-     */
-    onError?: (error: ApiError, ctx: RequestContext) => globalThis.Error;
-    /**
-     * Composable interceptors run around every request, alongside the single
-     * `onRequest`/`onResponse`/`onError` hooks above (which act as one implicit, first
-     * middleware). `onRequest` runs in array order; `onResponse` in reverse — an onion, so
-     * the last-registered middleware wraps closest to the network. Register more at runtime
-     * with `use()` (functions facade) or `<Client>.use()` (service-class facade).
-     */
-    middleware?: Middleware[];
-    /** Retry policy for transient failures. Omitted ⇒ no retries (`retries` defaults to 0). */
-    retry?: RetryConfig;
+
+/** How one operation parameter is sent: its location plus OpenAPI query-serialization hints. */
+export type ParamSpec = {
+  name: string;
+  in: 'path' | 'query' | 'header';
+  style?: 'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
+  explode?: boolean;
+  allowReserved?: boolean;
 };
 
-/**
- * A request interceptor; every field is optional, so a middleware can hook any subset of
- * the lifecycle. `onRequest` may mutate the request `ctx` (`url`/`method`/`headers`);
- * `onResponse` may return a replacement `Response`; `onError` (throw mode only) maps the
- * failure into the error to throw, threaded through each middleware in turn.
- */
-export type Middleware = {
-    onRequest?: (ctx: RequestContext) => void | Promise<void>;
-    onResponse?: (response: Response, ctx: RequestContext) => Response | void | Promise<Response | void>;
-    // `globalThis.Error` (not bare `Error`) so a spec schema named `Error` can't shadow it.
-    onError?: (error: ApiError, ctx: RequestContext) => globalThis.Error | Promise<globalThis.Error>;
+/** One security requirement, denormalized onto the operation (`scheme` names the spec's scheme). */
+export type SecuritySpec =
+  | { scheme: string; kind: 'bearer' | 'basic' }
+  | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
+
+/** The frozen data contract between generated code and the runtime: one operation's wire shape. */
+export type OperationDescriptor = {
+  id: string;
+  method: string;
+  path: string;
+  tags?: readonly string[];
+  params?: readonly ParamSpec[];
+  /** `multipart: true` marks a typed object body serialized to FormData by the runtime. */
+  body?: { contentType: string; multipart?: boolean };
+  /** Defaults to `'json'` (content-type negotiation on parse). */
+  responseKind?: 'json' | 'text' | 'blob' | 'void' | 'sse';
+  sseDataKind?: 'json' | 'text';
+  security?: readonly SecuritySpec[];
+};
+
+/** A query value: scalars, arrays of scalars, or objects (serialized as deepObject brackets). */
+export type QueryValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Array<string | number | boolean | null | undefined>
+  | Record<string, unknown>;
+
+/** A credential: a literal, or a (possibly async) function resolved per request (refresh flows). */
+export type TokenProvider = string | (() => string | Promise<string>);
+
+/** Per-instance credentials, keyed by the scheme kinds the runtime can inject. */
+export type AuthCredentials = {
+  bearer?: TokenProvider;
+  basic?: { username: string; password: string };
+  apiKey?: Record<string, TokenProvider>;
 };
 
 /** Backoff shape: 'fixed' = constant delay; 'exponential' = doubling per attempt. */
 export type RetryStrategy = 'fixed' | 'exponential';
 
-/** Context handed to `retryOn` for the attempt that just failed. */
-export type RetryContext = {
-    /** 1-based number of the attempt that just failed. */
-    attempt: number;
-    /** The request that was attempted. */
-    request: RequestContext;
-    /** Present when the server returned a (non-ok) response. */
-    response?: Response;
-    /** Present when the transport threw (network error, DNS, connection reset). */
-    error?: unknown;
+/**
+ * The operation's identity, exposed to middleware for targeting (`ctx.operation`).
+ * Generated clients instantiate the type parameters with the spec's literal unions
+ * (`OperationId`/`OperationPath`/`OperationTag`) so a misspelled operation id in a
+ * middleware comparison fails to compile; the string defaults keep every
+ * spec-independent consumer (`runtime-contract.ts`, the runtime internals) working
+ * with the base shape. `tags` stays mutable (`Tag[]`) so setup-contract types
+ * (byte-locked to generated output) remain assignable through middleware callbacks.
+ */
+export type OperationContext<
+  Id extends string = string,
+  Path extends string = string,
+  Tag extends string = string,
+> = { id: Id; path: Path; tags: Tag[] };
+
+/** The mutable request context threaded through the middleware chain. */
+export type RequestContext<Op extends OperationContext = OperationContext> = {
+  url: string;
+  method: string;
+  headers: Record<string, string>;
+  body?: unknown;
+  operation: Op;
 };
 
-/** Retry policy; all fields optional with sensible defaults. */
-export type RetryConfig = {
-    /** Number of *extra* attempts after the first. Default 0 (opt-in). */
-    retries?: number;
-    /** Base delay in milliseconds. Default 1000. */
-    retryDelay?: number;
-    /** Backoff shape. Default 'exponential'. */
-    retryStrategy?: RetryStrategy;
-    /** Apply full jitter over the computed delay. Default true. */
-    jitter?: boolean;
-    /**
-     * Decide whether to retry a failed attempt. Default: retry only idempotent
-     * methods (GET/HEAD/PUT/DELETE/OPTIONS) on a network error or a transient
-     * status (408, 429, 500, 502, 503, 504). Override to widen/narrow.
-     */
-    retryOn?: (ctx: RetryContext) => boolean | Promise<boolean>;
+/** The failed attempt handed to a custom `retryOn`: exactly one of `response`/`error` is set. */
+export type RetryContext<Op extends OperationContext = OperationContext> = {
+  attempt: number;
+  request: RequestContext<Op>;
+  response?: Response;
+  error?: unknown;
 };
 
-/**
- * How the response body is read. `'auto'` negotiates from the content type (the
- * generated default); `'stream'` returns the raw `ReadableStream` (`response.body`).
- */
-export type ParseAs = 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream' | 'auto';
-
-/**
- * The trailing per-operation argument: standard `RequestInit` plus an optional
- * per-call retry override and a `parseAs` escape hatch.
- *
- * `parseAs` forces how the response body is read; overrides the inferred kind.
- * `'stream'` returns the raw `ReadableStream` (`response.body`). This is a runtime
- * override — the static return type is unchanged.
- */
-export type RequestOptions = RequestInit & {
-    retry?: Partial<RetryConfig>;
-    parseAs?: ParseAs;
+/** Opt-in retry policy; a per-call override merges field-by-field over the config policy. */
+export type RetryConfig<Op extends OperationContext = OperationContext> = {
+  retries?: number;
+  retryDelay?: number;
+  retryStrategy?: RetryStrategy;
+  jitter?: boolean;
+  retryOn?: (ctx: RetryContext<Op>) => boolean | Promise<boolean>;
 };
 
 /**
- * Override the base URL used by every generated operation. Useful when the
- * runtime environment differs from the value declared in `servers[0].url`
- * (e.g. dev / staging / prod toggles in a single-page app).
- *
- * Mutates a module-scoped binding shared by the functions facade. For multiple
- * bases at once, use the service-class facade with `new Client({ serverUrl })`.
+ * Structural stand-in for the runtime's ApiError so this module stays import-free
+ * (pure types); the real `ApiError` class is assignable to it.
  */
-export function setServerUrl(url: string): void {
-    BASE = url;
-}
+export type ApiErrorLike = globalThis.Error & {
+  url: string;
+  status: number;
+  statusText: string;
+  body: unknown;
+};
 
-/** The global config used by the functions facade (see `configure`). */
-const __config: ClientConfig = {};
+/** One interceptor: any subset of the three hooks. */
+export type Middleware<Op extends OperationContext = OperationContext> = {
+  onRequest?: (ctx: RequestContext<Op>) => void | Promise<void>;
+  onResponse?: (
+    response: Response,
+    ctx: RequestContext<Op>
+  ) => Response | void | Promise<Response | void>;
+  /** Throw mode only: may map/replace the error. */
+  // `globalThis.Error` so a spec schema named `Error` cannot shadow it in inline mode.
+  onError?: (
+    error: ApiErrorLike,
+    ctx: RequestContext<Op>
+  ) => globalThis.Error | Promise<globalThis.Error>;
+};
+
+/** Client configuration: transport, defaults, retry policy, middleware, and credentials. */
+export type ClientConfig<Op extends OperationContext = OperationContext> = {
+  serverUrl?: string;
+  fetch?: typeof fetch;
+  headers?:
+    | Record<string, string>
+    | (() => Record<string, string> | Promise<Record<string, string>>);
+  retry?: RetryConfig<Op>;
+  middleware?: Middleware<Op>[];
+  auth?: AuthCredentials;
+  /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
+  errorMode?: 'throw' | 'result';
+  onRequest?: Middleware<Op>['onRequest'];
+  onResponse?: Middleware<Op>['onResponse'];
+  onError?: Middleware<Op>['onError'];
+};
+
+/** Response readers for the per-call `parseAs` override. */
+export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';
+
+/** Per-call options: standard `RequestInit` plus a retry override and a forced reader. */
+export type RequestOptions = RequestInit & { retry?: RetryConfig; parseAs?: ParseAs };
+
+/** Per-call options for an SSE stream; reconnect defaults to true. */
+export type SseOptions = RequestInit & { reconnect?: boolean; reconnectDelay?: number };
+
+/** A single decoded Server-Sent Event with its payload typed from the spec. */
+export type ServerSentEvent<T> = { event?: string; data: T; id?: string; retry?: number };
+
+/** Result-mode return shape: exactly one of `data`/`error` is set. */
+export type Result<TData, TError> =
+  | { data: TData; error: undefined; response: Response }
+  | { data: undefined; error: TError; response: Response };
+
+/** The generated `Ops` type's shape: per-operation args/result (and `kind: 'sse'` for streams). */
+export type OpsShape = Record<string, { args: object; result: unknown; kind?: 'sse' }>;
+
+/** The always-present client members (assigned after the operation loop — they win collisions). */
+export type ClientCore<Op extends OperationContext = OperationContext> = {
+  /** Merge into the config; note `middleware` REPLACES the chain (use `use()` to compose). */
+  configure(config: ClientConfig<Op>): void;
+  /** Append interceptors (composes with baked/publisher middleware). */
+  use(...middleware: Middleware<Op>[]): void;
+  auth: {
+    bearer(token: TokenProvider): void;
+    basic(username: string, password: string): void;
+    apiKey(scheme: string, value: TokenProvider): void;
+  };
+};
 
 /**
- * Merge `config` into the global configuration used by the functions facade —
- * set a custom `fetch`, default `headers`, or `onRequest`/`onResponse`/`onError`
- * hooks once for every free function. The service-class facade configures per
- * instance instead (`new Client(config)`).
+ * The standard TypeScript optionality probe: `{}` has no required members, so
+ * `{} extends A` is true exactly when every member of `A` is optional.
  */
-export function configure(config: ClientConfig): void {
-    Object.assign(__config, config);
+// oxlint-disable-next-line typescript/no-empty-object-type
+type NoRequiredKeys<A> = {} extends A ? true : false;
+
+/** The typed instance client: one bound method per operation plus the core members. */
+export type Client<Ops extends OpsShape, Op extends OperationContext = OperationContext> = {
+  [K in keyof Ops]: Ops[K] extends { kind: 'sse' }
+    ? NoRequiredKeys<Ops[K]['args']> extends true
+      ? (
+          args?: Ops[K]['args'],
+          init?: SseOptions
+        ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
+      : (
+          args: Ops[K]['args'],
+          init?: SseOptions
+        ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
+    : NoRequiredKeys<Ops[K]['args']> extends true
+      ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
+      : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>;
+} & ClientCore<Op>;
+
+/** The error thrown (throw mode) for a non-2xx response, carrying the decoded error body. */
+export class ApiError extends Error {
+  public readonly url: string;
+  public readonly status: number;
+  public readonly statusText: string;
+  public readonly body: unknown;
+  constructor(url: string, status: number, statusText: string, body: unknown) {
+    super(`Request failed with status ${status}`);
+    this.name = 'ApiError';
+    this.url = url;
+    this.status = status;
+    this.statusText = statusText;
+    this.body = body;
+  }
+}
+
+/** The error to throw for an aborted request: the caller's abort reason when it is an Error. */
+// `globalThis.Error` (not bare `Error`) so a spec schema named `Error` cannot shadow it
+// when this module is embedded alongside generated types (inline mode).
+function abortError(signal: AbortSignal): globalThis.Error {
+  const reason = (signal as { reason?: unknown }).reason;
+  if (reason instanceof Error) return reason;
+  return new DOMException('The operation was aborted.', 'AbortError');
 }
 
 /**
- * Append interceptors to the functions facade's global middleware chain (see
- * `ClientConfig.middleware`). The service-class facade registers per instance via
- * `<Client>.use(...)` instead.
+ * The RESOLVED OpenAPI serialization spec for one query parameter — callers apply the
+ * OpenAPI defaults (`style: 'form'`, `explode: true`) before building one.
  */
-export function use(...middleware: Middleware[]): void {
-    // Reassign (don't push) so a caller-provided `middleware` array isn't mutated.
-    __config.middleware = [...(__config.middleware ?? []), ...middleware];
+type QueryStyle = {
+  style: NonNullable<ParamSpec['style']>;
+  explode: boolean;
+  allowReserved?: boolean;
+};
+
+/**
+ * Encode everything except the RFC-3986 reserved set, for `allowReserved: true` params —
+ * `filter=a/b` survives instead of `filter=a%2Fb`.
+ */
+function encodeReserved(value: string): string {
+  return encodeURIComponent(value).replace(
+    /%(3A|2F|3F|23|5B|5D|40|21|24|26|27|28|29|2A|2B|2C|3B|3D)/g,
+    (match) => decodeURIComponent(match)
+  );
 }
+
+/** Substitute `{name}` template segments with encoded values; a missing value is a caller bug. */
+function substitutePath(template: string, values: Record<string, unknown>): string {
+  return template.replace(/\{([^{}]+)\}/g, (_match, name: string) => {
+    const value = values[name];
+    if (value === undefined) throw new Error(`Missing path parameter "${name}"`);
+    return encodeURIComponent(String(value));
+  });
+}
+
+/**
+ * Build the request URL: `serverUrl` (trailing slash trimmed) + path + serialized query.
+ * Query parameters honor their OpenAPI `style`/`explode`/`allowReserved` (from `styles`);
+ * without a spec, arrays repeat the key (`form`+`explode`), objects serialize as
+ * `deepObject` brackets, and `null`/`undefined` entries are skipped.
+ */
+function buildUrl(
+  serverUrl: string,
+  path: string,
+  query?: Record<string, QueryValue>,
+  styles?: Record<string, QueryStyle>
+): string {
+  // Trim trailing slashes with a scan, not `/\/+$/` — an anchored `+` regex is
+  // quadratic on adversarial many-slash input (the server URL is caller data).
+  let end = serverUrl.length;
+  while (end > 0 && serverUrl.charCodeAt(end - 1) === 47 /* '/' */) end--;
+  const url = serverUrl.slice(0, end) + path;
+  if (!query) return url;
+  const params = new URLSearchParams();
+  const raw: string[] = [];
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined || value === null) continue;
+    const spec = styles?.[key];
+    if (!spec) {
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          if (v !== undefined && v !== null) params.append(key, String(v));
+        }
+      } else if (Object(value) === value) {
+        // Object-valued query params use `deepObject` style: key[subKey]=subValue.
+        for (const [subKey, subValue] of Object.entries(value)) {
+          if (subValue !== undefined && subValue !== null) {
+            params.append(`${key}[${subKey}]`, String(subValue));
+          }
+        }
+      } else {
+        params.append(key, String(value));
+      }
+      continue;
+    }
+    if (Array.isArray(value)) {
+      const items = value.filter((v) => v !== undefined && v !== null).map(String);
+      if (spec.style === 'form' && spec.explode) {
+        for (const v of items) {
+          if (spec.allowReserved) raw.push(`${key}=${encodeReserved(v)}`);
+          else params.append(key, v);
+        }
+      } else {
+        // Delimited styles put the LITERAL delimiter on the wire; only the
+        // values are encoded. `%20` (not `+`) is the literal space delimiter.
+        const delim =
+          spec.style === 'pipeDelimited' ? '|' : spec.style === 'spaceDelimited' ? '%20' : ',';
+        const enc = spec.allowReserved ? encodeReserved : encodeURIComponent;
+        raw.push(`${encodeURIComponent(key)}=${items.map(enc).join(delim)}`);
+      }
+    } else if (Object(value) === value) {
+      // `deepObject` (and any object spec, for now): key[subKey]=subValue.
+      for (const [subKey, subValue] of Object.entries(value)) {
+        if (subValue !== undefined && subValue !== null) {
+          if (spec.allowReserved) raw.push(`${key}[${subKey}]=${encodeReserved(String(subValue))}`);
+          else params.append(`${key}[${subKey}]`, String(subValue));
+        }
+      }
+    } else if (spec.allowReserved) {
+      raw.push(`${key}=${encodeReserved(String(value))}`);
+    } else {
+      params.append(key, String(value));
+    }
+  }
+  const qs = [params.toString(), ...raw].filter(Boolean).join('&');
+  return qs ? `${url}?${qs}` : url;
+}
+
+/**
+ * Read the response body per `kind`. `'auto'` negotiates from the content type
+ * (JSON, then `text/*`, then Blob); `'void'` and `204` responses read nothing.
+ */
+async function parse(response: Response, kind: ParseAs | 'void'): Promise<unknown> {
+  if (kind === 'void' || response.status === 204) return undefined;
+  if (kind === 'stream') return response.body;
+  if (kind === 'blob') return response.blob();
+  if (kind === 'arrayBuffer') return response.arrayBuffer();
+  if (kind === 'formData') return response.formData();
+  if (kind === 'text') return response.text();
+  if (kind === 'json') return response.json();
+  // 'auto' — negotiate from the response's content type.
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.toLowerCase().includes('json')) return response.json();
+  if (contentType.startsWith('text/')) return response.text();
+  return response.blob();
+}
+
+/** Best-effort decode of a non-2xx body (JSON when declared, else text; undefined on failure). */
+async function readError(response: Response): Promise<unknown> {
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.toLowerCase().includes('json')) {
+    return response.json().catch(() => undefined);
+  }
+  return response.text().catch(() => undefined);
+}
+
+const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
+const TRANSIENT_STATUS = new Set([408, 429, 500, 502, 503, 504]);
+
+/**
+ * The default retry predicate: idempotent methods only, on a transport error or a
+ * transient status. A custom `retryOn` fully replaces this (no method check kept).
+ */
+function defaultRetryOn(ctx: RetryContext): boolean {
+  if (!IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase())) return false;
+  return ctx.response === undefined || TRANSIENT_STATUS.has(ctx.response.status);
+}
+
+/**
+ * The delay before the next attempt: a `Retry-After` header (seconds or HTTP-date)
+ * wins; otherwise fixed/exponential backoff over `retryDelay`, with full jitter
+ * unless `jitter === false`.
+ */
+function retryDelay(retry: RetryConfig, attempt: number, retryAfter: string | null): number {
+  if (retryAfter) {
+    const seconds = Number(retryAfter);
+    if (!Number.isNaN(seconds)) return seconds * 1000;
+    const when = Date.parse(retryAfter);
+    if (!Number.isNaN(when)) return Math.max(0, when - Date.now());
+  }
+  const base = retry.retryDelay ?? 1000;
+  const raw = retry.retryStrategy === 'fixed' ? base : base * Math.pow(2, attempt - 1);
+  return retry.jitter === false ? raw : Math.random() * raw;
+}
+
+/** Abort-aware sleep: resolves after `ms`, rejects with the abort reason immediately on abort. */
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(abortError(signal));
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(abortError(signal as AbortSignal));
+    };
+    const timer = setTimeout(() => {
+      if (signal) signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    if (signal) signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+/**
+ * Optional behaviors the send core can use but never statically imports — wired by
+ * `createClient` (the same seam the future inline-mode assembler relies on).
+ */
+type SendCapabilities = {
+  /** Serialize a typed multipart body (a plain object) to FormData. */
+  serializeMultipart?: (body: Record<string, unknown>) => FormData;
+};
 
 /**
  * The effective middleware chain for a request: the single `onRequest`/`onResponse`/
  * `onError` config hooks as one implicit first middleware, then `config.middleware`.
  */
-function __middleware(config: ClientConfig): Middleware[] {
-    const single = config.onRequest || config.onResponse || config.onError
-        ? [{ onRequest: config.onRequest, onResponse: config.onResponse, onError: config.onError }]
-        : [];
-    return [...single, ...(config.middleware ?? [])];
+function middlewareChain(config: ClientConfig): Middleware[] {
+  const single =
+    config.onRequest || config.onResponse || config.onError
+      ? [{ onRequest: config.onRequest, onResponse: config.onResponse, onError: config.onError }]
+      : [];
+  return [...single, ...(config.middleware ?? [])];
 }
-
-export class ApiError extends Error {
-    public readonly url: string;
-    public readonly status: number;
-    public readonly statusText: string;
-    public readonly body: unknown;
-    constructor(url: string, status: number, statusText: string, body: unknown) {
-        super(`Request failed with status ${status}`);
-        this.name = 'ApiError';
-        this.url = url;
-        this.status = status;
-        this.statusText = statusText;
-        this.body = body;
-    }
-}
-
-type QueryPrimitive = string | number | boolean;
-
-type QueryValue = QueryPrimitive | null | undefined | Array<QueryPrimitive> | Record<string, unknown>;
-
-/** Per-key OpenAPI query serialization spec; absent ⇒ the defaults (`form`, `explode: true`). */
-type QueryStyle = {
-    style: 'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
-    explode: boolean;
-    allowReserved?: boolean;
-};
 
 /**
- * Percent-encode `value` but leave the RFC-3986 reserved set
- * (`:/?#[]@!$&'()*+,;=`) un-escaped, for query params declaring `allowReserved`.
+ * The fetch core shared by every operation: default + config + per-call headers, the
+ * `onRequest` chain (BEFORE body serialization, so mutations are sent), body
+ * serialization (JSON, or FormData via the multipart capability), the retry loop
+ * (idempotent-only defaults, `Retry-After`, abandoned-body drain), and the reverse
+ * `onResponse` onion. Returns the final response plus the request context.
  */
-function __encodeReserved(value: string): string {
-    return encodeURIComponent(value).replace(/%(3A|2F|3F|23|5B|5D|40|21|24|26|27|28|29|2A|2B|2C|3B|3D)/g, (match) => decodeURIComponent(match));
-}
-
-function __buildUrl(config: ClientConfig, path: string, query?: Record<string, QueryValue>, styles?: Record<string, QueryStyle>): string {
-    const url = (config.serverUrl ?? BASE).replace(/\/+$/, '') + path;
-    if (!query)
-        return url;
-    const params = new URLSearchParams();
-    const raw: string[] = [];
-    for (const [key, value] of Object.entries(query)) {
-        if (value === undefined || value === null)
-            continue;
-        const spec = styles?.[key];
-        if (!spec) {
-            if (Array.isArray(value)) {
-                for (const v of value) {
-                    if (v !== undefined && v !== null)
-                        params.append(key, String(v));
-                }
-            }
-            else if (typeof value === 'object') {
-                // Object-valued query params use `deepObject` style: key[subKey]=subValue.
-                for (const [subKey, subValue] of Object.entries(value)) {
-                    if (subValue !== undefined && subValue !== null) {
-                        params.append(`${key}[${subKey}]`, String(subValue));
-                    }
-                }
-            }
-            else {
-                params.append(key, String(value));
-            }
-            continue;
-        }
-        if (Array.isArray(value)) {
-            const items = value.filter((v) => v !== undefined && v !== null).map(String);
-            if (spec.style === 'form' && spec.explode) {
-                for (const v of items) {
-                    if (spec.allowReserved)
-                        raw.push(`${key}=${__encodeReserved(v)}`);
-                    else
-                        params.append(key, v);
-                }
-            }
-            else {
-                // Delimited styles put the LITERAL delimiter on the wire; only the
-                // values are encoded. `%20` (not `+`) is the literal space delimiter.
-                const delim = spec.style === 'pipeDelimited' ? '|' : spec.style === 'spaceDelimited' ? '%20' : ',';
-                const enc = spec.allowReserved ? __encodeReserved : encodeURIComponent;
-                raw.push(`${encodeURIComponent(key)}=${items.map(enc).join(delim)}`);
-            }
-        }
-        else if (typeof value === 'object') {
-            // `deepObject` (and any object spec, for now): key[subKey]=subValue.
-            for (const [subKey, subValue] of Object.entries(value)) {
-                if (subValue !== undefined && subValue !== null) {
-                    if (spec.allowReserved)
-                        raw.push(`${key}[${subKey}]=${__encodeReserved(String(subValue))}`);
-                    else
-                        params.append(`${key}[${subKey}]`, String(subValue));
-                }
-            }
-        }
-        else if (spec.allowReserved) {
-            raw.push(`${key}=${__encodeReserved(String(value))}`);
-        }
-        else {
-            params.append(key, String(value));
-        }
+async function send(
+  config: ClientConfig,
+  op: OperationContext,
+  url: string,
+  init: RequestOptions,
+  body: unknown | undefined,
+  multipart: boolean,
+  caps: SendCapabilities
+): Promise<{ response: Response; context: RequestContext }> {
+  const { retry: callRetry, ...fetchInit } = init;
+  const retry: RetryConfig = { ...config.retry, ...callRetry };
+  const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    ...extra,
+    ...(fetchInit.headers as Record<string, string> | undefined),
+  };
+  const context: RequestContext = {
+    url,
+    method: fetchInit.method ?? 'GET',
+    headers,
+    body,
+    operation: op,
+  };
+  const middleware = middlewareChain(config);
+  for (const mw of middleware) if (mw.onRequest) await mw.onRequest(context);
+  // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
+  let payload: BodyInit | undefined;
+  if (context.body !== undefined) {
+    const value = context.body;
+    const isBinary =
+      value instanceof Blob ||
+      value instanceof ArrayBuffer ||
+      ArrayBuffer.isView(value as ArrayBufferView);
+    const isFormData = typeof FormData !== 'undefined' && value instanceof FormData;
+    const isURLSearchParams = value instanceof URLSearchParams;
+    if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
+      payload = value as BodyInit;
+    } else if (multipart) {
+      if (!caps.serializeMultipart) {
+        throw new Error('Multipart capability not wired: cannot serialize the request body');
+      }
+      payload = caps.serializeMultipart(value as Record<string, unknown>);
+    } else {
+      payload = JSON.stringify(value);
+      if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
+        context.headers['Content-Type'] = 'application/json';
+      }
     }
-    const qs = [params.toString(), ...raw].filter(Boolean).join('&');
-    return qs ? `${url}?${qs}` : url;
-}
+  }
+  const doFetch = config.fetch ?? fetch;
+  const maxAttempts = 1 + (retry.retries ?? 0);
+  const retryOn = retry.retryOn ?? defaultRetryOn;
+  const signal = fetchInit.signal ?? undefined;
 
-async function __send(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown): Promise<{
-    response: Response;
-    context: RequestContext;
-}> {
-    const { retry: callRetry, ...fetchInit } = init;
-    const retry: RetryConfig = { ...config.retry, ...callRetry };
-    const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
-    const headers: Record<string, string> = {
-        Accept: 'application/json',
-        ...extra,
-        ...(fetchInit.headers as Record<string, string> | undefined),
-    };
-    const context: RequestContext = { url, method: fetchInit.method ?? 'GET', headers, body, operation: op };
-    const middleware = __middleware(config);
-    for (const mw of middleware)
-        if (mw.onRequest)
-            await mw.onRequest(context);
-    // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
-    let payload: BodyInit | undefined;
-    if (context.body !== undefined) {
-        const value = context.body;
-        const isBinary = value instanceof Blob ||
-            value instanceof ArrayBuffer ||
-            ArrayBuffer.isView(value as ArrayBufferView);
-        const isFormData = typeof FormData !== 'undefined' && value instanceof FormData;
-        const isURLSearchParams = value instanceof URLSearchParams;
-        if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
-            payload = value as BodyInit;
-        }
-        else {
-            payload = JSON.stringify(value);
-            if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
-                context.headers['Content-Type'] = 'application/json';
-            }
-        }
+  let attempt = 0;
+  while (true) {
+    attempt++;
+    if (signal?.aborted) throw abortError(signal);
+    let response: Response;
+    try {
+      response = await doFetch(context.url, {
+        ...fetchInit,
+        method: context.method,
+        headers: context.headers,
+        body: payload,
+      });
+    } catch (error) {
+      if (
+        attempt < maxAttempts &&
+        !signal?.aborted &&
+        (await retryOn({ attempt, request: context, error }))
+      ) {
+        await sleep(retryDelay(retry, attempt, null), signal);
+        continue;
+      }
+      throw error;
     }
-    const doFetch = config.fetch ?? fetch;
-    const maxAttempts = 1 + (retry.retries ?? 0);
-    const retryOn = retry.retryOn ?? __defaultRetryOn;
-    const signal = fetchInit.signal ?? undefined;
-    let attempt = 0;
-    while (true) {
-        attempt++;
-        if (signal?.aborted)
-            throw __abortError(signal);
-        let response: Response;
-        try {
-            response = await doFetch(context.url, {
-                ...fetchInit,
-                method: context.method,
-                headers: context.headers,
-                body: payload,
-            });
-        }
-        catch (error) {
-            if (attempt < maxAttempts && !signal?.aborted && (await retryOn({ attempt, request: context, error }))) {
-                await __sleep(__retryDelay(retry, attempt, null), signal);
-                continue;
-            }
-            throw error;
-        }
-        // Reverse order: the last-registered middleware wraps closest to the network (onion).
-        for (let i = middleware.length - 1; i >= 0; i--) {
-            const onResponse = middleware[i].onResponse;
-            if (onResponse) {
-                const replaced = await onResponse(response, context);
-                if (replaced)
-                    response = replaced;
-            }
-        }
-        if (!response.ok &&
-            attempt < maxAttempts &&
-            !signal?.aborted &&
-            (await retryOn({ attempt, request: context, response }))) {
-            const retryAfter = response.headers.get('retry-after');
-            // Drain the abandoned response body before the next attempt: an unread body
-            // keeps the connection checked out (and can stall the pool) under Node/undici
-            // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
-            await response.body?.cancel().catch(() => undefined);
-            await __sleep(__retryDelay(retry, attempt, retryAfter), signal);
-            continue;
-        }
-        return { response, context };
+    // Reverse order: the last-registered middleware wraps closest to the network (onion).
+    for (let i = middleware.length - 1; i >= 0; i--) {
+      const onResponse = middleware[i].onResponse;
+      if (onResponse) {
+        const replaced = await onResponse(response, context);
+        if (replaced) response = replaced;
+      }
     }
+    if (
+      !response.ok &&
+      attempt < maxAttempts &&
+      !signal?.aborted &&
+      (await retryOn({ attempt, request: context, response }))
+    ) {
+      const retryAfter = response.headers.get('retry-after');
+      // Drain the abandoned response body before the next attempt: an unread body
+      // keeps the connection checked out (and can stall the pool) under Node/undici
+      // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
+      await response.body?.cancel().catch(() => undefined);
+      await sleep(retryDelay(retry, attempt, retryAfter), signal);
+      continue;
+    }
+    return { response, context };
+  }
 }
 
-async function __parse(response: Response, kind: ParseAs | 'void'): Promise<unknown> {
-    if (kind === 'void' || response.status === 204)
-        return undefined;
-    if (kind === 'stream')
-        return response.body;
-    if (kind === 'blob')
-        return response.blob();
-    if (kind === 'arrayBuffer')
-        return response.arrayBuffer();
-    if (kind === 'formData')
-        return response.formData();
-    if (kind === 'text')
-        return response.text();
-    if (kind === 'json')
-        return response.json();
-    // 'auto' — negotiate from the response's content type.
-    const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.toLowerCase().includes('json'))
-        return response.json();
-    if (contentType.startsWith('text/'))
-        return response.text();
-    return response.blob();
-}
-
-async function __request<T>(config: ClientConfig, op: OperationContext, url: string, init: RequestOptions, body?: unknown, responseKind: 'json' | 'blob' | 'text' | 'void' = 'json'): Promise<T> {
-    const { parseAs, ...sendInit } = init;
-    const { response, context } = await __send(config, op, url, sendInit, body);
-    if (!response.ok) {
+/**
+ * Consume a `text/event-stream` operation as typed events (capability module — wired
+ * into `createClient`). Auto-reconnects on dropped connections, resuming from the last
+ * seen event id via `Last-Event-ID` (backoff: the server's `retry:` value, then
+ * `reconnectDelay`, then 1s — exponential with jitter, capped at 30s). A clean stream
+ * end flushes a trailing frame and finishes; `break`/abort end the iterator cleanly.
+ */
+async function* sse<T>(
+  config: ClientConfig,
+  op: OperationContext,
+  url: string,
+  init: SseOptions,
+  dataKind: 'json' | 'text' = 'text'
+): AsyncGenerator<ServerSentEvent<T>> {
+  const { reconnect = true, reconnectDelay, ...rest } = init;
+  const signal = rest.signal ?? undefined;
+  const headers: Record<string, string> = {
+    Accept: 'text/event-stream',
+    ...(rest.headers as Record<string, string> | undefined),
+  };
+  let lastEventId: string | undefined;
+  let serverRetry: number | undefined;
+  let failures = 0;
+  while (true) {
+    if (signal?.aborted) return;
+    const sendHeaders =
+      lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
+    try {
+      const { response } = await send(
+        config,
+        op,
+        url,
+        { ...rest, method: rest.method ?? 'GET', headers: sendHeaders },
+        undefined,
+        false,
+        {}
+      );
+      if (!response.ok) {
         const errorBody = await readError(response);
-        let error: globalThis.Error = new ApiError(context.url, response.status, response.statusText, errorBody);
-        // Thread the error through each middleware's onError in turn (each may replace it).
-        for (const mw of __middleware(config)) {
-            if (mw.onError)
-                error = await mw.onError(error as ApiError, context);
-        }
-        throw error;
-    }
-    const kind = parseAs ?? (responseKind === 'json' ? 'auto' : responseKind);
-    return (await __parse(response, kind)) as T;
-}
-
-async function readError(response: Response): Promise<unknown> {
-    const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.toLowerCase().includes('json')) {
-        return response.json().catch(() => undefined);
-    }
-    return response.text().catch(() => undefined);
-}
-
-const __IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
-
-const __TRANSIENT_STATUS = new Set([408, 429, 500, 502, 503, 504]);
-
-function __defaultRetryOn(ctx: RetryContext): boolean {
-    if (!__IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase()))
-        return false;
-    return ctx.response === undefined || __TRANSIENT_STATUS.has(ctx.response.status);
-}
-
-function __retryDelay(retry: RetryConfig, attempt: number, retryAfter: string | null): number {
-    if (retryAfter) {
-        const seconds = Number(retryAfter);
-        if (!Number.isNaN(seconds))
-            return seconds * 1000;
-        const when = Date.parse(retryAfter);
-        if (!Number.isNaN(when))
-            return Math.max(0, when - Date.now());
-    }
-    const base = retry.retryDelay ?? 1000;
-    const raw = retry.retryStrategy === 'fixed' ? base : base * Math.pow(2, attempt - 1);
-    return retry.jitter === false ? raw : Math.random() * raw;
-}
-
-function __sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    return new Promise((resolve, reject) => {
-        if (signal?.aborted) {
-            reject(__abortError(signal));
-            return;
-        }
-        const onAbort = () => {
-            clearTimeout(timer);
-            reject(__abortError(signal as AbortSignal));
-        };
-        const timer = setTimeout(() => {
-            if (signal)
-                signal.removeEventListener('abort', onAbort);
-            resolve();
-        }, ms);
-        if (signal)
-            signal.addEventListener('abort', onAbort, { once: true });
-    });
-}
-
-function __abortError(signal: AbortSignal): globalThis.Error {
-    const reason = (signal as {
-        reason?: unknown;
-    }).reason;
-    if (reason instanceof Error)
-        return reason;
-    return new DOMException('The operation was aborted.', 'AbortError');
-}
-
-/** A single decoded Server-Sent Event. `data` is the parsed payload (`T`). */
-export type ServerSentEvent<T> = {
-    event?: string;
-    data: T;
-    id?: string;
-    retry?: number;
-};
-
-/** Per-call options for an SSE stream. `reconnect` defaults to true (auto-reconnect). */
-export type SseOptions = RequestInit & {
-    /** Opt out of automatic reconnection; the iterator then ends/throws on the first stream end/error. */
-    reconnect?: boolean;
-    /** Override the base reconnect backoff in ms. The server's `retry:` value still takes precedence. */
-    reconnectDelay?: number;
-};
-
-async function* __sse<T>(config: ClientConfig, op: OperationContext, url: string, init: SseOptions, dataKind: 'json' | 'text' = 'text'): AsyncGenerator<ServerSentEvent<T>> {
-    const { reconnect = true, reconnectDelay, ...rest } = init;
-    const signal = rest.signal ?? undefined;
-    const headers: Record<string, string> = {
-        Accept: 'text/event-stream',
-        ...(rest.headers as Record<string, string> | undefined),
-    };
-    let lastEventId: string | undefined;
-    let serverRetry: number | undefined;
-    let failures = 0;
-    while (true) {
-        if (signal?.aborted)
-            return;
-        const sendHeaders = lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
-        try {
-            const { response } = await __send(config, op, url, { ...rest, method: rest.method ?? 'GET', headers: sendHeaders });
-            if (!response.ok) {
-                const errorBody = await readError(response);
-                throw new ApiError(url, response.status, response.statusText, errorBody);
+        throw new ApiError(url, response.status, response.statusText, errorBody);
+      }
+      failures = 0;
+      const body = response.body;
+      if (!body) return;
+      const reader = body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
+          let index: number;
+          while ((index = buffer.search(/\r\n\r\n|\n\n|\r\r/)) !== -1) {
+            const raw = buffer.slice(0, index);
+            buffer = buffer.slice(
+              index + buffer.slice(index).match(/^(\r\n\r\n|\n\n|\r\r)/)![0].length
+            );
+            const event = parseSseFrame(raw, dataKind);
+            if (event) {
+              if (event.id !== undefined) lastEventId = event.id;
+              if (event.retry !== undefined) serverRetry = event.retry;
+              yield event as ServerSentEvent<T>;
             }
-            failures = 0;
-            const body = response.body;
-            if (!body)
-                return;
-            const reader = body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-            try {
-                while (true) {
-                    const { done, value } = await reader.read();
-                    buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
-                    let index: number;
-                    while ((index = buffer.search(/\r\n\r\n|\n\n|\r\r/)) !== -1) {
-                        const raw = buffer.slice(0, index);
-                        buffer = buffer.slice(index + buffer.slice(index).match(/^(\r\n\r\n|\n\n|\r\r)/)![0].length);
-                        const event = __parseSseFrame(raw, dataKind);
-                        if (event) {
-                            if (event.id !== undefined)
-                                lastEventId = event.id;
-                            if (event.retry !== undefined)
-                                serverRetry = event.retry;
-                            yield event as ServerSentEvent<T>;
-                        }
-                    }
-                    if (done) {
-                        // Stream closed cleanly. Flush a final event that arrived without a trailing
-                        // delimiter, then finish — a clean end is not a dropped connection, so do not reconnect.
-                        const event = buffer.length > 0 ? __parseSseFrame(buffer, dataKind) : undefined;
-                        if (event) {
-                            if (event.id !== undefined)
-                                lastEventId = event.id;
-                            if (event.retry !== undefined)
-                                serverRetry = event.retry;
-                            yield event as ServerSentEvent<T>;
-                        }
-                        return;
-                    }
-                    // Bound memory: a server that never sends a frame delimiter would otherwise
-                    // grow `buffer` without limit. 1 MiB is far above any real SSE frame.
-                    if (buffer.length > 1048576) {
-                        throw new Error('SSE frame exceeded 1048576 characters without a delimiter');
-                    }
-                }
+          }
+          if (done) {
+            // Stream closed cleanly. Flush a final event that arrived without a trailing
+            // delimiter, then finish — a clean end is not a dropped connection, so do not reconnect.
+            const event = buffer.length > 0 ? parseSseFrame(buffer, dataKind) : undefined;
+            if (event) {
+              if (event.id !== undefined) lastEventId = event.id;
+              if (event.retry !== undefined) serverRetry = event.retry;
+              yield event as ServerSentEvent<T>;
             }
-            finally {
-                await reader.cancel().catch(() => undefined);
-            }
-        }
-        catch (error) {
-            if (signal?.aborted)
-                return;
-            // A non-OK HTTP response is a definitive error (4xx/5xx), not a transient drop —
-            // surface it instead of reconnecting in a loop.
-            if (error instanceof ApiError)
-                throw error;
-            // A transport failure (connect/DNS/reset) when opening the request, or a mid-stream
-            // read error, is a dropped connection: fall through to backoff/reconnect when enabled.
-            if (!reconnect)
-                throw error;
-        }
-        if (!reconnect || signal?.aborted)
             return;
-        failures++;
-        const base = serverRetry ?? reconnectDelay ?? 1000;
-        const delay = Math.min(base * Math.pow(2, failures - 1), 30000);
-        try {
-            await __sleep(Math.random() * delay, signal);
+          }
+          // Bound memory: a server that never sends a frame delimiter would otherwise
+          // grow `buffer` without limit. 1 MiB is far above any real SSE frame.
+          if (buffer.length > 1048576) {
+            throw new Error('SSE frame exceeded 1048576 characters without a delimiter');
+          }
         }
-        catch (error) {
-            if (signal?.aborted)
-                return;
-            throw error;
-        }
+      } finally {
+        await reader.cancel().catch(() => undefined);
+      }
+    } catch (error) {
+      if (signal?.aborted) return;
+      // A non-OK HTTP response is a definitive error (4xx/5xx), not a transient drop —
+      // surface it instead of reconnecting in a loop.
+      if (error instanceof ApiError) throw error;
+      // A transport failure (connect/DNS/reset) when opening the request, or a mid-stream
+      // read error, is a dropped connection: fall through to backoff/reconnect when enabled.
+      if (!reconnect) throw error;
     }
+    // Only the swallowed-drop path reaches here: reconnect is on and the signal not aborted.
+    failures++;
+    const base = serverRetry ?? reconnectDelay ?? 1000;
+    const delay = Math.min(base * Math.pow(2, failures - 1), 30_000);
+    try {
+      await sleep(Math.random() * delay, signal);
+    } catch {
+      return; // sleep rejects only on abort — end the iterator cleanly
+    }
+  }
 }
 
 /** Parse one raw SSE frame (its lines) into an event; returns undefined for comment-only frames. */
-function __parseSseFrame(raw: string, dataKind: 'json' | 'text'): ServerSentEvent<unknown> | undefined {
-    let event: string | undefined;
-    const dataLines: string[] = [];
-    let id: string | undefined;
-    let retry: number | undefined;
-    let sawField = false;
-    for (const line of raw.split(/\r\n|\n|\r/)) {
-        if (line === '' || line.startsWith(':'))
-            continue;
-        const colon = line.indexOf(':');
-        const field = colon === -1 ? line : line.slice(0, colon);
-        let val = colon === -1 ? '' : line.slice(colon + 1);
-        if (val.startsWith(' '))
-            val = val.slice(1);
-        sawField = true;
-        if (field === 'event')
-            event = val;
-        else if (field === 'data')
-            dataLines.push(val);
-        else if (field === 'id')
-            id = val;
-        else if (field === 'retry') {
-            const n = Number(val);
-            if (!Number.isNaN(n))
-                retry = n;
-        }
+function parseSseFrame(
+  raw: string,
+  dataKind: 'json' | 'text'
+): ServerSentEvent<unknown> | undefined {
+  let event: string | undefined;
+  const dataLines: string[] = [];
+  let id: string | undefined;
+  let retry: number | undefined;
+  let sawField = false;
+  for (const line of raw.split(/\r\n|\n|\r/)) {
+    if (line === '' || line.startsWith(':')) continue;
+    const colon = line.indexOf(':');
+    const field = colon === -1 ? line : line.slice(0, colon);
+    let val = colon === -1 ? '' : line.slice(colon + 1);
+    if (val.startsWith(' ')) val = val.slice(1);
+    sawField = true;
+    if (field === 'event') event = val;
+    else if (field === 'data') dataLines.push(val);
+    else if (field === 'id') id = val;
+    else if (field === 'retry') {
+      const n = Number(val);
+      if (!Number.isNaN(n)) retry = n;
     }
-    if (!sawField)
-        return undefined;
-    const dataText = dataLines.join('\n');
-    const data = dataKind === 'json' && dataText !== '' ? JSON.parse(dataText) : dataText;
-    return { event, data, id, retry };
+  }
+  if (!sawField) return undefined;
+  const dataText = dataLines.join('\n');
+  const data = dataKind === 'json' && dataText !== '' ? JSON.parse(dataText) : dataText;
+  return { event, data, id, retry };
 }
 
-export type GetHealthResult = Health;
+/**
+ * The optional behaviors `createClientCore` can dispatch to but never statically
+ * imports. The package's public `createClient` wires the full set; the future
+ * inline-mode assembler wires only the capabilities a spec needs.
+ */
+type Capabilities = SendCapabilities & {
+  resolveAuth?: (
+    security: readonly SecuritySpec[],
+    config: ClientConfig
+  ) => Promise<{ headers: Record<string, string>; query: Record<string, string> }>;
+  sse?: (
+    config: ClientConfig,
+    op: OperationContext,
+    url: string,
+    init: SseOptions,
+    dataKind: 'json' | 'text'
+  ) => AsyncGenerator<ServerSentEvent<unknown>>;
+};
 
-export async function getHealth(init: RequestOptions = {}): Promise<Health> {
-    return __request<Health>(__config, { id: "getHealth", path: "/health", tags: ["Health"] }, __buildUrl(__config, `/health`), { method: "GET", ...init });
+/** The grouped args wire shape: path params by name plus the `params`/`body`/`headers` slots. */
+type OperationArgs = {
+  params?: Record<string, QueryValue>;
+  body?: unknown;
+  headers?: Record<string, unknown>;
+} & Record<string, unknown>;
+
+/** The response reader implied by the descriptor (before any per-call `parseAs` override). */
+function kindFor(op: OperationDescriptor): ParseAs | 'void' {
+  if (op.responseKind === 'void' || op.responseKind === 'blob' || op.responseKind === 'text') {
+    return op.responseKind;
+  }
+  return 'auto';
 }
 
-async function* streamMessages(init: SseOptions = {}): AsyncGenerator<ServerSentEvent<Message>> {
-    yield* __sse<Message>(__config, { id: "streamMessages", path: "/messages", tags: ["Messages"] }, __buildUrl(__config, `/messages`), { method: "GET", ...init }, "json");
+/** Route the grouped args by the descriptor: path values, query object, body, extra headers. */
+function splitArgs(op: OperationDescriptor, args: OperationArgs) {
+  const path: Record<string, unknown> = {};
+  for (const param of op.params ?? []) {
+    if (param.in === 'path') path[param.name] = args[param.name];
+  }
+  return { path, query: args.params, body: args.body, headers: args.headers };
 }
 
-async function* streamAbort(init: SseOptions = {}): AsyncGenerator<ServerSentEvent<Message>> {
-    yield* __sse<Message>(__config, { id: "streamAbort", path: "/abort-messages", tags: ["Messages"] }, __buildUrl(__config, `/abort-messages`), { method: "GET", ...init }, "json");
+/**
+ * The query-serialization hints for the descriptor's query params. A spec is built only
+ * when the param deviates from the OpenAPI defaults (`form` + `explode: true`, encoded),
+ * and always fully resolved — so `explode: false` or `allowReserved` alone (no `style`)
+ * are honored, and an omitted `explode` keeps the exploded default.
+ */
+function queryStyles(op: OperationDescriptor): Record<string, QueryStyle> | undefined {
+  let styles: Record<string, QueryStyle> | undefined;
+  for (const param of op.params ?? []) {
+    if (param.in !== 'query') continue;
+    const deviates =
+      (param.style !== undefined && param.style !== 'form') ||
+      param.explode === false ||
+      param.allowReserved === true;
+    if (!deviates) continue;
+    styles ??= {};
+    styles[param.name] = {
+      style: param.style ?? 'form',
+      explode: param.explode ?? true,
+      allowReserved: param.allowReserved,
+    };
+  }
+  return styles;
 }
 
-async function* streamTicks(init: SseOptions = {}): AsyncGenerator<ServerSentEvent<string>> {
-    yield* __sse<string>(__config, { id: "streamTicks", path: "/ticks", tags: ["Ticks"] }, __buildUrl(__config, `/ticks`), { method: "GET", ...init }, "text");
+/** Stringify caller-supplied extra headers, skipping empty entries. */
+function stringHeaders(headers: Record<string, unknown> | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers ?? {})) {
+    if (value !== undefined && value !== null) out[key] = String(value);
+  }
+  return out;
 }
 
-export const sse = { streamMessages, streamAbort, streamTicks };
+/** Build the request pieces an attempt needs: the final URL and the merged per-call init. */
+async function prepareRequest(
+  config: ClientConfig,
+  op: OperationDescriptor,
+  args: OperationArgs,
+  init: RequestOptions | SseOptions,
+  caps: Capabilities
+): Promise<{ url: string; init: RequestOptions; body: unknown }> {
+  const { path, query, body, headers } = splitArgs(op, args);
+  const authed =
+    op.security?.length && caps.resolveAuth
+      ? await caps.resolveAuth(op.security, config)
+      : { headers: {}, query: {} };
+  const fullQuery: Record<string, QueryValue> = { ...query, ...authed.query };
+  const url = buildUrl(
+    config.serverUrl ?? '',
+    substitutePath(op.path, path),
+    Object.keys(fullQuery).length > 0 ? fullQuery : undefined,
+    queryStyles(op)
+  );
+  const mergedInit: RequestOptions = {
+    ...init,
+    method: op.method.toUpperCase(),
+    // Precedence, lowest → highest (later spreads win): injected auth → explicit
+    // header params → caller `init.headers` — the caller always overrides both.
+    headers: {
+      ...authed.headers,
+      ...stringHeaders(headers),
+      ...(init.headers as Record<string, string> | undefined),
+    },
+  };
+  return { url, init: mergedInit, body };
+}
+
+/** One non-SSE call: send, then branch on the configured error mode. */
+async function execute(
+  config: ClientConfig,
+  op: OperationDescriptor,
+  args: OperationArgs,
+  init: RequestOptions,
+  caps: Capabilities
+): Promise<unknown> {
+  const prepared = await prepareRequest(config, op, args, init, caps);
+  const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
+  const { parseAs, ...sendInit } = prepared.init;
+  const { response, context } = await send(
+    config,
+    opCtx,
+    prepared.url,
+    sendInit,
+    prepared.body,
+    op.body?.multipart === true,
+    caps
+  );
+  const readKind = parseAs ?? kindFor(op);
+  if (config.errorMode === 'result') {
+    if (!response.ok) {
+      return { data: undefined, error: await readError(response), response };
+    }
+    return { data: await parse(response, readKind), error: undefined, response };
+  }
+  if (!response.ok) {
+    let error: globalThis.Error = new ApiError(
+      context.url,
+      response.status,
+      response.statusText,
+      await readError(response)
+    );
+    // Thread the error through each middleware's onError in turn (each may replace it).
+    for (const mw of middlewareChain(config)) {
+      if (mw.onError) error = await mw.onError(error as ApiErrorLike, context);
+    }
+    throw error;
+  }
+  return parse(response, readKind);
+}
+
+/**
+ * Build a typed instance client over operation descriptors: one real bound method per
+ * operation (attached by a construction-time loop — no Proxy), plus the core members
+ * (`configure`/`use`/`auth`), which are assigned AFTER the loop so they win any name
+ * collision with an operation. All behavior dispatches through the capability seam.
+ */
+function createClientCore<
+  Ops extends OpsShape,
+  Id extends string = string,
+  Path extends string = string,
+  Tag extends string = string,
+>(
+  operations: Record<string, OperationDescriptor>,
+  initial: ClientConfig<OperationContext<Id, Path, Tag>> = {},
+  caps: Capabilities = {}
+): Client<Ops, OperationContext<Id, Path, Tag>> {
+  // The literal-union narrowing is a compile-time DX contract only; internally the
+  // runtime works with the base (string-typed) context. One cast at this boundary —
+  // `ClientConfig<Narrow>` is not assignable to `ClientConfig` (middleware ctx
+  // params are contravariant).
+  const given = initial as ClientConfig;
+  // Private mutable config; the middleware array is copied so `use()` never mutates the caller's.
+  const config: ClientConfig = { ...given, middleware: [...(given.middleware ?? [])] };
+  const client = {} as Record<string, unknown>;
+
+  for (const [name, op] of Object.entries(operations)) {
+    if (op.responseKind === 'sse') {
+      client[name] = (args: OperationArgs = {}, init: SseOptions = {}) => {
+        if (!caps.sse) {
+          throw new Error(`SSE capability not wired: cannot stream operation "${op.id}"`);
+        }
+        const stream = caps.sse;
+        return (async function* () {
+          const prepared = await prepareRequest(config, op, args, init, caps);
+          const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
+          yield* stream(config, opCtx, prepared.url, prepared.init, op.sseDataKind ?? 'text');
+        })();
+      };
+    } else {
+      client[name] = (args: OperationArgs = {}, init: RequestOptions = {}) =>
+        execute(config, op, args, init, caps);
+    }
+  }
+
+  // Core members are assigned AFTER the operation loop — they win over colliding op names.
+  client.configure = (next: ClientConfig): void => {
+    // `errorMode` is fixed at generate time (it shapes the static types); flipping it at
+    // runtime would silently desync return shapes from `Client<Ops>`, so it is ignored.
+    const { errorMode: _fixed, ...rest } = next;
+    Object.assign(config, rest);
+  };
+  client.use = (...middleware: Middleware[]): void => {
+    // Reassign (don't push) so a caller-provided `middleware` array isn't mutated.
+    config.middleware = [...(config.middleware ?? []), ...middleware];
+  };
+  client.auth = {
+    bearer(token: TokenProvider): void {
+      config.auth = { ...config.auth, bearer: token };
+    },
+    basic(username: string, password: string): void {
+      config.auth = { ...config.auth, basic: { username, password } };
+    },
+    apiKey(scheme: string, value: TokenProvider): void {
+      config.auth = { ...config.auth, apiKey: { ...config.auth?.apiKey, [scheme]: value } };
+    },
+  };
+
+  return client as Client<Ops, OperationContext<Id, Path, Tag>>;
+}
+
+/**
+ * The client factory: `createClientCore` wired with the capabilities this API needs.
+ * Exported so apps can build additional instances (per-tenant, per-environment) over
+ * the same `OPERATIONS`/`Ops`. The trailing string params carry the wiring's literal
+ * unions (`OperationId`/`OperationPath`/`OperationTag`) into `ctx.operation`.
+ */
+export function createClient<
+  Ops extends OpsShape,
+  Id extends string = string,
+  Path extends string = string,
+  Tag extends string = string,
+>(
+  operations: Record<string, OperationDescriptor>,
+  config?: ClientConfig<OperationContext<Id, Path, Tag>>
+): Client<Ops, OperationContext<Id, Path, Tag>> {
+  return createClientCore<Ops, Id, Path, Tag>(operations, config, { sse });
+}
+
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "http://localhost:3104" });
+
+export const { configure, use } = client;
+export const getHealth = (init: RequestOptions = {}) => client.getHealth({}, init);
+export const streamMessages = (init: SseOptions = {}) => client.streamMessages({}, init);
+export const streamAbort = (init: SseOptions = {}) => client.streamAbort({}, init);
+export const streamTicks = (init: SseOptions = {}) => client.streamTicks({}, init);

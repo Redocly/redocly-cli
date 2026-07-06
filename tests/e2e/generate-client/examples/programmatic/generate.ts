@@ -10,8 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const result = await generateClient({
   api: join(here, 'openapi.yaml'),
   output: process.env.OUT ?? join(here, 'src/api/client.ts'),
-  outputMode: 'single', // 'single' | 'split' | 'tags' | 'tags-split'
-  facade: 'functions', // 'functions' | 'service-class'
+  outputMode: 'single', // 'single' | 'split'
   argsStyle: 'flat', // 'flat' | 'grouped'
   errorMode: 'throw', // 'throw' | 'result'
   generators: ['sdk'], // add 'zod' | 'tanstack-query' | 'transformers'

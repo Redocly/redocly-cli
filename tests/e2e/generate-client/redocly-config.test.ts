@@ -40,7 +40,6 @@ describe('generate-client redocly.yaml config', () => {
         '    clientOutput: ./src/cafe.ts',
         '    client:',
         '      generators: [sdk]',
-        '      facade: service-class',
         '  lintOnly:', // no `client` block -> skipped by the fan-out
         '    root: ./openapi.yaml',
       ].join('\n') + '\n'
@@ -49,7 +48,9 @@ describe('generate-client redocly.yaml config', () => {
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'src/cafe.ts'))).toBe(true);
     expect(existsSync(join(dir, 'lintOnly.client.ts'))).toBe(false);
-    expect(readFileSync(join(dir, 'src/cafe.ts'), 'utf-8')).toContain('export class Client');
+    expect(readFileSync(join(dir, 'src/cafe.ts'), 'utf-8')).toContain(
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
+    );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -78,12 +79,14 @@ describe('generate-client redocly.yaml config', () => {
         '    clientOutput: ./out.ts',
         '    client:',
         '      generators: [sdk]',
-        '      facade: service-class',
+        '      serverUrl: https://per-api.example.com',
       ].join('\n') + '\n'
     );
     const res = run(dir, ['cafe']);
     expect(res.status, res.stderr).toBe(0);
-    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain('export class Client');
+    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
+      'serverUrl: "https://per-api.example.com"'
+    );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -92,7 +95,7 @@ describe('generate-client redocly.yaml config', () => {
       [
         'client:',
         '  generators: [sdk]',
-        '  facade: service-class',
+        '  serverUrl: https://top-level.example.com',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
@@ -101,8 +104,10 @@ describe('generate-client redocly.yaml config', () => {
     );
     const res = run(dir, ['cafe']);
     expect(res.status, res.stderr).toBe(0);
-    // service-class came from the top-level client block (the api declares none).
-    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain('export class Client');
+    // serverUrl came from the top-level client block (the api declares none).
+    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
+      'serverUrl: "https://top-level.example.com"'
+    );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -111,19 +116,19 @@ describe('generate-client redocly.yaml config', () => {
       [
         'client:',
         '  generators: [sdk]',
-        '  facade: functions',
+        '  serverUrl: https://top-level.example.com',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
         '    client:',
-        '      facade: service-class', // must NOT apply to a path invocation
+        '      serverUrl: https://per-api.example.com', // must NOT apply to a path invocation
       ].join('\n') + '\n'
     );
     const res = run(dir, ['./openapi.yaml', '--output', './out.ts']);
     expect(res.status, res.stderr).toBe(0);
     const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
-    expect(out).toContain('export async function listMenuItems'); // functions facade (top-level)
-    expect(out).not.toContain('export class Client'); // per-api service-class ignored
+    expect(out).toContain('serverUrl: "https://top-level.example.com"'); // top-level applied
+    expect(out).not.toContain('https://per-api.example.com'); // per-api block ignored
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -135,14 +140,35 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      facade: service-class',
+        '      generators: [sdk]',
+        '      serverUrl: https://per-api.example.com',
       ].join('\n') + '\n'
     );
-    const res = run(dir, ['cafe', '--facade', 'functions']);
+    const res = run(dir, ['cafe', '--server-url', 'https://flag.example.com']);
     expect(res.status, res.stderr).toBe(0);
     expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
-      'export async function listMenuItems'
+      'serverUrl: "https://flag.example.com"'
     );
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('warns on a removed `facade` key (config struct rule) but still generates', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      facade: service-class', // removed option -> property-not-expected warning
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    expect(res.stdout + res.stderr).toContain('Property `facade` is not expected here.');
+    expect(res.stderr).toContain('Your config has 1 warning');
+    expect(existsSync(join(dir, 'out.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -215,6 +241,26 @@ describe('generate-client redocly.yaml config', () => {
       expect(res.status, res.stderr).toBe(0);
       rmSync(dir, { recursive: true, force: true });
     }
+  }, 60_000);
+
+  it('a `client.runtime: package` config block reaches the writer', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      runtime: package',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
+    expect(out).toContain("from '@redocly/client-generator'");
+    expect(out).not.toContain('__send');
+    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('resolves a relative clientOutput against the redocly.yaml dir (via --config)', () => {

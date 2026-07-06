@@ -4,9 +4,9 @@ import { ts } from './ts.js';
 const SETUP_IMPORT = '@redocly/client-generator';
 
 /**
- * Transform a publisher `--setup` module into the neutral **setup expression** the emitters splice
- * into a client as `const __redoclySetup = <expr>` — applied per-facade (functions → `configure`/
- * `use`; service-class → constructor merge). Strips the (package-only) imports, extracts the default
+ * Transform a publisher `--setup` module into the neutral **setup expression** the emitter splices
+ * into a client as `const __redoclySetup = <expr>` — merged into the client's config via
+ * `mergeSetup`. Strips the (package-only) imports, extracts the default
  * export's `defineClientSetup({ config, middleware })` argument, and — when the file declares
  * helpers — wraps them in an IIFE so they are preserved yet scoped (only `__redoclySetup` lands in
  * module scope, avoiding collisions):

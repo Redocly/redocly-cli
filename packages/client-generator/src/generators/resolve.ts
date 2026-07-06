@@ -71,9 +71,9 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
   registry.set(custom.name, {
     run: custom.run,
     requires: custom.requires,
-    facades: custom.facades,
     errorModes: custom.errorModes,
     dateTypes: custom.dateTypes,
+    runtimes: custom.runtimes,
   });
 }
 

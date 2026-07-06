@@ -40,13 +40,15 @@ describe('sdkGenerator', () => {
     expect(viaGenerator).toEqual(viaWriter);
   });
 
-  it('honors the output mode (split produces multiple files)', () => {
+  it('honors the output mode (split carves the schemas into a sibling file)', () => {
+    const model = apiModel();
+    model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];
     const files = sdkGenerator({
-      model: apiModel(),
+      model,
       outputPath: '/out/api.ts',
       outputMode: 'split',
       emit: {},
     });
-    expect(files.length).toBeGreaterThan(1);
+    expect(files.map((f) => f.path)).toEqual(['/out/api.schemas.ts', '/out/api.ts']);
   });
 });

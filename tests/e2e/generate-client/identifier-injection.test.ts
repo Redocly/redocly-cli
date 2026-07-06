@@ -75,8 +75,9 @@ describe('generate-client identifier / comment injection', () => {
     expect(src).not.toMatch(/\*\/\s*;globalThis/);
     // No payload survives as a top-level statement (only inside identifiers/comments).
     expect(src).not.toMatch(/^\s*globalThis\.PWNED/m);
-    // The function name became a single valid identifier (no parens/spaces/semicolons).
-    expect(src).toMatch(/export async function [A-Za-z_$][A-Za-z0-9_$]*\(/);
+    // The operation name became a single valid identifier (no parens/spaces/semicolons)
+    // in the flat call sugar.
+    expect(src).toMatch(/export const [A-Za-z_$][A-Za-z0-9_$]* = \([^)]*\) => client\./);
 
     // Strongest proof: the whole file type-checks. Injected statements would not.
     const tsc = spawnSync(

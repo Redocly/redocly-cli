@@ -1,5 +1,5 @@
 import type { ResponseBodyModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { isSseOp, partitionOps, sseDataKind, sseEventType, sseFragmentName } from '../sse.js';
+import { isSseOp, partitionOps, sseDataKind, sseEventType } from '../sse.js';
 import { printNodes } from '../ts.js';
 import { operation } from './fixtures.js';
 
@@ -115,11 +115,5 @@ describe('partitionOps', () => {
     const { regular, sse } = partitionOps([a, s1, b, s2]);
     expect(regular.map((o) => o.name)).toEqual(['a', 'b']);
     expect(sse.map((o) => o.name)).toEqual(['s1', 's2']);
-  });
-});
-
-describe('sseFragmentName', () => {
-  it('prefixes the class name with __sse_', () => {
-    expect(sseFragmentName('MessagesService')).toBe('__sse_MessagesService');
   });
 });

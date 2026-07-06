@@ -1,5 +1,7 @@
 # ADR 0005: Error handling as a generate-time mode (throw vs result)
 
+> **Note (2026-07):** The terminals mechanism described here (`__send`/`__request`/`__requestResult`, `renderRuntime`) is superseded by the runtime-module architecture — error mode is still fixed at generate time, but the runtime's `execute` now branches on the instance config; see [ADR-0017](./0017-runtime-module-and-descriptor-client.md).
+
 - Status: Accepted
 - Date: 2026-06-10
 

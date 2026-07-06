@@ -1,18 +1,23 @@
 import type { PropertyModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { emitSingleFile } from '../client.js';
+import { emitClientSingleFile } from '../package-client.js';
 import { printNodes } from '../ts.js';
 import { renderSchema, schemaToTypeNode, typesStatements } from '../types.js';
 import { SCALAR, apiModel, namedSchema } from './fixtures.js';
 
+// The package arm keeps the emitted text free of the embedded runtime, so the
+// absence assertions below test the schema types/guards alone.
+const emitPackage: typeof emitClientSingleFile = (model, options = {}) =>
+  emitClientSingleFile(model, { ...options, runtime: 'package' });
+
 describe('renderTypes', () => {
   it('produces nothing when there are no schemas', () => {
-    const out = emitSingleFile(apiModel({ schemas: [] }));
+    const out = emitPackage(apiModel({ schemas: [] }));
     // Two consecutive blank lines would be a sign of an empty types block; check absence.
     expect(out).not.toContain('export type T');
   });
 
   it('emits each named schema with its description', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [namedSchema('Foo', { kind: 'scalar', scalar: 'string' }, 'a foo')],
       })
@@ -22,7 +27,7 @@ describe('renderTypes', () => {
   });
 
   it('prefers schema description over the named-schema description', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Foo', { kind: 'scalar', scalar: 'string', description: 'inner' }, 'outer'),
@@ -35,7 +40,7 @@ describe('renderTypes', () => {
 
   it('omits JSDoc when the schema description is whitespace-only', () => {
     // Exercises the `!text.trim()` short-circuit inside renderJsDoc.
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [namedSchema('Foo', { kind: 'scalar', scalar: 'string' }, '   ')],
       })
@@ -46,7 +51,7 @@ describe('renderTypes', () => {
 
   it('trims leading and trailing blank lines from multi-line schema descriptions', () => {
     // Exercises both `start++` and `end--` arms of trimLines.
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Foo', {
@@ -249,7 +254,7 @@ describe('renderSchema (and its branches)', () => {
 
 describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format / @deprecated)', () => {
   it('renders numeric constraints as JSDoc tags on a named schema', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Limit', {
@@ -266,7 +271,7 @@ describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format 
   });
 
   it('renders string constraints (minLength, maxLength, pattern, format) as JSDoc tags', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Name', {
@@ -289,7 +294,7 @@ describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format 
   });
 
   it('renders array constraints (minItems, maxItems, uniqueItems) as JSDoc tags', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Tags', {
@@ -308,7 +313,7 @@ describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format 
   });
 
   it('renders @exclusiveMinimum / @exclusiveMaximum in numeric form', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Volume', {
@@ -324,7 +329,7 @@ describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format 
   });
 
   it('renders @deprecated as a presence-only tag', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Old', {
@@ -340,7 +345,7 @@ describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format 
   });
 
   it('combines description text and tags in the same JSDoc block', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Limit', {
@@ -408,7 +413,7 @@ describe('JSDoc validation metadata (@minimum / @maxLength / @pattern / @format 
 
   it('escapes `*/` inside pattern strings so it cannot terminate the JSDoc block', () => {
     // Defensive guard: a regex pattern of `^a*/b$` would otherwise break the comment.
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Tricky', {
@@ -483,14 +488,14 @@ describe('dateType knob (string → Date for date formats)', () => {
   });
 
   it('emits Date in the named-schema alias body under emitOptions dateType "Date"', () => {
-    const out = emitSingleFile(apiModel({ schemas: [namedSchema('Created', dateTime())] }), {
+    const out = emitPackage(apiModel({ schemas: [namedSchema('Created', dateTime())] }), {
       dateType: 'Date',
     });
     expect(out).toContain('export type Created = Date;');
   });
 
   it('leaves the named-schema alias as string by default', () => {
-    const out = emitSingleFile(apiModel({ schemas: [namedSchema('Created', dateTime())] }));
+    const out = emitPackage(apiModel({ schemas: [namedSchema('Created', dateTime())] }));
     expect(out).toContain('export type Created = string;');
   });
 
@@ -512,7 +517,7 @@ describe('enum style — const-object companion (C6.2)', () => {
   });
 
   it('emits a const-object companion for named string enums by default', () => {
-    const out = emitSingleFile(apiModel({ schemas: [orderStatus] }));
+    const out = emitPackage(apiModel({ schemas: [orderStatus] }));
     expect(out).toContain('export type OrderStatus = "placed" | "completed";');
     expect(out).toContain('export const OrderStatus = {');
     expect(out).toContain('placed: "placed",');
@@ -521,7 +526,7 @@ describe('enum style — const-object companion (C6.2)', () => {
   });
 
   it('emits only the union type when enumStyle is "union"', () => {
-    const out = emitSingleFile(apiModel({ schemas: [orderStatus] }), {
+    const out = emitPackage(apiModel({ schemas: [orderStatus] }), {
       enumStyle: 'union',
     });
     expect(out).toContain('export type OrderStatus = "placed" | "completed";');
@@ -529,7 +534,7 @@ describe('enum style — const-object companion (C6.2)', () => {
   });
 
   it('does not emit a const object for integer enums', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Code', {
@@ -545,7 +550,7 @@ describe('enum style — const-object companion (C6.2)', () => {
   });
 
   it('does not emit a const object for boolean enums', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Flag', {
@@ -560,7 +565,7 @@ describe('enum style — const-object companion (C6.2)', () => {
   });
 
   it('skips the const object when any value is not a valid identifier', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Scope', {
@@ -578,7 +583,7 @@ describe('enum style — const-object companion (C6.2)', () => {
   it('skips the const object for a string-scalar enum that contains a non-string value', () => {
     // scalarForEnumValues can return 'string' for a mixed enum; the const-object
     // path must still bail when a value isn't actually a string.
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Mixed', {

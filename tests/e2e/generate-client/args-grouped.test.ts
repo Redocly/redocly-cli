@@ -1,12 +1,13 @@
 /**
- * E2E for `--args-style grouped`: every operation takes a single `vars:
- * <Op>Variables` object bundling its inputs (path params, query `params`, `body`,
- * header `headers`) instead of positional arguments, while the per-call request
- * `init` stays a separate trailing argument.
+ * E2E for `--args-style grouped`: instead of flat positional call sugar, the
+ * operations are exported by destructuring the client (`export const { getOrderById,
+ * ... } = client;`), so every operation takes the grouped args object (path params,
+ * query `params`, `body`, header `headers`) with the per-call request `init` as a
+ * separate trailing argument — the client method signature itself.
  *
  * The generated single file must compile under strict `tsc` with
- * `--noUnusedLocals`, which proves the `vars.*` member references line up with
- * the `<Op>Variables` aliases. Uses cafe.yaml because it exercises path params,
+ * `--noUnusedLocals`, which proves the grouped members line up with the
+ * `<Op>Variables` aliases. Uses cafe.yaml because it exercises path params,
  * query params, request bodies, header params, and auth together.
  */
 import { spawnSync } from 'node:child_process';
@@ -35,7 +36,7 @@ describe('generate-client end-to-end (--args-style grouped)', () => {
     }
   });
 
-  test('emits a single `vars` object per operation with the inputs as members', () => {
+  test('exports the operations by destructuring the client (grouped args = client methods)', () => {
     const result = spawnSync(
       'node',
       [cliEntry, 'generate-client', fixture, '--output', entry, '--args-style', 'grouped'],
@@ -46,16 +47,15 @@ describe('generate-client end-to-end (--args-style grouped)', () => {
 
     const src = readFileSync(entry, 'utf-8');
 
-    // getOrderById has a single `orderId` path param: grouped mode bundles it into
-    // a required `vars: GetOrderByIdVariables` and reads it back as `vars.orderId`.
-    expect(src).toContain('export async function getOrderById(vars: GetOrderByIdVariables,');
-    expect(src).toContain('${encodeURIComponent(String(vars.orderId))}');
+    // Grouped mode re-exports the client methods directly — one destructure export.
+    expect(src).toMatch(/export const \{ [^}]*getOrderById[^}]* \} = client;/);
+    // The grouped `<Op>Variables` aliases are still emitted for consumers.
+    expect(src).toContain('export type GetOrderByIdVariables = {');
+    // getOrderById's grouped args carry the path param as a member in Ops.
+    expect(src).toMatch(/getOrderById: \{\s*args: \{[\s\S]*?orderId: string;/);
 
-    // The per-call `init` stays a separate trailing argument (not folded into vars).
-    expect(src).toContain('init: RequestOptions = {})');
-
-    // No positional `orderId: string` argument leaks through in grouped mode.
-    expect(src).not.toContain('getOrderById(orderId: string');
+    // No flat positional sugar leaks through in grouped mode.
+    expect(src).not.toContain('export const getOrderById = (orderId: string');
   }, 90_000);
 
   test('the grouped-style client type-checks under strict mode with no unused locals', () => {

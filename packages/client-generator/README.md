@@ -5,7 +5,8 @@
 > Feedback is very welcome while we stabilize it.
 
 Generate a typed TypeScript client (inline types + `fetch` runtime) from an OpenAPI description.
-The emitted client has **zero runtime dependencies** — it uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`, …), so it runs in browsers, Node ≥ 18, Bun, Deno, and edge runtimes.
+The emitted client has **zero runtime dependencies** by default — it uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`, …), so it runs in browsers, Node ≥ 18, Bun, Deno, and edge runtimes.
+Opt in to `runtime: 'package'` to import the runtime from this package instead, so engine fixes arrive via `npm update` without regenerating.
 Code is produced through the TypeScript compiler AST (not string templates), so output is correct by construction; `typescript` is the only (peer) dependency.
 
 This package is the engine behind the **`redocly generate-client`** command.
@@ -16,9 +17,10 @@ The rest of this README covers using the package **programmatically**.
 
 - **Broad input** — OpenAPI **3.0, 3.1, and 3.2.0**, plus **Swagger 2.0** (normalized to 3.x before generation)
   `api` is a file path or URL.
-- **Zero-dependency client** built via the TS AST, with `typescript` as the only peer dep
-- **Output modes** — `single`, `split`, `tags`, `tags-split` (`outputMode`)
-- **Facades** — standalone `functions` or a `service-class` (`facade`), the latter supporting **per-instance configuration and credentials** (`new Client({ auth, serverUrl, … })`)
+- **Zero-dependency client** (the default `inline` runtime) built via the TS AST, with `typescript` as the only peer dep
+- **Output modes** — `single` or `split` (schema types in a sibling `<stem>.schemas.ts`) (`outputMode`)
+- **Runtime distribution** (`runtime`) — `inline` (default, self-contained) or `package`: the client imports its runtime from `@redocly/client-generator` (pure-data operation descriptors + a build-time version-skew guard), so engine fixes arrive via `npm update` — no regeneration
+- **Both call styles, always** — a typed `client` instance (grouped-args methods, **per-instance configuration and credentials** via `createClient(OPERATIONS, { auth, serverUrl, … })`) plus free-function operations bound to it
 - **Argument styles** — `flat` positional args or a `grouped` `vars` object (`argsStyle`)
 - **Rich types** — inline types for every schema:
   - string enums as unions or runtime `const` objects (`enumStyle`)
@@ -26,8 +28,8 @@ The rest of this README covers using the package **programmatically**.
   - validation keywords surfaced as JSDoc
   - `dateType: 'Date'`
   - **typed `multipart/form-data` bodies** (object fields, binary → `Blob`) auto-serialized to `FormData`
-- **Runtime** — `setServerUrl` + a typed `ClientConfig` (headers, `fetch` swap, hooks):
-  - **composable middleware** (`onRequest`/`onResponse`/`onError`)
+- **Runtime** — a typed `ClientConfig` (`serverUrl`, headers, `fetch` swap, hooks) applied via `configure()`:
+  - **composable middleware** (`onRequest`/`onResponse`/`onError`) whose `ctx.operation.id`/`path`/`tags` are the spec's **literal unions** — a misspelled operation id fails compilation
   - **opt-in, abort-aware retries** with backoff, jitter, `Retry-After`, and a custom `retryOn`
   - per-call response decoding (`parseAs`)
   - OpenAPI **query-serialization styles**
@@ -38,7 +40,7 @@ The rest of this README covers using the package **programmatically**.
 - **Generators** (`generators`) — `sdk` (default), `zod`, `tanstack-query` (React/Vue/Svelte/Solid), `swr`, `transformers`, `mock` (MSW handlers + baked or `faker` data), and a [custom-generator plugin API](#custom-generators)
 - **Hardened** — document-derived names coerced to safe unique identifiers, comment text escaped, and a bounded SSE reader
 
-Every add-on generator keeps the emitted client dependency-free; its peer library is needed only in your app.
+No add-on generator adds a dependency to the emitted client; its peer library is needed only in your app.
 
 ## Use programmatically
 
@@ -49,15 +51,15 @@ import { generateClient } from '@redocly/client-generator';
 
 const result = await generateClient({
   api: 'openapi.yaml', // file path or URL
-  output: 'src/client.ts', // entry file; siblings derive from it in multi-file modes
-  outputMode: 'single', // 'single' | 'split' | 'tags' | 'tags-split'
-  facade: 'functions', // 'functions' | 'service-class'
+  output: 'src/client.ts', // entry file; the .schemas.ts sibling derives from it in split mode
+  outputMode: 'single', // 'single' | 'split'
+  runtime: 'inline', // 'inline' | 'package' (import the runtime from this package)
   argsStyle: 'flat', // 'flat' | 'grouped'
   errorMode: 'throw', // 'throw' | 'result'
   dateType: 'string', // 'string' | 'Date' (pair 'Date' with the 'transformers' generator)
   enumStyle: 'const-object', // 'const-object' | 'union'
   generators: ['sdk'], // see "Generators" below
-  // serverUrl, name, queryFramework, mockData, mockSeed, customGenerators are also accepted
+  // serverUrl, queryFramework, mockData, mockSeed, customGenerators are also accepted
 });
 
 console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes.`);
@@ -123,6 +125,7 @@ The default (`form` + `explode: true`) repeats array values.
 Declare `style` / `explode` / `allowReserved` on a parameter to get `form`+`explode:false` (`key=a,b`), `spaceDelimited` (`key=a%20b`), `pipeDelimited` (`key=a|b`), `deepObject`, or reserved-char passthrough.
 
 A setter is generated for each injectable scheme — `setBearer` (HTTP `bearer` / OAuth2), `setBasicAuth(username, password)` (HTTP `basic`), and `setApiKey…` for `apiKey` schemes in header, query, or cookie — and each operation sends the credentials its `security` requires.
+Each setter is instance-bound sugar over the exported client (`export const setBearer = client.auth.bearer;`); credentials are **per instance** (`ClientConfig.auth`), so independent instances built with `createClient(OPERATIONS, { auth })` carry independent credentials — the generated module exports `createClient` in both runtimes (see the [`multi-instance` example](./examples/multi-instance)).
 Bearer/apiKey credentials accept a `TokenProvider` (a string or a possibly-async function resolved per request) for refresh-token flows:
 
 ```ts
@@ -164,7 +167,7 @@ const queryKey = [OPERATIONS.getOrderById.path, orderId]; // "/orders/{orderId}"
 ### Customizing requests and responses
 
 You shape requests and responses from your own code — never by editing the generated client, so changes survive regeneration.
-Middleware (`use(...)` for the functions facade, `client.use(...)` per instance for the service-class facade) hooks the request lifecycle, and each `RequestContext` carries the operation's identity so you can target by operationId or tag instead of brittle URL matching.
+Middleware (`use(...)` — sugar for `client.use(...)`, so it registers on that instance) hooks the request lifecycle, and each `RequestContext` carries the operation's identity so you can target by operationId or tag instead of brittle URL matching.
 `onRequest` may mutate `ctx.url` / `ctx.method` / `ctx.headers` **and `ctx.body`**; `onResponse` may observe or replace the `Response`:
 
 ```ts
@@ -219,7 +222,7 @@ export default defineClientSetup({
 redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
 ```
 
-The generator bakes the `config`/`middleware` into the generated client, so the published package applies them on import — your users call operations with no setup of their own, and can still override (their `configure`/`use` run after the baked ones). Works across all output modes and both facades (functions and service-class — `new Client()` picks up the baked defaults). A setup file may import **only** from `@redocly/client-generator`, keeping the client zero-dependency.
+The generator bakes the `config`/`middleware` into the generated client, so the published package applies them on import — your users call operations with no setup of their own, and can still override (their `configure`/`use` run after the baked ones; config layers spec defaults → baked setup → app `configure()`, middleware composes). Works across both output modes and both runtimes. A setup file may import **only** from `@redocly/client-generator`, so it never adds a dependency to the client.
 
 See the [`baked-setup` example](./examples/baked-setup) and [ADR-0015](./docs/adr/0015-publisher-setup-bake-in.md).
 
@@ -267,7 +270,8 @@ example directory serves it on `http://localhost:5173` against the live demo API
 ## Generators
 
 `generators` (default `['sdk']`) selects which files to emit.
-The `sdk` client is always dependency-free; each add-on lands in its own sibling file and needs its peer library only in your app.
+The `sdk` client is dependency-free with the default `inline` runtime; each add-on lands in its own sibling file and needs its peer library only in your app.
+Every generator works with both runtimes and both output modes.
 
 ### Runtime validation with Zod
 
@@ -321,7 +325,7 @@ await trigger({ body: { name: 'Rex' } });
 ```
 
 Only the `*.swr.ts` module imports SWR (`swr` for queries, `swr/mutation` for mutations); install it as a peer — any `swr` `^2`.
-The hooks wrap the **throw-mode** sdk and support only the `functions` facade.
+The hooks wrap the **throw-mode** sdk functions.
 
 ### Date transformers
 
@@ -335,7 +339,7 @@ import { transformPet } from './client.transformers.ts';
 const pet = transformPet(await getPet(id)); // pet.createdAt is now a Date
 ```
 
-The transformers import only the schema **types**, so the client stays dependency-free (`Date` is a web standard).
+The transformers import only the schema **types**, so they add no dependency to the client (`Date` is a web standard).
 `int64` → `bigint` is deferred; without `dateType: 'Date'` the date fields stay `string`.
 
 ### MSW mocks
@@ -363,7 +367,7 @@ const special = createMenuItem({ name: 'Cold Brew', price: 499 });
 
 **Realistic data with faker** — mock data is **baked** by default (deterministic literals, no extra dependency).
 Set `mockData: 'faker'` to emit [`@faker-js/faker`](https://fakerjs.dev) calls for realistic data, and `mockSeed: <n>` to pin faker's PRNG so the data is reproducible.
-Factory signatures are identical in both modes; faker mode makes `@faker-js/faker` (`^9`) a dev dependency of your app (the client itself stays dependency-free).
+Factory signatures are identical in both modes; faker mode makes `@faker-js/faker` (`^9`) a dev dependency of your app (the client itself gains no dependency).
 
 ## Custom generators
 
@@ -407,19 +411,19 @@ await generateClient({
 ```
 
 `@redocly/client-generator` also exports the IR types and the codegen toolkit the built-ins use (`ts`, `printStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …).
-A generator declares the same `requires`/`facades`/`errorModes`/`dateTypes` contract, validated up front.
-The generated client stays dependency-free.
+A generator declares the same `requires`/`errorModes`/`dateTypes`/`runtimes` contract, validated up front.
+A custom generator never adds dependencies to the generated client.
 See `examples/custom-generator` for a runnable example.
 
 ## Server-Sent Events (streaming)
 
-An operation whose `2xx` response declares `text/event-stream` is generated — with no option — as a typed async iterator under an `sse` namespace.
+An operation whose `2xx` response declares `text/event-stream` is generated — with no option — as a typed **async-generator** client method plus the matching free function.
 Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`):
 
 ```ts
-import { sse } from './client.ts';
+import { streamMessages } from './client.ts';
 
-for await (const ev of sse.streamMessages()) {
+for await (const ev of streamMessages()) {
   console.log(ev.id, ev.data.text); // ev: ServerSentEvent<Message>
 }
 ```
@@ -430,7 +434,7 @@ SSE operations always throw `ApiError` on an initial non-2xx and never return th
 
 ## Examples
 
-Runnable examples live in [`examples/`](./examples): `fetch-functions`, `service-class`, `zod`, `tanstack-query`, `mock`, and `custom-generator`.
+Runnable examples live in [`examples/`](./examples): `zero-install-quickstart`, `fetch-functions`, `configure-and-middleware`, `customization`, `baked-setup`, `sse-streaming`, `zod`, `tanstack-query`, `mock`, `custom-generator`, `programmatic`, `vendored-edge`, `package-runtime` (`runtime: 'package'` — engine fixes via `npm update`), and `multi-instance` (per-tenant `createClient` instances over one generated module).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation
@@ -448,4 +452,4 @@ npm run unit                    # unit tests (this package is held at 100% cover
 VITEST_SUITE=e2e npx vitest run tests/e2e/generate-client/   # behavioral e2e
 ```
 
-The emitted runtime lives in `src/emitters/runtime.ts` (a template string), the structural emitters in `src/emitters/`, the IR in `src/intermediate-representation/`, the generators in `src/generators/`, and the multi-file layout strategies in `src/writers/`.
+The client runtime lives in `src/runtime/` (real, unit-testable modules; package mode imports them, inline mode embeds them via the generated `src/emitters/runtime-sources.ts` snapshot and the `src/emitters/inline-runtime.ts` assembler), the structural emitters in `src/emitters/`, the IR in `src/intermediate-representation/`, the generators in `src/generators/`, and the file-layout writers in `src/writers/`.

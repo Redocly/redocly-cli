@@ -94,11 +94,17 @@ describe('generate-client base consumer (single-file output)', () => {
     const generated = readFileSync(generatedFile, 'utf-8');
     expect(generated).toContain('export type Pet');
     expect(generated).toContain('export class ApiError');
-    expect(generated).toContain('export async function getPetById');
-    expect(generated).toContain('export async function getSlowPet');
-    expect(generated).toContain('export async function listPets');
-    // BASE is emitted as a mutable binding so setServerUrl() can override it.
-    expect(generated).toContain('let BASE = "http://localhost:3102"');
+    // The descriptor wiring with the embedded runtime, plus flat call sugar per operation.
+    expect(generated).toContain('// ─── Embedded runtime');
+    expect(generated).toContain('as const satisfies Record<string, OperationDescriptor>');
+    expect(generated).toContain('export const { configure, use } = client;');
+    expect(generated).toContain('export const getPetById = (');
+    expect(generated).toContain('export const getSlowPet = (');
+    expect(generated).toContain('export const listPets = (');
+    // The spec's server URL is baked into the client instance.
+    expect(generated).toContain(
+      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3102" });'
+    );
     // An OAS 3.1 enum that includes null renders as a nullable union.
     expect(generated).toMatch(/status\?:\s*\("available" \| "pending" \| "sold"\) \| null;/);
     // A free-form object (`type: object`, no properties) renders as a record, not `{}`.

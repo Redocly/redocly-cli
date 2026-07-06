@@ -1,0 +1,8 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+apis:
+  sse-streaming:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk

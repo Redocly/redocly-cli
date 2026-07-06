@@ -1,5 +1,5 @@
 import { NotSupportedError } from '../../errors.js';
-import { getGenerator, validateGenerators } from '../index.js';
+import { builtinGenerators, getGenerator, validateGenerators } from '../index.js';
 import { sdkGenerator } from '../sdk.js';
 import { zodGenerator } from '../zod.js';
 
@@ -26,7 +26,7 @@ describe('validateGenerators', () => {
     expect(() => validateGenerators(['zod'], {})).not.toThrow();
   });
 
-  it('accepts sdk + tanstack-query with the default facade/error-mode', () => {
+  it('accepts sdk + tanstack-query with the default error-mode', () => {
     expect(() => validateGenerators(['sdk', 'tanstack-query'], {})).not.toThrow();
   });
 
@@ -50,20 +50,10 @@ describe('validateGenerators', () => {
     expect(() => validateGenerators(['sdk', 'transformers'], { dateType: 'Date' })).not.toThrow();
   });
 
-  it('rejects tanstack-query with the service-class facade', () => {
-    expect(() =>
-      validateGenerators(['sdk', 'tanstack-query'], { facade: 'service-class' })
-    ).toThrow(/does not support --facade "service-class".*functions/);
-  });
-
   it('rejects tanstack-query with result error mode', () => {
     expect(() => validateGenerators(['sdk', 'tanstack-query'], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result".*throw/
     );
-  });
-
-  it('allows the service-class facade for sdk (unconstrained)', () => {
-    expect(() => validateGenerators(['sdk'], { facade: 'service-class' })).not.toThrow();
   });
 
   it('throws NotSupportedError for an unknown generator name', () => {
@@ -84,20 +74,46 @@ describe('swr generator', () => {
     );
   });
 
-  it('accepts sdk + swr with the default facade/error-mode', () => {
+  it('accepts sdk + swr with the default error-mode', () => {
     expect(() => validateGenerators(['sdk', 'swr'], {})).not.toThrow();
-  });
-
-  it('rejects swr with the service-class facade', () => {
-    expect(() => validateGenerators(['sdk', 'swr'], { facade: 'service-class' })).toThrow(
-      /does not support --facade "service-class".*functions/
-    );
   });
 
   it('rejects swr with result error mode', () => {
     expect(() => validateGenerators(['sdk', 'swr'], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result".*throw/
     );
+  });
+});
+
+describe('validateGenerators — runtime compatibility', () => {
+  /** A registry with one runtimes-restricted generator (no built-in restricts runtimes anymore). */
+  function registryWith(runtimes: ('inline' | 'package')[]) {
+    const registry = builtinGenerators();
+    registry.set('inline-only', { run: () => [], runtimes });
+    return registry;
+  }
+
+  it('rejects a runtimes-restricted generator with runtime: package, naming both', () => {
+    expect(() =>
+      validateGenerators(['inline-only'], { runtime: 'package' }, registryWith(['inline']))
+    ).toThrow(/"inline-only".*runtime "package".*inline/);
+  });
+
+  it('accepts a runtimes-restricted generator when the runtime matches (or is defaulted)', () => {
+    expect(() =>
+      validateGenerators(['inline-only'], { runtime: 'inline' }, registryWith(['inline']))
+    ).not.toThrow();
+    expect(() => validateGenerators(['inline-only'], {}, registryWith(['inline']))).not.toThrow();
+  });
+
+  it('accepts the wrapper generators with runtime: package (no longer restricted)', () => {
+    expect(() =>
+      validateGenerators(
+        ['sdk', 'tanstack-query', 'swr'],
+        { runtime: 'package', queryFramework: 'react' },
+        builtinGenerators()
+      )
+    ).not.toThrow();
   });
 });
 

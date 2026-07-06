@@ -7,9 +7,9 @@
 // that proves the option is accepted by the generated operation signatures.
 //
 // No mock-server behavioral assertion here: `parseAs` is a pure runtime branch in
-// `__parse` (covered by the client-generator unit suite) and the cafe-consumer
-// harness already exercises the default decoding path. Strict-tsc + string +
-// type-usage assertions are sufficient and keep this test process-light.
+// the runtime's `parse` (covered by the client-generator unit suite) and the
+// cafe-consumer harness already exercises the default decoding path. Strict-tsc +
+// string + type-usage assertions are sufficient and keep this test process-light.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -36,11 +36,11 @@ describe('generate-client parseAs', () => {
 
     // The public `ParseAs` type and the option on `RequestOptions`.
     expect(generated).toContain(
-      "export type ParseAs = 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream' | 'auto';"
+      "export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';"
     );
     expect(generated).toMatch(/parseAs\?: ParseAs/);
 
-    // `__parse` gained the streaming / arrayBuffer / formData branches.
+    // The runtime's `parse` covers the streaming / arrayBuffer / formData branches.
     expect(generated).toContain('return response.body;');
     expect(generated).toContain('return response.arrayBuffer();');
     expect(generated).toContain('return response.formData();');

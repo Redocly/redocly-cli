@@ -6,7 +6,7 @@ import type {
   ResponseBodyModel,
   SchemaModel,
 } from '../../intermediate-representation/model.js';
-import { emitSingleFile } from '../client.js';
+import { emitClientSingleFile } from '../package-client.js';
 
 /** A plain `string` scalar — the default schema for params and the most-reused leaf. */
 export const SCALAR: SchemaModel = { kind: 'scalar', scalar: 'string' };
@@ -63,7 +63,9 @@ export function response(overrides: Partial<ResponseBodyModel> = {}): ResponseBo
   return { contentType: 'application/json', schema: SCALAR, status: 200, ...overrides };
 }
 
-/** Emit a single-file client whose only operation is `operation(op)`. */
+/** Emit a single-file (inline-runtime) client whose only operation is `operation(op)`. */
 export function emitWithOp(op: Partial<OperationModel>): string {
-  return emitSingleFile(apiModel({ services: [{ name: 'Default', operations: [operation(op)] }] }));
+  return emitClientSingleFile(
+    apiModel({ services: [{ name: 'Default', operations: [operation(op)] }] })
+  );
 }

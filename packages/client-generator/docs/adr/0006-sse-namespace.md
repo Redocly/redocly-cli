@@ -1,5 +1,7 @@
 # ADR 0006: SSE as a derived response kind under an `sse.*` namespace
 
+> **Note (2026-07):** Superseded by [ADR-0017](./0017-runtime-module-and-descriptor-client.md) — the `sse.*` namespace is removed; SSE operations are now flat async-generator client methods/functions wired through the runtime's `sse` capability.
+
 - Status: Accepted
 - Date: 2026-06-10
 

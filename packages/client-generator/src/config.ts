@@ -1,4 +1,4 @@
-import type { ArgsStyle, Facade } from './emitters/client.js';
+import type { ArgsStyle } from './emitters/client.js';
 // packages/client-generator/src/config.ts
 import type { CustomGenerator } from './generators/types.js';
 import type { OutputMode } from './writers/types.js';
@@ -16,12 +16,8 @@ export type Config = {
   output: string;
   /** File partitioning. Defaults to `single`. */
   outputMode?: OutputMode;
-  /** Developer-facing operation shape. Defaults to `functions`. */
-  facade?: Facade;
   /** How inputs are passed. Defaults to `flat`. */
   argsStyle?: ArgsStyle;
-  /** Class name for the service-class facade. Defaults to `Client`. */
-  name?: string;
   /** Override the inlined base URL (else derived from `servers[0].url`). */
   serverUrl?: string;
   /** Named-enum emission. Defaults to `const-object`. */
@@ -56,7 +52,9 @@ export type Config = {
   /**
    * Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`)
    * baked into the generated client, so a published SDK ships its request/response defaults built
-   * in. Resolved against the config dir. Works across all output modes and both facades.
+   * in. Resolved against the config dir. Works across all output modes.
    */
   setup?: string;
+  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
+  runtime?: 'inline' | 'package';
 };

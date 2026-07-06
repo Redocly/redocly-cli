@@ -1,8 +1,9 @@
-// e2e for SSE (`text/event-stream`) operations: the typed `sse.*` async-iterator
-// surface. We assert on the generated source (string checks) and strict-tsc the
-// output (single-file, plus the whole tags-split dir) — the same lightweight
-// harness used by error-mode.test.ts. The behavioral reconnect/abort path is
-// covered separately by the sse-consumer harness in sse.runtime.test.ts.
+// e2e for SSE (`text/event-stream`) operations: the typed flat async-iterator
+// surface (`for await (const ev of streamMessages())`). We assert on the generated
+// source (string checks) and strict-tsc the output (single-file, plus the split
+// two-file set) — the same lightweight harness used by error-mode.test.ts. The
+// behavioral reconnect/abort path is covered separately by the sse-consumer
+// harness in sse.runtime.test.ts.
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
@@ -49,7 +50,7 @@ function collectTsFiles(dir: string): string[] {
 const fixture = join(__dirname, 'fixtures', 'sse.yaml');
 
 describe('generate-client SSE', () => {
-  it('single-file, functions facade: __sse generator + sse aggregate + typed events, strict tsc passes', () => {
+  it('single-file: embedded sse capability + flat typed stream sugar, strict tsc passes', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-sse-single-'));
     const out = join(dir, 'client.ts');
     const res = spawnSync('node', [cli, 'generate-client', fixture, '--output', out], {
@@ -60,23 +61,33 @@ describe('generate-client SSE', () => {
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
-    expect(generated).toContain('async function* __sse');
-    expect(generated).toContain('export const sse = {');
-    expect(generated).toContain('streamMessages');
-    expect(generated).toContain('AsyncGenerator<ServerSentEvent<Message>>');
-    // The typeless stream falls back to a `string` event payload + the 'text' data kind.
-    expect(generated).toContain('__sse<string>');
-    expect(generated).toContain(', "text")');
+    // The embedded runtime carries the sse capability generator.
+    expect(generated).toContain('async function* sse<T>(');
+    // Stream operations are typed `kind: "sse"` in Ops and marked in the descriptors.
+    expect(generated).toContain('kind: "sse";');
+    expect(generated).toContain('responseKind: "sse"');
+    // JSON payloads decode as json; the typeless stream falls back to text/string.
+    expect(generated).toContain(
+      'streamMessages: { id: "streamMessages", method: "GET", path: "/messages", tags: ["Messages"], responseKind: "sse", sseDataKind: "json" }'
+    );
+    expect(generated).toContain(
+      'streamTicks: { id: "streamTicks", method: "GET", path: "/ticks", tags: ["Ticks"], responseKind: "sse", sseDataKind: "text" }'
+    );
+    expect(generated).toMatch(/streamTicks: \{\s*args: \{\};\s*result: string;\s*kind: "sse";/);
+    // Flat call sugar: an SSE op is a top-level export returning the async generator.
+    expect(generated).toContain(
+      'export const streamMessages = (init: SseOptions = {}) => client.streamMessages({}, init);'
+    );
 
     // A type-usage snippet proving `ServerSentEvent<Message>.data.text` is typed
     // and that `SseOptions` (reconnect/reconnectDelay) is accepted.
     writeFileSync(
       join(dir, 'usage.ts'),
       [
-        `import { sse, configure } from './client.js';`,
+        `import { streamMessages, configure } from './client.js';`,
         `async function check() {`,
-        `  for await (const ev of sse.streamMessages()) { const t: string = ev.data.text; void t; const id: string | undefined = ev.id; void id; }`,
-        `  const it = sse.streamMessages({ reconnect: false, reconnectDelay: 500 });`,
+        `  for await (const ev of streamMessages()) { const t: string = ev.data.text; void t; const id: string | undefined = ev.id; void id; }`,
+        `  const it = streamMessages({ reconnect: false, reconnectDelay: 500 });`,
         `  void it;`,
         `}`,
         `void check; void configure;`,
@@ -95,47 +106,23 @@ describe('generate-client SSE', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('single-file, service-class facade: sse namespace bound on the class, strict tsc passes', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-sse-sc-'));
-    const out = join(dir, 'client.ts');
-    const res = spawnSync(
-      'node',
-      [cli, 'generate-client', fixture, '--output', out, '--facade', 'service-class'],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
-    expect(existsSync(out)).toBe(true);
-
-    const generated = readFileSync(out, 'utf-8');
-    expect(generated).toContain('readonly sse = {');
-    expect(generated).toContain('streamMessages: this.streamMessages.bind(this)');
-
-    writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({ ...TSCONFIG, include: ['client.ts'] }),
-      'utf-8'
-    );
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('tags-split, functions facade: the entry barrel merges per-tag sse fragments, strict tsc passes over the dir', () => {
+  it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-sse-split-'));
     const entry = join(dir, 'client.ts');
     const res = spawnSync(
       'node',
-      [cli, 'generate-client', fixture, '--output', entry, '--output-mode', 'tags-split'],
+      [cli, 'generate-client', fixture, '--output', entry, '--output-mode', 'split'],
       { encoding: 'utf-8', cwd: repoRoot }
     );
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(entry)).toBe(true);
 
-    // The entry barrel merges each per-tag SSE fragment into the public `sse`.
     const entrySrc = readFileSync(entry, 'utf-8');
-    expect(entrySrc).toContain('export const sse = { ...__sse_');
+    expect(entrySrc).toContain('async function* sse<T>(');
+    expect(entrySrc).toContain('export const streamMessages = (init: SseOptions = {})');
 
     const files = collectTsFiles(dir);
+    expect(files.map((f) => f.split('/').pop()).sort()).toEqual(['client.schemas.ts', 'client.ts']);
     const tsc = spawnSync(
       tscBin,
       [

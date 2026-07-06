@@ -9,4 +9,3 @@ apis:
       generators:
         - sdk
         - zod
-      facade: functions

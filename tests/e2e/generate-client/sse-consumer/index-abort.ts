@@ -1,4 +1,4 @@
-import { configure, sse } from './api.js';
+import { configure, streamAbort } from './api.js';
 
 const serverUrl = process.argv[2] ?? process.env.SSE_BASE_URL ?? 'http://127.0.0.1:3104';
 
@@ -12,7 +12,7 @@ async function main(): Promise<void> {
   let error: string | null = null;
 
   try {
-    for await (const ev of sse.streamAbort({ signal: controller.signal })) {
+    for await (const ev of streamAbort({ signal: controller.signal })) {
       void ev;
       received++;
       // Abort mid-stream, after the first event, while the server holds open.

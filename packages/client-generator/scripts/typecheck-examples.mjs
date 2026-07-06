@@ -14,12 +14,17 @@ const examples = [
   'fetch-functions',
   'customization',
   'baked-setup',
-  'service-class',
   'zod',
   'tanstack-query',
   'programmatic',
   'mock',
   'custom-generator',
+  'package-runtime',
+  'zero-install-quickstart',
+  'configure-and-middleware',
+  'multi-instance',
+  'sse-streaming',
+  'vendored-edge',
 ];
 
 let failed = false;

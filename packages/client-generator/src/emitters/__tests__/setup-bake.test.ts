@@ -17,7 +17,7 @@ describe('bakeSetup', () => {
     expect(out).not.toContain('defineClientSetup');
     expect(out).toContain("serverUrl: 'https://api.acme.com'");
     expect(out).toContain("ctx.headers['X-Acme'] = '1'");
-    // No facade-specific application — that is the emitter's job.
+    // A neutral expression only — applying it (mergeSetup) is the emitter's job.
     expect(out).not.toContain('configure(');
     expect(out).not.toContain('use(');
   });

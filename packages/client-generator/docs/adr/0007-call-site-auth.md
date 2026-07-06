@@ -1,5 +1,7 @@
 # ADR 0007: Auth resolved at the call site via async `__auth`
 
+> **Note (2026-07):** Superseded by [ADR-0017](./0017-runtime-module-and-descriptor-client.md) — the module-global credential slots and emitted `__auth` call sites are gone; credentials are per instance (`ClientConfig.auth`) and resolved by the runtime's `resolveAuth` capability.
+
 - Status: Accepted (extended by [ADR-0009](./0009-per-instance-auth.md))
 - Date: 2026-06-10
 

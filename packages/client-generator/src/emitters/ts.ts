@@ -92,38 +92,15 @@ const { factory } = ts;
  */
 
 /** A `const`/`let` variable statement: `[export] const|let <name>[: type] = <init>;`. */
-function variableStatement(
-  flag: ts.NodeFlags.Const | ts.NodeFlags.Let,
-  name: string,
-  init: ts.Expression,
-  opts: { type?: ts.TypeNode; export?: boolean }
-): ts.Statement {
-  return factory.createVariableStatement(
-    opts.export ? [factory.createModifier(ts.SyntaxKind.ExportKeyword)] : undefined,
-    factory.createVariableDeclarationList(
-      [factory.createVariableDeclaration(name, undefined, opts.type, init)],
-      flag
-    )
-  );
-}
-
-/** `const <name>[: type] = <init>;` */
-export function constStatement(
-  name: string,
-  init: ts.Expression,
-  type?: ts.TypeNode
-): ts.Statement {
-  return variableStatement(ts.NodeFlags.Const, name, init, { type });
-}
-
 /** `export const <name> = <init>;` */
 export function exportConstStatement(name: string, init: ts.Expression): ts.Statement {
-  return variableStatement(ts.NodeFlags.Const, name, init, { export: true });
-}
-
-/** `let <name>[: type] = <init>;` */
-export function letStatement(name: string, init: ts.Expression, type?: ts.TypeNode): ts.Statement {
-  return variableStatement(ts.NodeFlags.Let, name, init, { type });
+  return factory.createVariableStatement(
+    [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    factory.createVariableDeclarationList(
+      [factory.createVariableDeclaration(name, undefined, undefined, init)],
+      ts.NodeFlags.Const
+    )
+  );
 }
 
 /** An arrow function `(<params>) => <body>` (no explicit return type). */

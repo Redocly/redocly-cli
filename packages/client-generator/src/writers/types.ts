@@ -5,11 +5,10 @@ import type { ApiModel } from '../intermediate-representation/model.js';
  * How the generated client is partitioned across files.
  *
  * - `single` (default): one self-contained file.
- * - `split`: endpoints, schemas, and the shared HTTP runtime in sibling files.
- * - `tags`: one endpoints file per OpenAPI tag; shared schemas + runtime.
- * - `tags-split`: a folder per tag; shared schemas + runtime at the root.
+ * - `split`: schema types + guards in a sibling `<stem>.schemas.ts`; everything
+ *   else in the entry file, which re-exports the schemas module.
  */
-export type OutputMode = 'single' | 'split' | 'tags' | 'tags-split';
+export type OutputMode = 'single' | 'split';
 
 /** A single file the generator will write to disk. */
 export type GeneratedFile = { path: string; content: string };
@@ -27,6 +26,6 @@ export type WriterInput = {
 /**
  * A Writer turns the IR + emit options into the set of files to write. This is
  * the one seam output modes vary at; the emitter (which renders code) stays
- * mode-agnostic. Future Phase D facades (functions, framework hooks) plug in here.
+ * mode-agnostic.
  */
 export type Writer = (input: WriterInput) => GeneratedFile[];

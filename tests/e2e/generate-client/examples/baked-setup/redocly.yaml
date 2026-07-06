@@ -8,5 +8,4 @@ apis:
     client:
       generators:
         - sdk
-      facade: functions
       setup: ./client-setup.ts

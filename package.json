@@ -79,6 +79,10 @@
     "zod": "^4.0.0"
   },
   "lint-staged": {
+    "packages/client-generator/src/runtime/*.ts": [
+      "node packages/client-generator/scripts/generate-runtime-sources.mjs",
+      "git add packages/client-generator/src/emitters/runtime-sources.ts"
+    ],
     "**/*.{ts,js,yaml,yml,json,md}": [
       "npm run lint",
       "oxfmt --write"

@@ -11,7 +11,7 @@ import type { Generator } from './types.js';
  * `<op>QueryKey`/`<op>Options` per query (GET/HEAD), `<op>Mutation` per mutation.
  * It imports the operation functions + their `<Op>Variables` types from the sdk
  * entry (`./<stem>.js`), so it requires the `sdk` generator and targets its
- * throw-mode functions facade. The framework-agnostic `queryOptions` helper is
+ * throw-mode operation functions. The framework-agnostic `queryOptions` helper is
  * imported from `@tanstack/${queryFramework}-query` (`react` default; the body is
  * byte-identical across frameworks — `@tanstack/<framework>-query` is the consumer's peer).
  *

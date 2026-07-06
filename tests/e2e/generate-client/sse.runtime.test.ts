@@ -165,7 +165,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
       finished: boolean;
     };
 
-    // The first __send threw (simulated connection failure); the iterator reconnected
+    // The first send attempt threw (simulated connection failure); the iterator reconnected
     // and the second attempt streamed the event, then finished.
     expect(parsed.calls).toBe(2);
     expect(parsed.events).toEqual(['a']);

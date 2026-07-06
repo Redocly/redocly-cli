@@ -237,12 +237,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "result",
         ],
       },
-      "facade": {
-        "enum": [
-          "functions",
-          "service-class",
-        ],
-      },
       "generators": {
         "items": {
           "type": "string",
@@ -258,15 +252,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "mockSeed": {
         "type": "number",
       },
-      "name": {
-        "type": "string",
-      },
       "outputMode": {
         "enum": [
           "single",
           "split",
-          "tags",
-          "tags-split",
         ],
       },
       "queryFramework": {
@@ -275,6 +264,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "vue",
           "svelte",
           "solid",
+        ],
+      },
+      "runtime": {
+        "enum": [
+          "inline",
+          "package",
         ],
       },
       "serverUrl": {

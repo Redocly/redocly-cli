@@ -4,7 +4,7 @@ How to consume the TypeScript client produced by [`generate-client`](../commands
 
 ## Generators
 
-`--generators` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so it stays dependency-free. Incompatible selections fail fast with an explanation.
+`--generators` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so an add-on never adds a dependency to the client. Incompatible selections fail fast with an explanation.
 
 | Generator        | Emits                                                                                     | App peer dependency                                      |
 | ---------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -19,11 +19,28 @@ How to consume the TypeScript client produced by [`generate-client`](../commands
 redocly generate-client openapi.yaml --output src/client.ts --generators sdk,zod,mock
 ```
 
-`tanstack-query` and `swr` wrap the **throw-mode** `sdk` functions, so they require `--facade functions` and `--error-mode throw`. `transformers` requires `--date-type Date`. See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+`tanstack-query` and `swr` wrap the **throw-mode** `sdk` functions, so they require `--error-mode throw`. `transformers` requires `--date-type Date`. See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+
+## Package runtime
+
+By default the runtime is embedded in the generated file, so the client is self-contained. With [`--runtime package`](../commands/generate-client.md#runtime-distribution) the generated file instead imports the runtime from `@redocly/client-generator` — your application code is **identical in both modes** (same exports, same call shapes); only where the engine lives changes. Choose `package` when you want engine fixes and improvements via `npm update @redocly/client-generator`, with no regeneration.
+
+Install the runtime as a regular dependency and set the mode in `redocly.yaml`:
+
+```sh
+npm install @redocly/client-generator
+```
+
+```yaml
+client:
+  runtime: package # default: inline (self-contained)
+```
+
+An incompatible generated-file/runtime pair fails your `tsc` build (the descriptor `satisfies` check) rather than misbehaving at runtime. Package mode works with both output modes and every generator. See the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
 
 ## Authentication
 
-A setter is generated for each `securityScheme` the runtime can apply, and each operation automatically sends the credentials its `security` requires:
+Credentials are **per instance**: they live in the client's config (`ClientConfig.auth`), and each operation automatically sends the credentials its `security` requires. A setter is generated for each `securityScheme` the runtime can apply:
 
 | Scheme                         | Setter                                    | Applied as                               |
 | ------------------------------ | ----------------------------------------- | ---------------------------------------- |
@@ -31,7 +48,7 @@ A setter is generated for each `securityScheme` the runtime can apply, and each 
 | HTTP `basic`                   | `setBasicAuth(user, pass)`                | `Authorization: Basic <base64>`          |
 | `apiKey` (header/query/cookie) | `setApiKey(key)` / `setApiKey<Name>(key)` | the named header, query param, or cookie |
 
-`setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`. `mutualTLS` is not injectable. Bearer and apiKey setters accept a **`TokenProvider`** — a string or a (possibly async) function called per request, handy for refresh flows:
+`setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`. `mutualTLS` is not injectable. Bearer and apiKey credentials accept a **`TokenProvider`** — a string or a (possibly async) function called per request, handy for refresh flows:
 
 ```ts
 import { setBearer } from './client.ts';
@@ -39,11 +56,19 @@ import { setBearer } from './client.ts';
 setBearer(async () => await getFreshAccessToken());
 ```
 
-These setters are **module-global**. With `--facade service-class`, give each instance its own credentials via `ClientConfig.auth` (it overrides the global setters for that instance):
+Each setter is sugar over the exported `client` instance's `auth` member (`export const setBearer = client.auth.bearer;`), so it configures **that instance** — equivalently, pass credentials up front with `configure({ auth: { … } })` or set them via `client.auth.bearer(…)` / `client.auth.basic(…)` / `client.auth.apiKey(scheme, …)`.
+
+For **multiple independent instances** with different credentials, build extra clients over the same generated descriptors — the generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
 
 ```ts
-const internal = new Client({ auth: { basic: { username: 'svc', password: 's3cr3t' } } });
-const publicApi = new Client(); // no auth
+import { createClient } from '@redocly/client-generator';
+import { OPERATIONS, type Ops } from './client.ts';
+
+const internal = createClient<Ops>(OPERATIONS, {
+  serverUrl: 'https://api.example.com',
+  auth: { basic: { username: 'svc', password: 's3cr3t' } },
+});
+const publicApi = createClient<Ops>(OPERATIONS, { serverUrl: 'https://api.example.com' }); // no auth
 ```
 
 ## Argument style
@@ -80,7 +105,7 @@ Transport and abort failures still throw in both modes. The choice is fixed at g
 
 ## Middleware
 
-Beyond the single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`, the client takes **composable middleware** for cross-cutting concerns (auth refresh, logging, tracing, request IDs). Register with `use()` (functions facade) or `<Client>.use()` (service-class); both accept several at once:
+Beyond the single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`, the client takes **composable middleware** for cross-cutting concerns (auth refresh, logging, tracing, request IDs). Register with `use()` (sugar for `client.use()`); it accepts several at once:
 
 ```ts
 import { use } from './client.ts';
@@ -95,7 +120,7 @@ use({
 });
 ```
 
-`onRequest` runs in registration order; `onResponse` runs in reverse (onion). `onRequest` may mutate `ctx` (`url`/`method`/`headers`/`body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`. `onError` (throw mode only) is threaded through each middleware. `ctx.operation`'s fields are typed literal unions (`OperationId`/`OperationPath`/`OperationTag`) for autocomplete and typo-checking. A single call's header instead goes in that operation's trailing `init` argument.
+`onRequest` runs in registration order; `onResponse` runs in reverse (onion). `onRequest` may mutate `ctx` (`url`/`method`/`headers`/`body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`. `onError` (throw mode only) is threaded through each middleware. `ctx.operation`'s fields are typed as the spec's **literal unions** (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete — and a misspelled operation id fails compilation instead of silently never matching. A single call's header instead goes in that operation's trailing `init` argument. Per-request headers merge lowest → highest: injected auth credentials → typed header parameters → the caller's `init.headers` — the caller always wins.
 
 `use()` **appends** to the middleware chain (it composes with any already-registered or baked-in middleware). `configure({ middleware: [...] })` **replaces** the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
 
@@ -125,15 +150,15 @@ export default defineClientSetup({
 redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
 ```
 
-The baked block runs before the consumer's own setup. **Config values** are last-write-wins (a consumer overrides a baked default), while **middleware composes** (baked first, then the consumer's). Express un-bypassable behavior as middleware, not a baked `fetch`. A setup file may import **only** from `@redocly/client-generator`. See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
+The baked block runs before the consumer's own setup. **Config values** layer lowest → highest: the spec's defaults (e.g. `servers[0].url`) → the baked setup → the app's `configure()` — later always wins, so a consumer overrides a baked default. **Middleware composes** instead (baked first, then the consumer's). Express un-bypassable behavior as middleware, not a baked `fetch`. A setup file may import **only** from `@redocly/client-generator`. See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
 
 ## Retries
 
 Retry is **opt-in**, configured through `ClientConfig` with an optional per-call override:
 
 ```ts
-configure({ retry: { retries: 3 } }); // global (functions facade)
-const client = new Client({ retry: { retries: 3 } }); // per instance (service-class)
+configure({ retry: { retries: 3 } }); // the module's client instance
+const other = createClient<Ops>(OPERATIONS, { retry: { retries: 3 } }); // another instance
 await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 ```
 
@@ -199,13 +224,13 @@ const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 
 ## Operation metadata
 
-The client exports an `OPERATIONS` map keyed by operationId, holding each operation's `method`, `path` template, and `tags`:
+The client exports an `OPERATIONS` map keyed by operationId — the same **operation descriptors** the runtime routes requests by, holding each operation's `method`, `path` template, `tags`, and wire shape:
 
 ```ts
 export const OPERATIONS = {
-  getOrderById: { method: 'GET', path: '/orders/{orderId}', tags: ['Orders'] },
+  getOrderById: { id: 'getOrderById', method: 'GET', path: '/orders/{orderId}', tags: ['Orders'] },
   // …
-} as const;
+} as const satisfies Record<string, OperationDescriptor>;
 ```
 
 Because keys and values are plain string literals, they survive bundling/minification — making `OPERATIONS` the stable handle for cache keys, span names, or log labels (rather than `fn.name`, which a minifier can rename). The same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.operation` in middleware.
@@ -223,12 +248,12 @@ Guards are also emitted for unions nested inside another schema (array items, pr
 
 ## Server-Sent Events
 
-An operation whose `2xx` response declares `text/event-stream` is generated as a typed async iterator under an `sse` namespace — no flag required. Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`) and `JSON.parse`d when structured:
+An operation whose `2xx` response declares `text/event-stream` is generated as a typed **async-generator function** (a client method plus the matching free function) — no flag required. Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`) and `JSON.parse`d when structured:
 
 ```ts
-import { sse } from './client.ts';
+import { streamMessages } from './client.ts';
 
-for await (const ev of sse.streamMessages()) {
+for await (const ev of streamMessages()) {
   console.log(ev.id, ev.data.text); // ServerSentEvent<T>: { event?, data, id?, retry? }
 }
 ```

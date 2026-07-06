@@ -1,13 +1,13 @@
 // Query-parameter serialization styles (P3.8). Generates a client from a spec
-// declaring non-default query styles, strict-`tsc`s it (the `styles` object
-// literal + 4th-arg `__buildUrl` call must type-check), asserts the emitted
-// source, and proves the WIRE FORMAT behaviorally.
+// declaring non-default query styles, strict-`tsc`s it (the descriptor `params`
+// hints must satisfy `ParamSpec`), asserts the emitted source, and proves the
+// WIRE FORMAT behaviorally.
 //
 // Behavioral approach: rather than stand up a mock server, we import the
 // generated client and stub `config.fetch` (via `configure`) to capture the
 // request URL, then assert it directly. This is the lightest harness that
-// proves `__buildUrl`'s output (literal delimiters + allowReserved on the
-// wire), which is the whole point of the feature.
+// proves the runtime's `buildUrl` output (literal delimiters + allowReserved
+// on the wire), which is the whole point of the feature.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -40,17 +40,19 @@ describe('generate-client query serialization styles', () => {
     if (dir) rmSync(dir, { recursive: true, force: true });
   });
 
-  it('emits the styles literal for non-default params and none for the default param', () => {
-    // Styled array params carry their explicit style/explode.
-    expect(generated).toContain('"tags": { style: "pipeDelimited", explode: false }');
-    expect(generated).toContain('"q": { style: "spaceDelimited", explode: false }');
-    expect(generated).toContain('"ids": { style: "form", explode: false }');
+  it('emits style hints on the descriptor params, and none for the default param', () => {
+    // Styled array params carry their explicit style/explode on the descriptor.
+    expect(generated).toContain(
+      '{ name: "tags", in: "query", style: "pipeDelimited", explode: false }'
+    );
+    expect(generated).toContain(
+      '{ name: "q", in: "query", style: "spaceDelimited", explode: false }'
+    );
+    expect(generated).toContain('{ name: "ids", in: "query", style: "form", explode: false }');
     // allowReserved param keeps the default form+explode but flags allowReserved.
-    expect(generated).toContain('"filter": { style: "form", explode: true, allowReserved: true }');
-    // The default param `limit` gets NO styles entry.
-    expect(generated).not.toContain('"limit":');
-    // The styles literal is passed as the 4th arg to __buildUrl.
-    expect(generated).toMatch(/__buildUrl\(__config, `\/search`, params, \{/);
+    expect(generated).toContain('{ name: "filter", in: "query", allowReserved: true }');
+    // The default param `limit` carries NO style hints.
+    expect(generated).toContain('{ name: "limit", in: "query" }');
   });
 
   it('strict-tsc type-checks the generated client', () => {

@@ -886,20 +886,20 @@ yargs(hideBin(process.argv))
           },
           'output-mode': {
             describe:
-              'How the client is split across files: `single` (default, one file), `split` (endpoints, schemas, and runtime in sibling files), `tags` (one endpoints file per OpenAPI tag), or `tags-split` (a folder per tag), all sharing the schemas and runtime modules.',
-            choices: ['single', 'split', 'tags', 'tags-split'] as const,
+              'How the client is split across files: `single` (default, one file) or `split` (schema types and guards in a sibling `<name>.schemas.ts` the entry re-exports).',
+            choices: ['single', 'split'] as const,
+            requiresArg: true,
+          },
+          runtime: {
+            describe:
+              "Runtime distribution: 'inline' (default) embeds the runtime in the generated file; 'package' imports it from @redocly/client-generator.",
+            choices: ['inline', 'package'] as const,
             requiresArg: true,
           },
           setup: {
             describe:
-              'Path to a publisher setup module (export default defineClientSetup({ config, middleware })) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes and both facades.',
+              'Path to a publisher setup module (export default defineClientSetup({ config, middleware })) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes.',
             type: 'string',
-            requiresArg: true,
-          },
-          facade: {
-            describe:
-              'Developer-facing operation shape: `functions` (default) emits standalone async functions; `service-class` groups operations as class methods (one `Client` class in single/split, one service class per tag in tags/tags-split).',
-            choices: ['functions', 'service-class'] as const,
             requiresArg: true,
           },
           'args-style': {
@@ -936,12 +936,6 @@ yargs(hideBin(process.argv))
             describe:
               'Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in baked mode.',
             type: 'number',
-            requiresArg: true,
-          },
-          name: {
-            describe:
-              'Class name for the `service-class` facade in single/split layouts (ignored otherwise). Defaults to `Client`.',
-            type: 'string',
             requiresArg: true,
           },
           generators: {

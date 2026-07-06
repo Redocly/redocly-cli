@@ -1,5 +1,10 @@
-import { emitSingleFile } from '../client.js';
+import { emitClientSingleFile } from '../package-client.js';
 import { apiModel, namedSchema } from './fixtures.js';
+
+// The package arm keeps the emitted text free of the embedded runtime, so the
+// absence assertions below test the schema types/guards alone.
+const emitPackage: typeof emitClientSingleFile = (model, options = {}) =>
+  emitClientSingleFile(model, { ...options, runtime: 'package' });
 
 describe('discriminated-union type guards (C6.4)', () => {
   const beverage = namedSchema('Beverage', {
@@ -24,7 +29,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits is<Member>() guards for an explicit discriminator', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -53,7 +58,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('skips a discriminator entry whose target is not a named schema', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -76,7 +81,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits a single guard when two discriminant values map to the same type', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Pet', { kind: 'object', properties: [] }),
@@ -106,7 +111,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('synthesizes an implicit discriminator from a shared distinct string const', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -126,7 +131,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('finds the implicit discriminant through intersection (allOf) members', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('A', {
@@ -176,7 +181,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits no guards for an undiscriminated union (no shared const)', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('StringOrNumber', {
@@ -193,7 +198,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits no implicit guard when a member is not a ref to a named schema', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -211,7 +216,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits no implicit guard when the shared const values are not distinct', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('X', {
@@ -248,7 +253,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits no implicit guard for a single-member union', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -263,7 +268,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits no implicit guard when a member ref points to an unknown schema', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -281,7 +286,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits no implicit guard when members pin different property names', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('P', {
@@ -318,7 +323,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('ignores non-literal properties while detecting the implicit discriminant', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('R1', {
@@ -366,7 +371,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits guards for a discriminated union nested as array items', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('SuccessItem', {
@@ -413,7 +418,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits guards for a discriminated union nested under a record value', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Cat', {
@@ -446,7 +451,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits guards for a discriminated union nested under an object property', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('Cat', {
@@ -509,7 +514,7 @@ describe('discriminated-union type guards (C6.4)', () => {
           },
         },
       });
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           item('Ok', 'ok'),
@@ -524,7 +529,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('prefers the top-level named union param when a member also nests elsewhere', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -570,7 +575,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('skips a nested union whose members are not all named refs', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           beverage,
@@ -595,7 +600,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('ignores non-string shared const when detecting implicit discriminators', () => {
-    const out = emitSingleFile(
+    const out = emitPackage(
       apiModel({
         schemas: [
           namedSchema('N1', {

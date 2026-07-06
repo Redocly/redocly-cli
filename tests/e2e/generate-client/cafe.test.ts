@@ -11,7 +11,7 @@ const consumerDir = join(__dirname, 'cafe-consumer');
 const generatedFile = join(consumerDir, 'api.ts');
 const serverScript = join(consumerDir, 'server.ts');
 const indexScript = join(consumerDir, 'index.ts');
-const setBaseUrlScript = join(consumerDir, 'index-setbaseurl.ts');
+const configureScript = join(consumerDir, 'index-configure.ts');
 
 const SERVER_PORT = 3101;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
@@ -74,7 +74,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   let log: LogEntry[] = [];
   /** Raw generator output — what the CLI emits from cafe.yaml without any overrides. */
   let rawGenerated = '';
-  /** Generator output the consumer imports — same source, but BASE pinned at the mock via --server-url. */
+  /** Generator output the consumer imports — same source, but serverUrl pinned at the mock via --server-url. */
   let generated = '';
 
   beforeAll(async () => {
@@ -94,7 +94,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
 
     await waitForServerReady(15_000);
 
-    // First pass: capture the *canonical* output (spec-derived BASE) for the file snapshot.
+    // First pass: capture the *canonical* output (spec-derived serverUrl) for the file snapshot.
     // We don't keep this on disk — the consumer needs the mock-targeted variant.
     const snapshotGen = spawnSync(
       'node',
@@ -125,8 +125,10 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       throw new Error(`generate-client (consumer pass) failed:\n${consumerGen.stderr}`);
     }
     generated = readFileSync(generatedFile, 'utf-8');
-    if (!generated.includes(`let BASE = "${SERVER_BASE}"`)) {
-      throw new Error(`--server-url was not honoured; expected \`let BASE = "${SERVER_BASE}"\``);
+    if (!generated.includes(`{ serverUrl: "${SERVER_BASE}" }`)) {
+      throw new Error(
+        `--server-url was not honoured; expected \`{ serverUrl: "${SERVER_BASE}" }\``
+      );
     }
 
     // Type-check the consumer.
@@ -177,7 +179,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(generated).toContain('export type OAuth2Client = {');
   });
 
-  test('generated file declares one function per operation', () => {
+  test('generated file declares one flat call-sugar function per operation', () => {
     const expected = [
       'listMenuItems',
       'createMenuItem',
@@ -193,39 +195,41 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       'registerOAuth2Client',
     ];
     for (const name of expected) {
-      expect(generated).toContain(`export async function ${name}`);
+      expect(generated).toContain(`export const ${name} = (`);
     }
   });
 
-  test('exports an OPERATIONS metadata map keyed by operationId (method + path template)', () => {
+  test('exports an OPERATIONS descriptor map keyed by operationId (method + path template)', () => {
     expect(generated).toContain('export const OPERATIONS = {');
-    expect(generated).toContain('} as const;');
+    expect(generated).toContain('} as const satisfies Record<string, OperationDescriptor>;');
     expect(generated).toContain('export type OperationId = keyof typeof OPERATIONS;');
-    expect(generated).toMatch(
-      /export type OperationMetadata = \{\s*readonly method: string;\s*readonly path: string;\s*readonly tags: readonly string\[\];\s*\};/
-    );
     // A path-param operation keeps its `{param}` template, uppercased method, and tags.
     expect(generated).toContain(
-      'getOrderById: { method: "GET", path: "/orders/{orderId}", tags: ["Orders"] }'
+      'getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"]'
     );
     expect(generated).toContain(
-      'updateOrder: { method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"] }'
+      'updateOrder: { id: "updateOrder", method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"]'
     );
     expect(generated).toContain(
-      'createOrder: { method: "POST", path: "/orders", tags: ["Orders"] }'
+      'createOrder: { id: "createOrder", method: "POST", path: "/orders", tags: ["Orders"]'
     );
+    // The typed instance client is built over the descriptors.
+    expect(generated).toContain(
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
+    );
+    expect(generated).toContain('export const { configure, use } = client;');
   });
 
   test('generated file uses ergonomic signatures (positional path params + params object + body)', () => {
-    expect(generated).toContain('export async function deleteMenuItem(menuItemId: string,');
-    expect(generated).toContain('export async function getMenuItemPhoto(menuItemId: string,');
-    expect(generated).toContain('export async function updateOrder(orderId: string,');
-    expect(generated).toContain('export async function listMenuItems(params:');
+    expect(generated).toContain('export const deleteMenuItem = (menuItemId: string,');
+    expect(generated).toContain('export const getMenuItemPhoto = (menuItemId: string,');
+    expect(generated).toContain('export const updateOrder = (orderId: string,');
+    expect(generated).toContain('export const listMenuItems = (params:');
     // readOnly fields are dropped from the create body (Bucket C).
     expect(generated).toContain(
-      'export async function createOrder(body: Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">,'
+      'export const createOrder = (body: Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">,'
     );
-    expect(generated).toContain('export async function createMenuItem(body: FormData,');
+    expect(generated).toContain('export const createMenuItem = (body: FormData,');
   });
 
   // Named string enums get a runtime const-object companion by default, which the
@@ -400,22 +404,22 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
   });
 
-  // `setServerUrl()` is exercised mid-flight: the first call hits the mock, the
-  // second (after flipping to an unreachable host) fails to connect, and the
+  // `configure({ serverUrl })` is exercised mid-flight: the first call hits the mock,
+  // the second (after flipping to an unreachable host) fails to connect, and the
   // third (after restoring) succeeds again.
-  test('setServerUrl() switches the BASE binding for subsequent operations', () => {
-    const run = spawnSync('npx', ['tsx', setBaseUrlScript], {
+  test('configure({ serverUrl }) switches the base URL for subsequent operations', () => {
+    const run = spawnSync('npx', ['tsx', configureScript], {
       encoding: 'utf-8',
       cwd: consumerDir,
       env: { ...process.env, CAFE_BASE: SERVER_BASE },
     });
-    expect(run.status, `setServerUrl consumer stderr:\n${run.stderr}`).toBe(0);
+    expect(run.status, `configure consumer stderr:\n${run.stderr}`).toBe(0);
     const steps = JSON.parse(run.stdout.trim()) as Array<
       { kind: 'ok'; name: string } | { kind: 'err'; name: string; error: string }
     >;
     expect(steps.find((s) => s.name === 'initial-call-against-mock')?.kind).toBe('ok');
-    const flipped = steps.find((s) => s.name === 'call-after-setServerUrl-to-unreachable');
+    const flipped = steps.find((s) => s.name === 'call-after-configure-to-unreachable');
     expect(flipped?.kind).toBe('err');
-    expect(steps.find((s) => s.name === 'call-after-setServerUrl-restored')?.kind).toBe('ok');
+    expect(steps.find((s) => s.name === 'call-after-configure-restored')?.kind).toBe('ok');
   });
 });

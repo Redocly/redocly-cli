@@ -18,8 +18,8 @@ const { factory } = ts;
  * The operations a wrapper generator can wrap, with skips reported to the user under
  * `label` (the generator name). Two kinds are dropped:
  *
- * - **SSE operations** — the sdk emits these as a private `sse.*` async-iterator surface,
- *   not exported request/response functions, so there is nothing to wrap.
+ * - **SSE operations** — the sdk exposes these as async generators (streams), not
+ *   request/response functions, so a query/mutation hook cannot wrap them.
  * - **`<Op>Variables` name collisions** — a wrapper types its inputs as the sdk's
  *   `<Op>Variables`; when that name collides with a schema the sdk suppresses the alias,
  *   so the import would resolve to the schema (a wrong/broken type). The sdk function still
@@ -30,7 +30,7 @@ export function wrappableOperations(model: ApiModel, label: string): OperationMo
   const sse = all.filter(isSseOp);
   if (sse.length > 0) {
     logger.warn(
-      `generate-client: ${label} skipped ${sse.length} server-sent-events operation(s) — consume them via the sdk \`sse.*\` surface: ${sse
+      `generate-client: ${label} skipped ${sse.length} server-sent-events operation(s) — iterate the sdk's exported async generators directly: ${sse
         .map((op) => op.name)
         .join(', ')}.\n`
     );

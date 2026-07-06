@@ -23,20 +23,11 @@ const GENERATORS: Record<GeneratorName, GeneratorDescriptor> = {
   // transformers import the schema *types* from the sdk entry module (so sdk must run) and
   // assign `Date` values to those fields, which only type-checks when the sdk types dates as `Date`.
   transformers: { run: transformersGenerator, requires: ['sdk'], dateTypes: ['Date'] },
-  // tanstack-query wraps the sdk's exported, throw-mode, free operation functions.
-  'tanstack-query': {
-    run: tanstackQueryGenerator,
-    requires: ['sdk'],
-    facades: ['functions'],
-    errorModes: ['throw'],
-  },
-  // swr wraps the sdk's exported, throw-mode, free operation functions as SWR hooks.
-  swr: {
-    run: swrGenerator,
-    requires: ['sdk'],
-    facades: ['functions'],
-    errorModes: ['throw'],
-  },
+  // tanstack-query wraps the sdk's exported, throw-mode operation functions — present in
+  // both runtime distributions, so no runtime restriction.
+  'tanstack-query': { run: tanstackQueryGenerator, requires: ['sdk'], errorModes: ['throw'] },
+  // swr wraps the sdk's exported, throw-mode operation functions as SWR hooks.
+  swr: { run: swrGenerator, requires: ['sdk'], errorModes: ['throw'] },
   // mock emits a standalone MSW handlers/factories module referencing the sdk's types.
   mock: { run: mockGenerator, requires: ['sdk'] },
 };
@@ -69,9 +60,9 @@ export function validateGenerators(
   registry: Map<string, GeneratorDescriptor> = builtinGenerators()
 ): void {
   const selected = new Set(names);
-  const facade = emit.facade ?? 'functions';
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
+  const runtime = emit.runtime ?? 'inline';
   for (const name of names) {
     const descriptor = registry.get(name);
     if (!descriptor) {
@@ -85,11 +76,6 @@ export function validateGenerators(
         );
       }
     }
-    if (descriptor.facades && !descriptor.facades.includes(facade)) {
-      throw new NotSupportedError(
-        `The "${name}" generator does not support --facade "${facade}" (supported: ${descriptor.facades.join(', ')}).`
-      );
-    }
     if (descriptor.errorModes && !descriptor.errorModes.includes(errorMode)) {
       throw new NotSupportedError(
         `The "${name}" generator does not support --error-mode "${errorMode}" (supported: ${descriptor.errorModes.join(', ')}).`
@@ -98,6 +84,11 @@ export function validateGenerators(
     if (descriptor.dateTypes && !descriptor.dateTypes.includes(dateType)) {
       throw new NotSupportedError(
         `The "${name}" generator requires --date-type ${descriptor.dateTypes.join(' or ')} (got "${dateType}") so the runtime values match the generated types.`
+      );
+    }
+    if (descriptor.runtimes && !descriptor.runtimes.includes(runtime)) {
+      throw new NotSupportedError(
+        `The "${name}" generator does not support runtime "${runtime}" (supported: ${descriptor.runtimes.join(', ')}).`
       );
     }
   }

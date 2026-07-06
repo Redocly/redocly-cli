@@ -64,8 +64,3 @@ export function sseDataKind(op: OperationModel): 'json' | 'text' {
     ? 'json'
     : 'text';
 }
-
-/** The barrel fragment export name carrying a tag/class's SSE members (functions facade, multi-file). */
-export function sseFragmentName(className: string): string {
-  return `__sse_${className}`;
-}

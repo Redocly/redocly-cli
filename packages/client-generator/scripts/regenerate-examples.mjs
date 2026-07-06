@@ -14,12 +14,17 @@ const examples = [
   'fetch-functions',
   'customization',
   'baked-setup',
-  'service-class',
   'zod',
   'mock',
   'custom-generator',
   'tanstack-query',
   'programmatic',
+  'package-runtime',
+  'zero-install-quickstart',
+  'configure-and-middleware',
+  'multi-instance',
+  'sse-streaming',
+  'vendored-edge',
 ];
 
 for (const name of examples) {

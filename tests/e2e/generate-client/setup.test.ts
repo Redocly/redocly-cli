@@ -1,8 +1,8 @@
 /**
- * Behavioral e2e for `--setup`: a publisher setup module baked into the single-file client.
+ * Behavioral e2e for `--setup`: a publisher setup module baked into the generated client.
  * Generates a client with `--setup`, then drives the baked runtime in a real consumer to prove
  * the defaults apply with no consumer `configure`/`use`, that a consumer can still override, and
- * that combining `--setup` with a multi-file output mode fails fast.
+ * that the baked setup also applies in the split two-file layout.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -117,35 +117,5 @@ describe('--setup bakes publisher defaults into the single-file client', () => {
     } finally {
       rmSync(dir2, { recursive: true, force: true });
     }
-  }, 60_000);
-});
-
-describe('--setup with the service-class facade', () => {
-  let dir = '';
-  beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'setup-sc-'));
-    const r = generate(dir, ['--facade', 'service-class', '--name', 'PetClient']);
-    if (r.status !== 0) throw new Error(`generate failed:\n${r.stderr}`);
-  }, 60_000);
-  afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
-  });
-
-  test('new Client() with no args picks up the baked defaults; a passed config overrides', () => {
-    const captured = runConsumer(
-      dir,
-      outdent`
-        import { PetClient } from './client.ts';
-        const fetchSpy = (sink: { url: string; header: string }) => (async (u: string, init: RequestInit) => { sink.url = u; sink.header = (init.headers as Record<string,string>)['X-Baked']; return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }); }) as unknown as typeof fetch;
-        const baked = { url: '', header: '' };
-        await new PetClient({ fetch: fetchSpy(baked) }).listPets();
-        const overridden = { url: '', header: '' };
-        await new PetClient({ serverUrl: 'https://override.example.com', fetch: fetchSpy(overridden) }).listPets();
-        console.log(JSON.stringify({ baked, overridden }));
-      `
-    ) as { baked: { url: string; header: string }; overridden: { url: string } };
-    expect(new URL(captured.baked.url).origin).toBe('https://baked.example.com');
-    expect(captured.baked.header).toBe('yes');
-    expect(new URL(captured.overridden.url).origin).toBe('https://override.example.com');
   }, 60_000);
 });

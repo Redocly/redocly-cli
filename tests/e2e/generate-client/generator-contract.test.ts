@@ -38,22 +38,6 @@ describe('generate-client generator compatibility contract', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('rejects tanstack-query with the service-class facade', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([
-      cafe,
-      '--output',
-      join(dir, 'c.ts'),
-      '--generators',
-      'sdk,tanstack-query',
-      '--facade',
-      'service-class',
-    ]);
-    expect(status).not.toBe(0);
-    expect(out).toMatch(/does not support --facade "service-class"/);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
   it('rejects tanstack-query with result error mode', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
     const { status, out } = run([
@@ -92,7 +76,7 @@ describe('generate-client generator compatibility contract', () => {
     const { status, out } = run([cafe, '--output', outFile, '--generators', ',']);
     expect(status, out).toBe(0);
     expect(existsSync(outFile)).toBe(true);
-    expect(readFileSync(outFile, 'utf-8')).toContain('export async function');
+    expect(readFileSync(outFile, 'utf-8')).toContain('export const client = createClient<Ops,');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

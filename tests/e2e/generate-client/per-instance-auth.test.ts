@@ -1,11 +1,10 @@
-// Behavioral proof of per-instance auth (the service-class facade's reason to exist):
-// two instances of the SAME generated client carry different `config.auth` and send
-// different credentials — without touching the module-global setters. A no-auth
-// instance sends nothing. We capture the wire `Authorization` header via an injected
-// `config.fetch`, so no mock server is needed.
+// Behavioral proof of per-instance auth: two `createClient` instances built over the
+// SAME generated descriptors carry different `config.auth` and send different
+// credentials — without touching the generated module's own client instance or its
+// setter sugar. A no-auth instance sends nothing. We capture the wire `Authorization`
+// header via an injected `config.fetch`, so no mock server is needed.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
@@ -32,7 +31,8 @@ const SPEC = outdent`
 `;
 
 const DRIVER = outdent`
-  import { Client } from './client.js';
+  import { createClient } from '@redocly/client-generator';
+  import { OPERATIONS, type Ops } from './client.js';
 
   const calls: (string | null)[] = [];
   const fakeFetch = (async (_url: string, init?: RequestInit) => {
@@ -42,8 +42,11 @@ const DRIVER = outdent`
   }) as unknown as typeof fetch;
 
   async function main() {
-    const authed = new Client({ fetch: fakeFetch, auth: { basic: { username: 'alice', password: 'pw' } } });
-    const anon = new Client({ fetch: fakeFetch });
+    const authed = createClient<Ops>(OPERATIONS, {
+      fetch: fakeFetch,
+      auth: { basic: { username: 'alice', password: 'pw' } },
+    });
+    const anon = createClient<Ops>(OPERATIONS, { fetch: fakeFetch });
     await authed.getThing();
     await anon.getThing();
     console.log(JSON.stringify(calls));
@@ -51,9 +54,11 @@ const DRIVER = outdent`
   void main();
 `;
 
-describe('per-instance auth (service-class config.auth)', () => {
+describe('per-instance auth (createClient config.auth)', () => {
   it('two instances send different credentials; a no-auth instance sends none', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-perinstance-'));
+    // The temp dir lives INSIDE the repo so the driver's import of
+    // `@redocly/client-generator` resolves through the workspace node_modules symlink.
+    const dir = mkdtempSync(join(__dirname, '.tmp-perinstance-'));
     try {
       writeFileSync(join(dir, 'openapi.yaml'), SPEC, 'utf-8');
       // Mark the temp dir as ESM so tsx imports the generated `./client.js` and the
@@ -67,8 +72,8 @@ describe('per-instance auth (service-class config.auth)', () => {
           join(dir, 'openapi.yaml'),
           '--output',
           join(dir, 'client.ts'),
-          '--facade',
-          'service-class',
+          '--runtime',
+          'package',
         ],
         { encoding: 'utf-8', cwd: repoRoot }
       );
@@ -81,7 +86,7 @@ describe('per-instance auth (service-class config.auth)', () => {
       const calls = JSON.parse(run.stdout.trim()) as (string | null)[];
       const expected = 'Basic ' + Buffer.from('alice:pw').toString('base64');
       expect(calls[0]).toBe(expected); // the authed instance sent its own basic credential
-      expect(calls[1]).toBeNull(); // the no-auth instance sent nothing (no global was set)
+      expect(calls[1]).toBeNull(); // the no-auth instance sent nothing (no shared state)
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

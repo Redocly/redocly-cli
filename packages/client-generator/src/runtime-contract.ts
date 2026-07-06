@@ -1,42 +1,18 @@
 // The public, spec-independent runtime contract a publisher's `--setup` file imports.
-// These MUST stay byte-identical to the spec-independent types emitted into every client
-// (see emitters/runtime.ts); a lockstep test guards against drift.
+// These are the runtime's own types (src/runtime/types.ts) — the very module the
+// generated client embeds (inline) or imports (package) — so the contract cannot
+// drift from the generated output.
 
-export type OperationContext = { id: string; path: string; tags: string[] };
+import type { Middleware, RequestContext, RetryConfig } from './runtime/types.js';
 
-export type RequestContext = {
-  url: string;
-  method: string;
-  headers: Record<string, string>;
-  body?: unknown;
-  operation: OperationContext;
-};
-
-export type Middleware = {
-  onRequest?: (ctx: RequestContext) => void | Promise<void>;
-  onResponse?: (
-    response: Response,
-    ctx: RequestContext
-  ) => Response | void | Promise<Response | void>;
-  onError?: (error: Error, ctx: RequestContext) => Error | Promise<Error>;
-};
-
-export type RetryStrategy = 'fixed' | 'exponential';
-
-export type RetryContext = {
-  attempt: number;
-  request: RequestContext;
-  response?: Response;
-  error?: unknown;
-};
-
-export type RetryConfig = {
-  retries?: number;
-  retryDelay?: number;
-  retryStrategy?: RetryStrategy;
-  jitter?: boolean;
-  retryOn?: (ctx: RetryContext) => boolean | Promise<boolean>;
-};
+export type {
+  Middleware,
+  OperationContext,
+  RequestContext,
+  RetryConfig,
+  RetryContext,
+  RetryStrategy,
+} from './runtime/types.js';
 
 /**
  * The spec-independent subset of a client's `ClientConfig` a publisher may bake in

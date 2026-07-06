@@ -10,7 +10,7 @@ import type { Generator } from './types.js';
  * sdk operation functions — `<op>Key` + `use<Op>` (`useSWR`) per query (GET/HEAD),
  * `use<Op>` (`useSWRMutation`) per mutation. It imports the operation functions +
  * their `<Op>Variables` types from the sdk entry (`./<stem>.js`), so it requires the
- * `sdk` generator and targets its throw-mode functions facade. `swr`/`swr/mutation`
+ * `sdk` generator and targets its throw-mode operation functions. `swr`/`swr/mutation`
  * are the consumer's peer; the sdk client stays dependency-free.
  *
  * Output-mode-agnostic: `./<stem>.js` resolves to the single-file client or the

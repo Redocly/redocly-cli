@@ -9,13 +9,13 @@ The [`generate-client`](../../commands/generate-client.md) command reads its set
 client: # shared defaults for every generated client
   generators:
     - sdk
-  facade: functions
+  argsStyle: flat
 apis:
   cafe:
     root: ./openapi.yaml # the input
     clientOutput: ./src/api/client.ts # optional; defaults to `cafe.client.ts`
     client: # per-API overrides (optional)
-      facade: service-class
+      argsStyle: grouped
 ```
 
 ```sh
@@ -26,7 +26,7 @@ redocly generate-client --config ./config/redocly.yaml
 
 ## Options
 
-The same fields are accepted at the top level (shared defaults) and under `apis.<name>.client` (per-API overrides): `generators`, `facade`, `name`, `argsStyle`, `serverUrl`, `outputMode`, `enumStyle`, `errorMode`, `dateType`, `queryFramework`, `mockData`, `mockSeed`, and `setup`. Each mirrors the matching CLI flag — see the [command options](../../commands/generate-client.md#options) for what every field does.
+The same fields are accepted at the top level (shared defaults) and under `apis.<name>.client` (per-API overrides): `generators`, `argsStyle`, `serverUrl`, `outputMode` (`single` or `split`), `runtime`, `enumStyle`, `errorMode`, `dateType`, `queryFramework`, `mockData`, `mockSeed`, and `setup`. Each mirrors the matching CLI flag — see the [command options](../../commands/generate-client.md#options) for what every field does.
 
 The input and output are **not** part of a `client` block:
 

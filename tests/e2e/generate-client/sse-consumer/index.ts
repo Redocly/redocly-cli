@@ -1,4 +1,4 @@
-import { configure, sse } from './api.js';
+import { configure, streamMessages } from './api.js';
 
 const serverUrl = process.argv[2] ?? process.env.SSE_BASE_URL ?? 'http://127.0.0.1:3104';
 
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   // client resumes with `Last-Event-ID: 2` and receives `c`. `ev.data` is the
   // typed `Message`, so `ev.data.text` is statically a string.
   const collected: Collected[] = [];
-  for await (const ev of sse.streamMessages()) {
+  for await (const ev of streamMessages()) {
     collected.push({ text: ev.data.text, id: ev.id });
     if (collected.length >= 3) break;
   }

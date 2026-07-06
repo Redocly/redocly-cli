@@ -150,7 +150,7 @@ The emitted client has zero runtime dependencies and runs in browsers, Node, Bun
 redocly generate-client openapi.yaml --output src/client.ts
 ```
 
-Inline types plus one async function per operation (or `--facade service-class` for class methods), with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events.
+Inline types plus a typed client instance and one async function per operation, with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events.
 The same command can also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generators`.
 For detailed information, read the [ `generate-client` docs](./docs/@v2/commands/generate-client.md).
 

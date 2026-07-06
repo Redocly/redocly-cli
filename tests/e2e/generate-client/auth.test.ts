@@ -50,44 +50,54 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   it('emits all five injectable scheme kinds and strict-tsc accepts the single-file client', () => {
     const generated = generateSingleFile();
 
-    // Token machinery for the resolvable (bearer + apiKey) schemes.
+    // Token machinery for the resolvable (bearer + apiKey) schemes lives in the embedded runtime.
     expect(generated).toContain('export type TokenProvider');
-    expect(generated).toContain('async function __auth');
-    expect(generated).toContain('async function __resolve');
+    expect(generated).toContain('async function resolveAuth(');
+    expect(generated).toContain('async function resolveToken(');
 
-    // One setter per scheme kind. Three apiKey schemes (none sole) → keyed names.
-    expect(generated).toContain('export function setBearer(token: TokenProvider | null)');
-    expect(generated).toContain('export function setBasicAuth(username: string, password: string)');
-    expect(generated).toContain('export function setApiKeyQueryKey(key: TokenProvider | null)'); // query
-    expect(generated).toContain('export function setApiKeyHeaderKey(key: TokenProvider | null)'); // header
-    expect(generated).toContain('export function setApiKeyCookieKey(key: TokenProvider | null)'); // cookie
-    expect(generated).toContain('__basicAuth = btoa(`${username}:${password}`)');
-
-    // Per-kind injection inside __auth — each prefers per-instance config.auth, then the global slot.
-    expect(generated).toContain('headers["Authorization"] = `Bearer ${v}`');
+    // One setter per scheme kind, as instance-bound sugar. Three apiKey schemes (none sole) → keyed names.
+    expect(generated).toContain('export const setBearer = client.auth.bearer;');
+    expect(generated).toContain('export const setBasicAuth = client.auth.basic;');
     expect(generated).toContain(
-      'const basic = b ? btoa(`${b.username}:${b.password}`) : __basicAuth;'
+      'export const setApiKeyQueryKey = (value: TokenProvider) => client.auth.apiKey("QueryKey", value);'
     );
-    expect(generated).toContain('headers["Authorization"] = `Basic ${basic}`');
-    expect(generated).toContain('query["api_key"] = v'); // apiKeyQuery
-    expect(generated).toContain('cookies.push("sid=" + v)'); // apiKeyCookie
-    expect(generated).toContain('headers["X-Key"] = v'); // apiKeyHeader
+    expect(generated).toContain(
+      'export const setApiKeyHeaderKey = (value: TokenProvider) => client.auth.apiKey("HeaderKey", value);'
+    );
+    expect(generated).toContain(
+      'export const setApiKeyCookieKey = (value: TokenProvider) => client.auth.apiKey("CookieKey", value);'
+    );
+
+    // Per-kind injection inside resolveAuth, driven by the descriptors' security specs.
+    expect(generated).toContain('headers.Authorization = `Bearer ${await resolveToken(provider)}`');
+    expect(generated).toContain(
+      'headers.Authorization = `Basic ${btoa(`${basic.username}:${basic.password}`)}`'
+    );
+    expect(generated).toContain("if (scheme.in === 'header') headers[scheme.name] = value;");
+    expect(generated).toContain("else if (scheme.in === 'query') query[scheme.name] = value;");
+    expect(generated).toContain('else cookies.push(`${scheme.name}=${value}`);');
 
     // Per-instance credentials type + ClientConfig field.
     expect(generated).toContain('export type AuthCredentials = {');
     expect(generated).toContain('auth?: AuthCredentials;');
 
-    // Authed operations resolve credentials at the call site (threading the config).
-    expect(generated).toContain('const __a = await __auth(["Bearer"], __config);');
-    expect(generated).toContain('const __a = await __auth(["HeaderKey"], __config);'); // header-kind awaits too
-    expect(generated).toContain('...__a.headers');
-    // Query-auth merges into the URL query object.
-    expect(generated).toContain('{ ...params, ...__a.query }');
+    // Every scheme kind is denormalized onto its operation descriptor.
+    expect(generated).toContain('security: [{ scheme: "Bearer", kind: "bearer" }]');
+    expect(generated).toContain('security: [{ scheme: "Basic", kind: "basic" }]');
+    expect(generated).toContain(
+      'security: [{ scheme: "QueryKey", kind: "apiKey", name: "api_key", in: "query" }]'
+    );
+    expect(generated).toContain(
+      'security: [{ scheme: "CookieKey", kind: "apiKey", name: "sid", in: "cookie" }]'
+    );
+    expect(generated).toContain(
+      'security: [{ scheme: "HeaderKey", kind: "apiKey", name: "X-Key", in: "header" }]'
+    );
   }, 60_000);
 
-  it('strict-tsc accepts the tags-split multi-file client (guards multi-file auth)', () => {
-    // Multi-file modes derive their folder from a `.ts` entry path, so --output
-    // must still point at a file; the generator fans out the tree around it.
+  it('strict-tsc accepts the split two-file client (guards multi-file auth)', () => {
+    // Split mode derives its folder from a `.ts` entry path, so --output
+    // must still point at a file; the generator emits the schemas file beside it.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-split-'));
     const res = spawnSync(
       'node',
@@ -98,7 +108,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
         '--output',
         join(dir, 'client.ts'),
         '--output-mode',
-        'tags-split',
+        'split',
       ],
       { encoding: 'utf-8', cwd: repoRoot }
     );
@@ -116,11 +126,11 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   // Behavioral check on a real wire. The cafe mock-server harness is bound to
   // cafe.yaml and heavy to clone, so we drive the generated client against a tiny
   // throwaway http server instead — enough to prove (a) an async `setBearer`
-  // token function resolves through `await __auth` onto the `Authorization`
-  // header and (b) a query-key scheme lands `api_key=` in the request URL.
+  // token function resolves through the runtime's auth capability onto the
+  // `Authorization` header and (b) a query-key scheme lands `api_key=` in the URL.
   it('async setBearer resolves onto Authorization and query-key lands in the URL', () => {
-    // The driver owns its own throwaway http server (and binds BASE to it at
-    // runtime via setServerUrl), so a single `spawnSync` runs the whole behavioral
+    // The driver owns its own throwaway http server (and points the client at it
+    // via configure({ serverUrl })), so a single `spawnSync` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-run-'));
     const out = join(dir, 'client.ts');
@@ -135,7 +145,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
       driver,
       outdent`
         import * as http from 'node:http';
-        import { getBearer, getQuery, setServerUrl, setBearer, setApiKeyQueryKey } from './client.js';
+        import { configure, getBearer, getQuery, setBearer, setApiKeyQueryKey } from './client.js';
 
         const captured: Array<{ url: string; auth?: string }> = [];
         const server = http.createServer((req, res) => {
@@ -147,7 +157,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
         async function main() {
           await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
           const port = (server.address() as { port: number }).port;
-          setServerUrl('http://127.0.0.1:' + port);
+          configure({ serverUrl: 'http://127.0.0.1:' + port });
           setBearer(async () => 'tok');
           await getBearer();
           setApiKeyQueryKey('secret-key');

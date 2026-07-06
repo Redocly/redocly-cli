@@ -1,0 +1,148 @@
+openapi: 3.2.0
+info:
+  title: Cafe Menu Quickstart
+  description: A tiny slice of the Redocly Cafe demo API — just enough for a first call.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+    description: Live demo server.
+tags:
+  - name: Products
+    description: Menu operations.
+  - name: Authorization
+    description: Demo credentials.
+paths:
+  /menu:
+    get:
+      tags:
+        - Products
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive substring match on item names.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemList'
+  /menu-item-images/{menuItemId}:
+    get:
+      tags:
+        - Products
+      summary: Retrieve a menu item photo
+      operationId: getMenuItemPhoto
+      security: []
+      parameters:
+        - name: menuItemId
+          in: path
+          required: true
+          description: ID of the menu item.
+          schema:
+            type: string
+        - name: photoSize
+          in: query
+          required: false
+          description: Photo size to retrieve.
+          schema:
+            type: string
+            enum:
+              - thumbnail
+              - medium
+              - large
+            default: medium
+      responses:
+        '200':
+          description: Menu item photo.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            text/plain:
+              schema:
+                description: Alternative image text.
+                type: string
+  /oauth2/register:
+    post:
+      tags:
+        - Authorization
+      summary: Create OAuth2 client
+      operationId: registerOAuth2Client
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterClientRequest'
+      responses:
+        '201':
+          description: OAuth2 client registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2Client'
+components:
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        id:
+          description: Menu item ID.
+          type: string
+        name:
+          description: Menu item name.
+          type: string
+        price:
+          description: Price in cents.
+          type: integer
+      required:
+        - id
+        - name
+        - price
+    MenuItemList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+      required:
+        - items
+    RegisterClientRequest:
+      type: object
+      properties:
+        name:
+          description: Client name.
+          type: string
+      required:
+        - name
+    OAuth2Client:
+      type: object
+      properties:
+        clientId:
+          description: Client identifier issued by the authorization server.
+          type: string
+        clientSecret:
+          description: Client secret issued by the authorization server.
+          type: string
+      required:
+        - clientId
+        - clientSecret

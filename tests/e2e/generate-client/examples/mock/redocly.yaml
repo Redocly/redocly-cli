@@ -9,4 +9,3 @@ apis:
       generators:
         - sdk
         - mock
-      facade: functions

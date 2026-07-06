@@ -1,6 +1,6 @@
 /**
  * Behavioral e2e for the extension contract (D3). Rather than a live server, we
- * inject a fake `fetch` via `configure()` / `new Client(config)` and capture what
+ * inject a fake `fetch` via `configure()` / `createClient(…, config)` and capture what
  * the generated runtime actually produced — proving that `serverUrl`, `config.headers`,
  * `onRequest`, transport-swap, and per-instance config observably take effect.
  */
@@ -41,7 +41,7 @@ function runConsumer(dir: string, script: string): unknown {
   return JSON.parse(result.stdout.trim());
 }
 
-describe('extension contract — functions facade (configure)', () => {
+describe('extension contract — flat surface (configure)', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'ext-fn-'));
@@ -109,11 +109,13 @@ describe('extension contract — functions facade (configure)', () => {
   }, 60_000);
 });
 
-describe('extension contract — service-class facade (per-instance config)', () => {
+describe('extension contract — per-instance config (createClient)', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'ext-sc-'));
-    generate(dir, ['--facade', 'service-class', '--name', 'PetClient']);
+    // The temp dir lives INSIDE the repo so the consumer's import of
+    // `@redocly/client-generator` resolves through the workspace node_modules symlink.
+    dir = mkdtempSync(join(__dirname, '.tmp-ext-instance-'));
+    generate(dir, ['--runtime', 'package']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -123,7 +125,8 @@ describe('extension contract — service-class facade (per-instance config)', ()
     const calls = runConsumer(
       dir,
       outdent`
-        import { PetClient } from './client.ts';
+        import { createClient } from '@redocly/client-generator';
+        import { OPERATIONS, type Ops } from './client.ts';
 
         const calls: Array<{ tag: string; url: string; tenant: string }> = [];
         const make = (tag: string) =>
@@ -133,8 +136,8 @@ describe('extension contract — service-class facade (per-instance config)', ()
             return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
           }) as unknown as typeof fetch;
 
-        const a = new PetClient({ serverUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
-        const b = new PetClient({ serverUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
+        const a = createClient<Ops>(OPERATIONS, { serverUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
+        const b = createClient<Ops>(OPERATIONS, { serverUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
 
         await a.listPets();
         await b.listPets();
@@ -147,14 +150,14 @@ describe('extension contract — service-class facade (per-instance config)', ()
     expect(calls[1]).toEqual({ tag: 'b', url: 'https://b.example/pets', tenant: 'B' });
   }, 60_000);
 
-  test('an instance with no config falls back to the spec-derived BASE', () => {
+  test('the generated module instance keeps the spec-derived serverUrl unless overridden', () => {
     const seen = runConsumer(
       dir,
       outdent`
-        import { PetClient } from './client.ts';
+        import { client } from './client.ts';
 
         let captured = '';
-        const client = new PetClient({
+        client.configure({
           fetch: (async (url: string) => {
             captured = String(url);
             return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
@@ -165,7 +168,7 @@ describe('extension contract — service-class facade (per-instance config)', ()
       `
     ) as { captured: string };
 
-    // No serverUrl in config → falls back to the inlined BASE from base.yaml.
+    // configure() only swapped the transport → the baked serverUrl from base.yaml stays.
     expect(seen.captured).toBe('http://localhost:3102/pets');
   }, 60_000);
 });

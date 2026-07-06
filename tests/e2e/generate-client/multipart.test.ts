@@ -1,7 +1,8 @@
 /**
  * Behavioral e2e for typed multipart bodies (#5): the generated client takes a typed object
- * and serializes it to `FormData` via `__toFormData` — binary→Blob, arrays→repeated fields,
- * objects→JSON parts. We inject a fake `fetch` and inspect the FormData it actually sent.
+ * and serializes it to `FormData` via the runtime's multipart capability — binary→Blob,
+ * arrays→repeated fields, objects→JSON parts. We inject a fake `fetch` and inspect the
+ * FormData it actually sent.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -132,7 +133,7 @@ describe('generate-client typed multipart body (#5)', () => {
           }) as unknown as typeof fetch,
         });
         // A multipart op must expose the plain body object to onRequest (not pre-built FormData);
-        // mutating it has to be reflected in the FormData that __send serializes afterwards.
+        // mutating it has to be reflected in the FormData the runtime serializes afterwards.
         use({ onRequest: (ctx) => { (ctx.body as { orgId: string }).orgId = 'mutated'; } });
 
         const file = new Blob(['hi'], { type: 'text/plain' });
@@ -151,8 +152,8 @@ describe('generate-client typed multipart body (#5)', () => {
     expect(result.orgId).toBe('mutated');
   }, 60_000);
 
-  it('compiles in multi-file output (multipart serialization lives in the shared runtime)', () => {
-    dir = mkdtempSync(join(tmpdir(), 'ots-multipart-tags-'));
+  it('compiles in split output (multipart serialization lives in the embedded runtime)', () => {
+    dir = mkdtempSync(join(tmpdir(), 'ots-multipart-split-'));
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     const gen = spawnSync(
       'node',
@@ -163,7 +164,7 @@ describe('generate-client typed multipart body (#5)', () => {
         '--output',
         join(dir, 'client.ts'),
         '--output-mode',
-        'tags',
+        'split',
       ],
       { encoding: 'utf-8', cwd: repoRoot }
     );

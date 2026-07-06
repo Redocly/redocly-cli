@@ -1,9 +1,9 @@
-import { configure, sse } from './api.js';
+import { configure, streamMessages } from './api.js';
 
 // No real server: inject a `fetch` that fails the first attempt with a transport-style
 // error (as if the connection were refused/reset while opening the request), then
-// succeeds. With the fix, __sse must treat a __send failure as a dropped connection and
-// reconnect — not rethrow on the first error.
+// succeeds. The runtime's sse generator must treat a send failure as a dropped
+// connection and reconnect — not rethrow on the first error.
 let calls = 0;
 configure({
   fetch: (async () => {
@@ -22,7 +22,7 @@ configure({
 async function main(): Promise<void> {
   const events: string[] = [];
   // Tiny reconnect backoff so the test doesn't wait on the 1s default.
-  for await (const ev of sse.streamMessages({ reconnectDelay: 1 })) {
+  for await (const ev of streamMessages({ reconnectDelay: 1 })) {
     events.push(ev.data.text);
   }
   process.stdout.write(JSON.stringify({ calls, events, finished: true }) + '\n');

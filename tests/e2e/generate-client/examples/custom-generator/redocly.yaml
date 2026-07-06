@@ -9,4 +9,3 @@ apis:
       generators:
         - sdk
         - ./route-map-generator.mjs
-      facade: functions

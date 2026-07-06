@@ -25,11 +25,34 @@ export type {
   RetryContext,
   RetryStrategy,
 } from './runtime-contract.js';
+// The app-facing client runtime (package-mode clients import these from the package root).
+// The setup-contract names above (Middleware, OperationContext, RequestContext, RetryConfig,
+// RetryContext, RetryStrategy) are re-exports of the same runtime types — one definition,
+// two entry points; the rest of the runtime's type surface is re-exported here.
+export { ApiError, createClient, mergeSetup } from './runtime/index.js';
+export type {
+  ApiErrorLike,
+  AuthCredentials,
+  Client,
+  ClientConfig,
+  ClientCore,
+  OperationDescriptor,
+  OpsShape,
+  ParamSpec,
+  ParseAs,
+  QueryValue,
+  RequestOptions,
+  Result,
+  SecuritySpec,
+  ServerSentEvent,
+  SseOptions,
+  TokenProvider,
+} from './runtime/index.js';
 export type { Config } from './config.js';
 export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
 export { mergeConfig } from './config-file.js';
 // The custom-generator plugin API + codegen toolkit + IR types (also re-exports the shared
-// `Generator`/`GeneratedFile`/`OutputMode`/`ArgsStyle`/`Facade` types).
+// `Generator`/`GeneratedFile`/`OutputMode`/`ArgsStyle` types).
 export * from './plugin.js';
 
 /**
@@ -50,7 +73,7 @@ export function collectGeneratedFiles(
 ): GeneratedFile[] {
   const registry = options.registry ?? builtinGenerators();
   // Fail fast on an incompatible selection (missing prerequisite, unsupported
-  // facade/error-mode) before producing any file.
+  // error-mode/date-type/runtime) before producing any file.
   validateGenerators(options.generators, options.emit, registry);
   const files: GeneratedFile[] = [];
   const seen = new Set<string>();
@@ -84,7 +107,7 @@ export async function generateClient(
   const model = buildApiModel(normalized);
 
   // A publisher `--setup` module is read, validated, and transformed into the neutral setup
-  // expression baked into the client. Applied per facade and across all output modes by the emitter.
+  // expression baked into the client. Applied across all output modes by the emitter.
   let setupBlock: string | undefined;
   if (options.setup) {
     // Resolve a relative setup path against the cwd, consistent with `output` above.
@@ -110,15 +133,14 @@ export async function generateClient(
     emit: {
       serverUrl: options.serverUrl,
       enumStyle: options.enumStyle,
-      facade: options.facade,
       argsStyle: options.argsStyle,
-      name: options.name,
       errorMode: options.errorMode,
       dateType: options.dateType,
       queryFramework: options.queryFramework,
       mockData: options.mockData,
       mockSeed: options.mockSeed,
       setup: setupBlock,
+      runtime: options.runtime,
     },
     generators: selected,
     registry,
