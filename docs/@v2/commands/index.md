@@ -14,6 +14,7 @@ Documentation commands:
 API management commands:
 
 - [`bundle`](bundle.md) Bundle API description.
+- [`diff`](diff.md) Compare two API descriptions and detect breaking changes [experimental feature].
 - [`join`](join.md) Join API descriptions [experimental feature].
 - [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
 - [`split`](split.md) Split API description into a multi-file structure.

@@ -14,6 +14,8 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: diff
+          page: commands/diff.md
         - label: eject
           page: commands/eject.md
         - label: generate-arazzo
