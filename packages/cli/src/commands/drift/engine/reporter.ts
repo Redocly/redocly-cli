@@ -299,7 +299,7 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
   lines.push(`┃ Problems: total=${summary.totalProblemGroups}`);
   lines.push(`┗ Duration: ${summary.durationMs}ms`);
 
-  if (findingsToRender.length === 0) {
+  if (findingsCount === 0) {
     lines.push('');
     lines.push(colorize('✔ No findings.', cyan));
     return `${lines.join('\n')}\n`;

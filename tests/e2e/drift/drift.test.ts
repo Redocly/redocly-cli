@@ -302,6 +302,21 @@ describe('drift - output formats', () => {
     ]);
     await matchSnapshot('output-sarif', output);
   });
+
+  test('keeps summary counts when --max-findings is 0 and hides the detail list', () => {
+    const { output } = runDrift([
+      'traffic-undocumented.ndjson',
+      '--api',
+      'openapi.yaml',
+      '--rules',
+      'undocumented-endpoint',
+      '--max-findings',
+      '0',
+    ]);
+    expect(output).toContain('Findings: total=2');
+    expect(output).toContain('Problems: total=2');
+    expect(output).not.toContain('✔ No findings.');
+  });
 });
 
 describe('drift - exit codes', () => {
