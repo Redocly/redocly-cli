@@ -20,8 +20,9 @@ describe('classifyChanges', () => {
     ];
     const [change] = classifyChanges({ changes, specVersion: 'oas3_1', ...emptyMaps });
     expect(change.compat).toBe('breaking');
-    expect(change.ruleIds).toEqual(['operation-removed']);
-    expect(change.message).toBeDefined();
+    expect(change.verdicts).toEqual([
+      { ruleId: 'operation-removed', compat: 'breaking', message: 'Operation was removed.' },
+    ]);
   });
 
   it('classifies path removal as breaking', () => {
@@ -35,7 +36,9 @@ describe('classifyChanges', () => {
     ];
     const [change] = classifyChanges({ changes, specVersion: 'oas3_0', ...emptyMaps });
     expect(change.compat).toBe('breaking');
-    expect(change.ruleIds).toEqual(['path-removed']);
+    expect(change.verdicts).toEqual([
+      { ruleId: 'path-removed', compat: 'breaking', message: 'Path was removed.' },
+    ]);
   });
 
   it('defaults to non-breaking when no rule judges the change', () => {
@@ -51,7 +54,7 @@ describe('classifyChanges', () => {
     ];
     const [change] = classifyChanges({ changes, specVersion: 'oas3_1', ...emptyMaps });
     expect(change.compat).toBe('non-breaking');
-    expect(change.ruleIds).toBeUndefined();
+    expect(change.verdicts).toBeUndefined();
   });
 
   it('returns structural-only (non-breaking) for specs without a registry', () => {
@@ -78,5 +81,40 @@ describe('classifyChanges', () => {
     ];
     const [change] = classifyChanges({ changes, specVersion: 'oas3_1', ...emptyMaps });
     expect(change.compat).toBe('non-breaking');
+  });
+
+  it('keeps every verdict when multiple rules fire, worst-first', () => {
+    const usage = new UsageIndex([
+      {
+        site: '#/paths/~1x/get/parameters/{query:q}/schema',
+        target: '#/components/schemas/S',
+      },
+      {
+        site: '#/paths/~1x/get/responses/200/content/application~1json/schema',
+        target: '#/components/schemas/S',
+      },
+    ]);
+    const changes: RawChange[] = [
+      {
+        pointer: '#/components/schemas/S',
+        property: 'enum',
+        kind: 'changed',
+        typeName: 'Schema',
+        base: { pointer: '#/components/schemas/S/enum', value: ['a', 'b'] },
+        revision: { pointer: '#/components/schemas/S/enum', value: ['a', 'c'] },
+      },
+    ];
+    const [change] = classifyChanges({
+      changes,
+      specVersion: 'oas3_1',
+      base: new Map(),
+      revision: new Map(),
+      usage,
+    });
+    expect(change.compat).toBe('breaking');
+    expect(change.verdicts?.map((v) => v.ruleId)).toEqual([
+      'enum-values-added',
+      'enum-values-removed',
+    ]);
   });
 });
