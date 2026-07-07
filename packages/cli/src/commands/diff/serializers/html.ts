@@ -25,8 +25,14 @@ function renderChange(change: Change): string {
         <span class="badge">${escapeHtml(change.compat)}</span>
         <code>${escapeHtml(change.kind)}</code>
         <code class="loc">${escapeHtml(location)}</code>
-        ${change.message ? `<span class="msg">${escapeHtml(change.message)}</span>` : ''}
-        ${change.ruleIds ? `<span class="rules">${escapeHtml(change.ruleIds.join(', '))}</span>` : ''}
+        ${(change.verdicts ?? [])
+          .map(
+            (v) =>
+              `<span class="msg">${escapeHtml(v.message)}</span> <span class="rules">${escapeHtml(
+                v.ruleId
+              )}</span>`
+          )
+          .join(' ')}
       </summary>
       <pre>${escapeHtml(JSON.stringify(payload, null, 2))}</pre>
     </details>`;
