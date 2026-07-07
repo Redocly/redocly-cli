@@ -11,12 +11,20 @@ describe('templatizePath', () => {
     });
   });
 
-  it('recognizes UUID, ULID and prefixed identifiers', () => {
+  it('recognizes UUID, ULID, cuid and prefixed identifiers', () => {
     expect(templatizePath('/items/f47ac10b-58cc-4372-a567-0e02b2c3d479').template).toBe(
       '/items/{itemId}'
     );
     expect(templatizePath('/orders/01ARZ3NDEKTSV4RRFFQ69G5FAV').template).toBe('/orders/{orderId}');
     expect(templatizePath('/orgs/org_01ks7rnqsyy0g6h37rfmen7zv9').template).toBe('/orgs/{orgId}');
+    expect(templatizePath('/orders/cjld2cjxh0000qzrmn831i7rn').template).toBe('/orders/{orderId}');
+    expect(templatizePath('/orders/tz4a98xxat96iws9zmbrgj3a').template).toBe('/orders/{orderId}');
+  });
+
+  it('keeps long plain words that contain no digits', () => {
+    expect(templatizePath('/categories/internationalizations').template).toBe(
+      '/categories/internationalizations'
+    );
   });
 
   it('deduplicates parameter names within a path', () => {

@@ -25,8 +25,8 @@ traffic parsing infrastructure is shared with the `drift` command.
 
 The baseline is derived from every exchange in the traffic:
 
-- Identifier-like path segments (numeric, UUID, ULID, prefixed and opaque tokens) become
-  named path parameters.
+- Identifier-like path segments (numeric, UUID, ULID, cuid, prefixed and opaque tokens)
+  become named path parameters.
 - Body schemas are merged across all observations; a property becomes optional as soon as
   one sample omits it.
 - Alternative body shapes for the same operation are preserved as `oneOf` variants instead
