@@ -22,9 +22,9 @@ export function markdownDiff(result: DiffResult): string {
 
   for (const change of result.changes) {
     const location = change.property ? `${change.pointer} · ${change.property}` : change.pointer;
-    const details = [change.message, change.ruleIds?.map((id) => `\`${id}\``).join(', ')]
-      .filter(Boolean)
-      .join(' ');
+    const details = (change.verdicts ?? [])
+      .map((v) => `${escapeCell(v.message)} \`${v.ruleId}\``)
+      .join('<br>');
     lines.push(
       `| ${IMPACT_LABEL[change.compat]} | ${change.kind} | \`${escapeCell(location)}\` | ${escapeCell(
         details
