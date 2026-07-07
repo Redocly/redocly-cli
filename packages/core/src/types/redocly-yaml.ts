@@ -1,8 +1,9 @@
-import * as redoclyConfig from '@redocly/config';
+import { CONFIG_NODE_TYPE_NAMES, rootRedoclyConfigSchema } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
 import type { Config, RawGovernanceConfig } from '../config/index.js';
+import { graphqlNodeKinds } from '../graphql/node-kinds.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { normalizeTypes } from '../types/index.js';
@@ -192,6 +193,9 @@ const builtInOpenRpc1Rules = [
 ] as const;
 export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
+const builtInGraphqlRules = ['no-unused-types', 'type-description'] as const;
+export type BuiltInGraphqlRuleId = (typeof builtInGraphqlRules)[number];
+
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
 export type BuiltInCommonRuleId = (typeof builtInCommonRules)[number];
 
@@ -203,6 +207,7 @@ const builtInRules = [
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
   ...builtInOpenRpc1Rules,
+  ...builtInGraphqlRules,
   ...builtInCommonRules,
 ] as const;
 type BuiltInRuleId = (typeof builtInRules)[number];
@@ -268,6 +273,7 @@ const configGovernanceProperties: Record<
   arazzo1_1Rules: 'Rules',
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
+  graphqlRules: 'Rules',
   preprocessors: 'Preprocessors',
   oas2Preprocessors: 'Preprocessors',
   oas3_0Preprocessors: 'Preprocessors',
@@ -483,7 +489,8 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
     properties: {
       type: {
         enum: [...new Set(['any', ...nodeNames, 'SpecExtension'])],
-        description: 'REQUIRED. Locates the OpenAPI node type that the lint command evaluates.',
+        description: 'REQUIRED. Locates the API node type that the lint command evaluates.',
+        documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
       },
       property: (value: unknown) => {
         if (Array.isArray(value)) {
@@ -491,7 +498,7 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
             type: 'array',
             items: { type: 'string' },
             description:
-              'Property name corresponding to the OpenAPI node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
+              'Property name corresponding to the API node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
             documentationLink:
               'https://redocly.com/docs/cli/rules/configurable-rules#property-example',
           };
@@ -501,7 +508,7 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
           return {
             type: 'string',
             description:
-              'Property name corresponding to the OpenAPI node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
+              'Property name corresponding to the API node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
             documentationLink:
               'https://redocly.com/docs/cli/rules/configurable-rules#property-example',
           };
@@ -533,9 +540,9 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
 
 function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
   return {
-    ...nodeTypes[redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
+    ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
     properties: {
-      ...nodeTypes[redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
+      ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
       ...configGovernanceProperties,
     },
   };
@@ -712,7 +719,8 @@ const ConfigurableRule: NodeType = {
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
   const nodeNames = specVersions.flatMap((version) => {
-    const types = config ? config.extendTypes(getTypes(version), version) : getTypes(version);
+    const baseTypes = getTypes(version);
+    const types = config ? config.extendTypes(baseTypes, version) : baseTypes;
     return Object.keys(types);
   });
   // Create types based on external schemas
@@ -722,10 +730,9 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ...CoreConfigTypes,
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
-    Subject: createAssertionDefinitionSubject(nodeNames),
+    Subject: createAssertionDefinitionSubject([...nodeNames, ...graphqlNodeKinds]),
     ...nodeTypes,
-    [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]:
-      createScorecardLevelsItems(nodeTypes),
+    [CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: createScorecardLevelsItems(nodeTypes),
   };
 }
 
@@ -749,9 +756,9 @@ const CoreConfigTypes: Record<string, NodeType> = {
 };
 
 // FIXME: remove this once we remove `theme` from the schema
-const { theme: _, ...propertiesWithoutTheme } = redoclyConfig.rootRedoclyConfigSchema.properties;
+const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
 const redoclyConfigSchemaWithoutTheme = {
-  ...redoclyConfig.rootRedoclyConfigSchema,
+  ...rootRedoclyConfigSchema,
   properties: propertiesWithoutTheme,
 };
 

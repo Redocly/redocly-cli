@@ -22,19 +22,20 @@ See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) 
 ## Usage
 
 ```bash
-REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <orgSlug> --project <projectSlug> [--wait] [--max-execution-time <timeInSeconds>]
+REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <orgSlug> --project <projectSlug> [--wait] [--continue-on-deploy-failures] [--max-execution-time <timeInSeconds>]
 ```
 
 ## Options
 
-| Option               | Type    | Description                                                                                                                    |
-| -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| pushId               | string  | **REQUIRED.** Identifier of the push you are tracking. Returned as result of the [`push`](./push.md) command.                  |
-| --organization, -o   | string  | **REQUIRED.** [Organization slug](#find-org-slug).                                                                             |
-| --project, -p        | string  | **REQUIRED.** [Project slug](#find-org-slug).                                                                                  |
-| --domain, -d         | string  | The domain that the `push` command pushed to. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com). |
-| --wait               | boolean | Waits until the build is completed if it is in progress. Default value is `false`.                                             |
-| --max-execution-time | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `1200`.     |
+| Option                        | Type    | Description                                                                                                                    |
+| ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| pushId                        | string  | **REQUIRED.** Identifier of the push you are tracking. Returned as result of the [`push`](./push.md) command.                  |
+| --organization, -o            | string  | **REQUIRED.** [Organization slug](#find-org-slug).                                                                             |
+| --project, -p                 | string  | **REQUIRED.** [Project slug](#find-org-slug).                                                                                  |
+| --domain, -d                  | string  | The domain that the `push` command pushed to. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com). |
+| --wait                        | boolean | Waits until the build is completed if it is in progress. Default value is `false`.                                             |
+| --max-execution-time          | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `1200`.     |
+| --continue-on-deploy-failures | boolean | Prevents the command from returning a non-zero exit code when the deployment fails. Default value is `false`.                  |
 
 <details>
 <summary>How to find and copy the Reunite organization or project slugs<a id="find-org-slug"></a></summary>
