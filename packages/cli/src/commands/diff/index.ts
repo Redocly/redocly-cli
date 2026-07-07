@@ -3,17 +3,18 @@ import { writeFileSync } from 'node:fs';
 
 import type { VerifyConfigOptions } from '../../types.js';
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
-import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { DiffError, diffDocuments } from './engine/index.js';
 import type { DiffResult } from './engine/types.js';
+import { getDiffFailure, type DiffFailOn } from './fail-on.js';
 import { htmlDiff } from './serializers/html.js';
 import { jsonDiff } from './serializers/json.js';
 import { markdownDiff } from './serializers/markdown.js';
 import { stylishDiff } from './serializers/stylish.js';
 
 export type DiffOutputFormat = 'stylish' | 'json' | 'markdown' | 'html';
-export type DiffFailOn = 'breaking' | 'none';
+export type { DiffFailOn };
 
 export type DiffArgv = {
   base: string;
@@ -31,6 +32,7 @@ const SERIALIZERS: Record<DiffOutputFormat, (result: DiffResult) => string> = {
 };
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
+  const startedAt = performance.now();
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
   const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
 
@@ -51,12 +53,16 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   const output = SERIALIZERS[argv.format](result);
   if (argv.output) {
     writeFileSync(argv.output, output);
+    logger.info(`Diff report written to ${argv.output}.\n`);
   } else {
     logger.output(output + '\n');
   }
 
-  const failed = argv['fail-on'] === 'breaking' && result.summary.breaking > 0;
-  if (failed) {
+  printExecutionTime('diff', startedAt, `${basePath} vs ${revisionPath}`);
+
+  const failure = getDiffFailure(result.summary, argv['fail-on']);
+  if (failure) {
+    logger.error(`${failure}\n`);
     throw new AbortFlowError('Diff failed.');
   }
 }
