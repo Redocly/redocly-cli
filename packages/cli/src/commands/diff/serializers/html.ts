@@ -10,7 +10,6 @@ function escapeHtml(value: unknown): string {
 
 const IMPACT_CLASS: Record<Change['compat'], string> = {
   breaking: 'breaking',
-  warning: 'warning',
   'non-breaking': 'ok',
 };
 
@@ -34,7 +33,7 @@ function renderChange(change: Change): string {
 }
 
 export function htmlDiff(result: DiffResult): string {
-  const { breaking, warning, nonBreaking } = result.summary;
+  const { breaking, nonBreaking } = result.summary;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,7 +47,6 @@ export function htmlDiff(result: DiffResult): string {
   .change summary { cursor: pointer; display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; }
   .badge { border-radius: 4px; padding: 0 .5rem; font-size: .8rem; color: #fff; }
   .breaking .badge { background: #c0392b; }
-  .warning .badge { background: #d68910; }
   .ok .badge { background: #1e8449; }
   .msg { color: #52606d; }
   .rules { color: #9aa5b1; font-size: .85rem; }
@@ -60,7 +58,6 @@ export function htmlDiff(result: DiffResult): string {
 <h1>API diff</h1>
 <p class="summary">
   <span style="color:#c0392b">${breaking} breaking</span>
-  <span style="color:#d68910">${warning} warning</span>
   <span style="color:#1e8449">${nonBreaking} non-breaking</span>
   <span style="color:#9aa5b1">${escapeHtml(result.specVersions.base)} → ${escapeHtml(
     result.specVersions.revision

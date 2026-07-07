@@ -1,7 +1,7 @@
-import { warning, type DiffRule } from '../../types.js';
+import { breaking, type DiffRule } from '../../types.js';
 
 // Pointer-aligned comparison cannot verify whether two different targets are
-// content-equivalent (spec §7.3, §13) — honest verdict is a warning.
+// content-equivalent (spec §7.3, §13) — the conservative verdict is breaking.
 export const refTargetChanged: DiffRule = {
   id: 'ref-target-changed',
   description:
@@ -11,8 +11,8 @@ export const refTargetChanged: DiffRule = {
     const wasRef = change.property in (ctx.base(change.pointer)?.refs ?? {});
     const isRefNow = change.property in (ctx.revision(change.pointer)?.refs ?? {});
     if (!wasRef && !isRefNow) return;
-    return warning(
-      `Reference target changed from '${change.base?.value}' to '${change.revision?.value}' — review manually.`
+    return breaking(
+      `Reference target changed from '${change.base?.value}' to '${change.revision?.value}' — content equivalence cannot be verified.`
     );
   },
 };

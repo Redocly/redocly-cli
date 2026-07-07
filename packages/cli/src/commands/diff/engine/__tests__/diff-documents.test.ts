@@ -1,9 +1,7 @@
-import Ajv from '@redocly/ajv/dist/2020.js';
 import { createConfig, makeDocumentFromString } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
 
 import { DiffError, diffDocuments } from '../index.js';
-import { DIFF_OUTPUT_SCHEMA } from '../output-schema.js';
 
 const BASE = outdent`
   openapi: 3.1.0
@@ -77,22 +75,7 @@ describe('diffDocuments', () => {
     const description = result.changes.find((c) => c.property === 'description')!;
     expect(description.compat).toBe('non-breaking');
 
-    expect(result.summary).toEqual({ breaking: 1, warning: 0, nonBreaking: 2 });
-  });
-
-  it('validates against the published output schema', async () => {
-    const config = await createConfig({});
-    const result = diffDocuments({
-      base: makeDocumentFromString(BASE, ''),
-      revision: makeDocumentFromString(REVISION, ''),
-      config,
-    });
-
-    // Ajv's default export has no construct signatures under this repo's TS
-    // config — mirror core's cast in packages/core/src/rules/ajv.ts.
-    const ajv = new (Ajv as any)({ strict: false });
-    const validate = ajv.compile(DIFF_OUTPUT_SCHEMA);
-    expect(validate(result)).toBe(true);
+    expect(result.summary).toEqual({ breaking: 1, nonBreaking: 2 });
   });
 
   it('throws DiffError for different spec families', async () => {

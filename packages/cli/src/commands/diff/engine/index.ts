@@ -57,11 +57,10 @@ export function diffDocuments(opts: {
   const summary = changes.reduce<DiffSummary>(
     (acc, change) => {
       if (change.compat === 'breaking') acc.breaking++;
-      else if (change.compat === 'warning') acc.warning++;
       else acc.nonBreaking++;
       return acc;
     },
-    { breaking: 0, warning: 0, nonBreaking: 0 }
+    { breaking: 0, nonBreaking: 0 }
   );
 
   return {

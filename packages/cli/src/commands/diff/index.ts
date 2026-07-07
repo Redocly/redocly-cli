@@ -13,7 +13,7 @@ import { markdownDiff } from './serializers/markdown.js';
 import { stylishDiff } from './serializers/stylish.js';
 
 export type DiffOutputFormat = 'stylish' | 'json' | 'markdown' | 'html';
-export type DiffFailOn = 'breaking' | 'warning' | 'none';
+export type DiffFailOn = 'breaking' | 'none';
 
 export type DiffArgv = {
   base: string;
@@ -55,16 +55,8 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     logger.output(output + '\n');
   }
 
-  const failOn = argv['fail-on'];
-  const failed =
-    failOn === 'breaking'
-      ? result.summary.breaking > 0
-      : failOn === 'warning'
-        ? result.summary.breaking + result.summary.warning > 0
-        : false;
+  const failed = argv['fail-on'] === 'breaking' && result.summary.breaking > 0;
   if (failed) {
-    throw new AbortFlowError(
-      `Diff failed: ${result.summary.breaking} breaking, ${result.summary.warning} warning change(s) found.`
-    );
+    throw new AbortFlowError('Diff failed.');
   }
 }
