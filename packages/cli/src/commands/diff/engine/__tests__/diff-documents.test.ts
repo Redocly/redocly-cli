@@ -42,8 +42,8 @@ describe('diffDocuments', () => {
   it('produces the running example from the design spec', async () => {
     const config = await createConfig({});
     const result = diffDocuments({
-      base: makeDocumentFromString(BASE, ''),
-      revision: makeDocumentFromString(REVISION, ''),
+      base: makeDocumentFromString(BASE, 'base.yaml'),
+      revision: makeDocumentFromString(REVISION, 'rev.yaml'),
       config,
     });
 
@@ -73,6 +73,9 @@ describe('diffDocuments', () => {
     ]);
     expect(becameRequired.base?.pointer).toBe('#/paths/~1pets/get/parameters/0/required');
     expect(becameRequired.revision?.pointer).toBe('#/paths/~1pets/get/parameters/1/required');
+    expect(becameRequired.base).toMatchObject({ file: 'base.yaml' });
+    expect(becameRequired.revision).toMatchObject({ file: 'rev.yaml' });
+    expect(becameRequired.revision?.line).toBeGreaterThan(1);
 
     // integer → number in request is a widening — non-breaking
     const typeChanged = result.changes.find((c) => c.property === 'type')!;
