@@ -8,7 +8,7 @@ This means it's still a work in progress and may go through major changes, inclu
 {% /admonition %}
 
 The `diff` command compares two API descriptions and reports what was added, removed, and changed.
-For OpenAPI 3.x, changes are also classified as breaking, warning, or non-breaking, so you can catch breaking changes before they reach your consumers.
+For OpenAPI 3.x, changes are also classified as breaking or non-breaking, so you can catch breaking changes before they reach your consumers.
 
 ## Usage
 
@@ -16,34 +16,34 @@ For OpenAPI 3.x, changes are also classified as breaking, warning, or non-breaki
 redocly diff <base> <revision>
 redocly diff v1/openapi.yaml v2/openapi.yaml
 redocly diff https://example.com/openapi.yaml openapi.yaml --format=json
-redocly diff main@v1 main@v2 --fail-on=warning
+redocly diff main@v1 main@v2 --fail-on=breaking
 ```
 
 ## Options
 
-| Option        | Type    | Description                                                                                                                                      |
-| ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| base          | string  | **REQUIRED.** Path, URL, or config alias of the base (older) API description.                                                                    |
-| revision      | string  | **REQUIRED.** Path, URL, or config alias of the revision (newer) API description.                                                                |
-| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                             |
-| --fail-on     | string  | Exit with code `1` when changes at this level are found. <br /> **Possible values:** `breaking`, `warning`, `none`. Default value is `breaking`. |
-| --format      | string  | Format for the output. <br /> **Possible values:** `stylish`, `json`, `markdown`, `html`. Default value is `stylish`.                            |
-| --help        | boolean | Show help.                                                                                                                                       |
-| --lint-config | string  | Specify the severity level for the configuration file. <br /> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.              |
-| --output, -o  | string  | Write the report to a file instead of stdout.                                                                                                    |
-| --version     | boolean | Show version number.                                                                                                                             |
+| Option        | Type    | Description                                                                                                                           |
+| ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| base          | string  | **REQUIRED.** Path, URL, or config alias of the base (older) API description.                                                         |
+| revision      | string  | **REQUIRED.** Path, URL, or config alias of the revision (newer) API description.                                                     |
+| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                  |
+| --fail-on     | string  | Exit with code `1` when changes at this level are found. <br /> **Possible values:** `breaking`, `none`. Default value is `breaking`. |
+| --format      | string  | Format for the output. <br /> **Possible values:** `stylish`, `json`, `markdown`, `html`. Default value is `stylish`.                 |
+| --help        | boolean | Show help.                                                                                                                            |
+| --lint-config | string  | Specify the severity level for the configuration file. <br /> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.   |
+| --output, -o  | string  | Write the report to a file instead of stdout.                                                                                         |
+| --version     | boolean | Show version number.                                                                                                                  |
 
 ## How it works
 
 - Both descriptions are bundled, so external `$ref`s are resolved before comparison.
 - List items with a natural identity (for example, parameters keyed by `in` + `name`) are matched by identity, so reordering them is not reported as a change.
 - Changes to shared components are reported once, at the component location; whether a component change is breaking is derived from where the component is used (requests, responses, or both).
-- Changes the tool detects but cannot judge automatically (for example, a `$ref` that now points to a different target) are reported as `warning`.
+- Changes the tool detects but cannot judge automatically (for example, a `$ref` that now points to a different target) are conservatively reported as `breaking`.
 - Structural comparison works for all supported specification types; breaking-change classification applies to OpenAPI 3.x.
 
 {% admonition type="info" name="Limitations" %}
 The `diff` command detects common breaking changes using a documented rule catalog; it is not an exhaustive detector.
-Renaming a component (for example, a schema or parameter) is seen as a removal plus an addition, not a rename, so the new `$ref` target is reported as a `warning` rather than matched to its previous identity.
+Renaming a component (for example, a schema or parameter) is seen as a removal plus an addition, not a rename, so the new `$ref` target is reported as `breaking` (`ref-target-changed`) rather than matched to its previous identity.
 Comparing documents of different specification families (for example, OpenAPI 2.0 vs OpenAPI 3.1) is not supported.
 Reordering subschemas inside `allOf`, `oneOf`, or `anyOf` (and other lists without a natural identity) is matched positionally and may be reported as changes.
 `readOnly` and `writeOnly` do not refine request/response polarity; a component used on both sides is judged under both, and the stricter verdict wins.
@@ -54,22 +54,40 @@ Changes under `callbacks` and `webhooks` receive structural diffing only, with n
 
 ## Breaking change rules
 
-| Rule id                          | Description                                                                                                              |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `operation-removed`              | Removing an operation breaks all of its consumers.                                                                       |
-| `path-removed`                   | Removing a path breaks all consumers of its operations.                                                                  |
-| `parameter-removed`              | Removing a request parameter breaks clients that send it.                                                                |
-| `parameter-added-required`       | Adding a new required parameter breaks clients that do not send it.                                                      |
-| `parameter-became-required`      | Marking an existing request parameter as required breaks clients that omit it.                                           |
-| `schema-type-changed`            | Narrowing a type restricts what clients may send; widening restricts what they can rely on receiving.                    |
-| `enum-values-removed`            | Removing enum values restricts what clients may send.                                                                    |
-| `enum-values-added`              | Adding enum values to response data may send clients values they never handled.                                          |
-| `required-properties-added`      | Requiring new request properties breaks clients that do not send them.                                                   |
-| `required-properties-removed`    | Un-requiring response properties breaks clients that rely on their presence.                                             |
-| `property-removed-from-response` | Removing a response property breaks clients that read it.                                                                |
-| `response-removed`               | Removing a response breaks clients that handle it.                                                                       |
-| `media-type-removed`             | Removing a media type breaks clients that produce or consume it.                                                         |
-| `ref-target-changed`             | A `$ref` now points to a different target; content equivalence cannot be verified automatically (reported as `warning`). |
+| Rule id                          | Description                                                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `operation-removed`              | Removing an operation breaks all of its consumers.                                                                               |
+| `path-removed`                   | Removing a path breaks all consumers of its operations.                                                                          |
+| `parameter-removed`              | Removing a request parameter breaks clients that send it.                                                                        |
+| `parameter-added-required`       | Adding a new required parameter breaks clients that do not send it.                                                              |
+| `parameter-became-required`      | Marking an existing request parameter as required breaks clients that omit it.                                                   |
+| `schema-type-changed`            | Narrowing a type restricts what clients may send; widening restricts what they can rely on receiving.                            |
+| `enum-values-removed`            | Removing enum values restricts what clients may send.                                                                            |
+| `enum-values-added`              | Adding enum values to response data may send clients values they never handled.                                                  |
+| `required-properties-added`      | Requiring new request properties breaks clients that do not send them.                                                           |
+| `required-properties-removed`    | Un-requiring response properties breaks clients that rely on their presence.                                                     |
+| `property-removed-from-response` | Removing a response property breaks clients that read it.                                                                        |
+| `response-removed`               | Removing a response breaks clients that handle it.                                                                               |
+| `media-type-removed`             | Removing a media type breaks clients that produce or consume it.                                                                 |
+| `ref-target-changed`             | A `$ref` now points to a different target; content equivalence cannot be verified automatically. This is reported as `breaking`. |
+
+## Verdicts
+
+Each change carries ALL triggered rule verdicts in a `verdicts` array. Each verdict includes:
+
+- `ruleId`: The rule identifier (for example, `parameter-became-required`)
+- `compat`: The compatibility classification (`breaking` or `non-breaking`)
+- `message`: A human-readable description of the violation
+
+The change's own `compat` field, in every output format, is the most severe verdict across all triggered rules.
+
+### Locations
+
+Each change reports the source file, line, and column of the affected node on both sides (`base` and `revision`). In the `stylish` format, changes are grouped per operation (for example, `GET /pets`) and each change includes a clickable `file:line:col` reference — the base file for removals, the revision file otherwise. For multi-file API descriptions, nodes pulled in from files referenced via `$ref` resolve to `1:1` of the root file.
+
+### Path parameter renaming
+
+Renaming a path parameter (for example, `/pets/{id}` → `/pets/{petId}`) is treated as the same endpoint, not a removal plus an addition. The rename is reported as a non-breaking change of the path template, alongside a non-breaking change of the parameter's `name`. If the match is ambiguous (several paths differing only in parameter names), the paths are compared by their literal keys instead.
 
 ## Examples
 
