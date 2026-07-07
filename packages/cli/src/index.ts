@@ -13,6 +13,7 @@ import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { DiffArgv } from './commands/diff/index.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -132,6 +133,46 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handleInspectNodeTypes } = await import('./commands/inspect-node-types.js');
       commandWrapper(handleInspectNodeTypes)(argv);
+    }
+  )
+  .command(
+    'diff <base> <revision>',
+    'Compare two API descriptions and detect breaking changes [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DIFF')
+        .positional('base', { type: 'string', demandOption: true })
+        .positional('revision', { type: 'string', demandOption: true })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json', 'markdown', 'html'] as ReadonlyArray<
+              'stylish' | 'json' | 'markdown' | 'html'
+            >,
+            default: 'stylish' as const,
+          },
+          output: {
+            description: 'Write the diff report to a file.',
+            type: 'string',
+            alias: 'o',
+          },
+          'fail-on': {
+            description: 'Exit with a non-zero code when changes of this level are found.',
+            choices: ['breaking', 'warning', 'none'] as ReadonlyArray<
+              'breaking' | 'warning' | 'none'
+            >,
+            default: 'breaking' as const,
+          },
+        }),
+    async (argv) => {
+      const { handleDiff } = await import('./commands/diff/index.js');
+      commandWrapper(handleDiff)(argv as Arguments<DiffArgv>);
     }
   )
   .command(
