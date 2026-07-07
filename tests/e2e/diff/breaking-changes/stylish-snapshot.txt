@@ -1,0 +1,7 @@
+✖ breaking      removed  #/components/schemas/Pet/properties/tag — Schema property was removed. (property-removed-from-response)
+✖ breaking      removed  #/paths/~1pets/delete — Operation was removed. (operation-removed)
+✖ breaking      changed  #/paths/~1pets/get/parameters/{query:limit} · required — Parameter became required. (parameter-became-required)
+✔ non-breaking  changed  #/info · version
+
+3 breaking, 0 warning, 1 non-breaking.
+
