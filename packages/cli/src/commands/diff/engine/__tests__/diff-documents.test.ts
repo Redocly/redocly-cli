@@ -101,4 +101,87 @@ describe('diffDocuments', () => {
       diffDocuments({ base: oas2, revision: makeDocumentFromString(REVISION, ''), config })
     ).toThrow(DiffError);
   });
+
+  it('matches renamed path parameters instead of remove+add', async () => {
+    const config = await createConfig({});
+    const makeSpec = (param: string) => outdent`
+        openapi: 3.1.0
+        info: { title: T, version: '1' }
+        paths:
+          /pet/{${param}}:
+            get:
+              parameters:
+                - name: ${param}
+                  in: path
+                  required: true
+                  schema: { type: string }
+              responses:
+                '200': { description: OK }
+      `;
+    const result = diffDocuments({
+      base: makeDocumentFromString(makeSpec('id'), 'base.yaml'),
+      revision: makeDocumentFromString(makeSpec('petId'), 'rev.yaml'),
+      config,
+    });
+
+    expect(result.summary.breaking).toBe(0);
+
+    // the rename itself is an explicit, non-breaking change
+    const renameChange = result.changes.find((c) => c.property === 'path')!;
+    expect(renameChange).toMatchObject({
+      pointer: '#/paths/~1pet~1{id}',
+      kind: 'changed',
+      typeName: 'PathItem',
+      compat: 'non-breaking',
+    });
+    expect(renameChange.base?.value).toBe('/pet/{id}');
+    expect(renameChange.revision?.value).toBe('/pet/{petId}');
+
+    // the parameter matched; only its name changed
+    const nameChange = result.changes.find((c) => c.property === 'name')!;
+    expect(nameChange).toMatchObject({
+      kind: 'changed',
+      compat: 'non-breaking',
+      pointer: '#/paths/~1pet~1{id}/get/parameters/{path:id}',
+    });
+    expect(nameChange.base?.value).toBe('id');
+    expect(nameChange.revision?.value).toBe('petId');
+  });
+
+  it('reports ambiguous path renames as remove+add', async () => {
+    const config = await createConfig({});
+    const base = makeDocumentFromString(
+      outdent`
+          openapi: 3.1.0
+          info: { title: T, version: '1' }
+          paths:
+            /a/{x}/b:
+              get:
+                responses:
+                  '200': { description: OK }
+        `,
+      'base.yaml'
+    );
+    const revision = makeDocumentFromString(
+      outdent`
+          openapi: 3.1.0
+          info: { title: T, version: '1' }
+          paths:
+            /a/{y}/b:
+              get:
+                responses:
+                  '200': { description: OK }
+            /a/{z}/b:
+              get:
+                responses:
+                  '200': { description: OK }
+        `,
+      'rev.yaml'
+    );
+    const result = diffDocuments({ base, revision, config });
+
+    const kinds = result.changes.map((c) => c.kind).sort();
+    expect(kinds).toEqual(['added', 'added', 'removed']);
+    expect(result.changes.find((c) => c.property === 'path')).toBeUndefined();
+  });
 });
