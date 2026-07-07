@@ -16,6 +16,9 @@ export interface NodeEntry {
 
 export interface ChangeSide {
   pointer: string; // real JSON Pointer in this document
+  file?: string; // absoluteRef of the side's document — filled by locateChanges()
+  line?: number; // 1-based — filled by locateChanges()
+  col?: number; // 1-based — filled by locateChanges()
   value?: unknown;
 }
 
