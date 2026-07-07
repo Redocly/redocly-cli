@@ -1,0 +1,84 @@
+{
+  "version": "<version>",
+  "specVersions": {
+    "base": "oas3_1",
+    "revision": "oas3_1"
+  },
+  "summary": {
+    "breaking": 3,
+    "warning": 0,
+    "nonBreaking": 1
+  },
+  "changes": [
+    {
+      "pointer": "#/components/schemas/Pet/properties/tag",
+      "kind": "removed",
+      "typeName": "Schema",
+      "base": {
+        "pointer": "#/components/schemas/Pet/properties/tag",
+        "value": {
+          "type": "string"
+        }
+      },
+      "compat": "breaking",
+      "ruleIds": [
+        "property-removed-from-response"
+      ],
+      "message": "Schema property was removed."
+    },
+    {
+      "pointer": "#/info",
+      "property": "version",
+      "kind": "changed",
+      "typeName": "Info",
+      "base": {
+        "pointer": "#/info/version",
+        "value": "1.0"
+      },
+      "revision": {
+        "pointer": "#/info/version",
+        "value": "2.0"
+      },
+      "compat": "non-breaking"
+    },
+    {
+      "pointer": "#/paths/~1pets/delete",
+      "kind": "removed",
+      "typeName": "Operation",
+      "base": {
+        "pointer": "#/paths/~1pets/delete",
+        "value": {
+          "responses": {
+            "204": {
+              "description": "Deleted"
+            }
+          }
+        }
+      },
+      "compat": "breaking",
+      "ruleIds": [
+        "operation-removed"
+      ],
+      "message": "Operation was removed."
+    },
+    {
+      "pointer": "#/paths/~1pets/get/parameters/{query:limit}",
+      "property": "required",
+      "kind": "changed",
+      "typeName": "Parameter",
+      "base": {
+        "pointer": "#/paths/~1pets/get/parameters/0/required"
+      },
+      "revision": {
+        "pointer": "#/paths/~1pets/get/parameters/0/required",
+        "value": true
+      },
+      "compat": "breaking",
+      "ruleIds": [
+        "parameter-became-required"
+      ],
+      "message": "Parameter became required."
+    }
+  ]
+}
+
