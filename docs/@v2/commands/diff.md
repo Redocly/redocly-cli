@@ -87,7 +87,7 @@ Each change reports the source file, line, and column of the affected node on bo
 
 ### Path parameter renaming
 
-Renaming a path parameter (for example, `/pets/{id}` → `/pets/{petId}`) is treated as the same endpoint, not a removal plus an addition. The rename is reported as a non-breaking change of the path template, alongside a non-breaking change of the parameter's `name`. If the match is ambiguous (several paths differing only in parameter names), the paths are compared by their literal keys instead.
+Renaming a path parameter (for example, `/pets/{id}` → `/pets/{petId}`) is treated as the same endpoint, not a removal plus an addition. The rename is reported as a non-breaking change of the path template, alongside a non-breaking change of the parameter's `name`. If the match is ambiguous (several paths differing only in parameter names), the paths are compared by their literal keys instead. If a renamed path's operations define `callbacks` whose own path items declare a parameter with the same name as the renamed one, that callback parameter may be reported as removed and added; this is a cosmetic structural change, never a breaking verdict, because callbacks are not classified as request or response.
 
 ## Examples
 
