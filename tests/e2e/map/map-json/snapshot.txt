@@ -1,0 +1,106 @@
+{
+  "title": "Redocly Cafe",
+  "kind": "Root",
+  "pointer": "#/",
+  "source": {
+    "file": "./tests/e2e/map/map-json/openapi.yaml",
+    "pointer": "#/",
+    "startLine": 1,
+    "endLine": 12
+  },
+  "nodes": [
+    {
+      "title": "Redocly Cafe",
+      "kind": "Info",
+      "pointer": "#/info",
+      "summary": "A small multi-file cafe API used to test API map generation.",
+      "source": {
+        "file": "./tests/e2e/map/map-json/openapi.yaml",
+        "pointer": "#/info",
+        "startLine": 3,
+        "endLine": 5
+      },
+      "nodes": []
+    },
+    {
+      "title": "paths",
+      "kind": "Paths",
+      "pointer": "#/paths",
+      "source": {
+        "file": "./tests/e2e/map/map-json/openapi.yaml",
+        "pointer": "#/paths",
+        "startLine": 7,
+        "endLine": 8
+      },
+      "nodes": [
+        {
+          "title": "/menu",
+          "kind": "PathItem",
+          "pointer": "#/paths/~1menu",
+          "source": {
+            "file": "./tests/e2e/map/map-json/paths/menu.yaml",
+            "pointer": "#/",
+            "startLine": 1,
+            "endLine": 3
+          },
+          "nodes": [
+            {
+              "title": "listMenuItems",
+              "kind": "Operation",
+              "pointer": "#/paths/~1menu/get",
+              "summary": "List all menu items",
+              "method": "get",
+              "path": "/menu",
+              "source": {
+                "file": "./tests/e2e/map/map-json/paths/menu.yaml",
+                "pointer": "#/get",
+                "startLine": 2,
+                "endLine": 3
+              },
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "components",
+      "kind": "Components",
+      "pointer": "#/components",
+      "source": {
+        "file": "./tests/e2e/map/map-json/openapi.yaml",
+        "pointer": "#/components",
+        "startLine": 10,
+        "endLine": 12
+      },
+      "nodes": [
+        {
+          "title": "schemas",
+          "kind": "NamedSchemas",
+          "pointer": "#/components/schemas",
+          "source": {
+            "file": "./tests/e2e/map/map-json/openapi.yaml",
+            "pointer": "#/components/schemas",
+            "startLine": 11,
+            "endLine": 12
+          },
+          "nodes": [
+            {
+              "title": "MenuItem",
+              "kind": "Schema",
+              "pointer": "#/components/schemas/MenuItem",
+              "summary": "A menu item.",
+              "source": {
+                "file": "./tests/e2e/map/map-json/components/menu-item.yaml",
+                "pointer": "#/",
+                "startLine": 1,
+                "endLine": 2
+              },
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

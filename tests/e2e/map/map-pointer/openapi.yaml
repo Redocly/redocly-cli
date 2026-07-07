@@ -1,0 +1,12 @@
+openapi: 3.0.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+  description: A small multi-file cafe API used to test API map generation.
+paths:
+  /menu:
+    $ref: ./paths/menu.yaml
+components:
+  schemas:
+    MenuItem:
+      $ref: ./components/menu-item.yaml

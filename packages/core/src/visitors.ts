@@ -218,6 +218,7 @@ type Oas3FlatVisitor = {
   NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme>>;
   NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
   NamedCallbacks?: VisitFunctionOrObject<Record<string, Oas3Callback<Oas3Schema | Oas3_1Schema>>>;
+  NamedPathItems?: VisitFunctionOrObject<Record<string, Oas3PathItem<Oas3Schema | Oas3_1Schema>>>;
   NamedMediaTypes?: VisitFunctionOrObject<Record<string, Oas3MediaType<Oas3Schema | Oas3_1Schema>>>;
 
   ImplicitFlow?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['implicit']>>;
@@ -262,11 +263,42 @@ type Oas2FlatVisitor = {
 type Async2FlatVisitor = {
   Root?: VisitFunctionOrObject<Async2Definition>;
   Schema?: VisitFunctionOrObject<Oas3_1Schema>;
+  Info?: VisitFunctionOrObject<any>;
+  ServerMap?: VisitFunctionOrObject<Record<string, any>>;
+  Server?: VisitFunctionOrObject<any>;
+  TagList?: VisitFunctionOrObject<any[]>;
+  Tag?: VisitFunctionOrObject<any>;
+  ChannelMap?: VisitFunctionOrObject<Record<string, any>>;
+  Channel?: VisitFunctionOrObject<any>;
+  Operation?: VisitFunctionOrObject<any>;
+  Components?: VisitFunctionOrObject<any>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3_1Schema>>;
+  NamedMessages?: VisitFunctionOrObject<Record<string, any>>;
+  Message?: VisitFunctionOrObject<any>;
+  NamedParameters?: VisitFunctionOrObject<Record<string, any>>;
+  Parameter?: VisitFunctionOrObject<any>;
+  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, any>>;
+  SecurityScheme?: VisitFunctionOrObject<any>;
 };
 
 type Async3FlatVisitor = {
   Root?: VisitFunctionOrObject<Async3Definition>;
   Schema?: VisitFunctionOrObject<Oas3_1Schema>;
+  Info?: VisitFunctionOrObject<any>;
+  ServerMap?: VisitFunctionOrObject<Record<string, any>>;
+  Server?: VisitFunctionOrObject<any>;
+  NamedChannels?: VisitFunctionOrObject<Record<string, any>>;
+  Channel?: VisitFunctionOrObject<any>;
+  NamedOperations?: VisitFunctionOrObject<Record<string, any>>;
+  Operation?: VisitFunctionOrObject<any>;
+  Components?: VisitFunctionOrObject<any>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3_1Schema>>;
+  NamedMessages?: VisitFunctionOrObject<Record<string, any>>;
+  Message?: VisitFunctionOrObject<any>;
+  NamedParameters?: VisitFunctionOrObject<Record<string, any>>;
+  Parameter?: VisitFunctionOrObject<any>;
+  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, any>>;
+  SecurityScheme?: VisitFunctionOrObject<any>;
 };
 
 type ArazzoFlatVisitor = {
