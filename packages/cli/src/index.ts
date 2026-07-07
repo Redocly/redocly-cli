@@ -13,7 +13,7 @@ import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import type { DiffArgv } from './commands/diff/index.js';
+import type { DiffArgv, DiffOutputFormat } from './commands/diff/index.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -152,9 +152,7 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'markdown', 'html'] as ReadonlyArray<
-              'stylish' | 'json' | 'markdown' | 'html'
-            >,
+            choices: ['stylish', 'json', 'markdown', 'html'] as ReadonlyArray<DiffOutputFormat>,
             default: 'stylish' as const,
           },
           output: {
