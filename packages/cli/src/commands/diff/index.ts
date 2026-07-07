@@ -1,4 +1,4 @@
-import { bundle, logger } from '@redocly/openapi-core';
+import { bundle, logger, type OutputFormat } from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
 
 import type { VerifyConfigOptions } from '../../types.js';
@@ -13,7 +13,7 @@ import { jsonDiff } from './serializers/json.js';
 import { markdownDiff } from './serializers/markdown.js';
 import { stylishDiff } from './serializers/stylish.js';
 
-export type DiffOutputFormat = 'stylish' | 'json' | 'markdown' | 'html';
+export type DiffOutputFormat = Extract<OutputFormat, 'stylish' | 'json' | 'markdown' | 'html'>;
 export type { DiffFailOn };
 
 export type DiffArgv = {
