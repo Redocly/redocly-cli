@@ -15,7 +15,7 @@ import { hideBin } from 'yargs/helpers';
 import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
-import { handleDiff, type DiffArgv } from './commands/diff/index.js';
+import { handleDiff, type DiffArgv, type DiffOutputFormat } from './commands/diff/index.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
@@ -96,9 +96,7 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'markdown', 'html'] as ReadonlyArray<
-              'stylish' | 'json' | 'markdown' | 'html'
-            >,
+            choices: ['stylish', 'json', 'markdown', 'html'] as ReadonlyArray<DiffOutputFormat>,
             default: 'stylish' as const,
           },
           output: {
