@@ -60,6 +60,7 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
     const samples = await collectTrafficSamples({
       trafficPath,
       format: trafficFormat,
+      server: argv.server,
     });
 
     try {

@@ -2,6 +2,7 @@ import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type { NormalizedHttpMessage, TrafficFormat } from '../drift/types/index.js';
 import { listFilesRecursively } from '../drift/utils/files.js';
 import { getPathWithoutTrailingSlash } from '../drift/utils/http.js';
+import { normalizeServerPrefix, resolvePathForServer } from '../drift/utils/server.js';
 
 export interface TrafficSample {
   method: string;
@@ -17,6 +18,7 @@ export interface TrafficSample {
 export interface CollectSamplesOptions {
   trafficPath: string;
   format: TrafficFormat;
+  server?: string;
   /** Maximum samples kept per distinct method + path + status combination. */
   perEndpoint?: number;
   /** Hard cap on the total number of samples handed to the AI. */
@@ -56,6 +58,7 @@ export async function collectTrafficSamples(
   const perEndpoint = options.perEndpoint ?? 2;
   const total = options.total ?? 40;
   const maxBodyChars = options.maxBodyChars ?? 2000;
+  const server = normalizeServerPrefix(options.server);
 
   const trafficFiles = await listFilesRecursively(options.trafficPath);
 
@@ -76,7 +79,15 @@ export async function collectTrafficSamples(
         break;
       }
       const method = exchange.request.method.toUpperCase();
-      const path = getPathWithoutTrailingSlash(exchange.request.path || '/');
+      let rawPath = exchange.request.path || '/';
+      if (server) {
+        const serverRelativePath = resolvePathForServer(exchange.request, server);
+        if (serverRelativePath === undefined) {
+          continue;
+        }
+        rawPath = serverRelativePath;
+      }
+      const path = getPathWithoutTrailingSlash(rawPath);
       const status = exchange.response?.status;
       const key = `${method} ${path} ${status ?? ''}`;
       const seen = seenCounts.get(key) ?? 0;
