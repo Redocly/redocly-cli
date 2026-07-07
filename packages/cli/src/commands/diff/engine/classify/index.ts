@@ -3,11 +3,11 @@ import type { SpecVersion } from '@redocly/openapi-core';
 import {
   compatRank,
   type Change,
+  type ChangeVerdict,
   type DiffRuleRegistry,
   type NodeEntry,
   type Polarity,
   type RawChange,
-  type Verdict,
 } from '../types.js';
 import { oas3Rules } from './oas3.js';
 import { oas3_1Rules } from './oas3_1.js';
@@ -36,8 +36,7 @@ export function classifyChanges(opts: {
 
   return changes.map((change) => {
     const rules = registry[change.typeName] ?? [];
-    const ruleIds: string[] = [];
-    let winner: Verdict | undefined;
+    const verdicts: ChangeVerdict[] = [];
 
     for (const polarity of expandPolarity(getPolarity(change.pointer, usage))) {
       const ctx = {
@@ -49,18 +48,21 @@ export function classifyChanges(opts: {
       for (const rule of rules) {
         const verdict = rule.visit(change, ctx);
         if (!verdict) continue;
-        if (!ruleIds.includes(rule.id)) ruleIds.push(rule.id);
-        if (!winner || compatRank(verdict.compat) > compatRank(winner.compat)) {
-          winner = verdict; // worst verdict wins; registration order carries no semantics
+        // a 'both'-polarity node can fire the same rule twice with the same message
+        if (!verdicts.some((v) => v.ruleId === rule.id && v.message === verdict.message)) {
+          verdicts.push({ ruleId: rule.id, ...verdict });
         }
       }
     }
 
+    verdicts.sort(
+      (a, b) => compatRank(b.compat) - compatRank(a.compat) || a.ruleId.localeCompare(b.ruleId)
+    );
+
     return {
       ...change,
-      compat: winner?.compat ?? 'non-breaking',
-      ...(ruleIds.length ? { ruleIds: ruleIds.sort() } : {}),
-      ...(winner ? { message: winner.message } : {}),
+      compat: verdicts[0]?.compat ?? 'non-breaking',
+      ...(verdicts.length ? { verdicts } : {}),
     };
   });
 }

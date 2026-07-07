@@ -13,8 +13,9 @@ const RESULT: DiffResult = {
       typeName: 'Operation',
       base: { pointer: '#/paths/~1pets/get', value: { summary: '<script>x</script>' } },
       compat: 'breaking',
-      ruleIds: ['operation-removed'],
-      message: 'Operation was removed.',
+      verdicts: [
+        { ruleId: 'operation-removed', compat: 'breaking', message: 'Operation was removed.' },
+      ],
     },
   ],
 };
