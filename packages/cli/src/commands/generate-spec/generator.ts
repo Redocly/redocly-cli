@@ -23,11 +23,12 @@ export interface GenerateSpecOptions {
 }
 
 export interface JsonSchema {
-  type?: string;
+  type?: string | string[];
   properties?: Record<string, JsonSchema>;
   additionalProperties?: JsonSchema;
   required?: string[];
   items?: JsonSchema;
+  oneOf?: JsonSchema[];
 }
 
 interface GeneratedParameter {
@@ -100,7 +101,7 @@ interface TemplatizedParam {
  * Turn a concrete request path into an OpenAPI path template, replacing
  * identifier-like segments with named path parameters.
  */
-function templatizePath(rawPath: string): { template: string; params: TemplatizedParam[] } {
+export function templatizePath(rawPath: string): { template: string; params: TemplatizedParam[] } {
   const segments = rawPath.split('/');
   const params: TemplatizedParam[] = [];
   const used = new Set<string>();
@@ -125,7 +126,7 @@ function templatizePath(rawPath: string): { template: string; params: Templatize
   return { template: templated.join('/') || '/', params };
 }
 
-function inferSchema(value: unknown): JsonSchema {
+export function inferSchema(value: unknown): JsonSchema {
   if (value === null) {
     return { type: 'null' };
   }
@@ -182,7 +183,7 @@ function inferSchema(value: unknown): JsonSchema {
 }
 
 /** Shallow merge of inferred schemas observed across multiple samples. */
-function mergeSchemas(schemas: JsonSchema[]): JsonSchema {
+export function mergeSchemas(schemas: JsonSchema[]): JsonSchema {
   if (schemas.length === 0) {
     return {};
   }
@@ -199,58 +200,201 @@ function isUnconstrainedSchema(schema: JsonSchema): boolean {
   return Object.keys(schema).length === 0;
 }
 
+type VariantKind = 'scalar' | 'object' | 'map' | 'array';
+
+/**
+ * A variant is a schema with a single `type` string and no `oneOf`. Divergent
+ * observations are kept as separate variants so that alternative body shapes
+ * survive to the generated description as `oneOf` instead of collapsing into
+ * an unconstrained schema.
+ */
+function variantKind(variant: JsonSchema): VariantKind {
+  if (variant.additionalProperties) {
+    return 'map';
+  }
+  if (variant.type === 'object') {
+    return 'object';
+  }
+  if (variant.type === 'array') {
+    return 'array';
+  }
+  return 'scalar';
+}
+
+function toVariants(schema: JsonSchema): JsonSchema[] {
+  if (schema.oneOf) {
+    return schema.oneOf.flatMap(toVariants);
+  }
+  if (Array.isArray(schema.type)) {
+    return schema.type.map((type): JsonSchema => {
+      if (type === 'object') {
+        const variant: JsonSchema = { type: 'object' };
+        if (schema.properties) {
+          variant.properties = schema.properties;
+        }
+        if (schema.required) {
+          variant.required = schema.required;
+        }
+        if (schema.additionalProperties) {
+          variant.additionalProperties = schema.additionalProperties;
+        }
+        return variant;
+      }
+      if (type === 'array') {
+        return schema.items ? { type: 'array', items: schema.items } : { type: 'array' };
+      }
+      return { type };
+    });
+  }
+  return [schema];
+}
+
+const OBJECT_MERGE_SIMILARITY = 0.5;
+const MAX_OBJECT_VARIANTS = 3;
+
+function objectSimilarity(a: JsonSchema, b: JsonSchema): number {
+  const keysA = Object.keys(a.properties ?? {});
+  const keysB = Object.keys(b.properties ?? {});
+  // An object with no known properties is compatible with any shape.
+  if (keysA.length === 0 || keysB.length === 0) {
+    return 1;
+  }
+  const setB = new Set(keysB);
+  const shared = keysA.filter((key) => setB.has(key)).length;
+  return shared / (keysA.length + keysB.length - shared);
+}
+
+function areCompatibleVariants(a: JsonSchema, b: JsonSchema): boolean {
+  const kind = variantKind(a);
+  if (kind !== variantKind(b)) {
+    return false;
+  }
+  switch (kind) {
+    case 'scalar':
+      return (
+        a.type === b.type ||
+        (a.type === 'integer' && b.type === 'number') ||
+        (a.type === 'number' && b.type === 'integer')
+      );
+    case 'object':
+      return objectSimilarity(a, b) >= OBJECT_MERGE_SIMILARITY;
+    default:
+      return true;
+  }
+}
+
+function mergeVariantPair(a: JsonSchema, b: JsonSchema): JsonSchema {
+  switch (variantKind(a)) {
+    case 'scalar':
+      return a.type === b.type ? a : { type: 'number' };
+    case 'map':
+      return {
+        type: 'object',
+        additionalProperties: mergeTwo(a.additionalProperties ?? {}, b.additionalProperties ?? {}),
+      };
+    case 'object': {
+      const properties: Record<string, JsonSchema> = { ...(a.properties ?? {}) };
+      for (const [key, schema] of Object.entries<JsonSchema>(b.properties ?? {})) {
+        properties[key] = properties[key] ? mergeTwo(properties[key], schema) : schema;
+      }
+      // required = intersection of observed required sets
+      const requiredB = new Set<string>(b.required ?? []);
+      const required = (a.required ?? []).filter((key) => requiredB.has(key));
+      const merged: JsonSchema = { type: 'object', properties };
+      if (required.length > 0) {
+        merged.required = required;
+      }
+      return merged;
+    }
+    case 'array': {
+      if (!a.items || !b.items) {
+        const items = a.items ?? b.items;
+        return items ? { type: 'array', items } : { type: 'array' };
+      }
+      return { type: 'array', items: mergeTwo(a.items, b.items) };
+    }
+  }
+}
+
+function foldExcessObjectVariants(variants: JsonSchema[]): JsonSchema[] {
+  const result = [...variants];
+  const objectCount = () => result.filter((v) => variantKind(v) === 'object').length;
+  while (objectCount() > MAX_OBJECT_VARIANTS) {
+    let bestA = -1;
+    let bestB = -1;
+    let bestScore = -1;
+    for (let i = 0; i < result.length; i++) {
+      if (variantKind(result[i]) !== 'object') continue;
+      for (let j = i + 1; j < result.length; j++) {
+        if (variantKind(result[j]) !== 'object') continue;
+        const score = objectSimilarity(result[i], result[j]);
+        if (score > bestScore) {
+          bestScore = score;
+          bestA = i;
+          bestB = j;
+        }
+      }
+    }
+    result[bestA] = mergeVariantPair(result[bestA], result[bestB]);
+    result.splice(bestB, 1);
+  }
+  return result;
+}
+
+const SCALAR_TYPE_ORDER = ['boolean', 'integer', 'number', 'string', 'null'];
+
+function finalizeVariants(variants: JsonSchema[]): JsonSchema {
+  if (variants.length === 1) {
+    return variants[0];
+  }
+
+  const structured: JsonSchema[] = [];
+  const scalarTypes = new Set<string>();
+  for (const variant of variants) {
+    if (variantKind(variant) === 'scalar' && typeof variant.type === 'string') {
+      scalarTypes.add(variant.type);
+    } else {
+      structured.push(variant);
+    }
+  }
+  const orderedScalars = SCALAR_TYPE_ORDER.filter((type) => scalarTypes.has(type));
+
+  if (structured.length === 0) {
+    return orderedScalars.length === 1 ? { type: orderedScalars[0] } : { type: orderedScalars };
+  }
+  if (
+    structured.length === 1 &&
+    orderedScalars.length === 1 &&
+    orderedScalars[0] === 'null' &&
+    typeof structured[0].type === 'string'
+  ) {
+    return { ...structured[0], type: [structured[0].type, 'null'] };
+  }
+
+  const members = [...structured];
+  if (orderedScalars.length === 1) {
+    members.push({ type: orderedScalars[0] });
+  } else if (orderedScalars.length > 1) {
+    members.push({ type: orderedScalars });
+  }
+  return { oneOf: members };
+}
+
 function mergeTwo(a: JsonSchema, b: JsonSchema): JsonSchema {
   if (isUnconstrainedSchema(a) || isUnconstrainedSchema(b)) {
     return {};
   }
 
-  if (a.type !== b.type) {
-    if (
-      (a.type === 'integer' && b.type === 'number') ||
-      (a.type === 'number' && b.type === 'integer')
-    ) {
-      return { type: 'number' };
+  const variants = toVariants(a);
+  for (const candidate of toVariants(b)) {
+    const index = variants.findIndex((variant) => areCompatibleVariants(variant, candidate));
+    if (index === -1) {
+      variants.push(candidate);
+    } else {
+      variants[index] = mergeVariantPair(variants[index], candidate);
     }
-    // Divergent types — fall back to an unconstrained schema for the PoC.
-    return {};
   }
-
-  if (a.type === 'object') {
-    if (a.additionalProperties || b.additionalProperties) {
-      if (a.additionalProperties && b.additionalProperties) {
-        return {
-          type: 'object',
-          additionalProperties: mergeSchemas([a.additionalProperties, b.additionalProperties]),
-        };
-      }
-      // One sample looked like a map, the other like a fixed shape.
-      return { type: 'object' };
-    }
-
-    const properties: Record<string, JsonSchema> = { ...(a.properties ?? {}) };
-    for (const [key, schema] of Object.entries<JsonSchema>(b.properties ?? {})) {
-      properties[key] = properties[key] ? mergeTwo(properties[key], schema) : schema;
-    }
-    // required = intersection of observed required sets
-    const requiredA: string[] = a.required ?? [];
-    const requiredB = new Set<string>(b.required ?? []);
-    const required = requiredA.filter((key) => requiredB.has(key));
-    const schema: JsonSchema = { type: 'object', properties };
-    if (required.length > 0) {
-      schema.required = required;
-    }
-    return schema;
-  }
-
-  if (a.type === 'array') {
-    if (!a.items || !b.items) {
-      const items = a.items ?? b.items;
-      return items ? { type: 'array', items } : { type: 'array' };
-    }
-    return { type: 'array', items: mergeTwo(a.items, b.items) };
-  }
-
-  return a;
+  return finalizeVariants(foldExcessObjectVariants(variants));
 }
 
 function sniffJson(bodyText: string | undefined): unknown {
@@ -308,7 +452,8 @@ function inferBodySchema(
 
 interface ResponseAccumulator {
   statusText?: string;
-  bodies: Map<string, JsonSchema[]>;
+  /** Content type → schema merged incrementally across all observed bodies. */
+  bodies: Map<string, JsonSchema>;
 }
 
 interface OperationAccumulator {
@@ -317,8 +462,13 @@ interface OperationAccumulator {
   /** Parameter name → whether every observed value was numeric. */
   pathParams: Map<string, boolean>;
   queryParams: Map<string, boolean>;
-  requestBodies: Map<string, JsonSchema[]>;
+  requestBodies: Map<string, JsonSchema>;
   responses: Map<string, ResponseAccumulator>;
+}
+
+function accumulateBodySchema(target: Map<string, JsonSchema>, mime: string, schema: JsonSchema) {
+  const merged = target.get(mime);
+  target.set(mime, merged ? mergeSchemas([merged, schema]) : schema);
 }
 
 /**
@@ -392,14 +542,14 @@ export async function generateSpecFromTraffic(
     if (!BODYLESS_METHODS.has(method)) {
       const requestBody = inferBodySchema(exchange.request);
       if (requestBody) {
-        const list = accumulator.requestBodies.get(requestBody.mime) ?? [];
-        list.push(requestBody.schema);
-        accumulator.requestBodies.set(requestBody.mime, list);
+        accumulateBodySchema(accumulator.requestBodies, requestBody.mime, requestBody.schema);
       }
     }
 
-    if (exchange.response) {
-      const status = String(exchange.response.status || 'default');
+    // Status codes below 100 (e.g. 0 in HAR) mean the response was never
+    // received — they carry no information about the API's real responses.
+    if (exchange.response && exchange.response.status >= 100) {
+      const status = String(exchange.response.status);
       let responseAccumulator = accumulator.responses.get(status);
       if (!responseAccumulator) {
         responseAccumulator = { bodies: new Map() };
@@ -409,9 +559,7 @@ export async function generateSpecFromTraffic(
 
       const responseBody = inferBodySchema(exchange.response);
       if (responseBody) {
-        const list = responseAccumulator.bodies.get(responseBody.mime) ?? [];
-        list.push(responseBody.schema);
-        responseAccumulator.bodies.set(responseBody.mime, list);
+        accumulateBodySchema(responseAccumulator.bodies, responseBody.mime, responseBody.schema);
       }
     }
   };
@@ -492,8 +640,8 @@ function buildDocument(
 
     if (accumulator.requestBodies.size > 0) {
       const content: Record<string, { schema: JsonSchema }> = {};
-      for (const [mime, schemas] of accumulator.requestBodies) {
-        content[mime] = { schema: mergeSchemas(schemas) };
+      for (const [mime, schema] of accumulator.requestBodies) {
+        content[mime] = { schema };
       }
       operation.requestBody = { content };
     }
@@ -507,8 +655,8 @@ function buildDocument(
         };
         if (responseAccumulator.bodies.size > 0) {
           const content: Record<string, { schema: JsonSchema }> = {};
-          for (const [mime, schemas] of responseAccumulator.bodies) {
-            content[mime] = { schema: mergeSchemas(schemas) };
+          for (const [mime, schema] of responseAccumulator.bodies) {
+            content[mime] = { schema };
           }
           response.content = content;
         }

@@ -60,6 +60,12 @@ describe('generate-spec - deterministic inference', () => {
     await matchSnapshot('infer-har', output);
   });
 
+  test('describes alternative body shapes with oneOf and nullable type unions', async () => {
+    const { output, code } = runGenerateSpec(['traffic-polymorphic.ndjson']);
+    expect(code).toBe(0);
+    await matchSnapshot('infer-polymorphic', output);
+  });
+
   test('scopes traffic to --server and rebases paths onto it', async () => {
     const { output, code } = runGenerateSpec([
       'traffic-servers.ndjson',
@@ -119,6 +125,28 @@ describe('generate-spec - AI refinement', () => {
     expect(code).toBe(0);
     expect(output).toContain('AI refinement complete (claude).');
     await matchSnapshot('ai-refined', output);
+  });
+
+  test('accepts a refined document that uses oneOf, allOf and discriminator', async () => {
+    const { output, code } = runGenerateSpec(
+      ['traffic-polymorphic.ndjson', '--with-ai', '--ai-provider', 'claude'],
+      withStub('bin-ok-polymorphic')
+    );
+    expect(code).toBe(0);
+    expect(output).toContain('AI refinement complete (claude).');
+    await matchSnapshot('ai-refined-polymorphic', output);
+  });
+
+  test('falls back to the baseline when the provider drops observed operations', () => {
+    const { output, code } = runGenerateSpec(
+      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
+      withStub('bin-missing-op')
+    );
+    expect(code).toBe(0);
+    expect(output).toContain('dropped 4 operation(s) observed in the traffic');
+    expect(output).toContain('falling back to the baseline');
+    expect(output).toContain('POST /sessions');
+    expect(output).toContain('openapi: 3.1.0');
   });
 
   test('falls back to the baseline when the provider returns a non-OpenAPI answer', () => {

@@ -1,0 +1,88 @@
+openapi: 3.1.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /payments:
+    post:
+      operationId: post-payments
+      responses:
+        '201':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                required:
+                  - id
+                  - status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    type:
+                      type: string
+                    amount:
+                      type: number
+                    cardNumber:
+                      type: string
+                    cvv:
+                      type: string
+                  required:
+                    - type
+                    - amount
+                    - cardNumber
+                    - cvv
+                - type: object
+                  properties:
+                    type:
+                      type: string
+                    amount:
+                      type: integer
+                    iban:
+                      type: string
+                  required:
+                    - type
+                    - amount
+                    - iban
+  /payments/{paymentId}:
+    get:
+      operationId: get-payments-paymentId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                  note:
+                    type:
+                      - string
+                      - 'null'
+                required:
+                  - id
+                  - status
+                  - note
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+
+Inferred a baseline OpenAPI description from traffic: 2 operation(s).

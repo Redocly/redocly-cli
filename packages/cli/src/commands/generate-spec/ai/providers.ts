@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process';
 
 export type AiProvider = 'openai' | 'claude' | 'codex';
 
+export const AI_RESPONSE_TIMEOUT_MS = 300_000;
+
 export interface ProviderRequest {
   system: string;
   user: string;
@@ -21,6 +23,11 @@ function runCommand(
     const child = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, AI_RESPONSE_TIMEOUT_MS);
 
     child.stdout.on('data', (chunk: Buffer) => {
       stdout += chunk.toString();
@@ -29,6 +36,7 @@ function runCommand(
       stderr += chunk.toString();
     });
     child.on('error', (error: NodeJS.ErrnoException) => {
+      clearTimeout(timer);
       if (error.code === 'ENOENT') {
         reject(new Error(`Could not find the "${command}" CLI on PATH. Is it installed?`));
         return;
@@ -36,9 +44,22 @@ function runCommand(
       reject(error);
     });
     child.on('close', (code) => {
+      clearTimeout(timer);
+      if (timedOut) {
+        reject(
+          new Error(
+            `The "${command}" CLI did not respond within ${AI_RESPONSE_TIMEOUT_MS / 1000} seconds.`
+          )
+        );
+        return;
+      }
       resolve({ stdout, stderr, code });
     });
 
+    // The CLI may exit before consuming the prompt; without a listener the
+    // resulting EPIPE on stdin would crash the process instead of surfacing
+    // through the "error"/"close" handlers above.
+    child.stdin.on('error', () => {});
     child.stdin.end(stdin);
   });
 }
@@ -61,34 +82,55 @@ async function runOpenAi(request: ProviderRequest): Promise<ProviderResult> {
   const model = request.model ?? process.env.OPENAI_MODEL ?? 'gpt-4o';
   const url = `${endpoint.replace(/\/+$/, '')}/chat/completions`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: request.system },
-        { role: 'user', content: request.user },
-      ],
-      temperature: 0,
-    }),
-  });
+  let response: Response;
+  let raw: string;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: request.system },
+          { role: 'user', content: request.user },
+        ],
+        temperature: 0,
+      }),
+      signal: AbortSignal.timeout(AI_RESPONSE_TIMEOUT_MS),
+    });
+    raw = await response.text();
+  } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      throw new Error(
+        `The OpenAI-compatible endpoint did not respond within ${
+          AI_RESPONSE_TIMEOUT_MS / 1000
+        } seconds.`
+      );
+    }
+    throw error;
+  }
 
-  const payload = (await response.json()) as OpenAiChatResponse;
+  let payload: OpenAiChatResponse | undefined;
+  try {
+    payload = JSON.parse(raw) as OpenAiChatResponse;
+  } catch {
+    payload = undefined;
+  }
+
   if (!response.ok) {
     throw new Error(
       `OpenAI-compatible endpoint returned ${response.status}: ${
-        payload.error?.message ?? response.statusText
+        payload?.error?.message ?? (raw ? raw.slice(0, 200) : response.statusText)
       }`
     );
   }
 
-  const text = payload.choices?.[0]?.message?.content;
+  const text = payload?.choices?.[0]?.message?.content;
   if (!text) {
-    throw new Error('OpenAI-compatible endpoint returned an empty completion.');
+    throw new Error('OpenAI-compatible endpoint returned an empty or non-JSON completion.');
   }
   return { text };
 }

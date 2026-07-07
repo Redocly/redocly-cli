@@ -56,6 +56,9 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
   if (argv['with-ai']) {
     const provider = argv['ai-provider'];
     logger.info(`Refining the description with AI provider "${provider}"...\n`);
+    logger.warn(
+      'Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.\n'
+    );
 
     const samples = await collectTrafficSamples({
       trafficPath,
