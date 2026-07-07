@@ -19,15 +19,13 @@ For full development setup, the complete test command reference, and the release
   Read the relevant file before you change it.
 - Use plain English in comments, commit messages, and PR descriptions — no filler and no marketing tone.
 
-The principles behind this, ordered by value, are in
-[`.claude/rules/core-principles.md`](./.claude/rules/core-principles.md).
+The principles behind this, ordered by value, are in [`.claude/rules/core-principles.md`](./.claude/rules/core-principles.md).
 
 ## Respect the architecture: Walker, Visitors, Nodes
 
 Linting in `packages/core` rests on three concepts: the **Walker** traverses the parsed API description and resolves `$ref`s, **Visitors** are objects keyed by **Node** type, and the Walker calls each visitor's `enter` / `leave` / `skip` hooks as it reaches a node.
 New rules and decorators follow this pattern instead of parsing documents by hand.
-The full guide, with examples, is in
-[`.claude/rules/rules-system.md`](./.claude/rules/rules-system.md).
+The full guide, with examples, is in [`.claude/rules/rules-system.md`](./.claude/rules/rules-system.md).
 
 ## Add or change a built-in rule
 
@@ -53,9 +51,9 @@ Naming and reuse:
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
 - Don't add `console.log` or write to `stdout` / `stderr` directly — it breaks the e2e snapshots.
-  Use the `logger` from `@redocly/openapi-core`
-  (see [`CONTRIBUTING.md`](./CONTRIBUTING.md#logging)).
-- A `redocly.yaml` in the repository root affects unit tests in the CLI package; remove it before running them.
+  Use the `logger` from `@redocly/openapi-core` (see [`CONTRIBUTING.md`](./CONTRIBUTING.md#logging)).
+- A `redocly.yaml` in the repository root affects unit tests in the CLI package.
+  Remove it before running them.
 - Run the full suite (`npm test`) when you touch core linting logic.
 
 The full testing and QA rules are in
@@ -105,8 +103,7 @@ Before opening a PR, strip the things an assistant tends to add that a human rev
 
 Claude Code users can run `/deslop` to do this pass against the current diff.
 
-The full list of practices this repo enforces is in
-[`.claude/rules/code-quality-standards.md`](./.claude/rules/code-quality-standards.md).
+The full list of practices this repo enforces is in [`.claude/rules/code-quality-standards.md`](./.claude/rules/code-quality-standards.md).
 
 ## Documentation and user-facing output
 
@@ -115,13 +112,11 @@ The full list of practices this repo enforces is in
 - Don't create explanation, summary, or design files unless asked.
   Put the explanation in the PR description.
 
-The full documentation and output rules are in
-[`.claude/rules/documentation.md`](./.claude/rules/documentation.md).
+The full documentation and output rules are in [`.claude/rules/documentation.md`](./.claude/rules/documentation.md).
 
 ## Changesets and commits
 
-The full release and commit workflow is in
-[`.claude/rules/workflow.md`](./.claude/rules/workflow.md).
+The full release and commit workflow is in [`.claude/rules/workflow.md`](./.claude/rules/workflow.md).
 
 - Every feature or fix needs a changeset: run `npx changeset` and describe the change in sentence case.
   If the change lives in `packages/core` or `packages/respect-core` but affects CLI behavior, include `@redocly/cli` as well.
@@ -133,8 +128,7 @@ The full release and commit workflow is in
 
 ## Security basics
 
-The full security guidelines are in
-[`.claude/rules/security-guidelines.md`](./.claude/rules/security-guidelines.md).
+The full security guidelines are in [`.claude/rules/security-guidelines.md`](./.claude/rules/security-guidelines.md).
 
 - Never hardcode credentials, tokens, or secrets.
 - Validate and type-check external input (configuration, CLI arguments, fetched documents) before using it.

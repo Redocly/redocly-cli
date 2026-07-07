@@ -38,7 +38,7 @@ Every visitor hook receives a context object with:
 | `parent`           | `any`                | Parent node object                                      |
 | `resolve(ref)`     | function             | Resolve a `$ref` to its target node and location        |
 | `type`             | `NormalizedNodeType` | Type descriptor for the current node                    |
-| `specVersion`      | `SpecVersion`        | E.g., `'OAS3_0'`, `'OAS3_1'`                            |
+| `specVersion`      | `SpecVersion`        | For example, `'OAS3_0'`, `'OAS3_1'`                     |
 | `getVisitorData()` | function             | Shared data store scoped to the current rule invocation |
 
 ### Rule function signature
