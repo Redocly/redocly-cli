@@ -42,11 +42,11 @@ Before submitting a pull request, please make sure the following is done:
 1. Ensure the test suite and lint checks pass (`npm run test` and `npm run lint`).
 1. It's your responsibility to ensure your contribution does not violate copyright laws.
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`).
-    If your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
-    Describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
-    This creates a file in the `.changeset` folder.
-    Commit this file with your changes.
-    If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the `no changeset needed` label to the PR.
+   If your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
+   Describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
+   This creates a file in the `.changeset` folder.
+   Commit this file with your changes.
+   If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the `no changeset needed` label to the PR.
 1. Use the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format for commit messages.
 
 **Please do not modify the PR template.**
@@ -140,9 +140,9 @@ To preview your documentation changes locally:
 
 1. Run this command from the `docs/` folder:
 
-    ```bash
-    redocly preview
-    ```
+   ```bash
+   redocly preview
+   ```
 
 By default, you can access the docs preview at http://localhost:4000 or http://127.0.0.1:4000.
 
