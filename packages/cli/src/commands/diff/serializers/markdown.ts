@@ -2,7 +2,6 @@ import type { Change, DiffResult } from '../engine/types.js';
 
 const IMPACT_LABEL: Record<Change['compat'], string> = {
   breaking: '🔴 breaking',
-  warning: '🟠 warning',
   'non-breaking': '🟢 non-breaking',
 };
 
@@ -11,11 +10,11 @@ function escapeCell(value: string): string {
 }
 
 export function markdownDiff(result: DiffResult): string {
-  const { breaking, warning, nonBreaking } = result.summary;
+  const { breaking, nonBreaking } = result.summary;
   const lines = [
     '## API diff',
     '',
-    `**${breaking}** breaking · **${warning}** warning · **${nonBreaking}** non-breaking`,
+    `**${breaking}** breaking · **${nonBreaking}** non-breaking`,
     '',
     '| Impact | Change | Location | Details |',
     '| --- | --- | --- | --- |',
