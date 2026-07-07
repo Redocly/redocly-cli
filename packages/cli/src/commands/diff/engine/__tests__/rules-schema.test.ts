@@ -108,7 +108,7 @@ describe('ref-target-changed', () => {
       base: { pointer: `${pointer}/schema`, value: '#/components/schemas/Pet' },
       revision: { pointer: `${pointer}/schema`, value: '#/components/schemas/PetV2' },
     };
-    expect(refTargetChanged.visit(change, ctx('response', { base }))?.compat).toBe('warning');
+    expect(refTargetChanged.visit(change, ctx('response', { base }))?.compat).toBe('breaking');
   });
 
   it('stays silent for ordinary string property changes', () => {
