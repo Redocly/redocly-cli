@@ -3,6 +3,9 @@ import {
   buildApiMap,
   detectSpec,
   getMajorSpecVersion,
+  logger,
+  resolveApiMapPointer,
+  stringifyYaml,
   type Document,
   type OutputFormat,
 } from '@redocly/openapi-core';
@@ -19,6 +22,7 @@ export type MapArgv = {
   api?: string;
   format: OutputFormat;
   'source-locations'?: boolean;
+  pointer?: string;
 } & VerifyConfigOptions;
 
 export async function handleMap({ argv, config, collectSpecData }: CommandArgs<MapArgv>) {
@@ -38,6 +42,24 @@ export async function handleMap({ argv, config, collectSpecData }: CommandArgs<M
     exitWithError(
       'The `map` command supports OpenAPI and AsyncAPI descriptions only. Please provide an OpenAPI 2.0-3.2 or AsyncAPI 2.x-3.0 document.'
     );
+  }
+
+  if (argv.pointer) {
+    const content = await resolveApiMapPointer({
+      document,
+      config,
+      externalRefResolver,
+      pointer: argv.pointer,
+    });
+    if (content === undefined) {
+      exitWithError(
+        `No content found at pointer ${argv.pointer}. Run the command without --pointer to see the available nodes.`
+      );
+    }
+    logger.output(
+      argv.format === 'json' ? JSON.stringify(content, null, 2) : stringifyYaml(content)
+    );
+    return;
   }
 
   const apiMap = await buildApiMap({

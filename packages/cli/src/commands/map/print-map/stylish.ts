@@ -3,7 +3,9 @@ import * as colors from 'colorette';
 
 export function printApiMapStylish(node: ApiMapNode, depth = 0) {
   const indent = '  '.repeat(depth);
-  const source = node.source ? colors.dim(` (${node.source.file}${node.source.pointer})`) : '';
+  const source = node.source
+    ? colors.dim(` (${node.source.file}:${node.source.startLine}-${node.source.endLine})`)
+    : '';
   logger.output(
     `${indent}${node.title} ${colors.dim(node.kind)} ${colors.cyan(node.pointer)}${source}\n`
   );

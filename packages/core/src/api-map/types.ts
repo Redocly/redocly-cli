@@ -1,6 +1,8 @@
 export type ApiMapNodeSource = {
   file: string;
   pointer: string;
+  startLine: number;
+  endLine: number;
 };
 
 export type ApiMapNode = {

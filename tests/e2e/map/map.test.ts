@@ -28,6 +28,22 @@ describe('map', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('map should retrieve the content at a pointer', async () => {
+    const testPath = join(folderPath, 'map-pointer');
+    const args = getParams(indexEntryPoint, ['map', 'openapi.yaml', '--pointer=#/paths/~1menu']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('map should report an error for an unknown pointer', async () => {
+    const testPath = join(folderPath, 'map-pointer');
+    const args = getParams(indexEntryPoint, ['map', 'openapi.yaml', '--pointer=#/paths/~1nope']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-not-found.txt')
+    );
+  });
+
   test('map should support AsyncAPI 2.x (stylish format)', async () => {
     const testPath = join(folderPath, 'map-async2-stylish');
     const args = getParams(indexEntryPoint, ['map', 'async.yaml']);

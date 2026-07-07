@@ -103,6 +103,10 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          pointer: {
+            description: 'Print the content at the given JSON pointer instead of the map.',
+            type: 'string',
+          },
         }),
     (argv) => {
       commandWrapper(handleMap)(argv);

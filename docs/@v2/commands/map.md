@@ -27,7 +27,7 @@ Each node has the following fields:
 | summary | string | Optional. The node's `summary` field, or its `description` truncated at a word boundary (about 200 characters).                                                                          |
 | method  | string | Optional. HTTP method; present on OpenAPI `Operation` nodes only.                                                                                                                        |
 | path    | string | Optional. URL path; present on OpenAPI `Operation` nodes under `paths` only.                                                                                                             |
-| source  | object | Optional. Original `{ file, pointer }` location of the node; present when `--source-locations` is used.                                                                                  |
+| source  | object | Optional. Original `{ file, pointer, startLine, endLine }` location of the node; present when `--source-locations` is used.                                                              |
 | nodes   | array  | Child nodes.                                                                                                                                                                             |
 
 The tree stops at operations, channels, and named components;
@@ -44,6 +44,7 @@ use `--source-locations` when you need the exact file and location of each node.
 ```bash
 redocly map <api>
 redocly map <api> [--format=<option>] [--source-locations] [--config=<path>]
+redocly map <api> --pointer=<json-pointer>
 redocly map --version
 ```
 
@@ -56,7 +57,8 @@ redocly map --version
 | --format           | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                    |
 | --help             | boolean | Show help.                                                                                                                         |
 | --lint-config      | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
-| --source-locations | boolean | Include the original source file and pointer for each node. Useful for multi-file descriptions.                                    |
+| --pointer          | string  | Print the content at the given JSON pointer instead of the map. YAML by default; JSON with `--format=json`.                        |
+| --source-locations | boolean | Include the original source file, pointer, and line range for each node. Useful for multi-file descriptions.                       |
 | --version          | boolean | Show version number.                                                                                                               |
 
 ## Examples
@@ -136,11 +138,35 @@ redocly map openapi.yaml --format=json --source-locations
   "pointer": "#/paths/~1menu",
   "source": {
     "file": "paths/menu.yaml",
-    "pointer": "#/"
+    "pointer": "#/",
+    "startLine": 1,
+    "endLine": 3
   },
   "nodes": []
 }
 ```
 
 The `pointer` stays canonical to the logical document,
-while `source` tells you which file the node actually lives in.
+while `source` tells you which file and lines the node actually lives in —
+so any tool that can read a file range can retrieve the node's content.
+
+### Retrieve the content of a node
+
+Use `--pointer` with a canonical pointer from the map to print that node's content
+instead of the map itself:
+
+```bash
+redocly map openapi.yaml --pointer=#/paths/~1menu
+```
+
+```yaml
+get:
+  operationId: listMenuItems
+  summary: List all menu items
+```
+
+The node itself is resolved (a path item referenced from another file prints that file's content),
+and `$ref`s inside the printed content are kept as-is —
+follow them with further `--pointer` calls.
+Any pointer into the logical document works, including paths deeper than the map's nodes,
+for example `--pointer=#/paths/~1menu/get/summary`.

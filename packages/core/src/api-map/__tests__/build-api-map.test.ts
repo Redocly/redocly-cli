@@ -455,7 +455,7 @@ describe('buildApiMap', () => {
         title: '/menu',
         kind: 'PathItem',
         pointer: '#/paths/~1menu',
-        source: { file: 'paths/menu.yaml', pointer: '#/' },
+        source: { file: 'paths/menu.yaml', pointer: '#/', startLine: 1, endLine: 2 },
         nodes: [
           {
             title: 'listMenuItems',
@@ -463,7 +463,7 @@ describe('buildApiMap', () => {
             pointer: '#/paths/~1menu/get',
             method: 'get',
             path: '/menu',
-            source: { file: 'paths/menu.yaml', pointer: '#/get' },
+            source: { file: 'paths/menu.yaml', pointer: '#/get', startLine: 2, endLine: 2 },
             nodes: [],
           },
         ],
@@ -472,7 +472,7 @@ describe('buildApiMap', () => {
         title: '/menu-archive',
         kind: 'PathItem',
         pointer: '#/paths/~1menu-archive',
-        source: { file: 'paths/menu.yaml', pointer: '#/' },
+        source: { file: 'paths/menu.yaml', pointer: '#/', startLine: 1, endLine: 2 },
         nodes: [
           {
             title: 'listMenuItems',
@@ -480,7 +480,7 @@ describe('buildApiMap', () => {
             pointer: '#/paths/~1menu-archive/get',
             method: 'get',
             path: '/menu-archive',
-            source: { file: 'paths/menu.yaml', pointer: '#/get' },
+            source: { file: 'paths/menu.yaml', pointer: '#/get', startLine: 2, endLine: 2 },
             nodes: [],
           },
         ],
@@ -494,7 +494,7 @@ describe('buildApiMap', () => {
         kind: 'Schema',
         pointer: '#/components/schemas/MenuItem',
         summary: 'A menu item.',
-        source: { file: 'components/menu-item.yaml', pointer: '#/' },
+        source: { file: 'components/menu-item.yaml', pointer: '#/', startLine: 1, endLine: 2 },
         nodes: [],
       },
     ]);

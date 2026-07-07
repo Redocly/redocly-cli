@@ -1,6 +1,7 @@
 import type { Config } from '../config/index.js';
 import { detectSpec } from '../detect-spec.js';
 import { getTypes } from '../oas-types.js';
+import { Location } from '../ref-utils.js';
 import { BaseResolver, resolveDocument, type Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import {
@@ -13,6 +14,7 @@ import {
 } from '../visitors.js';
 import { walkDocument, type WalkContext } from '../walk.js';
 import { ApiMapAsync2, ApiMapAsync3 } from './async.js';
+import { makeSourceLocation } from './hooks.js';
 import { ApiMapOAS2, ApiMapOAS3 } from './oas.js';
 import type { ApiMapNode } from './types.js';
 
@@ -32,7 +34,7 @@ export async function buildApiMap({
     title: 'API',
     kind: 'Root',
     pointer: '#/',
-    ...(sourceLocations && { source: { file: document.source.absoluteRef, pointer: '#/' } }),
+    ...(sourceLocations && { source: makeSourceLocation(new Location(document.source, '#/')) }),
     nodes: [],
   };
 

@@ -1,7 +1,18 @@
-import { escapePointerFragment } from '../ref-utils.js';
+import { getLineColLocation } from '../format/codeframes.js';
+import { escapePointerFragment, type Location } from '../ref-utils.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { UserContext } from '../walk.js';
-import type { ApiMapNode, ApiMapOptions } from './types.js';
+import type { ApiMapNode, ApiMapNodeSource, ApiMapOptions } from './types.js';
+
+export function makeSourceLocation(location: Location): ApiMapNodeSource {
+  const { start, end } = getLineColLocation(location);
+  return {
+    file: location.source.absoluteRef,
+    pointer: location.pointer,
+    startLine: start?.line ?? 1,
+    endLine: end?.line ?? start?.line ?? 1,
+  };
+}
 
 const SUMMARY_MAX_LENGTH = 200;
 
@@ -38,9 +49,7 @@ export function createApiMapHooks(root: ApiMapNode, opts: ApiMapOptions) {
       ...(init.summary && { summary: init.summary }),
       ...(init.method && { method: init.method }),
       ...(init.path && { path: init.path }),
-      ...(opts.sourceLocations && {
-        source: { file: ctx.location.source.absoluteRef, pointer: ctx.location.pointer },
-      }),
+      ...(opts.sourceLocations && { source: makeSourceLocation(ctx.location) }),
       nodes: [],
     };
     parentNode.nodes.push(node);

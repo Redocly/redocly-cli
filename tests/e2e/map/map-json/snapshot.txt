@@ -4,17 +4,21 @@
   "pointer": "#/",
   "source": {
     "file": "./tests/e2e/map/map-json/openapi.yaml",
-    "pointer": "#/"
+    "pointer": "#/",
+    "startLine": 1,
+    "endLine": 12
   },
   "nodes": [
     {
       "title": "Redocly Cafe",
       "kind": "Info",
       "pointer": "#/info",
-      "summary": "A small multi-file cafe API used to test TOC generation.",
+      "summary": "A small multi-file cafe API used to test API map generation.",
       "source": {
         "file": "./tests/e2e/map/map-json/openapi.yaml",
-        "pointer": "#/info"
+        "pointer": "#/info",
+        "startLine": 3,
+        "endLine": 5
       },
       "nodes": []
     },
@@ -24,7 +28,9 @@
       "pointer": "#/paths",
       "source": {
         "file": "./tests/e2e/map/map-json/openapi.yaml",
-        "pointer": "#/paths"
+        "pointer": "#/paths",
+        "startLine": 7,
+        "endLine": 8
       },
       "nodes": [
         {
@@ -33,7 +39,9 @@
           "pointer": "#/paths/~1menu",
           "source": {
             "file": "./tests/e2e/map/map-json/paths/menu.yaml",
-            "pointer": "#/"
+            "pointer": "#/",
+            "startLine": 1,
+            "endLine": 3
           },
           "nodes": [
             {
@@ -45,7 +53,9 @@
               "path": "/menu",
               "source": {
                 "file": "./tests/e2e/map/map-json/paths/menu.yaml",
-                "pointer": "#/get"
+                "pointer": "#/get",
+                "startLine": 2,
+                "endLine": 3
               },
               "nodes": []
             }
@@ -59,7 +69,9 @@
       "pointer": "#/components",
       "source": {
         "file": "./tests/e2e/map/map-json/openapi.yaml",
-        "pointer": "#/components"
+        "pointer": "#/components",
+        "startLine": 10,
+        "endLine": 12
       },
       "nodes": [
         {
@@ -68,7 +80,9 @@
           "pointer": "#/components/schemas",
           "source": {
             "file": "./tests/e2e/map/map-json/openapi.yaml",
-            "pointer": "#/components/schemas"
+            "pointer": "#/components/schemas",
+            "startLine": 11,
+            "endLine": 12
           },
           "nodes": [
             {
@@ -78,7 +92,9 @@
               "summary": "A menu item.",
               "source": {
                 "file": "./tests/e2e/map/map-json/components/menu-item.yaml",
-                "pointer": "#/"
+                "pointer": "#/",
+                "startLine": 1,
+                "endLine": 2
               },
               "nodes": []
             }

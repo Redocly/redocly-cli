@@ -124,6 +124,7 @@ export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from
 export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { buildApiMap } from './api-map/build-api-map.js';
+export { resolveApiMapPointer } from './api-map/resolve-pointer.js';
 export type { ApiMapNode, ApiMapNodeSource } from './api-map/types.js';
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';

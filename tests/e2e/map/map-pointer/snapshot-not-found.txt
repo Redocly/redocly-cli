@@ -1,0 +1,3 @@
+
+No content found at pointer #/paths/~1nope. Run the command without --pointer to see the available nodes.
+
