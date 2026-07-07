@@ -12,6 +12,7 @@ import { classifyChanges } from './classify/index.js';
 import { UsageIndex } from './classify/usage.js';
 import { collectDocumentMap } from './collect.js';
 import { compareMaps } from './compare.js';
+import { locateChanges } from './locate.js';
 import type { DiffResult, DiffSummary } from './types.js';
 
 export class DiffError extends Error {}
@@ -46,13 +47,17 @@ export function diffDocuments(opts: {
   const rawChanges = compareMaps(baseCollected.entries, revisionCollected.entries);
   const usage = new UsageIndex([...baseCollected.usageEdges, ...revisionCollected.usageEdges]);
 
-  const changes = classifyChanges({
-    changes: rawChanges,
-    specVersion: revisionVersion,
-    base: baseCollected.entries,
-    revision: revisionCollected.entries,
-    usage,
-  });
+  const changes = locateChanges(
+    classifyChanges({
+      changes: rawChanges,
+      specVersion: revisionVersion,
+      base: baseCollected.entries,
+      revision: revisionCollected.entries,
+      usage,
+    }),
+    base.source,
+    revision.source
+  );
 
   const summary = changes.reduce<DiffSummary>(
     (acc, change) => {
