@@ -54,7 +54,11 @@ function labelOf(change: Change): string {
         ? segments.slice(3)
         : segments.slice(2)
       : segments;
-  const label = rest.join('/') || segments.join('/');
+  // When there's nothing left after stripping the path/method prefix (e.g. a
+  // removed operation, or the synthetic path-rename change), fall back to the
+  // full pointer — but unescape each segment first so JSON-pointer escapes
+  // like `~1` never leak into the rendered label.
+  const label = rest.length ? rest.join('/') : segments.map(unescapePointerFragment).join(' · ');
   return change.property ? `${label} · ${change.property}` : label;
 }
 
