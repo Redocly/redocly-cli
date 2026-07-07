@@ -1,0 +1,8 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Redocly Cafe", "version": "1.0.0" },
+  "paths": {
+    "/menu": { "get": { "operationId": "listMenuItems", "summary": "List all menu items" } }
+  },
+  "components": { "schemas": { "MenuItem": { "type": "object" } } }
+}

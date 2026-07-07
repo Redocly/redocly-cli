@@ -27,7 +27,7 @@ Each node has the following fields:
 | summary | string | Optional. The node's `summary` field, or its `description` truncated at a word boundary (about 200 characters).                                                                          |
 | method  | string | Optional. HTTP method; present on OpenAPI `Operation` nodes only.                                                                                                                        |
 | path    | string | Optional. URL path; present on OpenAPI `Operation` nodes under `paths` only.                                                                                                             |
-| source  | object | Optional. Original `{ file, pointer, startLine, endLine }` location of the node; present when `--source-locations` is used.                                                              |
+| source  | object | Optional. Original `{ file, pointer, startLine, startCol, endLine, endCol }` location of the node; present when `--source-locations` is used.                                            |
 | nodes   | array  | Child nodes.                                                                                                                                                                             |
 
 The tree stops at operations, channels, and named components;
@@ -58,7 +58,7 @@ redocly map --version
 | --help             | boolean | Show help.                                                                                                                         |
 | --lint-config      | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
 | --pointer          | string  | Print the content at the given JSON pointer instead of the map. YAML by default; JSON with `--format=json`.                        |
-| --source-locations | boolean | Include the original source file, pointer, and line range for each node. Useful for multi-file descriptions.                       |
+| --source-locations | boolean | Include the original source file, pointer, and line/column range for each node. Useful for multi-file descriptions.                |
 | --version          | boolean | Show version number.                                                                                                               |
 
 ## Examples
@@ -140,15 +140,19 @@ redocly map openapi.yaml --format=json --source-locations
     "file": "paths/menu.yaml",
     "pointer": "#/",
     "startLine": 1,
-    "endLine": 3
+    "startCol": 1,
+    "endLine": 3,
+    "endCol": 24
   },
   "nodes": []
 }
 ```
 
 The `pointer` stays canonical to the logical document,
-while `source` tells you which file and lines the node actually lives in —
+while `source` tells you exactly where the node lives —
 so any tool that can read a file range can retrieve the node's content.
+Column boundaries make the location universal across formats:
+for a JSON description on a single line, the columns give the exact span of each node.
 
 ### Retrieve the content of a node
 

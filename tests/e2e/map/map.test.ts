@@ -28,6 +28,18 @@ describe('map', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('map should produce column-precise locations for a JSON description', async () => {
+    const testPath = join(folderPath, 'map-json-file');
+    const args = getParams(indexEntryPoint, [
+      'map',
+      'cafe.json',
+      '--format=json',
+      '--source-locations',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test('map should retrieve the content at a pointer', async () => {
     const testPath = join(folderPath, 'map-pointer');
     const args = getParams(indexEntryPoint, ['map', 'openapi.yaml', '--pointer=#/paths/~1menu']);

@@ -10,7 +10,9 @@ export function makeSourceLocation(location: Location): ApiMapNodeSource {
     file: location.source.absoluteRef,
     pointer: location.pointer,
     startLine: start?.line ?? 1,
+    startCol: start?.col ?? 1,
     endLine: end?.line ?? start?.line ?? 1,
+    endCol: end?.col ?? start?.col ?? 1,
   };
 }
 

@@ -3,26 +3,25 @@
   "kind": "Root",
   "pointer": "#/",
   "source": {
-    "file": "./tests/e2e/map/map-json/openapi.yaml",
+    "file": "./tests/e2e/map/map-json-file/cafe.json",
     "pointer": "#/",
     "startLine": 1,
     "startCol": 1,
-    "endLine": 12,
-    "endCol": 41
+    "endLine": 1,
+    "endCol": 216
   },
   "nodes": [
     {
       "title": "Redocly Cafe",
       "kind": "Info",
       "pointer": "#/info",
-      "summary": "A small multi-file cafe API used to test API map generation.",
       "source": {
-        "file": "./tests/e2e/map/map-json/openapi.yaml",
+        "file": "./tests/e2e/map/map-json-file/cafe.json",
         "pointer": "#/info",
-        "startLine": 3,
-        "startCol": 3,
-        "endLine": 5,
-        "endCol": 76
+        "startLine": 1,
+        "startCol": 27,
+        "endLine": 1,
+        "endCol": 69
       },
       "nodes": []
     },
@@ -31,12 +30,12 @@
       "kind": "Paths",
       "pointer": "#/paths",
       "source": {
-        "file": "./tests/e2e/map/map-json/openapi.yaml",
+        "file": "./tests/e2e/map/map-json-file/cafe.json",
         "pointer": "#/paths",
-        "startLine": 7,
-        "startCol": 3,
-        "endLine": 8,
-        "endCol": 28
+        "startLine": 1,
+        "startCol": 78,
+        "endLine": 1,
+        "endCol": 159
       },
       "nodes": [
         {
@@ -44,12 +43,12 @@
           "kind": "PathItem",
           "pointer": "#/paths/~1menu",
           "source": {
-            "file": "./tests/e2e/map/map-json/paths/menu.yaml",
-            "pointer": "#/",
+            "file": "./tests/e2e/map/map-json-file/cafe.json",
+            "pointer": "#/paths/~1menu",
             "startLine": 1,
-            "startCol": 1,
-            "endLine": 3,
-            "endCol": 32
+            "startCol": 87,
+            "endLine": 1,
+            "endCol": 158
           },
           "nodes": [
             {
@@ -60,12 +59,12 @@
               "method": "get",
               "path": "/menu",
               "source": {
-                "file": "./tests/e2e/map/map-json/paths/menu.yaml",
-                "pointer": "#/get",
-                "startLine": 2,
-                "startCol": 3,
-                "endLine": 3,
-                "endCol": 31
+                "file": "./tests/e2e/map/map-json-file/cafe.json",
+                "pointer": "#/paths/~1menu/get",
+                "startLine": 1,
+                "startCol": 94,
+                "endLine": 1,
+                "endCol": 157
               },
               "nodes": []
             }
@@ -78,12 +77,12 @@
       "kind": "Components",
       "pointer": "#/components",
       "source": {
-        "file": "./tests/e2e/map/map-json/openapi.yaml",
+        "file": "./tests/e2e/map/map-json-file/cafe.json",
         "pointer": "#/components",
-        "startLine": 10,
-        "startCol": 3,
-        "endLine": 12,
-        "endCol": 40
+        "startLine": 1,
+        "startCol": 173,
+        "endLine": 1,
+        "endCol": 215
       },
       "nodes": [
         {
@@ -91,26 +90,25 @@
           "kind": "NamedSchemas",
           "pointer": "#/components/schemas",
           "source": {
-            "file": "./tests/e2e/map/map-json/openapi.yaml",
+            "file": "./tests/e2e/map/map-json-file/cafe.json",
             "pointer": "#/components/schemas",
-            "startLine": 11,
-            "startCol": 5,
-            "endLine": 12,
-            "endCol": 40
+            "startLine": 1,
+            "startCol": 184,
+            "endLine": 1,
+            "endCol": 214
           },
           "nodes": [
             {
               "title": "MenuItem",
               "kind": "Schema",
               "pointer": "#/components/schemas/MenuItem",
-              "summary": "A menu item.",
               "source": {
-                "file": "./tests/e2e/map/map-json/components/menu-item.yaml",
-                "pointer": "#/",
+                "file": "./tests/e2e/map/map-json-file/cafe.json",
+                "pointer": "#/components/schemas/MenuItem",
                 "startLine": 1,
-                "startCol": 1,
-                "endLine": 2,
-                "endCol": 27
+                "startCol": 196,
+                "endLine": 1,
+                "endCol": 213
               },
               "nodes": []
             }
