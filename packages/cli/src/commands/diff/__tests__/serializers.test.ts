@@ -1,3 +1,4 @@
+import { cleanColors } from '../../../utils/miscellaneous.js';
 import type { DiffResult } from '../engine/types.js';
 import { jsonDiff } from '../serializers/json.js';
 import { stylishDiff } from '../serializers/stylish.js';
@@ -5,24 +6,27 @@ import { stylishDiff } from '../serializers/stylish.js';
 const RESULT: DiffResult = {
   version: '1',
   specVersions: { base: 'oas3_1', revision: 'oas3_1' },
-  summary: { breaking: 2, nonBreaking: 1 },
+  summary: { breaking: 3, nonBreaking: 1 },
   changes: [
-    {
-      pointer: '#/paths/~1pets/get/responses/200',
-      property: 'description',
-      kind: 'changed',
-      typeName: 'Response',
-      base: { pointer: '#/paths/~1pets/get/responses/200/description', value: 'OK' },
-      revision: { pointer: '#/paths/~1pets/get/responses/200/description', value: 'Pets' },
-      compat: 'non-breaking',
-    },
     {
       pointer: '#/paths/~1pets/get/parameters/{query:limit}',
       property: 'required',
       kind: 'changed',
       typeName: 'Parameter',
-      base: { pointer: '#/paths/~1pets/get/parameters/0/required', value: undefined },
-      revision: { pointer: '#/paths/~1pets/get/parameters/0/required', value: true },
+      base: {
+        pointer: '#/paths/~1pets/get/parameters/0/required',
+        file: '/abs/base.yaml',
+        line: 9,
+        col: 21,
+        value: false,
+      },
+      revision: {
+        pointer: '#/paths/~1pets/get/parameters/1/required',
+        file: '/abs/rev.yaml',
+        line: 11,
+        col: 21,
+        value: true,
+      },
       compat: 'breaking',
       verdicts: [
         {
@@ -33,16 +37,22 @@ const RESULT: DiffResult = {
       ],
     },
     {
-      pointer: '#/paths/~1pets/get/requestBody/content/application~1json',
+      pointer: '#/paths/~1pets/get/requestBody',
       property: 'schema',
       kind: 'changed',
-      typeName: 'MediaType',
+      typeName: 'RequestBody',
       base: {
-        pointer: '#/paths/~1pets/get/requestBody/content/application~1json/schema',
+        pointer: '#/paths/~1pets/get/requestBody/schema',
+        file: '/abs/base.yaml',
+        line: 14,
+        col: 9,
         value: '#/components/schemas/A',
       },
       revision: {
-        pointer: '#/paths/~1pets/get/requestBody/content/application~1json/schema',
+        pointer: '#/paths/~1pets/get/requestBody/schema',
+        file: '/abs/rev.yaml',
+        line: 14,
+        col: 9,
         value: '#/components/schemas/B',
       },
       compat: 'breaking',
@@ -50,17 +60,54 @@ const RESULT: DiffResult = {
         { ruleId: 'ref-target-changed', compat: 'breaking', message: 'Reference target changed.' },
       ],
     },
+    {
+      pointer: '#/paths/~1pets/delete',
+      kind: 'removed',
+      typeName: 'Operation',
+      base: {
+        pointer: '#/paths/~1pets/delete',
+        file: '/abs/base.yaml',
+        line: 30,
+        col: 3,
+        value: {},
+      },
+      compat: 'breaking',
+      verdicts: [
+        { ruleId: 'operation-removed', compat: 'breaking', message: 'Operation was removed.' },
+      ],
+    },
+    {
+      pointer: '#/components/schemas/Pet',
+      kind: 'added',
+      typeName: 'Schema',
+      revision: {
+        pointer: '#/components/schemas/Pet',
+        file: '/abs/rev.yaml',
+        line: 20,
+        col: 5,
+        value: { type: 'object' },
+      },
+      compat: 'non-breaking',
+    },
   ],
 };
 
 describe('stylishDiff', () => {
-  it('orders by severity and renders a summary', () => {
-    const output = stylishDiff(RESULT);
-    const breakingIndex = output.indexOf('parameter-became-required');
-    const nonBreakingIndex = output.indexOf('description');
-    expect(breakingIndex).toBeLessThan(nonBreakingIndex);
-    expect(output).toContain('2 breaking');
-    expect(output).toContain('1 non-breaking');
+  it('groups stylish output per operation with locations and all verdicts', () => {
+    // vitest.config.ts forces FORCE_COLOR=1, so strip ANSI codes from the real output:
+    const output = cleanColors(stylishDiff(RESULT));
+
+    expect(output).toContain('✖ breaking');
+    expect(output).toContain('GET /pets');
+    expect(output).toContain('DELETE /pets');
+    expect(output).toContain('components');
+    expect(output).toContain('Parameter became required. (parameter-became-required)');
+    expect(output).toMatch(/at .*rev\.yaml:11:21/);
+    expect(output).toMatch(/at .*rev\.yaml:20:5/);
+    // removed changes point at the base file, others at the revision file:
+    expect(output).toMatch(/at .*base\.yaml:30:3/);
+    expect(output).toContain('parameters/{query:limit} · required');
+    expect(output).toContain('3 breaking, 1 non-breaking.');
   });
 });
 
