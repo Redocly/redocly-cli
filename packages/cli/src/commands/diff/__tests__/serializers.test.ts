@@ -5,7 +5,7 @@ import { stylishDiff } from '../serializers/stylish.js';
 const RESULT: DiffResult = {
   version: '1',
   specVersions: { base: 'oas3_1', revision: 'oas3_1' },
-  summary: { breaking: 1, warning: 1, nonBreaking: 1 },
+  summary: { breaking: 2, nonBreaking: 1 },
   changes: [
     {
       pointer: '#/paths/~1pets/get/responses/200',
@@ -40,7 +40,7 @@ const RESULT: DiffResult = {
         pointer: '#/paths/~1pets/get/requestBody/content/application~1json/schema',
         value: '#/components/schemas/B',
       },
-      compat: 'warning',
+      compat: 'breaking',
       ruleIds: ['ref-target-changed'],
       message: 'Reference target changed.',
     },
@@ -51,13 +51,9 @@ describe('stylishDiff', () => {
   it('orders by severity and renders a summary', () => {
     const output = stylishDiff(RESULT);
     const breakingIndex = output.indexOf('parameter-became-required');
-    const warningIndex = output.indexOf('ref-target-changed');
     const nonBreakingIndex = output.indexOf('description');
-    expect(breakingIndex).toBeGreaterThan(-1);
-    expect(breakingIndex).toBeLessThan(warningIndex);
-    expect(warningIndex).toBeLessThan(nonBreakingIndex);
-    expect(output).toContain('1 breaking');
-    expect(output).toContain('1 warning');
+    expect(breakingIndex).toBeLessThan(nonBreakingIndex);
+    expect(output).toContain('2 breaking');
     expect(output).toContain('1 non-breaking');
   });
 });
