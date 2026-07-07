@@ -1,0 +1,12 @@
+Account Service Root #/
+  Account Service Info #/info
+  channels NamedChannels #/channels
+    userSignedup Channel #/channels/userSignedup
+  components Components #/components
+    messages NamedMessages #/components/messages
+      UserSignedUp Message #/components/messages/UserSignedUp
+  operations NamedOperations #/operations
+    sendUserSignedup Operation #/operations/sendUserSignedup
+
+Document: asyncapi3.yaml map:
+

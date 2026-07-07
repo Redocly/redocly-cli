@@ -1,0 +1,55 @@
+Streetlights API Root #/
+  Streetlights API Info #/info
+  servers ServerMap #/servers
+    production Server #/servers/production
+    dummy-mqtt Server #/servers/dummy-mqtt
+    dummy-amqp Server #/servers/dummy-amqp
+    dommy-kafka Server #/servers/dommy-kafka
+  channels ChannelMap #/channels
+    smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured Channel #/channels/smartylighting~1streetlights~11~10~1event~1{streetlightId}~1lighting~1measured
+      receiveLightMeasurement Operation #/channels/smartylighting~1streetlights~11~10~1event~1{streetlightId}~1lighting~1measured/subscribe
+    smartylighting/streetlights/1/0/action/{streetlightId}/turn/on/ Channel #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on~1
+      turnOn Operation #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on~1/publish
+    smartylighting/streetlights/1/0/action/{streetlightId}/turn/off Channel #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1off
+      PUBLISH smartylighting/streetlights/1/0/action/{streetlightId}/turn/off Operation #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1off/publish
+    smartylighting/streetlights/1/0/action/{streetlightId}/dim Channel #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1dim
+      dimLight Operation #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1dim/publish
+  components Components #/components
+    messages NamedMessages #/components/messages
+      Light measured Message #/components/messages/lightMeasured
+      LwM2mOjbects Message #/components/messages/LwM2mOjbects
+      Turn on/off Message #/components/messages/turnOnOff
+      Dim light Message #/components/messages/dimLight
+    parameters NamedParameters #/components/parameters
+      streetlightId Parameter #/components/parameters/streetlightId
+    schemas NamedSchemas #/components/schemas
+      lightMeasuredPayload Schema #/components/schemas/lightMeasuredPayload
+      turnOnOffPayload Schema #/components/schemas/turnOnOffPayload
+      dimLightPayload Schema #/components/schemas/dimLightPayload
+      sentAt Schema #/components/schemas/sentAt
+      union Schema #/components/schemas/union
+      objectWithKey Schema #/components/schemas/objectWithKey
+      objectWithKey2 Schema #/components/schemas/objectWithKey2
+      oneOfSchema Schema #/components/schemas/oneOfSchema
+      anyOfSchema Schema #/components/schemas/anyOfSchema
+      allOfSchema Schema #/components/schemas/allOfSchema
+      arrayContains Schema #/components/schemas/arrayContains
+      dependenciesObject Schema #/components/schemas/dependenciesObject
+      subscriptionStatus Schema #/components/schemas/subscriptionStatus
+      arrayRank Schema #/components/schemas/arrayRank
+      arrayValueRank Schema #/components/schemas/arrayValueRank
+      arrayArrayDimensions Schema #/components/schemas/arrayArrayDimensions
+      streamHeaders Schema #/components/schemas/streamHeaders
+    securitySchemes NamedSecuritySchemes #/components/securitySchemes
+      apiKey SecurityScheme #/components/securitySchemes/apiKey
+      supportedOauthFlows SecurityScheme #/components/securitySchemes/supportedOauthFlows
+      openIdConnectWellKnown SecurityScheme #/components/securitySchemes/openIdConnectWellKnown
+  tags TagList #/tags
+    root-tag1 Tag #/tags/0
+    root-tag2 Tag #/tags/1
+    root-tag3 Tag #/tags/2
+    root-tag4 Tag #/tags/3
+    root-tag5 Tag #/tags/4
+
+Document: async.yaml map:
+

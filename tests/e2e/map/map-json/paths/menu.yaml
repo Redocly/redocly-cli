@@ -1,0 +1,3 @@
+get:
+  operationId: listMenuItems
+  summary: List all menu items

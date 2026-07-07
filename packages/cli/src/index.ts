@@ -22,6 +22,7 @@ import {
 } from './commands/generate-arazzo.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
+import { handleMap } from './commands/map/index.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
@@ -76,6 +77,35 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'map [api]',
+    'Generate a structural map of an API description.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_MAP')
+        .positional('api', { type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+            default: 'stylish' as OutputFormat,
+          },
+          'source-locations': {
+            description: 'Include the original source file and pointer for each node.',
+            type: 'boolean',
+            default: false,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleMap)(argv);
     }
   )
   .command(

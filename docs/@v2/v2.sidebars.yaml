@@ -26,6 +26,8 @@
           page: commands/login.md
         - label: logout
           page: commands/logout.md
+        - label: map
+          page: commands/map.md
         - label: preview
           page: commands/preview.md
         - label: push
