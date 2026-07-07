@@ -1,4 +1,4 @@
-import { loadTrafficParsers, selectTrafficParser } from '../drift/log-formats/registry.js';
+import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type { NormalizedHttpMessage, TrafficFormat } from '../drift/types/index.js';
 import { listFilesRecursively } from '../drift/utils/files.js';
 import { getPathWithoutTrailingSlash } from '../drift/utils/http.js';
@@ -17,7 +17,6 @@ export interface TrafficSample {
 export interface CollectSamplesOptions {
   trafficPath: string;
   format: TrafficFormat;
-  trafficParserModules?: string[];
   /** Maximum samples kept per distinct method + path + status combination. */
   perEndpoint?: number;
   /** Hard cap on the total number of samples handed to the AI. */
@@ -59,7 +58,6 @@ export async function collectTrafficSamples(
   const maxBodyChars = options.maxBodyChars ?? 2000;
 
   const trafficFiles = await listFilesRecursively(options.trafficPath);
-  const externalParsers = await loadTrafficParsers(options.trafficParserModules ?? []);
 
   const samples: TrafficSample[] = [];
   const seenCounts = new Map<string, number>();
@@ -68,7 +66,7 @@ export async function collectTrafficSamples(
     if (samples.length >= total) {
       break;
     }
-    const parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
+    const parser = await selectTrafficParser(trafficFile, options.format);
     if (!parser) {
       continue;
     }

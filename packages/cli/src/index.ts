@@ -884,11 +884,6 @@ yargs(hideBin(process.argv))
             ] as ReadonlyArray<TrafficFormat>,
             default: 'auto' as TrafficFormat,
           },
-          'traffic-plugin': {
-            describe: 'Path to an external traffic parser module (repeatable).',
-            type: 'string',
-            array: true,
-          },
           server: {
             describe:
               'Server URL the traffic was captured against: only requests under it are considered, the rest of their URL becomes the API path, and it becomes the servers URL of the generated description.',

@@ -1,6 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
-import { loadTrafficParsers, selectTrafficParser } from '../drift/log-formats/registry.js';
+import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type {
   NormalizedExchange,
   NormalizedHttpMessage,
@@ -18,7 +18,6 @@ import { normalizeServerPrefix, resolvePathForServer } from '../drift/utils/serv
 export interface GenerateSpecOptions {
   trafficPath: string;
   format: TrafficFormat;
-  trafficParserModules?: string[];
   title?: string;
   server?: string;
 }
@@ -327,7 +326,6 @@ export async function generateSpecFromTraffic(
   }
 
   const server = normalizeServerPrefix(options.server);
-  const externalParsers = await loadTrafficParsers(options.trafficParserModules ?? []);
   const operations = new Map<string, OperationAccumulator>();
   const observedServers = new Set<string>();
   let supportedTrafficFileCount = 0;
@@ -410,7 +408,7 @@ export async function generateSpecFromTraffic(
   };
 
   for (const trafficFile of trafficFiles) {
-    const parser = await selectTrafficParser(trafficFile, options.format, externalParsers);
+    const parser = await selectTrafficParser(trafficFile, options.format);
     if (!parser) {
       logger.warn(`Skipping traffic file with unrecognized format: ${trafficFile}\n`);
       continue;

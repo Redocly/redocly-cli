@@ -15,7 +15,6 @@ export type GenerateSpecArgv = {
   traffic: string;
   type: 'openapi';
   'traffic-format': TrafficFormat;
-  'traffic-plugin'?: string[];
   server?: string;
   title?: string;
   output?: string;
@@ -38,12 +37,10 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
 
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
-  const trafficParserModules = (argv['traffic-plugin'] ?? []).map(normalizeFsPath);
 
   const baseline = await generateSpecFromTraffic({
     trafficPath,
     format: trafficFormat,
-    trafficParserModules,
     title: argv.title,
     server: argv.server,
   });
@@ -63,7 +60,6 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
     const samples = await collectTrafficSamples({
       trafficPath,
       format: trafficFormat,
-      trafficParserModules,
     });
 
     try {

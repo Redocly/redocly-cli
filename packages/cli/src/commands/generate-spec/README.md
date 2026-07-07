@@ -27,7 +27,6 @@ traffic parsing infrastructure is shared with the `drift` command.
 | ------------------ | ----------------------------------------------------------------------------------------------------- |
 | `--type`           | Target description type. Only `openapi` is supported.                                                 |
 | `--traffic-format` | Traffic input format (`auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`).                  |
-| `--traffic-plugin` | Path to an external traffic parser module (repeatable).                                               |
 | `--server`         | Server URL the traffic was captured against. Scopes which requests are considered and sets `servers`. |
 | `--title`          | Title for the generated description.                                                                  |
 | `--with-ai`        | Refine the inferred description with an AI provider.                                                  |
