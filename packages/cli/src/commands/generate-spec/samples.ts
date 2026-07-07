@@ -3,6 +3,7 @@ import type { NormalizedHttpMessage, TrafficFormat } from '../drift/types/index.
 import { listFilesRecursively } from '../drift/utils/files.js';
 import { getPathWithoutTrailingSlash } from '../drift/utils/http.js';
 import { normalizeServerPrefix, resolvePathForServer } from '../drift/utils/server.js';
+import { HTTP_METHODS } from './generator.js';
 
 export interface TrafficSample {
   method: string;
@@ -79,6 +80,9 @@ export async function collectTrafficSamples(
         break;
       }
       const method = exchange.request.method.toUpperCase();
+      if (!HTTP_METHODS.has(method.toLowerCase())) {
+        continue;
+      }
       let rawPath = exchange.request.path || '/';
       if (server) {
         const serverRelativePath = resolvePathForServer(exchange.request, server);

@@ -62,7 +62,16 @@ const NUMERIC_RE = /^\d+$/;
 const ULID_RE = /^[0-9a-hjkmnp-tv-z]{26}$/i;
 // Type-prefixed opaque token with at least one digit, e.g. org_01ks7rnqsyy0g6h37rfmen7zv9.
 const PREFIXED_ID_RE = /^[a-z][a-z0-9]*_(?=[0-9a-z]*\d)[0-9a-z]{10,}$/i;
-const HTTP_METHODS = new Set(['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace']);
+export const HTTP_METHODS = new Set([
+  'get',
+  'put',
+  'post',
+  'delete',
+  'patch',
+  'head',
+  'options',
+  'trace',
+]);
 const BODYLESS_METHODS = new Set(['get', 'head']);
 const FORM_URLENCODED_MIME = 'application/x-www-form-urlencoded';
 
