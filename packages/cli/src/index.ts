@@ -108,9 +108,7 @@ yargs(hideBin(process.argv))
           },
           'fail-on': {
             description: 'Exit with a non-zero code when changes of this level are found.',
-            choices: ['breaking', 'warning', 'none'] as ReadonlyArray<
-              'breaking' | 'warning' | 'none'
-            >,
+            choices: ['breaking', 'none'] as ReadonlyArray<'breaking' | 'none'>,
             default: 'breaking' as const,
           },
         }),

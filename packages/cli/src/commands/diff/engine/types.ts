@@ -1,6 +1,6 @@
 import type { SpecVersion } from '@redocly/openapi-core';
 
-export type Compat = 'breaking' | 'warning' | 'non-breaking';
+export type Compat = 'breaking' | 'non-breaking';
 
 export type ChangeKind = 'added' | 'removed' | 'changed';
 
@@ -36,7 +36,6 @@ export type RawChange = Omit<Change, 'compat' | 'ruleIds' | 'message'>;
 
 export interface DiffSummary {
   breaking: number;
-  warning: number;
   nonBreaking: number;
 }
 
@@ -69,20 +68,12 @@ export interface DiffRule {
 
 export type DiffRuleRegistry = Record<string, DiffRule[]>;
 
-const COMPAT_RANK: Record<Compat, number> = { breaking: 2, warning: 1, 'non-breaking': 0 };
+const COMPAT_RANK: Record<Compat, number> = { breaking: 1, 'non-breaking': 0 };
 
 export function compatRank(compat: Compat): number {
   return COMPAT_RANK[compat];
 }
 
-export function worstOf(a: Compat, b: Compat): Compat {
-  return compatRank(a) >= compatRank(b) ? a : b;
-}
-
 export function breaking(message: string): Verdict {
   return { compat: 'breaking', message };
-}
-
-export function warning(message: string): Verdict {
-  return { compat: 'warning', message };
 }
