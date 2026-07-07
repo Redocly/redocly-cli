@@ -8,14 +8,28 @@ import {
   type SpecVersion,
 } from '@redocly/openapi-core';
 
+import { alignRenamedPaths, type PathRename } from './align-paths.js';
 import { classifyChanges } from './classify/index.js';
 import { UsageIndex } from './classify/usage.js';
 import { collectDocumentMap } from './collect.js';
 import { compareMaps } from './compare.js';
 import { locateChanges } from './locate.js';
-import type { DiffResult, DiffSummary } from './types.js';
+import type { DiffResult, DiffSummary, RawChange } from './types.js';
 
 export class DiffError extends Error {}
+
+// The path template itself is a map key, not a node property, so the rename is
+// surfaced as a synthetic 'changed' on the PathItem with property 'path'.
+function toRenameChange(rename: PathRename): RawChange {
+  return {
+    pointer: rename.basePointer,
+    property: 'path',
+    kind: 'changed',
+    typeName: 'PathItem',
+    base: { pointer: rename.baseRealPointer, value: rename.baseTemplate },
+    revision: { pointer: rename.revisionRealPointer, value: rename.revisionTemplate },
+  };
+}
 
 export function diffDocuments(opts: {
   base: Document;
@@ -44,7 +58,17 @@ export function diffDocuments(opts: {
   const baseCollected = collect(base, baseVersion);
   const revisionCollected = collect(revision, revisionVersion);
 
-  const rawChanges = compareMaps(baseCollected.entries, revisionCollected.entries);
+  const { revision: alignedRevision, renames } = alignRenamedPaths(
+    baseCollected.entries,
+    revisionCollected.entries
+  );
+
+  const rawChanges = [
+    ...renames.map(toRenameChange),
+    ...compareMaps(baseCollected.entries, alignedRevision),
+  ];
+  // usage edges are NOT rewritten: polarity only inspects 'parameters'/'responses'
+  // segments and component roots, which a path rename never alters
   const usage = new UsageIndex([...baseCollected.usageEdges, ...revisionCollected.usageEdges]);
 
   const changes = locateChanges(
@@ -52,7 +76,7 @@ export function diffDocuments(opts: {
       changes: rawChanges,
       specVersion: revisionVersion,
       base: baseCollected.entries,
-      revision: revisionCollected.entries,
+      revision: alignedRevision,
       usage,
     }),
     base.source,
