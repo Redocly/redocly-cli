@@ -1,0 +1,58 @@
+{
+  "title": "Redocly Cafe",
+  "kind": "Root",
+  "pointer": "#/",
+  "nodes": [
+    {
+      "title": "Redocly Cafe",
+      "kind": "Info",
+      "pointer": "#/info",
+      "nodes": []
+    },
+    {
+      "title": "paths",
+      "kind": "Paths",
+      "pointer": "#/paths",
+      "nodes": [
+        {
+          "title": "/menu",
+          "kind": "PathItem",
+          "pointer": "#/paths/~1menu",
+          "nodes": [
+            {
+              "title": "listMenuItems",
+              "kind": "Operation",
+              "pointer": "#/paths/~1menu/get",
+              "summary": "Returns 200 (MenuItemList).",
+              "method": "get",
+              "path": "/menu",
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "components",
+      "kind": "Components",
+      "pointer": "#/components",
+      "nodes": [
+        {
+          "title": "schemas",
+          "kind": "NamedSchemas",
+          "pointer": "#/components/schemas",
+          "nodes": [
+            {
+              "title": "MenuItemList",
+              "kind": "Schema",
+              "pointer": "#/components/schemas/MenuItemList",
+              "summary": "array of object",
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+AI refinement failed, falling back to the deterministic map: Could not find the "claude" CLI on PATH. Is it installed?

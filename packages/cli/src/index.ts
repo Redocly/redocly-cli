@@ -22,7 +22,7 @@ import {
 } from './commands/generate-arazzo.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
-import { handleMap } from './commands/map/index.js';
+import { handleMap, type MapArgv } from './commands/map/index.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
@@ -105,6 +105,22 @@ yargs(hideBin(process.argv))
           },
           pointer: {
             description: 'Print the content at the given JSON pointer instead of the map.',
+            type: 'string',
+          },
+          'with-ai': {
+            description: 'Refine node summaries with an AI provider.',
+            type: 'boolean',
+            default: false,
+          },
+          'ai-provider': {
+            description:
+              'AI provider used with --with-ai. "openai" calls an OpenAI-compatible endpoint (OPENAI_ENDPOINT/OPENAI_API_KEY); "claude" and "codex" run the respective CLI.',
+            choices: ['openai', 'claude', 'codex'] as ReadonlyArray<MapArgv['ai-provider']>,
+            default: 'claude' as MapArgv['ai-provider'],
+          },
+          'ai-model': {
+            description:
+              'Model passed to the selected AI provider (provider-specific default applies).',
             type: 'string',
           },
         }),

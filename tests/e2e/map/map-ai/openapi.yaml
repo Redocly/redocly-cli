@@ -1,0 +1,20 @@
+openapi: 3.0.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+paths:
+  /menu:
+    get:
+      operationId: listMenuItems
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemList'
+components:
+  schemas:
+    MenuItemList:
+      type: array
+      items:
+        type: object

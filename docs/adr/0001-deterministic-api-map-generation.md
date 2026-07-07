@@ -18,6 +18,11 @@ because pointers are stable across regenerations and double as the retrieval add
 A node's `kind` is the internal node type name the walker reports (`PathItem`, `Operation`, `Channel`) —
 the type system is the single source of node names, per spec.
 
+## Update: opt-in AI refinement
+
+`--with-ai` (with `--ai-provider`/`--ai-model`) later added an opt-in enrichment step that asks an AI provider for improved node summaries.
+It does not change this decision: the default path stays fully deterministic, the provider can only contribute summary strings merged by pointer (never structure), and any failure falls back to the deterministic map.
+
 ## Consequences
 
 - The map's pointers address the logical document as authored; `bundle` output may store `$ref`ed components under different keys.

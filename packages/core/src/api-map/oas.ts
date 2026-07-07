@@ -1,4 +1,5 @@
 import type { Oas2Visitor, Oas3Visitor } from '../visitors.js';
+import { deriveOperationSummary, deriveSchemaSummary } from './derive-summary.js';
 import { createApiMapHooks } from './hooks.js';
 import type { ApiMapNode, ApiMapOptions } from './types.js';
 
@@ -23,19 +24,22 @@ export function ApiMapOAS3(root: ApiMapNode, opts: ApiMapOptions): Oas3Visitor {
       ...sectionHooks('Root'),
       PathItem: {
         ...containerHooks,
-        Operation: operationHooks({ method: true, path: true }),
+        Operation: operationHooks({ method: true, path: true }, deriveOperationSummary),
       },
     },
     WebhooksMap: {
       ...sectionHooks('Root'),
       PathItem: {
         ...containerHooks,
-        Operation: operationHooks({ method: true }),
+        Operation: operationHooks({ method: true }, deriveOperationSummary),
       },
     },
     Components: {
       ...sectionHooks('Root'),
-      NamedSchemas: { ...sectionHooks('Components'), Schema: leafHooks() },
+      NamedSchemas: {
+        ...sectionHooks('Components'),
+        Schema: leafHooks(undefined, deriveSchemaSummary),
+      },
       NamedResponses: { ...sectionHooks('Components'), Response: leafHooks() },
       NamedParameters: { ...sectionHooks('Components'), Parameter: leafHooks() },
       NamedExamples: { ...sectionHooks('Components'), Example: leafHooks() },
@@ -67,10 +71,10 @@ export function ApiMapOAS2(root: ApiMapNode, opts: ApiMapOptions): Oas2Visitor {
       ...sectionHooks('Root'),
       PathItem: {
         ...containerHooks,
-        Operation: operationHooks({ method: true, path: true }),
+        Operation: operationHooks({ method: true, path: true }, deriveOperationSummary),
       },
     },
-    NamedSchemas: { ...sectionHooks('Root'), Schema: leafHooks() },
+    NamedSchemas: { ...sectionHooks('Root'), Schema: leafHooks(undefined, deriveSchemaSummary) },
     NamedParameters: { ...sectionHooks('Root'), Parameter: leafHooks() },
     NamedResponses: { ...sectionHooks('Root'), Response: leafHooks() },
     NamedSecuritySchemes: { ...sectionHooks('Root'), SecurityScheme: leafHooks() },

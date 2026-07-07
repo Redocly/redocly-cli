@@ -1,0 +1,7 @@
+#!/bin/sh
+# Stub of the "claude" CLI: consume the prompt from stdin and return a fixed
+# pointer-to-summary JSON object, wrapped in code fences like a chatty model would.
+cat > /dev/null
+echo '```json'
+echo '{"#/paths/~1menu/get": "Lists every item currently on the cafe menu.", "#/components/schemas/MenuItemList": "Paginated collection of menu items."}'
+echo '```'

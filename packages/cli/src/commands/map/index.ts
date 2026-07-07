@@ -14,6 +14,8 @@ import type { VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
+import { type AiProvider } from './ai/providers.js';
+import { refineSummariesWithAi } from './ai/refine.js';
 import { printApiMap } from './print-map/index.js';
 
 const SUPPORTED_MAJOR_VERSIONS = ['oas2', 'oas3', 'async2', 'async3'];
@@ -23,6 +25,9 @@ export type MapArgv = {
   format: OutputFormat;
   'source-locations'?: boolean;
   pointer?: string;
+  'with-ai'?: boolean;
+  'ai-provider': AiProvider;
+  'ai-model'?: string;
 } & VerifyConfigOptions;
 
 export async function handleMap({ argv, config, collectSpecData }: CommandArgs<MapArgv>) {
@@ -68,6 +73,25 @@ export async function handleMap({ argv, config, collectSpecData }: CommandArgs<M
     externalRefResolver,
     sourceLocations: argv['source-locations'],
   });
+
+  if (argv['with-ai']) {
+    const provider = argv['ai-provider'];
+    try {
+      const applied = await refineSummariesWithAi({
+        provider,
+        model: argv['ai-model'],
+        apiMap,
+        description: document.source.body,
+      });
+      logger.info(`AI refinement complete (${provider}): ${applied} summaries updated.\n`);
+    } catch (error) {
+      logger.info(
+        `AI refinement failed, falling back to the deterministic map: ${
+          error instanceof Error ? error.message : String(error)
+        }\n`
+      );
+    }
+  }
 
   printApiMap(apiMap, path, argv.format);
 }

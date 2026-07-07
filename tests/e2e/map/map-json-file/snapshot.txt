@@ -7,8 +7,8 @@
     "pointer": "#/",
     "startLine": 1,
     "startCol": 1,
-    "endLine": 1,
-    "endCol": 216
+    "endLine": 8,
+    "endCol": 3
   },
   "nodes": [
     {
@@ -18,10 +18,10 @@
       "source": {
         "file": "./tests/e2e/map/map-json-file/cafe.json",
         "pointer": "#/info",
-        "startLine": 1,
-        "startCol": 27,
-        "endLine": 1,
-        "endCol": 69
+        "startLine": 3,
+        "startCol": 11,
+        "endLine": 3,
+        "endCol": 58
       },
       "nodes": []
     },
@@ -32,10 +32,10 @@
       "source": {
         "file": "./tests/e2e/map/map-json-file/cafe.json",
         "pointer": "#/paths",
-        "startLine": 1,
-        "startCol": 78,
-        "endLine": 1,
-        "endCol": 159
+        "startLine": 4,
+        "startCol": 12,
+        "endLine": 6,
+        "endCol": 4
       },
       "nodes": [
         {
@@ -45,10 +45,10 @@
           "source": {
             "file": "./tests/e2e/map/map-json-file/cafe.json",
             "pointer": "#/paths/~1menu",
-            "startLine": 1,
-            "startCol": 87,
-            "endLine": 1,
-            "endCol": 158
+            "startLine": 5,
+            "startCol": 14,
+            "endLine": 5,
+            "endCol": 93
           },
           "nodes": [
             {
@@ -61,10 +61,10 @@
               "source": {
                 "file": "./tests/e2e/map/map-json-file/cafe.json",
                 "pointer": "#/paths/~1menu/get",
-                "startLine": 1,
-                "startCol": 94,
-                "endLine": 1,
-                "endCol": 157
+                "startLine": 5,
+                "startCol": 23,
+                "endLine": 5,
+                "endCol": 91
               },
               "nodes": []
             }
@@ -79,10 +79,10 @@
       "source": {
         "file": "./tests/e2e/map/map-json-file/cafe.json",
         "pointer": "#/components",
-        "startLine": 1,
-        "startCol": 173,
-        "endLine": 1,
-        "endCol": 215
+        "startLine": 7,
+        "startCol": 17,
+        "endLine": 7,
+        "endCol": 68
       },
       "nodes": [
         {
@@ -92,23 +92,24 @@
           "source": {
             "file": "./tests/e2e/map/map-json-file/cafe.json",
             "pointer": "#/components/schemas",
-            "startLine": 1,
-            "startCol": 184,
-            "endLine": 1,
-            "endCol": 214
+            "startLine": 7,
+            "startCol": 30,
+            "endLine": 7,
+            "endCol": 66
           },
           "nodes": [
             {
               "title": "MenuItem",
               "kind": "Schema",
               "pointer": "#/components/schemas/MenuItem",
+              "summary": "object",
               "source": {
                 "file": "./tests/e2e/map/map-json-file/cafe.json",
                 "pointer": "#/components/schemas/MenuItem",
-                "startLine": 1,
-                "startCol": 196,
-                "endLine": 1,
-                "endCol": 213
+                "startLine": 7,
+                "startCol": 44,
+                "endLine": 7,
+                "endCol": 64
               },
               "nodes": []
             }

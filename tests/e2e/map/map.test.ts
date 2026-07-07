@@ -1,4 +1,4 @@
-import { join, dirname } from 'node:path';
+import { join, dirname, delimiter } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { getCommandOutput, getParams, cleanupOutput } from '../helpers.js';
@@ -53,6 +53,43 @@ describe('map', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       join(testPath, 'snapshot-not-found.txt')
+    );
+  });
+
+  test('map should refine summaries with a stubbed AI provider', async () => {
+    const testPath = join(folderPath, 'map-ai');
+    const args = getParams(indexEntryPoint, [
+      'map',
+      'openapi.yaml',
+      '--format=json',
+      '--with-ai',
+      '--ai-provider=claude',
+    ]);
+    // Prepend the stub bin directory to PATH so the spawned "claude" CLI
+    // resolves to the fixture stub instead of a real installation.
+    const result = getCommandOutput(args, {
+      testPath,
+      env: { PATH: `${join(testPath, 'bin-ok')}${delimiter}${process.env.PATH}` },
+    });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('map should fall back to the deterministic map when the AI provider is unavailable', async () => {
+    const testPath = join(folderPath, 'map-ai');
+    const args = getParams(indexEntryPoint, [
+      'map',
+      'openapi.yaml',
+      '--format=json',
+      '--with-ai',
+      '--ai-provider=claude',
+    ]);
+    // Restrict PATH to the node binary directory so "claude" cannot resolve.
+    const result = getCommandOutput(args, {
+      testPath,
+      env: { PATH: dirname(process.execPath) },
+    });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-fallback.txt')
     );
   });
 

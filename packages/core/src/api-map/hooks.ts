@@ -24,11 +24,13 @@ export function getStringProp(node: unknown, key: string): string | undefined {
   return typeof value === 'string' && value ? value : undefined;
 }
 
-function makeSummary(node: unknown): string | undefined {
+export type SummaryDeriver = (node: unknown) => string | undefined;
+
+function makeSummary(node: unknown, derive?: SummaryDeriver): string | undefined {
   const summary = getStringProp(node, 'summary');
   if (summary) return summary;
   const description = getStringProp(node, 'description');
-  if (!description) return undefined;
+  if (!description) return derive?.(node);
   if (description.length <= SUMMARY_MAX_LENGTH) return description;
   return description.slice(0, SUMMARY_MAX_LENGTH).replace(/\s+\S*$/, '') + '...';
 }
@@ -94,7 +96,7 @@ export function createApiMapHooks(root: ApiMapNode, opts: ApiMapOptions) {
     },
   };
 
-  function operationHooks(fields: { method?: boolean; path?: boolean }) {
+  function operationHooks(fields: { method?: boolean; path?: boolean }, derive?: SummaryDeriver) {
     return {
       enter(operation: unknown, ctx: UserContext) {
         if (!isDirectChild(ctx)) return;
@@ -104,7 +106,7 @@ export function createApiMapHooks(root: ApiMapNode, opts: ApiMapOptions) {
           {
             title:
               getStringProp(operation, 'operationId') ?? `${key.toUpperCase()} ${parentNode.title}`,
-            summary: makeSummary(operation),
+            summary: makeSummary(operation, derive),
             method: fields.method ? key : undefined,
             path: fields.path ? parentNode.title : undefined,
           },
@@ -114,12 +116,12 @@ export function createApiMapHooks(root: ApiMapNode, opts: ApiMapOptions) {
     };
   }
 
-  function leafHooks(titleProp?: string) {
+  function leafHooks(titleProp?: string, derive?: SummaryDeriver) {
     return {
       enter(node: unknown, ctx: UserContext) {
         if (!isDirectChild(ctx)) return;
         const title = titleProp && getStringProp(node, titleProp);
-        addNode({ title: title || String(ctx.key), summary: makeSummary(node) }, ctx);
+        addNode({ title: title || String(ctx.key), summary: makeSummary(node, derive) }, ctx);
       },
     };
   }

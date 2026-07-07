@@ -1,0 +1,58 @@
+{
+  "title": "Redocly Cafe",
+  "kind": "Root",
+  "pointer": "#/",
+  "nodes": [
+    {
+      "title": "Redocly Cafe",
+      "kind": "Info",
+      "pointer": "#/info",
+      "nodes": []
+    },
+    {
+      "title": "paths",
+      "kind": "Paths",
+      "pointer": "#/paths",
+      "nodes": [
+        {
+          "title": "/menu",
+          "kind": "PathItem",
+          "pointer": "#/paths/~1menu",
+          "nodes": [
+            {
+              "title": "listMenuItems",
+              "kind": "Operation",
+              "pointer": "#/paths/~1menu/get",
+              "summary": "Lists every item currently on the cafe menu.",
+              "method": "get",
+              "path": "/menu",
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "components",
+      "kind": "Components",
+      "pointer": "#/components",
+      "nodes": [
+        {
+          "title": "schemas",
+          "kind": "NamedSchemas",
+          "pointer": "#/components/schemas",
+          "nodes": [
+            {
+              "title": "MenuItemList",
+              "kind": "Schema",
+              "pointer": "#/components/schemas/MenuItemList",
+              "summary": "Paginated collection of menu items.",
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+AI refinement complete (claude): 2 summaries updated.

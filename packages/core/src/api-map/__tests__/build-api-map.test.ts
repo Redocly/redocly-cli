@@ -586,6 +586,115 @@ describe('buildApiMap', () => {
     expect(JSON.stringify(apiMap)).not.toContain('statusChangeCallback');
   });
 
+  it('derives summaries from structure when descriptions are missing', async () => {
+    const oasDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        paths:
+          /menu:
+            get:
+              operationId: listMenuItems
+              parameters:
+                - name: limit
+                  in: query
+                - $ref: '#/components/parameters/Sort'
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/MenuItemList'
+                '404': {}
+        components:
+          parameters:
+            Sort:
+              name: sort
+              in: query
+          schemas:
+            MenuItemList:
+              type: array
+              items:
+                $ref: '#/components/schemas/MenuItem'
+            MenuItem:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+      `,
+      'cafe.yaml'
+    );
+
+    const oasMap = await buildApiMap({ document: oasDocument, config: await createConfig({}) });
+    const operation = oasMap.nodes.find((n) => n.title === 'paths')!.nodes[0].nodes[0];
+    const schemas = oasMap.nodes
+      .find((n) => n.title === 'components')!
+      .nodes.find((n) => n.title === 'schemas')!;
+
+    expect(operation.summary).toBe('Returns 200 (MenuItemList), 404. Parameters: limit, Sort.');
+    expect(schemas.nodes.find((n) => n.title === 'MenuItemList')!.summary).toBe(
+      'array of MenuItem'
+    );
+    expect(schemas.nodes.find((n) => n.title === 'MenuItem')!.summary).toBe('object: name, price');
+
+    const async2Document = parseYamlToDocument(
+      outdent`
+        asyncapi: 2.6.0
+        info:
+          title: Cafe Events
+          version: 1.0.0
+        channels:
+          orders/created:
+            subscribe:
+              operationId: onOrderCreated
+              message:
+                $ref: '#/components/messages/OrderCreated'
+        components:
+          messages:
+            OrderCreated:
+              payload:
+                type: object
+      `,
+      'cafe-events.yaml'
+    );
+
+    const async2Map = await buildApiMap({
+      document: async2Document,
+      config: await createConfig({}),
+    });
+    const async2Operation = async2Map.nodes.find((n) => n.title === 'channels')!.nodes[0].nodes[0];
+    expect(async2Operation.summary).toBe('message: OrderCreated');
+
+    const async3Document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Cafe Events
+          version: 1.0.0
+        channels:
+          ordersCreated:
+            address: orders/created
+        operations:
+          sendOrderCreated:
+            action: send
+            channel:
+              $ref: '#/channels/ordersCreated'
+      `,
+      'cafe-events.yaml'
+    );
+
+    const async3Map = await buildApiMap({
+      document: async3Document,
+      config: await createConfig({}),
+    });
+    const async3Operation = async3Map.nodes.find((n) => n.title === 'operations')!.nodes[0];
+    expect(async3Operation.summary).toBe('send to ordersCreated');
+  });
+
   it('throws for unsupported spec versions', async () => {
     const document = parseYamlToDocument(
       outdent`
