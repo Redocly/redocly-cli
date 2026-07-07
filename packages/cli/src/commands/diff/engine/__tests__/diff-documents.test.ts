@@ -64,7 +64,13 @@ describe('diffDocuments', () => {
 
     const becameRequired = result.changes.find((c) => c.property === 'required')!;
     expect(becameRequired.compat).toBe('breaking');
-    expect(becameRequired.ruleIds).toEqual(['parameter-became-required']);
+    expect(becameRequired.verdicts).toEqual([
+      {
+        ruleId: 'parameter-became-required',
+        compat: 'breaking',
+        message: 'Parameter became required.',
+      },
+    ]);
     expect(becameRequired.base?.pointer).toBe('#/paths/~1pets/get/parameters/0/required');
     expect(becameRequired.revision?.pointer).toBe('#/paths/~1pets/get/parameters/1/required');
 
