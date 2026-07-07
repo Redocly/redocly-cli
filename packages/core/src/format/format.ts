@@ -56,7 +56,8 @@ export type OutputFormat =
   | 'summary'
   | 'github-actions'
   | 'markdown'
-  | 'junit';
+  | 'junit'
+  | 'html';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
