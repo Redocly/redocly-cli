@@ -24,8 +24,13 @@ const RESULT: DiffResult = {
       base: { pointer: '#/paths/~1pets/get/parameters/0/required', value: undefined },
       revision: { pointer: '#/paths/~1pets/get/parameters/0/required', value: true },
       compat: 'breaking',
-      ruleIds: ['parameter-became-required'],
-      message: 'Parameter became required.',
+      verdicts: [
+        {
+          ruleId: 'parameter-became-required',
+          compat: 'breaking',
+          message: 'Parameter became required.',
+        },
+      ],
     },
     {
       pointer: '#/paths/~1pets/get/requestBody/content/application~1json',
@@ -41,8 +46,9 @@ const RESULT: DiffResult = {
         value: '#/components/schemas/B',
       },
       compat: 'breaking',
-      ruleIds: ['ref-target-changed'],
-      message: 'Reference target changed.',
+      verdicts: [
+        { ruleId: 'ref-target-changed', compat: 'breaking', message: 'Reference target changed.' },
+      ],
     },
   ],
 };

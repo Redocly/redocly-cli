@@ -22,9 +22,11 @@ export function stylishDiff(result: DiffResult): string {
   );
 
   for (const change of sorted) {
-    const rule = change.ruleIds?.length ? gray(` (${change.ruleIds.join(', ')})`) : '';
-    const message = change.message ? gray(` — ${change.message}`) : '';
-    lines.push(`${ICONS[change.compat]}  ${bold(change.kind)}  ${label(change)}${message}${rule}`);
+    const verdicts = change.verdicts ?? [];
+    const messages = verdicts.length
+      ? gray(` — ${verdicts.map((v) => `${v.message} (${v.ruleId})`).join(' ')}`)
+      : '';
+    lines.push(`${ICONS[change.compat]}  ${bold(change.kind)}  ${label(change)}${messages}`);
   }
 
   const { breaking, nonBreaking } = result.summary;

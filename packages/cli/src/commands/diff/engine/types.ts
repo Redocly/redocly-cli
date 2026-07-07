@@ -26,13 +26,12 @@ export interface Change {
   typeName: string;
   base?: ChangeSide; // absent for added
   revision?: ChangeSide; // absent for removed
-  compat: Compat;
-  ruleIds?: string[]; // all rules that produced a verdict (worst wins)
-  message?: string; // message of the most severe verdict
+  compat: Compat; // worst verdict's level; 'non-breaking' when no rule fired
+  verdicts?: ChangeVerdict[]; // every rule verdict, worst-first
 }
 
 // What compare() emits — classification fields are filled later by classify().
-export type RawChange = Omit<Change, 'compat' | 'ruleIds' | 'message'>;
+export type RawChange = Omit<Change, 'compat' | 'verdicts'>;
 
 export interface DiffSummary {
   breaking: number;
@@ -49,6 +48,10 @@ export interface DiffResult {
 export interface Verdict {
   compat: Compat;
   message: string;
+}
+
+export interface ChangeVerdict extends Verdict {
+  ruleId: string;
 }
 
 export type Polarity = 'request' | 'response' | 'both' | 'neutral';
