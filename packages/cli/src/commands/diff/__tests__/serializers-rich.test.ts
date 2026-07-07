@@ -5,7 +5,7 @@ import { markdownDiff } from '../serializers/markdown.js';
 const RESULT: DiffResult = {
   version: '1',
   specVersions: { base: 'oas3_1', revision: 'oas3_1' },
-  summary: { breaking: 1, warning: 0, nonBreaking: 0 },
+  summary: { breaking: 1, nonBreaking: 0 },
   changes: [
     {
       pointer: '#/paths/~1pets/get',

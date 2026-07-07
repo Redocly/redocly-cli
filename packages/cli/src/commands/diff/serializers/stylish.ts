@@ -1,12 +1,11 @@
-import { bold, gray, green, red, yellow } from 'colorette';
+import { bold, gray, green, red } from 'colorette';
 
 import type { Change, Compat, DiffResult } from '../engine/types.js';
 
-const SEVERITY_ORDER: Compat[] = ['breaking', 'warning', 'non-breaking'];
+const SEVERITY_ORDER: Compat[] = ['breaking', 'non-breaking'];
 
 const ICONS: Record<Compat, string> = {
   breaking: red('✖ breaking    '),
-  warning: yellow('⚠ warning     '),
   'non-breaking': green('✔ non-breaking'),
 };
 
@@ -28,12 +27,7 @@ export function stylishDiff(result: DiffResult): string {
     lines.push(`${ICONS[change.compat]}  ${bold(change.kind)}  ${label(change)}${message}${rule}`);
   }
 
-  const { breaking, warning, nonBreaking } = result.summary;
-  lines.push(
-    '',
-    `${red(`${breaking} breaking`)}, ${yellow(`${warning} warning`)}, ${green(
-      `${nonBreaking} non-breaking`
-    )}.`
-  );
+  const { breaking, nonBreaking } = result.summary;
+  lines.push('', `${red(`${breaking} breaking`)}, ${green(`${nonBreaking} non-breaking`)}.`);
   return lines.join('\n');
 }
