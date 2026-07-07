@@ -6,7 +6,7 @@ import { stylishDiff } from '../serializers/stylish.js';
 const RESULT: DiffResult = {
   version: '1',
   specVersions: { base: 'oas3_1', revision: 'oas3_1' },
-  summary: { breaking: 3, nonBreaking: 1 },
+  summary: { breaking: 3, nonBreaking: 2 },
   changes: [
     {
       pointer: '#/paths/~1pets/get/parameters/{query:limit}',
@@ -89,6 +89,27 @@ const RESULT: DiffResult = {
       },
       compat: 'non-breaking',
     },
+    {
+      pointer: '#/paths/~1pet~1{id}',
+      property: 'path',
+      kind: 'changed',
+      typeName: 'PathItem',
+      base: {
+        pointer: '#/paths/~1pet~1{id}',
+        file: '/abs/base.yaml',
+        line: 4,
+        col: 3,
+        value: '/pet/{id}',
+      },
+      revision: {
+        pointer: '#/paths/~1pet~1{petId}',
+        file: '/abs/rev.yaml',
+        line: 4,
+        col: 3,
+        value: '/pet/{petId}',
+      },
+      compat: 'non-breaking',
+    },
   ],
 };
 
@@ -107,7 +128,14 @@ describe('stylishDiff', () => {
     // removed changes point at the base file, others at the revision file:
     expect(output).toMatch(/at .*base\.yaml:30:3/);
     expect(output).toContain('parameters/{query:limit} · required');
-    expect(output).toContain('3 breaking, 1 non-breaking.');
+    expect(output).toContain('3 breaking, 2 non-breaking.');
+
+    // synthetic path-rename change: grouped under the revision's real path,
+    // no method segment, and no leaked JSON-pointer escapes in the label.
+    expect(output).toContain('/pet/{petId}');
+    expect(output).not.toContain('~1');
+    expect(output).not.toContain('~0');
+    expect(output).toMatch(/at .*rev\.yaml:4:3/);
   });
 });
 
