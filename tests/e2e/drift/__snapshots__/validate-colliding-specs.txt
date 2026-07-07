@@ -1,0 +1,14 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/colliding-apis
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-matched.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=2 documented=2 undocumented=0
+┃ Findings: total=0 error=0 warning=0 info=0
+┃ Problems: total=0
+┗ Duration: <ms>ms
+
+✔ No findings.
+
+"GET /users/{userId}" is documented for the same server in multiple descriptions (./tests/e2e/drift/fixtures/colliding-apis/legacy.yaml, ./tests/e2e/drift/fixtures/colliding-apis/main.yaml). Matching traffic is validated against only one of them.
