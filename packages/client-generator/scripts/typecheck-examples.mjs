@@ -19,6 +19,7 @@ const examples = [
   'programmatic',
   'mock',
   'custom-generator',
+  'nested-facade',
   'package-runtime',
   'zero-install-quickstart',
   'configure-and-middleware',

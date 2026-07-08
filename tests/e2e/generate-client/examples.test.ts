@@ -26,6 +26,7 @@ const EXAMPLES = [
   'vendored-edge',
   'pagination',
   'custom-pagination',
+  'nested-facade',
 ];
 
 /**

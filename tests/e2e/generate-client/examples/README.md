@@ -6,23 +6,24 @@ generator in CI** (`tests/e2e/generate-client/examples.test.ts`). Most are Vite 
 generated via the `redocly generate-client` CLI (a `redocly.yaml`); `programmatic` _generates_ one with
 the `generateClient(...)` API.
 
-| Example                                                | How it's generated            | Shows                                                                                                                                     |
-| ------------------------------------------------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [fetch-functions](./fetch-functions)                   | CLI · `sdk`, functions        | free functions + `ApiError`                                                                                                               |
-| [customization](./customization)                       | CLI · `sdk`, functions        | request/response middleware, `ctx.operation` targeting, body mutation, custom transport                                                   |
-| [baked-setup](./baked-setup)                           | CLI · `sdk`, functions        | publisher defaults baked into the client via `--setup` (`defineClientSetup`)                                                              |
-| [zod](./zod)                                           | CLI · `sdk`, `zod`            | validating responses with generated zod schemas                                                                                           |
-| [tanstack-query](./tanstack-query)                     | CLI · `sdk`, `tanstack-query` | React `useQuery(<op>Options())`                                                                                                           |
-| [mock](./mock)                                         | CLI · `sdk`, `mock`           | MSW handlers from generated `handlers`                                                                                                    |
-| [programmatic](./programmatic)                         | `generateClient(...)` API     | generating the client from a Node script                                                                                                  |
-| [package-runtime](./package-runtime)                   | CLI · `sdk`, package runtime  | `runtime: package` — types + descriptors only; the versioned runtime is imported from `@redocly/client-generator`, fixes via `npm update` |
-| [zero-install-quickstart](./zero-install-quickstart)   | CLI · `sdk`                   | the first-touch loop: generate → import → call; one self-contained file, zero runtime dependencies                                        |
-| [configure-and-middleware](./configure-and-middleware) | CLI · `sdk`                   | `configure({ serverUrl, retry })`, `use()` targeting `ctx.operation.id` (literal union), auth setter, typed `ApiError.body`               |
-| [multi-instance](./multi-instance)                     | CLI · `sdk`, package runtime  | per-tenant instances via `createClient(OPERATIONS)` — works in both runtimes; this example uses `runtime: package`                        |
-| [sse-streaming](./sse-streaming)                       | CLI · `sdk`                   | typed `for await` over SSE, auto-reconnect via `Last-Event-ID` (`reconnectDelay`/`reconnect: false`), clean abort                         |
-| [vendored-edge](./vendored-edge)                       | CLI · `sdk`                   | the generated file copied into a no-npm edge worker (`export default { fetch }`); `typescript` is the only dev tool                       |
-| [pagination](./pagination)                             | CLI · `sdk`                   | auto-pagination from a `client.pagination` convention: `for await` over `.items()`/`.pages()` next to the unchanged one-shot call         |
-| [custom-pagination](./custom-pagination)               | CLI · `sdk`                   | hand-written paging over the typed client for shapes the built-in styles don't cover (body cursors)                                       |
+| Example                                                | How it's generated             | Shows                                                                                                                                     |
+| ------------------------------------------------------ | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [fetch-functions](./fetch-functions)                   | CLI · `sdk`, functions         | free functions + `ApiError`                                                                                                               |
+| [customization](./customization)                       | CLI · `sdk`, functions         | request/response middleware, `ctx.operation` targeting, body mutation, custom transport                                                   |
+| [baked-setup](./baked-setup)                           | CLI · `sdk`, functions         | publisher defaults baked into the client via `--setup` (`defineClientSetup`)                                                              |
+| [zod](./zod)                                           | CLI · `sdk`, `zod`             | validating responses with generated zod schemas                                                                                           |
+| [tanstack-query](./tanstack-query)                     | CLI · `sdk`, `tanstack-query`  | React `useQuery(<op>Options())`                                                                                                           |
+| [mock](./mock)                                         | CLI · `sdk`, `mock`            | MSW handlers from generated `handlers`                                                                                                    |
+| [programmatic](./programmatic)                         | `generateClient(...)` API      | generating the client from a Node script                                                                                                  |
+| [package-runtime](./package-runtime)                   | CLI · `sdk`, package runtime   | `runtime: package` — types + descriptors only; the versioned runtime is imported from `@redocly/client-generator`, fixes via `npm update` |
+| [zero-install-quickstart](./zero-install-quickstart)   | CLI · `sdk`                    | the first-touch loop: generate → import → call; one self-contained file, zero runtime dependencies                                        |
+| [configure-and-middleware](./configure-and-middleware) | CLI · `sdk`                    | `configure({ serverUrl, retry })`, `use()` targeting `ctx.operation.id` (literal union), auth setter, typed `ApiError.body`               |
+| [multi-instance](./multi-instance)                     | CLI · `sdk`, package runtime   | per-tenant instances via `createClient(OPERATIONS)` — works in both runtimes; this example uses `runtime: package`                        |
+| [sse-streaming](./sse-streaming)                       | CLI · `sdk`                    | typed `for await` over SSE, auto-reconnect via `Last-Event-ID` (`reconnectDelay`/`reconnect: false`), clean abort                         |
+| [vendored-edge](./vendored-edge)                       | CLI · `sdk`                    | the generated file copied into a no-npm edge worker (`export default { fetch }`); `typescript` is the only dev tool                       |
+| [pagination](./pagination)                             | CLI · `sdk`                    | auto-pagination from a `client.pagination` convention: `for await` over `.items()`/`.pages()` next to the unchanged one-shot call         |
+| [custom-pagination](./custom-pagination)               | CLI · `sdk`                    | hand-written paging over the typed client for shapes the built-in styles don't cover (body cursors)                                       |
+| [nested-facade](./nested-facade)                       | CLI · `sdk` + custom generator | `api.<resource>.<operation>` facade derived from the spec's tags by a plugin — regenerates with the spec                                  |
 
 ## Run one
 

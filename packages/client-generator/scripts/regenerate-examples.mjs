@@ -17,6 +17,7 @@ const examples = [
   'zod',
   'mock',
   'custom-generator',
+  'nested-facade',
   'tanstack-query',
   'programmatic',
   'package-runtime',
