@@ -3,6 +3,9 @@
 Hi! We're really excited that you are interested in contributing to Redocly CLI.
 Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
+If you're contributing with an AI assistant, make sure it follows the guidelines in [`AGENTS.md`](./AGENTS.md).
+Most tools pick it up automatically; if yours doesn't, point it at the file.
+
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
 - [Development setup](#development-setup)
@@ -24,7 +27,7 @@ Before submitting your contribution though, please make sure to take a moment an
   Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
 
 - The best way to get your bug fixed is to provide a (reduced) test case.
-  This means listing and explaining the steps we should take to try and hit the same problem you're having.
+  List and explain the steps we should take to try and hit the same problem you're having.
   It helps us understand in which conditions the issue appears, and gives us a better idea of what may be causing it.
 
 - Abide by our [Code of Conduct](https://redocly.com/code-of-conduct/) in all your interactions on this repository, and show patience and respect to other community members.
@@ -66,11 +69,11 @@ npm install # or npm i
 To compile the code, run `npm run compile`.
 
 To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
-Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
+Notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
 Format your code with `npm run format` before committing.
 
-Please check the [Tests section](#tests) for the test commands reference.
+Check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
@@ -86,12 +89,12 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
    import { logger } from '@redocly/openapi-core';
    ```
 
-2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
+1. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
    - `logger.info()` for general information
    - `logger.warn()` for warnings
    - `logger.error()` for errors
 
-3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools).
+1. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools).
    This includes:
    - command output that needs to be parsed
    - interactive outputs (like login/logout responses)
@@ -101,7 +104,7 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
    logger.output(JSON.stringify(stats, null, 2));
    ```
 
-4. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls.
+1. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls.
    Always use the logger methods to ensure consistent output formatting and proper stream usage.
 
 ## Local source code usage
@@ -135,11 +138,11 @@ To preview your documentation changes locally:
 1. Make sure `redocly` is already installed on your local computer.
    See [installation](https://redocly.com/docs/cli/installation/).
 
-2. Run this command from the `docs/` folder:
+1. Run this command from the `docs/` folder:
 
-```bash
-redocly preview
-```
+   ```bash
+   redocly preview
+   ```
 
 By default, you can access the docs preview at http://localhost:4000 or http://127.0.0.1:4000.
 
@@ -197,8 +200,8 @@ Separately, open a pull request with the corresponding documentation changes.
 To make changes to documentation:
 
 1. Create a new page for the rule in the `docs/@v2` folder.
-2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
-3. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
+1. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
+1. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
 ## Update Redoc
 
@@ -255,10 +258,10 @@ Run unit tests with this command: `npm run unit`.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
-To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
-To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
-To update snapshots, run `npm run unit -- -u`.
-To skip coverage, run it with `--coverage=false`.
+- To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
+- To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
+- To update snapshots, run `npm run unit -- -u`.
+- To skip coverage, run the command with `--coverage=false`.
 
 ### E2E tests
 
@@ -335,7 +338,7 @@ What should be verified when changes are applied to the `respect-core` package:
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
 - **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
-  - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](./README.md).
+  - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
@@ -365,16 +368,18 @@ Merging that PR triggers the release process.
 
 There's no possibility to revert a release itself.
 However, you can release a new version with a problematic commit reverted.
-Create a new branch from **main**, then find the hash of the commit you want to revert and run `git revert <commit-hash>`.
-Create a patch-level changeset for the revert and open a PR with it.
-Merge the PR and cut a release according to the [Release flow](#release-flow).
+
+1. Create a new branch from **main**.
+1. Find the hash of the commit you want to revert and run `git revert <commit-hash>`.
+1. Create a patch-level changeset for the revert and open a PR with it.
+1. Merge the PR and cut a release according to the [Release flow](#release-flow).
 
 ### Snapshot release
 
 To release an experimental version to the **NPM** registry, follow these steps:
 
 1. Create a new PR to **main**.
-2. Add the `snapshot` label to the PR.
+1. Add the `snapshot` label to the PR.
    This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
 The released version can be installed with `npm install @redocly/cli@snapshot`.
