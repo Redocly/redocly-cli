@@ -14,6 +14,14 @@ channels:
         http:
           type: request
           method: POST
+      security:
+        - petstore_auth:
+            - subscribe:auth_revocations
+components:
+  messages:
+    message:
+      bindings:
+        http:
           headers:
             type: object
             properties:
@@ -21,12 +29,6 @@ channels:
                 type: string
                 enum:
                   - application/json
-      security:
-        - petstore_auth:
-            - subscribe:auth_revocations
-components:
-  messages:
-    message:
       headers:
         type: object
         properties:

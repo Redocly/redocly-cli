@@ -655,3 +655,175 @@ describe('Oas3.1 struct', () => {
     `);
   });
 });
+
+describe('AsyncAPI bindings struct', () => {
+  it('should not report on valid bindings', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      asyncapi: 3.0.0
+      info:
+        title: Test
+        version: 1.0.0
+      channels:
+        events:
+          address: events
+          bindings:
+            sns:
+              name: events
+              ordering:
+                type: FIFO
+            sqs:
+              queue:
+                name: events-queue
+                fifoQueue: true
+            pulsar:
+              namespace: staging
+              persistence: persistent
+          messages:
+            Event:
+              payload:
+                type: object
+              bindings:
+                googlepubsub:
+                  schema:
+                    name: projects/example/schemas/event
+      operations:
+        receiveEvent:
+          action: receive
+          channel:
+            $ref: '#/channels/events'
+          bindings:
+            ros2:
+              role: subscriber
+        `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report on invalid binding contents', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      asyncapi: 3.1.0
+      info:
+        title: Test
+        version: 1.0.0
+      channels:
+        events:
+          bindings:
+            sns:
+              name: events
+              ordering:
+                type: fifo
+            sqs:
+              queue:
+                fifoQueue: true
+            pulsar:
+              namespace: staging
+              persistence: sometimes
+            ros2:
+              qos: 10
+        `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/channels/events/bindings/sns/ordering/type",
+              "reportOnKey": false,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: "standard", "FIFO".",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/channels/events/bindings/sqs/queue",
+              "reportOnKey": true,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "The field \`name\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/channels/events/bindings/pulsar/persistence",
+              "reportOnKey": false,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "\`persistence\` can be one of the following only: "persistent", "non-persistent".",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/channels/events/bindings/ros2/qos",
+              "reportOnKey": true,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "Property \`qos\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on unknown binding protocols', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      asyncapi: 3.0.0
+      info:
+        title: Test
+        version: 1.0.0
+      channels:
+        events:
+          bindings:
+            fancyProtocol:
+              anything: goes
+        `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+});

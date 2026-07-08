@@ -52,8 +52,9 @@ channels:
         amqp:
           ack: true
       message:
-        bindings:
-          amqp:
+        headers:
+          type: object
+          properties:
             replyTo:
               type: string
         correlationId:

@@ -49,8 +49,9 @@ channels:
     publish:
       operationId: sum
       message:
-        bindings:
-          amqp:
+        headers:
+          type: object
+          properties:
             replyTo:
               type: string
         correlationId:

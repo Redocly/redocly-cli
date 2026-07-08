@@ -1,6 +1,6 @@
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { AsyncApiBindings, Ros2Bindings } from './asyncapi-bindings.js';
 import {
-  AsyncApi2Bindings,
   CorrelationId,
   Tag,
   ServerMap,
@@ -519,36 +519,40 @@ const SecurityScheme: NodeType = {
 };
 
 const ServerBindings: NodeType = {
-  ...AsyncApi2Bindings.ServerBindings,
-  allowed(value) {
-    return [...(AsyncApi2Bindings.ServerBindings.allowed?.(value) ?? []), 'ros2'];
+  ...AsyncApiBindings.ServerBindings,
+  properties: {
+    ...AsyncApiBindings.ServerBindings.properties,
+    ros2: 'Ros2ServerBinding',
   },
 };
 
 const ChannelBindings: NodeType = {
-  ...AsyncApi2Bindings.ChannelBindings,
-  allowed(value) {
-    return [...(AsyncApi2Bindings.ChannelBindings.allowed?.(value) ?? []), 'ros2'];
+  ...AsyncApiBindings.ChannelBindings,
+  properties: {
+    ...AsyncApiBindings.ChannelBindings.properties,
+    ros2: 'Ros2ChannelBinding',
   },
 };
 
 const OperationBindings: NodeType = {
-  ...AsyncApi2Bindings.OperationBindings,
-  allowed(value) {
-    return [...(AsyncApi2Bindings.OperationBindings.allowed?.(value) ?? []), 'ros2'];
+  ...AsyncApiBindings.OperationBindings,
+  properties: {
+    ...AsyncApiBindings.OperationBindings.properties,
+    ros2: 'Ros2OperationBinding',
   },
 };
 
 const MessageBindings: NodeType = {
-  ...AsyncApi2Bindings.MessageBindings,
-  allowed(value) {
-    return [...(AsyncApi2Bindings.MessageBindings.allowed?.(value) ?? []), 'ros2'];
+  ...AsyncApiBindings.MessageBindings,
+  properties: {
+    ...AsyncApiBindings.MessageBindings.properties,
+    ros2: 'Ros2MessageBinding',
   },
 };
 
 export const AsyncApi3Types: Record<string, NodeType> = {
-  // from asyncapi2
-  ...AsyncApi2Bindings,
+  ...AsyncApiBindings,
+  ...Ros2Bindings,
   ServerBindings,
   ChannelBindings,
   OperationBindings,
