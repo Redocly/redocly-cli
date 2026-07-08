@@ -5,163 +5,47 @@
  * Cafe Orders Pagination API (v1.0.0)
  */
 
-import {
-  createClient,
-  type OperationDescriptor,
-  type RequestOptions,
-} from '@redocly/client-generator';
+import { createClient, type OperationDescriptor, type RequestOptions } from '@redocly/client-generator';
 
 export type Order = {
-  id: string;
-  status: string;
+    id: string;
+    status: string;
 };
 
 export type MenuItem = {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 };
 
 export type ListOrdersResult = {
-  orders: Order[];
-  /**
-   * Cursor of the next page; absent on the last page.
-   */
-  nextCursor?: string;
+    orders: Order[];
+    /**
+     * Cursor of the next page; absent on the last page.
+     */
+    nextCursor?: string;
 };
 
 export type ListOrdersParams = {
-  /**
-   * Opaque cursor of the page to fetch; omit for the first page.
-   */
-  cursor?: string;
-  /**
-   * Page size.
-   */
-  limit?: number;
+    /**
+     * Opaque cursor of the page to fetch; omit for the first page.
+     */
+    cursor?: string;
+    /**
+     * Page size.
+     */
+    limit?: number;
 };
 
 export type ListOrdersVariables = {
-  params?: ListOrdersParams;
+    params?: ListOrdersParams;
 };
 
 export type ListMenuItemsResult = {
-  items: MenuItem[];
-  total: number;
+    items: MenuItem[];
+    total: number;
 };
 
 export type ListMenuItemsParams = {
-  /**
-   * Index of the first item to return.
-   */
-  offset?: number;
-  /**
-   * Page size.
-   */
-  limit?: number;
-};
-
-export type ListMenuItemsVariables = {
-  params?: ListMenuItemsParams;
-};
-
-export type GetOrderResult = Order;
-
-export type GetOrderVariables = {
-  orderId: string;
-};
-
-/**
- * Per-operation `args`/`result` shapes (plus `kind: 'sse'` for event streams) — the
- * type-level companion of `OPERATIONS` that gives `createClient<Ops>` its typed methods.
- */
-export type Ops = {
-  listOrders: {
-    args: {
-      params?: ListOrdersParams;
-    };
-    result: ListOrdersResult;
-    item: Order;
-  };
-  listMenuItems: {
-    args: {
-      params?: ListMenuItemsParams;
-    };
-    result: ListMenuItemsResult;
-  };
-  getOrder: {
-    args: {
-      orderId: string;
-    };
-    result: GetOrderResult;
-  };
-};
-
-/**
- * The wire-shape descriptor for every operation, keyed by operationId — the data the
- * runtime routes requests by. Also minification-safe static metadata (method, path,
- * tags) for cache keys, tracing span names, and request logging.
- */
-export const OPERATIONS = {
-  listOrders: {
-    id: 'listOrders',
-    method: 'GET',
-    path: '/orders',
-    params: [
-      { name: 'cursor', in: 'query' },
-      { name: 'limit', in: 'query' },
-    ],
-    pagination: {
-      style: 'cursor',
-      param: 'cursor',
-      limitParam: 'limit',
-      nextCursor: '/nextCursor',
-      items: '/orders',
-    },
-  },
-  listMenuItems: {
-    id: 'listMenuItems',
-    method: 'GET',
-    path: '/menu',
-    params: [
-      { name: 'offset', in: 'query' },
-      { name: 'limit', in: 'query' },
-    ],
-  },
-  getOrder: {
-    id: 'getOrder',
-    method: 'GET',
-    path: '/orders/{orderId}',
-    params: [{ name: 'orderId', in: 'path' }],
-  },
-} as const satisfies Record<string, OperationDescriptor>;
-
-export type OperationId = keyof typeof OPERATIONS;
-
-export type OperationPath = (typeof OPERATIONS)[OperationId]['path'];
-
-export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, {
-  serverUrl: 'http://localhost:3131',
-});
-
-export const { configure, use } = client;
-export const listOrders = Object.assign(
-  (
-    params: {
-      /**
-       * Opaque cursor of the page to fetch; omit for the first page.
-       */
-      cursor?: string;
-      /**
-       * Page size.
-       */
-      limit?: number;
-    } = {},
-    init: RequestOptions = {}
-  ) => client.listOrders({ params }, init),
-  { pages: client.listOrders.pages, items: client.listOrders.items }
-);
-export const listMenuItems = (
-  params: {
     /**
      * Index of the first item to return.
      */
@@ -170,11 +54,83 @@ export const listMenuItems = (
      * Page size.
      */
     limit?: number;
-  } = {},
-  init: RequestOptions = {}
-) => client.listMenuItems({ params }, init);
-export const getOrder = (orderId: string, init: RequestOptions = {}) =>
-  client.getOrder({ orderId }, init);
+};
+
+export type ListMenuItemsVariables = {
+    params?: ListMenuItemsParams;
+};
+
+export type GetOrderResult = Order;
+
+export type GetOrderVariables = {
+    orderId: string;
+};
+
+/**
+ * Per-operation `args`/`result` shapes (plus `kind: 'sse'` for event streams) — the
+ * type-level companion of `OPERATIONS` that gives `createClient<Ops>` its typed methods.
+ */
+export type Ops = {
+    listOrders: {
+        args: {
+            params?: ListOrdersParams;
+        };
+        result: ListOrdersResult;
+        item: Order;
+    };
+    listMenuItems: {
+        args: {
+            params?: ListMenuItemsParams;
+        };
+        result: ListMenuItemsResult;
+    };
+    getOrder: {
+        args: {
+            orderId: string;
+        };
+        result: GetOrderResult;
+    };
+};
+
+/**
+ * The wire-shape descriptor for every operation, keyed by operationId — the data the
+ * runtime routes requests by. Also minification-safe static metadata (method, path,
+ * tags) for cache keys, tracing span names, and request logging.
+ */
+export const OPERATIONS = {
+    listOrders: { id: "listOrders", method: "GET", path: "/orders", params: [{ name: "cursor", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" } },
+    listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }] },
+    getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }
+} as const satisfies Record<string, OperationDescriptor>;
+
+export type OperationId = keyof typeof OPERATIONS;
+
+export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+
+export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3131" });
+
+export const { configure, use } = client;
+export const listOrders = Object.assign((params: {
+    /**
+     * Opaque cursor of the page to fetch; omit for the first page.
+     */
+    cursor?: string;
+    /**
+     * Page size.
+     */
+    limit?: number;
+} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: client.listOrders.pages, items: client.listOrders.items });
+export const listMenuItems = (params: {
+    /**
+     * Index of the first item to return.
+     */
+    offset?: number;
+    /**
+     * Page size.
+     */
+    limit?: number;
+} = {}, init: RequestOptions = {}) => client.listMenuItems({ params }, init);
+export const getOrder = (orderId: string, init: RequestOptions = {}) => client.getOrder({ orderId }, init);
 
 export { ApiError, createClient } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions } from '@redocly/client-generator';

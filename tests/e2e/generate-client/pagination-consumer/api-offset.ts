@@ -6,62 +6,62 @@
  */
 
 export type Order = {
-  id: string;
-  status: string;
+    id: string;
+    status: string;
 };
 
 export type MenuItem = {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 };
 
 export type ListOrdersResult = {
-  orders: Order[];
-  /**
-   * Cursor of the next page; absent on the last page.
-   */
-  nextCursor?: string;
+    orders: Order[];
+    /**
+     * Cursor of the next page; absent on the last page.
+     */
+    nextCursor?: string;
 };
 
 export type ListOrdersParams = {
-  /**
-   * Opaque cursor of the page to fetch; omit for the first page.
-   */
-  cursor?: string;
-  /**
-   * Page size.
-   */
-  limit?: number;
+    /**
+     * Opaque cursor of the page to fetch; omit for the first page.
+     */
+    cursor?: string;
+    /**
+     * Page size.
+     */
+    limit?: number;
 };
 
 export type ListOrdersVariables = {
-  params?: ListOrdersParams;
+    params?: ListOrdersParams;
 };
 
 export type ListMenuItemsResult = {
-  items: MenuItem[];
-  total: number;
+    items: MenuItem[];
+    total: number;
 };
 
 export type ListMenuItemsParams = {
-  /**
-   * Index of the first item to return.
-   */
-  offset?: number;
-  /**
-   * Page size.
-   */
-  limit?: number;
+    /**
+     * Index of the first item to return.
+     */
+    offset?: number;
+    /**
+     * Page size.
+     */
+    limit?: number;
 };
 
 export type ListMenuItemsVariables = {
-  params?: ListMenuItemsParams;
+    params?: ListMenuItemsParams;
 };
 
 export type GetOrderResult = Order;
 
 export type GetOrderVariables = {
-  orderId: string;
+    orderId: string;
 };
 
 /**
@@ -69,26 +69,26 @@ export type GetOrderVariables = {
  * type-level companion of `OPERATIONS` that gives `createClient<Ops>` its typed methods.
  */
 export type Ops = {
-  listOrders: {
-    args: {
-      params?: ListOrdersParams;
+    listOrders: {
+        args: {
+            params?: ListOrdersParams;
+        };
+        result: ListOrdersResult;
+        item: Order;
     };
-    result: ListOrdersResult;
-    item: Order;
-  };
-  listMenuItems: {
-    args: {
-      params?: ListMenuItemsParams;
+    listMenuItems: {
+        args: {
+            params?: ListMenuItemsParams;
+        };
+        result: ListMenuItemsResult;
+        item: MenuItem;
     };
-    result: ListMenuItemsResult;
-    item: MenuItem;
-  };
-  getOrder: {
-    args: {
-      orderId: string;
+    getOrder: {
+        args: {
+            orderId: string;
+        };
+        result: GetOrderResult;
     };
-    result: GetOrderResult;
-  };
 };
 
 /**
@@ -97,43 +97,14 @@ export type Ops = {
  * tags) for cache keys, tracing span names, and request logging.
  */
 export const OPERATIONS = {
-  listOrders: {
-    id: 'listOrders',
-    method: 'GET',
-    path: '/orders',
-    params: [
-      { name: 'cursor', in: 'query' },
-      { name: 'limit', in: 'query' },
-    ],
-    pagination: {
-      style: 'cursor',
-      param: 'cursor',
-      limitParam: 'limit',
-      nextCursor: '/nextCursor',
-      items: '/orders',
-    },
-  },
-  listMenuItems: {
-    id: 'listMenuItems',
-    method: 'GET',
-    path: '/menu',
-    params: [
-      { name: 'offset', in: 'query' },
-      { name: 'limit', in: 'query' },
-    ],
-    pagination: { style: 'offset', param: 'offset', limitParam: 'limit', items: '/items' },
-  },
-  getOrder: {
-    id: 'getOrder',
-    method: 'GET',
-    path: '/orders/{orderId}',
-    params: [{ name: 'orderId', in: 'path' }],
-  },
+    listOrders: { id: "listOrders", method: "GET", path: "/orders", params: [{ name: "cursor", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" } },
+    listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "offset", param: "offset", limitParam: "limit", items: "/items" } },
+    getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }
 } as const satisfies Record<string, OperationDescriptor>;
 
 export type OperationId = keyof typeof OPERATIONS;
 
-export type OperationPath = (typeof OPERATIONS)[OperationId]['path'];
+export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
 
 // ─── Embedded runtime (@redocly/client-generator, assembled per this API's needs) ───
 
@@ -1136,42 +1107,27 @@ export function createClient<
   return createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items } });
 }
 
-export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, {
-  serverUrl: 'http://localhost:3131',
-});
+export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3131" });
 
 export const { configure, use } = client;
-export const listOrders = Object.assign(
-  (
-    params: {
-      /**
-       * Opaque cursor of the page to fetch; omit for the first page.
-       */
-      cursor?: string;
-      /**
-       * Page size.
-       */
-      limit?: number;
-    } = {},
-    init: RequestOptions = {}
-  ) => client.listOrders({ params }, init),
-  { pages: client.listOrders.pages, items: client.listOrders.items }
-);
-export const listMenuItems = Object.assign(
-  (
-    params: {
-      /**
-       * Index of the first item to return.
-       */
-      offset?: number;
-      /**
-       * Page size.
-       */
-      limit?: number;
-    } = {},
-    init: RequestOptions = {}
-  ) => client.listMenuItems({ params }, init),
-  { pages: client.listMenuItems.pages, items: client.listMenuItems.items }
-);
-export const getOrder = (orderId: string, init: RequestOptions = {}) =>
-  client.getOrder({ orderId }, init);
+export const listOrders = Object.assign((params: {
+    /**
+     * Opaque cursor of the page to fetch; omit for the first page.
+     */
+    cursor?: string;
+    /**
+     * Page size.
+     */
+    limit?: number;
+} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: client.listOrders.pages, items: client.listOrders.items });
+export const listMenuItems = Object.assign((params: {
+    /**
+     * Index of the first item to return.
+     */
+    offset?: number;
+    /**
+     * Page size.
+     */
+    limit?: number;
+} = {}, init: RequestOptions = {}) => client.listMenuItems({ params }, init), { pages: client.listMenuItems.pages, items: client.listMenuItems.items });
+export const getOrder = (orderId: string, init: RequestOptions = {}) => client.getOrder({ orderId }, init);
