@@ -28,6 +28,7 @@ const HttpOperationBinding: NodeType = {
       enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT', 'TRACE'],
     },
     query: 'Schema',
+    headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an HTTP operation.',
@@ -542,9 +543,9 @@ const SqsRedrivePolicy: NodeType = {
 const SqsStatement: NodeType = {
   properties: {
     effect: { type: 'string', enum: ['Allow', 'Deny'] },
-    principal: {}, // string, or an object keyed by AWS or Service — not deep-linted
-    action: {}, // string or array of strings — not deep-linted
-    resource: {}, // string or array of strings — not deep-linted
+    principal: {},
+    action: {},
+    resource: {},
     condition: { type: 'object' },
   },
   required: ['effect', 'principal', 'action'],
@@ -743,7 +744,6 @@ const GooglepubsubChannelBinding: NodeType = {
     topic: { type: 'string' }, // only in bindingVersion 0.1.0
     bindingVersion: { type: 'string' },
   },
-  required: ['schemaSettings'],
   description: 'Protocol-specific information for a Google Cloud Pub/Sub channel.',
 };
 
