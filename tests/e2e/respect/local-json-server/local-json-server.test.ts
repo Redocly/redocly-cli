@@ -18,7 +18,21 @@ describe('local-json-server', () => {
 
     // Store original state of fake-bd.json
     originalData = fs.readFileSync(dbPath, 'utf8');
-  });
+
+    // Wait until the server actually accepts connections — spawning is not readiness,
+    // and the workflow run starts immediately after (ECONNREFUSED race otherwise).
+    const deadline = Date.now() + 30_000;
+    for (;;) {
+      try {
+        const response = await fetch('http://localhost:3000/items');
+        if (response.ok) break;
+      } catch {
+        // not listening yet
+      }
+      if (Date.now() > deadline) throw new Error('json-server did not become ready within 30s');
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+  }, 40_000);
 
   afterAll(() => {
     try {
