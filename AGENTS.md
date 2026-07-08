@@ -3,7 +3,7 @@
 AI-assisted contributions are welcome, but the bar is the same as for any other code: a change must be simple, readable, tested, and explainable by the person who opens the pull request.
 This file tells an AI assistant — and its human — how to produce a change that fits Redocly CLI and survives review.
 
-It is the single source of truth for AI tools, read from the repository root — Claude Code loads it through `CLAUDE.md`, and other assistants pick it up directly or through a pointer file.
+It is the single source of truth for AI tools, read from the repository root — directly or through a tool-specific pointer file.
 The detailed operating rules live in [`.claude/rules/`](./.claude/rules), and the sections below link to them for the full depth.
 For full development setup, the complete test command reference, and the release flow, see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
@@ -184,8 +184,6 @@ Before opening a PR, strip the things an assistant tends to add that a human rev
 - Single-letter or abbreviated names (`m`, `p`, `e`).
   Use descriptive names like `pkgRootMatch`, `inputPath`, `error`.
   This applies across every package and script.
-
-Claude Code users can run `/deslop` to do this pass against the current diff.
 
 The full list of practices this repo enforces is in [`.claude/rules/code-quality-standards.md`](./.claude/rules/code-quality-standards.md).
 
