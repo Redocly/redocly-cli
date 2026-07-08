@@ -21,6 +21,90 @@ For full development setup, the complete test command reference, and the release
 
 The principles behind this, ordered by value, are in [`.claude/rules/core-principles.md`](./.claude/rules/core-principles.md).
 
+## Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Compile TypeScript (required before running tests)
+npm run compile
+
+# Type checking only (no emit)
+npm run typecheck
+
+# Run all unit tests
+npm run unit
+
+# Run a single test file
+npm run unit -- packages/core/src/__tests__/some.test.ts
+
+# Run tests matching a name pattern
+npm run unit -- -t 'test name pattern'
+
+# Update snapshots
+npm run unit -- -u
+
+# Run e2e tests
+npm run e2e
+
+# Run the full test suite (compile + typecheck + unit + e2e)
+npm test
+
+# Lint
+npm run lint
+
+# Format
+npm run format
+
+# Run the CLI directly from source
+npm run cli -- lint openapi.yaml
+```
+
+## Architecture
+
+This is a TypeScript monorepo with npm workspaces containing three packages:
+
+### `packages/core` (@redocly/openapi-core)
+
+The heart of the project.
+Handles all OpenAPI/AsyncAPI linting, validation, bundling, and decoration logic.
+This package is also used in external apps such as `language-server` and `vs-code-extension`.
+
+Key directories:
+
+- `src/rules/` — Built-in linting rules, organized by spec type (`oas2/`, `oas3/`, `oas3_1/`, `async2/`, `async3/`, `arazzo/`, `common/`). Each rule is its own file.
+- `src/config/` — Configuration loading and resolution (reads `redocly.yaml`).
+- `src/decorators/` — Built-in decorators for transforming API descriptions.
+- `src/bundle/` — Bundling logic that resolves `$ref` across multiple files.
+- `src/resolve.ts` — Document resolution for multi-file specs (local and remote).
+- `src/types/` — TypeScript type definitions for OAS2, OAS3, AsyncAPI, Arazzo.
+
+### `packages/cli` (@redocly/cli)
+
+User-facing CLI layer built on top of core.
+Uses yargs for argument parsing.
+
+- `src/index.ts` — Main command dispatcher.
+- `src/commands/` — One file per command.
+- Commands use `commandWrapper()` for consistent output, config loading, config linting, and exit codes (0 = success, 1 = execution error, 2 = config error).
+
+### `packages/respect-core` (@redocly/respect-core)
+
+API contract testing framework.
+Validates real API responses against OpenAPI/Arazzo specs.
+
+- `src/run.ts` — Test execution logic.
+- `src/modules/` — Core testing modules, including runtime expression evaluation.
+
+## Build System
+
+`packages/core` and `packages/respect-core` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
+`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
+The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
+
+The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
+
 ## Respect the architecture: Walker, Visitors, Nodes
 
 Linting in `packages/core` rests on three concepts: the **Walker** traverses the parsed API description and resolves `$ref`s, **Visitors** are objects keyed by **Node** type, and the Walker calls each visitor's `enter` / `leave` / `skip` hooks as it reaches a node.
