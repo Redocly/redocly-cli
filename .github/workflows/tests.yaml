@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-unit:
-    runs-on: ubuntu-latest
+    runs-on: e2e-redocly-cli
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -33,11 +33,7 @@ jobs:
         uses: davelosert/vitest-coverage-report-action@d63aa97db4c0319f304f1787689de1ca548365cf # v2.11.1
 
       - name: E2E Tests
-        # Cap parallel test files: several e2e suites each spawn a `tsc --noEmit` gate, a
-        # live server, and multiple `tsx` consumers (~1 GB each). Unbounded on this 4-core
-        # runner they exhaust its memory and the agent is OOM-killed (a "The operation was
-        # canceled" step). Two at a time stays under the ceiling.
-        run: npm run e2e -- --maxWorkers=2
+        run: npm run e2e
 
   code-style-check:
     runs-on: ubuntu-latest
