@@ -1,28 +1,6 @@
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { listOf, type NodeType } from './index.js';
 
-// AsyncAPI protocol bindings are versioned independently of the AsyncAPI specification
-// (https://github.com/asyncapi/bindings) and shared between AsyncAPI 2.x and 3.x documents.
-// Every named type here is referenced BY STRING NAME — never attach a NodeType by object
-// reference: `normalizeTypes` returns unnamed objects as-is and the walker never descends
-// into them (that latent bug hid broken binding validation for years).
-//
-// Most protocols are typed with real fields (http, kafka, amqp, mqtt, sns, sqs, etc.).
-// Some protocols have no schema-defined fields per the official bindings spec and are
-// intentionally reserved-empty (`properties: {}`): amqp1, mqtt5, stomp, redis, mercure, and
-// the schema-less locations of http, ws, nats, and ros2.
-// This catalog is a deliberate shared superset across AsyncAPI 2.x and 3.x: the official
-// per-version JSON Schemas admit slightly different protocol/location combinations (e.g.
-// `pulsar` has no operation/message binding, `mercure`/`mqtt5` are absent from the 3.x
-// machine-readable schemas entirely), but typing a location the official schema omits only
-// means we validate content that schema would otherwise accept unchecked via
-// `additionalProperties` — tolerant-by-design, not a spec violation.
-// The one genuinely version-exclusive protocol is `ros2`, introduced in AsyncAPI 3.1
-// (the official 3.1.0 schema defines fields for server and operation bindings only;
-// its channel and message bindings are deliberately modeled as reserved-empty objects).
-// It is intentionally excluded from this shared catalog and attached only in
-// `asyncapi3.ts` via `Ros2Bindings`, so AsyncAPI 2.x documents never admit it.
-
 const HttpChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an HTTP channel.',
