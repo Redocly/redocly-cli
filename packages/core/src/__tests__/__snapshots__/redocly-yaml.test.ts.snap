@@ -1163,6 +1163,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "ScorecardClassicLevel.graphqlRules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "ScorecardClassicLevel.oas2Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -1666,6 +1674,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.feedback",
       "footer": "rootRedoclyConfigSchema.footer",
       "graphql": "rootRedoclyConfigSchema.graphql",
+      "graphqlRules": "rootRedoclyConfigSchema.graphqlRules",
       "i18n": "rootRedoclyConfigSchema.i18n",
       "idps": [Function],
       "ignore": {
@@ -2625,6 +2634,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "graphql": "rootRedoclyConfigSchema.apis_additionalProperties.graphql",
+      "graphqlRules": "rootRedoclyConfigSchema.apis_additionalProperties.graphqlRules",
       "metadata": {
         "type": "object",
       },
@@ -3351,6 +3361,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.graphqlRules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.apis_additionalProperties.oas2Rules": {
@@ -10224,6 +10242,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.feedback",
       "footer": "rootRedoclyConfigSchema.env_additionalProperties.footer",
       "graphql": "rootRedoclyConfigSchema.env_additionalProperties.graphql",
+      "graphqlRules": "rootRedoclyConfigSchema.env_additionalProperties.graphqlRules",
       "i18n": "rootRedoclyConfigSchema.env_additionalProperties.i18n",
       "idps": [Function],
       "ignore": {
@@ -11177,6 +11196,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "graphql": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql",
+      "graphqlRules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphqlRules",
       "metadata": {
         "type": "object",
       },
@@ -11903,6 +11923,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphqlRules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.oas2Rules": {
@@ -19869,6 +19897,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.graphqlRules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.i18n": {
@@ -33578,6 +33614,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
     },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.graphqlRules": {
+    "additionalProperties": [Function],
+    "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.i18n": {

@@ -1,0 +1,2 @@
+{"request":{"method":"GET","url":"http://api.example.com/tree","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"value\":1,\"children\":[{\"value\":2,\"children\":[]}]}"}}
+{"request":{"method":"GET","url":"http://api.example.com/tree","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"children\":[]}"}}

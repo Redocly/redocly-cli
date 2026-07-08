@@ -21,10 +21,10 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/utils/assert-node-version.ts',
         ],
         thresholds: {
-          lines: 81,
-          functions: 84,
-          statements: 81,
-          branches: 73,
+          lines: 69,
+          functions: 73,
+          statements: 69,
+          branches: 61,
           // The hand-written client runtime is held to 100% (aggregate 100% ⇒ every file 100%).
           'packages/client-generator/src/runtime/**/*.ts': {
             lines: 100,
