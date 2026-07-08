@@ -13,4 +13,33 @@ describe('mergeConfig', () => {
       argsStyle: 'grouped',
     });
   });
+
+  it('layers a partial pagination override onto the shared convention instead of replacing it', () => {
+    const merged = mergeConfig(
+      {
+        pagination: {
+          style: 'cursor',
+          cursorParam: 'cursor',
+          items: '/items',
+          operations: { listA: { style: 'cursor', cursorParam: 'a', items: '/a' } },
+        },
+      },
+      {
+        pagination: {
+          limitParam: 'perPage',
+          operations: { listB: { style: 'offset', offsetParam: 'b', items: '/b' } },
+        },
+      }
+    );
+    expect(merged.pagination).toEqual({
+      style: 'cursor',
+      cursorParam: 'cursor',
+      items: '/items',
+      limitParam: 'perPage',
+      operations: {
+        listA: { style: 'cursor', cursorParam: 'a', items: '/a' },
+        listB: { style: 'offset', offsetParam: 'b', items: '/b' },
+      },
+    });
+  });
 });
