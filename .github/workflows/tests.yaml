@@ -33,7 +33,11 @@ jobs:
         uses: davelosert/vitest-coverage-report-action@d63aa97db4c0319f304f1787689de1ca548365cf # v2.11.1
 
       - name: E2E Tests
-        run: npm run e2e
+        # Cap parallel test files: several e2e suites each spawn a `tsc --noEmit` gate, a
+        # live server, and multiple `tsx` consumers (~1 GB each). Unbounded on this 4-core
+        # runner they exhaust its memory and the agent is OOM-killed (a "The operation was
+        # canceled" step). Two at a time stays under the ceiling.
+        run: npm run e2e -- --maxWorkers=2
 
   code-style-check:
     runs-on: ubuntu-latest
