@@ -1,8 +1,8 @@
 import { assembleInlineRuntime } from '../inline-runtime.js';
 import { ts } from '../ts.js';
 
-const NONE = { multipart: false, auth: false, sse: false, setup: false };
-const ALL = { multipart: true, auth: true, sse: true, setup: true };
+const NONE = { multipart: false, auth: false, sse: false, setup: false, paginate: false };
+const ALL = { multipart: true, auth: true, sse: true, setup: true, paginate: true };
 
 /** Positions of `markers` in `text`; asserts each is present and they appear in order. */
 function expectOrder(text: string, markers: string[]): void {
@@ -56,6 +56,8 @@ describe('assembleInlineRuntime', () => {
       expect(out).not.toContain('resolveToken');
       expect(out).not.toContain('async function* sse');
       expect(out).not.toContain('mergeSetup');
+      expect(out).not.toContain('function resolvePointer');
+      expect(out).not.toContain('async function* pages');
     });
 
     it('contains no import statements or package references', () => {
@@ -89,7 +91,7 @@ describe('assembleInlineRuntime', () => {
     it('wires all capabilities into the factory', () => {
       expect(out).toContain('serializeMultipart: toFormData');
       expect(out).toContain(
-        'createClientCore<Ops, Id, Path, Tag>(operations, config, { serializeMultipart: toFormData, resolveAuth, sse })'
+        'createClientCore<Ops, Id, Path, Tag>(operations, config, { serializeMultipart: toFormData, resolveAuth, sse, paginate: { pages, items } })'
       );
     });
 
@@ -100,6 +102,8 @@ describe('assembleInlineRuntime', () => {
       expect(out).not.toContain('export async function resolveAuth');
       expect(out).toContain('async function* sse');
       expect(out).not.toContain('export async function* sse');
+      expect(out).toContain('async function* pages');
+      expect(out).not.toContain('export async function* pages');
       expect(out).toContain('export function mergeSetup');
     });
 
@@ -109,6 +113,7 @@ describe('assembleInlineRuntime', () => {
         'function toFormData',
         'async function resolveAuth',
         'export function mergeSetup',
+        'function resolvePointer',
         'async function send',
         'async function* sse',
         'function createClientCore',
@@ -157,6 +162,20 @@ describe('assembleInlineRuntime', () => {
       expect(out).not.toContain('toFormData');
       expect(out).not.toContain('resolveToken');
       expect(out).not.toContain('parseSseFrame');
+    });
+
+    it('paginate', () => {
+      const out = assembleInlineRuntime({ ...NONE, paginate: true });
+      expect(out).toContain('function resolvePointer');
+      expect(out).toContain('async function* pages');
+      expect(out).toContain('async function* items');
+      expect(out).toContain(
+        'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items } })'
+      );
+      expect(out).not.toContain('toFormData');
+      expect(out).not.toContain('resolveToken');
+      expect(out).not.toContain('parseSseFrame');
+      expect(out).not.toContain('mergeSetup');
     });
   });
 

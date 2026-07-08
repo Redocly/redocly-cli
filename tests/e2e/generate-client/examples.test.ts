@@ -24,6 +24,8 @@ const EXAMPLES = [
   'multi-instance',
   'sse-streaming',
   'vendored-edge',
+  'pagination',
+  'custom-pagination',
 ];
 
 /**

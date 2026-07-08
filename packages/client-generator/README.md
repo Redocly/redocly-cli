@@ -37,6 +37,7 @@ The rest of this README covers using the package **programmatically**.
   - a minification-safe `OPERATIONS` metadata map
 - **Auth** — Basic / Bearer / apiKey (header, query, cookie) setters from `securitySchemes`, async token providers, and per-instance credentials via `ClientConfig.auth`
 - **Server-Sent Events** — `text/event-stream` operations as typed async iterators with auto-reconnect; payloads typed from OpenAPI 3.2 `itemSchema`
+- **Auto-pagination** — declared via the `pagination` option (a statically verified convention rule + per-operation overrides) or the spec's `x-pagination` extension (`cursor`/`offset`/`page` styles); paginated operations keep their one-shot call and gain `.pages()`/`.items()` async iterators, item types resolved from the response schema at generate time
 - **Generators** (`generators`) — `sdk` (default), `zod`, `tanstack-query` (React/Vue/Svelte/Solid), `swr`, `transformers`, `mock` (MSW handlers + baked or `faker` data), and a [custom-generator plugin API](#custom-generators)
 - **Hardened** — document-derived names coerced to safe unique identifiers, comment text escaped, and a bounded SSE reader
 
@@ -59,7 +60,7 @@ const result = await generateClient({
   dateType: 'string', // 'string' | 'Date' (pair 'Date' with the 'transformers' generator)
   enumStyle: 'const-object', // 'const-object' | 'union'
   generators: ['sdk'], // see "Generators" below
-  // serverUrl, queryFramework, mockData, mockSeed, customGenerators are also accepted
+  // serverUrl, queryFramework, mockData, mockSeed, pagination, customGenerators are also accepted
 });
 
 console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes.`);
@@ -431,6 +432,45 @@ for await (const ev of streamMessages()) {
 The stream **auto-reconnects** on a dropped connection, resuming via the `Last-Event-ID` header (backoff: server `retry:` → `reconnectDelay` → 1s, exponential with jitter, capped at 30s).
 Tune or opt out per call (`{ reconnect: false }` / `{ reconnectDelay: 500 }`), and `break` or pass an `AbortSignal` to stop early — both end the iterator cleanly (no throw).
 SSE operations always throw `ApiError` on an initial non-2xx and never return the `result`-mode shape.
+
+## Auto-pagination
+
+Pagination is **declared, never guessed** — in the `pagination` option (or `redocly.yaml` `client.pagination`; the spec's `x-pagination` operation extension takes the same fields).
+A convention rule applies to every operation it **structurally fits** (the advance param is a declared query parameter of the right type; the JSON pointers resolve in the JSON success-response schema, `items` landing on an array); an explicit rule (an `operations` override or `x-pagination`) that doesn't fit fails generation.
+Precedence per operation: `operations[id]` > `x-pagination` > convention; `exclude` wins over all.
+
+```ts
+await generateClient({
+  api: './openapi.yaml',
+  output: './src/api/client.ts',
+  pagination: {
+    style: 'cursor', // 'cursor' | 'offset' | 'page'
+    cursorParam: 'cursor', // the query param that receives the cursor
+    nextCursor: '/nextCursor', // JSON pointer to the next cursor in the response
+    items: '/orders', // JSON pointer to the page's item array
+  },
+});
+```
+
+Each paginated operation keeps its one-shot call and gains `.pages(args?, init?)` / `.items(args?, init?)` async iterators (the flat function too — note its iterators take the **grouped** args shape while the function itself stays positional).
+Item types are resolved from the response schema at generate time — no runtime reflection:
+
+```ts
+import { client, listOrders } from './client.ts';
+
+for await (const order of client.listOrders.items({ params: { limit: 20 } })) {
+  console.log(order.id); // `order` is typed `Order`
+}
+
+await listOrders({ limit: 20 }); // flat one-shot: positional
+for await (const page of listOrders.pages({ params: { cursor: 'c2' } })) {
+  // resume from a saved cursor; pass `{ signal }` as `init` to abort mid-iteration
+}
+```
+
+`cursor` style stops when `nextCursor` is absent/`null`/empty (and throws if the cursor doesn't advance); `offset`/`page` styles stop on an empty page.
+Iteration is error-mode-agnostic: a failed page throws `ApiError` even on `errorMode: 'result'` clients, where `.pages()` yields raw pages (not `{ data, error, response }` envelopes).
+Inline output embeds the pagination module only when some operation paginates; `runtime: 'package'` clients receive pagination improvements via `npm update`.
 
 ## Examples
 

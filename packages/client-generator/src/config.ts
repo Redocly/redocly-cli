@@ -1,5 +1,6 @@
 import type { ArgsStyle } from './emitters/client.js';
 // packages/client-generator/src/config.ts
+import type { PaginationConfig } from './emitters/pagination.js';
 import type { CustomGenerator } from './generators/types.js';
 import type { OutputMode } from './writers/types.js';
 
@@ -57,4 +58,8 @@ export type Config = {
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
   runtime?: 'inline' | 'package';
+  /** Auto-pagination rules (convention + per-operation overrides + `exclude`), resolved
+   * together with each operation's `x-pagination` extension. Explicit rules that don't
+   * fit their operation fail generation. */
+  pagination?: PaginationConfig;
 };

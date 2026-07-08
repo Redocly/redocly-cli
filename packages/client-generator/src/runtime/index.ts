@@ -1,6 +1,7 @@
 import { resolveAuth } from './auth.js';
 import { createClientCore } from './create-client.js';
 import { toFormData } from './multipart.js';
+import { items, pages } from './paginate.js';
 import { sse } from './sse.js';
 import type {
   Client,
@@ -12,7 +13,7 @@ import type {
 
 /**
  * The public client factory for package-mode generated clients: `createClientCore`
- * with the full capability set wired (multipart, auth, SSE). The capability seam
+ * with the full capability set wired (multipart, auth, SSE, pagination). The capability seam
  * itself stays internal — the future inline assembler wires only what a spec needs.
  * The trailing string params carry the generated literal unions
  * (`OperationId`/`OperationPath`/`OperationTag`) into `ctx.operation` for
@@ -31,6 +32,7 @@ export function createClient<
     serializeMultipart: toFormData,
     resolveAuth,
     sse,
+    paginate: { pages, items },
   });
 }
 

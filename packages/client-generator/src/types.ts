@@ -1,6 +1,7 @@
 import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
 
 import type { ArgsStyle } from './emitters/client.js';
+import type { PaginationConfig } from './emitters/pagination.js';
 import type { CustomGenerator } from './generators/types.js';
 import type { OutputMode } from './writers/types.js';
 
@@ -91,6 +92,15 @@ export type GenerateClientOptions = {
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
   runtime?: 'inline' | 'package';
+  /**
+   * Auto-pagination rules: a convention rule (applied to every operation it
+   * structurally fits), per-operation overrides, and `exclude`d operationIds —
+   * resolved together with each operation's `x-pagination` extension (per-op config >
+   * extension > convention). Paginated operations gain typed `.pages()`/`.items()`
+   * iterators. Verified statically: an explicit rule that doesn't fit its operation
+   * fails generation.
+   */
+  pagination?: PaginationConfig;
 };
 
 export type GenerateClientResult = {

@@ -20,6 +20,22 @@ export type SecuritySpec =
   | { scheme: string; kind: 'bearer' | 'basic' }
   | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
 
+/**
+ * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
+ * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
+ */
+export type PaginationSpec = {
+  style: 'cursor' | 'offset' | 'page';
+  /** The query param the iterator advances: the cursor (`cursor`) or number (`offset`/`page`). */
+  param: string;
+  /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+  limitParam?: string;
+  /** Cursor style only: pointer to the next cursor in the page. */
+  nextCursor?: string;
+  /** Pointer to the page's item array. */
+  items: string;
+};
+
 /** The frozen data contract between generated code and the runtime: one operation's wire shape. */
 export type OperationDescriptor = {
   id: string;
@@ -33,6 +49,7 @@ export type OperationDescriptor = {
   responseKind?: 'json' | 'text' | 'blob' | 'void' | 'sse';
   sseDataKind?: 'json' | 'text';
   security?: readonly SecuritySpec[];
+  pagination?: PaginationSpec;
 };
 
 /** A query value: scalars, arrays of scalars, or objects (serialized as deepObject brackets). */
@@ -159,8 +176,16 @@ export type Result<TData, TError> =
   | { data: TData; error: undefined; response: Response }
   | { data: undefined; error: TError; response: Response };
 
-/** The generated `Ops` type's shape: per-operation args/result (and `kind: 'sse'` for streams). */
-export type OpsShape = Record<string, { args: object; result: unknown; kind?: 'sse' }>;
+/**
+ * The generated `Ops` type's shape: per-operation args/result, plus `kind: 'sse'` for
+ * streams and, for paginated operations, `item` (the page's element type) and — on
+ * result-mode clients only — `page` (the RAW page type `.pages()` yields, since
+ * iteration unwraps the `Result` envelope the one-shot `result` carries).
+ */
+export type OpsShape = Record<
+  string,
+  { args: object; result: unknown; kind?: 'sse'; item?: unknown; page?: unknown }
+>;
 
 /** The always-present client members (assigned after the operation loop — they win collisions). */
 export type ClientCore<Op extends OperationContext = OperationContext> = {
@@ -182,6 +207,35 @@ export type ClientCore<Op extends OperationContext = OperationContext> = {
 // oxlint-disable-next-line typescript/no-empty-object-type
 type NoRequiredKeys<A> = {} extends A ? true : false;
 
+/**
+ * The page type `.pages()` yields: the RAW page declared by `page` (the generator
+ * writes it only on result-mode paginated entries, whose `result` is the envelope),
+ * or the method's own `result` (throw mode — already the raw page).
+ */
+type PageOf<Entry extends OpsShape[string]> = Entry extends { page: unknown }
+  ? Entry['page']
+  : Entry['result'];
+
+/**
+ * The auto-pagination members intersected onto a paginated method — present exactly when
+ * the Ops entry declares `item` (the generator writes it only for paginated operations).
+ * Args optionality mirrors the method's own; `unknown` otherwise (identity under `&`).
+ * Iteration is error-mode-agnostic: `.pages()`/`.items()` yield raw pages/items, and a
+ * failed page aborts iteration by throwing `ApiError`, even on result-mode clients; the
+ * `onError` middleware hook (throw-mode-only) is not invoked.
+ */
+type Paginated<Entry extends OpsShape[string]> = 'item' extends keyof Entry
+  ? NoRequiredKeys<Entry['args']> extends true
+    ? {
+        pages(args?: Entry['args'], init?: RequestOptions): AsyncGenerator<PageOf<Entry>>;
+        items(args?: Entry['args'], init?: RequestOptions): AsyncGenerator<Entry['item']>;
+      }
+    : {
+        pages(args: Entry['args'], init?: RequestOptions): AsyncGenerator<PageOf<Entry>>;
+        items(args: Entry['args'], init?: RequestOptions): AsyncGenerator<Entry['item']>;
+      }
+  : unknown;
+
 /** The typed instance client: one bound method per operation plus the core members. */
 export type Client<Ops extends OpsShape, Op extends OperationContext = OperationContext> = {
   [K in keyof Ops]: Ops[K] extends { kind: 'sse' }
@@ -194,7 +248,8 @@ export type Client<Ops extends OpsShape, Op extends OperationContext = Operation
           args: Ops[K]['args'],
           init?: SseOptions
         ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
-    : NoRequiredKeys<Ops[K]['args']> extends true
-      ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
-      : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>;
+    : (NoRequiredKeys<Ops[K]['args']> extends true
+        ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
+        : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>) &
+        Paginated<Ops[K]>;
 } & ClientCore<Op>;

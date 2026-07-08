@@ -21,6 +21,8 @@ the `generateClient(...)` API.
 | [multi-instance](./multi-instance)                     | CLI · `sdk`, package runtime  | per-tenant instances via `createClient(OPERATIONS)` — works in both runtimes; this example uses `runtime: package`                        |
 | [sse-streaming](./sse-streaming)                       | CLI · `sdk`                   | typed `for await` over SSE, auto-reconnect via `Last-Event-ID` (`reconnectDelay`/`reconnect: false`), clean abort                         |
 | [vendored-edge](./vendored-edge)                       | CLI · `sdk`                   | the generated file copied into a no-npm edge worker (`export default { fetch }`); `typescript` is the only dev tool                       |
+| [pagination](./pagination)                             | CLI · `sdk`                   | auto-pagination from a `client.pagination` convention: `for await` over `.items()`/`.pages()` next to the unchanged one-shot call         |
+| [custom-pagination](./custom-pagination)               | CLI · `sdk`                   | hand-written paging over the typed client for shapes the built-in styles don't cover (body cursors)                                       |
 
 ## Run one
 

@@ -235,6 +235,38 @@ describe('buildOperation — tags', () => {
   });
 });
 
+describe('buildOperation — x-pagination extension', () => {
+  it('captures the x-pagination value verbatim, without validation', () => {
+    const extension = { style: 'cursor', cursorParam: 'cursor', bogus: 42 };
+    const op = buildOpOnly({
+      paths: {
+        '/orders': {
+          get: { operationId: 'listOrders', 'x-pagination': extension, responses: {} },
+        } as never,
+      },
+    });
+    expect(op.paginationExtension).toBe(extension);
+  });
+
+  it('captures a non-object x-pagination value too (validated by the emitter, not the IR)', () => {
+    const op = buildOpOnly({
+      paths: {
+        '/orders': {
+          get: { operationId: 'listOrders', 'x-pagination': 'nonsense', responses: {} },
+        } as never,
+      },
+    });
+    expect(op.paginationExtension).toBe('nonsense');
+  });
+
+  it('leaves paginationExtension absent when the operation declares none', () => {
+    const op = buildOpOnly({
+      paths: { '/orders': { get: { operationId: 'listOrders', responses: {} } } as never },
+    });
+    expect('paginationExtension' in op).toBe(false);
+  });
+});
+
 describe('buildOperation — param paths', () => {
   it('splits parameters by their `in` location', () => {
     const op = buildOpOnly({

@@ -24,6 +24,7 @@ import { renderOperationAliases, sseAliases } from './operation-aliases.js';
 import { operationSignature } from './operation-signature.js';
 import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-types.js';
 import { type EmitContext, renderArgList } from './operations.js';
+import { resolveModelPagination } from './pagination.js';
 import { isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
 import {
@@ -80,6 +81,9 @@ function emitClient(
   const embed = options.runtime !== 'package';
   const ops = allOperations(model.services);
   const idents = packageIdents(model);
+  // Resolved (and VERIFIED) up front: an explicit rule that doesn't fit throws here,
+  // before any statement is built — one aggregated error for the whole model.
+  const pagination = resolveModelPagination(model, options.pagination);
   const ctx: EmitContext = {
     argsStyle: options.argsStyle ?? 'flat',
     errorMode: options.errorMode ?? 'throw',
@@ -88,6 +92,7 @@ function emitClient(
       model.securitySchemes.filter((s) => s.kind === 'apiKeyQuery').map((s) => s.key)
     ),
     schemaNames: new Set(model.schemas.map((s) => s.name)),
+    pagination,
   };
   const flat = ctx.argsStyle === 'flat';
   const hasSse = ops.some(isSseOp);
@@ -100,7 +105,7 @@ function emitClient(
     ops.length > 0
       ? [
           ...opsInterfaceStatements(model, idents, ctx),
-          ...descriptorStatements(model, idents, ctx.dateType),
+          ...descriptorStatements(model, idents, ctx.dateType, pagination),
         ]
       : // A spec with no operations still gets the uniform wiring shape.
         parseStatements(
@@ -116,6 +121,7 @@ function emitClient(
         auth: model.securitySchemes.length > 0 || ops.some((op) => op.security.length > 0),
         sse: hasSse,
         setup: !!options.setup,
+        paginate: pagination.size > 0,
       })
     : importLine(options, ctx, {
         hasFlatSse: hasSse && flat,
@@ -317,6 +323,8 @@ function sugarStatements(
  * method. Path values are keyed by the WIRE name (the runtime routes
  * `args[param.name]`); a path param literally named `params`/`body`/`headers` would
  * collide with the slot keys — a spec-acknowledged runtime-contract limitation.
+ * A paginated operation's arrow is wrapped in `Object.assign(…, { pages, items })`
+ * so the flat sugar preserves the method-attached iterators.
  */
 function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext): ts.Statement {
   const { pathParams } = operationSignature(op);
@@ -344,7 +352,30 @@ function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext)
     undefined,
     [factory.createObjectLiteralExpression(props, false), factory.createIdentifier('init')]
   );
-  return exportConstStatement(ident, arrow(params, call));
+  const fn = arrow(params, call);
+  if (!ctx.pagination?.has(op.name)) return exportConstStatement(ident, fn);
+  const methodMember = (name: string) =>
+    factory.createPropertyAssignment(
+      name,
+      factory.createPropertyAccessExpression(
+        factory.createPropertyAccessExpression(factory.createIdentifier('client'), ident),
+        name
+      )
+    );
+  return exportConstStatement(
+    ident,
+    factory.createCallExpression(
+      factory.createPropertyAccessExpression(factory.createIdentifier('Object'), 'assign'),
+      undefined,
+      [
+        fn,
+        factory.createObjectLiteralExpression(
+          [methodMember('pages'), methodMember('items')],
+          false
+        ),
+      ]
+    )
+  );
 }
 
 /** Public type surface re-exported for single-import DX (plus the `ApiError` class). */

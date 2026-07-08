@@ -10,6 +10,7 @@ import {
   packageIdents,
 } from '../descriptor.js';
 import type { EmitContext } from '../operations.js';
+import type { ModelPagination } from '../pagination.js';
 import { printStatements } from '../ts.js';
 import { apiModel, operation, param } from './fixtures.js';
 
@@ -306,6 +307,40 @@ describe('descriptorStatements', () => {
     expect(out).toContain('export type OperationPath');
     expect(out).not.toContain('OperationTag');
   });
+
+  it('emits the resolved pagination spec with stable key order, only on resolved ops', () => {
+    const model = modelWith([
+      op('listOrders', {
+        path: '/orders',
+        queryParams: [param('cursor', 'query')],
+        successResponses: [JSON_OK],
+      }),
+      op('ping', { path: '/ping', successResponses: [JSON_OK] }),
+    ]);
+    const pagination: ModelPagination = new Map([
+      [
+        'listOrders',
+        {
+          spec: {
+            style: 'cursor',
+            param: 'cursor',
+            limitParam: 'limit',
+            nextCursor: '/nextCursor',
+            items: '/orders',
+          },
+          itemSchema: { kind: 'ref', name: 'Order' },
+        },
+      ],
+    ]);
+    const out = printStatements(
+      descriptorStatements(model, packageIdents(model), 'string', pagination)
+    );
+    expect(out).toContain(
+      'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
+    );
+    // Non-paginated entries carry no pagination field.
+    expect(out).toContain('ping: { id: "ping", method: "GET", path: "/ping" }');
+  });
 });
 
 describe('opsInterfaceStatements', () => {
@@ -468,5 +503,98 @@ describe('opsInterfaceStatements', () => {
       /streamOrders: \{\n {8}args: \{\};\n {8}result: OrderEvent;\n {8}kind: "sse";\n {4}\};/
     );
     expect(out).not.toContain('Result<');
+  });
+
+  it('adds an item member (the page element type) only to paginated operations', () => {
+    const listOrders = op('listOrders', {
+      path: '/orders',
+      queryParams: [param('cursor', 'query')],
+      successResponses: [
+        {
+          contentType: 'application/json',
+          schema: { kind: 'ref', name: 'OrderPage' },
+          status: 200,
+        },
+      ],
+    });
+    const pagination: ModelPagination = new Map([
+      [
+        'listOrders',
+        {
+          spec: { style: 'cursor', param: 'cursor', nextCursor: '/nextCursor', items: '/orders' },
+          itemSchema: { kind: 'ref', name: 'Order' },
+        },
+      ],
+    ]);
+    const out = emitOps(modelWith([listOrders, getOrder]), { pagination });
+    expect(out).toMatch(
+      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: ListOrdersResult;\n {8}item: Order;\n {4}\};/
+    );
+    // The non-paginated sibling stays untouched.
+    expect(out).toMatch(
+      /getOrder: \{\n {8}args: \{\n {12}orderId: string;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
+    );
+  });
+
+  it('adds a page member (the RAW page type) to paginated operations in result mode only', () => {
+    const listOrders = op('listOrders', {
+      path: '/orders',
+      queryParams: [param('cursor', 'query')],
+      successResponses: [
+        {
+          contentType: 'application/json',
+          schema: { kind: 'ref', name: 'OrderPage' },
+          status: 200,
+        },
+      ],
+    });
+    const pagination: ModelPagination = new Map([
+      [
+        'listOrders',
+        {
+          spec: { style: 'cursor', param: 'cursor', nextCursor: '/nextCursor', items: '/orders' },
+          itemSchema: { kind: 'ref', name: 'Order' },
+        },
+      ],
+    ]);
+    // Result mode: `result` is the envelope, so `page` carries the raw page for `.pages()`.
+    const out = emitOps(modelWith([listOrders]), { pagination, errorMode: 'result' });
+    expect(out).toMatch(
+      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
+    );
+    // Throw mode emits no page member — `result` already IS the raw page.
+    expect(emitOps(modelWith([listOrders]), { pagination })).not.toContain('page:');
+    // The page member reuses the suppression-aware alias reference: a colliding
+    // `<Op>Result` alias inlines the raw response type instead.
+    const suppressed = emitOps(modelWith([listOrders]), {
+      pagination,
+      errorMode: 'result',
+      schemaNames: new Set(['ListOrdersResult']),
+    });
+    expect(suppressed).toContain('result: Result<OrderPage, unknown>;');
+    expect(suppressed).toContain('page: OrderPage;');
+  });
+
+  it('types item with the shared dateType handling', () => {
+    const listOrders = op('listOrders', {
+      path: '/orders',
+      queryParams: [param('page', 'query')],
+      successResponses: [JSON_OK],
+    });
+    const pagination: ModelPagination = new Map([
+      [
+        'listOrders',
+        {
+          spec: { style: 'page', param: 'page', items: '/orders' },
+          itemSchema: {
+            kind: 'scalar',
+            scalar: 'string',
+            metadata: { format: 'date-time' },
+          },
+        },
+      ],
+    ]);
+    const out = emitOps(modelWith([listOrders]), { pagination, dateType: 'Date' });
+    expect(out).toContain('item: Date;');
   });
 });

@@ -25,6 +25,8 @@ const examples = [
   'multi-instance',
   'sse-streaming',
   'vendored-edge',
+  'pagination',
+  'custom-pagination',
 ];
 
 let failed = false;

@@ -1,5 +1,6 @@
 import type { ApiModel } from '../intermediate-representation/model.js';
 import type { ArgsStyle } from './operations.js';
+import type { PaginationConfig } from './pagination.js';
 import { splitLines } from './support.js';
 import { escapeJsDoc } from './ts.js';
 import type { DateType, EnumStyle } from './types.js';
@@ -60,6 +61,12 @@ export type EmitOptions = {
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
   runtime?: 'inline' | 'package';
+  /**
+   * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
+   * resolved together with each operation's `x-pagination` extension. Verified
+   * statically: an explicit rule that doesn't fit its operation fails generation.
+   */
+  pagination?: PaginationConfig;
 };
 
 /**

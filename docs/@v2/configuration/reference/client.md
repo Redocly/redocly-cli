@@ -26,12 +26,52 @@ redocly generate-client --config ./config/redocly.yaml
 
 ## Options
 
-The same fields are accepted at the top level (shared defaults) and under `apis.<name>.client` (per-API overrides): `generators`, `argsStyle`, `serverUrl`, `outputMode` (`single` or `split`), `runtime`, `enumStyle`, `errorMode`, `dateType`, `queryFramework`, `mockData`, `mockSeed`, and `setup`. Each mirrors the matching CLI flag — see the [command options](../../commands/generate-client.md#options) for what every field does.
+The same fields are accepted at the top level (shared defaults) and under `apis.<name>.client` (per-API overrides): `generators`, `argsStyle`, `serverUrl`, `outputMode` (`single` or `split`), `runtime`, `enumStyle`, `errorMode`, `dateType`, `queryFramework`, `mockData`, `mockSeed`, `setup`, and [`pagination`](#pagination). Each of the scalar fields mirrors the matching CLI flag — see the [command options](../../commands/generate-client.md#options) for what every field does; `pagination` is config-only (no flag).
 
 The input and output are **not** part of a `client` block:
 
 - **input** — `apis.<name>.root` (or a path/alias passed on the command line).
 - **output** — `apis.<name>.clientOutput`; when omitted it defaults to `<name>.client.ts` in the `redocly.yaml` directory. `--output` overrides it (single-API invocations only).
+
+## Pagination
+
+`pagination` declares how the API paginates, so paginated operations gain typed `.pages()`/`.items()` async iterators (see [Pagination in the usage guide](../../guides/use-generated-client.md#pagination)). The block is an optional **convention rule** (the rule fields below, applied to every operation it structurally fits when `style` is set) plus per-operation `operations` overrides and an `exclude` list:
+
+```yaml
+client:
+  pagination:
+    style: cursor
+    cursorParam: cursor
+    nextCursor: /nextCursor
+    items: /orders
+    exclude:
+      - listOrderEvents
+    operations:
+      listMenuItems:
+        style: page
+        offsetParam: page
+        items: /data
+```
+
+Rule fields — the same set is accepted at the `pagination` level (the convention) and in each `operations` entry:
+
+| Field         | Type                             | Description                                                                                                                   |
+| ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `style`       | `'cursor' \| 'offset' \| 'page'` | How the iterator advances: follow a response cursor, advance an offset by each page's item count, or increment a page number. |
+| `cursorParam` | `string`                         | `cursor` style: the query parameter that receives the cursor. Required for `cursor`.                                          |
+| `nextCursor`  | `string`                         | `cursor` style: JSON pointer (RFC 6901, starts with `/`) to the next cursor in the response. Required for `cursor`.           |
+| `offsetParam` | `string`                         | `offset`/`page` styles: the query parameter the iterator advances. Required for `offset` and `page`.                          |
+| `limitParam`  | `string`                         | Optional page-size query parameter (any style); recorded for tooling — the iterator never sets it.                            |
+| `items`       | `string`                         | JSON pointer to the page's item array in the response. Always required.                                                       |
+
+And the two container fields:
+
+| Field        | Type                      | Description                                                                                |
+| ------------ | ------------------------- | ------------------------------------------------------------------------------------------ |
+| `exclude`    | `string[]`                | operationIds no source may paginate (wins over overrides, extensions, and the convention). |
+| `operations` | map of operationId → rule | Per-operation rules; each entry beats the spec's `x-pagination` and the convention.        |
+
+The style-conditional requirements and the structural fit (the advance param must be a declared query parameter of the right type; the pointers must resolve in the JSON success-response schema, `items` landing on an array) are verified at generate time: a convention that doesn't fit skips the operation, while an explicit rule that doesn't fit fails generation. The `x-pagination` operation extension in the spec takes the same rule fields; per operation, precedence is `operations[id]` > `x-pagination` > the convention.
 
 ## Precedence
 

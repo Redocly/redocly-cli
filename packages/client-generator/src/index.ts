@@ -50,6 +50,8 @@ export type {
   TokenProvider,
 } from './runtime/index.js';
 export type { Config } from './config.js';
+// The user-facing pagination rule shapes (`Config.pagination` / `x-pagination`).
+export type { PaginationConfig, PaginationRule, PaginationStyle } from './emitters/pagination.js';
 export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
 export { mergeConfig } from './config-file.js';
 // The custom-generator plugin API + codegen toolkit + IR types (also re-exports the shared
@@ -99,6 +101,16 @@ export function collectGeneratedFiles(
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
+  // A path segment that is literally "undefined"/"null" is the telltale of an
+  // interpolation bug in the caller (`\`${dir}/client.ts\`` with `dir` unset) — reject
+  // it instead of silently creating an `undefined/` directory.
+  if (
+    options.output.split(/[\\/]/).some((segment) => segment === 'undefined' || segment === 'null')
+  ) {
+    throw new Error(
+      `output path "${options.output}" contains a literal "undefined" or "null" segment — this looks like an interpolation bug in the caller`
+    );
+  }
   // Setup is a LOCAL module (its code is baked into the generated client) — reject
   // URL-ish specifiers upfront, before any spec loading, instead of failing later as
   // an unreadable file path. Two+ letter scheme, so Windows drive paths don't match.
@@ -150,6 +162,7 @@ export async function generateClient(
       mockSeed: options.mockSeed,
       setup: setupBlock,
       runtime: options.runtime,
+      pagination: options.pagination,
     },
     generators: selected,
     registry,

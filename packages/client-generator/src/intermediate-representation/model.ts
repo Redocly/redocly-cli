@@ -205,6 +205,11 @@ export type OperationModel = {
    * applicable scheme exists.
    */
   security: string[];
+  /**
+   * The operation's `x-pagination` extension value, captured VERBATIM (spec
+   * extensions are untyped). Validated by the pagination emitter, not the IR.
+   */
+  paginationExtension?: unknown;
 };
 
 export type ServiceModel = {

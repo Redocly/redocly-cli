@@ -261,6 +261,69 @@ for await (const ev of streamMessages()) {
 
 The stream **auto-reconnects** on a dropped connection, resuming from the last event id via `Last-Event-ID` (backoff honors the server's `retry:`, then `reconnectDelay`, then 1s; capped at 30s). Tune per call with `{ reconnect: false }` or `{ reconnectDelay: 500 }`. `break`ing the loop or aborting an `AbortSignal` ends it cleanly (no throw). SSE always throws `ApiError` on a non-2xx initial response, regardless of `--error-mode`.
 
+## Pagination
+
+Pagination is **declared, never guessed**: describe how your API paginates in `redocly.yaml` under [`client.pagination`](../configuration/reference/client.md#pagination) (or per operation with the `x-pagination` extension in the spec — same fields), and each paginated operation keeps its one-shot call while gaining two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema. There is no CLI flag.
+
+```yaml
+client:
+  pagination: # convention: applied to every operation it structurally fits
+    style: cursor
+    cursorParam: cursor # query param that receives the cursor
+    nextCursor: /nextCursor # JSON pointer to the next cursor in the response
+    items: /orders # JSON pointer to the page's item array
+    exclude:
+      - listOrderEvents # never paginate this operation
+    operations: # per-operation overrides (beat x-pagination and the convention)
+      listMenuItems:
+        style: page
+        offsetParam: page
+        items: /data
+```
+
+The convention rule is **statically verified** at generate time: it applies only to operations it structurally fits — the advance param must be a declared query parameter of the right type (string for `cursor`, numeric for `offset`/`page`) and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array. An operation the convention doesn't fit is simply not paginated; an **explicit** rule (an `operations` entry or an `x-pagination` extension) that doesn't fit **fails generation** with a per-operation error, so a wrong declaration can't silently produce a broken iterator. Per operation, precedence is `operations[id]` > `x-pagination` > the convention.
+
+Three styles are supported: `cursor` (send the response's `nextCursor` back in `cursorParam`; stops when it's absent, `null`, or empty — and throws if the server returns the same cursor twice in a row), `offset` (advance `offsetParam` by each page's item count), and `page` (increment `offsetParam` by 1) — `offset`/`page` stop on an empty page. `limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
+
+```ts
+import { client } from './client.ts';
+
+for await (const order of client.listOrders.items({ params: { limit: 20 } })) {
+  console.log(order.id); // `order` is `Order` — resolved from the response schema at generate time
+}
+
+for await (const page of client.listOrders.pages()) {
+  console.log(page.orders.length); // each full page, last one included
+}
+```
+
+The flat free functions keep both iterators, with one asymmetry to note: the flat function itself takes **positional** arguments, but its `.pages`/`.items` always take the **grouped** shape (they are the client method's iterators):
+
+```ts
+import { listOrders } from './client.ts';
+
+const firstPage = await listOrders({ limit: 20 }); // flat one-shot: positional params
+for await (const order of listOrders.items({ params: { limit: 20 } })) {
+  // iterators: grouped args
+}
+```
+
+**Resume** by passing the advance param in the initial args — iteration starts from there instead of the beginning; **abort** by passing an `AbortSignal`, forwarded to every page request:
+
+```ts
+const controller = new AbortController();
+for await (const page of client.listOrders.pages(
+  { params: { cursor: 'c2' } }, // start from a saved cursor (or offset/page number)
+  { signal: controller.signal }
+)) {
+  // …
+}
+```
+
+Iteration is **error-mode-agnostic**: a failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — where `.pages()` yields **raw** pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked. Both runtimes paginate identically; the `inline` runtime embeds the pagination module only when some operation paginates, and `package` clients receive pagination improvements via `npm update`.
+
+For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
+
 ## Custom generators
 
 The built-in generators cover common targets. For anything else derived from the same description (validators in another library, a permissions map, a house-style SDK), write a **custom generator**: it reads the same spec-agnostic model the built-ins consume, so its output never drifts from the spec.

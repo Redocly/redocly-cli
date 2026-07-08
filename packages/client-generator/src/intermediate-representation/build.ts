@@ -498,6 +498,9 @@ function buildOperation(
   const errorResponses = buildErrorResponses(operation, path, doc);
   const security = resolveOperationSecurity(operation, doc, injectable);
 
+  // Extensions aren't in the @redocly operation type — read loosely, like `deprecated`.
+  const paginationExtension = (operation as unknown as Record<string, unknown>)['x-pagination'];
+
   return {
     name,
     method,
@@ -512,6 +515,7 @@ function buildOperation(
     errorResponses,
     security,
     tags: Array.isArray(operation.tags) ? operation.tags.filter((t) => typeof t === 'string') : [],
+    ...(paginationExtension !== undefined ? { paginationExtension } : {}),
   };
 }
 

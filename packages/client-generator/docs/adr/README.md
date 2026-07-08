@@ -28,6 +28,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0015](./0015-publisher-setup-bake-in.md)              | Publisher setup bake-in via `--setup`                             | Accepted                |
 | [0016](./0016-msw-generator-vs-mock-server.md)         | In-process MSW mocks coexist with the out-of-process mock server  | Accepted                |
 | [0017](./0017-runtime-module-and-descriptor-client.md) | Hand-written runtime module + descriptor-driven generated clients | Accepted                |
+| [0018](./0018-auto-pagination.md)                      | Auto-pagination as declared, statically verified configuration    | Accepted                |
 
 ## Template
 

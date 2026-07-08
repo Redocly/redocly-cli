@@ -1,0 +1,19 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+#
+# The `pagination` block declares ONE cursor convention for the whole API. It is
+# declared + VERIFIED: the generator applies it only to operations it structurally
+# fits (the `cursor` query param exists, the pointers resolve in the response) —
+# here `listOrders` gains `.pages()`/`.items()` and `getOrder` stays a plain call.
+apis:
+  pagination:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+      pagination:
+        style: cursor
+        cursorParam: cursor
+        nextCursor: /nextCursor
+        limitParam: limit
+        items: /orders

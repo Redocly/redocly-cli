@@ -16,10 +16,11 @@ import { variablesTypeLiteral } from './operation-aliases.js';
 import { operationSignature } from './operation-signature.js';
 import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
+import type { ModelPagination } from './pagination.js';
 import { isSseOp, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase } from './support.js';
 import { jsdoc, parseStatements, ts } from './ts.js';
-import type { DateType } from './types.js';
+import { type DateType, schemaToTypeNode } from './types.js';
 
 const { factory } = ts;
 
@@ -84,7 +85,12 @@ export function literalExpr(value: unknown): ts.Expression {
 }
 
 /** One operation's OperationDescriptor as plain data (only non-default fields present). */
-function descriptorValue(op: OperationModel, schemes: SecuritySchemeModel[], dateType: DateType) {
+function descriptorValue(
+  op: OperationModel,
+  schemes: SecuritySchemeModel[],
+  dateType: DateType,
+  pagination?: ModelPagination
+) {
   const params = [...op.pathParams, ...op.queryParams, ...op.headerParams].map((p) => ({
     name: p.name,
     in: p.in,
@@ -125,6 +131,8 @@ function descriptorValue(op: OperationModel, schemes: SecuritySchemeModel[], dat
     ...(responseKind !== 'json' ? { responseKind } : {}),
     ...(sse ? { sseDataKind: sseDataKind(op) } : {}),
     ...(security.length > 0 ? { security } : {}),
+    // The resolved spec is already normalized with stable key order (see pagination.ts).
+    ...(pagination?.has(op.name) ? { pagination: pagination.get(op.name)!.spec } : {}),
   };
 }
 
@@ -132,14 +140,15 @@ function descriptorValue(op: OperationModel, schemes: SecuritySchemeModel[], dat
 export function descriptorStatements(
   model: ApiModel,
   idents: Map<string, string>,
-  dateType: DateType
+  dateType: DateType,
+  pagination?: ModelPagination
 ): ts.Statement[] {
   const ops = allOperations(model.services);
   if (ops.length === 0) return [];
   const entries = ops.map((op) =>
     factory.createPropertyAssignment(
       idents.get(op.name)!,
-      literalExpr(descriptorValue(op, model.securitySchemes, dateType))
+      literalExpr(descriptorValue(op, model.securitySchemes, dateType, pagination))
     )
   );
   const operations = jsdoc(
@@ -227,6 +236,27 @@ function opsMember(op: OperationModel, ident: string, ctx: EmitContext): ts.Prop
     factory.createPropertySignature(undefined, 'args', undefined, args),
     factory.createPropertySignature(undefined, 'result', undefined, resultType(op, ctx)),
   ];
+  // Paginated operations declare the page's element type — it drives the runtime's
+  // `.pages()`/`.items()` members on the method (`Client<Ops>` keys off `item`).
+  const paginated = ctx.pagination?.get(op.name);
+  if (paginated) {
+    members.push(
+      factory.createPropertySignature(
+        undefined,
+        'item',
+        undefined,
+        schemaToTypeNode(paginated.itemSchema, ctx.dateType)
+      )
+    );
+    // Result mode wraps `result` in the envelope, but iteration unwraps it — `page`
+    // carries the RAW page type `.pages()` yields. Throw mode emits no `page` member
+    // (`Client<Ops>`'s pages-generator falls back to `result`, already the raw page).
+    if (ctx.errorMode === 'result') {
+      members.push(
+        factory.createPropertySignature(undefined, 'page', undefined, rawResultRef(op, ctx))
+      );
+    }
+  }
   if (isSseOp(op)) {
     members.push(
       factory.createPropertySignature(
@@ -245,16 +275,23 @@ function opsMember(op: OperationModel, ident: string, ctx: EmitContext): ts.Prop
   );
 }
 
+/**
+ * The raw success-response reference — the same suppression rule as
+ * renderOperationParts: the emitted `<Op>Result` alias, or the inline response type
+ * when that name collides with a schema.
+ */
+function rawResultRef(op: OperationModel, ctx: EmitContext): ts.TypeNode {
+  const { responseType } = computeResponse(op.successResponses, ctx.dateType);
+  const resultName = `${pascalCase(op.name)}Result`;
+  return ctx.schemaNames.has(resultName)
+    ? responseType
+    : factory.createTypeReferenceNode(resultName);
+}
+
 /** The `result` slot: SSE event payload, or the response type — `Result`-wrapped in result mode. */
 function resultType(op: OperationModel, ctx: EmitContext): ts.TypeNode {
   if (isSseOp(op)) return sseEventType(op, ctx.dateType);
-  const { responseType } = computeResponse(op.successResponses, ctx.dateType);
-  // Same suppression rule as renderOperationParts: reference the emitted `<Op>Result`
-  // alias, or inline the response type when that name collides with a schema.
-  const resultName = `${pascalCase(op.name)}Result`;
-  const resultRef = ctx.schemaNames.has(resultName)
-    ? responseType
-    : factory.createTypeReferenceNode(resultName);
+  const resultRef = rawResultRef(op, ctx);
   if (ctx.errorMode !== 'result') return resultRef;
   return factory.createTypeReferenceNode('Result', [resultRef, errorTypeArg(op, ctx)]);
 }

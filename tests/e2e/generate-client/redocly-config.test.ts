@@ -172,6 +172,87 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
+  it('applies a `client.pagination` convention rule (descriptor + flat-sugar iterators)', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      pagination:',
+        '        style: cursor',
+        '        cursorParam: after',
+        '        nextCursor: /page/endCursor',
+        '        limitParam: limit',
+        '        items: /items',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    // The pagination block is part of the config schema -> no struct-rule warning.
+    expect(res.stdout + res.stderr).not.toContain('is not expected here');
+    const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
+    // The convention fits the cursor-style list operations -> descriptor pagination…
+    expect(out).toContain('pagination: {');
+    // …and the flat sugar preserves the method-attached iterators.
+    expect(out).toContain('items: client.listOrders.items');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('fails generation when an explicit `pagination.operations` rule does not fit', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      pagination:',
+        '        operations:',
+        '          getRevenue:', // has no `after` query param -> explicit misfit = error
+        '            style: cursor',
+        '            cursorParam: after',
+        '            nextCursor: /page/endCursor',
+        '            items: /items',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toContain('Invalid pagination configuration');
+    expect(res.stderr).toContain(
+      'Pagination for operation "getRevenue" (pagination.operations["getRevenue"]): query parameter "after" is not declared on the operation'
+    );
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('warns on an unknown key inside `client.pagination` (config struct rule) but still generates', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      pagination:',
+        '        style: cursor',
+        '        cursor_param: after', // unknown key -> property-not-expected warning
+        '        cursorParam: after',
+        '        nextCursor: /page/endCursor',
+        '        items: /items',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    expect(res.stdout + res.stderr).toContain('Property `cursor_param` is not expected here.');
+    expect(res.stderr).toContain('Your config has 1 warning');
+    expect(existsSync(join(dir, 'out.ts'))).toBe(true);
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
   it('rejects --output in fan-out mode', () => {
     const dir = project(
       [

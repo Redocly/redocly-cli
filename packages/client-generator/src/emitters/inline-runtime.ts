@@ -13,6 +13,7 @@ export type InlineRuntimeNeeds = {
   auth: boolean;
   sse: boolean;
   setup: boolean;
+  paginate: boolean;
 };
 
 const HEADER =
@@ -36,6 +37,9 @@ export function assembleInlineRuntime(needs: InlineRuntimeNeeds): string {
   if (needs.multipart) modules.push('multipart.ts');
   if (needs.auth) modules.push('auth.ts');
   if (needs.setup) modules.push('setup.ts');
+  // paginate.ts has only type imports (types.ts + create-client.ts's OperationArgs),
+  // so it can sit anywhere; keep it with the other capability modules, before send.ts.
+  if (needs.paginate) modules.push('paginate.ts');
   modules.push('send.ts');
   if (needs.sse) modules.push('sse.ts');
   modules.push('create-client.ts');
@@ -78,6 +82,7 @@ function clientFactory(needs: InlineRuntimeNeeds): string {
     ...(needs.multipart ? ['serializeMultipart: toFormData'] : []),
     ...(needs.auth ? ['resolveAuth'] : []),
     ...(needs.sse ? ['sse'] : []),
+    ...(needs.paginate ? ['paginate: { pages, items }'] : []),
   ];
   const wired = caps.length > 0 ? `{ ${caps.join(', ')} }` : '{}';
   return `/**

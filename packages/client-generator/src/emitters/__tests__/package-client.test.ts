@@ -52,6 +52,29 @@ const streamEvents = operation({
   ],
 });
 const configureOp = operation({ name: 'configure', path: '/configure-op' });
+const listOrders = operation({
+  name: 'listOrders',
+  path: '/orders',
+  queryParams: [param('cursor', 'query'), param('limit', 'query')],
+  successResponses: [response({ schema: { kind: 'ref', name: 'OrderPage' } })],
+});
+const CURSOR_RULE = {
+  style: 'cursor' as const,
+  cursorParam: 'cursor',
+  nextCursor: '/nextCursor',
+  items: '/orders',
+};
+const ORDER_PAGE = namedSchema('OrderPage', {
+  kind: 'object',
+  properties: [
+    {
+      name: 'orders',
+      schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
+      required: true,
+    },
+    { name: 'nextCursor', schema: SCALAR, required: false },
+  ],
+});
 
 const SCHEMAS = [
   namedSchema('Order', { kind: 'object', properties: [] }),
@@ -445,5 +468,95 @@ describe('emitClientSingleFile (embed arm)', () => {
     expect(
       emitClientSingleFile(model, { serverUrl: 'https://cafe.example.com' })
     ).toMatchSnapshot();
+  });
+});
+
+describe('emitClientSingleFile — pagination', () => {
+  const PAGINATED = modelWith([listOrders, getOrder], { schemas: [...SCHEMAS, ORDER_PAGE] });
+  const config = { operations: { listOrders: CURSOR_RULE } };
+
+  it('threads a config rule into the descriptor and the Ops item member (package arm)', () => {
+    const out = emit(PAGINATED, { pagination: config });
+    expect(out).toContain(
+      'pagination: { style: "cursor", param: "cursor", nextCursor: "/nextCursor", items: "/orders" }'
+    );
+    expect(out).toMatch(
+      /listOrders: \{\n\s+args: \{\n\s+params\?: ListOrdersParams;\n\s+\};\n\s+result: ListOrdersResult;\n\s+item: Order;\n\s+\};/
+    );
+  });
+
+  it('resolves the x-pagination extension without any config', () => {
+    const model = modelWith([{ ...listOrders, paginationExtension: CURSOR_RULE }, getOrder], {
+      schemas: [...SCHEMAS, ORDER_PAGE],
+    });
+    const out = emit(model);
+    expect(out).toContain('item: Order;');
+    expect(out).toContain('pagination: { style: "cursor", param: "cursor",');
+  });
+
+  it('wraps the flat sugar in Object.assign, preserving .pages/.items', () => {
+    const out = emit(PAGINATED, { pagination: config });
+    expect(out).toContain('export const listOrders = Object.assign((params: {');
+    expect(out).toContain(
+      '} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: client.listOrders.pages, items: client.listOrders.items });'
+    );
+    // Non-paginated siblings keep the plain arrow.
+    expect(out).toContain('export const getOrder = (orderId: string, params: {');
+    expect(out).not.toContain('Object.assign((orderId');
+  });
+
+  it('grouped argsStyle needs no wrapper — properties ride along on the destructure', () => {
+    const out = emit(PAGINATED, { pagination: config, argsStyle: 'grouped' });
+    expect(out).toContain('export const { listOrders, getOrder } = client;');
+    expect(out).not.toContain('Object.assign');
+  });
+
+  it('embeds the paginate capability in inline mode only when a descriptor paginates', () => {
+    // A security-free model, so paginate is the ONLY capability in the factory wiring.
+    const model = modelWith([listOrders], { schemas: [SCHEMAS[0], ORDER_PAGE] });
+    const paginated = emitClientSingleFile(model, { pagination: config });
+    expect(paginated).toContain('async function* pages');
+    expect(paginated).toContain(
+      'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items } })'
+    );
+    const plain = emitClientSingleFile(model);
+    expect(plain).not.toContain('async function* pages');
+    expect(plain).toContain('createClientCore<Ops, Id, Path, Tag>(operations, config, {})');
+  });
+
+  it('throws one aggregated error for explicit rules that do not fit', () => {
+    const model = modelWith(
+      [
+        { ...listOrders, paginationExtension: { ...CURSOR_RULE, cursorParam: 'after' } },
+        {
+          ...listOrders,
+          name: 'listRefunds',
+          path: '/refunds',
+          paginationExtension: { ...CURSOR_RULE, items: '/refunds' },
+        },
+      ],
+      { schemas: [...SCHEMAS, ORDER_PAGE] }
+    );
+    expect(() => emitClientSingleFile(model)).toThrow(
+      'Invalid pagination configuration:\n' +
+        '  - Pagination for operation "listOrders" (x-pagination): ' +
+        'query parameter "after" is not declared on the operation\n' +
+        '  - Pagination for operation "listRefunds" (x-pagination): ' +
+        'the "items" pointer "/refunds" does not resolve in the success response schema'
+    );
+  });
+
+  it('matches the golden output for a paginated inline client', () => {
+    expect(emitClientSingleFile(PAGINATED, { pagination: config })).toMatchSnapshot();
+  });
+
+  it('matches the golden output for a paginated package client', () => {
+    expect(emit(PAGINATED, { pagination: config })).toMatchSnapshot();
+  });
+
+  it('matches the golden output for a result-mode paginated package client', () => {
+    // Result mode: the Ops entry gains `page` (the raw page `.pages()` yields) next to
+    // the envelope-wrapped `result`.
+    expect(emit(PAGINATED, { pagination: config, errorMode: 'result' })).toMatchSnapshot();
   });
 });

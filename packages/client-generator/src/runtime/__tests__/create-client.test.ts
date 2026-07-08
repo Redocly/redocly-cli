@@ -1,4 +1,6 @@
 import { createClientCore } from '../create-client.js';
+import { ApiError } from '../errors.js';
+import { items as paginateItems, pages as paginatePages } from '../paginate.js';
 import type { OperationDescriptor } from '../types.js';
 
 const OPS = {
@@ -49,7 +51,23 @@ const OPS = {
     ],
   },
   streamPlain: { id: 'streamPlain', method: 'GET', path: '/plain-events', responseKind: 'sse' },
-  configure: { id: 'configure', method: 'GET', path: '/configure-op' }, // collision: core must win
+  listOrders: {
+    id: 'listOrders',
+    method: 'GET',
+    path: '/orders',
+    params: [
+      { name: 'cursor', in: 'query' },
+      { name: 'limit', in: 'query' },
+    ],
+    pagination: { style: 'cursor', param: 'cursor', nextCursor: '/nextCursor', items: '/orders' },
+  },
+  configure: {
+    id: 'configure',
+    method: 'GET',
+    path: '/configure-op',
+    // Paginated AND colliding with a core member — the core member must still win.
+    pagination: { style: 'page', param: 'page', items: '/rows' },
+  },
 } satisfies Record<string, OperationDescriptor>;
 
 interface Ops {
@@ -63,8 +81,13 @@ interface Ops {
   secured: { args: Record<string, never>; result: string };
   stream: { args: Record<string, never>; result: { n: number }; kind: 'sse' };
   streamPlain: { args: Record<string, never>; result: string; kind: 'sse' };
+  listOrders: {
+    args: { params?: { cursor?: string; limit?: number } };
+    result: { orders: Array<{ id: string }>; nextCursor?: string };
+    item: { id: string };
+  };
   configure: { args: Record<string, never>; result: string };
-  [k: string]: { args: object; result: unknown; kind?: 'sse' };
+  [k: string]: { args: object; result: unknown; kind?: 'sse'; item?: unknown };
 }
 
 const jsonOk = (body: unknown) =>
@@ -254,6 +277,135 @@ describe('createClientCore', () => {
 
     const noCap = createClientCore<Ops>(OPS, { serverUrl: 'https://x' });
     expect(() => noCap.stream({})).toThrow(/capability/i);
+  });
+
+  it('paginated ops gain .pages/.items dispatching to the capability; others get neither', async () => {
+    const seen: unknown[] = [];
+    const paginate = {
+      pages: async function* (
+        call: (args?: object, init?: object) => Promise<unknown>,
+        spec: unknown,
+        args?: object,
+        init?: object
+      ): AsyncGenerator<unknown> {
+        seen.push(['pages', spec, args, init]);
+        yield await call(args, init); // the method passed in performs the real request
+      },
+      items: async function* (
+        _call: unknown,
+        spec: { style: string },
+        args?: object,
+        init?: object
+      ): AsyncGenerator<unknown> {
+        seen.push(['items', spec.style, args, init]);
+        yield { id: 'o9' };
+      },
+    };
+    const { calls, fetchImpl } = spy([jsonOk({ orders: [{ id: 'o1' }] })]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { serverUrl: 'https://x', fetch: fetchImpl },
+      { paginate: paginate as never }
+    );
+
+    expect(typeof client.listOrders.pages).toBe('function');
+    expect(typeof client.listOrders.items).toBe('function');
+    expect((client.getOrder as unknown as Record<string, unknown>).pages).toBeUndefined();
+    expect((client.getOrder as unknown as Record<string, unknown>).items).toBeUndefined();
+
+    const args = { params: { limit: 2 } };
+    const init = { headers: { 'X-Trace': '1' } };
+    const yielded = [];
+    for await (const page of client.listOrders.pages(args, init)) yielded.push(page);
+    expect(yielded).toEqual([{ orders: [{ id: 'o1' }] }]);
+    expect(calls[0].url).toBe('https://x/orders?limit=2');
+    expect(seen[0]).toEqual(['pages', OPS.listOrders.pagination, args, init]);
+
+    for await (const item of client.listOrders.items()) expect(item).toEqual({ id: 'o9' });
+    expect(seen[1]).toEqual(['items', 'cursor', undefined, undefined]); // bare call: no args/init
+  });
+
+  it('result mode: .pages/.items iterate RAW pages (the envelope is unwrapped before the pointers)', async () => {
+    const page1 = { orders: [{ id: 'o1' }, { id: 'o2' }], nextCursor: 'c2' };
+    const page2 = { orders: [{ id: 'o3' }] };
+    const { calls, fetchImpl } = spy([
+      jsonOk(page1),
+      jsonOk(page2),
+      jsonOk(page1),
+      jsonOk(page2),
+      jsonOk(page2),
+    ]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { serverUrl: 'https://x', fetch: fetchImpl, errorMode: 'result' },
+      { paginate: { pages: paginatePages, items: paginateItems } }
+    );
+
+    const pages = [];
+    for await (const page of client.listOrders.pages()) pages.push(page);
+    expect(pages).toEqual([page1, page2]); // raw pages, never { data, error, response }
+    expect(calls.map((c) => c.url)).toEqual(['https://x/orders', 'https://x/orders?cursor=c2']);
+
+    const items = [];
+    for await (const item of client.listOrders.items()) items.push(item);
+    expect(items).toEqual([{ id: 'o1' }, { id: 'o2' }, { id: 'o3' }]);
+
+    // The one-shot call keeps the result-mode envelope.
+    const envelope = (await client.listOrders()) as unknown as { data: unknown };
+    expect(envelope.data).toEqual(page2);
+  });
+
+  it('result mode: a failed page aborts iteration by throwing ApiError; onError is not invoked', async () => {
+    const { fetchImpl } = spy([
+      jsonOk({ orders: [{ id: 'o1' }], nextCursor: 'c2' }),
+      new Response('{"title":"boom"}', {
+        status: 500,
+        statusText: 'Server Error',
+        headers: { 'content-type': 'application/json' },
+      }),
+    ]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { serverUrl: 'https://x', fetch: fetchImpl, errorMode: 'result' },
+      { paginate: { pages: paginatePages, items: paginateItems } }
+    );
+    let hookCalled = false;
+    client.use({
+      onError: (error) => {
+        hookCalled = true;
+        return error;
+      },
+    });
+
+    const seen: unknown[] = [];
+    const error = await (async () => {
+      for await (const item of client.listOrders.items()) seen.push(item);
+    })().catch((e: unknown) => e);
+    expect(seen).toEqual([{ id: 'o1' }]); // pages before the failure still arrive
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({
+      status: 500,
+      statusText: 'Server Error',
+      body: { title: 'boom' }, // the envelope's decoded error rides along
+    });
+    expect(hookCalled).toBe(false); // the onError middleware hook is throw-mode-only
+  });
+
+  it('unwired paginate capability: .pages/.items throw a descriptive error synchronously', async () => {
+    const { fetchImpl } = spy([jsonOk({ orders: [] })]);
+    const noCap = createClientCore<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
+    expect(() => noCap.listOrders.pages()).toThrow(
+      'Pagination capability not wired: cannot iterate operation "listOrders"'
+    );
+    expect(() => noCap.listOrders.items()).toThrow(/capability/i);
+    // The plain one-shot call still works without the capability.
+    expect(await noCap.listOrders()).toEqual({ orders: [] });
+  });
+
+  it('a paginated op colliding with a core member still loses to the core', () => {
+    const client = createClientCore<Ops>(OPS, {});
+    expect(() => client.configure({ serverUrl: 'https://x' })).not.toThrow();
+    expect((client.configure as unknown as Record<string, unknown>).pages).toBeUndefined();
   });
 
   it('core members win over a colliding operation name; configure merges; use appends without mutating caller arrays', async () => {

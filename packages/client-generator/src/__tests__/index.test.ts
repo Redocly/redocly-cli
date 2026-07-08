@@ -17,6 +17,21 @@ function model(): ApiModel {
   };
 }
 
+describe('generateClient output validation', () => {
+  it("rejects output paths with a literal 'undefined' or 'null' segment (interpolation-bug telltale)", async () => {
+    const { generateClient } = await import('../index.js');
+    for (const output of ['undefined/api.ts', 'out/null/api.ts', 'undefined']) {
+      await expect(generateClient({ api: 'unused.yaml', output })).rejects.toThrow(
+        /looks like an interpolation bug/
+      );
+    }
+    // A file merely NAMED undefined.* is legitimate — only exact segments are rejected.
+    await expect(
+      generateClient({ api: 'unused.yaml', output: 'out/undefined.ts' })
+    ).rejects.not.toThrow(/interpolation/);
+  });
+});
+
 describe('generateClient setup validation', () => {
   it('rejects a URL setup specifier upfront (local file paths only)', async () => {
     const { generateClient } = await import('../index.js');
@@ -152,6 +167,58 @@ describe('generateClient — end-to-end orchestration', () => {
     const throwContents = await readFile(throwOutput, 'utf-8');
     expect(throwContents).not.toContain('errorMode: "result"');
     expect(throwContents).toContain('result: PingResult;');
+  });
+
+  it('passes the pagination config through to the emitter', async () => {
+    const api = join(workDir, 'paginated.yaml');
+    await writeFile(
+      api,
+      outdent`
+        openapi: 3.0.3
+        info:
+          title: Cafe
+          version: 1.0.0
+        paths:
+          /orders:
+            get:
+              operationId: listOrders
+              parameters:
+                - { name: cursor, in: query, schema: { type: string } }
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          orders:
+                            type: array
+                            items: { type: string }
+                          nextCursor: { type: string }
+      `,
+      'utf-8'
+    );
+
+    const output = join(workDir, 'paginated.ts');
+    await generateClient({
+      api,
+      output,
+      pagination: {
+        style: 'cursor',
+        cursorParam: 'cursor',
+        nextCursor: '/nextCursor',
+        items: '/orders',
+      },
+    });
+    const contents = await readFile(output, 'utf-8');
+    expect(contents).toContain(
+      'pagination: { style: "cursor", param: "cursor", nextCursor: "/nextCursor", items: "/orders" }'
+    );
+    expect(contents).toContain('item: string;');
+    expect(contents).toContain(
+      '{ pages: client.listOrders.pages, items: client.listOrders.items });'
+    );
   });
 
   it('normalizes a Swagger 2.0 document before generating', async () => {

@@ -9,6 +9,7 @@ import type {
   OperationContext,
   OperationDescriptor,
   OpsShape,
+  PaginationSpec,
   ParseAs,
   QueryValue,
   RequestOptions,
@@ -36,10 +37,24 @@ export type Capabilities = SendCapabilities & {
     init: SseOptions,
     dataKind: 'json' | 'text'
   ) => AsyncGenerator<ServerSentEvent<unknown>>;
+  paginate?: {
+    pages: (
+      call: (args?: OperationArgs, init?: RequestOptions) => Promise<unknown>,
+      spec: PaginationSpec,
+      args?: OperationArgs,
+      init?: RequestOptions
+    ) => AsyncGenerator<unknown>;
+    items: (
+      call: (args?: OperationArgs, init?: RequestOptions) => Promise<unknown>,
+      spec: PaginationSpec,
+      args?: OperationArgs,
+      init?: RequestOptions
+    ) => AsyncGenerator<unknown>;
+  };
 };
 
 /** The grouped args wire shape: path params by name plus the `params`/`body`/`headers` slots. */
-type OperationArgs = {
+export type OperationArgs = {
   params?: Record<string, QueryValue>;
   body?: unknown;
   headers?: Record<string, unknown>;
@@ -173,6 +188,39 @@ async function execute(
   return parse(response, readKind);
 }
 
+/** The paginate capability, or a descriptive throw when a paginated op is iterated unwired. */
+function paginateCapability(caps: Capabilities, op: OperationDescriptor) {
+  if (!caps.paginate) {
+    throw new Error(`Pagination capability not wired: cannot iterate operation "${op.id}"`);
+  }
+  return caps.paginate;
+}
+
+/**
+ * The per-page call the iterators drive: the method itself in throw mode; in result
+ * mode a wrapper that unwraps the `{ data, error, response }` envelope — the page
+ * pointers are data-rooted — rethrowing a failed page as `ApiError` (iteration is
+ * error-mode-agnostic; the throw-mode-only `onError` middleware hook is not invoked).
+ */
+function pageCall(
+  method: (args?: OperationArgs, init?: RequestOptions) => Promise<unknown>,
+  config: ClientConfig
+) {
+  if (config.errorMode !== 'result') return method;
+  return async (args?: OperationArgs, init?: RequestOptions) => {
+    const envelope = (await method(args, init)) as {
+      data: unknown;
+      error: unknown;
+      response: Response;
+    };
+    if (envelope.data === undefined) {
+      const { response } = envelope;
+      throw new ApiError(response.url, response.status, response.statusText, envelope.error);
+    }
+    return envelope.data;
+  };
+}
+
 /**
  * Build a typed instance client over operation descriptors: one real bound method per
  * operation (attached by a construction-time loop — no Proxy), plus the core members
@@ -212,8 +260,24 @@ export function createClientCore<
         })();
       };
     } else {
-      client[name] = (args: OperationArgs = {}, init: RequestOptions = {}) =>
+      const method = (args: OperationArgs = {}, init: RequestOptions = {}) =>
         execute(config, op, args, init, caps);
+      const spec = op.pagination;
+      // Paginated ops keep their one-shot call and gain `.pages`/`.items`, dispatching
+      // through the capability seam (like SSE: absent capability throws descriptively).
+      // Iteration is error-mode-agnostic: the iterators' pointers are data-rooted, so on
+      // a result-mode client (`errorMode` is fixed at construction — `configure()`
+      // ignores it) each page's envelope is unwrapped before it reaches the capability.
+      // A failed page aborts iteration by throwing ApiError, even on result-mode
+      // clients; the `onError` middleware hook (throw-mode-only) is not invoked.
+      client[name] = spec
+        ? Object.assign(method, {
+            pages: (args?: OperationArgs, init?: RequestOptions) =>
+              paginateCapability(caps, op).pages(pageCall(method, config), spec, args, init),
+            items: (args?: OperationArgs, init?: RequestOptions) =>
+              paginateCapability(caps, op).items(pageCall(method, config), spec, args, init),
+          })
+        : method;
     }
   }
 

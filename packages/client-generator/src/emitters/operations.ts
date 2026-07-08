@@ -1,5 +1,6 @@
 import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
 import { bodyTypeNode, renderParamsObjectArg, simpleParam } from './operation-types.js';
+import type { ModelPagination } from './pagination.js';
 import { isSseOp } from './sse.js';
 import { ts } from './ts.js';
 import { type DateType, schemaToTypeNode } from './types.js';
@@ -34,6 +35,8 @@ export type EmitContext = {
   queryAuthKeys: Set<string>;
   /** Names of every exported schema, used for `<Op>*` alias collision suppression. */
   schemaNames: Set<string>;
+  /** Resolved auto-pagination per operation name (absent ⇒ nothing paginates). */
+  pagination?: ModelPagination;
 };
 
 /**

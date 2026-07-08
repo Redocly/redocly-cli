@@ -367,6 +367,33 @@ const Client: NodeType = {
     mockData: { enum: ['baked', 'faker'] },
     mockSeed: { type: 'number' },
     setup: { type: 'string' },
+    pagination: 'ClientPagination',
+  },
+};
+
+// One pagination rule — the shared field set of the `client.pagination` convention block
+// and each `operations` override. Every field is optional here: the style-conditional
+// requirements (`cursor` needs `cursorParam` + `nextCursor`; `offset`/`page` need
+// `offsetParam`; `items` always) are enforced by the generator with richer messages, so
+// this type only gates key names and value types.
+const ClientPaginationRule: NodeType = {
+  properties: {
+    style: { enum: ['cursor', 'offset', 'page'] },
+    cursorParam: { type: 'string' },
+    nextCursor: { type: 'string' },
+    offsetParam: { type: 'string' },
+    limitParam: { type: 'string' },
+    items: { type: 'string' },
+  },
+};
+
+// `client.pagination`: an optional convention rule (the rule fields, applied to every
+// operation it structurally fits), plus per-operation overrides and exclusions.
+const ClientPagination: NodeType = {
+  properties: {
+    ...ClientPaginationRule.properties,
+    exclude: { type: 'array', items: { type: 'string' } },
+    operations: mapOf('ClientPaginationRule'),
   },
 };
 
@@ -767,6 +794,8 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigGovernance,
   ConfigHTTP,
   Client,
+  ClientPagination,
+  ClientPaginationRule,
   Where,
   BuiltinRule,
   CustomRule,

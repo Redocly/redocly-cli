@@ -258,6 +258,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "split",
         ],
       },
+      "pagination": "ClientPagination",
       "queryFramework": {
         "enum": [
           "react",
@@ -277,6 +278,69 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "setup": {
         "type": "string",
+      },
+    },
+  },
+  "ClientPagination": {
+    "properties": {
+      "cursorParam": {
+        "type": "string",
+      },
+      "exclude": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "items": {
+        "type": "string",
+      },
+      "limitParam": {
+        "type": "string",
+      },
+      "nextCursor": {
+        "type": "string",
+      },
+      "offsetParam": {
+        "type": "string",
+      },
+      "operations": {
+        "additionalProperties": [Function],
+        "name": "ClientPaginationRuleMap",
+        "properties": {},
+      },
+      "style": {
+        "enum": [
+          "cursor",
+          "offset",
+          "page",
+        ],
+      },
+    },
+  },
+  "ClientPaginationRule": {
+    "properties": {
+      "cursorParam": {
+        "type": "string",
+      },
+      "items": {
+        "type": "string",
+      },
+      "limitParam": {
+        "type": "string",
+      },
+      "nextCursor": {
+        "type": "string",
+      },
+      "offsetParam": {
+        "type": "string",
+      },
+      "style": {
+        "enum": [
+          "cursor",
+          "offset",
+          "page",
+        ],
       },
     },
   },

@@ -18,6 +18,7 @@ const MODULES = [
   'send',
   'sse',
   'create-client',
+  'paginate',
 ];
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

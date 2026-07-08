@@ -21,13 +21,25 @@ const OPS = {
     responseKind: 'sse',
     sseDataKind: 'json',
   },
+  listOrders: {
+    id: 'listOrders',
+    method: 'GET',
+    path: '/orders',
+    params: [{ name: 'cursor', in: 'query' }],
+    pagination: { style: 'cursor', param: 'cursor', nextCursor: '/nextCursor', items: '/orders' },
+  },
 } satisfies Record<string, OperationDescriptor>;
 
 interface Ops {
   upload: { args: { body: { file: string } }; result: unknown };
   secured: { args: Record<string, never>; result: unknown };
   stream: { args: Record<string, never>; result: { n: number }; kind: 'sse' };
-  [k: string]: { args: object; result: unknown; kind?: 'sse' };
+  listOrders: {
+    args: { params?: { cursor?: string } };
+    result: { orders: Array<{ id: string }>; nextCursor?: string };
+    item: { id: string };
+  };
+  [k: string]: { args: object; result: unknown; kind?: 'sse'; item?: unknown };
 }
 
 describe('public surface', () => {
@@ -56,6 +68,32 @@ describe('public surface', () => {
     const events = [];
     for await (const ev of client.stream({}, { reconnect: false })) events.push(ev.data);
     expect(events).toEqual([{ n: 1 }]);
+  });
+
+  it('createClient wires the paginate capability: .items walks cursor pages end-to-end', async () => {
+    const pagesByCursor: Record<string, unknown> = {
+      first: { orders: [{ id: 'o1' }, { id: 'o2' }], nextCursor: 'c2' },
+      c2: { orders: [{ id: 'o3' }] },
+    };
+    const urls: string[] = [];
+    const fetchImpl = (async (url: string) => {
+      urls.push(url);
+      const cursor = new URL(url).searchParams.get('cursor') ?? 'first';
+      return new Response(JSON.stringify(pagesByCursor[cursor]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }) as unknown as typeof fetch;
+    const client = createClient<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
+
+    const ids: string[] = [];
+    for await (const order of client.listOrders.items()) ids.push(order.id);
+    expect(ids).toEqual(['o1', 'o2', 'o3']);
+    expect(urls).toEqual(['https://x/orders', 'https://x/orders?cursor=c2']);
+
+    const pageSizes: number[] = [];
+    for await (const page of client.listOrders.pages()) pageSizes.push(page.orders.length);
+    expect(pageSizes).toEqual([2, 1]);
   });
 
   it('mergeSetup: config wins per-field; middleware composes setup-first', () => {
