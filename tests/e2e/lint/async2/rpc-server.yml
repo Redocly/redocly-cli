@@ -49,11 +49,9 @@ channels:
     publish:
       operationId: sum
       message:
-        headers:
-          type: object
-          properties:
-            replyTo:
-              type: string
+        bindings:
+          amqp:
+            messageType: request
         correlationId:
           location: $message.header#/correlation_id
         payload:
