@@ -1,6 +1,6 @@
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { AsyncApiBindings, Ros2Bindings } from './asyncapi-bindings.js';
 import {
-  AsyncApi2Bindings,
   CorrelationId,
   Tag,
   ServerMap,
@@ -24,7 +24,6 @@ const Root: NodeType = {
   properties: {
     asyncapi: {
       type: 'string',
-      enum: ['3.0.0'],
       description:
         'REQUIRED. Specifies the AsyncAPI Specification version being used. It can be used by tooling Specifications and clients to interpret the version. The structure shall be major.minor.patch, where patch versions must be compatible with the existing major.minor tooling. Typically patch versions will be introduced to address errors in the documentation, and tooling should typically be compatible with the corresponding major.minor (1.0.*). Patch versions will correspond to patches of this document.',
     },
@@ -519,9 +518,45 @@ const SecurityScheme: NodeType = {
   description: 'Defines a security scheme that can be used by the operations.',
 };
 
+const ServerBindings: NodeType = {
+  ...AsyncApiBindings.ServerBindings,
+  properties: {
+    ...AsyncApiBindings.ServerBindings.properties,
+    ros2: 'Ros2ServerBinding',
+  },
+};
+
+const ChannelBindings: NodeType = {
+  ...AsyncApiBindings.ChannelBindings,
+  properties: {
+    ...AsyncApiBindings.ChannelBindings.properties,
+    ros2: 'Ros2ChannelBinding',
+  },
+};
+
+const OperationBindings: NodeType = {
+  ...AsyncApiBindings.OperationBindings,
+  properties: {
+    ...AsyncApiBindings.OperationBindings.properties,
+    ros2: 'Ros2OperationBinding',
+  },
+};
+
+const MessageBindings: NodeType = {
+  ...AsyncApiBindings.MessageBindings,
+  properties: {
+    ...AsyncApiBindings.MessageBindings.properties,
+    ros2: 'Ros2MessageBinding',
+  },
+};
+
 export const AsyncApi3Types: Record<string, NodeType> = {
-  // from asyncapi2
-  ...AsyncApi2Bindings,
+  ...AsyncApiBindings,
+  ...Ros2Bindings,
+  ServerBindings,
+  ChannelBindings,
+  OperationBindings,
+  MessageBindings,
   CorrelationId,
   SecuritySchemeFlows,
   ServerVariable,

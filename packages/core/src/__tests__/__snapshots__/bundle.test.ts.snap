@@ -397,6 +397,38 @@ components:
 
 `;
 
+exports[`bundle async > should bundle async of version 3.1 with a ros2 binding 1`] = `
+asyncapi: 3.1.0
+info:
+  title: Robot Service
+  version: 1.0.0
+servers:
+  production:
+    host: localhost
+    protocol: ros2
+    bindings:
+      ros2:
+        domainId: 42
+operations:
+  sendCmdVel:
+    action: send
+    messages:
+      - payload: &ref_1
+          type: object
+          properties: &ref_0
+            linear:
+              type: number
+components:
+  schemas:
+    Twist:
+      type: object
+      properties: *ref_0
+  messages:
+    TwistMsg:
+      payload: *ref_1
+
+`;
+
 exports[`bundle async > should normalize self-file explicit $ref in asyncapi 2 1`] = `
 asyncapi: 2.6.0
 info:

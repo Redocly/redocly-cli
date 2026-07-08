@@ -766,6 +766,57 @@ describe('bundle async', () => {
     `);
   });
 
+  it('should bundle async of version 3.1 with a ros2 binding', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.1.0
+        info:
+          title: Robot Service
+          version: 1.0.0
+        servers:
+          production:
+            host: localhost
+            protocol: ros2
+            bindings:
+              ros2:
+                domainId: 42
+        operations:
+          sendCmdVel:
+            action: send
+            messages:
+              - $ref: '#/components/messages/TwistMsg'
+        components:
+          schemas:
+            Twist:
+              type: object
+              properties:
+                linear:
+                  type: number
+          messages:
+            TwistMsg:
+              payload:
+                $ref: '#/components/schemas/Twist'
+      `,
+      ''
+    );
+
+    const config = await createConfig({});
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+      dereference: true,
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchSnapshot();
+  });
+
   it('should normalize self-file explicit $ref in asyncapi 2', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),

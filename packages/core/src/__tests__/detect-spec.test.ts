@@ -63,6 +63,11 @@ describe('detectSpec', () => {
   it('still detects overlay 1.0.x', () => {
     expect(detectSpec({ overlay: '1.0.0' })).toEqual('overlay1');
   });
+
+  it('detects AsyncAPI 3.1 as async3', () => {
+    expect(detectSpec({ asyncapi: '3.1.0' })).toEqual('async3');
+    expect(detectSpec({ asyncapi: '3.0.0' })).toEqual('async3');
+  });
 });
 
 describe('getMajorSpecVersion', () => {
