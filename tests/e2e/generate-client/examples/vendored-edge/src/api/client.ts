@@ -883,7 +883,11 @@ function pageCall(
       error: unknown;
       response: Response;
     };
-    if (envelope.data === undefined) {
+    // Failure is `!response.ok` — NOT `data === undefined`: a successful bodyless page
+    // (204/void) also parses to undefined data, and a failed page's `error` can be
+    // undefined too (unreadable body). The pointers then miss on the undefined data
+    // and iteration stops cleanly, which is the correct semantics for an empty page.
+    if (!envelope.response.ok) {
       const { response } = envelope;
       throw new ApiError(response.url, response.status, response.statusText, envelope.error);
     }

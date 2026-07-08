@@ -355,6 +355,23 @@ describe('createClientCore', () => {
     expect(envelope.data).toEqual(page2);
   });
 
+  it('result mode: a successful bodyless page (204) stops iteration cleanly, no bogus ApiError', async () => {
+    // A 204 page parses to `data: undefined` with `error: undefined` — success, not failure.
+    // The pointers miss on `undefined`, so iteration stops; it must NOT throw.
+    const { fetchImpl } = spy([
+      jsonOk({ orders: [{ id: 'o1' }], nextCursor: 'c2' }),
+      new Response(null, { status: 204 }),
+    ]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { serverUrl: 'https://x', fetch: fetchImpl, errorMode: 'result' },
+      { paginate: { pages: paginatePages, items: paginateItems } }
+    );
+    const items = [];
+    for await (const item of client.listOrders.items()) items.push(item);
+    expect(items).toEqual([{ id: 'o1' }]);
+  });
+
   it('result mode: a failed page aborts iteration by throwing ApiError; onError is not invoked', async () => {
     const { fetchImpl } = spy([
       jsonOk({ orders: [{ id: 'o1' }], nextCursor: 'c2' }),
