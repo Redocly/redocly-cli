@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-unit:
-    runs-on: e2e-redocly-cli
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -32,8 +32,26 @@ jobs:
         continue-on-error: true # Do not fail if there is an error during reporting
         uses: davelosert/vitest-coverage-report-action@d63aa97db4c0319f304f1787689de1ca548365cf # v2.11.1
 
-      - name: E2E Tests
-        run: npm run e2e
+  e2e:
+    # The e2e suite is split across shards so no single runner carries the whole set.
+    # Running all suites in one step was cancelled mid-run by the Actions service once the
+    # generate-client suites grew past ~28 (a healthy runner, no resource exhaustion);
+    # each shard stays well under that.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: E2E Tests (shard ${{ matrix.shard }}/2)
+        run: npm run e2e -- --shard=${{ matrix.shard }}/2
 
   code-style-check:
     runs-on: ubuntu-latest
