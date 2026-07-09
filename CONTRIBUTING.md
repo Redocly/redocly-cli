@@ -67,7 +67,7 @@ Checklist for experimental features:
 1. No unnecessary concept duplication.
 1. Clean, concise docs.
 1. No excessive unit tests (especially testing internal implementation details), prefer e2e.
-    You can request the coverage threshold adjustment if needed.
+   You can request the coverage threshold adjustment if needed.
 
 ## Development guidelines
 
@@ -182,6 +182,7 @@ The application maintains the following exit codes.
 ### Local source code usage
 
 There are two options for testing local changes in other local applications:
+
 - NPM linking
 - local packing and installing from the `redocly-cli.tgz` file
 
