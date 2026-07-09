@@ -32,6 +32,19 @@ The baseline is derived from every exchange in the traffic:
 - Alternative body shapes for the same operation are preserved as `oneOf` variants instead
   of being collapsed, and values observed as `null` produce type unions such as
   `["string", "null"]`.
+- Object shapes that repeat across the document are extracted into `components/schemas` and
+  referenced with `$ref`. The same entity is recognized when it appears as a list item and as
+  a single resource, with different `required` sets, or with near-identical properties (at
+  least 75% shared, with compatible types). Components are named from the path entity, the
+  enclosing property name, or `Error` for error responses; a shape repeated only because its
+  parent shape repeats stays inline.
+- Observed string values are analyzed conservatively: when every value of a property (or
+  parameter) matches the same well-known pattern it gets a `format` (`uuid`, `date-time`,
+  `date`, `email`, `uri`, `ipv4`); when a string only ever takes a small set of
+  identifier-like values with enough repetition (at least 4 observations, at most 5 distinct
+  values, each seen twice on average) it becomes an `enum`. Enums apply to body properties
+  and query parameters; path parameters and nullable unions get formats only. Evidence is
+  pooled across all operations a shared component was observed in.
 - Responses that were never received (status `0` in HAR captures) are ignored.
 
 ## AI refinement

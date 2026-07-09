@@ -16,15 +16,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                  required:
-                    - id
-                    - name
+                  $ref: '#/components/schemas/Product'
   /products/{productId}:
     get:
       operationId: get-products-productId
@@ -34,20 +26,24 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                required:
-                  - id
-                  - name
+                $ref: '#/components/schemas/Product'
       parameters:
         - name: productId
           in: path
           required: true
           schema:
             type: integer
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
 
 Inferred a baseline OpenAPI description from traffic: 2 operation(s).

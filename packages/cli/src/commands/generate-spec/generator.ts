@@ -14,6 +14,15 @@ import {
   normalizeContentType,
 } from '../drift/utils/http.js';
 import { normalizeServerPrefix, resolvePathForServer } from '../drift/utils/server.js';
+import {
+  copyObservations,
+  distillObservations,
+  getObservations,
+  mergeObservations,
+  observeString,
+  setObservations,
+  type StringObservations,
+} from './value-inference.js';
 
 export interface GenerateSpecOptions {
   trafficPath: string;
@@ -23,7 +32,10 @@ export interface GenerateSpecOptions {
 }
 
 export interface JsonSchema {
+  $ref?: string;
   type?: string | string[];
+  format?: string;
+  enum?: string[];
   properties?: Record<string, JsonSchema>;
   additionalProperties?: JsonSchema;
   required?: string[];
@@ -55,6 +67,7 @@ export interface GeneratedDocument {
   info: { title: string; version: string };
   servers?: { url: string }[];
   paths: Record<string, Record<string, GeneratedOperation>>;
+  components?: { schemas: Record<string, JsonSchema> };
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -90,10 +103,11 @@ function looksLikeIdentifier(segment: string): boolean {
   return /^[0-9a-f]{16,}$/i.test(segment);
 }
 
-function singularize(value: string): string {
+export function singularize(value: string): string {
   if (value.endsWith('ies')) return `${value.slice(0, -3)}y`;
-  if (value.endsWith('s') && value.length > 1) return value.slice(0, -1);
-  return value;
+  if (/(?:ches|shes|ses|xes|zes)$/.test(value)) return value.slice(0, -2);
+  if (value.endsWith('ss') || value.endsWith('us') || !value.endsWith('s')) return value;
+  return value.length > 1 ? value.slice(0, -1) : value;
 }
 
 interface TemplatizedParam {
@@ -144,8 +158,11 @@ export function inferSchema(value: unknown): JsonSchema {
   }
 
   switch (typeof value) {
-    case 'string':
-      return { type: 'string' };
+    case 'string': {
+      const schema: JsonSchema = { type: 'string' };
+      setObservations(schema, observeString(value));
+      return schema;
+    }
     case 'boolean':
       return { type: 'boolean' };
     case 'number':
@@ -247,7 +264,11 @@ function toVariants(schema: JsonSchema): JsonSchema[] {
       if (type === 'array') {
         return schema.items ? { type: 'array', items: schema.items } : { type: 'array' };
       }
-      return { type };
+      const scalar: JsonSchema = { type };
+      if (type === 'string') {
+        copyObservations(schema, scalar);
+      }
+      return scalar;
     });
   }
   return [schema];
@@ -289,8 +310,20 @@ function areCompatibleVariants(a: JsonSchema, b: JsonSchema): boolean {
 
 function mergeVariantPair(a: JsonSchema, b: JsonSchema): JsonSchema {
   switch (variantKind(a)) {
-    case 'scalar':
-      return a.type === b.type ? a : { type: 'number' };
+    case 'scalar': {
+      if (a.type !== b.type) {
+        return { type: 'number' };
+      }
+      if (a.type === 'string') {
+        const observations = mergeObservations(getObservations(a), getObservations(b));
+        if (observations) {
+          const merged: JsonSchema = { type: 'string' };
+          setObservations(merged, observations);
+          return merged;
+        }
+      }
+      return a;
+    }
     case 'map':
       return {
         type: 'object',
@@ -354,17 +387,32 @@ function finalizeVariants(variants: JsonSchema[]): JsonSchema {
 
   const structured: JsonSchema[] = [];
   const scalarTypes = new Set<string>();
+  let stringObservations: StringObservations | undefined;
   for (const variant of variants) {
     if (variantKind(variant) === 'scalar' && typeof variant.type === 'string') {
       scalarTypes.add(variant.type);
+      if (variant.type === 'string') {
+        stringObservations = mergeObservations(stringObservations, getObservations(variant));
+      }
     } else {
       structured.push(variant);
     }
   }
   const orderedScalars = SCALAR_TYPE_ORDER.filter((type) => scalarTypes.has(type));
 
+  const scalarSchema = (type: string | string[]): JsonSchema => {
+    const schema: JsonSchema = { type };
+    const includesString = typeof type === 'string' ? type === 'string' : type.includes('string');
+    if (includesString && stringObservations) {
+      setObservations(schema, stringObservations);
+    }
+    return schema;
+  };
+
   if (structured.length === 0) {
-    return orderedScalars.length === 1 ? { type: orderedScalars[0] } : { type: orderedScalars };
+    return orderedScalars.length === 1
+      ? scalarSchema(orderedScalars[0])
+      : scalarSchema(orderedScalars);
   }
   if (
     structured.length === 1 &&
@@ -377,9 +425,9 @@ function finalizeVariants(variants: JsonSchema[]): JsonSchema {
 
   const members = [...structured];
   if (orderedScalars.length === 1) {
-    members.push({ type: orderedScalars[0] });
+    members.push(scalarSchema(orderedScalars[0]));
   } else if (orderedScalars.length > 1) {
-    members.push({ type: orderedScalars });
+    members.push(scalarSchema(orderedScalars));
   }
   return { oneOf: members };
 }
@@ -460,12 +508,17 @@ interface ResponseAccumulator {
   bodies: Map<string, JsonSchema>;
 }
 
+interface ParameterAccumulator {
+  /** Whether every observed value was numeric. */
+  numeric: boolean;
+  observations?: StringObservations;
+}
+
 interface OperationAccumulator {
   method: string;
   template: string;
-  /** Parameter name → whether every observed value was numeric. */
-  pathParams: Map<string, boolean>;
-  queryParams: Map<string, boolean>;
+  pathParams: Map<string, ParameterAccumulator>;
+  queryParams: Map<string, ParameterAccumulator>;
   requestBodies: Map<string, JsonSchema>;
   responses: Map<string, ResponseAccumulator>;
 }
@@ -526,21 +579,24 @@ export async function generateSpecFromTraffic(
     }
 
     for (const { name, value } of params) {
-      const wasNumeric = accumulator.pathParams.get(name);
-      const isNumeric = NUMERIC_RE.test(value);
-      accumulator.pathParams.set(
-        name,
-        wasNumeric === undefined ? isNumeric : wasNumeric && isNumeric
-      );
+      const previous = accumulator.pathParams.get(name);
+      accumulator.pathParams.set(name, {
+        numeric: (previous?.numeric ?? true) && NUMERIC_RE.test(value),
+        observations: mergeObservations(previous?.observations, observeString(value)),
+      });
     }
     for (const queryKey of new Set(exchange.request.query.keys())) {
       const values = exchange.request.query.getAll(queryKey);
-      const wasNumeric = accumulator.queryParams.get(queryKey);
+      const previous = accumulator.queryParams.get(queryKey);
       const isNumeric = values.length > 0 && values.every((value) => NUMERIC_RE.test(value));
-      accumulator.queryParams.set(
-        queryKey,
-        wasNumeric === undefined ? isNumeric : wasNumeric && isNumeric
-      );
+      let observations = previous?.observations;
+      for (const value of values) {
+        observations = mergeObservations(observations, observeString(value));
+      }
+      accumulator.queryParams.set(queryKey, {
+        numeric: (previous?.numeric ?? true) && isNumeric,
+        observations,
+      });
     }
 
     if (!BODYLESS_METHODS.has(method)) {
@@ -604,6 +660,17 @@ export function countOperations(document: GeneratedDocument): number {
   );
 }
 
+function parameterSchema(param: ParameterAccumulator, allowEnum: boolean): JsonSchema {
+  if (param.numeric) {
+    return { type: 'integer' };
+  }
+  const schema: JsonSchema = { type: 'string' };
+  if (param.observations) {
+    Object.assign(schema, distillObservations(param.observations, allowEnum));
+  }
+  return schema;
+}
+
 function buildDocument(
   operations: Map<string, OperationAccumulator>,
   title: string,
@@ -616,19 +683,19 @@ function buildDocument(
 
     const parameters: GeneratedParameter[] = [
       ...Array.from(accumulator.pathParams).map(
-        ([name, numeric]): GeneratedParameter => ({
+        ([name, param]): GeneratedParameter => ({
           name,
           in: 'path',
           required: true,
-          schema: { type: numeric ? 'integer' : 'string' },
+          schema: parameterSchema(param, false),
         })
       ),
       ...Array.from(accumulator.queryParams).map(
-        ([name, numeric]): GeneratedParameter => ({
+        ([name, param]): GeneratedParameter => ({
           name,
           in: 'query',
           required: false,
-          schema: { type: numeric ? 'integer' : 'string' },
+          schema: parameterSchema(param, true),
         })
       ),
     ];

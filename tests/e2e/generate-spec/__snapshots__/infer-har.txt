@@ -16,18 +16,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    tag:
-                      type: string
-                  required:
-                    - id
-                    - name
-                    - tag
+                  $ref: '#/components/schemas/Pet'
     post:
       operationId: post-pets
       responses:
@@ -36,18 +25,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  tag:
-                    type: string
-                required:
-                  - id
-                  - name
-                  - tag
+                $ref: '#/components/schemas/Pet'
       requestBody:
         content:
           application/json:
@@ -61,5 +39,20 @@ paths:
               required:
                 - name
                 - tag
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        tag:
+          type: string
+      required:
+        - id
+        - name
+        - tag
 
 Inferred a baseline OpenAPI description from traffic: 2 operation(s).

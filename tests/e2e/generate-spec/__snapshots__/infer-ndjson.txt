@@ -16,17 +16,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    email:
-                      type: string
-                  required:
-                    - id
-                    - name
+                  $ref: '#/components/schemas/User'
       parameters:
         - name: limit
           in: query
@@ -46,18 +36,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  email:
-                    type: string
-                required:
-                  - id
-                  - name
-                  - email
+                $ref: '#/components/schemas/User'
       requestBody:
         content:
           application/json:
@@ -68,6 +47,7 @@ paths:
                   type: string
                 email:
                   type: string
+                  format: email
               required:
                 - name
                 - email
@@ -80,17 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  email:
-                    type: string
-                required:
-                  - id
-                  - name
+                $ref: '#/components/schemas/User'
       parameters:
         - name: userId
           in: path
@@ -136,5 +106,20 @@ paths:
               required:
                 - username
                 - password
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
 
 Inferred a baseline OpenAPI description from traffic: 5 operation(s).

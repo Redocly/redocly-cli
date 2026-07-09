@@ -8,8 +8,10 @@ import type { TrafficFormat } from '../drift/types/index.js';
 import { normalizeFsPath } from '../drift/utils/files.js';
 import { type AiProvider } from './ai/providers.js';
 import { refineSpecWithAi } from './ai/refine.js';
+import { extractSchemaComponents } from './components.js';
 import { countOperations, generateSpecFromTraffic } from './generator.js';
 import { collectTrafficSamples } from './samples.js';
+import { applyValueInference } from './value-inference.js';
 
 export type GenerateSpecArgv = {
   traffic: string;
@@ -38,12 +40,16 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
 
-  const baseline = await generateSpecFromTraffic({
-    trafficPath,
-    format: trafficFormat,
-    title: argv.title,
-    server: argv.server,
-  });
+  const baseline = applyValueInference(
+    extractSchemaComponents(
+      await generateSpecFromTraffic({
+        trafficPath,
+        format: trafficFormat,
+        title: argv.title,
+        server: argv.server,
+      })
+    )
+  );
 
   logger.info(
     `Inferred a baseline OpenAPI description from traffic: ${countOperations(

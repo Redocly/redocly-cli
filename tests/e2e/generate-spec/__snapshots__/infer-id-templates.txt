@@ -52,6 +52,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
   /jobs/{jobId}:
     get:
       operationId: get-jobs-jobId
