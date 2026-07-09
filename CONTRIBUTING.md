@@ -64,9 +64,10 @@ Checklist for experimental features:
 
 1. Clean code isolation (preferably one entrypoint to the existing code).
 1. Reuse of existing approaches, concepts, patterns, types, functions, and constants (such as walker, `NodeType`, `detectSpec`, `isRef`, etc.).
-1. Avoid unnecessary concept duplication.
+1. No unnecessary concept duplication.
 1. Clean, concise docs.
-1. Avoid excessive unit tests (especially testing internal implementation details), prefer e2e; you can request the coverage threshold adjustment if needed.
+1. No excessive unit tests (especially testing internal implementation details), prefer e2e.
+    You can request the coverage threshold adjustment if needed.
 
 ## Development guidelines
 
@@ -180,24 +181,26 @@ The application maintains the following exit codes.
 
 ### Local source code usage
 
-There are two options for testing local changes in other local applications: NPM linking and local packing and installing from the `redocly-cli.tgz` file.
+There are two options for testing local changes in other local applications:
+- NPM linking
+- local packing and installing from the `redocly-cli.tgz` file
 
 #### NPM linking
 
 To test the local source code of the packages in other local applications, you can use npm linking.
-See the [docs](https://docs.npmjs.com/cli/v9/commands/npm-link).
+To learn how to use npm linking, see the [offical docs](https://docs.npmjs.com/cli/v9/commands/npm-link).
 
 #### Local packing and installing
 
 To test local changes as a package, you can use the following steps:
 
-1. Optionally, change the version of the packages.
+1. (Optional) Change the version of the packages.
 
 1. Run `npm run pack:prepare` in the repository's root.
-   This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
+   This command generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
 
-1. Copy those **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI.
-   To install `openapi-core` do the same but with **openapi-core.tgz** file.
+1. Copy these **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI.
+   To install `openapi-core`: repeat this step, but with **openapi-core.tgz** file.
 
 ## Tests
 
@@ -296,8 +299,8 @@ To preview your documentation changes locally:
 
 By default, you can access the docs preview at http://localhost:4000 or http://127.0.0.1:4000.
 
-> Please note that currently the custom markdoc tags used in the main website are not available in the local preview version, and links that point to the wider website do show as errors when using a local platform.
-> The pull request workflows generate a full preview, so rest assured that you are able to check everything is in good shape before we review and merge your changes.
+> Currently, the custom Markdoc tags used in the main website are not available in the local preview version, and links that point to the wider website do show as errors when using a local platform.
+> Pull request workflows generate full previews: you will be able to check if everything is in good shape before we review and merge your changes.
 
 ### Prose linting
 
@@ -335,7 +338,8 @@ Visit the project homepage to find the installation instructions for your platfo
 mlc docs/
 ```
 
-It only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors, so take care when renaming pages or titles.
+The tool only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors.
+Take care when renaming pages or titles.
 
 ## Project structure
 
