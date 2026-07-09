@@ -18,6 +18,7 @@ For full development setup, the complete test command reference, and the release
 - Base changes on what the code and configuration actually do, not on assumptions.
   Read the relevant file before you change it.
 - Use plain English in comments, commit messages, and PR descriptions — no filler and no marketing tone.
+- For experimental features, follow the [experimental features checklist](./CONTRIBUTING.md#experimental-features) in the contributing guide.
 
 The principles behind this, ordered by value, are in [`.claude/rules/core-principles.md`](./.claude/rules/core-principles.md).
 
