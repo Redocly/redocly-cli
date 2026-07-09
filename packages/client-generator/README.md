@@ -400,7 +400,7 @@ export default defineGenerator({
 Select it in `generators` by import specifier (a path or package), or register it inline and select it by `name`:
 
 ```ts
-import generateClient from '@redocly/client-generator';
+import { generateClient } from '@redocly/client-generator';
 import routeMap from './tools/route-map-generator.ts';
 
 await generateClient({
@@ -474,7 +474,7 @@ Inline output embeds the pagination module only when some operation paginates; `
 
 ## Examples
 
-Runnable examples live in [`examples/`](./examples): `zero-install-quickstart`, `fetch-functions`, `configure-and-middleware`, `customization`, `baked-setup`, `sse-streaming`, `zod`, `tanstack-query`, `mock`, `custom-generator`, `programmatic`, `vendored-edge`, `package-runtime` (`runtime: 'package'` — engine fixes via `npm update`), and `multi-instance` (per-tenant `createClient` instances over one generated module).
+Runnable examples live in [`examples/`](./examples): `zero-install-quickstart`, `fetch-functions`, `configure-and-middleware`, `customization`, `baked-setup`, `sse-streaming`, `zod`, `tanstack-query`, `mock`, `custom-generator`, `programmatic`, `vendored-edge`, `package-runtime` (`runtime: 'package'` — engine fixes via `npm update`), `multi-instance` (per-tenant `createClient` instances over one generated module), `pagination` and `custom-pagination` (the declared convention vs. a hand-written helper), and `nested-facade` (a custom generator grouping operations by tag).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation
