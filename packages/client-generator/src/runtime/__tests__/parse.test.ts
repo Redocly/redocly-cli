@@ -42,6 +42,18 @@ describe('parse', () => {
     headerless.headers.delete('content-type');
     expect(await parse(headerless, 'auto')).toBeInstanceOf(Blob);
   });
+
+  it('auto matches content-type case-insensitively (Text/Plain, application/JSON)', async () => {
+    expect(
+      await parse(new Response('plain', { headers: { 'content-type': 'Text/Plain' } }), 'auto')
+    ).toBe('plain');
+    expect(
+      await parse(
+        new Response('{"a":1}', { headers: { 'content-type': 'application/JSON' } }),
+        'auto'
+      )
+    ).toEqual({ a: 1 });
+  });
 });
 
 describe('readError', () => {

@@ -289,8 +289,18 @@ export function createClientCore<
   client.configure = (next: ClientConfig): void => {
     // `errorMode` is fixed at generate time (it shapes the static types); flipping it at
     // runtime would silently desync return shapes from `Client<Ops>`, so it is ignored.
-    const { errorMode: _fixed, ...rest } = next;
+    const { errorMode: _fixed, auth, ...rest } = next;
     Object.assign(config, rest);
+    // `auth` merges into existing credentials (like the `auth.*` setters) rather than
+    // replacing wholesale — so `configure({ auth: { bearer } })` keeps a previously set
+    // basic/apiKey. `apiKey` merges per scheme.
+    if (auth) {
+      config.auth = {
+        ...config.auth,
+        ...auth,
+        ...(auth.apiKey ? { apiKey: { ...config.auth?.apiKey, ...auth.apiKey } } : {}),
+      };
+    }
   };
   client.use = (...middleware: Middleware[]): void => {
     // Reassign (don't push) so a caller-provided `middleware` array isn't mutated.

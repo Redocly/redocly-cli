@@ -12,9 +12,10 @@ export async function parse(response: Response, kind: ParseAs | 'void'): Promise
   if (kind === 'formData') return response.formData();
   if (kind === 'text') return response.text();
   if (kind === 'json') return response.json();
-  // 'auto' — negotiate from the response's content type.
-  const contentType = response.headers.get('content-type') ?? '';
-  if (contentType.toLowerCase().includes('json')) return response.json();
+  // 'auto' — negotiate from the response's content type (case-insensitively:
+  // `Text/Plain` and `application/JSON` are valid per RFC 9110).
+  const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
+  if (contentType.includes('json')) return response.json();
   if (contentType.startsWith('text/')) return response.text();
   return response.blob();
 }

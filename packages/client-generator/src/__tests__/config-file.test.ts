@@ -42,4 +42,12 @@ describe('mergeConfig', () => {
       },
     });
   });
+
+  it('unions pagination `exclude` (a per-API exclude adds to the shared one, never replaces it)', () => {
+    const merged = mergeConfig(
+      { pagination: { style: 'cursor', cursorParam: 'c', items: '/i', exclude: ['a', 'shared'] } },
+      { pagination: { exclude: ['b', 'shared'] } }
+    );
+    expect(merged.pagination?.exclude).toEqual(['a', 'shared', 'b']);
+  });
 });

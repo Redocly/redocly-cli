@@ -13,7 +13,7 @@ client: # shared defaults for every generated client
 apis:
   cafe:
     root: ./openapi.yaml # the input
-    clientOutput: ./src/api/client.ts # optional; defaults to `cafe.client.ts`
+    clientOutput: ./src/api/client.ts # optional; defaults to `<api-name>.client.ts` (here `cafe.client.ts`)
     client: # per-API overrides (optional)
       argsStyle: grouped
 ```
@@ -73,9 +73,9 @@ And the two container fields:
 
 The style-conditional requirements and the structural fit (the advance param must be a declared query parameter of the right type; the pointers must resolve in the JSON success-response schema, `items` landing on an array) are verified at generate time: a convention that doesn't fit skips the operation, while an explicit rule that doesn't fit fails generation. The `x-pagination` operation extension in the spec takes the same rule fields; per operation, precedence is `operations[id]` > `x-pagination` > the convention.
 
-## Precedence
+## How the configuration applies
 
-Settings resolve **top-level `client` → per-API `client` → CLI flags** (later wins). A plain file-path invocation ignores `apis:` and uses only the top-level `client`.
+A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults. A plain file-path invocation (not an `apis:` alias) ignores `apis:` and uses only the top-level `client`. CLI flags then take precedence over the resolved configuration — see the [command reference](../../commands/generate-client.md#configuration).
 
 For code-level control — including registering [custom generators](../../guides/use-generated-client.md#custom-generators) inline — use the programmatic `generateClient(...)` API instead.
 

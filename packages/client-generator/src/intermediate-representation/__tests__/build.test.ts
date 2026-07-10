@@ -1995,7 +1995,21 @@ describe('buildApiModel — security (C6.6)', () => {
     expect(model.services[0].operations[0].security).toEqual(['OAuth2']);
   });
 
-  it('dedupes scheme keys across OR-alternatives and drops non-injectable ones', () => {
+  it('applies the first OR-alternative, never a union across alternatives', () => {
+    const op = buildOpOnly(
+      withSchemes(
+        {
+          OAuth2: { type: 'oauth2', flows: {} },
+          ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+        },
+        // "bearer OR apiKey": the first alternative wins, so both are never sent together.
+        [{ OAuth2: [] }, { ApiKey: [] }]
+      )
+    );
+    expect(op.security).toEqual(['OAuth2']);
+  });
+
+  it('skips an alternative with a non-injectable scheme and uses the next fully-injectable one', () => {
     const op = buildOpOnly(
       withSchemes(
         {
@@ -2003,7 +2017,9 @@ describe('buildApiModel — security (C6.6)', () => {
           ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
           NoScheme: { type: 'http' },
         },
-        [{ OAuth2: [] }, { OAuth2: [], ApiKey: [] }, { NoScheme: [] }]
+        // The first alternative needs a non-injectable scheme, so the client falls to the
+        // next alternative, whose schemes (AND — both required) are all injectable.
+        [{ NoScheme: [] }, { OAuth2: [], ApiKey: [] }]
       )
     );
     expect(op.security).toEqual(['OAuth2', 'ApiKey']);

@@ -333,9 +333,13 @@ function buildSecuritySchemes(doc: Oas3Definition): SecuritySchemeModel[] {
 /**
  * Resolve the effective security for one operation into the set of scheme keys
  * the client should inject. The operation's own `security` overrides the
- * document default; `security: []` opts out entirely. We flatten across the
- * OR-alternatives (each requirement object) into a deduped union, then drop any
- * scheme the client can't inject so the emitter never references an unknown key.
+ * document default; `security: []` opts out entirely.
+ *
+ * Security is an OR of requirement objects, and the schemes *within* one object
+ * are all required together (AND). The client applies exactly ONE alternative —
+ * the first whose schemes are all injectable — so an operation that accepts, say,
+ * "bearer OR apiKey" never sends both credentials at once. When no alternative is
+ * fully injectable, no auth is applied.
  */
 function resolveOperationSecurity(
   operation: Oas3Operation,
@@ -347,17 +351,13 @@ function resolveOperationSecurity(
     (doc as { security?: SecurityRequirement[] }).security;
   if (!requirements) return [];
 
-  const keys: string[] = [];
-  const seen = new Set<string>();
   for (const requirement of requirements) {
-    for (const key of Object.keys(requirement)) {
-      if (injectable.has(key) && !seen.has(key)) {
-        seen.add(key);
-        keys.push(key);
-      }
+    const keys = Object.keys(requirement);
+    if (keys.every((key) => injectable.has(key))) {
+      return [...new Set(keys)];
     }
   }
-  return keys;
+  return [];
 }
 
 function buildNamedSchemas(doc: Oas3Definition): NamedSchemaModel[] {

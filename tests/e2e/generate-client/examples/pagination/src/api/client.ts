@@ -473,9 +473,10 @@ async function parse(response: Response, kind: ParseAs | 'void'): Promise<unknow
   if (kind === 'formData') return response.formData();
   if (kind === 'text') return response.text();
   if (kind === 'json') return response.json();
-  // 'auto' — negotiate from the response's content type.
-  const contentType = response.headers.get('content-type') ?? '';
-  if (contentType.toLowerCase().includes('json')) return response.json();
+  // 'auto' — negotiate from the response's content type (case-insensitively:
+  // `Text/Plain` and `application/JSON` are valid per RFC 9110).
+  const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
+  if (contentType.includes('json')) return response.json();
   if (contentType.startsWith('text/')) return response.text();
   return response.blob();
 }
@@ -1040,8 +1041,18 @@ function createClientCore<
   client.configure = (next: ClientConfig): void => {
     // `errorMode` is fixed at generate time (it shapes the static types); flipping it at
     // runtime would silently desync return shapes from `Client<Ops>`, so it is ignored.
-    const { errorMode: _fixed, ...rest } = next;
+    const { errorMode: _fixed, auth, ...rest } = next;
     Object.assign(config, rest);
+    // `auth` merges into existing credentials (like the `auth.*` setters) rather than
+    // replacing wholesale — so `configure({ auth: { bearer } })` keeps a previously set
+    // basic/apiKey. `apiKey` merges per scheme.
+    if (auth) {
+      config.auth = {
+        ...config.auth,
+        ...auth,
+        ...(auth.apiKey ? { apiKey: { ...config.auth?.apiKey, ...auth.apiKey } } : {}),
+      };
+    }
   };
   client.use = (...middleware: Middleware[]): void => {
     // Reassign (don't push) so a caller-provided `middleware` array isn't mutated.

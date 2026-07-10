@@ -186,9 +186,7 @@ export async function handleGenerateClient({
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HandledError(
-        '\n' +
-          `❌  Failed to generate TypeScript client${job.name ? ` for ${job.name}` : ''}.\n   ${message}\n` +
-          '   Check the API description file path and that the OpenAPI document is valid.'
+        `\n❌  Failed to generate TypeScript client${job.name ? ` for ${job.name}` : ''}.\n   ${message}\n`
       );
     }
   }

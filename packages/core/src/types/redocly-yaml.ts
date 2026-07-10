@@ -308,7 +308,7 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
-    client: 'Client', // generate-client shared defaults
+    client: 'Client',
     telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
@@ -332,8 +332,8 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
-    client: 'Client', // per-API generate-client overrides
-    clientOutput: { type: 'string' }, // per-API client output path
+    client: 'Client',
+    clientOutput: { type: 'string' },
   },
 });
 

@@ -215,6 +215,42 @@ describe('createClientCore', () => {
     expect((calls[2].init.headers as Record<string, string>).Authorization).toBeUndefined();
   });
 
+  it('configure({ auth }) merges into existing credentials instead of replacing them', async () => {
+    const seen: Array<Record<string, unknown>> = [];
+    const { fetchImpl } = spy([jsonOk('ok'), jsonOk('ok'), jsonOk('ok')]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { fetch: fetchImpl, serverUrl: 'https://x' },
+      {
+        resolveAuth: async (_security, config) => {
+          seen.push({ ...(config.auth ?? {}) });
+          return { headers: {}, query: {} };
+        },
+      }
+    );
+    client.auth.basic('u', 'p');
+    client.auth.apiKey('k', 'v');
+    await client.secured({});
+
+    // Only `bearer` — basic/apiKey must survive (no `auth.apiKey`, so the apiKey slot is untouched).
+    client.configure({ auth: { bearer: 'B' } });
+    await client.secured({});
+    expect(seen[1]).toEqual({
+      basic: { username: 'u', password: 'p' },
+      apiKey: { k: 'v' },
+      bearer: 'B',
+    });
+
+    // A new apiKey scheme merges per key, keeping the earlier one.
+    client.configure({ auth: { apiKey: { k2: 'v2' } } });
+    await client.secured({});
+    expect(seen[2]).toEqual({
+      basic: { username: 'u', password: 'p' },
+      apiKey: { k: 'v', k2: 'v2' },
+      bearer: 'B',
+    });
+  });
+
   it('header precedence: caller init.headers beats header params, which beat injected auth', async () => {
     const { calls, fetchImpl } = spy([jsonOk('ok'), jsonOk({ id: '1' })]);
     const client = createClientCore<Ops>(

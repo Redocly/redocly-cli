@@ -50,7 +50,7 @@ With **no argument**, a client is generated for every api that declares a `clien
 
 ## Configuration
 
-Instead of passing flags every time, keep the settings in `redocly.yaml` under a top-level `client` block and per-API `apis.<name>.client` / `clientOutput`. Settings resolve **top-level `client` → per-API `client` → CLI flags**. See [`client` configuration](../configuration/reference/client.md) for the full reference.
+Instead of passing flags every time, keep the settings in `redocly.yaml` under a top-level `client` block and per-API `apis.<name>.client` / `clientOutput`. **CLI flags take precedence over the configuration.** Within the configuration, a per-API `client` block overrides the top-level `client` field by field (unspecified fields fall back to the top-level defaults). See [`client` configuration](../configuration/reference/client.md) for the full reference.
 
 Auto-pagination has **no CLI flag**: it's declared as structured configuration — [`client.pagination`](../configuration/reference/client.md#pagination) in `redocly.yaml`, or the equivalent `x-pagination` operation extension in the spec — and paginated operations gain typed `.pages()`/`.items()` async iterators. See [Pagination in the usage guide](../guides/use-generated-client.md#pagination).
 

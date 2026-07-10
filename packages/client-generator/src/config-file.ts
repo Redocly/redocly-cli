@@ -13,6 +13,8 @@ export function mergeConfig(base: Partial<Config>, overrides: Partial<Config>): 
   }
   // `pagination` is the one nested block: a partial override (e.g. a per-API `operations`
   // map alone) must layer onto the shared convention fields, not replace the whole object.
+  // `operations` merge by id and `exclude` unions — both additive, so a per-API block
+  // extends the shared exclusions/overrides rather than dropping them.
   if (base.pagination && overrides.pagination) {
     merged.pagination = { ...base.pagination, ...overrides.pagination };
     if (base.pagination.operations || overrides.pagination.operations) {
@@ -20,6 +22,11 @@ export function mergeConfig(base: Partial<Config>, overrides: Partial<Config>): 
         ...base.pagination.operations,
         ...overrides.pagination.operations,
       };
+    }
+    if (base.pagination.exclude || overrides.pagination.exclude) {
+      merged.pagination.exclude = [
+        ...new Set([...(base.pagination.exclude ?? []), ...(overrides.pagination.exclude ?? [])]),
+      ];
     }
   }
   return merged;

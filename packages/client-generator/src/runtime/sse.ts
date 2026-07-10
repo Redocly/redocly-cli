@@ -5,6 +5,15 @@ import { send } from './send.js';
 import type { ClientConfig, OperationContext, ServerSentEvent, SseOptions } from './types.js';
 
 /**
+ * A frame delimiter: two consecutive line terminators (each CR, LF, or CRLF, per the SSE
+ * spec — so mixed endings like `\n\r\n` are valid boundaries, not just matching pairs).
+ */
+const FRAME_DELIMITER = /(?:\r\n|\r|\n){2}/;
+
+/** An event's JSON `data` failed to parse — a stable bad payload, not a dropped connection. */
+export class SseParseError extends Error {}
+
+/**
  * Consume a `text/event-stream` operation as typed events (capability module — wired
  * into `createClient`). Auto-reconnects on dropped connections, resuming from the last
  * seen event id via `Last-Event-ID` (backoff: the server's `retry:` value, then
@@ -55,12 +64,11 @@ export async function* sse<T>(
         while (true) {
           const { done, value } = await reader.read();
           buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
-          let index: number;
-          while ((index = buffer.search(/\r\n\r\n|\n\n|\r\r/)) !== -1) {
+          let match: RegExpMatchArray | null;
+          while ((match = buffer.match(FRAME_DELIMITER)) !== null) {
+            const index = match.index!;
             const raw = buffer.slice(0, index);
-            buffer = buffer.slice(
-              index + buffer.slice(index).match(/^(\r\n\r\n|\n\n|\r\r)/)![0].length
-            );
+            buffer = buffer.slice(index + match[0].length);
             const event = parseSseFrame(raw, dataKind);
             if (event) {
               if (event.id !== undefined) lastEventId = event.id;
@@ -90,9 +98,10 @@ export async function* sse<T>(
       }
     } catch (error) {
       if (signal?.aborted) return;
-      // A non-OK HTTP response is a definitive error (4xx/5xx), not a transient drop —
-      // surface it instead of reconnecting in a loop.
-      if (error instanceof ApiError) throw error;
+      // A non-OK HTTP response (4xx/5xx) or an unparseable JSON payload is a definitive
+      // error, not a transient drop — surface it instead of reconnecting in a loop (a
+      // stable bad payload would otherwise reconnect forever).
+      if (error instanceof ApiError || error instanceof SseParseError) throw error;
       // A transport failure (connect/DNS/reset) when opening the request, or a mid-stream
       // read error, is a dropped connection: fall through to backoff/reconnect when enabled.
       if (!reconnect) throw error;
@@ -136,6 +145,15 @@ export function parseSseFrame(
   }
   if (!sawField) return undefined;
   const dataText = dataLines.join('\n');
-  const data = dataKind === 'json' && dataText !== '' ? JSON.parse(dataText) : dataText;
+  let data: unknown = dataText;
+  if (dataKind === 'json' && dataText !== '') {
+    try {
+      data = JSON.parse(dataText);
+    } catch (error) {
+      throw new SseParseError(
+        `Failed to parse SSE event data as JSON: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
   return { event, data, id, retry };
 }

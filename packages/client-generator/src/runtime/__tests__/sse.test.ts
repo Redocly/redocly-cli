@@ -1,4 +1,4 @@
-import { parseSseFrame, sse } from '../sse.js';
+import { parseSseFrame, sse, SseParseError } from '../sse.js';
 
 const enc = new TextEncoder();
 function streamResponse(chunks: string[], opts: { status?: number } = {}) {
@@ -33,6 +33,12 @@ describe('parseSseFrame', () => {
     expect(parseSseFrame(': keepalive', 'text')).toBeUndefined();
     expect(parseSseFrame('foo: bar\ndata: x', 'text')?.data).toBe('x');
   });
+
+  it('throws SseParseError (not a generic error) when json data is malformed', () => {
+    expect(() => parseSseFrame('data: {not json', 'json')).toThrow(SseParseError);
+    // text dataKind never parses, so the same payload is returned verbatim.
+    expect(parseSseFrame('data: {not json', 'text')?.data).toBe('{not json');
+  });
 });
 
 describe('sse', () => {
@@ -60,6 +66,30 @@ describe('sse', () => {
       seen.push(ev.data);
     }
     expect(seen).toEqual(['a', 'tail']);
+  });
+
+  it('splits frames on mixed CR/LF double line endings, not just matching pairs', async () => {
+    // `\n\r\n` and `\r\n\r` are valid double-boundaries per the SSE spec.
+    const fetchImpl = (async () =>
+      streamResponse(['data: a\n\r\ndata: b\r\n\rdata: c\n\n'])) as unknown as typeof fetch;
+    const seen: unknown[] = [];
+    for await (const ev of sse({ fetch: fetchImpl }, op, 'u', { reconnect: false }, 'text')) {
+      seen.push(ev.data);
+    }
+    expect(seen).toEqual(['a', 'b', 'c']);
+  });
+
+  it('surfaces a malformed JSON payload as SseParseError and does NOT reconnect', async () => {
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls++;
+      return streamResponse(['data: {bad json\n\n']);
+    }) as unknown as typeof fetch;
+    await expect(async () => {
+      // `reconnect` defaults to true; a parse error must still surface, not loop forever.
+      for await (const _ of sse({ fetch: fetchImpl }, op, 'u', {}, 'json')) void _;
+    }).rejects.toBeInstanceOf(SseParseError);
+    expect(calls).toBe(1);
   });
 
   it('reconnects after a drop, resuming with Last-Event-ID', async () => {

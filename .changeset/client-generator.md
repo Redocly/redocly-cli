@@ -4,9 +4,9 @@
 '@redocly/cli': minor
 ---
 
-Added an **experimental** `generate-client` command that generates a typed TypeScript client from an OpenAPI description — auth, retries, middleware, typed SSE streaming, and multipart out of the box, built on a hand-written, directly-tested runtime.
+Added an **experimental** `generate-client` command that generates a typed, zero-dependency TypeScript client from an OpenAPI description — auth, retries, middleware, typed SSE streaming, pagination, and multipart out of the box.
 
-Generated clients are typed operation descriptors (`OPERATIONS … satisfies Record<string, OperationDescriptor>`) plus an `Ops` type, wired into a `createClient` instance. Every generated module exports both call styles: the `client` instance (grouped-args methods plus `configure`/`use`/`auth`) and free-function one-liners (`--args-style` shapes them), and re-exports `createClient` for additional per-tenant instances.
+See the [`generate-client` command reference](https://redocly.com/docs/cli/commands/generate-client) and [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client) for full documentation. Highlights:
 
 - `--runtime` option (`redocly.yaml`: `client.runtime`): `inline` (default) emits one self-contained, zero-dependency file, embedding only the runtime parts the API needs; `package` makes the generated file import the engine from `@redocly/client-generator`, so runtime fixes arrive via `npm update` with no regeneration. Application code is identical in both modes, and the emitted `satisfies` clause doubles as a build-time version-skew guard.
 - `--output-mode`: `single` (default) or `split` (the entry file plus a `<name>.schemas.ts` sibling). Both modes work with both runtimes.
