@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 2.38.0
+
+### Minor Changes
+
+- Added an experimental `drift` command that compares recorded HTTP traffic (HAR, Kong, Nginx/Apache JSON, NDJSON) against an OpenAPI description and reports undocumented endpoints, schema mismatches, and security findings.
+- Added an experimental `proxy` command that captures live HTTP traffic through a reverse proxy into a HAR file and optionally validates it against an OpenAPI description in real time.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.38.0.
+
 ## 2.37.0
 
 ### Minor Changes

@@ -1,0 +1,45 @@
+openapi: 3.1.0
+info:
+  title: ReadOnly Test API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /items:
+    post:
+      operationId: createItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+components:
+  schemas:
+    Item:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - secret
+        - createdAt
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        secret:
+          type: string
+          writeOnly: true
+        createdAt:
+          type: string
+          readOnly: true
