@@ -128,8 +128,12 @@ export async function collectTrafficSamples(
       }
       const path = getPathWithoutTrailingSlash(rawPath);
       const { template } = templatizePath(path);
-      const status = exchange.response?.status;
-      const shape = `${shapeSignature(exchange.request)}→${shapeSignature(exchange.response)}`;
+      // Statuses below 100 (e.g. 0) mean the response was never received;
+      // ignore such responses, mirroring the baseline generator.
+      const response =
+        exchange.response && exchange.response.status >= 100 ? exchange.response : undefined;
+      const status = response?.status;
+      const shape = `${shapeSignature(exchange.request)}→${shapeSignature(response)}`;
 
       let groups = operations.get(operationSampleKey(method, template));
       if (!groups) {
@@ -152,8 +156,8 @@ export async function collectTrafficSamples(
         status,
         requestContentType: exchange.request.contentType,
         requestBody: snapshotBody(exchange.request, maxBodyChars),
-        responseContentType: exchange.response?.contentType,
-        responseBody: exchange.response ? snapshotBody(exchange.response, maxBodyChars) : undefined,
+        responseContentType: response?.contentType,
+        responseBody: response ? snapshotBody(response, maxBodyChars) : undefined,
       });
     }
   }

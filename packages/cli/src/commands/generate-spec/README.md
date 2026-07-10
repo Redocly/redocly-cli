@@ -76,6 +76,11 @@ the reason), components no operation references anymore are pruned, and the fina
 is linted again as a whole. If refinement fails for every operation, the command falls back
 to the deterministic baseline. Each provider call times out after 5 minutes.
 
+The acceptance lint is intentionally pinned to the `spec` ruleset and does not use the
+project's `redocly.yaml`: a stricter governance config would reject refinements for
+problems the baseline itself has, and a looser one could let structurally broken output
+through. Lint the generated description with your own config afterward.
+
 > **Warning:** `--with-ai` sends samples of the recorded traffic (URLs, query strings,
 > request and response bodies) to the selected AI provider. Make sure the traffic contains
 > no secrets or personal data you are not allowed to share.

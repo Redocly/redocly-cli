@@ -90,6 +90,32 @@ describe('collectTrafficSamples', () => {
     expect(blob?.requestBody?.endsWith('…[truncated]')).toBe(true);
   });
 
+  it('ignores response data for statuses below 100', async () => {
+    const neverReceived = JSON.stringify({
+      request: {
+        method: 'GET',
+        url: 'http://api.example.com/users',
+        headers: { host: 'api.example.com' },
+      },
+      response: {
+        status: 0,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ error: 'aborted' }),
+      },
+    });
+
+    const samples = await collectTrafficSamples({
+      trafficPath: writeTraffic([neverReceived]),
+      format: 'auto',
+    });
+
+    const users = samples.get('GET /users');
+    expect(users).toHaveLength(1);
+    expect(users?.[0].status).toBeUndefined();
+    expect(users?.[0].responseBody).toBeUndefined();
+    expect(users?.[0].responseContentType).toBeUndefined();
+  });
+
   it('ignores exchanges with unsupported HTTP methods', async () => {
     const lines = [
       exchange('CONNECT', 'http://api.example.com/tunnel'),
