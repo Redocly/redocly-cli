@@ -32,7 +32,7 @@ describe('validateGenerators', () => {
 
   it('rejects tanstack-query without sdk, naming the fix', () => {
     expect(() => validateGenerators(['tanstack-query'], {})).toThrow(
-      /requires the "sdk" generator.*--generators sdk,tanstack-query/
+      /requires the "sdk" generator.*--generator sdk --generator tanstack-query/
     );
   });
 
@@ -70,7 +70,7 @@ describe('swr generator', () => {
 
   it('rejects swr without sdk, naming the fix', () => {
     expect(() => validateGenerators(['swr'], {})).toThrow(
-      /requires the "sdk" generator.*--generators sdk,swr/
+      /requires the "sdk" generator.*--generator sdk --generator swr/
     );
   });
 

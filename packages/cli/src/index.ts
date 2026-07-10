@@ -929,7 +929,7 @@ yargs(hideBin(process.argv))
           },
           'date-type': {
             describe:
-              "How `date-time`/`date` string fields are typed: 'string' (default) keeps the ISO wire shape; 'Date' emits a `Date` (pair with --generators transformers so the runtime value matches).",
+              "How `date-time`/`date` string fields are typed: 'string' (default) keeps the ISO wire shape; 'Date' emits a `Date` (pair with --generator transformers so the runtime value matches).",
             choices: ['string', 'Date'] as const,
             requiresArg: true,
           },
