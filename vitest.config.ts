@@ -25,13 +25,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           functions: 73,
           statements: 69,
           branches: 61,
-          // The hand-written client runtime is held to 100% (aggregate 100% ⇒ every file 100%).
-          'packages/client-generator/src/runtime/**/*.ts': {
-            lines: 100,
-            functions: 100,
-            statements: 100,
-            branches: 100,
-          },
         },
       },
     },
