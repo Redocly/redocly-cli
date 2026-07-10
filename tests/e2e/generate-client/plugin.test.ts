@@ -24,7 +24,15 @@ describe('generate-client custom generator (plugin) API', () => {
   it('loads a generator from a path specifier and runs it alongside the sdk', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-'));
     const output = join(dir, 'client.ts');
-    const { status, out } = run([cafe, '--output', output, '--generators', `sdk,${plugin}`]);
+    const { status, out } = run([
+      cafe,
+      '--output',
+      output,
+      '--generator',
+      'sdk',
+      '--generator',
+      plugin,
+    ]);
 
     expect(status, out).toBe(0);
     expect(existsSync(output)).toBe(true);
@@ -43,8 +51,10 @@ describe('generate-client custom generator (plugin) API', () => {
       cafe,
       '--output',
       join(dir, 'client.ts'),
-      '--generators',
-      `sdk,${join(dir, 'missing-plugin.mjs')}`,
+      '--generator',
+      'sdk',
+      '--generator',
+      join(dir, 'missing-plugin.mjs'),
     ]);
     expect(status).not.toBe(0);
     expect(out).toMatch(/Could not load generator/);

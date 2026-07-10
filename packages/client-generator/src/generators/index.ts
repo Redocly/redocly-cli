@@ -70,9 +70,9 @@ export function validateGenerators(
     }
     for (const required of descriptor.requires ?? []) {
       if (!selected.has(required)) {
-        const fixed = [...new Set([required, ...names])].join(',');
+        const fixed = [...new Set([required, ...names])].map((g) => `--generator ${g}`).join(' ');
         throw new NotSupportedError(
-          `The "${name}" generator requires the "${required}" generator. Add it, e.g. --generators ${fixed}.`
+          `The "${name}" generator requires the "${required}" generator. Add it, e.g. ${fixed}.`
         );
       }
     }

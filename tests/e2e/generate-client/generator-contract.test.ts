@@ -1,4 +1,4 @@
-// The generator compatibility contract: an incompatible `--generators` selection must
+// The generator compatibility contract: an incompatible `--generator` selection must
 // fail fast with an actionable message (never emit a client that won't compile), and
 // `tanstack-query` must gracefully skip SSE operations (which the sdk doesn't export).
 import { spawnSync } from 'node:child_process';
@@ -29,12 +29,12 @@ describe('generate-client generator compatibility contract', () => {
       cafe,
       '--output',
       join(dir, 'c.ts'),
-      '--generators',
+      '--generator',
       'tanstack-query',
     ]);
     expect(status).not.toBe(0);
     expect(out).toMatch(/requires the "sdk" generator/);
-    expect(out).toMatch(/--generators sdk,tanstack-query/);
+    expect(out).toMatch(/--generator sdk --generator tanstack-query/);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -44,8 +44,10 @@ describe('generate-client generator compatibility contract', () => {
       cafe,
       '--output',
       join(dir, 'c.ts'),
-      '--generators',
-      'sdk,tanstack-query',
+      '--generator',
+      'sdk',
+      '--generator',
+      'tanstack-query',
       '--error-mode',
       'result',
     ]);
@@ -60,20 +62,22 @@ describe('generate-client generator compatibility contract', () => {
       cafe,
       '--output',
       join(dir, 'c.ts'),
-      '--generators',
-      'sdk,transformers',
+      '--generator',
+      'sdk',
+      '--generator',
+      'transformers',
     ]);
     expect(status).not.toBe(0);
     expect(out).toMatch(/requires --date-type Date/);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('treats an empty --generators value as unset, defaulting to the sdk client', () => {
+  it('defaults to the sdk client when no --generator is passed', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
     const outFile = join(dir, 'c.ts');
-    // `--generators ,` coerces to an empty list; it must fall back to the default sdk
-    // generator and emit a client, not silently report success with no output.
-    const { status, out } = run([cafe, '--output', outFile, '--generators', ',']);
+    // With no `--generator` flag the selection is unset, so it falls back to the default
+    // sdk generator and emits a client rather than silently producing nothing.
+    const { status, out } = run([cafe, '--output', outFile]);
     expect(status, out).toBe(0);
     expect(existsSync(outFile)).toBe(true);
     expect(readFileSync(outFile, 'utf-8')).toContain('export const client = createClient<Ops,');
@@ -86,8 +90,10 @@ describe('generate-client generator compatibility contract', () => {
       sse,
       '--output',
       join(dir, 'c.ts'),
-      '--generators',
-      'sdk,tanstack-query',
+      '--generator',
+      'sdk',
+      '--generator',
+      'tanstack-query',
     ]);
     expect(status, out).toBe(0);
     expect(out).toMatch(/tanstack-query skipped \d+ server-sent-events operation/);
@@ -127,8 +133,10 @@ describe('generate-client generator compatibility contract', () => {
       join(dir, 'api.yaml'),
       '--output',
       join(dir, 'c.ts'),
-      '--generators',
-      'sdk,tanstack-query',
+      '--generator',
+      'sdk',
+      '--generator',
+      'tanstack-query',
     ]);
     expect(status, out).toBe(0);
     expect(out).toMatch(

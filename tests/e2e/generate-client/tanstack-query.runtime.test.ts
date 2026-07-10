@@ -55,8 +55,10 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
         join(__dirname, 'fixtures', 'base.yaml'),
         '--output',
         sdkFile,
-        '--generators',
-        'sdk,tanstack-query',
+        '--generator',
+        'sdk',
+        '--generator',
+        'tanstack-query',
       ],
       { encoding: 'utf-8', cwd: repoRoot }
     );

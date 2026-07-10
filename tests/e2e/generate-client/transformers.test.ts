@@ -33,9 +33,12 @@ const fixture = join(__dirname, 'fixtures', 'transformers.yaml');
 const consumerDir = join(__dirname, 'transformers-consumer');
 
 function generate(out: string, args: string[]): void {
+  // args[0] is a comma-separated generator list; the rest are extra flags.
+  const [generators, ...rest] = args;
+  const generatorFlags = generators.split(',').flatMap((g) => ['--generator', g]);
   const res = spawnSync(
     'node',
-    [cli, 'generate-client', fixture, '--output', out, '--generators', ...args],
+    [cli, 'generate-client', fixture, '--output', out, ...generatorFlags, ...rest],
     { encoding: 'utf-8', cwd: repoRoot }
   );
   expect(res.status, res.stderr).toBe(0);

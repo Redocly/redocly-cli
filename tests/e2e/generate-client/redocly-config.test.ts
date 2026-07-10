@@ -392,4 +392,44 @@ describe('generate-client redocly.yaml config', () => {
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
+
+  it("applies the api's per-alias decorators to the input before generating", () => {
+    // The client is generated from the api's resolved config (like `bundle`/`lint`), so a
+    // per-api `remove-x-internal` decorator strips the x-internal operation before the IR
+    // is built — the generated client must not contain it.
+    const dir = mkdtempSync(join(tmpdir(), 'ots-redocly-decorators-'));
+    writeFileSync(
+      join(dir, 'openapi.yaml'),
+      [
+        'openapi: 3.1.0',
+        'info: { title: T, version: 1.0.0 }',
+        'paths:',
+        '  /public:',
+        '    get: { operationId: getPublic, responses: { 200: { description: ok } } }',
+        '  /secret:',
+        '    get: { operationId: getSecret, x-internal: true, responses: { 200: { description: ok } } }',
+      ].join('\n') + '\n',
+      'utf-8'
+    );
+    writeFileSync(
+      join(dir, 'redocly.yaml'),
+      [
+        'apis:',
+        '  main:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./client.ts',
+        '    decorators:',
+        '      remove-x-internal: on',
+        '    client:',
+        '      generators: [sdk]',
+      ].join('\n') + '\n',
+      'utf-8'
+    );
+    const res = run(dir, ['main']);
+    expect(res.status, res.stderr).toBe(0);
+    const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
+    expect(client).toContain('getPublic');
+    expect(client).not.toContain('getSecret');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
 });

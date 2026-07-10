@@ -233,7 +233,12 @@ yargs(hideBin(process.argv))
             required: true,
             alias: 'p',
           },
-          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: false },
+          domain: {
+            description: 'Specify a domain.',
+            alias: 'd',
+            type: 'string',
+            required: false,
+          },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
@@ -334,7 +339,11 @@ yargs(hideBin(process.argv))
             description: 'Commit creation date.',
             type: 'string',
           },
-          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          domain: {
+            description: 'Specify a domain.',
+            alias: 'd',
+            type: 'string',
+          },
           config: {
             description: 'Path to the config file.',
             requiresArg: true,
@@ -861,7 +870,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'generate-client [api]',
-    'Generate a TypeScript client from an OpenAPI description.',
+    'Generate a TypeScript client from an OpenAPI description [experimental].',
     (yargs) => {
       return yargs
         .env('REDOCLY_CLI_GENERATE_CLIENT')
@@ -942,18 +951,12 @@ yargs(hideBin(process.argv))
             type: 'number',
             requiresArg: true,
           },
-          generators: {
+          generator: {
             describe:
-              'Generators to run, comma-separated (default: sdk). Built-in names (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generators sdk,zod or --generators sdk,./my-generator.ts',
+              'Generator to run; repeat the flag to run several (default: sdk). A built-in name (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generator sdk --generator zod',
             type: 'string',
-            coerce: (value: string | undefined): string[] | undefined => {
-              if (value === undefined) return undefined;
-              const generators = value
-                .split(',')
-                .map((entry) => entry.trim())
-                .filter(Boolean);
-              return generators.length ? generators : undefined;
-            },
+            array: true,
+            requiresArg: true,
           },
           config: {
             describe: 'Path to the config file.',

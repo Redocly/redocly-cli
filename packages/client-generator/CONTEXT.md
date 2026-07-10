@@ -61,7 +61,7 @@ The `sdk` generator is the typed client (it delegates to the output-mode **Write
 The `zod` generator emits a standalone `<stem>.zod.ts` **schema module** (one `export const <Name>Schema` per IR named schema) beside the client.
 The `tanstack-query` generator emits a TanStack Query v5 (React) module (`<stem>.tanstack.ts`) wrapping the sdk — per query op a `<op>QueryKey`/`<op>Options` (`queryOptions`) factory + query key, per mutation a `<op>Mutation` (`mutationKey`/`mutationFn`) factory (requires the `sdk` generator; the consumer installs `@tanstack/react-query`).
 The `transformers` generator emits a standalone `<stem>.transformers.ts` of `transform<Name>(data: <Name>): <Name>` functions — one per IR named schema that (recursively) carries a `date-time`/`date` field — that walk the value and rewrite wire ISO strings to `new Date(...)` in place, composing across refs (`transformPet` calls `transformOwner`); pair it with the **dateType** knob (`--date-type Date`) so the parsed value matches the type (it imports only the schema TYPES, so the client stays zero-dep).
-`generateClient` runs the configured generators (default `['sdk']`, selected via `--generators sdk,zod`) and merges their files.
+`generateClient` runs the configured generators (default `['sdk']`, selected via `--generator sdk --generator zod`) and merges their files.
 Custom generators are authored with `defineGenerator` and selected inline or by import specifier (the experimental **plugin** API, ADR-0012).
 _Avoid_: middleware (that's a runtime concept).
 
@@ -126,7 +126,7 @@ _Avoid_: throwOnError, errorHandling, result shape (in code identifiers).
 **dateType**:
 How `format: date-time`/`date` string fields are typed: `string` (default — byte-identical to the ISO wire shape) or `Date`.
 Selected by `--date-type`.
-Under `Date` the sdk emits `Date` for those scalar `string` schemas; the runtime conversion is opt-in and separate — pair it with the **`transformers` generator** (`--generators sdk,transformers`) so the parsed value matches the type.
+Under `Date` the sdk emits `Date` for those scalar `string` schemas; the runtime conversion is opt-in and separate — pair it with the **`transformers` generator** (`--generator sdk --generator transformers`) so the parsed value matches the type.
 `int64` → `bigint` is deferred to a follow-up.
 _Avoid_: dateMode, parseDates (in code identifiers).
 

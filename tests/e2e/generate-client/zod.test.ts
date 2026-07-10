@@ -26,8 +26,10 @@ describe('generate-client zod generator', () => {
         join(__dirname, 'fixtures', 'cafe.yaml'),
         '--output',
         out,
-        '--generators',
-        'sdk,zod',
+        '--generator',
+        'sdk',
+        '--generator',
+        'zod',
       ],
       { encoding: 'utf-8', cwd: repoRoot }
     );

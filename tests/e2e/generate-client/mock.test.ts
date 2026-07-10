@@ -56,7 +56,7 @@ describe('mock generator — generated client through MSW', () => {
     // relative to the importing file, so the temp dir must live inside the repo
     // tree to walk up to the root node_modules — `os.tmpdir()` would not resolve it.
     dir = mkdtempSync(join(__dirname, 'mock-consumer-'));
-    generate(dir, ['--generators', 'sdk,mock']);
+    generate(dir, ['--generator', 'sdk', '--generator', 'mock']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -128,7 +128,20 @@ describe('mock generator — mock + transformers + --date-type Date compile toge
     dir = mkdtempSync(join(__dirname, 'mock-date-'));
     // transformers REQUIRES --date-type Date; the sdk then types date fields `Date`,
     // so the mock sampler must bake `new Date(...)` to type-check (BUG 1 regression).
-    generate(dir, ['--generators', 'sdk,mock,transformers', '--date-type', 'Date'], dateFixture);
+    generate(
+      dir,
+      [
+        '--generator',
+        'sdk',
+        '--generator',
+        'mock',
+        '--generator',
+        'transformers',
+        '--date-type',
+        'Date',
+      ],
+      dateFixture
+    );
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -166,7 +179,16 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(__dirname, 'mock-faker-'));
-    generate(dir, ['--generators', 'sdk,mock', '--mock-data', 'faker', '--mock-seed', '42']);
+    generate(dir, [
+      '--generator',
+      'sdk',
+      '--generator',
+      'mock',
+      '--mock-data',
+      'faker',
+      '--mock-seed',
+      '42',
+    ]);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

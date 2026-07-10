@@ -20,16 +20,27 @@ export type GenerateClientCommandArgv = {
   'query-framework'?: 'react' | 'vue' | 'svelte' | 'solid';
   'mock-data'?: 'baked' | 'faker';
   'mock-seed'?: number;
-  // Built-in names, inline custom-generator names, or plugin import specifiers (path/package).
-  generators?: string[];
+  // Repeated `--generator` flags: built-in names, inline custom-generator names, or plugin
+  // import specifiers (path/package).
+  generator?: string[];
   // Path to a publisher setup module baked into the generated client.
   setup?: string;
 };
 
 type ClientConfig = Partial<OpenApiTsConfig>;
 
-/** A single client to generate: which API to read, where to write it, and its per-API `client` block. */
-type Job = { name: string; api: string; clientOutput?: string; perApiClient: ClientConfig };
+/**
+ * A single client to generate: which API to read, where to write it, its per-API `client`
+ * block, and — for a named `apis:` entry — its `alias` so the input is bundled with that
+ * api's resolved config (its `extends`/`resolve`/decorators), like `bundle`/`lint` do.
+ */
+type Job = {
+  name: string;
+  api: string;
+  alias?: string;
+  clientOutput?: string;
+  perApiClient: ClientConfig;
+};
 
 /** A URL-ish specifier (`https://…`, `file:…`, `javascript:…`) — two+ letter scheme, so Windows drive paths (`C:\\…`) don't match. */
 const URL_SCHEME = /^[a-z][a-z0-9+.-]+:/i;
@@ -96,7 +107,7 @@ export async function handleGenerateClient({
     queryFramework: argv['query-framework'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
-    generators: argv.generators,
+    generators: argv.generator,
     setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
   };
 
@@ -104,6 +115,7 @@ export async function handleGenerateClient({
     const apiCfg = apisCfg[name];
     return {
       name,
+      alias: name,
       api: getAliasOrPath(config, name).path,
       clientOutput: apiCfg?.clientOutput,
       perApiClient: isPlainObject(apiCfg?.client)
@@ -169,6 +181,11 @@ export async function handleGenerateClient({
       );
     }
 
+    // Bundle the input with the api's resolved config (its `extends`/`resolve`/decorators),
+    // the same per-alias resolution `bundle`/`lint` use — so the generated client sees the
+    // same document. A plain file path (no alias) resolves the root config.
+    const aliasConfig = config.forAlias(job.alias);
+
     try {
       logger.info(
         gray(`\n  Generating TypeScript client${job.name ? ` for ${job.name}` : ''}... \n`)
@@ -177,7 +194,7 @@ export async function handleGenerateClient({
         ...merged,
         api: job.api,
         output: outputPath,
-        config,
+        config: aliasConfig,
         configDir,
       });
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;

@@ -27,8 +27,10 @@ describe('generate-client swr generator', () => {
         join(__dirname, 'fixtures', 'base.yaml'),
         '--output',
         out,
-        '--generators',
-        'sdk,swr',
+        '--generator',
+        'sdk',
+        '--generator',
+        'swr',
       ],
       { encoding: 'utf-8', cwd: repoRoot }
     );

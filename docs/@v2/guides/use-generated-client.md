@@ -4,7 +4,7 @@ How to consume the TypeScript client produced by [`generate-client`](../commands
 
 ## Generators
 
-`--generators` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so an add-on never adds a dependency to the client. Incompatible selections fail fast with an explanation.
+`--generator` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so an add-on never adds a dependency to the client. Incompatible selections fail fast with an explanation.
 
 | Generator        | Emits                                                                                     | App peer dependency                                      |
 | ---------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -16,7 +16,7 @@ How to consume the TypeScript client produced by [`generate-client`](../commands
 | `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`. | none                                                     |
 
 ```sh
-redocly generate-client openapi.yaml --output src/client.ts --generators sdk,zod,mock
+redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
 ```
 
 `tanstack-query` and `swr` wrap the **throw-mode** `sdk` functions, so they require `--error-mode throw`. `transformers` requires `--date-type Date`. See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
