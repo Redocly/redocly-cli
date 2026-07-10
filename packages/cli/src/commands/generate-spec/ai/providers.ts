@@ -69,7 +69,19 @@ function runCommand(
 }
 
 async function runClaude(request: ProviderRequest): Promise<ProviderResult> {
-  const args = ['-p', '--output-format', 'text', '--append-system-prompt', request.system];
+  // The prompt is a pure text transform: disabling built-in tools and MCP
+  // servers keeps each invocation a single-shot completion without the
+  // startup cost of the user's MCP configuration.
+  const args = [
+    '-p',
+    '--output-format',
+    'text',
+    '--tools',
+    '',
+    '--strict-mcp-config',
+    '--append-system-prompt',
+    request.system,
+  ];
   if (request.model) {
     args.push('--model', request.model);
   }

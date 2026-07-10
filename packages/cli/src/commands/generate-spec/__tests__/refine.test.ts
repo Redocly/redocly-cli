@@ -167,6 +167,29 @@ describe('refineSpecWithAi', () => {
     expect(thirdRequest.user).toContain('description: A user account');
   });
 
+  it('refines operations in parallel when concurrency is greater than 1', async () => {
+    const resolvers: ((result: { text: string }) => void)[] = [];
+    vi.mocked(runProvider).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvers.push(resolve);
+        })
+    );
+    const resultPromise = refineSpecWithAi({
+      provider: 'claude',
+      baseline: baseline(),
+      samplesByOperation: new Map(),
+      concurrency: 2,
+    });
+    await vi.waitFor(() => expect(resolvers).toHaveLength(2));
+    resolvers[0]({ text: refinedGetUsers });
+    resolvers[1]({ text: refinedPostUsers });
+    const result = await resultPromise;
+    expect(result.refined).toBe(2);
+    expect(result.yaml).toContain('summary: List users');
+    expect(result.yaml).toContain('operationId: createUser');
+  });
+
   it('strips Markdown code fences before parsing', async () => {
     mockResponses(`\`\`\`yaml\n${refinedGetUsers}\n\`\`\``, refinedPostUsers);
     const result = await refine();

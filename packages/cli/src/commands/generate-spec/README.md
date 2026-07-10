@@ -59,9 +59,12 @@ narrow types, add formats, enums, descriptions and examples, refine or add
 `components/schemas`, and model alternative payloads explicitly with `oneOf` (plus
 `discriminator`) and `allOf` composition.
 
-Operations are processed sequentially and every accepted refinement is merged back before
-the next prompt, so later operations see already-refined shared components. Progress is
-reported per operation as prompts are sent.
+Up to `--ai-concurrency` operations (default 4) are refined in parallel, and every accepted
+refinement is merged back as it arrives, so operations prompted later see already-refined
+shared components. When two concurrent refinements touch the same shared component, the one
+merged last wins; the final whole-document lint still guards the result. Set
+`--ai-concurrency 1` to process operations strictly sequentially. Progress is reported per
+operation as refinements complete.
 
 The AI's answer is never trusted blindly. A refined operation is only accepted when it:
 
@@ -96,11 +99,13 @@ through. Lint the generated description with your own config afterward.
 | `--with-ai`        | Refine the inferred description with an AI provider.                                                  |
 | `--ai-provider`    | `claude`, `codex`, or `cursor` (default `claude`).                                                    |
 | `--ai-model`       | Model passed to the selected provider.                                                                |
+| `--ai-concurrency` | Number of operations refined in parallel (default `4`).                                               |
 | `-o, --output`     | Write the result to a file instead of stdout.                                                         |
 
 ## AI providers
 
-- **`claude`** — runs the local `claude` CLI in headless mode (`claude -p`).
+- **`claude`** — runs the local `claude` CLI in headless mode (`claude -p`), with built-in
+  tools and configured MCP servers disabled so every call is a plain completion.
 - **`codex`** — runs the local `codex` CLI in non-interactive mode (`codex exec`).
 - **`cursor`** — runs the local Cursor CLI in print mode (`cursor-agent -p`; the renamed
   `agent` binary is tried as a fallback).

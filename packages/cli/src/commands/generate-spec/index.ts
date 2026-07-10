@@ -23,6 +23,7 @@ export type GenerateSpecArgv = {
   'with-ai'?: boolean;
   'ai-provider': AiProvider;
   'ai-model'?: string;
+  'ai-concurrency': number;
   config?: string;
 };
 
@@ -32,10 +33,19 @@ async function writeOutput(outputPath: string, contents: string): Promise<void> 
   await writeFile(normalized, contents, 'utf8');
 }
 
+function formatElapsed(milliseconds: number): string {
+  const totalSeconds = Math.round(milliseconds / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+}
+
 export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>) {
   if (argv.type !== 'openapi') {
     return exitWithError(`Unsupported spec type "${argv.type}". Only "openapi" is supported.`);
   }
+
+  const startedAt = Date.now();
 
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
@@ -78,6 +88,7 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
         model: argv['ai-model'],
         baseline,
         samplesByOperation,
+        concurrency: argv['ai-concurrency'],
       });
       resultYaml = refined.yaml;
       logger.info(
@@ -95,8 +106,9 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
   if (argv.output) {
     await writeOutput(argv.output, resultYaml);
     logger.info(`Written to: ${normalizeFsPath(argv.output)}\n`);
-    return;
+  } else {
+    logger.output(resultYaml);
   }
 
-  logger.output(resultYaml);
+  logger.info(`Done in ${formatElapsed(Date.now() - startedAt)}.\n`);
 }

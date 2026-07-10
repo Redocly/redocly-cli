@@ -20,6 +20,8 @@ export interface RefineOptions {
   model?: string;
   baseline: GeneratedDocument;
   samplesByOperation: Map<string, TrafficSample[]>;
+  /** Number of operations refined in parallel; defaults to 1 (sequential). */
+  concurrency?: number;
 }
 
 /** The baseline document with AI-refined operations and components merged in. */
@@ -236,12 +238,15 @@ function finishProgress(spinner: Spinner): void {
 }
 
 /**
- * Refine the baseline one operation at a time: each prompt carries only that
+ * Refine the baseline one operation per prompt: each prompt carries only that
  * operation, the components it references, and its own traffic samples, so
  * prompt and response stay small no matter how large the description is.
- * Operations are processed sequentially and each accepted refinement is merged
- * back before the next prompt, so later operations see already-refined shared
- * components. An operation whose refinement is rejected keeps its baseline.
+ * Up to `concurrency` operations are in flight at once and each accepted
+ * refinement is merged back as it arrives, so operations prompted later see
+ * already-refined shared components; when two concurrent refinements touch
+ * the same shared component the one merged last wins, and the final document
+ * lint still guards the result. An operation whose refinement is rejected
+ * keeps its baseline.
  */
 export async function refineSpecWithAi(options: RefineOptions): Promise<RefineResult> {
   const document: RefinedDocument = structuredClone(options.baseline);
@@ -255,41 +260,69 @@ export async function refineSpecWithAi(options: RefineOptions): Promise<RefineRe
   }
 
   const spinner = new Spinner();
+  const inFlight = new Set<string>();
+  let completed = 0;
   let refined = 0;
-  for (const [index, { path, method, operation }] of operations.entries()) {
-    const progress = `[${index + 1}/${operations.length}]`;
-    const label = `${method.toUpperCase()} ${path}`;
-    const startedAt = Date.now();
-    spinner.start(`${progress} Refining ${label}`);
-    try {
-      const fragment = await refineOperation({
-        provider: options.provider,
-        model: options.model,
-        document,
-        path,
-        method,
-        operation,
-        samples: options.samplesByOperation.get(operationSampleKey(method, path)) ?? [],
-        config,
-      });
-      applyFragment(document, path, method, fragment);
-      refined += 1;
-      finishProgress(spinner);
-      logger.info(
-        `${progress} ${label} — refined (${Math.round((Date.now() - startedAt) / 1000)}s)\n`
-      );
-    } catch (error) {
-      finishProgress(spinner);
-      if (error instanceof CliNotFoundError) {
-        throw error;
-      }
-      logger.warn(
-        `${progress} ${label} — kept the baseline: ${
-          error instanceof Error ? error.message : String(error)
-        }\n`
-      );
+
+  const updateSpinner = () => {
+    const [firstLabel] = inFlight;
+    if (!firstLabel) {
+      return;
     }
-  }
+    const others = inFlight.size > 1 ? ` (+${inFlight.size - 1} more)` : '';
+    spinner.start(`[${completed + 1}/${operations.length}] Refining ${firstLabel}${others}`);
+  };
+
+  let nextIndex = 0;
+  let aborted = false;
+  const worker = async () => {
+    while (!aborted && nextIndex < operations.length) {
+      const { path, method, operation } = operations[nextIndex++];
+      const label = `${method.toUpperCase()} ${path}`;
+      const startedAt = Date.now();
+      inFlight.add(label);
+      updateSpinner();
+      try {
+        const fragment = await refineOperation({
+          provider: options.provider,
+          model: options.model,
+          document,
+          path,
+          method,
+          operation,
+          samples: options.samplesByOperation.get(operationSampleKey(method, path)) ?? [],
+          config,
+        });
+        applyFragment(document, path, method, fragment);
+        refined += 1;
+        completed += 1;
+        inFlight.delete(label);
+        finishProgress(spinner);
+        logger.info(
+          `[${completed}/${operations.length}] ${label} — refined (${Math.round(
+            (Date.now() - startedAt) / 1000
+          )}s)\n`
+        );
+      } catch (error) {
+        completed += 1;
+        inFlight.delete(label);
+        finishProgress(spinner);
+        if (error instanceof CliNotFoundError) {
+          aborted = true;
+          throw error;
+        }
+        logger.warn(
+          `[${completed}/${operations.length}] ${label} — kept the baseline: ${
+            error instanceof Error ? error.message : String(error)
+          }\n`
+        );
+      }
+      updateSpinner();
+    }
+  };
+
+  const workers = Math.max(1, Math.min(options.concurrency ?? 1, operations.length));
+  await Promise.all(Array.from({ length: workers }, worker));
 
   if (refined === 0) {
     throw new Error(

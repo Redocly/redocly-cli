@@ -912,6 +912,12 @@ yargs(hideBin(process.argv))
               'Model passed to the selected AI provider (provider-specific default applies).',
             type: 'string',
           },
+          'ai-concurrency': {
+            describe: 'Number of operations refined in parallel with --with-ai.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
           output: {
             alias: 'o',
             describe: 'Write the generated description to this file instead of stdout.',
