@@ -30,6 +30,13 @@ describe('resolveAuth', () => {
     expect(key.headers.Cookie).toBe('sid=C; ses=D');
   });
 
+  it('percent-encodes cookie credentials so reserved characters cannot break the header', async () => {
+    const key = await resolveAuth([{ scheme: 'c', kind: 'apiKey', name: 'sid', in: 'cookie' }], {
+      auth: { apiKey: { c: 'a b;c=d' } },
+    });
+    expect(key.headers.Cookie).toBe('sid=a%20b%3Bc%3Dd');
+  });
+
   it('skips schemes with no configured credential', async () => {
     const out = await resolveAuth(
       [

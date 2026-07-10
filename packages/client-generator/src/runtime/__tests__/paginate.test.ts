@@ -165,6 +165,21 @@ describe('pages — offset style', () => {
     expect(sentParams('offset')).toEqual([10, 11]);
   });
 
+  it('coerces a string offset to a number so advancing adds instead of concatenating', async () => {
+    const data = [{ orders: ['k', 'm'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    // A string offset (common from URL/form input): `'10' + 2` would be `'102'` without coercion.
+    await collect(pages(call, OFFSET, { params: { offset: '10' } }));
+    expect(sentParams('offset')).toEqual([10, 12]);
+  });
+
+  it('falls back to the default start when the offset param is not a number', async () => {
+    const data = [{ orders: ['k'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    await collect(pages(call, OFFSET, { params: { offset: 'not-a-number' } }));
+    expect(sentParams('offset')).toEqual([0, 1]);
+  });
+
   it('stops when the items pointer misses', async () => {
     const data = [{ total: 0 }];
     const { call, calls } = stub(data);

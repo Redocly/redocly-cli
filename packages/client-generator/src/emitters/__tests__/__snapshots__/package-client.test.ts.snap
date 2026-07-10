@@ -555,7 +555,9 @@ async function resolveAuth(
       const value = await resolveToken(provider);
       if (scheme.in === 'header') headers[scheme.name] = value;
       else if (scheme.in === 'query') query[scheme.name] = value;
-      else cookies.push(\`\${scheme.name}=\${value}\`);
+      // Cookie values may contain reserved characters (\`;\`, \`=\`, space, …); percent-encode
+      // so the credential can't break the \`Cookie\` header syntax.
+      else cookies.push(\`\${scheme.name}=\${encodeURIComponent(value)}\`);
     } else if (scheme.kind === 'bearer') {
       const provider = config.auth?.bearer;
       if (provider !== undefined) headers.Authorization = \`Bearer \${await resolveToken(provider)}\`;
@@ -721,21 +723,24 @@ class SseParseError extends Error {}
 async function* sse<T>(
   config: ClientConfig,
   op: OperationContext,
-  url: string,
-  init: SseOptions,
+  prepare: () => Promise<{ url: string; init: SseOptions }>,
   dataKind: 'json' | 'text' = 'text'
 ): AsyncGenerator<ServerSentEvent<T>> {
-  const { reconnect = true, reconnectDelay, ...rest } = init;
-  const signal = rest.signal ?? undefined;
-  const headers: Record<string, string> = {
-    Accept: 'text/event-stream',
-    ...(rest.headers as Record<string, string> | undefined),
-  };
   let lastEventId: string | undefined;
   let serverRetry: number | undefined;
   let failures = 0;
   while (true) {
+    // Re-prepare each attempt so a refresh-style TokenProvider yields a fresh credential
+    // on reconnect (the auth is baked into \`url\` query + \`init.headers\`). \`reconnect\`,
+    // \`reconnectDelay\`, and \`signal\` come from the caller's original options unchanged.
+    const { url, init } = await prepare();
+    const { reconnect = true, reconnectDelay, ...rest } = init;
+    const signal = rest.signal ?? undefined;
     if (signal?.aborted) return;
+    const headers: Record<string, string> = {
+      Accept: 'text/event-stream',
+      ...(rest.headers as Record<string, string> | undefined),
+    };
     const sendHeaders =
       lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
     try {
@@ -869,8 +874,9 @@ type Capabilities = SendCapabilities & {
   sse?: (
     config: ClientConfig,
     op: OperationContext,
-    url: string,
-    init: SseOptions,
+    // Re-preparing per (re)connect (not a frozen url/init) lets a refresh-style
+    // TokenProvider issue a fresh credential after a dropped stream reconnects.
+    prepare: () => Promise<{ url: string; init: SseOptions }>,
     dataKind: 'json' | 'text'
   ) => AsyncGenerator<ServerSentEvent<unknown>>;
   paginate?: {
@@ -1094,9 +1100,14 @@ function createClientCore<
         }
         const stream = caps.sse;
         return (async function* () {
-          const prepared = await prepareRequest(config, op, args, init, caps);
           const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
-          yield* stream(config, opCtx, prepared.url, prepared.init, op.sseDataKind ?? 'text');
+          // A thunk the stream re-runs on every (re)connect, so auth (which \`prepareRequest\`
+          // resolves) is refreshed per attempt rather than frozen at the first connect.
+          const prepare = async () => {
+            const prepared = await prepareRequest(config, op, args, init, caps);
+            return { url: prepared.url, init: prepared.init as SseOptions };
+          };
+          yield* stream(config, opCtx, prepare, op.sseDataKind ?? 'text');
         })();
       };
     } else {
@@ -1839,7 +1850,9 @@ async function resolveAuth(
       const value = await resolveToken(provider);
       if (scheme.in === 'header') headers[scheme.name] = value;
       else if (scheme.in === 'query') query[scheme.name] = value;
-      else cookies.push(\`\${scheme.name}=\${value}\`);
+      // Cookie values may contain reserved characters (\`;\`, \`=\`, space, …); percent-encode
+      // so the credential can't break the \`Cookie\` header syntax.
+      else cookies.push(\`\${scheme.name}=\${encodeURIComponent(value)}\`);
     } else if (scheme.kind === 'bearer') {
       const provider = config.auth?.bearer;
       if (provider !== undefined) headers.Authorization = \`Bearer \${await resolveToken(provider)}\`;
@@ -1924,8 +1937,11 @@ async function* pages<TPage>(
       cursor = next;
     }
   } else {
-    let position =
-      (args.params?.[spec.param] as number | undefined) ?? (spec.style === 'page' ? 1 : 0);
+    // Coerce the starting position to a number: a caller may pass \`params[spec.param]\` as a
+    // string (common from URL/form input), and \`+=\` on a string would concatenate.
+    const start = args.params?.[spec.param];
+    const fallback = spec.style === 'page' ? 1 : 0;
+    let position = start === undefined || Number.isNaN(Number(start)) ? fallback : Number(start);
     while (true) {
       const page = await call(
         { ...args, params: { ...args.params, [spec.param]: position } },
@@ -2101,8 +2117,9 @@ type Capabilities = SendCapabilities & {
   sse?: (
     config: ClientConfig,
     op: OperationContext,
-    url: string,
-    init: SseOptions,
+    // Re-preparing per (re)connect (not a frozen url/init) lets a refresh-style
+    // TokenProvider issue a fresh credential after a dropped stream reconnects.
+    prepare: () => Promise<{ url: string; init: SseOptions }>,
     dataKind: 'json' | 'text'
   ) => AsyncGenerator<ServerSentEvent<unknown>>;
   paginate?: {
@@ -2326,9 +2343,14 @@ function createClientCore<
         }
         const stream = caps.sse;
         return (async function* () {
-          const prepared = await prepareRequest(config, op, args, init, caps);
           const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
-          yield* stream(config, opCtx, prepared.url, prepared.init, op.sseDataKind ?? 'text');
+          // A thunk the stream re-runs on every (re)connect, so auth (which \`prepareRequest\`
+          // resolves) is refreshed per attempt rather than frozen at the first connect.
+          const prepare = async () => {
+            const prepared = await prepareRequest(config, op, args, init, caps);
+            return { url: prepared.url, init: prepared.init as SseOptions };
+          };
+          yield* stream(config, opCtx, prepare, op.sseDataKind ?? 'text');
         })();
       };
     } else {

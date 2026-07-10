@@ -26,7 +26,9 @@ export async function resolveAuth(
       const value = await resolveToken(provider);
       if (scheme.in === 'header') headers[scheme.name] = value;
       else if (scheme.in === 'query') query[scheme.name] = value;
-      else cookies.push(`${scheme.name}=${value}`);
+      // Cookie values may contain reserved characters (`;`, `=`, space, …); percent-encode
+      // so the credential can't break the `Cookie` header syntax.
+      else cookies.push(`${scheme.name}=${encodeURIComponent(value)}`);
     } else if (scheme.kind === 'bearer') {
       const provider = config.auth?.bearer;
       if (provider !== undefined) headers.Authorization = `Bearer ${await resolveToken(provider)}`;

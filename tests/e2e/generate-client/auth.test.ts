@@ -75,7 +75,9 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     );
     expect(generated).toContain("if (scheme.in === 'header') headers[scheme.name] = value;");
     expect(generated).toContain("else if (scheme.in === 'query') query[scheme.name] = value;");
-    expect(generated).toContain('else cookies.push(`${scheme.name}=${value}`);');
+    expect(generated).toContain(
+      'else cookies.push(`${scheme.name}=${encodeURIComponent(value)}`);'
+    );
 
     // Per-instance credentials type + ClientConfig field.
     expect(generated).toContain('export type AuthCredentials = {');

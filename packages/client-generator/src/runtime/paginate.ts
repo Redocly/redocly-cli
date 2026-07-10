@@ -71,8 +71,11 @@ export async function* pages<TPage>(
       cursor = next;
     }
   } else {
-    let position =
-      (args.params?.[spec.param] as number | undefined) ?? (spec.style === 'page' ? 1 : 0);
+    // Coerce the starting position to a number: a caller may pass `params[spec.param]` as a
+    // string (common from URL/form input), and `+=` on a string would concatenate.
+    const start = args.params?.[spec.param];
+    const fallback = spec.style === 'page' ? 1 : 0;
+    let position = start === undefined || Number.isNaN(Number(start)) ? fallback : Number(start);
     while (true) {
       const page = await call(
         { ...args, params: { ...args.params, [spec.param]: position } },

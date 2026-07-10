@@ -676,21 +676,24 @@ class SseParseError extends Error {}
 async function* sse<T>(
   config: ClientConfig,
   op: OperationContext,
-  url: string,
-  init: SseOptions,
+  prepare: () => Promise<{ url: string; init: SseOptions }>,
   dataKind: 'json' | 'text' = 'text'
 ): AsyncGenerator<ServerSentEvent<T>> {
-  const { reconnect = true, reconnectDelay, ...rest } = init;
-  const signal = rest.signal ?? undefined;
-  const headers: Record<string, string> = {
-    Accept: 'text/event-stream',
-    ...(rest.headers as Record<string, string> | undefined),
-  };
   let lastEventId: string | undefined;
   let serverRetry: number | undefined;
   let failures = 0;
   while (true) {
+    // Re-prepare each attempt so a refresh-style TokenProvider yields a fresh credential
+    // on reconnect (the auth is baked into `url` query + `init.headers`). `reconnect`,
+    // `reconnectDelay`, and `signal` come from the caller's original options unchanged.
+    const { url, init } = await prepare();
+    const { reconnect = true, reconnectDelay, ...rest } = init;
+    const signal = rest.signal ?? undefined;
     if (signal?.aborted) return;
+    const headers: Record<string, string> = {
+      Accept: 'text/event-stream',
+      ...(rest.headers as Record<string, string> | undefined),
+    };
     const sendHeaders =
       lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
     try {
@@ -824,8 +827,9 @@ type Capabilities = SendCapabilities & {
   sse?: (
     config: ClientConfig,
     op: OperationContext,
-    url: string,
-    init: SseOptions,
+    // Re-preparing per (re)connect (not a frozen url/init) lets a refresh-style
+    // TokenProvider issue a fresh credential after a dropped stream reconnects.
+    prepare: () => Promise<{ url: string; init: SseOptions }>,
     dataKind: 'json' | 'text'
   ) => AsyncGenerator<ServerSentEvent<unknown>>;
   paginate?: {
@@ -1049,9 +1053,14 @@ function createClientCore<
         }
         const stream = caps.sse;
         return (async function* () {
-          const prepared = await prepareRequest(config, op, args, init, caps);
           const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
-          yield* stream(config, opCtx, prepared.url, prepared.init, op.sseDataKind ?? 'text');
+          // A thunk the stream re-runs on every (re)connect, so auth (which `prepareRequest`
+          // resolves) is refreshed per attempt rather than frozen at the first connect.
+          const prepare = async () => {
+            const prepared = await prepareRequest(config, op, args, init, caps);
+            return { url: prepared.url, init: prepared.init as SseOptions };
+          };
+          yield* stream(config, opCtx, prepare, op.sseDataKind ?? 'text');
         })();
       };
     } else {

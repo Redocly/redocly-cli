@@ -1,4 +1,5 @@
 import { parseSseFrame, sse, SseParseError } from '../sse.js';
+import type { SseOptions } from '../types.js';
 
 const enc = new TextEncoder();
 function streamResponse(chunks: string[], opts: { status?: number } = {}) {
@@ -14,6 +15,10 @@ function streamResponse(chunks: string[], opts: { status?: number } = {}) {
   });
 }
 const op = { id: 'stream', path: '/events', tags: [] as string[] };
+/** A fixed-auth `prepare` thunk (the stream re-invokes it per connect). */
+const prep =
+  (url: string, init: SseOptions = {}) =>
+  async () => ({ url, init });
 
 describe('parseSseFrame', () => {
   it('parses event/id/retry and multi-line data (joined with \\n); json dataKind parses', () => {
@@ -49,8 +54,7 @@ describe('sse', () => {
     for await (const ev of sse(
       { fetch: fetchImpl },
       op,
-      'https://x/events',
-      { reconnect: false },
+      prep('https://x/events', { reconnect: false }),
       'text'
     )) {
       seen.push(ev.data);
@@ -62,7 +66,7 @@ describe('sse', () => {
     const fetchImpl = (async () =>
       streamResponse(['data: a\n\n', ': ping\n\n', 'data: tail'])) as unknown as typeof fetch;
     const seen: unknown[] = [];
-    for await (const ev of sse({ fetch: fetchImpl }, op, 'u', { reconnect: false }, 'text')) {
+    for await (const ev of sse({ fetch: fetchImpl }, op, prep('u', { reconnect: false }), 'text')) {
       seen.push(ev.data);
     }
     expect(seen).toEqual(['a', 'tail']);
@@ -73,7 +77,7 @@ describe('sse', () => {
     const fetchImpl = (async () =>
       streamResponse(['data: a\n\r\ndata: b\r\n\rdata: c\n\n'])) as unknown as typeof fetch;
     const seen: unknown[] = [];
-    for await (const ev of sse({ fetch: fetchImpl }, op, 'u', { reconnect: false }, 'text')) {
+    for await (const ev of sse({ fetch: fetchImpl }, op, prep('u', { reconnect: false }), 'text')) {
       seen.push(ev.data);
     }
     expect(seen).toEqual(['a', 'b', 'c']);
@@ -87,7 +91,7 @@ describe('sse', () => {
     }) as unknown as typeof fetch;
     await expect(async () => {
       // `reconnect` defaults to true; a parse error must still surface, not loop forever.
-      for await (const _ of sse({ fetch: fetchImpl }, op, 'u', {}, 'json')) void _;
+      for await (const _ of sse({ fetch: fetchImpl }, op, prep('u', {}), 'json')) void _;
     }).rejects.toBeInstanceOf(SseParseError);
     expect(calls).toBe(1);
   });
@@ -113,12 +117,55 @@ describe('sse', () => {
       return streamResponse(['data: two\n\n']);
     }) as unknown as typeof fetch;
     const seen: unknown[] = [];
-    for await (const ev of sse({ fetch: fetchImpl }, op, 'u', { reconnectDelay: 1 }, 'text')) {
+    for await (const ev of sse(
+      { fetch: fetchImpl },
+      op,
+      prep('u', { reconnectDelay: 1 }),
+      'text'
+    )) {
       seen.push(ev.data);
       if (seen.length === 2) break;
     }
     expect(seen).toEqual(['one', 'two']);
     expect(headersSeen[1]['Last-Event-ID']).toBe('5');
+  });
+
+  it('re-runs prepare on reconnect so a refreshed credential is sent (not the frozen one)', async () => {
+    const authSeen: Array<string | undefined> = [];
+    let token = 't1';
+    let call = 0;
+    const fetchImpl = (async (_url: string, init: RequestInit) => {
+      authSeen.push((init.headers as Record<string, string>)?.Authorization);
+      call++;
+      if (call === 1) {
+        const body = new ReadableStream<Uint8Array>({
+          start(c) {
+            c.enqueue(enc.encode('data: one\n\n'));
+          },
+          pull(c) {
+            c.error(new Error('drop'));
+          },
+        });
+        return new Response(body, { status: 200 });
+      }
+      return streamResponse(['data: two\n\n']);
+    }) as unknown as typeof fetch;
+    // A refresh-style provider: each (re)connect re-reads the current token.
+    const prepare = async () => {
+      const init: SseOptions = {
+        reconnectDelay: 1,
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      token = 't2';
+      return { url: 'u', init };
+    };
+    const seen: unknown[] = [];
+    for await (const ev of sse({ fetch: fetchImpl }, op, prepare, 'text')) {
+      seen.push(ev.data);
+      if (seen.length === 2) break;
+    }
+    expect(seen).toEqual(['one', 'two']);
+    expect(authSeen).toEqual(['Bearer t1', 'Bearer t2']); // reconnect used the fresh token
   });
 
   it('honors the server retry: field for the backoff base and reconnects on empty bodies', async () => {
@@ -139,7 +186,7 @@ describe('sse', () => {
       return streamResponse(['data: second\n\n']);
     }) as unknown as typeof fetch;
     const seen: unknown[] = [];
-    for await (const ev of sse({ fetch: fetchImpl }, op, 'u', {}, 'text')) {
+    for await (const ev of sse({ fetch: fetchImpl }, op, prep('u', {}), 'text')) {
       seen.push(ev.data);
       if (seen.length === 2) break;
     }
@@ -150,7 +197,7 @@ describe('sse', () => {
     const bad = (async () => new Response('nope', { status: 500 })) as unknown as typeof fetch;
     await expect(
       (async () => {
-        for await (const _ of sse({ fetch: bad }, op, 'u', {}, 'text')) void _;
+        for await (const _ of sse({ fetch: bad }, op, prep('u', {}), 'text')) void _;
       })()
     ).rejects.toMatchObject({ status: 500 });
   });
@@ -161,7 +208,7 @@ describe('sse', () => {
     }) as unknown as typeof fetch;
     await expect(
       (async () => {
-        for await (const _ of sse({ fetch: failing }, op, 'u', { reconnect: false }, 'text'))
+        for await (const _ of sse({ fetch: failing }, op, prep('u', { reconnect: false }), 'text'))
           void _;
       })()
     ).rejects.toThrow('net down');
@@ -175,8 +222,7 @@ describe('sse', () => {
     for await (const ev of sse(
       { fetch: okFetch },
       op,
-      'u',
-      { signal: controller.signal },
+      prep('u', { signal: controller.signal }),
       'text'
     )) {
       seen.push(ev);
@@ -189,7 +235,7 @@ describe('sse', () => {
       return r;
     }) as unknown as typeof fetch;
     const seen2: unknown[] = [];
-    for await (const ev of sse({ fetch: noBody }, op, 'u', {})) seen2.push(ev); // dataKind defaults to 'text'
+    for await (const ev of sse({ fetch: noBody }, op, prep('u', {}))) seen2.push(ev); // dataKind defaults to 'text'
     expect(seen2).toEqual([]);
   });
 
@@ -210,8 +256,7 @@ describe('sse', () => {
     for await (const ev of sse(
       { fetch: fetchImpl },
       op,
-      'u',
-      { signal: controller.signal },
+      prep('u', { signal: controller.signal }),
       'text'
     )) {
       seen.push(ev.data);
@@ -232,8 +277,7 @@ describe('sse', () => {
       for await (const ev of sse(
         { fetch: failing },
         op,
-        'u',
-        { signal: controller.signal },
+        prep('u', { signal: controller.signal }),
         'text'
       )) {
         seen.push(ev);
@@ -257,7 +301,12 @@ describe('sse', () => {
     }) as unknown as typeof fetch;
     await expect(
       (async () => {
-        for await (const _ of sse({ fetch: fetchImpl }, op, 'u', { reconnect: false }, 'text'))
+        for await (const _ of sse(
+          { fetch: fetchImpl },
+          op,
+          prep('u', { reconnect: false }),
+          'text'
+        ))
           void _;
       })()
     ).rejects.toThrow(/1048576/);

@@ -639,8 +639,11 @@ async function* pages<TPage>(
       cursor = next;
     }
   } else {
-    let position =
-      (args.params?.[spec.param] as number | undefined) ?? (spec.style === 'page' ? 1 : 0);
+    // Coerce the starting position to a number: a caller may pass `params[spec.param]` as a
+    // string (common from URL/form input), and `+=` on a string would concatenate.
+    const start = args.params?.[spec.param];
+    const fallback = spec.style === 'page' ? 1 : 0;
+    let position = start === undefined || Number.isNaN(Number(start)) ? fallback : Number(start);
     while (true) {
       const page = await call(
         { ...args, params: { ...args.params, [spec.param]: position } },
@@ -816,8 +819,9 @@ type Capabilities = SendCapabilities & {
   sse?: (
     config: ClientConfig,
     op: OperationContext,
-    url: string,
-    init: SseOptions,
+    // Re-preparing per (re)connect (not a frozen url/init) lets a refresh-style
+    // TokenProvider issue a fresh credential after a dropped stream reconnects.
+    prepare: () => Promise<{ url: string; init: SseOptions }>,
     dataKind: 'json' | 'text'
   ) => AsyncGenerator<ServerSentEvent<unknown>>;
   paginate?: {
@@ -1041,9 +1045,14 @@ function createClientCore<
         }
         const stream = caps.sse;
         return (async function* () {
-          const prepared = await prepareRequest(config, op, args, init, caps);
           const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
-          yield* stream(config, opCtx, prepared.url, prepared.init, op.sseDataKind ?? 'text');
+          // A thunk the stream re-runs on every (re)connect, so auth (which `prepareRequest`
+          // resolves) is refreshed per attempt rather than frozen at the first connect.
+          const prepare = async () => {
+            const prepared = await prepareRequest(config, op, args, init, caps);
+            return { url: prepared.url, init: prepared.init as SseOptions };
+          };
+          yield* stream(config, opCtx, prepare, op.sseDataKind ?? 'text');
         })();
       };
     } else {

@@ -293,10 +293,10 @@ describe('createClientCore', () => {
     async function* fake(
       _config: unknown,
       _op: unknown,
-      url: string,
-      _init: unknown,
+      prepare: () => Promise<{ url: string; init: unknown }>,
       dataKind: string
     ): AsyncGenerator<{ data: { n: number } }> {
+      const { url } = await prepare();
       seenUrls.push(url);
       seenKinds.push(dataKind);
       yield { data: { n: 1 } };
