@@ -66,7 +66,7 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
       'Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.\n'
     );
 
-    const samples = await collectTrafficSamples({
+    const samplesByOperation = await collectTrafficSamples({
       trafficPath,
       format: trafficFormat,
       server: argv.server,
@@ -77,10 +77,12 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
         provider,
         model: argv['ai-model'],
         baseline,
-        samples,
+        samplesByOperation,
       });
       resultYaml = refined.yaml;
-      logger.info(`AI refinement complete (${provider}).\n`);
+      logger.info(
+        `AI refinement complete: ${refined.refined} of ${refined.total} operation(s) refined (${provider}).\n`
+      );
     } catch (error) {
       logger.warn(
         `AI refinement failed, falling back to the baseline description: ${

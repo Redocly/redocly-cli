@@ -1,9 +1,3 @@
-openapi: 3.1.0
-info:
-  title: Payments API (refined by stub)
-  version: 1.0.0
-servers:
-  - url: http://api.example.com
 paths:
   /payments:
     post:
@@ -25,23 +19,6 @@ paths:
       responses:
         '201':
           description: The created payment
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Payment'
-  /payments/{paymentId}:
-    get:
-      operationId: getPayment
-      summary: Get a payment by ID
-      parameters:
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The requested payment
           content:
             application/json:
               schema:

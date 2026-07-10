@@ -28,7 +28,9 @@ function runGenerateSpec(
 
   const out = result.stdout?.toString() ?? '';
   const err = result.stderr?.toString() ?? '';
-  return { output: cleanupOutput(`${out}\n${err}`), code: result.status };
+  // Per-operation progress lines report wall-clock durations; normalize them.
+  const output = cleanupOutput(`${out}\n${err}`).replace(/\(\d+s\)/g, '(<t>s)');
+  return { output, code: result.status };
 }
 
 // Prepend a stub-provider bin directory to PATH so the spawned "claude" CLI
@@ -117,46 +119,55 @@ describe('generate-spec - error handling', () => {
 });
 
 describe('generate-spec - AI refinement', () => {
-  test('uses the provider output when it returns a valid OpenAPI document', async () => {
+  test('refines every operation with the provider fragments', async () => {
     const { output, code } = runGenerateSpec(
       ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
       withStub('bin-ok')
     );
     expect(code).toBe(0);
-    expect(output).toContain('AI refinement complete (claude).');
+    expect(output).toContain('AI refinement complete: 5 of 5 operation(s) refined (claude).');
     await matchSnapshot('ai-refined', output);
   });
 
-  test('accepts a refined document that uses oneOf, allOf and discriminator', async () => {
+  test('accepts refined operations that use oneOf, allOf and discriminator', async () => {
     const { output, code } = runGenerateSpec(
       ['traffic-polymorphic.ndjson', '--with-ai', '--ai-provider', 'claude'],
       withStub('bin-ok-polymorphic')
     );
     expect(code).toBe(0);
-    expect(output).toContain('AI refinement complete (claude).');
+    expect(output).toContain('AI refinement complete: 2 of 2 operation(s) refined (claude).');
     await matchSnapshot('ai-refined-polymorphic', output);
   });
 
-  test('falls back to the baseline when the provider drops observed operations', () => {
+  test('runs the Cursor CLI when the cursor provider is selected', () => {
     const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
-      withStub('bin-missing-op')
+      ['traffic.ndjson', '--with-ai', '--ai-provider', 'cursor'],
+      withStub('bin-ok')
     );
     expect(code).toBe(0);
-    expect(output).toContain('dropped 4 operation(s) observed in the traffic');
-    expect(output).toContain('falling back to the baseline');
-    expect(output).toContain('POST /sessions');
-    expect(output).toContain('openapi: 3.1.0');
+    expect(output).toContain('AI refinement complete: 5 of 5 operation(s) refined (cursor).');
   });
 
-  test('falls back to the baseline when the provider returns a non-OpenAPI answer', () => {
+  test('keeps the baseline for operations the provider does not refine', () => {
+    const { output, code } = runGenerateSpec(
+      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
+      withStub('bin-partial')
+    );
+    expect(code).toBe(0);
+    expect(output).toContain('[1/5] GET /users — refined');
+    expect(output).toContain('kept the baseline');
+    expect(output).toContain('AI refinement complete: 1 of 5 operation(s) refined (claude).');
+    expect(output).toContain('operationId: post-sessions');
+  });
+
+  test('falls back to the baseline when the provider returns a non-YAML answer', () => {
     const { output, code } = runGenerateSpec(
       ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
       withStub('bin-bad')
     );
     expect(code).toBe(0);
     expect(output).toContain('AI refinement failed, falling back to the baseline description');
-    expect(output).toContain('not a valid OpenAPI document');
+    expect(output).toContain('did not produce a usable refinement for any operation');
     expect(output).toContain('openapi: 3.1.0');
     expect(output).toContain('/users/{userId}');
   });
@@ -179,16 +190,6 @@ describe('generate-spec - AI refinement', () => {
     );
     expect(code).toBe(0);
     expect(output).toContain('Could not find the "claude" CLI on PATH');
-    expect(output).toContain('openapi: 3.1.0');
-  });
-
-  test('falls back to the baseline when the openai provider is not configured', () => {
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'openai'],
-      { OPENAI_ENDPOINT: '', OPENAI_API_KEY: '' }
-    );
-    expect(code).toBe(0);
-    expect(output).toContain('Set OPENAI_ENDPOINT');
     expect(output).toContain('openapi: 3.1.0');
   });
 });

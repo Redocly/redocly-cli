@@ -49,22 +49,32 @@ The baseline is derived from every exchange in the traffic:
 
 ## AI refinement
 
-All providers receive the inferred baseline plus a capped, shape-diverse sample of real
-exchanges: samples are grouped by operation, status, and body shape, and selected
-round-robin so every operation and every observed payload variant is represented. The AI is
-instructed to narrow types, add formats, enums, descriptions and examples, extract shared
-shapes into `components/schemas`, and model alternative payloads explicitly with `oneOf`
-(plus `discriminator`) and `allOf` composition.
+The description is refined one operation at a time, so prompt and response stay small no
+matter how large the recorded traffic or the resulting description is. Each prompt carries
+a single operation from the baseline, the component schemas it references, the names of the
+other components (reserved against collisions), and a capped, shape-diverse sample of the
+real exchanges recorded for that operation (grouped by status and body shape, selected
+round-robin so every observed payload variant is represented). The AI is instructed to
+narrow types, add formats, enums, descriptions and examples, refine or add
+`components/schemas`, and model alternative payloads explicitly with `oneOf` (plus
+`discriminator`) and `allOf` composition.
 
-The AI's answer is never trusted blindly:
+Operations are processed sequentially and every accepted refinement is merged back before
+the next prompt, so later operations see already-refined shared components. Progress is
+reported per operation as prompts are sent.
 
-- Every operation from the baseline must still be present — a response that dropped
-  operations (for example because it was truncated) is rejected.
-- Operations that never appear in the traffic are removed with a warning.
-- The document is linted with the `spec` ruleset; validation errors reject it.
+The AI's answer is never trusted blindly. A refined operation is only accepted when it:
 
-If refinement fails for any reason, the command falls back to the deterministic baseline.
-Provider calls time out after 5 minutes.
+- keeps the exact path template and method — the AI cannot invent, drop, or rename
+  operations because only the requested operation is merged back;
+- keeps every response status code observed in the traffic;
+- passes validation with the `spec` ruleset (checked against the description's full
+  component set).
+
+An operation whose refinement is rejected keeps its deterministic baseline (reported with
+the reason), components no operation references anymore are pruned, and the final document
+is linted again as a whole. If refinement fails for every operation, the command falls back
+to the deterministic baseline. Each provider call times out after 5 minutes.
 
 > **Warning:** `--with-ai` sends samples of the recorded traffic (URLs, query strings,
 > request and response bodies) to the selected AI provider. Make sure the traffic contains
@@ -79,17 +89,16 @@ Provider calls time out after 5 minutes.
 | `--server`         | Server URL the traffic was captured against. Scopes which requests are considered and sets `servers`. |
 | `--title`          | Title for the generated description.                                                                  |
 | `--with-ai`        | Refine the inferred description with an AI provider.                                                  |
-| `--ai-provider`    | `openai`, `claude`, or `codex` (default `claude`).                                                    |
+| `--ai-provider`    | `claude`, `codex`, or `cursor` (default `claude`).                                                    |
 | `--ai-model`       | Model passed to the selected provider.                                                                |
 | `-o, --output`     | Write the result to a file instead of stdout.                                                         |
 
 ## AI providers
 
-- **`openai`** — calls an OpenAI-compatible `chat/completions` endpoint. Configure with the
-  `OPENAI_ENDPOINT` and `OPENAI_API_KEY` environment variables (and optionally `OPENAI_MODEL`).
-  Many providers expose an OpenAI-compatible endpoint, so this covers a wide range of models.
 - **`claude`** — runs the local `claude` CLI in headless mode (`claude -p`).
 - **`codex`** — runs the local `codex` CLI in non-interactive mode (`codex exec`).
+- **`cursor`** — runs the local Cursor CLI in print mode (`cursor-agent -p`; the renamed
+  `agent` binary is tried as a fallback).
 
-The `claude` and `codex` providers require the respective CLI to be installed and authenticated
-on the machine running the command.
+All providers require the respective CLI to be installed and authenticated on the machine
+running the command.

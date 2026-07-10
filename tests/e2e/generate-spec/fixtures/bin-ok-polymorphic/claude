@@ -1,5 +1,14 @@
 #!/bin/sh
-# Stub of the "claude" CLI: returns a refined description that uses
-# oneOf + discriminator + allOf composition.
-cat > /dev/null
-cat "$(dirname "$0")/refined-payments.yaml"
+# Stub of the "claude" CLI: return the raw fragment fixture (no code fences)
+# for the operation named on the last line of the prompt read from stdin.
+operation=$(sed -n 's/^Refine \([A-Z]*\) \([^ ]*\) as instructed.*/\1 \2/p' | tail -n 1)
+method=$(printf '%s' "$operation" | cut -d' ' -f1 | tr '[:upper:]' '[:lower:]')
+path_slug=$(printf '%s' "$operation" | cut -d' ' -f2 | tr -cs '[:alnum:]' '-')
+path_slug=${path_slug#-}
+path_slug=${path_slug%-}
+fragment="$(dirname "$0")/fragments/$method-$path_slug.yaml"
+if [ ! -f "$fragment" ]; then
+  echo "stub: no fragment fixture for '$operation'" >&2
+  exit 1
+fi
+cat "$fragment"

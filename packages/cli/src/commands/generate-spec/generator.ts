@@ -55,7 +55,7 @@ interface GeneratedResponse {
   content?: Record<string, { schema: JsonSchema }>;
 }
 
-interface GeneratedOperation {
+export interface GeneratedOperation {
   operationId: string;
   responses: Record<string, GeneratedResponse>;
   parameters?: GeneratedParameter[];

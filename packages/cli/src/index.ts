@@ -901,8 +901,8 @@ yargs(hideBin(process.argv))
           },
           'ai-provider': {
             describe:
-              'AI provider used with --with-ai. "openai" calls an OpenAI-compatible endpoint (OPENAI_ENDPOINT/OPENAI_API_KEY); "claude" and "codex" run the respective CLI.',
-            choices: ['openai', 'claude', 'codex'] as ReadonlyArray<
+              'AI provider used with --with-ai; runs the "claude", "codex", or "cursor" CLI in non-interactive mode.',
+            choices: ['claude', 'codex', 'cursor'] as ReadonlyArray<
               GenerateSpecArgv['ai-provider']
             >,
             default: 'claude' as GenerateSpecArgv['ai-provider'],

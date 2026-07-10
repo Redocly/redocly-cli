@@ -22,12 +22,16 @@ export interface CollectSamplesOptions {
   trafficPath: string;
   format: TrafficFormat;
   server?: string;
-  /** Maximum samples kept per distinct method + path template + status + body shape. */
+  /** Maximum samples kept per distinct status + body shape within an operation. */
   perGroup?: number;
-  /** Hard cap on the total number of samples handed to the AI. */
-  total?: number;
+  /** Maximum samples handed to the AI for a single operation. */
+  perOperation?: number;
   /** Maximum characters retained from any single body before truncation. */
   maxBodyChars?: number;
+}
+
+export function operationSampleKey(method: string, template: string): string {
+  return `${method.toUpperCase()} ${template}`;
 }
 
 function snapshotBody(message: NormalizedHttpMessage, maxBodyChars: number): string | undefined {
@@ -81,40 +85,35 @@ function shapeOfValue(value: unknown): string {
 
 /**
  * Re-read the traffic to collect a small, representative set of concrete
- * exchanges. The deterministic generator only retains merged schemas; the AI
- * benefits from seeing real request/response payloads to narrow the hypothesis.
+ * exchanges per operation. The deterministic generator only retains merged
+ * schemas; the AI benefits from seeing real request/response payloads to
+ * narrow the hypothesis.
  *
- * Exchanges are grouped by method + templatized path + status + body shape, and
- * the result is filled round-robin across groups, so every operation (and every
- * observed body variant) is represented before any group gets a second sample.
+ * Within an operation, exchanges are grouped by status + body shape and the
+ * result is filled round-robin across groups, so every observed payload
+ * variant is represented before any group gets a second sample. Keying the
+ * result by operation keeps each AI prompt small no matter how large the
+ * recorded traffic is.
  */
 export async function collectTrafficSamples(
   options: CollectSamplesOptions
-): Promise<TrafficSample[]> {
+): Promise<Map<string, TrafficSample[]>> {
   const perGroup = options.perGroup ?? 2;
-  const total = options.total ?? 40;
+  const perOperation = options.perOperation ?? 8;
   const maxBodyChars = options.maxBodyChars ?? 2000;
   const server = normalizeServerPrefix(options.server);
 
   const trafficFiles = await listFilesRecursively(options.trafficPath);
 
-  const groups = new Map<string, TrafficSample[]>();
-  let fullGroups = 0;
-  const saturated = () => groups.size >= total && fullGroups >= groups.size;
+  const operations = new Map<string, Map<string, TrafficSample[]>>();
 
   for (const trafficFile of trafficFiles) {
-    if (saturated()) {
-      break;
-    }
     const parser = await selectTrafficParser(trafficFile, options.format);
     if (!parser) {
       continue;
     }
 
     for await (const exchange of parser.parse(trafficFile)) {
-      if (saturated()) {
-        break;
-      }
       const method = exchange.request.method.toUpperCase();
       if (!HTTP_METHODS.has(method.toLowerCase())) {
         continue;
@@ -131,15 +130,17 @@ export async function collectTrafficSamples(
       const { template } = templatizePath(path);
       const status = exchange.response?.status;
       const shape = `${shapeSignature(exchange.request)}→${shapeSignature(exchange.response)}`;
-      const key = `${method} ${template} ${status ?? ''} ${shape}`;
 
-      let group = groups.get(key);
+      let groups = operations.get(operationSampleKey(method, template));
+      if (!groups) {
+        groups = new Map();
+        operations.set(operationSampleKey(method, template), groups);
+      }
+      const groupKey = `${status ?? ''} ${shape}`;
+      let group = groups.get(groupKey);
       if (!group) {
-        if (groups.size >= total) {
-          continue;
-        }
         group = [];
-        groups.set(key, group);
+        groups.set(groupKey, group);
       }
       if (group.length >= perGroup) {
         continue;
@@ -154,22 +155,23 @@ export async function collectTrafficSamples(
         responseContentType: exchange.response?.contentType,
         responseBody: exchange.response ? snapshotBody(exchange.response, maxBodyChars) : undefined,
       });
-      if (group.length === perGroup) {
-        fullGroups += 1;
-      }
     }
   }
 
-  const samples: TrafficSample[] = [];
-  for (let round = 0; round < perGroup && samples.length < total; round++) {
-    for (const group of groups.values()) {
-      if (samples.length >= total) {
-        break;
-      }
-      if (group[round]) {
-        samples.push(group[round]);
+  const samplesByOperation = new Map<string, TrafficSample[]>();
+  for (const [operationKey, groups] of operations) {
+    const samples: TrafficSample[] = [];
+    for (let round = 0; round < perGroup && samples.length < perOperation; round++) {
+      for (const group of groups.values()) {
+        if (samples.length >= perOperation) {
+          break;
+        }
+        if (group[round]) {
+          samples.push(group[round]);
+        }
       }
     }
+    samplesByOperation.set(operationKey, samples);
   }
-  return samples;
+  return samplesByOperation;
 }

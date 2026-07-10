@@ -1,7 +1,17 @@
 #!/bin/sh
-# Stub of the "claude" CLI: consume the prompt from stdin and return a fixed
-# refined OpenAPI description, wrapped in code fences like a chatty model would.
-cat > /dev/null
+# Stub of the "claude" CLI for the per-operation refinement flow: read the
+# prompt from stdin, find the operation named on its last line, and return the
+# matching fragment fixture, wrapped in code fences like a chatty model would.
+operation=$(sed -n 's/^Refine \([A-Z]*\) \([^ ]*\) as instructed.*/\1 \2/p' | tail -n 1)
+method=$(printf '%s' "$operation" | cut -d' ' -f1 | tr '[:upper:]' '[:lower:]')
+path_slug=$(printf '%s' "$operation" | cut -d' ' -f2 | tr -cs '[:alnum:]' '-')
+path_slug=${path_slug#-}
+path_slug=${path_slug%-}
+fragment="$(dirname "$0")/fragments/$method-$path_slug.yaml"
+if [ ! -f "$fragment" ]; then
+  echo "stub: no fragment fixture for '$operation'" >&2
+  exit 1
+fi
 echo '```yaml'
-cat "$(dirname "$0")/refined.yaml"
+cat "$fragment"
 echo '```'

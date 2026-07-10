@@ -1,8 +1,10 @@
 import { spawn } from 'node:child_process';
 
-export type AiProvider = 'openai' | 'claude' | 'codex';
+export type AiProvider = 'claude' | 'codex' | 'cursor';
 
 export const AI_RESPONSE_TIMEOUT_MS = 300_000;
+
+export class CliNotFoundError extends Error {}
 
 export interface ProviderRequest {
   system: string;
@@ -38,7 +40,9 @@ function runCommand(
     child.on('error', (error: NodeJS.ErrnoException) => {
       clearTimeout(timer);
       if (error.code === 'ENOENT') {
-        reject(new Error(`Could not find the "${command}" CLI on PATH. Is it installed?`));
+        reject(
+          new CliNotFoundError(`Could not find the "${command}" CLI on PATH. Is it installed?`)
+        );
         return;
       }
       reject(error);
@@ -62,77 +66,6 @@ function runCommand(
     child.stdin.on('error', () => {});
     child.stdin.end(stdin);
   });
-}
-
-interface OpenAiChatResponse {
-  choices?: { message?: { content?: string } }[];
-  error?: { message?: string };
-}
-
-async function runOpenAi(request: ProviderRequest): Promise<ProviderResult> {
-  const endpoint = process.env.OPENAI_ENDPOINT;
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!endpoint) {
-    throw new Error('Set OPENAI_ENDPOINT to the base URL of an OpenAI-compatible API.');
-  }
-  if (!apiKey) {
-    throw new Error('Set OPENAI_API_KEY with a token for the configured OpenAI-compatible API.');
-  }
-
-  const model = request.model ?? process.env.OPENAI_MODEL ?? 'gpt-4o';
-  const url = `${endpoint.replace(/\/+$/, '')}/chat/completions`;
-
-  let response: Response;
-  let raw: string;
-  try {
-    response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: request.system },
-          { role: 'user', content: request.user },
-        ],
-        temperature: 0,
-      }),
-      signal: AbortSignal.timeout(AI_RESPONSE_TIMEOUT_MS),
-    });
-    raw = await response.text();
-  } catch (error) {
-    if (error instanceof Error && error.name === 'TimeoutError') {
-      throw new Error(
-        `The OpenAI-compatible endpoint did not respond within ${
-          AI_RESPONSE_TIMEOUT_MS / 1000
-        } seconds.`
-      );
-    }
-    throw error;
-  }
-
-  let payload: OpenAiChatResponse | undefined;
-  try {
-    payload = JSON.parse(raw) as OpenAiChatResponse;
-  } catch {
-    payload = undefined;
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `OpenAI-compatible endpoint returned ${response.status}: ${
-        payload?.error?.message ?? (raw ? raw.slice(0, 200) : response.statusText)
-      }`
-    );
-  }
-
-  const text = payload?.choices?.[0]?.message?.content;
-  if (!text) {
-    throw new Error('OpenAI-compatible endpoint returned an empty or non-JSON completion.');
-  }
-  return { text };
 }
 
 async function runClaude(request: ProviderRequest): Promise<ProviderResult> {
@@ -167,17 +100,57 @@ async function runCodex(request: ProviderRequest): Promise<ProviderResult> {
   return { text: stdout };
 }
 
+async function runCursor(request: ProviderRequest): Promise<ProviderResult> {
+  const args = ['-p', '--output-format', 'text'];
+  if (request.model) {
+    args.push('--model', request.model);
+  }
+  // The instructions go in as the prompt argument; the piped stdin is
+  // attached as context, mirroring how the claude provider splits the two.
+  args.push(request.system);
+
+  // The Cursor CLI originally installed a "cursor-agent" binary and later
+  // renamed it to "agent"; accept either.
+  let result;
+  try {
+    result = await runCommand('cursor-agent', args, request.user);
+  } catch (error) {
+    if (!(error instanceof CliNotFoundError)) {
+      throw error;
+    }
+    try {
+      result = await runCommand('agent', args, request.user);
+    } catch (fallbackError) {
+      if (fallbackError instanceof CliNotFoundError) {
+        throw new CliNotFoundError(
+          'Could not find the Cursor CLI ("cursor-agent" or "agent") on PATH. Is it installed?'
+        );
+      }
+      throw fallbackError;
+    }
+  }
+
+  const { stdout, stderr, code } = result;
+  if (code !== 0) {
+    throw new Error(`cursor CLI exited with code ${code}: ${stderr.trim()}`);
+  }
+  if (!stdout.trim()) {
+    throw new Error('cursor CLI returned no output.');
+  }
+  return { text: stdout };
+}
+
 export async function runProvider(
   provider: AiProvider,
   request: ProviderRequest
 ): Promise<ProviderResult> {
   switch (provider) {
-    case 'openai':
-      return runOpenAi(request);
     case 'claude':
       return runClaude(request);
     case 'codex':
       return runCodex(request);
+    case 'cursor':
+      return runCursor(request);
     default:
       throw new Error(`Unknown AI provider: ${provider}`);
   }

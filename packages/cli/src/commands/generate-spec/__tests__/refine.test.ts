@@ -1,32 +1,50 @@
 import { logger } from '@redocly/openapi-core';
 
-import { runProvider } from '../ai/providers.js';
-import { compareOperations, refineSpecWithAi, stripInventedOperations } from '../ai/refine.js';
+import { CliNotFoundError, runProvider } from '../ai/providers.js';
+import { refineSpecWithAi } from '../ai/refine.js';
 import type { GeneratedDocument } from '../generator.js';
 
-vi.mock('../ai/providers.js', () => ({
+vi.mock('../ai/providers.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../ai/providers.js')>()),
   runProvider: vi.fn(),
 }));
 
-const baseline: GeneratedDocument = {
-  openapi: '3.1.0',
-  info: { title: 'Test API', version: '1.0.0' },
-  paths: {
-    '/users': {
-      get: { operationId: 'get-users', responses: { '200': { description: 'ok' } } },
-      post: { operationId: 'post-users', responses: { '201': { description: 'created' } } },
+function baseline(): GeneratedDocument {
+  return {
+    openapi: '3.1.0',
+    info: { title: 'Test API', version: '1.0.0' },
+    paths: {
+      '/users': {
+        get: {
+          operationId: 'get-users',
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/User' } },
+              },
+            },
+          },
+        },
+        post: {
+          operationId: 'post-users',
+          responses: { '201': { description: 'Created' } },
+        },
+      },
     },
-    '/users/{userId}': {
-      get: { operationId: 'get-users-userId', responses: { '200': { description: 'ok' } } },
+    components: {
+      schemas: {
+        User: {
+          type: 'object',
+          properties: { id: { type: 'integer' }, name: { type: 'string' } },
+          required: ['id', 'name'],
+        },
+      },
     },
-  },
-};
+  };
+}
 
-const refinedDocument = `openapi: 3.1.0
-info:
-  title: Test API
-  version: 1.0.0
-paths:
+const refinedGetUsers = `paths:
   /users:
     get:
       operationId: listUsers
@@ -34,16 +52,102 @@ paths:
       responses:
         '200':
           description: A list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    User:
+      type: object
+      description: A user account
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+`;
+
+const refinedPostUsers = `paths:
+  /users:
     post:
       operationId: createUser
+      summary: Create a user
       responses:
         '201':
           description: Created
-  /users/{id}:
+`;
+
+function mockResponses(...texts: string[]) {
+  for (const text of texts) {
+    vi.mocked(runProvider).mockResolvedValueOnce({ text });
+  }
+}
+
+async function refine(document = baseline()) {
+  return refineSpecWithAi({
+    provider: 'claude',
+    baseline: document,
+    samplesByOperation: new Map(),
+  });
+}
+
+describe('refineSpecWithAi', () => {
+  beforeEach(() => {
+    vi.mocked(runProvider).mockReset();
+    vi.spyOn(logger, 'info').mockImplementation(() => true);
+    vi.spyOn(logger, 'warn').mockImplementation(() => true);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('refines operations one by one and merges the results', async () => {
+    mockResponses(refinedGetUsers, refinedPostUsers);
+    const result = await refine();
+    expect(vi.mocked(runProvider)).toHaveBeenCalledTimes(2);
+    expect(result.refined).toBe(2);
+    expect(result.total).toBe(2);
+    expect(result.yaml).toContain('summary: List users');
+    expect(result.yaml).toContain('operationId: createUser');
+    expect(result.yaml).toContain('description: A user account');
+  });
+
+  it('sends each operation a focused prompt with only its referenced components', async () => {
+    mockResponses(refinedGetUsers, refinedPostUsers);
+    await refine();
+    const [firstRequest, secondRequest] = vi
+      .mocked(runProvider)
+      .mock.calls.map(([, request]) => request);
+    expect(firstRequest.user).toContain('Component schemas referenced by this operation');
+    expect(firstRequest.user).toContain('User:');
+    expect(secondRequest.user).not.toContain('Component schemas referenced by this operation');
+    expect(secondRequest.user).toContain('Reserved component names');
+  });
+
+  it('lets later operations see components refined earlier', async () => {
+    const document = baseline();
+    document.paths['/users/{userId}'] = {
+      get: {
+        operationId: 'get-users-userId',
+        parameters: [{ name: 'userId', in: 'path', required: true, schema: { type: 'integer' } }],
+        responses: {
+          '200': {
+            description: 'OK',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+          },
+        },
+      },
+    };
+    const refinedGetUser = `paths:
+  /users/{userId}:
     get:
       operationId: getUser
       parameters:
-        - name: id
+        - name: userId
           in: path
           required: true
           schema:
@@ -51,117 +155,92 @@ paths:
       responses:
         '200':
           description: A user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
 `;
-
-function mockProviderResponse(text: string) {
-  vi.mocked(runProvider).mockResolvedValue({ text });
-}
-
-async function refine() {
-  return refineSpecWithAi({ provider: 'claude', baseline, samples: [] });
-}
-
-describe('compareOperations', () => {
-  it('matches operations regardless of path parameter names', () => {
-    const refined = {
-      paths: {
-        '/users': { get: {}, post: {} },
-        '/users/{id}': { get: {} },
-      },
-    };
-    expect(compareOperations(baseline, refined)).toEqual({ missing: [], invented: [] });
-  });
-
-  it('reports baseline operations absent from the refined document', () => {
-    const refined = { paths: { '/users': { get: {} } } };
-    expect(compareOperations(baseline, refined).missing).toEqual([
-      { path: '/users', method: 'post' },
-      { path: '/users/{userId}', method: 'get' },
-    ]);
-  });
-
-  it('reports operations the refined document invented', () => {
-    const refined = {
-      paths: {
-        '/users': { get: {}, post: {}, delete: {} },
-        '/users/{id}': { get: {} },
-        '/admin': { get: {} },
-      },
-    };
-    expect(compareOperations(baseline, refined).invented).toEqual([
-      { path: '/users', method: 'delete' },
-      { path: '/admin', method: 'get' },
-    ]);
-  });
-
-  it('treats a non-object paths value as missing everything', () => {
-    expect(compareOperations(baseline, { paths: null }).missing).toHaveLength(3);
-  });
-});
-
-describe('stripInventedOperations', () => {
-  it('removes invented operations and drops paths left without operations', () => {
-    const refined = {
-      paths: {
-        '/users': { get: { operationId: 'listUsers' }, delete: {} },
-        '/admin': { get: {}, parameters: [] },
-      },
-    };
-    stripInventedOperations(refined, [
-      { path: '/users', method: 'delete' },
-      { path: '/admin', method: 'get' },
-    ]);
-    expect(refined.paths).toEqual({ '/users': { get: { operationId: 'listUsers' } } });
-  });
-});
-
-describe('refineSpecWithAi', () => {
-  it('accepts a complete, valid refined document', async () => {
-    mockProviderResponse(refinedDocument);
-    const result = await refine();
-    expect(result.yaml).toContain('summary: List users');
+    mockResponses(refinedGetUsers, refinedPostUsers, refinedGetUser);
+    const result = await refine(document);
+    expect(result.refined).toBe(3);
+    const thirdRequest = vi.mocked(runProvider).mock.calls[2][1];
+    expect(thirdRequest.user).toContain('description: A user account');
   });
 
   it('strips Markdown code fences before parsing', async () => {
-    mockProviderResponse(`\`\`\`yaml\n${refinedDocument}\`\`\``);
+    mockResponses(`\`\`\`yaml\n${refinedGetUsers}\n\`\`\``, refinedPostUsers);
     const result = await refine();
+    expect(result.refined).toBe(2);
     expect(result.yaml).toContain('summary: List users');
   });
 
-  it('rejects a refined document that dropped baseline operations', async () => {
-    mockProviderResponse(refinedDocument.replace(/ {4}post:[\s\S]*?description: Created\n/, ''));
-    await expect(refine()).rejects.toThrow(
-      'dropped 1 operation(s) observed in the traffic (the response may have been truncated): POST /users'
+  it('keeps the baseline operation when the provider returns invalid YAML', async () => {
+    mockResponses('paths: [invalid', refinedPostUsers);
+    const result = await refine();
+    expect(result.refined).toBe(1);
+    expect(result.yaml).toContain('operationId: get-users');
+    expect(result.yaml).toContain('operationId: createUser');
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('kept the baseline'));
+  });
+
+  it('keeps the baseline operation when the response misses the operation', async () => {
+    mockResponses(refinedPostUsers, refinedPostUsers);
+    const result = await refine();
+    expect(result.refined).toBe(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('does not contain the GET operation')
     );
   });
 
-  it('removes invented operations from the refined document', async () => {
-    const withInvented = `${refinedDocument}  /admin:
+  it('keeps the baseline operation when an observed status code is dropped', async () => {
+    mockResponses(refinedGetUsers.replace("'200':", "'404':"), refinedPostUsers);
+    const result = await refine();
+    expect(result.refined).toBe(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('dropped observed response status(es): 200')
+    );
+  });
+
+  it('keeps the baseline operation when the refined operation fails validation', async () => {
+    mockResponses(
+      refinedGetUsers.replace('description: A list of users', 'descriptio: A list of users'),
+      refinedPostUsers
+    );
+    const result = await refine();
+    expect(result.refined).toBe(1);
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('validation problem'));
+  });
+
+  it('prunes components that are no longer referenced', async () => {
+    const inlineGetUsers = `paths:
+  /users:
     get:
-      operationId: adminPanel
+      operationId: listUsers
       responses:
         '200':
-          description: Admin panel
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
 `;
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
-    mockProviderResponse(withInvented);
+    mockResponses(inlineGetUsers, refinedPostUsers);
     const result = await refine();
-    expect(result.yaml).not.toContain('/admin');
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('GET /admin'));
+    expect(result.refined).toBe(2);
+    expect(result.document.components).toBeUndefined();
+    expect(result.yaml).not.toContain('components:');
   });
 
-  it('rejects a refined document with structural validation errors', async () => {
-    mockProviderResponse(refinedDocument.replace('description: Created', 'descriptio: Created'));
-    await expect(refine()).rejects.toThrow(/validation problem/);
+  it('aborts refinement when the provider CLI is not installed', async () => {
+    vi.mocked(runProvider).mockRejectedValue(
+      new CliNotFoundError('Could not find the "claude" CLI on PATH. Is it installed?')
+    );
+    await expect(refine()).rejects.toThrow('Could not find the "claude" CLI');
+    expect(vi.mocked(runProvider)).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects unparseable YAML', async () => {
-    mockProviderResponse('openapi: [3.1.0');
-    await expect(refine()).rejects.toThrow('did not return valid YAML');
-  });
-
-  it('rejects output that is not an OpenAPI document', async () => {
-    mockProviderResponse('Sorry, I cannot produce an OpenAPI description.');
-    await expect(refine()).rejects.toThrow('not a valid OpenAPI document');
+  it('rejects when no operation could be refined', async () => {
+    vi.mocked(runProvider).mockResolvedValue({ text: 'Sorry, I cannot help with that.' });
+    await expect(refine()).rejects.toThrow('did not produce a usable refinement for any operation');
   });
 });

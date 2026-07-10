@@ -40,7 +40,7 @@ describe('collectTrafficSamples', () => {
     return file;
   }
 
-  it('represents every operation even when one endpoint dominates the traffic', async () => {
+  it('groups samples by operation and caps repeated identical shapes', async () => {
     const lines = Array.from({ length: 45 }, (_, i) =>
       exchange('GET', `http://api.example.com/users/${i + 1}`, undefined, { id: i + 1 })
     );
@@ -51,8 +51,9 @@ describe('collectTrafficSamples', () => {
       format: 'auto',
     });
 
-    expect(samples.some((sample) => sample.path === '/orders')).toBe(true);
-    expect(samples.filter((sample) => sample.path.startsWith('/users/'))).toHaveLength(2);
+    expect([...samples.keys()].sort()).toEqual(['GET /orders', 'GET /users/{userId}']);
+    expect(samples.get('GET /orders')).toHaveLength(1);
+    expect(samples.get('GET /users/{userId}')).toHaveLength(2);
   });
 
   it('keeps samples of each observed body shape and fills groups round-robin', async () => {
@@ -66,12 +67,13 @@ describe('collectTrafficSamples', () => {
     const samples = await collectTrafficSamples({
       trafficPath: writeTraffic(lines),
       format: 'auto',
-      total: 2,
+      perOperation: 2,
     });
 
-    expect(samples).toHaveLength(2);
-    expect(samples.some((sample) => sample.requestBody?.includes('cardNumber'))).toBe(true);
-    expect(samples.some((sample) => sample.requestBody?.includes('iban'))).toBe(true);
+    const payments = samples.get('POST /payments');
+    expect(payments).toHaveLength(2);
+    expect(payments?.some((sample) => sample.requestBody?.includes('cardNumber'))).toBe(true);
+    expect(payments?.some((sample) => sample.requestBody?.includes('iban'))).toBe(true);
   });
 
   it('truncates long bodies', async () => {
@@ -83,8 +85,9 @@ describe('collectTrafficSamples', () => {
       maxBodyChars: 50,
     });
 
-    expect(samples[0].requestBody).toHaveLength(50 + '…[truncated]'.length);
-    expect(samples[0].requestBody?.endsWith('…[truncated]')).toBe(true);
+    const blob = samples.get('POST /blobs')?.[0];
+    expect(blob?.requestBody).toHaveLength(50 + '…[truncated]'.length);
+    expect(blob?.requestBody?.endsWith('…[truncated]')).toBe(true);
   });
 
   it('ignores exchanges with unsupported HTTP methods', async () => {
@@ -98,7 +101,6 @@ describe('collectTrafficSamples', () => {
       format: 'auto',
     });
 
-    expect(samples).toHaveLength(1);
-    expect(samples[0].method).toBe('GET');
+    expect([...samples.keys()]).toEqual(['GET /users']);
   });
 });

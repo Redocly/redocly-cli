@@ -1,4 +1,0 @@
-#!/bin/sh
-# Stub of the "claude" CLI that returns a valid document missing most baseline operations.
-cat > /dev/null
-cat "$(dirname "$0")/partial.yaml"
