@@ -116,6 +116,41 @@ describe('matchAffectedBy', () => {
     });
   });
 
+  it('expands a * wildcard against all node ids', () => {
+    expect(matchAffectedBy(graph, ['schemas/*'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
+      changedIds: ['schemas/Address', 'schemas/Pet'],
+      notes: [],
+      warnings: [],
+    });
+  });
+
+  it('anchors wildcards — a pattern does not match inside longer ids', () => {
+    expect(matchAffectedBy(graph, ['schemas/Pe*'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
+      // Must not match common.yaml#/components/schemas/Pet.
+      changedIds: ['schemas/Pet'],
+      notes: [],
+      warnings: [],
+    });
+  });
+
+  it('matches paths with a wildcard', () => {
+    expect(matchAffectedBy(graph, ['/pe*'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
+      changedIds: ['/pets'],
+      notes: [],
+      warnings: [],
+    });
+  });
+
+  it('warns for a wildcard that matches nothing', () => {
+    expect(matchAffectedBy(graph, ['schemas/Ghost*'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
+      changedIds: [],
+      notes: [],
+      warnings: [
+        'schemas/Ghost* does not match any path, operation, or component of openapi.yaml.',
+      ],
+    });
+  });
+
   it('case 7: unknown input — empty arrays + warning', () => {
     expect(matchAffectedBy(graph, ['Ghost'], { cwd: CWD, rootId: ROOT_ID })).toEqual({
       changedIds: [],

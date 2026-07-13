@@ -131,6 +131,39 @@ describe('renderStylish', () => {
     `);
   });
 
+  it('cuts the tree at maxLevel and marks pruned branches with …', () => {
+    const structure: DependencyGraph = {
+      roots: ['openapi.yaml'],
+      nodes: [
+        { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
+        { id: '/pets', resolved: true, kind: 'path' },
+        { id: 'GET /pets', resolved: true, kind: 'operation' },
+        { id: 'schemas/Pet', resolved: true, kind: 'component' },
+        { id: '/stores', resolved: true, kind: 'path' },
+      ],
+      edges: [
+        { from: 'openapi.yaml', to: '/pets', refs: [] },
+        { from: 'openapi.yaml', to: '/stores', refs: [] },
+        { from: '/pets', to: 'GET /pets', refs: [] },
+        { from: 'GET /pets', to: 'schemas/Pet', refs: ['#/components/schemas/Pet'] },
+      ],
+    };
+
+    // A node at the cut level gets the marker only when it actually has hidden children.
+    expect(renderStylish(structure, { maxLevel: 1 })).toMatchInlineSnapshot(`
+      "openapi.yaml
+      ├── /pets …
+      └── /stores"
+    `);
+
+    expect(renderStylish(structure, { maxLevel: 2 })).toMatchInlineSnapshot(`
+      "openapi.yaml
+      ├── /pets
+      │   └── GET …
+      └── /stores"
+    `);
+  });
+
   it('re-expands a fan-in dependency (shared, non-cyclic) under every parent', () => {
     const fanIn: DependencyGraph = {
       roots: ['root.yaml'],

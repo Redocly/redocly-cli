@@ -21,8 +21,8 @@ import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
 import { buildStructureGraph } from './build-structure.js';
-import { filterAffected } from './filter-affected.js';
-import { matchAffectedBy } from './match-affected-by.js';
+import { filterAffected, filterOperations, limitGraphLevel } from './filter-affected.js';
+import { matchAffectedBy, wildcardToRegExp } from './match-affected-by.js';
 import { commonDir } from './node-id.js';
 import { renderDot } from './print/dot.js';
 import { renderJson } from './print/json.js';
@@ -34,6 +34,8 @@ export type TreeArgv = {
   apis?: string[];
   format: TreeFormat;
   output?: string;
+  level?: number;
+  operations?: boolean;
   uses?: string[];
   files?: boolean;
 } & VerifyConfigOptions;
@@ -47,11 +49,20 @@ type TreeModeContext = {
 };
 
 export async function handleTree({ argv, config, collectSpecData }: CommandArgs<TreeArgv>) {
+  if (argv.level !== undefined && (!Number.isInteger(argv.level) || argv.level < 1)) {
+    return exitWithError('The --level value must be a positive integer.');
+  }
+
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const cwd = process.cwd();
 
   if (argv.files) {
+    if (argv.operations) {
+      return exitWithError(
+        'The --operations option applies to the structure view and cannot be combined with --files.'
+      );
+    }
     return handleFilesMode({ apis, argv, config, collectSpecData, externalRefResolver, cwd });
   }
 
@@ -134,12 +145,21 @@ async function handleFilesMode({
   if (argv['uses']) {
     const knownIds = new Set(graph.nodes.map((node) => node.id));
     // Match paths the way they are displayed — relative to the API root — and fall
-    // back to paths relative to the current working directory.
-    const changedIds = argv['uses'].map((file) => {
+    // back to paths relative to the current working directory. A `*`/`?` wildcard
+    // matches the displayed file ids directly.
+    const changedIds = argv['uses'].flatMap((file) => {
+      if (/[*?]/.test(file)) {
+        const matcher = wildcardToRegExp(file);
+        const matches = graph.nodes.map((node) => node.id).filter((id) => matcher.test(id));
+        if (matches.length === 0) {
+          logger.warn(`${file} does not match any file of the processed APIs.\n`);
+        }
+        return matches;
+      }
       const fromRoot = slash(path.relative(base, path.resolve(base, file)));
-      if (knownIds.has(fromRoot)) return fromRoot;
+      if (knownIds.has(fromRoot)) return [fromRoot];
       const fromCwd = slash(path.relative(base, path.resolve(cwd, file)));
-      return knownIds.has(fromCwd) ? fromCwd : fromRoot;
+      return [knownIds.has(fromCwd) ? fromCwd : fromRoot];
     });
     for (const id of changedIds) {
       if (!knownIds.has(id)) {
@@ -225,6 +245,10 @@ async function handleStructureMode({
     };
   }
 
+  if (argv.operations) {
+    printedGraph = filterOperations(printedGraph);
+  }
+
   renderOutput(printedGraph, argv, stylishOptions);
 }
 
@@ -233,7 +257,17 @@ function renderOutput(
   argv: TreeArgv,
   stylishOptions: StylishOptions
 ): void {
-  const rendered = renderGraph(graph, argv.format, stylishOptions);
+  let printedGraph = graph;
+  if (argv.level !== undefined) {
+    // The stylish view cuts by DISPLAY depth (matching `tree -L`); graph formats have no display
+    // depth, so they keep the nodes within `level` steps of the root instead.
+    if (argv.format === 'stylish') {
+      stylishOptions = { ...stylishOptions, maxLevel: argv.level };
+    } else {
+      printedGraph = limitGraphLevel(printedGraph, argv.level);
+    }
+  }
+  const rendered = renderGraph(printedGraph, argv.format, stylishOptions);
   if (argv.output) {
     writeFileSync(argv.output, rendered + '\n');
     logger.info(`Tree written to ${argv.output}\n`);
