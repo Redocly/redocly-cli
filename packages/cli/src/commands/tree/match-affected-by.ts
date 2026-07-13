@@ -10,6 +10,14 @@ export type AffectedByMatch = {
   warnings: string[];
 };
 
+export function wildcardToRegExp(pattern: string): RegExp {
+  const escaped = pattern
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*')
+    .replace(/\?/g, '.');
+  return new RegExp(`^${escaped}$`);
+}
+
 export function matchAffectedBy(
   graph: DependencyGraph,
   inputs: string[],
@@ -23,6 +31,18 @@ export function matchAffectedBy(
   const warnings: string[] = [];
 
   for (const input of inputs) {
+    // A `*`/`?` wildcard matches against every node id.
+    if (/[*?]/.test(input)) {
+      const matcher = wildcardToRegExp(input);
+      const matches = graph.nodes.filter((n) => matcher.test(n.id)).map((n) => n.id);
+      if (matches.length > 0) {
+        for (const id of matches) changedSet.add(id);
+        continue;
+      }
+      warnings.push(`${input} does not match any path, operation, or component of ${rootId}.`);
+      continue;
+    }
+
     const rel = slash(path.relative(cwd, path.resolve(cwd, input)));
     const pointer = input.startsWith('#') ? mapRootPointer(input, rootId) : undefined;
 

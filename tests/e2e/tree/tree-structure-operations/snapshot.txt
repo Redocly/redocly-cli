@@ -1,0 +1,8 @@
+openapi.yaml
+├── /orders
+│   ├── GET
+│   └── POST
+└── /orders/{orderId}
+    ├── DELETE
+    └── GET
+

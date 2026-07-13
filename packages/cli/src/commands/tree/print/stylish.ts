@@ -4,6 +4,8 @@ import type { DependencyGraph } from '../types.js';
 export type StylishOptions = {
   summary?: string;
   emptyMessage?: string;
+  /** Deepest visible level; branches cut at this level end with `…`. Root is level 0. */
+  maxLevel?: number;
 };
 
 export function renderStylish(graph: DependencyGraph, options: StylishOptions = {}): string {
@@ -40,17 +42,23 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
   // `ancestors` is the path from the root to the current node. A child already on that path is a
   // cycle: mark it with `🔁` and stop, so traversal terminates. A fan-in dependency (the same file
   // reached from several parents, without forming a cycle) is expanded under each parent.
-  const renderSubtree = (id: string, prefix: string, ancestors: Set<string>) => {
+  // `level` is the child's distance from the root; at `maxLevel` the branch is cut with `…`.
+  const renderSubtree = (id: string, prefix: string, ancestors: Set<string>, level: number) => {
     const children = childrenByNode.get(id) ?? [];
     children.forEach((child, index) => {
       const isLast = index === children.length - 1;
       const isCycle = ancestors.has(child);
-      lines.push(`${prefix}${isLast ? '└── ' : '├── '}${label(child, id, isCycle)}`);
-      if (!isCycle) {
+      const atLimit = options.maxLevel !== undefined && level >= options.maxLevel;
+      const hasHiddenChildren = atLimit && !isCycle && (childrenByNode.get(child)?.length ?? 0) > 0;
+      lines.push(
+        `${prefix}${isLast ? '└── ' : '├── '}${label(child, id, isCycle)}${hasHiddenChildren ? ' …' : ''}`
+      );
+      if (!isCycle && !atLimit) {
         renderSubtree(
           child,
           `${prefix}${isLast ? '    ' : '│   '}`,
-          new Set([...ancestors, child])
+          new Set([...ancestors, child]),
+          level + 1
         );
       }
     });
@@ -59,7 +67,7 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
   graph.roots.forEach((root, index) => {
     if (index > 0) lines.push('');
     lines.push(label(root, undefined, false));
-    renderSubtree(root, '', new Set([root]));
+    renderSubtree(root, '', new Set([root]), 1);
   });
 
   if (options.summary !== undefined) {

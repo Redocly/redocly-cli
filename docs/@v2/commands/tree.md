@@ -20,7 +20,7 @@ Use `tree` to:
 ```bash
 redocly tree
 redocly tree <api>
-redocly tree <api> [--format=<value>] [--uses=<value>] [--output=<file>] [--config=<path>]
+redocly tree <api> [--format=<value>] [--uses=<value>] [--level=<n>] [--operations] [--output=<file>] [--config=<path>]
 redocly tree --files [apis...]
 ```
 
@@ -30,16 +30,18 @@ Use `--files` for the multi-API file graph.
 
 ## Options
 
-| Option       | Type     | Description                                                                                                                                                                                                                                                                      |
-| ------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| apis         | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                               |
-| --config     | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                 |
-| --files      | boolean  | Display the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                           |
-| --format     | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                      |
-| --help       | boolean  | Display help.                                                                                                                                                                                                                                                                    |     |
-| --output, -o | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                  |
-| --uses       | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path. `--files` mode accepts file paths only. Repeat the option to pass several values. |
-| --version    | boolean  | Display version number.                                                                                                                                                                                                                                                          |
+| Option       | Type     | Description                                                                                                                                                                                                                                                                                                            |
+| ------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| apis         | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                                                                     |
+| --config     | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                       |
+| --files      | boolean  | Display the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                                                                 |
+| --format     | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                                                            |
+| --help       | boolean  | Display help.                                                                                                                                                                                                                                                                                                          |     |
+| --level      | number   | Limit the displayed depth of the tree. Level 1 shows the paths, level 2 adds the operations, and deeper levels add the component chains. Branches cut by the limit end with `…`.                                                                                                                                       |
+| --operations | boolean  | Display only the API surface — paths, operations, and webhooks — without component chains. Not available with `--files`.                                                                                                                                                                                               |
+| --output, -o | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                        |
+| --uses       | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path; `*` and `?` wildcards match node ids. `--files` mode accepts file paths only. Repeat the option to pass several values. |
+| --version    | boolean  | Display version number.                                                                                                                                                                                                                                                                                                |
 
 ## Examples
 
@@ -206,6 +208,64 @@ openapi.yaml
 The default view bundles the description, so components and operations split across files are resolved to their canonical place.
 A multi-file API therefore produces the same tree as its single-file equivalent — operations and named components, not file nodes.
 
+### Limit the depth
+
+```bash
+redocly tree cafe.yaml --level 1
+```
+
+```treeview
+cafe.yaml
+├── /menu …
+├── /menu-item-images/{menuItemId} …
+├── /menu/{menuItemId} …
+├── /oauth2/register …
+├── /order-items …
+├── /orders …
+├── /orders/{orderId} …
+├── /revenue …
+└── webhooks/order-notification …
+```
+
+`--level 1` shows the paths, `--level 2` adds the operations, and deeper levels add the component chains.
+A branch cut by the limit ends with `…`.
+In machine-readable formats (`json`, `mermaid`, `dot`), `--level` keeps the nodes within that many steps of the root.
+
+### Show only the API surface
+
+```bash
+redocly tree cafe.yaml --operations
+```
+
+```treeview
+cafe.yaml
+├── /menu
+│   ├── GET
+│   └── POST
+├── /menu-item-images/{menuItemId}
+│   └── GET
+├── /menu/{menuItemId}
+│   └── DELETE
+├── /oauth2/register
+│   └── POST
+├── /order-items
+│   └── GET
+├── /orders
+│   ├── GET
+│   └── POST
+├── /orders/{orderId}
+│   ├── DELETE
+│   ├── GET
+│   └── PATCH
+├── /revenue
+│   └── GET
+└── webhooks/order-notification
+```
+
+`--operations` displays every path with all of its operations and the webhook entries, hiding the component chains.
+Unlike `--level 2`, the output never includes path-level parameters or other components.
+The option applies to the structure view and cannot be combined with `--files`.
+
 ### Find what uses a component, path, or file
 
 Pass one or more components, paths, or files to `--uses` to see only the part of the tree that depends on them:
@@ -236,6 +296,7 @@ cafe.yaml
 - full JSON pointer: `#/components/schemas/Order`
 - shorthand pointer (the node id): `schemas/Order`
 - bare component name: `Order` — ambiguous bare names match all candidates and print a note to `stderr`
+- a wildcard pattern: `schemas/Order*` — `*` and `?` match against node ids (file ids in `--files` mode)
 - a file path (in `--files` mode): `components/schemas/Order.yaml`
 - the root file itself: the whole tree is affected
 
@@ -253,6 +314,9 @@ redocly tree cafe.yaml --uses Order
 
 # several values at once — repeat the flag
 redocly tree cafe.yaml --uses schemas/Order --uses schemas/MenuItem
+
+# wildcard — every component whose id starts with schemas/Order
+redocly tree cafe.yaml --uses 'schemas/Order*'
 
 # file-level: which files depend on a given file
 redocly tree cafe.yaml --files --uses components/schemas/Order.yaml

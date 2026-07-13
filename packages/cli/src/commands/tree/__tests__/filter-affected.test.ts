@@ -1,4 +1,4 @@
-import { filterAffected } from '../filter-affected.js';
+import { filterAffected, filterOperations, limitGraphLevel } from '../filter-affected.js';
 import type { DependencyGraph } from '../types.js';
 
 const graph: DependencyGraph = {
@@ -112,5 +112,88 @@ describe('filterAffected — container seeds include their subtree', () => {
       'openapi.yaml',
       'schemas/Pet',
     ]);
+  });
+});
+
+describe('filterOperations', () => {
+  const structure: DependencyGraph = {
+    roots: ['openapi.yaml'],
+    nodes: [
+      { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
+      { id: '/pets', resolved: true, kind: 'path' },
+      { id: 'GET /pets', resolved: true, kind: 'operation' },
+      { id: 'parameters/PetId', resolved: true, kind: 'component' },
+      { id: 'schemas/Pet', resolved: true, kind: 'component' },
+      { id: 'webhooks/newPet', resolved: true, kind: 'component' },
+    ],
+    edges: [
+      { from: 'openapi.yaml', to: '/pets', refs: [] },
+      { from: 'openapi.yaml', to: 'webhooks/newPet', refs: [] },
+      { from: '/pets', to: 'GET /pets', refs: [] },
+      { from: '/pets', to: 'parameters/PetId', refs: ['#/components/parameters/PetId'] },
+      { from: 'GET /pets', to: 'schemas/Pet', refs: ['#/components/schemas/Pet'] },
+      { from: 'webhooks/newPet', to: 'schemas/Pet', refs: ['#/components/schemas/Pet'] },
+    ],
+  };
+
+  it('keeps paths, operations, and webhook entries — no components', () => {
+    const surface = filterOperations(structure);
+
+    expect(surface.nodes.map((node) => node.id)).toEqual([
+      'openapi.yaml',
+      '/pets',
+      'GET /pets',
+      'webhooks/newPet',
+    ]);
+    expect(surface.edges).toEqual([
+      { from: 'openapi.yaml', to: '/pets', refs: [] },
+      { from: 'openapi.yaml', to: 'webhooks/newPet', refs: [] },
+      { from: '/pets', to: 'GET /pets', refs: [] },
+    ]);
+  });
+});
+
+describe('limitGraphLevel', () => {
+  const structure: DependencyGraph = {
+    roots: ['openapi.yaml'],
+    nodes: [
+      { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
+      { id: '/pets', resolved: true, kind: 'path' },
+      { id: 'GET /pets', resolved: true, kind: 'operation' },
+      { id: 'parameters/PetId', resolved: true, kind: 'component' },
+      { id: 'schemas/Pet', resolved: true, kind: 'component' },
+    ],
+    edges: [
+      { from: 'openapi.yaml', to: '/pets', refs: [] },
+      { from: '/pets', to: 'GET /pets', refs: [] },
+      { from: '/pets', to: 'parameters/PetId', refs: ['#/components/parameters/PetId'] },
+      { from: 'GET /pets', to: 'parameters/PetId', refs: ['#/components/parameters/PetId'] },
+      { from: 'GET /pets', to: 'schemas/Pet', refs: ['#/components/schemas/Pet'] },
+    ],
+  };
+
+  it('keeps only nodes within maxLevel steps from the root', () => {
+    const limited = limitGraphLevel(structure, 1);
+
+    expect(limited.nodes.map((node) => node.id)).toEqual(['openapi.yaml', '/pets']);
+    expect(limited.edges).toEqual([{ from: 'openapi.yaml', to: '/pets', refs: [] }]);
+  });
+
+  it('keeps a fan-in node reachable within the level and every edge between kept nodes', () => {
+    const limited = limitGraphLevel(structure, 2);
+
+    // parameters/PetId is 2 steps away via /pets, so it stays — including its edge from GET /pets.
+    expect(limited.nodes.map((node) => node.id).sort()).toEqual([
+      '/pets',
+      'GET /pets',
+      'openapi.yaml',
+      'parameters/PetId',
+    ]);
+    expect(limited.edges).toContainEqual({
+      from: 'GET /pets',
+      to: 'parameters/PetId',
+      refs: ['#/components/parameters/PetId'],
+    });
+    expect(limited.nodes.map((node) => node.id)).not.toContain('schemas/Pet');
   });
 });

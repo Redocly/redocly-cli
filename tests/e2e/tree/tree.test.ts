@@ -36,6 +36,26 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-dot'));
   });
 
+  test('tree limits the displayed depth with --level', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--level', '1']);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-level'));
+  });
+
+  test('tree shows only the API surface with --operations', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--operations']);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-operations'));
+  });
+
+  test('tree expands a --uses wildcard against node ids', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--uses', 'schemas/Order*']);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-structure-uses-wildcard')
+    );
+  });
+
   test('tree shows what a component pointer is used by', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',

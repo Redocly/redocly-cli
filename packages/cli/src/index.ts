@@ -104,9 +104,19 @@ yargs(hideBin(process.argv))
             description: 'Write the output to a file instead of stdout.',
             type: 'string',
           },
+          level: {
+            description: 'Limit the displayed depth of the tree.',
+            type: 'number',
+            requiresArg: true,
+          },
+          operations: {
+            description: 'Show only the API surface: paths, operations, and webhooks.',
+            type: 'boolean',
+            default: false,
+          },
           uses: {
             description:
-              'Show only the part of the tree that uses (depends on) the given components, paths, or files.',
+              'Show only the part of the tree that uses (depends on) the given components, paths, or files. Accepts `*` and `?` wildcards.',
             array: true,
             type: 'string',
             requiresArg: true,
