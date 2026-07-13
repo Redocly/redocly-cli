@@ -64,3 +64,7 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 - Builtin `security-baseline` does not report insecure-transport findings for loopback hosts
   (`localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`), so sandboxed captures — e.g. recorded
   with `redocly proxy` against a local target during e2e runs — stay warning-free.
+- Builtin `schema-consistency` skips request-side checks (required parameters, required body,
+  request-body schema) when the response is a `4xx` client error.
+  The server rejected the request, so validating it against the operation's success-path
+  contract would report the server's own correct rejection as drift.

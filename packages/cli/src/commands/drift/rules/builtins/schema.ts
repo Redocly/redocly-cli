@@ -349,6 +349,11 @@ function createUndocumentedParameterFindings(
   return findings;
 }
 
+function isRequestRejectedByServer(context: RuleContext): boolean {
+  const response = context.exchange.response;
+  return response !== undefined && response.status >= 400 && response.status < 500;
+}
+
 function pickResponseSchema(
   context: RuleContext,
   matchedOperation: MatchedOperation
@@ -417,74 +422,80 @@ export class SchemaConsistencyRule implements TrafficRule {
     const findings: Finding[] = [];
     const cookies = parseCookies(context.exchange.request.headers.cookie);
 
-    findings.push(...createUndocumentedParameterFindings(context, matchedOperation));
+    // A 4xx response means the server rejected the request, so it never held the
+    // request to the operation's success-path contract. Validating that request
+    // against required parameters or the request-body schema would report the
+    // server's own correct rejection as drift, so skip the request-side checks.
+    if (!isRequestRejectedByServer(context)) {
+      findings.push(...createUndocumentedParameterFindings(context, matchedOperation));
 
-    for (const parameter of matchedOperation.operation.requestParameters) {
-      if (context.ignoreCookies && parameter.in === 'cookie') {
-        continue;
+      for (const parameter of matchedOperation.operation.requestParameters) {
+        if (context.ignoreCookies && parameter.in === 'cookie') {
+          continue;
+        }
+
+        const actualValue = getActualParameterValue(parameter, context, cookies);
+
+        if (parameter.required && (actualValue === undefined || actualValue === null)) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'documentation',
+            message: `Missing required ${parameter.in} parameter: "${parameter.name}"`,
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'request',
+          });
+          continue;
+        }
+
+        validateParameter(parameter, actualValue, context, findings);
       }
 
-      const actualValue = getActualParameterValue(parameter, context, cookies);
+      const requestContentType = context.exchange.request.contentType;
+      const requestSchema = pickSchemaByMime(
+        matchedOperation.operation.requestBodyContent,
+        requestContentType
+      );
 
-      if (parameter.required && (actualValue === undefined || actualValue === null)) {
+      const hasRequestBody = hasBodyContent(context.exchange.request.bodyText);
+
+      if (matchedOperation.operation.requestBodyRequired && !hasRequestBody) {
         findings.push({
           ruleId: this.id,
           severity: 'error',
           category: 'documentation',
-          message: `Missing required ${parameter.in} parameter: "${parameter.name}"`,
+          message: 'Missing required request body',
           exchangeIndex: context.exchange.index,
           operationId: matchedOperation.operation.operationId,
           specSource: matchedOperation.operation.specSource,
           target: 'request',
         });
-        continue;
       }
 
-      validateParameter(parameter, actualValue, context, findings);
-    }
-
-    const requestContentType = context.exchange.request.contentType;
-    const requestSchema = pickSchemaByMime(
-      matchedOperation.operation.requestBodyContent,
-      requestContentType
-    );
-
-    const hasRequestBody = hasBodyContent(context.exchange.request.bodyText);
-
-    if (matchedOperation.operation.requestBodyRequired && !hasRequestBody) {
-      findings.push({
-        ruleId: this.id,
-        severity: 'error',
-        category: 'documentation',
-        message: 'Missing required request body',
-        exchangeIndex: context.exchange.index,
-        operationId: matchedOperation.operation.operationId,
-        specSource: matchedOperation.operation.specSource,
-        target: 'request',
-      });
-    }
-
-    if (requestSchema && hasRequestBody && isJsonMime(requestContentType)) {
-      if (context.exchange.request.bodyJson === undefined) {
-        findings.push({
-          ruleId: this.id,
-          severity: 'error',
-          category: 'schema',
-          message: 'Request body is not valid JSON for JSON content-type',
-          exchangeIndex: context.exchange.index,
-          operationId: matchedOperation.operation.operationId,
-          specSource: matchedOperation.operation.specSource,
-          target: 'request',
-        });
-      } else {
-        findings.push(
-          ...validateSchemaResult(
-            requestSchema,
-            context.exchange.request.bodyJson,
-            context,
-            'request'
-          )
-        );
+      if (requestSchema && hasRequestBody && isJsonMime(requestContentType)) {
+        if (context.exchange.request.bodyJson === undefined) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'schema',
+            message: 'Request body is not valid JSON for JSON content-type',
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'request',
+          });
+        } else {
+          findings.push(
+            ...validateSchemaResult(
+              requestSchema,
+              context.exchange.request.bodyJson,
+              context,
+              'request'
+            )
+          );
+        }
       }
     }
 
