@@ -1,0 +1,17 @@
+apis:
+  test@off:
+    root: ./schema.graphql
+    rules:
+      rule/graphql-type-casing: off
+  test@warn:
+    root: ./schema.graphql
+    rules:
+      rule/graphql-type-casing: warn
+
+rules:
+  rule/graphql-type-casing:
+    subject:
+      type: ObjectTypeDefinition
+      property: name
+    assertions:
+      casing: PascalCase

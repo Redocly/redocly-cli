@@ -1,0 +1,2 @@
+{"request":{"method":"GET","url":"http://api.example.com/users","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/users/42","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"id\":\"42\",\"name\":\"Ada\"}"}}

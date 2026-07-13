@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.36.0",
+  "version": "2.39.0",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -44,9 +44,9 @@
     "@opentelemetry/resources": "2.8.0",
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/semantic-conventions": "1.41.1",
-    "@redocly/cli-otel": "0.3.1",
-    "@redocly/openapi-core": "2.36.0",
-    "@redocly/respect-core": "2.36.0",
+    "@redocly/cli-otel": "0.3.4",
+    "@redocly/openapi-core": "2.39.0",
+    "@redocly/respect-core": "2.39.0",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",

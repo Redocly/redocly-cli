@@ -7,6 +7,39 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.39.0 (2026-07-13)
+
+### Minor Changes
+
+- Added support for AsyncAPI 3.1.0 descriptions.
+- Fixed the `struct` rule to validate the contents of AsyncAPI protocol-specific bindings.
+  Added typed definitions for the `sns`, `sqs`, `ibmmq`, `googlepubsub`, `pulsar` and `ros2` bindings.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.39.0.
+
+## 2.38.0 (2026-07-08)
+
+### Minor Changes
+
+- Added an experimental `drift` command that compares recorded HTTP traffic (HAR, Kong, Nginx/Apache JSON, NDJSON) against an OpenAPI description and reports undocumented endpoints, schema mismatches, and security findings.
+- Added an experimental `proxy` command that captures live HTTP traffic through a reverse proxy into a HAR file and optionally validates it against an OpenAPI description in real time.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.38.0.
+
+## 2.37.0 (2026-07-03)
+
+### Minor Changes
+
+- Added experimental support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.37.0.
+
 ## 2.36.0 (2026-06-30)
 
 ### Minor Changes

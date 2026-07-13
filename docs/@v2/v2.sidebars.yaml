@@ -14,6 +14,8 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: drift
+          page: commands/drift.md
         - label: eject
           page: commands/eject.md
         - label: generate-arazzo
@@ -28,6 +30,8 @@
           page: commands/logout.md
         - label: preview
           page: commands/preview.md
+        - label: proxy
+          page: commands/proxy.md
         - label: push
           page: commands/push.md
         - label: push-status
@@ -64,6 +68,7 @@
           page: guides/response-contains-property.md
         - page: guides/lint-asyncapi.md
         - page: guides/lint-arazzo.md
+        - page: guides/lint-graphql.md
         - label: Change the OAuth2 token URL
           page: guides/change-token-url.md
         - label: Hide OpenAPI specification extensions
