@@ -1,0 +1,16 @@
+openapi.yaml
+├── /orders
+│   ├── GET
+│   │   └── schemas/OrderList
+│   │       └── schemas/Order
+│   │           └── schemas/OrderStatus
+│   └── POST
+│       └── schemas/Order
+│           └── schemas/OrderStatus
+└── /orders/{orderId}
+    └── GET
+        └── schemas/Order
+            └── schemas/OrderStatus
+
+3 of 4 operations affected · affected paths: /orders, /orders/{orderId}
+
