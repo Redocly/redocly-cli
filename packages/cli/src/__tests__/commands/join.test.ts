@@ -3,6 +3,7 @@ import {
   detectSpec,
   getTotals,
   loadConfig,
+  logger,
   type Document,
   BaseResolver,
 } from '@redocly/openapi-core';
@@ -24,6 +25,9 @@ import {
   thirdDocument,
   serverAndPaths,
   anotherServerAndPaths,
+  pathWithObjectExtension,
+  anotherPathWithSameObjectExtension,
+  anotherPathWithDifferentObjectExtension,
 } from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
@@ -463,6 +467,72 @@ describe('handleJoin', () => {
       expect(joinedDef.servers).toBeUndefined();
       expect(joinedDef.paths['/foo'].servers).toEqual([{ url: 'https://foo.com/api/v1/first' }]);
       expect(joinedDef.paths['/bar'].servers).toEqual([{ url: 'https://foo.com/api/v1/second' }]);
+    });
+  });
+
+  describe('path extensions', () => {
+    it('should merge non-string x-* path extension when values are the same', async () => {
+      vi.mocked(detectSpec).mockReturnValue('oas3_0');
+      const warnSpy = vi.spyOn(logger, 'warn');
+      vi.spyOn(BaseResolver.prototype, 'resolveDocument')
+        .mockReset()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-a' },
+            parsed: pathWithObjectExtension,
+          } as Document)
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-b' },
+            parsed: anotherPathWithSameObjectExtension,
+          } as Document)
+        );
+
+      await handleJoin({
+        argv: {
+          apis: ['a.yaml', 'b.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      });
+
+      const joinedDef = writeToFileByExtensionSpy.mock.calls[0][0];
+      expect(joinedDef.paths['/foo']['x-metadata']).toEqual({ owner: 'team-a' });
+      expect(warnSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining('different x-metadata values')
+      );
+    });
+
+    it('should warn when non-string x-* path extension values differ', async () => {
+      vi.mocked(detectSpec).mockReturnValue('oas3_0');
+      const warnSpy = vi.spyOn(logger, 'warn');
+      vi.spyOn(BaseResolver.prototype, 'resolveDocument')
+        .mockReset()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-a' },
+            parsed: pathWithObjectExtension,
+          } as Document)
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-b' },
+            parsed: anotherPathWithDifferentObjectExtension,
+          } as Document)
+        );
+
+      await handleJoin({
+        argv: {
+          apis: ['a.yaml', 'b.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      });
+
+      const joinedDef = writeToFileByExtensionSpy.mock.calls[0][0];
+      expect(joinedDef.paths['/foo']['x-metadata']).toEqual({ owner: 'team-a' });
+      expect(warnSpy).toHaveBeenCalledWith('warning: different x-metadata values in /foo\n');
     });
   });
 
