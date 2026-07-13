@@ -95,6 +95,11 @@ describe('schema-consistency undocumented header check', () => {
     expect(undocumentedHeaderFindings(context)).toHaveLength(1);
   });
 
+  it('still flags undocumented headers when the server rejected the request with 4xx', () => {
+    const context = createContext(400, { requestHeaders: { 'x-caddy-auth-token': 'secret' } });
+    expect(undocumentedHeaderFindings(context)).toHaveLength(1);
+  });
+
   it('skips headers matched by an exact name or a prefix pattern in --ignore-headers', () => {
     const context = createContext(200, {
       requestHeaders: {

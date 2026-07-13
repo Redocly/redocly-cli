@@ -422,13 +422,16 @@ export class SchemaConsistencyRule implements TrafficRule {
     const findings: Finding[] = [];
     const cookies = parseCookies(context.exchange.request.headers.cookie);
 
+    // Undocumented query parameters and headers are a documentation gap that holds
+    // regardless of whether the server accepted the request, so report them even
+    // when the response is a 4xx.
+    findings.push(...createUndocumentedParameterFindings(context, matchedOperation));
+
     // A 4xx response means the server rejected the request, so it never held the
     // request to the operation's success-path contract. Validating that request
     // against required parameters or the request-body schema would report the
     // server's own correct rejection as drift, so skip the request-side checks.
     if (!isRequestRejectedByServer(context)) {
-      findings.push(...createUndocumentedParameterFindings(context, matchedOperation));
-
       for (const parameter of matchedOperation.operation.requestParameters) {
         if (context.ignoreCookies && parameter.in === 'cookie') {
           continue;
