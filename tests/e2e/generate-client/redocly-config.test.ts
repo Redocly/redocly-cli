@@ -1,7 +1,7 @@
 // generate-client reads its settings from a `redocly.yaml` `client` block (top-level
-// shared defaults) and per-API `apis.<name>.client` / `clientOutput`. Three invocation
-// modes: fan-out (no arg, over apis with a `client` block), an `apis:` alias, and a plain
-// file path (which ignores `apis:`). CLI flags override the config.
+// shared defaults) and per-API `apis.<name>.client` / `clientOutput`. Invocation modes:
+// fan-out (no arg, over apis with a `client` block) and an `apis:` alias or file path,
+// resolved like `bundle`/`lint`. CLI flags override the config.
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
@@ -111,7 +111,7 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('a plain file path ignores `apis:` and uses the top-level `client` defaults', () => {
+  it("a file path matching an api root uses that api's config (like `bundle`); an unmatched path uses the top-level defaults", () => {
     const dir = project(
       [
         'client:',
@@ -121,14 +121,22 @@ describe('generate-client redocly.yaml config', () => {
         '  cafe:',
         '    root: ./openapi.yaml',
         '    client:',
-        '      serverUrl: https://per-api.example.com', // must NOT apply to a path invocation
+        '      serverUrl: https://per-api.example.com',
       ].join('\n') + '\n'
     );
-    const res = run(dir, ['./openapi.yaml', '--output', './out.ts']);
-    expect(res.status, res.stderr).toBe(0);
-    const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
-    expect(out).toContain('serverUrl: "https://top-level.example.com"'); // top-level applied
-    expect(out).not.toContain('https://per-api.example.com'); // per-api block ignored
+    copyFileSync(fixture, join(dir, 'standalone.yaml')); // not registered under `apis:`
+
+    const matched = run(dir, ['./openapi.yaml', '--output', './matched.ts']);
+    expect(matched.status, matched.stderr).toBe(0);
+    expect(readFileSync(join(dir, 'matched.ts'), 'utf-8')).toContain(
+      'serverUrl: "https://per-api.example.com"'
+    );
+
+    const unmatched = run(dir, ['./standalone.yaml', '--output', './unmatched.ts']);
+    expect(unmatched.status, unmatched.stderr).toBe(0);
+    expect(readFileSync(join(dir, 'unmatched.ts'), 'utf-8')).toContain(
+      'serverUrl: "https://top-level.example.com"'
+    );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

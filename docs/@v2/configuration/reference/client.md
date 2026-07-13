@@ -75,7 +75,9 @@ The style-conditional requirements and the structural fit (the advance param mus
 
 ## How the configuration applies
 
-A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults. A plain file-path invocation (not an `apis:` alias) ignores `apis:` and uses only the top-level `client`. CLI flags then take precedence over the resolved configuration — see the [command reference](../../commands/generate-client.md#configuration).
+A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults.
+A file-path invocation matching no `apis:` entry uses only the top-level `client`.
+CLI flags then take precedence over the resolved configuration — see the [command reference](../../commands/generate-client.md#configuration).
 
 For code-level control — including registering [custom generators](../../guides/use-generated-client.md#custom-generators) inline — use the programmatic `generateClient(...)` API instead.
 

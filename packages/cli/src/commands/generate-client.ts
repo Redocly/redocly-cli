@@ -3,7 +3,7 @@ import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi
 import { blue, gray, yellow } from 'colorette';
 import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
-import { getAliasOrPath } from '../utils/miscellaneous.js';
+import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type GenerateClientCommandArgv = {
@@ -111,43 +111,37 @@ export async function handleGenerateClient({
     setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
   };
 
-  const perApiJob = (name: string): Job => {
-    const apiCfg = apisCfg[name];
-    return {
-      name,
-      alias: name,
-      api: getAliasOrPath(config, name).path,
-      clientOutput: apiCfg?.clientOutput,
-      perApiClient: isPlainObject(apiCfg?.client)
-        ? resolveSetup(apiCfg.client as ClientConfig, configDir)
-        : {},
-    };
-  };
-
-  // Three invocation modes, keyed off the positional argument.
-  const jobs: Job[] = [];
+  // Without an <api> argument, generation fans out over the apis that opt in with a `client` block.
+  const optedIn = Object.keys(apisCfg).filter((name) => isPlainObject(apisCfg[name].client));
   if (argv.api === undefined) {
-    // Fan-out: generate for every API that opts in with a `client` block.
     if (argv.output) {
       throw new HandledError(
         `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
       );
     }
-    for (const [name, apiCfg] of Object.entries(apisCfg)) {
-      if (isPlainObject(apiCfg.client)) jobs.push(perApiJob(name));
-    }
-    if (jobs.length === 0) {
+    if (optedIn.length === 0) {
       throw new HandledError(
         `\n❌  No API to generate. Add a \`client\` block under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
       );
     }
-  } else if (apisCfg[argv.api]) {
-    // Named `apis:` alias: use its root, its `client` block (if any), and its `clientOutput`.
-    jobs.push(perApiJob(argv.api));
-  } else {
-    // Plain file/URL: ignore the `apis:` registry; use the top-level `client` defaults only.
-    jobs.push({ name: basename(argv.api, extname(argv.api)), api: argv.api, perApiClient: {} });
   }
+  const entrypoints = await getFallbackApisOrExit(
+    argv.api === undefined ? optedIn : [argv.api],
+    config
+  );
+
+  const jobs: Job[] = entrypoints.map(({ path, alias }) => {
+    const apiCfg = alias === undefined ? undefined : apisCfg[alias];
+    return {
+      name: alias ?? basename(path, extname(path)),
+      alias,
+      api: path,
+      clientOutput: apiCfg?.clientOutput,
+      perApiClient: isPlainObject(apiCfg?.client)
+        ? resolveSetup(apiCfg.client as ClientConfig, configDir)
+        : {},
+    };
+  });
 
   // Resolved output paths, so two fan-out jobs can't silently overwrite each other.
   const seenOutputs = new Set<string>();

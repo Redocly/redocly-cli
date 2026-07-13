@@ -23,10 +23,11 @@ This page covers running the command; for the generated client's runtime API (au
 ```sh
 redocly generate-client                          # every api with a `client` block (see Configuration)
 redocly generate-client cafe                     # a single `apis:` alias from redocly.yaml
-redocly generate-client openapi.yaml -o src/client.ts   # a file path (ignores `apis:`)
+redocly generate-client openapi.yaml -o src/client.ts   # a file path or URL
 ```
 
-With **no argument**, a client is generated for every api that declares a `client` block under `apis:` (see [`client` configuration](../configuration/reference/client.md)). Otherwise `<api>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md): an alias uses that api's `client` block and `clientOutput`, while a plain path/URL ignores the `apis:` section and uses the top-level `client` defaults.
+With no argument, a client is generated for every api that declares a `client` block under `apis:` (see [`client` configuration](../configuration/reference/client.md)).
+Otherwise `<api>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md), resolved the same way as in other commands such as `bundle` and `lint`: an alias — or a path matching an api's `root` — uses that api's `client` block and `clientOutput`, while an unmatched path/URL uses the top-level `client` defaults.
 
 ## Options
 
