@@ -272,14 +272,8 @@ export type ResolveConfig = {
 
 export type Telemetry = 'on' | 'off';
 
-/**
- * `generate-client` settings carried on the config root or an `apis` entry. Loosely
- * typed because `@redocly/openapi-core` does not depend on `@redocly/client-generator`,
- * which owns the precise shape; the CLI narrows it when consuming.
- */
 export type ClientGeneratorConfig = Record<string, unknown>;
 
-/** Per-API `generate-client` fields: the `client` overrides block and its output path. */
 export type ClientGeneratorApiConfig = {
   client?: ClientGeneratorConfig;
   clientOutput?: string;

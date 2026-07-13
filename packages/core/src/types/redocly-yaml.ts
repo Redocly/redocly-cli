@@ -348,11 +348,6 @@ const ConfigHTTP: NodeType = {
   },
 };
 
-// `generate-client` settings. Shared defaults live under the top-level `client` key;
-// per-API overrides live under `apis.<name>.client`. The input and output are NOT part of
-// this block — they live on the `apis` entry (`root` / `clientOutput`) or on the CLI — so a
-// `client` block accepts only the settings below, and any stray input/output key inside it
-// reports as unexpected.
 const Client: NodeType = {
   properties: {
     generators: { type: 'array', items: { type: 'string' } },
@@ -371,11 +366,7 @@ const Client: NodeType = {
   },
 };
 
-// One pagination rule — the shared field set of the `client.pagination` convention block
-// and each `operations` override. Every field is optional here: the style-conditional
-// requirements (`cursor` needs `cursorParam` + `nextCursor`; `offset`/`page` need
-// `offsetParam`; `items` always) are enforced by the generator with richer messages, so
-// this type only gates key names and value types.
+// Style-conditional field requirements are enforced by the generator with richer messages.
 const ClientPaginationRule: NodeType = {
   properties: {
     style: { enum: ['cursor', 'offset', 'page'] },
@@ -387,8 +378,6 @@ const ClientPaginationRule: NodeType = {
   },
 };
 
-// `client.pagination`: an optional convention rule (the rule fields, applied to every
-// operation it structurally fits), plus per-operation overrides and exclusions.
 const ClientPagination: NodeType = {
   properties: {
     ...ClientPaginationRule.properties,
