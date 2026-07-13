@@ -58,7 +58,8 @@ function fileNameFor(name: string): string {
 // Accepts an absolute http(s) URL or a root-relative path; rejects bare hostnames,
 // protocol-relative `//host`, and non-http(s) schemes.
 function isValidServerUrl(value: string): boolean {
-  if (value.startsWith('/')) return !value.startsWith('//');
+  if (value.startsWith('//')) return false;
+  if (value.startsWith('/')) return true;
   try {
     const url = new URL(value);
     return url.protocol === 'http:' || url.protocol === 'https:';
