@@ -61,3 +61,6 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 - JSON-array traffic files (HAR/Kong/webserver-json) are read fully into memory.
   For very large captures, prefer the NDJSON format.
 - Builtin `owasp-api-top10` is opt-in via `--rules owasp-api-top10`.
+- Builtin `security-baseline` does not report insecure-transport findings for loopback hosts
+  (`localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`), so sandboxed captures — e.g. recorded
+  with `redocly proxy` against a local target during e2e runs — stay warning-free.
