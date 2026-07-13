@@ -121,6 +121,11 @@ describe('generate-client redocly.yaml config', () => {
         'client:',
         '  generators: [sdk]',
         '  serverUrl: https://top-level.example.com',
+        '  pagination:', // a shared default that must survive the per-api override
+        '    style: cursor',
+        '    cursorParam: after',
+        '    nextCursor: /page/endCursor',
+        '    items: /items',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
@@ -132,9 +137,9 @@ describe('generate-client redocly.yaml config', () => {
 
     const matched = run(dir, ['./openapi.yaml', '--output', './matched.ts']);
     expect(matched.status, matched.stderr).toBe(0);
-    expect(readFileSync(join(dir, 'matched.ts'), 'utf-8')).toContain(
-      'serverUrl: "https://per-api.example.com"'
-    );
+    const matchedOut = readFileSync(join(dir, 'matched.ts'), 'utf-8');
+    expect(matchedOut).toContain('serverUrl: "https://per-api.example.com"');
+    expect(matchedOut).toContain('pagination: {'); // top-level default kept, field by field
 
     const unmatched = run(dir, ['./standalone.yaml', '--output', './unmatched.ts']);
     expect(unmatched.status, unmatched.stderr).toBe(0);

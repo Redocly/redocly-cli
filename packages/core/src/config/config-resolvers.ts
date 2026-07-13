@@ -122,7 +122,13 @@ export async function resolveConfig({
     bundledConfig.apis = Object.fromEntries(
       Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
         const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
-        return [key, { ...apiConfig, ...mergedConfig }];
+        // Like the governance sections above, a per-api `client` block layers field by
+        // field over the top-level one instead of replacing it.
+        const client =
+          isPlainObject(bundledConfig.client) && isPlainObject(apiConfig.client)
+            ? { client: { ...bundledConfig.client, ...apiConfig.client } }
+            : {};
+        return [key, { ...apiConfig, ...mergedConfig, ...client }];
       })
     );
   }
