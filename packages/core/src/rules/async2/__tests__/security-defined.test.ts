@@ -147,7 +147,59 @@ describe('Async2 security-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should not report when security array is empty', async () => {
+  it('should report when the referenced security scheme has no value (half-finished YAML)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            url: kafka.example.com
+            protocol: kafka
+            security:
+              - apiKeyAuth: []
+        channels:
+          some/channel:
+            subscribe:
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/servers/production/security/0/apiKeyAuth",
+              "reportOnKey": true,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "There is no \`apiKeyAuth\` security scheme defined.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report when the operation security array is empty and no server secures it', async () => {
     const document = parseYamlToDocument(
       outdent`
         asyncapi: '2.6.0'
@@ -160,6 +212,61 @@ describe('Async2 security-defined', () => {
               security: []
               message:
                 messageId: Message1
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/channels/some~1channel/subscribe",
+              "reportOnKey": true,
+              "source": "asyncapi.yaml",
+            },
+          ],
+          "message": "Every operation should have security defined on it.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report when the operation security array is empty but an applicable server is secured', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        servers:
+          production:
+            url: kafka.example.com
+            protocol: kafka
+            security:
+              - apiKeyAuth: []
+        channels:
+          some/channel:
+            subscribe:
+              security: []
+              message:
+                messageId: Message1
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: user
       `,
       'asyncapi.yaml'
     );

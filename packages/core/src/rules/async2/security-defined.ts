@@ -8,7 +8,7 @@ import type {
 } from '../../typings/asyncapi.js';
 import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { isAsyncOperationSecured } from '../utils.js';
+import { hasSecurityRequirements, isAsyncOperationSecured } from '../utils.js';
 
 export const SecurityDefined: Async2Rule = () => {
   const referencedSchemes = new Map<
@@ -51,7 +51,8 @@ export const SecurityDefined: Async2Rule = () => {
         }
       },
     },
-    SecurityScheme(_scheme: Async2SecurityScheme, { key }: UserContext) {
+    SecurityScheme(scheme: Async2SecurityScheme, { key }: UserContext) {
+      if (scheme == null) return;
       referencedSchemes.set(key.toString(), { defined: true, from: [] });
     },
     SecurityRequirement(requirements: Async2SecurityRequirement, { location }: UserContext) {
@@ -75,10 +76,7 @@ export const SecurityDefined: Async2Rule = () => {
     },
     Server(server: Async2Server, { key }: UserContext) {
       if (inComponents) return;
-      serverHasSecurity.set(
-        key.toString(),
-        Array.isArray(server?.security) && server.security.length > 0
-      );
+      serverHasSecurity.set(key.toString(), hasSecurityRequirements(server));
     },
     Channel: {
       skip() {

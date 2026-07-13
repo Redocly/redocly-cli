@@ -49,15 +49,21 @@ export function oasTypeOf(value: unknown) {
 type SecuredOperation = Async2Operation | Async3Operation;
 type SecuredTrait = Async2OperationTrait | Async3OperationTrait;
 
+export function hasSecurityRequirements(node: { security?: unknown } | undefined): boolean {
+  const security = node?.security;
+  return Array.isArray(security) && security.length > 0;
+}
+
 export function isAsyncOperationSecured(
   operation: SecuredOperation | undefined,
-  resolve: UserContext['resolve']
+  resolve: UserContext['resolve'],
+  resolveFrom?: string
 ): boolean {
-  if (operation?.security) return true;
+  if (hasSecurityRequirements(operation)) return true;
   if (!Array.isArray(operation?.traits)) return false;
   for (const trait of operation.traits) {
-    const traitNode = isRef(trait) ? resolve<SecuredTrait>(trait).node : trait;
-    if (traitNode?.security) return true;
+    const traitNode = isRef(trait) ? resolve<SecuredTrait>(trait, resolveFrom).node : trait;
+    if (hasSecurityRequirements(traitNode)) return true;
   }
   return false;
 }
