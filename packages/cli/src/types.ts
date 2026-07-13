@@ -3,11 +3,13 @@ import type { RuleSeverity } from '@redocly/openapi-core';
 import type { LoginArgv, LogoutArgv } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { BundleArgv } from './commands/bundle.js';
+import type { DriftArgv } from './commands/drift/index.js';
 import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
+import type { ProxyArgv } from './commands/proxy/index.js';
 import type { RespectArgv } from './commands/respect/index.js';
 import type { SplitArgv } from './commands/split/types.js';
 import type { StatsArgv } from './commands/stats/index.js';
@@ -44,6 +46,8 @@ export type CommandArgv =
   | TranslationsArgv
   | EjectArgv
   | RespectArgv
+  | DriftArgv
+  | ProxyArgv
   | GenerateArazzoCommandArgv;
 
 export type VerifyConfigOptions = {

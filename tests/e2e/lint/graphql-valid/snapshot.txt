@@ -1,0 +1,6 @@
+
+validating schema.graphql using lint rules for api 'main'...
+schema.graphql: validated in <test>ms
+
+Woohoo! Your API description is valid. 🎉
+

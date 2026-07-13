@@ -17,6 +17,7 @@ import {
   rules as async3Rules,
   preprocessors as async3Preprocessors,
 } from '../rules/async3/index.js';
+import { rules as graphqlRules } from '../rules/graphql/index.js';
 import { rules as oas2Rules, preprocessors as oas2Preprocessors } from '../rules/oas2/index.js';
 import { rules as oas3Rules, preprocessors as oas3Preprocessors } from '../rules/oas3/index.js';
 import {
@@ -52,6 +53,7 @@ export const defaultPlugin: Plugin<'built-in'> = {
     arazzo1: arazzo1Rules,
     overlay1: overlay1Rules,
     openrpc1: openrpc1Rules,
+    graphql: graphqlRules,
   },
   preprocessors: {
     oas3: oas3Preprocessors,

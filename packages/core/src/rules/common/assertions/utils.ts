@@ -261,13 +261,13 @@ function getProblemsLocation(problems: AssertResult[]) {
   return problems.length ? problems[0].location : undefined;
 }
 
-function getProblemsMessage(problems: AssertResult[]) {
+export function getProblemsMessage(problems: AssertResult[]) {
   return problems.length === 1
     ? (problems[0].message ?? '')
     : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 
-function getFilenameFromPath(absoluteRef: string): string {
+export function getFilenameFromPath(absoluteRef: string): string {
   if (isAbsoluteUrl(absoluteRef)) {
     const parts = absoluteRef.split('/');
     return parts.at(-1) || absoluteRef;
@@ -276,7 +276,7 @@ function getFilenameFromPath(absoluteRef: string): string {
   return parts.at(-1) || absoluteRef;
 }
 
-function interpolateMessagePlaceholders(
+export function interpolateMessagePlaceholders(
   message: string,
   placeholders: Record<PlaceholderKeys, string>
 ): string {

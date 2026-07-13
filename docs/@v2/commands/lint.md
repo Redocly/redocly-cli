@@ -2,8 +2,9 @@
 
 ## Introduction
 
-Redocly CLI can identify and report on problems found in OpenAPI, AsyncAPI, Arazzo, or Open-RPC descriptions.
-This helps you avoid bugs and make API or Arazzo descriptions more consistent.
+Redocly CLI can identify and report on problems found in OpenAPI, AsyncAPI, or Arazzo descriptions.
+It also has experimental support for [Open-RPC](../guides/lint-openrpc.md) and [GraphQL SDL schemas](../guides/lint-graphql.md).
+This helps you avoid bugs and make API descriptions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules.
 Unlike the `bundle` command, `lint` doesn't execute decorators.

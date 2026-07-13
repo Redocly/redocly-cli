@@ -62,6 +62,41 @@ describe('Oas3 security-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not report if operation security includes an anonymous alternative', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          info:
+            title: Xquik API
+            version: '1.0'
+          paths:
+            /api/v1/x/tweets/search:
+              get:
+                security:
+                  - apiKey: []
+                  - oauthBearer: []
+                  - {}
+          components:
+            securitySchemes:
+              apiKey:
+                type: apiKey
+                in: header
+                name: x-api-key
+              oauthBearer:
+                type: http
+                scheme: bearer`,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'security-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report if security not defined at all', async () => {
     const document = parseYamlToDocument(
       outdent`

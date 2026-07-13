@@ -6,13 +6,14 @@ import type {
   Oas3RuleSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
+  GraphqlRuleSet,
   SpecVersion,
 } from '../oas-types.js';
 import { isDefined } from '../utils/is-defined.js';
 import type { ProblemSeverity } from '../walk.js';
 import type { Config } from './config.js';
 
-type InitializedRule = {
+export type InitializedRule = {
   severity: ProblemSeverity;
   ruleId: string;
   visitor: any;
@@ -27,6 +28,7 @@ export function initRules(
     | Arazzo1RuleSet
     | Overlay1RuleSet
     | OpenRpc1RuleSet
+    | GraphqlRuleSet
   )[],
   config: Config,
   type: 'rules' | 'preprocessors' | 'decorators',

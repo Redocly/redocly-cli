@@ -10,6 +10,7 @@ import {
   type Arazzo1RuleSet,
   type Overlay1RuleSet,
   type OpenRpc1RuleSet,
+  type GraphqlRuleSet,
   type SpecVersion,
   type SpecMajorVersion,
   specVersions,
@@ -18,6 +19,7 @@ import { isAbsoluteUrl } from '../ref-utils.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { omit } from '../utils/omit.js';
 import { slash } from '../utils/slash.js';
 import type { NormalizedProblem } from '../walk.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
@@ -88,6 +90,11 @@ export class Config {
       arazzo1_1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1_1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
       openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
+      graphql: group({
+        // removing common ref-resolution rules from the GraphQL ruleset:
+        ...omit(resolvedConfig.rules ?? {}, ['no-unresolved-refs']),
+        ...resolvedConfig.graphqlRules,
+      }),
     };
 
     this.preprocessors = {
@@ -128,6 +135,7 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.openrpc1Preprocessors,
       },
+      graphql: {},
     };
 
     this.decorators = {
@@ -147,6 +155,7 @@ export class Config {
         ...resolvedConfig.decorators,
         ...resolvedConfig.openrpc1Decorators,
       },
+      graphql: {},
     };
 
     this.ignore = opts.ignore ?? {};
@@ -257,6 +266,9 @@ export class Config {
             if (!plugin.typeExtension.openrpc1) continue;
             extendedTypes = plugin.typeExtension.openrpc1(extendedTypes, version);
             break;
+          case 'graphql':
+            // Skip GraphQL types extension as there is no NodeType tree for it.
+            break;
           default:
             throw new Error('Not implemented');
         }
@@ -332,22 +344,21 @@ export class Config {
   // TODO: add rules for redocly.yaml / entities?
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
-      case 'oas3':
-        // eslint-disable-next-line no-case-declarations
+      case 'oas3': {
         const oas3Rules: Oas3RuleSet[] = [];
         this.plugins.forEach((p) => p.preprocessors?.oas3 && oas3Rules.push(p.preprocessors.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         this.plugins.forEach((p) => p.decorators?.oas3 && oas3Rules.push(p.decorators.oas3));
         return oas3Rules;
-      case 'oas2':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'oas2': {
         const oas2Rules: Oas2RuleSet[] = [];
         this.plugins.forEach((p) => p.preprocessors?.oas2 && oas2Rules.push(p.preprocessors.oas2));
         this.plugins.forEach((p) => p.rules?.oas2 && oas2Rules.push(p.rules.oas2));
         this.plugins.forEach((p) => p.decorators?.oas2 && oas2Rules.push(p.decorators.oas2));
         return oas2Rules;
-      case 'async2':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'async2': {
         const asyncApi2Rules: Async2RuleSet[] = [];
         this.plugins.forEach(
           (p) => p.preprocessors?.async2 && asyncApi2Rules.push(p.preprocessors.async2)
@@ -357,8 +368,8 @@ export class Config {
           (p) => p.decorators?.async2 && asyncApi2Rules.push(p.decorators.async2)
         );
         return asyncApi2Rules;
-      case 'async3':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'async3': {
         const asyncApi3Rules: Async3RuleSet[] = [];
         this.plugins.forEach(
           (p) => p.preprocessors?.async3 && asyncApi3Rules.push(p.preprocessors.async3)
@@ -368,8 +379,8 @@ export class Config {
           (p) => p.decorators?.async3 && asyncApi3Rules.push(p.decorators.async3)
         );
         return asyncApi3Rules;
-      case 'arazzo1':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'arazzo1': {
         const arazzo1Rules: Arazzo1RuleSet[] = [];
         this.plugins.forEach(
           (p) => p.preprocessors?.arazzo1 && arazzo1Rules.push(p.preprocessors.arazzo1)
@@ -379,8 +390,8 @@ export class Config {
           (p) => p.decorators?.arazzo1 && arazzo1Rules.push(p.decorators.arazzo1)
         );
         return arazzo1Rules;
-      case 'arazzo1_1':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'arazzo1_1': {
         const arazzo1_1Rules: Arazzo1RuleSet[] = [];
         this.plugins.forEach(
           (p) => p.preprocessors?.arazzo1_1 && arazzo1_1Rules.push(p.preprocessors.arazzo1_1)
@@ -390,8 +401,8 @@ export class Config {
           (p) => p.decorators?.arazzo1_1 && arazzo1_1Rules.push(p.decorators.arazzo1_1)
         );
         return arazzo1_1Rules;
-      case 'overlay1':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'overlay1': {
         const overlay1Rules: Overlay1RuleSet[] = [];
         this.plugins.forEach(
           (p) => p.preprocessors?.overlay1 && overlay1Rules.push(p.preprocessors.overlay1)
@@ -401,8 +412,8 @@ export class Config {
           (p) => p.decorators?.overlay1 && overlay1Rules.push(p.decorators.overlay1)
         );
         return overlay1Rules;
-      case 'openrpc1':
-        // eslint-disable-next-line no-case-declarations
+      }
+      case 'openrpc1': {
         const openrpc1Rules: OpenRpc1RuleSet[] = [];
         this.plugins.forEach(
           (p) => p.preprocessors?.openrpc1 && openrpc1Rules.push(p.preprocessors.openrpc1)
@@ -412,6 +423,12 @@ export class Config {
           (p) => p.decorators?.openrpc1 && openrpc1Rules.push(p.decorators.openrpc1)
         );
         return openrpc1Rules;
+      }
+      case 'graphql': {
+        const graphqlRules: GraphqlRuleSet[] = [];
+        this.plugins.forEach((p) => p.rules?.graphql && graphqlRules.push(p.rules.graphql));
+        return graphqlRules;
+      }
     }
   }
 

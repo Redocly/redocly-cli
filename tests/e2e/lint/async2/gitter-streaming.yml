@@ -143,8 +143,7 @@ components:
             type: string
             description: Stands for "Gravatar version" and is used for cache busting.
       bindings:
-        http:
-          $ref: '#/components/messageBindings/streamingHeaders'
+        $ref: '#/components/messageBindings/streamingHeaders'
 
     heartbeat:
       schemaFormat: 'application/schema+yaml;version=draft-07'
@@ -153,8 +152,7 @@ components:
         type: string
         enum: ["\r\n"]
       bindings:
-        http:
-          $ref: '#/components/messageBindings/streamingHeaders'
+        $ref: '#/components/messageBindings/streamingHeaders'
 
   messageBindings:
     streamingHeaders:
@@ -162,5 +160,8 @@ components:
         headers:
           type: object
           properties:
-            'Transfer-Encoding': 'chunked'
-            Trailer: '\r\n'
+            'Transfer-Encoding':
+              type: string
+              enum: ['chunked']
+            Trailer:
+              type: string

@@ -32,6 +32,9 @@ rpc-server.yml: validated in <test>ms
 validating simple.yml using lint rules for api 'simple'...
 simple.yml: validated in <test>ms
 
+validating simple-3-1.yml using lint rules for api 'simple-3-1'...
+simple-3-1.yml: validated in <test>ms
+
 validating slack-rtm.yml using lint rules for api 'slack-rtm'...
 slack-rtm.yml: validated in <test>ms
 

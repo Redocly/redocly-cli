@@ -113,6 +113,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case 'graphql': // graphql is never bundled/$ref-resolved
     default:
       return null;
   }

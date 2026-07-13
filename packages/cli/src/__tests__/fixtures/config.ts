@@ -28,6 +28,7 @@ export const configFixture: Config = {
     arazzo1_1: {},
     overlay1: {},
     openrpc1: {},
+    graphql: {},
   },
   preprocessors: {
     oas2: {},
@@ -40,6 +41,7 @@ export const configFixture: Config = {
     arazzo1_1: {},
     overlay1: {},
     openrpc1: {},
+    graphql: {},
   },
   plugins: [],
   doNotResolveExamples: false,
@@ -54,6 +56,7 @@ export const configFixture: Config = {
     arazzo1_1: {},
     overlay1: {},
     openrpc1: {},
+    graphql: {},
   },
   resolveIgnore: vi.fn(),
   addProblemToIgnore: vi.fn(),

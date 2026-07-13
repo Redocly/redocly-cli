@@ -83,11 +83,11 @@ export async function sendTelemetry({
     const majorSpecVersion = getMajorSpecVersion(spec_version as SpecVersion);
     const eventData: EventPayload<EventType> = [
       {
-        id: 'cli-command-run',
+        id: command,
         object: 'command',
-        uri: 'urn:redocly:cli',
+        uri: `urn:redocly:cli:command:${command}`,
         logged_in: logged_in ? 'yes' : 'no',
-        command: `${command}`,
+        command,
         ...cleanArgs(args, process.argv.slice(2)),
         node_version: process.version,
         npm_version: execSync('npm -v').toString().replace('\n', ''),
@@ -118,7 +118,7 @@ export async function sendTelemetry({
 
     const cloudEvent = CloudEvents.mapToCloudEvent({
       type: 'com.redocly.command.ran',
-      source: 'com.redocly.cli',
+      source: 'urn:redocly:cli',
       origin: 'redocly-cli',
       osPlatform: os.platform(),
       actor: {
