@@ -21,19 +21,19 @@ This page covers running the command; for the generated client's runtime API (au
 ## Usage
 
 ```sh
-redocly generate-client                          # every api with a `client` block (see Configuration)
+redocly generate-client                          # every api with a `client` block or `clientOutput`
 redocly generate-client cafe                     # a single `apis:` alias from redocly.yaml
-redocly generate-client openapi.yaml -o src/client.ts   # a file path or URL
+redocly generate-client openapi.yaml -o dist/client.ts   # a file path or URL
 ```
 
-With no argument, a client is generated for every api that declares a `client` block under `apis:` (see [`client` configuration](../configuration/reference/client.md)).
+With no argument, a client is generated for every api that declares a `client` block or a `clientOutput` under `apis:` (see [`client` configuration](../configuration/reference/client.md)).
 Otherwise `<api>` is a file path, a URL, or an [`apis:` alias](../configuration/index.md), resolved the same way as in other commands such as `bundle` and `lint`: an alias — or a path matching an api's `root` — uses that api's `client` block and `clientOutput`, while an unmatched path/URL uses the top-level `client` defaults.
 
 ## Options
 
 | Option              | Type       | Description                                                                                                                                                                                                                       |
 | ------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api`               | `string`   | OpenAPI description file path, URL, or an `apis:` alias. Omit it to generate for every api that has a `client` block.                                                                                                             |
+| `api`               | `string`   | OpenAPI description file path, URL, or an `apis:` alias. Omit it to generate for every api that has a `client` block or `clientOutput`.                                                                                           |
 | `--output`, `-o`    | `string`   | Output path (must end in `.ts`); the entry file in multi-file modes. Defaults to the api's `clientOutput`, else `<name>.client.ts` in the config dir. Not allowed when generating for multiple apis.                              |
 | `--output-mode`     | `string`   | File layout: `single` (default) or `split`. See [Output modes](#output-modes).                                                                                                                                                    |
 | `--runtime`         | `string`   | `inline` (default, self-contained file — zero runtime dependencies) or `package` (imports the runtime from `@redocly/client-generator`; engine fixes arrive via `npm update`). See [Runtime distribution](#runtime-distribution). |

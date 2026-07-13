@@ -92,7 +92,9 @@ export async function handleGenerateClient({
     setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
   };
 
-  const optedIn = Object.keys(apisCfg).filter((name) => isPlainObject(apisCfg[name].client));
+  const optedIn = Object.keys(apisCfg).filter(
+    (name) => isPlainObject(apisCfg[name].client) || apisCfg[name].clientOutput !== undefined
+  );
   if (argv.api === undefined) {
     if (argv.output) {
       throw new HandledError(
@@ -101,7 +103,7 @@ export async function handleGenerateClient({
     }
     if (optedIn.length === 0) {
       throw new HandledError(
-        `\n❌  No API to generate. Add a \`client\` block under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+        `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
       );
     }
   }

@@ -31,7 +31,7 @@ const run = (dir: string, args: string[] = []) =>
   spawnSync('node', [cli, 'generate-client', ...args], { cwd: dir, encoding: 'utf-8' });
 
 describe('generate-client redocly.yaml config', () => {
-  it('fan-out (no arg) builds every api with a `client` block, to its clientOutput', () => {
+  it('fan-out (no arg) builds every api with a `client` block or `clientOutput`', () => {
     const dir = project(
       [
         'apis:',
@@ -40,13 +40,17 @@ describe('generate-client redocly.yaml config', () => {
         '    clientOutput: ./src/cafe.ts',
         '    client:',
         '      generators: [sdk]',
-        '  lintOnly:', // no `client` block -> skipped by the fan-out
+        '  outputOnly:', // `clientOutput` alone also opts in
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./src/output-only.ts',
+        '  lintOnly:', // neither -> skipped by the fan-out
         '    root: ./openapi.yaml',
       ].join('\n') + '\n'
     );
     const res = run(dir);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'src/cafe.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'src/output-only.ts'))).toBe(true);
     expect(existsSync(join(dir, 'lintOnly.client.ts'))).toBe(false);
     expect(readFileSync(join(dir, 'src/cafe.ts'), 'utf-8')).toContain(
       'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'

@@ -19,7 +19,7 @@ apis:
 ```
 
 ```sh
-redocly generate-client              # builds every api with a `client` block, to its clientOutput
+redocly generate-client              # builds every api with a `client` block or `clientOutput`
 redocly generate-client cafe         # just the `cafe` api (its client block + clientOutput)
 redocly generate-client --config ./config/redocly.yaml
 ```
