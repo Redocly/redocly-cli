@@ -1,5 +1,5 @@
 import { type Config as OpenApiTsConfig } from '@redocly/client-generator';
-import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
+import { type Config, HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
@@ -29,9 +29,9 @@ type ClientConfig = Partial<OpenApiTsConfig>;
 type Job = {
   name: string;
   api: string;
-  alias?: string;
+  aliasConfig: Config;
   clientOutput?: string;
-  perApiClient: ClientConfig;
+  client: ClientConfig;
 };
 
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
@@ -74,10 +74,8 @@ export async function handleGenerateClient({
 }: CommandArgs<GenerateClientCommandArgv>) {
   const { generateClient, mergeConfig } = await import('@redocly/client-generator');
 
-  const { client, apis } = config.resolvedConfig;
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
-  const topClient = resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir);
-  const apisCfg = apis ?? {};
+  const apisCfg = config.resolvedConfig.apis ?? {};
 
   const cliFlags: ClientConfig = {
     serverUrl: argv['server-url'],
@@ -113,22 +111,21 @@ export async function handleGenerateClient({
   );
 
   const jobs: Job[] = entrypoints.map(({ path, alias }) => {
-    const apiCfg = alias === undefined ? undefined : apisCfg[alias];
+    const aliasConfig = config.forAlias(alias);
+    const { client } = aliasConfig.resolvedConfig;
     return {
       name: alias ?? basename(path, extname(path)),
-      alias,
       api: path,
-      clientOutput: apiCfg?.clientOutput,
-      perApiClient: isPlainObject(apiCfg?.client)
-        ? resolveSetup(apiCfg.client as ClientConfig, configDir)
-        : {},
+      aliasConfig,
+      clientOutput: alias === undefined ? undefined : apisCfg[alias]?.clientOutput,
+      client: resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir),
     };
   });
 
   const seenOutputs = new Set<string>();
 
   for (const job of jobs) {
-    const merged = mergeConfig(mergeConfig(topClient, job.perApiClient), cliFlags);
+    const merged = mergeConfig(job.client, cliFlags);
 
     const outputPath =
       argv.output !== undefined
@@ -154,8 +151,6 @@ export async function handleGenerateClient({
       );
     }
 
-    const aliasConfig = config.forAlias(job.alias);
-
     try {
       logger.info(
         gray(`\n  Generating TypeScript client${job.name ? ` for ${job.name}` : ''}... \n`)
@@ -164,7 +159,7 @@ export async function handleGenerateClient({
         ...merged,
         api: job.api,
         output: outputPath,
-        config: aliasConfig,
+        config: job.aliasConfig,
         configDir,
       });
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;

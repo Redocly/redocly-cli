@@ -75,7 +75,7 @@ The style-conditional requirements and the structural fit (the advance param mus
 
 ## How the configuration applies
 
-A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults.
+An api with its own `client` block uses that block; apis without one use the top-level `client` — the same way api-level options override root options in other commands.
 A file-path invocation matching no `apis:` entry uses only the top-level `client`.
 CLI flags then take precedence over the resolved configuration — see the [command reference](../../commands/generate-client.md#configuration).
 
