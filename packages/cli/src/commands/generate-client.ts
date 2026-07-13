@@ -20,20 +20,12 @@ export type GenerateClientCommandArgv = {
   'query-framework'?: 'react' | 'vue' | 'svelte' | 'solid';
   'mock-data'?: 'baked' | 'faker';
   'mock-seed'?: number;
-  // Repeated `--generator` flags: built-in names, inline custom-generator names, or plugin
-  // import specifiers (path/package).
   generator?: string[];
-  // Path to a publisher setup module baked into the generated client.
   setup?: string;
 };
 
 type ClientConfig = Partial<OpenApiTsConfig>;
 
-/**
- * A single client to generate: which API to read, where to write it, its per-API `client`
- * block, and — for a named `apis:` entry — its `alias` so the input is bundled with that
- * api's resolved config (its `extends`/`resolve`/decorators), like `bundle`/`lint` do.
- */
 type Job = {
   name: string;
   api: string;
@@ -42,10 +34,9 @@ type Job = {
   perApiClient: ClientConfig;
 };
 
-/** A URL-ish specifier (`https://…`, `file:…`, `javascript:…`) — two+ letter scheme, so Windows drive paths (`C:\\…`) don't match. */
+// Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
 const URL_SCHEME = /^[a-z][a-z0-9+.-]+:/i;
 
-/** Resolve a `client` block's relative `setup` path against the config dir. Setup is a LOCAL module — URLs are rejected upfront (they would otherwise fail as an unreadable file at generation time). */
 function resolveSetup(client: ClientConfig, configDir: string): ClientConfig {
   const { setup } = client;
   if (typeof setup !== 'string') return client;
@@ -60,22 +51,16 @@ function resolveSetup(client: ClientConfig, configDir: string): ClientConfig {
   return client;
 }
 
-/** Make an API name safe as a filename segment (path separators would escape the target dir). */
 function fileNameFor(name: string): string {
   return `${name.replace(/[\\/]/g, '_')}.client.ts`;
 }
 
-/**
- * A valid inlined server URL is an absolute **http(s)** URL (`https://api.example.com`) or a
- * root-relative path (`/v1`, which OpenAPI allows for `servers[].url`). A bare hostname
- * (`api.example.com`) is rejected — `new URL(value, base)` would treat it as a path and it
- * would concatenate wrongly. Non-http(s) schemes (`javascript:`, `file:`) and protocol-relative
- * `//host` values are rejected too: the value is inlined as the client's default fetch base.
- */
+// Accepts an absolute http(s) URL or a root-relative path; rejects bare hostnames,
+// protocol-relative `//host`, and non-http(s) schemes.
 function isValidServerUrl(value: string): boolean {
-  if (value.startsWith('/')) return !value.startsWith('//'); // root-relative, not protocol-relative
+  if (value.startsWith('/')) return !value.startsWith('//');
   try {
-    const url = new URL(value); // no base — only an absolute URL with a scheme parses
+    const url = new URL(value);
     return url.protocol === 'http:' || url.protocol === 'https:';
   } catch {
     return false;
@@ -90,12 +75,9 @@ export async function handleGenerateClient({
 
   const { client, apis } = config.resolvedConfig;
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
-  // Top-level `client` block: shared defaults (relative `setup` resolved against the config dir).
   const topClient = resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir);
   const apisCfg = apis ?? {};
 
-  // CLI setting flags override both the top-level and per-API `client` blocks. `--setup` is
-  // relative to the cwd (like `--output`); `api`/`output` are not settings and stay out of the merge.
   const cliFlags: ClientConfig = {
     serverUrl: argv['server-url'],
     enumStyle: argv['enum-style'],
@@ -111,7 +93,6 @@ export async function handleGenerateClient({
     setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
   };
 
-  // Without an <api> argument, generation fans out over the apis that opt in with a `client` block.
   const optedIn = Object.keys(apisCfg).filter((name) => isPlainObject(apisCfg[name].client));
   if (argv.api === undefined) {
     if (argv.output) {
@@ -143,14 +124,11 @@ export async function handleGenerateClient({
     };
   });
 
-  // Resolved output paths, so two fan-out jobs can't silently overwrite each other.
   const seenOutputs = new Set<string>();
 
   for (const job of jobs) {
     const merged = mergeConfig(mergeConfig(topClient, job.perApiClient), cliFlags);
 
-    // Output: an explicit `--output` (single-API modes) wins; else the per-API `clientOutput`
-    // (config-dir-relative); else `<name>.client.ts` in the config dir.
     const outputPath =
       argv.output !== undefined
         ? resolvePath(argv.output)
@@ -175,9 +153,6 @@ export async function handleGenerateClient({
       );
     }
 
-    // Bundle the input with the api's resolved config (its `extends`/`resolve`/decorators),
-    // the same per-alias resolution `bundle`/`lint` use — so the generated client sees the
-    // same document. A plain file path (no alias) resolves the root config.
     const aliasConfig = config.forAlias(job.alias);
 
     try {
