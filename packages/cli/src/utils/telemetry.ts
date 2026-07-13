@@ -87,7 +87,7 @@ export async function sendTelemetry({
         object: 'command',
         uri: `urn:redocly:cli:command:${command}`,
         logged_in: logged_in ? 'yes' : 'no',
-        command: command,
+        command,
         ...cleanArgs(args, process.argv.slice(2)),
         node_version: process.version,
         npm_version: execSync('npm -v').toString().replace('\n', ''),
