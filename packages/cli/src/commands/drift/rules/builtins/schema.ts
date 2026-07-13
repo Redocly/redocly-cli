@@ -328,7 +328,7 @@ function createUndocumentedParameterFindings(
   }
 
   for (const headerName of Object.keys(context.exchange.request.headers)) {
-    if (shouldIgnoreHeaderAsUndocumented(headerName)) {
+    if (shouldIgnoreHeaderAsUndocumented(headerName, context.ignoreHeaders)) {
       continue;
     }
 

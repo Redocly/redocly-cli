@@ -25,6 +25,7 @@ export type DriftArgv = {
   'report-format': ReportFormat;
   'match-mode'?: MatchMode;
   'ignore-cookies'?: boolean;
+  'ignore-headers'?: string;
   'max-findings': number;
   rules?: string;
   output?: string;
@@ -88,6 +89,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
   const activeRules = argv.rules ? parseCsv(argv.rules) : undefined;
+  const ignoreHeaders = argv['ignore-headers'] ? parseCsv(argv['ignore-headers']) : undefined;
 
   const server = argv.server;
   if (server && argv['match-mode']) {
@@ -108,6 +110,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     format: trafficFormat,
     matchMode,
     ignoreCookies: argv['ignore-cookies'],
+    ignoreHeaders,
     previewFindingsLimit: argv['max-findings'],
     activeRules,
     openApiIndex,
