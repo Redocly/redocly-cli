@@ -196,6 +196,34 @@ describe('send', () => {
     expect(headers.Accept).toBe('application/json');
   });
 
+  it('honors per-call headers given as a Headers instance or entry pairs (not just a record)', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok()]);
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'GET', headers: new Headers({ 'X-Trace': 'from-headers-instance' }) },
+      undefined,
+      false,
+      {}
+    );
+    // Header names round-trip lowercased through `Headers`; HTTP treats them case-insensitively.
+    expect((calls[0].init.headers as Record<string, string>)['x-trace']).toBe(
+      'from-headers-instance'
+    );
+
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'GET', headers: [['X-Trace', 'from-pairs']] },
+      undefined,
+      false,
+      {}
+    );
+    expect((calls[1].init.headers as Record<string, string>)['X-Trace']).toBe('from-pairs');
+  });
+
   it('merges a plain-object config.headers too', async () => {
     const { calls, fetchImpl } = fetchSpy([ok()]);
     await send(

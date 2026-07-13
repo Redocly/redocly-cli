@@ -1,6 +1,6 @@
 import { ApiError } from './errors.js';
 import { parse, readError } from './parse.js';
-import { middlewareChain, send, type SendCapabilities } from './send.js';
+import { middlewareChain, send, toHeaderRecord, type SendCapabilities } from './send.js';
 import type {
   ApiErrorLike,
   Client,
@@ -140,7 +140,7 @@ async function prepareRequest(
     headers: {
       ...authed.headers,
       ...stringHeaders(headers),
-      ...(init.headers as Record<string, string> | undefined),
+      ...toHeaderRecord(init.headers),
     },
   };
   return { url, init: mergedInit, body };

@@ -621,6 +621,13 @@ async function resolveToken(provider: TokenProvider): Promise<string> {
   return typeof provider === 'function' ? await provider() : provider;
 }
 
+/** UTF-8-safe base64: bare `btoa` throws on non-Latin-1 credentials (RFC 7617 allows UTF-8). */
+function encodeBase64(text: string): string {
+  let binary = '';
+  for (const byte of new TextEncoder().encode(text)) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
 /**
  * Build the auth headers/query for one operation's `security` requirements from the
  * instance credentials (`config.auth`) — capability module, wired into `createClient`.
@@ -651,7 +658,7 @@ async function resolveAuth(
     } else {
       const basic = config.auth?.basic;
       if (basic !== undefined) {
-        headers.Authorization = `Basic ${btoa(`${basic.username}:${basic.password}`)}`;
+        headers.Authorization = `Basic ${encodeBase64(`${basic.username}:${basic.password}`)}`;
       }
     }
   }
@@ -667,6 +674,23 @@ type SendCapabilities = {
   /** Serialize a typed multipart body (a plain object) to FormData. */
   serializeMultipart?: (body: Record<string, unknown>) => FormData;
 };
+
+/**
+ * Normalize a caller's `HeadersInit` (plain record, `Headers` instance, or entry pairs)
+ * to a plain record — spreading a `Headers` or an array contributes no entries.
+ */
+function toHeaderRecord(headers: HeadersInit | undefined): Record<string, string> {
+  if (headers === undefined) return {};
+  if (headers instanceof Headers) {
+    const record: Record<string, string> = {};
+    headers.forEach((value, key) => {
+      record[key] = value;
+    });
+    return record;
+  }
+  if (Array.isArray(headers)) return Object.fromEntries(headers);
+  return headers;
+}
 
 /**
  * The effective middleware chain for a request: the single `onRequest`/`onResponse`/
@@ -702,7 +726,7 @@ async function send(
   const headers: Record<string, string> = {
     Accept: 'application/json',
     ...extra,
-    ...(fetchInit.headers as Record<string, string> | undefined),
+    ...toHeaderRecord(fetchInit.headers),
   };
   const context: RequestContext = {
     url,
@@ -911,7 +935,7 @@ async function prepareRequest(
     headers: {
       ...authed.headers,
       ...stringHeaders(headers),
-      ...(init.headers as Record<string, string> | undefined),
+      ...toHeaderRecord(init.headers),
     },
   };
   return { url, init: mergedInit, body };

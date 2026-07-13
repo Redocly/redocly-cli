@@ -30,6 +30,15 @@ describe('resolveAuth', () => {
     expect(key.headers.Cookie).toBe('sid=C; ses=D');
   });
 
+  it('encodes non-Latin-1 basic credentials (bare btoa would throw InvalidCharacterError)', async () => {
+    const basic = await resolveAuth([{ scheme: 'b', kind: 'basic' }], {
+      auth: { basic: { username: 'usér', password: 'på§s' } },
+    });
+    expect(basic.headers.Authorization).toBe(
+      `Basic ${Buffer.from('usér:på§s', 'utf-8').toString('base64')}`
+    );
+  });
+
   it('percent-encodes cookie credentials so reserved characters cannot break the header', async () => {
     const key = await resolveAuth([{ scheme: 'c', kind: 'apiKey', name: 'sid', in: 'cookie' }], {
       auth: { apiKey: { c: 'a b;c=d' } },

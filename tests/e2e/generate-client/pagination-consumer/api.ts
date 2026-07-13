@@ -683,6 +683,23 @@ type SendCapabilities = {
 };
 
 /**
+ * Normalize a caller's `HeadersInit` (plain record, `Headers` instance, or entry pairs)
+ * to a plain record — spreading a `Headers` or an array contributes no entries.
+ */
+function toHeaderRecord(headers: HeadersInit | undefined): Record<string, string> {
+  if (headers === undefined) return {};
+  if (headers instanceof Headers) {
+    const record: Record<string, string> = {};
+    headers.forEach((value, key) => {
+      record[key] = value;
+    });
+    return record;
+  }
+  if (Array.isArray(headers)) return Object.fromEntries(headers);
+  return headers;
+}
+
+/**
  * The effective middleware chain for a request: the single `onRequest`/`onResponse`/
  * `onError` config hooks as one implicit first middleware, then `config.middleware`.
  */
@@ -716,7 +733,7 @@ async function send(
   const headers: Record<string, string> = {
     Accept: 'application/json',
     ...extra,
-    ...(fetchInit.headers as Record<string, string> | undefined),
+    ...toHeaderRecord(fetchInit.headers),
   };
   const context: RequestContext = {
     url,
@@ -925,7 +942,7 @@ async function prepareRequest(
     headers: {
       ...authed.headers,
       ...stringHeaders(headers),
-      ...(init.headers as Record<string, string> | undefined),
+      ...toHeaderRecord(init.headers),
     },
   };
   return { url, init: mergedInit, body };

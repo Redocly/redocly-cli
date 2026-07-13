@@ -71,7 +71,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     // Per-kind injection inside resolveAuth, driven by the descriptors' security specs.
     expect(generated).toContain('headers.Authorization = `Bearer ${await resolveToken(provider)}`');
     expect(generated).toContain(
-      'headers.Authorization = `Basic ${btoa(`${basic.username}:${basic.password}`)}`'
+      'headers.Authorization = `Basic ${encodeBase64(`${basic.username}:${basic.password}`)}`'
     );
     expect(generated).toContain("if (scheme.in === 'header') headers[scheme.name] = value;");
     expect(generated).toContain("else if (scheme.in === 'query') query[scheme.name] = value;");

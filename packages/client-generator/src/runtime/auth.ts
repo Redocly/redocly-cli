@@ -5,6 +5,13 @@ async function resolveToken(provider: TokenProvider): Promise<string> {
   return typeof provider === 'function' ? await provider() : provider;
 }
 
+/** UTF-8-safe base64: bare `btoa` throws on non-Latin-1 credentials (RFC 7617 allows UTF-8). */
+function encodeBase64(text: string): string {
+  let binary = '';
+  for (const byte of new TextEncoder().encode(text)) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
 /**
  * Build the auth headers/query for one operation's `security` requirements from the
  * instance credentials (`config.auth`) — capability module, wired into `createClient`.
@@ -35,7 +42,7 @@ export async function resolveAuth(
     } else {
       const basic = config.auth?.basic;
       if (basic !== undefined) {
-        headers.Authorization = `Basic ${btoa(`${basic.username}:${basic.password}`)}`;
+        headers.Authorization = `Basic ${encodeBase64(`${basic.username}:${basic.password}`)}`;
       }
     }
   }

@@ -1,7 +1,7 @@
 import { ApiError } from './errors.js';
 import { readError } from './parse.js';
 import { sleep } from './retry.js';
-import { send } from './send.js';
+import { send, toHeaderRecord } from './send.js';
 import type { ClientConfig, OperationContext, ServerSentEvent, SseOptions } from './types.js';
 
 /**
@@ -39,7 +39,7 @@ export async function* sse<T>(
     if (signal?.aborted) return;
     const headers: Record<string, string> = {
       Accept: 'text/event-stream',
-      ...(rest.headers as Record<string, string> | undefined),
+      ...toHeaderRecord(rest.headers),
     };
     const sendHeaders =
       lastEventId === undefined ? headers : { ...headers, 'Last-Event-ID': lastEventId };
