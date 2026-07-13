@@ -72,6 +72,7 @@ export function collectPaths({
           collectPathStringFields(pathItem, path, field);
         }
       }
+      collectExtensionProperty(pathItem, path);
     }
   }
 
@@ -226,6 +227,19 @@ export function collectPaths({
         pathOperation.security,
         componentsPrefix!
       );
+    }
+  }
+
+  function collectExtensionProperty(pathItem: Oas3PathItem, path: string | number) {
+    // x-*
+    const extensions = pathItem as Record<string, any>;
+    for (const key of Object.keys(extensions).filter((key) => key.startsWith('x-'))) {
+      if (!joinedDef.paths[path].hasOwnProperty(key)) {
+        joinedDef.paths[path][key] = extensions[key];
+      }
+      if (!potentialConflicts.paths[path].hasOwnProperty(key)) {
+        potentialConflicts.paths[path][key] = extensions[key];
+      }
     }
   }
 }
