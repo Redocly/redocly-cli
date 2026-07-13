@@ -34,6 +34,9 @@ describe('generate-client redocly.yaml config', () => {
   it('fan-out (no arg) builds every api with a `client` block or `clientOutput`', () => {
     const dir = project(
       [
+        'client:', // shared defaults, inherited by apis without their own block
+        '  generators: [sdk]',
+        '  serverUrl: https://shared.example.com',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
@@ -50,10 +53,13 @@ describe('generate-client redocly.yaml config', () => {
     const res = run(dir);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'src/cafe.ts'))).toBe(true);
-    expect(existsSync(join(dir, 'src/output-only.ts'))).toBe(true);
     expect(existsSync(join(dir, 'lintOnly.client.ts'))).toBe(false);
     expect(readFileSync(join(dir, 'src/cafe.ts'), 'utf-8')).toContain(
       'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
+    );
+    // The clientOutput-only api inherits the top-level `client` defaults.
+    expect(readFileSync(join(dir, 'src/output-only.ts'), 'utf-8')).toContain(
+      'serverUrl: "https://shared.example.com"'
     );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

@@ -680,7 +680,10 @@ async function send(
  */
 const FRAME_DELIMITER = /(?:\r\n|\r|\n){2}/;
 
-/** An event's JSON `data` failed to parse — a stable bad payload, not a dropped connection. */
+/**
+ * A terminally malformed event stream — unparseable JSON `data` or an unbounded frame.
+ * A stable bad payload, not a dropped connection, so the stream never reconnects on it.
+ */
 class SseParseError extends Error {}
 
 /**
@@ -763,7 +766,7 @@ async function* sse<T>(
           // Bound memory: a server that never sends a frame delimiter would otherwise
           // grow `buffer` without limit. 1 MiB is far above any real SSE frame.
           if (buffer.length > 1048576) {
-            throw new Error('SSE frame exceeded 1048576 characters without a delimiter');
+            throw new SseParseError('SSE frame exceeded 1048576 characters without a delimiter');
           }
         }
       } finally {

@@ -288,9 +288,11 @@ describe('sse', () => {
     }
   });
 
-  it('guards against unbounded frames (no delimiter past 1 MiB)', async () => {
+  it('guards against unbounded frames (no delimiter past 1 MiB) and does NOT reconnect on them', async () => {
     const big = 'data: ' + 'x'.repeat(1_100_000); // no trailing delimiter, single chunk
+    let calls = 0;
     const fetchImpl = (async () => {
+      calls++;
       const body = new ReadableStream<Uint8Array>({
         start(controller) {
           controller.enqueue(enc.encode(big));
@@ -301,14 +303,10 @@ describe('sse', () => {
     }) as unknown as typeof fetch;
     await expect(
       (async () => {
-        for await (const _ of sse(
-          { fetch: fetchImpl },
-          op,
-          prep('u', { reconnect: false }),
-          'text'
-        ))
-          void _;
+        // `reconnect` defaults to true; the guard must surface, not loop forever.
+        for await (const _ of sse({ fetch: fetchImpl }, op, prep('u', {}), 'text')) void _;
       })()
-    ).rejects.toThrow(/1048576/);
+    ).rejects.toBeInstanceOf(SseParseError);
+    expect(calls).toBe(1);
   });
 });
