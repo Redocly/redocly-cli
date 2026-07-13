@@ -824,7 +824,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "clientSecret": {
-        "minLength": 0,
         "type": "string",
       },
       "configuration": "OIDC.configuration",
@@ -1419,6 +1418,8 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "AnypointmqMessageBinding",
           "AnypointmqOperationBinding",
           "AmqpServerBinding",
+          "AmqpChannelExchange",
+          "AmqpChannelQueue",
           "AmqpChannelBinding",
           "AmqpMessageBinding",
           "AmqpOperationBinding",
@@ -1439,6 +1440,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "NatsChannelBinding",
           "NatsMessageBinding",
           "NatsOperationBinding",
+          "JmsServerBindingProperty",
           "JmsServerBinding",
           "JmsChannelBinding",
           "JmsMessageBinding",
@@ -1460,6 +1462,36 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "MercureChannelBinding",
           "MercureMessageBinding",
           "MercureOperationBinding",
+          "SnsIdentifier",
+          "SnsOrdering",
+          "SnsStatement",
+          "SnsPolicy",
+          "SnsChannelBinding",
+          "SnsRedrivePolicy",
+          "SnsDeliveryPolicy",
+          "SnsConsumer",
+          "SnsOperationBinding",
+          "SqsIdentifier",
+          "SqsRedrivePolicy",
+          "SqsStatement",
+          "SqsPolicy",
+          "SqsQueue",
+          "SqsOperationQueue",
+          "SqsChannelBinding",
+          "SqsOperationBinding",
+          "IbmmqServerBinding",
+          "IbmmqChannelQueue",
+          "IbmmqChannelTopic",
+          "IbmmqChannelBinding",
+          "IbmmqMessageBinding",
+          "GooglepubsubMessageStoragePolicy",
+          "GooglepubsubSchemaSettings",
+          "GooglepubsubChannelBinding",
+          "GooglepubsubSchema",
+          "GooglepubsubMessageBinding",
+          "PulsarServerBinding",
+          "PulsarRetention",
+          "PulsarChannelBinding",
           "ServerBindings",
           "ChannelBindings",
           "MessageBindings",
@@ -1482,6 +1514,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "MessageExampleList",
           "CorrelationId",
           "Dependencies",
+          "Ros2ServerBinding",
+          "Ros2ChannelBinding",
+          "Ros2OperationBinding",
+          "Ros2QosPolicies",
+          "Ros2MessageBinding",
           "OperationReply",
           "OperationReplyAddress",
           "NamedTags",
@@ -2237,7 +2274,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "suggestions": {
-        "default": [],
         "items": {
           "type": "string",
         },
@@ -2460,7 +2496,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "dataLayerName": {
         "type": "string",
       },
-      "defaultDataLayer": {},
+      "defaultDataLayer": {
+        "type": "object",
+      },
       "enableWebVitalsTracking": {
         "type": "boolean",
       },
@@ -3567,7 +3605,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -3582,6 +3619,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -3750,21 +3788,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.apis_additionalProperties.openapi.codeSamples.languages_items.options",
@@ -4159,6 +4182,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -6471,7 +6495,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -6486,6 +6509,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -6654,21 +6678,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi.codeSamples.languages_items.options",
@@ -7063,6 +7072,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -8754,10 +8764,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "modes": {
-        "default": [
-          "light",
-          "dark",
-        ],
         "items": {
           "type": "string",
         },
@@ -11022,7 +11028,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "dataLayerName": {
         "type": "string",
       },
-      "defaultDataLayer": {},
+      "defaultDataLayer": {
+        "type": "object",
+      },
       "enableWebVitalsTracking": {
         "type": "boolean",
       },
@@ -12129,7 +12137,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -12144,6 +12151,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -12312,21 +12320,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openapi.codeSamples.languages_items.options",
@@ -12721,6 +12714,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -15033,7 +15027,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -15048,6 +15041,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -15216,21 +15210,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi.codeSamples.languages_items.options",
@@ -15625,6 +15604,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -20175,6 +20155,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "docs": "rootRedoclyConfigSchema.env_additionalProperties.mcp.docs",
+      "gateway": "rootRedoclyConfigSchema.env_additionalProperties.mcp.gateway",
       "hide": {
         "type": "boolean",
       },
@@ -20198,6 +20179,24 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.mcp.gateway": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHosts": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
+        "type": "boolean",
       },
     },
     "required": undefined,
@@ -20749,7 +20748,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -20764,6 +20762,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -20932,21 +20931,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.env_additionalProperties.openapi.codeSamples.languages_items.options",
@@ -21341,6 +21325,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -24299,11 +24284,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
-      "const": {},
+      "const": [Function],
       "defined": {
         "type": "boolean",
       },
-      "eq": {},
+      "eq": [Function],
       "gt": {
         "type": "number",
       },
@@ -24374,11 +24359,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
-      "const": {},
+      "const": [Function],
       "defined": {
         "type": "boolean",
       },
-      "eq": {},
+      "eq": [Function],
       "gt": {
         "type": "number",
       },
@@ -25170,7 +25155,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "dataLayerName": {
         "type": "string",
       },
-      "defaultDataLayer": {},
+      "defaultDataLayer": {
+        "type": "object",
+      },
       "enableWebVitalsTracking": {
         "type": "boolean",
       },
@@ -28982,7 +28969,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -28997,6 +28983,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -29165,21 +29152,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.env_additionalProperties.theme.openapi.codeSamples.languages_items.options",
@@ -29574,6 +29546,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -31891,11 +31864,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
-      "const": {},
+      "const": [Function],
       "defined": {
         "type": "boolean",
       },
-      "eq": {},
+      "eq": [Function],
       "gt": {
         "type": "number",
       },
@@ -31966,11 +31939,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
-      "const": {},
+      "const": [Function],
       "defined": {
         "type": "boolean",
       },
-      "eq": {},
+      "eq": [Function],
       "gt": {
         "type": "number",
       },
@@ -33800,10 +33773,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "editPage": "rootRedoclyConfigSchema.markdown.editPage",
       "frontMatterKeysToResolve": {
-        "default": [
-          "image",
-          "links",
-        ],
         "items": {
           "type": "string",
         },
@@ -33811,9 +33780,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "lastUpdatedBlock": "rootRedoclyConfigSchema.markdown.lastUpdatedBlock",
       "partialsFolders": {
-        "default": [
-          "**/_partials/**",
-        ],
         "items": {
           "type": "string",
         },
@@ -33899,6 +33865,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "docs": "rootRedoclyConfigSchema.mcp.docs",
+      "gateway": "rootRedoclyConfigSchema.mcp.gateway",
       "hide": {
         "type": "boolean",
       },
@@ -33915,7 +33882,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "ignore": {
-        "default": [],
         "items": {
           "type": "string",
         },
@@ -33923,6 +33889,24 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.mcp.gateway": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHosts": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
+        "type": "boolean",
       },
     },
     "required": undefined,
@@ -34232,14 +34216,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "items": {
-        "default": [
-          "copy",
-          "view",
-          "chatgpt",
-          "claude",
-          "docs-mcp-cursor",
-          "docs-mcp-vscode",
-        ],
         "items": {
           "enum": [
             "copy",
@@ -34482,7 +34458,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "oAuth2RedirectURI": {
-        "nullable": true,
         "type": "string",
       },
       "onDeepLinkClick": {
@@ -34497,6 +34472,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "section",
           "item",
         ],
+        "type": "string",
       },
       "pathInMiddlePanel": {
         "type": "boolean",
@@ -34665,21 +34641,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "lang": {
-        "examples": [
-          "curl",
-          "JavaScript",
-          "Node.js",
-          "Python",
-          "Java8+Apache",
-          "Java",
-          "C#",
-          "C#+Newtonsoft",
-          "PHP",
-          "Go",
-          "Ruby",
-          "R",
-          "Payload",
-        ],
         "type": "string",
       },
       "options": "rootRedoclyConfigSchema.openapi.codeSamples.languages_items.options",
@@ -35074,6 +35035,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "R",
           "Ruby",
         ],
+        "type": "string",
       },
     },
     "required": [
@@ -38032,11 +37994,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
-      "const": {},
+      "const": [Function],
       "defined": {
         "type": "boolean",
       },
-      "eq": {},
+      "eq": [Function],
       "gt": {
         "type": "number",
       },
@@ -38107,11 +38069,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
-      "const": {},
+      "const": [Function],
       "defined": {
         "type": "boolean",
       },
-      "eq": {},
+      "eq": [Function],
       "gt": {
         "type": "number",
       },
@@ -38335,9 +38297,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "shortcuts": {
-        "default": [
-          "⌘+K,ctrl+K",
-        ],
         "items": {
           "type": "string",
         },
@@ -38360,7 +38319,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "suggestions": {
-        "default": [],
         "items": {
           "type": "string",
         },
@@ -38489,7 +38447,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "details": "rootRedoclyConfigSchema.seo.llmstxt.details",
       "excludeFiles": {
-        "default": [],
         "items": {
           "type": "string",
         },
@@ -38538,14 +38495,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "excludeFiles": {
-        "default": [],
         "items": {
           "type": "string",
         },
         "type": "array",
       },
       "includeFiles": {
-        "default": [],
         "items": {
           "type": "string",
         },

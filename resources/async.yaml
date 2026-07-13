@@ -603,4 +603,7 @@ components:
     kafka:
       bindings:
         kafka:
-          clientId: my-app-id
+          clientId:
+            type: string
+            enum:
+              - my-app-id
