@@ -135,3 +135,4 @@ paths:
             type: integer
 
 Inferred a baseline OpenAPI description from traffic: 6 operation(s).
+Done in <t>.

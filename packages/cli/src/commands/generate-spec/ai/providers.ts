@@ -1,4 +1,7 @@
 import { spawn } from 'node:child_process';
+import { mkdtemp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 export type AiProvider = 'claude' | 'codex' | 'cursor';
 
@@ -16,13 +19,29 @@ export interface ProviderResult {
   text: string;
 }
 
-function runCommand(
+// All provider CLIs pull project context (CLAUDE.md, AGENTS.md, .cursor/rules)
+// from the working directory into every prompt; running them from an empty
+// directory keeps that context out and each invocation fast.
+let emptyCwdPromise: Promise<string> | undefined;
+
+function getEmptyCwd(): Promise<string> {
+  emptyCwdPromise ??= mkdtemp(path.join(tmpdir(), 'redocly-generate-spec-'));
+  return emptyCwdPromise;
+}
+
+async function runCommand(
   command: string,
   args: string[],
-  stdin: string
+  stdin: string,
+  env?: Record<string, string>
 ): Promise<{ stdout: string; stderr: string; code: number | null }> {
+  const cwd = await getEmptyCwd();
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(command, args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      cwd,
+      env: { ...process.env, ...env },
+    });
     let stdout = '';
     let stderr = '';
     let timedOut = false;
@@ -69,9 +88,13 @@ function runCommand(
 }
 
 async function runClaude(request: ProviderRequest): Promise<ProviderResult> {
-  // The prompt is a pure text transform: disabling built-in tools and MCP
-  // servers keeps each invocation a single-shot completion without the
-  // startup cost of the user's MCP configuration.
+  // The prompt is a pure text transform: disabling built-in tools, MCP
+  // servers, settings (with their hooks, skills, and plugins), and session
+  // persistence keeps each invocation a single-shot completion without the
+  // startup cost of the user's Claude Code configuration. Because settings
+  // are skipped, a model configured there does not apply — only --ai-model
+  // or the CLI's built-in default. The environment variable additionally
+  // skips update checks and auxiliary telemetry calls.
   const args = [
     '-p',
     '--output-format',
@@ -79,13 +102,18 @@ async function runClaude(request: ProviderRequest): Promise<ProviderResult> {
     '--tools',
     '',
     '--strict-mcp-config',
+    '--setting-sources',
+    '',
+    '--no-session-persistence',
     '--append-system-prompt',
     request.system,
   ];
   if (request.model) {
     args.push('--model', request.model);
   }
-  const { stdout, stderr, code } = await runCommand('claude', args, request.user);
+  const { stdout, stderr, code } = await runCommand('claude', args, request.user, {
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1',
+  });
   if (code !== 0) {
     throw new Error(`claude CLI exited with code ${code}: ${stderr.trim()}`);
   }
@@ -96,7 +124,19 @@ async function runClaude(request: ProviderRequest): Promise<ProviderResult> {
 }
 
 async function runCodex(request: ProviderRequest): Promise<ProviderResult> {
-  const args = ['exec'];
+  // The config overrides skip the user's MCP servers and AGENTS.md discovery;
+  // the git-repo check must be skipped because the command runs from an empty
+  // temporary directory, which also makes the read-only sandbox safe.
+  const args = [
+    'exec',
+    '--skip-git-repo-check',
+    '--sandbox',
+    'read-only',
+    '-c',
+    'mcp_servers={}',
+    '-c',
+    'project_doc_max_bytes=0',
+  ];
   if (request.model) {
     args.push('--model', request.model);
   }
@@ -113,7 +153,11 @@ async function runCodex(request: ProviderRequest): Promise<ProviderResult> {
 }
 
 async function runCursor(request: ProviderRequest): Promise<ProviderResult> {
-  const args = ['-p', '--output-format', 'text'];
+  // --trust skips the workspace-trust prompt that would hang a headless run
+  // in the empty working directory. The Cursor CLI has no per-invocation
+  // option to disable MCP servers or rules; the empty directory at least
+  // keeps project-level configuration out.
+  const args = ['-p', '--output-format', 'text', '--trust'];
   if (request.model) {
     args.push('--model', request.model);
   }

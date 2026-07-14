@@ -123,3 +123,4 @@ components:
         - name
 
 Inferred a baseline OpenAPI description from traffic: 5 operation(s).
+Done in <t>.

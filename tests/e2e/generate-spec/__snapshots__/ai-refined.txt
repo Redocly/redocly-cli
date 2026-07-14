@@ -146,3 +146,4 @@ Note: --with-ai sends samples of the recorded traffic (URLs, query strings, requ
 [5/5] Refining POST /sessions...
 [5/5] POST /sessions — refined (<t>s)
 AI refinement complete: 5 of 5 operation(s) refined (claude).
+Done in <t>.

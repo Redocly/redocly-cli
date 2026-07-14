@@ -56,3 +56,4 @@ components:
         - tag
 
 Inferred a baseline OpenAPI description from traffic: 2 operation(s).
+Done in <t>.

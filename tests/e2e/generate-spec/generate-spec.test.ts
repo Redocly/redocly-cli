@@ -28,8 +28,11 @@ function runGenerateSpec(
 
   const out = result.stdout?.toString() ?? '';
   const err = result.stderr?.toString() ?? '';
-  // Per-operation progress lines report wall-clock durations; normalize them.
-  const output = cleanupOutput(`${out}\n${err}`).replace(/\(\d+s\)/g, '(<t>s)');
+  // Per-operation progress lines and the closing summary report wall-clock
+  // durations; normalize them.
+  const output = cleanupOutput(`${out}\n${err}`)
+    .replace(/\(\d+s\)/g, '(<t>s)')
+    .replace(/Done in (?:\d+m )?\d+s\./g, 'Done in <t>.');
   return { output, code: result.status };
 }
 
@@ -120,8 +123,10 @@ describe('generate-spec - error handling', () => {
 
 describe('generate-spec - AI refinement', () => {
   test('refines every operation with the provider fragments', async () => {
+    // Sequential refinement keeps the per-operation progress lines in a
+    // deterministic order for the snapshot.
     const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
+      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude', '--ai-concurrency', '1'],
       withStub('bin-ok')
     );
     expect(code).toBe(0);
@@ -131,7 +136,14 @@ describe('generate-spec - AI refinement', () => {
 
   test('accepts refined operations that use oneOf, allOf and discriminator', async () => {
     const { output, code } = runGenerateSpec(
-      ['traffic-polymorphic.ndjson', '--with-ai', '--ai-provider', 'claude'],
+      [
+        'traffic-polymorphic.ndjson',
+        '--with-ai',
+        '--ai-provider',
+        'claude',
+        '--ai-concurrency',
+        '1',
+      ],
       withStub('bin-ok-polymorphic')
     );
     expect(code).toBe(0);
@@ -150,7 +162,7 @@ describe('generate-spec - AI refinement', () => {
 
   test('keeps the baseline for operations the provider does not refine', () => {
     const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
+      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude', '--ai-concurrency', '1'],
       withStub('bin-partial')
     );
     expect(code).toBe(0);

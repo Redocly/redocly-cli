@@ -104,11 +104,29 @@ through. Lint the generated description with your own config afterward.
 
 ## AI providers
 
+Every provider CLI is spawned in an empty temporary directory, so project context the CLIs
+normally auto-load from the working directory (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`)
+never enters the prompts — it would slow every call down and could steer the refinement.
+
 - **`claude`** — runs the local `claude` CLI in headless mode (`claude -p`), with built-in
-  tools and configured MCP servers disabled so every call is a plain completion.
-- **`codex`** — runs the local `codex` CLI in non-interactive mode (`codex exec`).
+  tools, MCP servers, settings (hooks, skills, plugins), and session persistence disabled
+  so every call is a plain completion. Because settings are not loaded, a model configured
+  there does not apply: pass `--ai-model`, or the CLI's built-in default model is used.
+- **`codex`** — runs the local `codex` CLI in non-interactive mode (`codex exec`) with MCP
+  servers and `AGENTS.md` discovery disabled and a read-only sandbox. Other settings from
+  `~/.codex/config.toml`, such as `model_reasoning_effort`, still apply.
 - **`cursor`** — runs the local Cursor CLI in print mode (`cursor-agent -p`; the renamed
   `agent` binary is tried as a fallback).
 
 All providers require the respective CLI to be installed and authenticated on the machine
 running the command.
+
+## Performance for large APIs
+
+Total time is roughly the per-operation AI time multiplied by the number of operations and
+divided by `--ai-concurrency`. For descriptions with many operations:
+
+- Raise `--ai-concurrency` (for example to `12`) — calls are network-bound and the provider
+  CLIs retry rate-limit responses themselves.
+- Pick a faster model with `--ai-model`; smaller models roughly halve the per-operation time
+  compared to the largest ones at some cost in refinement depth.

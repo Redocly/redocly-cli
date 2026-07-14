@@ -107,3 +107,4 @@ Note: --with-ai sends samples of the recorded traffic (URLs, query strings, requ
 [2/2] Refining GET /payments/{paymentId}...
 [2/2] GET /payments/{paymentId} — refined (<t>s)
 AI refinement complete: 2 of 2 operation(s) refined (claude).
+Done in <t>.
