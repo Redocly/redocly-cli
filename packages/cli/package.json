@@ -44,7 +44,7 @@
     "@opentelemetry/resources": "2.8.0",
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/semantic-conventions": "1.41.1",
-    "@redocly/cli-otel": "0.3.1",
+    "@redocly/cli-otel": "0.3.4",
     "@redocly/client-generator": "0.0.0",
     "@redocly/openapi-core": "2.39.0",
     "@redocly/respect-core": "2.39.0",
