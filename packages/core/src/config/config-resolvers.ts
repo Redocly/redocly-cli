@@ -57,6 +57,37 @@ export type ConfigOptions = {
   customExtends?: string[];
 };
 
+// Mirrors @redocly/client-generator's `mergeConfig` layering: fields override one by one,
+// and the nested `pagination` block stays additive — `operations` merge by id, `exclude`
+// lists union — so a per-api block that sets only overrides keeps the shared convention.
+function mergeClientBlocks(
+  base: Record<string, unknown>,
+  overrides: Record<string, unknown>
+): Record<string, unknown> {
+  const merged = { ...base, ...overrides };
+  const basePagination = base.pagination;
+  const overridePagination = overrides.pagination;
+  if (isPlainObject(basePagination) && isPlainObject(overridePagination)) {
+    const pagination: Record<string, unknown> = { ...basePagination, ...overridePagination };
+    if (basePagination.operations || overridePagination.operations) {
+      pagination.operations = {
+        ...(isPlainObject(basePagination.operations) ? basePagination.operations : {}),
+        ...(isPlainObject(overridePagination.operations) ? overridePagination.operations : {}),
+      };
+    }
+    if (Array.isArray(basePagination.exclude) || Array.isArray(overridePagination.exclude)) {
+      pagination.exclude = [
+        ...new Set([
+          ...(Array.isArray(basePagination.exclude) ? basePagination.exclude : []),
+          ...(Array.isArray(overridePagination.exclude) ? overridePagination.exclude : []),
+        ]),
+      ];
+    }
+    merged.pagination = pagination;
+  }
+  return merged;
+}
+
 export async function resolveConfig({
   rawConfigDocument,
   configPath,
@@ -126,7 +157,7 @@ export async function resolveConfig({
         // field over the top-level one instead of replacing it.
         const client =
           isPlainObject(bundledConfig.client) && isPlainObject(apiConfig.client)
-            ? { client: { ...bundledConfig.client, ...apiConfig.client } }
+            ? { client: mergeClientBlocks(bundledConfig.client, apiConfig.client) }
             : {};
         return [key, { ...apiConfig, ...mergedConfig, ...client }];
       })

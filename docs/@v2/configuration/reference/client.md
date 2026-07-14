@@ -75,7 +75,8 @@ The style-conditional requirements and the structural fit (the advance param mus
 
 ## How the configuration applies
 
-A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults (a per-API `pagination` replaces the top-level one).
+A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults.
+The nested `pagination` block layers the same way: per-API `operations` merge by operationId and `exclude` lists union with the top-level ones.
 A file-path invocation matching no `apis:` entry uses only the top-level `client`.
 CLI flags then take precedence over the resolved configuration — see the [command reference](../../commands/generate-client.md#configuration).
 

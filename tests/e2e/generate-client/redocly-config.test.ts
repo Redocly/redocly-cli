@@ -137,6 +137,8 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    client:',
         '      serverUrl: https://per-api.example.com',
+        '      pagination:', // partial: must layer onto the shared convention, not replace it
+        '        exclude: [getRevenue]',
       ].join('\n') + '\n'
     );
     copyFileSync(fixture, join(dir, 'standalone.yaml')); // not registered under `apis:`
@@ -145,7 +147,7 @@ describe('generate-client redocly.yaml config', () => {
     expect(matched.status, matched.stderr).toBe(0);
     const matchedOut = readFileSync(join(dir, 'matched.ts'), 'utf-8');
     expect(matchedOut).toContain('serverUrl: "https://per-api.example.com"');
-    expect(matchedOut).toContain('pagination: {'); // top-level default kept, field by field
+    expect(matchedOut).toContain('pagination: {'); // top-level convention kept, field by field
 
     const unmatched = run(dir, ['./standalone.yaml', '--output', './unmatched.ts']);
     expect(unmatched.status, unmatched.stderr).toBe(0);
