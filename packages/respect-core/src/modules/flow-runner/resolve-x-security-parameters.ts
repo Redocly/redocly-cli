@@ -1,7 +1,11 @@
-import type { ExtendedSecurity } from '@redocly/openapi-core';
+import type { ExtendedSecurity, OAuth2Auth } from '@redocly/openapi-core';
 import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 
 import type { Step, RuntimeExpressionContext, TestContext } from '../../types.js';
+import {
+  exchangeOAuth2Token,
+  pickOAuth2ExchangeableFlow,
+} from '../../utils/oauth2/exchange-oauth2-token.js';
 import { getSecurityParameter } from '../context-parser/get-security-parameters.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';
@@ -9,7 +13,7 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { resolveSecurityScheme } from './resolve-security-scheme.js';
 import { validateXSecurityParameters } from './validate-x-security-parameters.js';
 
-export function resolveXSecurityParameters({
+export async function resolveXSecurityParameters({
   ctx,
   runtimeContext,
   step,
@@ -21,7 +25,7 @@ export function resolveXSecurityParameters({
   step: Step;
   operation?: OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> };
   workflowLevelXSecurityParameters?: ExtendedSecurity[];
-}): ParameterWithIn[] {
+}): Promise<ParameterWithIn[]> {
   const stepXSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
   const workflowLevelXSecurity = workflowLevelXSecurityParameters as ExtendedSecurity[] | undefined;
 
@@ -57,7 +61,30 @@ export function resolveXSecurityParameters({
       })
     );
 
+    if (!ctx.oauth2ExchangedSecurities) {
+      ctx.oauth2ExchangedSecurities = new WeakSet<object>();
+    }
+    const previouslyExchanged = ctx.oauth2ExchangedSecurities.has(security);
+    const hasUserAccessToken = !!values.accessToken && !previouslyExchanged;
+    const shouldExchangeOAuth2 =
+      scheme.type === 'oauth2' &&
+      !hasUserAccessToken &&
+      !!pickOAuth2ExchangeableFlow(scheme as OAuth2Auth, values);
     const resolvedSecurity = validateXSecurityParameters({ scheme, values });
+
+    if (shouldExchangeOAuth2) {
+      const accessToken = await exchangeOAuth2Token({
+        scheme: scheme as OAuth2Auth,
+        values,
+        ctx,
+      });
+      values.accessToken = accessToken;
+      if (security.values) {
+        security.values.accessToken = accessToken;
+      }
+      ctx.oauth2ExchangedSecurities.add(security);
+    }
+
     const param = getSecurityParameter(resolvedSecurity, ctx);
 
     if (param) {
