@@ -69,6 +69,8 @@ describe('selectTopHotspots', () => {
     const result = selectTopHotspots(docMetrics, opScores, new Map([['op1', 0]]));
     expect(result.length).toBe(1);
     expect(result[0].reasons).toContain('High parameter count (10)');
+    expect(result[0].issues.some((i) => i.code === 'high_parameter_count')).toBe(true);
+    expect(result[0].issues.map((i) => i.message)).toEqual(result[0].reasons);
   });
 
   it('detects deep schema nesting', () => {
