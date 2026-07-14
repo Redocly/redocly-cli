@@ -1995,6 +1995,17 @@ describe('buildApiModel — security (C6.6)', () => {
     expect(model.services[0].operations[0].security).toEqual(['OAuth2']);
   });
 
+  it('skips a leading `{}` (optional-auth marker) and applies the real alternative', () => {
+    const op = buildOpOnly(
+      withSchemes(
+        { OAuth2: { type: 'oauth2', flows: {} } },
+        // "anonymous OR bearer": credentials must still be sent when configured.
+        [{}, { OAuth2: [] }]
+      )
+    );
+    expect(op.security).toEqual(['OAuth2']);
+  });
+
   it('applies the first OR-alternative, never a union across alternatives', () => {
     const op = buildOpOnly(
       withSchemes(

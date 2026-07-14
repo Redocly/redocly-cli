@@ -353,6 +353,9 @@ function resolveOperationSecurity(
 
   for (const requirement of requirements) {
     const keys = Object.keys(requirement);
+    // Skip `{}` (the optional-auth marker): picking it would silently drop configured
+    // credentials whenever it's listed before a real alternative.
+    if (keys.length === 0) continue;
     if (keys.every((key) => injectable.has(key))) {
       return [...new Set(keys)];
     }
