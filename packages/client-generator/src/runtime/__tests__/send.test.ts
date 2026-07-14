@@ -100,6 +100,27 @@ describe('send', () => {
     expect(await response.text()).toBe('replaced');
   });
 
+  it('cancels the abandoned original body when onResponse replaces the response', async () => {
+    let cancelled = false;
+    const body = new ReadableStream<Uint8Array>({
+      cancel() {
+        cancelled = true;
+      },
+    });
+    const { fetchImpl } = fetchSpy([new Response(body, { status: 200 })]);
+    const { response } = await send(
+      { fetch: fetchImpl, onResponse: () => new Response('replaced', { status: 201 }) },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      false,
+      {}
+    );
+    expect(cancelled).toBe(true);
+    expect(response.status).toBe(201);
+  });
+
   it('retries an idempotent request on 503, drains the abandoned body, and honors Retry-After=0', async () => {
     const drained = vi.fn().mockResolvedValue(undefined);
     const bad = new Response('busy', { status: 503, headers: { 'retry-after': '0' } });

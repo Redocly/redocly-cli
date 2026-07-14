@@ -648,7 +648,12 @@ async function send(
       const onResponse = middleware[i].onResponse;
       if (onResponse) {
         const replaced = await onResponse(response, context);
-        if (replaced) response = replaced;
+        if (replaced && replaced !== response) {
+          // Cancel the abandoned original's body — like the retry path, an unread body
+          // keeps its connection checked out under Node/undici.
+          await response.body?.cancel().catch(() => undefined);
+          response = replaced;
+        }
       }
     }
     if (
