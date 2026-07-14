@@ -8,8 +8,10 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "import": "./lib/index.js"
-    }
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "engines": {
     "node": ">=22.12.0 || >=20.19.0 <21.0.0",
