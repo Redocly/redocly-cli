@@ -289,6 +289,49 @@ describe('extractSchemaComponents', () => {
     });
   });
 
+  it('keeps a list envelope inline when unrelated endpoints share it only because items were never observed', () => {
+    const emptyList = () => inferSchema({ object: 'list', page: { total: 0 }, items: [] });
+    const document = extractSchemaComponents(
+      makeDocument({
+        '/ai-jobs': { get: jsonOperation('listAiJobs', emptyList()) },
+        '/announcements': { get: jsonOperation('listAnnouncements', emptyList()) },
+        '/subscription-status': {
+          get: jsonOperation(
+            'readSubscriptionStatus',
+            inferSchema({
+              object: 'list',
+              page: { total: 1 },
+              items: [{ isValid: true, organizationId: 'org_1' }],
+            })
+          ),
+        },
+      })
+    );
+
+    expect(document.components).toBeUndefined();
+    expect(responseSchema(document, '/subscription-status').properties?.items).toEqual({
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { isValid: { type: 'boolean' }, organizationId: { type: 'string' } },
+        required: ['isValid', 'organizationId'],
+      },
+    });
+  });
+
+  it('still extracts a shape with unobserved list items when its contexts agree on a name', () => {
+    const emptyList = () => inferSchema({ object: 'list', page: { total: 0 }, items: [] });
+    const document = extractSchemaComponents(
+      makeDocument({
+        '/jobs': { get: jsonOperation('listJobs', emptyList()) },
+        '/projects/{projectId}/jobs': { get: jsonOperation('listProjectJobs', emptyList()) },
+      })
+    );
+
+    expect(Object.keys(document.components?.schemas ?? {})).toEqual(['Job']);
+    expect(responseSchema(document, '/jobs')).toEqual({ $ref: '#/components/schemas/Job' });
+  });
+
   it('leaves the document untouched when no shape repeats', () => {
     const document = extractSchemaComponents(
       makeDocument({

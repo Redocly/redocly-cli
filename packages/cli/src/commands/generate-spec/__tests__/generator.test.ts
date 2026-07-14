@@ -1,4 +1,4 @@
-import { inferSchema, mergeSchemas, templatizePath } from '../generator.js';
+import { inferMultipartSchema, inferSchema, mergeSchemas, templatizePath } from '../generator.js';
 
 describe('templatizePath', () => {
   it('replaces identifier-like segments with parameters named after the parent segment', () => {
@@ -34,6 +34,38 @@ describe('templatizePath', () => {
   it('names a parameter with no parent segment "id" and keeps plain segments', () => {
     expect(templatizePath('/f47ac10b-58cc-4372-a567-0e02b2c3d479').template).toBe('/{id}');
     expect(templatizePath('/users/profile').template).toBe('/users/profile');
+  });
+});
+
+describe('inferMultipartSchema', () => {
+  it('parses form fields and file parts into an object schema', () => {
+    const body = [
+      '--demo-boundary',
+      'Content-Disposition: form-data; name="name"',
+      '',
+      'espresso-doppio',
+      '--demo-boundary',
+      'Content-Disposition: form-data; name="price"',
+      '',
+      '300',
+      '--demo-boundary',
+      'Content-Disposition: form-data; name="photo"; filename="cup.png"',
+      'Content-Type: image/png',
+      '',
+      'PNGDATA',
+      '--demo-boundary--',
+      '',
+    ].join('\r\n');
+
+    expect(inferMultipartSchema(body, 'multipart/form-data; boundary=demo-boundary')).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        price: { type: 'string' },
+        photo: { type: 'string', format: 'binary' },
+      },
+      required: ['name', 'price', 'photo'],
+    });
   });
 });
 

@@ -91,6 +91,7 @@ export const HTTP_METHODS = new Set([
 ]);
 const BODYLESS_METHODS = new Set(['get', 'head']);
 const FORM_URLENCODED_MIME = 'application/x-www-form-urlencoded';
+const MULTIPART_FORM_MIME = 'multipart/form-data';
 
 function looksLikeIdentifier(segment: string): boolean {
   if (!segment) return false;
@@ -466,10 +467,42 @@ function sniffJson(bodyText: string | undefined): unknown {
   }
 }
 
+export function inferMultipartSchema(
+  bodyText: string,
+  contentType: string | undefined
+): JsonSchema | undefined {
+  const boundary = contentType?.match(/boundary="?([^";,]+)"?/i)?.[1];
+  if (!boundary) {
+    return undefined;
+  }
+
+  const properties: Record<string, JsonSchema> = {};
+  for (const section of bodyText.split(`--${boundary}`)) {
+    const partMatch = section.match(/^\r?\n([\s\S]*?)\r?\n\r?\n([\s\S]*)\r?\n$/);
+    if (!partMatch) {
+      continue;
+    }
+    const [, partHeaders, value] = partMatch;
+    const fieldName = partHeaders.match(/\bname="([^"]*)"/i)?.[1];
+    if (fieldName === undefined) {
+      continue;
+    }
+    properties[fieldName] = /\bfilename="/i.test(partHeaders)
+      ? { type: 'string', format: 'binary' }
+      : inferSchema(value);
+  }
+
+  if (Object.keys(properties).length === 0) {
+    return undefined;
+  }
+  return { type: 'object', properties, required: Object.keys(properties) };
+}
+
 /**
  * Infer a body schema and the content type to file it under. JSON declared via
- * the content type wins; form-urlencoded bodies are parsed into flat objects;
- * undeclared JSON (e.g. sent as text/plain) is detected by sniffing the body.
+ * the content type wins; form-urlencoded and multipart bodies are parsed into
+ * flat objects; undeclared JSON (e.g. sent as text/plain) is detected by
+ * sniffing the body.
  */
 function inferBodySchema(
   message: NormalizedHttpMessage
@@ -492,6 +525,11 @@ function inferBodySchema(
       return undefined;
     }
     return { mime: FORM_URLENCODED_MIME, schema: inferSchema(fields) };
+  }
+
+  if (mime === MULTIPART_FORM_MIME && message.bodyText) {
+    const schema = inferMultipartSchema(message.bodyText, message.contentType);
+    return schema ? { mime: MULTIPART_FORM_MIME, schema } : undefined;
   }
 
   const sniffed = sniffJson(message.bodyText);

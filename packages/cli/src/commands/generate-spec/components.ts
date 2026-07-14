@@ -4,6 +4,7 @@ import { copyObservations } from './value-inference.js';
 const MIN_COMPONENT_PROPERTIES = 2;
 const MIN_DISTINCT_CONTEXTS = 2;
 const NEAR_DUPLICATE_SIMILARITY = 0.75;
+const MAX_ENVELOPE_PROPERTIES = 2;
 const NUMERIC_TYPES = new Set(['integer', 'number']);
 
 type ShapeGroup = {
@@ -405,11 +406,36 @@ function withRefs(
   return result;
 }
 
+function isUnobservedListEnvelope(schema: JsonSchema): boolean {
+  const properties = Object.values(schema.properties ?? {});
+  const unobservedArrays = properties.filter(
+    (property) => property.type === 'array' && (!property.items || isUnconstrained(property.items))
+  );
+  return (
+    unobservedArrays.length > 0 &&
+    properties.length - unobservedArrays.length <= MAX_ENVELOPE_PROPERTIES
+  );
+}
+
+function hasDominantNameHint(group: ShapeGroup): boolean {
+  let total = 0;
+  let top = 0;
+  for (const count of group.primaryVotes.values()) {
+    total += count;
+    top = Math.max(top, count);
+  }
+  return top * 2 > total;
+}
+
 /**
  * Extract object shapes that repeat across the document into named
  * `components/schemas` entries and replace every occurrence with a `$ref`.
  * Occurrences are counted per distinct context (enclosing shape + position),
- * so a shape repeated only because its parent repeats stays inline.
+ * so a shape repeated only because its parent repeats stays inline. A list
+ * envelope whose payload was never observed (only empty arrays recorded, few
+ * other properties) also stays inline unless its contexts agree on a name —
+ * matching envelopes alone are no evidence that unrelated endpoints return
+ * the same thing.
  */
 export function extractSchemaComponents(document: GeneratedDocument): GeneratedDocument {
   const groups = collectGroups(document);
@@ -418,7 +444,11 @@ export function extractSchemaComponents(document: GeneratedDocument): GeneratedD
   }
 
   const unified = unifyNearDuplicates([...groups.values()]);
-  const extracted = unified.filter((group) => group.contexts.size >= MIN_DISTINCT_CONTEXTS);
+  const extracted = unified.filter(
+    (group) =>
+      group.contexts.size >= MIN_DISTINCT_CONTEXTS &&
+      (hasDominantNameHint(group) || !group.schemas.some(isUnobservedListEnvelope))
+  );
   if (extracted.length === 0) {
     return document;
   }
