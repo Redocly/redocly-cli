@@ -2,11 +2,12 @@ import { SchemaConsistencyRule } from '../../../commands/drift/rules/builtins/sc
 import type {
   MatchedOperation,
   NormalizedExchange,
+  OpenApiParameter,
   RuleContext,
 } from '../../../commands/drift/types/index.js';
 import { parseHeaderIgnoreList } from '../../../commands/drift/utils/http.js';
 
-function createMatchedOperation(): MatchedOperation {
+function createMatchedOperation(requestParameters?: OpenApiParameter[]): MatchedOperation {
   return {
     operation: {
       operationId: 'listOrderItems',
@@ -16,7 +17,7 @@ function createMatchedOperation(): MatchedOperation {
       pathParams: [],
       pathScore: 1,
       servers: [],
-      requestParameters: [{ name: 'filter', in: 'query', required: true }],
+      requestParameters: requestParameters ?? [{ name: 'filter', in: 'query', required: true }],
       requestBodyContent: {},
       requestBodyRequired: false,
       responseBodyContent: {},
@@ -30,9 +31,16 @@ function createMatchedOperation(): MatchedOperation {
 
 function createContext(
   responseStatus: number,
-  options: { requestHeaders?: Record<string, string>; ignoreHeaders?: string[] } = {}
+  options: {
+    requestHeaders?: Record<string, string>;
+    ignoreHeaders?: string[];
+    queryString?: string;
+    requestParameters?: OpenApiParameter[];
+  } = {}
 ): RuleContext {
-  const requestUrl = 'https://api.example.com/order-items';
+  const requestUrl = `https://api.example.com/order-items${
+    options.queryString ? `?${options.queryString}` : ''
+  }`;
   const parsedUrl = new URL(requestUrl);
   const exchange: NormalizedExchange = {
     index: 0,
@@ -55,7 +63,7 @@ function createContext(
 
   return {
     exchange,
-    matchedOperation: createMatchedOperation(),
+    matchedOperation: createMatchedOperation(options.requestParameters),
     matchMode: 'strict-host',
     hostCompatibleWithSpecServers: true,
     ignoreHeaders: options.ignoreHeaders ? parseHeaderIgnoreList(options.ignoreHeaders) : undefined,
@@ -110,5 +118,41 @@ describe('schema-consistency undocumented header check', () => {
       ignoreHeaders: ['x-caddy-auth-token', 'x-consumer-*'],
     });
     expect(undocumentedHeaderFindings(context)).toHaveLength(0);
+  });
+});
+
+describe('schema-consistency deepObject query parameter check', () => {
+  const rule = new SchemaConsistencyRule();
+
+  it('maps bracketed query keys to a documented deepObject parameter and validates the object', () => {
+    const validatedValues: unknown[] = [];
+    const context = createContext(200, {
+      queryString: 'namespace[id]=acme&namespace[name]=acme&other[id]=1',
+      requestParameters: [
+        {
+          name: 'namespace',
+          in: 'query',
+          required: true,
+          style: 'deepObject',
+          schema: { type: 'object' },
+        },
+      ],
+    });
+    context.validateSchema = (_schema, value) => {
+      validatedValues.push(value);
+      return { valid: true, errors: [] };
+    };
+
+    const findings = rule.analyze(context);
+
+    expect(
+      findings
+        .filter((finding) => finding.message.startsWith('Undocumented query parameter'))
+        .map((finding) => finding.message)
+    ).toEqual(['Undocumented query parameter in traffic: "other[id]"']);
+    expect(
+      findings.filter((finding) => finding.message.startsWith('Missing required query parameter'))
+    ).toHaveLength(0);
+    expect(validatedValues).toEqual([{ id: 'acme', name: 'acme' }]);
   });
 });

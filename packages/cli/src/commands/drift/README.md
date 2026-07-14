@@ -68,3 +68,6 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
   request-body schema) when the response is a `4xx` client error.
   The server rejected the request, so validating it against the operation's success-path
   contract would report the server's own correct rejection as drift.
+- Builtin `schema-consistency` understands `deepObject`-style query parameters:
+  traffic keys like `name[property]=value` are matched to the documented parameter
+  and validated against its object schema instead of being reported as undocumented.

@@ -265,6 +265,32 @@ function validateParameter(
   }
 }
 
+// deepObject-style query parameters serialize object properties as "name[property]=value".
+const DEEP_OBJECT_QUERY_KEY_REGEX = /^([^[\]]+)\[([^[\]]+)\]$/;
+
+function parseDeepObjectQueryKey(
+  key: string
+): { parameterName: string; property: string } | undefined {
+  const keyMatch = key.match(DEEP_OBJECT_QUERY_KEY_REGEX);
+  return keyMatch ? { parameterName: keyMatch[1], property: keyMatch[2] } : undefined;
+}
+
+function getDeepObjectParameterValue(
+  parameterName: string,
+  query: URLSearchParams
+): Record<string, string> | undefined {
+  let objectValue: Record<string, string> | undefined;
+  for (const [key, value] of query) {
+    const deepObjectKey = parseDeepObjectQueryKey(key);
+    if (deepObjectKey?.parameterName === parameterName) {
+      objectValue ??= {};
+      objectValue[deepObjectKey.property] = value;
+    }
+  }
+
+  return objectValue;
+}
+
 function getActualParameterValue(
   parameter: OpenApiParameter,
   context: RuleContext,
@@ -274,6 +300,9 @@ function getActualParameterValue(
     case 'path':
       return context.matchedOperation?.pathParams[parameter.name];
     case 'query': {
+      if (parameter.style === 'deepObject') {
+        return getDeepObjectParameterValue(parameter.name, context.exchange.request.query);
+      }
       const values = context.exchange.request.query.getAll(parameter.name);
       if (values.length === 0) {
         return undefined;
@@ -303,28 +332,39 @@ function createUndocumentedParameterFindings(
     header: new Set<string>(),
     cookie: new Set<string>(),
   };
+  const deepObjectQueryParams = new Set<string>();
 
   for (const parameter of matchedOperation.operation.requestParameters) {
     if (parameter.in === 'header') {
       paramsByLocation.header.add(parameter.name.toLowerCase());
     } else if (parameter.in === 'query' || parameter.in === 'cookie') {
       paramsByLocation[parameter.in].add(parameter.name);
+      if (parameter.in === 'query' && parameter.style === 'deepObject') {
+        deepObjectQueryParams.add(parameter.name);
+      }
     }
   }
 
   for (const name of new Set(context.exchange.request.query.keys())) {
-    if (!paramsByLocation.query.has(name)) {
-      findings.push({
-        ruleId: 'schema-consistency',
-        severity: 'warning',
-        category: 'documentation',
-        message: `Undocumented query parameter in traffic: "${name}"`,
-        exchangeIndex: context.exchange.index,
-        operationId: matchedOperation.operation.operationId,
-        specSource: matchedOperation.operation.specSource,
-        target: 'request',
-      });
+    if (paramsByLocation.query.has(name)) {
+      continue;
     }
+
+    const deepObjectKey = parseDeepObjectQueryKey(name);
+    if (deepObjectKey && deepObjectQueryParams.has(deepObjectKey.parameterName)) {
+      continue;
+    }
+
+    findings.push({
+      ruleId: 'schema-consistency',
+      severity: 'warning',
+      category: 'documentation',
+      message: `Undocumented query parameter in traffic: "${name}"`,
+      exchangeIndex: context.exchange.index,
+      operationId: matchedOperation.operation.operationId,
+      specSource: matchedOperation.operation.specSource,
+      target: 'request',
+    });
   }
 
   for (const headerName of Object.keys(context.exchange.request.headers)) {

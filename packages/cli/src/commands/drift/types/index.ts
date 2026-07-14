@@ -93,6 +93,7 @@ export interface OpenApiParameter {
   name: string;
   in: 'query' | 'header' | 'path' | 'cookie';
   required: boolean;
+  style?: string;
   schema?: unknown;
 }
 
