@@ -12,21 +12,34 @@ function encodeBase64(text: string): string {
   return btoa(binary);
 }
 
+/** Whether a credential for this scheme is configured on the instance. */
+function isConfigured(scheme: SecuritySpec, config: ClientConfig): boolean {
+  if (scheme.kind === 'apiKey') return config.auth?.apiKey?.[scheme.scheme] !== undefined;
+  if (scheme.kind === 'bearer') return config.auth?.bearer !== undefined;
+  return config.auth?.basic !== undefined;
+}
+
 /**
- * Build the auth headers/query for one operation's `security` requirements from the
+ * Build the auth headers/query for one operation's `security` OR-alternatives from the
  * instance credentials (`config.auth`) — capability module, wired into `createClient`.
- * A scheme with no configured credential contributes nothing (the request is sent
- * unauthenticated and the server rejects it, mirroring the generated-client behavior).
+ * The first alternative whose schemes (an AND-set) are all configured is applied, so
+ * "bearer OR apiKey" works with either credential and never sends both. When none is
+ * fully configured, the first alternative's configured schemes are still sent (the
+ * server rejects the request, mirroring the previous behavior).
  * Cookie-borne apiKeys fold into a single `Cookie` header joined with `; `.
  */
 export async function resolveAuth(
-  security: readonly SecuritySpec[],
+  security: readonly (readonly SecuritySpec[])[],
   config: ClientConfig
 ): Promise<{ headers: Record<string, string>; query: Record<string, string> }> {
+  const alternative =
+    security.find((schemes) => schemes.every((scheme) => isConfigured(scheme, config))) ??
+    security[0] ??
+    [];
   const headers: Record<string, string> = {};
   const query: Record<string, string> = {};
   const cookies: string[] = [];
-  for (const scheme of security) {
+  for (const scheme of alternative) {
     if (scheme.kind === 'apiKey') {
       const provider = config.auth?.apiKey?.[scheme.scheme];
       if (provider === undefined) continue;

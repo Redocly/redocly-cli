@@ -27,7 +27,7 @@ import { buildUrl, substitutePath, type QueryStyle } from './url.js';
  */
 export type Capabilities = SendCapabilities & {
   resolveAuth?: (
-    security: readonly SecuritySpec[],
+    security: readonly (readonly SecuritySpec[])[],
     config: ClientConfig
   ) => Promise<{ headers: Record<string, string>; query: Record<string, string> }>;
   sse?: (

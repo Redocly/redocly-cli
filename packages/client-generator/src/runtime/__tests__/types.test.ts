@@ -148,7 +148,7 @@ describe('Client<Ops> mapped type', () => {
       method: 'GET',
       path: '/orders/{orderId}',
       params: [{ name: 'orderId', in: 'path' }],
-      security: [{ scheme: 'bearerAuth', kind: 'bearer' }],
+      security: [[{ scheme: 'bearerAuth', kind: 'bearer' }]],
     } as const satisfies OperationDescriptor;
     expect(op.id).toBe('getOrder');
   });

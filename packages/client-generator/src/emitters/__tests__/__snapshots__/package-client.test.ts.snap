@@ -54,7 +54,7 @@ export type Ops = {
  * tags) for cache keys, tracing span names, and request logging.
  */
 export const OPERATIONS = {
-    getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "expand", in: "query" }], security: [{ scheme: "bearerAuth", kind: "bearer" }] },
+    getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "expand", in: "query" }], security: [[{ scheme: "bearerAuth", kind: "bearer" }]] },
     streamEvents: { id: "streamEvents", method: "GET", path: "/events", responseKind: "sse", sseDataKind: "json" }
 } as const satisfies Record<string, OperationDescriptor>;
 
@@ -85,7 +85,7 @@ export type ParamSpec = {
   allowReserved?: boolean;
 };
 
-/** One security requirement, denormalized onto the operation (\`scheme\` names the spec's scheme). */
+/** One security scheme, denormalized onto the operation (\`scheme\` names the spec's scheme). */
 export type SecuritySpec =
   | { scheme: string; kind: 'bearer' | 'basic' }
   | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
@@ -118,7 +118,8 @@ export type OperationDescriptor = {
   /** Defaults to \`'json'\` (content-type negotiation on parse). */
   responseKind?: 'json' | 'text' | 'blob' | 'void' | 'sse';
   sseDataKind?: 'json' | 'text';
-  security?: readonly SecuritySpec[];
+  /** OR-alternatives, each an AND-set: the runtime applies the first fully-configured one. */
+  security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
 };
 
@@ -541,21 +542,34 @@ function encodeBase64(text: string): string {
   return btoa(binary);
 }
 
+/** Whether a credential for this scheme is configured on the instance. */
+function isConfigured(scheme: SecuritySpec, config: ClientConfig): boolean {
+  if (scheme.kind === 'apiKey') return config.auth?.apiKey?.[scheme.scheme] !== undefined;
+  if (scheme.kind === 'bearer') return config.auth?.bearer !== undefined;
+  return config.auth?.basic !== undefined;
+}
+
 /**
- * Build the auth headers/query for one operation's \`security\` requirements from the
+ * Build the auth headers/query for one operation's \`security\` OR-alternatives from the
  * instance credentials (\`config.auth\`) — capability module, wired into \`createClient\`.
- * A scheme with no configured credential contributes nothing (the request is sent
- * unauthenticated and the server rejects it, mirroring the generated-client behavior).
+ * The first alternative whose schemes (an AND-set) are all configured is applied, so
+ * "bearer OR apiKey" works with either credential and never sends both. When none is
+ * fully configured, the first alternative's configured schemes are still sent (the
+ * server rejects the request, mirroring the previous behavior).
  * Cookie-borne apiKeys fold into a single \`Cookie\` header joined with \`; \`.
  */
 async function resolveAuth(
-  security: readonly SecuritySpec[],
+  security: readonly (readonly SecuritySpec[])[],
   config: ClientConfig
 ): Promise<{ headers: Record<string, string>; query: Record<string, string> }> {
+  const alternative =
+    security.find((schemes) => schemes.every((scheme) => isConfigured(scheme, config))) ??
+    security[0] ??
+    [];
   const headers: Record<string, string> = {};
   const query: Record<string, string> = {};
   const cookies: string[] = [];
-  for (const scheme of security) {
+  for (const scheme of alternative) {
     if (scheme.kind === 'apiKey') {
       const provider = config.auth?.apiKey?.[scheme.scheme];
       if (provider === undefined) continue;
@@ -895,7 +909,7 @@ function parseSseFrame(
  */
 type Capabilities = SendCapabilities & {
   resolveAuth?: (
-    security: readonly SecuritySpec[],
+    security: readonly (readonly SecuritySpec[])[],
     config: ClientConfig
   ) => Promise<{ headers: Record<string, string>; query: Record<string, string> }>;
   sse?: (
@@ -1280,7 +1294,7 @@ export type Ops = {
  * tags) for cache keys, tracing span names, and request logging.
  */
 export const OPERATIONS = {
-    getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "expand", in: "query" }], security: [{ scheme: "bearerAuth", kind: "bearer" }] },
+    getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "expand", in: "query" }], security: [[{ scheme: "bearerAuth", kind: "bearer" }]] },
     streamEvents: { id: "streamEvents", method: "GET", path: "/events", responseKind: "sse", sseDataKind: "json" }
 } as const satisfies Record<string, OperationDescriptor>;
 
@@ -1407,7 +1421,7 @@ export type ParamSpec = {
   allowReserved?: boolean;
 };
 
-/** One security requirement, denormalized onto the operation (\`scheme\` names the spec's scheme). */
+/** One security scheme, denormalized onto the operation (\`scheme\` names the spec's scheme). */
 export type SecuritySpec =
   | { scheme: string; kind: 'bearer' | 'basic' }
   | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
@@ -1440,7 +1454,8 @@ export type OperationDescriptor = {
   /** Defaults to \`'json'\` (content-type negotiation on parse). */
   responseKind?: 'json' | 'text' | 'blob' | 'void' | 'sse';
   sseDataKind?: 'json' | 'text';
-  security?: readonly SecuritySpec[];
+  /** OR-alternatives, each an AND-set: the runtime applies the first fully-configured one. */
+  security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
 };
 
@@ -1863,21 +1878,34 @@ function encodeBase64(text: string): string {
   return btoa(binary);
 }
 
+/** Whether a credential for this scheme is configured on the instance. */
+function isConfigured(scheme: SecuritySpec, config: ClientConfig): boolean {
+  if (scheme.kind === 'apiKey') return config.auth?.apiKey?.[scheme.scheme] !== undefined;
+  if (scheme.kind === 'bearer') return config.auth?.bearer !== undefined;
+  return config.auth?.basic !== undefined;
+}
+
 /**
- * Build the auth headers/query for one operation's \`security\` requirements from the
+ * Build the auth headers/query for one operation's \`security\` OR-alternatives from the
  * instance credentials (\`config.auth\`) — capability module, wired into \`createClient\`.
- * A scheme with no configured credential contributes nothing (the request is sent
- * unauthenticated and the server rejects it, mirroring the generated-client behavior).
+ * The first alternative whose schemes (an AND-set) are all configured is applied, so
+ * "bearer OR apiKey" works with either credential and never sends both. When none is
+ * fully configured, the first alternative's configured schemes are still sent (the
+ * server rejects the request, mirroring the previous behavior).
  * Cookie-borne apiKeys fold into a single \`Cookie\` header joined with \`; \`.
  */
 async function resolveAuth(
-  security: readonly SecuritySpec[],
+  security: readonly (readonly SecuritySpec[])[],
   config: ClientConfig
 ): Promise<{ headers: Record<string, string>; query: Record<string, string> }> {
+  const alternative =
+    security.find((schemes) => schemes.every((scheme) => isConfigured(scheme, config))) ??
+    security[0] ??
+    [];
   const headers: Record<string, string> = {};
   const query: Record<string, string> = {};
   const cookies: string[] = [];
-  for (const scheme of security) {
+  for (const scheme of alternative) {
     if (scheme.kind === 'apiKey') {
       const provider = config.auth?.apiKey?.[scheme.scheme];
       if (provider === undefined) continue;
@@ -2162,7 +2190,7 @@ async function send(
  */
 type Capabilities = SendCapabilities & {
   resolveAuth?: (
-    security: readonly SecuritySpec[],
+    security: readonly (readonly SecuritySpec[])[],
     config: ClientConfig
   ) => Promise<{ headers: Record<string, string>; query: Record<string, string> }>;
   sse?: (

@@ -781,16 +781,16 @@ export type Ops = {
  */
 export const OPERATIONS = {
     listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", tags: ["Products"], params: [{ name: "after", in: "query" }, { name: "before", in: "query" }, { name: "sort", in: "query" }, { name: "filter", in: "query" }, { name: "search", in: "query" }, { name: "limit", in: "query" }] },
-    createMenuItem: { id: "createMenuItem", method: "POST", path: "/menu", tags: ["Products"], body: { contentType: "multipart/form-data" }, security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    deleteMenuItem: { id: "deleteMenuItem", method: "DELETE", path: "/menu/{menuItemId}", tags: ["Products"], params: [{ name: "menuItemId", in: "path" }], responseKind: "void", security: [{ scheme: "OAuth2", kind: "bearer" }] },
+    createMenuItem: { id: "createMenuItem", method: "POST", path: "/menu", tags: ["Products"], body: { contentType: "multipart/form-data" }, security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    deleteMenuItem: { id: "deleteMenuItem", method: "DELETE", path: "/menu/{menuItemId}", tags: ["Products"], params: [{ name: "menuItemId", in: "path" }], responseKind: "void", security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
     getMenuItemPhoto: { id: "getMenuItemPhoto", method: "GET", path: "/menu-item-images/{menuItemId}", tags: ["Products"], params: [{ name: "menuItemId", in: "path" }, { name: "photoSize", in: "query" }], responseKind: "blob" },
-    listOrders: { id: "listOrders", method: "GET", path: "/orders", tags: ["Orders"], params: [{ name: "filter", in: "query" }, { name: "sort", in: "query" }, { name: "limit", in: "query" }, { name: "after", in: "query" }, { name: "before", in: "query" }, { name: "search", in: "query" }], security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    createOrder: { id: "createOrder", method: "POST", path: "/orders", tags: ["Orders"], body: { contentType: "application/json" }, security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "X-Request-Id", in: "header" }], security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    deleteOrder: { id: "deleteOrder", method: "DELETE", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], responseKind: "void", security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    updateOrder: { id: "updateOrder", method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], body: { contentType: "application/json" }, security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    listOrderItems: { id: "listOrderItems", method: "GET", path: "/order-items", tags: ["Orders"], params: [{ name: "filter", in: "query" }], security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    getRevenue: { id: "getRevenue", method: "GET", path: "/revenue", tags: ["Statistics"], params: [{ name: "startDate", in: "query" }, { name: "endDate", in: "query" }], security: [{ scheme: "ApiKey", kind: "apiKey", name: "X-API-Key", in: "header" }] },
+    listOrders: { id: "listOrders", method: "GET", path: "/orders", tags: ["Orders"], params: [{ name: "filter", in: "query" }, { name: "sort", in: "query" }, { name: "limit", in: "query" }, { name: "after", in: "query" }, { name: "before", in: "query" }, { name: "search", in: "query" }], security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    createOrder: { id: "createOrder", method: "POST", path: "/orders", tags: ["Orders"], body: { contentType: "application/json" }, security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "X-Request-Id", in: "header" }], security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    deleteOrder: { id: "deleteOrder", method: "DELETE", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], responseKind: "void", security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    updateOrder: { id: "updateOrder", method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], body: { contentType: "application/json" }, security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    listOrderItems: { id: "listOrderItems", method: "GET", path: "/order-items", tags: ["Orders"], params: [{ name: "filter", in: "query" }], security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    getRevenue: { id: "getRevenue", method: "GET", path: "/revenue", tags: ["Statistics"], params: [{ name: "startDate", in: "query" }, { name: "endDate", in: "query" }], security: [[{ scheme: "ApiKey", kind: "apiKey", name: "X-API-Key", in: "header" }]] },
     registerOAuth2Client: { id: "registerOAuth2Client", method: "POST", path: "/oauth2/register", tags: ["Authorization"], body: { contentType: "application/json" } }
 } as const satisfies Record<string, OperationDescriptor>;
 

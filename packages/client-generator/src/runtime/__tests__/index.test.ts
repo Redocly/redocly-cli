@@ -12,7 +12,7 @@ const OPS = {
     id: 'secured',
     method: 'GET',
     path: '/private',
-    security: [{ scheme: 's', kind: 'bearer' }],
+    security: [[{ scheme: 's', kind: 'bearer' }]],
   },
   stream: {
     id: 'stream',

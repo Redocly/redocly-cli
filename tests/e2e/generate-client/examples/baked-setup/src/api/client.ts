@@ -779,16 +779,16 @@ export type Ops = {
  */
 export const OPERATIONS = {
     listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", tags: ["Products"], params: [{ name: "after", in: "query" }, { name: "before", in: "query" }, { name: "sort", in: "query" }, { name: "filter", in: "query" }, { name: "search", in: "query" }, { name: "limit", in: "query" }] },
-    createMenuItem: { id: "createMenuItem", method: "POST", path: "/menu", tags: ["Products"], body: { contentType: "multipart/form-data" }, security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    deleteMenuItem: { id: "deleteMenuItem", method: "DELETE", path: "/menu/{menuItemId}", tags: ["Products"], params: [{ name: "menuItemId", in: "path" }], responseKind: "void", security: [{ scheme: "OAuth2", kind: "bearer" }] },
+    createMenuItem: { id: "createMenuItem", method: "POST", path: "/menu", tags: ["Products"], body: { contentType: "multipart/form-data" }, security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    deleteMenuItem: { id: "deleteMenuItem", method: "DELETE", path: "/menu/{menuItemId}", tags: ["Products"], params: [{ name: "menuItemId", in: "path" }], responseKind: "void", security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
     getMenuItemPhoto: { id: "getMenuItemPhoto", method: "GET", path: "/menu-item-images/{menuItemId}", tags: ["Products"], params: [{ name: "menuItemId", in: "path" }, { name: "photoSize", in: "query" }], responseKind: "blob" },
-    listOrders: { id: "listOrders", method: "GET", path: "/orders", tags: ["Orders"], params: [{ name: "filter", in: "query" }, { name: "sort", in: "query" }, { name: "limit", in: "query" }, { name: "after", in: "query" }, { name: "before", in: "query" }, { name: "search", in: "query" }], security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    createOrder: { id: "createOrder", method: "POST", path: "/orders", tags: ["Orders"], body: { contentType: "application/json" }, security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "X-Request-Id", in: "header" }], security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    deleteOrder: { id: "deleteOrder", method: "DELETE", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], responseKind: "void", security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    updateOrder: { id: "updateOrder", method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], body: { contentType: "application/json" }, security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    listOrderItems: { id: "listOrderItems", method: "GET", path: "/order-items", tags: ["Orders"], params: [{ name: "filter", in: "query" }], security: [{ scheme: "OAuth2", kind: "bearer" }] },
-    getRevenue: { id: "getRevenue", method: "GET", path: "/revenue", tags: ["Statistics"], params: [{ name: "startDate", in: "query" }, { name: "endDate", in: "query" }], security: [{ scheme: "ApiKey", kind: "apiKey", name: "X-API-Key", in: "header" }] },
+    listOrders: { id: "listOrders", method: "GET", path: "/orders", tags: ["Orders"], params: [{ name: "filter", in: "query" }, { name: "sort", in: "query" }, { name: "limit", in: "query" }, { name: "after", in: "query" }, { name: "before", in: "query" }, { name: "search", in: "query" }], security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    createOrder: { id: "createOrder", method: "POST", path: "/orders", tags: ["Orders"], body: { contentType: "application/json" }, security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "X-Request-Id", in: "header" }], security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    deleteOrder: { id: "deleteOrder", method: "DELETE", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], responseKind: "void", security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    updateOrder: { id: "updateOrder", method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }], body: { contentType: "application/json" }, security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    listOrderItems: { id: "listOrderItems", method: "GET", path: "/order-items", tags: ["Orders"], params: [{ name: "filter", in: "query" }], security: [[{ scheme: "OAuth2", kind: "bearer" }]] },
+    getRevenue: { id: "getRevenue", method: "GET", path: "/revenue", tags: ["Statistics"], params: [{ name: "startDate", in: "query" }, { name: "endDate", in: "query" }], security: [[{ scheme: "ApiKey", kind: "apiKey", name: "X-API-Key", in: "header" }]] },
     registerOAuth2Client: { id: "registerOAuth2Client", method: "POST", path: "/oauth2/register", tags: ["Authorization"], body: { contentType: "application/json" } }
 } as const satisfies Record<string, OperationDescriptor>;
 
@@ -819,7 +819,7 @@ export type ParamSpec = {
   allowReserved?: boolean;
 };
 
-/** One security requirement, denormalized onto the operation (`scheme` names the spec's scheme). */
+/** One security scheme, denormalized onto the operation (`scheme` names the spec's scheme). */
 export type SecuritySpec =
   | { scheme: string; kind: 'bearer' | 'basic' }
   | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
@@ -852,7 +852,8 @@ export type OperationDescriptor = {
   /** Defaults to `'json'` (content-type negotiation on parse). */
   responseKind?: 'json' | 'text' | 'blob' | 'void' | 'sse';
   sseDataKind?: 'json' | 'text';
-  security?: readonly SecuritySpec[];
+  /** OR-alternatives, each an AND-set: the runtime applies the first fully-configured one. */
+  security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
 };
 
@@ -1275,21 +1276,34 @@ function encodeBase64(text: string): string {
   return btoa(binary);
 }
 
+/** Whether a credential for this scheme is configured on the instance. */
+function isConfigured(scheme: SecuritySpec, config: ClientConfig): boolean {
+  if (scheme.kind === 'apiKey') return config.auth?.apiKey?.[scheme.scheme] !== undefined;
+  if (scheme.kind === 'bearer') return config.auth?.bearer !== undefined;
+  return config.auth?.basic !== undefined;
+}
+
 /**
- * Build the auth headers/query for one operation's `security` requirements from the
+ * Build the auth headers/query for one operation's `security` OR-alternatives from the
  * instance credentials (`config.auth`) — capability module, wired into `createClient`.
- * A scheme with no configured credential contributes nothing (the request is sent
- * unauthenticated and the server rejects it, mirroring the generated-client behavior).
+ * The first alternative whose schemes (an AND-set) are all configured is applied, so
+ * "bearer OR apiKey" works with either credential and never sends both. When none is
+ * fully configured, the first alternative's configured schemes are still sent (the
+ * server rejects the request, mirroring the previous behavior).
  * Cookie-borne apiKeys fold into a single `Cookie` header joined with `; `.
  */
 async function resolveAuth(
-  security: readonly SecuritySpec[],
+  security: readonly (readonly SecuritySpec[])[],
   config: ClientConfig
 ): Promise<{ headers: Record<string, string>; query: Record<string, string> }> {
+  const alternative =
+    security.find((schemes) => schemes.every((scheme) => isConfigured(scheme, config))) ??
+    security[0] ??
+    [];
   const headers: Record<string, string> = {};
   const query: Record<string, string> = {};
   const cookies: string[] = [];
-  for (const scheme of security) {
+  for (const scheme of alternative) {
     if (scheme.kind === 'apiKey') {
       const provider = config.auth?.apiKey?.[scheme.scheme];
       if (provider === undefined) continue;
@@ -1485,7 +1499,7 @@ async function send(
  */
 type Capabilities = SendCapabilities & {
   resolveAuth?: (
-    security: readonly SecuritySpec[],
+    security: readonly (readonly SecuritySpec[])[],
     config: ClientConfig
   ) => Promise<{ headers: Record<string, string>; query: Record<string, string> }>;
   sse?: (

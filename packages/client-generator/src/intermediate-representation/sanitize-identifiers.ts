@@ -63,7 +63,7 @@ export function sanitizeIdentifiers(model: ApiModel): void {
         op.name = safe;
       }
       rewriteOperationRefs(op, fixRef);
-      op.security = op.security.map(fixKey);
+      op.security = op.security.map((alternative) => alternative.map(fixKey));
     }
   }
 }

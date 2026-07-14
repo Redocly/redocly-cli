@@ -331,36 +331,35 @@ function buildSecuritySchemes(doc: Oas3Definition): SecuritySchemeModel[] {
 }
 
 /**
- * Resolve the effective security for one operation into the set of scheme keys
- * the client should inject. The operation's own `security` overrides the
- * document default; `security: []` opts out entirely.
+ * Resolve the effective security for one operation into the list of injectable
+ * OR-alternatives, each an AND-set of scheme keys. The operation's own `security`
+ * overrides the document default; `security: []` opts out entirely.
  *
- * Security is an OR of requirement objects, and the schemes *within* one object
- * are all required together (AND). The client applies exactly ONE alternative —
- * the first whose schemes are all injectable — so an operation that accepts, say,
- * "bearer OR apiKey" never sends both credentials at once. When no alternative is
- * fully injectable, no auth is applied.
+ * Every fully-injectable alternative is kept — the runtime applies exactly ONE of
+ * them (the first whose credentials are all configured), so an operation that
+ * accepts "bearer OR apiKey" works with either credential and never sends both.
+ * `{}` (the optional-auth marker) and alternatives with non-injectable schemes
+ * are skipped; an empty result means no auth is applied.
  */
 function resolveOperationSecurity(
   operation: Oas3Operation,
   doc: Oas3Definition,
   injectable: Set<string>
-): string[] {
+): string[][] {
   const requirements =
     (operation as { security?: SecurityRequirement[] }).security ??
     (doc as { security?: SecurityRequirement[] }).security;
   if (!requirements) return [];
 
+  const alternatives: string[][] = [];
   for (const requirement of requirements) {
     const keys = Object.keys(requirement);
-    // Skip `{}` (the optional-auth marker): picking it would silently drop configured
-    // credentials whenever it's listed before a real alternative.
     if (keys.length === 0) continue;
     if (keys.every((key) => injectable.has(key))) {
-      return [...new Set(keys)];
+      alternatives.push([...new Set(keys)]);
     }
   }
-  return [];
+  return alternatives;
 }
 
 function buildNamedSchemas(doc: Oas3Definition): NamedSchemaModel[] {

@@ -77,7 +77,7 @@ export type Ops = {
  * tags) for cache keys, tracing span names, and request logging.
  */
 export const OPERATIONS = {
-    getOrder: { id: "getOrder", method: "GET", path: "/orders/{order-id}", params: [{ name: "order-id", in: "path" }, { name: "expand", in: "query" }], security: [{ scheme: "bearerAuth", kind: "bearer" }] },
+    getOrder: { id: "getOrder", method: "GET", path: "/orders/{order-id}", params: [{ name: "order-id", in: "path" }, { name: "expand", in: "query" }], security: [[{ scheme: "bearerAuth", kind: "bearer" }]] },
     createOrder: { id: "createOrder", method: "POST", path: "/orders", body: { contentType: "application/json" } },
     configure_2: { id: "configure", method: "GET", path: "/configure-op" },
     streamEvents: { id: "streamEvents", method: "GET", path: "/events", responseKind: "sse", sseDataKind: "json" }

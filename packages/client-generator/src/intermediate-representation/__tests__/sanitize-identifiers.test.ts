@@ -130,7 +130,7 @@ describe('sanitizeIdentifiers', () => {
   });
 
   it('renames a non-identifier security-scheme key and rewrites operation.security to match', () => {
-    const m = model([], [op({ name: 'getX', security: ['k(){};evil', 'clean'] })]);
+    const m = model([], [op({ name: 'getX', security: [['k(){};evil', 'clean']] })]);
     m.securitySchemes = [
       { kind: 'apiKeyHeader', key: 'k(){};evil', headerName: 'X-Api-Key' },
       { kind: 'apiKeyHeader', key: 'clean', headerName: 'X-Other' },
@@ -139,13 +139,13 @@ describe('sanitizeIdentifiers', () => {
     expect(m.securitySchemes[0].key).toBe('k_____evil');
     expect(m.securitySchemes[1].key).toBe('clean');
     // The operation's security list follows the rename so the runtime literals match.
-    expect(m.services[0].operations[0].security).toEqual(['k_____evil', 'clean']);
+    expect(m.services[0].operations[0].security).toEqual([['k_____evil', 'clean']]);
   });
 
   it('sanitizes an operation.security entry with no matching scheme', () => {
-    const m = model([], [op({ name: 'getX', security: ['gone.key'] })]);
+    const m = model([], [op({ name: 'getX', security: [['gone.key']] })]);
     sanitizeIdentifiers(m);
-    expect(m.services[0].operations[0].security).toEqual(['gone_key']);
+    expect(m.services[0].operations[0].security).toEqual([['gone_key']]);
   });
 
   it('renames operations and rewrites refs in every operation slot', () => {

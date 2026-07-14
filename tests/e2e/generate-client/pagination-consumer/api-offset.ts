@@ -125,7 +125,7 @@ export type ParamSpec = {
   allowReserved?: boolean;
 };
 
-/** One security requirement, denormalized onto the operation (`scheme` names the spec's scheme). */
+/** One security scheme, denormalized onto the operation (`scheme` names the spec's scheme). */
 export type SecuritySpec =
   | { scheme: string; kind: 'bearer' | 'basic' }
   | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
@@ -158,7 +158,8 @@ export type OperationDescriptor = {
   /** Defaults to `'json'` (content-type negotiation on parse). */
   responseKind?: 'json' | 'text' | 'blob' | 'void' | 'sse';
   sseDataKind?: 'json' | 'text';
-  security?: readonly SecuritySpec[];
+  /** OR-alternatives, each an AND-set: the runtime applies the first fully-configured one. */
+  security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
 };
 
@@ -830,7 +831,7 @@ async function send(
  */
 type Capabilities = SendCapabilities & {
   resolveAuth?: (
-    security: readonly SecuritySpec[],
+    security: readonly (readonly SecuritySpec[])[],
     config: ClientConfig
   ) => Promise<{ headers: Record<string, string>; query: Record<string, string> }>;
   sse?: (

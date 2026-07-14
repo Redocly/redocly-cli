@@ -198,13 +198,13 @@ export type OperationModel = {
    */
   tags: string[];
   /**
-   * Effective security for this operation, as security-scheme keys (resolving
-   * the operation's own `security` over the document default, and filtered to
-   * schemes the client can actually inject). An empty array means "send no
-   * credentials" — either the operation opted out via `security: []` or no
-   * applicable scheme exists.
+   * Effective security for this operation: the injectable OR-alternatives, each
+   * an AND-set of security-scheme keys (resolving the operation's own `security`
+   * over the document default). The runtime applies the first alternative whose
+   * credentials are all configured. An empty array means "send no credentials" —
+   * either the operation opted out via `security: []` or no applicable scheme exists.
    */
-  security: string[];
+  security: string[][];
   /**
    * The operation's `x-pagination` extension value, captured VERBATIM (spec
    * extensions are untyped). Validated by the pagination emitter, not the IR.

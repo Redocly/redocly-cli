@@ -98,7 +98,7 @@ function descriptorValue(
     ...(p.explode !== undefined ? { explode: p.explode } : {}),
     ...(p.allowReserved !== undefined ? { allowReserved: p.allowReserved } : {}),
   }));
-  const security = op.security.flatMap((key): SecuritySpec[] => {
+  const toSpecs = (key: string): SecuritySpec[] => {
     const s = schemes.find((scheme) => scheme.key === key);
     if (!s) return [];
     if (s.kind === 'bearer' || s.kind === 'basic') return [{ scheme: key, kind: s.kind }];
@@ -109,7 +109,10 @@ function descriptorValue(
       return [{ scheme: key, kind: 'apiKey', name: s.paramName, in: 'query' }];
     }
     return [{ scheme: key, kind: 'apiKey', name: s.cookieName, in: 'cookie' }];
-  });
+  };
+  const security = op.security
+    .map((alternative) => alternative.flatMap(toSpecs))
+    .filter((alternative) => alternative.length > 0);
   const sse = isSseOp(op);
   const responseKind = sse ? 'sse' : computeResponse(op.successResponses, dateType).responseKind;
   return {

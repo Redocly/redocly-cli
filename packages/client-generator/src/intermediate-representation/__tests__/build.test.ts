@@ -1974,7 +1974,7 @@ describe('buildApiModel — security (C6.6)', () => {
     const op = buildOpOnly(
       withSchemes({ OAuth2: { type: 'oauth2', flows: {} } }, [{ OAuth2: ['orders:read'] }])
     );
-    expect(op.security).toEqual(['OAuth2']);
+    expect(op.security).toEqual([['OAuth2']]);
   });
 
   it('treats security: [] as an explicit opt-out (no auth)', () => {
@@ -1992,7 +1992,7 @@ describe('buildApiModel — security (C6.6)', () => {
         },
       })
     );
-    expect(model.services[0].operations[0].security).toEqual(['OAuth2']);
+    expect(model.services[0].operations[0].security).toEqual([['OAuth2']]);
   });
 
   it('skips a leading `{}` (optional-auth marker) and applies the real alternative', () => {
@@ -2003,21 +2003,21 @@ describe('buildApiModel — security (C6.6)', () => {
         [{}, { OAuth2: [] }]
       )
     );
-    expect(op.security).toEqual(['OAuth2']);
+    expect(op.security).toEqual([['OAuth2']]);
   });
 
-  it('applies the first OR-alternative, never a union across alternatives', () => {
+  it('keeps every OR-alternative separate, never a union across them', () => {
     const op = buildOpOnly(
       withSchemes(
         {
           OAuth2: { type: 'oauth2', flows: {} },
           ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
         },
-        // "bearer OR apiKey": the first alternative wins, so both are never sent together.
+        // "bearer OR apiKey": the runtime applies whichever alternative is configured.
         [{ OAuth2: [] }, { ApiKey: [] }]
       )
     );
-    expect(op.security).toEqual(['OAuth2']);
+    expect(op.security).toEqual([['OAuth2'], ['ApiKey']]);
   });
 
   it('skips an alternative with a non-injectable scheme and uses the next fully-injectable one', () => {
@@ -2033,7 +2033,7 @@ describe('buildApiModel — security (C6.6)', () => {
         [{ NoScheme: [] }, { OAuth2: [], ApiKey: [] }]
       )
     );
-    expect(op.security).toEqual(['OAuth2', 'ApiKey']);
+    expect(op.security).toEqual([['OAuth2', 'ApiKey']]);
   });
 
   it('returns no security when the operation references only non-injectable schemes', () => {

@@ -84,16 +84,16 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     expect(generated).toContain('auth?: AuthCredentials;');
 
     // Every scheme kind is denormalized onto its operation descriptor.
-    expect(generated).toContain('security: [{ scheme: "Bearer", kind: "bearer" }]');
-    expect(generated).toContain('security: [{ scheme: "Basic", kind: "basic" }]');
+    expect(generated).toContain('security: [[{ scheme: "Bearer", kind: "bearer" }]]');
+    expect(generated).toContain('security: [[{ scheme: "Basic", kind: "basic" }]]');
     expect(generated).toContain(
-      'security: [{ scheme: "QueryKey", kind: "apiKey", name: "api_key", in: "query" }]'
+      'security: [[{ scheme: "QueryKey", kind: "apiKey", name: "api_key", in: "query" }]]'
     );
     expect(generated).toContain(
-      'security: [{ scheme: "CookieKey", kind: "apiKey", name: "sid", in: "cookie" }]'
+      'security: [[{ scheme: "CookieKey", kind: "apiKey", name: "sid", in: "cookie" }]]'
     );
     expect(generated).toContain(
-      'security: [{ scheme: "HeaderKey", kind: "apiKey", name: "X-Key", in: "header" }]'
+      'security: [[{ scheme: "HeaderKey", kind: "apiKey", name: "X-Key", in: "header" }]]'
     );
   }, 60_000);
 

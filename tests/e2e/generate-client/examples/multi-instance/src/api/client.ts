@@ -63,8 +63,8 @@ export type Ops = {
  * tags) for cache keys, tracing span names, and request logging.
  */
 export const OPERATIONS = {
-    listProjects: { id: "listProjects", method: "GET", path: "/projects", tags: ["Projects"], security: [{ scheme: "BearerAuth", kind: "bearer" }] },
-    createProject: { id: "createProject", method: "POST", path: "/projects", tags: ["Projects"], body: { contentType: "application/json" }, security: [{ scheme: "BearerAuth", kind: "bearer" }] }
+    listProjects: { id: "listProjects", method: "GET", path: "/projects", tags: ["Projects"], security: [[{ scheme: "BearerAuth", kind: "bearer" }]] },
+    createProject: { id: "createProject", method: "POST", path: "/projects", tags: ["Projects"], body: { contentType: "application/json" }, security: [[{ scheme: "BearerAuth", kind: "bearer" }]] }
 } as const satisfies Record<string, OperationDescriptor>;
 
 export type OperationId = keyof typeof OPERATIONS;

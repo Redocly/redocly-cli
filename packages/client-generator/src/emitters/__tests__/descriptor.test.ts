@@ -127,7 +127,7 @@ describe('descriptorStatements', () => {
           op('use', {
             path: '/u/{id}',
             pathParams: [param('id', 'path', true)],
-            security: ['bearerAuth'],
+            security: [['bearerAuth']],
             successResponses: [JSON_OK],
           }),
         ],
@@ -135,7 +135,7 @@ describe('descriptorStatements', () => {
       )
     );
     expect(out).toContain(
-      'use_2: { id: "use", method: "GET", path: "/u/{id}", params: [{ name: "id", in: "path" }], security: [{ scheme: "bearerAuth", kind: "bearer" }] }'
+      'use_2: { id: "use", method: "GET", path: "/u/{id}", params: [{ name: "id", in: "path" }], security: [[{ scheme: "bearerAuth", kind: "bearer" }]] }'
     );
   });
 
@@ -257,7 +257,7 @@ describe('descriptorStatements', () => {
 
   it('denormalizes security from the model schemes, skipping unknown keys', () => {
     const out = emitDescriptors(
-      modelWith([op('getOrder', { security: ['bearerAuth', 'apiCookie', 'ghost'] })], {
+      modelWith([op('getOrder', { security: [['bearerAuth', 'apiCookie', 'ghost']] })], {
         securitySchemes: [
           { kind: 'bearer', key: 'bearerAuth' },
           { kind: 'apiKeyCookie', key: 'apiCookie', cookieName: 'sid' },
@@ -265,14 +265,14 @@ describe('descriptorStatements', () => {
       })
     );
     expect(out).toContain(
-      'security: [{ scheme: "bearerAuth", kind: "bearer" }, { scheme: "apiCookie", kind: "apiKey", name: "sid", in: "cookie" }]'
+      'security: [[{ scheme: "bearerAuth", kind: "bearer" }, { scheme: "apiCookie", kind: "apiKey", name: "sid", in: "cookie" }]]'
     );
     expect(out).not.toContain('ghost');
   });
 
   it('covers basic, apiKey header, and apiKey query schemes', () => {
     const out = emitDescriptors(
-      modelWith([op('getOrder', { security: ['basicAuth', 'apiHeader', 'apiQuery'] })], {
+      modelWith([op('getOrder', { security: [['basicAuth', 'apiHeader', 'apiQuery']] })], {
         securitySchemes: [
           { kind: 'basic', key: 'basicAuth' },
           { kind: 'apiKeyHeader', key: 'apiHeader', headerName: 'X-Key' },

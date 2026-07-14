@@ -20,7 +20,7 @@ const getOrder = operation({
   queryParams: [param('expand', 'query')],
   successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
   errorResponses: [response({ status: 400, schema: { kind: 'ref', name: 'Problem' } })],
-  security: ['bearerAuth'],
+  security: [['bearerAuth']],
   tags: ['Orders'],
 });
 const createPet = operation({
