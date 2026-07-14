@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.39.0 (2026-07-13)
+
+### Minor Changes
+
+- Added support for AsyncAPI 3.1.0 descriptions.
+- Fixed the `struct` rule to validate the contents of AsyncAPI protocol-specific bindings.
+  Added typed definitions for the `sns`, `sqs`, `ibmmq`, `googlepubsub`, `pulsar` and `ros2` bindings.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.39.0.
+
 ## 2.38.0 (2026-07-08)
 
 ### Minor Changes
