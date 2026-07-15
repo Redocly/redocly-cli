@@ -115,11 +115,7 @@ describe('generate-client zod generator', () => {
                 content:
                   application/json:
                     schema:
-                      type: object
-                      required: [name, quantity]
-                      properties:
-                        name: { type: string }
-                        quantity: { type: integer, minimum: 1 }
+                      $ref: '#/components/schemas/OrderInput'
               responses:
                 '200':
                   description: ok
@@ -135,6 +131,22 @@ describe('generate-client zod generator', () => {
               operationId: health
               responses:
                 '204': { description: no content }
+        components:
+          schemas:
+            OrderBase:
+              type: object
+              properties:
+                id: { type: string, readOnly: true }
+            OrderInput:
+              # allOf with a readOnly field: the derived request schema must distribute
+              # the omission into the intersection members (ZodIntersection has no .omit).
+              allOf:
+                - $ref: '#/components/schemas/OrderBase'
+                - type: object
+                  required: [name, quantity]
+                  properties:
+                    name: { type: string }
+                    quantity: { type: integer, minimum: 1 }
       `
     );
     const generated = spawnSync(
@@ -236,6 +248,7 @@ describe('generate-client zod generator', () => {
           strict: true,
           skipLibCheck: true,
           types: [],
+          declaration: true,
         },
         include: ['client.ts', 'client.zod.ts', 'driver.ts'],
       }),

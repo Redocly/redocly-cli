@@ -283,12 +283,87 @@ describe('renderZodModule — operation validation surface', () => {
         successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
       })
     );
-    expect(out).toContain('export const operationSchemas = {');
+    expect(out).toContain('export const operationSchemas: {');
     expect(out).toContain(
       'createOrder: { request: z.lazy(() => OrderInputSchema), response: z.lazy(() => OrderSchema) }'
     );
     expect(out).toContain('export function zodValidation(');
     expect(out).toContain('export class ZodValidationError extends Error {');
+  });
+
+  it('annotates the map with z.ZodType so declaration emit stays small (TS7056)', () => {
+    const out = renderZodModule(
+      model({
+        name: 'createOrder',
+        method: 'post',
+        requestBody: {
+          contentType: 'application/json',
+          schema: { kind: 'ref', name: 'OrderInput' },
+          required: true,
+        },
+        successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
+      })
+    );
+    expect(out).toContain(
+      'createOrder: {\n        request: z.ZodType;\n        response: z.ZodType;\n    };'
+    );
+  });
+
+  it('distributes a readOnly omit into an allOf intersection instead of calling .omit on it', () => {
+    const out = renderZodModule(
+      apiModel({
+        schemas: [
+          {
+            name: 'Base',
+            schema: {
+              kind: 'object',
+              properties: [
+                { name: 'id', schema: { kind: 'scalar', scalar: 'string' }, required: true },
+                { name: 'name', schema: { kind: 'scalar', scalar: 'string' }, required: true },
+              ],
+            },
+          },
+          {
+            name: 'Combined',
+            schema: {
+              kind: 'intersection',
+              members: [
+                { kind: 'ref', name: 'Base' },
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'extra',
+                      schema: { kind: 'scalar', scalar: 'string' },
+                      required: false,
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+        services: [
+          {
+            name: 'Default',
+            operations: [
+              operation({
+                name: 'createCombined',
+                method: 'post',
+                requestBody: {
+                  contentType: 'application/json',
+                  schema: { kind: 'omit', base: 'Combined', keys: ['id'] },
+                  required: true,
+                },
+              }),
+            ],
+          },
+        ],
+      })
+    );
+    // ZodIntersection has no .omit — the omission lands on the object members instead.
+    expect(out).not.toContain('CombinedSchema.omit');
+    expect(out).toContain('BaseSchema.omit({ id: true })');
   });
 
   it('renders an inline (non-ref) body schema in place', () => {

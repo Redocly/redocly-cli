@@ -64,21 +64,28 @@ function literalExpression(value: string | number | boolean): ts.Expression {
   return numberLiteral(value);
 }
 
+type SchemaByName = ReadonlyMap<string, SchemaModel>;
+
+const NO_SCHEMAS: SchemaByName = new Map();
+
 /** Map an IR schema to the Zod expression that validates it. */
-export function schemaToZodExpression(schema: SchemaModel): ts.Expression {
-  return withRefinements(baseExpression(schema), schema);
+export function schemaToZodExpression(
+  schema: SchemaModel,
+  byName: SchemaByName = NO_SCHEMAS
+): ts.Expression {
+  return withRefinements(baseExpression(schema, byName), schema);
 }
 
-function baseExpression(schema: SchemaModel): ts.Expression {
+function baseExpression(schema: SchemaModel, byName: SchemaByName): ts.Expression {
   switch (schema.kind) {
     case 'scalar':
       return scalarExpression(schema.scalar, schema.metadata);
     case 'object':
-      return objectExpression(schema.properties);
+      return objectExpression(schema.properties, byName);
     case 'array':
-      return zCall('array', [schemaToZodExpression(schema.items)]);
+      return zCall('array', [schemaToZodExpression(schema.items, byName)]);
     case 'record':
-      return zCall('record', [zCall('string'), schemaToZodExpression(schema.value)]);
+      return zCall('record', [zCall('string'), schemaToZodExpression(schema.value, byName)]);
     case 'ref':
       return lazyRef(schema.name);
     case 'literal':
@@ -86,15 +93,15 @@ function baseExpression(schema: SchemaModel): ts.Expression {
     case 'enum':
       return enumExpression(schema.values);
     case 'union':
-      return unionExpression(schema.members);
+      return unionExpression(schema.members, byName);
     case 'intersection':
-      return intersectionExpression(schema.members);
+      return intersectionExpression(schema.members, byName);
     case 'null':
       return zCall('null');
     case 'unknown':
       return zCall('unknown');
     case 'omit':
-      return omitExpression(schema.base, schema.keys);
+      return omitExpression(schema.base, schema.keys, byName);
   }
 }
 
@@ -117,11 +124,11 @@ function scalarExpression(scalar: ScalarKind, metadata?: SchemaMetadata): ts.Exp
 }
 
 /** `z.object({ <key>: <expr>(.optional() when !required), … })`. */
-function objectExpression(properties: PropertyModel[]): ts.Expression {
+function objectExpression(properties: PropertyModel[], byName: SchemaByName): ts.Expression {
   const props = properties.map((p) => {
     const value = p.required
-      ? schemaToZodExpression(p.schema)
-      : chain(schemaToZodExpression(p.schema), 'optional');
+      ? schemaToZodExpression(p.schema, byName)
+      : chain(schemaToZodExpression(p.schema, byName), 'optional');
     const safe = safeIdent(p.name);
     const key =
       safe === p.name ? factory.createIdentifier(p.name) : factory.createStringLiteral(p.name);
@@ -162,20 +169,28 @@ function enumExpression(values: Array<string | number | boolean>): ts.Expression
 }
 
 /** `z.union([…])`; a single member collapses to that member's expression. */
-function unionExpression(members: SchemaModel[]): ts.Expression {
-  const exprs = members.map(schemaToZodExpression);
+function unionExpression(members: SchemaModel[], byName: SchemaByName): ts.Expression {
+  const exprs = members.map((member) => schemaToZodExpression(member, byName));
   if (exprs.length === 1) return exprs[0];
   return zCall('union', [factory.createArrayLiteralExpression(exprs, false)]);
 }
 
 /** `a.and(b).and(c)` — left-folds `.and` over the members. */
-function intersectionExpression(members: SchemaModel[]): ts.Expression {
-  const exprs = members.map(schemaToZodExpression);
+function intersectionExpression(members: SchemaModel[], byName: SchemaByName): ts.Expression {
+  const exprs = members.map((member) => schemaToZodExpression(member, byName));
   return exprs.reduce((acc, next) => chain(acc, 'and', [next]));
 }
 
-/** `<Base>Schema.omit({ k1: true, … })`. */
-function omitExpression(base: string, keys: string[]): ts.Expression {
+/**
+ * `<Base>Schema.omit({ k1: true, … })` when the base is a plain object schema.
+ * `.omit` exists only on `ZodObject` — for any other base (an `allOf` intersection,
+ * a union, …) the omission is distributed into the base's object members instead.
+ */
+function omitExpression(base: string, keys: string[], byName: SchemaByName): ts.Expression {
+  const target = byName.get(base);
+  if (target && target.kind !== 'object') {
+    return schemaToZodExpression(applyOmit(target, keys, byName, new Set([base])), byName);
+  }
   const mask = factory.createObjectLiteralExpression(
     keys.map((k) => {
       const safe = safeIdent(k);
@@ -185,6 +200,44 @@ function omitExpression(base: string, keys: string[]): ts.Expression {
     false
   );
   return chain(factory.createIdentifier(schemaConstName(base)), 'omit', [mask]);
+}
+
+/**
+ * Remove `keys` from a schema that is not a plain object: objects drop the properties,
+ * union/intersection members recurse, and a ref to an object becomes `<Ref>Schema.omit`
+ * with only the keys that exist on it (zod's mask rejects unknown keys at the type
+ * level). Cycles and non-object leaves return unchanged — there is nothing to omit.
+ */
+function applyOmit(
+  schema: SchemaModel,
+  keys: string[],
+  byName: SchemaByName,
+  seen: Set<string>
+): SchemaModel {
+  switch (schema.kind) {
+    case 'object':
+      return { ...schema, properties: schema.properties.filter((p) => !keys.includes(p.name)) };
+    case 'union':
+    case 'intersection':
+      return {
+        ...schema,
+        members: schema.members.map((member) => applyOmit(member, keys, byName, seen)),
+      };
+    case 'ref': {
+      if (seen.has(schema.name)) return schema;
+      const target = byName.get(schema.name);
+      if (!target) return schema;
+      if (target.kind === 'object') {
+        const present = keys.filter((key) =>
+          target.properties.some((property) => property.name === key)
+        );
+        return present.length > 0 ? { kind: 'omit', base: schema.name, keys: present } : schema;
+      }
+      return applyOmit(target, keys, byName, new Set([...seen, schema.name]));
+    }
+    default:
+      return schema;
+  }
 }
 
 /**
@@ -229,7 +282,7 @@ function regexExpression(pattern: string): ts.Expression {
 }
 
 /** `export const <Name>Schema = <expr>;` for one named schema. */
-function schemaConstStatement(named: NamedSchemaModel): ts.Statement {
+function schemaConstStatement(named: NamedSchemaModel, byName: SchemaByName): ts.Statement {
   return factory.createVariableStatement(
     [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
     factory.createVariableDeclarationList(
@@ -238,7 +291,7 @@ function schemaConstStatement(named: NamedSchemaModel): ts.Statement {
           schemaConstName(named.name),
           undefined,
           undefined,
-          schemaToZodExpression(named.schema)
+          schemaToZodExpression(named.schema, byName)
         ),
       ],
       ts.NodeFlags.Const
@@ -267,31 +320,64 @@ function zodImport(): ts.Statement {
  * middleware sees at runtime (`ctx.operation.id`). SSE, binary, text, and void bodies
  * have no JSON payload to validate and are skipped.
  */
-function operationSchemaEntries(model: ApiModel): ts.PropertyAssignment[] {
-  const entries: ts.PropertyAssignment[] = [];
+type OperationSchemaEntry = { name: string; request?: ts.Expression; response?: ts.Expression };
+
+function operationSchemaEntries(model: ApiModel, byName: SchemaByName): OperationSchemaEntry[] {
+  const entries: OperationSchemaEntry[] = [];
   for (const op of allOperations(model.services)) {
     if (isSseOp(op)) continue;
     const requestBody = op.requestBody;
     const request =
       requestBody && requestBody.contentType.toLowerCase().includes('json')
-        ? schemaToZodExpression(requestBody.schema)
+        ? schemaToZodExpression(requestBody.schema, byName)
         : undefined;
     const jsonResponse = op.successResponses.find((response) =>
       response.contentType.toLowerCase().includes('json')
     );
-    const response = jsonResponse ? schemaToZodExpression(jsonResponse.schema) : undefined;
+    const response = jsonResponse ? schemaToZodExpression(jsonResponse.schema, byName) : undefined;
     if (!request && !response) continue;
-    const props: ts.PropertyAssignment[] = [];
-    if (request) props.push(factory.createPropertyAssignment('request', request));
-    if (response) props.push(factory.createPropertyAssignment('response', response));
-    entries.push(
-      factory.createPropertyAssignment(op.name, factory.createObjectLiteralExpression(props, false))
-    );
+    entries.push({ name: op.name, request, response });
   }
   return entries;
 }
 
-function operationSchemasStatement(entries: ts.PropertyAssignment[]): ts.Statement {
+function operationSchemasStatement(entries: OperationSchemaEntry[]): ts.Statement {
+  const zodTypeNode = () =>
+    factory.createTypeReferenceNode(
+      factory.createQualifiedName(factory.createIdentifier('z'), 'ZodType')
+    );
+  // The explicit `z.ZodType` annotation keeps the declaration-emit size proportional to
+  // the operation count: the inferred type would serialize every schema's zod generics
+  // and overflow tsc's limit (TS7056) on large APIs under `declaration: true`.
+  const typeMembers = entries.map((entry) =>
+    factory.createPropertySignature(
+      undefined,
+      entry.name,
+      undefined,
+      factory.createTypeLiteralNode(
+        [
+          entry.request
+            ? factory.createPropertySignature(undefined, 'request', undefined, zodTypeNode())
+            : undefined,
+          entry.response
+            ? factory.createPropertySignature(undefined, 'response', undefined, zodTypeNode())
+            : undefined,
+        ].filter((member) => member !== undefined)
+      )
+    )
+  );
+  const valueEntries = entries.map((entry) =>
+    factory.createPropertyAssignment(
+      entry.name,
+      factory.createObjectLiteralExpression(
+        [
+          entry.request ? factory.createPropertyAssignment('request', entry.request) : undefined,
+          entry.response ? factory.createPropertyAssignment('response', entry.response) : undefined,
+        ].filter((property) => property !== undefined),
+        false
+      )
+    )
+  );
   return jsdoc(
     factory.createVariableStatement(
       [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
@@ -300,8 +386,8 @@ function operationSchemasStatement(entries: ts.PropertyAssignment[]): ts.Stateme
           factory.createVariableDeclaration(
             'operationSchemas',
             undefined,
-            undefined,
-            factory.createObjectLiteralExpression(entries, true)
+            factory.createTypeLiteralNode(typeMembers),
+            factory.createObjectLiteralExpression(valueEntries, true)
           ),
         ],
         ts.NodeFlags.Const
@@ -373,9 +459,13 @@ export function zodValidation(options: { request?: boolean; response?: boolean }
  * `''` when there is nothing to emit.
  */
 export function renderZodModule(model: ApiModel): string {
-  const entries = operationSchemaEntries(model);
+  const byName: SchemaByName = new Map(model.schemas.map((named) => [named.name, named.schema]));
+  const entries = operationSchemaEntries(model, byName);
   if (model.schemas.length === 0 && entries.length === 0) return '';
-  const statements: ts.Statement[] = [zodImport(), ...model.schemas.map(schemaConstStatement)];
+  const statements: ts.Statement[] = [
+    zodImport(),
+    ...model.schemas.map((named) => schemaConstStatement(named, byName)),
+  ];
   if (entries.length === 0) return printStatements(statements);
   statements.push(operationSchemasStatement(entries));
   return `${printStatements(statements)}\n${VALIDATION_SUPPORT}\n`;

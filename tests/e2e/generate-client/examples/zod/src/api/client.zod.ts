@@ -124,7 +124,38 @@ export const OrderNotificationSchema = z.object({
 /**
  * Request/response validators by operationId — powers `zodValidation`, or import one directly.
  */
-export const operationSchemas = {
+export const operationSchemas: {
+    listMenuItems: {
+        response: z.ZodType;
+    };
+    createMenuItem: {
+        response: z.ZodType;
+    };
+    listOrders: {
+        response: z.ZodType;
+    };
+    createOrder: {
+        request: z.ZodType;
+        response: z.ZodType;
+    };
+    getOrderById: {
+        response: z.ZodType;
+    };
+    updateOrder: {
+        request: z.ZodType;
+        response: z.ZodType;
+    };
+    listOrderItems: {
+        response: z.ZodType;
+    };
+    getRevenue: {
+        response: z.ZodType;
+    };
+    registerOAuth2Client: {
+        request: z.ZodType;
+        response: z.ZodType;
+    };
+} = {
     listMenuItems: { response: z.lazy(() => MenuItemListSchema) },
     createMenuItem: { response: z.lazy(() => MenuItemSchema) },
     listOrders: { response: z.lazy(() => OrderListSchema) },
