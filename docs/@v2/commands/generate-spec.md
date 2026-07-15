@@ -10,9 +10,6 @@ Its behavior, command, flags, and output may change in future releases.
 The `generate-spec` command generates OpenAPI 3.1 descriptions only.
 {% /admonition %}
 
-Traffic alone can only ever produce a hypothesis about an API's real shape: types are coarse, every observed property looks required, and there are no descriptions, enums, or formats.
-The `generate-spec` command first builds that hypothesis deterministically, then can hand it to an AI provider together with real sample exchanges to narrow it toward the true definition.
-
 ## Supported traffic formats
 
 The traffic input can be provided in any of the following formats.
@@ -26,37 +23,16 @@ By default the format is detected automatically from the file contents:
 
 Traffic parsing is shared with the [`drift`](./drift.md) command, so any log that works with `drift` works here too.
 
-## Deterministic inference
+## How it works
 
-The baseline description is derived from every exchange in the traffic:
+The baseline description is inferred directly from the recorded exchanges: identifier-like path segments become named path parameters, request and response schemas are merged across all observations, repeated object shapes are extracted into `components/schemas`, and consistently formatted string values get `format` or `enum` hints.
 
-- Identifier-like path segments (numeric, UUID, ULID, cuid, prefixed and opaque tokens) become named path parameters.
-- Body schemas are merged across all observations; a property becomes optional as soon as one sample omits it.
-- Alternative body shapes for the same operation are preserved as `oneOf` variants, and values observed as `null` produce type unions such as `["string", "null"]`.
-- Object shapes that repeat across the document are extracted into `components/schemas` and referenced with `$ref`.
-- String values are analyzed conservatively: properties whose values consistently match a well-known pattern get a `format` (`uuid`, `date-time`, `date`, `email`, `uri`, `ipv4`), and strings that only take a small, repeated set of identifier-like values become an `enum`.
-- Responses that were never received (status `0` in HAR captures) are ignored.
+A description inferred from traffic alone is a hypothesis: types are coarse and there are no descriptions, enums, or examples beyond what was observed.
+With `--with-ai`, the command sends each operation together with sample exchanges to an AI provider, which narrows types and adds formats, enums, descriptions, and examples.
 
-## AI refinement
-
-With `--with-ai`, the description is refined one operation at a time, so prompts stay small no matter how large the recorded traffic or the resulting description is.
-Each prompt carries a single operation from the baseline, the component schemas it references, and a capped, shape-diverse sample of the real exchanges recorded for that operation.
-The AI is instructed to narrow types, add formats, enums, descriptions and examples, refine or add `components/schemas`, and model alternative payloads explicitly with `oneOf` (plus `discriminator`) and `allOf` composition.
-
-Up to `--ai-concurrency` operations are refined in parallel, and every accepted refinement is merged back as it arrives.
-
-The AI's answer is never trusted blindly.
-A refined operation is only accepted when it:
-
-- keeps the exact path template and method — the AI cannot invent, drop, or rename operations;
-- keeps every response status code observed in the traffic;
-- passes validation with the `spec` ruleset.
-
-An operation whose refinement is rejected keeps its deterministic baseline (reported with the reason), and the final document is linted again as a whole.
-If refinement fails for every operation, the command falls back to the deterministic baseline.
-
-The acceptance lint is intentionally pinned to the `spec` ruleset and does not use the project's `redocly.yaml`.
-Lint the generated description with your own configuration afterward.
+The AI's answer is never trusted blindly: a refined operation is only accepted when it keeps the operation's path, method, and observed response status codes, and passes validation with the `spec` ruleset.
+Rejected refinements keep their baseline version, and if refinement fails entirely the command falls back to the baseline description.
+The validation uses the built-in `spec` ruleset, not your project's `redocly.yaml` — lint the generated description with your own configuration afterward.
 
 {% admonition type="warning" name="Data sharing" %}
 `--with-ai` sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider.
@@ -65,13 +41,11 @@ Make sure the traffic contains no secrets or personal data you are not allowed t
 
 ### AI providers
 
-Every provider runs a locally installed CLI, which must be installed and authenticated on the machine running the command.
-The provider CLI is spawned in an empty temporary directory, so project context the CLIs normally auto-load from the working directory (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`) never enters the prompts.
+Refinement runs a locally installed AI CLI in non-interactive mode: `claude` (Claude Code), `codex` (Codex CLI), or `cursor` (Cursor CLI).
+The selected CLI must be installed and authenticated on the machine running the command.
 
-- `claude` — runs the `claude` CLI in headless mode (`claude -p`), with built-in tools, MCP servers, settings, and session persistence disabled so every call is a plain completion.
-  Because settings are not loaded, a model configured there does not apply: pass `--ai-model`, or the CLI's built-in default model is used.
-- `codex` — runs the `codex` CLI in non-interactive mode (`codex exec`) with MCP servers and `AGENTS.md` discovery disabled and a read-only sandbox.
-- `cursor` — runs the Cursor CLI in print mode (`cursor-agent -p`).
+The provider runs in isolation: project context the CLIs normally load (such as `CLAUDE.md`, `AGENTS.md`, or `.cursor/rules`) and settings like a configured model do not apply.
+Use `--ai-model` to choose a model, or the provider's default is used.
 
 ## Usage
 
@@ -125,8 +99,7 @@ redocly generate-spec ./traffic.har --with-ai --ai-provider claude -o ./openapi.
 
 ### Speed up refinement for large APIs
 
-Total time is roughly the per-operation AI time multiplied by the number of operations and divided by `--ai-concurrency`.
-Raise the concurrency and pick a faster model to shorten the run:
+For descriptions with many operations, raise the concurrency and pick a faster model to shorten the run:
 
 ```bash
 redocly generate-spec ./traffic-logs/ --with-ai --ai-concurrency 12 --ai-model claude-sonnet-5 -o ./openapi.yaml
