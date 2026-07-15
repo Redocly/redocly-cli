@@ -129,7 +129,7 @@ Total time is roughly the per-operation AI time multiplied by the number of oper
 Raise the concurrency and pick a faster model to shorten the run:
 
 ```bash
-redocly generate-spec ./traffic-logs/ --with-ai --ai-concurrency 12 --ai-model claude-haiku-4-5 -o ./openapi.yaml
+redocly generate-spec ./traffic-logs/ --with-ai --ai-concurrency 12 --ai-model claude-sonnet-5 -o ./openapi.yaml
 ```
 
 ### Capture traffic and generate a description
