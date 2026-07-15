@@ -1,10 +1,11 @@
 import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { printStatements } from '../ts.js';
-import { renderZodModule, schemaToZodExpression, zodModuleStatements } from '../zod.js';
+import { renderZodModule, schemaToZodExpression } from '../zod.js';
+import { apiModel, operation, response } from './fixtures.js';
 
 /** Print a single expression by wrapping it in a throwaway const. */
 function expr(schema: SchemaModel): string {
-  return renderZodModule([{ name: 'X', schema }])
+  return renderZodModule(apiModel({ schemas: [{ name: 'X', schema }] }))
     .split('= ')[1]
     .replace(/;$/, '');
 }
@@ -239,8 +240,8 @@ describe('schemaToZodExpression — refinements', () => {
 });
 
 describe('renderZodModule', () => {
-  it('returns empty string when there are no schemas', () => {
-    expect(renderZodModule([])).toBe('');
+  it('returns empty string when there is nothing to emit', () => {
+    expect(renderZodModule(apiModel())).toBe('');
   });
 
   it('emits the z import and one export const per schema', () => {
@@ -256,16 +257,92 @@ describe('renderZodModule', () => {
         },
       },
     ];
-    const out = renderZodModule(schemas);
+    const out = renderZodModule(apiModel({ schemas }));
     expect(out).toContain('import { z } from "zod";');
     expect(out).toContain('export const PetSchema = z.object({');
+    // No operation has a JSON body -> no validation surface.
+    expect(out).not.toContain('operationSchemas');
+    expect(out).not.toContain('zodValidation');
+  });
+});
+
+describe('renderZodModule — operation validation surface', () => {
+  const model = (op: Parameters<typeof operation>[0]) =>
+    apiModel({ services: [{ name: 'Default', operations: [operation(op)] }] });
+
+  it('maps a JSON request body and response by operationId and emits the middleware', () => {
+    const out = renderZodModule(
+      model({
+        name: 'createOrder',
+        method: 'post',
+        requestBody: {
+          contentType: 'application/json',
+          schema: { kind: 'ref', name: 'OrderInput' },
+          required: true,
+        },
+        successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
+      })
+    );
+    expect(out).toContain('export const operationSchemas = {');
+    expect(out).toContain(
+      'createOrder: { request: z.lazy(() => OrderInputSchema), response: z.lazy(() => OrderSchema) }'
+    );
+    expect(out).toContain('export function zodValidation(');
+    expect(out).toContain('export class ZodValidationError extends Error {');
   });
 
-  it('zodModuleStatements + printStatements matches renderZodModule', () => {
-    const schemas: NamedSchemaModel[] = [
-      { name: 'Foo', schema: { kind: 'scalar', scalar: 'string' } },
-    ];
-    expect(printStatements(zodModuleStatements(schemas))).toBe(renderZodModule(schemas));
+  it('renders an inline (non-ref) body schema in place', () => {
+    const out = renderZodModule(
+      model({
+        name: 'ping',
+        successResponses: [
+          response({
+            schema: {
+              kind: 'object',
+              properties: [
+                { name: 'ok', schema: { kind: 'scalar', scalar: 'boolean' }, required: true },
+              ],
+            },
+          }),
+        ],
+      })
+    );
+    expect(out).toContain('ping: { response: z.object(');
+  });
+
+  it('skips SSE operations and non-JSON bodies', () => {
+    const out = renderZodModule(
+      apiModel({
+        schemas: [{ name: 'Keep', schema: { kind: 'scalar', scalar: 'string' } }],
+        services: [
+          {
+            name: 'Default',
+            operations: [
+              operation({
+                name: 'stream',
+                successResponses: [
+                  response({
+                    contentType: 'text/event-stream',
+                    schema: { kind: 'ref', name: 'Keep' },
+                  }),
+                ],
+              }),
+              operation({
+                name: 'upload',
+                method: 'post',
+                requestBody: {
+                  contentType: 'application/octet-stream',
+                  schema: { kind: 'scalar', scalar: 'string' },
+                  required: true,
+                },
+              }),
+            ],
+          },
+        ],
+      })
+    );
+    expect(out).toContain('export const KeepSchema');
+    expect(out).not.toContain('operationSchemas');
   });
 });
 

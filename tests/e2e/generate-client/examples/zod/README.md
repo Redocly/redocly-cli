@@ -1,7 +1,8 @@
 # zod example
 
-Generated TypeScript client plus **zod** schemas (`generators: ['sdk', 'zod']`). The app fetches with
-the sdk, then validates the response at runtime against the generated `*.zod` schema.
+Generated TypeScript client plus **zod** schemas (`generators: ['sdk', 'zod']`).
+The app turns on `zodValidation()` — request bodies and JSON responses are validated
+against the generated schemas on every call — and also uses a schema directly.
 
 ## Run
 

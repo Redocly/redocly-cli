@@ -1,6 +1,8 @@
 // Emits Zod schemas from the IR. Each named schema becomes an
 // `export const <Name>Schema = z.<…>;` built with `ts.factory`, mirroring the
 // type emitter (`types.ts`) but targeting runtime validators instead of types.
+// Operations with a JSON request or response body additionally land in the
+// `operationSchemas` map, which powers the `zodValidation` client middleware.
 //
 // Only the refinement methods stable across zod 3.23 and 4 are emitted
 // (`.min/.max/.int/.gt/.lt/.regex`); format helpers (`.email/.uuid/.url`) diverge
@@ -8,15 +10,18 @@
 // which sidesteps declaration ordering and recursion uniformly.
 
 import type {
+  ApiModel,
   NamedSchemaModel,
   PropertyModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
 } from '../intermediate-representation/model.js';
+import { allOperations } from '../writers/util.js';
 import { safeIdent } from './identifier.js';
+import { isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
-import { printStatements, ts } from './ts.js';
+import { jsdoc, printStatements, ts } from './ts.js';
 
 const { factory } = ts;
 
@@ -256,13 +261,122 @@ function zodImport(): ts.Statement {
   );
 }
 
-/** The zod module statements: the `z` import followed by one const per schema. */
-export function zodModuleStatements(schemas: NamedSchemaModel[]): ts.Statement[] {
-  return [zodImport(), ...schemas.map(schemaConstStatement)];
+/**
+ * `<opName>: { request?: <expr>, response?: <expr> }` for every non-SSE operation with a
+ * JSON request or response body — the operation's validators, keyed by the same id the
+ * middleware sees at runtime (`ctx.operation.id`). SSE, binary, text, and void bodies
+ * have no JSON payload to validate and are skipped.
+ */
+function operationSchemaEntries(model: ApiModel): ts.PropertyAssignment[] {
+  const entries: ts.PropertyAssignment[] = [];
+  for (const op of allOperations(model.services)) {
+    if (isSseOp(op)) continue;
+    const requestBody = op.requestBody;
+    const request =
+      requestBody && requestBody.contentType.toLowerCase().includes('json')
+        ? schemaToZodExpression(requestBody.schema)
+        : undefined;
+    const jsonResponse = op.successResponses.find((response) =>
+      response.contentType.toLowerCase().includes('json')
+    );
+    const response = jsonResponse ? schemaToZodExpression(jsonResponse.schema) : undefined;
+    if (!request && !response) continue;
+    const props: ts.PropertyAssignment[] = [];
+    if (request) props.push(factory.createPropertyAssignment('request', request));
+    if (response) props.push(factory.createPropertyAssignment('response', response));
+    entries.push(
+      factory.createPropertyAssignment(op.name, factory.createObjectLiteralExpression(props, false))
+    );
+  }
+  return entries;
 }
 
-/** Render the full zod module source. `''` when there are no schemas. */
-export function renderZodModule(schemas: NamedSchemaModel[]): string {
-  if (schemas.length === 0) return '';
-  return printStatements(zodModuleStatements(schemas));
+function operationSchemasStatement(entries: ts.PropertyAssignment[]): ts.Statement {
+  return jsdoc(
+    factory.createVariableStatement(
+      [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      factory.createVariableDeclarationList(
+        [
+          factory.createVariableDeclaration(
+            'operationSchemas',
+            undefined,
+            undefined,
+            factory.createObjectLiteralExpression(entries, true)
+          ),
+        ],
+        ts.NodeFlags.Const
+      )
+    ),
+    'Request/response validators by operationId — powers `zodValidation`, or import one directly.'
+  );
+}
+
+// The validation middleware, spliced verbatim after the schemas (matches the printer's
+// double-quote/4-space style). Structurally compatible with the client's `Middleware`
+// without importing it, so the zod module keeps its single `zod` dependency.
+const VALIDATION_SUPPORT = `/** \`request\`/\`response\` validators for one operation (an absent side is not validated). */
+export type OperationSchemaSet = { request?: z.ZodType; response?: z.ZodType };
+
+const schemaIndex: Partial<Record<string, OperationSchemaSet>> = operationSchemas;
+
+/** A request or response payload failed validation. Always thrown, even on result-mode clients. */
+export class ZodValidationError extends Error {
+    constructor(
+        readonly operationId: string,
+        readonly direction: "request" | "response",
+        readonly issues: z.ZodError["issues"]
+    ) {
+        const detail = issues
+            .map((issue) => \`\${issue.path.join(".") || "(root)"}: \${issue.message}\`)
+            .join("; ");
+        super(\`\${direction === "request" ? "Request" : "Response"} validation failed for operation "\${operationId}": \${detail}\`);
+        this.name = "ZodValidationError";
+    }
+}
+
+/**
+ * Schema-validation middleware for the generated client: \`use(zodValidation())\`.
+ * Request bodies are validated before any network call; successful JSON responses are
+ * validated against the operation's response schema. Payloads are never mutated, and
+ * operations without a schema pass through untouched. A failure throws
+ * \`ZodValidationError\` — always, even on result-mode clients.
+ */
+export function zodValidation(options: { request?: boolean; response?: boolean } = {}) {
+    const { request = true, response = true } = options;
+    return {
+        onRequest(context: { body?: unknown; operation: { id: string } }): void {
+            if (!request || context.body === undefined) return;
+            const schema = schemaIndex[context.operation.id]?.request;
+            if (!schema) return;
+            const result = schema.safeParse(context.body);
+            if (!result.success) {
+                throw new ZodValidationError(context.operation.id, "request", result.error.issues);
+            }
+        },
+        async onResponse(incoming: Response, context: { operation: { id: string } }): Promise<void> {
+            if (!response || !incoming.ok) return;
+            const schema = schemaIndex[context.operation.id]?.response;
+            if (!schema) return;
+            const contentType = (incoming.headers.get("content-type") ?? "").toLowerCase();
+            if (!contentType.includes("json")) return;
+            const result = schema.safeParse(await incoming.clone().json());
+            if (!result.success) {
+                throw new ZodValidationError(context.operation.id, "response", result.error.issues);
+            }
+        },
+    };
+}`;
+
+/**
+ * Render the full zod module source: the component schemas, then — when any operation
+ * has a JSON body — the `operationSchemas` map and the `zodValidation` middleware.
+ * `''` when there is nothing to emit.
+ */
+export function renderZodModule(model: ApiModel): string {
+  const entries = operationSchemaEntries(model);
+  if (model.schemas.length === 0 && entries.length === 0) return '';
+  const statements: ts.Statement[] = [zodImport(), ...model.schemas.map(schemaConstStatement)];
+  if (entries.length === 0) return printStatements(statements);
+  statements.push(operationSchemasStatement(entries));
+  return `${printStatements(statements)}\n${VALIDATION_SUPPORT}\n`;
 }

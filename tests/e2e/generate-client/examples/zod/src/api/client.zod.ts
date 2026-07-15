@@ -120,3 +120,72 @@ export const OrderNotificationSchema = z.object({
     orderStatus: z.lazy(() => OrderStatusSchema),
     timestamp: z.string()
 });
+
+/**
+ * Request/response validators by operationId — powers `zodValidation`, or import one directly.
+ */
+export const operationSchemas = {
+    listMenuItems: { response: z.lazy(() => MenuItemListSchema) },
+    createMenuItem: { response: z.lazy(() => MenuItemSchema) },
+    listOrders: { response: z.lazy(() => OrderListSchema) },
+    createOrder: { request: OrderSchema.omit({ id: true, object: true, status: true, totalPrice: true, createdAt: true, updatedAt: true }), response: z.lazy(() => OrderSchema) },
+    getOrderById: { response: z.lazy(() => OrderSchema) },
+    updateOrder: { request: z.object({
+            status: z.lazy(() => OrderStatusSchema)
+        }), response: z.lazy(() => OrderSchema) },
+    listOrderItems: { response: z.array(z.lazy(() => OrderItemSchema)) },
+    getRevenue: { response: z.lazy(() => RevenueStatisticsSchema) },
+    registerOAuth2Client: { request: z.lazy(() => RegisterClientObjectSchema), response: z.lazy(() => OAuth2ClientSchema) }
+};
+/** `request`/`response` validators for one operation (an absent side is not validated). */
+export type OperationSchemaSet = { request?: z.ZodType; response?: z.ZodType };
+
+const schemaIndex: Partial<Record<string, OperationSchemaSet>> = operationSchemas;
+
+/** A request or response payload failed validation. Always thrown, even on result-mode clients. */
+export class ZodValidationError extends Error {
+    constructor(
+        readonly operationId: string,
+        readonly direction: "request" | "response",
+        readonly issues: z.ZodError["issues"]
+    ) {
+        const detail = issues
+            .map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`)
+            .join("; ");
+        super(`${direction === "request" ? "Request" : "Response"} validation failed for operation "${operationId}": ${detail}`);
+        this.name = "ZodValidationError";
+    }
+}
+
+/**
+ * Schema-validation middleware for the generated client: `use(zodValidation())`.
+ * Request bodies are validated before any network call; successful JSON responses are
+ * validated against the operation's response schema. Payloads are never mutated, and
+ * operations without a schema pass through untouched. A failure throws
+ * `ZodValidationError` — always, even on result-mode clients.
+ */
+export function zodValidation(options: { request?: boolean; response?: boolean } = {}) {
+    const { request = true, response = true } = options;
+    return {
+        onRequest(context: { body?: unknown; operation: { id: string } }): void {
+            if (!request || context.body === undefined) return;
+            const schema = schemaIndex[context.operation.id]?.request;
+            if (!schema) return;
+            const result = schema.safeParse(context.body);
+            if (!result.success) {
+                throw new ZodValidationError(context.operation.id, "request", result.error.issues);
+            }
+        },
+        async onResponse(incoming: Response, context: { operation: { id: string } }): Promise<void> {
+            if (!response || !incoming.ok) return;
+            const schema = schemaIndex[context.operation.id]?.response;
+            if (!schema) return;
+            const contentType = (incoming.headers.get("content-type") ?? "").toLowerCase();
+            if (!contentType.includes("json")) return;
+            const result = schema.safeParse(await incoming.clone().json());
+            if (!result.success) {
+                throw new ZodValidationError(context.operation.id, "response", result.error.issues);
+            }
+        },
+    };
+}

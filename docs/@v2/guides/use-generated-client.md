@@ -6,14 +6,14 @@ How to consume the TypeScript client produced by [`generate-client`](../commands
 
 `--generator` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so an add-on never adds a dependency to the client. Incompatible selections fail fast with an explanation.
 
-| Generator        | Emits                                                                                     | App peer dependency                                      |
-| ---------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `sdk`            | The typed client (default).                                                               | none                                                     |
-| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas.                                       | `zod` `^3.23 \|\| ^4`                                    |
-| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories.       | `@tanstack/<framework>-query` `^5`                       |
-| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                  | `swr` `^2`                                               |
-| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.   | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
-| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`. | none                                                     |
+| Generator        | Emits                                                                                              | App peer dependency                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `sdk`            | The typed client (default).                                                                        | none                                                     |
+| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas + [validation middleware](#runtime-validation). | `zod` `^3.23 \|\| ^4`                                    |
+| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories.                | `@tanstack/<framework>-query` `^5`                       |
+| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                           | `swr` `^2`                                               |
+| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.            | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
+| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.          | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
@@ -222,6 +222,22 @@ const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 ```
 
 `parseAs` accepts `'json'`, `'text'`, `'blob'`, `'arrayBuffer'`, `'formData'`, `'stream'`, or `'auto'` (default). It changes the runtime reader only, not the static return type.
+
+## Runtime validation
+
+The `zod` generator emits `operationSchemas` — request/response validators keyed by operationId — and the `zodValidation` middleware that wires them into the client:
+
+```ts
+import { use } from './api/client';
+import { zodValidation } from './api/client.zod';
+
+use(zodValidation()); // validate request bodies and JSON responses
+```
+
+An invalid request body throws before any network call; a successful JSON response that doesn't match its schema throws after it.
+Both throw `ZodValidationError` (with `operationId`, `direction`, and the zod `issues`) — always thrown, even on result-mode clients.
+Payloads are never mutated, and operations without a JSON body pass through untouched.
+Pass `{ request: false }` or `{ response: false }` to narrow the scope, or import a schema from `operationSchemas` for a one-off check.
 
 ## Operation metadata
 

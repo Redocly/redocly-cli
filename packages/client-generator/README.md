@@ -292,6 +292,17 @@ Schemas carry the validation refinements stable across Zod 3.23 and 4 (`.min`/`.
 Refs become `z.lazy(() => …)` so recursive schemas work.
 Format helpers (`.email`/`.uuid`/`.url`) are not emitted, since they diverge between Zod 3 and 4.
 
+The module also emits `operationSchemas` (request/response validators keyed by operationId) and the `zodValidation` middleware:
+
+```ts
+import { use } from './client.ts';
+import { zodValidation } from './client.zod.ts';
+
+use(zodValidation()); // request bodies validated before the wire; JSON responses after it
+```
+
+A mismatch throws `ZodValidationError` (`operationId`, `direction`, zod `issues`); payloads are never mutated.
+
 ### TanStack Query
 
 `generators: ['sdk', 'tanstack-query']` emits a standalone `<output>.tanstack.ts` module of [TanStack Query](https://tanstack.com/query) v5 factories wrapping the sdk operations.
