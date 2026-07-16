@@ -34,7 +34,7 @@ export const NoInvalidParameterExamples: Oas3Rule | Oas2Rule = (opts) => {
                 example: selected.value,
                 schema: parameter.schema!,
                 options: {
-                  location: ctx.location.child(['examples', key]),
+                  location: ctx.location.child(['examples', key, selected.field]),
                   ctx,
                   validator,
                   allowAdditionalProperties: !!opts.allowAdditionalProperties,

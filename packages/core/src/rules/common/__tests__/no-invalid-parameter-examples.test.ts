@@ -100,7 +100,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/extraProperty",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/value/extraProperty",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
@@ -194,7 +194,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/readOnlyProp",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/value/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
@@ -247,7 +247,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/name",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/dataValue/name",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
@@ -297,7 +297,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1search/get/parameters/0/examples/invalid",
+              "pointer": "#/paths/~1search/get/parameters/0/examples/invalid/dataValue",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
@@ -346,7 +346,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/value",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
