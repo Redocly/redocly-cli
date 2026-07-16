@@ -10,6 +10,8 @@ export type GraphNode = {
   resolved: boolean;
   /** Node category in the structure view; absent in --files mode. */
   kind?: NodeKind;
+  /** The operation's `operationId`, when defined; only on `operation` nodes. */
+  operationId?: string;
   /** Cwd-relative source file the node is defined in; absent in --files mode. */
   file?: string;
 };

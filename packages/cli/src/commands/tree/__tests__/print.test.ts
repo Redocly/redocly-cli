@@ -131,6 +131,33 @@ describe('renderStylish', () => {
     `);
   });
 
+  it('shows operationId next to the method when showOperationId is set', () => {
+    const structure: DependencyGraph = {
+      roots: ['openapi.yaml'],
+      nodes: [
+        { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
+        { id: '/pets', resolved: true, kind: 'path' },
+        { id: 'GET /pets', resolved: true, kind: 'operation', operationId: 'listPets' },
+        { id: 'POST /pets', resolved: true, kind: 'operation' },
+      ],
+      edges: [
+        { from: 'openapi.yaml', to: '/pets', refs: [] },
+        { from: '/pets', to: 'GET /pets', refs: [] },
+        { from: '/pets', to: 'POST /pets', refs: [] },
+      ],
+    };
+
+    expect(renderStylish(structure, { showOperationId: true })).toMatchInlineSnapshot(`
+      "openapi.yaml
+      └── /pets
+          ├── GET (listPets)
+          └── POST"
+    `);
+
+    // Without the option the id stays hidden.
+    expect(renderStylish(structure)).not.toContain('listPets');
+  });
+
   it('cuts the tree at maxLevel and marks pruned branches with …', () => {
     const structure: DependencyGraph = {
       roots: ['openapi.yaml'],

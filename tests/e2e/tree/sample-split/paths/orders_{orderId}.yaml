@@ -1,4 +1,5 @@
 get:
+  operationId: getOrder
   summary: Get an order by id
   parameters:
     - name: orderId
@@ -14,6 +15,7 @@ get:
           schema:
             $ref: ../components/schemas/Order.yaml
 delete:
+  operationId: cancelOrder
   summary: Cancel an order by id
   parameters:
     - name: orderId
