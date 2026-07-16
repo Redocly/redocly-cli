@@ -120,7 +120,7 @@ export async function handleGenerateClient({
       api: path,
       aliasConfig,
       clientOutput: alias === undefined ? undefined : apisCfg[alias]?.clientOutput,
-      client: resolveSetup((i123sPlainObject(client) ? client : {}) as ClientConfig, configDir),
+      client: resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir),
     };
   });
 

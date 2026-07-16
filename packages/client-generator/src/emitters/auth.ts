@@ -23,7 +23,9 @@ export function authSetterNames(schemes: SecuritySchemeModel[]): string[] {
   const names: string[] = [];
   if (schemes.some((s) => s.kind === 'bearer')) names.push('setBearer');
   if (schemes.some((s) => s.kind === 'basic')) names.push('setBasicAuth');
-  const apiKeySchemes = schemes.filter((s) => s.kind.startsWith('apiKey'));
+  const apiKeySchemes = schemes.filter(
+    (s) => s.kind === 'apiKeyHeader' || s.kind === 'apiKeyQuery' || s.kind === 'apiKeyCookie'
+  );
   for (const scheme of apiKeySchemes) {
     names.push(apiKeySetterName(scheme.key, apiKeySchemes.length === 1));
   }
