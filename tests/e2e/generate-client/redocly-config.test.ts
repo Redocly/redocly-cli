@@ -125,9 +125,9 @@ describe('generate-client redocly.yaml config', () => {
     const dir = project(
       [
         'client:',
-        '  generators: [sdk]',
+        '  generators: [sdk, zod]', // shared defaults that must survive the per-api override
         '  serverUrl: https://top-level.example.com',
-        '  pagination:', // a shared default that must survive the per-api override
+        '  pagination:',
         '    style: cursor',
         '    cursorParam: after',
         '    nextCursor: /page/endCursor',
@@ -148,6 +148,8 @@ describe('generate-client redocly.yaml config', () => {
     const matchedOut = readFileSync(join(dir, 'matched.ts'), 'utf-8');
     expect(matchedOut).toContain('serverUrl: "https://per-api.example.com"');
     expect(matchedOut).toContain('pagination: {'); // top-level convention kept, field by field
+    // The shared `generators` default kept too: the zod module is emitted alongside.
+    expect(existsSync(join(dir, 'matched.zod.ts'))).toBe(true);
 
     const unmatched = run(dir, ['./standalone.yaml', '--output', './unmatched.ts']);
     expect(unmatched.status, unmatched.stderr).toBe(0);

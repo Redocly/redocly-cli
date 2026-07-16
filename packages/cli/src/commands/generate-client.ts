@@ -120,7 +120,7 @@ export async function handleGenerateClient({
       api: path,
       aliasConfig,
       clientOutput: alias === undefined ? undefined : apisCfg[alias]?.clientOutput,
-      client: resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir),
+      client: resolveSetup((i123sPlainObject(client) ? client : {}) as ClientConfig, configDir),
     };
   });
 
@@ -165,12 +165,16 @@ export async function handleGenerateClient({
         configDir,
       });
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
-      const summary = `TypeScript client successfully generated: ${fileCount} (${result.bytes} bytes) at ${yellow(result.outputPath)}.`;
+      const summary = `TypeScript client successfully generated: ${fileCount} (${
+        result.bytes
+      } bytes) at ${yellow(result.outputPath)}.`;
       logger.info('\n' + blue(summary) + '\n');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HandledError(
-        `\n❌  Failed to generate TypeScript client${job.name ? ` for ${job.name}` : ''}.\n   ${message}\n`
+        `\n❌  Failed to generate TypeScript client${
+          job.name ? ` for ${job.name}` : ''
+        }.\n   ${message}\n`
       );
     }
   }
