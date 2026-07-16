@@ -938,6 +938,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          'ignore-headers': {
+            describe:
+              'Comma-separated header names to skip in undocumented-header checks. A trailing "*" matches by prefix, e.g. "x-consumer-*".',
+            type: 'string',
+          },
           'max-findings': {
             describe: 'Maximum findings shown in pretty output.',
             type: 'number',
@@ -1020,6 +1025,11 @@ yargs(hideBin(process.argv))
           describe: 'Ignore cookie-based checks.',
           type: 'boolean',
           default: false,
+        },
+        'ignore-headers': {
+          describe:
+            'Comma-separated header names to skip in undocumented-header checks. A trailing "*" matches by prefix, e.g. "x-consumer-*".',
+          type: 'string',
         },
         'max-findings': {
           describe: 'Maximum findings shown in pretty output.',

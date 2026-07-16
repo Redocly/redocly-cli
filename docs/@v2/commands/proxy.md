@@ -45,6 +45,7 @@ redocly proxy --target <url> --har <path> [--port=<number>] [--host=<string>]
 | --format         | string  | Output format for the validation report printed on shutdown.<br/>**Possible values:** `pretty`, `json`, `csv`, `sarif`. Default value is `pretty`. |
 | --match-mode     | string  | Endpoint matching mode.<br/>**Possible values:** `strict-host`, `basepath`. Default value is `strict-host`.                                        |
 | --ignore-cookies | boolean | Ignore cookie-based checks. Default value is `false`.                                                                                              |
+| --ignore-headers | string  | Comma-separated header names to skip in undocumented-header checks. A trailing `*` matches by prefix, for example `x-consumer-*`.                  |
 | --max-findings   | number  | Maximum findings shown in pretty output. Default value is `10`.                                                                                    |
 | --rules          | string  | Comma-separated subset of built-in rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.            |
 | --config         | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                           |
