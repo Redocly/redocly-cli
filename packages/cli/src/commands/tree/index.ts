@@ -247,6 +247,7 @@ async function handleStructureMode({
 
   if (argv.operations) {
     printedGraph = filterOperations(printedGraph);
+    stylishOptions = { ...stylishOptions, showOperationId: true };
   }
 
   renderOutput(printedGraph, argv, stylishOptions);

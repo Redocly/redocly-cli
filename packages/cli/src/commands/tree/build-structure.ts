@@ -186,7 +186,31 @@ export function walkStructure(options: {
   );
   walkDocument({ document, rootType: types.Root, normalizedVisitors, resolvedRefMap, ctx });
 
+  attachOperationIds(nodes, document);
+
   return finalizeGraph(rootId, nodes, edges);
+}
+
+/** An operation node id is `<METHOD> <path>`; look its `operationId` up in the document. */
+function attachOperationIds(nodes: Map<string, GraphNode>, document: Document): void {
+  const paths = (
+    document.parsed as {
+      paths?: Record<string, Record<string, { operationId?: unknown }> | undefined>;
+    }
+  )?.paths;
+  if (!paths) return;
+
+  for (const node of nodes.values()) {
+    if (node.kind !== 'operation') continue;
+    const separator = node.id.indexOf(' ');
+    if (separator === -1) continue;
+    const method = node.id.slice(0, separator).toLowerCase();
+    const pathId = node.id.slice(separator + 1);
+    const operationId = paths[pathId]?.[method]?.operationId;
+    if (typeof operationId === 'string') {
+      node.operationId = operationId;
+    }
+  }
 }
 
 /** Keeps only nodes reachable from the root, sorted for stable output. */

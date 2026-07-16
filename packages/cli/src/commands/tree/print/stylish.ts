@@ -6,6 +6,8 @@ export type StylishOptions = {
   emptyMessage?: string;
   /** Deepest visible level; branches cut at this level end with `…`. Root is level 0. */
   maxLevel?: number;
+  /** Append `(operationId)` to operations that define one. */
+  showOperationId?: boolean;
 };
 
 export function renderStylish(graph: DependencyGraph, options: StylishOptions = {}): string {
@@ -32,6 +34,9 @@ export function renderStylish(graph: DependencyGraph, options: StylishOptions = 
     // An operation id is "<METHOD> <path>"; under its own path, show just the method.
     if (node?.kind === 'operation' && parentId && id.endsWith(` ${parentId}`)) {
       text = id.slice(0, -parentId.length - 1);
+    }
+    if (node?.kind === 'operation' && options.showOperationId && node.operationId) {
+      text += ` (${node.operationId})`;
     }
     if (node?.external) text += ' 🔗';
     if (node && !node.resolved) text += ' ❌';

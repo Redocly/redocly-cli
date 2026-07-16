@@ -16,25 +16,29 @@
       "id": "DELETE /orders/{orderId}",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml"
+      "file": "openapi.yaml",
+      "operationId": "cancelOrder"
     },
     {
       "id": "GET /orders",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml"
+      "file": "openapi.yaml",
+      "operationId": "listOrders"
     },
     {
       "id": "GET /orders/{orderId}",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml"
+      "file": "openapi.yaml",
+      "operationId": "getOrder"
     },
     {
       "id": "POST /orders",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml"
+      "file": "openapi.yaml",
+      "operationId": "createOrder"
     },
     {
       "id": "openapi.yaml",

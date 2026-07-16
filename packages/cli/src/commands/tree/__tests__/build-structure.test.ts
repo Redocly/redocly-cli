@@ -45,6 +45,22 @@ function edgeRefs(graph: DependencyGraph, from: string, to: string): string[] | 
 }
 
 describe('walkStructure', () => {
+  it('attaches operationId to operation nodes when defined', async () => {
+    const graph = await structureOf({
+      openapi: '3.0.0',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/pets': {
+          get: { operationId: 'listPets', responses: { '200': { description: 'ok' } } },
+          post: { responses: { '201': { description: 'created' } } },
+        },
+      },
+    });
+
+    expect(graph.nodes.find((node) => node.id === 'GET /pets')?.operationId).toBe('listPets');
+    expect(graph.nodes.find((node) => node.id === 'POST /pets')?.operationId).toBeUndefined();
+  });
+
   it('builds the root -> path -> operation spine without refs', async () => {
     const graph = await structureOf({
       openapi: '3.0.0',

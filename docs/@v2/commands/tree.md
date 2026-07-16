@@ -38,7 +38,7 @@ Use `--files` for the multi-API file graph.
 | --format     | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                                                            |
 | --help       | boolean  | Display help.                                                                                                                                                                                                                                                                                                          |     |
 | --level      | number   | Limit the displayed depth of the tree. Level 1 shows the paths, level 2 adds the operations, and deeper levels add the component chains. Branches cut by the limit end with `…`.                                                                                                                                       |
-| --operations | boolean  | Display only the API surface — paths, operations, and webhooks — without component chains. Not available with `--files`.                                                                                                                                                                                               |
+| --operations | boolean  | Display only the API surface — paths, operations, and webhooks — without component chains. Operations show their `operationId` in parentheses. Not available with `--files`.                                                                                                                                           |
 | --output, -o | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                        |
 | --uses       | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path; `*` and `?` wildcards match node ids. `--files` mode accepts file paths only. Repeat the option to pass several values. |
 | --version    | boolean  | Display version number.                                                                                                                                                                                                                                                                                                |
@@ -240,29 +240,30 @@ redocly tree cafe.yaml --operations
 ```treeview
 cafe.yaml
 ├── /menu
-│   ├── GET
-│   └── POST
+│   ├── GET (listMenuItems)
+│   └── POST (createMenuItem)
 ├── /menu-item-images/{menuItemId}
-│   └── GET
+│   └── GET (getMenuItemPhoto)
 ├── /menu/{menuItemId}
-│   └── DELETE
+│   └── DELETE (deleteMenuItem)
 ├── /oauth2/register
-│   └── POST
+│   └── POST (registerOAuth2Client)
 ├── /order-items
-│   └── GET
+│   └── GET (listOrderItems)
 ├── /orders
-│   ├── GET
-│   └── POST
+│   ├── GET (listOrders)
+│   └── POST (createOrder)
 ├── /orders/{orderId}
-│   ├── DELETE
-│   ├── GET
-│   └── PATCH
+│   ├── DELETE (deleteOrder)
+│   ├── GET (getOrderById)
+│   └── PATCH (updateOrder)
 ├── /revenue
-│   └── GET
+│   └── GET (getRevenue)
 └── webhooks/order-notification
 ```
 
 `--operations` displays every path with all of its operations and the webhook entries, hiding the component chains.
+Each operation that defines an `operationId` shows it in parentheses.
 Unlike `--level 2`, the output never includes path-level parameters or other components.
 The option applies to the structure view and cannot be combined with `--files`.
 
@@ -367,7 +368,7 @@ components:
 {% tab label="json" %}
 
 The graph in the common `nodes`/`links` shape (compatible with D3, force-graph, and similar tools).
-Every node carries `resolved` and `external`; `kind` and `file` are present in the default view.
+Every node carries `resolved` and `external`; `kind` and `file` are present in the default view, and operation nodes carry `operationId` when it is defined.
 Each link carries the exact `$ref` strings.
 
 ```json

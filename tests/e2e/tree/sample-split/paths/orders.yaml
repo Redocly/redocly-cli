@@ -1,4 +1,5 @@
 get:
+  operationId: listOrders
   summary: List orders
   responses:
     '200':
@@ -8,6 +9,7 @@ get:
           schema:
             $ref: ../components/schemas/OrderList.yaml
 post:
+  operationId: createOrder
   summary: Create an order
   requestBody:
     required: true
