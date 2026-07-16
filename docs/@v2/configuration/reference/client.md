@@ -2,7 +2,9 @@
 
 ## Introduction
 
-The [`generate-client`](../../commands/generate-client.md) command reads its settings from `redocly.yaml`: a top-level `client` block holds shared defaults, and each API under `apis:` supplies its input (`root`), an optional output (`clientOutput`), and any per-API overrides under `apis.<name>.client`.
+The [`generate-client`](../../commands/generate-client.md) command reads its settings from `redocly.yaml`.
+A top-level `client` block holds shared defaults.
+Each API under `apis:` supplies the command's input (`root`), an optional output (`clientOutput`), and any per-API overrides under `apis.<name>.client`.
 
 ```yaml
 # redocly.yaml
