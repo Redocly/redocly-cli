@@ -1025,4 +1025,204 @@ describe('no-invalid-media-type-examples', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report on invalid dataValue in examples (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+                      examples:
+                        first:
+                          dataValue:
+                            a: 0
+                            b: "0"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/dataValue/a",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`a\` property type must be string.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-media-type-examples",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/dataValue/b",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`b\` property type must be number.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-media-type-examples",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on valid dataValue (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+                      examples:
+                        first:
+                          dataValue:
+                            a: "string"
+                            b: 13
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should validate dataValue referenced via $ref (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          examples:
+            bad:
+              dataValue:
+                a: 23
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                      examples:
+                        first:
+                          $ref: '#/components/examples/bad'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/examples/bad/dataValue/a",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`a\` property type must be string.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-media-type-examples",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report a valid binary dataValue (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    image/png:
+                      schema:
+                        type: string
+                        contentEncoding: base64
+                        contentMediaType: image/png
+                      examples:
+                        first:
+                          dataValue: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
