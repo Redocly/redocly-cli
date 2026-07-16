@@ -23,14 +23,18 @@ The traffic parsing infrastructure is shared with the `drift` command.
 
 The baseline is derived from every exchange in the traffic:
 
-- Identifier-like path segments (numeric, UUID, ULID, cuid, prefixed and opaque tokens) become named path parameters.
-- Body schemas are merged across all observations; a property becomes optional as soon as one sample omits it.
+- Identifier-like path segments (numeric, UUID, ULID, CUID, prefixed and opaque tokens) become named path parameters.
+- Body schemas are merged across all observations.
+  A property becomes optional as soon as one sample omits it.
 - Alternative body shapes for the same operation are preserved as `oneOf` variants instead of being collapsed, and values observed as `null` produce type unions such as `["string", "null"]`.
 - Object shapes that repeat across the document are extracted into `components/schemas` and referenced with `$ref`.
   The same entity is recognized when it appears as a list item and as a single resource, with different `required` sets, or with near-identical properties (at least 75% shared, with compatible types).
-  Components are named from the path entity, the enclosing property name, or `Error` for error responses; a shape repeated only because its parent shape repeats stays inline.
-- Observed string values are analyzed conservatively: when every value of a property (or parameter) matches the same well-known pattern it gets a `format` (`uuid`, `date-time`, `date`, `email`, `uri`, `ipv4`); when a string only ever takes a small set of identifier-like values with enough repetition (at least 4 observations, at most 5 distinct values, each seen twice on average) it becomes an `enum`.
-  Enums apply to body properties and query parameters; path parameters and nullable unions get formats only.
+  Components are named from the path entity, the enclosing property name, or `Error` for error responses.
+  A shape repeated only because its parent shape repeats stays inline.
+- Observed string values are analyzed conservatively: when every value of a property (or parameter) matches the same well-known pattern it gets a `format` (`uuid`, `date-time`, `date`, `email`, `uri`, `ipv4`).
+  When a string only ever takes a small set of identifier-like values with enough repetition (at least 4 observations, at most 5 distinct values, each seen twice on average) it becomes an `enum`.
+  Enums apply to body properties and query parameters.
+  Path parameters and nullable unions get formats only.
   Evidence is pooled across all operations a shared component was observed in.
 - Responses that were never received (status `0` in HAR captures) are ignored.
 
@@ -41,16 +45,17 @@ Each prompt carries a single operation from the baseline, the component schemas 
 The AI is instructed to narrow types, add formats, enums, descriptions and examples, refine or add `components/schemas`, and model alternative payloads explicitly with `oneOf` (plus `discriminator`) and `allOf` composition.
 
 Up to `--ai-concurrency` operations (default 4) are refined in parallel, and every accepted refinement is merged back as it arrives, so operations prompted later see already-refined shared components.
-When two concurrent refinements touch the same shared component, the one merged last wins; the final whole-document lint still guards the result.
+When two concurrent refinements touch the same shared component, the one merged last wins.
+  The final whole-document lint still guards the result.
 Set `--ai-concurrency 1` to process operations strictly sequentially.
 Progress is reported per operation as refinements complete.
 
 The AI's answer is never trusted blindly.
 A refined operation is only accepted when it:
 
-- keeps the exact path template and method — the AI cannot invent, drop, or rename operations because only the requested operation is merged back;
-- keeps every response status code observed in the traffic;
-- passes validation with the `spec` ruleset (checked against the description's full component set).
+- keeps the exact path template and method — the AI cannot invent, drop, or rename operations because only the requested operation is merged back
+- keeps every response status code observed in the traffic
+- passes validation with the `spec` ruleset (checked against the description's full component set)
 
 An operation whose refinement is rejected keeps its deterministic baseline (reported with the reason), components no operation references anymore are pruned, and the final document is linted again as a whole.
 If refinement fails for every operation, the command falls back to the deterministic baseline.
@@ -84,7 +89,8 @@ Every provider CLI is spawned in an empty temporary directory, so project contex
   Because settings are not loaded, a model configured there does not apply: pass `--ai-model`, or the CLI's built-in default model is used.
 - **`codex`** — runs the local `codex` CLI in non-interactive mode (`codex exec`) with MCP servers and `AGENTS.md` discovery disabled and a read-only sandbox.
   Other settings from `~/.codex/config.toml`, such as `model_reasoning_effort`, still apply.
-- **`cursor`** — runs the local Cursor CLI in print mode (`cursor-agent -p`; the renamed `agent` binary is tried as a fallback).
+- **`cursor`** — runs the local Cursor CLI in print mode: `cursor-agent -p`.
+  The renamed `agent` binary is tried as a fallback).
 
 All providers require the respective CLI to be installed and authenticated on the machine running the command.
 
@@ -94,4 +100,5 @@ Total time is roughly the per-operation AI time multiplied by the number of oper
 For descriptions with many operations:
 
 - Raise `--ai-concurrency` (for example to `12`) — calls are network-bound and the provider CLIs retry rate-limit responses themselves.
-- Pick a faster model with `--ai-model`; smaller models roughly halve the per-operation time compared to the largest ones at some cost in refinement depth.
+- Pick a faster model with `--ai-model`.
+  Smaller models roughly halve the per-operation time compared to the largest ones at some cost in refinement depth.
