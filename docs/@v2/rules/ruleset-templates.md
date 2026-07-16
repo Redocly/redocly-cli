@@ -151,6 +151,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   operation-operationId: warn
+  security-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -163,6 +164,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   operation-operationId: warn
+  security-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -358,6 +360,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-defined: error
   struct: error
   tag-description: warn
 ```
@@ -373,6 +376,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-defined: error
   struct: error
   tag-description: warn
 ```
