@@ -105,3 +105,40 @@ export type AmqpChannelBindingExchange = {
   autoDelete?: boolean;
   vhost?: string;
 };
+
+export type Async3OAuth2Flow = {
+  authorizationUrl?: string;
+  tokenUrl?: string;
+  refreshUrl?: string;
+  availableScopes?: Record<string, string>;
+};
+
+export type Async3SecurityScheme = {
+  type:
+    | 'userPassword'
+    | 'apiKey'
+    | 'X509'
+    | 'symmetricEncryption'
+    | 'asymmetricEncryption'
+    | 'httpApiKey'
+    | 'http'
+    | 'oauth2'
+    | 'openIdConnect'
+    | 'plain'
+    | 'scramSha256'
+    | 'scramSha512'
+    | 'gssapi';
+  description?: string;
+  name?: string;
+  in?: string;
+  scheme?: string;
+  bearerFormat?: string;
+  flows?: {
+    implicit?: Async3OAuth2Flow;
+    password?: Async3OAuth2Flow;
+    clientCredentials?: Async3OAuth2Flow;
+    authorizationCode?: Async3OAuth2Flow;
+  };
+  openIdConnectUrl?: string;
+  scopes?: string[];
+};

@@ -60,6 +60,7 @@ Warnings:
 - [operation-4xx-response](./oas/operation-4xx-response.md)
 - [operation-operationId](./oas/operation-operationId.md)
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
+- [security-scopes-defined](./common/security-scopes-defined.md)
 - [spec-discriminator-defaultMapping](./oas/spec-discriminator-defaultMapping.md)
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
