@@ -28,7 +28,9 @@ redocly generate-client --config ./config/redocly.yaml
 
 ## Options
 
-The same fields are accepted at the top level (shared defaults) and under `apis.<name>.client` (per-API overrides): `generators`, `argsStyle`, `serverUrl`, `outputMode` (`single` or `split`), `runtime`, `enumStyle`, `errorMode`, `dateType`, `queryFramework`, `mockData`, `mockSeed`, `setup`, and [`pagination`](#pagination). Each of the scalar fields mirrors the matching CLI flag — see the [command options](../../commands/generate-client.md#options) for what every field does; `pagination` is config-only (no flag).
+The same fields are accepted at the top level (shared defaults) and under `apis.<name>.client` (per-API overrides): `generators`, `argsStyle`, `serverUrl`, `outputMode` (`single` or `split`), `runtime`, `enumStyle`, `errorMode`, `dateType`, `queryFramework`, `mockData`, `mockSeed`, `setup`, and [`pagination`](#pagination).
+Each of the scalar fields mirrors the matching CLI flag — see the [command options](../../commands/generate-client.md#options) for what every field does.
+The `pagination` field is config-only (no flag).
 
 The input and output are **not** part of a `client` block:
 
