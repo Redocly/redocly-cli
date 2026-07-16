@@ -1,0 +1,31 @@
+asyncapi: '3.0.0'
+info:
+  title: Cafe API events - ref with sibling keys
+  version: 1.0.0
+channels:
+  orderUpdates:
+    messages:
+      orderNotification:
+        $ref: '#/components/messages/OrderNotification'
+        summary: Emitted when an order changes status.
+operations:
+  notifyOrder:
+    action: send
+    channel:
+      $ref: '#/channels/orderUpdates'
+components:
+  messages:
+    OrderNotification:
+      summary: Order notification.
+      payload:
+        $ref: '#/components/schemas/OrderNotification'
+        description: Order status change event payload.
+  schemas:
+    OrderNotification:
+      type: object
+      properties:
+        orderId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time

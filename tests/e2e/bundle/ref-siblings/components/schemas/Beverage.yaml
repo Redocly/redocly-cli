@@ -1,0 +1,10 @@
+allOf:
+  - type: object
+    properties:
+      volume:
+        description: Size of the beverage in milliliters.
+        type: number
+        exclusiveMinimum: 0
+    required:
+      - volume
+  - $ref: ./MenuBaseItem.yaml

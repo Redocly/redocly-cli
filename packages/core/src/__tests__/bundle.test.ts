@@ -839,19 +839,192 @@ describe('bundle async', () => {
 });
 
 describe('sibling $ref resolution by spec', () => {
-  it('should resolve description and summary refs alongside $ref in Schema - OAS 3', async () => {
+  it('should keep scalar siblings next to a Schema $ref in OAS 3.1', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleFromString({
+      source: outdent`
+        openapi: 3.1.0
+        info: { title: t, version: 1.0.0 }
+        paths:
+          /item:
+            get:
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/MenuBaseItem'
+                        readOnly: true
+                        description: Read-only view of a menu item.
+        components:
+          schemas:
+            MenuBaseItem:
+              type: object
+              properties:
+                id: { type: string }
+      `,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchSnapshot();
+  });
+
+  it('should keep structural siblings next to a Schema $ref in OAS 3.1', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleFromString({
+      source: outdent`
+        openapi: 3.1.0
+        info: { title: t, version: 1.0.0 }
+        paths:
+          /list:
+            get:
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/MenuBaseItem'
+                        properties:
+                          featured: { type: boolean }
+                        additionalProperties: false
+        components:
+          schemas:
+            MenuBaseItem:
+              type: object
+              properties:
+                id: { type: string }
+      `,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchSnapshot();
+  });
+
+  it('should keep a sibling on a message $ref in AsyncAPI 3', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: parseYamlToDocument(
+        outdent`
+          asyncapi: 3.0.0
+          info: { title: t, version: 1.0.0 }
+          channels:
+            orderUpdates:
+              messages:
+                orderNotification:
+                  $ref: '#/components/messages/OrderNotification'
+                  summary: Emitted when an order changes status.
+          components:
+            messages:
+              OrderNotification:
+                summary: Order notification.
+                payload: { type: object }
+        `,
+        'foo.yaml'
+      ),
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchSnapshot();
+  });
+
+  it('should resolve a sibling that is not allowed on an OAS Reference Object', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi.yaml'),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-non-schema-ref-sibling.yaml'),
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('should resolve description and summary refs alongside $ref in Schema - AsyncAPI 3', async () => {
+  it('should resolve a description $ref sibling on a non-Schema Reference Object', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/sibling-refs/asyncapi.yaml'),
+      ref: path.join(
+        __dirname,
+        'fixtures/sibling-refs/openapi-non-schema-ref-sibling-description.yaml'
+      ),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should override the referenced schema description with a sibling description', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleFromString({
+      source: outdent`
+        openapi: 3.1.0
+        info: { title: t, version: 1.0.0 }
+        paths:
+          /test:
+            get:
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          field:
+                            $ref: '#/components/schemas/Child'
+                            description: Sibling wins.
+        components:
+          schemas:
+            Child:
+              type: object
+              description: Should not win.
+              properties:
+                name: { type: string }
+      `,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchSnapshot();
+  });
+
+  it('should bundle an external $ref inside a structural sibling to a component', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/sibling-refs/openapi-schema-ref-sibling-nested-external.yaml'
+      ),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not shadow the target subtree with a sibling key', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-sibling-shadows-target.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should resolve a function-typed propType $ref sibling from its own value', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-sibling-fn-proptype-collision.yaml'),
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
@@ -862,39 +1035,6 @@ describe('sibling $ref resolution by spec', () => {
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/sibling-refs/arazzo.yaml'),
     });
-    expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchSnapshot();
-  });
-
-  it('should not resolve non-description/summary sibling ref', async () => {
-    const { bundle: res, problems } = await bundle({
-      config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-non-summary-desc-ref.yaml'),
-    });
-    expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchSnapshot();
-  });
-
-  it('should prefer description from sibling ref over target schema description', async () => {
-    const { bundle: res, problems } = await bundle({
-      config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-with-description-ref.yaml'),
-    });
-
-    const field = (res.parsed as any).paths['/test'].get.responses['200'].content[
-      'application/json'
-    ].schema.properties.field;
-
-    expect(problems).toHaveLength(0);
-    expect(field.description).toBe('This is a description resolved from a reference file.\n');
-  });
-
-  it('should resolve RequestBody.description as $ref sibling to RequestBody $ref (non-Schema context)', async () => {
-    const { bundle: res, problems } = await bundle({
-      config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-request-body.yaml'),
-    });
-
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });

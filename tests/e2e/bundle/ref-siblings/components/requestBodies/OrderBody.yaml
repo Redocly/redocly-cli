@@ -1,0 +1,12 @@
+description: Shared order request body.
+required: true
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        menuItemId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1

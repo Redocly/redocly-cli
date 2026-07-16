@@ -554,13 +554,13 @@ components:
 
 `;
 
-exports[`sibling $ref resolution by spec > should not resolve non-description/summary sibling ref 1`] = `
+exports[`sibling $ref resolution by spec > should bundle an external $ref inside a structural sibling to a component 1`] = `
 openapi: 3.1.0
 info:
-  title: Non summary desc
+  title: Nested external refs in schema $ref siblings
   version: 1.0.0
 paths:
-  /test:
+  /sample:
     get:
       responses:
         '200':
@@ -568,40 +568,181 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/Base'
+                properties:
+                  second:
+                    $ref: '#/components/schemas/Second'
+components:
+  schemas:
+    Base:
+      type: object
+      properties:
+        first:
+          type: integer
+        second:
+          type: integer
+    Second:
+      title: Referenced model
+      type: string
+
+`;
+
+exports[`sibling $ref resolution by spec > should keep a sibling on a message $ref in AsyncAPI 3 1`] = `
+asyncapi: 3.0.0
+info:
+  title: t
+  version: 1.0.0
+channels:
+  orderUpdates:
+    messages:
+      orderNotification:
+        $ref: '#/components/messages/OrderNotification'
+        summary: Emitted when an order changes status.
+components:
+  messages:
+    OrderNotification:
+      summary: Order notification.
+      payload:
+        type: object
+
+`;
+
+exports[`sibling $ref resolution by spec > should keep scalar siblings next to a Schema $ref in OAS 3.1 1`] = `
+openapi: 3.1.0
+info:
+  title: t
+  version: 1.0.0
+paths:
+  /item:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuBaseItem'
+                readOnly: true
+                description: Read-only view of a menu item.
+components:
+  schemas:
+    MenuBaseItem:
+      type: object
+      properties:
+        id:
+          type: string
+
+`;
+
+exports[`sibling $ref resolution by spec > should keep structural siblings next to a Schema $ref in OAS 3.1 1`] = `
+openapi: 3.1.0
+info:
+  title: t
+  version: 1.0.0
+paths:
+  /list:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuBaseItem'
+                properties:
+                  featured:
+                    type: boolean
+                additionalProperties: false
+components:
+  schemas:
+    MenuBaseItem:
+      type: object
+      properties:
+        id:
+          type: string
+
+`;
+
+exports[`sibling $ref resolution by spec > should not shadow the target subtree with a sibling key 1`] = `
+openapi: 3.1.0
+info:
+  title: Sibling key shadows target nested ref
+  version: 1.0.0
+paths:
+  /x:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wrapper'
+                properties:
+                  extra:
+                    type: string
+components:
+  schemas:
+    Wrapper:
+      type: object
+      properties:
+        inner:
+          $ref: '#/components/schemas/Second'
+    Second:
+      title: Referenced model
+      type: string
+
+`;
+
+exports[`sibling $ref resolution by spec > should override the referenced schema description with a sibling description 1`] = `
+openapi: 3.1.0
+info:
+  title: t
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
                   field:
-                    test:
-                      $ref: ./description.md
                     $ref: '#/components/schemas/Child'
+                    description: Sibling wins.
 components:
   schemas:
     Child:
       type: object
+      description: Should not win.
       properties:
         name:
           type: string
 
 `;
 
-exports[`sibling $ref resolution by spec > should resolve RequestBody.description as $ref sibling to RequestBody $ref (non-Schema context) 1`] = `
+exports[`sibling $ref resolution by spec > should resolve a description $ref sibling on a non-Schema Reference Object 1`] = `
 openapi: 3.1.0
 info:
-  title: RequestBody Sibling Ref
+  title: Description $ref sibling on a non-Schema Reference Object
   version: 1.0.0
 paths:
-  /users:
+  /orders:
     post:
       requestBody:
+        $ref: '#/components/requestBodies/OrderBody'
         description: |
           This is a description resolved from a reference file.
-        $ref: '#/components/requestBodies/User'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: created
 components:
   requestBodies:
-    User:
+    OrderBody:
+      description: Shared order body.
       content:
         application/json:
           schema:
@@ -609,35 +750,13 @@ components:
 
 `;
 
-exports[`sibling $ref resolution by spec > should resolve description and summary refs alongside $ref in Schema - AsyncAPI 3 1`] = `
-asyncapi: 3.0.0
-info:
-  title: Account Service
-  version: 1.0.0
-components:
-  schemas:
-    Parent:
-      type: object
-      properties:
-        field:
-          description: |
-            This is a description resolved from a reference file.
-          $ref: '#/components/schemas/Child'
-    Child:
-      type: object
-      properties:
-        name:
-          type: string
-
-`;
-
-exports[`sibling $ref resolution by spec > should resolve description and summary refs alongside $ref in Schema - OAS 3 1`] = `
+exports[`sibling $ref resolution by spec > should resolve a function-typed propType $ref sibling from its own value 1`] = `
 openapi: 3.1.0
 info:
-  title: Inline Test
+  title: Function-typed propType sibling colliding with the target's own key
   version: 1.0.0
 paths:
-  /test:
+  /x:
     get:
       responses:
         '200':
@@ -645,22 +764,44 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  field:
-                    description: |
-                      This is a description resolved from a reference file.
-                    summary: |
-                      Summary from reference
-                    $ref: '#/components/schemas/Child'
+                $ref: '#/components/schemas/Base'
+                additionalProperties:
+                  $ref: '#/components/schemas/Second'
 components:
   schemas:
-    Child:
+    Base:
       type: object
-      description: should not win
-      properties:
-        name:
-          type: string
+      additionalProperties: false
+    Second:
+      title: Referenced model
+      type: string
+
+`;
+
+exports[`sibling $ref resolution by spec > should resolve a sibling that is not allowed on an OAS Reference Object 1`] = `
+openapi: 3.1.0
+info:
+  title: Non-allowed sibling on an OAS Reference Object is still resolved
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/SharedLimit'
+          schema:
+            $ref: '#/components/schemas/Second'
+      responses:
+        '200':
+          description: ok
+components:
+  parameters:
+    SharedLimit:
+      name: limit
+      in: query
+  schemas:
+    Second:
+      title: Referenced model
+      type: string
 
 `;
 

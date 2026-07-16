@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    description: Menu item ID.
+    type: string
+    readOnly: true
+  name:
+    description: Menu item name.
+    type: string
+  price:
+    description: Price in cents.
+    type: integer
+    minimum: 0
+required:
+  - id
+  - name
+  - price

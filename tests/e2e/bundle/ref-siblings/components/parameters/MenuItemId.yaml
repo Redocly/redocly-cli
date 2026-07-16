@@ -1,0 +1,6 @@
+name: menuItemId
+in: path
+description: ID of the menu item to retrieve.
+required: true
+schema:
+  type: string

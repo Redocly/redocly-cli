@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: Function-typed propType sibling colliding with the target's own key
+  version: 1.0.0
+paths:
+  /x:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Base'
+                additionalProperties:
+                  $ref: ./schema-ref-sibling-external-value.yaml#/Second
+components:
+  schemas:
+    Base:
+      type: object
+      additionalProperties: false

@@ -48,6 +48,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'off',
@@ -106,6 +107,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-defined': 'warn',
     'spec-components-invalid-map-name': 'warn',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -164,6 +166,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-defined': 'warn',
     'spec-components-invalid-map-name': 'warn',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -222,6 +225,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'warn',
     'spec-discriminator-defaultMapping': 'off',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-no-invalid-encoding-combinations': 'warn',
     'spec-no-invalid-tag-parents': 'warn',
     'spec-querystring-parameters': 'error',
@@ -242,6 +246,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
@@ -256,6 +261,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   arazzo1Rules: {
     'criteria-unique': 'off',
@@ -318,6 +324,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'off',
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
+    'spec-ref-siblings': 'off',
   },
 };
 
