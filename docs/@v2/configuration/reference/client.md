@@ -37,7 +37,8 @@ The input and output are **not** part of a `client` block:
 
 ## Pagination
 
-`pagination` declares how the API paginates, so paginated operations gain typed `.pages()`/`.items()` async iterators (see [Pagination in the usage guide](../../guides/use-generated-client.md#pagination)). The block is an optional **convention rule** (the rule fields below, applied to every operation it structurally fits when `style` is set) plus per-operation `operations` overrides and an `exclude` list:
+`pagination` declares how the API paginates, so paginated operations gain typed `.pages()`/`.items()` async iterators (see [Pagination in the usage guide](../../guides/use-generated-client.md#pagination)).
+The block is an optional **convention rule** (the rule fields below, applied to every operation it structurally fits when `style` is set) plus per-operation `operations` overrides and an `exclude` list:
 
 ```yaml
 client:
