@@ -68,10 +68,11 @@ export function collectPaths({
         if (field === 'parameters') {
           collectPathParameters(pathItem, path);
         }
-        if (typeof pathItem[field] === 'string') {
+        if (
+          typeof pathItem[field] === 'string' ||
+          (field.startsWith('x-') && typeof pathItem[field] !== 'string')
+        ) {
           collectPathStringFields(pathItem, path, field);
-        } else if (field.startsWith('x-') && typeof pathItem[field] !== 'string') {
-          collectPathExtension(pathItem, path, field);
         }
       }
     }
@@ -85,7 +86,7 @@ export function collectPaths({
     const fieldValue = pathItem[field];
     if (
       joinedDef.paths[path].hasOwnProperty(field) &&
-      joinedDef.paths[path][field] !== fieldValue
+      !dequal(joinedDef.paths[path][field], fieldValue)
     ) {
       logger.warn(`warning: different ${field} values in ${path}\n`);
       return;
@@ -228,19 +229,6 @@ export function collectPaths({
         pathOperation.security,
         componentsPrefix!
       );
-    }
-  }
-
-  function collectPathExtension(pathItem: Oas3PathItem, path: string | number, field: string) {
-    // x-*
-    const value = (pathItem as Record<string, unknown>)[field];
-    const joinedPathItem = joinedDef.paths[path];
-    if (!joinedPathItem.hasOwnProperty(field)) {
-      joinedPathItem[field] = value;
-      return;
-    }
-    if (!dequal(joinedPathItem[field], value)) {
-      logger.warn(`warning: different ${field} values in ${path}\n`);
     }
   }
 }
