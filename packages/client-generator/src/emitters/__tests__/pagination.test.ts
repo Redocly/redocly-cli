@@ -39,10 +39,10 @@ function listOrders(extra: Partial<OperationModel> = {}): OperationModel {
     name: 'listOrders',
     path: '/orders',
     queryParams: [
-      param('cursor', 'query'),
+      param('cursor', 'query', false),
       param('offset', 'query', false, { kind: 'scalar', scalar: 'integer' }),
       param('page', 'query', false, { kind: 'scalar', scalar: 'number' }),
-      param('limit', 'query'),
+      param('limit', 'query', false),
     ],
     successResponses: [response({ schema: { kind: 'ref', name: 'OrderPage' } })],
     ...extra,

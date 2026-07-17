@@ -7,15 +7,7 @@ import { descriptorStatements, opsInterfaceStatements, packageIdents } from '../
 import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
 import { printStatements } from '../ts.js';
-import { apiModel, operation, param } from './fixtures.js';
-
-function op(name: string, extra: Partial<OperationModel> = {}): OperationModel {
-  return operation({ name, ...extra });
-}
-
-function modelWith(ops: OperationModel[], extra: Partial<ApiModel> = {}): ApiModel {
-  return apiModel({ services: [{ name: 'Default', operations: ops }], ...extra });
-}
+import { apiModel, modelWith, operation, param } from './fixtures.js';
 
 function emitDescriptors(model: ApiModel): string {
   return printStatements(descriptorStatements(model, packageIdents(model), 'string'));
@@ -30,9 +22,16 @@ const JSON_OK: ResponseBodyModel = {
 
 describe('packageIdents', () => {
   it('renames colliding operation ids deterministically', () => {
-    const model = modelWith([op('configure'), op('createClient'), op('setBearer')], {
-      securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
-    });
+    const model = modelWith(
+      [
+        operation({ name: 'configure' }),
+        operation({ name: 'createClient' }),
+        operation({ name: 'setBearer' }),
+      ],
+      {
+        securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
+      }
+    );
     const idents = packageIdents(model);
     expect(idents.get('configure')).toBe('configure_2');
     expect(idents.get('createClient')).toBe('createClient_2');
@@ -40,13 +39,17 @@ describe('packageIdents', () => {
   });
 
   it('keeps non-colliding names and sanitizes non-identifier ones', () => {
-    const idents = packageIdents(modelWith([op('ping'), op('get-thing')]));
+    const idents = packageIdents(
+      modelWith([operation({ name: 'ping' }), operation({ name: 'get-thing' })])
+    );
     expect(idents.get('ping')).toBe('ping');
     expect(idents.get('get-thing')).toBe('get_thing');
   });
 
   it('reserves the TokenProvider import and the __redoclySetup const', () => {
-    const idents = packageIdents(modelWith([op('TokenProvider'), op('__redoclySetup')]));
+    const idents = packageIdents(
+      modelWith([operation({ name: 'TokenProvider' }), operation({ name: '__redoclySetup' })])
+    );
     expect(idents.get('TokenProvider')).toBe('TokenProvider_2');
     expect(idents.get('__redoclySetup')).toBe('__redoclySetup_2');
   });
@@ -59,7 +62,7 @@ describe('descriptorStatements', () => {
 
   it('emits a minimal descriptor with only the non-default fields', () => {
     const out = emitDescriptors(
-      modelWith([op('ping', { path: '/ping', successResponses: [JSON_OK] })])
+      modelWith([operation({ name: 'ping', path: '/ping', successResponses: [JSON_OK] })])
     );
     expect(out).toContain('ping: { id: "ping", method: "GET", path: "/ping" }');
     expect(out).toContain('as const satisfies Record<string, OperationDescriptor>;');
@@ -69,8 +72,11 @@ describe('descriptorStatements', () => {
   });
 
   it('matches the full minimal output', () => {
-    expect(emitDescriptors(modelWith([op('ping', { path: '/ping', successResponses: [JSON_OK] })])))
-      .toMatchInlineSnapshot(`
+    expect(
+      emitDescriptors(
+        modelWith([operation({ name: 'ping', path: '/ping', successResponses: [JSON_OK] })])
+      )
+    ).toMatchInlineSnapshot(`
         "/**
          * The wire-shape descriptor for every operation, keyed by operationId — the data the
          * runtime routes requests by. Also minification-safe static metadata (method, path,
@@ -90,7 +96,7 @@ describe('descriptorStatements', () => {
     // `id` drives middleware targeting (`ctx.operation.id`), so it stays the spec's
     // operationId — matching inline mode's `operationMetaExpr` — even when the key is renamed.
     const out = emitDescriptors(
-      modelWith([op('configure', { path: '/c', successResponses: [JSON_OK] })])
+      modelWith([operation({ name: 'configure', path: '/c', successResponses: [JSON_OK] })])
     );
     expect(out).toContain('configure_2: { id: "configure", method: "GET", path: "/c" }');
   });
@@ -99,7 +105,8 @@ describe('descriptorStatements', () => {
     const out = emitDescriptors(
       modelWith(
         [
-          op('use', {
+          operation({
+            name: 'use',
             path: '/u/{id}',
             pathParams: [param('id', 'path', true)],
             security: [['bearerAuth']],
@@ -117,7 +124,8 @@ describe('descriptorStatements', () => {
   it('records a non-identifier path param by its quoted wire name', () => {
     const out = emitDescriptors(
       modelWith([
-        op('getPet', {
+        operation({
+          name: 'getPet',
           path: '/pets/{pet-id}',
           pathParams: [param('pet-id', 'path', true)],
           successResponses: [JSON_OK],
@@ -131,15 +139,16 @@ describe('descriptorStatements', () => {
   it('emits params with in/style/explode/allowReserved only when present', () => {
     const out = emitDescriptors(
       modelWith([
-        op('getOrder', {
+        operation({
+          name: 'getOrder',
           path: '/orders/{orderId}',
           pathParams: [param('orderId', 'path', true)],
           queryParams: [
-            { ...param('tags', 'query'), style: 'pipeDelimited', explode: false },
-            { ...param('q', 'query'), allowReserved: true },
-            param('limit', 'query'),
+            { ...param('tags', 'query', false), style: 'pipeDelimited', explode: false },
+            { ...param('q', 'query', false), allowReserved: true },
+            param('limit', 'query', false),
           ],
-          headerParams: [param('X-Trace', 'header')],
+          headerParams: [param('X-Trace', 'header', false)],
         }),
       ])
     );
@@ -153,7 +162,8 @@ describe('descriptorStatements', () => {
   it('derives body.multipart, responseKind, and sseDataKind', () => {
     const multipart = emitDescriptors(
       modelWith([
-        op('upload', {
+        operation({
+          name: 'upload',
           method: 'post',
           requestBody: {
             contentType: 'multipart/form-data',
@@ -167,7 +177,8 @@ describe('descriptorStatements', () => {
 
     const json = emitDescriptors(
       modelWith([
-        op('create', {
+        operation({
+          name: 'create',
           method: 'post',
           requestBody: {
             contentType: 'application/json',
@@ -186,7 +197,8 @@ describe('descriptorStatements', () => {
 
     const text = emitDescriptors(
       modelWith([
-        op('readme', {
+        operation({
+          name: 'readme',
           successResponses: [
             {
               contentType: 'text/plain',
@@ -199,12 +211,13 @@ describe('descriptorStatements', () => {
     );
     expect(text).toContain('responseKind: "text"');
 
-    const none = emitDescriptors(modelWith([op('drop', { method: 'delete' })]));
+    const none = emitDescriptors(modelWith([operation({ name: 'drop', method: 'delete' })]));
     expect(none).toContain('responseKind: "void"');
 
     const blob = emitDescriptors(
       modelWith([
-        op('getPhoto', {
+        operation({
+          name: 'getPhoto',
           successResponses: [
             { contentType: 'image/png', schema: { kind: 'unknown' }, status: 200 },
           ],
@@ -215,7 +228,8 @@ describe('descriptorStatements', () => {
 
     const sse = emitDescriptors(
       modelWith([
-        op('streamEvents', {
+        operation({
+          name: 'streamEvents',
           successResponses: [
             {
               contentType: 'text/event-stream',
@@ -232,12 +246,15 @@ describe('descriptorStatements', () => {
 
   it('denormalizes security from the model schemes, skipping unknown keys', () => {
     const out = emitDescriptors(
-      modelWith([op('getOrder', { security: [['bearerAuth', 'apiCookie', 'ghost']] })], {
-        securitySchemes: [
-          { kind: 'bearer', key: 'bearerAuth' },
-          { kind: 'apiKeyCookie', key: 'apiCookie', cookieName: 'sid' },
-        ],
-      })
+      modelWith(
+        [operation({ name: 'getOrder', security: [['bearerAuth', 'apiCookie', 'ghost']] })],
+        {
+          securitySchemes: [
+            { kind: 'bearer', key: 'bearerAuth' },
+            { kind: 'apiKeyCookie', key: 'apiCookie', cookieName: 'sid' },
+          ],
+        }
+      )
     );
     expect(out).toContain(
       'security: [[{ scheme: "bearerAuth", kind: "bearer" }, { scheme: "apiCookie", kind: "apiKey", name: "sid", in: "cookie" }]]'
@@ -247,13 +264,16 @@ describe('descriptorStatements', () => {
 
   it('covers basic, apiKey header, and apiKey query schemes', () => {
     const out = emitDescriptors(
-      modelWith([op('getOrder', { security: [['basicAuth', 'apiHeader', 'apiQuery']] })], {
-        securitySchemes: [
-          { kind: 'basic', key: 'basicAuth' },
-          { kind: 'apiKeyHeader', key: 'apiHeader', headerName: 'X-Key' },
-          { kind: 'apiKeyQuery', key: 'apiQuery', paramName: 'api_key' },
-        ],
-      })
+      modelWith(
+        [operation({ name: 'getOrder', security: [['basicAuth', 'apiHeader', 'apiQuery']] })],
+        {
+          securitySchemes: [
+            { kind: 'basic', key: 'basicAuth' },
+            { kind: 'apiKeyHeader', key: 'apiHeader', headerName: 'X-Key' },
+            { kind: 'apiKeyQuery', key: 'apiQuery', paramName: 'api_key' },
+          ],
+        }
+      )
     );
     expect(out).toContain('{ scheme: "basicAuth", kind: "basic" }');
     expect(out).toContain('{ scheme: "apiHeader", kind: "apiKey", name: "X-Key", in: "header" }');
@@ -262,7 +282,10 @@ describe('descriptorStatements', () => {
 
   it('emits tags and the derived OperationId/OperationPath/OperationTag unions', () => {
     const out = emitDescriptors(
-      modelWith([op('listPets', { path: '/pets', tags: ['Pets'] }), op('ping', { path: '/ping' })])
+      modelWith([
+        operation({ name: 'listPets', path: '/pets', tags: ['Pets'] }),
+        operation({ name: 'ping', path: '/ping' }),
+      ])
     );
     expect(out).toContain('tags: ["Pets"]');
     expect(out).toContain('export type OperationId = keyof typeof OPERATIONS;');
@@ -277,7 +300,7 @@ describe('descriptorStatements', () => {
   });
 
   it('omits OperationTag when no operation has a tag (avoids never)', () => {
-    const out = emitDescriptors(modelWith([op('ping')]));
+    const out = emitDescriptors(modelWith([operation({ name: 'ping' })]));
     expect(out).toContain('export type OperationId');
     expect(out).toContain('export type OperationPath');
     expect(out).not.toContain('OperationTag');
@@ -285,12 +308,13 @@ describe('descriptorStatements', () => {
 
   it('emits the resolved pagination spec with stable key order, only on resolved ops', () => {
     const model = modelWith([
-      op('listOrders', {
+      operation({
+        name: 'listOrders',
         path: '/orders',
-        queryParams: [param('cursor', 'query')],
+        queryParams: [param('cursor', 'query', false)],
         successResponses: [JSON_OK],
       }),
-      op('ping', { path: '/ping', successResponses: [JSON_OK] }),
+      operation({ name: 'ping', path: '/ping', successResponses: [JSON_OK] }),
     ]);
     const pagination: ModelPagination = new Map([
       [
@@ -331,14 +355,16 @@ describe('opsInterfaceStatements', () => {
     return printStatements(opsInterfaceStatements(model, packageIdents(model), ctx));
   }
 
-  const getOrder = op('getOrder', {
+  const getOrder = operation({
+    name: 'getOrder',
     path: '/orders/{orderId}',
     pathParams: [param('orderId', 'path', true)],
     successResponses: [
       { contentType: 'application/json', schema: { kind: 'ref', name: 'Order' }, status: 200 },
     ],
   });
-  const streamOrders = op('streamOrders', {
+  const streamOrders = operation({
+    name: 'streamOrders',
     path: '/orders/stream',
     successResponses: [
       {
@@ -356,10 +382,11 @@ describe('opsInterfaceStatements', () => {
   it('emits per-operation args (via the Variables shape) and result members', () => {
     const out = emitOps(
       modelWith([
-        op('getOrder', {
+        operation({
+          name: 'getOrder',
           path: '/orders/{orderId}',
           pathParams: [param('orderId', 'path', true)],
-          queryParams: [param('include', 'query')],
+          queryParams: [param('include', 'query', false)],
           successResponses: [
             {
               contentType: 'application/json',
@@ -382,7 +409,8 @@ describe('opsInterfaceStatements', () => {
     // so the args type must key them the same way — never by the sanitized ident.
     const out = emitOps(
       modelWith([
-        op('getPet', {
+        operation({
+          name: 'getPet',
           path: '/pets/{pet-id}',
           pathParams: [param('pet-id', 'path', true)],
         }),
@@ -395,7 +423,8 @@ describe('opsInterfaceStatements', () => {
   it('keeps path params that sanitize to the same ident distinct via their wire names', () => {
     const out = emitOps(
       modelWith([
-        op('compare', {
+        operation({
+          name: 'compare',
           path: '/x/{a-b}/{a.b}',
           pathParams: [param('a-b', 'path', true), param('a.b', 'path', true)],
         }),
@@ -407,7 +436,7 @@ describe('opsInterfaceStatements', () => {
   });
 
   it('emits args: {} for a no-input operation', () => {
-    const out = emitOps(modelWith([op('ping')]));
+    const out = emitOps(modelWith([operation({ name: 'ping' })]));
     expect(out).toContain('ping: {\n        args: {};');
     expect(out).toContain('result: PingResult;');
   });
@@ -419,14 +448,14 @@ describe('opsInterfaceStatements', () => {
   });
 
   it('keys members by the collision-renamed identifier', () => {
-    const out = emitOps(modelWith([op('configure')]));
+    const out = emitOps(modelWith([operation({ name: 'configure' })]));
     expect(out).toContain('configure_2: {');
   });
 
   it('wraps the result in Result<…, <Op>Error> in result mode', () => {
     const out = emitOps(
       modelWith([
-        op('getOrder', {
+        operation({
           ...getOrder,
           errorResponses: [
             {
@@ -449,7 +478,7 @@ describe('opsInterfaceStatements', () => {
 
   it('inlines the error type when the <Op>Error alias collides with a schema', () => {
     const errored = (errorResponses: OperationModel['errorResponses']) =>
-      op('getOrder', { ...getOrder, errorResponses });
+      operation({ ...getOrder, errorResponses });
     const single = emitOps(
       modelWith([
         errored([
@@ -481,9 +510,10 @@ describe('opsInterfaceStatements', () => {
   });
 
   it('adds an item member (the page element type) only to paginated operations', () => {
-    const listOrders = op('listOrders', {
+    const listOrders = operation({
+      name: 'listOrders',
       path: '/orders',
-      queryParams: [param('cursor', 'query')],
+      queryParams: [param('cursor', 'query', false)],
       successResponses: [
         {
           contentType: 'application/json',
@@ -512,9 +542,10 @@ describe('opsInterfaceStatements', () => {
   });
 
   it('adds a page member (the RAW page type) to paginated operations in result mode only', () => {
-    const listOrders = op('listOrders', {
+    const listOrders = operation({
+      name: 'listOrders',
       path: '/orders',
-      queryParams: [param('cursor', 'query')],
+      queryParams: [param('cursor', 'query', false)],
       successResponses: [
         {
           contentType: 'application/json',
@@ -551,9 +582,10 @@ describe('opsInterfaceStatements', () => {
   });
 
   it('types item with the shared dateType handling', () => {
-    const listOrders = op('listOrders', {
+    const listOrders = operation({
+      name: 'listOrders',
       path: '/orders',
-      queryParams: [param('page', 'query')],
+      queryParams: [param('page', 'query', false)],
       successResponses: [JSON_OK],
     });
     const pagination: ModelPagination = new Map([

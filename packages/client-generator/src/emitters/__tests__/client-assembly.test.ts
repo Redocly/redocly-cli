@@ -1,12 +1,8 @@
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+import type { ApiModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 import type { EmitOptions } from '../emit-options.js';
 import { ts } from '../ts.js';
-import { apiModel, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
-
-function modelWith(ops: OperationModel[], extra: Partial<ApiModel> = {}): ApiModel {
-  return apiModel({ services: [{ name: 'Default', operations: ops }], ...extra });
-}
+import { modelWith, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 
 /** The package arm of the shared emitter. */
 function emit(model: ApiModel, options: EmitOptions = {}): string {
@@ -17,7 +13,7 @@ const getOrder = operation({
   name: 'getOrder',
   path: '/orders/{orderId}',
   pathParams: [param('orderId', 'path', true)],
-  queryParams: [param('expand', 'query')],
+  queryParams: [param('expand', 'query', false)],
   successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
   errorResponses: [response({ status: 400, schema: { kind: 'ref', name: 'Problem' } })],
   security: [['bearerAuth']],
@@ -55,7 +51,7 @@ const configureOp = operation({ name: 'configure', path: '/configure-op' });
 const listOrders = operation({
   name: 'listOrders',
   path: '/orders',
-  queryParams: [param('cursor', 'query'), param('limit', 'query')],
+  queryParams: [param('cursor', 'query', false), param('limit', 'query', false)],
   successResponses: [response({ schema: { kind: 'ref', name: 'OrderPage' } })],
 });
 const CURSOR_RULE = {
@@ -334,7 +330,7 @@ describe('emitClientSingleFile (package arm)', () => {
         operation({
           name: 'ping',
           path: '/ping',
-          headerParams: [param('X-Trace', 'header')],
+          headerParams: [param('X-Trace', 'header', false)],
           successResponses: [response()],
         }),
       ])

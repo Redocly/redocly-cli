@@ -1834,7 +1834,7 @@ describe('buildApiModel — security (C6.6)', () => {
         '/x': {
           get: {
             operationId: 'op',
-            ...(opSecurity !== undefined ? { security: opSecurity } : {}),
+            security: opSecurity,
             responses: {},
           },
         } as never,

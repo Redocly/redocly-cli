@@ -52,10 +52,15 @@ export function operation(overrides: Partial<OperationModel> = {}): OperationMod
 export function param(
   name: string,
   loc: ParamModel['in'],
-  required = false,
+  required: boolean,
   schema: SchemaModel = SCALAR
 ): ParamModel {
   return { name, in: loc, schema, required };
+}
+
+/** An `ApiModel` with a single `Default` service holding `ops`; spread `extra` to vary. */
+export function modelWith(ops: OperationModel[], extra: Partial<ApiModel> = {}): ApiModel {
+  return apiModel({ services: [{ name: 'Default', operations: ops }], ...extra });
 }
 
 /** A JSON `ResponseBodyModel`, defaulting to `status: 200`; spread to vary status/schema. */
