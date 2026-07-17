@@ -2,14 +2,14 @@
 // `text/event-stream` frames, drops mid-stream, and the generated client
 // auto-reconnects (resuming via `Last-Event-ID`). A second scenario aborts the
 // stream mid-flight and asserts the loop completes WITHOUT throwing.
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { spawnSync, type ChildProcess } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, killServer, repoRoot, startServer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const indexEntryPoint = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/sse.yaml');
 const consumerDir = join(__dirname, 'sse-consumer');
 const generatedFile = join(consumerDir, 'api.ts');
@@ -22,44 +22,6 @@ const connectRetryScript = join(consumerDir, 'index-connect-retry.ts');
 const SERVER_PORT = 3104;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
-async function waitForServerReady(timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  let lastError: unknown;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`${SERVER_BASE}/__test__/ready`);
-      if (response.ok) return;
-    } catch (error) {
-      lastError = error;
-    }
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  throw new Error(
-    `SSE server did not become ready within ${timeoutMs}ms: ${
-      lastError instanceof Error ? lastError.message : String(lastError)
-    }`
-  );
-}
-
-function killServer(server: ChildProcess): Promise<void> {
-  return new Promise((resolveFn) => {
-    if (!server.pid || server.exitCode !== null) {
-      resolveFn();
-      return;
-    }
-    const onExit = (): void => resolveFn();
-    server.once('exit', onExit);
-    server.kill('SIGTERM');
-    setTimeout(() => {
-      server.removeListener('exit', onExit);
-      if (server.exitCode === null) {
-        server.kill('SIGKILL');
-      }
-      resolveFn();
-    }, 2_000);
-  });
-}
-
 describe('generate-client SSE consumer (reconnect + abort)', () => {
   let serverProcess: ChildProcess | undefined;
 
@@ -68,34 +30,33 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
       rmSync(generatedFile, { force: true });
     }
 
-    const generateResult = spawnSync(
-      'node',
-      [indexEntryPoint, 'generate-client', fixture, '--output', generatedFile],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(generateResult.status, `generate-client stderr:\n${generateResult.stderr}`).toBe(0);
+    generate(fixture, generatedFile);
     expect(existsSync(generatedFile)).toBe(true);
 
-    serverProcess = spawn('npx', ['tsx', serverScript], {
-      cwd: consumerDir,
-      env: { ...process.env, SSE_SERVER_PORT: String(SERVER_PORT) },
-      stdio: ['ignore', 'pipe', 'pipe'],
+    // The consumer dir is excluded from the root typecheck (api.ts is gitignored),
+    // so type-check it here against the fresh generation.
+    const typecheckResult = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
+      encoding: 'utf-8',
+      cwd: repoRoot,
     });
+    expect(
+      typecheckResult.status,
+      `tsc stdout:\n${typecheckResult.stdout}\nstderr:\n${typecheckResult.stderr}`
+    ).toBe(0);
 
-    serverProcess.stderr?.on('data', (chunk: Buffer) => {
-      process.stderr.write(`[sse-server stderr] ${chunk.toString()}`);
-    });
-
-    await waitForServerReady(15_000);
+    serverProcess = await startServer(
+      serverScript,
+      consumerDir,
+      { SSE_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'sse-server'
+    );
   }, 30_000);
 
   afterAll(async () => {
     if (serverProcess) {
       await killServer(serverProcess);
     }
-    // The generated `api.ts` is intentionally left in place, matching the other
-    // consumer harnesses — it's committed (regeneration is deterministic) so the
-    // repo-wide `tsc --noEmit` typecheck finds it present on a fresh checkout.
   });
 
   test('reconnect: events stream across a dropped connection, resuming via Last-Event-ID', () => {

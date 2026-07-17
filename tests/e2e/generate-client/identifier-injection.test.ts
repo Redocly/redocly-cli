@@ -7,14 +7,10 @@
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
+import { cliEntry, repoRoot, tscBin } from './helpers.js';
 
 const HOSTILE_SPEC = outdent`
   openapi: 3.1.0
@@ -60,7 +56,7 @@ describe('generate-client identifier / comment injection', () => {
     const entry = join(dir, 'client.ts');
     const res = spawnSync(
       'node',
-      [cli, 'generate-client', join(dir, 'openapi.yaml'), '--output', entry],
+      [cliEntry, 'generate-client', join(dir, 'openapi.yaml'), '--output', entry],
       {
         encoding: 'utf-8',
         cwd: repoRoot,

@@ -1,13 +1,12 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, repoRoot, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 // `swr` is hoisted to the repo root node_modules (a repo devDependency); map it
 // explicitly so tsc resolves the generated module's `import useSWR from "swr"` and
 // `import useSWRMutation from "swr/mutation"` from the temp dir.
@@ -19,22 +18,12 @@ describe('generate-client swr generator', () => {
     const out = join(dir, 'client.ts');
     const swrOut = join(dir, 'client.swr.ts');
 
-    const res = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        join(__dirname, 'fixtures', 'base.yaml'),
-        '--output',
-        out,
-        '--generator',
-        'sdk',
-        '--generator',
-        'swr',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(join(__dirname, 'fixtures', 'base.yaml'), out, [
+      '--generator',
+      'sdk',
+      '--generator',
+      'swr',
+    ]);
 
     // Both the sdk client and the standalone swr module are produced.
     expect(existsSync(out)).toBe(true);

@@ -4,48 +4,22 @@
  * the generated runtime actually produced — proving that `serverUrl`, `config.headers`,
  * `onRequest`, transport-swap, and per-instance config observably take effect.
  */
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { generateInto, runConsumer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-
-function generate(dir: string, extraArgs: string[] = []): void {
-  // Mark the temp dir as ESM so tsx runs the consumer with top-level await support.
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  const out = join(dir, 'client.ts');
-  const result = spawnSync(
-    'node',
-    [cliEntry, 'generate-client', fixture, '--output', out, ...extraArgs],
-    { encoding: 'utf-8', cwd: repoRoot }
-  );
-  if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
-}
-
-function runConsumer(dir: string, script: string): unknown {
-  writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
-  if (result.status !== 0) {
-    throw new Error(`consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
-  }
-  return JSON.parse(result.stdout.trim());
-}
 
 describe('extension contract — flat surface (configure)', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'ext-fn-'));
-    generate(dir);
+    generateInto(dir, fixture);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -115,7 +89,7 @@ describe('extension contract — per-instance config (createClient)', () => {
     // The temp dir lives INSIDE the repo so the consumer's import of
     // `@redocly/client-generator` resolves through the workspace node_modules symlink.
     dir = mkdtempSync(join(__dirname, '.tmp-ext-instance-'));
-    generate(dir, ['--runtime', 'package']);
+    generateInto(dir, fixture, ['--runtime', 'package']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

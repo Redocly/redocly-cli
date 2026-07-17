@@ -19,16 +19,14 @@
 //  - DEFAULT UNCHANGED: without `--date-type Date` the sdk date field stays
 //    typed `string` (the byte-identical default).
 
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate as generateClient, strictTypecheck } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 const fixture = join(__dirname, 'fixtures', 'transformers.yaml');
 const consumerDir = join(__dirname, 'transformers-consumer');
 
@@ -36,12 +34,7 @@ function generate(out: string, args: string[]): void {
   // args[0] is a comma-separated generator list; the rest are extra flags.
   const [generators, ...rest] = args;
   const generatorFlags = generators.split(',').flatMap((g) => ['--generator', g]);
-  const res = spawnSync(
-    'node',
-    [cli, 'generate-client', fixture, '--output', out, ...generatorFlags, ...rest],
-    { encoding: 'utf-8', cwd: repoRoot }
-  );
-  expect(res.status, res.stderr).toBe(0);
+  generateClient(fixture, out, [...generatorFlags, ...rest]);
 }
 
 describe('generate-client transformers generator', () => {
@@ -67,26 +60,7 @@ describe('generate-client transformers generator', () => {
 
     // strict-tsc the sdk + transformers TOGETHER: proves transform<Name>(data:
     // <Name>): <Name> type-checks against the Date-typed sdk schema.
-    writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({
-        compilerOptions: {
-          module: 'nodenext',
-          moduleResolution: 'nodenext',
-          target: 'es2022',
-          lib: ['ES2022', 'DOM'],
-          strict: true,
-          noEmit: true,
-          skipLibCheck: true,
-          types: [],
-        },
-        include: ['client.ts', 'client.transformers.ts'],
-      }),
-      'utf-8'
-    );
-
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    strictTypecheck(dir, ['client.ts', 'client.transformers.ts']);
 
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

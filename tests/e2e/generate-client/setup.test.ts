@@ -7,15 +7,14 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { cliEntry, repoRoot, runConsumer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 
 const SETUP = outdent`
   import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
@@ -45,13 +44,6 @@ function generate(
     ],
     { encoding: 'utf-8', cwd: repoRoot }
   );
-}
-
-function runConsumer(dir: string, script: string): unknown {
-  writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const r = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
-  if (r.status !== 0) throw new Error(`consumer failed:\n${r.stdout}\n${r.stderr}`);
-  return JSON.parse(r.stdout.trim());
 }
 
 describe('--setup bakes publisher defaults into the single-file client', () => {

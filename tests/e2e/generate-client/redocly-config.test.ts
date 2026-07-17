@@ -12,12 +12,12 @@ import {
   copyFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { cliEntry, repoRoot } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures', 'cafe.yaml');
 
 /** Write a temp project: the cafe spec + a redocly.yaml with the given contents. */
@@ -28,7 +28,7 @@ function project(redoclyYaml: string): string {
   return dir;
 }
 const run = (dir: string, args: string[] = []) =>
-  spawnSync('node', [cli, 'generate-client', ...args], { cwd: dir, encoding: 'utf-8' });
+  spawnSync('node', [cliEntry, 'generate-client', ...args], { cwd: dir, encoding: 'utf-8' });
 
 describe('generate-client redocly.yaml config', () => {
   it('fan-out (no arg) builds every api with a `client` block or `clientOutput`', () => {
@@ -411,10 +411,11 @@ describe('generate-client redocly.yaml config', () => {
       ].join('\n') + '\n'
     );
     // Run from the repo root, pointing at the config elsewhere via --config.
-    const res = spawnSync('node', [cli, 'generate-client', '--config', join(dir, 'redocly.yaml')], {
-      cwd: repoRoot,
-      encoding: 'utf-8',
-    });
+    const res = spawnSync(
+      'node',
+      [cliEntry, 'generate-client', '--config', join(dir, 'redocly.yaml')],
+      { cwd: repoRoot, encoding: 'utf-8' }
+    );
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });

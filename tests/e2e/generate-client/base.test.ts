@@ -1,11 +1,11 @@
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { spawnSync, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, killServer, repoRoot, startServer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const indexEntryPoint = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/base.yaml');
 const consumerDir = join(__dirname, 'base-consumer');
 const generatedFile = join(consumerDir, 'api.ts');
@@ -16,45 +16,6 @@ const cancelScript = join(consumerDir, 'index-cancel.ts');
 const SERVER_PORT = 3102;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
-async function waitForServerReady(timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  let lastError: unknown;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`${SERVER_BASE}/__test__/ready`);
-      if (response.ok) return;
-      lastError = `readiness probe returned HTTP ${response.status}`;
-    } catch (error) {
-      lastError = error;
-    }
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  throw new Error(
-    `Base server did not become ready within ${timeoutMs}ms: ${
-      lastError instanceof Error ? lastError.message : String(lastError)
-    }`
-  );
-}
-
-function killServer(server: ChildProcess): Promise<void> {
-  return new Promise((resolveFn) => {
-    if (!server.pid || server.exitCode !== null) {
-      resolveFn();
-      return;
-    }
-    const onExit = (): void => resolveFn();
-    server.once('exit', onExit);
-    server.kill('SIGTERM');
-    setTimeout(() => {
-      server.removeListener('exit', onExit);
-      if (server.exitCode === null) {
-        server.kill('SIGKILL');
-      }
-      resolveFn();
-    }, 2_000);
-  });
-}
-
 describe('generate-client base consumer (single-file output)', () => {
   let serverProcess: ChildProcess | undefined;
 
@@ -63,17 +24,13 @@ describe('generate-client base consumer (single-file output)', () => {
       rmSync(generatedFile, { force: true });
     }
 
-    serverProcess = spawn('npx', ['tsx', serverScript], {
-      cwd: consumerDir,
-      env: { ...process.env, BASE_SERVER_PORT: String(SERVER_PORT) },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    serverProcess.stderr?.on('data', (chunk: Buffer) => {
-      process.stderr.write(`[base-server stderr] ${chunk.toString()}`);
-    });
-
-    await waitForServerReady(15_000);
+    serverProcess = await startServer(
+      serverScript,
+      consumerDir,
+      { BASE_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'base-server'
+    );
   }, 30_000);
 
   afterAll(async () => {
@@ -83,12 +40,7 @@ describe('generate-client base consumer (single-file output)', () => {
   });
 
   test('end-to-end: generate single file, type-check, run, assert real call', async () => {
-    const generateResult = spawnSync(
-      'node',
-      [indexEntryPoint, 'generate-client', fixture, '--output', generatedFile],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(generateResult.status, `generate-client stderr:\n${generateResult.stderr}`).toBe(0);
+    generate(fixture, generatedFile);
 
     expect(existsSync(generatedFile)).toBe(true);
     const generated = readFileSync(generatedFile, 'utf-8');

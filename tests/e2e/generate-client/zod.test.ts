@@ -9,14 +9,13 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { generate, repoRoot, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 // `zod` is hoisted to the repo root node_modules (a repo devDependency); map it
 // explicitly so tsc resolves `import { z } from 'zod'` from the out-of-tree temp dir.
 const zodPath = join(repoRoot, 'node_modules/zod');
@@ -27,22 +26,12 @@ describe('generate-client zod generator', () => {
     const out = join(dir, 'client.ts');
     const zodOut = join(dir, 'client.zod.ts');
 
-    const res = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        join(__dirname, 'fixtures', 'cafe.yaml'),
-        '--output',
-        out,
-        '--generator',
-        'sdk',
-        '--generator',
-        'zod',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(join(__dirname, 'fixtures', 'cafe.yaml'), out, [
+      '--generator',
+      'sdk',
+      '--generator',
+      'zod',
+    ]);
 
     // Both the sdk client and the standalone zod module are produced.
     expect(existsSync(out)).toBe(true);
@@ -149,22 +138,12 @@ describe('generate-client zod generator', () => {
                     quantity: { type: integer, minimum: 1 }
       `
     );
-    const generated = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        'openapi.yaml',
-        '--output',
-        'client.ts',
-        '--generator',
-        'sdk',
-        '--generator',
-        'zod',
-      ],
-      { cwd: dir, encoding: 'utf-8' }
-    );
-    expect(generated.status, generated.stderr).toBe(0);
+    generate(join(dir, 'openapi.yaml'), join(dir, 'client.ts'), [
+      '--generator',
+      'sdk',
+      '--generator',
+      'zod',
+    ]);
 
     writeFileSync(
       join(dir, 'driver.ts'),

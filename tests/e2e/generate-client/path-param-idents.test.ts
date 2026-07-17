@@ -13,15 +13,10 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
-const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
+import { generateInto, repoRoot, runConsumer, tscBin } from './helpers.js';
 
 const SPEC = outdent`
   openapi: 3.0.3
@@ -91,14 +86,8 @@ describe('non-identifier path parameters', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'oddnames-'));
-    writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     writeFileSync(join(dir, 'openapi.yaml'), SPEC, 'utf-8');
-    const result = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', join(dir, 'openapi.yaml'), '--output', join(dir, 'client.ts')],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
+    generateInto(dir, join(dir, 'openapi.yaml'));
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -143,13 +132,7 @@ describe('non-identifier path parameters', () => {
       await getItem('xyz');
       console.log(JSON.stringify(urls));
     `;
-    writeFileSync(join(dir, 'consumer.ts'), consumer, 'utf-8');
-    const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(result.status, `consumer failed:\n${result.stdout}\n${result.stderr}`).toBe(0);
-    const urls = JSON.parse(result.stdout.trim()) as string[];
+    const urls = runConsumer(dir, consumer) as string[];
     expect(urls[0]).toBe('https://api.example.com/widgets/abc');
     expect(urls[1]).toBe('https://api.example.com/items/xyz');
   }, 60_000);

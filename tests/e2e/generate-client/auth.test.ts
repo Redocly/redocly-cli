@@ -1,47 +1,22 @@
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
-const fixture = join(__dirname, 'fixtures', 'auth.yaml');
+import { generate, runConsumer, strictTypecheck } from './helpers.js';
 
-const STRICT_TSCONFIG = {
-  compilerOptions: {
-    module: 'nodenext',
-    moduleResolution: 'nodenext',
-    target: 'es2022',
-    lib: ['ES2022', 'DOM'],
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-  },
-};
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixture = join(__dirname, 'fixtures', 'auth.yaml');
 
 /** Generate a single-file client and assert strict `tsc` accepts it. */
 function generateSingleFile(): string {
   const dir = mkdtempSync(join(tmpdir(), 'ots-auth-'));
   const out = join(dir, 'client.ts');
-  const res = spawnSync('node', [cli, 'generate-client', fixture, '--output', out], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
-  expect(res.status, res.stderr).toBe(0);
+  generate(fixture, out);
   expect(existsSync(out)).toBe(true);
   const generated = readFileSync(out, 'utf-8');
-  writeFileSync(
-    join(dir, 'tsconfig.json'),
-    JSON.stringify({ ...STRICT_TSCONFIG, include: ['client.ts'] }),
-    'utf-8'
-  );
-  const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-  expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+  strictTypecheck(dir, ['client.ts']);
   rmSync(dir, { recursive: true, force: true });
   return generated;
 }
@@ -101,27 +76,8 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     // Split mode derives its folder from a `.ts` entry path, so --output
     // must still point at a file; the generator emits the schemas file beside it.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-split-'));
-    const res = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        fixture,
-        '--output',
-        join(dir, 'client.ts'),
-        '--output-mode',
-        'split',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
-    writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({ ...STRICT_TSCONFIG, include: ['**/*.ts'] }),
-      'utf-8'
-    );
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
+    strictTypecheck(dir);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -132,19 +88,14 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   // `Authorization` header and (b) a query-key scheme lands `api_key=` in the URL.
   it('async setBearer resolves onto Authorization and query-key lands in the URL', () => {
     // The driver owns its own throwaway http server (and points the client at it
-    // via configure({ serverUrl })), so a single `spawnSync` runs the whole behavioral
+    // via configure({ serverUrl })), so a single `runConsumer` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-run-'));
     const out = join(dir, 'client.ts');
-    const gen = spawnSync('node', [cli, 'generate-client', fixture, '--output', out], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(gen.status, gen.stderr).toBe(0);
+    generate(fixture, out);
 
-    const driver = join(dir, 'driver.ts');
-    writeFileSync(
-      driver,
+    const captured = runConsumer(
+      dir,
       outdent`
         import * as http from 'node:http';
         import { configure, getBearer, getQuery, setBearer, setApiKeyQueryKey } from './client.js';
@@ -168,12 +119,8 @@ describe('generate-client auth breadth (auth.yaml)', () => {
           process.stdout.write(JSON.stringify(captured));
         }
         main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
-      `,
-      'utf-8'
-    );
-    const run = spawnSync('npx', ['tsx', driver], { encoding: 'utf-8', cwd: repoRoot });
-    expect(run.status, `driver failed:\nstdout:\n${run.stdout}\nstderr:\n${run.stderr}`).toBe(0);
-    const captured = JSON.parse(run.stdout.trim()) as Array<{ url: string; auth?: string }>;
+      `
+    ) as Array<{ url: string; auth?: string }>;
     rmSync(dir, { recursive: true, force: true });
 
     const bearerReq = captured.find((c) => c.url.startsWith('/bearer'));

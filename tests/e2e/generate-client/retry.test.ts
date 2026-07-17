@@ -2,46 +2,22 @@
  * Behavioral e2e for retry. Injects a fake `fetch` via `configure()` so we can
  * script transient failures and count attempts deterministically — no live server.
  */
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { generateInto, runConsumer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-
-function generate(dir: string): void {
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  const out = join(dir, 'client.ts');
-  const result = spawnSync('node', [cliEntry, 'generate-client', fixture, '--output', out], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
-  if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
-}
-
-function runConsumer(dir: string, script: string): unknown {
-  writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
-  if (result.status !== 0) {
-    throw new Error(`consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
-  }
-  return JSON.parse(result.stdout.trim());
-}
 
 describe('retry behavior', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'retry-'));
-    generate(dir);
+    generateInto(dir, fixture);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

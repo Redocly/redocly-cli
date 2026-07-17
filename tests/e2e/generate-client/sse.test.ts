@@ -15,26 +15,12 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
+import { generate, strictTypecheck, tscBin } from './helpers.js';
 
-const TSCONFIG = {
-  compilerOptions: {
-    module: 'nodenext',
-    moduleResolution: 'nodenext',
-    target: 'es2022',
-    lib: ['ES2022', 'DOM'],
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-  },
-};
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** Recursively collect every generated `.ts` file under `dir`. */
 function collectTsFiles(dir: string): string[] {
@@ -53,11 +39,7 @@ describe('generate-client SSE', () => {
   it('single-file: embedded sse capability + flat typed stream sugar, strict tsc passes', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-sse-single-'));
     const out = join(dir, 'client.ts');
-    const res = spawnSync('node', [cli, 'generate-client', fixture, '--output', out], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(res.status, res.stderr).toBe(0);
+    generate(fixture, out);
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
@@ -96,25 +78,14 @@ describe('generate-client SSE', () => {
       'utf-8'
     );
 
-    writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({ ...TSCONFIG, include: ['client.ts', 'usage.ts'] }),
-      'utf-8'
-    );
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    strictTypecheck(dir, ['client.ts', 'usage.ts']);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-sse-split-'));
     const entry = join(dir, 'client.ts');
-    const res = spawnSync(
-      'node',
-      [cli, 'generate-client', fixture, '--output', entry, '--output-mode', 'split'],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(fixture, entry, ['--output-mode', 'split']);
     expect(existsSync(entry)).toBe(true);
 
     const entrySrc = readFileSync(entry, 'utf-8');

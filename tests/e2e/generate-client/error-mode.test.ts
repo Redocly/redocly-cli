@@ -10,36 +10,14 @@
 // and covered by the existing throw-mode base e2e. The split case guards that
 // the entry bakes `errorMode: "result"` into the client config too.
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
+import { generate, strictTypecheck, tscBin } from './helpers.js';
 
-const TSCONFIG = {
-  compilerOptions: {
-    module: 'nodenext',
-    moduleResolution: 'nodenext',
-    target: 'es2022',
-    lib: ['ES2022', 'DOM'],
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-  },
-};
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** Recursively collect every generated `.ts` file under `dir`. */
 function collectTsFiles(dir: string): string[] {
@@ -56,20 +34,7 @@ describe('generate-client error mode', () => {
   it('single-file result mode: typed error alias + Result terminal, strict tsc passes', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-single-'));
     const out = join(dir, 'client.ts');
-    const res = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        join(__dirname, 'fixtures', 'error-mode.yaml'),
-        '--output',
-        out,
-        '--error-mode',
-        'result',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(join(__dirname, 'fixtures', 'error-mode.yaml'), out, ['--error-mode', 'result']);
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
@@ -79,13 +44,7 @@ describe('generate-client error mode', () => {
     // The mode is baked into the client instance config (configure() cannot flip it).
     expect(generated).toContain('errorMode: "result"');
 
-    writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({ ...TSCONFIG, include: ['client.ts'] }),
-      'utf-8'
-    );
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    strictTypecheck(dir, ['client.ts']);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -93,22 +52,12 @@ describe('generate-client error mode', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-split-'));
     // Split mode takes a `.ts` entry path; the schemas file is written beside it.
     const entry = join(dir, 'client.ts');
-    const res = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        join(__dirname, 'fixtures', 'error-mode.yaml'),
-        '--output',
-        entry,
-        '--error-mode',
-        'result',
-        '--output-mode',
-        'split',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(join(__dirname, 'fixtures', 'error-mode.yaml'), entry, [
+      '--error-mode',
+      'result',
+      '--output-mode',
+      'split',
+    ]);
     expect(existsSync(entry)).toBe(true);
 
     const files = collectTsFiles(dir);

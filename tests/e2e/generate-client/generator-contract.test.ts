@@ -4,18 +4,18 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { cliEntry, repoRoot, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const cafe = join(__dirname, 'fixtures', 'cafe.yaml');
 const sse = join(__dirname, 'fixtures', 'sse.yaml');
 
 function run(args: string[]): { status: number | null; out: string } {
-  const res = spawnSync('node', [cli, 'generate-client', ...args], {
+  const res = spawnSync('node', [cliEntry, 'generate-client', ...args], {
     encoding: 'utf-8',
     cwd: repoRoot,
   });
@@ -148,7 +148,7 @@ describe('generate-client generator compatibility contract', () => {
     // The whole tree compiles (no import of the suppressed alias).
     const files = [join(dir, 'c.ts'), join(dir, 'c.tanstack.ts')];
     const tsc = spawnSync(
-      join(repoRoot, 'node_modules/.bin/tsc'),
+      tscBin,
       [
         '--noEmit',
         '--strict',

@@ -15,15 +15,14 @@
 
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import { spawnSync } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement, type ReactNode } from 'react';
 
+import { generate } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const consumerDir = join(__dirname, 'tanstack-consumer');
 const sdkFile = join(consumerDir, 'client.ts');
 const tanstackFile = join(consumerDir, 'client.tanstack.ts');
@@ -47,22 +46,12 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
     for (const f of [sdkFile, tanstackFile]) {
       if (existsSync(f)) rmSync(f, { force: true });
     }
-    const res = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        join(__dirname, 'fixtures', 'base.yaml'),
-        '--output',
-        sdkFile,
-        '--generator',
-        'sdk',
-        '--generator',
-        'tanstack-query',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(join(__dirname, 'fixtures', 'base.yaml'), sdkFile, [
+      '--generator',
+      'sdk',
+      '--generator',
+      'tanstack-query',
+    ]);
     expect(existsSync(tanstackFile)).toBe(true);
   });
 

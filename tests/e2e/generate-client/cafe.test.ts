@@ -1,11 +1,11 @@
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { spawnSync, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { cliEntry, killServer, repoRoot, startServer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
 const consumerDir = join(__dirname, 'cafe-consumer');
 const generatedFile = join(consumerDir, 'api.ts');
@@ -15,45 +15,6 @@ const configureScript = join(consumerDir, 'index-configure.ts');
 
 const SERVER_PORT = 3101;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
-
-async function waitForServerReady(timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  let lastError: unknown;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`${SERVER_BASE}/__test__/ready`);
-      if (response.ok) return;
-      lastError = `readiness probe returned HTTP ${response.status}`;
-    } catch (error) {
-      lastError = error;
-    }
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  throw new Error(
-    `Cafe mock server did not become ready within ${timeoutMs}ms: ${
-      lastError instanceof Error ? lastError.message : String(lastError)
-    }`
-  );
-}
-
-function killServer(server: ChildProcess): Promise<void> {
-  return new Promise((resolveFn) => {
-    if (!server.pid || server.exitCode !== null) {
-      resolveFn();
-      return;
-    }
-    const onExit = (): void => resolveFn();
-    server.once('exit', onExit);
-    server.kill('SIGTERM');
-    setTimeout(() => {
-      server.removeListener('exit', onExit);
-      if (server.exitCode === null) {
-        server.kill('SIGKILL');
-      }
-      resolveFn();
-    }, 2_000);
-  });
-}
 
 type LogEntry = {
   method: string;
@@ -82,17 +43,13 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       rmSync(generatedFile, { force: true });
     }
 
-    serverProcess = spawn('npx', ['tsx', serverScript], {
-      cwd: consumerDir,
-      env: { ...process.env, CAFE_SERVER_PORT: String(SERVER_PORT) },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    serverProcess.stderr?.on('data', (chunk: Buffer) => {
-      process.stderr.write(`[cafe-server stderr] ${chunk.toString()}`);
-    });
-
-    await waitForServerReady(15_000);
+    serverProcess = await startServer(
+      serverScript,
+      consumerDir,
+      { CAFE_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'cafe-server'
+    );
 
     // First pass: capture the *canonical* output (spec-derived serverUrl) for the file snapshot.
     // We don't keep this on disk — the consumer needs the mock-targeted variant.

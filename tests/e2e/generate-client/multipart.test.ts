@@ -7,15 +7,10 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
+import { generate, generateInto, repoRoot, tscBin, tsxBin } from './helpers.js';
 
 function collectTsFiles(d: string): string[] {
   return readdirSync(d).flatMap((e) => {
@@ -54,18 +49,8 @@ describe('generate-client typed multipart body (#5)', () => {
 
   it('types the fields (binary→Blob) and serializes the object to FormData', () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-multipart-'));
-    writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
-    const out = join(dir, 'client.ts');
-    const gen = spawnSync(
-      'node',
-      [cli, 'generate-client', join(dir, 'api.yaml'), '--output', out],
-      {
-        encoding: 'utf-8',
-        cwd: repoRoot,
-      }
-    );
-    expect(gen.status, gen.stderr).toBe(0);
+    generateInto(dir, join(dir, 'api.yaml'));
 
     writeFileSync(
       join(dir, 'consumer.ts'),
@@ -107,18 +92,8 @@ describe('generate-client typed multipart body (#5)', () => {
 
   it('serializes the multipart body AFTER onRequest, so middleware can mutate it', () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-multipart-mw-'));
-    writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
-    const out = join(dir, 'client.ts');
-    const gen = spawnSync(
-      'node',
-      [cli, 'generate-client', join(dir, 'api.yaml'), '--output', out],
-      {
-        encoding: 'utf-8',
-        cwd: repoRoot,
-      }
-    );
-    expect(gen.status, gen.stderr).toBe(0);
+    generateInto(dir, join(dir, 'api.yaml'));
 
     writeFileSync(
       join(dir, 'consumer.ts'),
@@ -155,20 +130,7 @@ describe('generate-client typed multipart body (#5)', () => {
   it('compiles in split output (multipart serialization lives in the embedded runtime)', () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-multipart-split-'));
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
-    const gen = spawnSync(
-      'node',
-      [
-        cli,
-        'generate-client',
-        join(dir, 'api.yaml'),
-        '--output',
-        join(dir, 'client.ts'),
-        '--output-mode',
-        'split',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(gen.status, gen.stderr).toBe(0);
+    generate(join(dir, 'api.yaml'), join(dir, 'client.ts'), ['--output-mode', 'split']);
     const files = collectTsFiles(dir);
     const tsc = spawnSync(
       tscBin,

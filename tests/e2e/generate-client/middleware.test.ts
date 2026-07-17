@@ -4,44 +4,16 @@
  * that `use()` registers middleware, `onRequest` runs in order, `onResponse` runs in
  * reverse (onion), `onError` chains, and configured middleware precedes `use()`.
  */
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { generateInto, runConsumer } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-
-function generate(dir: string, extraArgs: string[] = []): void {
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  const out = join(dir, 'client.ts');
-  const result = spawnSync(
-    'node',
-    [cliEntry, 'generate-client', fixture, '--output', out, ...extraArgs],
-    {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    }
-  );
-  if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
-}
-
-function runConsumer(dir: string, script: string): unknown {
-  writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
-  if (result.status !== 0) {
-    throw new Error(`consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
-  }
-  return JSON.parse(result.stdout.trim());
-}
 
 const OK = `new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } })`;
 
@@ -49,7 +21,7 @@ describe('middleware — flat surface (use)', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'mw-fn-'));
-    generate(dir);
+    generateInto(dir, fixture);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -190,7 +162,7 @@ describe('middleware — multi-file output (split)', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'mw-split-'));
-    generate(dir, ['--output-mode', 'split']);
+    generateInto(dir, fixture, ['--output-mode', 'split']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -217,7 +189,7 @@ describe('middleware — result error mode', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'mw-result-'));
-    generate(dir, ['--error-mode', 'result']);
+    generateInto(dir, fixture, ['--error-mode', 'result']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -254,7 +226,7 @@ describe('middleware — configured chain precedes use()', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'mw-cfg-'));
-    generate(dir);
+    generateInto(dir, fixture);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

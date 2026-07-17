@@ -5,14 +5,13 @@
 // header via an injected `config.fetch`, so no mock server is needed.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { generateInto, tsxBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tsx = join(repoRoot, 'node_modules/.bin/tsx');
 
 const SPEC = outdent`
   openapi: 3.1.0
@@ -61,26 +60,10 @@ describe('per-instance auth (createClient config.auth)', () => {
     const dir = mkdtempSync(join(__dirname, '.tmp-perinstance-'));
     try {
       writeFileSync(join(dir, 'openapi.yaml'), SPEC, 'utf-8');
-      // Mark the temp dir as ESM so tsx imports the generated `./client.js` and the
-      // driver's top-level structure resolve as modules.
-      writeFileSync(join(dir, 'package.json'), '{ "type": "module" }', 'utf-8');
-      const gen = spawnSync(
-        'node',
-        [
-          cli,
-          'generate-client',
-          join(dir, 'openapi.yaml'),
-          '--output',
-          join(dir, 'client.ts'),
-          '--runtime',
-          'package',
-        ],
-        { encoding: 'utf-8', cwd: repoRoot }
-      );
-      expect(gen.status, gen.stderr).toBe(0);
+      generateInto(dir, join(dir, 'openapi.yaml'), ['--runtime', 'package']);
 
       writeFileSync(join(dir, 'driver.ts'), DRIVER, 'utf-8');
-      const run = spawnSync(tsx, [join(dir, 'driver.ts')], { encoding: 'utf-8', cwd: dir });
+      const run = spawnSync(tsxBin, [join(dir, 'driver.ts')], { encoding: 'utf-8', cwd: dir });
       expect(run.status, run.stderr).toBe(0);
 
       const calls = JSON.parse(run.stdout.trim()) as (string | null)[];

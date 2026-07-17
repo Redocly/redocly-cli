@@ -11,13 +11,12 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, strictTypecheck } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 const fixture = join(__dirname, 'fixtures', 'query-styles.yaml');
 
 describe('generate-client query serialization styles', () => {
@@ -27,11 +26,7 @@ describe('generate-client query serialization styles', () => {
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'ots-qstyles-'));
     const out = join(dir, 'client.ts');
-    const res = spawnSync('node', [cli, 'generate-client', fixture, '--output', out], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(res.status, res.stderr).toBe(0);
+    generate(fixture, out);
     expect(existsSync(out)).toBe(true);
     generated = readFileSync(out, 'utf-8');
   }, 60_000);
@@ -56,25 +51,7 @@ describe('generate-client query serialization styles', () => {
   });
 
   it('strict-tsc type-checks the generated client', () => {
-    writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({
-        compilerOptions: {
-          module: 'nodenext',
-          moduleResolution: 'nodenext',
-          target: 'es2022',
-          lib: ['ES2022', 'DOM'],
-          strict: true,
-          noEmit: true,
-          skipLibCheck: true,
-          types: [],
-        },
-        include: ['client.ts'],
-      }),
-      'utf-8'
-    );
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    strictTypecheck(dir, ['client.ts']);
   }, 60_000);
 
   it('serializes the wire format: literal delimiters + allowReserved', () => {

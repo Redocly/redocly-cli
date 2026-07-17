@@ -10,26 +10,17 @@
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
+import { generate, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tsc = join(repoRoot, 'node_modules/.bin/tsc');
 const fixture = join(__dirname, 'fixtures/base.yaml');
 
 function gen(dir: string): void {
-  const r = spawnSync(
-    'node',
-    [cli, 'generate-client', fixture, '--output', join(dir, 'client.ts')],
-    {
-      cwd: repoRoot,
-      encoding: 'utf-8',
-    }
-  );
-  if (r.status !== 0) throw new Error(r.stderr);
+  generate(fixture, join(dir, 'client.ts'));
   writeFileSync(
     join(dir, 'tsconfig.json'),
     JSON.stringify({
@@ -51,7 +42,8 @@ function gen(dir: string): void {
 function typechecks(dir: string, consumer: string): boolean {
   writeFileSync(join(dir, 'consumer.ts'), consumer, 'utf-8');
   return (
-    spawnSync(tsc, ['-p', join(dir, 'tsconfig.json')], { cwd: dir, encoding: 'utf-8' }).status === 0
+    spawnSync(tscBin, ['-p', join(dir, 'tsconfig.json')], { cwd: dir, encoding: 'utf-8' })
+      .status === 0
   );
 }
 

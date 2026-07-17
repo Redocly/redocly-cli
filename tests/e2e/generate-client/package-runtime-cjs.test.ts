@@ -1,19 +1,15 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { outdent } from 'outdent';
+
+import { cliEntry, repoRoot, tscBin } from './helpers.js';
 
 // A CommonJS project (e.g. a NestJS backend) consuming a `runtime: package` client emits
 // `require('@redocly/client-generator')`. That resolves through the `default` export
 // condition and loads the ESM entry via Node's require(esm) — supported by every Node
 // version the package's `engines` allow.
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 
 describe('generate-client package runtime in a CommonJS project', () => {
   it('require()s the generated client and completes a call', () => {
@@ -46,7 +42,7 @@ describe('generate-client package runtime in a CommonJS project', () => {
     );
     const generated = spawnSync(
       'node',
-      [cli, 'generate-client', 'openapi.yaml', '--output', 'api.ts', '--runtime', 'package'],
+      [cliEntry, 'generate-client', 'openapi.yaml', '--output', 'api.ts', '--runtime', 'package'],
       { cwd: dir, encoding: 'utf-8' }
     );
     expect(generated.status, generated.stderr).toBe(0);

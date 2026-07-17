@@ -13,12 +13,12 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
 
 describe('generate-client end-to-end (--args-style grouped)', () => {
@@ -37,12 +37,7 @@ describe('generate-client end-to-end (--args-style grouped)', () => {
   });
 
   test('exports the operations by destructuring the client (grouped args = client methods)', () => {
-    const result = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', fixture, '--output', entry, '--args-style', 'grouped'],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(result.status, `generate-client stderr:\n${result.stderr}`).toBe(0);
+    generate(fixture, entry, ['--args-style', 'grouped']);
     expect(existsSync(entry)).toBe(true);
 
     const src = readFileSync(entry, 'utf-8');
@@ -61,7 +56,6 @@ describe('generate-client end-to-end (--args-style grouped)', () => {
   test('the grouped-style client type-checks under strict mode with no unused locals', () => {
     expect(existsSync(entry), 'generation test must run first').toBe(true);
 
-    const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
     const tsc = spawnSync(
       tscBin,
       [

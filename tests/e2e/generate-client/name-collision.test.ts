@@ -8,13 +8,12 @@
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cli = join(repoRoot, 'packages/cli/lib/index.js');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 const fixture = join(__dirname, 'fixtures', 'base.yaml');
 
 /** Recursively collect every generated `.ts` file under `dir`. */
@@ -32,12 +31,7 @@ describe('generate-client operation/schema name collision', () => {
   it('does not emit a self-referential *Result alias; strict tsc passes over the split set', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-collision-'));
     const entry = join(dir, 'client.ts');
-    const res = spawnSync(
-      'node',
-      [cli, 'generate-client', fixture, '--output', entry, '--output-mode', 'split'],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(res.status, res.stderr).toBe(0);
+    generate(fixture, entry, ['--output-mode', 'split']);
 
     const files = collectTsFiles(dir);
     const allSource = files.map((f) => readFileSync(f, 'utf-8'));

@@ -9,12 +9,12 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { generate, tscBin } from './helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
 
 describe('generate-client end-to-end (--output-mode split)', () => {
@@ -35,12 +35,7 @@ describe('generate-client end-to-end (--output-mode split)', () => {
   });
 
   test('writes two sibling files derived from --output', () => {
-    const result = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', fixture, '--output', entry, '--output-mode', 'split'],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
-    expect(result.status, `generate-client stderr:\n${result.stderr}`).toBe(0);
+    generate(fixture, entry, ['--output-mode', 'split']);
     expect(existsSync(entry)).toBe(true);
     expect(existsSync(schemasFile)).toBe(true);
     // Split is exactly two files: no `.http.ts` module anymore.
@@ -68,7 +63,6 @@ describe('generate-client end-to-end (--output-mode split)', () => {
   test('the two-file set type-checks under strict mode with no unused imports', () => {
     expect(existsSync(entry), 'generation test must run first').toBe(true);
 
-    const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
     const tsc = spawnSync(
       tscBin,
       [
