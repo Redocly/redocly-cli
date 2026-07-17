@@ -195,7 +195,7 @@ await listMenuItems({}, { headers: { 'X-Request-Id': '42' } });
 ```
 
 `ctx.operation` is `{ id, path, tags }` — the operationId, the path template (`{param}` placeholders intact), and the operation's tags. All three are **typed literal unions** (`OperationId` / `OperationPath` / `OperationTag`, exported alongside the `OPERATIONS` map), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete and reject typos at compile time.
-See the [`customization` example](./examples/customization) for a runnable end-to-end version, and [ADR-0014](./docs/adr/0014-request-response-customization.md) for the rationale.
+See the [`configure-and-middleware` example](../../tests/e2e/generate-client/examples/configure-and-middleware) for a runnable end-to-end version, and [ADR-0014](./docs/adr/0014-request-response-customization.md) for the rationale.
 
 ### Baking defaults into a published SDK
 
@@ -485,7 +485,7 @@ Inline output embeds the pagination module only when some operation paginates; `
 
 ## Examples
 
-Runnable examples live in [`examples/`](./examples): `zero-install-quickstart`, `fetch-functions`, `configure-and-middleware`, `customization`, `baked-setup`, `sse-streaming`, `zod`, `tanstack-query`, `mock`, `custom-generator`, `programmatic`, `vendored-edge`, `package-runtime` (`runtime: 'package'` — engine fixes via `npm update`), `multi-instance` (per-tenant `createClient` instances over one generated module), `pagination` and `custom-pagination` (the declared convention vs. a hand-written helper), and `nested-facade` (a custom generator grouping operations by tag).
+Runnable examples live in [`examples/`](../../tests/e2e/generate-client/examples): `zero-install-quickstart`, `fetch-functions`, `configure-and-middleware`, `baked-setup`, `sse-streaming`, `zod`, `tanstack-query`, `mock`, `custom-generator`, `programmatic`, `vendored-edge`, `package-runtime` (`runtime: 'package'` — engine fixes via `npm update`), `multi-instance` (per-tenant `createClient` instances over one generated module), `pagination` and `custom-pagination` (the declared convention vs. a hand-written helper), and `nested-facade` (a custom generator grouping operations by tag).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation

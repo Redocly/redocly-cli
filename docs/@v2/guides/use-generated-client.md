@@ -135,7 +135,7 @@ Per-request headers merge lowest → highest: injected auth credentials → type
 
 `use()` **appends** to the middleware chain (it composes with any already-registered or baked-in middleware). `configure({ middleware: [...] })` **replaces** the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
 
-See the [`customization` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/customization) for a runnable version.
+See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
 
 ## Publisher defaults
 

@@ -65,21 +65,30 @@ setApiKey('demo-key-123');
 
 use({
   onRequest: (ctx) => {
-    // `ctx.operation.id` is typed 'listPayments' | 'createPayment' | 'getPayment' —
-    // misspell it and the comparison fails to compile.
+    // `ctx.operation.id` / `ctx.operation.tags` are typed literal unions —
+    // misspell 'createPayment' or 'Payments' and the comparison fails to compile.
     if (ctx.operation.id === 'createPayment') {
       ctx.headers['Idempotency-Key'] = crypto.randomUUID();
+      // Request-body mutation: edits to `ctx.body` are serialized and sent —
+      // the canned POST echoes the body back, so the `web:` prefix shows below.
+      const body = ctx.body as { reference: string };
+      body.reference = `web:${body.reference}`;
+    }
+    if (ctx.operation.tags.includes('Payments')) {
+      ctx.headers['X-Trace-Id'] = 'demo-trace';
     }
     log.push(`→ ${ctx.operation.id} ${ctx.method} ${ctx.operation.path}`);
   },
   // `onResponse` runs per ATTEMPT — watch the 503 and the retried 200 both arrive.
+  // (It can also replace the Response before parsing; here it only observes.)
   onResponse: (response, ctx) => {
     log.push(`← ${ctx.operation.id} ${response.status}`);
   },
 });
 
 async function main() {
-  const payments = await listPayments(); // 503 first, then retried to 200
+  // A header for this one call only goes in the trailing RequestOptions argument.
+  const payments = await listPayments({}, { headers: { 'X-Request-Id': '42' } }); // 503 first, then retried to 200
   const payment = await createPayment({ amount: 4200, currency: 'EUR', reference: 'INV-17' });
   try {
     await getPayment('pay_missing');
