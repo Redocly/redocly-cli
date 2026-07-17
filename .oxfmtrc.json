@@ -14,7 +14,7 @@
     "tests/e2e/generate-client/*-consumer/api*.ts",
     "tests/smoke/**/*.yaml",
     "snapshot*.txt",
-    "*.snapshot.ts",
+    "tests/e2e/generate-client/*.snapshot.ts",
     "*.html",
     "*.hbs",
     "*.toml",

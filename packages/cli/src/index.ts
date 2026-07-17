@@ -233,12 +233,7 @@ yargs(hideBin(process.argv))
             required: true,
             alias: 'p',
           },
-          domain: {
-            description: 'Specify a domain.',
-            alias: 'd',
-            type: 'string',
-            required: false,
-          },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: false },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
@@ -339,11 +334,7 @@ yargs(hideBin(process.argv))
             description: 'Commit creation date.',
             type: 'string',
           },
-          domain: {
-            description: 'Specify a domain.',
-            alias: 'd',
-            type: 'string',
-          },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
           config: {
             description: 'Path to the config file.',
             requiresArg: true,

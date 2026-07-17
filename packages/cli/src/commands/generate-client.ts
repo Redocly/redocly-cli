@@ -89,7 +89,10 @@ export async function handleGenerateClient({
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
     generators: argv.generator,
-    setup: argv.setup === undefined ? undefined : resolvePath(argv.setup),
+    setup:
+      argv.setup === undefined
+        ? undefined
+        : resolveSetup({ setup: argv.setup }, process.cwd()).setup,
   };
 
   const optedIn = Object.keys(apisCfg).filter(
@@ -154,9 +157,7 @@ export async function handleGenerateClient({
     }
 
     try {
-      logger.info(
-        gray(`\n  Generating TypeScript client${job.name ? ` for ${job.name}` : ''}... \n`)
-      );
+      logger.info(gray(`\n  Generating TypeScript client for ${job.name}... \n`));
       const result = await generateClient({
         ...merged,
         api: job.api,
@@ -172,9 +173,7 @@ export async function handleGenerateClient({
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HandledError(
-        `\n❌  Failed to generate TypeScript client${
-          job.name ? ` for ${job.name}` : ''
-        }.\n   ${message}\n`
+        `\n❌  Failed to generate TypeScript client for ${job.name}.\n   ${message}\n`
       );
     }
   }

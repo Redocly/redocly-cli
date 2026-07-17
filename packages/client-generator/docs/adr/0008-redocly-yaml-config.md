@@ -1,6 +1,6 @@
 # ADR 0008: `generate-client` config via `redocly.yaml` `x-client-generator`
 
-- Status: Superseded — the `x-client-generator` extension and the `*.config.ts` /
+- Status: Superseded by ADR-0019 — the `x-client-generator` extension and the `*.config.ts` /
   `--config-file` layer were replaced by a first-class `client` block (top-level shared
   defaults + per-API `apis.<name>.client`) with the output at `apis.<name>.clientOutput`.
 - Date: 2026-06-10

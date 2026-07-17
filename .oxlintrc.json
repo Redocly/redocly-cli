@@ -35,6 +35,7 @@
         "caughtErrors": "none"
       }
     ],
+
     "typescript/ban-ts-comment": "error",
     "typescript/no-empty-object-type": "error",
     "typescript/no-explicit-any": "warn",
@@ -49,6 +50,7 @@
         "fixStyle": "inline-type-imports"
       }
     ],
+
     "import/no-cycle": ["warn"],
     "import/no-duplicates": [
       "error",
@@ -56,6 +58,7 @@
         "preferInline": true
       }
     ],
+
     "oxlint-redocly-plugin/no-typeof-object": "error"
   },
   "overrides": [

@@ -18,7 +18,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0005](./0005-error-mode-terminals.md)                 | Error handling as a generate-time mode (throw vs result)          | Amended by 0017         |
 | [0006](./0006-sse-namespace.md)                        | SSE as a derived response kind under an `sse.*` namespace         | Superseded by 0017      |
 | [0007](./0007-call-site-auth.md)                       | Auth resolved at the call site via async `__auth`                 | Superseded by 0017      |
-| [0008](./0008-redocly-yaml-config.md)                  | `generate-client` config via `redocly.yaml` `x-client-generator`  | Accepted                |
+| [0008](./0008-redocly-yaml-config.md)                  | `generate-client` config via `redocly.yaml` `x-client-generator`  | Superseded by 0019      |
 | [0009](./0009-per-instance-auth.md)                    | Per-instance auth via `ClientConfig.auth`                         | Amended by 0017         |
 | [0010](./0010-mock-data-baked-vs-faker.md)             | Mock data: baked literals by default, faker opt-in                | Accepted                |
 | [0011](./0011-wrapper-generators.md)                   | Data-fetching wrapper generators (`swr`, `tanstack-query`)        | Accepted                |
@@ -29,6 +29,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0016](./0016-msw-generator-vs-mock-server.md)         | In-process MSW mocks coexist with the out-of-process mock server  | Accepted                |
 | [0017](./0017-runtime-module-and-descriptor-client.md) | Hand-written runtime module + descriptor-driven generated clients | Accepted                |
 | [0018](./0018-auto-pagination.md)                      | Auto-pagination as declared, statically verified configuration    | Accepted                |
+| [0019](./0019-first-class-client-config.md)            | `generate-client` config via a first-class `client` block         | Accepted                |
 
 ## Template
 

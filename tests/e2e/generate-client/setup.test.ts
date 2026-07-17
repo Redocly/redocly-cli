@@ -46,6 +46,26 @@ function generate(
   );
 }
 
+describe('--setup rejects remote modules', () => {
+  test('a URL fails with the local-file-path error instead of a garbage path', () => {
+    const result = spawnSync(
+      'node',
+      [
+        cliEntry,
+        'generate-client',
+        fixture,
+        '--output',
+        join(tmpdir(), 'setup-url-client.ts'),
+        '--setup',
+        'https://evil.example/mod.ts',
+      ],
+      { encoding: 'utf-8', cwd: repoRoot }
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('must be a local file path');
+  }, 60_000);
+});
+
 describe('--setup bakes publisher defaults into the single-file client', () => {
   let dir = '';
   beforeAll(() => {
