@@ -12,5 +12,5 @@ npm install
 npm run generate   # runs generate.ts → writes src/api/client.ts
 ```
 
-The generated client under `src/api/` is committed and drift-checked against the generator in CI.
+The generated client under `src/api/` is gitignored; CI regenerates it and type-checks this example.
 `generateClient(...)` returns `{ outputPath, bytes, files }`.

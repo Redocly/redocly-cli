@@ -13,11 +13,10 @@ Either way, requests are served by the mocks — no real backend required.
 
 ```bash
 npm install
-npm run generate   # regenerate src/api from openapi.yaml (optional; client is checked in)
+npm run generate   # generate src/api (the client is gitignored)
 npm run dev        # browser: open the printed local URL
 ```
 
 For the Node variant, import and call `loadMockedMenu()` from `src/node.ts` in your own entrypoint or test.
 
-The generated client + MSW mocks under `src/api/` are committed and drift-checked against the
-generator in CI.
+The generated client + MSW mocks under `src/api/` are gitignored; CI regenerates them and type-checks this example.

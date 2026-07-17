@@ -10,11 +10,12 @@ mechanism composes from the hand-written `src/main.ts`, so it survives regenerat
 4. **Raw-Response handling** — `onResponse` observes or replaces the `Response`.
 5. **Per-call headers** — the trailing `RequestOptions` argument.
 
-The generated client under `src/api/` is checked in and **drift-checked against the generator in CI**.
+The generated client under `src/api/` is gitignored; CI regenerates it and type-checks this example.
 
 ## Run
 
 ```bash
 npm install
+npm run generate   # generate src/api (the client is gitignored)
 npm run dev
 ```

@@ -4,7 +4,7 @@
 # via `npm update @redocly/client-generator`, no regeneration needed.
 apis:
   package-runtime:
-    root: ./openapi.yaml
+    root: ../_shared/cafe.yaml
     clientOutput: ./src/api/client.ts
     client:
       generators:

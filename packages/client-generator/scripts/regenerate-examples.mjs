@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,28 +10,14 @@ const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
-const examples = [
-  'fetch-functions',
-  'customization',
-  'baked-setup',
-  'zod',
-  'mock',
-  'custom-generator',
-  'nested-facade',
-  'tanstack-query',
-  'programmatic',
-  'package-runtime',
-  'zero-install-quickstart',
-  'configure-and-middleware',
-  'multi-instance',
-  'sse-streaming',
-  'vendored-edge',
-  'pagination',
-  'custom-pagination',
-];
+const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
+const examples = readdirSync(examplesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
+  .map((entry) => entry.name)
+  .sort();
 
 for (const name of examples) {
-  const cwd = join(repoRoot, 'tests/e2e/generate-client/examples', name);
+  const cwd = join(examplesDir, name);
   const res = existsSync(join(cwd, 'redocly.yaml'))
     ? spawnSync('node', [cli, 'generate-client'], { cwd, stdio: 'inherit' })
     : spawnSync(tsx, [join(cwd, 'generate.ts')], { cwd, stdio: 'inherit' });

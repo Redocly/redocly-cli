@@ -9,8 +9,8 @@ unchanged one-shot call. Item types are computed statically from the response sc
 
 ```bash
 npm install        # dev tooling only (the CLI + tsx); the client itself needs nothing
-npm run generate   # regenerate src/api from openapi.yaml (optional; client is checked in)
+npm run generate   # generate src/api (the client is gitignored)
 npm start          # iterates two canned pages of orders and prints them
 ```
 
-The generated client under `src/api/` is committed and drift-checked against the generator in CI.
+The generated client under `src/api/` is gitignored; CI regenerates it and type-checks this example.

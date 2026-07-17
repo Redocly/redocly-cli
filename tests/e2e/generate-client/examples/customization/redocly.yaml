@@ -3,7 +3,7 @@
 # (run `redocly generate-client` with no args to build every such api).
 apis:
   customization:
-    root: ./openapi.yaml
+    root: ../_shared/cafe.yaml
     clientOutput: ./src/api/client.ts
     client:
       generators:

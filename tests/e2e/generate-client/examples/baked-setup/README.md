@@ -25,7 +25,7 @@ setup.middleware![0].onRequest!(ctx as never);
 // ctx.headers['X-Idempotency-Key'] is now set; ctx.headers['X-Cafe-SDK'] === '1.0.0'
 ```
 
-The generated client under `src/api/` is checked in and drift-checked in CI.
+The generated client under `src/api/` is gitignored; CI regenerates it and type-checks this example.
 
 ## Run
 

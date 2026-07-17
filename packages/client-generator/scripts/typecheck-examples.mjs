@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,29 +7,15 @@ import { fileURLToPath } from 'node:url';
 // root `npm run typecheck` is a single Node-targeted pass and excludes `examples/`
 // (they are Vite/React apps needing DOM + JSX + bundler resolution), so they are
 // verified here instead — same rigor, the right compiler options per project.
+// Run `examples:regen` first: the gitignored clients must exist to type-check against.
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const tsc = join(repoRoot, 'node_modules/.bin/tsc');
 const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
-const examples = [
-  'fetch-functions',
-  'customization',
-  'baked-setup',
-  'zod',
-  'tanstack-query',
-  'programmatic',
-  'mock',
-  'custom-generator',
-  'nested-facade',
-  'package-runtime',
-  'zero-install-quickstart',
-  'configure-and-middleware',
-  'multi-instance',
-  'sse-streaming',
-  'vendored-edge',
-  'pagination',
-  'custom-pagination',
-];
+const examples = readdirSync(examplesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
+  .map((entry) => entry.name)
+  .sort();
 
 let failed = false;
 for (const name of examples) {

@@ -10,6 +10,7 @@ no npm install, no node_modules at runtime. `worker.ts` is an edge-style handler
 
 ```bash
 npm install         # typescript only — and only to type-check
+npm run generate    # generate src/api (the client is gitignored)
 npm run typecheck
 ```
 

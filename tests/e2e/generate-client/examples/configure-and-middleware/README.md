@@ -9,10 +9,10 @@ The client's DX knobs together: `configure({ serverUrl, retry })` with an expone
 
 ```bash
 npm install
-npm run generate   # regenerate src/api from openapi.yaml (optional; client is checked in)
+npm run generate   # generate src/api (the client is gitignored)
 npm run dev        # open the printed local URL
 ```
 
 The app uses a canned `fetch` so it runs offline and the retry is deterministic: the first
 `GET /payments` attempt returns 503 and the policy resends it. The generated client under
-`src/api/` is committed and drift-checked against the generator in CI.
+`src/api/` is gitignored; CI regenerates it and type-checks this example.
