@@ -54,7 +54,10 @@ A setter is generated for each `securityScheme` the runtime can apply:
 | HTTP `basic`                   | `setBasicAuth(user, pass)`                | `Authorization: Basic <base64>`          |
 | `apiKey` (header/query/cookie) | `setApiKey(key)` / `setApiKey<Name>(key)` | the named header, query param, or cookie |
 
-`setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`. `mutualTLS` is not injectable. Bearer and apiKey credentials accept a **`TokenProvider`** — a string or a (possibly async) function called per request, handy for refresh flows:
+`setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`.
+`mutualTLS` is not injectable.
+Cookie apiKey credentials travel in the `Cookie` request header, which browsers refuse to set — cookie auth works only in server-side clients (the generator warns when a spec declares one).
+Bearer and apiKey credentials accept a **`TokenProvider`** — a string or a (possibly async) function called per request, handy for refresh flows:
 
 ```ts
 import { setBearer } from './client.ts';

@@ -191,6 +191,18 @@ describe('resolveOperationPagination — sources and precedence', () => {
     expect(extensionWins.spec?.style).toBe('offset');
   });
 
+  it('matches exclude and operations keys against the spec operationId of a renamed op', () => {
+    const op = listOrders({ name: 'list_orders', specName: 'list-orders' });
+    expect(
+      resolveOperationPagination(op, modelWith([op]), { ...PAGE_RULE, exclude: ['list-orders'] })
+    ).toEqual({});
+    const result = resolveOperationPagination(op, modelWith([op]), {
+      operations: { 'list-orders': CURSOR_RULE },
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.spec?.style).toBe('cursor');
+  });
+
   it('exclude kills every source for the operation', () => {
     const op = listOrders({ paginationExtension: OFFSET_RULE });
     const result = resolveOperationPagination(op, modelWith([op]), {

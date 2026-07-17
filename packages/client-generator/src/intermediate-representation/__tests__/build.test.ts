@@ -83,6 +83,25 @@ describe('buildApiModel — top-level metadata', () => {
     expect(model.serverUrl).toBe('https://api.example.com');
   });
 
+  it('substitutes server-URL variables with their declared defaults', () => {
+    const model = buildApiModel(
+      doc({
+        servers: [
+          {
+            url: 'https://{env}.example.com/{basePath}',
+            variables: { env: { default: 'api' }, basePath: { default: 'v2' } },
+          },
+        ],
+      })
+    );
+    expect(model.serverUrl).toBe('https://api.example.com/v2');
+  });
+
+  it('keeps an undeclared server-URL variable as its placeholder', () => {
+    const model = buildApiModel(doc({ servers: [{ url: 'https://{env}.example.com' }] }));
+    expect(model.serverUrl).toBe('https://{env}.example.com');
+  });
+
   it('falls back to defaults when info/servers are missing', () => {
     const model = buildApiModel({ openapi: '3.0.3', paths: {} } as Oas3Definition);
     expect(model.title).toBe('Api');
@@ -1887,13 +1906,18 @@ describe('buildApiModel — security (C6.6)', () => {
     ]);
   });
 
-  it('models apiKey-in-cookie schemes with their cookie name', () => {
+  it('models apiKey-in-cookie schemes with their cookie name and warns about browsers', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
     const model = buildApiModel(
       doc(withSchemes({ CookieKey: { type: 'apiKey', in: 'cookie', name: 'sid' } }))
     );
     expect(model.securitySchemes).toEqual([
       { kind: 'apiKeyCookie', key: 'CookieKey', cookieName: 'sid' },
     ]);
+    expect(warn).toHaveBeenCalledWith(
+      'generate-client: security scheme "CookieKey" sends its credential in the Cookie header, ' +
+        'which browsers ignore — cookie auth works only in server-side clients.\n'
+    );
   });
 
   it('skips non-injectable schemes (http without scheme, mutualTLS)', () => {

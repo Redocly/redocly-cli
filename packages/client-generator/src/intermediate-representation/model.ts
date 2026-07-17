@@ -181,6 +181,11 @@ export type SecuritySchemeModel =
 
 export type OperationModel = {
   name: string;
+  /**
+   * The spec's operationId when `name` was rewritten by identifier sanitization.
+   * User-facing config (pagination `exclude`/`operations` keys) matches this.
+   */
+  specName?: string;
   method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
   path: string;
   summary?: string;

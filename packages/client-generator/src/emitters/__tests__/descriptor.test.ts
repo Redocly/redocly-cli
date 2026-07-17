@@ -348,7 +348,6 @@ describe('opsInterfaceStatements', () => {
       argsStyle: 'flat',
       errorMode: 'throw',
       dateType: 'string',
-      queryAuthKeys: new Set(),
       schemaNames: new Set(),
       ...extra,
     };

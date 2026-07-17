@@ -31,8 +31,6 @@ export type EmitContext = {
   argsStyle: ArgsStyle;
   errorMode: ErrorMode;
   dateType: DateType;
-  /** Security-scheme keys whose credential is sent as a URL query param. */
-  queryAuthKeys: Set<string>;
   /** Names of every exported schema, used for `<Op>*` alias collision suppression. */
   schemaNames: Set<string>;
   /** Resolved auto-pagination per operation name (absent ⇒ nothing paginates). */

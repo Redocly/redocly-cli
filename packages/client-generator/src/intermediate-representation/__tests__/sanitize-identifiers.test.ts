@@ -173,6 +173,8 @@ describe('sanitizeIdentifiers', () => {
     sanitizeIdentifiers(m);
     const o = m.services[0].operations[0];
     expect(o.name).toBe('do_thing');
+    // The spec operationId survives the rename so user config keys can still match.
+    expect(o.specName).toBe('do-thing');
     expect(o.pathParams[0].schema).toEqual(ref('A_B'));
     expect(o.queryParams[0].schema).toEqual(ref('A_B'));
     expect(o.headerParams[0].schema).toEqual(ref('A_B'));

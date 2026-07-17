@@ -75,10 +75,11 @@ export function resolveOperationPagination(
   model: ApiModel,
   config: PaginationConfig | undefined
 ): ResolvedPagination {
-  if (config?.exclude?.includes(op.name)) return {};
-  const perOp = config?.operations?.[op.name];
+  const configName = op.specName ?? op.name;
+  if (config?.exclude?.includes(configName)) return {};
+  const perOp = config?.operations?.[configName];
   if (perOp !== undefined) {
-    return applyRule(op, model, perOp, `pagination.operations["${op.name}"]`, true);
+    return applyRule(op, model, perOp, `pagination.operations["${configName}"]`, true);
   }
   if (op.paginationExtension !== undefined) {
     return applyRule(op, model, op.paginationExtension, 'x-pagination', true);

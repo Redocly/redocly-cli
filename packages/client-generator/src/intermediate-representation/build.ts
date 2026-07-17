@@ -8,6 +8,7 @@ import {
   type Oas3Parameter,
   type Oas3PathItem,
   type Oas3Schema,
+  type Oas3Server,
   type Oas3_1Schema,
 } from '@redocly/openapi-core';
 
@@ -196,11 +197,24 @@ function mergeMetadata(
   return { ...a, ...b };
 }
 
+/**
+ * The first server's URL with `{variable}` templates substituted by their declared
+ * defaults (required by the spec). An undeclared variable keeps its placeholder —
+ * there is nothing valid to substitute, and the literal template is easier to spot.
+ */
+function resolveServerUrl(server: Oas3Server | undefined): string {
+  if (!server) return '';
+  return server.url.replace(
+    /\{([^{}]+)\}/g,
+    (template, variableName: string) => server.variables?.[variableName]?.default ?? template
+  );
+}
+
 export function buildApiModel(doc: Oas3Definition): ApiModel {
   const title = doc.info?.title ?? 'Api';
   const version = doc.info?.version ?? '0.0.0';
   const description = doc.info?.description;
-  const serverUrl = doc.servers?.[0]?.url ?? '';
+  const serverUrl = resolveServerUrl(doc.servers?.[0]);
 
   const schemas = buildNamedSchemas(doc);
   const securitySchemes = buildSecuritySchemes(doc);
@@ -320,6 +334,12 @@ function buildSecuritySchemes(doc: Oas3Definition): SecuritySchemeModel[] {
     } else if (type === 'apiKey' && scheme.in === 'query' && typeof scheme.name === 'string') {
       result.push({ kind: 'apiKeyQuery', key, paramName: scheme.name });
     } else if (type === 'apiKey' && scheme.in === 'cookie' && typeof scheme.name === 'string') {
+      // Injected via the Cookie request header, which browsers refuse to set —
+      // the credential silently goes missing there, so tell the user up front.
+      logger.warn(
+        `generate-client: security scheme "${key}" sends its credential in the Cookie header, ` +
+          `which browsers ignore — cookie auth works only in server-side clients.\n`
+      );
       result.push({ kind: 'apiKeyCookie', key, cookieName: scheme.name });
     }
     // Everything else (http schemes other than bearer/basic, mutualTLS) is not

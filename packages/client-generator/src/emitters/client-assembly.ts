@@ -88,9 +88,6 @@ function emitClient(
     argsStyle: options.argsStyle ?? 'flat',
     errorMode: options.errorMode ?? 'throw',
     dateType: options.dateType ?? 'string',
-    queryAuthKeys: new Set(
-      model.securitySchemes.filter((s) => s.kind === 'apiKeyQuery').map((s) => s.key)
-    ),
     schemaNames: new Set(model.schemas.map((s) => s.name)),
     pagination,
   };

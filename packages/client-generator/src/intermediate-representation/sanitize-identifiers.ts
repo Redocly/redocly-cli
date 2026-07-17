@@ -60,6 +60,7 @@ export function sanitizeIdentifiers(model: ApiModel): void {
       const safe = uniqueIdent(op.name, operationNames);
       if (safe !== op.name) {
         warnRename('operation', op.name, safe);
+        op.specName = op.name;
         op.name = safe;
       }
       rewriteOperationRefs(op, fixRef);
