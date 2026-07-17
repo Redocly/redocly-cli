@@ -1,5 +1,5 @@
 import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
-import { getGenerator } from '../index.js';
+import { builtinGenerators } from '../index.js';
 import { swrGenerator } from '../swr.js';
 
 const SERVICES = [
@@ -41,6 +41,6 @@ describe('swrGenerator', () => {
   });
 
   it('is registered under "swr"', () => {
-    expect(getGenerator('swr').run).toBe(swrGenerator);
+    expect(builtinGenerators().get('swr')?.run).toBe(swrGenerator);
   });
 });

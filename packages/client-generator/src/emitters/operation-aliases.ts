@@ -32,7 +32,7 @@ export function renderOperationAliases(
   errorMembers: ts.TypeNode[],
   ctx: EmitContext,
   // SSE ops have no one-shot response, so they omit `*Result`/`*Error` and keep only the input
-  // aliases. (Previously done by a `.slice(1)` on the result; an explicit flag is collision-safe.)
+  // aliases.
   emitResultAndError = true,
   // Threaded to the `<Op>Variables` body — see `variablesTypeLiteral`.
   pathKeys: 'ident' | 'wire' = 'ident'
@@ -159,20 +159,10 @@ function renderVariablesAlias(
   ctx: EmitContext,
   pathKeys: 'ident' | 'wire'
 ): ts.TypeAliasDeclaration | undefined {
-  if (!hasInputs(op)) return undefined;
+  if (!operationSignature(op).hasInputs) return undefined;
   return exportType(
     name + 'Variables',
     variablesTypeLiteral(op, name, orderedPathParams, pathParamIdent, ctx, pathKeys)
-  );
-}
-
-/** Whether an operation accepts any input (path/query/body/header). */
-function hasInputs(op: OperationModel): boolean {
-  return (
-    operationSignature(op).pathParams.length > 0 ||
-    op.queryParams.length > 0 ||
-    Boolean(op.requestBody) ||
-    op.headerParams.length > 0
   );
 }
 

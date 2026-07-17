@@ -1,5 +1,5 @@
 import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { emitClientSingleFile } from '../package-client.js';
+import { emitClientSingleFile } from '../client-assembly.js';
 import { apiModel, namedSchema } from './fixtures.js';
 
 // The package arm keeps the emitted text free of the embedded runtime, so the

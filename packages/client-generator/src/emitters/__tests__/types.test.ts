@@ -1,5 +1,5 @@
 import type { PropertyModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { emitClientSingleFile } from '../package-client.js';
+import { emitClientSingleFile } from '../client-assembly.js';
 import { printNodes } from '../ts.js';
 import { renderSchema, schemaToTypeNode, typesStatements } from '../types.js';
 import { SCALAR, apiModel, namedSchema } from './fixtures.js';

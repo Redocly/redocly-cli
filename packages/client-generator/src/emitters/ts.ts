@@ -6,6 +6,8 @@
 
 import ts from 'typescript';
 
+import { isIdentifier } from './identifier.js';
+
 export { ts };
 
 const printer = ts.createPrinter({
@@ -91,7 +93,6 @@ const { factory } = ts;
  * arrays). Centralizing them keeps emitters terse and their output identical.
  */
 
-/** A `const`/`let` variable statement: `[export] const|let <name>[: type] = <init>;`. */
 /** `export const <name> = <init>;` */
 export function exportConstStatement(name: string, init: ts.Expression): ts.Statement {
   return factory.createVariableStatement(
@@ -120,5 +121,43 @@ export function constArray(elements: ts.Expression[]): ts.Expression {
   return factory.createAsExpression(
     factory.createArrayLiteralExpression(elements, false),
     factory.createTypeReferenceNode('const')
+  );
+}
+
+/**
+ * A plain JS value as a printable literal expression. Negative numbers print as
+ * a unary minus over the positive literal (a `NumericLiteral` node cannot carry
+ * the sign); arrays and objects recurse and print compact, with keys quoted only
+ * when they fail the identifier GRAMMAR — reserved words (a descriptor's `in`
+ * field) are legal bare object-literal keys. The primitive overload's narrower
+ * return type fits `factory.createLiteralTypeNode`.
+ */
+export function literalExpression(
+  value: string | number | boolean | null
+): ts.LiteralExpression | ts.BooleanLiteral | ts.NullLiteral | ts.PrefixUnaryExpression;
+export function literalExpression(value: unknown): ts.Expression;
+export function literalExpression(value: unknown): ts.Expression {
+  if (typeof value === 'string') return factory.createStringLiteral(value);
+  if (typeof value === 'boolean') return value ? factory.createTrue() : factory.createFalse();
+  if (typeof value === 'number') {
+    return value < 0
+      ? factory.createPrefixUnaryExpression(
+          ts.SyntaxKind.MinusToken,
+          factory.createNumericLiteral(-value)
+        )
+      : factory.createNumericLiteral(value);
+  }
+  if (value === null) return factory.createNull();
+  if (Array.isArray(value)) {
+    return factory.createArrayLiteralExpression(value.map(literalExpression), false);
+  }
+  return factory.createObjectLiteralExpression(
+    Object.entries(value as Record<string, unknown>).map(([key, entryValue]) =>
+      factory.createPropertyAssignment(
+        isIdentifier(key) ? key : factory.createStringLiteral(key),
+        literalExpression(entryValue)
+      )
+    ),
+    false
   );
 }

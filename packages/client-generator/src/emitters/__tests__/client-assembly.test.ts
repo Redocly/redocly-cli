@@ -1,6 +1,6 @@
 import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import type { EmitOptions } from '../client.js';
-import { emitClientSingleFile } from '../package-client.js';
+import { emitClientSingleFile } from '../client-assembly.js';
+import type { EmitOptions } from '../emit-options.js';
 import { ts } from '../ts.js';
 import { apiModel, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 

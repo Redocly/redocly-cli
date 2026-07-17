@@ -1,14 +1,13 @@
-import type { ArgsStyle } from './emitters/client.js';
+import type { ArgsStyle } from './emitters/emit-options.js';
 // packages/client-generator/src/config.ts
 import type { PaginationConfig } from './emitters/pagination.js';
-import type { CustomGenerator } from './generators/types.js';
-import type { OutputMode } from './writers/types.js';
+import type { CustomGenerator, OutputMode } from './generators/types.js';
 
 /**
  * The user-facing generation config: the options `generateClient()` accepts, plus the
  * `generators` list. Annotate a standalone config object with `satisfies Config` for
- * type-safe authoring. `redocly.yaml` ingestion is intentionally not modeled here
- * (roadmap P7.5).
+ * type-safe authoring. The CLI merges a `redocly.yaml` `client` block into this shape
+ * via `mergeConfig` (see config-file.ts).
  */
 export type Config = {
   /** Path or URL to the OpenAPI document (or an `apis:` alias from `redocly.yaml`). */

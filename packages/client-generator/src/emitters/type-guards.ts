@@ -34,8 +34,8 @@ type UnionSite = {
  * deduped (`is<Member>`), keeping the first in document order — so a top-level
  * union wins its nicer `value: <UnionName>` parameter over a nested re-occurrence.
  * Undiscriminated unions are skipped — TypeScript can't soundly narrow them.
+ * Returns the guard declarations as nodes (empty when no union narrows).
  */
-/** The type-guard function declarations as nodes (empty when no union narrows). */
 export function typeGuardStatements(schemas: NamedSchemaModel[]): ts.FunctionDeclaration[] {
   const byName = new Map(schemas.map((s) => [s.name, s.schema] as const));
   const nodes: ts.FunctionDeclaration[] = [];

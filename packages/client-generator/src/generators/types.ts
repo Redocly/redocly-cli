@@ -1,11 +1,22 @@
 // packages/client-generator/src/generators/types.ts
-import type { EmitOptions } from '../emitters/client.js';
+import type { EmitOptions } from '../emitters/emit-options.js';
 import type { ErrorMode } from '../emitters/operations.js';
 import type { DateType } from '../emitters/types.js';
 import type { ApiModel } from '../intermediate-representation/model.js';
-import type { GeneratedFile, OutputMode } from '../writers/types.js';
 
-/** The first-party generators the registry knows. Extends as P5 lands (react-query, …). */
+/**
+ * How the generated client is partitioned across files.
+ *
+ * - `single` (default): one self-contained file.
+ * - `split`: schema types + guards in a sibling `<stem>.schemas.ts`; everything
+ *   else in the entry file, which re-exports the schemas module.
+ */
+export type OutputMode = 'single' | 'split';
+
+/** A single file the generator will write to disk. */
+export type GeneratedFile = { path: string; content: string };
+
+/** The first-party generators the registry knows. */
 export type GeneratorName = 'sdk' | 'zod' | 'tanstack-query' | 'swr' | 'transformers' | 'mock';
 
 /** Everything a generator needs to produce its files. */
@@ -20,9 +31,9 @@ export type GeneratorInput = {
 };
 
 /**
- * A Generator turns the IR + options into a set of files. This is the seam new
- * capabilities (zod, framework hooks) plug into — each is a deep module behind a
- * name in the registry. First-party only in P1; no public plugin API yet.
+ * A Generator turns the IR + options into a set of files. Each lives behind a
+ * name in the registry — the built-ins, plus custom generators registered
+ * through the plugin API (see `CustomGenerator`).
  */
 export type Generator = (input: GeneratorInput) => GeneratedFile[];
 

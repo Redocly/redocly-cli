@@ -23,17 +23,6 @@ export function isSseOp(op: OperationModel): boolean {
   return sseResponse(op) !== undefined;
 }
 
-/** Split operations into the regular set and the SSE set, preserving order. */
-export function partitionOps(ops: OperationModel[]): {
-  regular: OperationModel[];
-  sse: OperationModel[];
-} {
-  const regular: OperationModel[] = [];
-  const sse: OperationModel[] = [];
-  for (const op of ops) (isSseOp(op) ? sse : regular).push(op);
-  return { regular, sse };
-}
-
 /** The per-event schema: `itemSchema` → the response `schema` → undefined (typeless slots skipped). */
 function eventSchema(op: OperationModel): SchemaModel | undefined {
   const r = sseResponse(op);

@@ -1,5 +1,6 @@
 import type { SchemaMetadata } from '../intermediate-representation/model.js';
 import { splitLines } from './support.js';
+import { escapeJsDoc } from './ts.js';
 
 /**
  * The JSDoc body for a description + metadata as a single `\n`-joined string,
@@ -53,22 +54,13 @@ function formatMetadata(metadata: SchemaMetadata): string[] {
   if (metadata.exclusiveMaximum !== undefined) push('exclusiveMaximum', metadata.exclusiveMaximum);
   if (metadata.minLength !== undefined) push('minLength', metadata.minLength);
   if (metadata.maxLength !== undefined) push('maxLength', metadata.maxLength);
-  if (metadata.pattern !== undefined) push('pattern', escapeForJsDoc(metadata.pattern));
+  if (metadata.pattern !== undefined) push('pattern', escapeJsDoc(metadata.pattern));
   if (metadata.minItems !== undefined) push('minItems', metadata.minItems);
   if (metadata.maxItems !== undefined) push('maxItems', metadata.maxItems);
   if (metadata.uniqueItems === true) push('uniqueItems');
   if (metadata.format !== undefined) push('format', metadata.format);
   if (metadata.deprecated === true) push('deprecated');
   return lines;
-}
-
-/**
- * Escape any sequence that would prematurely close a JSDoc block. Currently we
- * only need to handle `*​/` — newlines are stripped further upstream because
- * spec-supplied strings (`pattern`, `format`) are single-line by construction.
- */
-function escapeForJsDoc(value: string): string {
-  return value.replace(/\*\//g, '*\\/');
 }
 
 function trimLines(lines: string[]): string[] {

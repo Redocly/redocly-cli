@@ -1,19 +1,19 @@
 import { NotSupportedError } from '../../errors.js';
-import { builtinGenerators, getGenerator, validateGenerators } from '../index.js';
+import { builtinGenerators, validateGenerators } from '../index.js';
 import { sdkGenerator } from '../sdk.js';
 import { zodGenerator } from '../zod.js';
 
-describe('getGenerator', () => {
-  it('returns the sdk generator descriptor', () => {
-    expect(getGenerator('sdk').run).toBe(sdkGenerator);
+describe('builtinGenerators', () => {
+  it('registers the sdk generator descriptor', () => {
+    expect(builtinGenerators().get('sdk')?.run).toBe(sdkGenerator);
   });
 
-  it('returns the zod generator descriptor', () => {
-    expect(getGenerator('zod').run).toBe(zodGenerator);
+  it('registers the zod generator descriptor', () => {
+    expect(builtinGenerators().get('zod')?.run).toBe(zodGenerator);
   });
 
-  it('throws NotSupportedError for an unknown generator name', () => {
-    expect(() => getGenerator('nope' as never)).toThrow(NotSupportedError);
+  it('has no entry for an unknown generator name', () => {
+    expect(builtinGenerators().has('nope')).toBe(false);
   });
 });
 
@@ -62,9 +62,9 @@ describe('validateGenerators', () => {
 
 describe('swr generator', () => {
   it('is registered and requires sdk', () => {
-    const descriptor = getGenerator('swr');
-    expect(descriptor.run).toBeDefined();
-    expect(descriptor.requires).toContain('sdk');
+    const descriptor = builtinGenerators().get('swr');
+    expect(descriptor?.run).toBeDefined();
+    expect(descriptor?.requires).toContain('sdk');
   });
 
   it('accepts sdk + swr with the default error-mode', () => {
@@ -106,8 +106,7 @@ describe('validateGenerators — runtime compatibility', () => {
 
 describe('mock generator', () => {
   it('is registered and requires sdk', () => {
-    const descriptor = getGenerator('mock');
-    expect(descriptor.requires).toContain('sdk');
+    expect(builtinGenerators().get('mock')?.requires).toContain('sdk');
   });
 
   it('validateGenerators accepts sdk + mock', () => {

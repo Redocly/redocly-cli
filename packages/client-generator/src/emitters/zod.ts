@@ -9,19 +9,19 @@
 // between major versions and are deferred. Refs become `z.lazy(() => …Schema)`,
 // which sidesteps declaration ordering and recursion uniformly.
 
-import type {
-  ApiModel,
-  NamedSchemaModel,
-  PropertyModel,
-  ScalarKind,
-  SchemaMetadata,
-  SchemaModel,
+import {
+  allOperations,
+  type ApiModel,
+  type NamedSchemaModel,
+  type PropertyModel,
+  type ScalarKind,
+  type SchemaMetadata,
+  type SchemaModel,
 } from '../intermediate-representation/model.js';
-import { allOperations } from '../writers/util.js';
 import { safeIdent } from './identifier.js';
 import { isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
-import { jsdoc, printStatements, ts } from './ts.js';
+import { jsdoc, literalExpression, printStatements, ts } from './ts.js';
 
 const { factory } = ts;
 
@@ -47,21 +47,6 @@ function chain(expr: ts.Expression, method: string, args: ts.Expression[] = []):
     undefined,
     args
   );
-}
-
-function numberLiteral(value: number): ts.Expression {
-  return value < 0
-    ? factory.createPrefixUnaryExpression(
-        ts.SyntaxKind.MinusToken,
-        factory.createNumericLiteral(-value)
-      )
-    : factory.createNumericLiteral(value);
-}
-
-function literalExpression(value: string | number | boolean): ts.Expression {
-  if (typeof value === 'string') return factory.createStringLiteral(value);
-  if (typeof value === 'boolean') return value ? factory.createTrue() : factory.createFalse();
-  return numberLiteral(value);
 }
 
 type SchemaByName = ReadonlyMap<string, SchemaModel>;
@@ -251,26 +236,28 @@ function withRefinements(expr: ts.Expression, schema: SchemaModel): ts.Expressio
   if (!m) return expr;
   let out = expr;
   if (schema.kind === 'scalar' && schema.scalar === 'string') {
-    if (m.minLength !== undefined) out = chain(out, 'min', [numberLiteral(m.minLength)]);
-    if (m.maxLength !== undefined) out = chain(out, 'max', [numberLiteral(m.maxLength)]);
+    if (m.minLength !== undefined) out = chain(out, 'min', [literalExpression(m.minLength)]);
+    if (m.maxLength !== undefined) out = chain(out, 'max', [literalExpression(m.maxLength)]);
     if (m.pattern !== undefined) out = chain(out, 'regex', [regexExpression(m.pattern)]);
   }
   if (schema.kind === 'scalar' && (schema.scalar === 'number' || schema.scalar === 'integer')) {
     out = numericRefinements(out, m);
   }
   if (schema.kind === 'array') {
-    if (m.minItems !== undefined) out = chain(out, 'min', [numberLiteral(m.minItems)]);
-    if (m.maxItems !== undefined) out = chain(out, 'max', [numberLiteral(m.maxItems)]);
+    if (m.minItems !== undefined) out = chain(out, 'min', [literalExpression(m.minItems)]);
+    if (m.maxItems !== undefined) out = chain(out, 'max', [literalExpression(m.maxItems)]);
   }
   return out;
 }
 
 function numericRefinements(expr: ts.Expression, m: SchemaMetadata): ts.Expression {
   let out = expr;
-  if (m.minimum !== undefined) out = chain(out, 'min', [numberLiteral(m.minimum)]);
-  if (m.maximum !== undefined) out = chain(out, 'max', [numberLiteral(m.maximum)]);
-  if (m.exclusiveMinimum !== undefined) out = chain(out, 'gt', [numberLiteral(m.exclusiveMinimum)]);
-  if (m.exclusiveMaximum !== undefined) out = chain(out, 'lt', [numberLiteral(m.exclusiveMaximum)]);
+  if (m.minimum !== undefined) out = chain(out, 'min', [literalExpression(m.minimum)]);
+  if (m.maximum !== undefined) out = chain(out, 'max', [literalExpression(m.maximum)]);
+  if (m.exclusiveMinimum !== undefined)
+    out = chain(out, 'gt', [literalExpression(m.exclusiveMinimum)]);
+  if (m.exclusiveMaximum !== undefined)
+    out = chain(out, 'lt', [literalExpression(m.exclusiveMaximum)]);
   return out;
 }
 

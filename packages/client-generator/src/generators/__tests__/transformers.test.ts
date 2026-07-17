@@ -1,5 +1,5 @@
 import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
-import { getGenerator } from '../index.js';
+import { builtinGenerators } from '../index.js';
 import { transformersGenerator } from '../transformers.js';
 
 const EVENT = namedSchema('Event', {
@@ -46,6 +46,6 @@ describe('transformersGenerator', () => {
   });
 
   it('is registered under "transformers"', () => {
-    expect(getGenerator('transformers').run).toBe(transformersGenerator);
+    expect(builtinGenerators().get('transformers')?.run).toBe(transformersGenerator);
   });
 });

@@ -8,7 +8,6 @@
 // generated sdk. AST-native via `ts.factory`.
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
-import { operationSignature } from './operation-signature.js';
 import {
   arrow,
   constArray,
@@ -20,7 +19,8 @@ import {
   hasInputs,
   initParam,
   isQuery,
-  variablesName,
+  sdkCall,
+  sdkNamedImport,
   varsParam,
   wrappableOperations,
 } from './wrapper-support.js';
@@ -52,34 +52,6 @@ function tanstackStatements(ops: OperationModel[], opts: TanstackOptions): ts.St
   return [...importHeader(ops, opts, hasQuery), ...statements];
 }
 
-/**
- * The forwarding call to the sdk operation function. Argument order comes from the
- * shared `operationSignature`, so it lines up with the sdk's parameter list by
- * construction. `grouped` passes `vars` (when inputs) then `init` (query only); `flat`
- * spreads `vars.<pathIdent>` (URL-template order), then `vars.params` / `vars.body` /
- * `vars.headers` for the slots the op has, then `init` (query only).
- */
-function sdkCall(op: OperationModel, opts: TanstackOptions, query: boolean): ts.Expression {
-  const sig = operationSignature(op);
-  const vars = factory.createIdentifier('vars');
-  const init = factory.createIdentifier('init');
-  const args: ts.Expression[] = [];
-
-  if (opts.argsStyle === 'grouped') {
-    if (sig.hasInputs) args.push(vars);
-  } else {
-    for (const { ident } of sig.pathParams) {
-      args.push(factory.createPropertyAccessExpression(vars, ident));
-    }
-    if (sig.hasQuery) args.push(factory.createPropertyAccessExpression(vars, 'params'));
-    if (sig.hasBody) args.push(factory.createPropertyAccessExpression(vars, 'body'));
-    if (sig.hasHeaders) args.push(factory.createPropertyAccessExpression(vars, 'headers'));
-  }
-  if (query) args.push(init);
-
-  return factory.createCallExpression(factory.createIdentifier(op.name), undefined, args);
-}
-
 /** A query op's `<op>QueryKey` + `<op>Options` statements. */
 function queryStatements(op: OperationModel, opts: TanstackOptions): ts.Statement[] {
   const inputs = hasInputs(op);
@@ -101,7 +73,10 @@ function queryStatements(op: OperationModel, opts: TanstackOptions): ts.Statemen
       factory.createObjectLiteralExpression(
         [
           factory.createPropertyAssignment('queryKey', keyCall),
-          factory.createPropertyAssignment('queryFn', arrow([], sdkCall(op, opts, true))),
+          factory.createPropertyAssignment(
+            'queryFn',
+            arrow([], sdkCall(op, opts.argsStyle, 'vars', true))
+          ),
         ],
         true
       ),
@@ -116,7 +91,10 @@ function queryStatements(op: OperationModel, opts: TanstackOptions): ts.Statemen
 /** A mutation op's `<op>Mutation` statement. */
 function mutationStatement(op: OperationModel, opts: TanstackOptions): ts.Statement {
   const inputs = hasInputs(op);
-  const mutationFn = arrow(inputs ? [varsParam(op)] : [], sdkCall(op, opts, false));
+  const mutationFn = arrow(
+    inputs ? [varsParam(op)] : [],
+    sdkCall(op, opts.argsStyle, 'vars', false)
+  );
 
   const obj = factory.createObjectLiteralExpression(
     [
@@ -135,9 +113,7 @@ function mutationStatement(op: OperationModel, opts: TanstackOptions): ts.Statem
 
 /**
  * The import header: `queryOptions` from `@tanstack/${framework}-query` (when any
- * query op), and the wrapped opFns + referenced `<Op>Variables` types + `RequestOptions`
- * (when any query) from the sdk module. Value specifiers then `type` specifiers,
- * each group sorted.
+ * query op), then the shared sdk named import.
  */
 function importHeader(
   ops: OperationModel[],
@@ -155,24 +131,6 @@ function importHeader(
     ),
     factory.createStringLiteral(`@tanstack/${opts.framework}-query`)
   );
-
-  const values = ops.map((op) => op.name).sort();
-  const types = ops.filter(hasInputs).map(variablesName).sort();
-  if (hasQuery) types.push('RequestOptions');
-
-  const specifiers = [
-    ...values.map((name) =>
-      factory.createImportSpecifier(false, undefined, factory.createIdentifier(name))
-    ),
-    ...types.map((name) =>
-      factory.createImportSpecifier(true, undefined, factory.createIdentifier(name))
-    ),
-  ];
-  const sdkImport = factory.createImportDeclaration(
-    undefined,
-    factory.createImportClause(false, undefined, factory.createNamedImports(specifiers)),
-    factory.createStringLiteral(opts.sdkModule)
-  );
-
+  const sdkImport = sdkNamedImport(ops, opts.sdkModule, hasQuery);
   return hasQuery ? [tanstack, sdkImport] : [sdkImport];
 }

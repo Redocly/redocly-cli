@@ -1,4 +1,4 @@
-import { banner, HEADER, renderTitleComment } from '../client.js';
+import { banner, HEADER, renderTitleComment } from '../emit-options.js';
 import { apiModel } from './fixtures.js';
 
 describe('banner', () => {

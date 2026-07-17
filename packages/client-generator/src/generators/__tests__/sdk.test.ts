@@ -1,5 +1,5 @@
+import { HEADER } from '../../emitters/emit-options.js';
 import type { ApiModel } from '../../intermediate-representation/model.js';
-import { getWriter } from '../../writers/index.js';
 import { sdkGenerator } from '../sdk.js';
 
 function apiModel(): ApiModel {
@@ -32,12 +32,16 @@ function apiModel(): ApiModel {
 }
 
 describe('sdkGenerator', () => {
-  it('produces byte-identical output to the writer it wraps (single mode)', () => {
-    const model = apiModel();
-    const input = { model, outputPath: '/out/api.ts', outputMode: 'single' as const, emit: {} };
-    const viaGenerator = sdkGenerator(input);
-    const viaWriter = getWriter('single')({ model, outputPath: '/out/api.ts', emit: {} });
-    expect(viaGenerator).toEqual(viaWriter);
+  it('writes the whole client to the output path in single mode', () => {
+    const files = sdkGenerator({
+      model: apiModel(),
+      outputPath: '/out/api.ts',
+      outputMode: 'single',
+      emit: {},
+    });
+    expect(files.map((file) => file.path)).toEqual(['/out/api.ts']);
+    expect(files[0].content.startsWith(HEADER)).toBe(true);
+    expect(files[0].content).toContain('export const client =');
   });
 
   it('honors the output mode (split carves the schemas into a sibling file)', () => {

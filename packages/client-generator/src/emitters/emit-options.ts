@@ -5,8 +5,8 @@ import { splitLines } from './support.js';
 import { escapeJsDoc } from './ts.js';
 import type { DateType, EnumStyle } from './types.js';
 
-// The public option vocabulary is re-exported from this composition module, so
-// writers and the package barrel import the emitter surface from one place.
+// The public option vocabulary is re-exported from this module, so generators
+// and the package barrel import the emitter surface from one place.
 export type { ArgsStyle } from './operations.js';
 
 /** The generated-by banner prepended to every emitted module. */

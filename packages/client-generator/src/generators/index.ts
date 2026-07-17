@@ -1,4 +1,4 @@
-import type { EmitOptions } from '../emitters/client.js';
+import type { EmitOptions } from '../emitters/emit-options.js';
 import { NotSupportedError } from '../errors.js';
 import { mockGenerator } from './mock.js';
 import { sdkGenerator } from './sdk.js';
@@ -31,15 +31,6 @@ const GENERATORS: Record<GeneratorName, GeneratorDescriptor> = {
   // mock emits a standalone MSW handlers/factories module referencing the sdk's types.
   mock: { run: mockGenerator, requires: ['sdk'] },
 };
-
-/** Select a first-party generator by name. Mirrors `getWriter(outputMode)`. */
-export function getGenerator(name: GeneratorName): GeneratorDescriptor {
-  const generator = GENERATORS[name];
-  if (!generator) {
-    throw new NotSupportedError(`Unknown generator: ${name}`);
-  }
-  return generator;
-}
 
 /**
  * A fresh registry of the built-in generators keyed by name. The plugin resolver seeds from this

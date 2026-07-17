@@ -1,9 +1,8 @@
 import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
 
-import type { ArgsStyle } from './emitters/client.js';
+import type { ArgsStyle } from './emitters/emit-options.js';
 import type { PaginationConfig } from './emitters/pagination.js';
-import type { CustomGenerator } from './generators/types.js';
-import type { OutputMode } from './writers/types.js';
+import type { CustomGenerator, OutputMode } from './generators/types.js';
 
 export type GenerateClientOptions = {
   /** Path or URL to the OpenAPI document (or an `apis:` alias from `redocly.yaml`). */
@@ -116,9 +115,4 @@ export type LoadResult = {
   document: Oas3Definition;
   /** The detected input spec version (e.g. 'oas2', 'oas3_0', 'oas3_1', 'oas3_2'). */
   version: ReturnType<typeof detectSpec>;
-  /**
-   * Every source that contributed to the bundle — the entry document plus all external `$ref`
-   * targets, as absolute filesystem paths (remote `$ref`s appear as `http(s)://` URLs).
-   */
-  fileDependencies: Set<string>;
 };

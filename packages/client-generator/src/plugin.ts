@@ -39,11 +39,12 @@ export function defineGenerator(generator: CustomGenerator): CustomGenerator {
 // --- The authoring contract + the data a generator receives -----------------------------------
 export type {
   CustomGenerator,
+  GeneratedFile,
   Generator,
   GeneratorInput,
   GeneratorName,
+  OutputMode,
 } from './generators/types.js';
-export type { GeneratedFile, OutputMode } from './writers/types.js';
 export type { ArgsStyle, ErrorMode } from './emitters/operations.js';
 export type { DateType } from './emitters/types.js';
 

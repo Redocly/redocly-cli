@@ -1,18 +1,17 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
-import type { EmitOptions } from './emitters/client.js';
+import type { EmitOptions } from './emitters/emit-options.js';
 import { bakeSetup } from './emitters/setup-bake.js';
 import { NotSupportedError } from './errors.js';
 import { builtinGenerators, validateGenerators } from './generators/index.js';
 import { resolveGenerators } from './generators/resolve.js';
-import type { GeneratorDescriptor } from './generators/types.js';
+import type { GeneratedFile, GeneratorDescriptor, OutputMode } from './generators/types.js';
 import { buildApiModel } from './intermediate-representation/build.js';
 import type { ApiModel } from './intermediate-representation/model.js';
 import { normalizeSwagger2 } from './intermediate-representation/normalize-swagger2.js';
 import { loadSpec } from './loader.js';
 import type { GenerateClientOptions, GenerateClientResult } from './types.js';
-import type { GeneratedFile, OutputMode } from './writers/types.js';
 
 export { NotSupportedError } from './errors.js';
 export { defineClientSetup } from './runtime-contract.js';

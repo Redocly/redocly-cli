@@ -110,6 +110,11 @@ export type PropertyModel = {
 
 export type ParamModel = {
   name: string;
+  /**
+   * `'cookie'` exists only inside the builder: cookie parameters are dropped
+   * (with a warning) before the operation model is assembled, so a built
+   * `ApiModel` never carries one.
+   */
   in: 'path' | 'query' | 'header' | 'cookie';
   schema: SchemaModel;
   required: boolean;
@@ -232,3 +237,10 @@ export type ApiModel = {
   schemas: NamedSchemaModel[];
   securitySchemes: SecuritySchemeModel[];
 };
+
+/** All operations across the model's services, flattened. */
+export function allOperations(
+  operationsByService: { operations: OperationModel[] }[]
+): OperationModel[] {
+  return operationsByService.flatMap((service) => service.operations);
+}

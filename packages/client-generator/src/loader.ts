@@ -18,8 +18,5 @@ export async function loadSpec(ref: string, config?: Config): Promise<LoadResult
   return {
     document: parsed as unknown as Oas3Definition,
     version: detectSpec(parsed),
-    // The entry plus every external `$ref` target the resolver read (absolute fs paths;
-    // remote refs appear as URLs).
-    fileDependencies: result.fileDependencies,
   };
 }

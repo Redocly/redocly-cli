@@ -1,11 +1,4 @@
-// Low-level text helpers shared by the structural emitters (types, operations,
-// auth) and the composition layer. Private to `emitters/` — never reached by
-// writers, which see only the `ClientModules` seam.
-
-/** Join non-empty code sections with blank lines and a trailing newline. */
-export function joinSections(sections: string[]): string {
-  return sections.filter((s) => s.length > 0).join('\n\n') + '\n';
-}
+// Low-level text helpers shared across the emitters. Private to `emitters/`.
 
 /**
  * Upper-case the first character of an operation name. We don't normalize the

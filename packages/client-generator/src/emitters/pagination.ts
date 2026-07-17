@@ -8,13 +8,13 @@
 
 import { isPlainObject } from '@redocly/openapi-core';
 
-import type {
-  ApiModel,
-  OperationModel,
-  SchemaModel,
+import {
+  allOperations,
+  type ApiModel,
+  type OperationModel,
+  type SchemaModel,
 } from '../intermediate-representation/model.js';
 import type { PaginationSpec } from '../runtime/types.js';
-import { allOperations } from '../writers/util.js';
 import { isSseOp } from './sse.js';
 
 /** The pagination styles the generated runtime can drive. */

@@ -9,7 +9,6 @@
 // AST-native via `ts.factory`.
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
-import { operationSignature } from './operation-signature.js';
 import { pascalCase } from './support.js';
 import {
   arrow,
@@ -22,6 +21,8 @@ import {
   hasInputs,
   initParam,
   isQuery,
+  sdkCall,
+  sdkNamedImport,
   variablesName,
   varsParam,
   wrappableOperations,
@@ -72,38 +73,6 @@ function exportHook(
   );
 }
 
-/**
- * The forwarding call to the sdk operation function. Argument order comes from the
- * shared `operationSignature`, so it lines up with the sdk's parameter list. `grouped`
- * passes the source object (when inputs); `flat` spreads `<src>.<pathIdent>` (URL-template
- * order), then `<src>.params`/`.body`/`.headers` for the slots the op has. `init` is
- * appended last for queries (the sdk function's trailing `RequestOptions`).
- */
-function sdkCall(
-  op: OperationModel,
-  opts: SwrOptions,
-  src: string,
-  withInit: boolean
-): ts.Expression {
-  const sig = operationSignature(op);
-  const source = factory.createIdentifier(src);
-  const args: ts.Expression[] = [];
-
-  if (opts.argsStyle === 'grouped') {
-    if (sig.hasInputs) args.push(source);
-  } else {
-    for (const { ident } of sig.pathParams) {
-      args.push(factory.createPropertyAccessExpression(source, ident));
-    }
-    if (sig.hasQuery) args.push(factory.createPropertyAccessExpression(source, 'params'));
-    if (sig.hasBody) args.push(factory.createPropertyAccessExpression(source, 'body'));
-    if (sig.hasHeaders) args.push(factory.createPropertyAccessExpression(source, 'headers'));
-  }
-  if (withInit) args.push(factory.createIdentifier('init'));
-
-  return factory.createCallExpression(factory.createIdentifier(op.name), undefined, args);
-}
-
 /** A query op's `<op>Key` factory + `use<Op>` hook calling `useSWR`. */
 function queryStatements(op: OperationModel, opts: SwrOptions): ts.Statement[] {
   const inputs = hasInputs(op);
@@ -119,7 +88,7 @@ function queryStatements(op: OperationModel, opts: SwrOptions): ts.Statement[] {
   );
   const useSwr = factory.createCallExpression(factory.createIdentifier('useSWR'), undefined, [
     keyCall,
-    arrow([], sdkCall(op, opts, 'vars', true)),
+    arrow([], sdkCall(op, opts.argsStyle, 'vars', true)),
   ]);
 
   const params = inputs ? [varsParam(op), initParam()] : [initParam()];
@@ -133,7 +102,9 @@ function mutationStatement(op: OperationModel, opts: SwrOptions): ts.Statement {
 
   // `(_key: string, { arg }: { arg: <Op>Variables }) => <op>(…arg)` when the op has inputs;
   // a no-arg `() => <op>()` when it has none (`arg` would be unused).
-  const trigger = inputs ? triggerWithArg(op, opts) : arrow([], sdkCall(op, opts, 'arg', false));
+  const trigger = inputs
+    ? triggerWithArg(op, opts)
+    : arrow([], sdkCall(op, opts.argsStyle, 'arg', false));
   const useSwrMutation = factory.createCallExpression(
     factory.createIdentifier('useSWRMutation'),
     undefined,
@@ -165,14 +136,12 @@ function triggerWithArg(op: OperationModel, opts: SwrOptions): ts.ArrowFunction 
       ),
     ])
   );
-  return arrow([keyParam, argParam], sdkCall(op, opts, 'arg', false));
+  return arrow([keyParam, argParam], sdkCall(op, opts.argsStyle, 'arg', false));
 }
 
 /**
  * The import header: `useSWR` from `swr` (when any query op), `useSWRMutation` from
- * `swr/mutation` (when any mutation op), and the wrapped opFns + referenced
- * `<Op>Variables` types + `RequestOptions` (when any query) from the sdk module.
- * Value specifiers then `type` specifiers, each group sorted.
+ * `swr/mutation` (when any mutation op), then the shared sdk named import.
  */
 function importHeader(
   ops: OperationModel[],
@@ -183,25 +152,7 @@ function importHeader(
   const imports: ts.Statement[] = [];
   if (hasQuery) imports.push(defaultImport('useSWR', 'swr'));
   if (hasMutation) imports.push(defaultImport('useSWRMutation', 'swr/mutation'));
-
-  const values = ops.map((op) => op.name).sort();
-  const types = ops.filter(hasInputs).map(variablesName).sort();
-  if (hasQuery) types.push('RequestOptions');
-
-  const specifiers = [
-    ...values.map((name) =>
-      factory.createImportSpecifier(false, undefined, factory.createIdentifier(name))
-    ),
-    ...types.map((name) =>
-      factory.createImportSpecifier(true, undefined, factory.createIdentifier(name))
-    ),
-  ];
-  const sdkImport = factory.createImportDeclaration(
-    undefined,
-    factory.createImportClause(false, undefined, factory.createNamedImports(specifiers)),
-    factory.createStringLiteral(opts.sdkModule)
-  );
-  imports.push(sdkImport);
+  imports.push(sdkNamedImport(ops, opts.sdkModule, hasQuery));
   return imports;
 }
 

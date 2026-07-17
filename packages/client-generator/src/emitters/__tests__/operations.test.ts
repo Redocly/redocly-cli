@@ -1,9 +1,9 @@
 // The flat sugar signatures (`renderArgList`) and the `<Op>*` operation aliases as
 // they appear in the descriptor-wired single-file client. The wiring itself (Ops,
-// OPERATIONS, client, auth sugar) is covered in package-client.test.ts; here the
+// OPERATIONS, client, auth sugar) is covered in client-assembly.test.ts; here the
 // focus is one operation's developer-facing surface.
 import type { OperationModel, RequestBodyModel } from '../../intermediate-representation/model.js';
-import { emitClientSingleFile } from '../package-client.js';
+import { emitClientSingleFile } from '../client-assembly.js';
 import { SCALAR, apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';
 
 /** Emit a result-mode single-file client whose only operation is `operation(op)`. */

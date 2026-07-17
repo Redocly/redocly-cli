@@ -74,39 +74,6 @@ describe('loadSpec', () => {
     expect(result.version).toBe('oas3_0');
   });
 
-  it('returns the source files read — the entry plus external $ref targets', async () => {
-    const pet = await write(
-      'pet.yaml',
-      outdent`
-        type: object
-        properties:
-          id: { type: integer }
-      `
-    );
-    const entry = await write(
-      'split.yaml',
-      outdent`
-        openapi: 3.0.3
-        info:
-          title: Split
-          version: 1.0.0
-        paths:
-          /pets:
-            get:
-              responses:
-                '200':
-                  description: ok
-                  content:
-                    application/json:
-                      schema:
-                        $ref: './pet.yaml'
-      `
-    );
-    const { fileDependencies } = await loadSpec(entry);
-    expect(fileDependencies.has(entry)).toBe(true);
-    expect(fileDependencies.has(pet)).toBe(true);
-  });
-
   it('propagates errors from bundle() for null/empty documents', async () => {
     const file = await write('null.yaml', 'null\n');
     await expect(loadSpec(file)).rejects.toThrow();

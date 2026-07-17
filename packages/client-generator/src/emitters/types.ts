@@ -7,7 +7,7 @@ import type {
 } from '../intermediate-representation/model.js';
 import { isIdentifier, safeIdent } from './identifier.js';
 import { jsdocText } from './jsdoc.js';
-import { jsdoc, printNodes, ts } from './ts.js';
+import { jsdoc, literalExpression, printNodes, ts } from './ts.js';
 
 const { factory } = ts;
 
@@ -166,19 +166,6 @@ function propertySignature(p: PropertyModel, dateType: DateType): ts.PropertySig
 function propertyName(name: string): ts.PropertyName {
   const safe = safeIdent(name);
   return safe === name ? factory.createIdentifier(name) : factory.createStringLiteral(name);
-}
-
-function literalExpression(
-  value: string | number | boolean
-): ts.LiteralExpression | ts.BooleanLiteral | ts.PrefixUnaryExpression {
-  if (typeof value === 'string') return factory.createStringLiteral(value);
-  if (typeof value === 'boolean') return value ? factory.createTrue() : factory.createFalse();
-  return value < 0
-    ? factory.createPrefixUnaryExpression(
-        ts.SyntaxKind.MinusToken,
-        factory.createNumericLiteral(-value)
-      )
-    : factory.createNumericLiteral(value);
 }
 
 function scalarTypeNode(

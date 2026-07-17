@@ -1,4 +1,4 @@
-import type { Oas3Definition, Oas3Schema } from '@redocly/openapi-core';
+import { logger, type Oas3Definition, type Oas3Schema } from '@redocly/openapi-core';
 
 import { NotSupportedError } from '../../errors.js';
 import { buildApiModel } from '../build.js';
@@ -278,7 +278,6 @@ describe('buildOperation — param paths', () => {
               { name: 'p', in: 'path', required: true, schema: { type: 'string' } },
               { name: 'q', in: 'query', schema: { type: 'string' } },
               { name: 'X-Tok', in: 'header', schema: { type: 'string' } },
-              { name: 'c', in: 'cookie', schema: { type: 'string' } },
             ] as never,
             responses: {},
           },
@@ -288,6 +287,34 @@ describe('buildOperation — param paths', () => {
     expect(op.pathParams.map((p) => p.name)).toEqual(['p']);
     expect(op.queryParams.map((p) => p.name)).toEqual(['q']);
     expect(op.headerParams.map((p) => p.name)).toEqual(['X-Tok']);
+  });
+
+  it('drops cookie parameters with a warning naming the operation and parameter', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    try {
+      const op = buildOpOnly({
+        paths: {
+          '/orders/{id}': {
+            get: {
+              operationId: 'getOrder',
+              parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+                { name: 'sid', in: 'cookie', schema: { type: 'string' } },
+              ] as never,
+              responses: {},
+            },
+          } as never,
+        },
+      });
+      expect(op.pathParams.map((p) => p.name)).toEqual(['id']);
+      expect(op.queryParams).toEqual([]);
+      expect(op.headerParams).toEqual([]);
+      expect(warn).toHaveBeenCalledWith(
+        'generate-client: skipped cookie parameter(s) "sid" on operation "getOrder" — cookie parameters are not supported.\n'
+      );
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('resolves a $ref requestBody', () => {

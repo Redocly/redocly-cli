@@ -3,12 +3,7 @@ import type {
   OperationModel,
   ResponseBodyModel,
 } from '../../intermediate-representation/model.js';
-import {
-  descriptorStatements,
-  literalExpr,
-  opsInterfaceStatements,
-  packageIdents,
-} from '../descriptor.js';
+import { descriptorStatements, opsInterfaceStatements, packageIdents } from '../descriptor.js';
 import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
 import { printStatements } from '../ts.js';
@@ -54,26 +49,6 @@ describe('packageIdents', () => {
     const idents = packageIdents(modelWith([op('TokenProvider'), op('__redoclySetup')]));
     expect(idents.get('TokenProvider')).toBe('TokenProvider_2');
     expect(idents.get('__redoclySetup')).toBe('__redoclySetup_2');
-  });
-});
-
-describe('literalExpr', () => {
-  function print(value: unknown): string {
-    return printStatements([literalExpr(value)]);
-  }
-
-  it('converts scalars, null, arrays, and objects to expression source', () => {
-    expect(print('x')).toBe('"x"');
-    expect(print(42)).toBe('42');
-    expect(print(true)).toBe('true');
-    expect(print(false)).toBe('false');
-    expect(print(null)).toBe('null');
-    expect(print([1, 'a'])).toBe('[1, "a"]');
-    expect(print({ a: 1, b: [true] })).toBe('{ a: 1, b: [true] }');
-  });
-
-  it('quotes object keys that are not identifier-safe', () => {
-    expect(print({ 'a-b': 1, ok: 2 })).toBe('{ "a-b": 1, ok: 2 }');
   });
 });
 

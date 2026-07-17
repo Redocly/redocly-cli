@@ -1,5 +1,5 @@
 import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
-import { getGenerator } from '../index.js';
+import { builtinGenerators } from '../index.js';
 import { tanstackQueryGenerator } from '../tanstack-query.js';
 
 const SERVICES = [
@@ -50,6 +50,6 @@ describe('tanstackQueryGenerator', () => {
   });
 
   it('is registered under "tanstack-query"', () => {
-    expect(getGenerator('tanstack-query').run).toBe(tanstackQueryGenerator);
+    expect(builtinGenerators().get('tanstack-query')?.run).toBe(tanstackQueryGenerator);
   });
 });

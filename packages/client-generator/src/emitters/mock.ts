@@ -5,19 +5,21 @@
 // TypeScript literals through `ts.factory`, so the generated module depends only
 // on `msw` — the real client stays zero-dependency.
 
-import type {
-  ApiModel,
-  NamedSchemaModel,
-  OperationModel,
-  ResponseBodyModel,
-  SchemaModel,
+import { isPlainObject } from '@redocly/openapi-core';
+
+import {
+  allOperations,
+  type ApiModel,
+  type NamedSchemaModel,
+  type OperationModel,
+  type ResponseBodyModel,
+  type SchemaModel,
 } from '../intermediate-representation/model.js';
-import { allOperations } from '../writers/util.js';
 import { fakerExpression } from './faker.js';
 import { safeIdent } from './identifier.js';
 import { sampleValue, SampleExpression } from './sample.js';
 import { pascalCase } from './support.js';
-import { parseExpression, printStatements, ts } from './ts.js';
+import { literalExpression, parseExpression, printStatements, ts } from './ts.js';
 import type { DateType } from './types.js';
 
 const { factory } = ts;
@@ -404,30 +406,25 @@ function mswPath(path: string): string {
   return `*${path.replace(/\{([^{}]+)\}/g, ':$1')}`;
 }
 
-/** Recursively print a sampled JS value as a TypeScript literal expression. */
+/** Recursively print a sampled JS value as a TypeScript literal expression. Containers
+ *  stay local rather than delegating to the shared `literalExpression`: sampled trees
+ *  print multiline and may nest a `SampleExpression` at any depth. */
 function literal(value: unknown): ts.Expression {
   if (value instanceof SampleExpression) return parseExpression(value.code);
-  if (value === null) return factory.createNull();
-  if (typeof value === 'string') return factory.createStringLiteral(value);
-  if (typeof value === 'boolean') return value ? factory.createTrue() : factory.createFalse();
-  if (typeof value === 'number') {
-    return value < 0
-      ? factory.createPrefixUnaryExpression(
-          ts.SyntaxKind.MinusToken,
-          factory.createNumericLiteral(-value)
-        )
-      : factory.createNumericLiteral(value);
-  }
   if (Array.isArray(value)) {
     return factory.createArrayLiteralExpression(value.map(literal), true);
   }
-  const entries = Object.entries(value as Record<string, unknown>);
-  return factory.createObjectLiteralExpression(
-    entries.map(([key, v]) => {
-      const safe = safeIdent(key);
-      const name = safe === key ? factory.createIdentifier(key) : factory.createStringLiteral(key);
-      return factory.createPropertyAssignment(name, literal(v));
-    }),
-    true
-  );
+  if (isPlainObject(value)) {
+    const entries = Object.entries(value);
+    return factory.createObjectLiteralExpression(
+      entries.map(([key, v]) => {
+        const safe = safeIdent(key);
+        const name =
+          safe === key ? factory.createIdentifier(key) : factory.createStringLiteral(key);
+        return factory.createPropertyAssignment(name, literal(v));
+      }),
+      true
+    );
+  }
+  return literalExpression(value);
 }

@@ -3,15 +3,15 @@
 // descriptor map (`satisfies Record<string, OperationDescriptor>` — the semver skew
 // guard against the runtime contract in src/runtime/types.ts).
 
-import type {
-  ApiModel,
-  OperationModel,
-  SecuritySchemeModel,
+import {
+  allOperations,
+  type ApiModel,
+  type OperationModel,
+  type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
 import type { SecuritySpec } from '../runtime/types.js';
-import { allOperations } from '../writers/util.js';
 import { authSetterNames } from './auth.js';
-import { isIdentifier, uniqueIdent } from './identifier.js';
+import { uniqueIdent } from './identifier.js';
 import { variablesTypeLiteral } from './operation-aliases.js';
 import { operationSignature } from './operation-signature.js';
 import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-types.js';
@@ -19,7 +19,7 @@ import type { EmitContext } from './operations.js';
 import type { ModelPagination } from './pagination.js';
 import { isSseOp, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase } from './support.js';
-import { jsdoc, parseStatements, ts } from './ts.js';
+import { jsdoc, literalExpression, parseStatements, ts } from './ts.js';
 import { type DateType, schemaToTypeNode } from './types.js';
 
 const { factory } = ts;
@@ -60,28 +60,6 @@ export function packageIdents(model: ApiModel): Map<string, string> {
   const idents = new Map<string, string>();
   for (const op of allOperations(model.services)) idents.set(op.name, uniqueIdent(op.name, used));
   return idents;
-}
-
-/** Plain JSON value → ts.Expression (strings/numbers/booleans/null/arrays/objects). */
-export function literalExpr(value: unknown): ts.Expression {
-  if (typeof value === 'string') return factory.createStringLiteral(value);
-  if (typeof value === 'number') return factory.createNumericLiteral(value);
-  if (typeof value === 'boolean') return value ? factory.createTrue() : factory.createFalse();
-  if (value === null) return factory.createNull();
-  if (Array.isArray(value)) {
-    return factory.createArrayLiteralExpression(value.map(literalExpr), false);
-  }
-  return factory.createObjectLiteralExpression(
-    // Keys quoted only when they fail the identifier GRAMMAR — reserved words
-    // (the descriptor's `in` field) are legal bare object-literal keys.
-    Object.entries(value as Record<string, unknown>).map(([k, v]) =>
-      factory.createPropertyAssignment(
-        isIdentifier(k) ? k : factory.createStringLiteral(k),
-        literalExpr(v)
-      )
-    ),
-    false
-  );
 }
 
 /** One operation's OperationDescriptor as plain data (only non-default fields present). */
@@ -151,7 +129,7 @@ export function descriptorStatements(
   const entries = ops.map((op) =>
     factory.createPropertyAssignment(
       idents.get(op.name)!,
-      literalExpr(descriptorValue(op, model.securitySchemes, dateType, pagination))
+      literalExpression(descriptorValue(op, model.securitySchemes, dateType, pagination))
     )
   );
   const operations = jsdoc(

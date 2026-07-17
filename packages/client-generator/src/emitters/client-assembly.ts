@@ -9,15 +9,15 @@
 // place, so the embed arm needs none. Split mode moves the schema types + guards into
 // a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
 
-import type {
-  ApiModel,
-  OperationModel,
-  SecuritySchemeModel,
+import {
+  allOperations,
+  type ApiModel,
+  type OperationModel,
+  type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
-import { allOperations } from '../writers/util.js';
 import { apiKeySetterName } from './auth.js';
-import { banner, type EmitOptions, HEADER, renderTitleComment } from './client.js';
 import { descriptorStatements, opsInterfaceStatements, packageIdents } from './descriptor.js';
+import { banner, type EmitOptions, HEADER, renderTitleComment } from './emit-options.js';
 import { isIdentifier } from './identifier.js';
 import { assembleInlineRuntime } from './inline-runtime.js';
 import { renderOperationAliases, sseAliases } from './operation-aliases.js';

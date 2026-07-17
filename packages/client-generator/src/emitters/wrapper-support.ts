@@ -89,3 +89,65 @@ export function initParam(): ts.ParameterDeclaration {
     factory.createTypeReferenceNode('RequestOptions')
   );
 }
+
+/**
+ * The forwarding call to the sdk operation function. Argument order comes from the
+ * shared `operationSignature`, so it lines up with the sdk's parameter list by
+ * construction. `grouped` passes the source object (when inputs); `flat` spreads
+ * `<source>.<pathIdent>` (URL-template order), then `<source>.params` / `.body` /
+ * `.headers` for the slots the op has. `init` is appended last when `withInit`
+ * (the sdk function's trailing `RequestOptions`).
+ */
+export function sdkCall(
+  op: OperationModel,
+  argsStyle: 'flat' | 'grouped',
+  source: string,
+  withInit: boolean
+): ts.Expression {
+  const sig = operationSignature(op);
+  const sourceIdent = factory.createIdentifier(source);
+  const args: ts.Expression[] = [];
+
+  if (argsStyle === 'grouped') {
+    if (sig.hasInputs) args.push(sourceIdent);
+  } else {
+    for (const { ident } of sig.pathParams) {
+      args.push(factory.createPropertyAccessExpression(sourceIdent, ident));
+    }
+    if (sig.hasQuery) args.push(factory.createPropertyAccessExpression(sourceIdent, 'params'));
+    if (sig.hasBody) args.push(factory.createPropertyAccessExpression(sourceIdent, 'body'));
+    if (sig.hasHeaders) args.push(factory.createPropertyAccessExpression(sourceIdent, 'headers'));
+  }
+  if (withInit) args.push(factory.createIdentifier('init'));
+
+  return factory.createCallExpression(factory.createIdentifier(op.name), undefined, args);
+}
+
+/**
+ * The named import from the sdk module: the wrapped opFns as value specifiers, then
+ * the referenced `<Op>Variables` types + `RequestOptions` (when any query op) as
+ * `type` specifiers, each group sorted.
+ */
+export function sdkNamedImport(
+  ops: OperationModel[],
+  sdkModule: string,
+  hasQuery: boolean
+): ts.Statement {
+  const values = ops.map((op) => op.name).sort();
+  const types = ops.filter(hasInputs).map(variablesName).sort();
+  if (hasQuery) types.push('RequestOptions');
+
+  const specifiers = [
+    ...values.map((name) =>
+      factory.createImportSpecifier(false, undefined, factory.createIdentifier(name))
+    ),
+    ...types.map((name) =>
+      factory.createImportSpecifier(true, undefined, factory.createIdentifier(name))
+    ),
+  ];
+  return factory.createImportDeclaration(
+    undefined,
+    factory.createImportClause(false, undefined, factory.createNamedImports(specifiers)),
+    factory.createStringLiteral(sdkModule)
+  );
+}

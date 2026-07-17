@@ -16,11 +16,10 @@ import type {
   SchemaModel,
 } from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
-import { constArray, ts } from './ts.js';
+import { constArray, literalExpression, ts } from './ts.js';
+import type { DateType } from './types.js';
 
 const { factory } = ts;
-
-type DateType = 'string' | 'Date';
 
 /** The faker-call expression for an IR schema. Refs resolve against `schemas`;
  *  recursion is cut with a visited-set (`null` at the cycle). `dateType` mirrors
@@ -80,9 +79,9 @@ function walk(
         : objectExpr([['key', value]]);
     }
     case 'enum':
-      return call('faker.helpers.arrayElement', [constArray(schema.values.map(literal))]);
+      return call('faker.helpers.arrayElement', [constArray(schema.values.map(literalExpression))]);
     case 'literal':
-      return literal(schema.value);
+      return literalExpression(schema.value);
     case 'union': {
       // First non-cyclic member; if every member cycles, propagate `CYCLE`.
       for (const member of schema.members) {
@@ -166,10 +165,10 @@ function dateExpr(dateType: DateType, dateOnly: boolean): ts.Expression {
 function boundsArg(meta: SchemaMetadata | undefined): ts.Expression[] {
   const props: ts.PropertyAssignment[] = [];
   if (meta?.minimum !== undefined) {
-    props.push(factory.createPropertyAssignment('min', numeric(meta.minimum)));
+    props.push(factory.createPropertyAssignment('min', literalExpression(meta.minimum)));
   }
   if (meta?.maximum !== undefined) {
-    props.push(factory.createPropertyAssignment('max', numeric(meta.maximum)));
+    props.push(factory.createPropertyAssignment('max', literalExpression(meta.maximum)));
   }
   return props.length > 0 ? [factory.createObjectLiteralExpression(props, false)] : [];
 }
@@ -258,20 +257,4 @@ function dotted(path: string): ts.Expression {
 
 function member(target: ts.Expression, name: string): ts.PropertyAccessExpression {
   return factory.createPropertyAccessExpression(target, name);
-}
-
-/** A primitive literal value as a TS expression (negatives as a unary minus). */
-function literal(value: string | number | boolean): ts.Expression {
-  if (typeof value === 'string') return factory.createStringLiteral(value);
-  if (typeof value === 'boolean') return value ? factory.createTrue() : factory.createFalse();
-  return numeric(value);
-}
-
-function numeric(value: number): ts.Expression {
-  return value < 0
-    ? factory.createPrefixUnaryExpression(
-        ts.SyntaxKind.MinusToken,
-        factory.createNumericLiteral(-value)
-      )
-    : factory.createNumericLiteral(value);
 }

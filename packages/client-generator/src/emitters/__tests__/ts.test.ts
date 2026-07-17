@@ -1,4 +1,12 @@
-import { jsdoc, parseExpression, parseStatements, printNodes, printStatements, ts } from '../ts.js';
+import {
+  jsdoc,
+  literalExpression,
+  parseExpression,
+  parseStatements,
+  printNodes,
+  printStatements,
+  ts,
+} from '../ts.js';
 
 describe('emitters/ts foundation', () => {
   describe('printNodes', () => {
@@ -71,6 +79,31 @@ describe('emitters/ts foundation', () => {
       const expr = parseExpression('new Blob([])');
       expect(ts.isNewExpression(expr)).toBe(true);
       expect(printNodes([expr])).toBe('new Blob([])');
+    });
+  });
+
+  describe('literalExpression', () => {
+    function print(value: unknown): string {
+      return printStatements([literalExpression(value)]);
+    }
+
+    it('converts scalars, null, arrays, and objects to expression source', () => {
+      expect(print('x')).toBe('"x"');
+      expect(print(42)).toBe('42');
+      expect(print(true)).toBe('true');
+      expect(print(false)).toBe('false');
+      expect(print(null)).toBe('null');
+      expect(print([1, 'a'])).toBe('[1, "a"]');
+      expect(print({ a: 1, b: [true] })).toBe('{ a: 1, b: [true] }');
+    });
+
+    it('prints a negative number as a unary minus', () => {
+      expect(print(-42)).toBe('-42');
+      expect(print({ min: -1.5 })).toBe('{ min: -1.5 }');
+    });
+
+    it('quotes object keys that are not identifier-safe', () => {
+      expect(print({ 'a-b': 1, ok: 2 })).toBe('{ "a-b": 1, ok: 2 }');
     });
   });
 

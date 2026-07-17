@@ -1,5 +1,7 @@
 import {
   isPlainObject,
+  isRef,
+  logger,
   type Oas3Definition,
   type Oas3MediaType,
   type Oas3Operation,
@@ -45,10 +47,6 @@ const HTTP_METHODS = ['get', 'post', 'put', 'delete', 'patch', 'head', 'options'
 type HttpMethod = (typeof HTTP_METHODS)[number];
 
 type Referenced<T> = T | { $ref: string };
-
-function isRef<T>(value: Referenced<T> | undefined | null): value is { $ref: string } {
-  return isPlainObject(value) && '$ref' in value;
-}
 
 function resolveRef<T>(doc: Oas3Definition, ref: string): T {
   if (!ref.startsWith('#/')) {
@@ -491,6 +489,17 @@ function buildOperation(
   const pathParams = allParams.filter((p) => p.in === 'path');
   const queryParams = allParams.filter((p) => p.in === 'query');
   const headerParams = allParams.filter((p) => p.in === 'header');
+
+  // Browsers own the Cookie header, so the generated client cannot set cookie
+  // params — drop them, but tell the user instead of vanishing them silently.
+  const cookieParams = allParams.filter((p) => p.in === 'cookie');
+  if (cookieParams.length > 0) {
+    logger.warn(
+      `generate-client: skipped cookie parameter(s) ${cookieParams
+        .map((p) => `"${p.name}"`)
+        .join(', ')} on operation "${name}" — cookie parameters are not supported.\n`
+    );
+  }
 
   const requestBody = operation.requestBody
     ? buildRequestBody(deref(doc, operation.requestBody), `${method} ${path}`, doc)

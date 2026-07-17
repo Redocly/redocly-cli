@@ -1,9 +1,7 @@
 // The shared calling-convention description for an operation. Both the sdk (which
-// emits each operation's parameter list) and the wrapper generators (tanstack-query,
-// and any future framework adapter, which emit the forwarding call) derive their
-// argument *order*, slot presence, and `<Op>Variables` naming from this one source —
-// so a flat-mode signature and its call site can never drift. Previously each side
-// recomputed this independently, kept in sync only by a "matching exactly" comment.
+// emits each operation's parameter list) and the wrapper generators (which emit the
+// forwarding call) derive their argument *order*, slot presence, and `<Op>Variables`
+// naming from this one source — so a flat-mode signature and its call site can never drift.
 
 import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
 import { uniqueIdent } from './identifier.js';
