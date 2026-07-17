@@ -1,4 +1,6 @@
-import { type GeneratedDocument, type JsonSchema, mergeSchemas, singularize } from './generator.js';
+import { singularize } from '@redocly/openapi-core';
+
+import { type GeneratedDocument, type JsonSchema, mergeSchemas } from './generator.js';
 import { copyObservations } from './value-inference.js';
 
 const MIN_COMPONENT_PROPERTIES = 2;

@@ -6,3 +6,7 @@ export function pluralize(sentence: string, count?: number, inclusive?: boolean)
     .map((word) => pluralizeOne(word, count, inclusive))
     .join(' ');
 }
+
+export function singularize(word: string): string {
+  return pluralizeOne.singular(word);
+}

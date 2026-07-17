@@ -31,6 +31,11 @@ describe('templatizePath', () => {
     expect(templatizePath('/orgs/1/orgs/2').template).toBe('/orgs/{orgId}/orgs/{orgId2}');
   });
 
+  it('singularizes irregular plural parent segments', () => {
+    expect(templatizePath('/people/42').template).toBe('/people/{personId}');
+    expect(templatizePath('/series/42').template).toBe('/series/{seriesId}');
+  });
+
   it('names a parameter with no parent segment "id" and keeps plain segments', () => {
     expect(templatizePath('/f47ac10b-58cc-4372-a567-0e02b2c3d479').template).toBe('/{id}');
     expect(templatizePath('/users/profile').template).toBe('/users/profile');

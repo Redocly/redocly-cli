@@ -1,4 +1,4 @@
-import { logger } from '@redocly/openapi-core';
+import { logger, singularize } from '@redocly/openapi-core';
 
 import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type {
@@ -102,13 +102,6 @@ function looksLikeIdentifier(segment: string): boolean {
   if (CUID_RE.test(segment)) return true;
   // long hex / opaque token
   return /^[0-9a-f]{16,}$/i.test(segment);
-}
-
-export function singularize(value: string): string {
-  if (value.endsWith('ies')) return `${value.slice(0, -3)}y`;
-  if (/(?:ches|shes|ses|xes|zes)$/.test(value)) return value.slice(0, -2);
-  if (value.endsWith('ss') || value.endsWith('us') || !value.endsWith('s')) return value;
-  return value.length > 1 ? value.slice(0, -1) : value;
 }
 
 interface TemplatizedParam {

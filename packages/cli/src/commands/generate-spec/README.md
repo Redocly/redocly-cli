@@ -18,6 +18,7 @@ redocly generate-spec ./traffic.har --with-ai --ai-provider claude -o openapi.ya
 The `<traffic>` argument is a file or folder of recorded traffic.
 Supported formats: HAR, Kong, Nginx/Apache JSON, and NDJSON (auto-detected, or forced with `--traffic-format`).
 The traffic parsing infrastructure is shared with the `drift` command.
+The command generates OpenAPI 3.1 descriptions only.
 
 ## Deterministic inference
 
