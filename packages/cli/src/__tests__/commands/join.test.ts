@@ -28,6 +28,7 @@ import {
   pathWithObjectExtension,
   anotherPathWithSameObjectExtension,
   anotherPathWithDifferentObjectExtension,
+  anotherPathWithDifferentKeyObjectExtension,
 } from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
@@ -519,6 +520,37 @@ describe('handleJoin', () => {
           Promise.resolve({
             source: { absoluteRef: 'ref-b' },
             parsed: anotherPathWithDifferentObjectExtension,
+          } as Document)
+        );
+
+      await handleJoin({
+        argv: {
+          apis: ['a.yaml', 'b.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      });
+
+      const joinedDef = writeToFileByExtensionSpy.mock.calls[0][0];
+      expect(joinedDef.paths['/foo']['x-metadata']).toEqual({ owner: 'team-a' });
+      expect(warnSpy).toHaveBeenCalledWith('warning: different x-metadata values in /foo\n');
+    });
+
+    it('should warn when non-string x-* path extension objects have different keys', async () => {
+      vi.mocked(detectSpec).mockReturnValue('oas3_0');
+      const warnSpy = vi.spyOn(logger, 'warn');
+      vi.spyOn(BaseResolver.prototype, 'resolveDocument')
+        .mockReset()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-a' },
+            parsed: pathWithObjectExtension,
+          } as Document)
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-b' },
+            parsed: anotherPathWithDifferentKeyObjectExtension,
           } as Document)
         );
 

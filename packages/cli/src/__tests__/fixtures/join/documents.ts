@@ -219,3 +219,21 @@ export const anotherPathWithDifferentObjectExtension = {
     },
   },
 };
+
+export const anotherPathWithDifferentKeyObjectExtension = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Second API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/second',
+    },
+  ],
+  paths: {
+    '/foo': {
+      'x-metadata': { team: 'x' },
+    },
+  },
+};
