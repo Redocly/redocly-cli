@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fix join dropping non-string x-* path extension properties.
+Fixed an issue where the `join` command silently dropped path-level `x-*` extensions with non-string values.
