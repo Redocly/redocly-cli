@@ -3,27 +3,67 @@
 // fan-out (no arg, over apis with a `client` block) and an `apis:` alias or file path,
 // resolved like `bundle`/`lint`. CLI flags override the config.
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-  copyFileSync,
-} from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
 import { cliEntry, repoRoot } from './helpers.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'fixtures', 'cafe.yaml');
+// The smallest spec these tests need: `listOrders` fits the cursor convention
+// (an `after` query param + `/page/endCursor` + `/items` pointers), `getRevenue`
+// does not (no `after` param), and the named schemas give `zod` something to emit.
+const SPEC =
+  [
+    'openapi: 3.1.0',
+    'info: { title: Test, version: 1.0.0 }',
+    'servers:',
+    '  - url: https://api.example.com',
+    'paths:',
+    '  /orders:',
+    '    get:',
+    '      operationId: listOrders',
+    '      tags: [Orders]',
+    '      parameters:',
+    '        - { name: after, in: query, schema: { type: string } }',
+    '        - { name: limit, in: query, schema: { type: integer } }',
+    '      responses:',
+    "        '200':",
+    '          description: ok',
+    '          content:',
+    '            application/json:',
+    "              schema: { $ref: '#/components/schemas/OrderPage' }",
+    '  /revenue:',
+    '    get:',
+    '      operationId: getRevenue',
+    '      tags: [Revenue]',
+    '      responses:',
+    "        '200':",
+    '          description: ok',
+    '          content:',
+    '            application/json:',
+    '              schema: { type: object, properties: { total: { type: number } } }',
+    'components:',
+    '  schemas:',
+    '    Order:',
+    '      type: object',
+    '      properties:',
+    '        id: { type: string }',
+    '    OrderPage:',
+    '      type: object',
+    '      properties:',
+    '        page:',
+    '          type: object',
+    '          properties:',
+    '            endCursor: { type: string }',
+    '        items:',
+    '          type: array',
+    "          items: { $ref: '#/components/schemas/Order' }",
+  ].join('\n') + '\n';
 
-/** Write a temp project: the cafe spec + a redocly.yaml with the given contents. */
+/** Write a temp project: the minimal spec + a redocly.yaml with the given contents. */
 function project(redoclyYaml: string): string {
   const dir = mkdtempSync(join(tmpdir(), 'ots-redocly-'));
-  copyFileSync(fixture, join(dir, 'openapi.yaml'));
+  writeFileSync(join(dir, 'openapi.yaml'), SPEC, 'utf-8');
   writeFileSync(join(dir, 'redocly.yaml'), redoclyYaml, 'utf-8');
   return dir;
 }
@@ -141,7 +181,7 @@ describe('generate-client redocly.yaml config', () => {
         '        exclude: [getRevenue]',
       ].join('\n') + '\n'
     );
-    copyFileSync(fixture, join(dir, 'standalone.yaml')); // not registered under `apis:`
+    writeFileSync(join(dir, 'standalone.yaml'), SPEC, 'utf-8'); // not registered under `apis:`
 
     const matched = run(dir, ['./openapi.yaml', '--output', './matched.ts']);
     expect(matched.status, matched.stderr).toBe(0);
