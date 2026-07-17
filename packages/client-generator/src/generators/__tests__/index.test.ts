@@ -30,15 +30,14 @@ describe('validateGenerators', () => {
     expect(() => validateGenerators(['sdk', 'tanstack-query'], {})).not.toThrow();
   });
 
-  it('rejects tanstack-query without sdk, naming the fix', () => {
-    expect(() => validateGenerators(['tanstack-query'], {})).toThrow(
-      /requires the "sdk" generator.*--generator sdk --generator tanstack-query/
-    );
-  });
-
-  it('rejects transformers without sdk', () => {
-    expect(() => validateGenerators(['transformers'], {})).toThrow(/requires the "sdk" generator/);
-  });
+  it.each(['tanstack-query', 'transformers', 'swr', 'mock'] as const)(
+    'rejects %s without sdk, naming the fix',
+    (generator) => {
+      expect(() => validateGenerators([generator], {})).toThrow(
+        new RegExp(`requires the "sdk" generator.*--generator sdk --generator ${generator}`)
+      );
+    }
+  );
 
   it('rejects transformers without --date-type Date (would assign Date to string fields)', () => {
     expect(() => validateGenerators(['sdk', 'transformers'], {})).toThrow(
@@ -50,8 +49,8 @@ describe('validateGenerators', () => {
     expect(() => validateGenerators(['sdk', 'transformers'], { dateType: 'Date' })).not.toThrow();
   });
 
-  it('rejects tanstack-query with result error mode', () => {
-    expect(() => validateGenerators(['sdk', 'tanstack-query'], { errorMode: 'result' })).toThrow(
+  it.each(['tanstack-query', 'swr'] as const)('rejects %s with result error mode', (generator) => {
+    expect(() => validateGenerators(['sdk', generator], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result".*throw/
     );
   });
@@ -68,20 +67,8 @@ describe('swr generator', () => {
     expect(descriptor.requires).toContain('sdk');
   });
 
-  it('rejects swr without sdk, naming the fix', () => {
-    expect(() => validateGenerators(['swr'], {})).toThrow(
-      /requires the "sdk" generator.*--generator sdk --generator swr/
-    );
-  });
-
   it('accepts sdk + swr with the default error-mode', () => {
     expect(() => validateGenerators(['sdk', 'swr'], {})).not.toThrow();
-  });
-
-  it('rejects swr with result error mode', () => {
-    expect(() => validateGenerators(['sdk', 'swr'], { errorMode: 'result' })).toThrow(
-      /does not support --error-mode "result".*throw/
-    );
   });
 });
 
@@ -121,10 +108,6 @@ describe('mock generator', () => {
   it('is registered and requires sdk', () => {
     const descriptor = getGenerator('mock');
     expect(descriptor.requires).toContain('sdk');
-  });
-
-  it('validateGenerators rejects mock without sdk', () => {
-    expect(() => validateGenerators(['mock'], {})).toThrow(/requires the "sdk" generator/);
   });
 
   it('validateGenerators accepts sdk + mock', () => {

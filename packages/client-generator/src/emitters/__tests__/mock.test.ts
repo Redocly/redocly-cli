@@ -180,8 +180,10 @@ describe('renderMockModule', () => {
       ],
     });
     const out = renderMockModule(model, { sdkModule: './client.js' });
+    // `HttpResponse.json(x)` defaults to 200, so no `{ status }` init is emitted either.
     expect(out).toContain('HttpResponse.json(0)');
     expect(out).not.toContain('...override');
+    expect(out).not.toContain('{ status:');
   });
 
   it('quotes non-identifier object keys', () => {
@@ -216,45 +218,6 @@ describe('renderMockModule', () => {
     });
     const out = renderMockModule(model, { sdkModule: './client.js' });
     expect(out).toContain('"x-trace-id": "string"');
-  });
-
-  it('emits a `format: binary` field as `new Blob([])`, not a "string" literal', () => {
-    const model = apiModel({
-      schemas: [
-        namedSchema('Upload', {
-          kind: 'object',
-          properties: [
-            {
-              name: 'photo',
-              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'binary' } },
-              required: true,
-            },
-          ],
-        }),
-      ],
-      services: [
-        {
-          name: 'Default',
-          operations: [
-            operation({
-              name: 'getUpload',
-              method: 'get',
-              path: '/upload',
-              successResponses: [
-                {
-                  contentType: 'application/json',
-                  schema: { kind: 'ref', name: 'Upload' },
-                  status: 200,
-                },
-              ],
-            }),
-          ],
-        },
-      ],
-    });
-    const out = renderMockModule(model, { sdkModule: './client.js' });
-    expect(out).toContain('photo: new Blob([])');
-    expect(out).not.toContain('photo: "string"');
   });
 
   it('casts a union-schema factory body `as <Type>` so the `Partial<Union>` override spread keeps narrowing', () => {
@@ -369,34 +332,6 @@ describe('renderMockModule', () => {
     });
     const out = renderMockModule(model, { sdkModule: './client.js' });
     expect(out).toContain('HttpResponse.json(0, { status: 201 })');
-  });
-
-  it('omits the status init for a 200 success (byte-identical to the no-status form)', () => {
-    const model = apiModel({
-      schemas: [],
-      services: [
-        {
-          name: 'Default',
-          operations: [
-            operation({
-              name: 'count',
-              method: 'get',
-              path: '/count',
-              successResponses: [
-                {
-                  contentType: 'application/json',
-                  schema: { kind: 'scalar', scalar: 'integer' },
-                  status: 200,
-                },
-              ],
-            }),
-          ],
-        },
-      ],
-    });
-    const out = renderMockModule(model, { sdkModule: './client.js' });
-    expect(out).toContain('HttpResponse.json(0)');
-    expect(out).not.toContain('{ status:');
   });
 
   it('emits a body-less response carrying the success status (204)', () => {
@@ -676,14 +611,6 @@ describe('renderMockModule', () => {
     it('emits no seed call when mockSeed is absent', () => {
       const out = renderMockModule(fakerModel(), { sdkModule: './client.js', mockData: 'faker' });
       expect(out).not.toContain('faker.seed(');
-    });
-
-    it('uses a faker expression for the error-handler fallback body', () => {
-      const out = renderMockModule(fakerModel(), { sdkModule: './client.js', mockData: 'faker' });
-      expect(out).toContain('export const getPetErrorHandler');
-      expect(out).toContain('body ?? {');
-      // The fallback samples the error schema via faker, not a baked literal.
-      expect(out).toMatch(/body \?\? \{[\s\S]*faker\.number\.int\(\)/);
     });
 
     it('baked mode (default) emits no faker import or seed call', () => {

@@ -1,3 +1,4 @@
+import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../package-client.js';
 import { apiModel, namedSchema } from './fixtures.js';
 
@@ -180,146 +181,123 @@ describe('discriminated-union type guards (C6.4)', () => {
     expect(out).toContain('(value as Record<string, unknown>)["t"] === "a"');
   });
 
-  it('emits no guards for an undiscriminated union (no shared const)', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('StringOrNumber', {
-            kind: 'union',
-            members: [
-              { kind: 'scalar', scalar: 'string' },
-              { kind: 'scalar', scalar: 'number' },
-            ],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
-  });
-
-  it('emits no implicit guard when a member is not a ref to a named schema', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          beverage,
-          namedSchema('Mixed', {
+  // One row per rejection clause in the guard collection/implicit-discriminator logic.
+  it.each<[string, NamedSchemaModel[]]>([
+    [
+      'a member is not a ref to a named schema',
+      [
+        beverage,
+        namedSchema('Mixed', {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'Beverage' },
+            { kind: 'scalar', scalar: 'string' },
+          ],
+        }),
+      ],
+    ],
+    [
+      'a member ref points to an unknown schema',
+      [
+        beverage,
+        namedSchema('Ghosty', {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'Beverage' },
+            { kind: 'ref', name: 'DoesNotExist' },
+          ],
+        }),
+      ],
+    ],
+    [
+      'the union has a single member',
+      [
+        beverage,
+        namedSchema('Solo', { kind: 'union', members: [{ kind: 'ref', name: 'Beverage' }] }),
+      ],
+    ],
+    [
+      'members pin different property names',
+      [
+        namedSchema('P', {
+          kind: 'object',
+          properties: [{ name: 'a', schema: { kind: 'literal', value: 'x' }, required: true }],
+        }),
+        namedSchema('Q', {
+          kind: 'object',
+          properties: [{ name: 'b', schema: { kind: 'literal', value: 'y' }, required: true }],
+        }),
+        namedSchema('PQ', {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'P' },
+            { kind: 'ref', name: 'Q' },
+          ],
+        }),
+      ],
+    ],
+    [
+      'the shared const values are not distinct',
+      [
+        namedSchema('X', {
+          kind: 'object',
+          properties: [{ name: 'k', schema: { kind: 'literal', value: 'same' }, required: true }],
+        }),
+        namedSchema('Y', {
+          kind: 'object',
+          properties: [{ name: 'k', schema: { kind: 'literal', value: 'same' }, required: true }],
+        }),
+        namedSchema('XY', {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'X' },
+            { kind: 'ref', name: 'Y' },
+          ],
+        }),
+      ],
+    ],
+    [
+      'the shared const is not a string',
+      [
+        namedSchema('N1', {
+          kind: 'object',
+          properties: [{ name: 'v', schema: { kind: 'literal', value: 1 }, required: true }],
+        }),
+        namedSchema('N2', {
+          kind: 'object',
+          properties: [{ name: 'v', schema: { kind: 'literal', value: 2 }, required: true }],
+        }),
+        namedSchema('N12', {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'N1' },
+            { kind: 'ref', name: 'N2' },
+          ],
+        }),
+      ],
+    ],
+    [
+      'a nested union mixes ref and non-ref members',
+      [
+        beverage,
+        namedSchema('Wrapper', {
+          kind: 'array',
+          items: {
             kind: 'union',
             members: [
               { kind: 'ref', name: 'Beverage' },
               { kind: 'scalar', scalar: 'string' },
             ],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
-  });
-
-  it('emits no implicit guard when the shared const values are not distinct', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('X', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'k',
-                schema: { kind: 'literal', value: 'same' },
-                required: true,
-              },
-            ],
-          }),
-          namedSchema('Y', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'k',
-                schema: { kind: 'literal', value: 'same' },
-                required: true,
-              },
-            ],
-          }),
-          namedSchema('XY', {
-            kind: 'union',
-            members: [
-              { kind: 'ref', name: 'X' },
-              { kind: 'ref', name: 'Y' },
-            ],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
-  });
-
-  it('emits no implicit guard for a single-member union', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          beverage,
-          namedSchema('Solo', {
-            kind: 'union',
-            members: [{ kind: 'ref', name: 'Beverage' }],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
-  });
-
-  it('emits no implicit guard when a member ref points to an unknown schema', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          beverage,
-          namedSchema('Ghosty', {
-            kind: 'union',
-            members: [
-              { kind: 'ref', name: 'Beverage' },
-              { kind: 'ref', name: 'DoesNotExist' },
-            ],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
-  });
-
-  it('emits no implicit guard when members pin different property names', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('P', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'a',
-                schema: { kind: 'literal', value: 'x' },
-                required: true,
-              },
-            ],
-          }),
-          namedSchema('Q', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'b',
-                schema: { kind: 'literal', value: 'y' },
-                required: true,
-              },
-            ],
-          }),
-          namedSchema('PQ', {
-            kind: 'union',
-            members: [
-              { kind: 'ref', name: 'P' },
-              { kind: 'ref', name: 'Q' },
-            ],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
+            discriminator: {
+              propertyName: 'category',
+              mapping: [{ value: 'beverage', schemaName: 'Beverage' }],
+            },
+          },
+        }),
+      ],
+    ],
+  ])('emits no guards when %s', (_reason, schemas) => {
+    expect(emitPackage(apiModel({ schemas }))).not.toContain('value is');
   });
 
   it('ignores non-literal properties while detecting the implicit discriminant', () => {
@@ -370,122 +348,33 @@ describe('discriminated-union type guards (C6.4)', () => {
     expect(out).toContain('(value as Record<string, unknown>)["kind"] === "one"');
   });
 
-  it('emits guards for a discriminated union nested as array items', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('SuccessItem', {
-            kind: 'object',
-            properties: [
-              { name: 'status', schema: { kind: 'literal', value: 'ok' }, required: true },
-            ],
-          }),
-          namedSchema('ErrorItem', {
-            kind: 'object',
-            properties: [
-              { name: 'status', schema: { kind: 'literal', value: 'error' }, required: true },
-            ],
-          }),
-          // The union is the array's *items*, not a top-level named union.
-          namedSchema('BulkResponse', {
-            kind: 'array',
-            items: {
-              kind: 'union',
-              members: [
-                { kind: 'ref', name: 'SuccessItem' },
-                { kind: 'ref', name: 'ErrorItem' },
-              ],
-              discriminator: {
-                propertyName: 'status',
-                mapping: [
-                  { value: 'ok', schemaName: 'SuccessItem' },
-                  { value: 'error', schemaName: 'ErrorItem' },
-                ],
-              },
-            },
-          }),
-        ],
-      })
-    );
-    // Param is the inline member union; predicate narrows to the named member.
-    expect(out).toContain(
-      'export function isSuccessItem(value: SuccessItem | ErrorItem): value is SuccessItem {'
-    );
-    expect(out).toContain(
-      'export function isErrorItem(value: SuccessItem | ErrorItem): value is ErrorItem {'
-    );
-    expect(out).toContain('(value as Record<string, unknown>)["status"] === "ok"');
+  const cat = namedSchema('Cat', {
+    kind: 'object',
+    properties: [{ name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true }],
   });
-
-  it('emits guards for a discriminated union nested under a record value', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('Cat', {
-            kind: 'object',
-            properties: [
-              { name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true },
-            ],
-          }),
-          namedSchema('Dog', {
-            kind: 'object',
-            properties: [
-              { name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true },
-            ],
-          }),
-          namedSchema('PetMap', {
-            kind: 'record',
-            value: {
-              kind: 'union',
-              members: [
-                { kind: 'ref', name: 'Cat' },
-                { kind: 'ref', name: 'Dog' },
-              ],
-            },
-          }),
-        ],
-      })
-    );
-    expect(out).toContain('export function isCat(value: Cat | Dog): value is Cat {');
-    expect(out).toContain('export function isDog(value: Cat | Dog): value is Dog {');
+  const dog = namedSchema('Dog', {
+    kind: 'object',
+    properties: [{ name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true }],
   });
+  const catOrDog: SchemaModel = {
+    kind: 'union',
+    members: [
+      { kind: 'ref', name: 'Cat' },
+      { kind: 'ref', name: 'Dog' },
+    ],
+  };
 
-  it('emits guards for a discriminated union nested under an object property', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('Cat', {
-            kind: 'object',
-            properties: [
-              { name: 'kind', schema: { kind: 'literal', value: 'cat' }, required: true },
-            ],
-          }),
-          namedSchema('Dog', {
-            kind: 'object',
-            properties: [
-              { name: 'kind', schema: { kind: 'literal', value: 'dog' }, required: true },
-            ],
-          }),
-          namedSchema('Envelope', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'pet',
-                schema: {
-                  kind: 'union',
-                  members: [
-                    { kind: 'ref', name: 'Cat' },
-                    { kind: 'ref', name: 'Dog' },
-                  ],
-                },
-                required: true,
-              },
-            ],
-          }),
-        ],
-      })
-    );
-    // Implicit discriminator (shared distinct `kind` const) on a nested union.
+  // Each container position is a distinct branch of the nested-site walk. The
+  // guard param is the inline member union, not the (unnamed) nested union.
+  it.each<[string, SchemaModel]>([
+    ['array items', { kind: 'array', items: catOrDog }],
+    ['a record value', { kind: 'record', value: catOrDog }],
+    [
+      'an object property',
+      { kind: 'object', properties: [{ name: 'pet', schema: catOrDog, required: true }] },
+    ],
+  ])('emits guards for a discriminated union nested under %s', (_position, container) => {
+    const out = emitPackage(apiModel({ schemas: [cat, dog, namedSchema('PetBox', container)] }));
     expect(out).toContain('export function isCat(value: Cat | Dog): value is Cat {');
     expect(out).toContain('export function isDog(value: Cat | Dog): value is Dog {');
   });
@@ -572,67 +461,5 @@ describe('discriminated-union type guards (C6.4)', () => {
     );
     expect(out.match(/export function isBeverage\(/g)).toHaveLength(1);
     expect(out).toContain('export function isBeverage(value: MenuItem): value is Beverage {');
-  });
-
-  it('skips a nested union whose members are not all named refs', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          beverage,
-          namedSchema('Wrapper', {
-            kind: 'array',
-            items: {
-              kind: 'union',
-              members: [
-                { kind: 'ref', name: 'Beverage' },
-                { kind: 'scalar', scalar: 'string' },
-              ],
-              discriminator: {
-                propertyName: 'category',
-                mapping: [{ value: 'beverage', schemaName: 'Beverage' }],
-              },
-            },
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
-  });
-
-  it('ignores non-string shared const when detecting implicit discriminators', () => {
-    const out = emitPackage(
-      apiModel({
-        schemas: [
-          namedSchema('N1', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'v',
-                schema: { kind: 'literal', value: 1 },
-                required: true,
-              },
-            ],
-          }),
-          namedSchema('N2', {
-            kind: 'object',
-            properties: [
-              {
-                name: 'v',
-                schema: { kind: 'literal', value: 2 },
-                required: true,
-              },
-            ],
-          }),
-          namedSchema('N12', {
-            kind: 'union',
-            members: [
-              { kind: 'ref', name: 'N1' },
-              { kind: 'ref', name: 'N2' },
-            ],
-          }),
-        ],
-      })
-    );
-    expect(out).not.toContain('value is');
   });
 });

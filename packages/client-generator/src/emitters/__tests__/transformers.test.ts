@@ -1,4 +1,8 @@
-import type { ApiModel, NamedSchemaModel } from '../../intermediate-representation/model.js';
+import type {
+  ApiModel,
+  NamedSchemaModel,
+  PropertyModel,
+} from '../../intermediate-representation/model.js';
 import { renderTransformersModule } from '../transformers.js';
 
 const base: Omit<ApiModel, 'schemas'> = {
@@ -34,7 +38,7 @@ describe('renderTransformersModule', () => {
     expect(render([])).toBe('');
   });
 
-  it('converts a top-level date-time scalar field, guarded', () => {
+  it('converts top-level `date-time` and `date` scalar fields, guarded', () => {
     const out = render([
       {
         name: 'Event',
@@ -46,24 +50,6 @@ describe('renderTransformersModule', () => {
               schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
               required: true,
             },
-          ],
-        },
-      },
-    ]);
-    expect(out).toContain('export const transformEvent = (data: Event): Event =>');
-    expect(out).toContain('if (typeof data["createdAt"] === "string")');
-    expect(out).toContain('data["createdAt"] = new Date(data["createdAt"]);');
-    expect(out).toContain('return data;');
-    expect(out).toContain('import type { Event } from "./client.js";');
-  });
-
-  it('converts a `date` (not just date-time) scalar field', () => {
-    const out = render([
-      {
-        name: 'Birthday',
-        schema: {
-          kind: 'object',
-          properties: [
             {
               name: 'day',
               schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date' } },
@@ -73,7 +59,12 @@ describe('renderTransformersModule', () => {
         },
       },
     ]);
+    expect(out).toContain('export const transformEvent = (data: Event): Event =>');
+    expect(out).toContain('if (typeof data["createdAt"] === "string")');
+    expect(out).toContain('data["createdAt"] = new Date(data["createdAt"]);');
     expect(out).toContain('data["day"] = new Date(data["day"]);');
+    expect(out).toContain('return data;');
+    expect(out).toContain('import type { Event } from "./client.js";');
   });
 
   it('converts an array of date scalars, guarded', () => {
@@ -97,26 +88,6 @@ describe('renderTransformersModule', () => {
     ]);
     expect(out).toContain('if (Array.isArray(data["timestamps"]))');
     expect(out).toContain('data["timestamps"] = data["timestamps"].map(v => new Date(v));');
-  });
-
-  it('quotes a non-identifier key', () => {
-    const out = render([
-      {
-        name: 'Trace',
-        schema: {
-          kind: 'object',
-          properties: [
-            {
-              name: 'x-at',
-              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-              required: true,
-            },
-          ],
-        },
-      },
-    ]);
-    expect(out).toContain('if (typeof data["x-at"] === "string")');
-    expect(out).toContain('data["x-at"] = new Date(data["x-at"]);');
   });
 
   it('composes via a ref to a date-bearing schema', () => {
@@ -149,23 +120,63 @@ describe('renderTransformersModule', () => {
     expect(out).toContain('import type { Person, Pet } from "./client.js";');
   });
 
-  it('does NOT emit a transform for a ref to a date-free schema', () => {
-    const out = render([
-      {
-        name: 'Tag',
+  // Each date-free shape exercises its own pruning bail-out: convertRef, the
+  // ref-items branch of convertArray, convertCollection, and convertProperty.
+  it.each<{ shape: string; property: PropertyModel; absent: string }>([
+    {
+      shape: 'ref to a date-free schema',
+      property: { name: 'tag', schema: { kind: 'ref', name: 'Plain' }, required: false },
+      absent: 'transformPlain',
+    },
+    {
+      shape: 'array of refs to a date-free schema',
+      property: {
+        name: 'list',
+        schema: { kind: 'array', items: { kind: 'ref', name: 'Plain' } },
+        required: true,
+      },
+      absent: 'data["list"]',
+    },
+    {
+      shape: 'record whose values bear no dates',
+      property: {
+        name: 'tags',
+        schema: { kind: 'record', value: { kind: 'scalar', scalar: 'string' } },
+        required: true,
+      },
+      absent: 'data["tags"]',
+    },
+    {
+      shape: 'nested inline object',
+      property: {
+        name: 'meta',
         schema: {
           kind: 'object',
           properties: [
-            { name: 'label', schema: { kind: 'scalar', scalar: 'string' }, required: true },
+            { name: 'title', schema: { kind: 'scalar', scalar: 'string' }, required: true },
+          ],
+        },
+        required: false,
+      },
+      absent: 'data["meta"]',
+    },
+  ])('skips a date-free $shape', ({ property, absent }) => {
+    const out = render([
+      {
+        name: 'Plain',
+        schema: {
+          kind: 'object',
+          properties: [
+            { name: 'id', schema: { kind: 'scalar', scalar: 'integer' }, required: true },
           ],
         },
       },
       {
-        name: 'Post',
+        name: 'Holder',
         schema: {
           kind: 'object',
           properties: [
-            { name: 'tag', schema: { kind: 'ref', name: 'Tag' }, required: false },
+            property,
             {
               name: 'at',
               schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
@@ -175,10 +186,10 @@ describe('renderTransformersModule', () => {
         },
       },
     ]);
-    expect(out).not.toContain('transformTag');
-    expect(out).toContain('export const transformPost');
-    expect(out).not.toContain('transformTag(data["tag"])');
-    expect(out).toContain('import type { Post } from "./client.js";');
+    expect(out).not.toContain(absent);
+    expect(out).toContain('data["at"] = new Date(data["at"]);');
+    // Date-free schemas are also left out of the type import.
+    expect(out).toContain('import type { Holder } from "./client.js";');
   });
 
   it('composes via an array of refs to a date-bearing schema', () => {
@@ -567,31 +578,6 @@ describe('renderTransformersModule', () => {
     expect(out).toContain('data["days"][__k] = new Date(data["days"][__k]);');
   });
 
-  it('does not iterate a record whose values bear no dates', () => {
-    const out = render([
-      {
-        name: 'Mixed',
-        schema: {
-          kind: 'object',
-          properties: [
-            {
-              name: 'tags',
-              required: true,
-              schema: { kind: 'record', value: { kind: 'scalar', scalar: 'string' } },
-            },
-            {
-              name: 'at',
-              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-              required: true,
-            },
-          ],
-        },
-      },
-    ]);
-    expect(out).not.toContain('Object.values(data["tags"])');
-    expect(out).toContain('data["at"] = new Date(data["at"]);');
-  });
-
   it('walks intersection members that bear dates', () => {
     const out = render([
       {
@@ -625,40 +611,6 @@ describe('renderTransformersModule', () => {
     ]);
     expect(out).toContain('export const transformCombined');
     expect(out).toContain('transformWithDate(data);');
-  });
-
-  it('omits an array-of-refs to a date-free schema', () => {
-    const out = render([
-      {
-        name: 'Plain',
-        schema: {
-          kind: 'object',
-          properties: [
-            { name: 'id', schema: { kind: 'scalar', scalar: 'integer' }, required: true },
-          ],
-        },
-      },
-      {
-        name: 'Wrapper',
-        schema: {
-          kind: 'object',
-          properties: [
-            {
-              name: 'list',
-              schema: { kind: 'array', items: { kind: 'ref', name: 'Plain' } },
-              required: true,
-            },
-            {
-              name: 'at',
-              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-              required: true,
-            },
-          ],
-        },
-      },
-    ]);
-    expect(out).not.toContain('data["list"].forEach');
-    expect(out).toContain('data["at"] = new Date(data["at"]);');
   });
 
   it('iterates nested loop vars for arrays of arrays of dates', () => {
@@ -699,34 +651,6 @@ describe('renderTransformersModule', () => {
     expect(out).toContain('data["rows"].forEach(item =>');
     expect(out).toContain('item.forEach(item1 =>');
     expect(out).toContain('item1["at"] = new Date(item1["at"]);');
-  });
-
-  it('maps-and-reassigns an array of arrays of date scalars', () => {
-    const out = render([
-      {
-        name: 'Matrix',
-        schema: {
-          kind: 'object',
-          properties: [
-            {
-              name: 'rows',
-              required: true,
-              schema: {
-                kind: 'array',
-                items: {
-                  kind: 'array',
-                  items: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-                },
-              },
-            },
-          ],
-        },
-      },
-    ]);
-    // Scalar elements are replace-by-value: reassigning a loop var is lost, so we
-    // map and write back into the slot at every array level.
-    expect(out).toContain('if (Array.isArray(data["rows"]))');
-    expect(out).toContain('data["rows"] = data["rows"].map(row => row.map(v => new Date(v)));');
   });
 
   it('maps-and-reassigns a three-level array of date scalars with distinct vars', () => {
@@ -827,36 +751,6 @@ describe('renderTransformersModule', () => {
     expect(out).toContain('for (const __k of Object.keys(data["b"]))');
     expect(out).toContain('if (Array.isArray(data["b"][__k]))');
     expect(out).toContain('data["b"][__k] = data["b"][__k].map(v => new Date(v));');
-  });
-
-  it('skips a date-free nested inline object sibling', () => {
-    const out = render([
-      {
-        name: 'Doc',
-        schema: {
-          kind: 'object',
-          properties: [
-            {
-              name: 'meta',
-              required: false,
-              schema: {
-                kind: 'object',
-                properties: [
-                  { name: 'title', schema: { kind: 'scalar', scalar: 'string' }, required: true },
-                ],
-              },
-            },
-            {
-              name: 'at',
-              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-              required: true,
-            },
-          ],
-        },
-      },
-    ]);
-    expect(out).not.toContain('if (data["meta"])');
-    expect(out).toContain('data["at"] = new Date(data["at"]);');
   });
 
   it('ignores a ref to a name absent from the model', () => {

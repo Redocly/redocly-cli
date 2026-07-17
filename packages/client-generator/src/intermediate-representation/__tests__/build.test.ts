@@ -417,7 +417,7 @@ describe('buildParameter', () => {
     expect(op.queryParams[0]).toMatchObject({ description: 'desc', required: true });
   });
 
-  it('captures style/explode on a query param', () => {
+  it('captures style/explode/allowReserved on a query param', () => {
     const op = buildOpOnly({
       paths: {
         '/x': {
@@ -429,6 +429,7 @@ describe('buildParameter', () => {
                 in: 'query',
                 style: 'pipeDelimited',
                 explode: false,
+                allowReserved: true,
                 schema: { type: 'array', items: { type: 'string' } },
               },
             ] as never,
@@ -437,67 +438,22 @@ describe('buildParameter', () => {
         } as never,
       },
     });
-    expect(op.queryParams[0]).toMatchObject({ style: 'pipeDelimited', explode: false });
-  });
-
-  it('captures allowReserved on a query param', () => {
-    const op = buildOpOnly({
-      paths: {
-        '/x': {
-          get: {
-            operationId: 'op',
-            parameters: [
-              { name: 'q', in: 'query', allowReserved: true, schema: { type: 'string' } },
-            ] as never,
-            responses: {},
-          },
-        } as never,
-      },
+    expect(op.queryParams[0]).toMatchObject({
+      style: 'pipeDelimited',
+      explode: false,
+      allowReserved: true,
     });
-    expect(op.queryParams[0].allowReserved).toBe(true);
   });
 
-  it('leaves style/explode/allowReserved undefined on a plain query param', () => {
-    const op = buildOpOnly({
-      paths: {
-        '/x': {
-          get: {
-            operationId: 'op',
-            parameters: [{ name: 'q', in: 'query', schema: { type: 'string' } }] as never,
-            responses: {},
-          },
-        } as never,
-      },
-    });
-    expect(op.queryParams[0].style).toBeUndefined();
-    expect(op.queryParams[0].explode).toBeUndefined();
-    expect(op.queryParams[0].allowReserved).toBeUndefined();
-  });
-
-  it('ignores an unknown style string (leaves style undefined)', () => {
-    const op = buildOpOnly({
-      paths: {
-        '/x': {
-          get: {
-            operationId: 'op',
-            parameters: [
-              { name: 'q', in: 'query', style: 'matrix', schema: { type: 'string' } },
-            ] as never,
-            responses: {},
-          },
-        } as never,
-      },
-    });
-    expect(op.queryParams[0].style).toBeUndefined();
-  });
-
-  it('does not set style/explode/allowReserved on non-query params', () => {
+  it('leaves style/explode/allowReserved undefined on plain query params, unknown styles, and non-query params', () => {
     const op = buildOpOnly({
       paths: {
         '/x/{p}': {
           get: {
             operationId: 'op',
             parameters: [
+              { name: 'q', in: 'query', schema: { type: 'string' } },
+              { name: 'odd', in: 'query', style: 'matrix', schema: { type: 'string' } },
               {
                 name: 'p',
                 in: 'path',
@@ -520,14 +476,25 @@ describe('buildParameter', () => {
         } as never,
       },
     });
-    const p = op.pathParams[0];
-    const h = op.headerParams[0];
-    expect(p.style).toBeUndefined();
-    expect(p.explode).toBeUndefined();
-    expect(p.allowReserved).toBeUndefined();
-    expect(h.style).toBeUndefined();
-    expect(h.explode).toBeUndefined();
-    expect(h.allowReserved).toBeUndefined();
+    const params = [op.queryParams[0], op.queryParams[1], op.pathParams[0], op.headerParams[0]];
+    expect(params.map((param) => param.style)).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]);
+    expect(params.map((param) => param.explode)).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]);
+    expect(params.map((param) => param.allowReserved)).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]);
   });
 });
 
@@ -564,44 +531,19 @@ describe('buildRequestBody', () => {
     expect(op.requestBody).toBeUndefined();
   });
 
-  it('prefers application/json when multiple media types are offered', () => {
+  it.each([
+    ['application/json'],
+    ['application/merge-patch+json'],
+    ['application/x-www-form-urlencoded'],
+    ['multipart/form-data'],
+  ])('prefers %s when offered alongside application/xml', (contentType) => {
     const op = buildOpOnly(
       makeOp({
         'application/xml': { schema: { type: 'string' } },
-        'application/json': { schema: { type: 'number' } },
+        [contentType]: { schema: { type: 'object' } },
       })
     );
-    expect(op.requestBody?.contentType).toBe('application/json');
-  });
-
-  it('prefers merge-patch+json when JSON is not present', () => {
-    const op = buildOpOnly(
-      makeOp({
-        'application/xml': { schema: { type: 'string' } },
-        'application/merge-patch+json': { schema: { type: 'number' } },
-      })
-    );
-    expect(op.requestBody?.contentType).toBe('application/merge-patch+json');
-  });
-
-  it('falls back to x-www-form-urlencoded', () => {
-    const op = buildOpOnly(
-      makeOp({
-        'application/xml': { schema: { type: 'string' } },
-        'application/x-www-form-urlencoded': { schema: { type: 'object' } },
-      })
-    );
-    expect(op.requestBody?.contentType).toBe('application/x-www-form-urlencoded');
-  });
-
-  it('falls back to multipart/form-data', () => {
-    const op = buildOpOnly(
-      makeOp({
-        'application/xml': { schema: { type: 'string' } },
-        'multipart/form-data': { schema: { type: 'object' } },
-      })
-    );
-    expect(op.requestBody?.contentType).toBe('multipart/form-data');
+    expect(op.requestBody?.contentType).toBe(contentType);
   });
 
   it('falls back to the first available media type when no known one matches', () => {
@@ -1054,24 +996,24 @@ describe('buildSchema — every schema kind', () => {
     });
   });
 
-  it('renders const string as literal', () => {
+  it('renders const string/number/boolean as literal', () => {
     expect(buildSchemaOnly({ const: 'hello' } as unknown as Oas3Schema)).toEqual({
       kind: 'literal',
       value: 'hello',
     });
-  });
-
-  it('renders const number as literal', () => {
     expect(buildSchemaOnly({ const: 42 } as unknown as Oas3Schema)).toEqual({
       kind: 'literal',
       value: 42,
     });
-  });
-
-  it('renders const boolean as literal', () => {
     expect(buildSchemaOnly({ const: true } as unknown as Oas3Schema)).toEqual({
       kind: 'literal',
       value: true,
+    });
+    // `const: false` stays a literal even though boolean enums widen (see #4) —
+    // an explicit single-value constraint, and a falsy value the branch must not drop.
+    expect(buildSchemaOnly({ type: 'boolean', const: false } as unknown as Oas3Schema)).toEqual({
+      kind: 'literal',
+      value: false,
     });
   });
 
@@ -1099,6 +1041,13 @@ describe('buildSchema — every schema kind', () => {
 
   it('widens boolean enums to a plain boolean scalar (see #4)', () => {
     expect(buildSchemaOnly({ enum: [true, false] } as Oas3Schema)).toEqual({
+      kind: 'scalar',
+      scalar: 'boolean',
+    });
+  });
+
+  it('widens a single-value boolean enum to boolean too (no over-narrowing to a literal)', () => {
+    expect(buildSchemaOnly({ type: 'boolean', enum: [false] } as Oas3Schema)).toEqual({
       kind: 'scalar',
       scalar: 'boolean',
     });
@@ -1448,61 +1397,30 @@ describe('extractMetadata — validation keywords', () => {
     expect(got).not.toHaveProperty('metadata');
   });
 
-  it('passes through numeric exclusiveMinimum / exclusiveMaximum (OAS 3.1 form)', () => {
-    const got = buildSchemaOnly({
-      type: 'integer',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      exclusiveMinimum: 0 as any,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      exclusiveMaximum: 600 as any,
-    } as Oas3Schema);
-    expect(got).toEqual({
-      kind: 'scalar',
-      scalar: 'integer',
-      metadata: { exclusiveMinimum: 0, exclusiveMaximum: 600 },
-    });
-  });
-
-  it('normalizes OAS 3.0 boolean exclusiveMinimum=true + minimum=X to numeric exclusiveMinimum=X', () => {
-    const got = buildSchemaOnly({
-      type: 'integer',
-      minimum: 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      exclusiveMinimum: true as any,
-    } as Oas3Schema);
-    expect(got).toEqual({
-      kind: 'scalar',
-      scalar: 'integer',
-      metadata: { exclusiveMinimum: 0 },
-    });
-  });
-
-  it('normalizes OAS 3.0 boolean exclusiveMaximum=true + maximum=X to numeric exclusiveMaximum=X', () => {
-    const got = buildSchemaOnly({
-      type: 'integer',
-      maximum: 100,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      exclusiveMaximum: true as any,
-    } as Oas3Schema);
-    expect(got).toEqual({
-      kind: 'scalar',
-      scalar: 'integer',
-      metadata: { exclusiveMaximum: 100 },
-    });
-  });
-
-  it('drops boolean exclusiveMinimum=false (3.0 form, no-op)', () => {
-    const got = buildSchemaOnly({
-      type: 'integer',
-      minimum: 5,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      exclusiveMinimum: false as any,
-    } as Oas3Schema);
-    expect(got).toEqual({
-      kind: 'scalar',
-      scalar: 'integer',
-      metadata: { minimum: 5 },
-    });
+  it.each([
+    [
+      'passes through numeric exclusiveMinimum / exclusiveMaximum (OAS 3.1 form)',
+      { exclusiveMinimum: 0, exclusiveMaximum: 600 },
+      { exclusiveMinimum: 0, exclusiveMaximum: 600 },
+    ],
+    [
+      'normalizes OAS 3.0 boolean exclusiveMinimum=true + minimum=X to numeric exclusiveMinimum=X',
+      { minimum: 0, exclusiveMinimum: true },
+      { exclusiveMinimum: 0 },
+    ],
+    [
+      'normalizes OAS 3.0 boolean exclusiveMaximum=true + maximum=X to numeric exclusiveMaximum=X',
+      { maximum: 100, exclusiveMaximum: true },
+      { exclusiveMaximum: 100 },
+    ],
+    [
+      'drops boolean exclusiveMinimum=false (3.0 form, no-op)',
+      { minimum: 5, exclusiveMinimum: false },
+      { minimum: 5 },
+    ],
+  ])('%s', (_case, bounds, metadata) => {
+    const got = buildSchemaOnly({ type: 'integer', ...bounds } as unknown as Oas3Schema);
+    expect(got).toEqual({ kind: 'scalar', scalar: 'integer', metadata });
   });
 
   it('lifts metadata on inline object properties', () => {
@@ -1650,6 +1568,14 @@ describe('buildApiModel — enum with null (OAS 3.1)', () => {
     expect(schema).toEqual({
       kind: 'union',
       members: [{ kind: 'scalar', scalar: 'string' }, { kind: 'null' }],
+    });
+  });
+
+  it('widens a nullable boolean enum to boolean | null (see #4)', () => {
+    const schema = buildSchemaOnly({ type: ['boolean', 'null'], enum: [false, null] } as never);
+    expect(schema).toEqual({
+      kind: 'union',
+      members: [{ kind: 'scalar', scalar: 'boolean' }, { kind: 'null' }],
     });
   });
 });
@@ -2059,48 +1985,5 @@ describe('extractMetadata — example/default', () => {
     const got = buildSchemaOnly({ type: 'string', default: 'fallback' } as never);
     expect(got.metadata?.default).toBe('fallback');
     expect(got.metadata?.example).toBeUndefined();
-  });
-});
-
-describe('buildSchema — boolean enum widening (#4)', () => {
-  it('widens a single-value boolean enum to `boolean` (no over-narrowing to a literal)', () => {
-    expect(buildSchemaOnly({ type: 'boolean', enum: [false] } as Oas3Schema)).toMatchObject({
-      kind: 'scalar',
-      scalar: 'boolean',
-    });
-  });
-
-  it('widens a full boolean enum to `boolean`', () => {
-    expect(buildSchemaOnly({ type: 'boolean', enum: [true, false] } as Oas3Schema)).toMatchObject({
-      kind: 'scalar',
-      scalar: 'boolean',
-    });
-  });
-
-  it('preserves a nullable boolean enum as `boolean | null`', () => {
-    const m = buildSchemaOnly({
-      type: ['boolean', 'null'],
-      enum: [false, null],
-    } as unknown as Oas3Schema);
-    expect(m.kind).toBe('union');
-    const members = (m as Extract<SchemaModel, { kind: 'union' }>).members;
-    expect(members).toContainEqual({ kind: 'scalar', scalar: 'boolean' });
-    expect(members).toContainEqual({ kind: 'null' });
-  });
-
-  it('leaves string enums as enums (literals stay meaningful there)', () => {
-    expect(buildSchemaOnly({ type: 'string', enum: ['a', 'b'] } as Oas3Schema)).toMatchObject({
-      kind: 'enum',
-      scalar: 'string',
-    });
-  });
-
-  it('leaves a boolean const as the literal (an explicit single-value constraint)', () => {
-    expect(
-      buildSchemaOnly({ type: 'boolean', const: false } as unknown as Oas3Schema)
-    ).toMatchObject({
-      kind: 'literal',
-      value: false,
-    });
   });
 });

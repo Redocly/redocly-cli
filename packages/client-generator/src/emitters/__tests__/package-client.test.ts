@@ -454,21 +454,9 @@ describe('emitClientSingleFile (embed arm)', () => {
     );
   });
 
-  it('matches the golden output for a small model', () => {
-    const model = modelWith([getOrder, streamEvents], {
-      schemas: [
-        namedSchema('Order', {
-          kind: 'object',
-          properties: [{ name: 'id', schema: SCALAR, required: true }],
-        }),
-        ...SCHEMAS.slice(1),
-      ],
-      securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
-    });
-    expect(
-      emitClientSingleFile(model, { serverUrl: 'https://cafe.example.com' })
-    ).toMatchSnapshot();
-  });
+  // The full inline output is not snapshotted here: the runtime bytes are pinned by
+  // runtime-sources.test.ts, the wiring by the byte-identity test above, and a real
+  // full inline client by the e2e cafe.snapshot.ts.
 });
 
 describe('emitClientSingleFile — pagination', () => {
@@ -544,10 +532,6 @@ describe('emitClientSingleFile — pagination', () => {
         '  - Pagination for operation "listRefunds" (x-pagination): ' +
         'the "items" pointer "/refunds" does not resolve in the success response schema'
     );
-  });
-
-  it('matches the golden output for a paginated inline client', () => {
-    expect(emitClientSingleFile(PAGINATED, { pagination: config })).toMatchSnapshot();
   });
 
   it('matches the golden output for a paginated package client', () => {
