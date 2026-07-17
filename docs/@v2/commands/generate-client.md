@@ -56,7 +56,8 @@ CLI flags take precedence over the configuration.
 A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults.
 See [`client` configuration](../configuration/reference/client.md) for the full reference.
 
-Auto-pagination has **no CLI flag**: it's declared as structured configuration — [`client.pagination`](../configuration/reference/client.md#pagination) in `redocly.yaml`, or the equivalent `x-pagination` operation extension in the spec — and paginated operations gain typed `.pages()`/`.items()` async iterators. See [Pagination in the usage guide](../guides/use-generated-client.md#pagination).
+Auto-pagination has **no CLI flag**: it's declared as structured configuration — [`client.pagination`](../configuration/reference/client.md#pagination) in `redocly.yaml`, or the equivalent `x-pagination` operation extension in the spec — and paginated operations gain typed `.pages()`/`.items()` async iterators.
+See [Pagination in the usage guide](../guides/use-generated-client.md#pagination).
 
 ## Output modes
 
@@ -100,11 +101,14 @@ Auto-pagination has **no CLI flag**: it's declared as structured configuration �
     client.getOrderById({ orderId }, init);
   ```
 
-Choose `package` when you want engine fixes and improvements to arrive via `npm update @redocly/client-generator` — no regeneration, no diff in the generated file. The trade: the consuming app must have `@redocly/client-generator` installed as a regular dependency. Your application code is identical in both modes (same exports, same call shapes).
+Choose `package` when you want engine fixes and improvements to arrive via `npm update @redocly/client-generator` — no regeneration, no diff in the generated file.
+The trade: the consuming app must have `@redocly/client-generator` installed as a regular dependency.
+Your application code is identical in both modes (same exports, same call shapes).
 
 The `satisfies Record<string, OperationDescriptor>` line doubles as a **build-time version-skew guard**: an incompatible generated-file/runtime pair fails the consumer's `tsc` instead of misbehaving at runtime.
 
-In both modes the generated module exports **both call styles** — the `client` instance (grouped-args methods) and the free-function operations (`--args-style` shapes those). Both runtimes work with both [output modes](#output-modes) and every generator.
+In both modes the generated module exports **both call styles** — the `client` instance (grouped-args methods) and the free-function operations (`--args-style` shapes those).
+Both runtimes work with both [output modes](#output-modes) and every generator.
 
 ## Resources
 

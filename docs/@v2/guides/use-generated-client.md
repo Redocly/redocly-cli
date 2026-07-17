@@ -1,6 +1,7 @@
 # Use the generated client
 
-How to consume the TypeScript client produced by [`generate-client`](../commands/generate-client.md): authentication, argument styles, error handling, middleware, retries, and the optional add-on generators. For invoking the command itself (flags, output modes, config), see the [`generate-client` command reference](../commands/generate-client.md).
+How to consume the TypeScript client produced by [`generate-client`](../commands/generate-client.md): authentication, argument styles, error handling, middleware, retries, and the optional add-on generators.
+For invoking the command itself (flags, output modes, config), see the [`generate-client` command reference](../commands/generate-client.md).
 
 ## Generators
 
@@ -23,7 +24,9 @@ redocly generate-client openapi.yaml --output src/client.ts --generator sdk --ge
 
 ## Package runtime
 
-By default the runtime is embedded in the generated file, so the client is self-contained. With [`--runtime package`](../commands/generate-client.md#runtime-distribution) the generated file instead imports the runtime from `@redocly/client-generator` — your application code is **identical in both modes** (same exports, same call shapes); only where the engine lives changes. Choose `package` when you want engine fixes and improvements via `npm update @redocly/client-generator`, with no regeneration.
+By default the runtime is embedded in the generated file, so the client is self-contained.
+With [`--runtime package`](../commands/generate-client.md#runtime-distribution) the generated file instead imports the runtime from `@redocly/client-generator` — your application code is **identical in both modes** (same exports, same call shapes); only where the engine lives changes.
+Choose `package` when you want engine fixes and improvements via `npm update @redocly/client-generator`, with no regeneration.
 
 Install the runtime as a regular dependency and set the mode in `redocly.yaml`:
 
@@ -36,11 +39,14 @@ client:
   runtime: package # default: inline (self-contained)
 ```
 
-An incompatible generated-file/runtime pair fails your `tsc` build (the descriptor `satisfies` check) rather than misbehaving at runtime. Package mode works with both output modes and every generator. See the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
+An incompatible generated-file/runtime pair fails your `tsc` build (the descriptor `satisfies` check) rather than misbehaving at runtime.
+Package mode works with both output modes and every generator.
+See the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
 
 ## Authentication
 
-Credentials are **per instance**: they live in the client's config (`ClientConfig.auth`), and each operation automatically sends the credentials its `security` requires. A setter is generated for each `securityScheme` the runtime can apply:
+Credentials are **per instance**: they live in the client's config (`ClientConfig.auth`), and each operation automatically sends the credentials its `security` requires.
+A setter is generated for each `securityScheme` the runtime can apply:
 
 | Scheme                         | Setter                                    | Applied as                               |
 | ------------------------------ | ----------------------------------------- | ---------------------------------------- |
@@ -73,7 +79,8 @@ const publicApi = createClient<Ops>(OPERATIONS, { serverUrl: 'https://api.exampl
 
 ## Argument style
 
-By default (`--args-style flat`) each operation takes positional arguments — path params in URL order, then `params` (query), `body`, and `headers` — with the per-call `init` last. With `--args-style grouped`, every input is bundled into one `vars` object typed as the operation's `<Op>Variables`:
+By default (`--args-style flat`) each operation takes positional arguments — path params in URL order, then `params` (query), `body`, and `headers` — with the per-call `init` last.
+With `--args-style grouped`, every input is bundled into one `vars` object typed as the operation's `<Op>Variables`:
 
 ```ts
 // flat (default)
@@ -85,7 +92,8 @@ await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
 
 ## Error handling
 
-By default (`--error-mode throw`) an operation throws `ApiError` on any non-2xx response and returns the success body directly. With `--error-mode result` it never throws for HTTP errors, returning a discriminated `Result<TData, TError>` whose `error` is typed from the spec's 4xx/5xx bodies:
+By default (`--error-mode throw`) an operation throws `ApiError` on any non-2xx response and returns the success body directly.
+With `--error-mode result` it never throws for HTTP errors, returning a discriminated `Result<TData, TError>` whose `error` is typed from the spec's 4xx/5xx bodies:
 
 ```ts
 // throw (default)
@@ -101,11 +109,13 @@ if (error) console.error(response.status, error.title);
 else console.log(data.id);
 ```
 
-Transport and abort failures still throw in both modes. The choice is fixed at generate time.
+Transport and abort failures still throw in both modes.
+The choice is fixed at generate time.
 
 ## Middleware
 
-Beyond the single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`, the client takes **composable middleware** for cross-cutting concerns (auth refresh, logging, tracing, request IDs). Register with `use()` (sugar for `client.use()`); it accepts several at once:
+Beyond the single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`, the client takes **composable middleware** for cross-cutting concerns (auth refresh, logging, tracing, request IDs).
+Register with `use()` (sugar for `client.use()`); it accepts several at once:
 
 ```ts
 import { use } from './client.ts';
@@ -129,7 +139,9 @@ See the [`customization` example](https://github.com/Redocly/redocly-cli/tree/ma
 
 ## Publisher defaults
 
-The middleware above is composed by the **consumer**. If you **publish an SDK**, bake defaults in at generation time with `--setup <file>`. The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable) and default-exports `defineClientSetup({ config, middleware })`:
+The middleware above is composed by the **consumer**.
+If you **publish an SDK**, bake defaults in at generation time with `--setup <file>`.
+The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable) and default-exports `defineClientSetup({ config, middleware })`:
 
 ```ts
 // client-setup.ts
@@ -151,7 +163,12 @@ export default defineClientSetup({
 redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
 ```
 
-The baked block runs before the consumer's own setup. **Config values** layer lowest → highest: the spec's defaults (e.g. `servers[0].url`) → the baked setup → the app's `configure()` — later always wins, so a consumer overrides a baked default. **Middleware composes** instead (baked first, then the consumer's). Express un-bypassable behavior as middleware, not a baked `fetch`. A setup file may import **only** from `@redocly/client-generator`. See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
+The baked block runs before the consumer's own setup.
+**Config values** layer lowest → highest: the spec's defaults (e.g. `servers[0].url`) → the baked setup → the app's `configure()` — later always wins, so a consumer overrides a baked default.
+**Middleware composes** instead (baked first, then the consumer's).
+Express un-bypassable behavior as middleware, not a baked `fetch`.
+A setup file may import **only** from `@redocly/client-generator`.
+See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
 
 ## Retries
 
@@ -163,9 +180,12 @@ const other = createClient<Ops>(OPERATIONS, { retry: { retries: 3 } }); // anoth
 await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 ```
 
-By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`). `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe. Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
+By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`).
+`POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe.
+Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
 
-A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts. To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
+A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts.
+To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
 
 | `RetryConfig` field | Type                                                 | Default                                            |
 | ------------------- | ---------------------------------------------------- | -------------------------------------------------- |
@@ -175,7 +195,8 @@ A retry **resends the same request** — the `onRequest` chain, `config.headers(
 | `jitter`            | `boolean`                                            | `true`                                             |
 | `retryOn`           | `(ctx: RetryContext) => boolean \| Promise<boolean>` | idempotent-only predicate                          |
 
-A custom `retryOn` receives the failed attempt's `RetryContext` (`attempt`, `request`, and exactly one of `response` / `error`) and **fully replaces** the default. To inspect a response body, read `ctx.response.clone()` — the body is a single-use stream:
+A custom `retryOn` receives the failed attempt's `RetryContext` (`attempt`, `request`, and exactly one of `response` / `error`) and **fully replaces** the default.
+To inspect a response body, read `ctx.response.clone()` — the body is a single-use stream:
 
 ```ts
 await createOrder(body, {
@@ -191,7 +212,8 @@ await createOrder(body, {
 
 ## Query serialization
 
-Query parameters follow their OpenAPI `style` / `explode` / `allowReserved`. The default (`form`, `explode: true`) repeats array values:
+Query parameters follow their OpenAPI `style` / `explode` / `allowReserved`.
+The default (`form`, `explode: true`) repeats array values:
 
 | `style`          | `explode` | `['a', 'b']` on the wire |
 | ---------------- | --------- | ------------------------ |
@@ -200,11 +222,14 @@ Query parameters follow their OpenAPI `style` / `explode` / `allowReserved`. The
 | `spaceDelimited` | `false`   | `key=a%20b`              |
 | `pipeDelimited`  | `false`   | `key=a\|b`               |
 
-Delimiters are literal (values are still percent-encoded). `allowReserved: true` leaves the RFC-3986 reserved set un-encoded. Object-valued params serialize as `deepObject` brackets (`key[sub]=val`).
+Delimiters are literal (values are still percent-encoded).
+`allowReserved: true` leaves the RFC-3986 reserved set un-encoded.
+Object-valued params serialize as `deepObject` brackets (`key[sub]=val`).
 
 ## Multipart uploads
 
-A `multipart/form-data` body whose schema is an **object** is generated as a typed object; pass a plain object and the client serializes it to `FormData` (after the `onRequest` chain, so middleware can mutate it). Binary fields (`format: binary`) are typed as `Blob`:
+A `multipart/form-data` body whose schema is an **object** is generated as a typed object; pass a plain object and the client serializes it to `FormData` (after the `onRequest` chain, so middleware can mutate it).
+Binary fields (`format: binary`) are typed as `Blob`:
 
 ```ts
 // type UploadBody = { file: Blob; orgId: string; tags?: string[] };
@@ -215,7 +240,8 @@ await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 
 ## Response decoding
 
-The client reads each response by negotiating from its `Content-Type` (JSON, then `text/*`, then `Blob`). Force a reader per call with `parseAs`:
+The client reads each response by negotiating from its `Content-Type` (JSON, then `text/*`, then `Blob`).
+Force a reader per call with `parseAs`:
 
 ```ts
 const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
@@ -250,7 +276,8 @@ export const OPERATIONS = {
 } as const satisfies Record<string, OperationDescriptor>;
 ```
 
-Because keys and values are plain string literals, they survive bundling/minification — making `OPERATIONS` the stable handle for cache keys, span names, or log labels (rather than `fn.name`, which a minifier can rename). The same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.operation` in middleware.
+Because keys and values are plain string literals, they survive bundling/minification — making `OPERATIONS` the stable handle for cache keys, span names, or log labels (rather than `fn.name`, which a minifier can rename).
+The same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.operation` in middleware.
 
 ## Discriminated unions
 
@@ -261,11 +288,13 @@ export type MenuItem = Beverage | Dessert;
 export function isBeverage(value: MenuItem): value is Beverage { … }
 ```
 
-Guards are also emitted for unions nested inside another schema (array items, property values) as long as every member is a named schema. A union without a usable discriminator gets no guard.
+Guards are also emitted for unions nested inside another schema (array items, property values) as long as every member is a named schema.
+A union without a usable discriminator gets no guard.
 
 ## Server-Sent Events
 
-An operation whose `2xx` response declares `text/event-stream` is generated as a typed **async-generator function** (a client method plus the matching free function) — no flag required. Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`) and `JSON.parse`d when structured:
+An operation whose `2xx` response declares `text/event-stream` is generated as a typed **async-generator function** (a client method plus the matching free function) — no flag required.
+Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`) and `JSON.parse`d when structured:
 
 ```ts
 import { streamMessages } from './client.ts';
@@ -275,11 +304,15 @@ for await (const ev of streamMessages()) {
 }
 ```
 
-The stream **auto-reconnects** on a dropped connection, resuming from the last event id via `Last-Event-ID` (backoff honors the server's `retry:`, then `reconnectDelay`, then 1s; capped at 30s). Tune per call with `{ reconnect: false }` or `{ reconnectDelay: 500 }`. `break`ing the loop or aborting an `AbortSignal` ends it cleanly (no throw). SSE always throws `ApiError` on a non-2xx initial response, regardless of `--error-mode`.
+The stream **auto-reconnects** on a dropped connection, resuming from the last event id via `Last-Event-ID` (backoff honors the server's `retry:`, then `reconnectDelay`, then 1s; capped at 30s).
+Tune per call with `{ reconnect: false }` or `{ reconnectDelay: 500 }`.
+`break`ing the loop or aborting an `AbortSignal` ends it cleanly (no throw).
+SSE always throws `ApiError` on a non-2xx initial response, regardless of `--error-mode`.
 
 ## Pagination
 
-Pagination is **declared, never guessed**: describe how your API paginates in `redocly.yaml` under [`client.pagination`](../configuration/reference/client.md#pagination) (or per operation with the `x-pagination` extension in the spec — same fields), and each paginated operation keeps its one-shot call while gaining two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema. There is no CLI flag.
+Pagination is **declared, never guessed**: describe how your API paginates in `redocly.yaml` under [`client.pagination`](../configuration/reference/client.md#pagination) (or per operation with the `x-pagination` extension in the spec — same fields), and each paginated operation keeps its one-shot call while gaining two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
+There is no CLI flag.
 
 ```yaml
 client:
@@ -297,9 +330,12 @@ client:
         items: /data
 ```
 
-The convention rule is **statically verified** at generate time: it applies only to operations it structurally fits — the advance param must be a declared query parameter of the right type (string for `cursor`, numeric for `offset`/`page`) and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array. An operation the convention doesn't fit is simply not paginated; an **explicit** rule (an `operations` entry or an `x-pagination` extension) that doesn't fit **fails generation** with a per-operation error, so a wrong declaration can't silently produce a broken iterator. Per operation, precedence is `operations[id]` > `x-pagination` > the convention.
+The convention rule is **statically verified** at generate time: it applies only to operations it structurally fits — the advance param must be a declared query parameter of the right type (string for `cursor`, numeric for `offset`/`page`) and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array.
+An operation the convention doesn't fit is simply not paginated; an **explicit** rule (an `operations` entry or an `x-pagination` extension) that doesn't fit **fails generation** with a per-operation error, so a wrong declaration can't silently produce a broken iterator.
+Per operation, precedence is `operations[id]` > `x-pagination` > the convention.
 
-Three styles are supported: `cursor` (send the response's `nextCursor` back in `cursorParam`; stops when it's absent, `null`, or empty — and throws if the server returns the same cursor twice in a row), `offset` (advance `offsetParam` by each page's item count), and `page` (increment `offsetParam` by 1) — `offset`/`page` stop on an empty page. `limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
+Three styles are supported: `cursor` (send the response's `nextCursor` back in `cursorParam`; stops when it's absent, `null`, or empty — and throws if the server returns the same cursor twice in a row), `offset` (advance `offsetParam` by each page's item count), and `page` (increment `offsetParam` by 1) — `offset`/`page` stop on an empty page.
+`limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
 
 ```ts
 import { client } from './client.ts';
@@ -336,13 +372,15 @@ for await (const page of client.listOrders.pages(
 }
 ```
 
-Iteration is **error-mode-agnostic**: a failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — where `.pages()` yields **raw** pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked. Both runtimes paginate identically; the `inline` runtime embeds the pagination module only when some operation paginates, and `package` clients receive pagination improvements via `npm update`.
+Iteration is **error-mode-agnostic**: a failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — where `.pages()` yields **raw** pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked.
+Both runtimes paginate identically; the `inline` runtime embeds the pagination module only when some operation paginates, and `package` clients receive pagination improvements via `npm update`.
 
 For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
 
 ## Custom generators
 
-The built-in generators cover common targets. For anything else derived from the same description (validators in another library, a permissions map, a house-style SDK), write a **custom generator**: it reads the same spec-agnostic model the built-ins consume, so its output never drifts from the spec.
+The built-in generators cover common targets.
+For anything else derived from the same description (validators in another library, a permissions map, a house-style SDK), write a **custom generator**: it reads the same spec-agnostic model the built-ins consume, so its output never drifts from the spec.
 
 A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator`:
 
@@ -398,7 +436,8 @@ await generateClient({
 });
 ```
 
-Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run. See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator).
+Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
+See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator).
 
 ## Resources
 
