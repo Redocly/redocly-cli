@@ -68,10 +68,7 @@ export function collectPaths({
         if (field === 'parameters') {
           collectPathParameters(pathItem, path);
         }
-        if (
-          typeof pathItem[field] === 'string' ||
-          (field.startsWith('x-') && typeof pathItem[field] !== 'string')
-        ) {
+        if (typeof pathItem[field] === 'string' || field.startsWith('x-')) {
           collectPathStringFields(pathItem, path, field);
         }
       }
