@@ -7,7 +7,7 @@ import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { AjvValidator } from '../ajv.js';
-import { validateExample } from '../utils.js';
+import { getExampleValueToValidate, validateExample } from '../utils.js';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
   const validator = new AjvValidator();
@@ -25,7 +25,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
       for (const exampleName of Object.keys(mediaType.examples)) {
         resolveAndValidateExample(
           mediaType.examples[exampleName],
-          location.child(['examples', exampleName, 'value']),
+          location.child(['examples', exampleName]),
           true
         );
       }
@@ -39,14 +39,20 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
       if (isRef(example)) {
         const resolved = resolve<Oas3Example>(example);
         if (!resolved.location) return;
-        location = isMultiple ? resolved.location.child('value') : resolved.location;
+        location = resolved.location;
         example = resolved.node;
       }
-      if (isMultiple && typeof example?.value === 'undefined') {
-        return;
+
+      let exampleValue = example;
+      if (isMultiple) {
+        const selected = getExampleValueToValidate(example);
+        if (!selected) return;
+        exampleValue = selected.value;
+        location = location.child(selected.field);
       }
+
       validateExample({
-        example: isMultiple ? example.value : example,
+        example: exampleValue,
         schema: mediaType.schema!,
         options: {
           location,

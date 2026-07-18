@@ -1,3 +1,5 @@
+import type { HeaderIgnoreList } from '../utils/http.js';
+
 export type MatchMode = 'strict-host' | 'basepath';
 
 export type TrafficFormat = 'auto' | 'har' | 'kong' | 'ndjson' | 'nginx-json' | 'apache-json';
@@ -91,6 +93,7 @@ export interface OpenApiParameter {
   name: string;
   in: 'query' | 'header' | 'path' | 'cookie';
   required: boolean;
+  style?: string;
   schema?: unknown;
 }
 
@@ -129,6 +132,7 @@ export interface RuleContext {
   /** Whether the request host is compatible with at least one description server. */
   hostCompatibleWithSpecServers: boolean;
   ignoreCookies?: boolean;
+  ignoreHeaders?: HeaderIgnoreList;
   validateSchema: (
     schema: unknown,
     value: unknown,
@@ -171,6 +175,8 @@ export interface RunnerOptions {
   format: TrafficFormat;
   matchMode: MatchMode;
   ignoreCookies?: boolean;
+  /** Header names/prefixes (e.g. `x-consumer-*`) to skip in undocumented-header checks. */
+  ignoreHeaders?: string[];
   previewFindingsLimit?: number;
   activeRules?: string[];
   /** Pre-loaded OpenAPI index. */
