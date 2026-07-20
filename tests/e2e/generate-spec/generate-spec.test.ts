@@ -153,7 +153,7 @@ describe('generate-spec - AI refinement', () => {
 
   test('runs the Cursor CLI when the cursor provider is selected', () => {
     const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'cursor'],
+      ['traffic.ndjson', '--with-ai', '--ai-provider', 'cursor', '--ai-concurrency', '1'],
       withStub('bin-ok')
     );
     expect(code).toBe(0);
