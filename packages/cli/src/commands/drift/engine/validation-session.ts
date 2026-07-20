@@ -16,6 +16,7 @@ import type {
   RunSummary,
 } from '../types/index.js';
 import { createProblemKey } from '../utils/finding-groups.js';
+import { parseHeaderIgnoreList, type HeaderIgnoreList } from '../utils/http.js';
 import { normalizeServerPrefix, resolvePathForServer } from '../utils/server.js';
 import { SchemaValidator } from './schema-validator.js';
 
@@ -170,6 +171,8 @@ export interface ValidationSessionOptions {
   openApiIndex: OpenApiIndex;
   matchMode: MatchMode;
   ignoreCookies?: boolean;
+  /** Header names/prefixes (e.g. `x-consumer-*`) to skip in undocumented-header checks. */
+  ignoreHeaders?: string[];
   previewFindingsLimit?: number;
   activeRules?: string[];
   /**
@@ -208,6 +211,7 @@ export class ValidationSession {
   private totalProblemGroups = 0;
 
   private readonly server: string | undefined;
+  private readonly ignoreHeaders: HeaderIgnoreList | undefined;
   private readonly minSeverityRank: number;
   private readonly specServerHosts: Set<string>;
   private readonly hasHostlessSpecServer: boolean;
@@ -216,6 +220,9 @@ export class ValidationSession {
     this.options = options;
     this.rules = rules;
     this.server = normalizeServerPrefix(options.server);
+    this.ignoreHeaders = options.ignoreHeaders
+      ? parseHeaderIgnoreList(options.ignoreHeaders)
+      : undefined;
     const { specServerHosts, hasHostlessSpecServer } = collectSpecServerHosts(options.openApiIndex);
     this.specServerHosts = specServerHosts;
     this.hasHostlessSpecServer = hasHostlessSpecServer;
@@ -273,6 +280,7 @@ export class ValidationSession {
       matchMode: this.options.matchMode,
       hostCompatibleWithSpecServers: relativePathOverride !== undefined || hostCompatible,
       ignoreCookies: this.options.ignoreCookies ?? false,
+      ignoreHeaders: this.ignoreHeaders,
       validateSchema: (schema, value, options) =>
         options?.coerce
           ? this.coercingSchemaValidator.validate(schema, value, options?.target)
