@@ -218,6 +218,10 @@ jobs:
           jq ".version = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
 
+          # Update Client Generator package version and dependencies
+          jq ".version = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
+
           # Update CLI package version
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
@@ -251,6 +255,10 @@ jobs:
           sleep 10
 
           cd ../respect-core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../client-generator
           npm publish --tag snapshot
           sleep 10
 
