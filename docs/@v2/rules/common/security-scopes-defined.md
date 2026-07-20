@@ -24,9 +24,8 @@ The rule checks security schemes of type `oauth2`, where the set of valid scopes
 - **OpenAPI 2.0**: scopes used in security requirements must be declared in the `scopes` of the scheme.
 - **AsyncAPI 3.0**: scopes listed in the `scopes` of a security scheme must be declared in the `availableScopes` of at least one of the scheme's `flows`.
 
-Other scheme types are skipped:
-`openIdConnect` scopes are defined behind the discovery URL and can't be checked statically,
-and for the remaining types OpenAPI 3.1 and later allow arbitrary role names.
+Other scheme types are skipped: `openIdConnect` scopes are defined behind the discovery URL and can't be checked statically.
+For the remaining types OpenAPI 3.1 and later allow arbitrary role names.
 Requirements that reference undefined security schemes are skipped as well — those are reported by the [security-defined](../oas/security-defined.md) rule.
 
 ## API design principles
