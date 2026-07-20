@@ -34,28 +34,49 @@ The baseline is derived from every exchange in the traffic:
 - Identifier-like path segments (numeric, UUID, ULID, CUID, prefixed and opaque tokens) become named path parameters.
 - Body schemas are merged across all observations.
   A property becomes optional as soon as one sample omits it.
-- Alternative body shapes for the same operation are preserved as `oneOf` variants instead of being collapsed, and values observed as `null` produce type unions such as `["string", "null"]`.
+- Alternative body shapes for the same operation are preserved as `oneOf` variants instead of being collapsed.
+- Values observed as `null` produce type unions such as `["string", "null"]`.
 - Object shapes that repeat across the document are extracted into `components/schemas` and referenced with `$ref`.
-  The same entity is recognized when it appears as a list item and as a single resource, with different `required` sets, or with near-identical properties (at least 75% shared, with compatible types).
-  Components are named from the path entity, the enclosing property name, or `Error` for error responses.
-  A shape repeated only because its parent shape repeats stays inline.
+  - The same entity is recognized when it appears as a list item and as a single resource, with different `required` sets, or with near-identical properties (at least 75% shared, with compatible types).
+  - Components are named from the path entity, the enclosing property name, or `Error` for error responses.
+  - A shape repeated only because its parent shape repeats stays inline.
 - Observed string values are analyzed conservatively: when every value of a property (or parameter) matches the same well-known pattern it gets a `format` (`uuid`, `date-time`, `date`, `email`, `uri`, `ipv4`).
-  When a string only ever takes a small set of identifier-like values with enough repetition (at least 4 observations, at most 5 distinct values, each seen twice on average) it becomes an `enum`.
-  Enums apply to body properties and query parameters.
-  Path parameters and nullable unions get formats only.
-  Evidence is pooled across all operations a shared component was observed in.
+  - When a string only ever takes a small set of identifier-like values with enough repetition it becomes an `enum`.
+    To trigger this conversion, the command needs at least 4 observations, at most 5 distinct values, each seen twice on average.
+  - Enums apply to body properties and query parameters.
+  - Path parameters and nullable unions get formats only.
+  - Evidence is pooled across all operations a shared component was observed in.
 - Responses that were never received (status `0` in HAR captures) are ignored.
 
 ## AI refinement
 
-The description is refined one operation at a time, so prompt and response stay small no matter how large the recorded traffic or the resulting description is.
-Each prompt carries a single operation from the baseline, the component schemas it references, the names of the other components (reserved against collisions), and a capped, shape-diverse sample of the real exchanges recorded for that operation (grouped by status and body shape, selected round-robin so every observed payload variant is represented).
-The AI is instructed to narrow types, add formats, enums, descriptions and examples, refine or add `components/schemas`, and model alternative payloads explicitly with `oneOf` (plus `discriminator`) and `allOf` composition.
+The description is refined one operation at a time.
+The prompt and response stay small regardless of the volume of recorded traffic or the resulting description's size.
 
-Up to `--ai-concurrency` operations (default 4) are refined in parallel, and every accepted refinement is merged back as it arrives, so operations prompted later see already-refined shared components.
+Each prompt carries:
+
+- a single operation from the baseline
+- component schemas it references
+- names of other components (reserved against collisions)
+- a capped, shape-diverse sample of the real exchanges recorded for that operation
+
+The sample of exchanges is grouped by status and body shape, selected round-robin to represent every observed payload variant.
+
+The AI is instructed to:
+
+- narrow types
+- add formats, enums, descriptions and examples
+- refine or add `components/schemas`
+- model alternative payloads explicitly with `oneOf` (plus `discriminator`) and `allOf` composition.
+
+You can set the number of operations refined in parallel using `--ai-concurrency`.
+The default value is `4`.
+Every accepted refinement is merged back as it arrives: operations prompted later see already-refined shared components.
+
 When two concurrent refinements touch the same shared component, the one merged last wins.
 The final whole-document lint still guards the result.
-Set `--ai-concurrency 1` to process operations strictly sequentially.
+
+To process operations strictly sequentially, set `--ai-concurrency 1`.
 Progress is reported per operation as refinements complete.
 
 The AI's answer is never trusted blindly.
@@ -67,11 +88,16 @@ A refined operation is only accepted when it:
 - does not redefine reserved components (those used only by other operations)
 - passes validation with the `spec` ruleset (checked against the description's full component set)
 
-An operation whose refinement is rejected keeps its deterministic baseline (reported with the reason), components no operation references anymore are pruned, and the final document is linted again as a whole.
+An operation whose refinement is rejected keeps its deterministic baseline and the reason for rejection is reported.
+Components that no operation references are pruned.
+The final document is linted again as a whole.
+
 If refinement fails for every operation, the command falls back to the deterministic baseline.
 Each provider call times out after 5 minutes.
 
-The acceptance lint is intentionally pinned to the `spec` ruleset and does not use the project's `redocly.yaml`: a stricter governance config would reject refinements for problems the baseline itself has, and a looser one could let structurally broken output through.
+The acceptance lint is intentionally pinned to the `spec` ruleset and does not use the project's `redocly.yaml`.
+A stricter governance config would reject refinements for problems the baseline itself has.
+A looser one could let structurally broken output through.
 Lint the generated description with your own config afterward.
 
 > **Warning:** `--with-ai` sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider.
@@ -88,25 +114,27 @@ Lint the generated description with your own config afterward.
 | `--with-ai`        | Refine the inferred description with an AI provider.                                                  |
 | `--ai-provider`    | `claude`, `codex`, or `cursor` (default `claude`).                                                    |
 | `--ai-model`       | Model passed to the selected provider.                                                                |
-| `--ai-concurrency` | Number of operations refined in parallel (default `4`).                                               |
+| `--ai-concurrency` | Number of operations refined in parallel. Default: `4`.                                               |
 | `-o, --output`     | Write the result to a file instead of stdout.                                                         |
 
 ## AI providers
 
-Every provider CLI is spawned in an empty temporary directory, so project context the CLIs normally auto-load from the working directory (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`) never enters the prompts — it would slow every call down and could steer the refinement.
+Every provider CLI is spawned in an empty temporary directory.
+The project context the CLIs normally auto-load from the working directory (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`) never enters the prompts.
+Otherwise, it would slow every call down and could steer the refinement.
 
 - **`claude`** — runs the local `claude` CLI in headless mode (`claude -p`), with built-in tools, MCP servers, settings (hooks, skills, plugins), and session persistence disabled so every call is a plain completion.
   Because settings are not loaded, a model configured there does not apply: pass `--ai-model`, or the CLI's built-in default model is used.
 - **`codex`** — runs the local `codex` CLI in non-interactive mode (`codex exec`) with MCP servers and `AGENTS.md` discovery disabled and a read-only sandbox.
   Other settings from `~/.codex/config.toml`, such as `model_reasoning_effort`, still apply.
 - **`cursor`** — runs the local Cursor CLI in print mode: `cursor-agent -p`.
-  The renamed `agent` binary is tried as a fallback).
+  The renamed `agent` binary is tried as a fallback.
 
 All providers require the respective CLI to be installed and authenticated on the machine running the command.
 
 ## Performance for large APIs
 
-Total time is roughly the per-operation AI time multiplied by the number of operations and divided by `--ai-concurrency`.
+The total time is roughly the per-operation AI time multiplied by the number of operations and divided by `--ai-concurrency`.
 For descriptions with many operations:
 
 - Raise `--ai-concurrency` (for example to `12`) — calls are network-bound and the provider CLIs retry rate-limit responses themselves.
