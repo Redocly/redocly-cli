@@ -9,7 +9,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@redocly/client-generator": "0.0.0-snapshot.manual"
+    "@redocly/client-generator": "latest"
   },
   "devDependencies": {
     "@redocly/cli": "latest",

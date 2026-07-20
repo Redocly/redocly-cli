@@ -5,7 +5,9 @@ For invoking the command itself (flags, output modes, config), see the [`generat
 
 ## Generators
 
-`--generator` selects what to emit (default `sdk`). Each non-`sdk` generator adds a **standalone sibling module** next to the client; the client itself never imports it, so an add-on never adds a dependency to the client. Incompatible selections fail fast with an explanation.
+`--generator` selects what to emit (default `sdk`).
+Each non-`sdk` generator adds a standalone sibling module next to the client; the client itself never imports it, so an add-on never adds a dependency to the client.
+Incompatible selections fail fast with an explanation.
 
 | Generator        | Emits                                                                                              | App peer dependency                                      |
 | ---------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -20,7 +22,8 @@ For invoking the command itself (flags, output modes, config), see the [`generat
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
 ```
 
-`tanstack-query` and `swr` wrap the **throw-mode** `sdk` functions, so they require `--error-mode throw`. `transformers` requires `--date-type Date`. See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+`tanstack-query` and `swr` wrap the throw-mode `sdk` functions, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
+See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
 
 ## Package runtime
 
@@ -65,7 +68,8 @@ import { setBearer } from './client.ts';
 setBearer(async () => await getFreshAccessToken());
 ```
 
-Each setter is sugar over the exported `client` instance's `auth` member (`export const setBearer = client.auth.bearer;`), so it configures **that instance** — equivalently, pass credentials up front with `configure({ auth: { … } })` or set them via `client.auth.bearer(…)` / `client.auth.basic(…)` / `client.auth.apiKey(scheme, …)`.
+Each setter is sugar over the exported `client` instance's `auth` member (`export const setBearer = client.auth.bearer;`), so it configures that instance.
+Equivalently, pass credentials up front with `configure({ auth: { … } })` or set them via `client.auth.bearer(…)` / `client.auth.basic(…)` / `client.auth.apiKey(scheme, …)`.
 
 For **multiple independent instances** with different credentials, build extra clients over the same generated descriptors — the generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
 
@@ -133,10 +137,15 @@ use({
 });
 ```
 
-`onRequest` runs in registration order; `onResponse` runs in reverse (onion). `onRequest` may mutate `ctx` (`url`/`method`/`headers`/`body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`. `onError` (throw mode only) is threaded through each middleware. `ctx.operation`'s fields are typed as the spec's **literal unions** (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete — and a misspelled operation id fails compilation instead of silently never matching. A single call's header instead goes in that operation's trailing `init` argument.
-Per-request headers merge lowest → highest: injected auth credentials → typed header parameters → the caller's `init.headers` — the caller always wins.
+`onRequest` runs in registration order; `onResponse` runs in reverse (onion).
+`onRequest` may mutate `ctx` (`url`, `method`, `headers`, and `body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`.
+`onError` (throw mode only) is threaded through each middleware.
+`ctx.operation`'s fields are typed as the spec's literal unions (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete, and a misspelled operation id fails compilation instead of silently never matching.
+A header for a single call instead goes in that operation's trailing `init` argument.
+Per-request headers merge lowest to highest: injected auth credentials, then typed header parameters, then the caller's `init.headers` — the caller always wins.
 
-`use()` **appends** to the middleware chain (it composes with any already-registered or baked-in middleware). `configure({ middleware: [...] })` **replaces** the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
+`use()` appends to the middleware chain, composing with any already-registered or baked-in middleware.
+`configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
 
 See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
 
@@ -314,30 +323,13 @@ SSE always throws `ApiError` on a non-2xx initial response, regardless of `--err
 
 ## Pagination
 
-Pagination is **declared, never guessed**: describe how your API paginates in `redocly.yaml` under [`client.pagination`](../configuration/reference/client.md#pagination) (or per operation with the `x-pagination` extension in the spec — same fields), and each paginated operation keeps its one-shot call while gaining two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
-There is no CLI flag.
+Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-pagination` extension in the spec.
+The rule fields, the generate-time verification, and the precedence between the convention, `x-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
+Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
 
-```yaml
-client:
-  pagination: # convention: applied to every operation it structurally fits
-    style: cursor
-    cursorParam: cursor # query param that receives the cursor
-    nextCursor: /nextCursor # JSON pointer to the next cursor in the response
-    items: /orders # JSON pointer to the page's item array
-    exclude:
-      - listOrderEvents # never paginate this operation
-    operations: # per-operation overrides (beat x-pagination and the convention)
-      listMenuItems:
-        style: page
-        offsetParam: page
-        items: /data
-```
-
-The convention rule is **statically verified** at generate time: it applies only to operations it structurally fits — the advance param must be a declared query parameter of the right type (string for `cursor`, numeric for `offset`/`page`) and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array.
-An operation the convention doesn't fit is simply not paginated; an **explicit** rule (an `operations` entry or an `x-pagination` extension) that doesn't fit **fails generation** with a per-operation error, so a wrong declaration can't silently produce a broken iterator.
-Per operation, precedence is `operations[id]` > `x-pagination` > the convention.
-
-Three styles are supported: `cursor` (send the response's `nextCursor` back in `cursorParam`; stops when it's absent, `null`, or empty — and throws if the server returns the same cursor twice in a row), `offset` (advance `offsetParam` by each page's item count), and `page` (increment `offsetParam` by 1) — `offset`/`page` stop on an empty page.
+Three styles are supported:
+`cursor` sends the response's `nextCursor` back in `cursorParam`, stops when it's absent, `null`, or empty, and throws if the server returns the same cursor twice in a row.
+`offset` advances `offsetParam` by each page's item count, and `page` increments `offsetParam` by 1; both stop on an empty page.
 `limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
 
 ```ts
@@ -352,18 +344,10 @@ for await (const page of client.listOrders.pages()) {
 }
 ```
 
-The flat free functions keep both iterators, with one asymmetry to note: the flat function itself takes **positional** arguments, but its `.pages`/`.items` always take the **grouped** shape (they are the client method's iterators):
+The flat free functions keep both iterators, with one asymmetry to note: the flat function itself takes positional arguments, but its `.pages`/`.items` always take the grouped shape (they are the client method's iterators).
 
-```ts
-import { listOrders } from './client.ts';
-
-const firstPage = await listOrders({ limit: 20 }); // flat one-shot: positional params
-for await (const order of listOrders.items({ params: { limit: 20 } })) {
-  // iterators: grouped args
-}
-```
-
-**Resume** by passing the advance param in the initial args — iteration starts from there instead of the beginning; **abort** by passing an `AbortSignal`, forwarded to every page request:
+Resume by passing the advance param in the initial args — iteration starts from there instead of the beginning.
+Abort by passing an `AbortSignal`, forwarded to every page request:
 
 ```ts
 const controller = new AbortController();
@@ -375,8 +359,7 @@ for await (const page of client.listOrders.pages(
 }
 ```
 
-Iteration is **error-mode-agnostic**: a failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — where `.pages()` yields **raw** pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked.
-Both runtimes paginate identically; the `inline` runtime embeds the pagination module only when some operation paginates, and `package` clients receive pagination improvements via `npm update`.
+A failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — there `.pages()` yields raw pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked.
 
 For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
 
