@@ -9,7 +9,7 @@ import { applyValueInference } from '../value-inference.js';
 
 function documentWithSchema(schema: JsonSchema, path = '/things/{thingId}'): GeneratedDocument {
   return {
-    openapi: '3.1.0',
+    openapi: '3.2.0',
     info: { title: 'Test API', version: '1.0.0' },
     paths: {
       [path]: {
@@ -185,7 +185,7 @@ describe('applyValueInference', () => {
 
   it('pools observations across operations into an extracted component', () => {
     const document: GeneratedDocument = {
-      openapi: '3.1.0',
+      openapi: '3.2.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
         '/users': {

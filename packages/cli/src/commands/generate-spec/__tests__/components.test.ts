@@ -4,7 +4,7 @@ import { type GeneratedDocument, inferSchema, type JsonSchema } from '../generat
 type Operation = GeneratedDocument['paths'][string][string];
 
 function makeDocument(paths: GeneratedDocument['paths']): GeneratedDocument {
-  return { openapi: '3.1.0', info: { title: 'Test API', version: '1.0.0' }, paths };
+  return { openapi: '3.2.0', info: { title: 'Test API', version: '1.0.0' }, paths };
 }
 
 function jsonOperation(

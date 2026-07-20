@@ -94,9 +94,9 @@ describe('generate-spec - deterministic inference', () => {
       const { output, code } = runGenerateSpec(['traffic.ndjson', '--output', outputFile]);
       expect(code).toBe(0);
       expect(output).toContain('Written to:');
-      expect(output).not.toContain('openapi: 3.1.0');
+      expect(output).not.toContain('openapi: 3.2.0');
       const document = readFileSync(outputFile, 'utf-8');
-      expect(document).toContain('openapi: 3.1.0');
+      expect(document).toContain('openapi: 3.2.0');
       expect(document).toContain('/users/{userId}');
     } finally {
       rmSync(outputDir, { recursive: true, force: true });
@@ -180,7 +180,7 @@ describe('generate-spec - AI refinement', () => {
     expect(code).toBe(0);
     expect(output).toContain('AI refinement failed, falling back to the baseline description');
     expect(output).toContain('did not produce a usable refinement for any operation');
-    expect(output).toContain('openapi: 3.1.0');
+    expect(output).toContain('openapi: 3.2.0');
     expect(output).toContain('/users/{userId}');
   });
 
@@ -191,7 +191,7 @@ describe('generate-spec - AI refinement', () => {
     );
     expect(code).toBe(0);
     expect(output).toContain('claude CLI exited with code 7');
-    expect(output).toContain('openapi: 3.1.0');
+    expect(output).toContain('openapi: 3.2.0');
   });
 
   test('falls back to the baseline when the provider CLI is not installed', () => {
@@ -202,6 +202,6 @@ describe('generate-spec - AI refinement', () => {
     );
     expect(code).toBe(0);
     expect(output).toContain('Could not find the "claude" CLI on PATH');
-    expect(output).toContain('openapi: 3.1.0');
+    expect(output).toContain('openapi: 3.2.0');
   });
 });

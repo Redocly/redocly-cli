@@ -11,7 +11,7 @@ vi.mock('../ai/providers.js', async (importOriginal) => ({
 
 function baseline(): GeneratedDocument {
   return {
-    openapi: '3.1.0',
+    openapi: '3.2.0',
     info: { title: 'Test API', version: '1.0.0' },
     paths: {
       '/users': {

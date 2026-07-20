@@ -99,7 +99,7 @@ export async function collectTrafficSamples(
   options: CollectSamplesOptions
 ): Promise<Map<string, TrafficSample[]>> {
   const perGroup = options.perGroup ?? 2;
-  const perOperation = options.perOperation ?? 8;
+  const perOperation = options.perOperation ?? 4;
   const maxBodyChars = options.maxBodyChars ?? 2000;
   const server = normalizeServerPrefix(options.server);
 

@@ -25,7 +25,7 @@ The supported formats are:
 
 Formats are auto-detected, or can be forced with `--traffic-format`.
 The traffic parsing infrastructure is shared with the `drift` command.
-The command generates OpenAPI 3.1 descriptions only.
+The command generates OpenAPI 3.2 descriptions only.
 
 ## Deterministic inference
 
