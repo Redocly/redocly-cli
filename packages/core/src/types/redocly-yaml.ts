@@ -355,6 +355,7 @@ const Client: NodeType = {
     serverUrl: { type: 'string' },
     outputMode: { enum: ['single', 'split'] },
     runtime: { enum: ['inline', 'package'] },
+    importExt: { enum: ['js', 'ts'] },
     enumStyle: { enum: ['union', 'const-object'] },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },

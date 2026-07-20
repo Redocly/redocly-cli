@@ -91,6 +91,10 @@ export type GenerateClientOptions = {
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
   runtime?: 'inline' | 'package';
+  /** Extension in generated relative imports. `'js'` (default) suits tsc and bundlers;
+   * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
+   * type stripping (`node client.ts`). */
+  importExt?: 'js' | 'ts';
   /**
    * Auto-pagination rules: a convention rule (applied to every operation it
    * structurally fits), per-operation overrides, and `exclude`d operationIds —

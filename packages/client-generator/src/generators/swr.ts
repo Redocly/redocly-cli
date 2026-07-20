@@ -21,7 +21,7 @@ export const swrGenerator: Generator = ({ model, outputPath, emit }) => {
   const { dir, stem } = anchor(outputPath);
   const content = renderSwrModule(model, {
     argsStyle: emit.argsStyle ?? 'flat',
-    sdkModule: `./${stem}.js`,
+    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
   });
   if (content === '') return [];
   return [{ path: join(dir, `${stem}.swr.ts`), content: `${HEADER}\n\n${content}` }];

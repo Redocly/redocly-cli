@@ -161,6 +161,7 @@ export async function generateClient(
       mockSeed: options.mockSeed,
       setup: setupBlock,
       runtime: options.runtime,
+      importExt: options.importExt,
       pagination: options.pagination,
     },
     generators: selected,

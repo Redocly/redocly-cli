@@ -14,6 +14,7 @@ export type GenerateClientCommandArgv = {
   'enum-style'?: 'union' | 'const-object';
   'output-mode'?: 'single' | 'split';
   runtime?: 'inline' | 'package';
+  'import-ext'?: 'js' | 'ts';
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
@@ -82,6 +83,7 @@ export async function handleGenerateClient({
     enumStyle: argv['enum-style'],
     outputMode: argv['output-mode'],
     runtime: argv.runtime,
+    importExt: argv['import-ext'],
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
     dateType: argv['date-type'],

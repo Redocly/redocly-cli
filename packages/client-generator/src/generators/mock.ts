@@ -14,7 +14,7 @@ import type { Generator } from './types.js';
 export const mockGenerator: Generator = ({ model, outputPath, emit }) => {
   const { dir, stem } = anchor(outputPath);
   const content = renderMockModule(model, {
-    sdkModule: `./${stem}.js`,
+    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
     dateType: emit.dateType,
     mockData: emit.mockData,
     mockSeed: emit.mockSeed,

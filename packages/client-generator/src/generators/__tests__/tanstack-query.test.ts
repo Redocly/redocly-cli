@@ -39,6 +39,16 @@ describe('tanstackQueryGenerator', () => {
     expect(files).toEqual([]);
   });
 
+  it('imports the sdk entry with a .ts extension when importExt is ts', () => {
+    const files = tanstackQueryGenerator({
+      model: apiModel({ services: SERVICES }),
+      outputPath: '/tmp/out/client.ts',
+      outputMode: 'single',
+      emit: { importExt: 'ts' },
+    });
+    expect(files[0].content).toContain('from "./client.ts"');
+  });
+
   it('passes queryFramework through to the import specifier', () => {
     const files = tanstackQueryGenerator({
       model: apiModel({ services: SERVICES }),

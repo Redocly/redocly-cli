@@ -162,7 +162,11 @@ function emitClient(
       HEADER,
       renderTitleComment(model),
       hasSchemas
-        ? schemaLinks(body + '\n' + sugar, ctx.schemaNames, `./${splitStem}.schemas.js`)
+        ? schemaLinks(
+            body + '\n' + sugar,
+            ctx.schemaNames,
+            `./${splitStem}.schemas.${options.importExt ?? 'js'}`
+          )
         : '',
       ...(embed ? [] : [runtimeSection]),
       body,

@@ -7,7 +7,7 @@
  * auth, header params) and the schemas module (named types + discriminated-union guards).
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -83,5 +83,26 @@ describe('generate-client end-to-end (--output-mode split)', () => {
       { encoding: 'utf-8', cwd: workDir }
     );
     expect(tsc.status, `tsc errors:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+  }, 90_000);
+
+  // `--import-ext ts` targets runtimes that resolve specifiers literally (no `.js` → `.ts`
+  // remap) — Node's built-in type stripping. Locked by actually executing `node main.ts`.
+  test('--import-ext ts produces a client Node runs natively', () => {
+    const tsEntry = join(workDir, 'client-ts.ts');
+    generate(fixture, tsEntry, ['--output-mode', 'split', '--import-ext', 'ts']);
+
+    const entrySrc = readFileSync(tsEntry, 'utf-8');
+    expect(entrySrc).toContain("export * from './client-ts.schemas.ts';");
+    expect(entrySrc).not.toContain('.schemas.js');
+
+    const mainFile = join(workDir, 'main.ts');
+    writeFileSync(
+      mainFile,
+      "import { isBeverage } from './client-ts.ts';\n" +
+        "console.log('isBeverage:', typeof isBeverage);\n"
+    );
+    const run = spawnSync('node', [mainFile], { encoding: 'utf-8', cwd: workDir });
+    expect(run.status, `node errors:\n${run.stderr}`).toBe(0);
+    expect(run.stdout).toContain('isBeverage: function');
   }, 90_000);
 });

@@ -62,6 +62,13 @@ export type EmitOptions = {
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
   runtime?: 'inline' | 'package';
   /**
+   * Extension used in generated relative import specifiers (the split entry's schemas
+   * re-export and each satellite's sdk import). `'js'` (default) is the tsc/bundler
+   * convention; `'ts'` targets runtimes that resolve specifiers literally, like Node's
+   * built-in type stripping (`node client.ts`).
+   */
+  importExt?: 'js' | 'ts';
+  /**
    * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
    * resolved together with each operation's `x-pagination` extension. Verified
    * statically: an explicit rule that doesn't fit its operation fails generation.

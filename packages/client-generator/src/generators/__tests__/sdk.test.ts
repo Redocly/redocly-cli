@@ -55,4 +55,18 @@ describe('sdkGenerator', () => {
     });
     expect(files.map((f) => f.path)).toEqual(['/out/api.schemas.ts', '/out/api.ts']);
   });
+
+  it('emits .ts import extensions when importExt is ts (Node native TS execution)', () => {
+    const model = apiModel();
+    model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];
+    const files = sdkGenerator({
+      model,
+      outputPath: '/out/api.ts',
+      outputMode: 'split',
+      emit: { importExt: 'ts' },
+    });
+    const entry = files.find((file) => file.path === '/out/api.ts')!;
+    expect(entry.content).toContain("from './api.schemas.ts'");
+    expect(entry.content).not.toContain('.schemas.js');
+  });
 });

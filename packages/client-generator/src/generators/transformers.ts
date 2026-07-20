@@ -21,9 +21,11 @@ import type { Generator } from './types.js';
  * beside the client regardless of how the sdk partitions its files. Emits
  * nothing when no schema has a date field (nothing to transform).
  */
-export const transformersGenerator: Generator = ({ model, outputPath }) => {
+export const transformersGenerator: Generator = ({ model, outputPath, emit }) => {
   const { dir, stem } = anchor(outputPath);
-  const content = renderTransformersModule(model, { sdkModule: `./${stem}.js` });
+  const content = renderTransformersModule(model, {
+    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
+  });
   if (content === '') return [];
   return [{ path: join(dir, `${stem}.transformers.ts`), content: `${HEADER}\n\n${content}` }];
 };

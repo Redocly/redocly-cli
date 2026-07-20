@@ -900,6 +900,12 @@ yargs(hideBin(process.argv))
             choices: ['inline', 'package'] as const,
             requiresArg: true,
           },
+          'import-ext': {
+            describe:
+              "Extension in generated relative imports: 'js' (default) suits tsc and bundlers; 'ts' suits runtimes that resolve specifiers literally, like Node's built-in type stripping (node client.ts).",
+            choices: ['js', 'ts'] as const,
+            requiresArg: true,
+          },
           setup: {
             describe:
               'Path to a publisher setup module (export default defineClientSetup({ config, middleware })) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes.',

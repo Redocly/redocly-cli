@@ -57,6 +57,10 @@ export type Config = {
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
   runtime?: 'inline' | 'package';
+  /** Extension in generated relative imports. `'js'` (default) suits tsc and bundlers;
+   * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
+   * type stripping (`node client.ts`). */
+  importExt?: 'js' | 'ts';
   /** Auto-pagination rules (convention + per-operation overrides + `exclude`), resolved
    * together with each operation's `x-pagination` extension. Explicit rules that don't
    * fit their operation fail generation. */

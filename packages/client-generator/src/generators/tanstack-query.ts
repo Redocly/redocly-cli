@@ -23,7 +23,7 @@ export const tanstackQueryGenerator: Generator = ({ model, outputPath, emit }) =
   const { dir, stem } = anchor(outputPath);
   const content = renderTanstackModule(model, {
     argsStyle: emit.argsStyle ?? 'flat',
-    sdkModule: `./${stem}.js`,
+    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
     framework: emit.queryFramework ?? 'react',
   });
   if (content === '') return [];

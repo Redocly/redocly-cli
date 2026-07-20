@@ -16,6 +16,7 @@ The generated client under `src/api/` is gitignored — CI regenerates every cli
 | [programmatic](./programmatic)                         | `generateClient(...)` API      | generating the client from a Node script                                                                                                  |
 | [package-runtime](./package-runtime)                   | CLI · `sdk`, package runtime   | `runtime: package` — types + descriptors only; the versioned runtime is imported from `@redocly/client-generator`, fixes via `npm update` |
 | [zero-install-quickstart](./zero-install-quickstart)   | CLI · `sdk`                    | the first-touch loop: generate → import → call; one self-contained file, zero runtime dependencies                                        |
+| [node-native](./node-native)                           | CLI · `sdk`                    | `importExt: ts` — `.ts` import specifiers so plain `node src/main.ts` runs the client via Node's built-in type stripping                  |
 | [configure-and-middleware](./configure-and-middleware) | CLI · `sdk`                    | `configure({ serverUrl, retry, fetch })`, `use()` targeting `ctx.operation` (literal unions), body mutation, auth setter, `ApiError.body` |
 | [multi-instance](./multi-instance)                     | CLI · `sdk`, package runtime   | per-tenant instances via `createClient(OPERATIONS)` — works in both runtimes; this example uses `runtime: package`                        |
 | [sse-streaming](./sse-streaming)                       | CLI · `sdk`                    | typed `for await` over SSE, auto-reconnect via `Last-Event-ID` (`reconnectDelay`/`reconnect: false`), clean abort                         |
@@ -34,7 +35,7 @@ npm run examples:regen -w @redocly/client-generator
 cd tests/e2e/generate-client/examples/<name>
 npm install
 npm run dev        # the Vite apps; `programmatic` uses `npm run generate`,
-                   # `zero-install-quickstart` `npm start`, `vendored-edge` `npm run typecheck`
+                   # `zero-install-quickstart`/`node-native` `npm start`, `vendored-edge` `npm run typecheck`
 ```
 
 Each example can also regenerate just its own client with `npm run generate` inside its directory.
