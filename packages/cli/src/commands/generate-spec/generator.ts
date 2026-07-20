@@ -1,4 +1,4 @@
-import { logger, singularize } from '@redocly/openapi-core';
+import { logger, pluralize } from '@redocly/openapi-core';
 
 import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type {
@@ -124,11 +124,11 @@ export function templatizePath(rawPath: string): { template: string; params: Tem
     }
 
     const previous = segments[index - 1];
-    let name = previous ? `${singularize(previous)}Id` : 'id';
+    let name = previous ? `${pluralize(previous, 1)}Id` : 'id';
     let suffix = 1;
     while (used.has(name)) {
       suffix += 1;
-      name = previous ? `${singularize(previous)}Id${suffix}` : `id${suffix}`;
+      name = previous ? `${pluralize(previous, 1)}Id${suffix}` : `id${suffix}`;
     }
     used.add(name);
     params.push({ name, value: segment });

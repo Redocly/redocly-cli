@@ -1,4 +1,4 @@
-import { singularize } from '@redocly/openapi-core';
+import { pluralize } from '@redocly/openapi-core';
 
 import { type GeneratedDocument, type JsonSchema, mergeSchemas } from './generator.js';
 import { copyObservations } from './value-inference.js';
@@ -146,8 +146,8 @@ function collectShapes(
       {
         container: childContainer,
         path: `${childPathPrefix}additionalProperties`,
-        primaryHints: context.primaryHints.map(singularize),
-        fallbackHints: context.fallbackHints.map(singularize),
+        primaryHints: context.primaryHints.map((hint) => pluralize(hint, 1)),
+        fallbackHints: context.fallbackHints.map((hint) => pluralize(hint, 1)),
       },
       groups
     );
@@ -158,8 +158,8 @@ function collectShapes(
       {
         container: childContainer,
         path: `${childPathPrefix}items`,
-        primaryHints: context.primaryHints.map(singularize),
-        fallbackHints: context.fallbackHints.map(singularize),
+        primaryHints: context.primaryHints.map((hint) => pluralize(hint, 1)),
+        fallbackHints: context.fallbackHints.map((hint) => pluralize(hint, 1)),
       },
       groups
     );
@@ -178,7 +178,7 @@ function collectGroups(document: GeneratedDocument): Map<string, ShapeGroup> {
 
   for (const [template, pathItem] of Object.entries(document.paths)) {
     const entity = lastStaticSegment(template);
-    const base = entity ? singularize(entity) : undefined;
+    const base = entity ? pluralize(entity, 1) : undefined;
 
     for (const [method, operation] of Object.entries(pathItem)) {
       for (const [mime, media] of Object.entries(operation.requestBody?.content ?? {})) {

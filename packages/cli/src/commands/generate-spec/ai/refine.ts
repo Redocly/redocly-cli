@@ -203,6 +203,10 @@ async function refineOperation(options: RefineOperationOptions): Promise<Operati
     throw new Error(`the response dropped observed response status(es): ${dropped.join(', ')}`);
   }
 
+  if (typeof fragment.operation.operationId !== 'string') {
+    throw new Error('the response dropped the operationId');
+  }
+
   // Lint the refined operation against the description's full component set,
   // so $refs to unchanged shared components still resolve.
   const fragmentDocument = {
@@ -322,7 +326,14 @@ export async function refineSpecWithAi(options: RefineOptions): Promise<RefineRe
   };
 
   const workers = Math.max(1, Math.min(options.concurrency ?? 1, operations.length));
-  await Promise.all(Array.from({ length: workers }, worker));
+  // allSettled instead of all: when one worker aborts, the others finish the
+  // operation they are refining before the error propagates, so no worker is
+  // still logging progress after the command has fallen back to the baseline.
+  for (const result of await Promise.allSettled(Array.from({ length: workers }, worker))) {
+    if (result.status === 'rejected') {
+      throw result.reason;
+    }
+  }
 
   if (refined === 0) {
     throw new Error(

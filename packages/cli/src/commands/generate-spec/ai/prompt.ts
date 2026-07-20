@@ -7,13 +7,13 @@ const SYSTEM_INSTRUCTIONS = `You are an expert API designer. You are given one o
 Refine the operation into the most accurate OpenAPI 3.1 definition you can justify from the evidence, while staying conservative:
 - Keep the path template and the HTTP method exactly as given. Do not rename path parameters, do not move parameters to the path item level, and keep every response status code. The result is programmatically checked and rejected otherwise.
 - Keep the operationId unless it is clearly wrong.
-- Narrow property types where the samples clearly support it (formats such as date-time, uuid, email, uri; integer vs number; enums when a field only ever takes a small fixed set of values). Verify the formats and enums already detected against the samples; correct or extend them where justified.
+- Narrow property types where the samples clearly support it (formats such as date-time, uuid, email, uri; integer vs number; enums when a field only ever takes a small fixed set of values). Verify the formats and enums already detected against the samples; correct or extend them where justified. The detected formats and enums were derived from the full recorded traffic while you see only a subset of it, so never remove a detected format or enum value merely because the samples do not show it — correct one only when a sample contradicts it.
 - Relax "required" for properties that are plausibly optional (e.g. absent in some samples, or clearly nullable). Express nullable values as type unions such as ["string", "null"].
 - When a request or response body has alternative shapes — the baseline shows "oneOf" variants, or the samples show clearly different payloads — model them explicitly with "oneOf". Name each variant in components/schemas, and add a "discriminator" when a property (such as "type" or "kind") selects the variant.
 - Factor structure shared between variants or schemas with "allOf": extract the common base into components/schemas and compose each variant as "allOf" of the base plus its specific properties.
 - Keep the $ref references to the component schemas you were given. You may refine the definition of a referenced component when the samples justify it, and you may add new components, but never rename an existing component and never reuse a reserved component name listed in the input.
 - Add concise, useful "summary" and "description" fields to the operation, its parameters and important schema properties.
-- Add example values drawn from the real samples where helpful.
+- Add example values drawn from the real samples where helpful, but never copy values that look like secrets or personal data (tokens, API keys, passwords, session identifiers, email addresses, personal names); use clearly fictional placeholder values instead.
 
 Output ONLY a YAML document with this exact top-level structure:
 

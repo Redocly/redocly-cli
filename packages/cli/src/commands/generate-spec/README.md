@@ -16,7 +16,14 @@ redocly generate-spec ./traffic.har --with-ai --ai-provider claude -o openapi.ya
 ```
 
 The `<traffic>` argument is a file or folder of recorded traffic.
-Supported formats: HAR, Kong, Nginx/Apache JSON, and NDJSON (auto-detected, or forced with `--traffic-format`).
+The supported formats are:
+
+- HAR
+- Kong
+- Nginx/Apache JSON
+- NDJSON
+
+Formats are auto-detected, or can be forced with `--traffic-format`.
 The traffic parsing infrastructure is shared with the `drift` command.
 The command generates OpenAPI 3.1 descriptions only.
 
@@ -47,7 +54,7 @@ The AI is instructed to narrow types, add formats, enums, descriptions and examp
 
 Up to `--ai-concurrency` operations (default 4) are refined in parallel, and every accepted refinement is merged back as it arrives, so operations prompted later see already-refined shared components.
 When two concurrent refinements touch the same shared component, the one merged last wins.
-  The final whole-document lint still guards the result.
+The final whole-document lint still guards the result.
 Set `--ai-concurrency 1` to process operations strictly sequentially.
 Progress is reported per operation as refinements complete.
 
@@ -56,6 +63,7 @@ A refined operation is only accepted when it:
 
 - keeps the exact path template and method — the AI cannot invent, drop, or rename operations because only the requested operation is merged back
 - keeps every response status code observed in the traffic
+- keeps an `operationId`
 - passes validation with the `spec` ruleset (checked against the description's full component set)
 
 An operation whose refinement is rejected keeps its deterministic baseline (reported with the reason), components no operation references anymore are pruned, and the final document is linted again as a whole.
