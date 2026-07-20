@@ -64,6 +64,7 @@ A refined operation is only accepted when it:
 - keeps the exact path template and method — the AI cannot invent, drop, or rename operations because only the requested operation is merged back
 - keeps every response status code observed in the traffic
 - keeps an `operationId`
+- does not redefine reserved components (those used only by other operations)
 - passes validation with the `spec` ruleset (checked against the description's full component set)
 
 An operation whose refinement is rejected keeps its deterministic baseline (reported with the reason), components no operation references anymore are pruned, and the final document is linted again as a whole.

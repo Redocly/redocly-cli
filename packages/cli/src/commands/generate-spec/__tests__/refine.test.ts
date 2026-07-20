@@ -222,6 +222,20 @@ describe('refineSpecWithAi', () => {
     expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('dropped the operationId'));
   });
 
+  it('keeps the baseline operation when the response redefines a reserved component', async () => {
+    const redefiningUser = `${refinedPostUsers}components:
+  schemas:
+    User:
+      type: string
+`;
+    mockResponses(refinedGetUsers, redefiningUser);
+    const result = await refine();
+    expect(result.refined).toBe(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('redefines reserved component(s): User')
+    );
+  });
+
   it('keeps the baseline operation when an observed status code is dropped', async () => {
     mockResponses(refinedGetUsers.replace("'200':", "'404':"), refinedPostUsers);
     const result = await refine();

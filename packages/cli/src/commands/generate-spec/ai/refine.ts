@@ -186,12 +186,14 @@ async function refineOperation(options: RefineOperationOptions): Promise<Operati
     components[name] = schemas[name];
   }
 
+  const reservedComponentNames = Object.keys(schemas).filter((name) => !referenced.has(name));
+
   const { system, user } = buildOperationPrompt({
     path: options.path,
     method: options.method,
     operation: options.operation,
     components,
-    reservedComponentNames: Object.keys(schemas).filter((name) => !referenced.has(name)),
+    reservedComponentNames,
     samples: options.samples,
   });
 
@@ -205,6 +207,13 @@ async function refineOperation(options: RefineOperationOptions): Promise<Operati
 
   if (typeof fragment.operation.operationId !== 'string') {
     throw new Error('the response dropped the operationId');
+  }
+
+  const redefined = Object.keys(fragment.components).filter((name) =>
+    reservedComponentNames.includes(name)
+  );
+  if (redefined.length > 0) {
+    throw new Error(`the response redefines reserved component(s): ${redefined.join(', ')}`);
   }
 
   // Lint the refined operation against the description's full component set,
