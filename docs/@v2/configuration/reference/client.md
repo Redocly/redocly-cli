@@ -15,152 +15,37 @@ The input and output are not part of the `client` block:
 Each scalar option mirrors the matching CLI flag and shares its default — see the [command options](../../commands/generate-client.md#options) for the full description of each value.
 The `pagination` option is config-only and has no flag.
 
-{% table %}
-
-- Option
-- Type
-- Description
-
----
-
-- generators
-- [string]
-- Generators to run, in order. Each entry is a built-in name (`sdk`, `zod`, `tanstack-query`, `swr`, `mock`, `transformers`) or a custom generator's path or package name.
-
----
-
-- outputMode
-- string
-- File layout: `single` or `split`.
-
----
-
-- runtime
-- string
-- Runtime distribution: `inline` or `package`.
-
----
-
-- argsStyle
-- string
-- How operation inputs are passed: `flat` or `grouped`.
-
----
-
-- enumStyle
-- string
-- How named string enums are emitted: `const-object` or `union`.
-
----
-
-- errorMode
-- string
-- How operations report HTTP errors: `throw` or `result`.
-
----
-
-- dateType
-- string
-- Type of `date`/`date-time` fields: `string` or `Date`.
-
----
-
-- queryFramework
-- string
-- Framework adapter for the `tanstack-query` generator: `react`, `vue`, `svelte`, or `solid`.
-
----
-
-- mockData
-- string
-- Data mode for the `mock` generator: `baked` or `faker`.
-
----
-
-- mockSeed
-- number
-- Seed for `faker`-mode mocks.
-
----
-
-- serverUrl
-- string
-- Server URL baked into the client; defaults to `servers[0].url`.
-
----
-
-- setup
-- string
-- Path to a publisher setup module baked into the client.
-
----
-
-- pagination
-- [Pagination object](#pagination-object)
-- Declares how the API paginates, so paginated operations gain typed `.pages()`/`.items()` async iterators.
-
-{% /table %}
+| Option           | Type                                    | Description                                                                                                                                                              |
+| ---------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `generators`     | `[string]`                              | Generators to run, in order. Each entry is a built-in name (`sdk`, `zod`, `tanstack-query`, `swr`, `mock`, `transformers`) or a custom generator's path or package name. |
+| `outputMode`     | `string`                                | File layout: `single` or `split`.                                                                                                                                        |
+| `runtime`        | `string`                                | Runtime distribution: `inline` or `package`.                                                                                                                             |
+| `argsStyle`      | `string`                                | How operation inputs are passed: `flat` or `grouped`.                                                                                                                    |
+| `enumStyle`      | `string`                                | How named string enums are emitted: `const-object` or `union`.                                                                                                           |
+| `errorMode`      | `string`                                | How operations report HTTP errors: `throw` or `result`.                                                                                                                  |
+| `dateType`       | `string`                                | Type of `date`/`date-time` fields: `string` or `Date`.                                                                                                                   |
+| `queryFramework` | `string`                                | Framework adapter for the `tanstack-query` generator: `react`, `vue`, `svelte`, or `solid`.                                                                              |
+| `mockData`       | `string`                                | Data mode for the `mock` generator: `baked` or `faker`.                                                                                                                  |
+| `mockSeed`       | `number`                                | Seed for `faker`-mode mocks.                                                                                                                                             |
+| `serverUrl`      | `string`                                | Server URL baked into the client; defaults to `servers[0].url`.                                                                                                          |
+| `setup`          | `string`                                | Path to a publisher setup module baked into the client.                                                                                                                  |
+| `pagination`     | [Pagination object](#pagination-object) | Declares how the API paginates, so paginated operations gain typed `.pages()`/`.items()` async iterators.                                                                |
 
 ### Pagination object
 
 The `pagination` block is an optional convention rule (the rule fields below, applied to every operation it structurally fits when `style` is set), plus per-operation `operations` overrides and an `exclude` list.
 See [Pagination in the usage guide](../../guides/use-generated-client.md#pagination) for how the generated iterators behave.
 
-{% table %}
-
-- Option
-- Type
-- Description
-
----
-
-- style
-- string
-- How the iterator advances: `cursor` (follow a response cursor), `offset` (advance an offset by each page's item count), or `page` (increment a page number).
-
----
-
-- cursorParam
-- string
-- The query parameter that receives the cursor. **REQUIRED** for the `cursor` style.
-
----
-
-- nextCursor
-- string
-- JSON pointer (RFC 6901, starts with `/`) to the next cursor in the response. **REQUIRED** for the `cursor` style.
-
----
-
-- offsetParam
-- string
-- The query parameter the iterator advances. **REQUIRED** for the `offset` and `page` styles.
-
----
-
-- limitParam
-- string
-- Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.
-
----
-
-- items
-- string
-- **REQUIRED**. JSON pointer to the page's item array in the response.
-
----
-
-- exclude
-- [string]
-- operationIds that no source may paginate; wins over overrides, extensions, and the convention.
-
----
-
-- operations
-- map of operationId → rule
-- Per-operation rules taking the same fields as the convention; each entry beats the spec's `x-pagination` and the convention.
-
-{% /table %}
+| Option        | Type                      | Description                                                                                                                                                  |
+| ------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `style`       | `string`                  | How the iterator advances: `cursor` (follow a response cursor), `offset` (advance an offset by each page's item count), or `page` (increment a page number). |
+| `cursorParam` | `string`                  | The query parameter that receives the cursor. **REQUIRED** for the `cursor` style.                                                                           |
+| `nextCursor`  | `string`                  | JSON pointer (RFC 6901, starts with `/`) to the next cursor in the response. **REQUIRED** for the `cursor` style.                                            |
+| `offsetParam` | `string`                  | The query parameter the iterator advances. **REQUIRED** for the `offset` and `page` styles.                                                                  |
+| `limitParam`  | `string`                  | Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.                                                         |
+| `items`       | `string`                  | **REQUIRED**. JSON pointer to the page's item array in the response.                                                                                         |
+| `exclude`     | `[string]`                | operationIds that no source may paginate; wins over overrides, extensions, and the convention.                                                               |
+| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the spec's `x-pagination` and the convention.                                 |
 
 The rules are verified at generate time: the advance parameter must be a declared query parameter of the right type (string for `cursor`, numeric for `offset` and `page`), and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array.
 A convention that doesn't fit an operation skips it; an explicit rule that doesn't fit fails generation.
