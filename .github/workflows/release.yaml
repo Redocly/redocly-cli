@@ -206,6 +206,11 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      # Install before the version bump: npm links workspace packages only while
+      # their versions still match the dependency specs in package.json files.
+      - name: Install dependencies
+        run: npm install
+
       - name: Update package versions
         run: |
           TIMESTAMP=$(date +%s)
@@ -239,9 +244,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Build packages
         run: npm run compile
