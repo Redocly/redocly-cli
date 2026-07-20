@@ -439,6 +439,34 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
+  it('a per-api block holding only `runtime: package` inherits generators and outputMode', () => {
+    // The exact shape that regressed in the 0.0.0-snapshot.1784539614 publish: the api's
+    // block sets one field; `generators: [sdk, zod]` and `outputMode: split` must
+    // still arrive from the top level (3 files), with the per-api runtime layered in.
+    const dir = project(
+      [
+        'client:',
+        '  generators: [sdk, zod]',
+        '  outputMode: split',
+        'apis:',
+        '  realm:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out/client.ts',
+        '    client:',
+        '      runtime: package',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['realm']);
+    expect(res.status, res.stderr).toBe(0);
+    expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'out/client.schemas.ts'))).toBe(true); // outputMode inherited
+    expect(existsSync(join(dir, 'out/client.zod.ts'))).toBe(true); // generators inherited
+    expect(readFileSync(join(dir, 'out/client.ts'), 'utf-8')).toContain(
+      "from '@redocly/client-generator'" // the per-api runtime applied on top
+    );
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
   it('resolves a relative clientOutput against the redocly.yaml dir (via --config)', () => {
     const dir = project(
       [
