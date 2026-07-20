@@ -7,7 +7,7 @@
     "generate": "tsx generate.ts"
   },
   "devDependencies": {
-    "@redocly/client-generator": "latest",
+    "@redocly/client-generator": "0.0.0-snapshot.manual",
     "tsx": "^4.0.0",
     "typescript": "^5.5.0"
   }
