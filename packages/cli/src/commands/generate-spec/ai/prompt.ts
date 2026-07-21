@@ -2,6 +2,9 @@ import { stringifyYaml } from '@redocly/openapi-core';
 
 import type { TrafficSample } from '../samples.js';
 
+// CI only exercises stub providers, so editing these instructions or the
+// prompt layout below can change refinement quality without failing any test.
+// Run the manual checks in PROMPT_TESTING.md before merging a change here.
 const SYSTEM_INSTRUCTIONS = `You are an expert API designer. You are given one operation from an OpenAPI 3.2 description that was inferred mechanically from recorded HTTP traffic, the component schemas it references, and a sample of the real recorded HTTP exchanges for that operation. The inferred description is only a hypothesis: types are coarse, every observed property is marked required, and descriptions are missing. Alternative body shapes observed in the traffic appear as "oneOf" variants or type unions. Common string formats (uuid, date-time, date, email, uri, ipv4) and small closed enums are detected conservatively from the observed values.
 
 Refine the operation into the most accurate OpenAPI 3.2 definition you can justify from the evidence, while staying conservative:

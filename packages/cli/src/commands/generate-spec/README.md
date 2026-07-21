@@ -103,6 +103,8 @@ Lint the generated description with your own config afterward.
 > **Warning:** `--with-ai` sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider.
 > Make sure the traffic contains no secrets or personal data you are not allowed to share.
 
+When changing the refinement prompt, run the manual quality checks in [`ai/PROMPT_TESTING.md`](./ai/PROMPT_TESTING.md).
+
 ## Options
 
 | Option             | Description                                                                                           |
