@@ -46,6 +46,30 @@ An incompatible generated-file/runtime pair fails your `tsc` build (the descript
 Package mode works with both output modes and every generator.
 See the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
 
+## Run with Node directly
+
+Node 22.7+ runs TypeScript natively (type stripping), so you can execute a script that uses the generated client with plain `node` — no `tsx`, no build step.
+Node resolves import specifiers literally — there is no `.js` → `.ts` remap — so generate with [`--import-ext ts`](../commands/generate-client.md#options) to get real on-disk `.ts` specifiers, and import the client with a `.ts` extension in your own code:
+
+```bash
+redocly generate-client openapi.yaml -o src/api/client.ts --import-ext ts
+```
+
+```ts
+// src/main.ts
+import { listMenuItems } from './api/client.ts';
+
+const menu = await listMenuItems({ limit: 3 });
+```
+
+```bash
+node src/main.ts
+```
+
+Keep the default `js` when the client goes through `tsc` or a bundler — plain `tsc` rejects `.ts` specifiers unless the project enables `allowImportingTsExtensions`.
+Loaders such as `tsx` remap `.js` to `.ts` themselves, so they work with the default.
+See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/node-native).
+
 ## Authentication
 
 Credentials are **per instance**: they live in the client's config (`ClientConfig.auth`), and each operation automatically sends the credentials its `security` requires.
