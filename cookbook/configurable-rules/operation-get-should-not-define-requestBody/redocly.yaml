@@ -1,0 +1,11 @@
+rules:
+  rule/get-should-not-define-requestBody:
+    severity: warn
+    message: '"GET" SHOULD NOT define a "requestBody" schema'
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - get
+    assertions:
+      disallowed:
+        - requestBody

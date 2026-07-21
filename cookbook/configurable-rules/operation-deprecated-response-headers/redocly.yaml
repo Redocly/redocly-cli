@@ -1,0 +1,119 @@
+rules:
+  rule/response-2XX-deprecated-must-define-headers:
+  severity: error
+  message: Deprecated endpoints MUST respond with standard headers
+  where:
+    - subject:
+        type: Operation
+        property: deprecated
+      assertions:
+        defined: true
+        const: true
+  subject:
+    type: Response
+    matchParentKeys: '2([\d]+){2}'
+  assertions:
+    required:
+      - headers
+
+rule/response-2XX-deprecated-must-use-standard-headers:
+  severity: error
+  message: 'Deprecated endpoints MUST respond with "Sunset", "Deprecation", and "Link" standard headers'
+  where:
+    - subject:
+        type: Operation
+        property: deprecated
+      assertions:
+        defined: true
+        const: true
+    - subject:
+        type: Response
+        matchParentKeys: '2([\d]+){2}'
+      assertions:
+        required:
+          - headers
+  subject:
+    type: HeadersMap
+  assertions:
+    required:
+      - Deprecation
+      - Sunset
+      - Link
+
+rule/operation-deprecated-must-define-410-response:
+  severity: error
+  message: Deprecated endpoints MUST define a 410 response
+  where:
+    - subject:
+        type: Operation
+        property: deprecated
+      assertions:
+        defined: true
+        const: true
+  subject:
+    type: Responses
+  assertions:
+    required:
+      - '410'
+
+rule/response-410-deprecated-must-define-headers:
+  severity: error
+  message: Deprecated endpoints MUST respond with standard headers
+  where:
+    - subject:
+        type: Operation
+        property: deprecated
+      assertions:
+        defined: true
+        const: true
+  subject:
+    type: Response
+    matchParentKeys: '410'
+  assertions:
+    required:
+      - headers
+
+rule/response-410-deprecated-must-define-standard-headers:
+  severity: error
+  message: 'Deprecated endpoints MUST respond with "Sunset" and "Link" standard headers after "Deprecation" date value has been exceeded'
+  where:
+    - subject:
+        type: Operation
+        property: deprecated
+      assertions:
+        defined: true
+        const: true
+    - subject:
+        type: Response
+        matchParentKeys: '410'
+      assertions:
+        required:
+          - headers
+  subject:
+    type: HeadersMap
+  assertions:
+    required:
+      - 'Sunset'
+      - 'Link'
+
+rule/response-410-deprecated-must-not-define-deprecation-header:
+  severity: error
+  message: 'Deprecated endpoints 410 response MUST NOT define "Deprecation" header'
+  where:
+    - subject:
+        type: Operation
+        property: deprecated
+      assertions:
+        defined: true
+        const: true
+    - subject:
+        type: Response
+        matchParentKeys: '410'
+      assertions:
+        required:
+          - headers
+  subject:
+    type: HeadersMap
+  assertions:
+    disallowed:
+      - 'Deprecation'

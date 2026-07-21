@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: Sample health check
+  version: demo
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check the health of our API.
+      operationId: Health
+      responses:
+        '200':
+          description: Pass or warn
+          content:
+            application/health+json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the API.
+                    enum:
+                      - pass
+                      - warn
+        '400':
+          description: Fail
+          content:
+            application/health+json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the API.
+                    enum:
+                      - fail

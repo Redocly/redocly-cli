@@ -1,0 +1,113 @@
+rules:
+  rule/operation-pattern-azure-apim:
+    subject:
+      type: Operation
+      property: operationId
+    assertions:
+      casing: kebab-case
+      maxLength: 76
+    severity: warn
+  rule/summary-length-azure-apim:
+    subject:
+      type: Operation
+      property: summary
+    assertions:
+      maxLength: 300
+    severity: warn
+
+  rule/multiple-servers-ignored-azure-apim:
+    subject:
+      type: ServerList
+    assertions:
+      maxLength: 1
+    message: If multiple servers are specified, API Management will use the first HTTPS URL it finds.
+    severity: warn
+
+  rule/servers-not-https-azure-apim:
+    subject:
+      type: Server
+      property: url
+    assertions:
+      pattern: '^https:\/\/.*'
+    message: Server URL must start with HTTPS.
+
+  rule/mediatype-schema-ref-pattern-azure-apim:
+    subject:
+      type: MediaType
+      property: schema
+    message: Inline schema definitions and refs that point to URLs or files aren't supported.
+    assertions:
+      ref: /^#\/components\/.*/
+
+  rule/external-docs-unsupported-azure-apim:
+    subject:
+      type: ExternalDocs
+    assertions:
+      defined: false
+    message: Azure APIM does not support externalDocs.
+
+  rule/info-summary-unsupported-azure-apim:
+    subject:
+      type: Info
+      property: summary
+    assertions:
+      defined: false
+    message: Azure APIM does not Info summary.
+
+  rule/security-ignored-azure-apim:
+    subject:
+      type: SecurityRequirementList
+    assertions:
+      defined: false
+    message: Azure APIM ignores security.
+
+  rule/components-unsupported-azure-apim:
+    subject:
+      type: Components
+    assertions:
+      disallowed:
+        - responses
+        - parameters
+        - examples
+        - requestBodies
+        - headers
+        - securitySchemes
+        - links
+        - callbacks
+    message: Azure APIM does not support components other than schemas.
+
+  rule/trace-unsupported-azure-apim:
+    subject:
+      type: PathItem
+    assertions:
+      disallowed:
+        - trace
+    message: Azure APIM does not support trace operations.
+
+  rule/path-item-servers-unsupported-azure-apim:
+    subject:
+      type: PathItem
+    assertions:
+      disallowed:
+        - servers
+    message: Azure APIM does not support servers defined on path items.
+
+  rule/operation-properties-unsupported-azure-apim:
+    subject:
+      type: Operation
+    assertions:
+      disallowed:
+        - externalDocs
+        - callbacks
+        - servers
+        - security
+
+  rule/parameter-properties-unsupported-azure-apim:
+    subject:
+      type: Parameter
+    assertions:
+      disallowed:
+        - allowEmptyValue
+        - style
+        - explode
+        - allowReserved

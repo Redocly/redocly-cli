@@ -1,0 +1,11 @@
+extends:
+  - https://raw.githubusercontent.com/Redocly/redocly-cli-cookbook/main/rulesets/spec-compliant/redocly.yaml
+
+rules:
+  no-server-example.com: warn
+  no-server-trailing-slash: warn
+  no-ambiguous-paths: warn
+  no-path-trailing-slash: warn
+  operation-operationId: warn
+  no-enum-type-mismatch: warn
+  no-unused-components: warn

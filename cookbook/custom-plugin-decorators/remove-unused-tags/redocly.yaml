@@ -1,0 +1,5 @@
+plugins:
+  - './tags.js'
+
+decorators:
+  tags/no-unused-tags: on

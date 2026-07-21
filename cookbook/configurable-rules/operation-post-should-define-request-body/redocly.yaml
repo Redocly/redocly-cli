@@ -1,0 +1,22 @@
+rules:
+  rule/post-should-define-requestBody:
+    severity: error
+    message: '"POST" SHOULD define a "requestBody" schema unless using an "<your preferred>" pattern'
+    subject:
+      type: Operation
+    where:
+      - subject:
+          type: PathItem
+          matchParentKeys: /^([\w-\{\}/.](?<!/actions))*$/
+        assertions:
+          defined: true
+      - subject:
+          type: Operation
+          filterInParentKeys:
+            - post
+        assertions:
+          disallowed:
+            - deprecated
+    assertions:
+      required:
+        - requestBody
