@@ -77,7 +77,7 @@ Share anything that didn't fit the existing categories here.
 
 ## Contributing
 
-Please share your best Redocly CLI usage with us! Each item should be shared in its own pull request, following the existing directory structure and including the [README template](readme-template.md) copied into each folder. Full instructions are in the [CONTRIBUTING file](CONTRIBUTING.md).
+Please share your best Redocly CLI usage with us! Each item should be shared in its own pull request, following the existing directory structure and including a `README.md` in each folder. Full instructions are in the [contributing guide](../CONTRIBUTING.md#contribute-to-the-cookbook).
 
 ## Requests
 

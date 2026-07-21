@@ -47,4 +47,4 @@ Markdown descriptions should not contain script tags.
 
 ## References
 
-Inspired by the Spectral rule [no-script-tags-in-markdown](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules#no-script-tags-in-markdown).
+Inspired by the Spectral rule [no-script-tags-in-markdown](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules#no-script-tags-in-markdown).
