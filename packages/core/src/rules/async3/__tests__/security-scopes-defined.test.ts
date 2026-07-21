@@ -99,6 +99,51 @@ describe('Async3 security-scopes-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not report oauth2 schemes that are not referenced by any security list', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '3.0.0'
+        info:
+          title: Example API
+          version: 1.0.0
+        servers:
+          production:
+            host: broker.example.com
+            protocol: kafka
+        channels: {}
+        components:
+          securitySchemes:
+            unused_without_scopes:
+              type: oauth2
+              flows:
+                clientCredentials:
+                  tokenUrl: https://example.com/token
+                  availableScopes:
+                    read:events: Read events
+            unused_with_unknown_scope:
+              type: oauth2
+              scopes:
+                - write:events
+              flows:
+                clientCredentials:
+                  tokenUrl: https://example.com/token
+                  availableScopes:
+                    read:events: Read events
+      `,
+      'asyncapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'security-scopes-defined': { severity: 'error', requireScopes: true } },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report oauth2 schemes without scopes when requireScopes is set', async () => {
     const document = parseYamlToDocument(
       outdent`
