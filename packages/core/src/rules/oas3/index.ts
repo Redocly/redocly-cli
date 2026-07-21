@@ -37,6 +37,7 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { ResponseContainsHeader } from '../common/response-contains-header.js';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example.js';
 import { SecurityDefined } from '../common/security-defined.js';
+import { SecurityScopesDefined } from '../common/security-scopes-defined.js';
 import { SpecStrictRefs } from '../common/spec-strict-refs.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
@@ -97,6 +98,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'parameter-description': ParameterDescription as Oas3Rule,
   'operation-singular-tag': OperationSingularTag as Oas3Rule,
   'security-defined': SecurityDefined as Oas3Rule,
+  'security-scopes-defined': SecurityScopesDefined as Oas3Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Oas3Rule,
   'paths-kebab-case': PathsKebabCase as Oas3Rule,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
