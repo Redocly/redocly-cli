@@ -1,0 +1,12 @@
+components:
+  schemas:
+    ping:
+      type: object
+      properties:
+        event:
+          type: string
+    pong:
+      type: object
+      properties:
+        replyTo:
+          type: string

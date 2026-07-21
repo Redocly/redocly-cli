@@ -1,0 +1,126 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /users:
+    get:
+      operationId: get-users
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+    post:
+      operationId: post-users
+      responses:
+        '201':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+              required:
+                - name
+                - email
+  /users/{userId}:
+    get:
+      operationId: get-users-userId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+    delete:
+      operationId: delete-users-userId
+      responses:
+        '204':
+          description: Observed response
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+  /sessions:
+    post:
+      operationId: post-sessions
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                required:
+                  - token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
+
+Inferred a baseline OpenAPI description from traffic: 5 operation(s).
+Done in <t>.

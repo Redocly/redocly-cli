@@ -1,0 +1,5 @@
+#!/bin/sh
+# Stub of the "claude" CLI that returns the same document containing only the
+# GET /users operation, whatever operation the prompt asks for.
+cat > /dev/null
+cat "$(dirname "$0")/partial.yaml"

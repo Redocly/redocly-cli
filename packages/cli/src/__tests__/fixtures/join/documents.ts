@@ -162,3 +162,78 @@ export const anotherServerAndPaths = {
     },
   },
 };
+
+export const pathWithObjectExtension = {
+  openapi: '3.0.0',
+  info: {
+    title: 'First API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/first',
+    },
+  ],
+  paths: {
+    '/foo': {
+      'x-metadata': { owner: 'team-a' },
+      get: {
+        summary: 'Get Foo',
+      },
+    },
+  },
+};
+
+export const anotherPathWithSameObjectExtension = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Second API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/second',
+    },
+  ],
+  paths: {
+    '/foo': {
+      'x-metadata': { owner: 'team-a' },
+    },
+  },
+};
+
+export const anotherPathWithDifferentObjectExtension = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Second API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/second',
+    },
+  ],
+  paths: {
+    '/foo': {
+      'x-metadata': { owner: 'team-b' },
+    },
+  },
+};
+
+export const anotherPathWithDifferentKeyObjectExtension = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Second API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/second',
+    },
+  ],
+  paths: {
+    '/foo': {
+      'x-metadata': { team: 'x' },
+    },
+  },
+};

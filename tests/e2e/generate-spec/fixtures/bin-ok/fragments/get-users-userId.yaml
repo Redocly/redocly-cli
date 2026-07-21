@@ -1,0 +1,19 @@
+paths:
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: Get a user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The requested user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
