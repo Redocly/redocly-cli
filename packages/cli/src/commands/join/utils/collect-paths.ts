@@ -68,7 +68,7 @@ export function collectPaths({
         if (field === 'parameters') {
           collectPathParameters(pathItem, path);
         }
-        if (typeof pathItem[field] === 'string') {
+        if (typeof pathItem[field] === 'string' || field.startsWith('x-')) {
           collectPathStringFields(pathItem, path, field);
         }
       }
@@ -83,7 +83,7 @@ export function collectPaths({
     const fieldValue = pathItem[field];
     if (
       joinedDef.paths[path].hasOwnProperty(field) &&
-      joinedDef.paths[path][field] !== fieldValue
+      !dequal(joinedDef.paths[path][field], fieldValue)
     ) {
       logger.warn(`warning: different ${field} values in ${path}\n`);
       return;
