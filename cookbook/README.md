@@ -13,7 +13,7 @@ Use the content here as a starting point for your own work.
 
 1. Take a look at what's available in each category, and pick any that you think apply to your situation.
 
-2. Each section links to the documentation for that feature, incase you need an introduction or refresher.
+2. Each section links to the documentation for that feature, in case you need an introduction or refresher.
 
 3. Copy and paste the examples you want to use into your own setup, then edit them to fit your own needs.
 
@@ -23,7 +23,7 @@ If you come up with something new, please consider sharing it here by opening a 
 
 ### Rulesets
 
-Combine existing [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules/) in ways that serve a specific purpose, and make a [resuable ruleset](https://redocly.com/docs/cli/guides/configure-rules/#create-a-reusable-ruleset).
+Combine existing [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules/) in ways that serve a specific purpose, and make a [reusable ruleset](https://redocly.com/docs/cli/guides/configure-rules/#create-a-reusable-ruleset).
 
 - [Spec-compliant ruleset](rulesets/spec-compliant/)
 - [Spot common mistakes](rulesets/common-mistakes)
@@ -47,6 +47,7 @@ There are some fantastic examples of [configurable rules](https://redocly.com/do
 - [JSON Schema misconfigurations](configurable-rules/json-schema-misconfigurations/)
 - [Azure APIM unsupported keywords](configurable-rules/azure-apim-unsupported-keyword/)
 - [Operation-deprecated-response-headers](configurable-rules/operation-deprecated-response-headers/)
+- [`operation-operationId` variant that excludes `OPTIONS`](configurable-rules/operation-operationId-exclude-OPTIONS/)
 
 ### Custom plugins
 
@@ -63,11 +64,14 @@ The [custom plugin](https://redocly.com/docs/cli/custom-plugins/) is the ultimat
 - [Remove unused tags](./custom-plugin-decorators/remove-unused-tags) - remove tags that are declared but not used by any operations.
 - [Azure APIM](./custom-plugin-decorators/azure-apim) - remove features unsupported by Azure APIM such as examples.
 - [Swap summary and description](./custom-plugin-decorators/swap-summary-description) - swap the contents of summary and description fields if they are the wrong way round.
+- [Apply root-level security](./custom-plugin-decorators/apply-root-security) - re-apply root-level `security` to operations that lose it after `redocly join`.
+- [Set servers URLs](./custom-plugin-decorators/set-servers-urls) - set or overwrite the API `servers` URLs, even when the source description has none.
 
 #### Rules (for custom plugins)
 
 - [Validate Markdown](./custom-plugin-rules/markdown-validator) - check Markdown in description fields is valid.
 - [Check code samples](./custom-plugin-rules/code-sample-checks) - check that an expected list of code samples is present in `x-code-samples` for every operation.
+- [Default is an enum](./custom-plugin-rules/default-enum-match) - check that a schema's `default` is one of its `enum` values.
 
 ### Miscellaneous (including tips and tricks)
 
