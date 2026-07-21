@@ -7,6 +7,38 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.40.0 (2026-07-21)
+
+### Minor Changes
+
+- Added an `--ignore-headers` option to the experimental `drift` and `proxy` commands.
+  It takes a comma-separated list of header names to skip in undocumented-header checks, and a trailing `*` matches by prefix (for example `x-consumer-*`).
+  Use it to silence headers a gateway or proxy adds that are not part of the API contract.
+- Added an experimental `generate-spec` command that infers an OpenAPI description from recorded HTTP traffic.
+
+### Patch Changes
+
+- Fixed the `drift` command's `schema-consistency` rule reporting false-positive "Undocumented query parameter" findings for `deepObject`-style query parameters.
+  Traffic keys like `namespace[id]=...&namespace[name]=...` are now matched to the documented `namespace` parameter, and the reconstructed object is validated against the parameter schema.
+- Fixed an issue where the `drift` command's `schema-consistency` rule reported false-positive request findings for exchanges the server rejected with a `4xx` client error.
+  For example: missing required parameter, missing required body, request-body schema mismatch.
+  A `4xx` response means the server never accepted the request.
+  Validating it against the operation's success-path contract flagged the server's own correct rejection as drift.
+  Response-side validation still runs, so a documented error response whose shape differs from reality is still reported.
+- Fixed an issue where the `join` command silently dropped path-level `x-*` extensions with non-string values.
+- Updated js-yaml from `4.2.0` to `5.2.1`.
+  Fixed an issue where strings that look like numbers with underscores (for example `'12_34'`) had quotation marks removed by the `bundle` command.
+  These strings stay quoted in the output.
+
+  **Note**: YAML parsing is stricter: a multi-line flow collection whose closing bracket is not indented deeper than its parent key is now a parse error.
+  Parse errors are reported at the offending token instead of the end of the document.
+
+- Fixed an issue where the `drift` command's `security-baseline` rule reported false-positive "credential exposure over insecure HTTP transport" warnings for traffic captured against loopback hosts, for example: `localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`.
+  Sandboxed recordings no longer produce transport warnings.
+- Fixed an issue where the `bundle` command rewrote internal `$ref`s pointing to other `$ref`s.
+  The issue caused AsyncAPI 3 operation `messages` references to point to `components` instead of channel messages.
+- Updated @redocly/openapi-core to v2.40.0.
+
 ## 2.39.0 (2026-07-13)
 
 ### Minor Changes
