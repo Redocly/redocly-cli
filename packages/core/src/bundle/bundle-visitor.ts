@@ -5,6 +5,7 @@ import {
   replaceRef,
   isExternalValue,
   isRef,
+  parseRef,
   pointerBaseName,
   refBaseName,
   type Location,
@@ -156,8 +157,10 @@ export function makeBundleVisitor({
           ctx.type.name !== 'scalar' &&
           !dereference
         ) {
-          // Normalize explicit self-file refs to internal pointer
-          if (node.$ref !== resolved.location.pointer) {
+          // Normalize explicit self-file refs (api.yaml#/x -> #/x). Already-internal refs
+          // stay as authored: rewriting them would collapse $ref chains, and AsyncAPI 3
+          // operation messages must point to channel messages, not to components.
+          if (parseRef(node.$ref).uri !== null && node.$ref !== resolved.location.pointer) {
             node.$ref = resolved.location.pointer;
           }
 
