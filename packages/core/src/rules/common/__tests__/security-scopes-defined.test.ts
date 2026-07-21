@@ -128,6 +128,74 @@ describe('Oas3 security-scopes-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should resolve $ref-ed flows when collecting defined scopes', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Example API
+          version: 1.0.0
+        paths:
+          /pets:
+            get:
+              security:
+                - shared_flows_auth:
+                    - read:pets
+                - shared_flow_auth:
+                    - read:pets
+                    - pets:admin
+              responses:
+                '200':
+                  description: ok
+        components:
+          securitySchemes:
+            base_auth:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://example.com/authorize
+                  tokenUrl: https://example.com/token
+                  scopes:
+                    read:pets: Read pets
+            shared_flows_auth:
+              type: oauth2
+              flows:
+                $ref: '#/components/securitySchemes/base_auth/flows'
+            shared_flow_auth:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  $ref: '#/components/securitySchemes/base_auth/flows/authorizationCode'
+      `,
+      'openapi.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'security-scopes-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1pets/get/security/1/shared_flow_auth/1",
+              "reportOnKey": false,
+              "source": "openapi.yaml",
+            },
+          ],
+          "message": "The "pets:admin" scope is not defined in the "shared_flow_auth" security scheme.",
+          "reference": "https://redocly.com/docs/cli/rules/common/security-scopes-defined",
+          "ruleId": "security-scopes-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report oauth2 requirements without scopes when requireScopes is set', async () => {
     const document = parseYamlToDocument(
       outdent`
