@@ -72,6 +72,16 @@ function collectComponentRefs(value: unknown, into: Set<string>): void {
       into.add(refMatch[1]);
     }
   }
+  // Discriminator mapping values reference schemas too, as a $ref or a bare
+  // component name; unknown names are filtered out by the "in schemas" guard.
+  if (isPlainObject(value.discriminator) && isPlainObject(value.discriminator.mapping)) {
+    for (const target of Object.values(value.discriminator.mapping)) {
+      if (typeof target === 'string') {
+        const mappingRefMatch = target.match(COMPONENT_REF_RE);
+        into.add(mappingRefMatch ? mappingRefMatch[1] : target);
+      }
+    }
+  }
   for (const child of Object.values(value)) {
     collectComponentRefs(child, into);
   }

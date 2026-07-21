@@ -275,6 +275,55 @@ describe('refineSpecWithAi', () => {
     expect(result.yaml).not.toContain('components:');
   });
 
+  it('keeps components referenced only through a discriminator mapping', async () => {
+    const polymorphicGetUsers = `paths:
+  /users:
+    get:
+      operationId: listUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        petType:
+          type: string
+      required:
+        - petType
+      discriminator:
+        propertyName: petType
+        mapping:
+          dog: '#/components/schemas/Dog'
+          cat: Cat
+    Dog:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            bark:
+              type: boolean
+    Cat:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            meow:
+              type: boolean
+`;
+    mockResponses(polymorphicGetUsers, refinedPostUsers);
+    const result = await refine();
+    expect(result.refined).toBe(2);
+    expect(Object.keys(result.document.components?.schemas ?? {})).toEqual(
+      expect.arrayContaining(['Pet', 'Dog', 'Cat'])
+    );
+  });
+
   it('aborts refinement when the provider CLI is not installed', async () => {
     vi.mocked(runProvider).mockRejectedValue(
       new CliNotFoundError('Could not find the "claude" CLI on PATH. Is it installed?')
