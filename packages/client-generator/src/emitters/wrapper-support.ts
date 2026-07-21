@@ -117,6 +117,7 @@ export function sdkCall(
     if (sig.hasQuery) args.push(factory.createPropertyAccessExpression(sourceIdent, 'params'));
     if (sig.hasBody) args.push(factory.createPropertyAccessExpression(sourceIdent, 'body'));
     if (sig.hasHeaders) args.push(factory.createPropertyAccessExpression(sourceIdent, 'headers'));
+    if (sig.hasCookies) args.push(factory.createPropertyAccessExpression(sourceIdent, 'cookies'));
   }
   if (withInit) args.push(factory.createIdentifier('init'));
 

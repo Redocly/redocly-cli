@@ -165,6 +165,53 @@ describe('resolveOperationPagination — sources and precedence', () => {
     expect(result.itemSchema).toEqual({ kind: 'ref', name: 'Order' });
   });
 
+  it('verifies an optional hasMore pointer (boolean) and carries it into the spec', () => {
+    const connectionPage: SchemaModel = {
+      kind: 'object',
+      properties: [
+        { name: 'orders', schema: ORDER_LIST, required: true },
+        { name: 'endCursor', schema: SCALAR, required: false },
+        {
+          name: 'pageInfo',
+          schema: {
+            kind: 'object',
+            properties: [
+              {
+                name: 'hasNextPage',
+                schema: { kind: 'scalar', scalar: 'boolean' },
+                required: true,
+              },
+            ],
+          },
+          required: true,
+        },
+      ],
+    };
+    const op = listOrders({ successResponses: [response({ schema: connectionPage })] });
+    const rule: PaginationRule = {
+      style: 'cursor',
+      cursorParam: 'cursor',
+      nextCursor: '/endCursor',
+      hasMore: '/pageInfo/hasNextPage',
+      items: '/orders',
+    };
+    const result = resolveOperationPagination(op, modelWith([op]), {
+      operations: { listOrders: rule },
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.spec?.hasMore).toBe('/pageInfo/hasNextPage');
+
+    const missing = resolveOperationPagination(op, modelWith([op]), {
+      operations: { listOrders: { ...rule, hasMore: '/pageInfo/missing' } },
+    });
+    expect(missing.error).toContain('"hasMore" pointer "/pageInfo/missing" does not resolve');
+
+    const notBoolean = resolveOperationPagination(op, modelWith([op]), {
+      operations: { listOrders: { ...rule, hasMore: '/endCursor' } },
+    });
+    expect(notBoolean.error).toContain('must point at a boolean');
+  });
+
   it('applies the x-pagination extension when no per-op rule exists', () => {
     const op = listOrders({ paginationExtension: OFFSET_RULE });
     const result = resolveOperationPagination(op, modelWith([op]), undefined);

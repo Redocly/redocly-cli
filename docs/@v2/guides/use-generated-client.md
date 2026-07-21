@@ -110,7 +110,8 @@ const publicApi = createClient<Ops>(OPERATIONS, { serverUrl: 'https://api.exampl
 
 ## Argument style
 
-By default (`--args-style flat`) each operation takes positional arguments — path params in URL order, then `params` (query), `body`, and `headers` — with the per-call `init` last.
+By default (`--args-style flat`) each operation takes positional arguments — path params in URL order, then `params` (query), `body`, `headers`, and `cookies` — with the per-call `init` last.
+Cookie parameters are serialized into the `Cookie` request header, which browsers refuse to set — like cookie apiKey auth, they work only in server-side clients.
 With `--args-style grouped`, every input is bundled into one `vars` object typed as the operation's `<Op>Variables`:
 
 ```ts
@@ -353,6 +354,7 @@ Each paginated operation keeps its one-shot call and gains two async iterators �
 
 Three styles are supported:
 `cursor` sends the response's `nextCursor` back in `cursorParam`, stops when it's absent, `null`, or empty, and throws if the server returns the same cursor twice in a row.
+For connection-style APIs whose cursor stays non-null on the last page, add the optional `hasMore` pointer (for example `/pageInfo/hasNextPage`) — iteration stops as soon as it resolves to `false`, skipping the follow-up empty request.
 `offset` advances `offsetParam` by each page's item count, and `page` increments `offsetParam` by 1; both stop on an empty page.
 `limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
 

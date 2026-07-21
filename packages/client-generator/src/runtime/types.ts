@@ -9,7 +9,7 @@
 /** How one operation parameter is sent: its location plus OpenAPI query-serialization hints. */
 export type ParamSpec = {
   name: string;
-  in: 'path' | 'query' | 'header';
+  in: 'path' | 'query' | 'header' | 'cookie';
   style?: 'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
   explode?: boolean;
   allowReserved?: boolean;
@@ -32,6 +32,8 @@ export type PaginationSpec = {
   limitParam?: string;
   /** Cursor style only: pointer to the next cursor in the page. */
   nextCursor?: string;
+  /** Cursor style only: optional pointer to a boolean "more pages" flag — `false` stops iteration. */
+  hasMore?: string;
   /** Pointer to the page's item array. */
   items: string;
 };

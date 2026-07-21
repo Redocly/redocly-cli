@@ -348,6 +348,9 @@ function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext)
   if (op.headerParams.length > 0) {
     props.push(factory.createShorthandPropertyAssignment('headers'));
   }
+  if (op.cookieParams.length > 0) {
+    props.push(factory.createShorthandPropertyAssignment('cookies'));
+  }
   const call = factory.createCallExpression(
     factory.createPropertyAccessExpression(factory.createIdentifier('client'), ident),
     undefined,

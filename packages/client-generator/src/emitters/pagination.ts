@@ -32,6 +32,12 @@ export type PaginationRule = {
   cursorParam?: string;
   /** Cursor style: JSON pointer to the next cursor in the response. */
   nextCursor?: string;
+  /**
+   * Cursor style: optional JSON pointer to a boolean "more pages" flag. When it
+   * resolves to `false`, iteration stops without the follow-up request — for
+   * connection-style APIs whose cursor stays non-null on the last page.
+   */
+  hasMore?: string;
   /** Offset/page styles: the request query param the iterator advances. */
   offsetParam?: string;
   /** Optional page-size query param (any style; recorded for tooling). */
@@ -181,6 +187,19 @@ function applyRule(
         `the "nextCursor" pointer "${valid.nextCursor}" must point at a string (got ${cursorTarget.kind})`
       );
     }
+    if (valid.hasMore !== undefined) {
+      const moreTarget = resolveSchemaPointer(page.schema, valid.hasMore, model);
+      if (moreTarget === undefined) {
+        return misfit(
+          `the "hasMore" pointer "${valid.hasMore}" does not resolve in the success response schema`
+        );
+      }
+      if (moreTarget.kind !== 'scalar' || moreTarget.scalar !== 'boolean') {
+        return misfit(
+          `the "hasMore" pointer "${valid.hasMore}" must point at a boolean (got ${moreTarget.kind})`
+        );
+      }
+    }
   }
   return {
     spec: {
@@ -188,6 +207,9 @@ function applyRule(
       param,
       ...(valid.limitParam !== undefined ? { limitParam: valid.limitParam } : {}),
       ...(valid.style === 'cursor' ? { nextCursor: valid.nextCursor! } : {}),
+      ...(valid.style === 'cursor' && valid.hasMore !== undefined
+        ? { hasMore: valid.hasMore }
+        : {}),
       items: valid.items,
     },
     itemSchema: itemsTarget.items,
@@ -201,7 +223,7 @@ function applyRule(
  */
 function ruleShapeProblem(rule: unknown): string | undefined {
   if (!isPlainObject(rule)) return 'the rule must be an object';
-  const { style, cursorParam, nextCursor, offsetParam, limitParam, items } = rule;
+  const { style, cursorParam, nextCursor, hasMore, offsetParam, limitParam, items } = rule;
   if (style !== 'cursor' && style !== 'offset' && style !== 'page') {
     return `"style" must be one of "cursor" | "offset" | "page" (got ${JSON.stringify(style)})`;
   }
@@ -214,6 +236,9 @@ function ruleShapeProblem(rule: unknown): string | undefined {
     }
     if (typeof nextCursor !== 'string' || !nextCursor.startsWith('/')) {
       return 'cursor style requires a "nextCursor" JSON pointer starting with "/"';
+    }
+    if (hasMore !== undefined && (typeof hasMore !== 'string' || !hasMore.startsWith('/'))) {
+      return '"hasMore" must be a JSON pointer starting with "/"';
     }
   } else if (typeof offsetParam !== 'string' || offsetParam === '') {
     return `${style} style requires an "offsetParam" query parameter name`;

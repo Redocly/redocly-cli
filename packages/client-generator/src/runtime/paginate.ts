@@ -39,8 +39,9 @@ export function resolvePointer(value: unknown, pointer: string): unknown {
 /**
  * Iterate an operation's full page results. Every page is yielded before the stop
  * condition is evaluated, so the last page always arrives. Cursor style resumes from a
- * caller-provided `params[spec.param]`, stops when `nextCursor` resolves to
- * `undefined`/`null`/`''`, and throws if the next cursor is not a string or number, or
+ * caller-provided `params[spec.param]`, stops when the optional `hasMore` pointer
+ * resolves to `false` or when `nextCursor` resolves to `undefined`/`null`/`''`, and
+ * throws if the next cursor is not a string or number, or
  * if the same cursor comes back twice in a row (infinite-loop guards). Offset/page
  * styles advance by item count / by one and stop when
  * the `items` pointer misses or the array is empty.
@@ -58,6 +59,10 @@ export async function* pages<TPage>(
       if (cursor !== undefined) params[spec.param] = cursor as QueryValue;
       const page = await call({ ...args, params }, init);
       yield page;
+      // Connection-style APIs keep a non-null cursor on the last page and signal the
+      // end via a boolean flag — honor it before the cursor check to skip the
+      // follow-up empty request. Strictly `false`: a missing pointer falls through.
+      if (spec.hasMore !== undefined && resolvePointer(page, spec.hasMore) === false) return;
       const next = resolvePointer(page, spec.nextCursor!);
       if (next === undefined || next === null || next === '') return;
       if (typeof next !== 'string' && typeof next !== 'number') {

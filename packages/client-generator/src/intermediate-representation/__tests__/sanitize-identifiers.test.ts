@@ -20,6 +20,7 @@ function op(partial: Partial<OperationModel>): OperationModel {
     pathParams: [],
     queryParams: [],
     headerParams: [],
+    cookieParams: [],
     successResponses: [],
     errorResponses: [],
     tags: [],

@@ -18,6 +18,7 @@ function apiModel(): ApiModel {
             pathParams: [],
             queryParams: [],
             headerParams: [],
+            cookieParams: [],
             successResponses: [],
             errorResponses: [],
             security: [],

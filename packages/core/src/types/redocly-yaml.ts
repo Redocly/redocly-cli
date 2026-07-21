@@ -373,6 +373,7 @@ const ClientPaginationRule: NodeType = {
     style: { enum: ['cursor', 'offset', 'page'] },
     cursorParam: { type: 'string' },
     nextCursor: { type: 'string' },
+    hasMore: { type: 'string' },
     offsetParam: { type: 'string' },
     limitParam: { type: 'string' },
     items: { type: 'string' },

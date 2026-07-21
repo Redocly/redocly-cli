@@ -85,6 +85,26 @@ describe('pages — cursor style', () => {
     expect(calls).toHaveLength(2);
   });
 
+  it('stops on a false hasMore flag without the extra empty request, ignoring a non-null cursor', async () => {
+    const spec: PaginationSpec = { ...CURSOR, hasMore: '/pageInfo/hasNextPage' };
+    const data = [
+      { orders: [{ id: 'o1' }], nextCursor: 'c2', pageInfo: { hasNextPage: true } },
+      // Connection-style last page: the cursor is still non-null, only the flag says stop.
+      { orders: [{ id: 'o2' }], nextCursor: 'c3', pageInfo: { hasNextPage: false } },
+    ];
+    const { call, calls } = stub(data);
+    expect(await collect(pages(call, spec))).toEqual(data);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('falls back to the cursor stop rule when the hasMore pointer misses', async () => {
+    const spec: PaginationSpec = { ...CURSOR, hasMore: '/pageInfo/hasNextPage' };
+    const data = [{ orders: [{ id: 'o1' }], nextCursor: 'c2' }, { orders: [{ id: 'o2' }] }];
+    const { call, calls } = stub(data);
+    expect(await collect(pages(call, spec))).toEqual(data);
+    expect(calls).toHaveLength(2);
+  });
+
   it('resumes from a caller-provided cursor, preserving other params', async () => {
     const data = [{ orders: [{ id: 'o3' }] }];
     const { call, calls } = stub(data);

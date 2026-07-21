@@ -110,11 +110,6 @@ export type PropertyModel = {
 
 export type ParamModel = {
   name: string;
-  /**
-   * `'cookie'` exists only inside the builder: cookie parameters are dropped
-   * (with a warning) before the operation model is assembled, so a built
-   * `ApiModel` never carries one.
-   */
   in: 'path' | 'query' | 'header' | 'cookie';
   schema: SchemaModel;
   required: boolean;
@@ -193,6 +188,8 @@ export type OperationModel = {
   pathParams: ParamModel[];
   queryParams: ParamModel[];
   headerParams: ParamModel[];
+  /** Serialized into the `Cookie` header by the runtime — server-side only (browsers own that header). */
+  cookieParams: ParamModel[];
   requestBody?: RequestBodyModel;
   successResponses: ResponseBodyModel[];
   /**

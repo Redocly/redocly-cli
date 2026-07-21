@@ -41,6 +41,7 @@ export function operation(overrides: Partial<OperationModel> = {}): OperationMod
     pathParams: [],
     queryParams: [],
     headerParams: [],
+    cookieParams: [],
     successResponses: [],
     errorResponses: [],
     security: [],

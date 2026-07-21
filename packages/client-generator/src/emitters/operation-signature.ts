@@ -17,6 +17,7 @@ export type OperationSignature = {
   hasQuery: boolean;
   hasBody: boolean;
   hasHeaders: boolean;
+  hasCookies: boolean;
   /** Any input at all — i.e. a `<Op>Variables` type exists for the operation. */
   hasInputs: boolean;
   /** Grouped mode: whether `vars` is required (else it defaults to `= {}`). */
@@ -39,17 +40,20 @@ export function operationSignature(op: OperationModel): OperationSignature {
   const hasQuery = op.queryParams.length > 0;
   const hasBody = Boolean(op.requestBody);
   const hasHeaders = op.headerParams.length > 0;
+  const hasCookies = op.cookieParams.length > 0;
   return {
     pathParams,
     hasQuery,
     hasBody,
     hasHeaders,
-    hasInputs: pathParams.length > 0 || hasQuery || hasBody || hasHeaders,
+    hasCookies,
+    hasInputs: pathParams.length > 0 || hasQuery || hasBody || hasHeaders || hasCookies,
     varsRequired:
       pathParams.length > 0 ||
       op.queryParams.some((p) => p.required) ||
       (op.requestBody?.required ?? false) ||
-      op.headerParams.some((p) => p.required),
+      op.headerParams.some((p) => p.required) ||
+      op.cookieParams.some((p) => p.required),
     variablesTypeName: `${pascalCase(op.name)}Variables`,
   };
 }

@@ -39,8 +39,8 @@ export type EmitContext = {
 
 /**
  * The flat sugar's parameter list: path params spread as positional args (in URL
- * template order), then the `params`/`body`/`headers` slots, ending with the
- * trailing `init: RequestOptions` (`SseOptions` for streams). Optional slots
+ * template order), then the `params`/`body`/`headers`/`cookies` slots, ending with
+ * the trailing `init: RequestOptions` (`SseOptions` for streams). Optional slots
  * default to `= {}` so trailing arguments can be omitted.
  */
 export function renderArgList(
@@ -74,6 +74,8 @@ export function renderArgList(
   // are injected by the runtime and live underneath them.
   if (op.headerParams.length > 0)
     args.push(renderParamsObjectArg('headers', op.headerParams, dateType));
+  if (op.cookieParams.length > 0)
+    args.push(renderParamsObjectArg('cookies', op.cookieParams, dateType));
   // SSE ops take per-stream `SseOptions` (reconnect knobs); everyone else the
   // standard per-call `RequestOptions`.
   args.push(

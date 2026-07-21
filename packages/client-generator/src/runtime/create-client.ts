@@ -54,11 +54,12 @@ export type Capabilities = SendCapabilities & {
   };
 };
 
-/** The grouped args wire shape: path params by name plus the `params`/`body`/`headers` slots. */
+/** The grouped args wire shape: path params by name plus the `params`/`body`/`headers`/`cookies` slots. */
 export type OperationArgs = {
   params?: Record<string, QueryValue>;
   body?: unknown;
   headers?: Record<string, unknown>;
+  cookies?: Record<string, unknown>;
 } & Record<string, unknown>;
 
 /** The response reader implied by the descriptor (before any per-call `parseAs` override). */
@@ -69,13 +70,19 @@ function kindFor(op: OperationDescriptor): ParseAs | 'void' {
   return 'auto';
 }
 
-/** Route the grouped args by the descriptor: path values, query object, body, extra headers. */
+/** Route the grouped args by the descriptor: path values, query object, body, extra headers, cookies. */
 function splitArgs(op: OperationDescriptor, args: OperationArgs) {
   const path: Record<string, unknown> = {};
   for (const param of op.params ?? []) {
     if (param.in === 'path') path[param.name] = args[param.name];
   }
-  return { path, query: args.params, body: args.body, headers: args.headers };
+  return {
+    path,
+    query: args.params,
+    body: args.body,
+    headers: args.headers,
+    cookies: args.cookies,
+  };
 }
 
 /**
@@ -120,11 +127,19 @@ async function prepareRequest(
   init: RequestOptions | SseOptions,
   caps: Capabilities
 ): Promise<{ url: string; init: RequestOptions; body: unknown }> {
-  const { path, query, body, headers } = splitArgs(op, args);
-  const authed =
+  const { path, query, body, headers, cookies } = splitArgs(op, args);
+  const authed: { headers: Record<string, string>; query: Record<string, string> } =
     op.security?.length && caps.resolveAuth
       ? await caps.resolveAuth(op.security, config)
       : { headers: {}, query: {} };
+  // Cookie params join the auth-injected cookies in one `Cookie` header (values
+  // percent-encoded, like auth cookies). Server-side only — browsers own the header.
+  const cookiePairs = Object.entries(cookies ?? {})
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(([cookieName, value]) => `${cookieName}=${encodeURIComponent(String(value))}`);
+  if (cookiePairs.length > 0) {
+    authed.headers.Cookie = [authed.headers.Cookie, ...cookiePairs].filter(Boolean).join('; ');
+  }
   const fullQuery: Record<string, QueryValue> = { ...query, ...authed.query };
   const url = buildUrl(
     config.serverUrl ?? '',
@@ -253,7 +268,7 @@ export function createClientCore<
 
   for (const [name, op] of Object.entries(operations)) {
     if (op.responseKind === 'sse') {
-      client[name] = (args: OperationArgs = {}, init: SseOptions = {}) => {
+      const method = (args: OperationArgs = {}, init: SseOptions = {}) => {
         if (!caps.sse) {
           throw new Error(`SSE capability not wired: cannot stream operation "${op.id}"`);
         }
@@ -269,9 +284,14 @@ export function createClientCore<
           yield* stream(config, opCtx, prepare, op.sseDataKind ?? 'text');
         })();
       };
+      // Consumers key off the function reference (cache keys, `OPERATIONS[fn.name]`), so
+      // each closure carries its operationId instead of an inferred binding name.
+      Object.defineProperty(method, 'name', { value: name });
+      client[name] = method;
     } else {
       const method = (args: OperationArgs = {}, init: RequestOptions = {}) =>
         execute(config, op, args, init, caps);
+      Object.defineProperty(method, 'name', { value: name });
       const spec = op.pagination;
       // Paginated ops keep their one-shot call and gain `.pages`/`.items`, dispatching
       // through the capability seam (like SSE: absent capability throws descriptively).

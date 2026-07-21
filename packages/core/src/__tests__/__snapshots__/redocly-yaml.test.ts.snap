@@ -243,6 +243,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "importExt": {
+        "enum": [
+          "js",
+          "ts",
+        ],
+      },
       "mockData": {
         "enum": [
           "baked",
@@ -292,6 +298,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "hasMore": {
+        "type": "string",
+      },
       "items": {
         "type": "string",
       },
@@ -321,6 +330,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
   "ClientPaginationRule": {
     "properties": {
       "cursorParam": {
+        "type": "string",
+      },
+      "hasMore": {
         "type": "string",
       },
       "items": {

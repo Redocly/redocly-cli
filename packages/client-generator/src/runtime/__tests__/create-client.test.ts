@@ -106,6 +106,13 @@ function spy(responses: Response[]) {
 }
 
 describe('createClientCore', () => {
+  it('names every operation closure after its operationId (plain, paginated, and sse)', () => {
+    const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x' });
+    expect(client.getOrder.name).toBe('getOrder');
+    expect(client.listOrders.name).toBe('listOrders');
+    expect(client.stream.name).toBe('stream');
+  });
+
   it('routes args: path substitution + query + body + header slot; methods survive destructuring', async () => {
     const { calls, fetchImpl } = spy([jsonOk({ id: 'o1' }), jsonOk({ id: 'p1' })]);
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
@@ -126,6 +133,31 @@ describe('createClientCore', () => {
     await createPet({ body: { name: 'Rex' } });
     expect(calls[1].init.method).toBe('POST'); // method upper-cased from the descriptor
     expect(JSON.parse(calls[1].init.body as string)).toEqual({ name: 'Rex' });
+  });
+
+  it('serializes cookie params into the Cookie header, joined after injected auth cookies', async () => {
+    const ops = {
+      withCookie: {
+        id: 'withCookie',
+        method: 'GET',
+        path: '/ctx',
+        params: [{ name: 'orgContext', in: 'cookie' }],
+        security: [[{ scheme: 'session', kind: 'apiKey', name: 'sid', in: 'cookie' }]],
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const { calls, fetchImpl } = spy([jsonOk({ ok: true })]);
+    const client = createClientCore<{
+      withCookie: { args: { cookies?: { orgContext?: string } }; result: { ok: boolean } };
+      [k: string]: { args: object; result: unknown };
+    }>(
+      ops,
+      { serverUrl: 'https://x', fetch: fetchImpl },
+      { resolveAuth: async () => ({ headers: { Cookie: 'sid=abc' }, query: {} }) }
+    );
+    await client.withCookie({ cookies: { orgContext: 'org 1;x' } });
+    expect((calls[0].init.headers as Record<string, string>).Cookie).toBe(
+      'sid=abc; orgContext=org%201%3Bx'
+    );
   });
 
   it('honors descriptor query styles and responseKind (text) + per-call parseAs override', async () => {

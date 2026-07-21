@@ -37,18 +37,19 @@ The `pagination` option is config-only and has no flag.
 The `pagination` block is an optional convention rule (the rule fields below, applied to every operation it structurally fits when `style` is set), plus per-operation `operations` overrides and an `exclude` list.
 See [Pagination in the usage guide](../../guides/use-generated-client.md#pagination) for how the generated iterators behave.
 
-| Option        | Type                      | Description                                                                                                                                                  |
-| ------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `style`       | `string`                  | How the iterator advances: `cursor` (follow a response cursor), `offset` (advance an offset by each page's item count), or `page` (increment a page number). |
-| `cursorParam` | `string`                  | The query parameter that receives the cursor. **REQUIRED** for the `cursor` style.                                                                           |
-| `nextCursor`  | `string`                  | JSON pointer (RFC 6901, starts with `/`) to the next cursor in the response. **REQUIRED** for the `cursor` style.                                            |
-| `offsetParam` | `string`                  | The query parameter the iterator advances. **REQUIRED** for the `offset` and `page` styles.                                                                  |
-| `limitParam`  | `string`                  | Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.                                                         |
-| `items`       | `string`                  | **REQUIRED**. JSON pointer to the page's item array in the response.                                                                                         |
-| `exclude`     | `[string]`                | operationIds that no source may paginate; wins over overrides, extensions, and the convention.                                                               |
-| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the spec's `x-pagination` and the convention.                                 |
+| Option        | Type                      | Description                                                                                                                                                                  |
+| ------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `style`       | `string`                  | How the iterator advances: `cursor` (follow a response cursor), `offset` (advance an offset by each page's item count), or `page` (increment a page number).                 |
+| `cursorParam` | `string`                  | The query parameter that receives the cursor. **REQUIRED** for the `cursor` style.                                                                                           |
+| `nextCursor`  | `string`                  | JSON pointer (RFC 6901, starts with `/`) to the next cursor in the response. **REQUIRED** for the `cursor` style.                                                            |
+| `hasMore`     | `string`                  | Optional (`cursor` style): JSON pointer to a boolean "more pages" flag — iteration stops when it resolves to `false`, for APIs whose cursor stays non-null on the last page. |
+| `offsetParam` | `string`                  | The query parameter the iterator advances. **REQUIRED** for the `offset` and `page` styles.                                                                                  |
+| `limitParam`  | `string`                  | Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.                                                                         |
+| `items`       | `string`                  | **REQUIRED**. JSON pointer to the page's item array in the response.                                                                                                         |
+| `exclude`     | `[string]`                | operationIds that no source may paginate; wins over overrides, extensions, and the convention.                                                                               |
+| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the spec's `x-pagination` and the convention.                                                 |
 
-The rules are verified at generate time: the advance parameter must be a declared query parameter of the right type (string for `cursor`, numeric for `offset` and `page`), and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array.
+The rules are verified at generate time: the advance parameter must be a declared query parameter of the right type (string for `cursor`, numeric for `offset` and `page`), and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array and `hasMore` on a boolean.
 A convention that doesn't fit an operation skips it; an explicit rule that doesn't fit fails generation.
 The `x-pagination` operation extension in the API description takes the same rule fields.
 Per operation, precedence is `operations[id]`, then `x-pagination`, then the convention.

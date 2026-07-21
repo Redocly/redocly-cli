@@ -509,17 +509,9 @@ function buildOperation(
   const pathParams = allParams.filter((p) => p.in === 'path');
   const queryParams = allParams.filter((p) => p.in === 'query');
   const headerParams = allParams.filter((p) => p.in === 'header');
-
-  // Browsers own the Cookie header, so the generated client cannot set cookie
-  // params — drop them, but tell the user instead of vanishing them silently.
+  // Serialized into the `Cookie` header by the runtime — server-side only, since
+  // browsers own that header (same caveat as cookie-borne apiKey auth).
   const cookieParams = allParams.filter((p) => p.in === 'cookie');
-  if (cookieParams.length > 0) {
-    logger.warn(
-      `generate-client: skipped cookie parameter(s) ${cookieParams
-        .map((p) => `"${p.name}"`)
-        .join(', ')} on operation "${name}" — cookie parameters are not supported.\n`
-    );
-  }
 
   const requestBody = operation.requestBody
     ? buildRequestBody(deref(doc, operation.requestBody), `${method} ${path}`, doc)
@@ -541,6 +533,7 @@ function buildOperation(
     pathParams,
     queryParams,
     headerParams,
+    cookieParams,
     requestBody,
     successResponses,
     errorResponses,

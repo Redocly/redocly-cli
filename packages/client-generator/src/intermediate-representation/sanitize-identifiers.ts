@@ -148,6 +148,7 @@ function rewriteOperationRefs(op: OperationModel, fixRef: (name: string) => stri
   for (const p of op.pathParams) rewriteRefs(p.schema, fixRef);
   for (const p of op.queryParams) rewriteRefs(p.schema, fixRef);
   for (const p of op.headerParams) rewriteRefs(p.schema, fixRef);
+  for (const p of op.cookieParams) rewriteRefs(p.schema, fixRef);
   if (op.requestBody) rewriteRefs(op.requestBody.schema, fixRef);
   for (const r of [...op.successResponses, ...op.errorResponses]) {
     rewriteRefs(r.schema, fixRef);

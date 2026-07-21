@@ -82,6 +82,10 @@ export function renderOperationAliases(
     aliases.push(exportType(`${name}Headers`, paramsTypeLiteral(op.headerParams, dateType)));
   }
 
+  if (op.cookieParams.length > 0 && !schemaNames.has(`${name}Cookies`)) {
+    aliases.push(exportType(`${name}Cookies`, paramsTypeLiteral(op.cookieParams, dateType)));
+  }
+
   if (!schemaNames.has(`${name}Variables`)) {
     const variables = renderVariablesAlias(
       op,
@@ -228,6 +232,17 @@ export function variablesTypeLiteral(
         `${name}Headers`,
         () => paramsTypeLiteral(op.headerParams, dateType),
         op.headerParams.some((p) => p.required),
+        schemaNames
+      )
+    );
+  }
+  if (op.cookieParams.length > 0) {
+    props.push(
+      inputProp(
+        'cookies',
+        `${name}Cookies`,
+        () => paramsTypeLiteral(op.cookieParams, dateType),
+        op.cookieParams.some((p) => p.required),
         schemaNames
       )
     );

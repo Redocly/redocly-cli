@@ -69,13 +69,15 @@ function descriptorValue(
   dateType: DateType,
   pagination?: ModelPagination
 ) {
-  const params = [...op.pathParams, ...op.queryParams, ...op.headerParams].map((p) => ({
-    name: p.name,
-    in: p.in,
-    ...(p.style !== undefined ? { style: p.style } : {}),
-    ...(p.explode !== undefined ? { explode: p.explode } : {}),
-    ...(p.allowReserved !== undefined ? { allowReserved: p.allowReserved } : {}),
-  }));
+  const params = [...op.pathParams, ...op.queryParams, ...op.headerParams, ...op.cookieParams].map(
+    (p) => ({
+      name: p.name,
+      in: p.in,
+      ...(p.style !== undefined ? { style: p.style } : {}),
+      ...(p.explode !== undefined ? { explode: p.explode } : {}),
+      ...(p.allowReserved !== undefined ? { allowReserved: p.allowReserved } : {}),
+    })
+  );
   const toSpecs = (key: string): SecuritySpec[] => {
     const s = schemes.find((scheme) => scheme.key === key);
     if (!s) return [];
