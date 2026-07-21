@@ -440,9 +440,8 @@ describe('generate-client redocly.yaml config', () => {
   }, 60_000);
 
   it('a per-api block holding only `runtime: package` inherits generators and outputMode', () => {
-    // The exact shape that regressed in the 0.0.0-snapshot.1784539614 publish: the api's
-    // block sets one field; `generators: [sdk, zod]` and `outputMode: split` must
-    // still arrive from the top level (3 files), with the per-api runtime layered in.
+    // The api's block sets one field; `generators: [sdk, zod]` and `outputMode: split`
+    // must still arrive from the top level (3 files), with the per-api runtime layered in.
     const dir = project(
       [
         'client:',
