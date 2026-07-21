@@ -836,6 +836,84 @@ describe('bundle async', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should keep operation message refs pointing to channel messages in asyncapi 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Ping service
+          version: 1.0.0
+        channels:
+          ping:
+            address: /ping
+            messages:
+              ping:
+                $ref: '#/components/messages/ping'
+        operations:
+          sendPing:
+            action: send
+            channel:
+              $ref: '#/channels/ping'
+            messages:
+              - $ref: '#/channels/ping/messages/ping'
+        components:
+          messages:
+            ping:
+              payload:
+                type: string
+      `,
+      ''
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).operations.sendPing.messages).toEqual([
+      { $ref: '#/channels/ping/messages/ping' },
+    ]);
+  });
+
+  it('should keep operation channel refs pointing to root channels in asyncapi 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Ping service
+          version: 1.0.0
+        channels:
+          ping:
+            $ref: '#/components/channels/ping'
+        operations:
+          sendPing:
+            action: send
+            channel:
+              $ref: '#/channels/ping'
+        components:
+          channels:
+            ping:
+              address: /ping
+      `,
+      ''
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).operations.sendPing.channel).toEqual({
+      $ref: '#/channels/ping',
+    });
+  });
 });
 
 describe('sibling $ref resolution by spec', () => {
