@@ -1,13 +1,12 @@
 import {
-  type CustomGenerator,
-  defineGenerator,
   operationSignature,
   pascalCase,
   printStatements,
   safeIdent,
   schemaToTypeNode,
   ts,
-} from '../plugin.js';
+} from '../codegen.js';
+import { type CustomGenerator, defineGenerator } from '../plugin.js';
 
 describe('plugin entry', () => {
   it('defineGenerator returns its argument unchanged', () => {

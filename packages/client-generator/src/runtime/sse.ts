@@ -26,7 +26,7 @@ export class SseParseError extends Error {}
 export async function* sse<T>(
   config: ClientConfig,
   op: OperationContext,
-  prepare: () => Promise<{ url: string; init: SseOptions }>,
+  prepare: () => Promise<{ url: string; init: SseOptions; body?: unknown }>,
   dataKind: 'json' | 'text' = 'text'
 ): AsyncGenerator<ServerSentEvent<T>> {
   let lastEventId: string | undefined;
@@ -36,7 +36,7 @@ export async function* sse<T>(
     // Re-prepare each attempt so a refresh-style TokenProvider yields a fresh credential
     // on reconnect (the auth is baked into `url` query + `init.headers`). `reconnect`,
     // `reconnectDelay`, and `signal` come from the caller's original options unchanged.
-    const { url, init } = await prepare();
+    const { url, init, body: requestBody } = await prepare();
     const { reconnect = true, reconnectDelay, ...rest } = init;
     const signal = rest.signal ?? undefined;
     if (signal?.aborted) return;
@@ -52,7 +52,7 @@ export async function* sse<T>(
         op,
         url,
         { ...rest, method: rest.method ?? 'GET', headers: sendHeaders },
-        undefined,
+        requestBody,
         false,
         {}
       );

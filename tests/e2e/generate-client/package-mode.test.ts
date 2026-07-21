@@ -1,5 +1,5 @@
 import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -181,6 +181,34 @@ describe('generate-client package-runtime consumer', () => {
     expect(generated).not.toContain('__send');
     rmSync(tmpDir, { recursive: true, force: true });
   }, 30_000);
+
+  test('the package root imports without the codegen stack installed (production install)', () => {
+    // A production app with a package-runtime client installs @redocly/client-generator
+    // but not the `typescript` peer. Copy (not symlink) package.json + lib into an empty
+    // node_modules so nothing outside the package can resolve — the root entry must
+    // still import and expose the runtime.
+    const dir = mkdtempSync(join(tmpdir(), 'pkg-root-weight-'));
+    const staged = join(dir, 'node_modules/@redocly/client-generator');
+    cpSync(join(repoRoot, 'packages/client-generator/package.json'), join(staged, 'package.json'));
+    cpSync(join(repoRoot, 'packages/client-generator/lib'), join(staged, 'lib'), {
+      recursive: true,
+    });
+    const probe = spawnSync(
+      'node',
+      [
+        '-e',
+        `import('@redocly/client-generator').then((m) => {
+           if (typeof m.createClient !== 'function') throw new Error('createClient missing');
+           if (typeof m.generateClient !== 'function') throw new Error('generateClient missing');
+           console.log('root-ok');
+         })`,
+      ],
+      { cwd: dir, encoding: 'utf-8' }
+    );
+    expect(probe.status, probe.stderr).toBe(0);
+    expect(probe.stdout).toContain('root-ok');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
 
   test('CLI --runtime rejects an unknown value', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'ots-cli-runtime-bogus-'));

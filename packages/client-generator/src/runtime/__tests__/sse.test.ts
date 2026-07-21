@@ -130,6 +130,39 @@ describe('sse', () => {
     expect(headersSeen[1]['Last-Event-ID']).toBe('5');
   });
 
+  it('sends the request body on connect and again on reconnect (POST streams)', async () => {
+    const bodiesSeen: unknown[] = [];
+    let call = 0;
+    const fetchImpl = (async (_url: string, init: RequestInit) => {
+      bodiesSeen.push(init.body);
+      call++;
+      if (call === 1) {
+        const body = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(enc.encode('data: one\n\n'));
+          },
+          pull(controller) {
+            controller.error(new Error('drop'));
+          },
+        });
+        return new Response(body, { status: 200 });
+      }
+      return streamResponse(['data: two\n\n']);
+    }) as unknown as typeof fetch;
+    const prepare = async () => ({
+      url: 'u',
+      init: { method: 'POST', reconnectDelay: 1 } as SseOptions,
+      body: { q: 'x' },
+    });
+    const seen: unknown[] = [];
+    for await (const ev of sse({ fetch: fetchImpl }, op, prepare, 'text')) {
+      seen.push(ev.data);
+      if (seen.length === 2) break;
+    }
+    expect(seen).toEqual(['one', 'two']);
+    expect(bodiesSeen).toEqual(['{"q":"x"}', '{"q":"x"}']);
+  });
+
   it('re-runs prepare on reconnect so a refreshed credential is sent (not the frozen one)', async () => {
     const authSeen: Array<string | undefined> = [];
     let token = 't1';

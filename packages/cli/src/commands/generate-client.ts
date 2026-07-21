@@ -90,7 +90,12 @@ export async function handleGenerateClient({
     queryFramework: argv['query-framework'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
-    generators: argv.generator,
+    // Like `setup` below: flag paths resolve against the cwd, while config-file entries
+    // resolve against the config dir (in `resolveGenerators`). Package specifiers and
+    // built-in names pass through.
+    generators: argv.generator?.map((specifier) =>
+      specifier.startsWith('.') ? resolvePath(specifier) : specifier
+    ),
     setup:
       argv.setup === undefined
         ? undefined

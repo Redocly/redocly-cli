@@ -79,7 +79,7 @@ interface Ops {
   listRaw: { args: { params?: { filter?: string[] } }; result: string };
   search: { args: { params?: { ids?: string[]; path?: string } }; result: string };
   secured: { args: Record<string, never>; result: string };
-  stream: { args: Record<string, never>; result: { n: number }; kind: 'sse' };
+  stream: { args: { body?: { topic: string } }; result: { n: number }; kind: 'sse' };
   streamPlain: { args: Record<string, never>; result: string; kind: 'sse' };
   listOrders: {
     args: { params?: { cursor?: string; limit?: number } };
@@ -319,24 +319,27 @@ describe('createClientCore', () => {
     await expect(client.getOrder({ orderId: '1' })).rejects.toMatchObject({ status: 500 });
   });
 
-  it('sse ops dispatch to the sse capability (with prepared url); absent capability throws sync', async () => {
+  it('sse ops dispatch to the sse capability (with prepared url + body); absent capability throws sync', async () => {
     const seenUrls: string[] = [];
     const seenKinds: string[] = [];
+    const seenBodies: unknown[] = [];
     async function* fake(
       _config: unknown,
       _op: unknown,
-      prepare: () => Promise<{ url: string; init: unknown }>,
+      prepare: () => Promise<{ url: string; init: unknown; body?: unknown }>,
       dataKind: string
     ): AsyncGenerator<{ data: { n: number } }> {
-      const { url } = await prepare();
+      const { url, body } = await prepare();
       seenUrls.push(url);
       seenKinds.push(dataKind);
+      seenBodies.push(body);
       yield { data: { n: 1 } };
     }
     const withCap = createClientCore<Ops>(OPS, { serverUrl: 'https://x' }, { sse: fake as never });
     const events = [];
-    for await (const ev of withCap.stream({})) events.push(ev);
+    for await (const ev of withCap.stream({ body: { topic: 'orders' } })) events.push(ev);
     expect(events).toEqual([{ data: { n: 1 } }]);
+    expect(seenBodies[0]).toEqual({ topic: 'orders' });
 
     // A bare call (no args) on an op without sseDataKind → dataKind defaults to 'text'.
     for await (const _ of withCap.streamPlain()) void _;

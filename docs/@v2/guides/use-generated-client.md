@@ -418,7 +418,7 @@ export default defineGenerator({
 });
 ```
 
-The `@redocly/client-generator` entry also exports the codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …) and the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
+The `@redocly/client-generator/codegen` entry also exports the codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
 
 Select it in `redocly.yaml` by path or package name:
 

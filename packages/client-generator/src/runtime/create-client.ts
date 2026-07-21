@@ -279,7 +279,7 @@ export function createClientCore<
           // resolves) is refreshed per attempt rather than frozen at the first connect.
           const prepare = async () => {
             const prepared = await prepareRequest(config, op, args, init, caps);
-            return { url: prepared.url, init: prepared.init as SseOptions };
+            return { url: prepared.url, init: prepared.init as SseOptions, body: prepared.body };
           };
           yield* stream(config, opCtx, prepare, op.sseDataKind ?? 'text');
         })();

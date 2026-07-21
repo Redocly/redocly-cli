@@ -12,7 +12,9 @@
 // libraries are peers of the consumer's app, never of the client.
 //
 //   // my-generator.ts
-//   import { defineGenerator, ts, printStatements } from '@redocly/client-generator';
+//   import { defineGenerator } from '@redocly/client-generator';
+//   // AST toolkit, when string-building isn't enough:
+//   // import { ts, printStatements } from '@redocly/client-generator/codegen';
 //   export default defineGenerator({
 //     name: 'route-map',
 //     requires: ['sdk'],
@@ -63,19 +65,6 @@ export type {
   ServiceModel,
 } from './intermediate-representation/model.js';
 
-// --- Codegen toolkit: build TypeScript the same way the built-in generators do -----------------
-export {
-  arrow,
-  constArray,
-  exportConstStatement,
-  jsdoc,
-  parseStatements,
-  printNodes,
-  printStatements,
-  ts,
-} from './emitters/ts.js';
-export { operationSignature } from './emitters/operation-signature.js';
-export type { OperationSignature } from './emitters/operation-signature.js';
-export { schemaToTypeNode } from './emitters/types.js';
-export { pascalCase } from './emitters/support.js';
-export { safeIdent } from './emitters/identifier.js';
+// The TypeScript-emitting toolkit (`ts`, `printStatements`, `operationSignature`, …) is
+// exported from `@redocly/client-generator/codegen` — it loads `typescript`, which the
+// runtime-only package root must not reach statically.

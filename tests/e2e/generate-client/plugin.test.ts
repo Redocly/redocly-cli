@@ -1,7 +1,7 @@
 // The experimental custom-generator (plugin) API end-to-end: a `generators` entry that is a path
 // specifier is dynamically imported and run alongside the built-ins, and a bad specifier fails fast.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,6 +43,34 @@ describe('generate-client custom generator (plugin) API', () => {
     // The plugin walked the same IR the built-ins see (real operations from cafe.yaml).
     expect(routes).toMatch(/: '(GET|POST|PUT|PATCH|DELETE) \//);
     rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('resolves a relative --generator path against the cwd, not the --config dir', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-cwd-'));
+    const configDir = mkdtempSync(join(tmpdir(), 'ots-plugin-config-'));
+    cpSync(plugin, join(dir, 'route-map-plugin.mjs'));
+    writeFileSync(join(configDir, 'redocly.yaml'), 'extends: []\n');
+    const res = spawnSync(
+      'node',
+      [
+        cliEntry,
+        'generate-client',
+        cafe,
+        '--output',
+        join(dir, 'client.ts'),
+        '--generator',
+        'sdk',
+        '--generator',
+        './route-map-plugin.mjs',
+        '--config',
+        join(configDir, 'redocly.yaml'),
+      ],
+      { encoding: 'utf-8', cwd: dir }
+    );
+    expect(res.status, `${res.stdout}\n${res.stderr}`).toBe(0);
+    expect(existsSync(join(dir, 'client.routes.ts'))).toBe(true);
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(configDir, { recursive: true, force: true });
   }, 60_000);
 
   it('fails fast with an actionable message when a specifier cannot be loaded', () => {
