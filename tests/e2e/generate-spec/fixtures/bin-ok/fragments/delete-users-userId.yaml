@@ -1,0 +1,15 @@
+paths:
+  /users/{userId}:
+    delete:
+      operationId: deleteUser
+      summary: Delete a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted

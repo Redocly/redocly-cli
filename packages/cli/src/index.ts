@@ -23,6 +23,7 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -853,6 +854,80 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
+    }
+  )
+  .command(
+    'generate-spec <traffic>',
+    'Infer an OpenAPI description from recorded HTTP traffic, optionally refined with AI [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_GENERATE_SPEC')
+        .positional('traffic', {
+          describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
+          type: 'string',
+        })
+        .option({
+          type: {
+            describe: 'Target API description type.',
+            choices: ['openapi'] as const,
+            default: 'openapi' as const,
+          },
+          'traffic-format': {
+            describe: 'Traffic input format.',
+            choices: [
+              'auto',
+              'har',
+              'kong',
+              'nginx-json',
+              'apache-json',
+              'ndjson',
+            ] as ReadonlyArray<TrafficFormat>,
+            default: 'auto' as TrafficFormat,
+          },
+          server: {
+            describe:
+              'Server URL the traffic was captured against: only requests under it are considered, the rest of their URL becomes the API path, and it becomes the servers URL of the generated description.',
+            type: 'string',
+          },
+          title: {
+            describe: 'Title for the generated API description.',
+            type: 'string',
+          },
+          'with-ai': {
+            describe:
+              'Refine the inferred description with an AI provider to narrow the hypothesis.',
+            type: 'boolean',
+            default: false,
+          },
+          'ai-provider': {
+            describe:
+              'AI provider used with --with-ai; runs the "claude", "codex", or "cursor" CLI in non-interactive mode.',
+            choices: ['claude', 'codex', 'cursor'] as ReadonlyArray<
+              GenerateSpecArgv['ai-provider']
+            >,
+            default: 'claude' as GenerateSpecArgv['ai-provider'],
+          },
+          'ai-model': {
+            describe:
+              'Model passed to the selected AI provider (provider-specific default applies).',
+            type: 'string',
+          },
+          'ai-concurrency': {
+            describe: 'Number of operations refined in parallel with --with-ai.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
+          output: {
+            alias: 'o',
+            describe: 'Write the generated description to this file instead of stdout.',
+            type: 'string',
+          },
+          config: { describe: 'Path to the config file.', type: 'string' },
+        }),
+    async (argv) => {
+      const { handleGenerateSpec } = await import('./commands/generate-spec/index.js');
+      commandWrapper(handleGenerateSpec)(argv as Arguments<GenerateSpecArgv>);
     }
   )
   .command(

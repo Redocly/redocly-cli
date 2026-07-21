@@ -1,0 +1,149 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List users
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of users returned.
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          required: false
+          description: Field to sort the returned users by.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A page of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      operationId: createUser
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '201':
+          description: The created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: Get a user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The requested user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      operationId: deleteUser
+      summary: Delete a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted
+  /sessions:
+    post:
+      operationId: createSession
+      summary: Log in and create a session
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: The created session token
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                properties:
+                  token:
+                    type: string
+components:
+  schemas:
+    User:
+      allOf:
+        - $ref: '#/components/schemas/NewUser'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+    NewUser:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Full display name.
+        email:
+          type: string
+          format: email
+
+Inferred a baseline OpenAPI description from traffic: 5 operation(s).
+Refining the description with AI provider "claude"...
+Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
+[1/5] Refining GET /users...
+[1/5] GET /users — refined (<t>s)
+[2/5] Refining POST /users...
+[2/5] POST /users — refined (<t>s)
+[3/5] Refining GET /users/{userId}...
+[3/5] GET /users/{userId} — refined (<t>s)
+[4/5] Refining DELETE /users/{userId}...
+[4/5] DELETE /users/{userId} — refined (<t>s)
+[5/5] Refining POST /sessions...
+[5/5] POST /sessions — refined (<t>s)
+AI refinement complete: 5 of 5 operation(s) refined (claude).
+Done in <t>.

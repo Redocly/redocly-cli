@@ -1,0 +1,77 @@
+paths:
+  /payments:
+    post:
+      operationId: createPayment
+      summary: Create a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CardPayment'
+                - $ref: '#/components/schemas/BankTransferPayment'
+              discriminator:
+                propertyName: type
+                mapping:
+                  card: '#/components/schemas/CardPayment'
+                  bank_transfer: '#/components/schemas/BankTransferPayment'
+      responses:
+        '201':
+          description: The created payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+components:
+  schemas:
+    PaymentBase:
+      type: object
+      required:
+        - type
+        - amount
+      properties:
+        type:
+          type: string
+          enum:
+            - card
+            - bank_transfer
+          description: Selects the payment method variant.
+        amount:
+          type: number
+    CardPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentBase'
+        - type: object
+          required:
+            - cardNumber
+            - cvv
+          properties:
+            cardNumber:
+              type: string
+            cvv:
+              type: string
+    BankTransferPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentBase'
+        - type: object
+          required:
+            - iban
+          properties:
+            iban:
+              type: string
+    Payment:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        note:
+          type:
+            - string
+            - 'null'
+          description: Optional processing note.

@@ -20,6 +20,8 @@
           page: commands/eject.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
+        - label: generate-spec
+          page: commands/generate-spec.md
         - label: join
           page: commands/join.md
         - label: lint
