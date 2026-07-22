@@ -1,0 +1,6 @@
+apis:
+  main:
+    root: ./asyncapi.yaml
+
+rules:
+  spec-ref-targets: error

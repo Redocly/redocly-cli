@@ -276,6 +276,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-channel-trailing-slash': 'error',
     'operation-operationId': 'error',
     'security-scopes-defined': 'error',
+    'spec-ref-targets': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',

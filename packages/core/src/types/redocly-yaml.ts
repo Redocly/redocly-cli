@@ -156,6 +156,7 @@ const builtInAsync3Rules = [
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
   'security-scopes-defined',
+  'spec-ref-targets',
 ] as const;
 export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
 
