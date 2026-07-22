@@ -625,9 +625,11 @@ function buildSuccessResponses(
   doc: Oas3Definition
 ): ResponseBodyModel[] {
   const responses = operation.responses ?? {};
+  // An explicit code beats the `2XX` range wildcard (per the spec), which beats `default`.
   const successCodes = Object.keys(responses).filter((code) => /^2\d\d$/.test(code));
   if (successCodes.length === 0) {
-    if (responses['default']) successCodes.push('default');
+    if (responses['2XX']) successCodes.push('2XX');
+    else if (responses['default']) successCodes.push('default');
   }
   // Pick the first success response.
   const code = successCodes[0];
@@ -638,7 +640,7 @@ function buildSuccessResponses(
   const content = response.content;
   if (!content) return [];
 
-  const status = code === 'default' ? 'default' : Number(code);
+  const status = code === 'default' || code === '2XX' ? code : Number(code);
   const result: ResponseBodyModel[] = [];
   for (const [contentType, media] of Object.entries(content)) {
     const schema = schemaFromSlot(
@@ -666,10 +668,10 @@ function buildErrorResponses(
   doc: Oas3Definition
 ): ResponseBodyModel[] {
   const responses = operation.responses ?? {};
-  const codes = Object.keys(responses).filter((code) => /^[45]\d\d$/.test(code));
+  const codes = Object.keys(responses).filter((code) => /^([45]\d\d|4XX|5XX)$/.test(code));
   // `default` is an error only when a 2xx success exists; otherwise
   // `buildSuccessResponses` already consumes it as the success response.
-  const hasSuccess = Object.keys(responses).some((code) => /^2\d\d$/.test(code));
+  const hasSuccess = Object.keys(responses).some((code) => /^(2\d\d|2XX)$/.test(code));
   if (hasSuccess && responses['default']) codes.push('default');
 
   const result: ResponseBodyModel[] = [];
@@ -679,7 +681,7 @@ function buildErrorResponses(
     const response = deref<Oas3ResponseShape>(doc, responseRaw);
     const content = response.content;
     if (!content) continue;
-    const status = code === 'default' ? 'default' : Number(code);
+    const status = code === 'default' || code === '4XX' || code === '5XX' ? code : Number(code);
     for (const [contentType, media] of Object.entries(content)) {
       const schema = schemaFromSlot(
         media.schema,

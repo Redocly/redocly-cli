@@ -137,9 +137,10 @@ export type ResponseBodyModel = {
   schema: SchemaModel;
   /**
    * The HTTP status code this response body is declared under (`200`, `404`, …),
-   * or `'default'` for the OpenAPI `default` response.
+   * a range wildcard (`'2XX'`, `'4XX'`, `'5XX'`), or `'default'` for the OpenAPI
+   * `default` response.
    */
-  status: number | 'default';
+  status: number | '2XX' | '4XX' | '5XX' | 'default';
   /**
    * The per-item payload schema for a streaming/sequential media type (OpenAPI
    * 3.2 `itemSchema`, e.g. on `text/event-stream`). Absent for ordinary bodies.

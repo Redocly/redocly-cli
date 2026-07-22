@@ -669,6 +669,26 @@ describe('buildSuccessResponses', () => {
     expect(op.successResponses[0].status).toBe(201);
   });
 
+  it('accepts the 2XX range wildcard, with an explicit code taking precedence', () => {
+    const range = buildOpOnly(
+      opWithResponses({
+        '2XX': { content: { 'application/json': { schema: { type: 'boolean' } } } },
+        '4XX': { content: { 'application/json': { schema: { type: 'string' } } } },
+      })
+    );
+    expect(range.successResponses[0].status).toBe('2XX');
+    expect(range.successResponses[0].schema).toEqual({ kind: 'scalar', scalar: 'boolean' });
+    expect(range.errorResponses[0].status).toBe('4XX');
+
+    const explicit = buildOpOnly(
+      opWithResponses({
+        '2XX': { content: { 'application/json': { schema: { type: 'boolean' } } } },
+        '200': { content: { 'application/json': { schema: { type: 'string' } } } },
+      })
+    );
+    expect(explicit.successResponses[0].status).toBe(200);
+  });
+
   it('returns [] when neither 2xx nor default exist', () => {
     expect(
       buildOpOnly(

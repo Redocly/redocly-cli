@@ -250,20 +250,20 @@ function errorHandlerFor(op: OperationModel, model: ApiModel, opts: MockOptions)
 
 /**
  * A union of the op's declared numeric error statuses (as literals); `number` is used in place
- * of a literal whenever a `default` error is present, so any status is accepted. De-duped, since
- * a multi-media-type error contributes the same status more than once.
+ * of a literal whenever a `default` error or a `4XX`/`5XX` range is present, so any status is
+ * accepted. De-duped, since a multi-media-type error contributes the same status more than once.
  */
 function errorStatusType(op: OperationModel): ts.TypeNode {
   const codes = [
     ...new Set(
-      op.errorResponses.filter((r) => r.status !== 'default').map((r) => r.status as number)
+      op.errorResponses.filter((r) => typeof r.status === 'number').map((r) => r.status as number)
     ),
   ];
   const members: ts.TypeNode[] = codes.map((c) =>
     factory.createLiteralTypeNode(factory.createNumericLiteral(c))
   );
-  // A `default` error means any status is valid, so widen the union with `number`.
-  if (op.errorResponses.some((r) => r.status === 'default')) {
+  // A `default` error (or a range wildcard) means any status is valid — widen with `number`.
+  if (op.errorResponses.some((r) => typeof r.status !== 'number')) {
     members.push(factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword));
   }
   return members.length === 1 ? members[0] : factory.createUnionTypeNode(members);
