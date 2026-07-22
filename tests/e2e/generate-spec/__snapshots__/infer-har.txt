@@ -1,0 +1,59 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /pets:
+    get:
+      operationId: get-pets
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+    post:
+      operationId: post-pets
+      responses:
+        '201':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                tag:
+                  type: string
+              required:
+                - name
+                - tag
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        tag:
+          type: string
+      required:
+        - id
+        - name
+        - tag
+
+Inferred a baseline OpenAPI description from traffic: 2 operation(s).
+Done in <t>.

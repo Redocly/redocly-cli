@@ -1,0 +1,4 @@
+#!/bin/sh
+# Stub of the "claude" CLI that returns something that is not an OpenAPI document.
+cat > /dev/null
+echo "Sorry, I cannot produce an OpenAPI description for this traffic."

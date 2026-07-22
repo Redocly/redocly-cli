@@ -35,6 +35,7 @@ The rules list is split into sections.
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [nullable-type-sibling](./oas/nullable-type-sibling.md): `nullable` must be used with a `type`
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
+- [security-scopes-defined](./common/security-scopes-defined.md): Scopes used in security requirements must be defined in the corresponding OAuth2 security scheme
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
 - [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`

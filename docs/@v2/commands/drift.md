@@ -55,6 +55,7 @@ redocly drift <traffic> --api <api> [--match-mode=<option>]
 | --match-mode     | string  | How requests are located via the description `servers`. `strict-host` also requires the host to match; `basepath` matches only the base path.<br/>**Possible values:** `strict-host`, `basepath`. Default value is `strict-host`. Mutually exclusive with `--server`.             |
 | --server         | string  | Server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`). Only requests under it are considered, and the rest of their URL is treated as the API path. Replaces the description `servers`. Mutually exclusive with `--match-mode`. |
 | --ignore-cookies | boolean | Ignore cookie-based checks (useful for logs exported without cookies). Default value is `false`.                                                                                                                                                                                  |
+| --ignore-headers | string  | Comma-separated header names to skip in undocumented-header checks. A trailing `*` matches by prefix, for example `x-consumer-*`. Useful for headers a gateway or proxy adds that are not part of the API contract.                                                               |
 | --max-findings   | number  | Maximum findings shown in pretty output. Default value is `10`.                                                                                                                                                                                                                   |
 | --min-severity   | string  | Discard findings below this severity from the report (all formats).<br/>**Possible values:** `info`, `warning`, `error`. Default value is `info`.                                                                                                                                 |
 | --rules          | string  | Comma-separated subset of builtin rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.                                                                                                                                            |
@@ -89,6 +90,16 @@ Only requests under it are considered, and the remaining path is matched against
 redocly drift ./traffic.har --api ./openapi.yaml --server localhost:9000
 ```
 
+### Ignore headers added by a gateway or proxy
+
+A gateway such as Caddy often injects headers that are not part of the API contract (for example authentication or consumer-identity headers).
+Skip them so they don't show up as undocumented headers.
+Use a trailing `*` to match a family of headers by prefix:
+
+```bash
+redocly drift ./traffic.har --api ./openapi.yaml --ignore-headers "x-caddy-auth-token,x-auth-intent,x-consumer-*"
+```
+
 ### Write the report to a file
 
 ```bash
@@ -103,3 +114,4 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 ## Related commands
 
 - [`proxy`](./proxy.md) captures live HTTP traffic into a HAR file that can be replayed through `drift`.
+- [`generate-spec`](./generate-spec.md) infers an OpenAPI description from the same traffic formats.

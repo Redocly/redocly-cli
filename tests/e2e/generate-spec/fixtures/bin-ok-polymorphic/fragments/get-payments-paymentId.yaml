@@ -1,0 +1,18 @@
+paths:
+  /payments/{paymentId}:
+    get:
+      operationId: getPayment
+      summary: Get a payment by ID
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'

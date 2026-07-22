@@ -1,5 +1,24 @@
 # @redocly/openapi-core
 
+## 2.40.0
+
+### Minor Changes
+
+- Added linting for the OpenAPI 3.2 Example Object `dataValue` field.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.52.0.
+- Updated js-yaml from `4.2.0` to `5.2.1`.
+  Fixed an issue where strings that look like numbers with underscores (for example `'12_34'`) had quotation marks removed by the `bundle` command.
+  These strings stay quoted in the output.
+
+  **Note**: YAML parsing is stricter: a multi-line flow collection whose closing bracket is not indented deeper than its parent key is now a parse error.
+  Parse errors are reported at the offending token instead of the end of the document.
+
+- Fixed an issue where the `bundle` command rewrote internal `$ref`s pointing to other `$ref`s.
+  The issue caused AsyncAPI 3 operation `messages` references to point to `components` instead of channel messages.
+
 ## 2.39.0
 
 ### Minor Changes

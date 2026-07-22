@@ -50,7 +50,7 @@
     "Roman Marshevskyi <roman.marshevskyy@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "2.39.0"
+    "@redocly/openapi-core": "2.40.0"
   },
   "peerDependencies": {
     "typescript": ">=5.5.0"

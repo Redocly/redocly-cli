@@ -37,3 +37,5 @@ paths:
                   object:
                     key1: 1
                     key2: 2
+                  underscoreNumberTransformedToString: 12_34
+                  underscoreNumberString: '12_34'

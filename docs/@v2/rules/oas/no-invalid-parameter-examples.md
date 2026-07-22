@@ -100,6 +100,49 @@ paths:
           example: ella
 ```
 
+### OpenAPI 3.2 `dataValue`
+
+In OpenAPI 3.2, provide the structured example in `dataValue`, which is validated against the schema the same way `value` is.
+When `dataValue` is present, `value` must be absent (see [spec-example-values](./spec-example-values.md)).
+
+Example of an **incorrect** `dataValue`:
+
+```yaml
+paths:
+  /results:
+    get:
+      summary: Search Chess Results
+      operationId: searchChessResult
+      parameters:
+        - name: rating
+          in: query
+          schema:
+            type: integer
+          examples:
+            grandmaster:
+              dataValue: '2500'
+```
+
+> This example produces an error because the rating is a string instead of an integer.
+
+Example of a **correct** `dataValue`:
+
+```yaml
+paths:
+  /results:
+    get:
+      summary: Search Chess Results
+      operationId: searchChessResult
+      parameters:
+        - name: rating
+          in: query
+          schema:
+            type: integer
+          examples:
+            grandmaster:
+              dataValue: 2500
+```
+
 ## Related rules
 
 - [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
