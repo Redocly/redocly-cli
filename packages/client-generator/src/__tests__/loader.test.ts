@@ -74,6 +74,28 @@ describe('loadSpec', () => {
     expect(result.version).toBe('oas3_0');
   });
 
+  it('fails fast on an unresolved $ref instead of emitting a broken client', async () => {
+    const file = await write(
+      'unresolved.yaml',
+      outdent`
+        openapi: 3.2.0
+        info: { title: test, version: 1.0.0 }
+        paths:
+          /a:
+            get:
+              operationId: getA
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        $ref: './missing.yaml#/components/schemas/Thing'
+      `
+    );
+    await expect(loadSpec(file)).rejects.toThrow(/missing\.yaml/);
+  });
+
   it('propagates errors from bundle() for null/empty documents', async () => {
     const file = await write('null.yaml', 'null\n');
     await expect(loadSpec(file)).rejects.toThrow();
