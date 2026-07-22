@@ -142,6 +142,43 @@ describe('normalizeSwagger2 — scaffold (extra coverage)', () => {
     expect((ss.AppFlow.flows as Record<string, unknown>).clientCredentials).toBeDefined();
   });
 
+  it('maps collectionFormat to OAS3 style/explode — Swagger arrays default to csv, not multi', () => {
+    const param = (collectionFormat?: string) => ({
+      name: 'ids',
+      in: 'query',
+      type: 'array',
+      items: { type: 'string' },
+      ...(collectionFormat ? { collectionFormat } : {}),
+    });
+    const out = normalizeSwagger2(
+      s2({
+        paths: {
+          '/x': {
+            get: {
+              operationId: 'op',
+              parameters: [param(), param('csv'), param('ssv'), param('pipes'), param('multi')],
+              responses: {},
+            },
+          },
+        },
+      }) as never
+    );
+    const params = (
+      (out.paths as Record<string, Record<string, Record<string, unknown>>>)['/x'].get as {
+        parameters: Array<Record<string, unknown>>;
+      }
+    ).parameters;
+    // csv is the Swagger 2 default, so an absent collectionFormat maps the same way.
+    expect(params[0]).toMatchObject({ style: 'form', explode: false });
+    expect(params[1]).toMatchObject({ style: 'form', explode: false });
+    expect(params[2]).toMatchObject({ style: 'spaceDelimited', explode: false });
+    expect(params[3]).toMatchObject({ style: 'pipeDelimited', explode: false });
+    // multi IS the OAS3 default (form + explode) — nothing to record.
+    expect(params[4].style).toBeUndefined();
+    expect(params[4].explode).toBeUndefined();
+    for (const p of params) expect(p.collectionFormat).toBeUndefined();
+  });
+
   it('normalizes path-item parameters (inline type → schema) and passes other keys through', () => {
     const out = normalizeSwagger2(
       s2({

@@ -225,6 +225,19 @@ function normalizeParameter(param: Record<string, unknown>): Record<string, unkn
     else schema[key] = value;
   }
   base.schema = schema;
+  delete base.collectionFormat;
+  // Swagger 2 array query params serialize per `collectionFormat`, defaulting to `csv`
+  // (comma-joined) — NOT the OAS3 default (`form` + `explode`, i.e. Swagger's `multi`).
+  // Map to the OAS3 style/explode the IR reads; `multi` needs no record (it IS the
+  // default), and `tsv` has no OAS3 equivalent, so it falls back to comma-joined.
+  if (param.in === 'query' && schema.type === 'array') {
+    const format = (param.collectionFormat as string | undefined) ?? 'csv';
+    if (format !== 'multi') {
+      base.style =
+        format === 'ssv' ? 'spaceDelimited' : format === 'pipes' ? 'pipeDelimited' : 'form';
+      base.explode = false;
+    }
+  }
   return base;
 }
 
