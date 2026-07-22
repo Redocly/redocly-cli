@@ -11,11 +11,16 @@ export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
         source = resolvePath(pathSecurityFile, config);
       },
       leave(root) {
-        if (
-          Array.isArray(source?.security) &&
-          JSON.stringify(root.security) !== JSON.stringify(source.security)
-        ) {
-          root.security = [...(root.security || []), ...source.security];
+        if (Array.isArray(source?.security)) {
+          const existingRequirements = new Set(
+            (root.security || []).map((requirement) => JSON.stringify(requirement))
+          );
+          const newRequirements = source.security.filter(
+            (requirement) => !existingRequirements.has(JSON.stringify(requirement))
+          );
+          if (newRequirements.length > 0) {
+            root.security = [...(root.security || []), ...newRequirements];
+          }
         }
         if (source?.components?.securitySchemes) {
           root.components = root.components || {};

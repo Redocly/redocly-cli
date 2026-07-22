@@ -1,4 +1,4 @@
-import CheckSDKCoverage from './rules/check-sdk-coverage.js';
+import CheckSDKCoverage from './check-sdk-coverage.js';
 
 export default function myRulesPlugin() {
   return {

@@ -3,7 +3,7 @@ export default function SortPropertiesRequiredFirst() {
   return {
     Schema: {
       leave(schema) {
-        if (schema.type == 'object') {
+        if (schema.type == 'object' && schema.properties) {
           const propList = Object.getOwnPropertyNames(schema.properties);
           let newProps = {};
 

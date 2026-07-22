@@ -3,7 +3,7 @@ export default function SortPropertiesAlphabetically() {
   return {
     Schema: {
       leave(schema) {
-        if (schema.type == 'object') {
+        if (schema.type == 'object' && schema.properties) {
           const propList = Object.getOwnPropertyNames(schema.properties).sort();
           let newProps = {};
 

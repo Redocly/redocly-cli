@@ -34,7 +34,7 @@ These examples show how to create a [custom plugin](https://redocly.com/docs/cli
 First the main plugin code in `x-code-sample-checks.js`:
 
 ```js
-import CheckSDKCoverage from './rules/check-sdk-coverage.js';
+import CheckSDKCoverage from './check-sdk-coverage.js';
 
 export default function myRulesPlugin() {
   return {

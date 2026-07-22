@@ -10,7 +10,7 @@ When you use `redocly join` to combine multiple API descriptions into one, root-
 
 A common scenario is when one spec (for example, `foo.yaml`) defines shared infrastructure — security schemes and root-level `security` — but has no paths of its own, while another spec (`bar.yaml`) defines all the paths but has no `security` at all. After joining, the operations from `bar.yaml` end up with no security applied.
 
-This decorator (`apply-root-security`) solves that: it reads the root-level `security` from a specified source file (for example `foo.yaml`) and sets it as root-level `security` on the document you are bundling when that document does not already define its own. It runs as a `bundle` step, giving you full control over which file supplies the requirement.
+This decorator (`apply-root-security`) solves that: it reads the root-level `security` from a specified source file (for example `foo.yaml`) and merges it into the root-level `security` of the document you are bundling, skipping any requirements the document already defines. It runs as a `bundle` step, giving you full control over which file supplies the requirement.
 
 ## Code
 
@@ -39,11 +39,16 @@ export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
         source = resolvePath(pathSecurityFile, config);
       },
       leave(root) {
-        if (
-          Array.isArray(source?.security) &&
-          JSON.stringify(root.security) !== JSON.stringify(source.security)
-        ) {
-          root.security = [...(root.security || []), ...source.security];
+        if (Array.isArray(source?.security)) {
+          const existingRequirements = new Set(
+            (root.security || []).map((requirement) => JSON.stringify(requirement))
+          );
+          const newRequirements = source.security.filter(
+            (requirement) => !existingRequirements.has(JSON.stringify(requirement))
+          );
+          if (newRequirements.length > 0) {
+            root.security = [...(root.security || []), ...newRequirements];
+          }
         }
         if (source?.components?.securitySchemes) {
           root.components = root.components || {};

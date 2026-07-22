@@ -8,7 +8,7 @@ export default function RuleSortProps({ type }) {
   return {
     Schema: {
       enter(schema, ctx) {
-        if (schema.type == 'object') {
+        if (schema.type == 'object' && schema.properties) {
           const propList = Object.getOwnPropertyNames(schema.properties);
 
           if (sortType == 'required') {
