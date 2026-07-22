@@ -75,11 +75,11 @@ describe('normalizeSwagger2 — scaffold (extra coverage)', () => {
     expect(out.servers).toBeUndefined();
   });
 
-  it('maps top-level parameters to components.parameters', () => {
+  it('maps top-level parameters to components.parameters, nesting inline types under schema', () => {
     const sharedParam = { name: 'id', in: 'path', required: true, type: 'integer' };
     const out = normalizeSwagger2(s2({ parameters: { PetId: sharedParam } }) as never);
     expect((out.components as { parameters: Record<string, unknown> }).parameters).toEqual({
-      PetId: sharedParam,
+      PetId: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
     });
   });
 
@@ -142,20 +142,29 @@ describe('normalizeSwagger2 — scaffold (extra coverage)', () => {
     expect((ss.AppFlow.flows as Record<string, unknown>).clientCredentials).toBeDefined();
   });
 
-  it('passes non-HTTP-method keys in path items through unchanged', () => {
-    const sharedParams = [{ name: 'id', in: 'path', required: true, type: 'integer' }];
+  it('normalizes path-item parameters (inline type → schema) and passes other keys through', () => {
     const out = normalizeSwagger2(
       s2({
         paths: {
           '/pets/{id}': {
-            parameters: sharedParams,
+            'x-note': 'kept',
+            parameters: [
+              { name: 'id', in: 'path', required: true, type: 'integer' },
+              { $ref: '#/parameters/Verbose' },
+            ],
             get: { operationId: 'getPet', parameters: [], responses: {} },
           },
         },
+        parameters: { Verbose: { name: 'verbose', in: 'query', type: 'boolean' } },
       }) as never
     );
     const item = (out.paths as Record<string, Record<string, unknown>>)['/pets/{id}'];
-    expect(item.parameters).toEqual(sharedParams);
+    expect(item['x-note']).toBe('kept');
+    expect(item.parameters).toEqual([
+      { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
+      // A $ref passes through untouched (already rewritten to its components home).
+      { $ref: '#/components/parameters/Verbose' },
+    ]);
   });
 });
 

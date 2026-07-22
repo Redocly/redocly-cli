@@ -49,7 +49,13 @@ function buildServers(doc: Record<string, unknown>): Array<{ url: string }> | un
 function buildComponents(doc: Record<string, unknown>): Record<string, unknown> {
   const components: Record<string, unknown> = {};
   if (doc.definitions) components.schemas = doc.definitions;
-  if (doc.parameters) components.parameters = doc.parameters;
+  if (doc.parameters) {
+    components.parameters = Object.fromEntries(
+      Object.entries(doc.parameters as Record<string, Record<string, unknown>>).map(
+        ([name, param]) => [name, normalizeParameter(param)]
+      )
+    );
+  }
   if (doc.responses)
     components.responses = normalizeResponses(doc.responses as Record<string, unknown>, undefined);
   const securityDefinitions = doc.securityDefinitions as
@@ -130,6 +136,12 @@ function normalizePaths(
     const item = itemRaw as Record<string, unknown>;
     const newItem: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(item)) {
+      if (key === 'parameters' && Array.isArray(value)) {
+        // Path-level parameters are shared by every operation and carry the same
+        // Swagger-2 inline-type shape as operation-level ones.
+        newItem.parameters = (value as Array<Record<string, unknown>>).map(normalizeParameter);
+        continue;
+      }
       if (!isHttpMethod(key)) {
         newItem[key] = value;
         continue;
@@ -202,6 +214,10 @@ function normalizeOperation(
 
 /** A Swagger-2 simple parameter carries its schema inline; OAS3 nests it under `schema`. */
 function normalizeParameter(param: Record<string, unknown>): Record<string, unknown> {
+  // A $ref passes through (deref'd later against the normalized components), and
+  // body/formData params keep their shape — the operation normalizer consumes them,
+  // and anywhere else the IR builder rejects those locations loudly.
+  if (param.$ref !== undefined || param.in === 'body' || param.in === 'formData') return param;
   const base: Record<string, unknown> = {};
   const schema: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(param)) {
