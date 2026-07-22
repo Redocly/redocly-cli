@@ -1,59 +1,59 @@
 import { SchemaValidator } from '../../../commands/drift/engine/schema-validator.js';
 
-const idPattern = '^idp_[0-9abcdefghjkmnpqrstvwxyz]{26}$';
+const idPattern = '^pay_[0-9a-f]{12}$';
 
-const identityProviderSchema = {
+const paymentSchema = {
   oneOf: [
     {
       type: 'object',
       properties: {
-        type: { type: 'string', enum: ['OPENID'] },
+        method: { type: 'string', enum: ['CARD'] },
         id: { type: 'string', pattern: idPattern },
-        clientId: { type: 'string' },
-        issuer: { type: 'string' },
+        cardNumber: { type: 'string' },
+        expiryMonth: { type: 'integer' },
       },
-      required: ['type', 'clientId', 'issuer'],
+      required: ['method', 'cardNumber', 'expiryMonth'],
     },
     {
       type: 'object',
       properties: {
-        type: { type: 'string', enum: ['SAML2'] },
+        method: { type: 'string', enum: ['BANK_TRANSFER'] },
         id: { type: 'string', pattern: idPattern },
-        ssoUrl: { type: 'string' },
-        certificate: { type: ['string', 'null'] },
+        iban: { type: 'string' },
+        reference: { type: ['string', 'null'] },
       },
-      required: ['type', 'ssoUrl'],
+      required: ['method', 'iban'],
     },
   ],
   discriminator: {
-    propertyName: 'type',
+    propertyName: 'method',
     mapping: {
-      OPENID: './OpenIDIdentityProvider.yaml',
-      SAML2: './SAML2IdentityProvider.yaml',
+      CARD: './CardPayment.yaml',
+      BANK_TRANSFER: './BankTransferPayment.yaml',
     },
   },
 };
 
-const validSaml2Provider = {
-  type: 'SAML2',
-  id: 'idp_0123456789abcdefghjkmnpqrs',
-  ssoUrl: 'https://sso.example.com',
-  certificate: null,
+const validBankTransferPayment = {
+  method: 'BANK_TRANSFER',
+  id: 'pay_0123456789ab',
+  iban: 'DE89370400440532013000',
+  reference: null,
 };
 
 describe('SchemaValidator discriminated oneOf', () => {
   const validator = new SchemaValidator();
 
   it('reports no errors for a response that matches its discriminated branch', () => {
-    const result = validator.validate(identityProviderSchema, validSaml2Provider, 'response');
+    const result = validator.validate(paymentSchema, validBankTransferPayment, 'response');
 
     expect(result).toEqual({ valid: true, errors: [] });
   });
 
   it('reports only the selected branch errors instead of noise from every oneOf branch', () => {
-    const providerWithInvalidId = { ...validSaml2Provider, id: 'IDP-123' };
+    const paymentWithInvalidId = { ...validBankTransferPayment, id: 'PAY-123' };
 
-    const result = validator.validate(identityProviderSchema, providerWithInvalidId, 'response');
+    const result = validator.validate(paymentSchema, paymentWithInvalidId, 'response');
 
     expect(result.valid).toBe(false);
     expect(result.errors).toHaveLength(1);
@@ -65,21 +65,21 @@ describe('SchemaValidator discriminated oneOf', () => {
       oneOf: [
         {
           type: 'object',
-          properties: { type: { type: 'string' }, clientId: { type: 'string' } },
-          required: ['type', 'clientId'],
+          properties: { method: { type: 'string' }, cardNumber: { type: 'string' } },
+          required: ['method', 'cardNumber'],
         },
         {
           type: 'object',
-          properties: { type: { type: 'string' }, ssoUrl: { type: 'string' } },
-          required: ['type', 'ssoUrl'],
+          properties: { method: { type: 'string' }, iban: { type: 'string' } },
+          required: ['method', 'iban'],
         },
       ],
-      discriminator: { propertyName: 'type' },
+      discriminator: { propertyName: 'method' },
     };
 
     const result = validator.validate(
       looseDiscriminatorSchema,
-      { type: 'SAML2', ssoUrl: 'https://sso.example.com' },
+      { method: 'BANK_TRANSFER', iban: 'DE89370400440532013000' },
       'response'
     );
 
