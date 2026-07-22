@@ -1,37 +1,52 @@
-import { isRef } from '../../ref-utils.js';
-import type { Async3Operation, Channel } from '../../typings/asyncapi3.js';
+import { isRef, parseRef } from '../../ref-utils.js';
+import type { Async3Definition, Async3Operation, Channel } from '../../typings/asyncapi3.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 const DOCS_REFERENCE = 'https://redocly.com/docs/cli/rules/async/spec-ref-targets';
-const ROOT_CHANNEL_POINTER = /^#\/channels\/[^/]+$/;
-const ROOT_SERVER_POINTER = /^#\/servers\/[^/]+$/;
 
-// Refs with a file part are skipped: in multi-file documents they become
-// internal pointers only after bundling.
 function internalPointer(node: unknown): string | undefined {
-  return isRef(node) && node.$ref.startsWith('#/') ? node.$ref : undefined;
+  return isRef(node) && parseRef(node.$ref).uri === null ? node.$ref : undefined;
 }
 
-function reportMessagesOutsideChannel(
+function isRootSectionPointer(pointer: string, section: 'channels' | 'servers') {
+  const segments = parseRef(pointer).pointer;
+  return segments.length === 2 && segments[0] === section;
+}
+
+function isChannelMessagePointer(messagePointer: string, channelPointer: string) {
+  const messageSegments = parseRef(messagePointer).pointer;
+  const channelSegments = parseRef(channelPointer).pointer;
+  return (
+    messageSegments.length === channelSegments.length + 2 &&
+    messageSegments[channelSegments.length] === 'messages' &&
+    channelSegments.every((segment, segmentIndex) => messageSegments[segmentIndex] === segment)
+  );
+}
+
+function checkChannelAndMessages(
+  node: { channel?: unknown; messages?: unknown },
   subject: 'Operation' | 'Operation reply',
-  messages: unknown,
-  channelPointer: string | undefined,
   { report, location }: UserContext
 ) {
-  if (!channelPointer || !Array.isArray(messages)) return;
+  const channelPointer = internalPointer(node.channel);
 
-  const messagesPrefix = `${channelPointer}/messages/`;
-  for (const [messageIndex, message] of messages.entries()) {
+  if (channelPointer && !isRootSectionPointer(channelPointer, 'channels')) {
+    report({
+      message: `${subject} \`channel\` must reference a channel from the root \`channels\` object.`,
+      location: location.child(['channel', '$ref']),
+      reference: DOCS_REFERENCE,
+    });
+  }
+
+  if (!channelPointer || !Array.isArray(node.messages)) return;
+
+  for (const [messageIndex, message] of node.messages.entries()) {
     const messagePointer = internalPointer(message);
-    if (!messagePointer) continue;
-
-    const messageName = messagePointer.startsWith(messagesPrefix)
-      ? messagePointer.slice(messagesPrefix.length)
-      : '';
-    if (messageName === '' || messageName.includes('/')) {
+    if (messagePointer && !isChannelMessagePointer(messagePointer, channelPointer)) {
       report({
-        message: `${subject} \`messages\` must reference messages of the referenced channel (\`${messagesPrefix}...\`).`,
+        message: `${subject} \`messages\` must reference messages of the referenced channel (\`${channelPointer}/messages/...\`).`,
         location: location.child(['messages', messageIndex, '$ref']),
         reference: DOCS_REFERENCE,
       });
@@ -40,53 +55,44 @@ function reportMessagesOutsideChannel(
 }
 
 export const SpecRefTargets: Async3Rule = () => {
+  const rootOperations = new Set<unknown>();
+  const rootReplies = new Set<unknown>();
+  const rootChannels = new Set<unknown>();
+
   return {
+    Root: {
+      enter(root: Async3Definition) {
+        for (const operation of Object.values(root.operations ?? {})) {
+          if (!isPlainObject(operation) || isRef(operation)) continue;
+
+          rootOperations.add(operation);
+          if (isPlainObject(operation.reply) && !isRef(operation.reply)) {
+            rootReplies.add(operation.reply);
+          }
+        }
+        for (const channel of Object.values(root.channels ?? {})) {
+          if (isPlainObject(channel) && !isRef(channel)) {
+            rootChannels.add(channel);
+          }
+        }
+      },
+    },
     Operation(operation: Async3Operation, ctx: UserContext) {
-      const channelPointer = internalPointer(operation.channel);
-
-      // Operations defined in `components.operations` may reference any channel.
-      if (
-        ctx.location.pointer.startsWith('#/operations/') &&
-        channelPointer &&
-        !ROOT_CHANNEL_POINTER.test(channelPointer)
-      ) {
-        ctx.report({
-          message: 'Operation `channel` must reference a channel from the root `channels` object.',
-          location: ctx.location.child(['channel', '$ref']),
-          reference: DOCS_REFERENCE,
-        });
+      if (rootOperations.has(operation)) {
+        checkChannelAndMessages(operation, 'Operation', ctx);
       }
-
-      reportMessagesOutsideChannel('Operation', operation.messages, channelPointer, ctx);
     },
     OperationReply(reply: Record<string, unknown>, ctx: UserContext) {
-      const channelPointer = internalPointer(reply.channel);
-
-      // Replies defined in `components` may reference any channel.
-      if (
-        ctx.location.pointer.startsWith('#/operations/') &&
-        channelPointer &&
-        !ROOT_CHANNEL_POINTER.test(channelPointer)
-      ) {
-        ctx.report({
-          message:
-            'Operation reply `channel` must reference a channel from the root `channels` object.',
-          location: ctx.location.child(['channel', '$ref']),
-          reference: DOCS_REFERENCE,
-        });
+      if (rootReplies.has(reply)) {
+        checkChannelAndMessages(reply, 'Operation reply', ctx);
       }
-
-      reportMessagesOutsideChannel('Operation reply', reply.messages, channelPointer, ctx);
     },
     Channel(channel: Channel, { report, location }: UserContext) {
-      // Channels defined in `components.channels` may reference any server.
-      if (!location.pointer.startsWith('#/channels/') || !Array.isArray(channel.servers)) {
-        return;
-      }
+      if (!rootChannels.has(channel) || !Array.isArray(channel.servers)) return;
 
       for (const [serverIndex, server] of channel.servers.entries()) {
         const serverPointer = internalPointer(server);
-        if (serverPointer && !ROOT_SERVER_POINTER.test(serverPointer)) {
+        if (serverPointer && !isRootSectionPointer(serverPointer, 'servers')) {
           report({
             message: 'Channel `servers` must reference servers from the root `servers` object.',
             location: location.child(['servers', serverIndex, '$ref']),
