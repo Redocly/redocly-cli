@@ -3,37 +3,39 @@ export default function updateExampleDates() {
     // Covers the 'examples' keyword (including examples in the 'components' section)
     Example: {
       enter(example) {
-        traverseAndReplaceWithComputedDateTime(example.value);
+        replaceWithComputedDateTime(example, 'value');
       },
     },
     // Covers the 'example' in media type objects
     MediaType: {
       enter(mediaTypeObject) {
-        if (mediaTypeObject.example) {
-          traverseAndReplaceWithComputedDateTime(mediaTypeObject.example);
-        }
+        replaceWithComputedDateTime(mediaTypeObject, 'example');
       },
     },
     // Covers the 'example' in schemas
     Schema: {
       enter(schema) {
-        if (schema.example) {
-          traverseAndReplaceWithComputedDateTime(schema);
-        }
+        replaceWithComputedDateTime(schema, 'example');
       },
     },
   };
 }
 
+// Replaces the value at parent[key] when it is a string containing the template,
+// or traverses it when it is an object
+function replaceWithComputedDateTime(parent, key) {
+  const value = parent[key];
+  if (typeof value === 'string' && /\$DateTimeNow/.test(value)) {
+    parent[key] = computeDateTemplate(value);
+  } else {
+    traverseAndReplaceWithComputedDateTime(value);
+  }
+}
+
 function traverseAndReplaceWithComputedDateTime(value) {
   if (typeof value === 'object' && value !== null) {
     for (const key in value) {
-      if (typeof value[key] === 'string' && /\$DateTimeNow/.test(value[key])) {
-        // Replacing the template with a computed datetime value
-        value[key] = computeDateTemplate(value[key]);
-      } else {
-        traverseAndReplaceWithComputedDateTime(value[key]);
-      }
+      replaceWithComputedDateTime(value, key);
     }
   }
 }

@@ -1,10 +1,11 @@
-rule/operation-operationId-exclude-OPTIONS:
-  subject:
-    type: Operation
-    filterOutParentKeys:
-      - options
-  assertions:
-    required:
-      - operationId
-  message: Operation is missing 'operationId' property.
-  severity: error
+rules:
+  rule/operation-operationId-exclude-OPTIONS:
+    subject:
+      type: Operation
+      filterOutParentKeys:
+        - options
+    assertions:
+      required:
+        - operationId
+    message: Operation is missing 'operationId' property.
+    severity: error

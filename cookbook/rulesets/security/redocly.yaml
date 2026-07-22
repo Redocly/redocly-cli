@@ -2,15 +2,10 @@ rules:
   rule/no-http-basic:
     message: HTTP Basic should not be used.
     subject:
-      type: SecurityRequirement
+      type: SecurityScheme
       property: scheme
     assertions:
       notPattern: /basic/i
-    where:
-      - subject:
-          type: SecurityRequirement
-        assertions:
-          defined: true
     severity: error
 
   rule/operation-security:
@@ -20,7 +15,7 @@ rules:
       property: security
     assertions:
       defined: true
-    severity: off
+    severity: warn
 
   rule/https-server-urls:
     message: Server URLs must start with "https:".
@@ -47,7 +42,7 @@ rules:
         assertions:
           const: string
           defined: true
-    severity: off
+    severity: warn
 
   rule/limit-array-length:
     message: Arrays must have a maxItems property
@@ -63,4 +58,4 @@ rules:
         assertions:
           const: array
           defined: true
-    severity: off
+    severity: warn

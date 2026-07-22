@@ -1,3 +1,7 @@
+import yaml from 'js-yaml';
+import fs from 'node:fs';
+import path from 'node:path';
+
 export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
   let source = null;
 
@@ -8,20 +12,19 @@ export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
       },
       leave(root) {
         if (
-          !Array.isArray(source?.security) ||
-          JSON.stringify(root.security) === JSON.stringify(source?.security)
-        )
-          return;
-        root.security = [...(root.security || []), ...source.security];
+          Array.isArray(source?.security) &&
+          JSON.stringify(root.security) !== JSON.stringify(source.security)
+        ) {
+          root.security = [...(root.security || []), ...source.security];
+        }
+        if (source?.components?.securitySchemes) {
+          root.components = root.components || {};
+          root.components.securitySchemes = {
+            ...root.components.securitySchemes,
+            ...source.components.securitySchemes,
+          };
+        }
       },
-    },
-    Components(components) {
-      if (source?.components?.securitySchemes) {
-        components.securitySchemes = {
-          ...components.securitySchemes,
-          ...source.components.securitySchemes,
-        };
-      }
     },
   };
 };

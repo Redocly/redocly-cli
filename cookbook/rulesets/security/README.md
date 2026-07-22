@@ -28,15 +28,10 @@ rules:
   rule/no-http-basic:
     message: HTTP Basic should not be used.
     subject:
-      type: SecurityRequirement
+      type: SecurityScheme
       property: scheme
     assertions:
       notPattern: /basic/i
-    where:
-      - subject:
-          type: SecurityRequirement
-        assertions:
-          defined: true
     severity: error
 
   rule/operation-security:

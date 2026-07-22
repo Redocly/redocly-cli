@@ -1,5 +1,5 @@
-import updateExampleDates from './decorator';
 import updateExampleDates from './decorator.js';
+
 export default function plugin() {
   return {
     id: 'dates-plugin',

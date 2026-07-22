@@ -1,6 +1,6 @@
 /** @type {import('@redocly/cli').OasDecorator} */
 
-const openAPIExtensions = /x-*/;
+const openAPIExtensions = /^x-/;
 
 // a console.assert that actually abort execution
 // message is str
@@ -34,7 +34,7 @@ function isExtensionValid(extension) {
 function removeExtensionsFromNode(node, extensions) {
   const extensionsType = typeof extensions;
   assert(
-    extensionsType === undefined || extensionsType === 'string' || extensionsType === 'object',
+    extensionsType === 'undefined' || extensionsType === 'string' || extensionsType === 'object',
     `Extensions must be a string or a list of string instead of being of type "${extensionsType}"`
   );
   if (extensions === undefined || extensions === null || extensions === '') {

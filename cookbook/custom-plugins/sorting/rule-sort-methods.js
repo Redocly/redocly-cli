@@ -10,13 +10,15 @@ export default function RuleSortMethods({ order }) {
         }
 
         // Identify the methods that are present and put them in order
-        const methods = Object.getOwnPropertyNames(pathItem);
+        const methods = Object.getOwnPropertyNames(pathItem).filter((method) =>
+          methodOrder.includes(method)
+        );
         const expectedOrder = methodOrder.filter((item) => methods.includes(item));
 
-        i = 0;
+        let i = 0;
         while (i < expectedOrder.length) {
-          // if this method is in the array, it must be in the expected order
-          if (expectedOrder.includes(methods[i]) && methods[i] !== expectedOrder[i]) {
+          // each method present must be in the expected order
+          if (methods[i] !== expectedOrder[i]) {
             ctx.report({
               message: `Unexpected method order, expected ${expectedOrder[i]} but found ${methods[i]}`,
             });

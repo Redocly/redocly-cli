@@ -1,10 +1,10 @@
-import RuleSortMethods from './rule-sort-methods';
-import RuleSortProps from './rule-sort-props';
-import SortEnumsAlphabetically from './sort-enums';
-import SortMethods from './sort-methods';
-import SortPropertiesAlphabetically from './sort-props-alpha';
-import SortPropertiesRequiredFirst from './sort-props-required';
-import SortTagsAlphabetically from './sort-tags';
+import RuleSortMethods from './rule-sort-methods.js';
+import RuleSortProps from './rule-sort-props.js';
+import SortEnumsAlphabetically from './sort-enums.js';
+import SortMethods from './sort-methods.js';
+import SortPropertiesAlphabetically from './sort-props-alpha.js';
+import SortPropertiesRequiredFirst from './sort-props-required.js';
+import SortTagsAlphabetically from './sort-tags.js';
 
 export default function Sorting() {
   return {

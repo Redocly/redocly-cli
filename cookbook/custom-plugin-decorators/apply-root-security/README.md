@@ -40,20 +40,19 @@ export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
       },
       leave(root) {
         if (
-          !Array.isArray(source?.security) ||
-          JSON.stringify(root.security) === JSON.stringify(source?.security)
-        )
-          return;
-        root.security = [...(root.security || []), ...source.security];
+          Array.isArray(source?.security) &&
+          JSON.stringify(root.security) !== JSON.stringify(source.security)
+        ) {
+          root.security = [...(root.security || []), ...source.security];
+        }
+        if (source?.components?.securitySchemes) {
+          root.components = root.components || {};
+          root.components.securitySchemes = {
+            ...root.components.securitySchemes,
+            ...source.components.securitySchemes,
+          };
+        }
       },
-    },
-    Components(components) {
-      if (source?.components?.securitySchemes) {
-        components.securitySchemes = {
-          ...components.securitySchemes,
-          ...source.components.securitySchemes,
-        };
-      }
     },
   };
 };
@@ -62,7 +61,7 @@ export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
 In summary, this decorator does the following:
 
 1. Visit the `Root` node and apply any security requirements from the source file that are not already present in the target document.
-2. Visit the `Components` node and merge security scheme definitions from the source file into the target, preserving existing schemes.
+2. Merge security scheme definitions from the source file into the target's `components`, creating that section when it is missing and preserving existing schemes.
 
 The `resolvePath` function resolves the path to the security file and returns its parsed content:
 
@@ -75,6 +74,8 @@ function resolvePath(pathSecurityFile, config) {
   return yaml.load(fs.readFileSync(absolutePath, 'utf8'));
 }
 ```
+
+The decorator reads the source file with [`js-yaml`](https://github.com/nodeca/js-yaml), so install it next to your plugin: `npm install js-yaml`.
 
 Add the following to `redocly.yaml`:
 

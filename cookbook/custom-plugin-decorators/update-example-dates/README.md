@@ -40,23 +40,19 @@ export default function updateExampleDates() {
     // Covers the 'examples' keyword (including examples in the 'components' section)
     Example: {
       enter(example) {
-        traverseAndReplaceWithComputedDateTime(example.value);
+        replaceWithComputedDateTime(example, 'value');
       },
     },
     // Covers the 'example' in media type objects
     MediaType: {
       enter(mediaTypeObject) {
-        if (mediaTypeObject.example) {
-          traverseAndReplaceWithComputedDateTime(mediaTypeObject.example);
-        }
+        replaceWithComputedDateTime(mediaTypeObject, 'example');
       },
     },
     // Covers the 'example' in schemas
     Schema: {
       enter(schema) {
-        if (schema.example) {
-          traverseAndReplaceWithComputedDateTime(schema);
-        }
+        replaceWithComputedDateTime(schema, 'example');
       },
     },
   };
@@ -65,18 +61,23 @@ export default function updateExampleDates() {
 
 The decorator operates on the `Example`, `MediaType` and `Schema` nodes to cover the different ways of specifying examples.
 
-The `traverseAndReplaceWithComputedDateTime` function traverses the tree of nodes and replaces the values that contain the specific `$DateTimeNow` variable in examples with a computed datetime value:
+The `replaceWithComputedDateTime` function replaces the example value at the given key when it is a string containing the `$DateTimeNow` variable.
+When the value is an object, `traverseAndReplaceWithComputedDateTime` walks it and replaces the matching values inside:
 
 ```javascript
+function replaceWithComputedDateTime(parent, key) {
+  const value = parent[key];
+  if (typeof value === 'string' && /\$DateTimeNow/.test(value)) {
+    parent[key] = computeDateTemplate(value);
+  } else {
+    traverseAndReplaceWithComputedDateTime(value);
+  }
+}
+
 function traverseAndReplaceWithComputedDateTime(value) {
   if (typeof value === 'object' && value !== null) {
     for (const key in value) {
-      if (typeof value[key] === 'string' && /\$DateTimeNow/.test(value[key])) {
-        // Replacing the template with a computed datetime value
-        value[key] = computeDateTemplate(value[key]);
-      } else {
-        traverseAndReplaceWithComputedDateTime(value[key]);
-      }
+      replaceWithComputedDateTime(value, key);
     }
   }
 }
