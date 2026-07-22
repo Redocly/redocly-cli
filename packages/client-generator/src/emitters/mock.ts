@@ -96,7 +96,9 @@ function seedStatement(seed: number): ts.Statement {
  */
 function schemaTypeImport(model: ApiModel, opts: MockOptions): ts.Statement[] {
   if (model.schemas.length === 0) return [];
-  const names = model.schemas.map((s) => pascalCase(s.name)).sort();
+  // Verbatim, not PascalCased: the sdk exports each schema type under its emitted name
+  // (`pet` stays `pet`), and the import must match it exactly.
+  const names = model.schemas.map((s) => s.name).sort();
   return [
     factory.createImportDeclaration(
       undefined,
@@ -114,11 +116,12 @@ function schemaTypeImport(model: ApiModel, opts: MockOptions): ts.Statement[] {
   ];
 }
 
-/** `export function create<Pascal>(overrides?: Partial<Pascal>): Pascal { return { …sampled, ...overrides }; }`. */
+/** `export function create<Pascal>(overrides?: Partial<Name>): Name { return { …sampled, ...overrides }; }`. */
 function factoryFor(named: NamedSchemaModel, model: ApiModel, opts: MockOptions): ts.Statement {
   const pascal = pascalCase(named.name);
   const sampled = bodyExpression(named.schema, model, opts);
-  const typeRef = factory.createTypeReferenceNode(pascal);
+  // Type references use the sdk's verbatim export name; only the factory NAME is PascalCased.
+  const typeRef = factory.createTypeReferenceNode(named.name);
   // Spreading `Partial<Union>` (the override type of a union schema) distributes into
   // `Partial<A> | Partial<B>`, which widens any discriminant property (e.g. `category`)
   // and defeats narrowing — TS can no longer place the literal in a single union member.
@@ -275,7 +278,7 @@ function errorBodyType(op: OperationModel): ts.TypeNode {
   const names = new Set<string>();
   let hasUnknown = false;
   for (const r of op.errorResponses) {
-    if (r.schema.kind === 'ref') names.add(pascalCase(r.schema.name));
+    if (r.schema.kind === 'ref') names.add(r.schema.name);
     else hasUnknown = true;
   }
   const members: ts.TypeNode[] = [...names].map((n) => factory.createTypeReferenceNode(n));
@@ -295,7 +298,7 @@ function overrideType(op: OperationModel): ts.TypeNode {
   const success = op.successResponses[0];
   if (success?.schema.kind === 'ref') {
     return factory.createTypeReferenceNode('Partial', [
-      factory.createTypeReferenceNode(pascalCase(success.schema.name)),
+      factory.createTypeReferenceNode(success.schema.name),
     ]);
   }
   return factory.createTypeReferenceNode('Record', [

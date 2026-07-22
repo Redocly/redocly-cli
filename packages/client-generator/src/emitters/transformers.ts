@@ -109,7 +109,7 @@ function isObjectGuard(expr: ts.Expression): ts.Expression {
 
 /** `<expr> as <Type>` — a type assertion, to satisfy a union-narrowing transform. */
 function asType(expr: ts.Expression, typeName: string): ts.Expression {
-  return factory.createAsExpression(expr, factory.createTypeReferenceNode(pascalCase(typeName)));
+  return factory.createAsExpression(expr, factory.createTypeReferenceNode(typeName));
 }
 
 /** `if (<cond>) <then>;`. */
@@ -404,7 +404,8 @@ function transformStatement(
   named: NamedSchemaModel,
   byName: Map<string, SchemaModel>
 ): ts.Statement {
-  const typeName = pascalCase(named.name);
+  // The sdk exports the type verbatim; only the `transform<Pascal>` NAME is PascalCased.
+  const typeName = named.name;
   const data = factory.createIdentifier('data');
   const body =
     named.schema.kind === 'ref'
@@ -460,7 +461,7 @@ export function renderTransformersModule(model: ApiModel, opts: { sdkModule: str
   const byName = new Map(model.schemas.map((s) => [s.name, s.schema]));
   const dated = model.schemas.filter((s) => hasDates(s.schema, byName, new Set()));
   if (dated.length === 0) return '';
-  const types = dated.map((s) => pascalCase(s.name));
+  const types = dated.map((s) => s.name);
   const statements = [
     typeImport(types, opts.sdkModule),
     ...dated.map((s) => transformStatement(s, byName)),

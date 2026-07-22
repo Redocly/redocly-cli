@@ -35,6 +35,34 @@ describe('transformersGenerator', () => {
     expect(files[0].content).toContain('new Date(');
   });
 
+  it('references schema types by their emitted names — a lowercase schema stays lowercase', () => {
+    const files = transformersGenerator({
+      model: apiModel({
+        schemas: [
+          namedSchema('pet', {
+            kind: 'object',
+            properties: [
+              {
+                name: 'bornAt',
+                schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                required: true,
+              },
+            ],
+          }),
+        ],
+      }),
+      outputPath: '/tmp/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    });
+    // The sdk exports the type verbatim (`pet`); the import and signature must match.
+    expect(files[0].content).toContain('import type { pet }');
+    expect(files[0].content).toContain('(data: pet): pet');
+    expect(files[0].content).not.toContain('Pet }');
+    // The transform function name is locally derived, so it keeps the readable PascalCase.
+    expect(files[0].content).toContain('export const transformPet');
+  });
+
   it('emits nothing when no schema carries a date field', () => {
     const files = transformersGenerator({
       model: apiModel({ schemas: [PLAIN] }),
