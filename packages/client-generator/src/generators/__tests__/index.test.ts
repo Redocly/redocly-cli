@@ -97,7 +97,7 @@ describe('validateGenerators — runtime compatibility', () => {
     expect(() =>
       validateGenerators(
         ['sdk', 'tanstack-query', 'swr'],
-        { runtime: 'package', queryFramework: 'react' },
+        { runtime: 'package' },
         builtinGenerators()
       )
     ).not.toThrow();

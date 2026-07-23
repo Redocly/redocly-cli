@@ -27,10 +27,6 @@ export type Config = {
    * ISO wire shape; `'Date'` emits a `Date` reference (pair with the `transformers`
    * generator so the runtime value matches). */
   dateType?: 'string' | 'Date';
-  /** TanStack Query adapter the `tanstack-query` generator imports from
-   * (`@tanstack/${queryFramework}-query`). Defaults to `react`; only the import
-   * specifier changes. */
-  queryFramework?: 'react' | 'vue' | 'svelte' | 'solid';
   /** How the `mock` generator produces data. `'baked'` (default) inlines deterministic
    * literals (zero-dep); `'faker'` emits `@faker-js/faker` calls for realistic data
    * (the consumer adds `@faker-js/faker` as a dev-dep). */

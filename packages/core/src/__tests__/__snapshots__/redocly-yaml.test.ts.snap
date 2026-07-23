@@ -259,14 +259,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
       },
       "pagination": "ClientPagination",
-      "queryFramework": {
-        "enum": [
-          "react",
-          "vue",
-          "svelte",
-          "solid",
-        ],
-      },
       "runtime": {
         "enum": [
           "inline",

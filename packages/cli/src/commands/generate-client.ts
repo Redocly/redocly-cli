@@ -17,7 +17,6 @@ export type GenerateClientCommandArgv = {
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
-  'query-framework'?: 'react' | 'vue' | 'svelte' | 'solid';
   'mock-data'?: 'baked' | 'faker';
   'mock-seed'?: number;
   generator?: string[];
@@ -85,7 +84,6 @@ export async function handleGenerateClient({
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
     dateType: argv['date-type'],
-    queryFramework: argv['query-framework'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
     // Like `setup` below: flag paths resolve against the cwd, while config-file entries

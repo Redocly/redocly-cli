@@ -103,8 +103,6 @@ describe('generate-client tanstack-query generator', () => {
       'sdk',
       '--generator',
       'tanstack-query',
-      '--query-framework',
-      'react',
     ]);
 
     // The sdk entry imports the runtime instead of embedding it; the wrapper is unchanged
@@ -168,7 +166,7 @@ describe('generate-client tanstack-query generator', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('--query-framework vue swaps only the import specifier to @tanstack/vue-query', () => {
+  it('the tanstack-query-vue variant swaps only the import specifier to @tanstack/vue-query', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-vue-'));
     const out = join(dir, 'client.ts');
     const tanstackOut = join(dir, 'client.tanstack.ts');
@@ -177,9 +175,7 @@ describe('generate-client tanstack-query generator', () => {
       '--generator',
       'sdk',
       '--generator',
-      'tanstack-query',
-      '--query-framework',
-      'vue',
+      'tanstack-query-vue',
     ]);
 
     // No strict-tsc compile here: @tanstack/vue-query isn't a dev dependency, and the

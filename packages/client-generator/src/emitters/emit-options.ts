@@ -33,12 +33,6 @@ export type EmitOptions = {
    */
   dateType?: DateType;
   /**
-   * TanStack Query adapter the generated module imports from
-   * (`@tanstack/${queryFramework}-query`). Defaults to `'react'`; the emitted body
-   * is byte-identical across frameworks — only the import specifier changes.
-   */
-  queryFramework?: 'react' | 'vue' | 'svelte' | 'solid';
-  /**
    * How the `mock` generator produces data. `'baked'` (default) inlines deterministic
    * literals (zero-dep, contract-faithful); `'faker'` emits `@faker-js/faker` calls for
    * realistic data — reproducible when `mockSeed` is set. Only the mock module is affected.

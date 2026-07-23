@@ -18,6 +18,7 @@ Their cross-cutting agreement — which operations are wrappable (skip SSE; skip
 
 For TanStack's multiple frameworks, the **emitted factory module is byte-identical across frameworks** — `queryOptions` and the mutation shape are framework-agnostic — so the only difference is the import specifier.
 `--query-framework` selects it (`@tanstack/<framework>-query`), rather than forking the generator per framework.
+**Superseded (2026-07-23):** the flag was replaced by variant generator names (`tanstack-query` = React, `tanstack-query-vue`/`-svelte`/`-solid`) — the selection now lives in `generators`, where the artifact choice already is; the single-emitter/byte-identical-body design is unchanged.
 
 Wrappers wrap the **throw-mode** sdk (TanStack/SWR expect the fetcher to throw), so they require `--error-mode throw` and the `functions` facade; the generator contract fails fast otherwise.
 

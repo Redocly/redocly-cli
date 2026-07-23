@@ -14,7 +14,7 @@ const SERVICES = [
 
 describe('tanstackQueryGenerator', () => {
   it('emits one <stem>.tanstack.ts file beside the client with the header + factories', () => {
-    const files = tanstackQueryGenerator({
+    const files = tanstackQueryGenerator('react')({
       model: apiModel({ services: SERVICES }),
       outputPath: '/tmp/out/client.ts',
       outputMode: 'single',
@@ -30,7 +30,7 @@ describe('tanstackQueryGenerator', () => {
   });
 
   it('emits nothing when the model has no operations', () => {
-    const files = tanstackQueryGenerator({
+    const files = tanstackQueryGenerator('react')({
       model: apiModel({ services: [{ name: 'Default', operations: [] }] }),
       outputPath: '/tmp/out/client.ts',
       outputMode: 'single',
@@ -40,7 +40,7 @@ describe('tanstackQueryGenerator', () => {
   });
 
   it('imports the sdk entry with a .ts extension when importExt is ts', () => {
-    const files = tanstackQueryGenerator({
+    const files = tanstackQueryGenerator('react')({
       model: apiModel({ services: SERVICES }),
       outputPath: '/tmp/out/client.ts',
       outputMode: 'single',
@@ -49,17 +49,36 @@ describe('tanstackQueryGenerator', () => {
     expect(files[0].content).toContain('from "./client.ts"');
   });
 
-  it('passes queryFramework through to the import specifier', () => {
-    const files = tanstackQueryGenerator({
+  it('binds the framework per registry name — bare tanstack-query stays React', () => {
+    const registry = builtinGenerators();
+    const input = {
       model: apiModel({ services: SERVICES }),
       outputPath: '/tmp/out/client.ts',
-      outputMode: 'single',
-      emit: { queryFramework: 'svelte' },
-    });
-    expect(files[0].content).toContain('import { queryOptions } from "@tanstack/svelte-query"');
+      outputMode: 'single' as const,
+      emit: {},
+    };
+    const importOf = (name: string) =>
+      registry
+        .get(name)!
+        .run(input)[0]
+        .content.match(/@tanstack\/[a-z]+-query/)![0];
+    expect(importOf('tanstack-query')).toBe('@tanstack/react-query');
+    expect(importOf('tanstack-query-vue')).toBe('@tanstack/vue-query');
+    expect(importOf('tanstack-query-svelte')).toBe('@tanstack/svelte-query');
+    expect(importOf('tanstack-query-solid')).toBe('@tanstack/solid-query');
   });
 
-  it('is registered under "tanstack-query"', () => {
-    expect(builtinGenerators().get('tanstack-query')?.run).toBe(tanstackQueryGenerator);
+  it('registers every framework variant with the sdk/throw contract', () => {
+    const registry = builtinGenerators();
+    for (const name of [
+      'tanstack-query',
+      'tanstack-query-vue',
+      'tanstack-query-svelte',
+      'tanstack-query-solid',
+    ]) {
+      const descriptor = registry.get(name);
+      expect(descriptor?.requires, name).toEqual(['sdk']);
+      expect(descriptor?.errorModes, name).toEqual(['throw']);
+    }
   });
 });

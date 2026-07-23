@@ -160,7 +160,6 @@ describe('generate-client package-runtime consumer', () => {
         output: tanstackEntry,
         runtime: 'package',
         generators: ['sdk', 'tanstack-query'],
-        queryFramework: 'react',
       });
       expect(existsSync(tanstackEntry)).toBe(true);
       expect(readFileSync(tanstackEntry, 'utf-8')).toContain("from '@redocly/client-generator'");

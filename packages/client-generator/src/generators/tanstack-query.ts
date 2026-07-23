@@ -12,20 +12,22 @@ import type { Generator } from './types.js';
  * It imports the operation functions + their `<Op>Variables` types from the sdk
  * entry (`./<stem>.js`), so it requires the `sdk` generator and targets its
  * throw-mode operation functions. The framework-agnostic `queryOptions` helper is
- * imported from `@tanstack/${queryFramework}-query` (`react` default; the body is
- * byte-identical across frameworks — `@tanstack/<framework>-query` is the consumer's peer).
+ * imported from `@tanstack/<framework>-query` (the consumer's peer); the registry binds
+ * one framework per generator name, and the emitted body is byte-identical across them.
  *
  * Output-mode-agnostic: `./<stem>.js` resolves to the single-file client or the
  * multi-file barrel at the output anchor either way. Emits nothing when there are
  * no operations.
  */
-export const tanstackQueryGenerator: Generator = ({ model, outputPath, emit }) => {
-  const { dir, stem } = anchor(outputPath);
-  const content = renderTanstackModule(model, {
-    argsStyle: emit.argsStyle ?? 'flat',
-    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
-    framework: emit.queryFramework ?? 'react',
-  });
-  if (content === '') return [];
-  return [{ path: join(dir, `${stem}.tanstack.ts`), content: `${HEADER}\n\n${content}` }];
-};
+export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | 'solid'): Generator {
+  return ({ model, outputPath, emit }) => {
+    const { dir, stem } = anchor(outputPath);
+    const content = renderTanstackModule(model, {
+      argsStyle: emit.argsStyle ?? 'flat',
+      sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
+      framework,
+    });
+    if (content === '') return [];
+    return [{ path: join(dir, `${stem}.tanstack.ts`), content: `${HEADER}\n\n${content}` }];
+  };
+}

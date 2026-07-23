@@ -925,12 +925,6 @@ yargs(hideBin(process.argv))
             choices: ['string', 'Date'] as const,
             requiresArg: true,
           },
-          'query-framework': {
-            describe:
-              'TanStack Query adapter the `tanstack-query` generator imports from: `react` (default), `vue`, `svelte`, or `solid`. Only the import specifier changes — the emitted factory module is byte-identical across frameworks.',
-            choices: ['react', 'vue', 'svelte', 'solid'] as const,
-            requiresArg: true,
-          },
           'mock-data': {
             describe:
               "How the `mock` generator produces data: 'baked' (default) inlines deterministic literals (zero-dep); 'faker' emits @faker-js/faker calls for realistic data (install @faker-js/faker as a dev dependency).",

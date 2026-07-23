@@ -9,14 +9,14 @@ For invoking the command itself (flags, output modes, config), see the [`generat
 Each non-`sdk` generator adds a standalone sibling module next to the client; the client itself never imports it, so an add-on never adds a dependency to the client.
 Incompatible selections fail fast with an explanation.
 
-| Generator        | Emits                                                                                              | App peer dependency                                      |
-| ---------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `sdk`            | The typed client (default).                                                                        | none                                                     |
-| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas + [validation middleware](#runtime-validation). | `zod` `^3.23 \|\| ^4`                                    |
-| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories.                | `@tanstack/<framework>-query` `^5`                       |
-| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                           | `swr` `^2`                                               |
-| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.            | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
-| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.          | none                                                     |
+| Generator        | Emits                                                                                                                                                                    | App peer dependency                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| `sdk`            | The typed client (default).                                                                                                                                              | none                                                     |
+| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas + [validation middleware](#runtime-validation).                                                                       | `zod` `^3.23 \|\| ^4`                                    |
+| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories. React by default; `tanstack-query-vue`/`-svelte`/`-solid` switch the adapter import. | `@tanstack/<framework>-query` `^5`                       |
+| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                                                                                                 | `swr` `^2`                                               |
+| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                  | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
+| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock

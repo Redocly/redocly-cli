@@ -16,6 +16,10 @@ export type {
   GeneratorName,
 } from './types.js';
 
+function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): GeneratorDescriptor {
+  return { run: tanstackQueryGenerator(framework), requires: ['sdk'], errorModes: ['throw'] };
+}
+
 const GENERATORS: Record<GeneratorName, GeneratorDescriptor> = {
   // sdk is the base client; zod emits a standalone schema module importing nothing from it.
   sdk: { run: sdkGenerator },
@@ -24,8 +28,12 @@ const GENERATORS: Record<GeneratorName, GeneratorDescriptor> = {
   // assign `Date` values to those fields, which only type-checks when the sdk types dates as `Date`.
   transformers: { run: transformersGenerator, requires: ['sdk'], dateTypes: ['Date'] },
   // tanstack-query wraps the sdk's exported, throw-mode operation functions — present in
-  // both runtime distributions, so no runtime restriction.
-  'tanstack-query': { run: tanstackQueryGenerator, requires: ['sdk'], errorModes: ['throw'] },
+  // both runtime distributions, so no runtime restriction. The framework variants differ
+  // only in the `@tanstack/<framework>-query` import; the bare name means React.
+  'tanstack-query': tanstackQuery('react'),
+  'tanstack-query-vue': tanstackQuery('vue'),
+  'tanstack-query-svelte': tanstackQuery('svelte'),
+  'tanstack-query-solid': tanstackQuery('solid'),
   // swr wraps the sdk's exported, throw-mode operation functions as SWR hooks.
   swr: { run: swrGenerator, requires: ['sdk'], errorModes: ['throw'] },
   // mock emits a standalone MSW handlers/factories module referencing the sdk's types.

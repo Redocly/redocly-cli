@@ -17,7 +17,16 @@ export type OutputMode = 'single' | 'split';
 export type GeneratedFile = { path: string; content: string };
 
 /** The first-party generators the registry knows. */
-export type GeneratorName = 'sdk' | 'zod' | 'tanstack-query' | 'swr' | 'transformers' | 'mock';
+export type GeneratorName =
+  | 'sdk'
+  | 'zod'
+  | 'tanstack-query'
+  | 'tanstack-query-vue'
+  | 'tanstack-query-svelte'
+  | 'tanstack-query-solid'
+  | 'swr'
+  | 'transformers'
+  | 'mock';
 
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {
@@ -26,7 +35,7 @@ export type GeneratorInput = {
   outputPath: string;
   /** File partitioning the generator should honor. */
   outputMode: OutputMode;
-  /** Emit options — serverUrl, runtime, and the generator knobs (dateType, mockData, queryFramework, …); see `EmitOptions`. */
+  /** Emit options — serverUrl, runtime, and the generator knobs (dateType, mockData, …); see `EmitOptions`. */
   emit: EmitOptions;
 };
 

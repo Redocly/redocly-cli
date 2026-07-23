@@ -44,12 +44,6 @@ export type GenerateClientOptions = {
    */
   dateType?: 'string' | 'Date';
   /**
-   * TanStack Query adapter the `tanstack-query` generator imports from
-   * (`@tanstack/${queryFramework}-query`). Defaults to `'react'`; only the import
-   * specifier changes — the emitted factory module is byte-identical across frameworks.
-   */
-  queryFramework?: 'react' | 'vue' | 'svelte' | 'solid';
-  /**
    * How the `mock` generator produces data. `'baked'` (default) inlines deterministic
    * literals (zero-dep, contract-faithful); `'faker'` emits `@faker-js/faker` calls for
    * realistic data — making `@faker-js/faker` the consumer's dev-dep. Factory signatures

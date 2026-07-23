@@ -101,7 +101,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `queryFramework`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used for spec loading.
+`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used for spec loading.
 
 ### `collectGeneratedFiles`
 

@@ -362,7 +362,6 @@ const Client: NodeType = {
     importExt: { enum: ['js', 'ts'] },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
-    queryFramework: { enum: ['react', 'vue', 'svelte', 'solid'] },
     mockData: { enum: ['baked', 'faker'] },
     mockSeed: { type: 'number' },
     setup: { type: 'string' },

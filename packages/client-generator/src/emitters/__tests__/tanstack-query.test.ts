@@ -241,7 +241,7 @@ describe('renderTanstackModule', () => {
     });
   });
 
-  describe('queryFramework', () => {
+  describe('framework', () => {
     const op = [{ name: 'listPets', method: 'get' as const, path: '/pets' }];
 
     it('defaults to react: imports from @tanstack/react-query', () => {

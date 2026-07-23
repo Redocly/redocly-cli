@@ -135,7 +135,6 @@ export async function generateClient(
       argsStyle: options.argsStyle,
       errorMode: options.errorMode,
       dateType: options.dateType,
-      queryFramework: options.queryFramework,
       mockData: options.mockData,
       mockSeed: options.mockSeed,
       setup: setupBlock,
