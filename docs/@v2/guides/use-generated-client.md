@@ -451,7 +451,7 @@ await generateClient({
 ```
 
 Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
-See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator).
+See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building plugin, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the spec's tags.
 
 ## Resources
 
