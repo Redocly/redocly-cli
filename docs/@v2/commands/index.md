@@ -18,6 +18,7 @@ API management commands:
 - [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
 - [`split`](split.md) Split API description into a multi-file structure.
 - [`stats`](stats.md) Gather statistics for a document.
+- [`tree`](tree.md) Display the structure of an API description as a tree.
 
 Linting commands:
 

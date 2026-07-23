@@ -1,0 +1,3 @@
+
+The tree command shows the structure of one API description at a time. Pass a single API, or use --files for the multi-API file-level graph.
+
