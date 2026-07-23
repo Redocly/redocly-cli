@@ -15,16 +15,17 @@ This rule can be tweaked to exclude any combination of operations, or inversely 
 This rule is added to the `rules` section of your `redocly.yaml` file:
 
 ```yaml
-rule/operation-operationId-exclude-OPTIONS:
-  subject:
-    type: Operation
-    filterOutParentKeys:
-      - options
-  assertions:
-    required:
-      - operationId
-  message: Operation is missing 'operationId' property.
-  severity: error
+rules:
+  rule/operation-operationId-exclude-OPTIONS:
+    subject:
+      type: Operation
+      filterOutParentKeys:
+        - options
+    assertions:
+      required:
+        - operationId
+    message: Operation is missing 'operationId' property.
+    severity: error
 ```
 
 The `filterOutParentKeys` property allows you to define which operations you would like to exclude from the rule:

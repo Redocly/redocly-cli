@@ -15,23 +15,24 @@ The rule checks that a `string` uses the `minLength` and `maxLength` keywords un
 It does this by using a combination `requireAny` and `mutuallyRequired`.
 
 ```yaml
-rule/string-schemas-length-defined:
-  subject:
-    type: Schema
-  where:
-    - subject:
-        type: Schema
-        property: type
-      assertions:
-        const: string
-  assertions:
-    requireAny:
-      - minLength
-      - maxLength
-      - enum
-    mutuallyRequired:
-      - minLength
-      - maxLength
+rules:
+  rule/string-schemas-length-defined:
+    subject:
+      type: Schema
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: string
+    assertions:
+      requireAny:
+        - minLength
+        - maxLength
+        - enum
+      mutuallyRequired:
+        - minLength
+        - maxLength
 ```
 
 ## Examples

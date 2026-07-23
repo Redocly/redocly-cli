@@ -1,5 +1,5 @@
 extends:
-  - https://raw.githubusercontent.com/Redocly/redocly-cli-cookbook/main/rulesets/spec-compliant/redocly.yaml
+  - https://raw.githubusercontent.com/Redocly/redocly-cli/main/cookbook/rulesets/spec-compliant/redocly.yaml
 
 rules:
   no-server-example.com: warn
