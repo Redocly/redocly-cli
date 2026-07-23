@@ -57,20 +57,17 @@ plugins:
 
 ### Rule - Check SDK Coverage
 
-The main functionality of the plugin is in this file `check-dks-coverage.js`, which is as follows:
+The main functionality of the plugin is in this file `check-sdk-coverage.js`, which is as follows:
 
 ```js
+// If you have different SDK languages edit this array
 const sdkLanguages = ['bash', 'javascript', 'python', 'ruby', 'java', 'kotlin'];
 
 export default function CheckSDKCoverage() {
   return {
     XCodeSampleList: {
       enter(codeSampleList, ctx) {
-        // Make sure the list contains at least one bash sample
-        const hasBashSample = codeSampleList.some((codeSample) => {
-          return codeSample.lang === 'bash';
-        });
-        //check for the other SDK languages by making an array of the lang fields from the code samples
+        //check for the SDK languages by making an array of the lang fields from the code samples
         const langArray = codeSampleList.map((codeSample) => {
           return codeSample.lang;
         });

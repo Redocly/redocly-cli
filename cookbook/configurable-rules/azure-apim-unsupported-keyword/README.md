@@ -103,7 +103,7 @@ rule/info-summary-unsupported-azure-apim:
   message: Azure APIM does not support Info summary.
 ```
 
-APIM ignores security. This rule let's you know if it is left in there:
+APIM ignores security. This rule lets you know if it is left in there:
 
 ```yaml
 rule/security-ignored-azure-apim:

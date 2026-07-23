@@ -82,6 +82,8 @@ apis:
           ]
 plugins:
   - './set-servers-urls-plugin.js'
+extends:
+  - recommended
 ```
 
 ## Examples

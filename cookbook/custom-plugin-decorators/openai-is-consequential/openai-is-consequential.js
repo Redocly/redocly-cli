@@ -7,15 +7,15 @@ export default function plugin() {
       },
     },
   };
+}
 
-  /** @type {import('@redocly/cli').OasDecorator} */
-  function OpenAIConsequential() {
-    return {
-      PathItem(PathItem) {
-        if (PathItem['get']) {
-          PathItem['get']['x-openai-isConsequential'] = true;
-        }
-      },
-    };
-  }
+/** @type {import('@redocly/cli').OasDecorator} */
+function OpenAIConsequential() {
+  return {
+    PathItem(PathItem) {
+      if (PathItem['get']) {
+        PathItem['get']['x-openai-isConsequential'] = true;
+      }
+    },
+  };
 }

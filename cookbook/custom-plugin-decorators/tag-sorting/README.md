@@ -92,5 +92,5 @@ tags:
 
 ## References
 
-- [`tags-alphabetical' rule](https://redocly.com/docs/cli/rules/tags-alphabetical/)
+- [`tags-alphabetical` rule](https://redocly.com/docs/cli/rules/tags-alphabetical/)
 - The [`tags` types documentation](https://redocly.com/docs/openapi-visual-reference/tags/#types)

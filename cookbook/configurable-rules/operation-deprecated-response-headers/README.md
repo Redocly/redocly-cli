@@ -15,8 +15,8 @@ We use these RFC standards to define these header fields:
 
 - [RFC7231 - Date/Time Formats](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.1.1)
 - [RFC8288 - Web Linking](https://datatracker.ietf.org/doc/html/rfc8288)
-- [RFC8594 - HTTP Sunset Header Field](https://datatracker.ietf.org/doc/html/rfc9745/)
-- [RFC9651 - Dates] (https://datatracker.ietf.org/doc/html/rfc9651/#section-3.3.7)
+- [RFC8594 - HTTP Sunset Header Field](https://datatracker.ietf.org/doc/html/rfc8594)
+- [RFC9651 - Dates](https://datatracker.ietf.org/doc/html/rfc9651/#section-3.3.7)
 - [RFC 9745 - HTTP Deprecation Header Field](https://datatracker.ietf.org/doc/html/rfc9745/)
 
 ### 2XX responses

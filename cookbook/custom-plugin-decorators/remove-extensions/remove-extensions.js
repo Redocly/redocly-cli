@@ -7,7 +7,7 @@ const openAPIExtensions = /^x-/;
 // bool is boolean
 function assert(bool, message) {
   if (!bool) {
-    const err = message !== undefined ? new Error(message) : new Error('an error occured');
+    const err = message !== undefined ? new Error(message) : new Error('an error occurred');
     throw err;
   }
 }
@@ -19,7 +19,7 @@ function doRemoveParamFromNode(node, param) {
     `[Aborting] String "${param}" is not a valid OpenAPI extension, it must begin with "x-"`
   );
   delete node[param];
-  console.log('Deleteted extension "%s" from object "%O"', param, node);
+  console.log('Deleted extension "%s" from object "%O"', param, node);
 }
 
 function isExtensionValid(extension) {

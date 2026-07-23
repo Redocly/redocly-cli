@@ -52,7 +52,7 @@ paths:
           schema:
             type: string
             pattern: ^ord_[0-9abcdefghjkmnpqrstvwxyz]{26}$
-      requestBody: # <-- This will error
+      requestBody: # <-- This will warn
         description: a request body for my delete operation
         content:
           'application/json':

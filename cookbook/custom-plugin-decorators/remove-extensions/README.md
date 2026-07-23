@@ -12,7 +12,7 @@ Why? See <https://github.com/Redocly/redocly-cli/issues/867#issuecomment-1816872
 
 ## Code
 
-The plugin itself can be found in [`remove-extensions.js'](./remove-extensions.js). The rest of this section shows you how to set up and use the plugin.
+The plugin itself can be found in [`remove-extensions.js`](./remove-extensions.js). The rest of this section shows you how to set up and use the plugin.
 
 Create a `plugin.js` file to refer to this file:
 

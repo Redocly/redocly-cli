@@ -10,7 +10,7 @@ We sometimes see API descriptions with the fields mixed up.
 The most common of these is the `summary` and `description` fields on Operations in OpenAPI, some generators seem to produce the fields with the content reversed.
 
 - Summary: used when the operations are displayed in a list, it should be a very short phrase to describe the operation.
-- Description: used to supply more detail, used when the operation is displayed in detail. The description field also suports Markdown.
+- Description: used to supply more detail, used when the operation is displayed in detail. The description field also supports Markdown.
 
 This decorator takes the content of both fields and (as long as there is some content in the description field), swaps them over.
 

@@ -14,7 +14,7 @@ REQUIRED rules (in the spec) are set to `error`, RECOMMENDED rules to `warn`.
 
 ## Code
 
-You can use it in your `redocly.yaml` wih [`extends`](https://redocly.com/docs/cli/configuration/extends/), or you can copy its content directly:
+You can use it in your `redocly.yaml` with [`extends`](https://redocly.com/docs/cli/configuration/extends/), or you can copy its content directly:
 
 ```yaml
 rules:
@@ -42,7 +42,7 @@ rules:
 
 Here is why each rule is included:
 
-- `struct`: [ensures structural correctness](https://redocly.com/docs/cli/rules/spec/#api-design-principles)
+- `struct`: [ensures structural correctness](https://redocly.com/docs/cli/rules/common/struct#api-design-principles)
 - `nullable-type-sibling`: [ensures compliance with the OpenAPI 3.0 spec](https://redocly.com/docs/cli/rules/oas/nullable-type-sibling)
 - `spec-strict-refs`: ["strict adherence to the specifications"](https://redocly.com/docs/cli/rules/spec-strict-refs/#api-design-principles)
 - `no-undefined-server-variable`: ["it's an error with the specification"](https://redocly.com/docs/cli/rules/no-undefined-server-variable/#api-design-principles)

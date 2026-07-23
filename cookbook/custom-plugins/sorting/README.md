@@ -14,12 +14,12 @@ Redocly CLI has a [`tags-alphabetical`](https://redocly.com/docs/cli/rules/tags-
 This plugin adds some additional _rules_ for checking sort orders.
 
 - `method-sort` rule to put your methods in the desired order. The default is `["post", "patch", "put", "get", "delete"]`, but you can supply your own with an `order` parameter.
-- `property-sort` rule to sort properties either alphabetically with `order: alpha` (the default sort order for this rule) or with `order: required` to put the required properties first.
+- `property-sort` rule to sort properties either alphabetically with `type: alpha` (the default sort order for this rule) or with `type: required` to put the required properties first.
 
 The plugin also includes _decorators_ to sort your OpenAPI descriptions, perhaps to allow an existing OpenAPI description to be easily updated to meet the expectations of the sorting rules.
 Here's a full list of the sorting features:
 
-- `methods`: sorts methods consistently in the order you supply (or `GET`, `POST`, `PUT`, `PATCH` and `DELETE` by default), with any unsorted methods appended afterwards
+- `methods`: sorts methods consistently in the order you supply (or `GET`, `POST`, `PATCH`, `PUT` and `DELETE` by default), with any unsorted methods appended afterwards
 - `enums-alphabetical`: sorts the options for an enum field alphabetically
 - `properties-alphabetical`: sorts object properties in schemas alphabetically
 - `properties-required-first`: puts the required properties at the top of the list (run this _after_ any other property sorting decorators)
@@ -126,4 +126,4 @@ Remove or turn off any of the decorators that don't fit your use case, and let u
 
 ## References
 
-- [`tags-alphabetical' rule](https://redocly.com/docs/cli/rules/tags-alphabetical)
+- [`tags-alphabetical` rule](https://redocly.com/docs/cli/rules/tags-alphabetical)

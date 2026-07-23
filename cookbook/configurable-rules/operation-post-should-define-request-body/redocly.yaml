@@ -1,7 +1,7 @@
 rules:
   rule/post-should-define-requestBody:
     severity: error
-    message: '"POST" SHOULD define a "requestBody" schema unless using an "<your preferred>" pattern'
+    message: '"POST" SHOULD define a "requestBody" schema unless using an "actions" pattern'
     subject:
       type: Operation
     where:
