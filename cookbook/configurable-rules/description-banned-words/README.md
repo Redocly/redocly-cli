@@ -16,7 +16,7 @@ An example of `redocly.yaml` with a configurable rule:
 
 ```yaml
 rules:
-  rule/descriptions-avoid-words:
+  rule/avoid-words-in-descriptions:
     subject:
       type: any
       property: description

@@ -95,7 +95,7 @@ decorators:
 
 ## Examples
 
-Given two specs:
+Given two specs (both included in this directory):
 
 **foo.yaml** — defines root-level security, no paths:
 

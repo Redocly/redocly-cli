@@ -2,6 +2,7 @@
   "name": "redocly-openapi-markdown-plugin",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "openapi-markdown.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

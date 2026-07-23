@@ -10,7 +10,7 @@ This set of configurable rules checks that an API conforms to expected health ch
 Three rules are included and they check the following:
 
 - `/health` endpoint is defined
-- The `200` response uses the `application/health+json` media type
+- The `200` and `400` responses use the `application/health+json` media type
 - The response contains the mandatory `status` property
 
 Source: [Proposed Health Check Response Format for HTTP APIs](https://datatracker.ietf.org/doc/html/draft-inadarei-api-health-check-06).
@@ -47,7 +47,9 @@ rule/health-media-type:
         defined: true
     - subject:
         type: Response
-        matchParentKeys: '200'
+        filterInParentKeys:
+          - '200'
+          - '400'
       assertions:
         defined: true
   message: API Health response has media type `application/health+json`
@@ -68,7 +70,9 @@ rule/health-schema-status:
         defined: true
     - subject:
         type: Response
-        matchParentKeys: '200'
+        filterInParentKeys:
+          - '200'
+          - '400'
       assertions:
         defined: true
   subject:

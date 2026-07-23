@@ -52,7 +52,7 @@ rules:
       property: summary
     assertions:
       defined: false
-    message: Azure APIM does not Info summary.
+    message: Azure APIM does not support Info summary.
 
   rule/security-ignored-azure-apim:
     subject:

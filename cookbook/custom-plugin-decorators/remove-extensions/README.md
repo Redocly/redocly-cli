@@ -17,7 +17,7 @@ The plugin itself can be found in [`remove-extensions.js`](./remove-extensions.j
 Create a `plugin.js` file to refer to this file:
 
 ```js
-import RemoveExtensions from './remove-extensions';
+import RemoveExtensions from './remove-extensions.js';
 
 /** @type {import('@redocly/cli').DecoratorsConfig} */
 const decorators = {

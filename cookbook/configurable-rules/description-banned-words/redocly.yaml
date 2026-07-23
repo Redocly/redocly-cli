@@ -4,4 +4,4 @@ rules:
       type: any
       property: description
     assertions:
-      notPattern: /(waffle|mumble|squeak)/i
+      notPattern: /(simple|random|just)/i

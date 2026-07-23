@@ -19,6 +19,7 @@ This rule is built on the `markdownlint` library, so we need a `package.json` fi
   "name": "redocly-openapi-markdown-plugin",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "openapi-markdown.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -40,15 +41,16 @@ npm install
 The entry point for the plugin code is in `openapi-markdown.js`:
 
 ```js
-import ValidateMarkdown from "./rule-validate-markdown.js";
+import ValidateMarkdown from './rule-validate-markdown.js';
 
 export default function plugin() {
   return {
-    id: "openapi-markdown",
+    id: 'openapi-markdown',
     rules: {
       oas3: {
         validate: ValidateMarkdown,
-    }
+      },
+    },
   };
 }
 ```
@@ -85,7 +87,8 @@ function checkString(description, ctx) {
         let message = desc.ruleDescription;
         // add line number context for longer entries
         if (desc.lineNumber > 1) {
-          const charsByError = lines[desc.lineNumber].substring(0, 20);
+          // computer counts from zero, humans count from 1
+          const charsByError = lines[desc.lineNumber - 1].substring(0, 20);
           message = `${message} (near: ${charsByError} ...)`;
         }
 

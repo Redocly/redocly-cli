@@ -110,7 +110,7 @@ decorators:
   dates-plugin/update-example-dates: on
 ```
 
-Given the following API description, the decorator will replace `$DateTimeNow` with the current date and `$DateTimeNow + 7d` with the date a week from now:
+Given the following API description, the decorator will replace `$DateTimeNow` with the current date and `$DateTimeNow + 7 days` with the date a week from now:
 
 ```yaml
 openapi: 3.1.0
