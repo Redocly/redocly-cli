@@ -178,6 +178,7 @@ See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-
 
 The middleware above is composed by the **consumer**.
 If you **publish an SDK**, bake defaults in at generation time with `--setup <file>`.
+Setup changes the client's built-in _behavior_; it emits no extra file — to derive additional artifacts from the spec, use [generators](#generators) instead.
 The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable) and default-exports `defineClientSetup({ config, middleware })`:
 
 ```ts
@@ -393,6 +394,7 @@ For shapes the built-in styles don't cover — for example a cursor that travels
 
 The built-in generators cover common targets.
 For anything else derived from the same description (validators in another library, a permissions map, a house-style SDK), write a **custom generator**: it reads the same spec-agnostic model the built-ins consume, so its output never drifts from the spec.
+A generator adds artifacts _next to_ the client — it doesn't change the generated client's behavior; for that, compose [middleware](#middleware) or bake [publisher defaults](#publisher-defaults).
 
 A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator`:
 
