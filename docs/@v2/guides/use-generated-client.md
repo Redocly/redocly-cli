@@ -201,6 +201,25 @@ export default defineClientSetup({
 redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
 ```
 
+Baking is a generation-time transform: the import is stripped and only the setup expression lands in the client, so an `inline` client stays zero-dependency.
+`defineClientSetup` is optional typing sugar — a plain default-exported object works too, with no imports (and no dev-dependency on `@redocly/client-generator`):
+
+```ts
+// client-setup.ts — the same setup, importless
+export default {
+  config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
+  middleware: [
+    {
+      onRequest: (ctx) => {
+        ctx.headers['X-Acme-SDK'] = '1.4.0';
+      },
+    },
+  ],
+};
+```
+
+Either way the baked block is typed against the client's own contract in the generated file, so a shape mistake fails the consumer's `tsc`.
+
 The baked block runs before the consumer's own setup.
 **Config values** layer lowest → highest: the spec's defaults (e.g. `servers[0].url`) → the baked setup → the app's `configure()` — later always wins, so a consumer overrides a baked default.
 **Middleware composes** instead (baked first, then the consumer's).
