@@ -74,6 +74,23 @@ describe('loadSpec', () => {
     expect(result.version).toBe('oas3_0');
   });
 
+  it('fails fast on a structurally invalid document instead of crashing or emitting garbage', async () => {
+    const file = await write(
+      'invalid.yaml',
+      outdent`
+        openapi: 3.1.0
+        info: { title: b, version: '1' }
+        paths:
+          /a:
+            get:
+              operationId: getA
+              parameters: { name: oops }
+              responses: nope
+      `
+    );
+    await expect(loadSpec(file)).rejects.toThrow(/Expected type `Responses`/);
+  });
+
   it('fails fast on an unresolved $ref instead of emitting a broken client', async () => {
     const file = await write(
       'unresolved.yaml',

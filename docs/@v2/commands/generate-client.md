@@ -9,6 +9,7 @@ We'd love your feedback while we stabilize it.
 
 The `generate-client` command generates a typed TypeScript client from an OpenAPI 3.x description.
 Swagger 2.0 descriptions are also accepted and normalized to the 3.x shape before generation.
+The description is validated first: unresolved `$ref`s or structural errors fail generation with the problems listed, independent of your lint configuration.
 
 The generated client has zero runtime dependencies by default — it uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`), so it runs in browsers, Node, Bun, Deno, and edge runtimes.
 By default it emits a single self-contained file with inline types and one async function per operation.
