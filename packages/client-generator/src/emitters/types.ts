@@ -12,15 +12,6 @@ import { jsdoc, literalExpression, printNodes, ts } from './ts.js';
 const { factory } = ts;
 
 /**
- * How named string enums are emitted:
- * - `'union'`: only the string-literal union type (`type X = "a" | "b"`).
- * - `'const-object'`: the union type *and* a sibling
- *   `export const X = { a: "a", b: "b" } as const;` so callers can reference
- *   the values at runtime (`X.a`).
- */
-export type EnumStyle = 'union' | 'const-object';
-
-/**
  * How `format: date-time`/`date` string fields are typed:
  * - `'string'` (default): the wire shape — an ISO string.
  * - `'Date'`: a `Date` reference. Opt-in; pair with the `transformers` generator
@@ -31,7 +22,6 @@ export type DateType = 'string' | 'Date';
 /** The model type aliases (and const-object enum companions) as nodes. */
 export function typesStatements(
   schemas: NamedSchemaModel[],
-  enumStyle: EnumStyle,
   dateType: DateType = 'string'
 ): ts.Statement[] {
   const nodes: ts.Statement[] = [];
@@ -48,10 +38,8 @@ export function typesStatements(
         s.schema.metadata
       )
     );
-    if (enumStyle === 'const-object') {
-      const constObject = enumConstObject(s);
-      if (constObject) nodes.push(constObject);
-    }
+    const constObject = enumConstObject(s);
+    if (constObject) nodes.push(constObject);
   }
   return nodes;
 }

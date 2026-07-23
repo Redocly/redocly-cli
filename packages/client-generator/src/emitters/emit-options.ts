@@ -3,7 +3,7 @@ import type { ArgsStyle } from './operations.js';
 import type { PaginationConfig } from './pagination.js';
 import { splitLines } from './support.js';
 import { escapeJsDoc } from './ts.js';
-import type { DateType, EnumStyle } from './types.js';
+import type { DateType } from './types.js';
 
 // The public option vocabulary is re-exported from this module, so generators
 // and the package barrel import the emitter surface from one place.
@@ -19,14 +19,6 @@ export type EmitOptions = {
    * the value is derived from `servers[0].url` in the source OpenAPI document.
    */
   serverUrl?: string;
-  /**
-   * How named string enums are emitted:
-   * - `'union'`: only the string-literal union type (`type X = "a" | "b"`).
-   * - `'const-object'` (default): the union type *and* a sibling
-   *   `export const X = { a: "a", b: "b" } as const;` so callers can reference
-   *   the values at runtime (`X.a`).
-   */
-  enumStyle?: EnumStyle;
   /**
    * How operation inputs are passed to each call. Defaults to `'flat'`;
    * `'grouped'` bundles inputs into a single `args` object.

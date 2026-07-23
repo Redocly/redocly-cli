@@ -883,12 +883,6 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
-          'enum-style': {
-            describe:
-              'How named string enums are emitted: `const-object` (default) emits a runtime `as const` object alongside the union type; `union` emits only the union.',
-            choices: ['union', 'const-object'] as const,
-            requiresArg: true,
-          },
           'output-mode': {
             describe:
               'How the client is split across files: `single` (default, one file) or `split` (schema types and guards in a sibling `<name>.schemas.ts` the entry re-exports).',

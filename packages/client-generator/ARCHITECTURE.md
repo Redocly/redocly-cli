@@ -102,7 +102,7 @@ Three orthogonal knobs combine freely:
 - **Runtime** (`--runtime`): `inline` · `package` — where the client engine lives.
 - **Args style** (`--args-style`): `flat` · `grouped` — how inputs reach the free functions (the `client` instance's methods are always grouped).
 
-Plus **enum style** (`--enum-style`: `union` · `const-object`), **error mode** (`--error-mode`: `throw` · `result`), **date type** (`--date-type`: `string` · `Date`), and the `--server-url` / `--setup` modifiers.
+Plus **error mode** (`--error-mode`: `throw` · `result`), **date type** (`--date-type`: `string` · `Date`), and the `--server-url` / `--setup` modifiers.
 Every client exports **both call styles** — the instance and the free functions; args style only shapes the free-function sugar.
 
 Orthogonally, **`--generator`** selects which generators run (default `sdk`; plus `zod`, `tanstack-query`, `swr`, `transformers`, `mock`, and custom plugins), with per-generator knobs: `--query-framework` (`react` · `vue` · `svelte` · `solid`, for `tanstack-query`) and `--mock-data` (`baked` · `faker`) / `--mock-seed` (for `mock`).

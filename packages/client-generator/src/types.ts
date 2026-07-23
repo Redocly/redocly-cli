@@ -30,12 +30,6 @@ export type GenerateClientOptions = {
    */
   serverUrl?: string;
   /**
-   * How named string enums are emitted. `'const-object'` (default) emits a
-   * runtime `as const` companion object alongside the union type; `'union'`
-   * emits only the string-literal union.
-   */
-  enumStyle?: 'union' | 'const-object';
-  /**
    * Error-handling shape of the generated client. `'throw'` (default) throws
    * `ApiError` on non-2xx responses; `'result'` returns a discriminated
    * `{ data, error, response }` whose `error` is typed from the spec's 4xx/5xx

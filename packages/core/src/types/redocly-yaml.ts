@@ -360,7 +360,6 @@ const Client: NodeType = {
     outputMode: { enum: ['single', 'split'] },
     runtime: { enum: ['inline', 'package'] },
     importExt: { enum: ['js', 'ts'] },
-    enumStyle: { enum: ['union', 'const-object'] },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     queryFramework: { enum: ['react', 'vue', 'svelte', 'solid'] },

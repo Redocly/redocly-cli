@@ -504,7 +504,7 @@ describe('dateType knob (string → Date for date formats)', () => {
   });
 
   it('defaults typesStatements dateType to string (called without it)', () => {
-    const out = printNodes(typesStatements([namedSchema('Created', dateTime())], 'union'));
+    const out = printNodes(typesStatements([namedSchema('Created', dateTime())]));
     expect(out).toContain('export type Created = string;');
   });
 });
@@ -523,14 +523,6 @@ describe('enum style — const-object companion (C6.2)', () => {
     expect(out).toContain('placed: "placed",');
     expect(out).toContain('completed: "completed"');
     expect(out).toContain('} as const;');
-  });
-
-  it('emits only the union type when enumStyle is "union"', () => {
-    const out = emitPackage(apiModel({ schemas: [orderStatus] }), {
-      enumStyle: 'union',
-    });
-    expect(out).toContain('export type OrderStatus = "placed" | "completed";');
-    expect(out).not.toContain('export const OrderStatus');
   });
 
   it('does not emit a const object for integer enums', () => {

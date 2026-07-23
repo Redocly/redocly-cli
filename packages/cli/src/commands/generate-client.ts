@@ -11,7 +11,6 @@ export type GenerateClientCommandArgv = {
   output?: string;
   config?: string;
   'server-url'?: string;
-  'enum-style'?: 'union' | 'const-object';
   'output-mode'?: 'single' | 'split';
   runtime?: 'inline' | 'package';
   'import-ext'?: 'js' | 'ts';
@@ -80,7 +79,6 @@ export async function handleGenerateClient({
 
   const cliFlags: ClientConfig = {
     serverUrl: argv['server-url'],
-    enumStyle: argv['enum-style'],
     outputMode: argv['output-mode'],
     runtime: argv.runtime,
     importExt: argv['import-ext'],

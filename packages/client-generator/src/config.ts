@@ -20,8 +20,6 @@ export type Config = {
   argsStyle?: ArgsStyle;
   /** Override the inlined base URL (else derived from `servers[0].url`). */
   serverUrl?: string;
-  /** Named-enum emission. Defaults to `const-object`. */
-  enumStyle?: 'union' | 'const-object';
   /** Error-handling shape of the generated client. `'throw'` (default) throws `ApiError`
    * on non-2xx; `'result'` returns a discriminated `{ data, error, response }`. */
   errorMode?: 'throw' | 'result';

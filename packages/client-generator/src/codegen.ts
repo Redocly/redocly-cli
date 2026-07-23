@@ -132,7 +132,6 @@ export async function generateClient(
     outputMode: options.outputMode ?? 'single',
     emit: {
       serverUrl: options.serverUrl,
-      enumStyle: options.enumStyle,
       argsStyle: options.argsStyle,
       errorMode: options.errorMode,
       dateType: options.dateType,

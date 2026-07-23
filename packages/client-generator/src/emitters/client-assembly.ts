@@ -127,7 +127,7 @@ function emitClient(
         hasApiKey: apiKeySchemes.length > 0,
       });
   const schemaStatements = [
-    ...typesStatements(model.schemas, options.enumStyle ?? 'const-object', ctx.dateType),
+    ...typesStatements(model.schemas, ctx.dateType),
     ...typeGuardStatements(model.schemas),
   ];
   const bodyStatements = [...ops.flatMap((op) => aliasStatements(op, ctx)), ...wiring];
