@@ -5,53 +5,53 @@ info:
 paths:
   '/menu-items':
     summary: legacy menu items endpoint, replaced by /menu
-    deprecated: true
-    parameters: []
-    responses:
-      '200':
-        description: OK
-        headers:
-          deprecation:
-            schema:
-              type: string
-            examples:
-              deprecation_date:
-                summary: An Item Structured Header RFC8941. Refer to Section 3.3.7 of [SFBIS] for ABNF of `sf-date`.
-                value: '@1688169599'
-          sunset:
-            description: Please note that for historical reasons the Sunset HTTP header field uses a different data type for date than the Deprecation header field
-            schema:
-              type: string
-            examples:
-              sunset_date:
-                summary: An HTTP-date timestamp, as defined in Section 7.1.1.1 of [RFC7231], and SHOULD be a timestamp in the future.
-                value: Sun, 30 Jun 2024 23:59:59 GMT
-          link:
-            schema:
-              type: string
-            examples:
-              link_value:
-                value: <https://api.cafe.redocly.com/menu>; rel=alternate; title='the menu api'
-        content:
-          'application/json':
-            schema: {}
-      '410':
-        description: Gone
-        headers:
-          sunset:
-            description: For historical reasons the Sunset HTTP header field uses a different data type for date than the Deprecation header field.
-            schema:
-              type: string
-            examples:
-              sunset_date:
-                summary: An HTTP-date timestamp, as defined in Section 7.1.1.1 of [RFC7231], and SHOULD be a timestamp in the future.
-                value: Sun, 30 Jun 2024 23:59:59 GMT
-          link:
-            schema:
-              type: string
-            examples:
-              link_value:
-                value: <https://api.cafe.redocly.com/menu>; rel=alternate; title='the menu api'
-        content:
-          'application/json':
-            schema: {}
+    get:
+      deprecated: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            Deprecation:
+              schema:
+                type: string
+              examples:
+                deprecation_date:
+                  summary: A Structured Field Value date, as defined in Section 3.3.7 of RFC9651.
+                  value: '@1688169599'
+            Sunset:
+              description: For historical reasons the Sunset HTTP header field uses a different data type for date than the Deprecation header field.
+              schema:
+                type: string
+              examples:
+                sunset_date:
+                  summary: An HTTP-date timestamp, as defined in Section 7.1.1.1 of RFC7231, and SHOULD be a timestamp in the future.
+                  value: Sun, 30 Jun 2024 23:59:59 GMT
+            Link:
+              schema:
+                type: string
+              examples:
+                link_value:
+                  value: <https://api.cafe.redocly.com/menu>; rel=alternate; title='the menu api'
+          content:
+            'application/json':
+              schema: {}
+        '410':
+          description: Gone
+          headers:
+            Sunset:
+              description: For historical reasons the Sunset HTTP header field uses a different data type for date than the Deprecation header field.
+              schema:
+                type: string
+              examples:
+                sunset_date:
+                  summary: An HTTP-date timestamp, as defined in Section 7.1.1.1 of RFC7231, and SHOULD be a timestamp in the future.
+                  value: Sun, 30 Jun 2024 23:59:59 GMT
+            Link:
+              schema:
+                type: string
+              examples:
+                link_value:
+                  value: <https://api.cafe.redocly.com/menu>; rel=alternate; title='the menu api'
+          content:
+            'application/json':
+              schema: {}
