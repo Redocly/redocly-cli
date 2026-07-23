@@ -11,12 +11,14 @@ export default function SortPropertiesRequiredFirst() {
             const requiredList = schema.required;
             // put the required items in first
             requiredList.forEach((prop) => {
-              newProps[prop] = schema.properties[prop];
+              if (Object.hasOwn(schema.properties, prop)) {
+                newProps[prop] = schema.properties[prop];
+              }
             });
 
             // now add anything that wasn't already added
             propList.forEach((prop) => {
-              if (!newProps[prop]) {
+              if (!Object.hasOwn(newProps, prop)) {
                 newProps[prop] = schema.properties[prop];
               }
             });

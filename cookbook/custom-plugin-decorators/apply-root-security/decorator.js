@@ -8,6 +8,11 @@ export const applyRootSecurity = ({ pathSecurityFile } = {}) => {
   return {
     Root: {
       enter(_root, { config }) {
+        if (!pathSecurityFile) {
+          throw new Error(
+            'The apply-root-security decorator requires the pathSecurityFile option. Set it in redocly.yaml.'
+          );
+        }
         source = resolvePath(pathSecurityFile, config);
       },
       leave(root) {
