@@ -1,0 +1,6 @@
+plugins:
+  - './plugin.js'
+
+decorators:
+  security-plugin/apply-root-security:
+    pathSecurityFile: ./foo.yaml

@@ -1,0 +1,7 @@
+rules:
+  rule/avoid-words-in-descriptions:
+    subject:
+      type: any
+      property: description
+    assertions:
+      notPattern: /(simple|random|just)/i
