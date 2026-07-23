@@ -27,11 +27,11 @@ export type Config = {
    * ISO wire shape; `'Date'` emits a `Date` reference (pair with the `transformers`
    * generator so the runtime value matches). */
   dateType?: 'string' | 'Date';
-  /** How the `mock` generator produces data. `'baked'` (default) inlines deterministic
+  /** How the `mock` generator produces data. `'static'` (default) inlines deterministic
    * literals (zero-dep); `'faker'` emits `@faker-js/faker` calls for realistic data
    * (the consumer adds `@faker-js/faker` as a dev-dep). */
-  mockData?: 'baked' | 'faker';
-  /** Seed for faker-mode mocks: emits `faker.seed(<n>)` so runs reproduce. Baked mode ignores it. */
+  mockData?: 'static' | 'faker';
+  /** Seed for faker-mode mocks: emits `faker.seed(<n>)` so runs reproduce. Static mode ignores it. */
   mockSeed?: number;
   /**
    * Generators to run, in order. Defaults to `['sdk']`. Each entry is a built-in name, the `name`

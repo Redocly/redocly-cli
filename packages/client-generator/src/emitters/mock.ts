@@ -1,7 +1,7 @@
 // Emits a `*.mocks.ts` module: a `create<Schema>(overrides?)` data factory per
 // named schema, an `<op>Handler(override?)` MSW request handler per operation
 // (its primary success response), and an aggregated `handlers` array. Response
-// data is baked at codegen time via the sampler (`sampleValue`) and printed as
+// data is sampled at codegen time (`sampleValue`) and printed as
 // TypeScript literals through `ts.factory`, so the generated module depends only
 // on `msw` — the real client stays zero-dependency.
 
@@ -31,21 +31,21 @@ export type MockOptions = {
    *  fields as `new Date(...)` so the mock data matches the `Date`-typed sdk. */
   dateType?: DateType;
   /**
-   * How factory/handler bodies produce data. `'baked'` (default) inlines deterministic
+   * How factory/handler bodies produce data. `'static'` (default) inlines deterministic
    * literals from the sampler (zero-dep, contract-faithful). `'faker'` emits
    * `@faker-js/faker` calls for realistic data — reproducible when `mockSeed` is set —
    * making `@faker-js/faker` the consumer's dev-dep. Factory signatures are identical
    * across modes, so a consumer can flip this without changing call sites.
    */
-  mockData?: 'baked' | 'faker';
+  mockData?: 'static' | 'faker';
   /** When set in `'faker'` mode, emit a top-level `faker.seed(<n>);` so runs reproduce. */
   mockSeed?: number;
 };
 
-/** The body expression for `schema` under the active data mode: a baked literal tree
- *  (`'baked'`) or a tree of `@faker-js/faker` calls (`'faker'`). Both honor `dateType`
+/** The body expression for `schema` under the active data mode: a static literal tree
+ *  (`'static'`) or a tree of `@faker-js/faker` calls (`'faker'`). Both honor `dateType`
  *  and the binary/Blob type demand; the faker path inlines refs with the same cycle
- *  guard as the baked sampler, so neither recurses forever on a cyclic schema. */
+ *  guard as the static sampler, so neither recurses forever on a cyclic schema. */
 function bodyExpression(schema: SchemaModel, model: ApiModel, opts: MockOptions): ts.Expression {
   return opts.mockData === 'faker'
     ? fakerExpression(schema, model.schemas, { dateType: opts.dateType })
@@ -63,7 +63,7 @@ export function renderMockModule(model: ApiModel, opts: MockOptions): string {
   ]);
   const typeImport = schemaTypeImport(model, opts);
   // Faker mode imports `faker` (the consumer's dev-dep) and, with a seed, pins it once
-  // at module top so every run reproduces. Baked mode emits neither (stays zero-dep).
+  // at module top so every run reproduces. Static mode emits neither (stays zero-dep).
   const fakerImport = opts.mockData === 'faker' ? "import { faker } from '@faker-js/faker';\n" : '';
   const seed =
     opts.mockData === 'faker' && opts.mockSeed !== undefined ? [seedStatement(opts.mockSeed)] : [];
@@ -178,20 +178,20 @@ function handlerFor(op: OperationModel, model: ApiModel, opts: MockOptions): ts.
 
 /**
  * `export const <op>ErrorHandler = (status: <StatusUnion>, body?: <BodyType>) =>
- *    http.<method>("<mswPath>", () => HttpResponse.json(body ?? <bakedSample>, { status }));`
+ *    http.<method>("<mswPath>", () => HttpResponse.json(body ?? <staticSample>, { status }));`
  *
  * Opt-in (not added to `handlers`): `server.use(getPetErrorHandler(404))` overrides the
  * happy path with an error. `<StatusUnion>` is the declared error statuses as literals
- * (plus `number` when a `default` error is present, so any status is allowed). The baked
+ * (plus `number` when a `default` error is present, so any status is allowed). The static
  * fallback samples the FIRST error response's schema.
  */
 function errorHandlerFor(op: OperationModel, model: ApiModel, opts: MockOptions): ts.Statement {
   const first = op.errorResponses[0];
-  const baked = bodyExpression(first.schema, model, opts);
+  const sampled = bodyExpression(first.schema, model, opts);
   const body = factory.createBinaryExpression(
     factory.createIdentifier('body'),
     factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
-    baked
+    sampled
   );
   const resolver = factory.createArrowFunction(
     undefined,

@@ -593,7 +593,7 @@ describe('renderMockModule', () => {
       expect(out).toContain("import { faker } from '@faker-js/faker';");
       expect(out).toContain('id: faker.number.int()');
       expect(out).toContain('name: faker.lorem.word()');
-      // No baked literals leaked in.
+      // No static literals leaked in.
       expect(out).not.toContain('id: 0');
       expect(out).not.toContain('name: "string"');
     });
@@ -613,7 +613,7 @@ describe('renderMockModule', () => {
       expect(out).not.toContain('faker.seed(');
     });
 
-    it('baked mode (default) emits no faker import or seed call', () => {
+    it('static mode (default) emits no faker import or seed call', () => {
       const out = renderMockModule(fakerModel(), { sdkModule: './client.js' });
       expect(out).not.toContain('@faker-js/faker');
       expect(out).not.toContain('faker.');

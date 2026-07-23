@@ -3,7 +3,7 @@
  * then run a real consumer (via tsx) that installs the emitted MSW handlers into
  * `setupServer` and calls a generated client operation whose native `fetch` MSW
  * intercepts. With `onUnhandledRequest: 'error'`, a resolved call proves interception
- * (an unmocked call would throw). The baked response is deterministic (from the
+ * (an unmocked call would throw). The static response is deterministic (from the
  * sampler), so we assert exact field values.
  */
 import { spawnSync } from 'node:child_process';
@@ -39,7 +39,7 @@ describe('mock generator — generated client through MSW', () => {
     expect(existsSync(join(dir, 'client.mocks.ts'))).toBe(true);
   });
 
-  test('handlers installed in setupServer intercept the generated fetch and return baked data', () => {
+  test('handlers installed in setupServer intercept the generated fetch and return static data', () => {
     const result = runConsumer(
       dir,
       outdent`

@@ -17,7 +17,7 @@ export type GenerateClientCommandArgv = {
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
-  'mock-data'?: 'baked' | 'faker';
+  'mock-data'?: 'static' | 'faker';
   'mock-seed'?: number;
   generator?: string[];
   setup?: string;

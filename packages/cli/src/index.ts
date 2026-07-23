@@ -927,13 +927,13 @@ yargs(hideBin(process.argv))
           },
           'mock-data': {
             describe:
-              "How the `mock` generator produces data: 'baked' (default) inlines deterministic literals (zero-dep); 'faker' emits @faker-js/faker calls for realistic data (install @faker-js/faker as a dev dependency).",
-            choices: ['baked', 'faker'] as const,
+              "How the `mock` generator produces data: 'static' (default) inlines deterministic literals (zero-dep); 'faker' emits @faker-js/faker calls for realistic data (install @faker-js/faker as a dev dependency).",
+            choices: ['static', 'faker'] as const,
             requiresArg: true,
           },
           'mock-seed': {
             describe:
-              'Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in baked mode.',
+              'Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in static mode.',
             type: 'number',
             requiresArg: true,
           },

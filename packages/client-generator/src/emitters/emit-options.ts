@@ -33,11 +33,11 @@ export type EmitOptions = {
    */
   dateType?: DateType;
   /**
-   * How the `mock` generator produces data. `'baked'` (default) inlines deterministic
+   * How the `mock` generator produces data. `'static'` (default) inlines deterministic
    * literals (zero-dep, contract-faithful); `'faker'` emits `@faker-js/faker` calls for
    * realistic data — reproducible when `mockSeed` is set. Only the mock module is affected.
    */
-  mockData?: 'baked' | 'faker';
+  mockData?: 'static' | 'faker';
   /** Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so runs reproduce. */
   mockSeed?: number;
   /**

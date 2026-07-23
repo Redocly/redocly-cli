@@ -22,7 +22,7 @@ export class SampleExpression {
 export type SampleOptions = { dateType?: DateType };
 
 /**
- * Turn an IR schema into a single deterministic JS value for baked mocks. Prefers
+ * Turn an IR schema into a single deterministic JS value for static mocks. Prefers
  * a spec `example`, then `default`, then a type/format-aware synthesized value —
  * EXCEPT for type-demanding fields (binary, or date/date-time under `dateType: 'Date'`)
  * whose generated type is not a JSON literal: those emit a fixed raw expression that

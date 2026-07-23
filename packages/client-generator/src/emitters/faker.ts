@@ -2,10 +2,10 @@
 // `@faker-js/faker` call expressions that produce realistic — and, with a seed,
 // reproducible — data. Structurally mirrors `emitters/sample.ts`'s `walk` (same
 // recursion + same visited-set cycle guard), but returns a `ts.Expression` of
-// faker calls instead of a baked value. Nested refs are INLINED under the same
+// faker calls instead of a static value. Nested refs are INLINED under the same
 // cycle guard (never `create<Ref>()` calls), so a cyclic schema terminates with
 // `null` at the cycle instead of recursing forever at runtime — exactly like the
-// baked path. The factory signatures are identical to the baked mode's, so a
+// static path. The factory signatures are identical to the static mode's, so a
 // consumer can flip `mockData` without touching call sites; `@faker-js/faker`
 // becomes their dev-dep while the real client stays dependency-free.
 
@@ -117,7 +117,7 @@ function walk(
 
 /** The faker call for a scalar, keyed by kind then `format`. A binary field has no
  *  faker generator (its type is `Blob`), so it emits `new Blob([])` — the same
- *  type-demanded expression the baked path uses, taking precedence over any example. */
+ *  type-demanded expression the static path uses, taking precedence over any example. */
 function scalarExpr(
   scalar: ScalarKind,
   meta: SchemaMetadata | undefined,

@@ -362,7 +362,7 @@ const Client: NodeType = {
     importExt: { enum: ['js', 'ts'] },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
-    mockData: { enum: ['baked', 'faker'] },
+    mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     setup: { type: 'string' },
     pagination: 'ClientPagination',

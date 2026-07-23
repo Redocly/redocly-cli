@@ -245,7 +245,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "mockData": {
         "enum": [
-          "baked",
+          "static",
           "faker",
         ],
       },

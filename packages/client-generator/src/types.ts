@@ -44,15 +44,15 @@ export type GenerateClientOptions = {
    */
   dateType?: 'string' | 'Date';
   /**
-   * How the `mock` generator produces data. `'baked'` (default) inlines deterministic
+   * How the `mock` generator produces data. `'static'` (default) inlines deterministic
    * literals (zero-dep, contract-faithful); `'faker'` emits `@faker-js/faker` calls for
    * realistic data — making `@faker-js/faker` the consumer's dev-dep. Factory signatures
    * are identical across modes, so a consumer can flip this without changing call sites.
    */
-  mockData?: 'baked' | 'faker';
+  mockData?: 'static' | 'faker';
   /**
    * Seed for faker-mode mocks. When set, the mock module emits a top-level
-   * `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in baked mode.
+   * `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in static mode.
    */
   mockSeed?: number;
   /**
