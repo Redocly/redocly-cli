@@ -212,6 +212,20 @@ describe('resolveOperationPagination — sources and precedence', () => {
     expect(notBoolean.error).toContain('must point at a boolean');
   });
 
+  it('accepts an empty items pointer for a response whose body IS the item array', () => {
+    const op = listOrders({
+      successResponses: [
+        response({ schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } } }),
+      ],
+    });
+    const result = resolveOperationPagination(op, modelWith([op]), {
+      operations: { listOrders: { style: 'offset', offsetParam: 'offset', items: '' } },
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.spec).toEqual({ style: 'offset', param: 'offset', items: '' });
+    expect(result.itemSchema).toEqual({ kind: 'ref', name: 'Order' });
+  });
+
   it('applies the x-pagination extension when no per-op rule exists', () => {
     const op = listOrders({ paginationExtension: OFFSET_RULE });
     const result = resolveOperationPagination(op, modelWith([op]), undefined);
@@ -291,12 +305,12 @@ describe('resolveOperationPagination — rule-shape validation (any source)', ()
     [
       'missing items',
       { style: 'cursor', cursorParam: 'cursor', nextCursor: '/nextCursor' },
-      '"items" must be a JSON pointer starting with "/"',
+      '"items" must be a JSON pointer starting with "/" (or "" when the response body is the item array itself)',
     ],
     [
       'an items pointer without the leading slash',
       { ...OFFSET_RULE, items: 'orders' },
-      '"items" must be a JSON pointer starting with "/"',
+      '"items" must be a JSON pointer starting with "/" (or "" when the response body is the item array itself)',
     ],
     [
       'cursor style without cursorParam',

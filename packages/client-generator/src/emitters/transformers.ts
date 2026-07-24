@@ -16,13 +16,48 @@ import type {
 } from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
 import { pascalCase } from './support.js';
-import { arrow, exportConstStatement, printStatements, ts } from './ts.js';
+import { arrow, exportConstStatement, parseStatements, printStatements, ts } from './ts.js';
 
 const { factory } = ts;
 
 /** `transform<Name>` — the function bound to a named schema. */
 function transformName(name: string): string {
   return `transform${pascalCase(name)}`;
+}
+
+/**
+ * Strips `readonly` modifiers so a transform can write a `readOnly` spec field
+ * (e.g. `createdTime`) — emitted into the module only when such a write exists.
+ */
+const WRITABLE_DECL = 'type __Writable<T> = { -readonly [K in keyof T]: T[K] };';
+/** Set by `writableLhs` during a render; `renderTransformersModule` resets and reads it. */
+let writableUsed = false;
+
+/**
+ * Whether transforming a value of `schema` REPLACES it (so the result must be
+ * assigned back) rather than mutating it in place: date scalars, arrays of
+ * them, unions containing them, and refs resolving to any of those. Objects,
+ * records, and intersections mutate in place.
+ */
+function needsReassign(
+  schema: SchemaModel,
+  byName: Map<string, SchemaModel>,
+  seen: Set<string>
+): boolean {
+  if (isDateScalar(schema)) return true;
+  switch (schema.kind) {
+    case 'array':
+      return needsReassign(schema.items, byName, seen);
+    case 'union':
+      return schema.members.some((member) => needsReassign(member, byName, seen));
+    case 'ref': {
+      if (seen.has(schema.name)) return false;
+      const target = byName.get(schema.name);
+      return target !== undefined && needsReassign(target, byName, new Set(seen).add(schema.name));
+    }
+    default:
+      return false;
+  }
 }
 
 /** A scalar string with a `date-time`/`date` format — the leaf we convert. */
@@ -121,11 +156,51 @@ function exprStatement(expr: ts.Expression): ts.Statement {
   return factory.createExpressionStatement(expr);
 }
 
-/** `<target> = <value>;`. */
-function assign(target: ts.Expression, value: ts.Expression): ts.Statement {
+/** `<target> = <value>;` — the LHS cast writable when it is a `readonly` property. */
+function assign(target: ts.Expression, value: ts.Expression, readonlyLhs = false): ts.Statement {
+  const lhs = readonlyLhs ? writableLhs(target) : target;
   return exprStatement(
-    factory.createBinaryExpression(target, factory.createToken(ts.SyntaxKind.EqualsToken), value)
+    factory.createBinaryExpression(lhs, factory.createToken(ts.SyntaxKind.EqualsToken), value)
   );
+}
+
+/**
+ * The write target for a `readonly`-typed property:
+ * `(recv as __Writable<NonNullable<typeof recv>>)["key"]`. `readonly` is shallow —
+ * it blocks only the direct assignment — so nested writes stay uncast.
+ */
+function writableLhs(lhs: ts.Expression): ts.Expression {
+  if (!ts.isElementAccessExpression(lhs)) return lhs; // a parameter reassignment is never readonly
+  writableUsed = true;
+  const receiver = factory.createParenthesizedExpression(
+    factory.createAsExpression(
+      lhs.expression,
+      factory.createTypeReferenceNode('__Writable', [nonNullTypeOf(lhs.expression)])
+    )
+  );
+  return factory.createElementAccessExpression(receiver, lhs.argumentExpression);
+}
+
+/**
+ * `NonNullable<typeof <expr>>` for the expression chains this emitter builds
+ * (an identifier indexed by string-literal keys), with `NonNullable` applied at
+ * every step so optional intermediate properties don't poison the indexed type.
+ */
+function nonNullTypeOf(expr: ts.Expression): ts.TypeNode {
+  let base: ts.TypeNode;
+  if (ts.isIdentifier(expr)) {
+    base = factory.createTypeQueryNode(expr);
+  } else if (ts.isElementAccessExpression(expr) && ts.isStringLiteral(expr.argumentExpression)) {
+    base = factory.createIndexedAccessTypeNode(
+      nonNullTypeOf(expr.expression),
+      factory.createLiteralTypeNode(factory.createStringLiteral(expr.argumentExpression.text))
+    );
+  } else {
+    // Every write target is built here from `data`/loop identifiers + string-literal
+    // element access (`index`), so any other shape is an emitter bug.
+    throw new Error('transformers: unsupported write-target expression');
+  }
+  return factory.createTypeReferenceNode('NonNullable', [base]);
 }
 
 /** `<recv>.<method>(<args>)`. */
@@ -163,34 +238,46 @@ function convert(
   schema: SchemaModel,
   byName: Map<string, SchemaModel>,
   seen: Set<string>,
-  itemVar: string
+  itemVar: string,
+  readonlyLhs = false
 ): ts.Statement[] {
   if (isDateScalar(schema)) {
-    return [ifThen(isStringGuard(target), assign(target, newDate(target)))];
+    return [ifThen(isStringGuard(target), assign(target, newDate(target), readonlyLhs))];
   }
   switch (schema.kind) {
     case 'ref':
-      return convertRef(target, schema.name, byName, seen);
+      return convertRef(target, schema.name, byName, seen, readonlyLhs);
     case 'object': {
       const stmts: ts.Statement[] = [];
       for (const p of schema.properties) {
-        stmts.push(...convertProperty(index(target, p.name), p.schema, byName, seen, itemVar));
+        stmts.push(
+          ...convertProperty(
+            index(target, p.name),
+            p.schema,
+            byName,
+            seen,
+            itemVar,
+            p.readOnly === true
+          )
+        );
       }
       return stmts;
     }
     case 'array':
-      return convertArray(target, schema.items, byName, seen, itemVar);
+      return convertArray(target, schema.items, byName, seen, itemVar, readonlyLhs);
     case 'record':
       return convertCollection(target, schema.value, byName, seen, itemVar, true);
     case 'intersection': {
       // An intersection value satisfies *every* member type, so each member's
       // transform applies directly to `target` with no narrowing needed.
       const stmts: ts.Statement[] = [];
-      for (const m of schema.members) stmts.push(...convert(target, m, byName, seen, itemVar));
+      for (const m of schema.members) {
+        stmts.push(...convert(target, m, byName, seen, itemVar, readonlyLhs));
+      }
       return stmts;
     }
     case 'union':
-      return convertUnion(target, schema.members, byName, seen, itemVar);
+      return convertUnion(target, schema.members, byName, seen, itemVar, readonlyLhs);
     default:
       return [];
   }
@@ -215,25 +302,29 @@ function convertUnion(
   members: SchemaModel[],
   byName: Map<string, SchemaModel>,
   seen: Set<string>,
-  itemVar: string
+  itemVar: string,
+  readonlyLhs = false
 ): ts.Statement[] {
   const stmts: ts.Statement[] = [];
   const objectGuarded: ts.Statement[] = [];
   for (const m of members) {
     if (isDateScalar(m)) {
-      stmts.push(...convert(target, m, byName, seen, itemVar));
+      stmts.push(...convert(target, m, byName, seen, itemVar, readonlyLhs));
     } else if (m.kind === 'ref') {
       if (!hasDates(m, byName, seen)) continue;
+      const call = factory.createCallExpression(
+        factory.createIdentifier(transformName(m.name)),
+        undefined,
+        [asType(target, m.name)]
+      );
+      // A replace-by-value ref (scalar dates) must be assigned back; an object
+      // ref mutates in place, so its return can be dropped.
       objectGuarded.push(
-        exprStatement(
-          factory.createCallExpression(factory.createIdentifier(transformName(m.name)), undefined, [
-            asType(target, m.name),
-          ])
-        )
+        needsReassign(m, byName, seen) ? assign(target, call, readonlyLhs) : exprStatement(call)
       );
     } else {
       // Object/array/record members: recurse under the shared object guard.
-      objectGuarded.push(...convert(target, m, byName, seen, itemVar));
+      objectGuarded.push(...convert(target, m, byName, seen, itemVar, readonlyLhs));
     }
   }
   if (objectGuarded.length > 0) {
@@ -243,22 +334,32 @@ function convertUnion(
 }
 
 /**
- * A ref position: `if (<target>) transform<Ref>(<target>);`, emitted only when
- * the ref target carries dates (so the sibling transform exists).
+ * A ref position, emitted only when the ref target carries dates (so the
+ * sibling transform exists). An object-shaped ref mutates in place —
+ * `if (<target>) transform<Ref>(<target>);` — but a ref resolving to a date
+ * scalar (or an array/union of them) is replace-by-value, so its result is
+ * assigned back: `if (<target>) <target> = transform<Ref>(<target>);`.
  */
 function convertRef(
   target: ts.Expression,
   name: string,
   byName: Map<string, SchemaModel>,
-  seen: Set<string>
+  seen: Set<string>,
+  readonlyLhs = false
 ): ts.Statement[] {
-  if (!hasDates({ kind: 'ref', name }, byName, seen)) return [];
+  const ref: SchemaModel = { kind: 'ref', name };
+  if (!hasDates(ref, byName, seen)) return [];
   const call = factory.createCallExpression(
     factory.createIdentifier(transformName(name)),
     undefined,
     [target]
   );
-  return [ifThen(target, exprStatement(call))];
+  return [
+    ifThen(
+      target,
+      needsReassign(ref, byName, seen) ? assign(target, call, readonlyLhs) : exprStatement(call)
+    ),
+  ];
 }
 
 /**
@@ -271,14 +372,16 @@ function convertProperty(
   schema: SchemaModel,
   byName: Map<string, SchemaModel>,
   seen: Set<string>,
-  itemVar: string
+  itemVar: string,
+  readonlyLhs = false
 ): ts.Statement[] {
-  if (schema.kind === 'ref') return convertRef(target, schema.name, byName, seen);
+  if (schema.kind === 'ref') return convertRef(target, schema.name, byName, seen, readonlyLhs);
   if (schema.kind === 'object') {
+    // Nested writes go one level inside — `readonly` is shallow, so no cast needed.
     const inner = convert(target, schema, byName, seen, itemVar);
     return inner.length === 0 ? [] : [ifThen(target, factory.createBlock(inner, true))];
   }
-  return convert(target, schema, byName, seen, itemVar);
+  return convert(target, schema, byName, seen, itemVar, readonlyLhs);
 }
 
 /**
@@ -293,14 +396,35 @@ function convertProperty(
  * via `slot = slot.map(...)`, a record via per-key assignment. This builds the
  * per-element value for those write-backs.
  */
-function replacer(value: ts.Expression, element: SchemaModel, depth = 0): ts.Expression | null {
+function replacer(
+  value: ts.Expression,
+  element: SchemaModel,
+  byName: Map<string, SchemaModel>,
+  seen: Set<string>,
+  depth = 0
+): ts.Expression | null {
   if (isDateScalar(element)) return newDate(value);
+  // A ref resolving to a replace-by-value shape (a scalar-date named schema):
+  // its sibling transform returns the converted value — `transform<Ref>(v)`.
+  if (element.kind === 'ref' && needsReassign(element, byName, seen)) {
+    return factory.createCallExpression(
+      factory.createIdentifier(transformName(element.name)),
+      undefined,
+      [value]
+    );
+  }
   if (element.kind === 'array') {
     // Map var for the level below: `v` over the scalar leaf, else `row`, `row2`,
     // … per array level — distinct names by depth avoid shadowing. Yields
     // `.map((v) => new Date(v))` and `.map((row) => row.map((v) => new Date(v)))`.
     const varName = element.items.kind === 'array' ? rowVar(depth + 1) : 'v';
-    const inner = replacer(factory.createIdentifier(varName), element.items, depth + 1);
+    const inner = replacer(
+      factory.createIdentifier(varName),
+      element.items,
+      byName,
+      seen,
+      depth + 1
+    );
     if (inner === null) return null;
     return method(value, 'map', [arrow([param(varName)], inner)]);
   }
@@ -318,18 +442,19 @@ function convertArray(
   items: SchemaModel,
   byName: Map<string, SchemaModel>,
   seen: Set<string>,
-  itemVar: string
+  itemVar: string,
+  readonlyLhs = false
 ): ts.Statement[] {
   // Date scalars / arrays-of-date-scalars are replace-by-value: map over the
   // array and reassign the slot (reassigning a loop var would be lost).
   const varName = items.kind === 'array' ? rowVar(1) : 'v';
-  const mapped = replacer(factory.createIdentifier(varName), items, 1);
+  const mapped = replacer(factory.createIdentifier(varName), items, byName, seen, 1);
   if (mapped !== null) {
     // `if (Array.isArray(t)) t = t.map((v) => new Date(v));`  (or nested `row`)
     return [
       ifThen(
         isArrayGuard(target),
-        assign(target, method(target, 'map', [arrow([param(varName)], mapped)]))
+        assign(target, method(target, 'map', [arrow([param(varName)], mapped)]), readonlyLhs)
       ),
     ];
   }
@@ -368,7 +493,7 @@ function convertCollection(
     // through a `forEach` loop var, so iterate the keys and assign back into the
     // record slot. Date scalars are string-guarded; nested arrays array-guarded.
     const slot = factory.createElementAccessExpression(target, factory.createIdentifier('__k'));
-    const replaced = replacer(slot, element);
+    const replaced = replacer(slot, element, byName, seen);
     if (replaced !== null) {
       const guard = isDateScalar(element) ? isStringGuard(slot) : isArrayGuard(slot);
       return [ifThen(target, keyLoop(target, ifThen(guard, assign(slot, replaced))))];
@@ -462,9 +587,12 @@ export function renderTransformersModule(model: ApiModel, opts: { sdkModule: str
   const dated = model.schemas.filter((s) => hasDates(s.schema, byName, new Set()));
   if (dated.length === 0) return '';
   const types = dated.map((s) => s.name);
+  writableUsed = false; // reset the per-render flag `writableLhs` sets
+  const transforms = dated.map((s) => transformStatement(s, byName));
   const statements = [
     typeImport(types, opts.sdkModule),
-    ...dated.map((s) => transformStatement(s, byName)),
+    ...(writableUsed ? parseStatements(WRITABLE_DECL) : []),
+    ...transforms,
   ];
   return printStatements(statements);
 }

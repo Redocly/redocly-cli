@@ -333,6 +333,41 @@ describe('sampleValue', () => {
     expect(sampleValue({ kind: 'union', members: [] }, [])).toBeNull();
   });
 
+  it('a scalar-narrowing intersection (enum ref + unmodeled `not`) samples the scalar member', () => {
+    const schemas: NamedSchemaModel[] = [
+      {
+        name: 'PaymentMethod',
+        schema: { kind: 'enum', scalar: 'string', values: ['payment-card', 'ach', 'other'] },
+      },
+    ];
+    expect(
+      sampleValue(
+        {
+          kind: 'intersection',
+          members: [{ kind: 'ref', name: 'PaymentMethod' }, { kind: 'unknown' }],
+        },
+        schemas
+      )
+    ).toBe('payment-card');
+  });
+
+  it('a nullable date field under dateType Date samples new Date() even with an example', () => {
+    const sampled = sampleValue(
+      {
+        kind: 'union',
+        members: [
+          { kind: 'scalar', scalar: 'string', metadata: { format: 'date', example: '1980-04-01' } },
+          { kind: 'null' },
+        ],
+        metadata: { example: '1980-04-01' },
+      },
+      [],
+      { dateType: 'Date' }
+    );
+    expect(sampled).toBeInstanceOf(SampleExpression);
+    expect((sampled as SampleExpression).code).toBe('new Date("2024-01-01")');
+  });
+
   it('intersection skips non-object members', () => {
     // A union member that resolves to a scalar (non-object) should be skipped in reduce
     expect(

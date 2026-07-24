@@ -119,6 +119,24 @@ describe('fakerExpression', () => {
     expect(emit({ kind: 'union', members: [] })).toBe('null');
   });
 
+  it('a scalar-narrowing intersection (enum ref + unmodeled `not`) emits the scalar member', () => {
+    const schemas: NamedSchemaModel[] = [
+      {
+        name: 'PaymentMethod',
+        schema: { kind: 'enum', scalar: 'string', values: ['payment-card', 'ach'] },
+      },
+    ];
+    const out = emit(
+      {
+        kind: 'intersection',
+        members: [{ kind: 'ref', name: 'PaymentMethod' }, { kind: 'unknown' }],
+      },
+      schemas
+    );
+    expect(out).toContain('faker.helpers.arrayElement');
+    expect(out).not.toBe('{}');
+  });
+
   it('merges object members of an intersection', () => {
     const out = emit({
       kind: 'intersection',

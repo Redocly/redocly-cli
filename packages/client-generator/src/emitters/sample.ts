@@ -63,6 +63,15 @@ function typeDemandedExpression(
   schema: SchemaModel,
   dateType: DateType
 ): SampleExpression | undefined {
+  // A nullable field (`type: ['string', 'null']`) wraps the demanding scalar in a
+  // union — the demand (and its precedence over any example) applies to the member.
+  if (schema.kind === 'union') {
+    for (const member of schema.members) {
+      const demanded = typeDemandedExpression(member, dateType);
+      if (demanded) return demanded;
+    }
+    return undefined;
+  }
   if (schema.kind !== 'scalar') return undefined;
   const format = schema.metadata?.format;
   if (format === 'binary') return new SampleExpression('new Blob([])');
@@ -121,11 +130,21 @@ function walk(
       }
       return schema.members.length > 0 ? CYCLE : null;
     }
-    case 'intersection':
-      return schema.members.reduce<Record<string, unknown>>((acc, m) => {
-        const part = walk(m, byName, visiting, dateType);
-        return isPlainObject(part) ? Object.assign(acc, part) : acc;
-      }, {});
+    case 'intersection': {
+      // Constraint-only members (`not`, unmodeled keywords) surface as `unknown` — they
+      // narrow the type without describing a shape, so they contribute nothing.
+      const parts = schema.members
+        .filter((member) => member.kind !== 'unknown')
+        .map((member) => walk(member, byName, visiting, dateType))
+        .filter((part) => part !== CYCLE);
+      const objects = parts.filter(isPlainObject);
+      if (objects.length > 0) {
+        return objects.reduce<Record<string, unknown>>((acc, part) => Object.assign(acc, part), {});
+      }
+      // No object member: a scalar-narrowing intersection (e.g. an enum ref constrained
+      // by `not`) — the first member's sample IS the value.
+      return parts.length > 0 ? parts[0] : {};
+    }
     case 'omit': {
       // base is a named schema reference (string), resolve it then drop the listed keys
       const target = byName.get(schema.base);

@@ -42,7 +42,7 @@ export type PaginationRule = {
   offsetParam?: string;
   /** Optional page-size query param (any style; recorded for tooling). */
   limitParam?: string;
-  /** JSON pointer to the page's item array in the response. */
+  /** JSON pointer to the page's item array in the response; `''` when the body IS the array. */
   items: string;
 };
 
@@ -227,8 +227,8 @@ function ruleShapeProblem(rule: unknown): string | undefined {
   if (style !== 'cursor' && style !== 'offset' && style !== 'page') {
     return `"style" must be one of "cursor" | "offset" | "page" (got ${JSON.stringify(style)})`;
   }
-  if (typeof items !== 'string' || !items.startsWith('/')) {
-    return '"items" must be a JSON pointer starting with "/"';
+  if (typeof items !== 'string' || (items !== '' && !items.startsWith('/'))) {
+    return '"items" must be a JSON pointer starting with "/" (or "" when the response body is the item array itself)';
   }
   if (style === 'cursor') {
     if (typeof cursorParam !== 'string' || cursorParam === '') {

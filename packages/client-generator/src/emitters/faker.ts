@@ -90,14 +90,20 @@ function walk(
       }
       return schema.members.length > 0 ? CYCLE : factory.createNull();
     }
-    case 'intersection':
-      return factory.createObjectLiteralExpression(
-        schema.members.flatMap((m) => {
-          const part = walk(m, byName, visiting, dateType);
-          return part !== CYCLE && ts.isObjectLiteralExpression(part) ? assignments(part) : [];
-        }),
-        true
-      );
+    case 'intersection': {
+      // Mirror the static sampler: `unknown` members are constraint-only (`not`, unmodeled
+      // keywords) and contribute nothing; with no object member, the first member's
+      // expression IS the value (a scalar-narrowing intersection).
+      const parts = schema.members
+        .filter((member) => member.kind !== 'unknown')
+        .map((member) => walk(member, byName, visiting, dateType))
+        .filter((part): part is ts.Expression => part !== CYCLE);
+      const objects = parts.filter(ts.isObjectLiteralExpression);
+      if (objects.length > 0) {
+        return factory.createObjectLiteralExpression(objects.flatMap(assignments), true);
+      }
+      return parts[0] ?? factory.createObjectLiteralExpression([], true);
+    }
     case 'omit':
       return omitExpr(schema.base, schema.keys, byName, visiting, dateType);
     case 'ref': {

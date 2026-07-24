@@ -43,7 +43,7 @@ See [Pagination in the usage guide](../../guides/use-generated-client.md#paginat
 | `hasMore`     | `string`                  | Optional (`cursor` style): JSON pointer to a boolean "more pages" flag — iteration stops when it resolves to `false`, for APIs whose cursor stays non-null on the last page. |
 | `offsetParam` | `string`                  | The query parameter the iterator advances. **REQUIRED** for the `offset` and `page` styles.                                                                                  |
 | `limitParam`  | `string`                  | Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.                                                                         |
-| `items`       | `string`                  | **REQUIRED**. JSON pointer to the page's item array in the response.                                                                                                         |
+| `items`       | `string`                  | **REQUIRED**. JSON pointer to the page's item array in the response; use `''` when the response body is the item array itself.                                               |
 | `exclude`     | `[string]`                | operationIds that no source may paginate; wins over overrides, extensions, and the convention.                                                                               |
 | `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the spec's `x-pagination` and the convention.                                                 |
 

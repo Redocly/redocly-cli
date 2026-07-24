@@ -38,6 +38,78 @@ describe('renderTransformersModule', () => {
     expect(render([])).toBe('');
   });
 
+  it('assigns back a property whose $ref resolves to a date scalar (replace-by-value)', () => {
+    const out = render([
+      {
+        name: 'CreatedTime',
+        schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+      },
+      {
+        name: 'Customer',
+        schema: {
+          kind: 'object',
+          properties: [
+            { name: 'createdTime', schema: { kind: 'ref', name: 'CreatedTime' }, required: false },
+          ],
+        },
+      },
+    ]);
+    // A scalar transform replaces by value — dropping the return would lose the conversion.
+    expect(out).toContain('data["createdTime"] = transformCreatedTime(data["createdTime"]);');
+  });
+
+  it('writes a readOnly date property through a __Writable cast', () => {
+    const out = render([
+      {
+        name: 'Customer',
+        schema: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'lastPaymentTime',
+              schema: {
+                kind: 'union',
+                members: [
+                  { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                  { kind: 'null' },
+                ],
+              },
+              required: false,
+              readOnly: true,
+            },
+          ],
+        },
+      },
+    ]);
+    expect(out).toContain('type __Writable<T> = {');
+    expect(out).toContain(
+      '(data as __Writable<NonNullable<typeof data>>)["lastPaymentTime"] = new Date('
+    );
+  });
+
+  it('maps an array of scalar-date refs through the sibling transform', () => {
+    const out = render([
+      {
+        name: 'CreatedTime',
+        schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+      },
+      {
+        name: 'Log',
+        schema: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'times',
+              schema: { kind: 'array', items: { kind: 'ref', name: 'CreatedTime' } },
+              required: false,
+            },
+          ],
+        },
+      },
+    ]);
+    expect(out).toContain('data["times"] = data["times"].map(v => transformCreatedTime(v));');
+  });
+
   it('converts top-level `date-time` and `date` scalar fields, guarded', () => {
     const out = render([
       {
