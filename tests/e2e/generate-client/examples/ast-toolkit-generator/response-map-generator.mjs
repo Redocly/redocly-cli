@@ -44,7 +44,9 @@ export default {
     // type-imports every referenced schema name from the generated client.
     const referenced = [...new Set(withJsonBody.flatMap(({ schema }) => refNames(schema)))].sort();
     const importLine =
-      referenced.length > 0 ? `import type { ${referenced.join(', ')} } from './client.js';\n\n` : '';
+      referenced.length > 0
+        ? `import type { ${referenced.join(', ')} } from './client.js';\n\n`
+        : '';
 
     return [
       {
