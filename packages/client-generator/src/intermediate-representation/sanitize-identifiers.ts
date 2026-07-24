@@ -1,8 +1,10 @@
 import { logger } from '@redocly/openapi-core';
 
 import { authSetterNames } from '../emitters/auth.js';
-import { isSafeIdentifier, uniqueIdent } from '../emitters/identifier.js';
+import { isSafeIdentifier, sanitizeIdentifier } from '../emitters/identifier.js';
 import { reservedModuleNames } from '../emitters/reserved-names.js';
+import { pascalCase } from '../emitters/support.js';
+import { NotSupportedError } from '../errors.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
 
 /**
@@ -28,9 +30,10 @@ export function sanitizeIdentifiers(model: ApiModel): void {
   // `security` list with the same map so the literals still match. Keys go first:
   // the setter names seeded into the schema pass below derive from the final keys.
   const schemeKeys = new Set<string>();
+  const schemePascals = new Set<string>();
   const renamedKeys = new Map<string, string>();
   for (const scheme of model.securitySchemes) {
-    const safe = uniqueIdent(scheme.key, schemeKeys);
+    const safe = uniquePascalIdent(scheme.key, schemeKeys, schemePascals);
     if (safe !== scheme.key) {
       renamedKeys.set(scheme.key, safe);
       warnRename('security scheme', scheme.key, safe);
@@ -47,9 +50,10 @@ export function sanitizeIdentifiers(model: ApiModel): void {
     ...reservedModuleNames(),
     ...authSetterNames(model.securitySchemes),
   ]);
+  const schemaPascals = new Set<string>();
   const renamed = new Map<string, string>();
   for (const schema of model.schemas) {
-    const safe = uniqueIdent(schema.name, schemaNames);
+    const safe = uniquePascalIdent(schema.name, schemaNames, schemaPascals);
     if (safe !== schema.name) {
       renamed.set(schema.name, safe);
       warnRename('schema', schema.name, safe);
@@ -68,9 +72,10 @@ export function sanitizeIdentifiers(model: ApiModel): void {
   // would resolve to the function value, and the entry's `export *` would drop the
   // shadowed type. Seeding with the schema names renames a colliding operation.
   const operationNames = new Set<string>(schemaNames);
+  const operationPascals = new Set<string>();
   for (const service of model.services) {
     for (const op of service.operations) {
-      const safe = uniqueIdent(op.name, operationNames);
+      const safe = uniquePascalIdent(op.name, operationNames, operationPascals);
       if (safe !== op.name) {
         warnRename('operation', op.name, safe);
         op.specName = op.name;
@@ -78,6 +83,49 @@ export function sanitizeIdentifiers(model: ApiModel): void {
       }
       rewriteOperationRefs(op, fixRef);
       op.security = op.security.map((alternative) => alternative.map(fixKey));
+    }
+  }
+}
+
+/**
+ * `sanitizeIdentifier(name)` made unique within `used` AND distinct after the
+ * `pascalCase` mapping the emitters derive companion names with (`<Pascal>Schema`,
+ * `create<Pascal>`, `transform<Pascal>`, `<Pascal>Variables`, `setApiKey<Key>`).
+ * `pascalCase` changes only the first character, so case-distinct spec names
+ * (`pet` / `Pet`) would otherwise collapse to the same derived identifiers.
+ */
+function uniquePascalIdent(name: string, used: Set<string>, usedPascals: Set<string>): string {
+  const base = sanitizeIdentifier(name);
+  let ident = base;
+  let suffix = 2;
+  while (used.has(ident) || usedPascals.has(pascalCase(ident))) ident = `${base}_${suffix++}`;
+  used.add(ident);
+  usedPascals.add(pascalCase(ident));
+  return ident;
+}
+
+/** The request-args slot keys a path parameter's wire name may not reuse. */
+const ARG_SLOT_NAMES = ['params', 'body', 'headers', 'cookies'];
+
+/**
+ * Reject path parameters named after a request-args slot. The runtime routes path
+ * values as `args[param.name]` at the TOP level of the args object, next to the
+ * `params`/`body`/`headers`/`cookies` slots — a path parameter of the same name is
+ * irreducibly ambiguous there (the wire name is the routing key, so no rename can
+ * help), which silently misroutes the value. Failing generation with a spec-side fix
+ * beats emitting a client that drops it. `init` is fine: it is only a flat-sugar
+ * binding, and the signature emitter moves that binding aside.
+ */
+export function assertPathParamsAvoidArgSlots(model: ApiModel): void {
+  for (const service of model.services) {
+    for (const op of service.operations) {
+      for (const param of op.pathParams) {
+        if (ARG_SLOT_NAMES.includes(param.name)) {
+          throw new NotSupportedError(
+            `Operation "${op.specName ?? op.name}": path parameter "${param.name}" collides with the "${param.name}" request-argument slot; rename the parameter in the API description.`
+          );
+        }
+      }
     }
   }
 }
@@ -115,8 +163,8 @@ function unsafe(kind: string, name: string): Error {
 
 /** Sanitize a ref/`omit` target that has no matching declaration (rare: a dangling $ref). */
 function sanitizeRef(name: string): string {
-  // No uniqueness context here; a throwaway set yields a pure, deterministic sanitize.
-  return uniqueIdent(name, new Set());
+  // No uniqueness context here; a pure, deterministic sanitize is all that is needed.
+  return sanitizeIdentifier(name);
 }
 
 function warnRename(kind: string, from: string, to: string): void {

@@ -144,11 +144,13 @@ export function descriptorStatements(
   // (a plain `["tags"]` index would not compile against the untagged entries), and is
   // omitted entirely when no operation has a tag (it would be `never`).
   const hasTags = ops.some((op) => op.tags.length > 0);
+  // `OperationId` is the union of descriptor `id` LITERALS — the spec operationIds the
+  // runtime exposes as `ctx.operation.id` — not the (possibly rename-sanitized) keys.
   const derived = parseStatements(
-    'export type OperationId = keyof typeof OPERATIONS;\n' +
-      'export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];' +
+    'export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];\n' +
+      'export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];' +
       (hasTags
-        ? '\nexport type OperationTag = Extract<(typeof OPERATIONS)[OperationId], { tags: readonly string[] }>["tags"][number];'
+        ? '\nexport type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], { tags: readonly string[] }>["tags"][number];'
         : '')
   );
   return [operations, ...derived];

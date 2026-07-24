@@ -125,7 +125,7 @@ export type MenuItemList = {
     items: MenuItem[];
 };
 
-export type Error = {
+export type Error_2 = {
     /**
      * URI reference that identifies the problem type.
      * @format uri-reference
@@ -792,11 +792,11 @@ export const OPERATIONS = {
     registerOAuth2Client: { id: "registerOAuth2Client", method: "POST", path: "/oauth2/register", tags: ["Authorization"], body: { contentType: "application/json" } }
 } as const satisfies Record<string, OperationDescriptor>;
 
-export type OperationId = keyof typeof OPERATIONS;
+export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];
 
-export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];
 
-export type OperationTag = Extract<(typeof OPERATIONS)[OperationId], {
+export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], {
     tags: readonly string[];
 }>["tags"][number];
 

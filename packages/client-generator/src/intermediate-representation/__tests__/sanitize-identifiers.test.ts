@@ -1,5 +1,9 @@
 import type { ApiModel, OperationModel, SchemaModel } from '../model.js';
-import { assertSafeIdentifiers, sanitizeIdentifiers } from '../sanitize-identifiers.js';
+import {
+  assertPathParamsAvoidArgSlots,
+  assertSafeIdentifiers,
+  sanitizeIdentifiers,
+} from '../sanitize-identifiers.js';
 
 function model(schemas: ApiModel['schemas'], operations: OperationModel[] = []): ApiModel {
   return {
@@ -71,6 +75,62 @@ describe('sanitizeIdentifiers', () => {
     const apiError = m.schemas[0].schema as Extract<SchemaModel, { kind: 'object' }>;
     expect(apiError.properties[0].schema).toEqual(ref('http_2'));
     expect(m.services[0].operations[0].name).toBe('getItem');
+  });
+
+  it('keeps schema names distinct after the PascalCase derivation (pet vs Pet)', () => {
+    // Derived export names (`PetSchema`, `createPet`, `transformPet`) uppercase only the
+    // first character, so case-distinct spec names must stay distinct after that mapping
+    // too or the companion modules emit duplicate identifiers.
+    const m = model([
+      { name: 'pet', schema: { kind: 'scalar', scalar: 'string' } },
+      { name: 'Pet', schema: { kind: 'object', properties: [] } },
+      {
+        name: 'Holder',
+        schema: {
+          kind: 'object',
+          properties: [{ name: 'x', schema: ref('Pet'), required: true }],
+        },
+      },
+    ]);
+    sanitizeIdentifiers(m);
+    expect(m.schemas.map((schema) => schema.name)).toEqual(['pet', 'Pet_2', 'Holder']);
+    const holder = m.schemas[2].schema as Extract<SchemaModel, { kind: 'object' }>;
+    expect(holder.properties[0].schema).toEqual(ref('Pet_2'));
+  });
+
+  it('keeps operation names distinct after the PascalCase derivation (getPet vs GetPet)', () => {
+    // `<Op>Variables`/`<Op>Result` aliases collapse case-distinct operation names.
+    const m = model([], [op({ name: 'getPet' }), op({ name: 'GetPet' })]);
+    sanitizeIdentifiers(m);
+    expect(m.services[0].operations.map((operation) => operation.name)).toEqual([
+      'getPet',
+      'GetPet_2',
+    ]);
+    expect(m.services[0].operations[1].specName).toBe('GetPet');
+  });
+
+  it('keeps security-scheme keys distinct after the PascalCase derivation (token vs Token)', () => {
+    // Both keys would derive the same `setApiKeyToken` setter.
+    const m = model([], [op({ name: 'getPet', security: [['token'], ['Token']] })]);
+    m.securitySchemes = [
+      { kind: 'apiKeyHeader', key: 'token', headerName: 'X-Token' },
+      { kind: 'apiKeyHeader', key: 'Token', headerName: 'X-Token-2' },
+    ];
+    sanitizeIdentifiers(m);
+    expect(m.securitySchemes.map((scheme) => scheme.key)).toEqual(['token', 'Token_2']);
+    expect(m.services[0].operations[0].security).toEqual([['token'], ['Token_2']]);
+  });
+
+  it('renames a schema that shadows a platform global the emitted code references', () => {
+    // `--date-type Date` fields, binary `Blob` fields, and the runtime's `Promise`/
+    // `Response` annotations all reference bare global identifiers; a same-named schema
+    // type in the module would shadow them.
+    const m = model([
+      { name: 'Date', schema: { kind: 'object', properties: [] } },
+      { name: 'Promise', schema: { kind: 'object', properties: [] } },
+    ]);
+    sanitizeIdentifiers(m);
+    expect(m.schemas.map((schema) => schema.name)).toEqual(['Date_2', 'Promise_2']);
   });
 
   it('renames a schema that collides with an auth setter derived from the security schemes', () => {
@@ -241,6 +301,31 @@ describe('sanitizeIdentifiers', () => {
     expect(o.successResponses[0].schema).toEqual(ref('A_B'));
     expect(o.successResponses[0].itemSchema).toEqual(ref('A_B'));
     expect(o.errorResponses[0].schema).toEqual(ref('A_B'));
+  });
+});
+
+describe('assertPathParamsAvoidArgSlots', () => {
+  function opWithPathParam(name: string): OperationModel {
+    return op({
+      path: `/x/{${name}}`,
+      pathParams: [
+        { name, in: 'path', required: true, schema: { kind: 'scalar', scalar: 'string' } },
+      ],
+    });
+  }
+
+  it('throws for a path parameter named after a request-args slot', () => {
+    // The runtime routes path values as `args[param.name]` at the top level, next to the
+    // `params`/`body`/`headers`/`cookies` slots — a same-named path param is ambiguous.
+    const m = model([], [opWithPathParam('body')]);
+    expect(() => assertPathParamsAvoidArgSlots(m)).toThrow(
+      /path parameter "body".*rename the parameter/s
+    );
+  });
+
+  it('allows a path parameter named init (only a flat-sugar binding, remapped there)', () => {
+    const m = model([], [opWithPathParam('init')]);
+    expect(() => assertPathParamsAvoidArgSlots(m)).not.toThrow();
   });
 });
 

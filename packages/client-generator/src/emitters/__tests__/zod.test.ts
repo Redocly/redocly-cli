@@ -291,6 +291,22 @@ describe('renderZodModule — operation validation surface', () => {
     expect(out).toContain('export class ZodValidationError extends Error {');
   });
 
+  it('keys operationSchemas by the SPEC operationId (quoted when not an identifier)', () => {
+    // The middleware looks entries up by `ctx.operation.id`, which is the spec's
+    // operationId — a sanitized-away name (`list-orders` → `list_orders`) must not leak
+    // into the keys or every lookup for that operation misses.
+    const out = renderZodModule(
+      model({
+        name: 'list_orders',
+        specName: 'list-orders',
+        method: 'get',
+        successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
+      })
+    );
+    expect(out).toContain('"list-orders": { response: z.lazy(() => OrderSchema) }');
+    expect(out).not.toContain('list_orders:');
+  });
+
   it('annotates the map with z.ZodType so declaration emit stays small (TS7056)', () => {
     const out = renderZodModule(
       model({

@@ -34,7 +34,12 @@ export function operationSignature(op: OperationModel): OperationSignature {
     const p = byName.get(match[1]);
     if (p) ordered.push(p);
   }
-  const used = new Set<string>();
+  // Seed the slot/`init` argument names the flat signature appends after the path
+  // params: a same-named path param keeps its wire name but binds as `<name>_2`
+  // (the sugar remaps `{ <wire>: <binding> }`). The slot names themselves are
+  // rejected at build time (`assertPathParamsAvoidArgSlots`); `init` is only a
+  // binding here, so the remap fully handles it.
+  const used = new Set<string>(['params', 'body', 'headers', 'cookies', 'init']);
   const pathParams = ordered.map((param) => ({ param, ident: uniqueIdent(param.name, used) }));
 
   const hasQuery = op.queryParams.length > 0;

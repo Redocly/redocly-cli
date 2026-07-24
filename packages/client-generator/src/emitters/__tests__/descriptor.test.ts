@@ -86,9 +86,9 @@ describe('descriptorStatements', () => {
             ping: { id: "ping", method: "GET", path: "/ping" }
         } as const satisfies Record<string, OperationDescriptor>;
 
-        export type OperationId = keyof typeof OPERATIONS;
+        export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];
 
-        export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];"
+        export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];"
       `);
   });
 
@@ -288,12 +288,16 @@ describe('descriptorStatements', () => {
       ])
     );
     expect(out).toContain('tags: ["Pets"]');
-    expect(out).toContain('export type OperationId = keyof typeof OPERATIONS;');
-    expect(out).toContain('export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];');
+    expect(out).toContain(
+      'export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];'
+    );
+    expect(out).toContain(
+      'export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];'
+    );
     // `tags` is present only on tagged entries, so the union is derived via Extract —
     // a plain ["tags"] index would not compile against the untagged entries.
     expect(out).toContain(
-      'export type OperationTag = Extract<(typeof OPERATIONS)[OperationId], {\n' +
+      'export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], {\n' +
         '    tags: readonly string[];\n' +
         '}>["tags"][number];'
     );

@@ -14,6 +14,15 @@ describe('operationSignature', () => {
     expect(sig.pathParams.map((p) => p.ident)).toEqual(['second', 'a_b']);
   });
 
+  it('renames a path param binding that would collide with the trailing init argument', () => {
+    // The wire name stays `init` (the flat sugar remaps `{ init: init_2 }`); only the
+    // local binding moves aside for the trailing `init: RequestOptions` parameter.
+    const sig = operationSignature(
+      operation({ path: '/x/{init}', pathParams: [param('init', 'path', true)] })
+    );
+    expect(sig.pathParams.map((p) => p.ident)).toEqual(['init_2']);
+  });
+
   it('reports slot presence and hasInputs', () => {
     const none = operationSignature(operation({ path: '/x', method: 'get' }));
     expect(none).toMatchObject({

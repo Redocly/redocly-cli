@@ -323,9 +323,18 @@ function operationSchemaEntries(model: ApiModel, byName: SchemaByName): Operatio
     );
     const response = jsonResponse ? schemaToZodExpression(jsonResponse.schema, byName) : undefined;
     if (!request && !response) continue;
-    entries.push({ name: op.name, request, response });
+    // The SPEC operationId — the middleware looks entries up by `ctx.operation.id`,
+    // which stays the spec id even when the emitted function name was renamed.
+    entries.push({ name: op.specName ?? op.name, request, response });
   }
   return entries;
+}
+
+/** An entry key as a printable property name: bare when a safe identifier, quoted otherwise. */
+function entryKey(name: string): ts.PropertyName {
+  return safeIdent(name) === name
+    ? factory.createIdentifier(name)
+    : factory.createStringLiteral(name);
 }
 
 function operationSchemasStatement(entries: OperationSchemaEntry[]): ts.Statement {
@@ -339,7 +348,7 @@ function operationSchemasStatement(entries: OperationSchemaEntry[]): ts.Statemen
   const typeMembers = entries.map((entry) =>
     factory.createPropertySignature(
       undefined,
-      entry.name,
+      entryKey(entry.name),
       undefined,
       factory.createTypeLiteralNode(
         [
@@ -355,7 +364,7 @@ function operationSchemasStatement(entries: OperationSchemaEntry[]): ts.Statemen
   );
   const valueEntries = entries.map((entry) =>
     factory.createPropertyAssignment(
-      entry.name,
+      entryKey(entry.name),
       factory.createObjectLiteralExpression(
         [
           entry.request ? factory.createPropertyAssignment('request', entry.request) : undefined,

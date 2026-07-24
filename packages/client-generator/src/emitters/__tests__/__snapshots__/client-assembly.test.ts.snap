@@ -60,11 +60,11 @@ export const OPERATIONS = {
     streamEvents: { id: "streamEvents", method: "GET", path: "/events", responseKind: "sse", sseDataKind: "json" }
 } as const satisfies Record<string, OperationDescriptor>;
 
-export type OperationId = keyof typeof OPERATIONS;
+export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];
 
-export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];
 
-export type OperationTag = Extract<(typeof OPERATIONS)[OperationId], {
+export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], {
     tags: readonly string[];
 }>["tags"][number];
 
@@ -158,11 +158,11 @@ export const OPERATIONS = {
     getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "expand", in: "query" }] }
 } as const satisfies Record<string, OperationDescriptor>;
 
-export type OperationId = keyof typeof OPERATIONS;
+export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];
 
-export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];
 
-export type OperationTag = Extract<(typeof OPERATIONS)[OperationId], {
+export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], {
     tags: readonly string[];
 }>["tags"][number];
 
@@ -261,11 +261,11 @@ export const OPERATIONS = {
     getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", tags: ["Orders"], params: [{ name: "orderId", in: "path" }, { name: "expand", in: "query" }] }
 } as const satisfies Record<string, OperationDescriptor>;
 
-export type OperationId = keyof typeof OPERATIONS;
+export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];
 
-export type OperationPath = (typeof OPERATIONS)[OperationId]["path"];
+export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];
 
-export type OperationTag = Extract<(typeof OPERATIONS)[OperationId], {
+export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], {
     tags: readonly string[];
 }>["tags"][number];
 

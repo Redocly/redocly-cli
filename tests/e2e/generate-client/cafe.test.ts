@@ -159,7 +159,9 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   test('exports an OPERATIONS descriptor map keyed by operationId (method + path template)', () => {
     expect(generated).toContain('export const OPERATIONS = {');
     expect(generated).toContain('} as const satisfies Record<string, OperationDescriptor>;');
-    expect(generated).toContain('export type OperationId = keyof typeof OPERATIONS;');
+    expect(generated).toContain(
+      'export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];'
+    );
     // A path-param operation keeps its `{param}` template, uppercased method, and tags.
     expect(generated).toContain(
       'getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"]'
