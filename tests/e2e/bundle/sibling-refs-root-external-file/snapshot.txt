@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: Root-level $ref with siblings across files
+  version: 1.0.0
+paths:
+  /demo:
+    get:
+      operationId: getDemo
+      responses:
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+components:
+  schemas:
+    BadRequest:
+      title: Bad request
+      type: object
+      $ref: '#/components/schemas/BaseProblem'
+      properties:
+        status:
+          type: integer
+          minimum: 400
+          maximum: 400
+      required:
+        - status
+    BaseProblem:
+      type: object
+      properties:
+        title:
+          type: string
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.

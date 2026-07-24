@@ -263,14 +263,17 @@ export function makeBundleVisitor({
   }
 
   function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref);
-    resolvedRefMap.set(newRefId, {
+    const resolvedRef = {
       document: rootDocument,
       isRemote: false,
       node: resolved.node,
       nodePointer: node.$ref,
-      resolved: true,
-    });
+      resolved: true as const,
+    };
+    resolvedRefMap.set(makeRefId(ctx.location.source.absoluteRef, node.$ref), resolvedRef);
+    // The node may be walked again as part of the bundled document (e.g. a component saved
+    // from an external file), so register the rewritten ref from the root source as well.
+    resolvedRefMap.set(makeRefId(rootDocument.source.absoluteRef, node.$ref), resolvedRef);
   }
 
   function saveComponent(componentType: string, target: ComponentTarget, ctx: UserContext) {

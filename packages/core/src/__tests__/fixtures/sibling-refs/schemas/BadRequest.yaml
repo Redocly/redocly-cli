@@ -1,0 +1,10 @@
+title: Bad request
+type: object
+$ref: ./BaseProblem.yaml
+properties:
+  status:
+    type: integer
+    minimum: 400
+    maximum: 400
+required:
+  - status

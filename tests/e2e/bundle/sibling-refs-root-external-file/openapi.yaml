@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: Root-level $ref with siblings across files
+  version: 1.0.0
+paths:
+  /demo:
+    get:
+      operationId: getDemo
+      responses:
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/BadRequest.yaml
+components:
+  schemas:
+    BadRequest:
+      $ref: ./schemas/BadRequest.yaml
+    BaseProblem:
+      $ref: ./schemas/BaseProblem.yaml

@@ -976,6 +976,51 @@ describe('sibling $ref resolution by spec', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should keep sibling keywords when an external schema file has a root-level $ref', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-root-ref-siblings.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).components.schemas.BadRequest).toEqual({
+      title: 'Bad request',
+      type: 'object',
+      $ref: '#/components/schemas/BaseProblem',
+      properties: {
+        status: { type: 'integer', minimum: 400, maximum: 400 },
+      },
+      required: ['status'],
+    });
+    expect(
+      (res.parsed as any).paths['/demo'].get.responses['400'].content['application/json'].schema
+    ).toEqual({ $ref: '#/components/schemas/BadRequest' });
+  });
+
+  it('should keep sibling keywords when a referenced component has a root-level $ref', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-root-ref-siblings.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as any).components.schemas;
+    expect(schemas.Problem).toEqual({
+      $ref: '#/components/schemas/ProblemAlias',
+      description: 'Composed problem',
+    });
+    expect(schemas.ProblemAlias).toEqual({
+      $ref: '#/components/schemas/BaseProblem',
+      title: 'Problem alias',
+    });
+    expect(schemas.BaseProblem).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+      },
+    });
+  });
 });
 
 describe('bundle with --component-names-strategy title', () => {

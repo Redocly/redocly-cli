@@ -411,6 +411,34 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
   });
 
+  it('should stop following transitive refs at a $ref with sibling keys', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          $ref: "#/aliased"
+        aliased:
+          $ref: '#/target'
+          description: alias with sibling
+        target:
+          contact: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    expect(resolvedRefs.get('foobar.yaml::#/aliased')!.node).toEqual({
+      $ref: '#/target',
+      description: 'alias with sibling',
+    });
+    expect(resolvedRefs.get('foobar.yaml::#/target')!.node).toEqual({ contact: {} });
+  });
+
   it('should throw error if ref is folder', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const rootDocument = parseYamlToDocument(
