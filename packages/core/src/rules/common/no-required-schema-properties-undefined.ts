@@ -3,7 +3,6 @@ import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import { getOwn } from '../../utils/get-own.js';
 import { isNotEmptyArray } from '../../utils/is-not-empty-array.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { resolveSchema } from '../utils.js';
@@ -29,47 +28,63 @@ export const NoRequiredSchemaPropertiesUndefined:
         parents.push(currentSchema);
         if (!currentSchema.required) return;
 
-        const hasProperty = (
-          schemaOrRef: AnySchema | undefined,
+        const definesProperty = (
+          schema: AnySchema,
           propertyName: string,
           visited: Set<AnySchema>,
           resolveFrom?: string
         ): boolean => {
-          if (isRef(schemaOrRef)) {
-            // a JSON Schema 2020-12 $ref can carry sibling keywords, so check them too
-            const siblingProperties = (schemaOrRef as AnySchema).properties;
-            if (
-              isPlainObject(siblingProperties) &&
-              getOwn(siblingProperties, propertyName) !== undefined
-            ) {
-              return true;
-            }
-          }
-
-          const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveFrom);
-          if (!schema || visited.has(schema)) return false;
-          visited.add(schema);
-
           if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
             return true;
           }
 
-          if (schema.allOf?.some((s) => hasProperty(s, propertyName, visited, location))) {
+          if (schema.allOf?.some((s) => hasProperty(s, propertyName, visited, resolveFrom))) {
             return true;
           }
 
           if (
             isNotEmptyArray<AnySchema>(schema.anyOf) &&
-            schema.anyOf.every((s) => hasProperty(s, propertyName, new Set(visited), location))
+            schema.anyOf.every((s) => hasProperty(s, propertyName, new Set(visited), resolveFrom))
           ) {
             return true;
           }
 
           if (
             isNotEmptyArray<AnySchema>(schema.oneOf) &&
-            schema.oneOf.every((s) => hasProperty(s, propertyName, new Set(visited), location))
+            schema.oneOf.every((s) => hasProperty(s, propertyName, new Set(visited), resolveFrom))
           ) {
             return true;
+          }
+
+          return false;
+        };
+
+        const hasProperty = (
+          schemaOrRef: AnySchema | undefined,
+          propertyName: string,
+          visited: Set<AnySchema>,
+          resolveFrom?: string
+        ): boolean => {
+          // A JSON Schema 2020-12 $ref can carry sibling keywords that compose the target,
+          // so check them before the $ref is resolved away.
+          if (
+            isRef(schemaOrRef) &&
+            definesProperty(schemaOrRef, propertyName, visited, resolveFrom)
+          ) {
+            return true;
+          }
+
+          const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveFrom);
+          if (!schema || visited.has(schema)) return false;
+          visited.add(schema);
+
+          if (definesProperty(schema, propertyName, visited, location)) {
+            return true;
+          }
+
+          // The resolved schema may itself be a $ref with siblings; follow the chain.
+          if (isRef(schema)) {
+            return hasProperty(schema, propertyName, visited, location);
           }
 
           return false;

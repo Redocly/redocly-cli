@@ -988,4 +988,133 @@ describe('no-required-schema-properties-undefined', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should not report a required property defined further down a composed $ref chain', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Usage:
+              $ref: '#/components/schemas/Middle'
+            Middle:
+              $ref: '#/components/schemas/Mid2'
+              title: Middle
+              required:
+                - deepProp
+            Mid2:
+              $ref: '#/components/schemas/Leaf'
+              title: Mid2
+            Leaf:
+              type: object
+              properties:
+                deepProp:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report a required property defined in an allOf sibling of a referenced composed $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Usage:
+              $ref: '#/components/schemas/Composed'
+            Composed:
+              $ref: '#/components/schemas/Base'
+              allOf:
+                - type: object
+                  properties:
+                    extra:
+                      type: string
+              required:
+                - extra
+            Base:
+              type: object
+              properties:
+                title:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should still report a genuinely undefined property in a composed $ref chain', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Usage:
+              $ref: '#/components/schemas/Middle'
+            Middle:
+              $ref: '#/components/schemas/Leaf'
+              title: Middle
+              required:
+                - missingProp
+            Leaf:
+              type: object
+              properties:
+                deepProp:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Middle/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'missingProp' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
