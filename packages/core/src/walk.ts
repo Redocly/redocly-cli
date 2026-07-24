@@ -367,6 +367,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
           }
         }
+
+        if (isRef(resolvedNode) && resolvedNode !== node) {
+          // resolution stopped at a $ref with sibling keys; walk it as a ref from its own location
+          walkNode(resolvedNode, type, resolvedLocation, parent, key);
+        }
       }
 
       const currentLeaveVisitors =

@@ -1,0 +1,33 @@
+openapi: 3.1.0
+info:
+  title: Root-level $ref with siblings in the same file
+  version: 1.0.0
+paths:
+  /demo:
+    get:
+      operationId: getDemo
+      responses:
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+components:
+  schemas:
+    BadRequest:
+      title: Bad request
+      type: object
+      $ref: '#/components/schemas/BaseProblem'
+      properties:
+        status:
+          type: integer
+          minimum: 400
+          maximum: 400
+      required:
+        - status
+    BaseProblem:
+      type: object
+      properties:
+        title:
+          type: string

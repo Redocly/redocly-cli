@@ -476,7 +476,9 @@ export async function resolveDocument(opts: {
       resolvedRef.node = target;
       resolvedRef.document = targetDoc;
       const refId = makeRefId(document.source.absoluteRef, ref.$ref);
-      if (resolvedRef.document && isRef(target)) {
+      // A $ref with sibling keys is a composition, not a transparent alias — resolution stops
+      // there so the siblings survive; only pure refs are followed further.
+      if (resolvedRef.document && isRef(target) && Object.keys(target).length === 1) {
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
       }
       resolvedRefMap.set(refId, resolvedRef);
