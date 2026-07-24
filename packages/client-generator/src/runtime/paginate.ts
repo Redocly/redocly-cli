@@ -63,7 +63,7 @@ export async function* pages<TPage>(
       // end via a boolean flag — honor it before the cursor check to skip the
       // follow-up empty request. Strictly `false`: a missing pointer falls through.
       if (spec.hasMore !== undefined && resolvePointer(page, spec.hasMore) === false) return;
-      const next = resolvePointer(page, spec.nextCursor!);
+      const next = resolvePointer(page, spec.nextCursor);
       if (next === undefined || next === null || next === '') return;
       if (typeof next !== 'string' && typeof next !== 'number') {
         // A fresh non-scalar cursor never compares equal, so without this guard a lying

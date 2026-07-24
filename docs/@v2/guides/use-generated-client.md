@@ -473,6 +473,15 @@ await generateClient({
 Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
 See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building plugin, the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for one that emits real TypeScript AST via the `/generate` toolkit, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the spec's tags.
 
+## Formatting and linting the generated files
+
+The generator prints one canonical style — the TypeScript compiler's printer (four-space indent, double quotes).
+If your project's formatter enforces a different style, its check fails on freshly generated files.
+Either run your formatter over the output right after generating (for example, as the next step in the same script), or add the generated paths to your formatter's ignore list — generated files are not hand-edited, so reformatting them is churn without review value.
+
+Linting is different: the generated code is expected to pass strict lint configurations as-is (no `any`, no non-null assertions, no unused imports).
+If your linter flags generated output, [report it](https://github.com/Redocly/redocly-cli/issues) — that is a generator bug, not a style choice.
+
 ## Resources
 
 - [`generate-client` command](../commands/generate-client.md) — flags, output modes, and invocation.

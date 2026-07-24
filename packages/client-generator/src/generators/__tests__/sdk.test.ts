@@ -57,6 +57,30 @@ describe('sdkGenerator', () => {
     expect(files.map((f) => f.path)).toEqual(['/out/api.schemas.ts', '/out/api.ts']);
   });
 
+  it('imports only schema names used in TYPE positions (a value identifier is not a use)', () => {
+    // Every descriptor entry contains an `id:` property key; a schema named `id` must
+    // not be dragged into the entry's type-only import by that value-position match —
+    // strict consumer lint configs flag the unused import.
+    const model = apiModel();
+    model.schemas = [
+      { name: 'id', schema: { kind: 'scalar', scalar: 'string' } },
+      { name: 'Pet', schema: { kind: 'object', properties: [] } },
+    ];
+    model.services[0].operations[0].successResponses = [
+      { contentType: 'application/json', schema: { kind: 'ref', name: 'Pet' }, status: 200 },
+    ];
+    const files = sdkGenerator({
+      model,
+      outputPath: '/out/api.ts',
+      outputMode: 'split',
+      emit: {},
+    });
+    const entry = files.find((file) => file.path === '/out/api.ts')!;
+    expect(entry.content).toContain("import type { Pet } from './api.schemas.js';");
+    expect(entry.content).not.toContain('import type { Pet, id');
+    expect(entry.content).not.toContain('import type { id');
+  });
+
   it('emits .ts import extensions when importExt is ts (Node native TS execution)', () => {
     const model = apiModel();
     model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];

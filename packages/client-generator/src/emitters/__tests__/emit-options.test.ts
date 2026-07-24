@@ -30,6 +30,14 @@ describe('renderTitleComment', () => {
     expect(out).toContain(' * line two');
   });
 
+  it('emits no trailing whitespace for blank description lines (formatter-clean)', () => {
+    // A blank line in `info.description` must print as ` *`, not ` * ` — trailing
+    // spaces fail every consumer formatter check (oxfmt/prettier).
+    const out = renderTitleComment(apiModel({ title: 'D', description: 'one\n\ntwo' }));
+    expect(out).toContain(' * one\n *\n * two');
+    expect(out).not.toMatch(/ +$/m);
+  });
+
   it('escapes `*/` in attacker-controllable title/description text', () => {
     const out = renderTitleComment(
       apiModel({ title: 'X */ alert(1) /*', description: 'desc */ boom' })

@@ -24,19 +24,29 @@ export type SecuritySpec =
  * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
  * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
  */
-export type PaginationSpec = {
-  style: 'cursor' | 'offset' | 'page';
-  /** The query param the iterator advances: the cursor (`cursor`) or number (`offset`/`page`). */
-  param: string;
-  /** Optional page-size query param (recorded for tooling; never set by the runtime). */
-  limitParam?: string;
-  /** Cursor style only: pointer to the next cursor in the page. */
-  nextCursor?: string;
-  /** Cursor style only: optional pointer to a boolean "more pages" flag — `false` stops iteration. */
-  hasMore?: string;
-  /** Pointer to the page's item array. */
-  items: string;
-};
+export type PaginationSpec =
+  | {
+      style: 'cursor';
+      /** The query param the iterator advances with the response's cursor. */
+      param: string;
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the next cursor in the page. */
+      nextCursor: string;
+      /** Optional pointer to a boolean "more pages" flag — `false` stops iteration. */
+      hasMore?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      style: 'offset' | 'page';
+      /** The numeric query param the iterator advances. */
+      param: string;
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    };
 
 /** The frozen data contract between generated code and the runtime: one operation's wire shape. */
 export type OperationDescriptor = {

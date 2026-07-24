@@ -70,11 +70,10 @@ export async function* sse<T>(
         while (true) {
           const { done, value } = await reader.read();
           buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
-          let match: RegExpMatchArray | null;
-          while ((match = buffer.match(FRAME_DELIMITER)) !== null) {
-            const index = match.index!;
-            const raw = buffer.slice(0, index);
-            buffer = buffer.slice(index + match[0].length);
+          let match: RegExpExecArray | null;
+          while ((match = FRAME_DELIMITER.exec(buffer)) !== null) {
+            const raw = buffer.slice(0, match.index);
+            buffer = buffer.slice(match.index + match[0].length);
             const event = parseSseFrame(raw, dataKind);
             if (event) {
               if (event.id !== undefined) lastEventId = event.id;

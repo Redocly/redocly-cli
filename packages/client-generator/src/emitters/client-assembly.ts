@@ -190,8 +190,14 @@ function emitClient(
  */
 function schemaLinks(entryCode: string, schemaNames: Set<string>, specifier: string): string {
   const referenced = new Set<string>();
+  // Only TYPE references count as uses of the type-only import: a value-position
+  // identifier that happens to share a schema's name (every descriptor's `id:` key,
+  // for a schema named `id`) must not drag the name in — strict consumer lint
+  // configs flag the resulting unused import.
   const visit = (node: ts.Node): void => {
-    if (ts.isIdentifier(node) && schemaNames.has(node.text)) referenced.add(node.text);
+    if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
+      if (schemaNames.has(node.typeName.text)) referenced.add(node.typeName.text);
+    }
     node.forEachChild(visit);
   };
   for (const statement of parseStatements(entryCode)) visit(statement);

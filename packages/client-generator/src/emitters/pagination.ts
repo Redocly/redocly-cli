@@ -201,19 +201,19 @@ function applyRule(
       }
     }
   }
-  return {
-    spec: {
-      style: valid.style,
-      param,
-      ...(valid.limitParam !== undefined ? { limitParam: valid.limitParam } : {}),
-      ...(valid.style === 'cursor' ? { nextCursor: valid.nextCursor! } : {}),
-      ...(valid.style === 'cursor' && valid.hasMore !== undefined
-        ? { hasMore: valid.hasMore }
-        : {}),
-      items: valid.items,
-    },
-    itemSchema: itemsTarget.items,
-  };
+  const limitParam = valid.limitParam !== undefined ? { limitParam: valid.limitParam } : {};
+  const spec: PaginationSpec =
+    valid.style === 'cursor'
+      ? {
+          style: 'cursor',
+          param,
+          ...limitParam,
+          nextCursor: valid.nextCursor!,
+          ...(valid.hasMore !== undefined ? { hasMore: valid.hasMore } : {}),
+          items: valid.items,
+        }
+      : { style: valid.style, param, ...limitParam, items: valid.items };
+  return { spec, itemSchema: itemsTarget.items };
 }
 
 /**

@@ -79,7 +79,8 @@ export function renderTitleComment(model: ApiModel): string {
   const lines = [`/**`, ` * ${escapeJsDoc(`${model.title} (v${model.version})`)}`];
   if (model.description) {
     for (const line of splitLines(escapeJsDoc(model.description))) {
-      lines.push(` * ${line}`);
+      // A blank line prints as ` *` — a trailing space fails consumer formatter checks.
+      lines.push(` * ${line}`.replace(/ +$/, ''));
     }
   }
   lines.push(' */');
