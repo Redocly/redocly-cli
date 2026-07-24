@@ -49,6 +49,39 @@ describe('sanitizeIdentifiers', () => {
     expect(holder.properties[0].schema).toEqual(ref('Bad_Name'));
   });
 
+  it('renames a schema that collides with a name the generated module already declares', () => {
+    // `ApiError` is the runtime's error class (declared in the same module in embed
+    // mode, re-exported in package mode); `http` is the mock module's msw import.
+    const m = model(
+      [
+        {
+          name: 'ApiError',
+          schema: {
+            kind: 'object',
+            properties: [{ name: 'code', schema: ref('http'), required: true }],
+          },
+        },
+        { name: 'http', schema: { kind: 'scalar', scalar: 'string' } },
+      ],
+      [op({ name: 'getItem' })]
+    );
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('ApiError_2');
+    expect(m.schemas[1].name).toBe('http_2');
+    const apiError = m.schemas[0].schema as Extract<SchemaModel, { kind: 'object' }>;
+    expect(apiError.properties[0].schema).toEqual(ref('http_2'));
+    expect(m.services[0].operations[0].name).toBe('getItem');
+  });
+
+  it('renames an operation that collides with a runtime declaration', () => {
+    // `sleep` is a module-local runtime function in embed mode; an exported operation
+    // const of the same name would be a duplicate declaration.
+    const m = model([], [op({ name: 'sleep' })]);
+    sanitizeIdentifiers(m);
+    expect(m.services[0].operations[0].name).toBe('sleep_2');
+    expect(m.services[0].operations[0].specName).toBe('sleep');
+  });
+
   it('renames an operation whose name collides with a schema', () => {
     // Rebilly shape: operationId `PatchCreditMemo` AND schema `PatchCreditMemo`. The
     // free function's own signature (`body: PatchCreditMemo`) would resolve to the

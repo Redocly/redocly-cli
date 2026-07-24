@@ -1,6 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
 import { isSafeIdentifier, uniqueIdent } from '../emitters/identifier.js';
+import { reservedModuleNames } from '../emitters/reserved-names.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
 
 /**
@@ -20,7 +21,11 @@ import type { ApiModel, OperationModel, SchemaModel } from './model.js';
  * build if any name still slips through — it should never fire after this pass.
  */
 export function sanitizeIdentifiers(model: ApiModel): void {
-  const schemaNames = new Set<string>();
+  // Schema types land in the same module scope as everything the generator emits and
+  // embeds, so a schema may not reuse a reserved name (the runtime's `ApiError` class,
+  // a satellite import like msw's `http`, the `client` const, …). The rename is
+  // mode-independent — a `--runtime` flip must not change the generated type names.
+  const schemaNames = new Set<string>(reservedModuleNames());
   const renamed = new Map<string, string>();
   for (const schema of model.schemas) {
     const safe = uniqueIdent(schema.name, schemaNames);

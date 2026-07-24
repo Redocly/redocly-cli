@@ -17,37 +17,13 @@ import { operationSignature } from './operation-signature.js';
 import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
 import type { ModelPagination } from './pagination.js';
+import { WIRING_NAMES } from './reserved-names.js';
 import { isSseOp, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase } from './support.js';
 import { jsdoc, literalExpression, parseStatements, ts } from './ts.js';
 import { type DateType, schemaToTypeNode } from './types.js';
 
 const { factory } = ts;
-
-/** Module-scope identifiers every package-mode file emits or imports — never renamed. */
-const WIRING_NAMES = [
-  'client',
-  'OPERATIONS',
-  'Ops',
-  'OperationId',
-  'OperationPath',
-  'OperationTag',
-  'createClient',
-  'mergeSetup',
-  'ApiError',
-  'configure',
-  'use',
-  'auth',
-  'ClientConfig',
-  'RequestOptions',
-  'SseOptions',
-  'Middleware',
-  'OperationDescriptor',
-  'ServerSentEvent',
-  'Result',
-  'TokenProvider',
-  '__redoclySetup',
-];
 
 /**
  * Operation-name → emitted-identifier plan. The full reserved set (wiring + imported
@@ -98,7 +74,9 @@ function descriptorValue(
   return {
     // The spec's operationId, NOT the (possibly renamed) map key: `id` drives middleware
     // targeting (`ctx.operation.id`) and must match inline mode's `operationMetaExpr`.
-    id: op.name,
+    // The wire/middleware identity stays the SPEC operationId even when the emitted
+    // function name was renamed away from a collision (`configure` → `configure_2`).
+    id: op.specName ?? op.name,
     method: op.method.toUpperCase(),
     path: op.path,
     ...(op.tags.length > 0 ? { tags: op.tags } : {}),
