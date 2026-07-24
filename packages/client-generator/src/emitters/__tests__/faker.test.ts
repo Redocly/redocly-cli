@@ -137,6 +137,33 @@ describe('fakerExpression', () => {
     expect(out).not.toBe('{}');
   });
 
+  it('intersection property conflicts resolve by specificity, not member order', () => {
+    const out = emit({
+      kind: 'intersection',
+      members: [
+        {
+          kind: 'object',
+          properties: [
+            {
+              name: 'type',
+              schema: { kind: 'enum', scalar: 'string', values: ['Apple Pay'] },
+              required: true,
+            },
+          ],
+        },
+        {
+          kind: 'object',
+          properties: [
+            { name: 'type', schema: { kind: 'scalar', scalar: 'string' }, required: false },
+          ],
+        },
+      ],
+    });
+    // The single-value enum (a literal type) beats the later generic string member.
+    expect(out).toContain('"Apple Pay"');
+    expect(out).not.toContain('faker.lorem.word()');
+  });
+
   it('merges object members of an intersection', () => {
     const out = emit({
       kind: 'intersection',

@@ -20,8 +20,6 @@ import type { ApiModel, OperationModel, SchemaModel } from './model.js';
  * build if any name still slips through — it should never fire after this pass.
  */
 export function sanitizeIdentifiers(model: ApiModel): void {
-  // Schema names share TypeScript's *type* namespace; operation names its *value*
-  // namespace. Keep separate `used` sets so a function and a type may share a name.
   const schemaNames = new Set<string>();
   const renamed = new Map<string, string>();
   for (const schema of model.schemas) {
@@ -54,7 +52,11 @@ export function sanitizeIdentifiers(model: ApiModel): void {
   const fixKey = (key: string): string => renamedKeys.get(key) ?? sanitizeRef(key);
   for (const schema of model.schemas) rewriteRefs(schema.schema, fixRef);
 
-  const operationNames = new Set<string>();
+  // Operations become exported functions in the same module where schema types are
+  // used, so the two cannot share a name: the function's own `body: X` annotation
+  // would resolve to the function value, and the entry's `export *` would drop the
+  // shadowed type. Seeding with the schema names renames a colliding operation.
+  const operationNames = new Set<string>(schemaNames);
   for (const service of model.services) {
     for (const op of service.operations) {
       const safe = uniqueIdent(op.name, operationNames);
@@ -108,7 +110,7 @@ function sanitizeRef(name: string): string {
 
 function warnRename(kind: string, from: string, to: string): void {
   logger.warn(
-    `generate-client: ${kind} name ${JSON.stringify(from)} is not a valid TypeScript identifier; using ${JSON.stringify(to)}.\n`
+    `generate-client: ${kind} name ${JSON.stringify(from)} collides with another name or is not a valid TypeScript identifier; using ${JSON.stringify(to)}.\n`
   );
 }
 

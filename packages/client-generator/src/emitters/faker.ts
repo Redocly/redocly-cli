@@ -16,6 +16,7 @@ import type {
   SchemaModel,
 } from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
+import { splitIntersection } from './sample.js';
 import { constArray, literalExpression, ts } from './ts.js';
 import type { DateType } from './types.js';
 
@@ -91,13 +92,21 @@ function walk(
       return schema.members.length > 0 ? CYCLE : factory.createNull();
     }
     case 'intersection': {
-      // Mirror the static sampler: `unknown` members are constraint-only (`not`, unmodeled
-      // keywords) and contribute nothing; with no object member, the first member's
-      // expression IS the value (a scalar-narrowing intersection).
-      const parts = schema.members
-        .filter((member) => member.kind !== 'unknown')
+      // Mirror the static sampler: object members merge into one synthetic object whose
+      // property conflicts resolve by SPECIFICITY (see `splitIntersection`); `unknown`
+      // members are constraint-only and dropped; with no object member, the first
+      // member's expression IS the value (a scalar-narrowing intersection).
+      const { merged, rest } = splitIntersection(schema.members, byName);
+      const parts = rest
         .map((member) => walk(member, byName, visiting, dateType))
         .filter((part): part is ts.Expression => part !== CYCLE);
+      if (merged) {
+        const value = walk(merged, byName, visiting, dateType);
+        const own =
+          value !== CYCLE && ts.isObjectLiteralExpression(value) ? assignments(value) : [];
+        const folded = parts.filter(ts.isObjectLiteralExpression).flatMap(assignments);
+        return factory.createObjectLiteralExpression([...own, ...folded], true);
+      }
       const objects = parts.filter(ts.isObjectLiteralExpression);
       if (objects.length > 0) {
         return factory.createObjectLiteralExpression(objects.flatMap(assignments), true);

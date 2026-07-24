@@ -116,18 +116,29 @@ function schemaTypeImport(model: ApiModel, opts: MockOptions): ts.Statement[] {
   ];
 }
 
-/** `export function create<Pascal>(overrides?: Partial<Name>): Name { return { …sampled, ...overrides }; }`. */
+/**
+ * `export function create<Pascal>(overrides?: Partial<Name>): Name { return { …sampled, ...overrides }; }`.
+ * A schema whose sample is not an object literal (a scalar, enum, date, …) has nothing
+ * to spread into — `Partial<string>` is meaningless and would silently drop the argument —
+ * so its factory takes the FULL type and returns the override wholesale (`overrides ?? sample`).
+ */
 function factoryFor(named: NamedSchemaModel, model: ApiModel, opts: MockOptions): ts.Statement {
   const pascal = pascalCase(named.name);
   const sampled = bodyExpression(named.schema, model, opts);
   // Type references use the sdk's verbatim export name; only the factory NAME is PascalCased.
   const typeRef = factory.createTypeReferenceNode(named.name);
+  const spreads = ts.isObjectLiteralExpression(sampled);
   // Spreading `Partial<Union>` (the override type of a union schema) distributes into
   // `Partial<A> | Partial<B>`, which widens any discriminant property (e.g. `category`)
   // and defeats narrowing — TS can no longer place the literal in a single union member.
   // The sampled object is already a complete, correct member, so re-assert the type.
-  const body =
-    named.schema.kind === 'union'
+  const body = !spreads
+    ? factory.createBinaryExpression(
+        factory.createIdentifier('overrides'),
+        factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+        sampled
+      )
+    : named.schema.kind === 'union'
       ? factory.createAsExpression(spreadOverrides(sampled, 'overrides'), typeRef)
       : spreadOverrides(sampled, 'overrides');
   return factory.createFunctionDeclaration(
@@ -141,7 +152,7 @@ function factoryFor(named: NamedSchemaModel, model: ApiModel, opts: MockOptions)
         undefined,
         'overrides',
         factory.createToken(ts.SyntaxKind.QuestionToken),
-        factory.createTypeReferenceNode('Partial', [typeRef])
+        spreads ? factory.createTypeReferenceNode('Partial', [typeRef]) : typeRef
       ),
     ],
     typeRef,
@@ -151,18 +162,11 @@ function factoryFor(named: NamedSchemaModel, model: ApiModel, opts: MockOptions)
 
 /** `export const <op>Handler = (override?: <OverrideType>) => http.<method>('<path>', () => <response>);`. */
 function handlerFor(op: OperationModel, model: ApiModel, opts: MockOptions): ts.Statement {
+  const override = overrideParam(op, model, opts);
   const arrow = factory.createArrowFunction(
     undefined,
     undefined,
-    [
-      factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        'override',
-        factory.createToken(ts.SyntaxKind.QuestionToken),
-        overrideType(op)
-      ),
-    ],
+    override ? [override] : [],
     undefined,
     factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
     handlerCall(op, model, opts)
@@ -289,22 +293,42 @@ function errorBodyType(op: OperationModel): ts.TypeNode {
 }
 
 /**
- * The static type of a handler's `override?` parameter, matching how the response uses it.
- * A `ref` success body forwards `override` to `create<Schema>(override)` (whose parameter is
- * `Partial<Schema>`), so the override is `Partial<Schema>`. Otherwise `override` is either spread
- * into an inline object literal or unused, so `Record<string, unknown>` types it without error.
+ * The handler's `override?` parameter, present only when the response consumes it.
+ * A `ref` success body forwards `override` to `create<Schema>(override)`, so its type
+ * mirrors the factory's parameter (`Partial<Schema>`, or the full type when the factory
+ * replaces wholesale — see `factoryFor`). An inline object body spreads `override`, typed
+ * `Record<string, unknown>`. A body-less or non-object inline response has nothing to
+ * override, so the handler takes no parameter.
  */
-function overrideType(op: OperationModel): ts.TypeNode {
+function overrideParam(
+  op: OperationModel,
+  model: ApiModel,
+  opts: MockOptions
+): ts.ParameterDeclaration | undefined {
   const success = op.successResponses[0];
-  if (success?.schema.kind === 'ref') {
-    return factory.createTypeReferenceNode('Partial', [
-      factory.createTypeReferenceNode(success.schema.name),
+  if (!success || success.schema.kind === 'unknown') return undefined;
+  let type: ts.TypeNode;
+  if (success.schema.kind === 'ref') {
+    const typeRef = factory.createTypeReferenceNode(success.schema.name);
+    type = ts.isObjectLiteralExpression(bodyExpression(success.schema, model, opts))
+      ? factory.createTypeReferenceNode('Partial', [typeRef])
+      : typeRef;
+  } else {
+    if (!ts.isObjectLiteralExpression(bodyExpression(success.schema, model, opts))) {
+      return undefined;
+    }
+    type = factory.createTypeReferenceNode('Record', [
+      factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+      factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
     ]);
   }
-  return factory.createTypeReferenceNode('Record', [
-    factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-    factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
-  ]);
+  return factory.createParameterDeclaration(
+    undefined,
+    undefined,
+    'override',
+    factory.createToken(ts.SyntaxKind.QuestionToken),
+    type
+  );
 }
 
 /** `http.<method>('<mswPath>', () => <responseExpr>)`. */

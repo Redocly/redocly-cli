@@ -65,6 +65,40 @@ describe('renderMockModule', () => {
     expect(out).toContain('http.get("*/ping",');
     expect(out).toContain('new HttpResponse(null, { status: 200 })');
     expect(out).not.toContain('HttpResponse.json');
+    // No body means nothing to override — the handler takes no parameter.
+    expect(out).toContain('export const pingHandler = () =>');
+  });
+
+  it('a non-object schema factory takes the full type and returns the override wholesale', () => {
+    // `Partial<string>` is meaningless and the spread would silently drop the argument;
+    // the factory (and the handler forwarding to it) accepts the full value instead.
+    const model = apiModel({
+      schemas: [namedSchema('Token', { kind: 'scalar', scalar: 'string' })],
+      services: [
+        {
+          name: 'Default',
+          operations: [
+            operation({
+              name: 'getToken',
+              method: 'get',
+              path: '/token',
+              successResponses: [
+                {
+                  contentType: 'application/json',
+                  schema: { kind: 'ref', name: 'Token' },
+                  status: 200,
+                },
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+    const out = renderMockModule(model, { sdkModule: './client.js' });
+    expect(out).toContain('export function createToken(overrides?: Token): Token {');
+    expect(out).toContain('return overrides ?? "string";');
+    expect(out).toContain('(override?: Token) =>');
+    expect(out).toContain('createToken(override)');
   });
 
   it('samples an inline (unnamed) success body in place', () => {
@@ -184,6 +218,8 @@ describe('renderMockModule', () => {
     expect(out).toContain('HttpResponse.json(0)');
     expect(out).not.toContain('...override');
     expect(out).not.toContain('{ status:');
+    // An inline non-object body has no named type to override with — no parameter.
+    expect(out).toContain('export const countHandler = () =>');
   });
 
   it('quotes non-identifier object keys', () => {

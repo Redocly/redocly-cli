@@ -82,6 +82,104 @@ function typeDemandedExpression(
   return undefined;
 }
 
+/**
+ * Split intersection members for sampling: object-shaped members (inline, or refs
+ * resolving to objects) merge into ONE synthetic object schema whose conflicting
+ * properties are resolved by SPECIFICITY — mirroring TS intersection algebra, where
+ * `string & "Apple Pay"` is `"Apple Pay"` regardless of member order. Constraint-only
+ * `unknown` members (`not`, unmodeled keywords) are dropped; everything else is
+ * returned in `rest` untouched.
+ */
+export function splitIntersection(
+  members: SchemaModel[],
+  byName: Map<string, SchemaModel>
+): { merged: SchemaModel | undefined; rest: SchemaModel[] } {
+  const properties = new Map<string, { schema: SchemaModel; required: boolean; rank: number }>();
+  const rest: SchemaModel[] = [];
+  let sawObject = false;
+  for (const member of members) {
+    if (member.kind === 'unknown') continue;
+    const resolved = derefChain(member, byName);
+    if (resolved?.kind !== 'object') {
+      rest.push(member);
+      continue;
+    }
+    sawObject = true;
+    for (const property of resolved.properties) {
+      const rank = specificity(property.schema, byName, new Set());
+      const existing = properties.get(property.name);
+      // Higher specificity wins; a tie goes to the later member (extension over base).
+      if (existing === undefined || rank >= existing.rank) {
+        properties.set(property.name, {
+          schema: property.schema,
+          required: property.required || (existing?.required ?? false),
+          rank,
+        });
+      }
+    }
+  }
+  if (!sawObject) return { merged: undefined, rest };
+  return {
+    merged: {
+      kind: 'object',
+      properties: [...properties.entries()].map(([name, p]) => ({
+        name,
+        schema: p.schema,
+        required: p.required,
+      })),
+    },
+    rest,
+  };
+}
+
+/** Follow a ref chain to its target (cycle-safe); `undefined` on a miss or cycle. */
+function derefChain(
+  schema: SchemaModel,
+  byName: Map<string, SchemaModel>
+): SchemaModel | undefined {
+  const seen = new Set<string>();
+  let current: SchemaModel | undefined = schema;
+  while (current?.kind === 'ref') {
+    if (seen.has(current.name)) return undefined;
+    seen.add(current.name);
+    current = byName.get(current.name);
+  }
+  return current;
+}
+
+/**
+ * How narrowly a schema types its values — the winner of an intersection property
+ * conflict. Literals and single-value enums (both emitted as literal types) beat
+ * enums, which beat everything else; `null`/`unknown` lose to any real shape, and
+ * a union ranks just below its narrowest member (so `T | null` loses to `T`).
+ */
+function specificity(
+  schema: SchemaModel,
+  byName: Map<string, SchemaModel>,
+  seen: Set<string>
+): number {
+  switch (schema.kind) {
+    case 'literal':
+      return 40;
+    case 'enum':
+      return schema.values.length === 1 ? 40 : 30;
+    case 'union':
+      return Math.max(0, ...schema.members.map((m) => specificity(m, byName, seen))) - 1;
+    case 'ref': {
+      if (seen.has(schema.name)) return 20;
+      const target = byName.get(schema.name);
+      return target === undefined
+        ? 20
+        : specificity(target, byName, new Set(seen).add(schema.name));
+    }
+    case 'null':
+    case 'unknown':
+      return 10;
+    default:
+      return 20;
+  }
+}
+
 function walk(
   schema: SchemaModel,
   byName: Map<string, SchemaModel>,
@@ -92,8 +190,22 @@ function walk(
   if (demanded) return demanded;
 
   const meta = schema.metadata;
-  if (meta?.example !== undefined) return meta.example;
-  if (meta?.default !== undefined) return meta.default;
+  // An example/default is honored only when it inhabits the generated type — real specs
+  // carry `example: null` on non-nullable fields and defaults outside a narrowed enum
+  // (`enum: [cram-md5], default: none`); baking those would not type-check.
+  const inhabits = (value: unknown): boolean => {
+    if (value === null) {
+      return (
+        schema.kind === 'null' ||
+        (schema.kind === 'union' && schema.members.some((member) => member.kind === 'null'))
+      );
+    }
+    if (schema.kind === 'enum') return (schema.values as unknown[]).includes(value);
+    if (schema.kind === 'literal') return value === schema.value;
+    return true;
+  };
+  if (meta?.example !== undefined && inhabits(meta.example)) return meta.example;
+  if (meta?.default !== undefined && inhabits(meta.default)) return meta.default;
 
   switch (schema.kind) {
     case 'scalar':
@@ -131,12 +243,17 @@ function walk(
       return schema.members.length > 0 ? CYCLE : null;
     }
     case 'intersection': {
-      // Constraint-only members (`not`, unmodeled keywords) surface as `unknown` — they
-      // narrow the type without describing a shape, so they contribute nothing.
-      const parts = schema.members
-        .filter((member) => member.kind !== 'unknown')
+      const { merged, rest } = splitIntersection(schema.members, byName);
+      const parts = rest
         .map((member) => walk(member, byName, visiting, dateType))
         .filter((part) => part !== CYCLE);
+      if (merged) {
+        const value = walk(merged, byName, visiting, dateType);
+        const base = isPlainObject(value) ? (value as Record<string, unknown>) : {};
+        // Fold in plain-object samples of non-object members (records, omits).
+        for (const part of parts) if (isPlainObject(part)) Object.assign(base, part);
+        return base;
+      }
       const objects = parts.filter(isPlainObject);
       if (objects.length > 0) {
         return objects.reduce<Record<string, unknown>>((acc, part) => Object.assign(acc, part), {});

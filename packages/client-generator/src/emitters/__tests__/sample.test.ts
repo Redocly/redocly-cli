@@ -333,6 +333,96 @@ describe('sampleValue', () => {
     expect(sampleValue({ kind: 'union', members: [] }, [])).toBeNull();
   });
 
+  it('ignores an enum default that is not one of the enum values', () => {
+    // Real-spec quirk: `enum: [cram-md5]` with `default: none` — 'none' does not
+    // inhabit the literal type, so the sampler must fall back to the enum value.
+    expect(
+      sampleValue(
+        { kind: 'enum', scalar: 'string', values: ['cram-md5'], metadata: { default: 'none' } },
+        []
+      )
+    ).toBe('cram-md5');
+  });
+
+  it('ignores a null example/default unless the schema admits null', () => {
+    // Non-nullable object with `example: null` — the null would not type-check.
+    expect(
+      sampleValue({ kind: 'record', value: { kind: 'unknown' }, metadata: { example: null } }, [])
+    ).not.toBeNull();
+    // Nullable union keeps the null example: the type admits it.
+    expect(
+      sampleValue(
+        {
+          kind: 'union',
+          members: [{ kind: 'record', value: { kind: 'unknown' } }, { kind: 'null' }],
+          metadata: { example: null },
+        },
+        []
+      )
+    ).toBeNull();
+  });
+
+  it('intersection property conflicts resolve by specificity, not member order', () => {
+    const schemas: NamedSchemaModel[] = [
+      {
+        name: 'DigitalWalletValidation',
+        schema: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'type',
+              schema: { kind: 'enum', scalar: 'string', values: ['Apple Pay'] },
+              required: true,
+            },
+          ],
+        },
+      },
+    ];
+    // Base (literal-ish single enum) first, generic own-props later — the literal must win.
+    const sampled = sampleValue(
+      {
+        kind: 'intersection',
+        members: [
+          { kind: 'ref', name: 'DigitalWalletValidation' },
+          {
+            kind: 'object',
+            properties: [
+              { name: 'type', schema: { kind: 'scalar', scalar: 'string' }, required: false },
+            ],
+          },
+        ],
+      },
+      schemas
+    );
+    expect(sampled).toEqual({ type: 'Apple Pay' });
+    // Mirror order: generic base first, single-enum narrowing later — still the literal.
+    const mirrored = sampleValue(
+      {
+        kind: 'intersection',
+        members: [
+          {
+            kind: 'object',
+            properties: [
+              { name: 'type', schema: { kind: 'scalar', scalar: 'string' }, required: true },
+            ],
+          },
+          {
+            kind: 'object',
+            properties: [
+              {
+                name: 'type',
+                schema: { kind: 'enum', scalar: 'string', values: ['cram-md5'] },
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+      []
+    );
+    expect(mirrored).toEqual({ type: 'cram-md5' });
+  });
+
   it('a scalar-narrowing intersection (enum ref + unmodeled `not`) samples the scalar member', () => {
     const schemas: NamedSchemaModel[] = [
       {

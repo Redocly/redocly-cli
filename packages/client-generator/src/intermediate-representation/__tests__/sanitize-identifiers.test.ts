@@ -49,6 +49,20 @@ describe('sanitizeIdentifiers', () => {
     expect(holder.properties[0].schema).toEqual(ref('Bad_Name'));
   });
 
+  it('renames an operation whose name collides with a schema', () => {
+    // Rebilly shape: operationId `PatchCreditMemo` AND schema `PatchCreditMemo`. The
+    // free function's own signature (`body: PatchCreditMemo`) would resolve to the
+    // function value, and the entry's `export *` would drop the shadowed type.
+    const m = model(
+      [{ name: 'PatchCreditMemo', schema: { kind: 'object', properties: [] } }],
+      [op({ name: 'PatchCreditMemo' })]
+    );
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('PatchCreditMemo');
+    expect(m.services[0].operations[0].name).toBe('PatchCreditMemo_2');
+    expect(m.services[0].operations[0].specName).toBe('PatchCreditMemo');
+  });
+
   it('leaves valid identifier names untouched', () => {
     const m = model(
       [{ name: 'Pet', schema: { kind: 'scalar', scalar: 'string' } }],
