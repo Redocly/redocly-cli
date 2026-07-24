@@ -16,6 +16,7 @@ import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
 import { SecurityScopesDefined } from './security-scopes-defined.js';
+import { SpecRefTargets } from './spec-ref-targets.js';
 
 export const rules: Async3RuleSet<'built-in'> = {
   struct: Struct as Async3Rule,
@@ -26,6 +27,7 @@ export const rules: Async3RuleSet<'built-in'> = {
   'operation-operationId': OperationOperationId as Async3Rule,
   'channels-kebab-case': ChannelsKebabCase,
   'no-channel-trailing-slash': NoChannelTrailingSlash,
+  'spec-ref-targets': SpecRefTargets,
   'tag-description': TagDescription as Async3Rule,
   'tags-alphabetical': TagsAlphabetical as Async3Rule,
   'no-duplicated-tag-names': NoDuplicatedTagNames as Async3Rule,

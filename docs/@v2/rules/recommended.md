@@ -62,6 +62,7 @@ Warnings:
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
 - [security-scopes-defined](./common/security-scopes-defined.md)
 - [spec-discriminator-defaultMapping](./oas/spec-discriminator-defaultMapping.md)
+- [spec-ref-targets](./async/spec-ref-targets.md)
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
 - [tag-description](./oas/tag-description.md)
