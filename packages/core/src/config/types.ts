@@ -272,18 +272,28 @@ export type ResolveConfig = {
 
 export type Telemetry = 'on' | 'off';
 
+export type ClientGeneratorConfig = Record<string, unknown>;
+
+export type ClientGeneratorApiConfig = {
+  client?: ClientGeneratorConfig;
+  clientOutput?: string;
+};
+
 export type RawUniversalApiConfig = ApiConfig &
-  RawGovernanceConfig & {
+  RawGovernanceConfig &
+  ClientGeneratorApiConfig & {
     plugins?: (string | Plugin)[];
   };
 
-export type ResolvedApiConfig = ApiConfig & Required<ResolvedGovernanceConfig>;
+export type ResolvedApiConfig = ApiConfig &
+  Required<ResolvedGovernanceConfig> &
+  ClientGeneratorApiConfig;
 
 export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApiConfig>;
-
+    client?: ClientGeneratorConfig;
     resolve?: RawResolveConfig;
     telemetry?: Telemetry;
   };

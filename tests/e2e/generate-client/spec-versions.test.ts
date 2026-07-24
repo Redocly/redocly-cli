@@ -1,0 +1,42 @@
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { generate, strictTypecheck } from './helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function generateAndTypecheck(fixture: string): { generated: string } {
+  const dir = mkdtempSync(join(tmpdir(), 'ots-specver-'));
+  const out = join(dir, 'client.ts');
+  generate(join(__dirname, 'fixtures', fixture), out);
+  expect(existsSync(out)).toBe(true);
+  const generated = readFileSync(out, 'utf-8');
+  strictTypecheck(dir, ['client.ts']);
+  rmSync(dir, { recursive: true, force: true });
+  return { generated };
+}
+
+describe('generate-client spec versions', () => {
+  it('generates a type-checking client from a Swagger 2.0 document', () => {
+    const { generated } = generateAndTypecheck('swagger2.yaml');
+    expect(generated).toContain('export const getPet = (');
+    expect(generated).toContain('export const createPet = (');
+    expect(generated).toContain('export type Pet');
+    expect(generated).toContain('serverUrl: "https://api.example.com/v2"');
+  }, 60_000);
+
+  it('generates a type-checking client from an OpenAPI 3.2 document', () => {
+    const { generated } = generateAndTypecheck('oas3.2.yaml');
+    expect(generated).toContain('export const getThing = (');
+    expect(generated).toContain('export type Thing');
+    // 3.1/3.2 nullable enum renders as a nullable union.
+    expect(generated).toMatch(/status\?:\s*\("active" \| "archived"\) \| null;/);
+  }, 60_000);
+
+  it('synthesizes operation names from method+path when operationId is omitted', () => {
+    const { generated } = generateAndTypecheck('no-operationid.yaml');
+    expect(generated).toContain('export const getGiftcardsCardId = (');
+  }, 60_000);
+});

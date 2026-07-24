@@ -1,0 +1,97 @@
+openapi: 3.2.0
+info:
+  title: Cafe Menu Upstream
+  description: The upstream API the vendored-edge worker proxies.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+    description: Live demo server.
+tags:
+  - name: Products
+    description: Menu operations.
+paths:
+  /menu:
+    get:
+      tags:
+        - Products
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive substring match on item names.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemList'
+  /menu-item-images/{menuItemId}:
+    get:
+      tags:
+        - Products
+      summary: Retrieve a menu item photo
+      operationId: getMenuItemPhoto
+      security: []
+      parameters:
+        - name: menuItemId
+          in: path
+          required: true
+          description: ID of the menu item.
+          schema:
+            type: string
+        - name: photoSize
+          in: query
+          required: false
+          description: Photo size to retrieve.
+          schema:
+            type: string
+            enum:
+              - thumbnail
+              - medium
+              - large
+            default: medium
+      responses:
+        '200':
+          description: Menu item photo.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            text/plain:
+              schema:
+                description: Alternative image text.
+                type: string
+components:
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        id:
+          description: Menu item ID.
+          type: string
+        name:
+          description: Menu item name.
+          type: string
+        price:
+          description: Price in cents.
+          type: integer
+      required:
+        - id
+        - name
+        - price
+    MenuItemList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+      required:
+        - items

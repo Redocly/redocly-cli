@@ -20,6 +20,8 @@
           page: commands/eject.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
+        - label: generate-client
+          page: commands/generate-client.md
         - label: generate-spec
           page: commands/generate-spec.md
         - label: join
@@ -60,6 +62,8 @@
         - page: guides/configure-rules.md
         - page: guides/lint-and-bundle.md
           label: Lint and bundle
+        - label: Use the generated client
+          page: guides/use-generated-client.md
         - label: Hide internal APIs
           page: guides/hide-apis.md
         - label: Replace the servers URL
@@ -207,6 +211,7 @@
         - group: Reference
           items:
             - page: configuration/reference/apis.md
+            - page: configuration/reference/client.md
             - page: configuration/reference/decorators.md
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md

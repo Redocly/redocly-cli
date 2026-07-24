@@ -1,0 +1,64 @@
+{
+  "name": "@redocly/client-generator",
+  "version": "0.1.0",
+  "description": "Generate typed, zero-dependency TypeScript clients (fetch, auth, retries, middleware, SSE) from OpenAPI descriptions.",
+  "type": "module",
+  "types": "lib/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
+    },
+    "./generate": {
+      "types": "./lib/generate.d.ts",
+      "import": "./lib/generate.js",
+      "default": "./lib/generate.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22.12.0 || >=20.19.0 <21.0.0",
+    "npm": ">=10"
+  },
+  "engineStrict": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "examples:regen": "node scripts/regenerate-examples.mjs",
+    "prepare": "node scripts/generate-runtime-sources.mjs",
+    "typecheck:examples": "node scripts/typecheck-examples.mjs"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Redocly/redocly-cli.git"
+  },
+  "homepage": "https://github.com/Redocly/redocly-cli",
+  "keywords": [
+    "OpenAPI",
+    "Swagger",
+    "TypeScript",
+    "client",
+    "generator",
+    "codegen",
+    "fetch"
+  ],
+  "contributors": [
+    "Roman Marshevskyi <roman.marshevskyy@redocly.com> (https://redocly.com/)"
+  ],
+  "dependencies": {
+    "@redocly/openapi-core": "2.40.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.5.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.2"
+  },
+  "files": [
+    "lib"
+  ]
+}

@@ -1,0 +1,246 @@
+import { spawnSync, type ChildProcess } from 'node:child_process';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+import { killServer, repoRoot, startServer } from './helpers.js';
+
+// Auto-pagination end to end, over a live server: the `x-pagination` extension arm
+// (cursor style — three pages, resume, abort) generated with NO config, the
+// config-convention arm (offset style, applied only where it structurally fits), and a
+// package-mode arm proving `.pages()`/`.items()` ship from the installed runtime.
+// Pagination has no CLI flag, so config-carrying runs use the BUILT package's
+// programmatic `generateClient`.
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const generatorLib = join(repoRoot, 'packages/client-generator/lib/index.js');
+const fixture = join(__dirname, 'fixtures/pagination.yaml');
+const consumerDir = join(__dirname, 'pagination-consumer');
+const apiFile = join(consumerDir, 'api.ts');
+const apiOffsetFile = join(consumerDir, 'api-offset.ts');
+const apiPackageFile = join(consumerDir, 'api-package.ts');
+const serverScript = join(consumerDir, 'server.ts');
+
+const SERVER_PORT = 3131;
+const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
+
+type GenerateClient = (options: Record<string, unknown>) => Promise<unknown>;
+
+async function loadGenerateClient(): Promise<GenerateClient> {
+  const mod = (await import(pathToFileURL(generatorLib).href)) as {
+    generateClient: GenerateClient;
+  };
+  return mod.generateClient;
+}
+
+/** Clear the server's request log, then return a fetcher for the run's own slice. */
+async function resetLog(): Promise<void> {
+  const response = await fetch(`${SERVER_BASE}/__test__/reset`, { method: 'POST' });
+  expect(response.ok).toBe(true);
+}
+
+async function fetchLog(): Promise<Array<{ method: string; url: string }>> {
+  const response = await fetch(`${SERVER_BASE}/__test__/log`);
+  return (await response.json()) as Array<{ method: string; url: string }>;
+}
+
+function runConsumer(script: string): { stdout: string } {
+  const result = spawnSync('npx', ['tsx', join(consumerDir, script)], {
+    encoding: 'utf-8',
+    cwd: consumerDir,
+    timeout: 30_000,
+  });
+  expect(result.status, `${script} stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+  return { stdout: result.stdout };
+}
+
+describe('generate-client pagination consumer', () => {
+  let serverProcess: ChildProcess | undefined;
+
+  beforeAll(async () => {
+    for (const file of [apiFile, apiOffsetFile, apiPackageFile]) {
+      if (existsSync(file)) rmSync(file, { force: true });
+    }
+
+    serverProcess = await startServer(
+      serverScript,
+      consumerDir,
+      { PAGINATION_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'pagination-server'
+    );
+  }, 30_000);
+
+  afterAll(async () => {
+    if (serverProcess) {
+      await killServer(serverProcess);
+    }
+  });
+
+  test('generate all three arms and assert the emitted pagination surface', async () => {
+    const generateClient = await loadGenerateClient();
+    // Extension arm: NO pagination config — `x-pagination` alone drives `listOrders`.
+    await generateClient({ api: fixture, output: apiFile });
+    // Convention arm: an offset rule applied to every operation it structurally fits.
+    await generateClient({
+      api: fixture,
+      output: apiOffsetFile,
+      pagination: { style: 'offset', offsetParam: 'offset', limitParam: 'limit', items: '/items' },
+    });
+    // Package arm: same extension-driven spec, runtime imported from the package.
+    await generateClient({ api: fixture, output: apiPackageFile, runtime: 'package' });
+
+    const api = readFileSync(apiFile, 'utf-8');
+    // The extension is normalized into the descriptor (param unified, stable key order).
+    expect(api).toContain(
+      'listOrders: { id: "listOrders", method: "GET", path: "/orders", params: [{ name: "cursor", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" } }'
+    );
+    // Ops declares the statically computed element type for the paginated op only.
+    expect(api).toContain('item: Order;');
+    expect(api).not.toContain('item: MenuItem;');
+    // The other operations carry NO pagination block…
+    expect(api).toContain(
+      'listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }] }'
+    );
+    expect(api).toContain(
+      'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
+    );
+    // …and the flat sugar preserves `.pages`/`.items` via Object.assign.
+    expect(api).toContain('export const listOrders = Object.assign((params: {');
+    expect(api).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
+    expect(api).not.toContain('client.listMenuItems.pages');
+    // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).
+    expect(api).toContain('// ─── Embedded runtime');
+    expect(api).toContain('Pagination did not advance');
+
+    const offset = readFileSync(apiOffsetFile, 'utf-8');
+    // The convention lands on listMenuItems (it fits)…
+    expect(offset).toContain(
+      'listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "offset", param: "offset", limitParam: "limit", items: "/items" } }'
+    );
+    expect(offset).toContain('item: MenuItem;');
+    expect(offset).toContain(
+      '{ pages: client.listMenuItems.pages, items: client.listMenuItems.items });'
+    );
+    // …precedence keeps the extension's cursor rule on listOrders (not the convention)…
+    expect(offset).toContain(
+      'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
+    );
+    // …and getOrder (no `offset` query param) is silently skipped, not an error.
+    expect(offset).toContain(
+      'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
+    );
+
+    const pkg = readFileSync(apiPackageFile, 'utf-8');
+    // Package mode: no embedded runtime — pagination arrives via the import.
+    expect(pkg).toContain("from '@redocly/client-generator'");
+    expect(pkg).not.toContain('// ─── Embedded runtime');
+    expect(pkg).toContain(
+      'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
+    );
+    expect(pkg).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
+  }, 60_000);
+
+  test('typecheck gate: all three generated clients + consumer scripts, strict', () => {
+    const typecheckResult = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
+      encoding: 'utf-8',
+      cwd: repoRoot,
+    });
+    expect(
+      typecheckResult.status,
+      `tsc --noEmit failed:\nstdout:\n${typecheckResult.stdout}\nstderr:\n${typecheckResult.stderr}`
+    ).toBe(0);
+  }, 60_000);
+
+  test('cursor (extension arm): .items across 3 pages, .pages sizes, resume, no arg mutation', async () => {
+    await resetLog();
+    const { stdout } = runConsumer('index.ts');
+    const parsed = JSON.parse(stdout.trim()) as {
+      ids: string[];
+      firstCursorLeaked: boolean;
+      pageSizes: number[];
+      resumedIds: string[];
+      resumeCursorAfter: string;
+    };
+    // All five items, in order, across the 2+2+1 pages.
+    expect(parsed.ids).toEqual(['o-1', 'o-2', 'o-3', 'o-4', 'o-5']);
+    expect(parsed.pageSizes).toEqual([2, 2, 1]);
+    // Resume from `cursor: 'c2'` starts at page 2; caller args stay untouched.
+    expect(parsed.resumedIds).toEqual(['o-3', 'o-4', 'o-5']);
+    expect(parsed.firstCursorLeaked).toBe(false);
+    expect(parsed.resumeCursorAfter).toBe('c2');
+
+    // The wire: cursor progression (none, c2, c3) with `limit` forwarded every time.
+    const log = await fetchLog();
+    expect(log.map((e) => e.url)).toEqual([
+      // .items(): three pages.
+      '/orders?limit=2',
+      '/orders?limit=2&cursor=c2',
+      '/orders?limit=2&cursor=c3',
+      // .pages(): the same progression.
+      '/orders?limit=2',
+      '/orders?limit=2&cursor=c2',
+      '/orders?limit=2&cursor=c3',
+      // Resume: starts at the caller's cursor — page 1 is never requested.
+      '/orders?cursor=c2&limit=2',
+      '/orders?cursor=c3&limit=2',
+    ]);
+    expect(log.every((e) => e.method === 'GET' && e.url.includes('limit=2'))).toBe(true);
+  }, 60_000);
+
+  test('offset (convention arm): advances by page item count, stops on the empty page', async () => {
+    await resetLog();
+    const { stdout } = runConsumer('index-offset.ts');
+    const parsed = JSON.parse(stdout.trim()) as {
+      names: string[];
+      pageSizes: number[];
+      listOrdersStyle: string;
+    };
+    expect(parsed.names).toEqual(['espresso', 'latte', 'mocha', 'flat white', 'cortado']);
+    // The trailing empty page is yielded (pages arrive before the stop check).
+    expect(parsed.pageSizes).toEqual([2, 2, 1, 0]);
+    // Runtime echo of the compile-time precedence pin.
+    expect(parsed.listOrdersStyle).toBe('cursor');
+
+    // offset=0,2,4 then the empty probe at 5 — for the .items() and .pages() walks.
+    const log = await fetchLog();
+    expect(log.map((e) => e.url)).toEqual([
+      '/menu?limit=2&offset=0',
+      '/menu?limit=2&offset=2',
+      '/menu?limit=2&offset=4',
+      '/menu?limit=2&offset=5',
+      '/menu?limit=2&offset=0',
+      '/menu?limit=2&offset=2',
+      '/menu?limit=2&offset=4',
+      '/menu?limit=2&offset=5',
+    ]);
+  }, 60_000);
+
+  test('abort mid-iteration: the forwarded signal rejects the next page fetch', async () => {
+    await resetLog();
+    const { stdout } = runConsumer('index-abort.ts');
+    const parsed = JSON.parse(stdout.trim()) as { received: number; error: string | null };
+    // The first page (2 items) drains from memory, then the page-2 fetch aborts.
+    expect(parsed.received).toBe(2);
+    expect(parsed.error).toBe('AbortError');
+
+    const log = await fetchLog();
+    const pageRequests = log.filter((e) => e.url.startsWith('/orders'));
+    expect(pageRequests.length).toBeGreaterThanOrEqual(1);
+    expect(pageRequests.length).toBeLessThanOrEqual(2);
+  }, 60_000);
+
+  test('package-mode arm: .items() runs on the runtime imported from the package', async () => {
+    await resetLog();
+    const { stdout } = runConsumer('index-package.ts');
+    const parsed = JSON.parse(stdout.trim()) as { ids: string[] };
+    expect(parsed.ids).toEqual(['o-1', 'o-2', 'o-3', 'o-4', 'o-5']);
+
+    const log = await fetchLog();
+    expect(log.map((e) => e.url)).toEqual([
+      '/orders?limit=2',
+      '/orders?limit=2&cursor=c2',
+      '/orders?limit=2&cursor=c3',
+    ]);
+  }, 60_000);
+});

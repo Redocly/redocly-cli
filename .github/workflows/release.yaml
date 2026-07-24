@@ -206,6 +206,11 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      # Install before the version bump: npm links workspace packages only while
+      # their versions still match the dependency specs in package.json files.
+      - name: Install dependencies
+        run: npm install
+
       - name: Update package versions
         run: |
           TIMESTAMP=$(date +%s)
@@ -217,6 +222,10 @@ jobs:
           # Update Respect Core package version and dependencies
           jq ".version = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+
+          # Update Client Generator package version and dependencies
+          jq ".version = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
 
           # Update CLI package version
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
@@ -235,9 +244,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Build packages
         run: npm run compile
@@ -258,3 +264,7 @@ jobs:
           npm run prepare:publish-dir
           npm publish ./.publish --tag snapshot
           npm run clean:publish-dir
+          sleep 10
+
+          cd ../client-generator
+          npm publish --tag snapshot

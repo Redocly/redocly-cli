@@ -1,0 +1,27 @@
+openapi: 3.2.0
+$self: https://example.com/openapi
+info: { title: OAS 3.2 API, version: 1.0.0 }
+servers:
+  - { url: https://api.example.com, name: production }
+paths:
+  /things/{id}:
+    get:
+      operationId: getThing
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+components:
+  schemas:
+    Thing:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        status:
+          type: [string, 'null']
+          enum: [active, archived, null]

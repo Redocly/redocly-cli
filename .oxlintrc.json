@@ -9,7 +9,15 @@
     "builtin": true,
     "es2026": true
   },
-  "ignorePatterns": ["packages/*/lib/**", "*.js", "*.cjs"],
+  "ignorePatterns": [
+    "packages/*/lib/**",
+    "*.js",
+    "*.cjs",
+    "tests/e2e/generate-client/examples/*/src/api/**",
+    "tests/e2e/generate-client/examples/*/generate.ts",
+    "tests/e2e/generate-client/*.snapshot.ts",
+    "tests/e2e/generate-client/*-consumer/api.ts"
+  ],
   "rules": {
     "eslint/no-array-constructor": "error",
     "eslint/no-case-declarations": "error",
@@ -65,6 +73,15 @@
     },
     {
       "files": ["packages/core/src/logger.ts"],
+      "rules": {
+        "eslint/no-console": "allow"
+      }
+    },
+    {
+      "files": [
+        "tests/e2e/generate-client/examples/*/src/**",
+        "tests/e2e/generate-client/examples/*/worker.ts"
+      ],
       "rules": {
         "eslint/no-console": "allow"
       }

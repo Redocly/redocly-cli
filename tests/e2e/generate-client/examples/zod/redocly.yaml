@@ -1,0 +1,11 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+# The client is generated for the api that declares a `client` block
+# (run `redocly generate-client` with no args to build every such api).
+apis:
+  zod:
+    root: ../_shared/cafe.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+        - zod

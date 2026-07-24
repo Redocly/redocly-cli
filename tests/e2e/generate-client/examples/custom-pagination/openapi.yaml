@@ -1,0 +1,59 @@
+openapi: 3.1.0
+info:
+  title: Cafe Orders Search API
+  description: A body-cursor search API for the hand-written pagination example.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe-orders.example.com
+paths:
+  /orders/search:
+    post:
+      operationId: searchOrders
+      summary: Search orders; the page cursor travels in the request BODY
+      description: >-
+        Body-cursor pagination — a shape the built-in styles do not cover (they only
+        advance query parameters), so the example pages through it with a small
+        hand-written helper over the generated typed call.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                cursor:
+                  description: Opaque cursor of the page to fetch; omit for the first page.
+                  type: string
+                limit:
+                  type: integer
+      responses:
+        '200':
+          description: One page of matching orders.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  nextCursor:
+                    description: Cursor of the next page; absent on the last page.
+                    type: string
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, drink, status]
+      properties:
+        id:
+          type: string
+        drink:
+          type: string
+        status:
+          type: string
+          enum: [pending, ready, delivered]

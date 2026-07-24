@@ -1,0 +1,72 @@
+openapi: 3.1.0
+info:
+  title: Cafe API
+  description: A small tagged API for the nested-facade example.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe-orders.example.com
+tags:
+  - name: Orders
+  - name: Menu
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [Orders]
+      responses:
+        '200':
+          description: All orders.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      tags: [Orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /menu:
+    get:
+      operationId: listMenuItems
+      tags: [Menu]
+      responses:
+        '200':
+          description: The menu.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, drink]
+      properties:
+        id:
+          type: string
+        drink:
+          type: string
+    MenuItem:
+      type: object
+      required: [name, price]
+      properties:
+        name:
+          type: string
+        price:
+          type: integer

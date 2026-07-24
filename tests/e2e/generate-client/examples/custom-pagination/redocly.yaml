@@ -1,0 +1,13 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+#
+# Deliberately NO `client.pagination` block: this API's cursor travels in the request
+# BODY, a shape the built-in styles don't cover (they only advance query parameters).
+# The example pages through it with a small hand-written helper instead — see
+# src/main.ts. The sibling `pagination` example shows the native declared styles.
+apis:
+  custom-pagination:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk

@@ -1,0 +1,148 @@
+/**
+ * Behavioral e2e for the extension contract (D3). Rather than a live server, we
+ * inject a fake `fetch` via `configure()` / `createClient(…, config)` and capture what
+ * the generated runtime actually produced — proving that `serverUrl`, `config.headers`,
+ * `onRequest`, transport-swap, and per-instance config observably take effect.
+ */
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
+
+import { generateInto, runConsumer } from './helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixture = join(__dirname, 'fixtures/base.yaml');
+
+describe('extension contract — flat surface (configure)', () => {
+  let dir = '';
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'ext-fn-'));
+    generateInto(dir, fixture);
+  }, 60_000);
+  afterAll(() => {
+    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', () => {
+    const captured = runConsumer(
+      dir,
+      outdent`
+        import { configure, listPets } from './client.ts';
+
+        const seen: { url?: string; headers?: Record<string, string> } = {};
+        configure({
+          serverUrl: 'https://configured.example',
+          headers: { 'X-Tenant': 'acme' },
+          onRequest: (ctx) => { ctx.headers['X-Trace'] = 'trace-123'; },
+          fetch: (async (url: string, init: RequestInit) => {
+            seen.url = String(url);
+            seen.headers = init.headers as Record<string, string>;
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch,
+        });
+
+        await listPets();
+        console.log(JSON.stringify(seen));
+      `
+    ) as { url: string; headers: Record<string, string> };
+
+    // serverUrl override was honored (not the spec's localhost:3102).
+    expect(captured.url).toBe('https://configured.example/pets');
+    // The fake fetch was actually used, and both config.headers + onRequest applied.
+    expect(captured.headers['X-Tenant']).toBe('acme');
+    expect(captured.headers['X-Trace']).toBe('trace-123');
+  }, 60_000);
+
+  test('onError maps a failed request to a custom error', () => {
+    const result = runConsumer(
+      dir,
+      outdent`
+        import { configure, getPetById, ApiError } from './client.ts';
+
+        class NotFound extends Error {}
+        configure({
+          fetch: (async () =>
+            new Response('{"detail":"nope"}', { status: 404, headers: { 'content-type': 'application/json' } })) as unknown as typeof fetch,
+          onError: (error: ApiError) => new NotFound('mapped:' + error.status),
+        });
+
+        try {
+          await getPetById(1);
+          console.log(JSON.stringify({ threw: false }));
+        } catch (e) {
+          console.log(JSON.stringify({ threw: true, name: (e as Error).constructor.name, message: (e as Error).message }));
+        }
+      `
+    ) as { threw: boolean; name: string; message: string };
+
+    expect(result.threw).toBe(true);
+    expect(result.name).toBe('NotFound');
+    expect(result.message).toBe('mapped:404');
+  }, 60_000);
+});
+
+describe('extension contract — per-instance config (createClient)', () => {
+  let dir = '';
+  beforeAll(() => {
+    // The temp dir lives INSIDE the repo so the consumer's import of
+    // `@redocly/client-generator` resolves through the workspace node_modules symlink.
+    dir = mkdtempSync(join(__dirname, '.tmp-ext-instance-'));
+    generateInto(dir, fixture, ['--runtime', 'package']);
+  }, 60_000);
+  afterAll(() => {
+    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('two instances carry independent serverUrl + headers (multi-tenant isolation)', () => {
+    const calls = runConsumer(
+      dir,
+      outdent`
+        import { createClient } from '@redocly/client-generator';
+        import { OPERATIONS, type Ops } from './client.ts';
+
+        const calls: Array<{ tag: string; url: string; tenant: string }> = [];
+        const make = (tag: string) =>
+          (async (url: string, init: RequestInit) => {
+            const headers = init.headers as Record<string, string>;
+            calls.push({ tag, url: String(url), tenant: headers['X-Tenant'] });
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch;
+
+        const a = createClient<Ops>(OPERATIONS, { serverUrl: 'https://a.example', headers: { 'X-Tenant': 'A' }, fetch: make('a') });
+        const b = createClient<Ops>(OPERATIONS, { serverUrl: 'https://b.example', headers: { 'X-Tenant': 'B' }, fetch: make('b') });
+
+        await a.listPets();
+        await b.listPets();
+        console.log(JSON.stringify(calls));
+      `
+    ) as Array<{ tag: string; url: string; tenant: string }>;
+
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toEqual({ tag: 'a', url: 'https://a.example/pets', tenant: 'A' });
+    expect(calls[1]).toEqual({ tag: 'b', url: 'https://b.example/pets', tenant: 'B' });
+  }, 60_000);
+
+  test('the generated module instance keeps the spec-derived serverUrl unless overridden', () => {
+    const seen = runConsumer(
+      dir,
+      outdent`
+        import { client } from './client.ts';
+
+        let captured = '';
+        client.configure({
+          fetch: (async (url: string) => {
+            captured = String(url);
+            return new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+          }) as unknown as typeof fetch,
+        });
+        await client.listPets();
+        console.log(JSON.stringify({ captured }));
+      `
+    ) as { captured: string };
+
+    // configure() only swapped the transport → the baked serverUrl from base.yaml stays.
+    expect(seen.captured).toBe('http://localhost:3102/pets');
+  }, 60_000);
+});

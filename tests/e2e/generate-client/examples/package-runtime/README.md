@@ -1,0 +1,19 @@
+# package-runtime example
+
+Generated TypeScript client using **`runtime: package`**: the generated `src/api/client.ts`
+contains only this API's types and operation descriptors and imports the engine
+(`createClient`, `ApiError`, middleware, auth) from `@redocly/client-generator` — the example's
+one real dependency. Engine fixes arrive via `npm update @redocly/client-generator` with no
+regeneration; regenerate only when the API contract changes.
+
+## Run
+
+```bash
+npm install
+npm run generate   # generate src/api (the client is gitignored)
+npm run dev        # open the printed local URL
+```
+
+The generated client under `src/api/` is gitignored; CI regenerates it and type-checks this example.
+The app code is the same as the inline examples — `configure()`, `use()` middleware, free
+functions, the `client` instance, `ApiError` — only the runtime's distribution differs.

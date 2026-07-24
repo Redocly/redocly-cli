@@ -1,0 +1,143 @@
+import { spawnSync, type ChildProcess } from 'node:child_process';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { generate, killServer, repoRoot, startServer } from './helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixture = join(__dirname, 'fixtures/base.yaml');
+const consumerDir = join(__dirname, 'base-consumer');
+const generatedFile = join(consumerDir, 'api.ts');
+const serverScript = join(consumerDir, 'server.ts');
+const indexScript = join(consumerDir, 'index.ts');
+const cancelScript = join(consumerDir, 'index-cancel.ts');
+
+const SERVER_PORT = 3102;
+const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
+
+describe('generate-client base consumer (single-file output)', () => {
+  let serverProcess: ChildProcess | undefined;
+
+  beforeAll(async () => {
+    if (existsSync(generatedFile)) {
+      rmSync(generatedFile, { force: true });
+    }
+
+    serverProcess = await startServer(
+      serverScript,
+      consumerDir,
+      { BASE_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'base-server'
+    );
+  }, 30_000);
+
+  afterAll(async () => {
+    if (serverProcess) {
+      await killServer(serverProcess);
+    }
+  });
+
+  test('end-to-end: generate single file, type-check, run, assert real call', async () => {
+    generate(fixture, generatedFile);
+
+    expect(existsSync(generatedFile)).toBe(true);
+    const generated = readFileSync(generatedFile, 'utf-8');
+    expect(generated).toContain('export type Pet');
+    expect(generated).toContain('export class ApiError');
+    // The descriptor wiring with the embedded runtime, plus flat call sugar per operation.
+    expect(generated).toContain('// ─── Embedded runtime');
+    expect(generated).toContain('as const satisfies Record<string, OperationDescriptor>');
+    expect(generated).toContain('export const { configure, use } = client;');
+    expect(generated).toContain('export const getPetById = (');
+    expect(generated).toContain('export const getSlowPet = (');
+    expect(generated).toContain('export const listPets = (');
+    // The spec's server URL is baked into the client instance.
+    expect(generated).toContain(
+      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3102" });'
+    );
+    // An OAS 3.1 enum that includes null renders as a nullable union.
+    expect(generated).toMatch(/status\?:\s*\("available" \| "pending" \| "sold"\) \| null;/);
+    // A free-form object (`type: object`, no properties) renders as a record, not `{}`.
+    expect(generated).toMatch(/metadata\?:\s*Record<string, unknown>;/);
+    // readOnly `id` is dropped from the create body via Omit (the response Pet keeps it).
+    expect(generated).toContain('export type CreatePetBody = Omit<Pet, "id">;');
+    // The readOnly `id` carries the `readonly` modifier on the model (for OmitReadOnly<T>).
+    expect(generated).toMatch(/readonly id\?: number;/);
+    // A oneOf with an empty branch keeps the real type — no `| unknown` collapse.
+    expect(generated).toMatch(/owner\?:\s*string;/);
+    expect(generated).not.toContain('| unknown');
+    // OAS 3.1 single null type renders as `null`, not `unknown`.
+    expect(generated).toMatch(/deletedAt\?:\s*null;/);
+    // A discriminated union nested as array items emits guards narrowing the members.
+    expect(generated).toContain(
+      'export function isPetBulkSuccessItem(value: PetBulkSuccessItem | PetBulkErrorItem): value is PetBulkSuccessItem {'
+    );
+    expect(generated).toContain(
+      'export function isPetBulkErrorItem(value: PetBulkSuccessItem | PetBulkErrorItem): value is PetBulkErrorItem {'
+    );
+    // A schema with its own properties AND allOf keeps the own discriminant.
+    expect(generated).toContain('export type ExtendedPet =');
+    expect(generated).toMatch(/kind:\s*"extended";/);
+    expect(generated).toContain('} & Pet;');
+
+    const typecheckResult = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
+      encoding: 'utf-8',
+      cwd: repoRoot,
+    });
+    expect(
+      typecheckResult.status,
+      `tsc --noEmit failed:\nstdout:\n${typecheckResult.stdout}\nstderr:\n${typecheckResult.stderr}`
+    ).toBe(0);
+
+    const runResult = spawnSync('npx', ['tsx', indexScript], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+    });
+    expect(
+      runResult.status,
+      `consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      pet: { id: number; name: string };
+      filtered: Array<{ id: number; name: string }>;
+      created: { name: string };
+    };
+    expect(typeof parsed.pet.id).toBe('number');
+    expect(typeof parsed.pet.name).toBe('string');
+    expect(Array.isArray(parsed.filtered)).toBe(true);
+    // Bucket C round-trip: createPet ran with a body that omits the readOnly `id`.
+    expect(typeof parsed.created.name).toBe('string');
+
+    const logResponse = await fetch(`${SERVER_BASE}/__test__/log`);
+    const log = (await logResponse.json()) as Array<{ method: string; url: string }>;
+    expect(log).toContainEqual({ method: 'GET', url: '/pets/1' });
+    expect(log).toContainEqual({ method: 'POST', url: '/pets' });
+    expect(
+      log.some(
+        (e) =>
+          e.method === 'GET' &&
+          e.url.startsWith('/pets?') &&
+          e.url.includes('filter%5Bname%5D=rex') &&
+          e.url.includes('filter%5Bstatus%5D=available')
+      ),
+      `deepObject query not found in log:\n${JSON.stringify(log, null, 2)}`
+    ).toBe(true);
+  }, 60_000);
+
+  test('cancel: AbortController aborts the underlying request', async () => {
+    expect(existsSync(generatedFile), 'previous test must have produced api.ts').toBe(true);
+
+    const cancelResult = spawnSync('npx', ['tsx', cancelScript], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 15_000,
+    });
+    expect(
+      cancelResult.status,
+      `cancel stdout:\n${cancelResult.stdout}\nstderr:\n${cancelResult.stderr}`
+    ).toBe(0);
+    expect(cancelResult.stdout.trim()).toBe('CANCELLED:AbortError');
+  }, 30_000);
+});

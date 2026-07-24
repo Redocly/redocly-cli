@@ -1,0 +1,358 @@
+import type { ApiModel, OperationModel, SchemaModel } from '../model.js';
+import {
+  assertPathParamsAvoidArgSlots,
+  assertSafeIdentifiers,
+  sanitizeIdentifiers,
+} from '../sanitize-identifiers.js';
+
+function model(schemas: ApiModel['schemas'], operations: OperationModel[] = []): ApiModel {
+  return {
+    title: 'T',
+    version: '1',
+    serverUrl: '',
+    services: [{ name: 'Default', operations }],
+    schemas,
+    securitySchemes: [],
+  };
+}
+
+function op(partial: Partial<OperationModel>): OperationModel {
+  return {
+    name: 'op',
+    method: 'get',
+    path: '/',
+    pathParams: [],
+    queryParams: [],
+    headerParams: [],
+    cookieParams: [],
+    successResponses: [],
+    errorResponses: [],
+    tags: [],
+    security: [],
+    ...partial,
+  };
+}
+
+const ref = (name: string): SchemaModel => ({ kind: 'ref', name });
+
+describe('sanitizeIdentifiers', () => {
+  it('renames a non-identifier schema name and rewrites refs that target it', () => {
+    const m = model([
+      { name: 'Bad.Name', schema: { kind: 'object', properties: [] } },
+      {
+        name: 'Holder',
+        schema: {
+          kind: 'object',
+          properties: [{ name: 'x', schema: ref('Bad.Name'), required: true }],
+        },
+      },
+    ]);
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('Bad_Name');
+    const holder = m.schemas[1].schema as Extract<SchemaModel, { kind: 'object' }>;
+    expect(holder.properties[0].schema).toEqual(ref('Bad_Name'));
+  });
+
+  it('renames a schema that collides with a name the generated module already declares', () => {
+    // `ApiError` is the runtime's error class (declared in the same module in embed
+    // mode, re-exported in package mode); `http` is the mock module's msw import.
+    const m = model(
+      [
+        {
+          name: 'ApiError',
+          schema: {
+            kind: 'object',
+            properties: [{ name: 'code', schema: ref('http'), required: true }],
+          },
+        },
+        { name: 'http', schema: { kind: 'scalar', scalar: 'string' } },
+      ],
+      [op({ name: 'getItem' })]
+    );
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('ApiError_2');
+    expect(m.schemas[1].name).toBe('http_2');
+    const apiError = m.schemas[0].schema as Extract<SchemaModel, { kind: 'object' }>;
+    expect(apiError.properties[0].schema).toEqual(ref('http_2'));
+    expect(m.services[0].operations[0].name).toBe('getItem');
+  });
+
+  it('keeps schema names distinct after the PascalCase derivation (pet vs Pet)', () => {
+    // Derived export names (`PetSchema`, `createPet`, `transformPet`) uppercase only the
+    // first character, so case-distinct spec names must stay distinct after that mapping
+    // too or the companion modules emit duplicate identifiers.
+    const m = model([
+      { name: 'pet', schema: { kind: 'scalar', scalar: 'string' } },
+      { name: 'Pet', schema: { kind: 'object', properties: [] } },
+      {
+        name: 'Holder',
+        schema: {
+          kind: 'object',
+          properties: [{ name: 'x', schema: ref('Pet'), required: true }],
+        },
+      },
+    ]);
+    sanitizeIdentifiers(m);
+    expect(m.schemas.map((schema) => schema.name)).toEqual(['pet', 'Pet_2', 'Holder']);
+    const holder = m.schemas[2].schema as Extract<SchemaModel, { kind: 'object' }>;
+    expect(holder.properties[0].schema).toEqual(ref('Pet_2'));
+  });
+
+  it('keeps operation names distinct after the PascalCase derivation (getPet vs GetPet)', () => {
+    // `<Op>Variables`/`<Op>Result` aliases collapse case-distinct operation names.
+    const m = model([], [op({ name: 'getPet' }), op({ name: 'GetPet' })]);
+    sanitizeIdentifiers(m);
+    expect(m.services[0].operations.map((operation) => operation.name)).toEqual([
+      'getPet',
+      'GetPet_2',
+    ]);
+    expect(m.services[0].operations[1].specName).toBe('GetPet');
+  });
+
+  it('keeps security-scheme keys distinct after the PascalCase derivation (token vs Token)', () => {
+    // Both keys would derive the same `setApiKeyToken` setter.
+    const m = model([], [op({ name: 'getPet', security: [['token'], ['Token']] })]);
+    m.securitySchemes = [
+      { kind: 'apiKeyHeader', key: 'token', headerName: 'X-Token' },
+      { kind: 'apiKeyHeader', key: 'Token', headerName: 'X-Token-2' },
+    ];
+    sanitizeIdentifiers(m);
+    expect(m.securitySchemes.map((scheme) => scheme.key)).toEqual(['token', 'Token_2']);
+    expect(m.services[0].operations[0].security).toEqual([['token'], ['Token_2']]);
+  });
+
+  it('renames a schema that shadows a platform global the emitted code references', () => {
+    // `--date-type Date` fields, binary `Blob` fields, and the runtime's `Promise`/
+    // `Response` annotations all reference bare global identifiers; a same-named schema
+    // type in the module would shadow them.
+    const m = model([
+      { name: 'Date', schema: { kind: 'object', properties: [] } },
+      { name: 'Promise', schema: { kind: 'object', properties: [] } },
+    ]);
+    sanitizeIdentifiers(m);
+    expect(m.schemas.map((schema) => schema.name)).toEqual(['Date_2', 'Promise_2']);
+  });
+
+  it('renames a schema that collides with an auth setter derived from the security schemes', () => {
+    // A bearer scheme makes the sugar emit `export const setBearer = …`; a string-enum
+    // schema of the same name emits an `export const` companion — a duplicate declaration.
+    const m = model([
+      { name: 'setBearer', schema: { kind: 'enum', scalar: 'string', values: ['a', 'b'] } },
+    ]);
+    m.securitySchemes = [{ kind: 'bearer', key: 'bearerAuth' }];
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('setBearer_2');
+  });
+
+  it('renames an operation that collides with a runtime declaration', () => {
+    // `sleep` is a module-local runtime function in embed mode; an exported operation
+    // const of the same name would be a duplicate declaration.
+    const m = model([], [op({ name: 'sleep' })]);
+    sanitizeIdentifiers(m);
+    expect(m.services[0].operations[0].name).toBe('sleep_2');
+    expect(m.services[0].operations[0].specName).toBe('sleep');
+  });
+
+  it('renames an operation whose name collides with a schema', () => {
+    // Rebilly shape: operationId `PatchCreditMemo` AND schema `PatchCreditMemo`. The
+    // free function's own signature (`body: PatchCreditMemo`) would resolve to the
+    // function value, and the entry's `export *` would drop the shadowed type.
+    const m = model(
+      [{ name: 'PatchCreditMemo', schema: { kind: 'object', properties: [] } }],
+      [op({ name: 'PatchCreditMemo' })]
+    );
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('PatchCreditMemo');
+    expect(m.services[0].operations[0].name).toBe('PatchCreditMemo_2');
+    expect(m.services[0].operations[0].specName).toBe('PatchCreditMemo');
+  });
+
+  it('leaves valid identifier names untouched', () => {
+    const m = model(
+      [{ name: 'Pet', schema: { kind: 'scalar', scalar: 'string' } }],
+      [op({ name: 'getPet' })]
+    );
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('Pet');
+    expect(m.services[0].operations[0].name).toBe('getPet');
+  });
+
+  it('rewrites refs through array, record, union (with and without discriminator), and intersection', () => {
+    const m = model([
+      { name: 'A.B', schema: { kind: 'object', properties: [] } },
+      { name: 'Arr', schema: { kind: 'array', items: ref('A.B') } },
+      { name: 'Rec', schema: { kind: 'record', value: ref('A.B') } },
+      {
+        name: 'Uni',
+        schema: {
+          kind: 'union',
+          members: [ref('A.B'), { kind: 'scalar', scalar: 'string' }],
+          discriminator: { propertyName: 'k', mapping: [{ value: 'a', schemaName: 'A.B' }] },
+        },
+      },
+      { name: 'Plain', schema: { kind: 'union', members: [ref('A.B'), { kind: 'null' }] } },
+      { name: 'Inter', schema: { kind: 'intersection', members: [ref('A.B')] } },
+    ]);
+    sanitizeIdentifiers(m);
+    expect((m.schemas[1].schema as Extract<SchemaModel, { kind: 'array' }>).items).toEqual(
+      ref('A_B')
+    );
+    expect((m.schemas[2].schema as Extract<SchemaModel, { kind: 'record' }>).value).toEqual(
+      ref('A_B')
+    );
+    const uni = m.schemas[3].schema as Extract<SchemaModel, { kind: 'union' }>;
+    expect(uni.members[0]).toEqual(ref('A_B'));
+    expect(uni.discriminator?.mapping[0].schemaName).toBe('A_B');
+    expect(
+      (m.schemas[5].schema as Extract<SchemaModel, { kind: 'intersection' }>).members[0]
+    ).toEqual(ref('A_B'));
+  });
+
+  it('rewrites an `omit` base that targets a renamed schema', () => {
+    const m = model([
+      { name: 'Bad.Name', schema: { kind: 'object', properties: [] } },
+      { name: 'Body', schema: { kind: 'omit', base: 'Bad.Name', keys: ['id'] } },
+    ]);
+    sanitizeIdentifiers(m);
+    expect((m.schemas[1].schema as Extract<SchemaModel, { kind: 'omit' }>).base).toBe('Bad_Name');
+  });
+
+  it('sanitizes a dangling ref whose target has no declaration', () => {
+    const m = model([{ name: 'Holder', schema: { kind: 'array', items: ref('Un.known') } }]);
+    sanitizeIdentifiers(m);
+    expect((m.schemas[0].schema as Extract<SchemaModel, { kind: 'array' }>).items).toEqual(
+      ref('Un_known')
+    );
+  });
+
+  it('uniquifies schema names that sanitize to the same identifier, refs following each', () => {
+    const m = model([
+      { name: 'A.B', schema: { kind: 'object', properties: [] } },
+      { name: 'A-B', schema: { kind: 'object', properties: [] } },
+      {
+        name: 'Holder',
+        schema: {
+          kind: 'object',
+          properties: [
+            { name: 'x', schema: ref('A.B'), required: true },
+            { name: 'y', schema: ref('A-B'), required: true },
+          ],
+        },
+      },
+    ]);
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('A_B');
+    expect(m.schemas[1].name).toBe('A_B_2');
+    const holder = m.schemas[2].schema as Extract<SchemaModel, { kind: 'object' }>;
+    expect(holder.properties[0].schema).toEqual(ref('A_B'));
+    expect(holder.properties[1].schema).toEqual(ref('A_B_2'));
+  });
+
+  it('renames a non-identifier security-scheme key and rewrites operation.security to match', () => {
+    const m = model([], [op({ name: 'getX', security: [['k(){};evil', 'clean']] })]);
+    m.securitySchemes = [
+      { kind: 'apiKeyHeader', key: 'k(){};evil', headerName: 'X-Api-Key' },
+      { kind: 'apiKeyHeader', key: 'clean', headerName: 'X-Other' },
+    ];
+    sanitizeIdentifiers(m);
+    expect(m.securitySchemes[0].key).toBe('k_____evil');
+    expect(m.securitySchemes[1].key).toBe('clean');
+    // The operation's security list follows the rename so the runtime literals match.
+    expect(m.services[0].operations[0].security).toEqual([['k_____evil', 'clean']]);
+  });
+
+  it('sanitizes an operation.security entry with no matching scheme', () => {
+    const m = model([], [op({ name: 'getX', security: [['gone.key']] })]);
+    sanitizeIdentifiers(m);
+    expect(m.services[0].operations[0].security).toEqual([['gone_key']]);
+  });
+
+  it('renames operations and rewrites refs in every operation slot', () => {
+    const m = model(
+      [{ name: 'A.B', schema: { kind: 'object', properties: [] } }],
+      [
+        op({
+          name: 'do-thing',
+          pathParams: [{ name: 'id', in: 'path', schema: ref('A.B'), required: true }],
+          queryParams: [{ name: 'q', in: 'query', schema: ref('A.B'), required: false }],
+          headerParams: [{ name: 'h', in: 'header', schema: ref('A.B'), required: false }],
+          requestBody: { contentType: 'application/json', schema: ref('A.B'), required: true },
+          successResponses: [
+            {
+              contentType: 'application/json',
+              schema: ref('A.B'),
+              itemSchema: ref('A.B'),
+              status: 200,
+            },
+          ],
+          errorResponses: [{ contentType: 'application/json', schema: ref('A.B'), status: 200 }],
+        }),
+      ]
+    );
+    sanitizeIdentifiers(m);
+    const o = m.services[0].operations[0];
+    expect(o.name).toBe('do_thing');
+    // The spec operationId survives the rename so user config keys can still match.
+    expect(o.specName).toBe('do-thing');
+    expect(o.pathParams[0].schema).toEqual(ref('A_B'));
+    expect(o.queryParams[0].schema).toEqual(ref('A_B'));
+    expect(o.headerParams[0].schema).toEqual(ref('A_B'));
+    expect(o.requestBody?.schema).toEqual(ref('A_B'));
+    expect(o.successResponses[0].schema).toEqual(ref('A_B'));
+    expect(o.successResponses[0].itemSchema).toEqual(ref('A_B'));
+    expect(o.errorResponses[0].schema).toEqual(ref('A_B'));
+  });
+});
+
+describe('assertPathParamsAvoidArgSlots', () => {
+  function opWithPathParam(name: string): OperationModel {
+    return op({
+      path: `/x/{${name}}`,
+      pathParams: [
+        { name, in: 'path', required: true, schema: { kind: 'scalar', scalar: 'string' } },
+      ],
+    });
+  }
+
+  it('throws for a path parameter named after a request-args slot', () => {
+    // The runtime routes path values as `args[param.name]` at the top level, next to the
+    // `params`/`body`/`headers`/`cookies` slots — a same-named path param is ambiguous.
+    const m = model([], [opWithPathParam('body')]);
+    expect(() => assertPathParamsAvoidArgSlots(m)).toThrow(
+      /path parameter "body".*rename the parameter/s
+    );
+  });
+
+  it('allows a path parameter named init (only a flat-sugar binding, remapped there)', () => {
+    const m = model([], [opWithPathParam('init')]);
+    expect(() => assertPathParamsAvoidArgSlots(m)).not.toThrow();
+  });
+});
+
+describe('assertSafeIdentifiers', () => {
+  it('passes for a fully sanitized model', () => {
+    const m = model(
+      [{ name: 'Pet', schema: { kind: 'object', properties: [] } }],
+      [op({ name: 'getPet' })]
+    );
+    expect(() => assertSafeIdentifiers(m)).not.toThrow();
+  });
+
+  it('throws when a schema name is not a safe identifier', () => {
+    const m = model([{ name: 'Bad.Name', schema: { kind: 'object', properties: [] } }]);
+    expect(() => assertSafeIdentifiers(m)).toThrow(/schema name .* is not a safe identifier/);
+  });
+
+  it('throws when an operation name is not a safe identifier', () => {
+    const m = model([], [op({ name: 'bad-op' })]);
+    expect(() => assertSafeIdentifiers(m)).toThrow(/operation name .* is not a safe identifier/);
+  });
+
+  it('throws when a security-scheme key is not a safe identifier', () => {
+    const m = model([]);
+    m.securitySchemes = [{ kind: 'apiKeyHeader', key: 'bad.key', headerName: 'X' }];
+    expect(() => assertSafeIdentifiers(m)).toThrow(
+      /security scheme name .* is not a safe identifier/
+    );
+  });
+});

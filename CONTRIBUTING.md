@@ -213,6 +213,7 @@ Run `npm test` to start both unit and e2e tests (and additionally typecheck the 
 ### Unit tests
 
 Run unit tests with this command: `npm run unit`.
+This command runs the suite for every package whose tests match the discovery glob — there is no per-package `npm test` script.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
