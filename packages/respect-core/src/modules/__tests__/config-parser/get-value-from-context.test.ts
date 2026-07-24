@@ -143,7 +143,7 @@ describe('getValueFromContext', () => {
   });
 
   // $sourceDescriptions.<name>.workflows.<workflowId>
-  it('should return workflow from $sourceDescriptions', () => {
+  it('should resolve the legacy `$sourceDescriptions.<name>.workflows.<workflowId>` form for backward compatibility', () => {
     const ctx = {
       $sourceDescriptions: {
         test: {
@@ -168,7 +168,7 @@ describe('getValueFromContext', () => {
     });
   });
 
-  it('should return undefined from $sourceDescriptions if there is no such sourceDescription', () => {
+  it('should return undefined for the legacy form when there is no such sourceDescription', () => {
     const ctx = {
       $sourceDescriptions: {
         test: {
@@ -190,7 +190,7 @@ describe('getValueFromContext', () => {
     ).toEqual(undefined);
   });
 
-  it('should return undefined from $sourceDescriptions if there is no workflowId provided', () => {
+  it('should return undefined for the legacy form when there is no workflowId provided', () => {
     const ctx = {
       $sourceDescriptions: {
         test: {
@@ -205,6 +205,98 @@ describe('getValueFromContext', () => {
     } as any;
     expect(
       getValueFromContext({ value: '$sourceDescriptions.notExistingName.workflows.', ctx, logger })
+    ).toEqual(undefined);
+  });
+
+  it('should return workflow from $sourceDescriptions using the spec form without `workflows` segment', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.test.workflowTestId',
+        ctx,
+        logger,
+      })
+    ).toEqual({
+      workflowId: 'workflowTestId',
+      steps: [],
+    });
+  });
+
+  it('should fall back to field access for the spec form when no workflow matches', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          url: './test.yaml',
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.test.url',
+        ctx,
+        logger,
+      })
+    ).toEqual('./test.yaml');
+  });
+
+  it('should return undefined for the spec form when the source description exists but has no matching workflow or field', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.test.notExistingWorkflow',
+        ctx,
+        logger,
+      })
+    ).toEqual(undefined);
+  });
+
+  it('should return undefined for the spec form when the source description does not exist', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as unknown as TestContext;
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.notExistingName.someWorkflow',
+        ctx,
+        logger,
+      })
     ).toEqual(undefined);
   });
 

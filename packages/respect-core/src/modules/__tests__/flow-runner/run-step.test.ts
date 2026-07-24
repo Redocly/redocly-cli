@@ -2628,7 +2628,7 @@ describe('runStep', () => {
   it('should run step with workflowId from external workflowSpec', async () => {
     const step: Step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
       checks: [],
       response: {} as any,
     };
@@ -2958,7 +2958,7 @@ describe('runStep', () => {
           steps: [
             {
               stepId: 'get-bird',
-              workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+              workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
               checks: [],
             },
           ],
@@ -3029,7 +3029,7 @@ describe('runStep', () => {
   it('should run step with workflowId from external workflow and populate inputs from the parameters', async () => {
     const step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
       parameters: [
         {
           name: 'workflowLevelParam',
@@ -3375,7 +3375,7 @@ describe('runStep', () => {
           steps: [
             {
               stepId: 'get-bird',
-              workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+              workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
               parameters: [
                 {
                   name: 'workflowLevelParam',
@@ -3471,7 +3471,7 @@ describe('runStep', () => {
     });
 
     expect(resolveWorkflowContext).toHaveBeenCalledWith(
-      '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      '$sourceDescriptions.reusable-api.reusable-external-workflow',
       {
         inputs: {
           properties: {
@@ -3518,7 +3518,7 @@ describe('runStep', () => {
   it('should run step with not existing workflowId and populate step.checks with an error', async () => {
     const step: Step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.wrong-reusable-api.reusable-external-workflow',
       outputs: {
         stepOutput: '$outputs.reusableWorkflowOutput.stepOutput',
       },
@@ -3928,7 +3928,7 @@ describe('runStep', () => {
 
     expect(runWorkflow).not.toHaveBeenCalled();
     expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
-      'Workflow $sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow not found.'
+      'Workflow $sourceDescriptions.wrong-reusable-api.reusable-external-workflow not found.'
     );
   });
 
