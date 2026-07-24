@@ -161,21 +161,21 @@ async function runCursor(request: ProviderRequest): Promise<ProviderResult> {
   if (request.model) {
     args.push('--model', request.model);
   }
-  // The instructions go in as the prompt argument; the piped stdin is
-  // attached as context, mirroring how the claude provider splits the two.
-  args.push(request.system);
+  // The Cursor CLI ignores piped stdin when a prompt argument is present,
+  // so the whole prompt goes through stdin, as with the codex provider.
+  const prompt = `${request.system}\n\n${request.user}`;
 
   // The Cursor CLI originally installed a "cursor-agent" binary and later
   // renamed it to "agent"; accept either.
   let result;
   try {
-    result = await runCommand('cursor-agent', args, request.user);
+    result = await runCommand('cursor-agent', args, prompt);
   } catch (error) {
     if (!(error instanceof CliNotFoundError)) {
       throw error;
     }
     try {
-      result = await runCommand('agent', args, request.user);
+      result = await runCommand('agent', args, prompt);
     } catch (fallbackError) {
       if (fallbackError instanceof CliNotFoundError) {
         throw new CliNotFoundError(
