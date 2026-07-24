@@ -108,6 +108,21 @@ describe('schema-consistency undocumented header check', () => {
     expect(undocumentedHeaderFindings(context)).toHaveLength(1);
   });
 
+  it('skips well-known infrastructure headers without --ignore-headers', () => {
+    const context = createContext(200, {
+      requestHeaders: {
+        'x-amzn-tls-cipher-suite': 'TLS_AES_128_GCM_SHA256',
+        'x-amzn-tls-version': 'TLSv1.3',
+        'x-amzn-trace-id': 'Root=1-abc',
+        'x-github-delivery': 'd8b2c8a0-4c6b-11ee-9d2a-8c04ba1f2a58',
+        'x-github-event': 'push',
+        'x-hub-signature': 'sha1=abc',
+        'x-hub-signature-256': 'sha256=abc',
+      },
+    });
+    expect(undocumentedHeaderFindings(context)).toHaveLength(0);
+  });
+
   it('skips headers matched by an exact name or a prefix pattern in --ignore-headers', () => {
     const context = createContext(200, {
       requestHeaders: {

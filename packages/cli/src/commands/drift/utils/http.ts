@@ -49,11 +49,12 @@ const IGNORED_UNDOCUMENTED_HEADERS = new Set([
   'upgrade-insecure-requests',
   'user-agent',
   'via',
-  'x-amzn-trace-id',
   'x-client-trace-id',
   'x-cloud-trace-context',
   'x-correlation-id',
   'x-http-method-override',
+  'x-hub-signature',
+  'x-hub-signature-256',
   'x-method-override',
   'x-real-ip',
   'x-request-id',
@@ -67,9 +68,11 @@ const IGNORED_UNDOCUMENTED_HEADER_PREFIXES = [
   'cf-',
   'sec-ch-',
   'sec-fetch-',
+  'x-amzn-',
   'x-b3-',
   'x-envoy-',
   'x-forwarded-',
+  'x-github-',
 ];
 
 const SET_COOKIE_SEPARATOR = '\n';
