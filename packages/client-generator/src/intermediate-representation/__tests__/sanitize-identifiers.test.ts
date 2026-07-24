@@ -73,6 +73,17 @@ describe('sanitizeIdentifiers', () => {
     expect(m.services[0].operations[0].name).toBe('getItem');
   });
 
+  it('renames a schema that collides with an auth setter derived from the security schemes', () => {
+    // A bearer scheme makes the sugar emit `export const setBearer = …`; a string-enum
+    // schema of the same name emits an `export const` companion — a duplicate declaration.
+    const m = model([
+      { name: 'setBearer', schema: { kind: 'enum', scalar: 'string', values: ['a', 'b'] } },
+    ]);
+    m.securitySchemes = [{ kind: 'bearer', key: 'bearerAuth' }];
+    sanitizeIdentifiers(m);
+    expect(m.schemas[0].name).toBe('setBearer_2');
+  });
+
   it('renames an operation that collides with a runtime declaration', () => {
     // `sleep` is a module-local runtime function in embed mode; an exported operation
     // const of the same name would be a duplicate declaration.

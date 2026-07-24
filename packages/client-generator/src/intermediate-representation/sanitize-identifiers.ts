@@ -1,5 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
+import { authSetterNames } from '../emitters/auth.js';
 import { isSafeIdentifier, uniqueIdent } from '../emitters/identifier.js';
 import { reservedModuleNames } from '../emitters/reserved-names.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
@@ -21,25 +22,11 @@ import type { ApiModel, OperationModel, SchemaModel } from './model.js';
  * build if any name still slips through — it should never fire after this pass.
  */
 export function sanitizeIdentifiers(model: ApiModel): void {
-  // Schema types land in the same module scope as everything the generator emits and
-  // embeds, so a schema may not reuse a reserved name (the runtime's `ApiError` class,
-  // a satellite import like msw's `http`, the `client` const, …). The rename is
-  // mode-independent — a `--runtime` flip must not change the generated type names.
-  const schemaNames = new Set<string>(reservedModuleNames());
-  const renamed = new Map<string, string>();
-  for (const schema of model.schemas) {
-    const safe = uniqueIdent(schema.name, schemaNames);
-    if (safe !== schema.name) {
-      renamed.set(schema.name, safe);
-      warnRename('schema', schema.name, safe);
-      schema.name = safe;
-    }
-  }
-
   // Security-scheme keys feed the apiKey setter name (`setApiKey<Key>`, built with a
   // first-char-only pascalCase) and the runtime's security-matching string literals.
   // Sanitize so the setter is a valid identifier, then rewrite each operation's
-  // `security` list with the same map so the literals still match.
+  // `security` list with the same map so the literals still match. Keys go first:
+  // the setter names seeded into the schema pass below derive from the final keys.
   const schemeKeys = new Set<string>();
   const renamedKeys = new Map<string, string>();
   for (const scheme of model.securitySchemes) {
@@ -48,6 +35,25 @@ export function sanitizeIdentifiers(model: ApiModel): void {
       renamedKeys.set(scheme.key, safe);
       warnRename('security scheme', scheme.key, safe);
       scheme.key = safe;
+    }
+  }
+
+  // Schema types land in the same module scope as everything the generator emits and
+  // embeds, so a schema may not reuse a reserved name (the runtime's `ApiError` class,
+  // a satellite import like msw's `http`, the `client` const, an auth setter, …). The
+  // rename is mode-independent — a `--runtime` flip must not change the generated
+  // type names.
+  const schemaNames = new Set<string>([
+    ...reservedModuleNames(),
+    ...authSetterNames(model.securitySchemes),
+  ]);
+  const renamed = new Map<string, string>();
+  for (const schema of model.schemas) {
+    const safe = uniqueIdent(schema.name, schemaNames);
+    if (safe !== schema.name) {
+      renamed.set(schema.name, safe);
+      warnRename('schema', schema.name, safe);
+      schema.name = safe;
     }
   }
 
