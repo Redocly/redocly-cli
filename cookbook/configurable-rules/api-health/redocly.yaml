@@ -1,0 +1,52 @@
+# Reference: https://datatracker.ietf.org/doc/html/draft-inadarei-api-health-check-06
+rules:
+  rule/health-endpoint:
+    subject:
+      type: Paths
+    assertions:
+      required:
+        - '/health'
+    message: API must have a health endpoint.
+
+  rule/health-media-type:
+    subject:
+      type: MediaTypesMap
+    assertions:
+      const: application/health+json
+    where:
+      - subject:
+          type: PathItem
+          matchParentKeys: '/health'
+        assertions:
+          defined: true
+      - subject:
+          type: Response
+          filterInParentKeys:
+            - '200'
+            - '400'
+        assertions:
+          defined: true
+    message: API Health response has media type `application/health+json`
+    severity: error
+
+  rule/health-schema-status:
+    where:
+      - subject:
+          type: PathItem
+          matchParentKeys: '/health'
+        assertions:
+          defined: true
+      - subject:
+          type: Response
+          filterInParentKeys:
+            - '200'
+            - '400'
+        assertions:
+          defined: true
+    subject:
+      type: SchemaProperties
+    assertions:
+      required:
+        - status
+    message: API Health response must have a required property `status`
+    severity: error

@@ -1,0 +1,15 @@
+rules:
+  rule/required-items-in-array-schemas:
+    subject:
+      type: Schema
+    assertions:
+      required:
+        - items
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: array
+          defined: true
+    message: The 'items' field is required for schemas of array type.

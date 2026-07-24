@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe - deprecated endpoints
+  version: 0.0.0
+paths:
+  '/menu-items':
+    summary: legacy menu items endpoint, replaced by /menu
+    get:
+      deprecated: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            Deprecation:
+              schema:
+                type: string
+              examples:
+                deprecation_date:
+                  summary: A Structured Field Value date, as defined in Section 3.3.7 of RFC9651.
+                  value: '@1688169599'
+            Sunset:
+              description: For historical reasons the Sunset HTTP header field uses a different data type for date than the Deprecation header field.
+              schema:
+                type: string
+              examples:
+                sunset_date:
+                  summary: An HTTP-date timestamp, as defined in Section 7.1.1.1 of RFC7231, and SHOULD be a timestamp in the future.
+                  value: Sun, 30 Jun 2024 23:59:59 GMT
+            Link:
+              schema:
+                type: string
+              examples:
+                link_value:
+                  value: <https://api.cafe.redocly.com/menu>; rel=alternate; title='the menu api'
+          content:
+            'application/json':
+              schema: {}
+        '410':
+          description: Gone
+          headers:
+            Sunset:
+              description: For historical reasons the Sunset HTTP header field uses a different data type for date than the Deprecation header field.
+              schema:
+                type: string
+              examples:
+                sunset_date:
+                  summary: An HTTP-date timestamp, as defined in Section 7.1.1.1 of RFC7231, and SHOULD be a timestamp in the future.
+                  value: Sun, 30 Jun 2024 23:59:59 GMT
+            Link:
+              schema:
+                type: string
+              examples:
+                link_value:
+                  value: <https://api.cafe.redocly.com/menu>; rel=alternate; title='the menu api'
+          content:
+            'application/json':
+              schema: {}

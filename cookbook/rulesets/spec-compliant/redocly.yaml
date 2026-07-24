@@ -1,0 +1,19 @@
+rules:
+  struct: error
+  nullable-type-sibling: error
+  spec-strict-refs: error
+  no-undefined-server-variable: error
+  path-not-include-query: error
+  path-declaration-must-exist: error
+  no-identical-paths: error
+  path-parameters-defined: error
+  operation-operationId-url-safe: warn
+  operation-operationId-unique: error
+  operation-parameters-unique: error
+  operation-2xx-response: warn
+  no-invalid-parameter-examples: warn
+  no-invalid-media-type-examples: warn
+  no-invalid-schema-examples: warn
+  no-example-value-and-externalValue: error
+  no-unresolved-refs: error
+  spec-components-invalid-map-name: error

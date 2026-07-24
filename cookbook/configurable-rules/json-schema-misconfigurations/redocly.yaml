@@ -1,0 +1,38 @@
+rules:
+  rule/json-schema-string-misconfiguration:
+    subject:
+      type: Schema
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: string
+    assertions:
+      disallowed:
+        - minimum
+        - maximum
+  rule/json-schema-array-misconfiguration:
+    subject:
+      type: Schema
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: array
+    assertions:
+      disallowed:
+        - properties
+  rule/json-schema-object-misconfiguration:
+    subject:
+      type: Schema
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: object
+    assertions:
+      disallowed:
+        - items

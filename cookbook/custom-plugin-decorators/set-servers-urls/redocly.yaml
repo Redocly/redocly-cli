@@ -1,0 +1,15 @@
+apis:
+  api-one-name:
+    root: api-one-definition.yaml
+    decorators:
+      set-servers-urls-plugin/set-servers-urls-decorator:
+        serverUrl:
+          [
+            'https://api-one.development.com',
+            'https://api-one.staging.com',
+            'https://api-one.production.com',
+          ]
+plugins:
+  - './set-servers-urls-plugin.js'
+extends:
+  - recommended
