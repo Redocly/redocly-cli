@@ -1,4 +1,4 @@
-// The codegen entry (`@redocly/client-generator/codegen`): everything that runs at
+// The generate entry (`@redocly/client-generator/generate`): everything that runs at
 // GENERATION time — `generateClient`, `collectGeneratedFiles`, and the TypeScript-emitting
 // toolkit for custom generators. It loads `typescript` and `@redocly/openapi-core`, so it
 // must never be reached statically from the package root: package-mode clients import the

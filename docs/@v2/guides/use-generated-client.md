@@ -439,7 +439,8 @@ export default defineGenerator({
 });
 ```
 
-The `@redocly/client-generator/codegen` entry also exports the codegen toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
+The `@redocly/client-generator/generate` entry also exports the emit toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
+For example, a plugin can map every operation to the TypeScript type of its success body with `schemaToTypeNode` and print the result as a compiled type alias — see the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator).
 
 Select it in `redocly.yaml` by path or package name:
 
@@ -470,7 +471,7 @@ await generateClient({
 ```
 
 Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
-See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building plugin, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the spec's tags.
+See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building plugin, the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for one that emits real TypeScript AST via the `/generate` toolkit, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the spec's tags.
 
 ## Resources
 

@@ -1,7 +1,7 @@
 // The package ROOT entry — what package-mode clients load at app runtime, so its static
 // import graph stays runtime-only (no `typescript`, no `@redocly/openapi-core`, no Node
-// builtins; guarded by entry-weight.test.ts). The codegen stack lives behind the dynamic
-// import inside `generateClient` and the `@redocly/client-generator/codegen` entry.
+// builtins; guarded by entry-weight.test.ts). The generation stack lives behind the dynamic
+// import inside `generateClient` and the `@redocly/client-generator/generate` entry.
 
 export { NotSupportedError } from './errors.js';
 export { defineClientSetup } from './runtime-contract.js';
@@ -44,7 +44,7 @@ export type { PaginationConfig, PaginationRule, PaginationStyle } from './emitte
 export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
 export { mergeConfig } from './config-file.js';
 // The custom-generator authoring API (`defineGenerator` + the IR types); the
-// TypeScript-emitting toolkit lives in `@redocly/client-generator/codegen`.
+// TypeScript-emitting toolkit lives in `@redocly/client-generator/generate`.
 export * from './plugin.js';
 
 import type { GenerateClientOptions, GenerateClientResult } from './types.js';
@@ -52,6 +52,6 @@ import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
-  const codegen = await import('./codegen.js');
-  return codegen.generateClient(options);
+  const generate = await import('./generate.js');
+  return generate.generateClient(options);
 }

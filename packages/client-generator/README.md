@@ -106,7 +106,7 @@ type GenerateClientResult = {
 ### `collectGeneratedFiles`
 
 Runs the configured generators against a built model and returns the files in memory, without writing to disk.
-Imported from `@redocly/client-generator/codegen` — the codegen entry; the package root stays runtime-only so package-mode clients never load the generator stack:
+Imported from `@redocly/client-generator/generate` — the generation-time entry; the package root stays runtime-only so package-mode clients never load the generator stack:
 
 ```ts
 function collectGeneratedFiles(
@@ -129,7 +129,7 @@ Authors a custom generator (`{ name, run }` plus optional `requires`/`errorModes
 function defineGenerator(generator: CustomGenerator): CustomGenerator;
 ```
 
-The `@redocly/client-generator/codegen` entry also exports the codegen toolkit the built-ins use (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
+The `@redocly/client-generator/generate` entry also exports the emit toolkit the built-ins use (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do — see the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator).
 
 ### `defineClientSetup`
 

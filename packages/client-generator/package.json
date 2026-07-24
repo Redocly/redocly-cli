@@ -11,10 +11,10 @@
       "import": "./lib/index.js",
       "default": "./lib/index.js"
     },
-    "./codegen": {
-      "types": "./lib/codegen.d.ts",
-      "import": "./lib/codegen.js",
-      "default": "./lib/codegen.js"
+    "./generate": {
+      "types": "./lib/generate.d.ts",
+      "import": "./lib/generate.js",
+      "default": "./lib/generate.js"
     },
     "./package.json": "./package.json"
   },

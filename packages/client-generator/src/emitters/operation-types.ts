@@ -1,6 +1,6 @@
 // TypeScript type/parameter builders shared by the operation emitter and the operation-alias
 // builders: turn an operation's params / body / responses into `ts` type and parameter nodes.
-// Leaf module — depends only on the IR types and the codegen foundation, never back on operations.ts.
+// Leaf module — depends only on the IR types and the emit foundation, never back on operations.ts.
 
 import type {
   ParamModel,

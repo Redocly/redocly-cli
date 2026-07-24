@@ -1,7 +1,7 @@
 // The custom-generator authoring API — the EXPERIMENTAL plugin surface, re-exported from the
 // package root (`@redocly/client-generator`).
 //
-// ⚠️ Experimental: this surface (the IR types and the codegen toolkit re-exported here) may change
+// ⚠️ Experimental: this surface (the IR types and the emit toolkit re-exported here) may change
 // between minor versions until it is stabilized. Pin your version if you depend on it.
 //
 // A custom generator is `(GeneratorInput) => GeneratedFile[]` plus a `name`; select it in
@@ -14,7 +14,7 @@
 //   // my-generator.ts
 //   import { defineGenerator } from '@redocly/client-generator';
 //   // AST toolkit, when string-building isn't enough:
-//   // import { ts, printStatements } from '@redocly/client-generator/codegen';
+//   // import { ts, printStatements } from '@redocly/client-generator/generate';
 //   export default defineGenerator({
 //     name: 'route-map',
 //     requires: ['sdk'],
@@ -66,5 +66,5 @@ export type {
 } from './intermediate-representation/model.js';
 
 // The TypeScript-emitting toolkit (`ts`, `printStatements`, `operationSignature`, …) is
-// exported from `@redocly/client-generator/codegen` — it loads `typescript`, which the
+// exported from `@redocly/client-generator/generate` — it loads `typescript`, which the
 // runtime-only package root must not reach statically.

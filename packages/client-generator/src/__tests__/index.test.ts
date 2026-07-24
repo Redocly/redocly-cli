@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-import { collectGeneratedFiles } from '../codegen.js';
+import { collectGeneratedFiles } from '../generate.js';
 import { generateClient } from '../index.js';
 import type { ApiModel } from '../intermediate-representation/model.js';
 

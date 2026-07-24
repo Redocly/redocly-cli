@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 // Package-mode clients import the package ROOT at app runtime, and native ESM loads
 // every static import eagerly — so the root entry's static graph must stay free of the
-// codegen stack (`typescript`, `@redocly/openapi-core`, Node builtins). Codegen is
-// reached only through the dynamic `import('./codegen.js')` inside `generateClient`,
+// generation stack (`typescript`, `@redocly/openapi-core`, Node builtins). It is
+// reached only through the dynamic `import('./generate.js')` inside `generateClient`,
 // which this walk deliberately does not follow.
 const libDir = resolve(dirname(fileURLToPath(import.meta.url)), '../../lib');
 

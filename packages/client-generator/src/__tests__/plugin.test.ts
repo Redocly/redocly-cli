@@ -5,7 +5,7 @@ import {
   safeIdent,
   schemaToTypeNode,
   ts,
-} from '../codegen.js';
+} from '../generate.js';
 import { type CustomGenerator, defineGenerator } from '../plugin.js';
 
 describe('plugin entry', () => {
@@ -14,7 +14,7 @@ describe('plugin entry', () => {
     expect(defineGenerator(gen)).toBe(gen);
   });
 
-  it('re-exports the codegen toolkit the built-in generators use', () => {
+  it('re-exports the emit toolkit the built-in generators use', () => {
     // Value re-exports are reachable and usable from the public entry.
     expect(typeof ts.factory).toBe('object');
     expect(typeof printStatements).toBe('function');
