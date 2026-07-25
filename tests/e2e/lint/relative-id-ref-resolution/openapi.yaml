@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info:
+  title: relative-id-ref-resolution
+  version: 1.0.0
+paths:
+  /wrapper:
+    get:
+      operationId: getWrapper
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wrapper'
+
+components:
+  schemas:
+    Wrapper:
+      $id: 'schemas/Wrapper.yaml'
+      type: object
+      properties:
+        embedded:
+          $id: 'nested/child.yaml'
+          $ref: 'sibling.yaml'
