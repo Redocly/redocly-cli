@@ -116,6 +116,30 @@ describe('commandWrapper', () => {
     );
   });
 
+  it('should not keep the spec keyword of a previously linted document', async () => {
+    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
+    });
+    vi.mocked(detectSpec).mockImplementationOnce(() => {
+      return 'oas3_1';
+    });
+    vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
+      collectSpecData?.(makeDocumentFromString('openapi: 3.1.0', 'openapi.yaml'));
+      collectSpecData?.(makeDocumentFromString('type Query { cafe: String }', 'some.graphql'));
+    });
+    process.env.REDOCLY_TELEMETRY = 'on';
+
+    const wrappedHandler = commandWrapper(handleLint);
+    await wrappedHandler({} as any);
+    expect(sendTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        spec_version: 'graphql',
+        spec_keyword: undefined,
+        spec_full_version: undefined,
+      })
+    );
+  });
+
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'off' } } as Config;

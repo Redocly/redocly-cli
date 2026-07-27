@@ -46,7 +46,11 @@ export function commandWrapper<T extends CommandArgv>(
     const respectSourceDescriptionTypes = new Set<string>();
     const respectCriterionObjectTypes = new Set<string>();
     const collectSpecData: CollectFn = ({ parsed: document, source }) => {
-      if (source?.absoluteRef !== undefined && isGraphqlRef(source?.absoluteRef)) {
+      specVersion = 'unknown';
+      specKeyword = undefined;
+      specFullVersion = undefined;
+
+      if (source?.absoluteRef && isGraphqlRef(source.absoluteRef)) {
         specVersion = 'graphql';
         return;
       }
@@ -54,7 +58,7 @@ export function commandWrapper<T extends CommandArgv>(
       try {
         specVersion = detectSpec(document);
       } catch (err) {
-        specVersion = `unsupported`;
+        specVersion = 'unsupported';
       }
 
       if (!isPlainObject(document)) return;
@@ -71,9 +75,6 @@ export function commandWrapper<T extends CommandArgv>(
                 : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
-      } else {
-        // Ensure specFullVersion is undefined if specKeyword is not found
-        specFullVersion = undefined;
       }
 
       if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
