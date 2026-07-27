@@ -20,7 +20,7 @@ import { isString } from '../utils/is-string.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { toPascalCase } from '../utils/to-pascal-case.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
-import { type UserContext, type ResolveResult, type Problem } from '../walk.js';
+import { type UserContext, type Problem } from '../walk.js';
 import { type ComponentNamesStrategy } from './bundle-document.js';
 
 type ComponentTarget = { node: unknown; location: Location };
@@ -186,8 +186,9 @@ export function makeBundleVisitor({
             saveComponent(componentType, target, ctx);
             replaceRef(node, target, ctx);
           } else {
+            const originalRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref);
             node.$ref = saveComponent(componentType, target, ctx);
-            resolveBundledComponent(node, target, ctx);
+            resolveBundledComponent(node, originalRefId, ctx);
           }
         }
       },
@@ -277,13 +278,14 @@ export function makeBundleVisitor({
     };
   }
 
-  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+  function resolveBundledComponent(node: OasRef, originalRefId: string, ctx: UserContext) {
+    // Re-register the original resolution (chain-end node plus composed hops) under the
+    // rewritten pointer, so resolving it keeps the same contract as any other ref.
     const resolvedRef = {
+      ...resolvedRefMap.get(originalRefId)!,
       document: rootDocument,
       isRemote: false,
-      node: resolved.node,
       nodePointer: node.$ref,
-      resolved: true as const,
     };
     resolvedRefMap.set(makeRefId(ctx.location.source.absoluteRef, node.$ref), resolvedRef);
     // The node may be walked again as part of the bundled document (e.g. a component saved
