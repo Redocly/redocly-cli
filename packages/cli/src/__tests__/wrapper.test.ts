@@ -1,4 +1,4 @@
-import { type Config, detectSpec } from '@redocly/openapi-core';
+import { type Config, detectSpec, makeDocumentFromString } from '@redocly/openapi-core';
 import * as process from 'node:process';
 
 import { handleLint } from '../commands/lint.js';
@@ -35,7 +35,7 @@ describe('commandWrapper', () => {
       return 'oas3_1';
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
-      collectSpecData?.({ openapi: '3.1.0' });
+      collectSpecData?.(makeDocumentFromString('openapi: 3.1.0', 'openapi.yaml'));
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 
@@ -63,12 +63,12 @@ describe('commandWrapper', () => {
     );
   });
 
-  it('should not collect spec version if the file is not parsed to json', async () => {
+  it('should not collect spec version if the file is not parsed to json (except for graphql)', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
-    vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }: any) => {
-      collectSpecData();
+    vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
+      collectSpecData?.(makeDocumentFromString('some text file', 'some.txt'));
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 
@@ -92,6 +92,26 @@ describe('commandWrapper', () => {
         respect_x_security_auth_types: [],
         respect_source_description_types: [],
         respect_criterion_object_types: [],
+      })
+    );
+  });
+
+  it('should collect the spec version of a GraphQL document', async () => {
+    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
+    });
+    vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
+      collectSpecData?.(makeDocumentFromString('type Query { cafe: String }', 'some.graphql'));
+    });
+    process.env.REDOCLY_TELEMETRY = 'on';
+
+    const wrappedHandler = commandWrapper(handleLint);
+    await wrappedHandler({} as any);
+    expect(sendTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        spec_version: 'graphql',
+        spec_keyword: undefined,
+        spec_full_version: undefined,
       })
     );
   });

@@ -4,11 +4,11 @@ import {
   isPlainObject,
   logger,
   HandledError,
+  getMajorSpecVersion,
+  isGraphqlRef,
   type Config,
   type CollectFn,
-  type ArazzoDefinition,
   type Exact,
-  getMajorSpecVersion,
   type SpecVersion,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
@@ -45,7 +45,12 @@ export function commandWrapper<T extends CommandArgv>(
     const respectXSecurityAuthTypes = new Set<string>();
     const respectSourceDescriptionTypes = new Set<string>();
     const respectCriterionObjectTypes = new Set<string>();
-    const collectSpecData: CollectFn = (document) => {
+    const collectSpecData: CollectFn = ({ parsed: document, source }) => {
+      if (source?.absoluteRef !== undefined && isGraphqlRef(source?.absoluteRef)) {
+        specVersion = 'graphql';
+        return;
+      }
+
       try {
         specVersion = detectSpec(document);
       } catch (err) {
@@ -72,10 +77,9 @@ export function commandWrapper<T extends CommandArgv>(
       }
 
       if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
-        const arazzoDocument = document as Partial<ArazzoDefinition>;
-        collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypes);
-        collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
-        collectCriterionObjectTypes(arazzoDocument, respectCriterionObjectTypes);
+        collectXSecurityAuthTypes(document, respectXSecurityAuthTypes);
+        collectSourceDescriptionTypes(document, respectSourceDescriptionTypes);
+        collectCriterionObjectTypes(document, respectCriterionObjectTypes);
       }
     };
 

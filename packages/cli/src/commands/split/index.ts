@@ -28,7 +28,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   if (!fs.existsSync(api)) exitWithError(`File ${blue(api)} does not exist.`);
 
   const definition = readYaml(api) as AnyDefinition;
-  collectSpecData?.(definition);
+  collectSpecData?.({ parsed: definition });
 
   const specVersion = detectSpec(definition);
   switch (specVersion) {

@@ -92,7 +92,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
     );
   }
 
-  collectSpecData?.(bundledDocument.bundle.parsed || {});
+  collectSpecData?.(bundledDocument.bundle);
 
   const errorLintProblems = lintProblems.filter((problem) => problem.severity === 'error');
   if (errorLintProblems.length) {
