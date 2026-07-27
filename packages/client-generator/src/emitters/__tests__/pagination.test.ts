@@ -199,7 +199,7 @@ describe('resolveOperationPagination — sources and precedence', () => {
       operations: { listOrders: rule },
     });
     expect(result.error).toBeUndefined();
-    expect(result.spec?.hasMore).toBe('/pageInfo/hasNextPage');
+    expect(result.spec).toMatchObject({ style: 'cursor', hasMore: '/pageInfo/hasNextPage' });
 
     const missing = resolveOperationPagination(op, modelWith([op]), {
       operations: { listOrders: { ...rule, hasMore: '/pageInfo/missing' } },
@@ -600,7 +600,7 @@ describe('resolveOperationPagination — fit verification', () => {
       });
       const result = resolveOperationPagination(op, model, undefined);
       expect(result.error).toBeUndefined();
-      expect(result.spec?.nextCursor).toBe('/nextCursor');
+      expect(result.spec).toMatchObject({ style: 'cursor', nextCursor: '/nextCursor' });
     });
 
     it.each<[string, SchemaModel]>([
