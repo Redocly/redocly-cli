@@ -437,6 +437,7 @@ describe('runTestFile', () => {
     expect(cleanColors(failedStep.checks[0]?.message || '')).toEqual(
       'Workflow not-existing-workflowId from dependsOn of workflow second-workflow is not found.'
     );
+    expect(runStep).toHaveBeenCalledTimes(1);
   }, 8000);
 
   it('should mark the workflow as failed and continue when dependsOn references a workflow that is not found in a source description', async () => {

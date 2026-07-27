@@ -306,18 +306,24 @@ async function handleDependsOn({
 }) {
   if (!workflow.dependsOn?.length) return;
 
+  // resolve every reference before starting any dependency run, so one broken
+  // reference cannot leave sibling dependency workflows running unawaited
+  const resolvedDependencies = workflow.dependsOn.map((workflowId) => {
+    const resolvedWorkflow = resolveWorkflowReference({ ref: workflowId, ctx });
+
+    if (!resolvedWorkflow) {
+      throw new WorkflowDependencyNotFoundError(
+        `Workflow ${red(workflowId)} from dependsOn of workflow ${red(
+          workflow.workflowId
+        )} is not found.`
+      );
+    }
+
+    return { workflowId, resolvedWorkflow };
+  });
+
   const dependenciesWorkflows = await Promise.all(
-    workflow.dependsOn.map(async (workflowId) => {
-      const resolvedWorkflow = resolveWorkflowReference({ ref: workflowId, ctx });
-
-      if (!resolvedWorkflow) {
-        throw new WorkflowDependencyNotFoundError(
-          `Workflow ${red(workflowId)} from dependsOn of workflow ${red(
-            workflow.workflowId
-          )} is not found.`
-        );
-      }
-
+    resolvedDependencies.map(async ({ workflowId, resolvedWorkflow }) => {
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);
