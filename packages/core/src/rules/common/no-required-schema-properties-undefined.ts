@@ -71,17 +71,23 @@ export const NoRequiredSchemaPropertiesUndefined:
     }
 
     const { schema, location, chain } = resolveSchema(schemaOrRef, ctx, resolveFrom);
-    if (!schema || visited.has(schema)) return false;
-    visited.add(schema);
+    if (!schema) return false;
 
-    if (definesProperty(schema, propertyName, visited, ctx, location)) {
-      return true;
+    if (!visited.has(schema)) {
+      visited.add(schema);
+      if (definesProperty(schema, propertyName, visited, ctx, location)) {
+        return true;
+      }
     }
 
-    // composed $refs the resolution chased through contribute their sibling keywords too
+    // composed $refs the resolution chased through contribute their sibling keywords too,
+    // even when the chain end was already visited through another branch
     for (const chainHop of chain ?? []) {
+      if (!isPlainObject(chainHop.node) || visited.has(chainHop.node)) {
+        continue;
+      }
+      visited.add(chainHop.node as AnySchema);
       if (
-        isPlainObject(chainHop.node) &&
         definesProperty(
           chainHop.node as AnySchema,
           propertyName,

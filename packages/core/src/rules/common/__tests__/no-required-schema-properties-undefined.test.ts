@@ -1155,6 +1155,45 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should find a property on a composed hop even when the chain end was already visited', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Cat:
+              allOf:
+                - $ref: '#/components/schemas/Leaf'
+                - $ref: '#/components/schemas/Composed'
+              required:
+                - special
+            Composed:
+              $ref: '#/components/schemas/Leaf'
+              properties:
+                special:
+                  type: string
+            Leaf:
+              type: object
+              properties:
+                name:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should still report a genuinely undefined property in a composed $ref chain', async () => {
     const document = parseYamlToDocument(
       outdent`
