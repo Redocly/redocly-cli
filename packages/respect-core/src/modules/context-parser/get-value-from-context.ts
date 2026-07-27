@@ -317,7 +317,8 @@ const resolveValue = (
   }
 
   // $sourceDescriptions.<name>.<workflowId>
-  // $sourceDescriptions.<name>.workflows.<workflowId>
+// $sourceDescriptions.<name>.<workflowId> (Arazzo spec form)
+// $sourceDescriptions.<name>.workflows.<workflowId> (legacy form)
   if (path.startsWith('$sourceDescriptions.')) {
     const parts = path.split('.');
     const sourceDescriptionName = parts[1];
