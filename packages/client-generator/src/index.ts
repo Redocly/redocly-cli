@@ -27,6 +27,7 @@ export type {
   ClientConfig,
   ClientCore,
   OperationDescriptor,
+  OperationMethodIdentity,
   OpsShape,
   ParamSpec,
   ParseAs,

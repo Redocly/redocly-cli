@@ -1,5 +1,5 @@
 import { spawnSync, type ChildProcess } from 'node:child_process';
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -170,6 +170,48 @@ describe('generate-client package-runtime consumer', () => {
       rmSync(tmpDir, { recursive: true, force: true });
     }
   }, 30_000);
+
+  test('declaration emit stays portable for a grouped package client (TS2883 net)', async () => {
+    // Reunite regression: the grouped sugar (`export const { authorize, … } = client`)
+    // infers method types that reference the runtime's `OperationMethodIdentity`; under
+    // real declaration emit (their api-sdk builds with tsgo + declarations) every type
+    // in that inference chain must be nameable from the PACKAGE ROOT, or tsc fails with
+    // TS2883 "cannot be named … not portable". `--noEmit` does not run this check, so
+    // this test emits declarations for real (into the temp dir).
+    const generateClient = await loadGenerateClient();
+    const dir = mkdtempSync(join(repoRoot, '.decl-emit-test-'));
+    try {
+      const output = join(dir, 'api.ts');
+      await generateClient({
+        api: fixture,
+        output,
+        runtime: 'package',
+        argsStyle: 'grouped',
+      });
+      writeFileSync(
+        join(dir, 'tsconfig.json'),
+        JSON.stringify({
+          compilerOptions: {
+            module: 'nodenext',
+            moduleResolution: 'nodenext',
+            target: 'es2022',
+            lib: ['ES2022', 'DOM', 'DOM.AsyncIterable'],
+            strict: true,
+            skipLibCheck: true,
+            declaration: true,
+            emitDeclarationOnly: true,
+            outDir: join(dir, 'lib'),
+            types: [],
+          },
+          include: ['api.ts'],
+        })
+      );
+      const result = spawnSync('npx', ['tsc', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
+      expect(result.status, `declaration emit failed:\n${result.stdout}\n${result.stderr}`).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
 
   test('CLI --runtime package emits a runtime import', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'ots-cli-runtime-'));
