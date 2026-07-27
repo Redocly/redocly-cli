@@ -2,7 +2,13 @@ import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
 import { Location, isRef } from './ref-utils.js';
-import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import type {
+  ResolveError,
+  Source,
+  ResolvedRefMap,
+  ResolvedRefChainHop,
+  Document,
+} from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
@@ -30,7 +36,7 @@ export type NonUndefined =
   | Record<string, any>;
 
 // A composed $ref (with sibling keys) the resolution chased through on the way to `node`.
-export type ResolvedChainHop = { node: unknown; location: Location };
+export type ResolvedChainHop = ResolvedRefChainHop;
 
 export type ResolveResult<T extends NonUndefined> =
   | {
@@ -146,6 +152,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
   const seenNodesPerType: Record<string, Set<unknown>> = {};
   const walkedComposedRefs = new Set<string>();
+  const composedRefWalkId = (type: NormalizedNodeType, location: Location) =>
+    `${type.name}::${location.absolutePointer}`;
   const ignoredNodes = new Set<string>();
 
   // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
@@ -186,15 +194,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           ? new Location(error.source, '')
           : undefined;
 
-      return {
-        location: newLocation,
-        node,
-        error,
-        chain: chain?.map((chainHop) => ({
-          node: chainHop.node,
-          location: new Location(chainHop.document.source, chainHop.nodePointer),
-        })),
-      };
+      return { location: newLocation, node, error, chain };
     };
 
     const rawLocation = location;
@@ -210,7 +210,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     if (nodeIsRef && Object.keys(node).length > 1) {
       // composed $refs can also be reached as chain hops — record this walk to avoid a repeat
-      walkedComposedRefs.add(`${type.name}::${location.absolutePointer}`);
+      walkedComposedRefs.add(composedRefWalkId(type, location));
     }
 
     if (nodeIsRef) {
@@ -315,8 +315,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
 
       const shouldWalkChildren = visitedBySome || !isNodeSeen;
-      const refSiblingProps =
-        nodeIsRef && isPlainObject(node) ? Object.keys(node).filter((k) => k !== '$ref') : [];
+      const refSiblingProps = nodeIsRef ? Object.keys(node).filter((k) => k !== '$ref') : [];
 
       if (shouldWalkChildren || refSiblingProps.length > 0) {
         if (shouldWalkChildren) {
@@ -424,7 +423,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         // walk the composed $ref hop from its own location so its siblings and inner $ref
         // are processed; the hop's own resolution carries the rest of the chain
         const chainHop = resolvedChain[0];
-        if (!walkedComposedRefs.has(`${type.name}::${chainHop.location.absolutePointer}`)) {
+        if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
           walkNode(chainHop.node, type, chainHop.location, parent, key);
         }
       }

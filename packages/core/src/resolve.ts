@@ -14,6 +14,7 @@ import {
   isAbsoluteUrl,
   isAnchor,
   isExternalValue,
+  Location,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
@@ -184,10 +185,11 @@ export class BaseResolver {
 // A $ref target that is itself a $ref with sibling keys (a JSON Schema 2020-12 composition).
 // Resolution chases through it to the chain end, but the hop is recorded so consumers
 // that care about the composition (the bundler, chain-aware rules) can access it.
+// The document is kept alongside the location so hop subtrees can be resolved too.
 export type ResolvedRefChainHop = {
   node: unknown;
   document: Document;
-  nodePointer: string;
+  location: Location;
 };
 
 export type ResolvedRef =
@@ -357,7 +359,12 @@ export async function resolveDocument(opts: {
             );
             // chain hops carry sibling keys that can contain refs of their own
             for (const chainHop of resolvedRef.chain ?? []) {
-              resolveRefsInParallel(chainHop.node, chainHop.document, chainHop.nodePointer, type);
+              resolveRefsInParallel(
+                chainHop.node,
+                chainHop.document,
+                chainHop.location.pointer,
+                type
+              );
             }
           }
         });
@@ -501,7 +508,7 @@ export async function resolveDocument(opts: {
             ? {
                 node: target,
                 document: resolvedRef.document,
-                nodePointer: resolvedRef.nodePointer!,
+                location: new Location(resolvedRef.document.source, resolvedRef.nodePointer!),
               }
             : undefined;
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));

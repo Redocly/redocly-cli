@@ -439,7 +439,7 @@ describe('collect refs', () => {
       $ref: '#/target',
       description: 'alias with sibling',
     });
-    expect(aliasedRef.chain![0].nodePointer).toEqual('#/aliased');
+    expect(aliasedRef.chain![0].location.pointer).toEqual('#/aliased');
     expect(resolvedRefs.get('foobar.yaml::#/target')!.node).toEqual({ contact: {} });
   });
 
@@ -469,12 +469,12 @@ describe('collect refs', () => {
 
     const outerRef = resolvedRefs.get('foobar.yaml::#/first')!;
     expect(outerRef.node).toEqual({ contact: {} });
-    expect(outerRef.chain!.map((hop) => hop.nodePointer)).toEqual(['#/first', '#/second']);
+    expect(outerRef.chain!.map((hop) => hop.location.pointer)).toEqual(['#/first', '#/second']);
 
     // the inner resolution must not be polluted by outer hops
     const innerRef = resolvedRefs.get('foobar.yaml::#/second')!;
     expect(innerRef.node).toEqual({ contact: {} });
-    expect(innerRef.chain!.map((hop) => hop.nodePointer)).toEqual(['#/second']);
+    expect(innerRef.chain!.map((hop) => hop.location.pointer)).toEqual(['#/second']);
   });
 
   it('should throw error if ref is folder', async () => {
