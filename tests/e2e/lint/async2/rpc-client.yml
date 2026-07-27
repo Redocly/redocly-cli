@@ -54,8 +54,7 @@ channels:
       message:
         bindings:
           amqp:
-            replyTo:
-              type: string
+            messageType: request
         correlationId:
           location: $message.header#/correlation_id
         payload:

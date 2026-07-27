@@ -1,0 +1,18 @@
+plugins:
+  - sorting.js
+
+rules:
+  sorting/method-sort:
+    severity: error
+    order: [get, post, delete]
+  sorting/property-sort:
+    severity: warn
+    type: required
+
+decorators:
+  sorting/properties-alphabetical: on
+  sorting/tags-alphabetical: on
+  sorting/methods:
+    order: [get, post, delete]
+  sorting/enums-alphabetical: on
+  sorting/properties-required-first: on

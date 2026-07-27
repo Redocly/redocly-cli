@@ -1,0 +1,18 @@
+rules:
+  rule/string-schemas-length-defined:
+    subject:
+      type: Schema
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: string
+    assertions:
+      requireAny:
+        - minLength
+        - maxLength
+        - enum
+      mutuallyRequired:
+        - minLength
+        - maxLength

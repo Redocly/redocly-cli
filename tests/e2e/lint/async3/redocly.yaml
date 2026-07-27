@@ -21,6 +21,8 @@ apis:
     root: ./rpc-server.yml
   simple:
     root: ./simple.yml
+  simple-3-1:
+    root: ./simple-3-1.yml
   slack-rtm:
     root: ./slack-rtm.yml
   streetlights-kafka:

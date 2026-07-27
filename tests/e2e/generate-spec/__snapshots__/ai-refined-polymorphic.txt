@@ -1,0 +1,110 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /payments:
+    post:
+      operationId: createPayment
+      summary: Create a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CardPayment'
+                - $ref: '#/components/schemas/BankTransferPayment'
+              discriminator:
+                propertyName: type
+                mapping:
+                  card: '#/components/schemas/CardPayment'
+                  bank_transfer: '#/components/schemas/BankTransferPayment'
+      responses:
+        '201':
+          description: The created payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+  /payments/{paymentId}:
+    get:
+      operationId: getPayment
+      summary: Get a payment by ID
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+components:
+  schemas:
+    PaymentBase:
+      type: object
+      required:
+        - type
+        - amount
+      properties:
+        type:
+          type: string
+          enum:
+            - card
+            - bank_transfer
+          description: Selects the payment method variant.
+        amount:
+          type: number
+    CardPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentBase'
+        - type: object
+          required:
+            - cardNumber
+            - cvv
+          properties:
+            cardNumber:
+              type: string
+            cvv:
+              type: string
+    BankTransferPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentBase'
+        - type: object
+          required:
+            - iban
+          properties:
+            iban:
+              type: string
+    Payment:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        note:
+          type:
+            - string
+            - 'null'
+          description: Optional processing note.
+
+Inferred a baseline OpenAPI description from traffic: 2 operation(s).
+Refining the description with AI provider "claude"...
+Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
+[1/2] Refining POST /payments...
+[1/2] POST /payments — refined (<t>s)
+[2/2] Refining GET /payments/{paymentId}...
+[2/2] GET /payments/{paymentId} — refined (<t>s)
+AI refinement complete: 2 of 2 operation(s) refined (claude).
+Done in <t>.

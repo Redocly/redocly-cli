@@ -32,13 +32,7 @@ exports[`should quit an infinite loop on REDOCLY_CLI_RESPECT_MAX_STEPS 1`] = `
  
  
  
-  ✗ GET /ping - step ping 
-
-    Request URL: https://bad-api-url.com/api/ping 
- 
-    ✗ failed network request
- 
-  Running failure action infinite-loop for the step ping 
+  Running failure action continue for the step with-nested 
  
   ✗ GET /ping - step ping 
 
@@ -87,6 +81,15 @@ exports[`should quit an infinite loop on REDOCLY_CLI_RESPECT_MAX_STEPS 1`] = `
     ✗ failed network request
  
   Running failure action infinite-loop for the step ping 
+ 
+  ✗ GET /ping - step ping 
+
+    Request URL: https://bad-api-url.com/api/ping 
+ 
+    ✗ failed network request
+ 
+  Running failure action infinite-loop for the step ping 
+ 
  
  
  

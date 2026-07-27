@@ -1,0 +1,49 @@
+asyncapi: 3.0.0
+info:
+  title: Ping/pong service
+  version: 1.0.0
+servers:
+  production:
+    $ref: '#/components/servers/production'
+channels:
+  ping:
+    $ref: '#/components/channels/ping'
+  pong:
+    $ref: '#/components/channels/pong'
+operations:
+  sendPing:
+    action: send
+    channel:
+      $ref: '#/channels/ping'
+    messages:
+      - $ref: '#/channels/ping/messages/ping'
+    reply:
+      channel:
+        $ref: '#/channels/pong'
+      messages:
+        - $ref: '#/channels/pong/messages/pong'
+components:
+  servers:
+    production:
+      host: example.com
+      protocol: ws
+  channels:
+    ping:
+      address: /ping
+      servers:
+        - $ref: '#/servers/production'
+      messages:
+        ping:
+          $ref: '#/components/messages/ping'
+    pong:
+      address: /pong
+      messages:
+        pong:
+          $ref: '#/components/messages/pong'
+  messages:
+    ping:
+      payload:
+        $ref: 'schemas.yaml#/components/schemas/ping'
+    pong:
+      payload:
+        $ref: 'schemas.yaml#/components/schemas/pong'

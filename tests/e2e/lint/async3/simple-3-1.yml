@@ -1,0 +1,37 @@
+asyncapi: 3.1.0
+info:
+  title: Robot Service
+  version: 1.0.0
+  description: This service controls a fleet of ROS 2 robots
+servers:
+  production:
+    host: localhost
+    protocol: ros2
+    bindings:
+      ros2:
+        rmwImplementation: rmw_fastrtps_cpp
+        domainId: 42
+channels:
+  cmdVel:
+    address: /cmd_vel
+    bindings:
+      ros2: {}
+    messages:
+      TwistMsg:
+        payload:
+          type: object
+          properties:
+            linear:
+              type: number
+              description: Linear velocity
+operations:
+  sendCmdVel:
+    action: send
+    channel:
+      $ref: '#/channels/cmdVel'
+    bindings:
+      ros2:
+        role: publisher
+        node: /turtle_controller
+    messages:
+      - $ref: '#/channels/cmdVel/messages/TwistMsg'

@@ -28,6 +28,9 @@ Testing commands:
 
 - [`respect`](respect.md) Execute API tests described in an Arazzo description.
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo description from an OpenAPI description.
+- [`drift`](drift.md) Detect drift between recorded HTTP traffic and an OpenAPI description [experimental feature].
+- [`proxy`](proxy.md) Capture live HTTP traffic through a reverse proxy into a HAR file [experimental feature].
+- [`generate-spec`](generate-spec.md) Infer an OpenAPI description from recorded HTTP traffic [experimental feature].
 
 Redocly platform commands:
 

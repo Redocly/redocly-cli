@@ -3,6 +3,7 @@ import { default as levenshtein } from 'js-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
 import type {
+  Oas3Example,
   Oas3Schema,
   Oas3Tag,
   Oas3_2Tag,
@@ -10,6 +11,7 @@ import type {
   Referenced,
 } from '../typings/openapi.js';
 import type { Oas2Tag } from '../typings/swagger.js';
+import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
 import type { AjvValidator } from './ajv.js';
@@ -164,6 +166,15 @@ export function getSuggest(given: string, variants: string[]): string[] {
 
   // if (bestMatch.distance <= 4) return bestMatch.string;
   return distances.map((d) => d.variant);
+}
+
+export function getExampleValueToValidate(
+  example: unknown
+): { value: unknown; field: 'dataValue' | 'value' } | undefined {
+  if (!isPlainObject<Oas3Example>(example)) return undefined;
+  if (isDefined(example.dataValue)) return { value: example.dataValue, field: 'dataValue' };
+  if (isDefined(example.value)) return { value: example.value, field: 'value' };
+  return undefined;
 }
 
 export function validateExample({

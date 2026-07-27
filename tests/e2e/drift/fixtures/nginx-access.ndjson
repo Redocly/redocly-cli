@@ -1,0 +1,2 @@
+{"remote_addr":"1.2.3.4","request_method":"GET","request_uri":"/users","status":200,"host":"api.example.com","time_iso8601":"2024-01-01T00:00:00+00:00"}
+{"remote_addr":"1.2.3.4","request_method":"GET","request_uri":"/unknown","status":404,"host":"api.example.com","time_iso8601":"2024-01-01T00:00:01+00:00"}

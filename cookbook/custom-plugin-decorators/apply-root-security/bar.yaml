@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+paths:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request

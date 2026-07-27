@@ -100,7 +100,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/extraProperty",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/value/extraProperty",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
@@ -194,12 +194,164 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/readOnlyProp",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/value/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
           "message": "Example value must conform to the schema: \`readOnlyProp\` property must NOT be present in request context.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-parameter-examples",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report invalid dataValue in parameter examples (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /users:
+            get:
+              parameters:
+                - name: filter
+                  in: query
+                  schema:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                  examples:
+                    invalid:
+                      dataValue:
+                        name: 42
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-parameter-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/dataValue/name",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`name\` property type must be string.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-parameter-examples",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should validate boolean query parameter dataValue and ignore serializedValue (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /search:
+            get:
+              parameters:
+                - name: exact
+                  in: query
+                  schema:
+                    type: boolean
+                  examples:
+                    invalid:
+                      dataValue: "true"
+                      serializedValue: "true"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-parameter-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1search/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1search/get/parameters/0/examples/invalid/dataValue",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: type must be boolean.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-parameter-examples",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should still validate legacy value in OAS 3.2 examples (backward compatibility)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /users:
+            get:
+              parameters:
+                - name: age
+                  in: query
+                  schema:
+                    type: integer
+                  examples:
+                    invalid:
+                      value: "not-a-number"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-parameter-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/value",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: type must be integer.",
           "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-parameter-examples",
           "ruleId": "no-invalid-parameter-examples",
           "severity": "error",

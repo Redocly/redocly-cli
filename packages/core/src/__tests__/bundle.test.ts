@@ -766,6 +766,57 @@ describe('bundle async', () => {
     `);
   });
 
+  it('should bundle async of version 3.1 with a ros2 binding', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.1.0
+        info:
+          title: Robot Service
+          version: 1.0.0
+        servers:
+          production:
+            host: localhost
+            protocol: ros2
+            bindings:
+              ros2:
+                domainId: 42
+        operations:
+          sendCmdVel:
+            action: send
+            messages:
+              - $ref: '#/components/messages/TwistMsg'
+        components:
+          schemas:
+            Twist:
+              type: object
+              properties:
+                linear:
+                  type: number
+          messages:
+            TwistMsg:
+              payload:
+                $ref: '#/components/schemas/Twist'
+      `,
+      ''
+    );
+
+    const config = await createConfig({});
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+      dereference: true,
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchSnapshot();
+  });
+
   it('should normalize self-file explicit $ref in asyncapi 2', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
@@ -784,6 +835,84 @@ describe('bundle async', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should keep operation message refs pointing to channel messages in asyncapi 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Ping service
+          version: 1.0.0
+        channels:
+          ping:
+            address: /ping
+            messages:
+              ping:
+                $ref: '#/components/messages/ping'
+        operations:
+          sendPing:
+            action: send
+            channel:
+              $ref: '#/channels/ping'
+            messages:
+              - $ref: '#/channels/ping/messages/ping'
+        components:
+          messages:
+            ping:
+              payload:
+                type: string
+      `,
+      ''
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).operations.sendPing.messages).toEqual([
+      { $ref: '#/channels/ping/messages/ping' },
+    ]);
+  });
+
+  it('should keep operation channel refs pointing to root channels in asyncapi 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Ping service
+          version: 1.0.0
+        channels:
+          ping:
+            $ref: '#/components/channels/ping'
+        operations:
+          sendPing:
+            action: send
+            channel:
+              $ref: '#/channels/ping'
+        components:
+          channels:
+            ping:
+              address: /ping
+      `,
+      ''
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: AsyncApi3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).operations.sendPing.channel).toEqual({
+      $ref: '#/channels/ping',
+    });
   });
 });
 

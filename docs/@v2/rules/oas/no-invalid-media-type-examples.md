@@ -146,6 +146,57 @@ post:
               color: red
 ```
 
+### OpenAPI 3.2 `dataValue`
+
+In OpenAPI 3.2, provide the structured example in `dataValue`, which is validated against the schema the same way `value` is.
+When `dataValue` is present, `value` must be absent (see [spec-example-values](./spec-example-values.md)).
+
+Example of an **incorrect** `dataValue`:
+
+```yaml
+post:
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            make:
+              type: string
+            year:
+              type: integer
+        examples:
+          tesla:
+            summary: Red Tesla
+            dataValue:
+              make: Tesla
+              year: '2022'
+```
+
+> This example produces an error because the year is a string instead of an integer.
+
+Example of a **correct** `dataValue`:
+
+```yaml
+post:
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            make:
+              type: string
+            year:
+              type: integer
+        examples:
+          tesla:
+            summary: Red Tesla
+            dataValue:
+              make: Tesla
+              year: 2022
+```
+
 ## Related rules
 
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)

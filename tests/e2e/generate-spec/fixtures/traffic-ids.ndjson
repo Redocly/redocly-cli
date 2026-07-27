@@ -1,0 +1,6 @@
+{"request":{"method":"GET","url":"http://api.example.com/orgs/org_01ks7rnqsyy0g6h37rfmen7zv9/members","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[{\"id\":\"usr_1\",\"role\":\"admin\"}]"}}
+{"request":{"method":"GET","url":"http://api.example.com/items/550e8400-e29b-41d4-a716-446655440000","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"sku\":\"A-1\"}"}}
+{"request":{"method":"GET","url":"http://api.example.com/jobs/01ARZ3NDEKTSV4RRFFQ69G5FAV","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"state\":\"done\"}"}}
+{"request":{"method":"GET","url":"http://api.example.com/blobs/a3f5c9d2e8b1470f9c2d5e8a7b3f1c4d","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/octet-stream"}}}
+{"request":{"method":"GET","url":"http://api.example.com/users/42/orders/1001","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"total\":9.99}"}}
+{"request":{"method":"GET","url":"http://api.example.com/categories/12","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"name\":\"books\"}"}}
