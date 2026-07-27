@@ -55,6 +55,9 @@ export type GenerateClientOptions = {
    * `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in static mode.
    */
   mockSeed?: number;
+  /** Leading element for every tanstack-query key — namespaces the cache when several
+   * generated APIs share one QueryClient (operationIds may collide across APIs). */
+  queryKeyPrefix?: string;
   /**
    * Generators to run, in order. Defaults to `['sdk']`. Each entry is a built-in name
    * (`sdk`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline

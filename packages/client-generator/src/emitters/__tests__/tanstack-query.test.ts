@@ -1,3 +1,4 @@
+import type { PaginationConfig } from '../pagination.js';
 import { renderTanstackModule } from '../tanstack-query.js';
 import { apiModel, namedSchema, operation, param, SCALAR } from './fixtures.js';
 
@@ -5,83 +6,71 @@ const SDK = './client.js';
 
 function render(
   ops: Parameters<typeof operation>[0][],
-  argsStyle: 'flat' | 'grouped',
-  framework: 'react' | 'vue' | 'svelte' | 'solid' = 'react'
+  extra: {
+    framework?: 'react' | 'vue' | 'svelte' | 'solid';
+    pagination?: PaginationConfig;
+    schemas?: NonNullable<Parameters<typeof apiModel>[0]>['schemas'];
+  } = {}
 ) {
   return renderTanstackModule(
-    apiModel({ services: [{ name: 'Default', operations: ops.map(operation) }] }),
-    { argsStyle, sdkModule: SDK, framework }
+    apiModel({
+      schemas: extra.schemas ?? [],
+      services: [{ name: 'Default', operations: ops.map(operation) }],
+    }),
+    { sdkModule: SDK, framework: extra.framework ?? 'react', pagination: extra.pagination }
   );
 }
 
 describe('renderTanstackModule', () => {
   it('returns empty string when the model has no operations', () => {
-    expect(
-      renderTanstackModule(apiModel(), { argsStyle: 'flat', sdkModule: SDK, framework: 'react' })
-    ).toBe('');
+    expect(renderTanstackModule(apiModel(), { sdkModule: SDK, framework: 'react' })).toBe('');
   });
 
-  it('skips SSE operations (not exported by the sdk) and wraps only the regular ones', () => {
-    const out = render(
-      [
-        {
-          name: 'getPet',
-          method: 'get',
-          path: '/pets/{id}',
-          pathParams: [param('id', 'path', true)],
-        },
-        {
-          name: 'streamEvents',
-          method: 'get',
-          path: '/events',
-          successResponses: [{ contentType: 'text/event-stream', schema: SCALAR, status: 200 }],
-        },
-      ],
-      'grouped'
-    );
+  it('skips SSE operations (not request/response functions) and wraps only the regular ones', () => {
+    const out = render([
+      {
+        name: 'getPet',
+        method: 'get',
+        path: '/pets/{id}',
+        pathParams: [param('id', 'path', true)],
+      },
+      {
+        name: 'streamEvents',
+        method: 'get',
+        path: '/events',
+        successResponses: [{ contentType: 'text/event-stream', schema: SCALAR, status: 200 }],
+      },
+    ]);
     expect(out).toContain('getPetOptions');
-    // The SSE op is neither imported nor wrapped.
     expect(out).not.toContain('streamEvents');
   });
 
   it('skips an op whose <Op>Variables name collides with a schema (would import the wrong type)', () => {
-    const out = renderTanstackModule(
-      apiModel({
-        schemas: [namedSchema('GetUserVariables', { kind: 'object', properties: [] })],
-        services: [
-          {
-            name: 'Default',
-            operations: [
-              operation({
-                name: 'getUser',
-                method: 'get',
-                path: '/u/{id}',
-                pathParams: [param('id', 'path', true)],
-              }),
-              operation({ name: 'listUsers', method: 'get' }),
-            ].map((o) => o),
-          },
-        ],
-      }),
-      { argsStyle: 'grouped', sdkModule: SDK, framework: 'react' }
+    const out = render(
+      [
+        {
+          name: 'getUser',
+          method: 'get',
+          path: '/u/{id}',
+          pathParams: [param('id', 'path', true)],
+        },
+        { name: 'listUsers', method: 'get' },
+      ],
+      { schemas: [namedSchema('GetUserVariables', { kind: 'object', properties: [] })] }
     );
-    // The colliding op is skipped; the non-colliding one is still wrapped.
     expect(out).not.toContain('getUserOptions');
     expect(out).toContain('listUsersOptions');
   });
 
   it('returns empty string when every operation is SSE', () => {
-    const out = render(
-      [
-        {
-          name: 'streamEvents',
-          method: 'get',
-          path: '/events',
-          successResponses: [{ contentType: 'text/event-stream', schema: SCALAR, status: 200 }],
-        },
-      ],
-      'flat'
-    );
+    const out = render([
+      {
+        name: 'streamEvents',
+        method: 'get',
+        path: '/events',
+        successResponses: [{ contentType: 'text/event-stream', schema: SCALAR, status: 200 }],
+      },
+    ]);
     expect(out).toBe('');
   });
 
@@ -94,22 +83,21 @@ describe('renderTanstackModule', () => {
       queryParams: [param('expand', 'query', false)],
     };
 
-    it('emits queryKey + Options factories with grouped forwarding', () => {
-      const out = render([getOp], 'grouped');
+    it('emits an optional-vars queryKey: the no-args call is the invalidation prefix', () => {
+      const out = render([getOp]);
+      expect(out).toContain('export const getPetQueryKey = (vars?: GetPetVariables) =>');
       expect(out).toContain(
-        'export const getPetQueryKey = (vars: GetPetVariables) => ["getPet", vars] as const;'
-      );
-      expect(out).toContain('queryOptions({');
-      expect(out).toContain('queryKey: getPetQueryKey(vars)');
-      expect(out).toContain('queryFn: () => getPet(vars, init)');
-      expect(out).toContain(
-        'export const getPetOptions = (vars: GetPetVariables, init?: RequestOptions) =>'
+        'vars === undefined ? (["getPet"] as const) : (["getPet", vars] as const)'
       );
     });
 
-    it('emits flat positional forwarding (path ident, then params, then init)', () => {
-      const out = render([getOp], 'flat');
-      expect(out).toContain('queryFn: () => getPet(vars.petId, vars.params, init)');
+    it('emits an Options factory whose queryFn forwards the abort signal to the client call', () => {
+      const out = render([getOp]);
+      expect(out).toContain(
+        'getPetOptions: (vars: GetPetVariables, init?: RequestOptions) => queryOptions({'
+      );
+      expect(out).toContain('queryKey: getPetQueryKey(vars)');
+      expect(out).toContain('queryFn: ({ signal }) => c.getPet(vars, { ...init, signal })');
     });
   });
 
@@ -121,123 +109,236 @@ describe('renderTanstackModule', () => {
       requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
     };
 
-    it('emits a Mutation factory with mutationKey + mutationFn (grouped)', () => {
-      const out = render([postOp], 'grouped');
-      expect(out).toContain('export const createPetMutation = () => ({');
+    it('emits a Mutation factory that accepts and forwards per-call init', () => {
+      const out = render([postOp]);
+      expect(out).toContain('createPetMutation: (init?: RequestOptions) => ({');
       expect(out).toContain('mutationKey: ["createPet"] as const');
-      expect(out).toContain('mutationFn: (vars: CreatePetVariables) => createPet(vars)');
-    });
-
-    it('forwards the body positionally in flat mode (no trailing init)', () => {
-      const out = render([postOp], 'flat');
-      expect(out).toContain('mutationFn: (vars: CreatePetVariables) => createPet(vars.body)');
+      expect(out).toContain('mutationFn: (vars: CreatePetVariables) => c.createPet(vars, init)');
     });
   });
 
-  describe('flat forwarding ordering', () => {
-    it('orders path params (URL-template order), then params, body, headers', () => {
-      const op = {
-        name: 'replace',
-        method: 'put' as const,
-        path: '/a/{a}/b/{b}',
-        pathParams: [param('b', 'path', true), param('a', 'path', true)],
-        queryParams: [param('q', 'query', false)],
-        requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
-        headerParams: [param('X-Trace', 'header', false)],
-      };
-      const out = render([op], 'flat');
+  describe('queryKeyPrefix', () => {
+    it('namespaces every query and mutation key (operationIds may collide across APIs)', () => {
+      const out = renderTanstackModule(
+        apiModel({
+          services: [
+            {
+              name: 'Default',
+              operations: [
+                operation({ name: 'listPets', method: 'get', path: '/pets' }),
+                operation({ name: 'ping', method: 'post', path: '/ping' }),
+              ],
+            },
+          ],
+        }),
+        { sdkModule: SDK, framework: 'react', queryKeyPrefix: 'main' }
+      );
+      expect(out).toContain('export const listPetsQueryKey = () => ["main", "listPets"] as const;');
+      expect(out).toContain('mutationKey: ["main", "ping"] as const');
+    });
+  });
+
+  describe('createQueryFactories', () => {
+    it('binds the factories to a client parameter defaulting to the module singleton', () => {
+      const out = render([{ name: 'listPets', method: 'get', path: '/pets' }]);
       expect(out).toContain(
-        'mutationFn: (vars: ReplaceVariables) => replace(vars.a, vars.b, vars.params, vars.body, vars.headers)'
+        'export const createQueryFactories = (c: typeof client = client) => ({'
+      );
+      expect(out).toContain('const defaultFactories = createQueryFactories();');
+      expect(out).toContain('export const listPetsOptions = defaultFactories.listPetsOptions;');
+    });
+  });
+
+  describe('paginated query operations (InfiniteOptions)', () => {
+    const listOp = {
+      name: 'listOrders',
+      method: 'get' as const,
+      path: '/orders',
+      queryParams: [param('after', 'query', false), param('limit', 'query', false)],
+      successResponses: [
+        {
+          contentType: 'application/json',
+          status: 200,
+          schema: {
+            kind: 'object' as const,
+            properties: [
+              {
+                name: 'items',
+                schema: { kind: 'array' as const, items: SCALAR },
+                required: true,
+              },
+              {
+                name: 'page',
+                schema: {
+                  kind: 'object' as const,
+                  properties: [
+                    {
+                      name: 'endCursor',
+                      schema: {
+                        kind: 'union' as const,
+                        members: [SCALAR, { kind: 'null' as const }],
+                      },
+                      required: false,
+                    },
+                    {
+                      name: 'hasNextPage',
+                      schema: { kind: 'scalar' as const, scalar: 'boolean' as const },
+                      required: true,
+                    },
+                  ],
+                },
+                required: true,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const cursorRule: PaginationConfig = {
+      style: 'cursor',
+      cursorParam: 'after',
+      nextCursor: '/page/endCursor',
+      hasMore: '/page/hasNextPage',
+      limitParam: 'limit',
+      items: '/items',
+    };
+
+    it('compiles a cursor rule into initialPageParam + getNextPageParam with a distinct key', () => {
+      const out = render([listOp], { pagination: cursorRule });
+      expect(out).toContain(
+        'listOrdersInfiniteOptions: (vars: ListOrdersVariables, init?: RequestOptions) => infiniteQueryOptions({'
+      );
+      expect(out).toContain('queryKey: [...listOrdersQueryKey(vars), "infinite"] as const');
+      expect(out).toContain(
+        'queryFn: ({ pageParam, signal }) => c.listOrders({ ...vars, params: { ...vars.params, after: pageParam } }, { ...init, signal })'
+      );
+      expect(out).toContain('initialPageParam: vars.params?.after');
+      expect(out).toContain('if (lastPage.page?.hasNextPage === false)');
+      expect(out).toContain('const next = lastPage.page?.endCursor;');
+      // The cursor is a nullable string reached through an optional chain: all three stops.
+      expect(out).toContain(
+        'next === undefined || next === null || next === "" ? undefined : next'
+      );
+      expect(out).toContain(
+        'export const listOrdersInfiniteOptions = defaultFactories.listOrdersInfiniteOptions;'
       );
     });
-  });
 
-  describe('flat forwarding with an undeclared path placeholder', () => {
-    it('skips a `{placeholder}` that has no matching declared path param', () => {
-      const op = {
-        name: 'getThing',
-        method: 'get' as const,
-        path: '/things/{id}/{undeclared}',
-        pathParams: [param('id', 'path', true)],
+    it('omits stop checks the cursor type cannot hit (required plain string, single segment)', () => {
+      const flatCursor = {
+        ...listOp,
+        successResponses: [
+          {
+            contentType: 'application/json',
+            status: 200,
+            schema: {
+              kind: 'object' as const,
+              properties: [
+                {
+                  name: 'items',
+                  schema: { kind: 'array' as const, items: SCALAR },
+                  required: true,
+                },
+                { name: 'next', schema: SCALAR, required: true },
+              ],
+            },
+          },
+        ],
       };
-      const out = render([op], 'flat');
-      // Only `id` is forwarded; `{undeclared}` has no param, so it is dropped.
-      expect(out).toContain('queryFn: () => getThing(vars.id, init)');
+      const out = render([flatCursor], {
+        pagination: { style: 'cursor', cursorParam: 'after', nextCursor: '/next', items: '/items' },
+      });
+      // A required, non-nullable string can only be `""` — no undefined/null comparison
+      // (each would be a TS2367 "no overlap" in the consumer's build).
+      expect(out).toContain('next === "" ? undefined : next');
+      expect(out).not.toContain('next === undefined');
+      expect(out).not.toContain('next === null');
+    });
+
+    // The advance param must be numeric for offset/page fit; `after`/`limit` are strings.
+    const offsetOp = {
+      ...listOp,
+      queryParams: [
+        {
+          name: 'offset',
+          in: 'query' as const,
+          required: false,
+          schema: { kind: 'scalar' as const, scalar: 'integer' as const },
+        },
+      ],
+    };
+
+    it('compiles an offset rule: advance by each page item count, stop on an empty page', () => {
+      const out = render([offsetOp], {
+        pagination: { style: 'offset', offsetParam: 'offset', items: '/items' },
+      });
+      expect(out).toContain('initialPageParam: vars.params?.offset ?? 0');
+      expect(out).toContain('getNextPageParam: (lastPage, _allPages, lastPageParam) => {');
+      expect(out).toContain('const count = lastPage.items?.length ?? 0;');
+      expect(out).toContain('return count === 0 ? undefined : lastPageParam + count;');
+    });
+
+    it('compiles a page rule: increment by one, starting from 1', () => {
+      const out = render([offsetOp], {
+        pagination: { style: 'page', offsetParam: 'offset', items: '/items' },
+      });
+      expect(out).toContain('initialPageParam: vars.params?.offset ?? 1');
+      expect(out).toContain('return count === 0 ? undefined : lastPageParam + 1;');
+    });
+
+    it('emits no InfiniteOptions (and no infiniteQueryOptions import) without pagination', () => {
+      const out = render([listOp]);
+      expect(out).not.toContain('InfiniteOptions');
+      expect(out).not.toContain('infiniteQueryOptions');
+      expect(out).toContain('import { queryOptions } from "@tanstack/react-query";');
     });
   });
 
   describe('no-input operations', () => {
-    it('query: no vars param, queryKey without vars, forwards init', () => {
-      const out = render([{ name: 'listPets', method: 'get', path: '/pets' }], 'grouped');
+    it('query: init-only Options, queryKey without vars, empty args object to the client', () => {
+      const out = render([{ name: 'listPets', method: 'get', path: '/pets' }]);
       expect(out).toContain('export const listPetsQueryKey = () => ["listPets"] as const;');
-      expect(out).toContain('export const listPetsOptions = (init?: RequestOptions) =>');
+      expect(out).toContain('listPetsOptions: (init?: RequestOptions) => queryOptions({');
       expect(out).toContain('queryKey: listPetsQueryKey()');
-      expect(out).toContain('queryFn: () => listPets(init)');
+      expect(out).toContain('queryFn: ({ signal }) => c.listPets({}, { ...init, signal })');
     });
 
-    it('mutation: mutationFn takes no vars, calls with no args', () => {
-      const out = render([{ name: 'ping', method: 'post', path: '/ping' }], 'grouped');
-      expect(out).toContain('export const pingMutation = () => ({');
-      expect(out).toContain('mutationFn: () => ping()');
-    });
-
-    it('flat no-input query forwards init too', () => {
-      const out = render([{ name: 'listPets', method: 'get', path: '/pets' }], 'flat');
-      expect(out).toContain('queryFn: () => listPets(init)');
+    it('mutation: mutationFn takes no vars, passes an empty args object plus init', () => {
+      const out = render([{ name: 'ping', method: 'post', path: '/ping' }]);
+      expect(out).toContain('pingMutation: (init?: RequestOptions) => ({');
+      expect(out).toContain('mutationFn: () => c.ping({}, init)');
     });
   });
 
   describe('module header (imports)', () => {
-    it('imports queryOptions only when a query op exists', () => {
-      const queryOnly = render([{ name: 'listPets', method: 'get', path: '/pets' }], 'grouped');
+    it('imports queryOptions only when a query op exists; client and RequestOptions always', () => {
+      const queryOnly = render([{ name: 'listPets', method: 'get', path: '/pets' }]);
       expect(queryOnly).toContain('import { queryOptions } from "@tanstack/react-query";');
+      expect(queryOnly).toContain('import { client, type RequestOptions } from "./client.js";');
 
-      const mutationOnly = render([{ name: 'ping', method: 'post', path: '/ping' }], 'grouped');
+      const mutationOnly = render([{ name: 'ping', method: 'post', path: '/ping' }]);
       expect(mutationOnly).not.toContain('@tanstack/react-query');
+      expect(mutationOnly).toContain('import { client, type RequestOptions } from "./client.js";');
     });
 
-    it('imports used opFns + Variables types + RequestOptions from the sdk module', () => {
-      const out = render(
-        [
-          {
-            name: 'getPet',
-            method: 'get',
-            path: '/pets/{petId}',
-            pathParams: [param('petId', 'path', true)],
-          },
-          {
-            name: 'createPet',
-            method: 'post',
-            path: '/pets',
-            requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
-          },
-        ],
-        'grouped'
-      );
+    it('imports the referenced Variables types from the sdk module', () => {
+      const out = render([
+        {
+          name: 'getPet',
+          method: 'get',
+          path: '/pets/{petId}',
+          pathParams: [param('petId', 'path', true)],
+        },
+        {
+          name: 'createPet',
+          method: 'post',
+          path: '/pets',
+          requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
+        },
+      ]);
       expect(out).toContain(
-        'import { createPet, getPet, type CreatePetVariables, type GetPetVariables, type RequestOptions } from "./client.js";'
+        'import { client, type CreatePetVariables, type GetPetVariables, type RequestOptions } from "./client.js";'
       );
-    });
-
-    it('omits RequestOptions when there are only mutations (no query)', () => {
-      const out = render(
-        [
-          {
-            name: 'createPet',
-            method: 'post',
-            path: '/pets',
-            requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
-          },
-        ],
-        'grouped'
-      );
-      expect(out).toContain('import { createPet, type CreatePetVariables } from "./client.js";');
-      expect(out).not.toContain('RequestOptions');
-    });
-
-    it('imports only the opFn for a no-input op (no Variables type)', () => {
-      const out = render([{ name: 'ping', method: 'post', path: '/ping' }], 'grouped');
-      expect(out).toContain('import { ping } from "./client.js";');
     });
   });
 
@@ -245,13 +346,11 @@ describe('renderTanstackModule', () => {
     const op = [{ name: 'listPets', method: 'get' as const, path: '/pets' }];
 
     it('defaults to react: imports from @tanstack/react-query', () => {
-      expect(render(op, 'grouped')).toContain(
-        'import { queryOptions } from "@tanstack/react-query";'
-      );
+      expect(render(op)).toContain('import { queryOptions } from "@tanstack/react-query";');
     });
 
     it('imports from @tanstack/vue-query when framework is vue', () => {
-      expect(render(op, 'grouped', 'vue')).toContain(
+      expect(render(op, { framework: 'vue' })).toContain(
         'import { queryOptions } from "@tanstack/vue-query";'
       );
     });
@@ -264,17 +363,9 @@ describe('renderTanstackModule', () => {
           path: '/pets/{petId}',
           pathParams: [param('petId', 'path', true)],
         },
-        {
-          name: 'createPet',
-          method: 'post' as const,
-          path: '/pets',
-          requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
-        },
       ];
-      const react = render(ops, 'grouped', 'react');
-      const vue = render(ops, 'grouped', 'vue');
-      // Replace each rendering's import line with the other's; the documents must then match,
-      // proving the framework choice touches nothing but the `@tanstack/<framework>-query` string.
+      const react = render(ops, { framework: 'react' });
+      const vue = render(ops, { framework: 'vue' });
       const importLine = (q: string) => `import { queryOptions } from "@tanstack/${q}-query";`;
       expect(react.replace(importLine('react'), importLine('vue'))).toBe(vue);
     });

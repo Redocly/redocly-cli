@@ -1,136 +1,293 @@
-// Emits an idiomatic TanStack Query v5 (React) module wrapping the sdk operation
-// functions. Per query operation (GET/HEAD) a `<op>QueryKey(vars)` +
-// `<op>Options(vars, init?)` (`queryOptions({ queryKey, queryFn })`); per mutation
-// (everything else) a `<op>Mutation()` (`{ mutationKey, mutationFn }`). Each
-// factory forwards to the sdk function per the configured args style — grouped
-// (`getPet(vars, init)`) or flat (`getPet(vars.petId, vars.params, …, init)`),
-// matching `operations.ts` positional order so the call type-checks against the
-// generated sdk. AST-native via `ts.factory`.
+// Emits an idiomatic TanStack Query v5 module over the generated client. The factories
+// are built by `createQueryFactories(c)` — bindable to any client instance (per-instance
+// config, middleware, retry) — and the module-level exports bind the sdk's default
+// `client`. Per query operation (GET/HEAD): `<op>QueryKey(vars?)` (the no-args form is
+// the invalidation prefix) and `<op>Options(vars, init?)` whose `queryFn` forwards
+// TanStack's abort `signal`. A paginated query op additionally gets
+// `<op>InfiniteOptions(vars, init?)` with `initialPageParam`/`getNextPageParam` compiled
+// from the pagination rule's JSON pointers. Per mutation: `<op>Mutation(init?)`. Calls go
+// through the client instance's grouped methods, so the module is independent of the
+// sdk's `--args-style`.
+//
+// The factory bodies are authored as source text and round-tripped through
+// `parseStatements` → `printStatements`, which validates the syntax at generation time
+// and normalizes everything to the printer's canonical style. Every interpolated piece
+// is generator-derived (sanitized operation names, JSON-pointer property chains built
+// here) — never raw spec text.
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
+import type { PaginationSpec } from '../runtime/types.js';
+import { isSafeIdentifier, safeIdent } from './identifier.js';
 import {
-  arrow,
-  constArray,
-  exportConstStatement as exportConst,
-  printStatements,
-  ts,
-} from './ts.js';
-import {
-  hasInputs,
-  initParam,
-  isQuery,
-  sdkCall,
-  sdkNamedImport,
-  varsParam,
-  wrappableOperations,
-} from './wrapper-support.js';
-
-const { factory } = ts;
+  type ModelPagination,
+  type PaginationConfig,
+  resolveModelPagination,
+  resolveSchemaPointer,
+} from './pagination.js';
+import { parseStatements, printStatements } from './ts.js';
+import { hasInputs, isQuery, variablesName, wrappableOperations } from './wrapper-support.js';
 
 export type TanstackOptions = {
-  argsStyle: 'flat' | 'grouped';
-  /** Import specifier for the sdk entry the operation functions/types live in. */
+  /** Import specifier for the sdk entry the `client` instance and types live in. */
   sdkModule: string;
-  /** TanStack adapter to import `queryOptions` from (`@tanstack/${framework}-query`). */
+  /** TanStack adapter to import the option helpers from (`@tanstack/${framework}-query`). */
   framework: 'react' | 'vue' | 'svelte' | 'solid';
+  /** Auto-pagination rules — paginated query ops gain `<op>InfiniteOptions`. */
+  pagination?: PaginationConfig;
+  /** Leading element for every query/mutation key — namespaces the cache when several
+   * generated APIs share one QueryClient (operationIds may collide across APIs). */
+  queryKeyPrefix?: string;
 };
 
 /** Render the full TanStack Query module source. `''` when there are no wrappable operations. */
 export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): string {
   const ops = wrappableOperations(model, 'tanstack-query');
   if (ops.length === 0) return '';
-  return printStatements(tanstackStatements(ops, opts));
+  const pagination = resolveModelPagination(model, opts.pagination);
+  const source = [
+    importHeader(ops, opts, pagination),
+    ...ops.filter(isQuery).map((op) => queryKeySource(op, opts.queryKeyPrefix)),
+    factoriesSource(model, ops, pagination, opts.queryKeyPrefix),
+    ...defaultBindings(ops, pagination),
+  ].join('\n');
+  return printStatements(parseStatements(source));
 }
 
-/** The TanStack module statements: the import header followed by per-op factories. */
-function tanstackStatements(ops: OperationModel[], opts: TanstackOptions): ts.Statement[] {
-  const hasQuery = ops.some(isQuery);
-  const statements: ts.Statement[] = [];
-  for (const op of ops) {
-    statements.push(...(isQuery(op) ? queryStatements(op, opts) : [mutationStatement(op, opts)]));
-  }
-  return [...importHeader(ops, opts, hasQuery), ...statements];
-}
-
-/** A query op's `<op>QueryKey` + `<op>Options` statements. */
-function queryStatements(op: OperationModel, opts: TanstackOptions): ts.Statement[] {
-  const inputs = hasInputs(op);
-  const keyId = factory.createStringLiteral(op.name);
-  const keyParams = inputs ? [varsParam(op)] : [];
-  const keyElements = inputs ? [keyId, factory.createIdentifier('vars')] : [keyId];
-
-  const queryKey = exportConst(`${op.name}QueryKey`, arrow(keyParams, constArray(keyElements)));
-
-  const keyCall = factory.createCallExpression(
-    factory.createIdentifier(`${op.name}QueryKey`),
-    undefined,
-    inputs ? [factory.createIdentifier('vars')] : []
-  );
-  const queryOptionsCall = factory.createCallExpression(
-    factory.createIdentifier('queryOptions'),
-    undefined,
-    [
-      factory.createObjectLiteralExpression(
-        [
-          factory.createPropertyAssignment('queryKey', keyCall),
-          factory.createPropertyAssignment(
-            'queryFn',
-            arrow([], sdkCall(op, opts.argsStyle, 'vars', true))
-          ),
-        ],
-        true
-      ),
-    ]
-  );
-  const optionsParams = inputs ? [varsParam(op), initParam()] : [initParam()];
-  const options = exportConst(`${op.name}Options`, arrow(optionsParams, queryOptionsCall));
-
-  return [queryKey, options];
-}
-
-/** A mutation op's `<op>Mutation` statement. */
-function mutationStatement(op: OperationModel, opts: TanstackOptions): ts.Statement {
-  const inputs = hasInputs(op);
-  const mutationFn = arrow(
-    inputs ? [varsParam(op)] : [],
-    sdkCall(op, opts.argsStyle, 'vars', false)
-  );
-
-  const obj = factory.createObjectLiteralExpression(
-    [
-      factory.createPropertyAssignment(
-        'mutationKey',
-        constArray([factory.createStringLiteral(op.name)])
-      ),
-      factory.createPropertyAssignment('mutationFn', mutationFn),
-    ],
-    true
-  );
-
-  // Wrap in parens so the arrow body is an object literal, not a block.
-  return exportConst(`${op.name}Mutation`, arrow([], factory.createParenthesizedExpression(obj)));
+/** Whether the op gets an `<op>InfiniteOptions` factory: a paginated query operation. */
+function isInfinite(op: OperationModel, pagination: ModelPagination): boolean {
+  return isQuery(op) && pagination.has(op.name);
 }
 
 /**
- * The import header: `queryOptions` from `@tanstack/${framework}-query` (when any
- * query op), then the shared sdk named import.
+ * The import header: the option helpers from `@tanstack/${framework}-query` (only the
+ * ones used), then the sdk's `client` instance plus the referenced types.
  */
 function importHeader(
   ops: OperationModel[],
   opts: TanstackOptions,
-  hasQuery: boolean
-): ts.Statement[] {
-  const tanstack = factory.createImportDeclaration(
-    undefined,
-    factory.createImportClause(
-      false,
-      undefined,
-      factory.createNamedImports([
-        factory.createImportSpecifier(false, undefined, factory.createIdentifier('queryOptions')),
-      ])
-    ),
-    factory.createStringLiteral(`@tanstack/${opts.framework}-query`)
+  pagination: ModelPagination
+): string {
+  const helpers = [
+    ...(ops.some((op) => isInfinite(op, pagination)) ? ['infiniteQueryOptions'] : []),
+    ...(ops.some(isQuery) ? ['queryOptions'] : []),
+  ];
+  const types = [...ops.filter(hasInputs).map(variablesName), 'RequestOptions']
+    .sort()
+    .map((name) => `type ${name}`);
+  const lines = [];
+  if (helpers.length > 0) {
+    lines.push(`import { ${helpers.join(', ')} } from "@tanstack/${opts.framework}-query";`);
+  }
+  lines.push(`import { client, ${types.join(', ')} } from "${opts.sdkModule}";`);
+  return lines.join('\n');
+}
+
+/**
+ * `<op>QueryKey(vars?)` — with `vars` the exact key `<op>Options` uses; without, the
+ * one-element prefix matching every cached page/filter of the operation
+ * (`queryClient.invalidateQueries({ queryKey: getOrderQueryKey() })`).
+ */
+function queryKeySource(op: OperationModel, prefix: string | undefined): string {
+  const base = keyElements(op, prefix);
+  if (!hasInputs(op)) {
+    return `export const ${op.name}QueryKey = () => [${base}] as const;`;
+  }
+  return (
+    `export const ${op.name}QueryKey = (vars?: ${variablesName(op)}) =>\n` +
+    `    vars === undefined ? ([${base}] as const) : ([${base}, vars] as const);`
   );
-  const sdkImport = sdkNamedImport(ops, opts.sdkModule, hasQuery);
-  return hasQuery ? [tanstack, sdkImport] : [sdkImport];
+}
+
+/** The constant leading key elements: `"main", "getOrder"` with a prefix, else the id alone. */
+function keyElements(op: OperationModel, prefix: string | undefined): string {
+  // The prefix is config-supplied text — JSON.stringify is the escaping.
+  return prefix === undefined ? `"${op.name}"` : `${JSON.stringify(prefix)}, "${op.name}"`;
+}
+
+/** The `createQueryFactories(c)` declaration wrapping every option/mutation factory. */
+function factoriesSource(
+  model: ApiModel,
+  ops: OperationModel[],
+  pagination: ModelPagination,
+  prefix: string | undefined
+): string {
+  const members = ops.flatMap((op) => {
+    if (!isQuery(op)) return [mutationMember(op, prefix)];
+    const paginated = pagination.get(op.name);
+    return paginated === undefined
+      ? [optionsMember(op)]
+      : [optionsMember(op), infiniteMember(model, op, paginated.spec)];
+  });
+  return (
+    '/**\n' +
+    ' * Build the factories over a specific client instance — its config, middleware, and\n' +
+    ' * retry apply to every call (`createQueryFactories(createClient(OPERATIONS, config))`).\n' +
+    " * The module-level exports below are these factories bound to the sdk's default `client`.\n" +
+    ' */\n' +
+    'export const createQueryFactories = (c: typeof client = client) => ({\n' +
+    members.join(',\n') +
+    '\n});'
+  );
+}
+
+/** `<op>Options` — `queryFn` forwards TanStack's abort `signal` into the request `init`. */
+function optionsMember(op: OperationModel): string {
+  const { params, keyArg, callArgs } = varsPieces(op);
+  return (
+    `    ${op.name}Options: (${params}) => queryOptions({\n` +
+    `        queryKey: ${op.name}QueryKey(${keyArg}),\n` +
+    `        queryFn: ({ signal }) => c.${op.name}(${callArgs}, { ...init, signal }),\n` +
+    `    })`
+  );
+}
+
+/** `<op>Mutation(init?)` — per-call `RequestOptions` (headers, a retry override) reach the mutation. */
+function mutationMember(op: OperationModel, prefix: string | undefined): string {
+  const mutationFn = hasInputs(op)
+    ? `(vars: ${variablesName(op)}) => c.${op.name}(vars, init)`
+    : `() => c.${op.name}({}, init)`;
+  return (
+    `    ${op.name}Mutation: (init?: RequestOptions) => ({\n` +
+    `        mutationKey: [${keyElements(op, prefix)}] as const,\n` +
+    `        mutationFn: ${mutationFn},\n` +
+    `    })`
+  );
+}
+
+/**
+ * `<op>InfiniteOptions` — the pagination rule compiled into TanStack's contract: the
+ * page param rides the rule's advance query parameter, `initialPageParam` resumes from
+ * the caller's own value, and `getNextPageParam` mirrors the runtime iterators' stop
+ * conditions (cursor: absent/`null`/`''`, plus the optional `hasMore === false`;
+ * offset/page: an empty items page).
+ */
+function infiniteMember(model: ApiModel, op: OperationModel, spec: PaginationSpec): string {
+  const { params, keyArg } = varsPieces(op);
+  const override = `{ ...vars, params: { ...vars.params, ${safeIdent(spec.param)}: pageParam } }`;
+  return (
+    `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
+    `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +
+    `        queryFn: ({ pageParam, signal }) => c.${op.name}(${override}, { ...init, signal }),\n` +
+    nextPageSource(model, op, spec) +
+    `    })`
+  );
+}
+
+/** The `initialPageParam` + `getNextPageParam` pair for one pagination style. */
+function nextPageSource(model: ApiModel, op: OperationModel, spec: PaginationSpec): string {
+  const advance = paramsAccess(spec.param);
+  if (spec.style === 'cursor') {
+    const stopEarly =
+      spec.hasMore === undefined
+        ? ''
+        : `            if (lastPage${pointerChain(spec.hasMore)} === false) return undefined;\n`;
+    // Only the stop checks the cursor's static type admits are emitted — a `=== null`
+    // against a non-nullable string is a TS2367 in the consumer's build. TanStack v5
+    // itself stops on a returned `null`/`undefined`, so an omitted check stays safe
+    // even when the server sends a value the description says it cannot.
+    const checks = cursorStopChecks(model, op, spec.nextCursor);
+    const body =
+      checks.length === 0
+        ? `            return lastPage${pointerChain(spec.nextCursor)};\n`
+        : `            const next = lastPage${pointerChain(spec.nextCursor)};\n` +
+          `            return ${checks.join(' || ')} ? undefined : next;\n`;
+    return (
+      `        initialPageParam: vars.params?.${advance},\n` +
+      `        getNextPageParam: (lastPage) => {\n` +
+      stopEarly +
+      body +
+      `        },\n`
+    );
+  }
+  const step = spec.style === 'offset' ? 'lastPageParam + count' : 'lastPageParam + 1';
+  const start = spec.style === 'offset' ? '0' : '1';
+  return (
+    `        initialPageParam: vars.params?.${advance} ?? ${start},\n` +
+    `        getNextPageParam: (lastPage, _allPages, lastPageParam) => {\n` +
+    `            const count = ${itemsLength(spec.items)};\n` +
+    `            return count === 0 ? undefined : ${step};\n` +
+    `        },\n`
+  );
+}
+
+/**
+ * The `next === …` stop conditions whose comparison the cursor's static type allows:
+ * `undefined` when any step of the chain can miss, `null` when the cursor is nullable,
+ * `""` when it is a plain string.
+ */
+function cursorStopChecks(model: ApiModel, op: OperationModel, pointer: string): string[] {
+  const page = op.successResponses.find((response) =>
+    response.contentType.toLowerCase().includes('json')
+  );
+  // Both resolve — `resolveModelPagination` already verified the rule fits the operation.
+  const root = resolveSchemaPointer(page!.schema, '', model);
+  const target = resolveSchemaPointer(page!.schema, pointer, model);
+  const keys = pointer.slice(1).split('/');
+  let canBeUndefined = keys.length > 1;
+  if (!canBeUndefined && root?.kind === 'object') {
+    const property = root.properties.find((candidate) => candidate.name === keys[0]);
+    canBeUndefined = property === undefined || !property.required;
+  }
+  const members = target?.kind === 'union' ? target.members : target ? [target] : [];
+  const nullable = members.some((member) => member.kind === 'null');
+  const plainString = members.some(
+    (member) => member.kind === 'scalar' && member.scalar === 'string'
+  );
+  return [
+    ...(canBeUndefined ? ['next === undefined'] : []),
+    ...(nullable ? ['next === null'] : []),
+    ...(plainString ? ['next === ""'] : []),
+  ];
+}
+
+/** The shared `(vars, init?)` parameter list plus how `vars` reaches the key and the call. */
+function varsPieces(op: OperationModel): { params: string; keyArg: string; callArgs: string } {
+  if (!hasInputs(op)) {
+    return { params: 'init?: RequestOptions', keyArg: '', callArgs: '{}' };
+  }
+  return {
+    params: `vars: ${variablesName(op)}, init?: RequestOptions`,
+    keyArg: 'vars',
+    callArgs: 'vars',
+  };
+}
+
+/** One query-param access step: `.name`, or `["a b"]` when not a bare identifier. */
+function paramsAccess(name: string): string {
+  return isSafeIdentifier(name) ? name : `[${safeIdent(name)}]`;
+}
+
+/** An RFC 6901 pointer as an optional property chain: `/page/endCursor` → `.page?.endCursor`. */
+function pointerChain(pointer: string): string {
+  const keys = pointer
+    .slice(1)
+    .split('/')
+    .map((token) => token.replaceAll('~1', '/').replaceAll('~0', '~'));
+  return keys
+    .map((key, index) => {
+      const bare = isSafeIdentifier(key);
+      if (index === 0) return bare ? `.${key}` : `[${safeIdent(key)}]`;
+      return bare ? `?.${key}` : `?.[${safeIdent(key)}]`;
+    })
+    .join('');
+}
+
+/** The page's item count per the `items` pointer (`''` means the page IS the array). */
+function itemsLength(items: string): string {
+  if (items === '') return 'lastPage?.length ?? 0';
+  return `lastPage${pointerChain(items)}?.length ?? 0`;
+}
+
+/** `export const <name> = defaultFactories.<name>;` per factory, bound to the default client. */
+function defaultBindings(ops: OperationModel[], pagination: ModelPagination): string[] {
+  const names = ops.flatMap((op) => {
+    if (!isQuery(op)) return [`${op.name}Mutation`];
+    return pagination.has(op.name)
+      ? [`${op.name}Options`, `${op.name}InfiniteOptions`]
+      : [`${op.name}Options`];
+  });
+  return [
+    'const defaultFactories = createQueryFactories();',
+    ...names.map((name) => `export const ${name} = defaultFactories.${name};`),
+  ];
 }

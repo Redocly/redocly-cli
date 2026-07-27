@@ -33,6 +33,9 @@ export type Config = {
   mockData?: 'static' | 'faker';
   /** Seed for faker-mode mocks: emits `faker.seed(<n>)` so runs reproduce. Static mode ignores it. */
   mockSeed?: number;
+  /** Leading element for every tanstack-query key — namespaces the cache when several
+   * generated APIs share one QueryClient (operationIds may collide across APIs). */
+  queryKeyPrefix?: string;
   /**
    * Generators to run, in order. Defaults to `['sdk']`. Each entry is a built-in name, the `name`
    * of an inline `customGenerators` entry, or an import specifier (path or package) for a plugin.

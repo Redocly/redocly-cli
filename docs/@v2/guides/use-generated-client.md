@@ -10,14 +10,14 @@ To shape what gets generated — publisher defaults, custom generators — see [
 Each non-`sdk` generator adds a standalone sibling module next to the client; the client itself never imports it, so an add-on never adds a dependency to the client.
 Incompatible selections fail fast with an explanation.
 
-| Generator        | Emits                                                                                                                                                                    | App peer dependency                                      |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| `sdk`            | The typed client (default).                                                                                                                                              | none                                                     |
-| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas + [validation middleware](#runtime-validation).                                                                       | `zod` `^3.23 \|\| ^4`                                    |
-| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 factories. React by default; `tanstack-query-vue`/`-svelte`/`-solid` switch the adapter import. | `@tanstack/<framework>-query` `^5`                       |
-| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                                                                                                 | `swr` `^2`                                               |
-| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                  | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
-| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                | none                                                     |
+| Generator        | Emits                                                                                                                                                                                                                                                           | App peer dependency                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `sdk`            | The typed client (default).                                                                                                                                                                                                                                     | none                                                     |
+| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas + [validation middleware](#runtime-validation).                                                                                                                                                              | `zod` `^3.23 \|\| ^4`                                    |
+| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 [factories](#tanstack-query-factories), including `<op>InfiniteOptions` for paginated operations. React by default; `tanstack-query-vue`/`-svelte`/`-solid` switch the adapter import. | `@tanstack/<framework>-query` `^5`                       |
+| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                                                                                                                                                                                        | `swr` `^2`                                               |
+| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                                                                                                         | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
+| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                       | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
@@ -368,6 +368,32 @@ for await (const page of client.listOrders.pages(
 A failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — there `.pages()` yields raw pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked.
 
 For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
+
+## TanStack Query factories
+
+The `tanstack-query` generator emits typed TanStack Query v5 factories per operation:
+
+- `<op>Options(vars, init?)` per query (GET/HEAD) — pass to `useQuery`/`prefetchQuery`. Its `queryFn` forwards TanStack's abort `signal` into the request, so an unmounted or superseded query cancels its network call.
+- `<op>InfiniteOptions(vars, init?)` per **paginated** query — pass to `useInfiniteQuery`/`fetchInfiniteQuery`. The `initialPageParam`/`getNextPageParam` pair is compiled from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, including the `hasMore` stop, so infinite queries need no hand-written `getNextPageParam`.
+- `<op>QueryKey(vars?)` — with `vars`, the exact key the options use; **without arguments, the invalidation prefix** that matches every cached page and filter of the operation: `queryClient.invalidateQueries({ queryKey: listOrdersQueryKey() })`.
+- `<op>Mutation(init?)` per mutation — per-call `RequestOptions` (headers, a retry override) reach the mutation's requests.
+
+The module-level factories bind the sdk's default `client`.
+For an isolated instance (its own credentials, middleware, retry), build a bound set with `createQueryFactories`:
+
+```ts
+import { createClient } from '@redocly/client-generator';
+import { OPERATIONS, type Ops } from './api/client';
+import { createQueryFactories } from './api/client.tanstack';
+
+const internal = createQueryFactories(
+  createClient<Ops>(OPERATIONS, { auth: { basic: { username: 'svc', password: 's3cr3t' } } })
+);
+useQuery(internal.getOrderOptions({ orderId }));
+```
+
+When several generated APIs share one `QueryClient`, their operationIds can collide (two APIs with a `check` operation would mix caches).
+Set `queryKeyPrefix` in the `client` block to namespace every key: `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
 
 ## Formatting and linting the generated files
 

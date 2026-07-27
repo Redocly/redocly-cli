@@ -364,6 +364,7 @@ const Client: NodeType = {
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
+    queryKeyPrefix: { type: 'string' },
     setup: { type: 'string' },
     pagination: 'ClientPagination',
   },

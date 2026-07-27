@@ -40,6 +40,9 @@ export type EmitOptions = {
   mockData?: 'static' | 'faker';
   /** Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so runs reproduce. */
   mockSeed?: number;
+  /** Leading element for every tanstack-query key — namespaces the cache when several
+   * generated APIs share one QueryClient (operationIds may collide across APIs). */
+  queryKeyPrefix?: string;
   /**
    * A pre-baked publisher setup block (from `bakeSetup`) merged into the client's config
    * via `mergeSetup`. Absent when no `--setup` is given.

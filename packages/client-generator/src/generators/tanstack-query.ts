@@ -7,11 +7,12 @@ import type { Generator } from './types.js';
 
 /**
  * The tanstack-query generator: a standalone `<stem>.tanstack.ts` module of
- * TanStack Query v5 factories that wrap the sdk operation functions —
- * `<op>QueryKey`/`<op>Options` per query (GET/HEAD), `<op>Mutation` per mutation.
- * It imports the operation functions + their `<Op>Variables` types from the sdk
- * entry (`./<stem>.js`), so it requires the `sdk` generator and targets its
- * throw-mode operation functions. The framework-agnostic `queryOptions` helper is
+ * TanStack Query v5 factories over the generated client — `<op>QueryKey`/`<op>Options`
+ * per query (GET/HEAD), `<op>InfiniteOptions` per paginated query, `<op>Mutation` per
+ * mutation, all built by `createQueryFactories(c)` (bindable to any client instance)
+ * with the module-level exports bound to the sdk's default `client`. It imports the
+ * `client` instance + the `<Op>Variables` types from the sdk entry (`./<stem>.js`), so
+ * it requires the `sdk` generator and its throw-mode client. The option helpers are
  * imported from `@tanstack/<framework>-query` (the consumer's peer); the registry binds
  * one framework per generator name, and the emitted body is byte-identical across them.
  *
@@ -23,9 +24,10 @@ export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | '
   return ({ model, outputPath, emit }) => {
     const { dir, stem } = anchor(outputPath);
     const content = renderTanstackModule(model, {
-      argsStyle: emit.argsStyle ?? 'flat',
       sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
       framework,
+      pagination: emit.pagination,
+      queryKeyPrefix: emit.queryKeyPrefix,
     });
     if (content === '') return [];
     return [{ path: join(dir, `${stem}.tanstack.ts`), content: `${HEADER}\n\n${content}` }];

@@ -187,6 +187,7 @@ describe('generate-client package-runtime consumer', () => {
         output,
         runtime: 'package',
         argsStyle: 'grouped',
+        generators: ['sdk', 'tanstack-query'],
       });
       writeFileSync(
         join(dir, 'tsconfig.json'),
@@ -203,7 +204,7 @@ describe('generate-client package-runtime consumer', () => {
             outDir: join(dir, 'lib'),
             types: [],
           },
-          include: ['api.ts'],
+          include: ['api.ts', 'api.tanstack.ts'],
         })
       );
       const result = spawnSync('npx', ['tsc', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });

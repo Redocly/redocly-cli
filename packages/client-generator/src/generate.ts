@@ -137,6 +137,7 @@ export async function generateClient(
       dateType: options.dateType,
       mockData: options.mockData,
       mockSeed: options.mockSeed,
+      queryKeyPrefix: options.queryKeyPrefix,
       setup: setupBlock,
       runtime: options.runtime,
       importExt: options.importExt,
