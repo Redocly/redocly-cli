@@ -1,0 +1,107 @@
+openapi: 3.1.0
+externalDocs:
+  url: https://example.com
+
+info:
+  title: Redocly Cafe Azure APIM test case.
+  summary: Azure APIM test
+  version: 1.0.0
+
+security: [] # violates rule/security-ignored-azure-apim, should not be defined
+servers:
+  - url: https://api.cafe.redocly.com
+  - url: staging.cafe.redocly.com
+paths:
+  /orders:
+    post:
+      operationId: create-order
+      summary: Create order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order placed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+    get:
+      operationId: list-orders
+      summary: List all orders
+      externalDocs:
+        url: https://example.com
+
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              # invalid because not using ref for the whole schema.
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+  /menu:
+    post:
+      operationId: create-menu-item
+      summary: Create menu item
+      requestBody:
+        content:
+          application/json:
+            # invalid because not using ref for the whole schema.
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Menu item created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        customerName:
+          type: string
+        status:
+          type: string
+          enum:
+            - placed
+            - preparing
+            - completed
+            - canceled
+        totalPrice:
+          type: integer
+        orderItems:
+          type: array
+          items:
+            type: object
+            properties:
+              menuItemId:
+                type: string
+              quantity:
+                type: integer
+              comment:
+                type: string
+    MenuItem:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: integer
+        category:
+          type: string
+          enum:
+            - beverage
+            - dessert

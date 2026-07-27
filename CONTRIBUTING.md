@@ -19,6 +19,7 @@ Issue comments and discussion replies are expected to be written in the contribu
   - [Local source code usage](#local-source-code-usage)
 - [Tests](#tests)
 - [Contribute documentation](#contribute-documentation)
+- [Contribute to the cookbook](#contribute-to-the-cookbook)
 - [Project structure](#project-structure)
 - [Release flow](#release-flow)
 
@@ -342,6 +343,33 @@ mlc docs/
 The tool only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors.
 Take care when renaming pages or titles.
 
+## Contribute to the cookbook
+
+The [cookbook](./cookbook) is a community collection of rulesets, configuration, custom plugins, and other Redocly CLI additions.
+Unlike the packages, it is not built or tested as part of the CLI — treat every entry as a shared example that people use at their own risk.
+A cookbook-only change does not affect the published packages, so it does not need a changeset; add the `no changeset needed` label to the pull request instead.
+
+To add an entry:
+
+1. Pick the top-level category under `cookbook/` that fits best (`rulesets`, `configurable-rules`, `custom-plugins`, `custom-plugin-decorators`, `custom-plugin-rules`, or `miscellaneous`), and create a directory inside it named for what you are adding.
+   Give it a meaningful name — people browse the collection this way.
+
+   ```text
+   cookbook
+   └── configurable-rules
+       └── endpoints-are-tagged-cupcake
+   ```
+
+1. Put the file or files you want to share into the new directory, and name them so others can reuse and understand them.
+
+1. Add a `README.md` to the directory that explains the problem the entry solves and any context a reader needs to reuse it successfully.
+   Follow the structure of the existing entries.
+
+1. List your entry in the relevant section of the [cookbook catalog](./cookbook/README.md).
+
+1. Open a pull request.
+   Someone from Redocly will review it, suggest changes if needed, and merge it once it is ready.
+
 ## Project structure
 
 - **`tests/e2e`**: contains e2e tests.
@@ -370,6 +398,8 @@ Take care when renaming pages or titles.
   - **`packages/respect-core`**: contains the Respect core package.
 
 - **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
+
+- **`cookbook`**: contains the community cookbook — shared rulesets, configuration, custom plugins, and other Redocly CLI additions. It is not part of the build or test suite.
 
 ## Release flow
 
