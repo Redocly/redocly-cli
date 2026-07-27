@@ -20,7 +20,7 @@ export const NoRequiredSchemaPropertiesUndefined:
   | Async2Rule
   | Arazzo1Rule = () => {
   const parents: AnySchema[] = [];
-  const validatedChainHops = new Set<unknown>();
+  const validatedRefNodes = new Set<unknown>();
 
   const definesProperty = (
     schema: AnySchema,
@@ -103,7 +103,7 @@ export const NoRequiredSchemaPropertiesUndefined:
     ctx: UserContext,
     resolveFrom?: string
   ) => {
-    if (!schema.required) return;
+    if (!isNotEmptyArray<string>(schema.required)) return;
 
     for (const [i, requiredProperty] of schema.required.entries()) {
       if (!hasProperty(schema, requiredProperty, new Set(), ctx, resolveFrom)) {
@@ -119,20 +119,21 @@ export const NoRequiredSchemaPropertiesUndefined:
 
   return {
     ref: {
-      leave(_ref: OasRef, ctx: UserContext, resolved: ResolveResult<AnySchema>) {
-        // composed $refs in the chain are never visited as Schema nodes, so their
-        // `required` sibling keywords are validated here
-        for (const chainHop of resolved.chain ?? []) {
-          if (!isPlainObject(chainHop.node) || validatedChainHops.has(chainHop.node)) {
+      leave(refNode: OasRef, ctx: UserContext, resolved: ResolveResult<AnySchema>) {
+        if (ctx.type.name !== 'Schema') return;
+
+        // composed $refs are never visited as Schema nodes, so the `required` sibling
+        // keywords of the ref itself and of the chain hops are validated here
+        const composedSchemas = [
+          { node: refNode as unknown, location: ctx.location },
+          ...(resolved.chain ?? []),
+        ];
+        for (const { node, location } of composedSchemas) {
+          if (!isPlainObject(node) || validatedRefNodes.has(node)) {
             continue;
           }
-          validatedChainHops.add(chainHop.node);
-          reportUndefinedRequired(
-            chainHop.node as AnySchema,
-            chainHop.location,
-            ctx,
-            chainHop.location.source.absoluteRef
-          );
+          validatedRefNodes.add(node);
+          reportUndefinedRequired(node as AnySchema, location, ctx, location.source.absoluteRef);
         }
       },
     },
@@ -142,7 +143,7 @@ export const NoRequiredSchemaPropertiesUndefined:
       },
       enter(currentSchema: AnySchema, ctx: UserContext) {
         parents.push(currentSchema);
-        if (!currentSchema.required) return;
+        if (!isNotEmptyArray<string>(currentSchema.required)) return;
 
         const isCompositionChild = (parent: AnySchema, child: AnySchema): boolean => {
           const matchesChild = (s: AnySchema) => resolveSchema(s, ctx).schema === child;

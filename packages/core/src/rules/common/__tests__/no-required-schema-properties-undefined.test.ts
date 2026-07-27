@@ -1066,6 +1066,95 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should report an undefined required property written next to an inline $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Payload:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Base'
+                  required:
+                    - name
+                    - missing
+            Base:
+              type: object
+              properties:
+                name:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Payload/properties/data/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'missing' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should ignore a non-array required on a composed parameter $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths:
+          /demo:
+            get:
+              parameters:
+                - $ref: '#/components/parameters/Alias'
+              responses: {}
+        components:
+          parameters:
+            Alias:
+              $ref: '#/components/parameters/Base'
+              required: true
+            Base:
+              name: q
+              in: query
+              schema:
+                type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should still report a genuinely undefined property in a composed $ref chain', async () => {
     const document = parseYamlToDocument(
       outdent`
