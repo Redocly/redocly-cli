@@ -998,6 +998,30 @@ describe('sibling $ref resolution by spec', () => {
     ).toEqual({ $ref: '#/components/schemas/BadRequest' });
   });
 
+  it('should bundle refs inside $ref siblings that collide with resolved schema keys', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-sibling-collision.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schema = (res.parsed as any).paths['/demo'].get.responses['200'].content[
+      'application/json'
+    ].schema;
+    expect(schema).toEqual({
+      $ref: '#/components/schemas/Test',
+      properties: {
+        second: { $ref: '#/components/schemas/BaseProblem' },
+      },
+    });
+    expect((res.parsed as any).components.schemas.BaseProblem).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+      },
+    });
+  });
+
   it('should keep referenced composed schemas when removing unused components', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),

@@ -366,16 +366,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             props = refSiblingProps;
           }
 
-          for (const propName of props) {
-            let value = resolvedNode[propName];
-
-            let loc = resolvedLocation;
-
-            if (value === undefined) {
-              value = node[propName];
-              loc = location; // properties on the same level as $ref should resolve against original location, not target
-            }
-
+          const walkProp = (
+            propName: string,
+            value: unknown,
+            loc: Location,
+            valueParent: unknown
+          ) => {
             let propType = getOwn(type.properties, propName);
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
@@ -397,16 +393,29 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               propType = { name: 'scalar', properties: {} };
             }
 
-            if (isRef(node[propName]) && propType?.name === 'scalar') {
-              walkNode(node[propName], propType, location.child([propName]), node, propName);
-              continue;
-            }
-
             if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
-              continue;
+              return;
             }
 
-            walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
+            walkNode(value, propType, loc.child([propName]), valueParent, propName);
+          };
+
+          // the isRef check narrows `node` to OasRef, but sibling keys are read from it too
+          const rawNode = node as Record<string, unknown>;
+
+          for (const propName of props) {
+            const resolvedValue = resolvedNode[propName];
+            // a property on the same level as $ref composes with the resolved node even
+            // when both define it, and resolves against the original location, not target
+            const siblingValue =
+              nodeIsRef && rawNode[propName] !== resolvedValue ? rawNode[propName] : undefined;
+
+            if (shouldWalkChildren && resolvedValue !== undefined) {
+              walkProp(propName, resolvedValue, resolvedLocation, resolvedNode);
+            }
+            if (siblingValue !== undefined) {
+              walkProp(propName, siblingValue, location, node);
+            }
           }
         }
       }
