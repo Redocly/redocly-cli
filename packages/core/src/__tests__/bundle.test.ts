@@ -998,6 +998,20 @@ describe('sibling $ref resolution by spec', () => {
     ).toEqual({ $ref: '#/components/schemas/BadRequest' });
   });
 
+  it('should keep referenced composed schemas when removing unused components', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-root-ref-siblings.yaml'),
+      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(Object.keys((res.parsed as any).components.schemas).sort()).toEqual([
+      'BadRequest',
+      'BaseProblem',
+    ]);
+  });
+
   it('should keep sibling keywords when a referenced component has a root-level $ref', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),

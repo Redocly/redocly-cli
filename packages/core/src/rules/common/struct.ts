@@ -53,21 +53,16 @@ export const Struct:
         return;
       }
 
-      // A $ref with sibling keys composes its target, so required fields can't be judged locally.
-      const nodeComposesRef = isRef(node);
-
       const required =
         typeof type.required === 'function' ? type.required(node, key) : type.required;
 
-      if (!nodeComposesRef) {
-        for (const propName of required || []) {
-          if (!(node as object).hasOwnProperty(propName)) {
-            report({
-              message: `The field \`${propName}\` must be present on this level.`,
-              from: refLocation,
-              location: [{ reportOnKey: true }],
-            });
-          }
+      for (const propName of required || []) {
+        if (!(node as object).hasOwnProperty(propName)) {
+          report({
+            message: `The field \`${propName}\` must be present on this level.`,
+            from: refLocation,
+            location: [{ reportOnKey: true }],
+          });
         }
       }
 
@@ -90,7 +85,7 @@ export const Struct:
       }
 
       const requiredOneOf = type.requiredOneOf || null;
-      if (requiredOneOf && !nodeComposesRef) {
+      if (requiredOneOf) {
         let hasProperty = false;
         for (const propName of requiredOneOf || []) {
           if ((node as object).hasOwnProperty(propName)) {
@@ -108,9 +103,6 @@ export const Struct:
       }
 
       for (const propName of Object.keys(node)) {
-        if (propName === '$ref' && nodeComposesRef) {
-          continue;
-        }
         const propLocation = location.child([propName]);
         let propValue = node[propName];
 

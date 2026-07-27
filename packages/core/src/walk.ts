@@ -29,9 +29,22 @@ export type NonUndefined =
   | object
   | Record<string, any>;
 
+// A composed $ref (with sibling keys) the resolution chased through on the way to `node`.
+export type ResolvedChainHop = { node: unknown; location: Location };
+
 export type ResolveResult<T extends NonUndefined> =
-  | { node: T; location: Location; error?: ResolveError | YamlParseError }
-  | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
+  | {
+      node: T;
+      location: Location;
+      error?: ResolveError | YamlParseError;
+      chain?: ResolvedChainHop[];
+    }
+  | {
+      node: undefined;
+      location: undefined;
+      error?: ResolveError | YamlParseError;
+      chain?: ResolvedChainHop[];
+    };
 
 export type ResolveFn = <T extends NonUndefined>(
   node: Referenced<T>,
@@ -132,6 +145,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 }) {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
   const seenNodesPerType: Record<string, Set<unknown>> = {};
+  const walkedComposedRefs = new Set<string>();
   const ignoredNodes = new Set<string>();
 
   // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
@@ -165,21 +179,39 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         };
       }
 
-      const { resolved, node, document, nodePointer, error } = resolvedRef;
+      const { resolved, node, document, nodePointer, error, chain } = resolvedRef;
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
           ? new Location(error.source, '')
           : undefined;
 
-      return { location: newLocation, node, error };
+      return {
+        location: newLocation,
+        node,
+        error,
+        chain: chain?.map((chainHop) => ({
+          node: chainHop.node,
+          location: new Location(chainHop.document.source, chainHop.nodePointer),
+        })),
+      };
     };
 
     const rawLocation = location;
     let currentLocation = location;
     const nodeIsRef = isRef(node);
-    const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
+    const {
+      node: resolvedNode,
+      location: resolvedLocation,
+      error,
+      chain: resolvedChain,
+    } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
+
+    if (nodeIsRef && Object.keys(node).length > 1) {
+      // composed $refs can also be reached as chain hops — record this walk to avoid a repeat
+      walkedComposedRefs.add(`${type.name}::${location.absolutePointer}`);
+    }
 
     if (nodeIsRef) {
       const refEnterVisitors = normalizedVisitors.ref.enter;
@@ -202,7 +234,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             config: ctx.config,
             getVisitorData: () => getVisitorDataFn(ruleId),
           },
-          { node: resolvedNode, location: resolvedLocation, error }
+          { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
         );
         if (resolvedLocation?.source.absoluteRef && ctx.refTypes) {
           ctx.refTypes.set(resolvedLocation?.source.absoluteRef, type);
@@ -282,12 +314,18 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         }
       }
 
-      if (visitedBySome || !isNodeSeen) {
-        seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-        seenNodesPerType[type.name].add(resolvedNode);
+      const shouldWalkChildren = visitedBySome || !isNodeSeen;
+      const refSiblingProps =
+        nodeIsRef && isPlainObject(node) ? Object.keys(node).filter((k) => k !== '$ref') : [];
+
+      if (shouldWalkChildren || refSiblingProps.length > 0) {
+        if (shouldWalkChildren) {
+          seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
+          seenNodesPerType[type.name].add(resolvedNode);
+        }
 
         if (Array.isArray(resolvedNode)) {
-          const itemsType = type.items;
+          const itemsType = shouldWalkChildren ? type.items : undefined;
           if (itemsType !== undefined) {
             const isTypeAFunction = typeof itemsType === 'function';
             for (let i = 0; i < resolvedNode.length; i++) {
@@ -308,20 +346,24 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             }
           }
         } else if (isPlainObject(resolvedNode)) {
-          // visit in order from type-tree first
-          const props = Object.keys(type.properties);
-          if (type.additionalProperties) {
-            props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
-          } else if (type.extensionsPrefix) {
-            props.push(
-              ...Object.keys(resolvedNode).filter((k) =>
-                k.startsWith(type.extensionsPrefix as string)
-              )
-            );
-          }
-
-          if (nodeIsRef) {
-            props.push(...Object.keys(node).filter((k) => k !== '$ref' && !props.includes(k))); // properties on the same level as $ref
+          let props: string[];
+          if (shouldWalkChildren) {
+            // visit in order from type-tree first
+            props = Object.keys(type.properties);
+            if (type.additionalProperties) {
+              props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
+            } else if (type.extensionsPrefix) {
+              props.push(
+                ...Object.keys(resolvedNode).filter((k) =>
+                  k.startsWith(type.extensionsPrefix as string)
+                )
+              );
+            }
+            // properties on the same level as $ref
+            props.push(...refSiblingProps.filter((k) => !props.includes(k)));
+          } else {
+            // the resolved node was already visited, but this ref's sibling keys still need walking
+            props = refSiblingProps;
           }
 
           for (const propName of props) {
@@ -367,10 +409,14 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
           }
         }
+      }
 
-        if (isRef(resolvedNode) && resolvedNode !== node) {
-          // resolution stopped at a $ref with sibling keys; walk it as a ref from its own location
-          walkNode(resolvedNode, type, resolvedLocation, parent, key);
+      if (nodeIsRef && resolvedChain?.length) {
+        // walk the composed $ref hop from its own location so its siblings and inner $ref
+        // are processed; the hop's own resolution carries the rest of the chain
+        const chainHop = resolvedChain[0];
+        if (!walkedComposedRefs.has(`${type.name}::${chainHop.location.absolutePointer}`)) {
+          walkNode(chainHop.node, type, chainHop.location, parent, key);
         }
       }
 
@@ -424,7 +470,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               config: ctx.config,
               getVisitorData: () => getVisitorDataFn(ruleId),
             },
-            { node: resolvedNode, location: resolvedLocation, error }
+            { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
         }
       }

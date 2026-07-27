@@ -151,17 +151,24 @@ export function makeBundleVisitor({
           reportUnresolvedRef(resolved, ctx.report, ctx.location);
           return;
         }
+
+        // a composed $ref (with sibling keys) in the chain is the effective target,
+        // so the composition survives in the bundled output
+        const target = resolved.chain?.length
+          ? { node: resolved.chain[0].node, location: resolved.chain[0].location }
+          : { node: resolved.node, location: resolved.location };
+
         if (
-          resolved.location.source === rootDocument.source &&
-          resolved.location.source === ctx.location.source &&
+          target.location.source === rootDocument.source &&
+          target.location.source === ctx.location.source &&
           ctx.type.name !== 'scalar' &&
           !dereference
         ) {
           // Normalize explicit self-file refs (api.yaml#/x -> #/x). Already-internal refs
           // stay as authored: rewriting them would collapse $ref chains, and AsyncAPI 3
           // operation messages must point to channel messages, not to components.
-          if (parseRef(node.$ref).uri !== null && node.$ref !== resolved.location.pointer) {
-            node.$ref = resolved.location.pointer;
+          if (parseRef(node.$ref).uri !== null && node.$ref !== target.location.pointer) {
+            node.$ref = target.location.pointer;
           }
 
           return;
@@ -173,14 +180,14 @@ export function makeBundleVisitor({
 
         const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
-          replaceRef(node, resolved, ctx);
+          replaceRef(node, target, ctx);
         } else {
           if (dereference) {
-            saveComponent(componentType, resolved, ctx);
-            replaceRef(node, resolved, ctx);
+            saveComponent(componentType, target, ctx);
+            replaceRef(node, target, ctx);
           } else {
-            node.$ref = saveComponent(componentType, resolved, ctx);
-            resolveBundledComponent(node, resolved, ctx);
+            node.$ref = saveComponent(componentType, target, ctx);
+            resolveBundledComponent(node, target, ctx);
           }
         }
       },
@@ -240,7 +247,11 @@ export function makeBundleVisitor({
           return;
         }
 
-        discriminator.defaultMapping = saveComponent(schemaComponentType, resolved, ctx);
+        discriminator.defaultMapping = saveComponent(
+          schemaComponentType,
+          resolved.chain?.[0] ?? resolved,
+          ctx
+        );
       },
       DiscriminatorMapping: {
         leave(mapping, ctx) {
@@ -255,7 +266,11 @@ export function makeBundleVisitor({
               return;
             }
 
-            mapping[name] = saveComponent(schemaComponentType, resolved, ctx);
+            mapping[name] = saveComponent(
+              schemaComponentType,
+              resolved.chain?.[0] ?? resolved,
+              ctx
+            );
           }
         },
       },
@@ -293,12 +308,12 @@ export function makeBundleVisitor({
   }
 
   function isEqualOrEqualRef(node: unknown, target: ComponentTarget, ctx: UserContext) {
-    if (
-      isRef(node) &&
-      ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer ===
-        target.location.absolutePointer
-    ) {
-      return true;
+    if (isRef(node)) {
+      const resolved = ctx.resolve(node, rootLocation.absolutePointer);
+      const effectiveLocation = resolved.chain?.[0]?.location ?? resolved.location;
+      if (effectiveLocation?.absolutePointer === target.location.absolutePointer) {
+        return true;
+      }
     }
 
     return dequal(node, target.node);

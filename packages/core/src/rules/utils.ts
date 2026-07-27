@@ -13,7 +13,7 @@ import type {
 import type { Oas2Tag } from '../typings/swagger.js';
 import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { NonUndefined, UserContext } from '../walk.js';
+import type { NonUndefined, ResolvedChainHop, UserContext } from '../walk.js';
 import type { AjvValidator } from './ajv.js';
 
 export const resolveSchema = <T extends NonUndefined>(
@@ -23,11 +23,16 @@ export const resolveSchema = <T extends NonUndefined>(
 ): {
   schema: T | undefined;
   location: string | undefined;
+  chain?: ResolvedChainHop[];
 } => {
   if (isRef(schemaOrRef)) {
     const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);
     return resolved
-      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
+      ? {
+          schema: resolved.node,
+          location: resolved.location?.source.absoluteRef,
+          chain: resolved.chain,
+        }
       : { schema: undefined, location: resolveFrom };
   }
 

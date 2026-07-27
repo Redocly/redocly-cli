@@ -181,6 +181,15 @@ export class BaseResolver {
   }
 }
 
+// A $ref target that is itself a $ref with sibling keys (a JSON Schema 2020-12 composition).
+// Resolution chases through it to the chain end, but the hop is recorded so consumers
+// that care about the composition (the bundler, chain-aware rules) can access it.
+export type ResolvedRefChainHop = {
+  node: unknown;
+  document: Document;
+  nodePointer: string;
+};
+
 export type ResolvedRef =
   | {
       resolved: false;
@@ -190,6 +199,7 @@ export type ResolvedRef =
       source?: Source;
       error?: ResolveError | YamlParseError;
       node?: any;
+      chain?: undefined;
     }
   | {
       resolved: true;
@@ -198,6 +208,7 @@ export type ResolvedRef =
       nodePointer: string;
       isRemote: boolean;
       error?: undefined;
+      chain?: ResolvedRefChainHop[];
     };
 
 export type ResolvedRefMap = Map<string, ResolvedRef>;
@@ -344,6 +355,10 @@ export async function resolveDocument(opts: {
               resolvedRef.nodePointer!,
               type
             );
+            // chain hops carry sibling keys that can contain refs of their own
+            for (const chainHop of resolvedRef.chain ?? []) {
+              resolveRefsInParallel(chainHop.node, chainHop.document, chainHop.nodePointer, type);
+            }
           }
         });
         resolvePromises.push(promise);
@@ -449,6 +464,8 @@ export async function resolveDocument(opts: {
           );
         } else if (isRef(target)) {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
+          // a chain collected while traversing into a ref does not belong to the outer ref
+          resolvedRef.chain = undefined;
           targetDoc = resolvedRef.document || targetDoc;
 
           if (isPlainObject(resolvedRef.node)) {
@@ -476,10 +493,21 @@ export async function resolveDocument(opts: {
       resolvedRef.node = target;
       resolvedRef.document = targetDoc;
       const refId = makeRefId(document.source.absoluteRef, ref.$ref);
-      // A $ref with sibling keys is a composition, not a transparent alias — resolution stops
-      // there so the siblings survive; only pure refs are followed further.
-      if (resolvedRef.document && isRef(target) && Object.keys(target).length === 1) {
+      if (resolvedRef.document && isRef(target)) {
+        // A $ref with sibling keys is a composition (JSON Schema 2020-12), not a transparent
+        // alias — record it as a chain hop so the composition survives for consumers that need it.
+        const chainHop: ResolvedRefChainHop | undefined =
+          Object.keys(target).length > 1
+            ? {
+                node: target,
+                document: resolvedRef.document,
+                nodePointer: resolvedRef.nodePointer!,
+              }
+            : undefined;
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
+        if (chainHop && resolvedRef.resolved) {
+          resolvedRef = { ...resolvedRef, chain: [chainHop, ...(resolvedRef.chain ?? [])] };
+        }
       }
       resolvedRefMap.set(refId, resolvedRef);
       return { ...resolvedRef };

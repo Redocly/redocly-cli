@@ -411,7 +411,7 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
   });
 
-  it('should stop following transitive refs at a $ref with sibling keys', async () => {
+  it('should record a $ref with sibling keys as a chain hop while following transitive refs', async () => {
     const rootDocument = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -432,10 +432,14 @@ describe('collect refs', () => {
       rootType: normalizeTypes(Oas3Types).Root,
     });
 
-    expect(resolvedRefs.get('foobar.yaml::#/aliased')!.node).toEqual({
+    const aliasedRef = resolvedRefs.get('foobar.yaml::#/aliased')!;
+    expect(aliasedRef.node).toEqual({ contact: {} });
+    expect(aliasedRef.chain).toHaveLength(1);
+    expect(aliasedRef.chain![0].node).toEqual({
       $ref: '#/target',
       description: 'alias with sibling',
     });
+    expect(aliasedRef.chain![0].nodePointer).toEqual('#/aliased');
     expect(resolvedRefs.get('foobar.yaml::#/target')!.node).toEqual({ contact: {} });
   });
 
