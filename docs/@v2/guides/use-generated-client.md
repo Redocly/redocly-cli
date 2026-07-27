@@ -2,6 +2,7 @@
 
 How to consume the TypeScript client produced by [`generate-client`](../commands/generate-client.md): authentication, argument styles, error handling, middleware, retries, and the optional add-on generators.
 For invoking the command itself (flags, output modes, config), see the [`generate-client` command reference](../commands/generate-client.md).
+To shape what gets generated — publisher defaults, custom generators — see [Customize client generation](./customize-client-generation.md).
 
 ## Generators
 
@@ -171,63 +172,10 @@ use({
 A header for a single call instead goes in that operation's trailing `init` argument.
 Per-request headers merge lowest to highest: injected auth credentials, then typed header parameters, then the caller's `init.headers` — the caller always wins.
 
-`use()` appends to the middleware chain, composing with any already-registered or baked-in middleware.
-`configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher-baked](#publisher-defaults)) middleware.
+`use()` appends to the middleware chain, composing with any already-registered or publisher pre-configured middleware.
+`configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher pre-configured](./customize-client-generation.md#publisher-defaults)) middleware.
 
 See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
-
-## Publisher defaults
-
-The middleware above is composed by the **consumer**.
-If you **publish an SDK** you can pre-configure default middlewares at generation time with `--setup <file>`.
-Setup changes the client's built-in _behavior_; it emits no extra file — to derive additional artifacts from the spec, use [generators](#generators) instead.
-The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable) and default-exports `defineClientSetup({ config, middleware })`:
-
-```ts
-// client-setup.ts
-import { defineClientSetup, type RequestContext } from '@redocly/client-generator';
-
-export default defineClientSetup({
-  config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
-  middleware: [
-    {
-      onRequest: (ctx: RequestContext) => {
-        ctx.headers['X-Acme-SDK'] = '1.4.0';
-      },
-    },
-  ],
-});
-```
-
-```sh
-redocly generate-client openapi.yaml --output src/api/client.ts --setup ./client-setup.ts
-```
-
-Baking is a generation-time transform: the import is stripped and only the setup expression lands in the client, so an `inline` client stays zero-dependency.
-`defineClientSetup` is optional typing sugar — a plain default-exported object works too, with no imports (and no dev-dependency on `@redocly/client-generator`):
-
-```ts
-// client-setup.ts — the same setup, importless
-export default {
-  config: { serverUrl: 'https://api.acme.com', retry: { retries: 3 } },
-  middleware: [
-    {
-      onRequest: (ctx) => {
-        ctx.headers['X-Acme-SDK'] = '1.4.0';
-      },
-    },
-  ],
-};
-```
-
-Either way the baked block is typed against the client's own contract in the generated file, so a shape mistake fails the consumer's `tsc`.
-
-The pre-configured block runs before the consumer's own setup.
-**Config values** layer lowest → highest: the spec's defaults (e.g. `servers[0].url`) → the baked setup → the app's `configure()` — later always wins, so a consumer overrides a baked default.
-**Middleware composes** instead (baked first, then the consumer's).
-Express un-bypassable behavior as middleware, not a baked `fetch`.
-A setup file may import **only** from `@redocly/client-generator`.
-See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
 
 ## Retries
 
@@ -421,70 +369,6 @@ A failed page always aborts iteration by throwing `ApiError`, even on an `--erro
 
 For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
 
-## Custom generators
-
-The built-in generators cover common targets.
-For anything else derived from the same description (validators in another library, a permissions map, a house-style SDK), write a **custom generator**: it reads the same spec-agnostic model the built-ins consume, so its output never drifts from the spec.
-A generator adds artifacts _next to_ the client — it doesn't change the generated client's behavior; for that, compose [middleware](#middleware) or bake [publisher defaults](#publisher-defaults).
-
-A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator`:
-
-```ts
-// route-map-generator.ts
-import { defineGenerator } from '@redocly/client-generator';
-
-export default defineGenerator({
-  name: 'route-map',
-  requires: ['sdk'],
-  run({ model, outputPath }) {
-    const routes = model.services
-      .flatMap((s) => s.operations)
-      .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`)
-      .join('\n');
-    return [
-      {
-        path: outputPath.replace(/\.ts$/, '.routes.ts'),
-        content: `export const routes = {\n${routes}\n} as const;\n`,
-      },
-    ];
-  },
-});
-```
-
-The `@redocly/client-generator/generate` entry also exports the emit toolkit (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do.
-For example, a plugin can map every operation to the TypeScript type of its success body with `schemaToTypeNode` and print the result as a compiled type alias — see the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator).
-
-Select it in `redocly.yaml` by path or package name:
-
-```yaml
-apis:
-  cafe:
-    root: ./openapi.yaml
-    clientOutput: ./src/api/client.ts
-    client:
-      generators:
-        - sdk
-        - ./tools/route-map-generator.ts # local path (resolved against redocly.yaml)
-        - '@acme/openapi-valibot' # published package
-```
-
-Or register one **inline** with the programmatic API and select it by name:
-
-```ts
-import { generateClient } from '@redocly/client-generator';
-import routeMap from './tools/route-map-generator.ts';
-
-await generateClient({
-  api: './openapi.yaml',
-  output: './src/api/client.ts',
-  customGenerators: [routeMap],
-  generators: ['sdk', 'route-map'],
-});
-```
-
-Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
-See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building plugin, the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for one that emits real TypeScript AST via the `/generate` toolkit, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the spec's tags.
-
 ## Formatting and linting the generated files
 
 The generator prints one canonical style — the TypeScript compiler's printer (four-space indent, double quotes).
@@ -498,3 +382,4 @@ If your linter flags generated output, [report it](https://github.com/Redocly/re
 
 - [`generate-client` command](../commands/generate-client.md) — flags, output modes, and invocation.
 - [`client` configuration](../configuration/reference/client.md) — the `redocly.yaml` `client` block.
+- [Customize client generation](./customize-client-generation.md) — publisher defaults and custom generators.

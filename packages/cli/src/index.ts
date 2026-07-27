@@ -903,7 +903,7 @@ yargs(hideBin(process.argv))
           },
           setup: {
             describe:
-              'Path to a publisher setup module (export default defineClientSetup({ config, middleware })) baked into the generated client, so a published SDK ships its request/response defaults built in. Works across all output modes.',
+              'Path to a publisher setup module (a file default-exporting { config, middleware }) that gets included into the generated client — pre-configure defaults such as the server URL, retries, headers, and middleware, so a published SDK ships with them built in. Works across all output modes.',
             type: 'string',
             requiresArg: true,
           },

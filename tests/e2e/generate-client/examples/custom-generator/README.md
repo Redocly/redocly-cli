@@ -10,5 +10,5 @@ generator runs alongside the built-in `sdk`, reading the same OpenAPI-derived IR
 
 Regenerate from the repo root with `npm run examples:regen -w @redocly/client-generator`; type-check
 with `npm run typecheck:examples -w @redocly/client-generator`. See the "Custom generators" section
-of the command reference for the
+of the [Customize client generation](../../../../../docs/@v2/guides/customize-client-generation.md) guide for the
 authoring contract and the `@redocly/client-generator` toolkit.

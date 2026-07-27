@@ -53,37 +53,57 @@ With `runtime: 'package'` the generated client also imports its whole engine fro
 
 ### Write a custom generator
 
-A custom generator reads the same spec-derived model the built-ins consume, runs in the same pass, and returns files:
+A custom generator reads the same spec-derived model the built-ins consume, runs in the same pass, and returns files.
+Build real TypeScript with the emit toolkit from `@redocly/client-generator/generate` — the same `ts.factory` + printer the built-in generators use, so the schema→type mapping matches the sdk's exactly:
 
 ```ts
-// route-map-generator.ts
+// response-map-generator.ts
 import { defineGenerator } from '@redocly/client-generator';
+import { printStatements, schemaToTypeNode, ts } from '@redocly/client-generator/generate';
+
+const { factory } = ts;
 
 export default defineGenerator({
-  name: 'route-map',
+  name: 'response-map',
   requires: ['sdk'],
   run({ model, outputPath }) {
-    const routes = model.services
+    // One `ResponseShapes` entry per operation with a JSON success body.
+    const members = model.services
       .flatMap((service) => service.operations)
-      .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`)
-      .join('\n');
+      .flatMap((op) => {
+        const success = op.successResponses.find((r) => r.contentType.includes('json'));
+        if (!success) return [];
+        return [
+          factory.createPropertySignature(
+            undefined,
+            op.name,
+            undefined,
+            schemaToTypeNode(success.schema)
+          ),
+        ];
+      });
+    const alias = factory.createTypeAliasDeclaration(
+      [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      'ResponseShapes',
+      undefined,
+      factory.createTypeLiteralNode(members)
+    );
     return [
-      {
-        path: outputPath.replace(/\.ts$/, '.routes.ts'),
-        content: `export const routes = {\n${routes}\n} as const;\n`,
-      },
+      { path: outputPath.replace(/\.ts$/, '.responses.ts'), content: printStatements([alias]) },
     ];
   },
 });
 ```
 
-Select it in `generators` by import specifier (a path or a package name), or register it inline via `customGenerators` and select it by `name`.
+For a trivial artifact, returning a plain string as `content` works too — no toolkit required.
+Select the generator in `generators` by import specifier (a path or a package name), or register it inline via `customGenerators` and select it by `name`.
 A custom generator never adds dependencies to the generated client.
+See [Custom generators](https://redocly.com/docs/cli/guides/customize-client-generation#custom-generators).
 
-### Bake defaults into a published SDK
+### Pre-configure a published SDK
 
-The `setup` option takes a module that default-exports `defineClientSetup({ config, middleware })`; its defaults are baked into the generated client so a published SDK ships them built in, and consumers can still override.
-See [Publisher defaults](https://redocly.com/docs/cli/guides/use-generated-client#publisher-defaults).
+The `setup` option takes a module that default-exports a `{ config, middleware }` object (optionally wrapped in `defineClientSetup` for editor typing); its defaults are included into the generated client so a published SDK ships them built in, and consumers can still override.
+See [Publisher defaults](https://redocly.com/docs/cli/guides/customize-client-generation#publisher-defaults).
 
 ## API
 
@@ -101,7 +121,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used for spec loading.
+`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used for spec loading.
 
 ### `collectGeneratedFiles`
 
@@ -133,7 +153,7 @@ The `@redocly/client-generator/generate` entry also exports the emit toolkit the
 
 ### `defineClientSetup`
 
-Authors a publisher setup module for the `setup` option:
+Optional typing sugar for authoring a publisher setup module — a plain default-exported `{ config, middleware }` object works too, with no imports:
 
 ```ts
 function defineClientSetup(setup: {
@@ -142,7 +162,7 @@ function defineClientSetup(setup: {
 }): ClientSetup;
 ```
 
-A setup module may import only from `@redocly/client-generator`, so it never adds a dependency to the client.
+A setup module may import only from `@redocly/client-generator`, so it never adds a dependency to the client (the import is stripped at generation time).
 
 ### `createClient`
 
@@ -157,13 +177,14 @@ function createClient<Ops>(
 
 ## Examples
 
-Runnable examples — from a zero-install quickstart to middleware, baked setup, SSE streaming, pagination, custom generators, and the package runtime — live in [`tests/e2e/generate-client/examples`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples).
+Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, custom generators, and the package runtime — live in [`tests/e2e/generate-client/examples`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation
 
 - [`generate-client` command reference](https://redocly.com/docs/cli/commands/generate-client) — CLI usage, flags, and `redocly.yaml` configuration.
 - [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client) — the runtime API and the add-on generators.
+- [Customize client generation](https://redocly.com/docs/cli/guides/customize-client-generation) — publisher defaults and custom generators.
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) and the [ADRs](./docs/adr/) — how the package is built and why.
 
 ## Development

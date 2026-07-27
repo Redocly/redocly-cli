@@ -5,7 +5,7 @@ import type { PaginationConfig } from './emitters/pagination.js';
 import type { CustomGenerator, OutputMode } from './generators/types.js';
 
 export type GenerateClientOptions = {
-  /** Path or URL to the OpenAPI document (or an `apis:` alias from `redocly.yaml`). */
+  /** Path or URL to the OpenAPI description (or an `apis:` alias from `redocly.yaml`). */
   api: string;
   output: string;
   /** Resolved Redocly config for spec loading. */
@@ -24,7 +24,7 @@ export type GenerateClientOptions = {
   argsStyle?: ArgsStyle;
   /**
    * Override the BASE URL inlined into the generated runtime. When omitted,
-   * the value is derived from `servers[0].url` in the source OpenAPI document.
+   * the value is derived from `servers[0].url` in the source OpenAPI description.
    * Validation (e.g. `new URL(value)`) is the caller's responsibility — the
    * CLI handler validates before calling.
    */
@@ -73,8 +73,10 @@ export type GenerateClientOptions = {
    */
   configDir?: string;
   /**
-   * Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`)
-   * baked into the generated client. Resolved against `configDir`. Works across all output modes.
+   * Path to a publisher setup module (a file default-exporting `{ config, middleware }`)
+   * that gets included into the generated client — pre-configures defaults such as the
+   * server URL, retries, headers, and middleware. Resolved against `configDir`. Works
+   * across all output modes.
    */
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */

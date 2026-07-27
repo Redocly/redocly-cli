@@ -10,7 +10,7 @@ import type { CustomGenerator, OutputMode } from './generators/types.js';
  * via `mergeConfig` (see config-file.ts).
  */
 export type Config = {
-  /** Path or URL to the OpenAPI document (or an `apis:` alias from `redocly.yaml`). */
+  /** Path or URL to the OpenAPI description (or an `apis:` alias from `redocly.yaml`). */
   api: string;
   /** Output anchor path (a `.ts` file; multi-file modes derive siblings from it). */
   output: string;
@@ -44,9 +44,10 @@ export type Config = {
    */
   customGenerators?: CustomGenerator[];
   /**
-   * Path to a publisher setup module (`export default defineClientSetup({ config, middleware })`)
-   * baked into the generated client, so a published SDK ships its request/response defaults built
-   * in. Resolved against the config dir. Works across all output modes.
+   * Path to a publisher setup module (a file default-exporting `{ config, middleware }`)
+   * that gets included into the generated client — pre-configures defaults such as the
+   * server URL, retries, headers, and middleware, so a published SDK ships with them
+   * built in. Resolved against the config dir. Works across all output modes.
    */
   setup?: string;
   /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
