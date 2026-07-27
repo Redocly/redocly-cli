@@ -161,6 +161,33 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
+  it('a per-api client block MERGES onto the top-level one (shared defaults + per-api overrides)', () => {
+    // The Reunite adoption relies on this layering: shared generators/errorMode at the
+    // top level, one api overriding a single field (`runtime`) without losing the rest.
+    const dir = project(
+      [
+        'client:',
+        '  generators: [sdk, zod]',
+        '  errorMode: result',
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      runtime: package',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    const entry = readFileSync(join(dir, 'out.ts'), 'utf-8');
+    // The per-api override applied…
+    expect(entry).toContain("from '@redocly/client-generator'");
+    // …without dropping the shared defaults: result mode and the zod generator.
+    expect(entry).toContain('Result<');
+    expect(existsSync(join(dir, 'out.zod.ts'))).toBe(true);
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
   it("a file path matching an api root uses that api's config (like `bundle`); an unmatched path uses the top-level defaults", () => {
     const dir = project(
       [
