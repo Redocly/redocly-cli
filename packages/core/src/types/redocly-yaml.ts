@@ -47,6 +47,7 @@ const builtInOAS2Rules = [
   'response-contains-header',
   'scalar-property-missing-example',
   'security-defined',
+  'security-scopes-defined',
   'spec-strict-refs',
   'no-required-schema-properties-undefined',
   'no-schema-type-mismatch',
@@ -93,6 +94,7 @@ const builtInOAS3Rules = [
   'response-contains-header',
   'scalar-property-missing-example',
   'security-defined',
+  'security-scopes-defined',
   'spec-strict-refs',
   'no-required-schema-properties-undefined',
   'no-schema-type-mismatch',
@@ -136,6 +138,7 @@ const builtInAsync2Rules = [
   'no-enum-type-mismatch',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'security-scopes-defined',
 ] as const;
 export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
 
@@ -152,6 +155,7 @@ const builtInAsync3Rules = [
   'no-enum-type-mismatch',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'security-scopes-defined',
 ] as const;
 export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
 

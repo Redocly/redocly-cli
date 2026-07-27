@@ -71,4 +71,16 @@ describe('js-yaml', () => {
       'unacceptable kind of an object to dump [object Function]'
     );
   });
+
+  it('should return a nullish value instead of throwing for empty or comment-only input', () => {
+    expect(parseYaml('')).toBeUndefined();
+    expect(parseYaml('   \n  ')).toBeUndefined();
+    expect(parseYaml('# just a comment\n')).toBeNull();
+  });
+
+  it('throws when the stream contains more than one document', () => {
+    expect(() => parseYaml('a: 1\n---\nb: 2\n')).toThrow(
+      'expected a single document in the stream, but found more'
+    );
+  });
 });

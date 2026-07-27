@@ -500,6 +500,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "search": "rootRedoclyConfigSchema.search",
       "seo": "rootRedoclyConfigSchema.seo",
       "sidebar": "rootRedoclyConfigSchema.sidebar",
+      "skills": "rootRedoclyConfigSchema.skills",
       "sso": [Function],
       "ssoDirect": "rootRedoclyConfigSchema.ssoDirect",
       "telemetry": {
@@ -1696,6 +1697,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "search": "rootRedoclyConfigSchema.search",
       "seo": "rootRedoclyConfigSchema.seo",
       "sidebar": "rootRedoclyConfigSchema.sidebar",
+      "skills": "rootRedoclyConfigSchema.skills",
       "sso": [Function],
       "ssoDirect": "rootRedoclyConfigSchema.ssoDirect",
       "userMenu": "rootRedoclyConfigSchema.userMenu",
@@ -10227,6 +10229,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "search": "rootRedoclyConfigSchema.env_additionalProperties.search",
       "seo": "rootRedoclyConfigSchema.env_additionalProperties.seo",
       "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.sidebar",
+      "skills": "rootRedoclyConfigSchema.env_additionalProperties.skills",
       "sso": [Function],
       "ssoDirect": "rootRedoclyConfigSchema.env_additionalProperties.ssoDirect",
       "theme": "rootRedoclyConfigSchema.env_additionalProperties.theme",
@@ -24714,6 +24717,24 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.skills": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "excludeFiles": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+    },
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.ssoDirect": {
     "additionalProperties": [Function],
     "description": undefined,
@@ -38419,6 +38440,24 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "separatorLine": {
+        "type": "boolean",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.skills": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "excludeFiles": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
         "type": "boolean",
       },
     },

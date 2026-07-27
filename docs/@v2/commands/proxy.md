@@ -82,3 +82,4 @@ redocly drift ./capture.har --api ./openapi.yaml
 ## Related commands
 
 - [`drift`](./drift.md) replays a recorded HAR (or other traffic log) against an OpenAPI description.
+- [`generate-spec`](./generate-spec.md) infers an OpenAPI description from a captured HAR.
