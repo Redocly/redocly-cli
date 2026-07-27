@@ -13,11 +13,13 @@ function stubChildProcess(stdout: string) {
     stdout: EventEmitter;
     stderr: EventEmitter;
     stdin: EventEmitter & { end: (input: string) => void };
+    pipedInput?: string;
   };
   child.stdout = new EventEmitter();
   child.stderr = new EventEmitter();
   child.stdin = Object.assign(new EventEmitter(), {
-    end: () => {
+    end: (input: string) => {
+      child.pipedInput = input;
       child.stdout.emit('data', Buffer.from(stdout));
       child.emit('close', 0);
     },
@@ -26,12 +28,13 @@ function stubChildProcess(stdout: string) {
 }
 
 describe('runProvider', () => {
+  let child: ReturnType<typeof stubChildProcess>;
+
   beforeEach(() => {
     vi.mocked(spawn).mockClear();
     // The stub is not a full ChildProcess; only the pieces runCommand touches.
-    vi.mocked(spawn).mockReturnValue(
-      stubChildProcess('refined output') as unknown as ReturnType<typeof spawn>
-    );
+    child = stubChildProcess('refined output');
+    vi.mocked(spawn).mockReturnValue(child as unknown as ReturnType<typeof spawn>);
   });
 
   it('runs the claude CLI isolated from the local configuration', async () => {
@@ -58,6 +61,7 @@ describe('runProvider', () => {
         env: expect.objectContaining({ CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1' }),
       })
     );
+    expect(child.pipedInput).toBe('user prompt');
   });
 
   it('runs the codex CLI without MCP servers and project docs', async () => {
@@ -80,15 +84,17 @@ describe('runProvider', () => {
       ],
       expect.objectContaining({ cwd: '/tmp/generate-spec-empty' })
     );
+    expect(child.pipedInput).toBe('sys prompt\n\nuser prompt');
   });
 
-  it('runs the cursor CLI with the workspace trusted', async () => {
+  it('runs the cursor CLI with the whole prompt piped through stdin', async () => {
     await runProvider('cursor', { system: 'sys prompt', user: 'user prompt' });
 
     expect(spawn).toHaveBeenCalledWith(
       'cursor-agent',
-      ['-p', '--output-format', 'text', '--trust', 'sys prompt'],
+      ['-p', '--output-format', 'text', '--trust'],
       expect.objectContaining({ cwd: '/tmp/generate-spec-empty' })
     );
+    expect(child.pipedInput).toBe('sys prompt\n\nuser prompt');
   });
 });
