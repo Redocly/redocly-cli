@@ -21,6 +21,7 @@ export type ProxyArgv = {
   'report-format': ReportFormat;
   'match-mode': MatchMode;
   'ignore-cookies'?: boolean;
+  'ignore-headers'?: string;
   'max-findings': number;
   rules?: string;
 } & VerifyConfigOptions;
@@ -75,6 +76,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
       openApiIndex,
       matchMode: argv['match-mode'],
       ignoreCookies: argv['ignore-cookies'],
+      ignoreHeaders: argv['ignore-headers'] ? parseCsv(argv['ignore-headers']) : undefined,
       previewFindingsLimit: argv['max-findings'],
       activeRules: argv.rules ? parseCsv(argv.rules) : undefined,
     });

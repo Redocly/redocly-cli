@@ -1,0 +1,19 @@
+openapi: 3.1.0
+paths:
+  /menu:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schema'
+components:
+  schemas:
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: integer

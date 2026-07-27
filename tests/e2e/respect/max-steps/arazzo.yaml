@@ -21,6 +21,10 @@ workflows:
       - stepId: with-nested
         description: With nested workflow
         workflowId: nested-workflow
+        onFailure:
+          - name: continue
+            type: goto
+            stepId: ping
 
       - stepId: ping
         description: Ping the API

@@ -61,3 +61,8 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 - JSON-array traffic files (HAR/Kong/webserver-json) are read fully into memory.
   For very large captures, prefer the NDJSON format.
 - Builtin `owasp-api-top10` is opt-in via `--rules owasp-api-top10`.
+- Builtin `security-baseline` does not report insecure-transport findings for loopback hosts (`localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`).
+  Sandboxed captures, for example, recorded with `redocly proxy` against a local target during e2e runs, stay warning-free.
+- Builtin `schema-consistency` skips request-side checks (required parameters, required body, request-body schema) when the response is a `4xx` client error.
+  The server rejected the request, so validating it against the operation's success-path contract would report the server's own correct rejection as drift.
+- Builtin `schema-consistency` understands `deepObject`-style query parameters: traffic keys like `name[property]=value` are matched to the documented parameter and validated against its object schema instead of being reported as undocumented.

@@ -265,6 +265,32 @@ function validateParameter(
   }
 }
 
+// deepObject-style query parameters serialize object properties as "name[property]=value".
+const DEEP_OBJECT_QUERY_KEY_REGEX = /^([^[\]]+)\[([^[\]]+)\]$/;
+
+function parseDeepObjectQueryKey(
+  key: string
+): { parameterName: string; property: string } | undefined {
+  const keyMatch = key.match(DEEP_OBJECT_QUERY_KEY_REGEX);
+  return keyMatch ? { parameterName: keyMatch[1], property: keyMatch[2] } : undefined;
+}
+
+function getDeepObjectParameterValue(
+  parameterName: string,
+  query: URLSearchParams
+): Record<string, string> | undefined {
+  let objectValue: Record<string, string> | undefined;
+  for (const [key, value] of query) {
+    const deepObjectKey = parseDeepObjectQueryKey(key);
+    if (deepObjectKey?.parameterName === parameterName) {
+      objectValue ??= {};
+      objectValue[deepObjectKey.property] = value;
+    }
+  }
+
+  return objectValue;
+}
+
 function getActualParameterValue(
   parameter: OpenApiParameter,
   context: RuleContext,
@@ -274,6 +300,9 @@ function getActualParameterValue(
     case 'path':
       return context.matchedOperation?.pathParams[parameter.name];
     case 'query': {
+      if (parameter.style === 'deepObject') {
+        return getDeepObjectParameterValue(parameter.name, context.exchange.request.query);
+      }
       const values = context.exchange.request.query.getAll(parameter.name);
       if (values.length === 0) {
         return undefined;
@@ -303,32 +332,43 @@ function createUndocumentedParameterFindings(
     header: new Set<string>(),
     cookie: new Set<string>(),
   };
+  const deepObjectQueryParams = new Set<string>();
 
   for (const parameter of matchedOperation.operation.requestParameters) {
     if (parameter.in === 'header') {
       paramsByLocation.header.add(parameter.name.toLowerCase());
     } else if (parameter.in === 'query' || parameter.in === 'cookie') {
       paramsByLocation[parameter.in].add(parameter.name);
+      if (parameter.in === 'query' && parameter.style === 'deepObject') {
+        deepObjectQueryParams.add(parameter.name);
+      }
     }
   }
 
   for (const name of new Set(context.exchange.request.query.keys())) {
-    if (!paramsByLocation.query.has(name)) {
-      findings.push({
-        ruleId: 'schema-consistency',
-        severity: 'warning',
-        category: 'documentation',
-        message: `Undocumented query parameter in traffic: "${name}"`,
-        exchangeIndex: context.exchange.index,
-        operationId: matchedOperation.operation.operationId,
-        specSource: matchedOperation.operation.specSource,
-        target: 'request',
-      });
+    if (paramsByLocation.query.has(name)) {
+      continue;
     }
+
+    const deepObjectKey = parseDeepObjectQueryKey(name);
+    if (deepObjectKey && deepObjectQueryParams.has(deepObjectKey.parameterName)) {
+      continue;
+    }
+
+    findings.push({
+      ruleId: 'schema-consistency',
+      severity: 'warning',
+      category: 'documentation',
+      message: `Undocumented query parameter in traffic: "${name}"`,
+      exchangeIndex: context.exchange.index,
+      operationId: matchedOperation.operation.operationId,
+      specSource: matchedOperation.operation.specSource,
+      target: 'request',
+    });
   }
 
   for (const headerName of Object.keys(context.exchange.request.headers)) {
-    if (shouldIgnoreHeaderAsUndocumented(headerName)) {
+    if (shouldIgnoreHeaderAsUndocumented(headerName, context.ignoreHeaders)) {
       continue;
     }
 
@@ -347,6 +387,11 @@ function createUndocumentedParameterFindings(
   }
 
   return findings;
+}
+
+function isRequestRejectedByServer(context: RuleContext): boolean {
+  const response = context.exchange.response;
+  return response !== undefined && response.status >= 400 && response.status < 500;
 }
 
 function pickResponseSchema(
@@ -417,74 +462,83 @@ export class SchemaConsistencyRule implements TrafficRule {
     const findings: Finding[] = [];
     const cookies = parseCookies(context.exchange.request.headers.cookie);
 
+    // Undocumented query parameters and headers are a documentation gap that holds
+    // regardless of whether the server accepted the request, so report them even
+    // when the response is a 4xx.
     findings.push(...createUndocumentedParameterFindings(context, matchedOperation));
 
-    for (const parameter of matchedOperation.operation.requestParameters) {
-      if (context.ignoreCookies && parameter.in === 'cookie') {
-        continue;
+    // A 4xx response means the server rejected the request, so it never held the
+    // request to the operation's success-path contract. Validating that request
+    // against required parameters or the request-body schema would report the
+    // server's own correct rejection as drift, so skip the request-side checks.
+    if (!isRequestRejectedByServer(context)) {
+      for (const parameter of matchedOperation.operation.requestParameters) {
+        if (context.ignoreCookies && parameter.in === 'cookie') {
+          continue;
+        }
+
+        const actualValue = getActualParameterValue(parameter, context, cookies);
+
+        if (parameter.required && (actualValue === undefined || actualValue === null)) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'documentation',
+            message: `Missing required ${parameter.in} parameter: "${parameter.name}"`,
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'request',
+          });
+          continue;
+        }
+
+        validateParameter(parameter, actualValue, context, findings);
       }
 
-      const actualValue = getActualParameterValue(parameter, context, cookies);
+      const requestContentType = context.exchange.request.contentType;
+      const requestSchema = pickSchemaByMime(
+        matchedOperation.operation.requestBodyContent,
+        requestContentType
+      );
 
-      if (parameter.required && (actualValue === undefined || actualValue === null)) {
+      const hasRequestBody = hasBodyContent(context.exchange.request.bodyText);
+
+      if (matchedOperation.operation.requestBodyRequired && !hasRequestBody) {
         findings.push({
           ruleId: this.id,
           severity: 'error',
           category: 'documentation',
-          message: `Missing required ${parameter.in} parameter: "${parameter.name}"`,
+          message: 'Missing required request body',
           exchangeIndex: context.exchange.index,
           operationId: matchedOperation.operation.operationId,
           specSource: matchedOperation.operation.specSource,
           target: 'request',
         });
-        continue;
       }
 
-      validateParameter(parameter, actualValue, context, findings);
-    }
-
-    const requestContentType = context.exchange.request.contentType;
-    const requestSchema = pickSchemaByMime(
-      matchedOperation.operation.requestBodyContent,
-      requestContentType
-    );
-
-    const hasRequestBody = hasBodyContent(context.exchange.request.bodyText);
-
-    if (matchedOperation.operation.requestBodyRequired && !hasRequestBody) {
-      findings.push({
-        ruleId: this.id,
-        severity: 'error',
-        category: 'documentation',
-        message: 'Missing required request body',
-        exchangeIndex: context.exchange.index,
-        operationId: matchedOperation.operation.operationId,
-        specSource: matchedOperation.operation.specSource,
-        target: 'request',
-      });
-    }
-
-    if (requestSchema && hasRequestBody && isJsonMime(requestContentType)) {
-      if (context.exchange.request.bodyJson === undefined) {
-        findings.push({
-          ruleId: this.id,
-          severity: 'error',
-          category: 'schema',
-          message: 'Request body is not valid JSON for JSON content-type',
-          exchangeIndex: context.exchange.index,
-          operationId: matchedOperation.operation.operationId,
-          specSource: matchedOperation.operation.specSource,
-          target: 'request',
-        });
-      } else {
-        findings.push(
-          ...validateSchemaResult(
-            requestSchema,
-            context.exchange.request.bodyJson,
-            context,
-            'request'
-          )
-        );
+      if (requestSchema && hasRequestBody && isJsonMime(requestContentType)) {
+        if (context.exchange.request.bodyJson === undefined) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'schema',
+            message: 'Request body is not valid JSON for JSON content-type',
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'request',
+          });
+        } else {
+          findings.push(
+            ...validateSchemaResult(
+              requestSchema,
+              context.exchange.request.bodyJson,
+              context,
+              'request'
+            )
+          );
+        }
       }
     }
 

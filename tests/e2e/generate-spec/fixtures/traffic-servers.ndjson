@@ -1,0 +1,4 @@
+{"request":{"method":"GET","url":"http://api.example.com/v2/products","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[{\"id\":5,\"name\":\"Widget\"}]"}}
+{"request":{"method":"GET","url":"http://api.example.com/v2/products/5","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"id\":5,\"name\":\"Widget\"}"}}
+{"request":{"method":"GET","url":"http://internal.example.com/health","headers":{"host":"internal.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"{\"ok\":true}"}}
+{"request":{"method":"GET","url":"http://api.example.com/legacy/ping","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"text/plain"},"body":"pong"}}

@@ -16,6 +16,7 @@ import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
 import { SecurityDefined } from './security-defined.js';
+import { SecurityScopesDefined } from './security-scopes-defined.js';
 
 export const rules: Async3RuleSet<'built-in'> = {
   struct: Struct as Async3Rule,
@@ -34,6 +35,7 @@ export const rules: Async3RuleSet<'built-in'> = {
   'no-enum-type-mismatch': NoEnumTypeMismatch as Async3Rule,
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Async3Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Async3Rule,
+  'security-scopes-defined': SecurityScopesDefined,
 };
 
 export const preprocessors = {};

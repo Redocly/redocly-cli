@@ -1,0 +1,50 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com/v2
+paths:
+  /products:
+    get:
+      operationId: get-products
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/{productId}:
+    get:
+      operationId: get-products-productId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+
+Inferred a baseline OpenAPI description from traffic: 2 operation(s).
+Done in <t>.

@@ -1,0 +1,11 @@
+rules:
+  rule/delete-should-not-define-requestBody:
+    severity: warn
+    message: '"DELETE" SHOULD NOT define a "requestBody" schema'
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - delete
+    assertions:
+      disallowed:
+        - requestBody

@@ -1,0 +1,33 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe strict string definitions
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    MenuItemPrice: # should not be caught by these rules
+      type: integer
+
+    BadCustomerName:
+      type: string
+
+    BadCommentWithMinLength:
+      type: string
+      minLength: 1
+
+    BadPhotoDescriptionWithMaxLength:
+      type: string
+      maxLength: 500
+
+    GoodOrderStatusBecauseEnum:
+      type: string
+      enum:
+        - placed
+        - preparing
+        - completed
+        - canceled
+
+    GoodCustomerNameBecauseMinAndMaxLength:
+      type: string
+      minLength: 1
+      maxLength: 100
