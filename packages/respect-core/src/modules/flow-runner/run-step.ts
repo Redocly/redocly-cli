@@ -330,11 +330,22 @@ export async function runStep({
           : undefined;
 
         if (action.workflowId && !targetWorkflow) {
-          throw new Error(
-            `Workflow ${red(action.workflowId)} referenced in the ${type} action of step ${red(
+          // report the broken reference as a failed check instead of throwing:
+          step.checks.push({
+            name: CHECKS.UNEXPECTED_ERROR,
+            message: `Workflow ${red(action.workflowId)} referenced in the ${type} action of step ${red(
               stepId
-            )} is not found.`
-          );
+            )} is not found.`,
+            passed: false,
+            severity: ctx.severity['UNEXPECTED_ERROR'],
+          });
+          // the plain step path has already registered the step copy;
+          // the child workflow path has not
+          if (!ctx.executedSteps.includes(step)) {
+            ctx.executedSteps.push(step);
+            printUnknownStep(step, ctx.options.logger);
+          }
+          return { shouldEnd: true };
         }
         const targetCtx =
           action.workflowId && targetWorkflow

@@ -857,7 +857,7 @@ describe('runStep', () => {
     expect(checkCriteria).toHaveBeenCalled();
   });
 
-  it('should throw a clear error when a goto action references a workflow that is not found', async () => {
+  it('should fail the step with a clear error when a goto action references a workflow that is not found', async () => {
     const apiClient = new ApiFetcher({});
     const stepOne: Step = {
       stepId: 'get-bird',
@@ -911,21 +911,28 @@ describe('runStep', () => {
       apiClient,
       workflows: [],
       $sourceDescriptions: {},
+      executedSteps: [],
     } as unknown as TestContext;
 
-    await expect(
-      runStep({
-        step: stepOne,
-        ctx: context,
-        workflowId: 'get-bird-workflow',
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrow(
-      /Workflow .*\$sourceDescriptions\.unknown-api\.some-workflow.* referenced in the goto action of step .*get-bird.* is not found/
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    // the step is registered exactly once — the failed action check must not
+    // produce a second entry
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(cleanColors(executedStep.checks.at(-1)?.message || '')).toEqual(
+      'Workflow $sourceDescriptions.unknown-api.some-workflow referenced in the goto action of step get-bird is not found.'
     );
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
   });
 
-  it('should throw a clear error when a goto action workflowId matches a document field instead of a workflow', async () => {
+  it('should fail the step with a clear error when a goto action workflowId matches a document field instead of a workflow', async () => {
     const apiClient = new ApiFetcher({});
     const stepOne: Step = {
       stepId: 'get-bird',
@@ -984,18 +991,23 @@ describe('runStep', () => {
           workflows: [{ workflowId: 'reusable-external-workflow', steps: [] }],
         },
       },
+      executedSteps: [],
     } as unknown as TestContext;
 
-    await expect(
-      runStep({
-        step: stepOne,
-        ctx: context,
-        workflowId: 'get-bird-workflow',
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrow(
-      /Workflow .*\$sourceDescriptions\.reusable-api\.info.* referenced in the goto action of step .*get-bird.* is not found/
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(cleanColors(executedStep.checks.at(-1)?.message || '')).toEqual(
+      'Workflow $sourceDescriptions.reusable-api.info referenced in the goto action of step get-bird is not found.'
     );
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
   });
 
   it('should execute onSuccess step criteria with goto StepId provided by reference', async () => {
