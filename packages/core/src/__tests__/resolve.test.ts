@@ -443,6 +443,40 @@ describe('collect refs', () => {
     expect(resolvedRefs.get('foobar.yaml::#/target')!.node).toEqual({ contact: {} });
   });
 
+  it('should record each level of a multi-hop composed chain independently', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          $ref: "#/first"
+        first:
+          $ref: '#/second'
+          description: first hop
+        second:
+          $ref: '#/target'
+          description: second hop
+        target:
+          contact: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const outerRef = resolvedRefs.get('foobar.yaml::#/first')!;
+    expect(outerRef.node).toEqual({ contact: {} });
+    expect(outerRef.chain!.map((hop) => hop.nodePointer)).toEqual(['#/first', '#/second']);
+
+    // the inner resolution must not be polluted by outer hops
+    const innerRef = resolvedRefs.get('foobar.yaml::#/second')!;
+    expect(innerRef.node).toEqual({ contact: {} });
+    expect(innerRef.chain!.map((hop) => hop.nodePointer)).toEqual(['#/second']);
+  });
+
   it('should throw error if ref is folder', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const rootDocument = parseYamlToDocument(

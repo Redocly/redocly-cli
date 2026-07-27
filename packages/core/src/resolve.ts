@@ -506,6 +506,8 @@ export async function resolveDocument(opts: {
             : undefined;
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
         if (chainHop && resolvedRef.resolved) {
+          // rebuilt rather than mutated: the returned chain array is shared with the
+          // map entry the inner recursion has just written
           resolvedRef = { ...resolvedRef, chain: [chainHop, ...(resolvedRef.chain ?? [])] };
         }
       }
