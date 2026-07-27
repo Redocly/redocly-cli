@@ -1423,13 +1423,14 @@ async function send(
   init: RequestOptions,
   body: unknown | undefined,
   multipart: boolean,
-  caps: SendCapabilities
+  caps: SendCapabilities,
+  accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
   const { retry: callRetry, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
-    Accept: 'application/json',
+    Accept: accept,
     ...extra,
     ...toHeaderRecord(fetchInit.headers),
   };
@@ -1568,6 +1569,20 @@ type OperationArgs = {
 } & Record<string, unknown>;
 
 /** The response reader implied by the descriptor (before any per-call `parseAs` override). */
+/**
+ * The `Accept` header matching how the response will be read — a blob/text operation
+ * must not ask for `application/json` (a content-negotiating server would 406 or
+ * answer with a JSON error body instead of the payload). Caller `init.headers` and
+ * `config.headers` still override.
+ */
+function acceptFor(kind: ParseAs | 'void'): string {
+  if (kind === 'text') return 'text/*';
+  if (kind === 'blob' || kind === 'arrayBuffer' || kind === 'stream' || kind === 'formData') {
+    return '*/*';
+  }
+  return 'application/json'; // json | auto | void
+}
+
 function kindFor(op: OperationDescriptor): ParseAs | 'void' {
   if (op.responseKind === 'void' || op.responseKind === 'blob' || op.responseKind === 'text') {
     return op.responseKind;
@@ -1693,6 +1708,7 @@ async function execute(
   const prepared = await prepareRequest(config, op, args, init, caps);
   const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
   const { parseAs, ...sendInit } = prepared.init;
+  const readKind = parseAs ?? kindFor(op);
   const { response, context } = await send(
     config,
     opCtx,
@@ -1700,9 +1716,9 @@ async function execute(
     sendInit,
     prepared.body,
     op.body?.multipart === true,
-    caps
+    caps,
+    acceptFor(readKind)
   );
-  const readKind = parseAs ?? kindFor(op);
   if (config.errorMode === 'result') {
     if (!response.ok) {
       return { data: undefined, error: await readError(response), response };

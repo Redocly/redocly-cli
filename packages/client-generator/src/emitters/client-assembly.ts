@@ -18,7 +18,7 @@ import {
 import { apiKeySetterName } from './auth.js';
 import { descriptorStatements, opsInterfaceStatements, packageIdents } from './descriptor.js';
 import { banner, type EmitOptions, HEADER, renderTitleComment } from './emit-options.js';
-import { isIdentifier } from './identifier.js';
+import { codeString, isIdentifier } from './identifier.js';
 import { assembleInlineRuntime } from './inline-runtime.js';
 import { renderOperationAliases, sseAliases } from './operation-aliases.js';
 import { operationSignature } from './operation-signature.js';
@@ -41,17 +41,6 @@ import { typesStatements } from './types.js';
 const { factory } = ts;
 
 const PACKAGE_SPECIFIER = '@redocly/client-generator';
-
-/**
- * A double-quoted TS string literal for generated code. `JSON.stringify` alone leaves
- * U+2028/U+2029 raw (legal JSON, line terminators in code contexts) — escape them so a
- * hostile spec value can never alter the shape of the emitted statement.
- */
-function codeString(value: string): string {
-  return JSON.stringify(value)
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
-}
 
 export function emitClientSingleFile(model: ApiModel, options: EmitOptions = {}): string {
   return emitClient(model, options).entry;

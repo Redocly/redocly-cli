@@ -136,6 +136,21 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('export const listPetsQueryKey = () => ["main", "listPets"] as const;');
       expect(out).toContain('mutationKey: ["main", "ping"] as const');
     });
+
+    it('escapes line terminators in the prefix so it cannot alter the emitted statement', () => {
+      const out = renderTanstackModule(
+        apiModel({
+          services: [
+            {
+              name: 'Default',
+              operations: [operation({ name: 'ping', method: 'post', path: '/p' })],
+            },
+          ],
+        }),
+        { sdkModule: SDK, framework: 'react', queryKeyPrefix: 'a\u2028b' }
+      );
+      expect(out).toContain('mutationKey: ["a\\u2028b", "ping"] as const');
+    });
   });
 
   describe('createQueryFactories', () => {

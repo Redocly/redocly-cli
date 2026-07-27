@@ -117,6 +117,24 @@ describe('createClientCore', () => {
     expect(client.stream.operationId).toBe('stream');
   });
 
+  it('sends an Accept header matching how the response will be read', async () => {
+    // A text/blob operation must not ask for application/json — a content-negotiating
+    // server would 406 or answer with a JSON error body instead of the payload.
+    const { calls, fetchImpl } = spy([
+      jsonOk({ id: 'o1' }),
+      new Response('plain', { headers: { 'content-type': 'text/plain' } }),
+      jsonOk(['x']),
+    ]);
+    const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
+    await client.getOrder({ orderId: 'o1' });
+    expect((calls[0].init.headers as Record<string, string>).Accept).toBe('application/json');
+    await client.listRaw({});
+    expect((calls[1].init.headers as Record<string, string>).Accept).toBe('text/*');
+    // A per-call parseAs override retargets the Accept header too.
+    await client.listRaw({}, { parseAs: 'json' });
+    expect((calls[2].init.headers as Record<string, string>).Accept).toBe('application/json');
+  });
+
   it('rejects an unknown top-level argument key (flat-style shape passed to a grouped call)', async () => {
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x' });
     await expect(client.getOrder({ orderId: 'o1', limit: 10 } as never)).rejects.toThrow(

@@ -17,7 +17,7 @@
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import type { PaginationSpec } from '../runtime/types.js';
-import { isSafeIdentifier, safeIdent } from './identifier.js';
+import { codeString, isSafeIdentifier, safeIdent } from './identifier.js';
 import {
   type ModelPagination,
   type PaginationConfig,
@@ -100,8 +100,8 @@ function queryKeySource(op: OperationModel, prefix: string | undefined): string 
 
 /** The constant leading key elements: `"main", "getOrder"` with a prefix, else the id alone. */
 function keyElements(op: OperationModel, prefix: string | undefined): string {
-  // The prefix is config-supplied text — JSON.stringify is the escaping.
-  return prefix === undefined ? `"${op.name}"` : `${JSON.stringify(prefix)}, "${op.name}"`;
+  // The prefix is config-supplied text — `codeString` is the code-context escaping.
+  return prefix === undefined ? `"${op.name}"` : `${codeString(prefix)}, "${op.name}"`;
 }
 
 /** The `createQueryFactories(c)` declaration wrapping every option/mutation factory. */

@@ -61,13 +61,14 @@ export async function send(
   init: RequestOptions,
   body: unknown | undefined,
   multipart: boolean,
-  caps: SendCapabilities
+  caps: SendCapabilities,
+  accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
   const { retry: callRetry, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
-    Accept: 'application/json',
+    Accept: accept,
     ...extra,
     ...toHeaderRecord(fetchInit.headers),
   };

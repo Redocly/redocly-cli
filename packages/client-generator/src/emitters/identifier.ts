@@ -70,6 +70,17 @@ export function sanitizeIdentifier(name: string): string {
 }
 
 /**
+ * A double-quoted TS string literal for generated code. `JSON.stringify` alone leaves
+ * U+2028/U+2029 raw (legal JSON, line terminators in code contexts) — escape them so a
+ * hostile spec value can never alter the shape of the emitted statement.
+ */
+export function codeString(value: string): string {
+  return JSON.stringify(value)
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+/**
  * Render `name` as an object key or property name: bare when it is a valid,
  * non-reserved identifier, quoted otherwise. Safe only where quoting is legal
  * (object keys, property signatures) — not for binding names; use `uniqueIdent`
@@ -79,7 +90,7 @@ export function safeIdent(name: string): string {
   if (IDENT_RE.test(name) && !TS_RESERVED.has(name)) {
     return name;
   }
-  return JSON.stringify(name);
+  return codeString(name);
 }
 
 /**
