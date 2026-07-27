@@ -222,7 +222,7 @@ export default {
 
 Either way the baked block is typed against the client's own contract in the generated file, so a shape mistake fails the consumer's `tsc`.
 
-The baked block runs before the consumer's own setup.
+The pre-configured block runs before the consumer's own setup.
 **Config values** layer lowest → highest: the spec's defaults (e.g. `servers[0].url`) → the baked setup → the app's `configure()` — later always wins, so a consumer overrides a baked default.
 **Middleware composes** instead (baked first, then the consumer's).
 Express un-bypassable behavior as middleware, not a baked `fetch`.
