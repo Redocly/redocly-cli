@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.41.0
+
+### Patch Changes
+
+- Fixed an issue in `respect` where the execution of parent workflow's steps didn't halt after a step that referenced another workflow had failed.
+- Updated @redocly/openapi-core to v2.41.0.
+
 ## 2.40.0
 
 ### Patch Changes
