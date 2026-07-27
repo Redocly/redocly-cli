@@ -1,0 +1,8 @@
+rules:
+  rule/operation-summary-sentence-case:
+    subject:
+      type: Operation
+      property: summary
+    message: 'Operation summary must be sentence cased.'
+    assertions:
+      pattern: /^[A-Z]+[^A-Z]+$/
