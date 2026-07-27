@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed `respect` to stop parent workflow execution when a step that references another workflow fails. Previously, the next steps of the parent workflow were still executed after the referenced workflow failed.
+Fixed an issue in `respect` where the execution of parent workflow's steps didn't halt after a step that referenced another workflow had failed.
