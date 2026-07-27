@@ -179,7 +179,7 @@ See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-
 ## Publisher defaults
 
 The middleware above is composed by the **consumer**.
-If you **publish an SDK**, bake defaults in at generation time with `--setup <file>`.
+If you **publish an SDK** you can pre-configure default middlewares at generation time with `--setup <file>`.
 Setup changes the client's built-in _behavior_; it emits no extra file — to derive additional artifacts from the spec, use [generators](#generators) instead.
 The setup module imports its contract from `@redocly/client-generator` (so it resolves and is unit-testable) and default-exports `defineClientSetup({ config, middleware })`:
 
