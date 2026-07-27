@@ -1,5 +1,5 @@
 import type { CollectFn, Config } from '@redocly/openapi-core';
-import { blue } from 'colorette';
+import { blue, red } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
 
 import type {
@@ -17,10 +17,11 @@ import type {
 } from '../../types.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { CHECKS } from '../checks/index.js';
-import { getValueFromContext } from '../context-parser/index.js';
+import { resolveWorkflowReference } from '../context-parser/index.js';
 import {
   printWorkflowSeparator,
   printRequiredWorkflowSeparator,
+  printUnknownStep,
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
@@ -92,7 +93,48 @@ async function runWorkflows({
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
-      await handleDependsOn({ workflow, ctx, config: options.config, executedStepsCount });
+      try {
+        await handleDependsOn({ workflow, ctx, config: options.config, executedStepsCount });
+      } catch (error) {
+        if (!(error instanceof WorkflowDependencyNotFoundError)) {
+          throw error;
+        }
+
+        // an unresolvable dependsOn reference fails this workflow but must not
+        // abort the remaining workflows and files
+        const startTime = performance.now();
+        // a synthetic step to carry the failed check; it has no operation to call
+        const failedStep = {
+          stepId: 'dependsOn',
+          checks: [
+            {
+              name: CHECKS.UNEXPECTED_ERROR,
+              message: error.message,
+              passed: false,
+              severity: ctx.severity['UNEXPECTED_ERROR'],
+            },
+          ],
+        } as Step;
+
+        printWorkflowSeparator({
+          fileName: basename(ctx.options.filePath),
+          workflowName: workflow.workflowId,
+          logger: options.logger,
+        });
+        printUnknownStep(failedStep, options.logger);
+
+        executedWorkflows.push({
+          type: 'workflow',
+          workflowId: workflow.workflowId,
+          startTime,
+          endTime: performance.now(),
+          totalTimeMs: performance.now() - startTime,
+          executedSteps: [failedStep],
+          ctx,
+          globalTimeoutError: false,
+        });
+        continue;
+      }
     }
 
     const workflowExecutionResult = await runWorkflow({
@@ -247,6 +289,10 @@ export async function runWorkflow({
   };
 }
 
+// Thrown when a dependsOn entry cannot be resolved to a workflow. Handled per
+// workflow in runWorkflows so one broken reference doesn't abort the rest of the run.
+class WorkflowDependencyNotFoundError extends Error {}
+
 async function handleDependsOn({
   workflow,
   ctx,
@@ -262,11 +308,16 @@ async function handleDependsOn({
 
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
-      const resolvedWorkflow = getValueFromContext({
-        value: workflowId,
-        ctx,
-        logger: ctx.options.logger,
-      }) as Workflow;
+      const resolvedWorkflow = resolveWorkflowReference({ ref: workflowId, ctx });
+
+      if (!resolvedWorkflow) {
+        throw new WorkflowDependencyNotFoundError(
+          `Workflow ${red(workflowId)} from dependsOn of workflow ${red(
+            workflow.workflowId
+          )} is not found.`
+        );
+      }
+
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);

@@ -20,7 +20,7 @@ workflows:
           type: string
     steps:
       - stepId: health-workflow
-        workflowId: $sourceDescriptions.events.workflows.events-crud
+        workflowId: $sourceDescriptions.events.events-crud
         parameters:
           - name: custom_price
             value: 800

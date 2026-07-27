@@ -10,7 +10,6 @@ import type {
   RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
-  Workflow,
 } from '../../types.js';
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
@@ -18,6 +17,7 @@ import {
   getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
+  resolveWorkflowReference,
   type ParameterWithoutIn,
 } from '../context-parser/index.js';
 import {
@@ -64,11 +64,7 @@ export async function runStep({
   );
 
   if (targetWorkflowRef) {
-    const targetWorkflow =
-      ctx.workflows.find((w) => w.workflowId === targetWorkflowRef) ||
-      (getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger }) as
-        | Workflow
-        | undefined);
+    const targetWorkflow = resolveWorkflowReference({ ref: targetWorkflowRef, ctx });
 
     if (!targetWorkflow) {
       const failedCall: Check = {
@@ -78,6 +74,9 @@ export async function runStep({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
+      // register the step so the failed check is displayed and counted in the totals
+      ctx.executedSteps.push(step);
+      printUnknownStep(step, ctx.options.logger);
       return;
     }
 
@@ -150,6 +149,9 @@ export async function runStep({
           severity: ctx.severity['UNEXPECTED_ERROR'],
         };
         step.checks.push(failedCall);
+        // register the step so the failed check is displayed and counted in the totals
+        ctx.executedSteps.push(step);
+        printUnknownStep(step, ctx.options.logger);
       }
 
       // save local $steps context
@@ -324,12 +326,16 @@ export async function runStep({
 
       if (matchesCriteria) {
         const targetWorkflow = action.workflowId
-          ? (getValueFromContext({
-              value: action.workflowId,
-              ctx,
-              logger: ctx.options.logger,
-            }) as Workflow)
+          ? resolveWorkflowReference({ ref: action.workflowId, ctx })
           : undefined;
+
+        if (action.workflowId && !targetWorkflow) {
+          throw new Error(
+            `Workflow ${red(action.workflowId)} referenced in the ${type} action of step ${red(
+              stepId
+            )} is not found.`
+          );
+        }
         const targetCtx =
           action.workflowId && targetWorkflow
             ? await resolveWorkflowContext(
