@@ -111,6 +111,17 @@ describe('createClientCore', () => {
     expect(client.getOrder.name).toBe('getOrder');
     expect(client.listOrders.name).toBe('listOrders');
     expect(client.stream.name).toBe('stream');
+    // The explicit identity for consumer cache keys (react-query etc.).
+    expect(client.getOrder.operationId).toBe('getOrder');
+    expect(client.listOrders.operationId).toBe('listOrders');
+    expect(client.stream.operationId).toBe('stream');
+  });
+
+  it('rejects an unknown top-level argument key (flat-style shape passed to a grouped call)', async () => {
+    const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x' });
+    await expect(client.getOrder({ orderId: 'o1', limit: 10 } as never)).rejects.toThrow(
+      /Unknown argument "limit" for operation "getOrder".*params/
+    );
   });
 
   it('routes args: path substitution + query + body + header slot; methods survive destructuring', async () => {

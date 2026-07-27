@@ -122,6 +122,8 @@ await updateOrder('ord_01khr…', { ...orderBody });
 await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
 ```
 
+An unknown top-level key in the grouped object (for example a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`) fails the call with a `TypeError` naming the key — TypeScript catches this at compile time, and the runtime check covers transpilers that skip type-checking, so a mis-shaped call can never silently drop data.
+
 ## Error handling
 
 By default (`--error-mode throw`) an operation throws `ApiError` on any non-2xx response and returns the success body directly.
@@ -306,6 +308,8 @@ const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 
 `parseAs` accepts `'json'`, `'text'`, `'blob'`, `'arrayBuffer'`, `'formData'`, `'stream'`, or `'auto'` (default). It changes the runtime reader only, not the static return type.
 
+An operation whose success response declares no content is typed `void`, but if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data — reach it with a cast while the description catches up.
+
 ## Runtime validation
 
 The `zod` generator emits `operationSchemas` — request/response validators keyed by operationId — and the `zodValidation` middleware that wires them into the client:
@@ -317,10 +321,17 @@ import { zodValidation } from './api/client.zod';
 use(zodValidation()); // validate request bodies and JSON responses
 ```
 
-An invalid request body throws before any network call; a successful JSON response that doesn't match its schema throws after it.
-Both throw `ZodValidationError` (with `operationId`, `direction`, and the zod `issues`) — always thrown, even on result-mode clients.
-Payloads are never mutated, and operations without a JSON body pass through untouched.
-Pass `{ request: false }` or `{ response: false }` to narrow the scope, or import a schema from `operationSchemas` for a one-off check.
+The two directions default differently, because they catch different parties' bugs:
+
+- An invalid **request** body throws `ZodValidationError` before any network call — it is the caller's own bug, caught at the cheapest possible moment.
+- A successful JSON **response** that drifts from its schema **warns by default** (via `console.warn`, or a custom `onViolation` callback) and lets the call succeed — a server drifting from its description should not crash the consumer. Pass `response: 'throw'` for the strict behavior (it then throws even on result-mode clients), or `response: false` to skip.
+
+`ZodValidationError` carries `operationId`, `direction`, the raw zod `issues`, and flattened `violations` — each with the full nested path (union branches included) and a truncated preview of the offending value, so the failing field is identifiable without reproducing the payload.
+Note that previews can surface payload data; point `onViolation` at a scrubbed logger when responses may carry secrets.
+
+For servers that reject undeclared properties, `stripRequestBodies: true` replaces the outgoing body with the parsed result, dropping any key the schema does not declare (a spread like `{ ...entity }` compiles past TypeScript's excess-property check but would otherwise reach the wire as-is).
+Operations without a JSON body pass through untouched, and payloads are never mutated unless `stripRequestBodies` is set.
+Pass `{ request: false }` to narrow the scope, or import a schema from `operationSchemas` for a one-off check.
 
 ## Operation metadata
 
@@ -334,6 +345,7 @@ export const OPERATIONS = {
 ```
 
 Because keys and values are plain string literals, they survive bundling/minification — making `OPERATIONS` the stable handle for cache keys, span names, or log labels (rather than `fn.name`, which a minifier can rename).
+Every client method also carries its own identity as `client.getOrderById.operationId` — an explicit, minification-proof cache key for consumer wrappers (react-query keys and the like).
 The same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.operation` in middleware.
 
 ## Discriminated unions

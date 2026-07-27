@@ -3,7 +3,9 @@ import { zodValidation, ZodValidationError, MenuItemListSchema } from './api/cli
 
 configure({ serverUrl: 'https://api.cafe.redocly.com' });
 // Every request body and JSON response is now validated against the generated schemas.
-use(zodValidation());
+// Response drift WARNS by default (a drifting server shouldn't crash the consumer);
+// this demo opts into the strict mode so the catch below shows the failure.
+use(zodValidation({ response: 'throw' }));
 
 const out = document.querySelector<HTMLPreElement>('#out')!;
 

@@ -73,8 +73,24 @@ function kindFor(op: OperationDescriptor): ParseAs | 'void' {
 /** Route the grouped args by the descriptor: path values, query object, body, extra headers, cookies. */
 function splitArgs(op: OperationDescriptor, args: OperationArgs) {
   const path: Record<string, unknown> = {};
+  const pathNames = new Set<string>();
   for (const param of op.params ?? []) {
-    if (param.in === 'path') path[param.name] = args[param.name];
+    if (param.in === 'path') {
+      pathNames.add(param.name);
+      path[param.name] = args[param.name];
+    }
+  }
+  // An unknown top-level key can only be a bug (usually a flat-style call shape passed
+  // to a grouped client: `{ limit: 10 }` instead of `{ params: { limit: 10 } }`).
+  // TypeScript catches it, but transpilers that skip type-checking would otherwise
+  // ship a request that silently drops the value — fail the call loudly instead.
+  for (const key of Object.keys(args)) {
+    if (key === 'params' || key === 'body' || key === 'headers' || key === 'cookies') continue;
+    if (pathNames.has(key)) continue;
+    throw new TypeError(
+      `Unknown argument "${key}" for operation "${op.id}". Query parameters go under params: { … } and the request body under body; valid keys are params, body, headers, cookies` +
+        (pathNames.size > 0 ? `, and the path parameters (${[...pathNames].join(', ')}).` : '.')
+    );
   }
   return {
     path,
@@ -286,12 +302,16 @@ export function createClientCore<
       };
       // Consumers key off the function reference (cache keys, `OPERATIONS[fn.name]`), so
       // each closure carries its operationId instead of an inferred binding name.
+      // `operationId` is the explicit, minification-proof form of the same identity
+      // (the SPEC operationId — `name` is the emitted key, which a collision may rename).
       Object.defineProperty(method, 'name', { value: name });
+      Object.defineProperty(method, 'operationId', { value: op.id });
       client[name] = method;
     } else {
       const method = (args: OperationArgs = {}, init: RequestOptions = {}) =>
         execute(config, op, args, init, caps);
       Object.defineProperty(method, 'name', { value: name });
+      Object.defineProperty(method, 'operationId', { value: op.id });
       const spec = op.pagination;
       // Paginated ops keep their one-shot call and gain `.pages`/`.items`, dispatching
       // through the capability seam (like SSE: absent capability throws descriptively).

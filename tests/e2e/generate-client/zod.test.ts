@@ -155,15 +155,17 @@ describe('generate-client zod generator', () => {
         let fetchCalls = 0;
         let nextBody = '{"id":"o1"}';
         let nextStatus = 200;
+        let lastSentBody: unknown;
         configure({
           serverUrl: 'https://api.example.com',
-          fetch: async () => {
+          fetch: (async (_url: string, init?: RequestInit) => {
             fetchCalls++;
+            lastSentBody = init?.body;
             return new Response(nextStatus === 204 ? null : nextBody, {
               status: nextStatus,
               headers: nextStatus === 204 ? {} : { 'content-type': 'application/json' },
             });
-          },
+          }) as typeof fetch,
         });
 
         async function main() {
@@ -189,8 +191,8 @@ describe('generate-client zod generator', () => {
           await client.createOrder({ body: { name: 'x', quantity: 2 } });
           results.push('response-off-passes');
 
-          // A second middleware turns response validation on; the mismatch now throws.
-          use(zodValidation({ request: false }));
+          // A second middleware opts response validation into throwing; the mismatch now throws.
+          use(zodValidation({ request: false, response: 'throw' }));
           try {
             await client.createOrder({ body: { name: 'x', quantity: 2 } });
             results.push('response-not-validated');
@@ -209,6 +211,29 @@ describe('generate-client zod generator', () => {
           nextStatus = 204;
           await client.health();
           results.push('schema-less-ok');
+
+          // DEFAULT response mode is WARN: drift reports (with the nested failing path
+          // and a value preview) but the call succeeds. configure() REPLACES middleware.
+          nextStatus = 200;
+          nextBody = '{"wrong":true}';
+          configure({
+            middleware: [
+              zodValidation({
+                onViolation: (error) =>
+                  results.push('warned:' + error.violations.map((v) => v.path).join('|')),
+              }),
+            ],
+          });
+          await client.createOrder({ body: { name: 'w', quantity: 1 } });
+          results.push('warn-call-succeeded');
+
+          // stripRequestBodies drops keys the schema does not declare from the wire body.
+          nextBody = '{"id":"o3"}';
+          configure({ middleware: [zodValidation({ stripRequestBodies: true, response: false })] });
+          await client.createOrder({
+            body: { name: 's', quantity: 1, extraneous: 'server-would-400' } as never,
+          });
+          results.push('stripped:' + String(lastSentBody));
 
           console.log(JSON.stringify(results));
         }
@@ -244,6 +269,9 @@ describe('generate-client zod generator', () => {
       'response-rejected:response',
       'valid:o2',
       'schema-less-ok',
+      'warned:id',
+      'warn-call-succeeded',
+      'stripped:{"name":"s","quantity":1}',
     ]);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

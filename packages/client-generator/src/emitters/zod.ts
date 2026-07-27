@@ -401,49 +401,143 @@ export type OperationSchemaSet = { request?: z.ZodType; response?: z.ZodType };
 
 const schemaIndex: Partial<Record<string, OperationSchemaSet>> = operationSchemas;
 
-/** A request or response payload failed validation. Always thrown, even on result-mode clients. */
+/** One flattened validation problem: the full nested path and a short preview of the value. */
+export type ZodViolation = { path: string; message: string; received: string };
+
+/** A request or response payload failed validation. Requests throw it; response handling is configurable. */
 export class ZodValidationError extends Error {
     constructor(
         readonly operationId: string,
         readonly direction: "request" | "response",
-        readonly issues: z.ZodError["issues"]
+        readonly issues: z.ZodError["issues"],
+        readonly violations: ZodViolation[]
     ) {
-        const detail = issues
-            .map((issue) => \`\${issue.path.join(".") || "(root)"}: \${issue.message}\`)
+        const detail = violations
+            .slice(0, 5)
+            .map((violation) => \`\${violation.path || "(root)"}: \${violation.message} (received \${violation.received})\`)
             .join("; ");
-        super(\`\${direction === "request" ? "Request" : "Response"} validation failed for operation "\${operationId}": \${detail}\`);
+        const more = violations.length > 5 ? \`; …and \${violations.length - 5} more\` : "";
+        super(\`\${direction === "request" ? "Request" : "Response"} validation failed for operation "\${operationId}": \${detail}\${more}\`);
         this.name = "ZodValidationError";
     }
 }
 
+// Flatten zod issues into leaf violations. Union branches (zod 3 \`unionErrors\`, zod 4
+// nested \`errors\`) are recursed into, so the message names the actual failing fields
+// instead of just the union root ("Invalid input").
+function flattenIssues(
+    issues: z.ZodError["issues"],
+    value: unknown,
+    base: PropertyKey[] = []
+): ZodViolation[] {
+    const violations: ZodViolation[] = [];
+    for (const issue of issues) {
+        const path = [...base, ...issue.path];
+        const nested = nestedIssueLists(issue);
+        if (nested.length > 0) {
+            for (const sub of nested) violations.push(...flattenIssues(sub, value, path));
+        } else {
+            violations.push({
+                path: path.map(String).join("."),
+                message: issue.message,
+                received: preview(valueAt(value, path)),
+            });
+        }
+    }
+    return violations;
+}
+
+/** The nested issue lists of a union-ish issue, across zod 3 (\`unionErrors\`) and zod 4 (\`errors\`). */
+function nestedIssueLists(issue: unknown): Array<z.ZodError["issues"]> {
+    const candidate = issue as {
+        unionErrors?: Array<{ issues: z.ZodError["issues"] }>;
+        errors?: Array<z.ZodError["issues"]>;
+    };
+    if (Array.isArray(candidate.unionErrors)) return candidate.unionErrors.map((error) => error.issues);
+    if (Array.isArray(candidate.errors)) return candidate.errors;
+    return [];
+}
+
+function valueAt(value: unknown, path: PropertyKey[]): unknown {
+    let current = value;
+    for (const key of path) {
+        if (current === null || typeof current !== "object") return undefined;
+        current = (current as Record<PropertyKey, unknown>)[key];
+    }
+    return current;
+}
+
+/** A short single-line preview of the offending value. NOTE: validation output can surface
+ *  payload data — route \`onViolation\` to a scrubbed logger when responses may carry secrets. */
+function preview(value: unknown): string {
+    let text: string;
+    try {
+        text = JSON.stringify(value) ?? String(value);
+    } catch {
+        text = String(value);
+    }
+    return text.length > 80 ? \`\${text.slice(0, 77)}…\` : text;
+}
+
+export type ZodValidationOptions = {
+    /** Validate request bodies before any network call; a failure THROWS (it is the caller's own bug). Default: true. */
+    request?: boolean;
+    /** Replace the outgoing body with the parsed result, dropping keys the schema does not declare
+     *  (for strict-DTO servers that 400 on excess properties). Runs request validation. Default: false. */
+    stripRequestBodies?: boolean;
+    /** Response drift handling: \`"warn"\` (default) reports via \`onViolation\` and lets the call
+     *  succeed — a server drifting from its description should not crash the consumer;
+     *  \`"throw"\` fails the call (even on result-mode clients); \`false\` skips response validation. */
+    response?: "warn" | "throw" | false;
+    /** Sink for \`"warn"\` mode. Default: \`console.warn\` with the error message. */
+    onViolation?: (error: ZodValidationError) => void;
+};
+
 /**
  * Schema-validation middleware for the generated client: \`use(zodValidation())\`.
- * Request bodies are validated before any network call; successful JSON responses are
- * validated against the operation's response schema. Payloads are never mutated, and
- * operations without a schema pass through untouched. A failure throws
- * \`ZodValidationError\` — always, even on result-mode clients.
+ * Request bodies are validated before any network call and throw on failure; successful
+ * JSON responses are validated against the operation's response schema and WARN by
+ * default (see \`ZodValidationOptions.response\`). Operations without a schema pass
+ * through untouched. Payloads are never mutated unless \`stripRequestBodies\` is set.
  */
-export function zodValidation(options: { request?: boolean; response?: boolean } = {}) {
-    const { request = true, response = true } = options;
+export function zodValidation(options: ZodValidationOptions = {}) {
+    const { request = true, stripRequestBodies = false, response = "warn", onViolation } = options;
+    const report = onViolation ?? ((error: ZodValidationError) => console.warn(error.message));
     return {
         onRequest(context: { body?: unknown; operation: { id: string } }): void {
-            if (!request || context.body === undefined) return;
+            if ((!request && !stripRequestBodies) || context.body === undefined) return;
             const schema = schemaIndex[context.operation.id]?.request;
             if (!schema) return;
             const result = schema.safeParse(context.body);
             if (!result.success) {
-                throw new ZodValidationError(context.operation.id, "request", result.error.issues);
+                throw new ZodValidationError(
+                    context.operation.id,
+                    "request",
+                    result.error.issues,
+                    flattenIssues(result.error.issues, context.body)
+                );
             }
+            // zod object schemas drop undeclared keys during parsing, so the parsed value
+            // IS the declared shape (intersections keep their own zod semantics).
+            if (stripRequestBodies) context.body = result.data;
         },
         async onResponse(incoming: Response, context: { operation: { id: string } }): Promise<void> {
-            if (!response || !incoming.ok) return;
+            if (response === false || !incoming.ok) return;
             const schema = schemaIndex[context.operation.id]?.response;
             if (!schema) return;
             const contentType = (incoming.headers.get("content-type") ?? "").toLowerCase();
             if (!contentType.includes("json")) return;
-            const result = schema.safeParse(await incoming.clone().json());
+            const payload: unknown = await incoming.clone().json();
+            const result = schema.safeParse(payload);
             if (!result.success) {
-                throw new ZodValidationError(context.operation.id, "response", result.error.issues);
+                const error = new ZodValidationError(
+                    context.operation.id,
+                    "response",
+                    result.error.issues,
+                    flattenIssues(result.error.issues, payload)
+                );
+                if (response === "throw") throw error;
+                report(error);
             }
         },
     };

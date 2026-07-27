@@ -4,8 +4,20 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 describe('parse', () => {
-  it('void and 204 return undefined', async () => {
-    expect(await parse(json({ a: 1 }), 'void')).toBeUndefined();
+  it('a void operation still surfaces a JSON body the server sends (spec gap)', async () => {
+    // The static type stays void; silently dropping real data behind an undeclared
+    // response is the worse failure, so a non-204 JSON body is parsed and returned.
+    expect(await parse(json({ a: 1 }), 'void')).toEqual({ a: 1 });
+  });
+
+  it('void returns undefined for 204/205/304, non-JSON, empty, and malformed bodies', async () => {
+    expect(await parse(new Response(null, { status: 204 }), 'void')).toBeUndefined();
+    const jsonHeaders = { 'content-type': 'application/json' };
+    expect(await parse(new Response('', { headers: jsonHeaders }), 'void')).toBeUndefined();
+    expect(await parse(new Response('{oops', { headers: jsonHeaders }), 'void')).toBeUndefined();
+    expect(
+      await parse(new Response('hi', { headers: { 'content-type': 'text/plain' } }), 'void')
+    ).toBeUndefined();
     expect(await parse(new Response(null, { status: 204 }), 'json')).toBeUndefined();
   });
 

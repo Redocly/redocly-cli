@@ -1053,21 +1053,30 @@ type Paginated<Entry extends OpsShape[string]> = 'item' extends keyof Entry
       }
   : unknown;
 
+/**
+ * The stable identity every client method carries: the SPEC operationId (also set as
+ * `fn.name`, but `operationId` is the explicit, minification-proof form) — a robust
+ * cache key for consumer wrappers (react-query keys and the like).
+ */
+export type OperationMethodIdentity = { readonly operationId: string };
+
 /** The typed instance client: one bound method per operation plus the core members. */
 export type Client<Ops extends OpsShape, Op extends OperationContext = OperationContext> = {
   [K in keyof Ops]: Ops[K] extends { kind: 'sse' }
-    ? NoRequiredKeys<Ops[K]['args']> extends true
-      ? (
-          args?: Ops[K]['args'],
-          init?: SseOptions
-        ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
-      : (
-          args: Ops[K]['args'],
-          init?: SseOptions
-        ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
+    ? (NoRequiredKeys<Ops[K]['args']> extends true
+        ? (
+            args?: Ops[K]['args'],
+            init?: SseOptions
+          ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
+        : (
+            args: Ops[K]['args'],
+            init?: SseOptions
+          ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>) &
+        OperationMethodIdentity
     : (NoRequiredKeys<Ops[K]['args']> extends true
         ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
         : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>) &
+        OperationMethodIdentity &
         Paginated<Ops[K]>;
 } & ClientCore<Op>;
 
@@ -1201,10 +1210,29 @@ function buildUrl(
 
 /**
  * Read the response body per `kind`. `'auto'` negotiates from the content type
- * (JSON, then `text/*`, then Blob); `'void'` and `204` responses read nothing.
+ * (JSON, then `text/*`, then Blob); `204` responses read nothing. A `'void'`
+ * operation (no declared 2xx content) still returns a JSON body the server
+ * actually sends: the static type stays `void`, but silently dropping real data
+ * behind a spec gap is the worse failure — consumers can reach it with a cast
+ * while the API description catches up.
  */
 async function parse(response: Response, kind: ParseAs | 'void'): Promise<unknown> {
-  if (kind === 'void' || response.status === 204) return undefined;
+  if (kind === 'void') {
+    if (response.status === 204 || response.status === 205 || response.status === 304) {
+      return undefined;
+    }
+    const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
+    if (!contentType.includes('json')) return undefined;
+    // Best-effort: an empty or malformed body on an undeclared response stays undefined.
+    const text = await response.text().catch(() => '');
+    if (text === '') return undefined;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return undefined;
+    }
+  }
+  if (response.status === 204) return undefined;
   if (kind === 'stream') return response.body;
   if (kind === 'blob') return response.blob();
   if (kind === 'arrayBuffer') return response.arrayBuffer();
@@ -1546,8 +1574,24 @@ function kindFor(op: OperationDescriptor): ParseAs | 'void' {
 /** Route the grouped args by the descriptor: path values, query object, body, extra headers, cookies. */
 function splitArgs(op: OperationDescriptor, args: OperationArgs) {
   const path: Record<string, unknown> = {};
+  const pathNames = new Set<string>();
   for (const param of op.params ?? []) {
-    if (param.in === 'path') path[param.name] = args[param.name];
+    if (param.in === 'path') {
+      pathNames.add(param.name);
+      path[param.name] = args[param.name];
+    }
+  }
+  // An unknown top-level key can only be a bug (usually a flat-style call shape passed
+  // to a grouped client: `{ limit: 10 }` instead of `{ params: { limit: 10 } }`).
+  // TypeScript catches it, but transpilers that skip type-checking would otherwise
+  // ship a request that silently drops the value — fail the call loudly instead.
+  for (const key of Object.keys(args)) {
+    if (key === 'params' || key === 'body' || key === 'headers' || key === 'cookies') continue;
+    if (pathNames.has(key)) continue;
+    throw new TypeError(
+      `Unknown argument "${key}" for operation "${op.id}". Query parameters go under params: { … } and the request body under body; valid keys are params, body, headers, cookies` +
+        (pathNames.size > 0 ? `, and the path parameters (${[...pathNames].join(', ')}).` : '.')
+    );
   }
   return {
     path,
@@ -1759,12 +1803,16 @@ function createClientCore<
       };
       // Consumers key off the function reference (cache keys, `OPERATIONS[fn.name]`), so
       // each closure carries its operationId instead of an inferred binding name.
+      // `operationId` is the explicit, minification-proof form of the same identity
+      // (the SPEC operationId — `name` is the emitted key, which a collision may rename).
       Object.defineProperty(method, 'name', { value: name });
+      Object.defineProperty(method, 'operationId', { value: op.id });
       client[name] = method;
     } else {
       const method = (args: OperationArgs = {}, init: RequestOptions = {}) =>
         execute(config, op, args, init, caps);
       Object.defineProperty(method, 'name', { value: name });
+      Object.defineProperty(method, 'operationId', { value: op.id });
       const spec = op.pagination;
       // Paginated ops keep their one-shot call and gain `.pages`/`.items`, dispatching
       // through the capability seam (like SSE: absent capability throws descriptively).

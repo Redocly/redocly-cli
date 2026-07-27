@@ -249,20 +249,29 @@ type Paginated<Entry extends OpsShape[string]> = 'item' extends keyof Entry
       }
   : unknown;
 
+/**
+ * The stable identity every client method carries: the SPEC operationId (also set as
+ * `fn.name`, but `operationId` is the explicit, minification-proof form) — a robust
+ * cache key for consumer wrappers (react-query keys and the like).
+ */
+export type OperationMethodIdentity = { readonly operationId: string };
+
 /** The typed instance client: one bound method per operation plus the core members. */
 export type Client<Ops extends OpsShape, Op extends OperationContext = OperationContext> = {
   [K in keyof Ops]: Ops[K] extends { kind: 'sse' }
-    ? NoRequiredKeys<Ops[K]['args']> extends true
-      ? (
-          args?: Ops[K]['args'],
-          init?: SseOptions
-        ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
-      : (
-          args: Ops[K]['args'],
-          init?: SseOptions
-        ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
+    ? (NoRequiredKeys<Ops[K]['args']> extends true
+        ? (
+            args?: Ops[K]['args'],
+            init?: SseOptions
+          ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>
+        : (
+            args: Ops[K]['args'],
+            init?: SseOptions
+          ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>) &
+        OperationMethodIdentity
     : (NoRequiredKeys<Ops[K]['args']> extends true
         ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
         : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>) &
+        OperationMethodIdentity &
         Paginated<Ops[K]>;
 } & ClientCore<Op>;
