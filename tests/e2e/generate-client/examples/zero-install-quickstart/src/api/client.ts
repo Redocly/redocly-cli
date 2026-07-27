@@ -579,7 +579,11 @@ async function parse(response: Response, kind: ParseAs | 'void'): Promise<unknow
   const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
   if (contentType.includes('json')) return response.json();
   if (contentType.startsWith('text/')) return response.text();
-  return response.blob();
+  // An untyped body reads as a Blob — but an EMPTY one resolves to undefined: a 2xx
+  // with `Content-Length: 0` must not yield a truthy `new Blob([])` that silently
+  // defeats every `!data` guard downstream.
+  const blob = await response.blob();
+  return blob.size > 0 ? blob : undefined;
 }
 
 /** Best-effort decode of a non-2xx body (JSON when declared, else text; undefined on failure). */

@@ -38,6 +38,18 @@ describe('parse', () => {
     expect(out.get('a')).toBe('1');
   });
 
+  it('auto resolves an empty 2xx body to undefined, not a truthy empty Blob', async () => {
+    // A 200 with no content type and no body (e.g. Content-Length: 0) must not become
+    // `new Blob([])` — a truthy value that silently defeats every `!data` guard.
+    expect(await parse(new Response(null, { status: 200 }), 'auto')).toBeUndefined();
+    expect(await parse(new Response(new Blob([]), { status: 200 }), 'auto')).toBeUndefined();
+    // A non-empty untyped body still reads as a Blob; an empty text/plain body stays ''.
+    expect(await parse(new Response(new Blob(['x']), { status: 200 }), 'auto')).toBeInstanceOf(
+      Blob
+    );
+    expect(await parse(new Response('', { status: 200 }), 'auto')).toBe('');
+  });
+
   it('auto negotiates by content-type: json, then text/*, then blob', async () => {
     expect(await parse(json({ a: 1 }), 'auto')).toEqual({ a: 1 });
     expect(
