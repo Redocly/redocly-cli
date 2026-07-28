@@ -118,7 +118,9 @@ describe('generateArazzoDescription', () => {
       ],
     });
 
-    expect(mockCollectSpecData).toHaveBeenCalledWith(BUNDLED_DESCRIPTION_MOCK);
+    expect(mockCollectSpecData).toHaveBeenCalledWith({
+      parsed: BUNDLED_DESCRIPTION_MOCK,
+    });
   });
 
   it('should generate arazzo description with operationId', async () => {
@@ -189,7 +191,9 @@ describe('generateArazzoDescription', () => {
       ],
     });
 
-    expect(mockCollectSpecData).toHaveBeenCalledWith(BUNDLED_DESCRIPTION_MOCK);
+    expect(mockCollectSpecData).toHaveBeenCalledWith({
+      parsed: BUNDLED_DESCRIPTION_MOCK,
+    });
   });
 
   it('should generate arazzo description with not existing description', async () => {
@@ -219,7 +223,9 @@ describe('generateArazzoDescription', () => {
       workflows: [],
     });
 
-    expect(mockCollectSpecData).toHaveBeenCalledWith({});
+    expect(mockCollectSpecData).toHaveBeenCalledWith({
+      parsed: {},
+    });
   });
 
   it('should generate arazzo description with operationPath', async () => {
@@ -290,6 +296,8 @@ describe('generateArazzoDescription', () => {
       ],
     });
 
-    expect(mockCollectSpecData).toHaveBeenCalledWith(BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID);
+    expect(mockCollectSpecData).toHaveBeenCalledWith({
+      parsed: BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID,
+    });
   });
 });
