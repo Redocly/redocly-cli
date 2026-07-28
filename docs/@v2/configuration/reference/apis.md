@@ -62,7 +62,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - client
 - [Client object](./client.md)
-- Additional TypeScript client generation configuration for this API, used by the experimental `generate-client` command.
+- TypeScript client generation configuration override for this API, used by the `generate-client` command.
 
 ---
 
