@@ -130,7 +130,15 @@ export function isAnchor(ref: string) {
 
 export function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
   if (!isPlainObject(resolved.node)) {
-    ctx.parent[ctx.key] = resolved.node;
+    if (ctx.parent) {
+      ctx.parent[ctx.key] = resolved.node;
+    } else {
+      // a composed chain hop has no parent to replace, so dereference it in place
+      // by dropping the $ref and keeping the sibling keys
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete ref.$ref;
+    }
   } else {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

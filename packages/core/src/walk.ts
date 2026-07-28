@@ -243,6 +243,38 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
+      // the isRef check narrows `node` to OasRef, but sibling keys are read from it too
+      const rawNode = node as Record<string, unknown>;
+
+      const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
+        let propType = getOwn(type.properties, propName);
+        if (propType === undefined) propType = type.additionalProperties;
+        if (typeof propType === 'function') propType = propType(value, propName);
+
+        if (
+          propType === undefined &&
+          type.extensionsPrefix &&
+          propName.startsWith(type.extensionsPrefix)
+        ) {
+          propType = SpecExtension;
+        }
+
+        if (!isNamedType(propType) && propType?.directResolveAs) {
+          propType = propType.directResolveAs;
+          value = { $ref: value };
+        }
+
+        if (propType && propType.name === undefined && propType.resolvable !== false) {
+          propType = { name: 'scalar', properties: {} };
+        }
+
+        if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
+          return;
+        }
+
+        walkNode(value, propType, loc.child([propName]), valueParent, propName);
+      };
+
       currentLocation = resolvedLocation;
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
       let visitedBySome = false;
@@ -314,17 +346,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         }
       }
 
-      const shouldWalkChildren = visitedBySome || !isNodeSeen;
-      const refSiblingProps = nodeIsRef ? Object.keys(node).filter((k) => k !== '$ref') : [];
-
-      if (shouldWalkChildren || refSiblingProps.length > 0) {
-        if (shouldWalkChildren) {
-          seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-          seenNodesPerType[type.name].add(resolvedNode);
-        }
+      if (visitedBySome || !isNodeSeen) {
+        seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
+        seenNodesPerType[type.name].add(resolvedNode);
 
         if (Array.isArray(resolvedNode)) {
-          const itemsType = shouldWalkChildren ? type.items : undefined;
+          const itemsType = type.items;
           if (itemsType !== undefined) {
             const isTypeAFunction = typeof itemsType === 'function';
             for (let i = 0; i < resolvedNode.length; i++) {
@@ -345,86 +372,43 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             }
           }
         } else if (isPlainObject(resolvedNode)) {
-          let props: string[];
-          if (shouldWalkChildren) {
-            // visit in order from type-tree first
-            props = Object.keys(type.properties);
-            if (type.additionalProperties) {
-              props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
-            } else if (type.extensionsPrefix) {
-              props.push(
-                ...Object.keys(resolvedNode).filter((k) =>
-                  k.startsWith(type.extensionsPrefix as string)
-                )
-              );
-            }
-            // properties on the same level as $ref
-            props.push(...refSiblingProps.filter((k) => !props.includes(k)));
-          } else {
-            // the resolved node was already visited, but this ref's sibling keys still need walking
-            props = refSiblingProps;
+          // visit in order from type-tree first
+          const props = Object.keys(type.properties);
+          if (type.additionalProperties) {
+            props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
+          } else if (type.extensionsPrefix) {
+            props.push(
+              ...Object.keys(resolvedNode).filter((k) =>
+                k.startsWith(type.extensionsPrefix as string)
+              )
+            );
           }
-
-          const walkProp = (
-            propName: string,
-            value: unknown,
-            loc: Location,
-            valueParent: unknown
-          ) => {
-            let propType = getOwn(type.properties, propName);
-            if (propType === undefined) propType = type.additionalProperties;
-            if (typeof propType === 'function') propType = propType(value, propName);
-
-            if (
-              propType === undefined &&
-              type.extensionsPrefix &&
-              propName.startsWith(type.extensionsPrefix)
-            ) {
-              propType = SpecExtension;
-            }
-
-            if (!isNamedType(propType) && propType?.directResolveAs) {
-              propType = propType.directResolveAs;
-              value = { $ref: value };
-            }
-
-            if (propType && propType.name === undefined && propType.resolvable !== false) {
-              propType = { name: 'scalar', properties: {} };
-            }
-
-            if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
-              return;
-            }
-
-            walkNode(value, propType, loc.child([propName]), valueParent, propName);
-          };
-
-          // the isRef check narrows `node` to OasRef, but sibling keys are read from it too
-          const rawNode = node as Record<string, unknown>;
 
           for (const propName of props) {
             const resolvedValue = resolvedNode[propName];
-            // a property on the same level as $ref composes with the resolved node even
-            // when both define it, and resolves against the original location, not target
-            const siblingValue =
-              nodeIsRef && rawNode[propName] !== resolvedValue ? rawNode[propName] : undefined;
-
-            if (shouldWalkChildren && resolvedValue !== undefined) {
+            if (resolvedValue !== undefined) {
               walkProp(propName, resolvedValue, resolvedLocation, resolvedNode);
-            }
-            if (siblingValue !== undefined) {
-              walkProp(propName, siblingValue, location, node);
             }
           }
         }
       }
 
       if (nodeIsRef && resolvedChain?.length) {
-        // walk the composed $ref hop from its own location so its siblings and inner $ref
-        // are processed; the hop's own resolution carries the rest of the chain
+        // the target composes another $ref: the hop is walked as a ref node from its own
+        // location (it has no parent there); its resolution carries the rest of the chain
         const chainHop = resolvedChain[0];
         if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
-          walkNode(chainHop.node, type, chainHop.location, parent, key);
+          walkNode(chainHop.node, type, chainHop.location, undefined, key);
+        }
+      }
+
+      if (nodeIsRef) {
+        // $ref sibling keys belong to the ref node itself and walk from its own location;
+        // the resolved node's (or hops') keys are walked in their own frames
+        for (const propName of Object.keys(node)) {
+          if (propName !== '$ref' && rawNode[propName] !== resolvedNode[propName]) {
+            walkProp(propName, rawNode[propName], location, node);
+          }
         }
       }
 
