@@ -95,7 +95,7 @@ export async function bundle(
   if (document instanceof Error) {
     throw document;
   }
-  opts.collectSpecData?.(document.parsed);
+  opts.collectSpecData?.(document);
 
   return bundleDocument({
     document,
