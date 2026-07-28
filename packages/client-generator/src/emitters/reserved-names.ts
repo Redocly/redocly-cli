@@ -51,38 +51,61 @@ const SATELLITE_NAMES = [
   '__Writable',
 ];
 
-// Platform globals and TS utility types the emitted code references by bare name —
+// Platform globals and TS utility/lib types the emitted code references by bare name —
 // `Date` fields under `--date-type Date`, `Blob` for binary, `Record`/`Omit`/`Partial`
-// in emitted types, and the annotations throughout the embedded runtime. A schema
-// type of the same name in the module would shadow them.
+// in emitted types, `Object.assign` in the sugar, and every free identifier of the
+// embedded runtime (values AND types: in inline mode a same-named schema — or a string
+// enum's const companion — shares the module scope and would shadow them, breaking
+// auth, URL building, or JSON parsing at runtime). `reserved-names.test.ts` recomputes
+// the runtime's free identifiers with a scope walk and fails when this list falls
+// behind. `undefined` is here because `export type undefined` would not even parse.
 const GLOBAL_NAMES = [
   'AbortSignal',
   'Array',
   'ArrayBuffer',
+  'ArrayBufferView',
   'AsyncGenerator',
   'Blob',
+  'BodyInit',
+  'Boolean',
+  'DOMException',
   'Date',
   'Error',
   'Extract',
   'FormData',
   'Headers',
   'HeadersInit',
+  'JSON',
   'Map',
+  'Math',
   'NonNullable',
+  'Number',
+  'Object',
   'Omit',
   'Partial',
   'Promise',
   'ReadableStream',
   'Record',
   'RegExp',
+  'RegExpExecArray',
   'Request',
   'RequestInit',
   'Response',
   'Set',
+  'String',
   'TextDecoder',
+  'TextEncoder',
+  'TypeError',
   'URL',
   'URLSearchParams',
+  'btoa',
+  'clearTimeout',
+  'decodeURIComponent',
+  'encodeURIComponent',
+  'fetch',
   'globalThis',
+  'setTimeout',
+  'undefined',
 ];
 
 let cached: Set<string> | undefined;
