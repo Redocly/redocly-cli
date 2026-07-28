@@ -120,6 +120,7 @@ export async function sendTelemetry({
       type: 'com.redocly.command.ran',
       source: 'urn:redocly:cli',
       origin: 'redocly-cli',
+      env: process.env.REDOCLY_CLI_BUILD_ENV || 'development',
       osPlatform: os.platform(),
       actor: {
         id: anonymous_id,

@@ -18,6 +18,9 @@ const result = await build({
   format: 'esm',
   target: 'node20.19',
   metafile: true,
+  define: {
+    'process.env.REDOCLY_CLI_BUILD_ENV': JSON.stringify('production'),
+  },
   // Avoid errors when external dependencies use CJS syntax.
   banner: {
     js: "import { createRequire as __createRequire } from 'node:module';\nconst require = __createRequire(import.meta.url);",
