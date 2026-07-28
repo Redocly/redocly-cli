@@ -60,6 +60,16 @@ describe('SchemaValidator discriminated oneOf', () => {
     expect(result.errors[0]).toMatchObject({ keyword: 'pattern', instancePath: '/id' });
   });
 
+  it('reports a single error when the discriminator value matches no branch', () => {
+    const paymentWithUnknownMethod = { ...validBankTransferPayment, method: 'CHECK' };
+
+    const result = validator.validate(paymentSchema, paymentWithUnknownMethod, 'response');
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toMatchObject({ keyword: 'discriminator', instancePath: '' });
+  });
+
   it('falls back to validating without discriminator support when Ajv cannot compile it', () => {
     const looseDiscriminatorSchema = {
       oneOf: [

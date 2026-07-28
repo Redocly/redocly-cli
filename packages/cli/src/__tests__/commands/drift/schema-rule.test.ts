@@ -111,6 +111,8 @@ describe('schema-consistency undocumented header check', () => {
   it('skips well-known infrastructure headers without --ignore-headers', () => {
     const context = createContext(200, {
       requestHeaders: {
+        'x-amz-apigw-id': 'dummy',
+        'x-amz-cf-id': 'dummy',
         'x-amzn-tls-cipher-suite': 'TLS_AES_128_GCM_SHA256',
         'x-amzn-tls-version': 'TLSv1.3',
         'x-amzn-trace-id': 'Root=1-abc',

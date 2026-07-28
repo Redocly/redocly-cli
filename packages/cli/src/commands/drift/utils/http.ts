@@ -68,6 +68,7 @@ const IGNORED_UNDOCUMENTED_HEADER_PREFIXES = [
   'cf-',
   'sec-ch-',
   'sec-fetch-',
+  'x-amz-',
   'x-amzn-',
   'x-b3-',
   'x-envoy-',
