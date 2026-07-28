@@ -15,6 +15,7 @@ import {
 type Oas3ResponseShape = {
   content?: Record<string, Oas3MediaType>;
   description?: string;
+  headers?: Record<string, unknown>;
 };
 
 import { NotSupportedError } from '../errors.js';
@@ -647,6 +648,9 @@ function buildSuccessResponses(
   if (!content) return [];
 
   const status = code === 'default' || code === '2XX' ? code : Number(code);
+  // Declared response header names (lowercased) — `link`-style pagination fits by them.
+  const headerNames = Object.keys(response.headers ?? {}).map((name) => name.toLowerCase());
+  const headers = headerNames.length > 0 ? headerNames : undefined;
   const result: ResponseBodyModel[] = [];
   for (const [contentType, media] of Object.entries(content)) {
     const schema = schemaFromSlot(
@@ -659,11 +663,13 @@ function buildSuccessResponses(
       itemSlot !== undefined
         ? schemaFromSlot(itemSlot, `paths.${path}.response.${code}.${contentType}.itemSchema`, doc)
         : undefined;
-    result.push(
-      item === undefined
-        ? { contentType, schema, status }
-        : { contentType, schema, status, itemSchema: item }
-    );
+    result.push({
+      contentType,
+      schema,
+      status,
+      ...(item === undefined ? {} : { itemSchema: item }),
+      ...(headers === undefined ? {} : { headers }),
+    });
   }
   return result;
 }

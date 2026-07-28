@@ -75,6 +75,10 @@ export async function* pages<TPage>(
       }
       cursor = next;
     }
+  } else if (spec.style === 'link') {
+    // `link` iteration needs the response's `Link` header, which the parsed-page `call`
+    // cannot carry — the client wires those operations to `pagesByLink` instead.
+    throw new Error('link-style pagination iterates via pagesByLink');
   } else {
     // Coerce the starting position to a number: a caller may pass `params[spec.param]` as a
     // string (common from URL/form input), and `+=` on a string would concatenate.
@@ -106,6 +110,75 @@ export async function* items<TItem>(
   init?: RequestOptions
 ): AsyncGenerator<TItem> {
   for await (const page of pages(call, spec, args, init)) {
+    const pageItems = resolvePointer(page, spec.items);
+    if (Array.isArray(pageItems)) yield* pageItems as TItem[];
+  }
+}
+
+/**
+ * The per-page call the `link`-style iterators drive: the parsed page plus the raw
+ * `Link` header and the page's own URL (for resolving a relative `next` target).
+ */
+export type LinkPageCall = (
+  args?: OperationArgs,
+  init?: RequestOptions
+) => Promise<{ page: unknown; linkHeader: string | null; url: string }>;
+
+/** The `rel="next"` target of an RFC 8288 `Link` header, or `undefined` when absent. */
+export function linkNext(header: string | null): string | undefined {
+  if (header === null) return undefined;
+  // Entries are `<url>; rel="next"`, comma-separated; the URL is inside `<>`, so split
+  // on commas that precede a `<` and a comma inside a target cannot break an entry.
+  for (const entry of header.split(/,\s*(?=<)/)) {
+    const target = /^\s*<([^>]*)>(.*)$/.exec(entry);
+    if (!target) continue;
+    const rel = /;\s*rel\s*=\s*"?([^";]+)"?/i.exec(target[2]);
+    // `rel` may carry several space-separated relation types (RFC 8288 §3.3).
+    if (rel && rel[1].split(/\s+/).includes('next')) return target[1];
+  }
+  return undefined;
+}
+
+/**
+ * Iterate a `link`-style operation's pages: follow the `Link` header's `rel="next"`
+ * target by merging ITS query params into the next call — every page goes through the
+ * same declared endpoint, so auth, middleware, and `serverUrl` handling apply
+ * unchanged, and credentials can never be handed to a cross-origin `next` URL.
+ * Stops when no `rel="next"` is present; throws when the link does not advance
+ * (the same target twice, or a self-link — an infinite-loop guard).
+ */
+export async function* pagesByLink<TPage>(
+  call: LinkPageCall,
+  args: OperationArgs = {},
+  init?: RequestOptions
+): AsyncGenerator<TPage> {
+  let params = args.params;
+  let previous: string | undefined;
+  while (true) {
+    const { page, linkHeader, url } = await call({ ...args, params }, init);
+    yield page as TPage;
+    const target = linkNext(linkHeader);
+    if (target === undefined) return;
+    // A relative target resolves against the page's own URL (RFC 8288 §3.1).
+    const next = new URL(target, url).toString();
+    if (next === previous || next === url) {
+      throw new Error('Pagination did not advance: the Link rel="next" target repeats');
+    }
+    previous = next;
+    const linkParams: Record<string, string> = {};
+    for (const [key, value] of new URL(next).searchParams) linkParams[key] = value;
+    params = { ...args.params, ...linkParams };
+  }
+}
+
+/** Iterate a `link`-style operation's individual items: each page's `items` pointer, flattened. */
+export async function* itemsByLink<TItem>(
+  call: LinkPageCall,
+  spec: PaginationSpec,
+  args?: OperationArgs,
+  init?: RequestOptions
+): AsyncGenerator<TItem> {
+  for await (const page of pagesByLink(call, args, init)) {
     const pageItems = resolvePointer(page, spec.items);
     if (Array.isArray(pageItems)) yield* pageItems as TItem[];
   }

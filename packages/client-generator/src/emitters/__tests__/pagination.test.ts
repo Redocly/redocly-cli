@@ -226,6 +226,58 @@ describe('resolveOperationPagination — sources and precedence', () => {
     expect(result.itemSchema).toEqual({ kind: 'ref', name: 'Order' });
   });
 
+  describe('link style (RFC 8288)', () => {
+    const LINK_RULE: PaginationRule = { style: 'link', items: '/orders' };
+    /** `listOrders` whose success response documents a `Link` header. */
+    function linkOp(extra: Partial<OperationModel> = {}): OperationModel {
+      return listOrders({
+        successResponses: [
+          response({ schema: { kind: 'ref', name: 'OrderPage' }, headers: ['link'] }),
+        ],
+        ...extra,
+      });
+    }
+
+    it('resolves with no advance param — the runtime follows the Link header', () => {
+      const op = linkOp();
+      const result = resolveOperationPagination(op, modelWith([op]), {
+        operations: { listOrders: LINK_RULE },
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.spec).toEqual({ style: 'link', items: '/orders' });
+      expect(result.itemSchema).toEqual({ kind: 'ref', name: 'Order' });
+    });
+
+    it('a convention rule fits only operations whose response documents a Link header', () => {
+      const documented = linkOp();
+      expect(
+        resolveOperationPagination(documented, modelWith([documented]), LINK_RULE).spec
+      ).toEqual({ style: 'link', items: '/orders' });
+      // No documented `Link` header: the convention silently skips the operation.
+      const undocumented = listOrders();
+      expect(
+        resolveOperationPagination(undocumented, modelWith([undocumented]), LINK_RULE)
+      ).toEqual({});
+    });
+
+    it('an explicit rule applies without a documented Link header (specs under-document)', () => {
+      const op = listOrders();
+      const result = resolveOperationPagination(op, modelWith([op]), {
+        operations: { listOrders: LINK_RULE },
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.spec).toEqual({ style: 'link', items: '/orders' });
+    });
+
+    it('still verifies the items pointer', () => {
+      const op = linkOp();
+      const result = resolveOperationPagination(op, modelWith([op]), {
+        operations: { listOrders: { style: 'link', items: '/missing' } },
+      });
+      expect(result.error).toContain('"items" pointer "/missing" does not resolve');
+    });
+  });
+
   it('applies the x-pagination extension when no per-op rule exists', () => {
     const op = listOrders({ paginationExtension: OFFSET_RULE });
     const result = resolveOperationPagination(op, modelWith([op]), undefined);
@@ -294,13 +346,13 @@ describe('resolveOperationPagination — rule-shape validation (any source)', ()
     ['a non-object rule', 'nonsense', 'the rule must be an object'],
     [
       'an unknown style',
-      { ...CURSOR_RULE, style: 'link' },
-      '"style" must be one of "cursor" | "offset" | "page" (got "link")',
+      { ...CURSOR_RULE, style: 'zigzag' },
+      '"style" must be one of "cursor" | "offset" | "page" | "link" (got "zigzag")',
     ],
     [
       'a missing style',
       { items: '/orders' },
-      '"style" must be one of "cursor" | "offset" | "page" (got undefined)',
+      '"style" must be one of "cursor" | "offset" | "page" | "link" (got undefined)',
     ],
     [
       'missing items',
@@ -561,7 +613,7 @@ describe('resolveOperationPagination — fit verification', () => {
       );
       const result = resolveOperationPagination(op, modelWith([op]), undefined);
       expect(result.error).toBeUndefined();
-      expect(result.spec?.param).toBe('cursor');
+      expect(result.spec).toMatchObject({ style: 'cursor', param: 'cursor' });
     });
   });
 
@@ -651,7 +703,7 @@ describe('resolveModelPagination', () => {
         '  - Pagination for operation "listOrders" (x-pagination): ' +
         'query parameter "after" is not declared on the operation\n' +
         '  - Pagination for operation "listRefunds" (x-pagination): ' +
-        '"style" must be one of "cursor" | "offset" | "page" (got "nope")'
+        '"style" must be one of "cursor" | "offset" | "page" | "link" (got "nope")'
     );
   });
 

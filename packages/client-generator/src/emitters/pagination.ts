@@ -6,7 +6,7 @@
 // operation; an explicit rule (per-op config or extension) that doesn't fit — and a
 // malformed rule from ANY source — is a generate-time error. No heuristics, ever.
 
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, logger } from '@redocly/openapi-core';
 
 import {
   allOperations,
@@ -18,7 +18,7 @@ import type { PaginationSpec } from '../runtime/types.js';
 import { isSseOp } from './sse.js';
 
 /** The pagination styles the generated runtime can drive. */
-export type PaginationStyle = 'cursor' | 'offset' | 'page';
+export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
 
 /**
  * One user-facing pagination rule — the shared shape of the `x-pagination` operation
@@ -26,7 +26,8 @@ export type PaginationStyle = 'cursor' | 'offset' | 'page';
  * JSON pointers (starting with `/`) into the operation's success response.
  */
 export type PaginationRule = {
-  /** `cursor` follows a response cursor; `offset`/`page` increment a numeric param. */
+  /** `cursor` follows a response cursor; `offset`/`page` increment a numeric param;
+   * `link` follows the response's RFC 8288 `Link` header `rel="next"`. */
   style: PaginationStyle;
   /** Cursor style: the request query param that receives the cursor. */
   cursorParam?: string;
@@ -139,31 +140,46 @@ function applyRule(
     explicit ? { error: `${label}: ${problem}` } : {};
 
   if (isSseOp(op)) return misfit('the operation is a Server-Sent Events stream');
-  const paramField = valid.style === 'cursor' ? 'cursorParam' : 'offsetParam';
-  const param = valid.style === 'cursor' ? valid.cursorParam! : valid.offsetParam!;
-  const advance = op.queryParams.find((p) => p.name === param);
-  if (!advance) {
-    return misfit(`query parameter "${param}" is not declared on the operation`);
-  }
-  // The advance param must accept what the runtime sends: the response's cursor
-  // (string-ish, same predicate as nextCursor) or the incremented number.
-  const advanceSchema = deref(advance.schema, model);
-  const advanceFits =
-    advanceSchema !== undefined &&
-    (valid.style === 'cursor'
-      ? isStringish(advanceSchema, model)
-      : advanceSchema.kind === 'scalar' &&
-        (advanceSchema.scalar === 'number' || advanceSchema.scalar === 'integer'));
-  if (!advanceFits) {
-    const expected = valid.style === 'cursor' ? 'a string' : 'a number';
-    return misfit(
-      `the "${paramField}" query parameter "${param}" must accept ${expected} (got ${describeSchema(advanceSchema)})`
-    );
+  if (valid.style !== 'link') {
+    const paramField = valid.style === 'cursor' ? 'cursorParam' : 'offsetParam';
+    const param = valid.style === 'cursor' ? valid.cursorParam! : valid.offsetParam!;
+    const advance = op.queryParams.find((p) => p.name === param);
+    if (!advance) {
+      return misfit(`query parameter "${param}" is not declared on the operation`);
+    }
+    // The advance param must accept what the runtime sends: the response's cursor
+    // (string-ish, same predicate as nextCursor) or the incremented number.
+    const advanceSchema = deref(advance.schema, model);
+    const advanceFits =
+      advanceSchema !== undefined &&
+      (valid.style === 'cursor'
+        ? isStringish(advanceSchema, model)
+        : advanceSchema.kind === 'scalar' &&
+          (advanceSchema.scalar === 'number' || advanceSchema.scalar === 'integer'));
+    if (!advanceFits) {
+      const expected = valid.style === 'cursor' ? 'a string' : 'a number';
+      return misfit(
+        `the "${paramField}" query parameter "${param}" must accept ${expected} (got ${describeSchema(advanceSchema)})`
+      );
+    }
   }
   // The page the pointers address is the operation's primary JSON success response —
   // the same response `computeResponse` types (JSON preferred over other content types).
   const page = op.successResponses.find((r) => r.contentType.toLowerCase().includes('json'));
   if (!page) return misfit('the operation has no JSON success response');
+  if (valid.style === 'link') {
+    // The declared `Link` header is the structural fit signal: a convention rule applies
+    // only to operations that document it; an explicit rule applies regardless (a spec
+    // often under-documents headers) but says so, since the runtime then depends on an
+    // undocumented behavior.
+    const documentsLink = page.headers?.includes('link') === true;
+    if (!documentsLink && !explicit) return {};
+    if (!documentsLink) {
+      logger.warn(
+        `generate-client: ${label.toLowerCase()} follows the Link header, but the success response does not document one.\n`
+      );
+    }
+  }
   const itemsTarget = resolveSchemaPointer(page.schema, valid.items, model);
   if (itemsTarget === undefined) {
     return misfit(
@@ -206,13 +222,15 @@ function applyRule(
     valid.style === 'cursor'
       ? {
           style: 'cursor',
-          param,
+          param: valid.cursorParam!,
           ...limitParam,
           nextCursor: valid.nextCursor!,
           ...(valid.hasMore !== undefined ? { hasMore: valid.hasMore } : {}),
           items: valid.items,
         }
-      : { style: valid.style, param, ...limitParam, items: valid.items };
+      : valid.style === 'link'
+        ? { style: 'link', ...limitParam, items: valid.items }
+        : { style: valid.style, param: valid.offsetParam!, ...limitParam, items: valid.items };
   return { spec, itemSchema: itemsTarget.items };
 }
 
@@ -224,8 +242,8 @@ function applyRule(
 function ruleShapeProblem(rule: unknown): string | undefined {
   if (!isPlainObject(rule)) return 'the rule must be an object';
   const { style, cursorParam, nextCursor, hasMore, offsetParam, limitParam, items } = rule;
-  if (style !== 'cursor' && style !== 'offset' && style !== 'page') {
-    return `"style" must be one of "cursor" | "offset" | "page" (got ${JSON.stringify(style)})`;
+  if (style !== 'cursor' && style !== 'offset' && style !== 'page' && style !== 'link') {
+    return `"style" must be one of "cursor" | "offset" | "page" | "link" (got ${JSON.stringify(style)})`;
   }
   if (typeof items !== 'string' || (items !== '' && !items.startsWith('/'))) {
     return '"items" must be a JSON pointer starting with "/" (or "" when the response body is the item array itself)';
@@ -240,9 +258,12 @@ function ruleShapeProblem(rule: unknown): string | undefined {
     if (hasMore !== undefined && (typeof hasMore !== 'string' || !hasMore.startsWith('/'))) {
       return '"hasMore" must be a JSON pointer starting with "/"';
     }
-  } else if (typeof offsetParam !== 'string' || offsetParam === '') {
-    return `${style} style requires an "offsetParam" query parameter name`;
+  } else if (style === 'offset' || style === 'page') {
+    if (typeof offsetParam !== 'string' || offsetParam === '') {
+      return `${style} style requires an "offsetParam" query parameter name`;
+    }
   }
+  // `link` needs no advance parameter: the runtime follows the `Link` header.
   if (limitParam !== undefined && typeof limitParam !== 'string') {
     return '"limitParam" must be a query parameter name';
   }

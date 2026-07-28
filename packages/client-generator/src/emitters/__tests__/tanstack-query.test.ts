@@ -303,6 +303,17 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('return count === 0 ? undefined : lastPageParam + 1;');
     });
 
+    it('skips InfiniteOptions for link-style pagination (the next page lives in a header)', () => {
+      const linkOp = {
+        ...listOp,
+        successResponses: [{ ...listOp.successResponses[0], headers: ['link'] }],
+      };
+      const out = render([linkOp], { pagination: { style: 'link', items: '/items' } });
+      expect(out).toContain('listOrdersOptions');
+      expect(out).not.toContain('InfiniteOptions');
+      expect(out).not.toContain('infiniteQueryOptions');
+    });
+
     it('emits no InfiniteOptions (and no infiniteQueryOptions import) without pagination', () => {
       const out = render([listOp]);
       expect(out).not.toContain('InfiniteOptions');

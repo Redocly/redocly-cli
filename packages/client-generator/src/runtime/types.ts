@@ -46,6 +46,14 @@ export type PaginationSpec =
       limitParam?: string;
       /** Pointer to the page's item array. */
       items: string;
+    }
+  | {
+      /** RFC 8288: follow the response's `Link` header `rel="next"`; stop when absent. */
+      style: 'link';
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the page's item array. */
+      items: string;
     };
 
 /** The frozen data contract between generated code and the runtime: one operation's wire shape. */

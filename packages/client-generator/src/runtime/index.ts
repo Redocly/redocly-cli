@@ -1,7 +1,7 @@
 import { resolveAuth } from './auth.js';
 import { createClientCore } from './create-client.js';
 import { toFormData } from './multipart.js';
-import { items, pages } from './paginate.js';
+import { items, itemsByLink, pages, pagesByLink } from './paginate.js';
 import { sse } from './sse.js';
 import type {
   Client,
@@ -32,7 +32,7 @@ export function createClient<
     serializeMultipart: toFormData,
     resolveAuth,
     sse,
-    paginate: { pages, items },
+    paginate: { pages, items, pagesByLink, itemsByLink },
   });
 }
 

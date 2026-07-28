@@ -51,6 +51,25 @@ export type Capabilities = SendCapabilities & {
       args?: OperationArgs,
       init?: RequestOptions
     ) => AsyncGenerator<unknown>;
+    // The `link`-style iterators need the raw `Link` header + page URL, which the
+    // parsed-page call above cannot carry (the shape mirrors paginate's `LinkPageCall`).
+    pagesByLink: (
+      call: (
+        args?: OperationArgs,
+        init?: RequestOptions
+      ) => Promise<{ page: unknown; linkHeader: string | null; url: string }>,
+      args?: OperationArgs,
+      init?: RequestOptions
+    ) => AsyncGenerator<unknown>;
+    itemsByLink: (
+      call: (
+        args?: OperationArgs,
+        init?: RequestOptions
+      ) => Promise<{ page: unknown; linkHeader: string | null; url: string }>,
+      spec: PaginationSpec,
+      args?: OperationArgs,
+      init?: RequestOptions
+    ) => AsyncGenerator<unknown>;
   };
 };
 
@@ -273,6 +292,45 @@ function pageCall(
 }
 
 /**
+ * The per-page call the `link`-style iterators drive: like `execute`, but returning the
+ * parsed page together with the raw `Link` header and the page's own URL (for resolving
+ * a relative `rel="next"` target). Error-mode-agnostic like all iteration: a failed
+ * page throws `ApiError` even on result-mode clients.
+ */
+function linkPageCall(config: ClientConfig, op: OperationDescriptor, caps: Capabilities) {
+  return async (args: OperationArgs = {}, init: RequestOptions = {}) => {
+    const prepared = await prepareRequest(config, op, args, init, caps);
+    const { parseAs, ...sendInit } = prepared.init;
+    const readKind = parseAs ?? kindFor(op);
+    const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
+    const { response } = await send(
+      config,
+      opCtx,
+      prepared.url,
+      sendInit,
+      prepared.body,
+      op.body?.multipart === true,
+      caps,
+      acceptFor(readKind)
+    );
+    if (!response.ok) {
+      throw new ApiError(
+        prepared.url,
+        response.status,
+        response.statusText,
+        await readError(response)
+      );
+    }
+    return {
+      page: await parse(response, readKind),
+      linkHeader: response.headers.get('link'),
+      // Some `Response` implementations leave `url` empty (mocks, constructed responses).
+      url: response.url === '' ? prepared.url : response.url,
+    };
+  };
+}
+
+/**
  * Build a typed instance client over operation descriptors: one real bound method per
  * operation (attached by a construction-time loop — no Proxy), plus the core members
  * (`configure`/`use`/`auth`), which are assigned AFTER the loop so they win any name
@@ -335,14 +393,31 @@ export function createClientCore<
       // ignores it) each page's envelope is unwrapped before it reaches the capability.
       // A failed page aborts iteration by throwing ApiError, even on result-mode
       // clients; the `onError` middleware hook (throw-mode-only) is not invoked.
-      client[name] = spec
-        ? Object.assign(method, {
-            pages: (args?: OperationArgs, init?: RequestOptions) =>
-              paginateCapability(caps, op).pages(pageCall(method, config), spec, args, init),
-            items: (args?: OperationArgs, init?: RequestOptions) =>
-              paginateCapability(caps, op).items(pageCall(method, config), spec, args, init),
-          })
-        : method;
+      client[name] =
+        spec === undefined
+          ? method
+          : spec.style === 'link'
+            ? Object.assign(method, {
+                pages: (args?: OperationArgs, init?: RequestOptions) =>
+                  paginateCapability(caps, op).pagesByLink(
+                    linkPageCall(config, op, caps),
+                    args,
+                    init
+                  ),
+                items: (args?: OperationArgs, init?: RequestOptions) =>
+                  paginateCapability(caps, op).itemsByLink(
+                    linkPageCall(config, op, caps),
+                    spec,
+                    args,
+                    init
+                  ),
+              })
+            : Object.assign(method, {
+                pages: (args?: OperationArgs, init?: RequestOptions) =>
+                  paginateCapability(caps, op).pages(pageCall(method, config), spec, args, init),
+                items: (args?: OperationArgs, init?: RequestOptions) =>
+                  paginateCapability(caps, op).items(pageCall(method, config), spec, args, init),
+              });
     }
   }
 

@@ -669,6 +669,25 @@ describe('buildSuccessResponses', () => {
     expect(op.successResponses[0].status).toBe(201);
   });
 
+  it('collects declared response header names, lowercased (the link-pagination fit signal)', () => {
+    const op = buildOpOnly(
+      opWithResponses({
+        '200': {
+          headers: { Link: { schema: { type: 'string' } }, 'X-Total': {} },
+          content: { 'application/json': { schema: { type: 'string' } } },
+        },
+      })
+    );
+    expect(op.successResponses[0].headers).toEqual(['link', 'x-total']);
+    // No declared headers → the field stays absent, not an empty array.
+    const bare = buildOpOnly(
+      opWithResponses({
+        '200': { content: { 'application/json': { schema: { type: 'string' } } } },
+      })
+    );
+    expect(bare.successResponses[0].headers).toBeUndefined();
+  });
+
   it('accepts the 2XX range wildcard, with an explicit code taking precedence', () => {
     const range = buildOpOnly(
       opWithResponses({

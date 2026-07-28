@@ -1,4 +1,4 @@
-import { items, pages, resolvePointer } from '../paginate.js';
+import { items, itemsByLink, linkNext, pages, pagesByLink, resolvePointer } from '../paginate.js';
 import type { PaginationSpec, RequestOptions } from '../types.js';
 
 const CURSOR: PaginationSpec = {
@@ -259,5 +259,81 @@ describe('items', () => {
     await collect(items(call, PAGE, { params: { limit: 1 } }, init));
     expect(sentParams('limit')).toEqual([1, 1]);
     for (const c of calls) expect(c.init).toBe(init);
+  });
+});
+
+describe('linkNext', () => {
+  it('extracts the rel="next" target among multiple entries', () => {
+    expect(
+      linkNext('<https://x/orders?page=3>; rel="prev", <https://x/orders?page=5>; rel="next"')
+    ).toBe('https://x/orders?page=5');
+  });
+
+  it('handles unquoted rel, multi-type rel lists, and case-insensitive REL', () => {
+    expect(linkNext('<https://x/o?page=2>; rel=next')).toBe('https://x/o?page=2');
+    expect(linkNext('<https://x/o?page=2>; REL="next last"')).toBe('https://x/o?page=2');
+  });
+
+  it('returns undefined without a header or a next relation', () => {
+    expect(linkNext(null)).toBeUndefined();
+    expect(linkNext('<https://x/o?page=1>; rel="prev"')).toBeUndefined();
+  });
+});
+
+describe('pagesByLink / itemsByLink (link style)', () => {
+  const LINK: PaginationSpec = { style: 'link', items: '' };
+
+  /** A link-call stub replying page bodies + Link headers by call index. */
+  function linkStub(replies: Array<{ page: unknown; linkHeader: string | null }>) {
+    const calls: Array<{ args?: Record<string, unknown> }> = [];
+    const call = async (args?: Record<string, unknown>) => {
+      calls.push({ args });
+      const reply = replies[calls.length - 1];
+      return { ...reply, url: `https://x/orders?call=${calls.length}` };
+    };
+    return { call, calls };
+  }
+
+  it('follows rel="next" by merging its query params into the next call, then stops', async () => {
+    const { call, calls } = linkStub([
+      { page: ['a'], linkHeader: '<https://x/orders?page=2&per_page=5>; rel="next"' },
+      { page: ['b'], linkHeader: null },
+    ]);
+    const seen = await collect(pagesByLink(call, { params: { per_page: 5 } }));
+    expect(seen).toEqual([['a'], ['b']]);
+    expect(calls[0].args?.params).toEqual({ per_page: 5 });
+    expect(calls[1].args?.params).toEqual({ per_page: '5', page: '2' });
+  });
+
+  it('resolves a relative next target against the page URL', async () => {
+    const { call, calls } = linkStub([
+      { page: [1], linkHeader: '</orders?cursor=abc>; rel="next"' },
+      { page: [2], linkHeader: null },
+    ]);
+    await collect(pagesByLink(call));
+    expect(calls[1].args?.params).toEqual({ cursor: 'abc' });
+  });
+
+  it('throws when the next target repeats (infinite-loop guard)', async () => {
+    const { call } = linkStub([
+      { page: [1], linkHeader: '<https://x/orders?page=2>; rel="next"' },
+      { page: [2], linkHeader: '<https://x/orders?page=2>; rel="next"' },
+      { page: [3], linkHeader: '<https://x/orders?page=2>; rel="next"' },
+    ]);
+    await expect(collect(pagesByLink(call))).rejects.toThrow(/did not advance/);
+  });
+
+  it('itemsByLink flattens each page through the items pointer', async () => {
+    const deep: PaginationSpec = { style: 'link', items: '/orders' };
+    const { call } = linkStub([
+      { page: { orders: ['a', 'b'] }, linkHeader: '<https://x/orders?page=2>; rel="next"' },
+      { page: { orders: ['c'] }, linkHeader: null },
+    ]);
+    expect(await collect(itemsByLink(call, deep))).toEqual(['a', 'b', 'c']);
+  });
+
+  it('pages() rejects a link spec (those operations wire through pagesByLink)', async () => {
+    const iterate = pages(async () => ({}), LINK);
+    await expect(iterate.next()).rejects.toThrow(/pagesByLink/);
   });
 });

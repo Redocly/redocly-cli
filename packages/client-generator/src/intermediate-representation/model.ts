@@ -146,6 +146,8 @@ export type ResponseBodyModel = {
    * 3.2 `itemSchema`, e.g. on `text/event-stream`). Absent for ordinary bodies.
    */
   itemSchema?: SchemaModel;
+  /** Declared response header names, lowercased (`link`-style pagination fits by them). */
+  headers?: string[];
 };
 
 /**

@@ -91,7 +91,7 @@ describe('assembleInlineRuntime', () => {
     it('wires all capabilities into the factory', () => {
       expect(out).toContain('serializeMultipart: toFormData');
       expect(out).toContain(
-        'createClientCore<Ops, Id, Path, Tag>(operations, config, { serializeMultipart: toFormData, resolveAuth, sse, paginate: { pages, items } })'
+        'createClientCore<Ops, Id, Path, Tag>(operations, config, { serializeMultipart: toFormData, resolveAuth, sse, paginate: { pages, items, pagesByLink, itemsByLink } })'
       );
     });
 
@@ -170,7 +170,7 @@ describe('assembleInlineRuntime', () => {
       expect(out).toContain('async function* pages');
       expect(out).toContain('async function* items');
       expect(out).toContain(
-        'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items } })'
+        'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items, pagesByLink, itemsByLink } })'
       );
       expect(out).not.toContain('toFormData');
       expect(out).not.toContain('resolveToken');

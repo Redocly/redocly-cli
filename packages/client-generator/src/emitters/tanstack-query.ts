@@ -53,9 +53,16 @@ export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): st
   return printStatements(parseStatements(source));
 }
 
-/** Whether the op gets an `<op>InfiniteOptions` factory: a paginated query operation. */
+/**
+ * Whether the op gets an `<op>InfiniteOptions` factory: a paginated query operation.
+ * `link`-style pagination is excluded — its next page lives in the `Link` response
+ * HEADER, which a TanStack `queryFn` (body-only) cannot see; use the sdk's
+ * `.pages()`/`.items()` iterators for those operations instead.
+ */
 function isInfinite(op: OperationModel, pagination: ModelPagination): boolean {
-  return isQuery(op) && pagination.has(op.name);
+  if (!isQuery(op)) return false;
+  const paginated = pagination.get(op.name);
+  return paginated !== undefined && paginated.spec.style !== 'link';
 }
 
 /**
@@ -114,9 +121,9 @@ function factoriesSource(
   const members = ops.flatMap((op) => {
     if (!isQuery(op)) return [mutationMember(op, prefix)];
     const paginated = pagination.get(op.name);
-    return paginated === undefined
-      ? [optionsMember(op)]
-      : [optionsMember(op), infiniteMember(model, op, paginated.spec)];
+    return paginated !== undefined && paginated.spec.style !== 'link'
+      ? [optionsMember(op), infiniteMember(model, op, paginated.spec)]
+      : [optionsMember(op)];
   });
   return (
     '/**\n' +
@@ -161,7 +168,11 @@ function mutationMember(op: OperationModel, prefix: string | undefined): string 
  * conditions (cursor: absent/`null`/`''`, plus the optional `hasMore === false`;
  * offset/page: an empty items page).
  */
-function infiniteMember(model: ApiModel, op: OperationModel, spec: PaginationSpec): string {
+function infiniteMember(
+  model: ApiModel,
+  op: OperationModel,
+  spec: Exclude<PaginationSpec, { style: 'link' }>
+): string {
   const { params, keyArg } = varsPieces(op);
   const override = `{ ...vars, params: { ...vars.params, ${safeIdent(spec.param)}: pageParam } }`;
   return (
@@ -174,7 +185,11 @@ function infiniteMember(model: ApiModel, op: OperationModel, spec: PaginationSpe
 }
 
 /** The `initialPageParam` + `getNextPageParam` pair for one pagination style. */
-function nextPageSource(model: ApiModel, op: OperationModel, spec: PaginationSpec): string {
+function nextPageSource(
+  model: ApiModel,
+  op: OperationModel,
+  spec: Exclude<PaginationSpec, { style: 'link' }>
+): string {
   const advance = paramsAccess(spec.param);
   if (spec.style === 'cursor') {
     const stopEarly =
@@ -282,7 +297,7 @@ function itemsLength(items: string): string {
 function defaultBindings(ops: OperationModel[], pagination: ModelPagination): string[] {
   const names = ops.flatMap((op) => {
     if (!isQuery(op)) return [`${op.name}Mutation`];
-    return pagination.has(op.name)
+    return isInfinite(op, pagination)
       ? [`${op.name}Options`, `${op.name}InfiniteOptions`]
       : [`${op.name}Options`];
   });

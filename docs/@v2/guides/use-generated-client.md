@@ -340,10 +340,12 @@ Pagination is declared, never guessed: describe how your API paginates in `redoc
 The rule fields, the generate-time verification, and the precedence between the convention, `x-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
 Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
 
-Three styles are supported:
+Four styles are supported:
 `cursor` sends the response's `nextCursor` back in `cursorParam`, stops when it's absent, `null`, or empty, and throws if the server returns the same cursor twice in a row.
 For connection-style APIs whose cursor stays non-null on the last page, add the optional `hasMore` pointer (for example `/pageInfo/hasNextPage`) — iteration stops as soon as it resolves to `false`, skipping the follow-up empty request.
 `offset` advances `offsetParam` by each page's item count, and `page` increments `offsetParam` by 1; both stop on an empty page.
+`link` follows the response's RFC 8288 `Link` header `rel="next"` target (the GitHub pattern) — no advance parameter at all: the runtime merges the target's query params into the next call, so every page goes through the same declared endpoint (auth and middleware apply unchanged, and credentials are never handed to a cross-origin URL); iteration stops when no `rel="next"` is present and throws if the target repeats.
+A `link` convention rule applies only to operations whose success response _documents_ a `Link` header; an explicit rule applies regardless but warns when the header is undocumented.
 `limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
 
 ```ts
@@ -384,7 +386,7 @@ For shapes the built-in styles don't cover — for example a cursor that travels
 The `tanstack-query` generator emits typed TanStack Query v5 factories per operation:
 
 - `<op>Options(vars, init?)` per query (GET/HEAD) — pass to `useQuery`/`prefetchQuery`. Its `queryFn` forwards TanStack's abort `signal` into the request, so an unmounted or superseded query cancels its network call.
-- `<op>InfiniteOptions(vars, init?)` per **paginated** query — pass to `useInfiniteQuery`/`fetchInfiniteQuery`. The `initialPageParam`/`getNextPageParam` pair is compiled from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, including the `hasMore` stop, so infinite queries need no hand-written `getNextPageParam`.
+- `<op>InfiniteOptions(vars, init?)` per **paginated** query — pass to `useInfiniteQuery`/`fetchInfiniteQuery`. The `initialPageParam`/`getNextPageParam` pair is compiled from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, including the `hasMore` stop, so infinite queries need no hand-written `getNextPageParam`. (`link`-style operations are the exception — their next page lives in a response header a `queryFn` cannot see; use the sdk's `.pages()`/`.items()` iterators for those.)
 - `<op>QueryKey(vars?)` — with `vars`, the exact key the options use; **without arguments, the invalidation prefix** that matches every cached page and filter of the operation: `queryClient.invalidateQueries({ queryKey: listOrdersQueryKey() })`.
 - `<op>Mutation(init?)` per mutation — per-call `RequestOptions` (headers, a retry override) reach the mutation's requests.
 

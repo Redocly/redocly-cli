@@ -1,6 +1,11 @@
 import { createClientCore } from '../create-client.js';
 import { ApiError } from '../errors.js';
-import { items as paginateItems, pages as paginatePages } from '../paginate.js';
+import {
+  items as paginateItems,
+  itemsByLink,
+  pages as paginatePages,
+  pagesByLink,
+} from '../paginate.js';
 import type { OperationDescriptor } from '../types.js';
 
 const OPS = {
@@ -115,6 +120,48 @@ describe('createClientCore', () => {
     expect(client.getOrder.operationId).toBe('getOrder');
     expect(client.listOrders.operationId).toBe('listOrders');
     expect(client.stream.operationId).toBe('stream');
+  });
+
+  it('link-style pagination follows the Link header end to end (pages + items)', async () => {
+    const ops = {
+      listRepos: {
+        id: 'listRepos',
+        method: 'GET',
+        path: '/repos',
+        params: [{ name: 'per_page', in: 'query' }],
+        pagination: { style: 'link', items: '' },
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const linked = (body: unknown, next?: string) =>
+      new Response(JSON.stringify(body), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+          ...(next === undefined ? {} : { Link: `<${next}>; rel="next"` }),
+        },
+      });
+    const { calls, fetchImpl } = spy([
+      linked(['a'], 'https://x/repos?per_page=1&page=2'),
+      linked(['b']),
+    ]);
+    const client = createClientCore<{
+      listRepos: {
+        args: { params?: { per_page?: number } };
+        result: string[];
+        item: string;
+      };
+      [k: string]: { args: object; result: unknown; item?: unknown };
+    }>(
+      ops,
+      { serverUrl: 'https://x', fetch: fetchImpl },
+      { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
+    );
+    const seen: string[] = [];
+    for await (const repo of client.listRepos.items({ params: { per_page: 1 } })) seen.push(repo);
+    expect(seen).toEqual(['a', 'b']);
+    expect(calls[0].url).toBe('https://x/repos?per_page=1');
+    // Page 2 rides the Link target's query params through the same declared endpoint.
+    expect(calls[1].url).toBe('https://x/repos?per_page=1&page=2');
   });
 
   it('sends an Accept header matching how the response will be read', async () => {
@@ -438,7 +485,7 @@ describe('createClientCore', () => {
     const client = createClientCore<Ops>(
       OPS,
       { serverUrl: 'https://x', fetch: fetchImpl, errorMode: 'result' },
-      { paginate: { pages: paginatePages, items: paginateItems } }
+      { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
     );
 
     const pages = [];
@@ -465,7 +512,7 @@ describe('createClientCore', () => {
     const client = createClientCore<Ops>(
       OPS,
       { serverUrl: 'https://x', fetch: fetchImpl, errorMode: 'result' },
-      { paginate: { pages: paginatePages, items: paginateItems } }
+      { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
     );
     const items = [];
     for await (const item of client.listOrders.items()) items.push(item);
@@ -484,7 +531,7 @@ describe('createClientCore', () => {
     const client = createClientCore<Ops>(
       OPS,
       { serverUrl: 'https://x', fetch: fetchImpl, errorMode: 'result' },
-      { paginate: { pages: paginatePages, items: paginateItems } }
+      { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
     );
     let hookCalled = false;
     client.use({

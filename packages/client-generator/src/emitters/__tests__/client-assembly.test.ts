@@ -501,7 +501,7 @@ describe('emitClientSingleFile — pagination', () => {
     const paginated = emitClientSingleFile(model, { pagination: config });
     expect(paginated).toContain('async function* pages');
     expect(paginated).toContain(
-      'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items } })'
+      'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items, pagesByLink, itemsByLink } })'
     );
     const plain = emitClientSingleFile(model);
     expect(plain).not.toContain('async function* pages');

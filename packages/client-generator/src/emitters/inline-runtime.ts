@@ -82,7 +82,7 @@ function clientFactory(needs: InlineRuntimeNeeds): string {
     ...(needs.multipart ? ['serializeMultipart: toFormData'] : []),
     ...(needs.auth ? ['resolveAuth'] : []),
     ...(needs.sse ? ['sse'] : []),
-    ...(needs.paginate ? ['paginate: { pages, items }'] : []),
+    ...(needs.paginate ? ['paginate: { pages, items, pagesByLink, itemsByLink }'] : []),
   ];
   const wired = caps.length > 0 ? `{ ${caps.join(', ')} }` : '{}';
   return `/**
