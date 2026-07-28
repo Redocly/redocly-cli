@@ -1,5 +1,5 @@
 // Emits an idiomatic TanStack Query v5 module over the generated client. The factories
-// are built by `createQueryFactories(c)` — bindable to any client instance (per-instance
+// are built by `createQueryFactories(instance)` — bindable to any client instance (per-instance
 // config, middleware, retry) — and the module-level exports bind the sdk's default
 // `client`. Per query operation (GET/HEAD): `<op>QueryKey(vars?)` (the no-args form is
 // the invalidation prefix) and `<op>Options(vars, init?)` whose `queryFn` forwards
@@ -104,7 +104,7 @@ function keyElements(op: OperationModel, prefix: string | undefined): string {
   return prefix === undefined ? `"${op.name}"` : `${codeString(prefix)}, "${op.name}"`;
 }
 
-/** The `createQueryFactories(c)` declaration wrapping every option/mutation factory. */
+/** The `createQueryFactories(instance)` declaration wrapping every option/mutation factory. */
 function factoriesSource(
   model: ApiModel,
   ops: OperationModel[],
@@ -124,7 +124,7 @@ function factoriesSource(
     ' * retry apply to every call (`createQueryFactories(createClient(OPERATIONS, config))`).\n' +
     " * The module-level exports below are these factories bound to the sdk's default `client`.\n" +
     ' */\n' +
-    'export const createQueryFactories = (c: typeof client = client) => ({\n' +
+    'export const createQueryFactories = (instance: typeof client = client) => ({\n' +
     members.join(',\n') +
     '\n});'
   );
@@ -136,7 +136,7 @@ function optionsMember(op: OperationModel): string {
   return (
     `    ${op.name}Options: (${params}) => queryOptions({\n` +
     `        queryKey: ${op.name}QueryKey(${keyArg}),\n` +
-    `        queryFn: ({ signal }) => c.${op.name}(${callArgs}, { ...init, signal }),\n` +
+    `        queryFn: ({ signal }) => instance.${op.name}(${callArgs}, { ...init, signal }),\n` +
     `    })`
   );
 }
@@ -144,8 +144,8 @@ function optionsMember(op: OperationModel): string {
 /** `<op>Mutation(init?)` — per-call `RequestOptions` (headers, a retry override) reach the mutation. */
 function mutationMember(op: OperationModel, prefix: string | undefined): string {
   const mutationFn = hasInputs(op)
-    ? `(vars: ${variablesName(op)}) => c.${op.name}(vars, init)`
-    : `() => c.${op.name}({}, init)`;
+    ? `(vars: ${variablesName(op)}) => instance.${op.name}(vars, init)`
+    : `() => instance.${op.name}({}, init)`;
   return (
     `    ${op.name}Mutation: (init?: RequestOptions) => ({\n` +
     `        mutationKey: [${keyElements(op, prefix)}] as const,\n` +
@@ -167,7 +167,7 @@ function infiniteMember(model: ApiModel, op: OperationModel, spec: PaginationSpe
   return (
     `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
     `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +
-    `        queryFn: ({ pageParam, signal }) => c.${op.name}(${override}, { ...init, signal }),\n` +
+    `        queryFn: ({ pageParam, signal }) => instance.${op.name}(${override}, { ...init, signal }),\n` +
     nextPageSource(model, op, spec) +
     `    })`
   );

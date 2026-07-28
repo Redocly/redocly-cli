@@ -97,7 +97,7 @@ describe('renderTanstackModule', () => {
         'getPetOptions: (vars: GetPetVariables, init?: RequestOptions) => queryOptions({'
       );
       expect(out).toContain('queryKey: getPetQueryKey(vars)');
-      expect(out).toContain('queryFn: ({ signal }) => c.getPet(vars, { ...init, signal })');
+      expect(out).toContain('queryFn: ({ signal }) => instance.getPet(vars, { ...init, signal })');
     });
   });
 
@@ -113,7 +113,9 @@ describe('renderTanstackModule', () => {
       const out = render([postOp]);
       expect(out).toContain('createPetMutation: (init?: RequestOptions) => ({');
       expect(out).toContain('mutationKey: ["createPet"] as const');
-      expect(out).toContain('mutationFn: (vars: CreatePetVariables) => c.createPet(vars, init)');
+      expect(out).toContain(
+        'mutationFn: (vars: CreatePetVariables) => instance.createPet(vars, init)'
+      );
     });
   });
 
@@ -157,7 +159,7 @@ describe('renderTanstackModule', () => {
     it('binds the factories to a client parameter defaulting to the module singleton', () => {
       const out = render([{ name: 'listPets', method: 'get', path: '/pets' }]);
       expect(out).toContain(
-        'export const createQueryFactories = (c: typeof client = client) => ({'
+        'export const createQueryFactories = (instance: typeof client = client) => ({'
       );
       expect(out).toContain('const defaultFactories = createQueryFactories();');
       expect(out).toContain('export const listPetsOptions = defaultFactories.listPetsOptions;');
@@ -225,7 +227,7 @@ describe('renderTanstackModule', () => {
       );
       expect(out).toContain('queryKey: [...listOrdersQueryKey(vars), "infinite"] as const');
       expect(out).toContain(
-        'queryFn: ({ pageParam, signal }) => c.listOrders({ ...vars, params: { ...vars.params, after: pageParam } }, { ...init, signal })'
+        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, params: { ...vars.params, after: pageParam } }, { ...init, signal })'
       );
       expect(out).toContain('initialPageParam: vars.params?.after');
       expect(out).toContain('if (lastPage.page?.hasNextPage === false)');
@@ -315,13 +317,13 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('export const listPetsQueryKey = () => ["listPets"] as const;');
       expect(out).toContain('listPetsOptions: (init?: RequestOptions) => queryOptions({');
       expect(out).toContain('queryKey: listPetsQueryKey()');
-      expect(out).toContain('queryFn: ({ signal }) => c.listPets({}, { ...init, signal })');
+      expect(out).toContain('queryFn: ({ signal }) => instance.listPets({}, { ...init, signal })');
     });
 
     it('mutation: mutationFn takes no vars, passes an empty args object plus init', () => {
       const out = render([{ name: 'ping', method: 'post', path: '/ping' }]);
       expect(out).toContain('pingMutation: (init?: RequestOptions) => ({');
-      expect(out).toContain('mutationFn: () => c.ping({}, init)');
+      expect(out).toContain('mutationFn: () => instance.ping({}, init)');
     });
   });
 
