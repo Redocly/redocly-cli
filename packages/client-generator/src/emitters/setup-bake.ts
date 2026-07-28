@@ -53,7 +53,25 @@ export function bakeSetup(source: string): string {
       argText = unwrap(stmt.expression, defineClientSetupLocal).getText(sf);
       continue;
     }
-    kept.push(stmt.getText(sf));
+    if (ts.isExportDeclaration(stmt)) {
+      if (stmt.moduleSpecifier !== undefined) {
+        throw new NotSupportedError(
+          `A --setup file may only import from "${SETUP_IMPORT}"; found ` +
+            `"${(stmt.moduleSpecifier as ts.StringLiteral).text}". ` +
+            `Setup code may use web globals and the client contract only (keeps the client zero-dependency).`
+        );
+      }
+      continue; // a local `export { … }` list — the declarations themselves are kept below
+    }
+    // `export` is invalid inside the IIFE the helpers are wrapped in — keep the declaration only.
+    const exportModifier = ts.canHaveModifiers(stmt)
+      ? ts.getModifiers(stmt)?.find((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
+      : undefined;
+    kept.push(
+      exportModifier === undefined
+        ? stmt.getText(sf)
+        : source.slice(exportModifier.end, stmt.getEnd()).trimStart()
+    );
   }
 
   if (argText === undefined) {

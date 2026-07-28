@@ -47,6 +47,31 @@ describe('bakeSetup', () => {
     expect(out).not.toContain('setup(');
   });
 
+  it('strips the export modifier from exported helpers — export is invalid inside the IIFE', () => {
+    const out = bakeSetup(outdent`
+      import { defineClientSetup } from '@redocly/client-generator';
+      export const VERSION = '9.9';
+      export function stamp() { return VERSION; }
+      export default defineClientSetup({ config: { headers: { 'X-V': stamp() } } });
+    `);
+    expect(out).not.toContain('export');
+    expect(out).toContain("const VERSION = '9.9'");
+    expect(out).toContain('function stamp()');
+  });
+
+  it('drops a local re-export list and rejects one referencing another module', () => {
+    const out = bakeSetup(outdent`
+      const helper = 1;
+      export { helper };
+      export default { config: { serverUrl: 'https://x' } };
+    `);
+    expect(out).not.toContain('export');
+    expect(out).toContain('const helper = 1');
+    expect(() => bakeSetup(`export { x } from './other';\nexport default { config: {} };`)).toThrow(
+      /may only import from "@redocly\/client-generator"/
+    );
+  });
+
   it('wraps file-level helper declarations in an IIFE so they are preserved and scoped', () => {
     const out = bakeSetup(outdent`
       import { defineClientSetup } from '@redocly/client-generator';
