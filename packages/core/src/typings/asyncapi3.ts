@@ -62,17 +62,6 @@ export interface Async3Components {
   servers?: Record<string, Referenced<Async3Server>>;
 }
 
-export interface Async3SecurityScheme {
-  type: string;
-  description?: string;
-  name?: string;
-  in?: string;
-  scheme?: string;
-  bearerFormat?: string;
-  openIdConnectUrl?: string;
-  flows?: Record<string, unknown>;
-}
-
 export interface Async3Server {
   host: string;
   protocol: string;
