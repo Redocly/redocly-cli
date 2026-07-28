@@ -27,7 +27,7 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
-  collectSpecData?.(document.parsed);
+  collectSpecData?.(document);
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
 

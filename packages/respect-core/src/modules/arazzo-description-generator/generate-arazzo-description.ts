@@ -21,7 +21,7 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
 export async function generateArazzoDescription(opts: GenerateArazzoOptions) {
   const { descriptionPath, outputFile, collectSpecData } = opts;
   const document = (await bundleOpenApi(opts)) || {};
-  collectSpecData?.(document);
+  collectSpecData?.({ parsed: document });
 
   const { paths: pathsObject, info, security: rootSecurity, components } = document;
   const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);

@@ -7,3 +7,4 @@ packages/cli/src/utils/telemetry.ts @Redocly/hot-dogs
 packages/cli/src/commands/drift/ @Redocly/cyberpunks
 packages/cli/src/commands/generate-spec/ @Redocly/cyberpunks
 packages/cli/src/commands/proxy/ @Redocly/cyberpunks
+cookbook/**/*.md @Redocly/technical-writers
