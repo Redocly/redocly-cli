@@ -227,8 +227,11 @@ jobs:
           jq ".version = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
 
-          # Update CLI package version
+          # Update CLI package version and dependencies, so npm links the local
+          # workspace packages instead of installing the published versions
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".devDependencies[\"@redocly/openapi-core\"] = \"$VERSION\" | .devDependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/client-generator\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
           # Add comment with installation instructions
           COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.

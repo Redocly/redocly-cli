@@ -68,9 +68,9 @@ export {
   escapePointerFragment,
   type Location,
 } from './ref-utils.js';
-export { detectSpec } from './detect-spec.js';
+export { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 export { getTypes, type SpecVersion, type SpecMajorVersion } from './oas-types.js';
-export { getMajorSpecVersion } from './detect-spec.js';
+export { isGraphqlRef } from './graphql/detect-graphql.js';
 export {
   normalizeVisitors,
   type Oas3Visitor,

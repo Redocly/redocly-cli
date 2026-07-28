@@ -40,7 +40,7 @@ export async function lint(opts: {
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
-  opts.collectSpecData?.(document.parsed);
+  opts.collectSpecData?.(document);
 
   return lintDocument({
     document,
