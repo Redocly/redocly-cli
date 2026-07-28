@@ -14,7 +14,8 @@ The input and output are not part of the `client` block:
 ## Options
 
 Each scalar option mirrors the matching CLI flag and shares its default — see the [command options](../../commands/generate-client.md#options) for the full description of each value.
-The `pagination` option is config-only and has no flag.
+The `pagination` option is config-only — a structured, durable contract that belongs in versioned configuration rather than a shell string.
+For runs without a configuration file, declare pagination per operation with the `x-pagination` extension in the description, or pass `pagination` to the programmatic `generateClient(...)`.
 
 | Option           | Type                                    | Description                                                                                                                                                                                                                                     |
 | ---------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
