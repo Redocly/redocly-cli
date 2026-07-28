@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info:
+  title: Discriminator mapping to a composed schema
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          cat: ./schemas/Cat.yaml

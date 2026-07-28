@@ -1022,6 +1022,25 @@ describe('sibling $ref resolution by spec', () => {
     });
   });
 
+  it('should bundle discriminator mappings that point to composed schemas', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-discriminator-mapping.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as any).components.schemas;
+    expect(schemas.Pet.discriminator.mapping.cat).toEqual('#/components/schemas/Cat');
+    expect(schemas.Cat).toEqual({
+      title: 'Cat',
+      $ref: '#/components/schemas/BaseProblem',
+      properties: {
+        toy: { $ref: '#/components/schemas/Toy' },
+      },
+    });
+    expect(schemas.Toy).toEqual({ type: 'string' });
+  });
+
   it('should keep referenced composed schemas when removing unused components', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
