@@ -20,4 +20,3 @@ paths:
           description: OK
         400:
           description: Bad request
-          

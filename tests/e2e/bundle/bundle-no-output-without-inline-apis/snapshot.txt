@@ -32,5 +32,9 @@ Options:
       --component-renaming-conflicts-sever  Whether to show warnings or fail on
       ity                                   renaming conflicts (defaults to warn
                                             ). [choices: "warn", "error", "off"]
+      --component-names-strategy            How to name inlined Schema component
+                                            s: 'basename' (default) or 'title' (
+                                            from each schema's `title`).
+                            [choices: "basename", "title"] [default: "basename"]
 
 At least one inline API must be specified when using --output.

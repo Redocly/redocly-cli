@@ -3,9 +3,11 @@ import { isDefined } from '../../utils/is-defined.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { validateExample } from '../utils.js';
+import { AjvValidator } from '../ajv.js';
+import { getExampleValueToValidate, validateExample } from '../utils.js';
 
 export const NoInvalidParameterExamples: Oas3Rule | Oas2Rule = (opts) => {
+  const validator = new AjvValidator();
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {
@@ -16,6 +18,7 @@ export const NoInvalidParameterExamples: Oas3Rule | Oas2Rule = (opts) => {
             options: {
               location: ctx.location.child('example'),
               ctx,
+              validator,
               allowAdditionalProperties: !!opts.allowAdditionalProperties,
               ajvContext: { apiContext: 'request' },
             },
@@ -25,13 +28,15 @@ export const NoInvalidParameterExamples: Oas3Rule | Oas2Rule = (opts) => {
 
         if (isPlainObject(parameter.examples)) {
           for (const [key, example] of Object.entries(parameter.examples)) {
-            if (isPlainObject(example) && 'value' in example) {
+            const selected = getExampleValueToValidate(example);
+            if (selected) {
               validateExample({
-                example: example.value,
+                example: selected.value,
                 schema: parameter.schema!,
                 options: {
-                  location: ctx.location.child(['examples', key]),
+                  location: ctx.location.child(['examples', key, selected.field]),
                   ctx,
+                  validator,
                   allowAdditionalProperties: !!opts.allowAdditionalProperties,
                   ajvContext: { apiContext: 'request' },
                 },

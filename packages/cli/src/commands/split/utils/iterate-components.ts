@@ -11,6 +11,7 @@ import * as path from 'node:path';
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { COMPONENTS } from '../constants.js';
 import type { AnyOas3Definition, ComponentsFiles } from '../types.js';
+import { assertWithinDir } from './assert-within-dir.js';
 import { createComponentDir } from './create-component-dir.js';
 import { doesFileDiffer } from './does-file-differ.js';
 import { extractFileNameFromPath } from './extract-filename-from-path.js';
@@ -42,6 +43,7 @@ export function iterateComponents(
       const componentDirPath = path.join(componentsDir, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
         const filename = getFileNamePath(componentDirPath, componentName, ext);
+        assertWithinDir(openapiDir, filename, componentName);
         gatherComponentsFiles(components!, componentsFiles, componentType, componentName, filename);
       }
     }

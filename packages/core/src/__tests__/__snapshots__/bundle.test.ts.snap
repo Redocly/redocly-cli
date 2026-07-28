@@ -397,6 +397,38 @@ components:
 
 `;
 
+exports[`bundle async > should bundle async of version 3.1 with a ros2 binding 1`] = `
+asyncapi: 3.1.0
+info:
+  title: Robot Service
+  version: 1.0.0
+servers:
+  production:
+    host: localhost
+    protocol: ros2
+    bindings:
+      ros2:
+        domainId: 42
+operations:
+  sendCmdVel:
+    action: send
+    messages:
+      - payload: &ref_1
+          type: object
+          properties: &ref_0
+            linear:
+              type: number
+components:
+  schemas:
+    Twist:
+      type: object
+      properties: *ref_0
+  messages:
+    TwistMsg:
+      payload: *ref_1
+
+`;
+
 exports[`bundle async > should normalize self-file explicit $ref in asyncapi 2 1`] = `
 asyncapi: 2.6.0
 info:
@@ -440,6 +472,85 @@ components:
           type: string
         nested:
           $ref: '#/components/schemas/NestedSchema'
+
+`;
+
+exports[`bundle with --component-names-strategy title > sanitizes unsupported characters in a title into the component name 1`] = `
+openapi: 3.1.0
+info:
+  title: title-naming unsupported-title fixture
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Foo-Bar'
+components:
+  schemas:
+    Foo-Bar:
+      type: object
+      title: Foo & Bar
+      properties:
+        foo:
+          type: string
+
+`;
+
+exports[`bundle with --component-names-strategy title > should build Schema component names from title when flag is on 1`] = `
+openapi: 3.1.0
+info:
+  title: title-naming fixture
+  version: 1.0.0
+paths:
+  /authorities:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityModel'
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorityRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityModel'
+components:
+  schemas:
+    AuthorityModel:
+      type: object
+      title: Authority model
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - name
+    AuthorityRequest:
+      type: object
+      title: Authority request
+      properties:
+        name:
+          type: string
+      required:
+        - name
 
 `;
 

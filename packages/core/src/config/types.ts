@@ -19,6 +19,7 @@ import type {
   Overlay1RuleSet,
   OpenRpc1RuleSet,
   OpenRpc1DecoratorsSet,
+  GraphqlRuleSet,
 } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
 import type { NodeType } from '../types/index.js';
@@ -30,6 +31,7 @@ import type {
   BuiltInArazzo1RuleId,
   BuiltInOverlay1RuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInGraphqlRuleId,
   BuiltInCommonRuleId,
   BuiltInOas2DecoratorId,
   BuiltInOas3DecoratorId,
@@ -91,8 +93,10 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
   arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
+  arazzo1_1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
+  graphqlRules?: RuleMap<BuiltInGraphqlRuleId, RuleConfig, T>;
 
   preprocessors?: Record<string, DecoratorConfig>;
   oas2Preprocessors?: Record<
@@ -114,6 +118,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Preprocessors?: Record<string, PreprocessorConfig>;
   async3Preprocessors?: Record<string, PreprocessorConfig>;
   arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
+  arazzo1_1Preprocessors?: Record<string, PreprocessorConfig>;
   overlay1Preprocessors?: Record<string, PreprocessorConfig>;
   openrpc1Preprocessors?: Record<string, PreprocessorConfig>;
 
@@ -134,6 +139,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Decorators?: Record<string, DecoratorConfig>;
   async3Decorators?: Record<string, DecoratorConfig>;
   arazzo1Decorators?: Record<string, DecoratorConfig>;
+  arazzo1_1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
 };
@@ -146,6 +152,7 @@ export type PreprocessorsConfig = {
   async2?: Async2DecoratorsSet;
   async3?: Async3DecoratorsSet;
   arazzo1?: Arazzo1DecoratorsSet;
+  arazzo1_1?: Arazzo1DecoratorsSet;
   overlay1?: Overlay1DecoratorsSet;
   openrpc1?: OpenRpc1DecoratorsSet;
 };
@@ -156,6 +163,7 @@ export type DecoratorsConfig = {
   async2?: Async2DecoratorsSet;
   async3?: Async3DecoratorsSet;
   arazzo1?: Arazzo1DecoratorsSet;
+  arazzo1_1?: Arazzo1DecoratorsSet;
   overlay1?: Overlay1DecoratorsSet;
   openrpc1?: OpenRpc1DecoratorsSet;
 };
@@ -173,8 +181,10 @@ export type RulesConfig<T> = {
   async2?: Async2RuleSet<T>;
   async3?: Async3RuleSet<T>;
   arazzo1?: Arazzo1RuleSet<T>;
+  arazzo1_1?: Arazzo1RuleSet<T>;
   overlay1?: Overlay1RuleSet<T>;
   openrpc1?: OpenRpc1RuleSet<T>;
+  graphql?: GraphqlRuleSet<T>;
 };
 
 export type CustomRulesConfig = RulesConfig<undefined>;

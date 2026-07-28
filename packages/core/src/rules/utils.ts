@@ -3,6 +3,7 @@ import { default as levenshtein } from 'js-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
 import type {
+  Oas3Example,
   Oas3Schema,
   Oas3Tag,
   Oas3_2Tag,
@@ -10,9 +11,10 @@ import type {
   Referenced,
 } from '../typings/openapi.js';
 import type { Oas2Tag } from '../typings/swagger.js';
+import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import { validateJsonSchema } from './ajv.js';
+import type { AjvValidator } from './ajv.js';
 
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
@@ -166,6 +168,15 @@ export function getSuggest(given: string, variants: string[]): string[] {
   return distances.map((d) => d.variant);
 }
 
+export function getExampleValueToValidate(
+  example: unknown
+): { value: unknown; field: 'dataValue' | 'value' } | undefined {
+  if (!isPlainObject<Oas3Example>(example)) return undefined;
+  if (isDefined(example.dataValue)) return { value: example.dataValue, field: 'dataValue' };
+  if (isDefined(example.value)) return { value: example.value, field: 'value' };
+  return undefined;
+}
+
 export function validateExample({
   example,
   schema,
@@ -177,15 +188,16 @@ export function validateExample({
   options: {
     location: Location;
     ctx: UserContext;
+    validator: AjvValidator;
     allowAdditionalProperties: boolean;
     ajvContext?: AjvContext;
   };
   reference?: string;
 }) {
-  const { location, ctx, allowAdditionalProperties, ajvContext } = options;
+  const { location, ctx, validator, allowAdditionalProperties, ajvContext } = options;
   const { resolve, location: parentLocation, report, specVersion } = ctx;
   try {
-    const { valid, errors } = validateJsonSchema(example, schema, {
+    const { valid, errors } = validator.validate(example, schema, {
       schemaLoc: parentLocation.child('schema'),
       instancePath: location.pointer,
       resolve,
@@ -222,22 +234,31 @@ export function validateExample({
   }
 }
 
+const MAX_ENUM_VALUES_IN_MESSAGE = 10;
+
 export function validateSchemaEnumType(
   schemaEnum: string[],
   propertyValue: string,
   propName: string,
   refLocation: Location | undefined,
-  { report, location }: UserContext
+  { report, location }: UserContext,
+  documentationLink?: string
 ) {
   if (!schemaEnum) {
     return;
   }
   if (!schemaEnum.includes(propertyValue)) {
+    const message =
+      schemaEnum.length > MAX_ENUM_VALUES_IN_MESSAGE
+        ? `\`${propName}\` "${propertyValue}" is not a valid value.${
+            documentationLink ? ` See the supported values: ${documentationLink}.` : ''
+          }`
+        : `\`${propName}\` can be one of the following only: ${schemaEnum
+            .map((type) => `"${type}"`)
+            .join(', ')}.`;
     report({
       location,
-      message: `\`${propName}\` can be one of the following only: ${schemaEnum
-        .map((type) => `"${type}"`)
-        .join(', ')}.`,
+      message,
       from: refLocation,
       suggest: getSuggest(propertyValue, schemaEnum),
     });

@@ -1,25 +1,34 @@
 #!/usr/bin/env node
 import './utils/assert-node-version.js';
 
-import { logger, type OutputFormat, type RuleSeverity } from '@redocly/openapi-core';
+import {
+  logger,
+  type OutputFormat,
+  type RuleSeverity,
+  type ComponentNamesStrategy,
+} from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { handleLogin, handleLogout } from './commands/auth.js';
-import { handlerBuildCommand } from './commands/build-docs/index.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
+import type { ReportFormat } from './commands/drift/engine/reporter.js';
+import { type DriftArgv } from './commands/drift/index.js';
+import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
+import { type ProxyArgv } from './commands/proxy/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
@@ -374,6 +383,7 @@ yargs(hideBin(process.argv))
               'summary',
               'markdown',
               'github-actions',
+              'junit',
             ] as ReadonlyArray<OutputFormat>,
             default: 'codeframe' as OutputFormat,
           },
@@ -490,6 +500,12 @@ yargs(hideBin(process.argv))
             description:
               'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          },
+          'component-names-strategy': {
+            description:
+              "How to name inlined Schema components: 'basename' (default) or 'title' (from each schema's `title`).",
+            choices: ['basename', 'title'] as ReadonlyArray<ComponentNamesStrategy>,
+            default: 'basename' as ComponentNamesStrategy,
           },
         })
         .check((argv) => {
@@ -651,6 +667,7 @@ yargs(hideBin(process.argv))
           return true;
         }),
     async (argv) => {
+      const { handlerBuildCommand } = await import('./commands/build-docs/index.js');
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
@@ -840,6 +857,80 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
+    'generate-spec <traffic>',
+    'Infer an OpenAPI description from recorded HTTP traffic, optionally refined with AI [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_GENERATE_SPEC')
+        .positional('traffic', {
+          describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
+          type: 'string',
+        })
+        .option({
+          type: {
+            describe: 'Target API description type.',
+            choices: ['openapi'] as const,
+            default: 'openapi' as const,
+          },
+          'traffic-format': {
+            describe: 'Traffic input format.',
+            choices: [
+              'auto',
+              'har',
+              'kong',
+              'nginx-json',
+              'apache-json',
+              'ndjson',
+            ] as ReadonlyArray<TrafficFormat>,
+            default: 'auto' as TrafficFormat,
+          },
+          server: {
+            describe:
+              'Server URL the traffic was captured against: only requests under it are considered, the rest of their URL becomes the API path, and it becomes the servers URL of the generated description.',
+            type: 'string',
+          },
+          title: {
+            describe: 'Title for the generated API description.',
+            type: 'string',
+          },
+          'with-ai': {
+            describe:
+              'Refine the inferred description with an AI provider to narrow the hypothesis.',
+            type: 'boolean',
+            default: false,
+          },
+          'ai-provider': {
+            describe:
+              'AI provider used with --with-ai; runs the "claude", "codex", or "cursor" CLI in non-interactive mode.',
+            choices: ['claude', 'codex', 'cursor'] as ReadonlyArray<
+              GenerateSpecArgv['ai-provider']
+            >,
+            default: 'claude' as GenerateSpecArgv['ai-provider'],
+          },
+          'ai-model': {
+            describe:
+              'Model passed to the selected AI provider (provider-specific default applies).',
+            type: 'string',
+          },
+          'ai-concurrency': {
+            describe: 'Number of operations refined in parallel with --with-ai.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
+          output: {
+            alias: 'o',
+            describe: 'Write the generated description to this file instead of stdout.',
+            type: 'string',
+          },
+          config: { describe: 'Path to the config file.', type: 'string' },
+        }),
+    async (argv) => {
+      const { handleGenerateSpec } = await import('./commands/generate-spec/index.js');
+      commandWrapper(handleGenerateSpec)(argv as Arguments<GenerateSpecArgv>);
+    }
+  )
+  .command(
     'scorecard-classic [api]',
     'Run quality scorecards with multiple rule levels to validate and maintain API description standards.',
     (yargs) => {
@@ -875,6 +966,165 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
+    }
+  )
+  .command(
+    'drift <traffic>',
+    'Detect drift between recorded HTTP traffic and an OpenAPI description [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DRIFT')
+        .positional('traffic', {
+          describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
+          type: 'string',
+        })
+        .option({
+          api: {
+            describe: 'OpenAPI description file or folder to validate against.',
+            type: 'string',
+            demandOption: true,
+          },
+          'traffic-format': {
+            describe: 'Traffic input format.',
+            choices: [
+              'auto',
+              'har',
+              'kong',
+              'nginx-json',
+              'apache-json',
+              'ndjson',
+            ] as ReadonlyArray<TrafficFormat>,
+            default: 'auto' as TrafficFormat,
+          },
+          'report-format': {
+            describe: 'Output format.',
+            alias: 'format',
+            choices: ['pretty', 'json', 'csv', 'sarif'] as ReadonlyArray<ReportFormat>,
+            default: 'pretty' as ReportFormat,
+          },
+          'match-mode': {
+            describe:
+              'Endpoint matching mode (how requests are located via the description servers). Mutually exclusive with --server.',
+            choices: ['strict-host', 'basepath'] as ReadonlyArray<MatchMode>,
+            defaultDescription: 'strict-host',
+          },
+          'ignore-cookies': {
+            describe: 'Ignore cookie-based checks (useful for logs exported without cookies).',
+            type: 'boolean',
+            default: false,
+          },
+          'ignore-headers': {
+            describe:
+              'Comma-separated header names to skip in undocumented-header checks. A trailing "*" matches by prefix, e.g. "x-consumer-*".',
+            type: 'string',
+          },
+          'max-findings': {
+            describe: 'Maximum findings shown in pretty output.',
+            type: 'number',
+            default: 10,
+          },
+          'min-severity': {
+            describe: 'Discard findings below this severity from the report.',
+            choices: ['info', 'warning', 'error'] as ReadonlyArray<FindingSeverity>,
+            default: 'info' as FindingSeverity,
+          },
+          rules: {
+            describe: 'Comma-separated builtin rules to run.',
+            type: 'string',
+          },
+          output: {
+            alias: 'o',
+            describe:
+              'Write the drift report (in the format selected with --format) to this file instead of stdout.',
+            type: 'string',
+          },
+          server: {
+            describe:
+              'Server URL the traffic was captured against: only requests under it are considered, and the rest of their URL is treated as the API path. It replaces the description servers and the remaining path is matched against the description paths directly. Mutually exclusive with --match-mode.',
+            type: 'string',
+          },
+          config: { describe: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            describe: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+        }),
+    async (argv) => {
+      const { handleDrift } = await import('./commands/drift/index.js');
+      commandWrapper(handleDrift)(argv as Arguments<DriftArgv>);
+    }
+  )
+  .command(
+    'proxy',
+    'Capture live HTTP traffic through a reverse proxy into a HAR file, optionally validating it against an OpenAPI description [experimental].',
+    (yargs) =>
+      yargs.env('REDOCLY_CLI_PROXY').option({
+        target: {
+          describe: 'Upstream base URL to forward captured requests to.',
+          type: 'string',
+          demandOption: true,
+        },
+        port: {
+          describe: 'Port the proxy listens on.',
+          type: 'number',
+          default: 4040,
+        },
+        host: {
+          describe: 'Host the proxy binds to.',
+          type: 'string',
+          default: '127.0.0.1',
+        },
+        har: {
+          describe: 'Path to the HAR file where captured traffic is written.',
+          type: 'string',
+          demandOption: true,
+        },
+        api: {
+          describe:
+            'OpenAPI description file or folder to validate captured traffic against (live).',
+          type: 'string',
+        },
+        'report-format': {
+          describe: 'Output format for the validation report printed on shutdown.',
+          alias: 'format',
+          choices: ['pretty', 'json', 'csv', 'sarif'] as ReadonlyArray<ReportFormat>,
+          default: 'pretty' as ReportFormat,
+        },
+        'match-mode': {
+          describe: 'Endpoint matching mode.',
+          choices: ['strict-host', 'basepath'] as ReadonlyArray<MatchMode>,
+          default: 'strict-host' as MatchMode,
+        },
+        'ignore-cookies': {
+          describe: 'Ignore cookie-based checks.',
+          type: 'boolean',
+          default: false,
+        },
+        'ignore-headers': {
+          describe:
+            'Comma-separated header names to skip in undocumented-header checks. A trailing "*" matches by prefix, e.g. "x-consumer-*".',
+          type: 'string',
+        },
+        'max-findings': {
+          describe: 'Maximum findings shown in pretty output.',
+          type: 'number',
+          default: 10,
+        },
+        rules: {
+          describe: 'Comma-separated builtin rules to run.',
+          type: 'string',
+        },
+        config: { describe: 'Path to the config file.', type: 'string' },
+        'lint-config': {
+          describe: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
+      }),
+    async (argv) => {
+      const { handleProxy } = await import('./commands/proxy/index.js');
+      commandWrapper(handleProxy)(argv as Arguments<ProxyArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

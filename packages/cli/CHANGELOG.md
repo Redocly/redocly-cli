@@ -1,5 +1,158 @@
 # @redocly/cli
 
+## 2.41.0
+
+### Minor Changes
+
+- Added a new built-in rule `security-scopes-defined` that requires every scope used in a security requirement to be defined in the corresponding OAuth2 security scheme.
+  The rule supports OpenAPI 2.0/3.x and AsyncAPI 2.6/3.0, suggests the closest defined scope for typos, and has an opt-in `requireScopes` option that requires OAuth2 security requirements to list at least one scope.
+
+### Patch Changes
+
+- Fixed an issue in `respect` where the execution of parent workflow's steps didn't halt after a step that referenced another workflow had failed.
+- Fixed an issue where the `cursor` AI provider of the `generate-spec` command sent only the instructions to the model and the operation to refine never reached it.
+- Updated @redocly/openapi-core to v2.41.0.
+- Updated @redocly/respect-core to v2.41.0.
+
+## 2.40.0
+
+### Minor Changes
+
+- Added an `--ignore-headers` option to the experimental `drift` and `proxy` commands.
+  It takes a comma-separated list of header names to skip in undocumented-header checks, and a trailing `*` matches by prefix (for example `x-consumer-*`).
+  Use it to silence headers a gateway or proxy adds that are not part of the API contract.
+- Added an experimental `generate-spec` command that infers an OpenAPI description from recorded HTTP traffic.
+
+### Patch Changes
+
+- Fixed the `drift` command's `schema-consistency` rule reporting false-positive "Undocumented query parameter" findings for `deepObject`-style query parameters.
+  Traffic keys like `namespace[id]=...&namespace[name]=...` are now matched to the documented `namespace` parameter, and the reconstructed object is validated against the parameter schema.
+- Fixed an issue where the `drift` command's `schema-consistency` rule reported false-positive request findings for exchanges the server rejected with a `4xx` client error.
+  For example: missing required parameter, missing required body, request-body schema mismatch.
+  A `4xx` response means the server never accepted the request.
+  Validating it against the operation's success-path contract flagged the server's own correct rejection as drift.
+  Response-side validation still runs, so a documented error response whose shape differs from reality is still reported.
+- Fixed an issue where the `join` command silently dropped path-level `x-*` extensions with non-string values.
+- Updated js-yaml from `4.2.0` to `5.2.1`.
+  Fixed an issue where strings that look like numbers with underscores (for example `'12_34'`) had quotation marks removed by the `bundle` command.
+  These strings stay quoted in the output.
+
+  **Note**: YAML parsing is stricter: a multi-line flow collection whose closing bracket is not indented deeper than its parent key is now a parse error.
+  Parse errors are reported at the offending token instead of the end of the document.
+
+- Fixed an issue where the `drift` command's `security-baseline` rule reported false-positive "credential exposure over insecure HTTP transport" warnings for traffic captured against loopback hosts, for example: `localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`.
+  Sandboxed recordings no longer produce transport warnings.
+- Fixed an issue where the `bundle` command rewrote internal `$ref`s pointing to other `$ref`s.
+  The issue caused AsyncAPI 3 operation `messages` references to point to `components` instead of channel messages.
+- Updated @redocly/openapi-core to v2.40.0.
+
+## 2.39.0
+
+### Minor Changes
+
+- Added support for AsyncAPI 3.1.0 descriptions.
+- Fixed the `struct` rule to validate the contents of AsyncAPI protocol-specific bindings.
+  Added typed definitions for the `sns`, `sqs`, `ibmmq`, `googlepubsub`, `pulsar` and `ros2` bindings.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.39.0.
+
+## 2.38.0
+
+### Minor Changes
+
+- Added an experimental `drift` command that compares recorded HTTP traffic (HAR, Kong, Nginx/Apache JSON, NDJSON) against an OpenAPI description and reports undocumented endpoints, schema mismatches, and security findings.
+- Added an experimental `proxy` command that captures live HTTP traffic through a reverse proxy into a HAR file and optionally validates it against an OpenAPI description in real time.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.38.0.
+
+## 2.37.0
+
+### Minor Changes
+
+- Added experimental support for linting GraphQL SDL schema files (`.graphql` / `.gql`).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.37.0.
+
+## 2.36.0
+
+### Minor Changes
+
+- Added a Subresource Integrity (SRI) hash to the Redoc standalone script tag in the HTML produced by `build-docs`, ensuring the script's integrity.
+
+## 2.35.1
+
+### Patch Changes
+
+- Updated `undici` to the `6.27.0` version.
+
+## 2.35.0
+
+### Minor Changes
+
+- Added support for validating Arazzo 1.1.0 descriptions syntax in the `lint` command.
+- Added the `spec-step-mutually-exclusive-fields` Arazzo rule to flag steps that use more than one mutually exclusive operation field (`operationId`, `operationPath`, `workflowId`, `channelPath`, or `x-operation`).
+
+## 2.34.0
+
+### Minor Changes
+
+- Improved CLI install speed by bundling the CLI into a dependency-free package.
+
+  **Warning:** The published package no longer ships runtime dependencies in `node_modules`.
+  Plugins that relied on importing packages hoisted from the CLI (such as `@redocly/openapi-core`) must now declare those packages as their own dependencies.
+
+## 2.33.2
+
+### Patch Changes
+
+- Fixed a path traversal in the `split` command that might have written files outside the chosen `--outDir`.
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0
+
+### Minor Changes
+
+- Added the `--component-names-strategy` option to the `bundle` command.
+  This option allows a choice of how inline Schema components are named: `basename` (default) or `title` (from each schema's `title` field).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.0.
+
+## 2.32.2
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.32.2.
+
+## 2.32.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
+## 2.32.0
+
+### Minor Changes
+
+- Added support for `junit` output in the `lint` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
 ## 2.31.6
 
 ### Patch Changes

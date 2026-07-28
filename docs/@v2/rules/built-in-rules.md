@@ -35,6 +35,7 @@ The rules list is split into sections.
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [nullable-type-sibling](./oas/nullable-type-sibling.md): `nullable` must be used with a `type`
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
+- [security-scopes-defined](./common/security-scopes-defined.md): Scopes used in security requirements must be defined in the corresponding OAuth2 security scheme
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
 - [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`
@@ -136,6 +137,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [sourceDescription-name-unique](./arazzo/sourceDescription-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
 - [sourceDescription-type](./arazzo/sourceDescription-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
 - [spec-parameters-in-by-context](./arazzo/spec-parameters-in-by-context.md): the parameter `in` field must be specified or omitted based on whether the parent step or action references a `workflowId`
+- [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md): a step must use only one of its mutually exclusive operation fields
 - [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
@@ -150,9 +152,17 @@ The below rules are being migrated to Respect:
 - [no-criteria-xpath](./respect/no-criteria-xpath.md): the `xpath` type criteria is not supported by Respect.
 - [no-x-security-both-scheme-and-scheme-name](./respect/no-x-security-both-scheme-and-scheme-name.md): forbids using both `scheme` and `schemeName` in the same `x-security` item
 - [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md): the `x-security` can't use `schemeName` when Step request is described with `x-operation`.
-- [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 - [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
 - [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md): validate that `x-security` have all required `values` described according to the used `scheme`.
+
+## Overlay rules
+
+Rules for the main Overlay specification format.
+
+### Overlay
+
+- [info-contact](./overlay/info-contact.md): Contact section is defined under `info`
+- [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
 
 ## Open-RPC rules
 

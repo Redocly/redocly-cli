@@ -9,7 +9,7 @@ paths:
       operationId: getTest
       parameters:
         - name: validExclusiveMinimum
-          description: "OAS 3.0 draft4: exclusiveMinimum is boolean, used with minimum"
+          description: 'OAS 3.0 draft4: exclusiveMinimum is boolean, used with minimum'
           in: query
           schema:
             type: integer
@@ -18,7 +18,7 @@ paths:
           example: 11
 
         - name: invalidExclusiveMinimumBoundary
-          description: "exclusiveMinimum boundary (value equals threshold)"
+          description: 'exclusiveMinimum boundary (value equals threshold)'
           in: query
           schema:
             type: integer
@@ -27,7 +27,7 @@ paths:
           example: 10
 
         - name: validExclusiveMaximum
-          description: "OAS3.0 draft4: exclusiveMaximum is boolean, used with maximum"  
+          description: 'OAS3.0 draft4: exclusiveMaximum is boolean, used with maximum'
           in: query
           schema:
             type: integer
@@ -41,7 +41,7 @@ components:
   parameters:
     RefInvalidExclusiveMinimumBoundary:
       name: refInvalidExclusiveMinimumBoundary
-      description: "Reference-based invalid boundary case"
+      description: Reference-based invalid boundary case
       in: query
       schema:
         type: integer

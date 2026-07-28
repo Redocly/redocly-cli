@@ -1,0 +1,5 @@
+plugins:
+  - swap-fields.js
+
+decorators:
+  swap-fields/summary-description: on

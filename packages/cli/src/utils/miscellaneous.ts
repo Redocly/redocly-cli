@@ -546,6 +546,8 @@ export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
     ...rules.async3,
     ...rules.arazzo1,
     ...rules.overlay1,
+    ...rules.openrpc1,
+    ...rules.graphql,
   };
 
   if (isEmptyObject(ruleset)) {

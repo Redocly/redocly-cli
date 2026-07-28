@@ -9,7 +9,7 @@ export type BuildDocsOptions = {
   templateFileName?: string;
   templateOptions?: any;
   redocOptions?: any;
-  redocCurrentVersion: string;
+  redocVersion: string;
 };
 
 export type BuildDocsArgv = {

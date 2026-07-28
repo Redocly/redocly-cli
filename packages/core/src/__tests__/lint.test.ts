@@ -6,7 +6,6 @@ import { describe, it, expect } from 'vitest';
 
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
-import { detectSpec } from '../detect-spec.js';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 import { createConfigTypes } from '../types/redocly-yaml.js';
@@ -549,8 +548,44 @@ describe('lint', () => {
             "apis",
             "seo",
             "sso",
+            "idps",
             "mcp",
             "env",
+          ],
+        },
+      ]
+    `);
+  });
+
+  it('lintConfig should suggest the correct GraphQL node kind for a misspelled configurable rule subject.type', async () => {
+    const testConfigContent = outdent`
+        rules:
+          rule/graphql-type-casing:
+            subject:
+              type: ObjectTypeDefinitio
+              property: name
+            assertions:
+              casing: PascalCase
+      `;
+    const config = await createConfig(testConfigContent);
+    const results = await lintConfig({ config });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/rules/rule~1graphql-type-casing/subject/type",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`type\` "ObjectTypeDefinitio" is not a valid value. See the supported values: https://redocly.com/docs/cli/rules/configurable-rules#subject-object.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [
+            "ObjectTypeDefinition",
           ],
         },
       ]
@@ -1638,48 +1673,6 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('detect OpenAPI should throw an error when version is not string', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        openapi: 3.0
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(
-      `Invalid OpenAPI version: should be a string but got "number"`
-    );
-  });
-
-  it('detect unsupported OpenAPI version', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        openapi: 1.0.4
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported OpenAPI version: 1.0.4`);
-  });
-
-  it('detect unsupported AsyncAPI version', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        asyncapi: 1.0.4
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported AsyncAPI version: 1.0.4`);
-  });
-
-  it('detect unsupported spec format', () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        notapi: 3.1.0
-      `,
-      ''
-    );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported specification`);
-  });
-
   it("struct rule shouldn't throw an error for named callback", async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -2002,6 +1995,26 @@ describe('lint', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not produce spurious example validation errors when linting concurrently', async () => {
+    const config = await createConfig({
+      rules: { 'no-invalid-media-type-examples': 'error' },
+    });
+
+    const [resultsA, resultsB] = await Promise.all([
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-a.yaml'),
+        config,
+      }),
+      lint({
+        ref: path.join(__dirname, 'fixtures/concurrent-lint/spec-b.yaml'),
+        config,
+      }),
+    ]);
+
+    expect(resultsA).toHaveLength(0);
+    expect(resultsB).toHaveLength(0);
   });
 
   it('should report no unresolved extends when scorecardClassic extends contains a ref to non existing preset', async () => {

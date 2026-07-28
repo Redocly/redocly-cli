@@ -2715,6 +2715,11 @@ describe('runStep', () => {
     } as unknown as TestContext;
 
     vi.mocked(resolveWorkflowContext).mockResolvedValueOnce(localCTX);
+    vi.mocked(runWorkflow).mockResolvedValueOnce({
+      type: 'workflow',
+      workflowId: 'reusable-workflow',
+      executedSteps: [],
+    } as unknown as WorkflowExecutionResult);
 
     await runStep({
       step,
@@ -2725,6 +2730,72 @@ describe('runStep', () => {
 
     expect(runWorkflow).toHaveBeenCalled();
     expect(localCTX.$steps['get-bird'].outputs).toEqual({ stepOutput: 'Hello, world!' });
+  });
+
+  it('should end parent workflow when child workflow step has failed steps', async () => {
+    const step: Step = {
+      stepId: 'call-child-workflow',
+      workflowId: 'child-workflow',
+      checks: [],
+      response: {} as any,
+    };
+    const localCTX = {
+      executedSteps: [],
+      $steps: {},
+      workflows: [
+        {
+          workflowId: 'parent-workflow',
+          steps: [step],
+        },
+        {
+          workflowId: 'child-workflow',
+          steps: [
+            {
+              stepId: 'child-step',
+              'x-operation': {
+                url: 'http://localhost:3000/delete-mock',
+                method: 'delete',
+              },
+              successCriteria: [{ condition: '$statusCode == 204' }],
+              checks: [],
+            },
+          ],
+        },
+      ],
+      options: {
+        filePath: 'runStepTest.yml',
+        logger: logger,
+      },
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+    } as unknown as TestContext;
+
+    vi.mocked(resolveWorkflowContext).mockResolvedValueOnce(localCTX);
+    vi.mocked(runWorkflow).mockResolvedValueOnce({
+      type: 'workflow',
+      workflowId: 'child-workflow',
+      executedSteps: [
+        {
+          stepId: 'child-step',
+          checks: [
+            {
+              name: CHECKS.SUCCESS_CRITERIA_CHECK,
+              message: 'Checking simple criteria: {"condition":"$statusCode == 204"}',
+              passed: false,
+              severity: 'error',
+            },
+          ],
+        },
+      ],
+    } as unknown as WorkflowExecutionResult);
+
+    const result = await runStep({
+      step,
+      ctx: localCTX,
+      workflowId: 'parent-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
   });
 
   it('should run step with workflowId from external workflowSpec', async () => {
@@ -3117,6 +3188,12 @@ describe('runStep', () => {
       arazzo: '1.0.1',
       $outputs: {},
     } as unknown as TestContext;
+
+    vi.mocked(runWorkflow).mockResolvedValueOnce({
+      type: 'workflow',
+      workflowId: 'reusable-external-workflow',
+      executedSteps: [],
+    } as unknown as WorkflowExecutionResult);
 
     await runStep({
       step,
@@ -3564,6 +3641,11 @@ describe('runStep', () => {
     vi.mocked(resolveWorkflowContext).mockImplementation((): any => {
       return { ...localCTX };
     });
+    vi.mocked(runWorkflow).mockResolvedValueOnce({
+      type: 'workflow',
+      workflowId: 'reusable-external-workflow',
+      executedSteps: [],
+    } as unknown as WorkflowExecutionResult);
 
     await runStep({
       step,

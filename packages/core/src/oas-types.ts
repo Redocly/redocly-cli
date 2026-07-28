@@ -1,6 +1,9 @@
+import type { GraphqlRule } from './graphql/visitor.js';
 import { Arazzo1Types } from './types/arazzo.js';
+import { Arazzo1_1Types } from './types/arazzo1_1.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
+import type { NodeType } from './types/index.js';
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
@@ -16,6 +19,7 @@ import type {
   BuiltInOverlay1RuleId,
   BuiltInCommonRuleId,
   BuiltInOpenRpc1RuleId,
+  BuiltInGraphqlRuleId,
   BuiltInOas2DecoratorId,
   BuiltInOas3DecoratorId,
 } from './types/redocly-yaml.js';
@@ -44,10 +48,15 @@ export const specVersions = [
   'async2',
   'async3',
   'arazzo1',
+  'arazzo1_1',
   'overlay1',
   'openrpc1',
+  'graphql',
 ] as const;
 export type SpecVersion = (typeof specVersions)[number];
+
+/** Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs. */
+export const COMPONENT_NAME_CHARS = 'a-zA-Z0-9\\.\\-_';
 
 export type SpecMajorVersion =
   | 'oas2'
@@ -55,8 +64,10 @@ export type SpecMajorVersion =
   | 'async2'
   | 'async3'
   | 'arazzo1'
+  | 'arazzo1_1'
   | 'overlay1'
-  | 'openrpc1';
+  | 'openrpc1'
+  | 'graphql';
 
 const typesMap = {
   oas2: Oas2Types,
@@ -66,6 +77,7 @@ const typesMap = {
   async2: AsyncApi2Types,
   async3: AsyncApi3Types,
   arazzo1: Arazzo1Types,
+  arazzo1_1: Arazzo1_1Types,
   overlay1: Overlay1Types,
   openrpc1: OpenRpcTypes,
 };
@@ -112,6 +124,13 @@ export type OpenRpc1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
+// GraphQL has a separate engine: it reuses the common struct rule but not no-unresolved-refs/assertions.
+export type GraphqlRuleSet<T = undefined> = RuleMap<
+  BuiltInGraphqlRuleId | 'struct' | 'assertions',
+  GraphqlRule,
+  T
+>;
+
 export type Oas3DecoratorsSet<T = undefined> = Record<
   T extends 'built-in' ? BuiltInOas3DecoratorId : string,
   Oas3Decorator
@@ -126,6 +145,8 @@ export type Arazzo1DecoratorsSet = Record<string, Arazzo1Decorator>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Decorator>;
 export type OpenRpc1DecoratorsSet = Record<string, OpenRpc1Decorator>;
 
-export function getTypes(spec: SpecVersion) {
+export function getTypes(spec: SpecVersion): Record<string, NodeType> {
+  if (spec === 'graphql') return {}; // graphql is linted by a separate engine so it has no NodeType
+
   return typesMap[spec];
 }

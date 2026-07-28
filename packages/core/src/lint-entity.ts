@@ -1,10 +1,14 @@
-import * as redoclyConfig from '@redocly/config';
-import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
+import {
+  entityFileDefaultSchema,
+  entityFileSchema,
+  type EntityFileSchema,
+  type EntityBaseFileSchema,
+  type ScorecardConfig,
+} from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import { createConfig, type Config } from './config/index.js';
 import { lintDocument } from './lint.js';
-import { type SpecVersion } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
 import { Assertions, type Assertion } from './rules/common/assertions/index.js';
@@ -54,7 +58,7 @@ export async function lintEntityFile(opts: {
   } = opts;
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'entity' as SpecVersion, // FIXME: this should be proper SpecVersion
+    specVersion: 'entity',
     visitorsData: {},
   };
 
@@ -169,8 +173,8 @@ export async function lintEntityWithScorecardLevel(
 
   const entityProblems = await lintEntityFile({
     document: entityDocument,
-    entitySchema: redoclyConfig.entityFileSchema,
-    entityDefaultSchema: redoclyConfig.entityFileDefaultSchema,
+    entitySchema: entityFileSchema,
+    entityDefaultSchema: entityFileDefaultSchema,
     externalRefResolver,
     assertionConfig: entityRules,
   });

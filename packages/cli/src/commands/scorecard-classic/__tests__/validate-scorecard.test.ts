@@ -145,7 +145,7 @@ describe('validateScorecard', () => {
       pluginsCodeOrPlugins: 'plugin-code',
     });
 
-    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', false);
+    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', false, undefined);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)
@@ -191,7 +191,7 @@ describe('validateScorecard', () => {
       verbose: true,
     });
 
-    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', true);
+    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', true, undefined);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)

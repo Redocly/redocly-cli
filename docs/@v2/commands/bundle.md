@@ -45,6 +45,7 @@ redocly bundle --version
 | --remove-unused-components              | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                        |
 | --skip-decorator                        | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                 |
 | --skip-preprocessor                     | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                              |
+| --component-names-strategy              | string   | How to name inlined Schema components. <br/> **Possible values:** `basename` (default) or `title`. See [Configure the component names strategy](#configure-the-component-names-strategy).                                                                 |
 | --version                               | boolean  | Show version number.                                                                                                                                                                                                                                      |
 
 ## Examples
@@ -147,3 +148,60 @@ You can adjust how the CLI handles these naming conflicts with the `--component-
 - `off`: No warnings or errors are shown.
 - `warn` (default): Shows a warning and renames conflicting components automatically.
 - `error`: Treats conflicts as errors; the bundling process fails if a naming conflict is detected.
+
+For example, to fail the bundle instead of silently renaming conflicting components:
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --component-renaming-conflicts-severity=error
+```
+
+### Configure the component names strategy
+
+When the bundler inlines an externally-referenced Schema, it must give the component a name.
+The `--component-names-strategy` option controls how that name is derived.
+
+Consider two files that share the `Order.yaml` basename:
+
+```yaml
+# schemas/models/Order.yaml
+type: object
+title: Order model
+
+# schemas/requests/Order.yaml
+type: object
+title: Order request
+```
+
+{% tabs %}
+{% tab label="basename (default)" %}
+
+Names come from the `$ref` — the JSON Pointer fragment, or the file's basename when there's no fragment.
+Because both files are `Order.yaml`, they collide and the duplicate is auto-numbered:
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --component-names-strategy=basename
+```
+
+The output uses `Order` and `Order-2`.
+The auto-numbered suffix is brittle: an unrelated `$ref` change can renumber it.
+
+{% /tab  %}
+{% tab label="title" %}
+
+Names come from each schema's `title`, converted to PascalCase (words are split on spaces, capitalized, and joined), so they don't depend on file paths or `$ref` order:
+
+```bash
+redocly bundle openapi.yaml -o bundled.yaml --component-names-strategy=title
+```
+
+The output uses `OrderModel` and `OrderRequest`.
+
+{% /tab  %}
+{% /tabs  %}
+
+{% admonition type="warning" name="Title sanitization" %}
+The OpenAPI and AsyncAPI specifications allow only ASCII letters (`a`–`z`, `A`–`Z`), digits, `.`, `-`, and `_` in a Components Object key.
+All other characters, including non-ASCII letters such as `é` or `я`, are replaced with `-` (for example, `User & Group` becomes `User-Group`).
+Schemas without `title` can't be named using the `--component-names-strategy=title` strategy.
+The bundling process reports an error for such schemas.
+{% /admonition %}

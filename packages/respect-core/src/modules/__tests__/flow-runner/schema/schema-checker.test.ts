@@ -153,6 +153,7 @@ describe('checkSchema', () => {
       stepCallCtx,
       descriptionOperation,
       ctx,
+      ajvContext: { apiContext: 'response' },
     });
     expect(result).toEqual([
       {
@@ -332,10 +333,10 @@ describe('checkSchema', () => {
     ]);
   });
 
-  it('should catch ajvStrict.validate error', () => {
+  it('should catch ajvStrict.compile error', () => {
     // oxlint-disable-next-line typescript/no-require-imports
-    vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate').mockImplementationOnce(() => {
-      throw new Error('ajvStrict.validate error');
+    vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'compile').mockImplementationOnce(() => {
+      throw new Error('ajvStrict.compile error');
     });
 
     const result = checkSchema({
@@ -374,6 +375,7 @@ describe('checkSchema', () => {
       } as unknown as StepCallContext,
       descriptionOperation,
       ctx,
+      ajvContext: { apiContext: 'response' },
     });
 
     expect(result).toEqual([
@@ -393,12 +395,80 @@ describe('checkSchema', () => {
         severity: 'error',
       },
       {
-        message: 'Ajv error: ajvStrict.validate error',
+        message: 'Ajv error: ajvStrict.compile error',
         name: CHECKS.SCHEMA_CHECK,
         passed: false,
         severity: 'error',
       },
     ]);
+  });
+
+  describe('writeOnly handling via ajvContext', () => {
+    const writeOnlyDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['id', 'password'],
+                properties: {
+                  id: { type: 'string' },
+                  password: { type: 'string', writeOnly: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    // response omits the writeOnly `password` property
+    const stepCallCtxWithoutWriteOnly = {
+      $request: {
+        header: {},
+        path: '/breeds',
+        url: 'https://catfact.ninja/',
+        method: 'get',
+        queryParams: {},
+        pathParams: {},
+        headerParams: {},
+      },
+      $response: {
+        body: { id: 'abc' },
+        statusCode: 200,
+        header: new Headers({ 'content-type': 'application/json' }),
+        contentType: 'application/json',
+      },
+      $outputs: {},
+    } as unknown as StepCallContext;
+
+    it('skips writeOnly required property when ajvContext marks a response', () => {
+      const result = checkSchema({
+        stepCallCtx: stepCallCtxWithoutWriteOnly,
+        descriptionOperation: writeOnlyDescriptionOperation,
+        ctx,
+        ajvContext: { apiContext: 'response' },
+      });
+
+      const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+      expect(schemaCheck?.passed).toBe(true);
+      expect(schemaCheck?.message).toBe('');
+    });
+
+    it('enforces writeOnly required property when no ajvContext is provided', () => {
+      const result = checkSchema({
+        stepCallCtx: stepCallCtxWithoutWriteOnly,
+        descriptionOperation: writeOnlyDescriptionOperation,
+        ctx,
+      });
+
+      const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+      expect(schemaCheck?.passed).toBe(false);
+      expect(cleanColors(schemaCheck?.message ?? '')).toContain('password');
+    });
   });
 
   it('should return empty checks if no response available', () => {

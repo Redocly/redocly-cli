@@ -167,13 +167,14 @@ rules:
   tag-description: warn
 ```
 
-### Minimal ruleset: Arazzo 1.0
+### Minimal ruleset: Arazzo 1.0, Arazzo 1.1
 
 ```yaml
 rules:
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  spec-step-mutually-exclusive-fields: warn
   stepId-unique: error
   struct: error
   workflowId-unique: error
@@ -221,6 +222,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   spec-components-invalid-map-name: error
   spec-discriminator-defaultMapping: warn
   spec-example-values: error
@@ -267,6 +269,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   spec-components-invalid-map-name: error
   struct: error
   tag-description: warn
@@ -309,6 +312,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   spec-components-invalid-map-name: error
   struct: error
   tag-description: warn
@@ -342,6 +346,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -357,6 +362,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-scopes-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -372,11 +378,12 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-scopes-defined: warn
   struct: error
   tag-description: warn
 ```
 
-### Recommended ruleset: Arazzo 1.0
+### Recommended ruleset: Arazzo 1.0, Arazzo 1.1
 
 ```yaml
 rules:
@@ -385,12 +392,13 @@ rules:
   no-mixed-number-range-constraints: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
-  outputs-defined: error
+  outputs-defined: warn
   parameters-unique: error
   requestBody-replacements-unique: warn
   sourceDescription-name-unique: error
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
+  spec-step-mutually-exclusive-fields: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn
   stepId-unique: error

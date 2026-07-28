@@ -4,6 +4,5 @@ export * from './get-operation-from-description.js';
 export * from './extract-first-example.js';
 export * from './get-operation-by-id.js';
 export * from './get-operation-by-path.js';
-export * from './remove-write-only-properties.js';
 export * from './get-response-schema.js';
 export * from './get-request-body-schema.js';

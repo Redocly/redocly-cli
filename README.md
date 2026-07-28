@@ -106,7 +106,7 @@ The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Ch
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 
-Looking for more examples? Check out our [Cookbook](https://github.com/Redocly/redocly-cli-cookbook).
+Looking for more examples? Check out our [Cookbook](./cookbook/README.md).
 
 ### API contract testing with Respect
 

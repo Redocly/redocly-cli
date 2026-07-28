@@ -6,13 +6,14 @@ import type {
   Oas3RuleSet,
   Overlay1RuleSet,
   OpenRpc1RuleSet,
+  GraphqlRuleSet,
   SpecVersion,
 } from '../oas-types.js';
 import { isDefined } from '../utils/is-defined.js';
 import type { ProblemSeverity } from '../walk.js';
 import type { Config } from './config.js';
 
-type InitializedRule = {
+export type InitializedRule = {
   severity: ProblemSeverity;
   ruleId: string;
   visitor: any;
@@ -27,10 +28,11 @@ export function initRules(
     | Arazzo1RuleSet
     | Overlay1RuleSet
     | OpenRpc1RuleSet
+    | GraphqlRuleSet
   )[],
   config: Config,
   type: 'rules' | 'preprocessors' | 'decorators',
-  oasVersion: SpecVersion
+  specVersion: SpecVersion
 ): InitializedRule[] {
   return rules
     .flatMap((ruleset) =>
@@ -39,10 +41,10 @@ export function initRules(
 
         const ruleSettings =
           type === 'rules'
-            ? config.getRuleSettings(ruleId, oasVersion)
+            ? config.getRuleSettings(ruleId, specVersion)
             : type === 'preprocessors'
-              ? config.getPreprocessorSettings(ruleId, oasVersion)
-              : config.getDecoratorSettings(ruleId, oasVersion);
+              ? config.getPreprocessorSettings(ruleId, specVersion)
+              : config.getDecoratorSettings(ruleId, specVersion);
 
         if (ruleSettings.severity === 'off') {
           return undefined;

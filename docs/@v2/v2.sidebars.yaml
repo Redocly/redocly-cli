@@ -14,10 +14,14 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: drift
+          page: commands/drift.md
         - label: eject
           page: commands/eject.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
+        - label: generate-spec
+          page: commands/generate-spec.md
         - label: join
           page: commands/join.md
         - label: lint
@@ -28,6 +32,8 @@
           page: commands/logout.md
         - label: preview
           page: commands/preview.md
+        - label: proxy
+          page: commands/proxy.md
         - label: push
           page: commands/push.md
         - label: push-status
@@ -62,6 +68,7 @@
           page: guides/response-contains-property.md
         - page: guides/lint-asyncapi.md
         - page: guides/lint-arazzo.md
+        - page: guides/lint-graphql.md
         - label: Change the OAuth2 token URL
           page: guides/change-token-url.md
         - label: Hide OpenAPI specification extensions
@@ -94,6 +101,7 @@
             - page: rules/common/no-schema-type-mismatch.md
             - page: rules/common/no-required-schema-properties-undefined.md
             - page: rules/common/no-mixed-number-range-constraints.md
+            - page: rules/common/security-scopes-defined.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
@@ -158,7 +166,6 @@
             - page: rules/openrpc/spec-no-required-params-after-optional.md
             - separator: Arazzo
             - page: rules/respect/no-criteria-xpath.md
-            - page: rules/respect/respect-supported-versions.md
             - page: rules/respect/no-x-security-both-scheme-and-scheme-name.md
             - page: rules/respect/no-x-security-scheme-name-without-openapi.md
             - page: rules/respect/x-security-scheme-name-reference.md
@@ -169,6 +176,7 @@
             - page: rules/arazzo/sourceDescription-name-unique.md
             - page: rules/arazzo/sourceDescription-type.md
             - page: rules/arazzo/spec-parameters-in-by-context.md
+            - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md

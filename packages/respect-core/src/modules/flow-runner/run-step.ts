@@ -26,6 +26,7 @@ import {
   printActionsSeparator,
   printUnknownStep,
 } from '../logger-output/helpers.js';
+import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { Timer } from '../timeout-timer/timer.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
@@ -178,6 +179,25 @@ export async function runStep({
           request: undefined,
           response: undefined,
         };
+      }
+    }
+
+    const childWorkflowFailed = calculateTotals([stepWorkflowResult]).steps.failed > 0;
+
+    if (childWorkflowFailed) {
+      const result = await runActions(failureActionsToRun, 'failure', executedStepsCount);
+      if (result?.retriesLeft && result.retriesLeft > 0) {
+        return result.stepResult;
+      }
+      if (result?.shouldEnd) {
+        return { shouldEnd: true };
+      }
+    }
+
+    if (successActionsToRun.length && !childWorkflowFailed) {
+      const result = await runActions(successActionsToRun, 'success', executedStepsCount);
+      if (result?.shouldEnd) {
+        return { shouldEnd: true };
       }
     }
 

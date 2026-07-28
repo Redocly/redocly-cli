@@ -1,0 +1,6 @@
+rules:
+  rule/path-exclude-pattern:
+    subject:
+      type: Paths
+    assertions:
+      notPattern: \/wrong

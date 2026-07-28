@@ -4,10 +4,12 @@ import {
   isPlainObject,
   logger,
   HandledError,
+  getMajorSpecVersion,
+  isGraphqlRef,
   type Config,
   type CollectFn,
-  type ArazzoDefinition,
   type Exact,
+  type SpecVersion,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
@@ -43,12 +45,22 @@ export function commandWrapper<T extends CommandArgv>(
     const respectXSecurityAuthTypes = new Set<string>();
     const respectSourceDescriptionTypes = new Set<string>();
     const respectCriterionObjectTypes = new Set<string>();
-    const collectSpecData: CollectFn = (document) => {
+    const collectSpecData: CollectFn = ({ parsed: document, source }) => {
+      specVersion = 'unknown';
+      specKeyword = undefined;
+      specFullVersion = undefined;
+
+      if (source?.absoluteRef && isGraphqlRef(source.absoluteRef)) {
+        specVersion = 'graphql';
+        return;
+      }
+
       try {
         specVersion = detectSpec(document);
       } catch (err) {
-        specVersion = `unsupported`;
+        specVersion = 'unsupported';
       }
+
       if (!isPlainObject(document)) return;
       specKeyword = document?.openapi
         ? 'openapi'
@@ -63,16 +75,12 @@ export function commandWrapper<T extends CommandArgv>(
                 : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
-      } else {
-        // Ensure specFullVersion is undefined if specKeyword is not found
-        specFullVersion = undefined;
       }
 
-      if (specVersion === 'arazzo1') {
-        const arazzoDocument = document as Partial<ArazzoDefinition>;
-        collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypes);
-        collectSourceDescriptionTypes(arazzoDocument, respectSourceDescriptionTypes);
-        collectCriterionObjectTypes(arazzoDocument, respectCriterionObjectTypes);
+      if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
+        collectXSecurityAuthTypes(document, respectXSecurityAuthTypes);
+        collectSourceDescriptionTypes(document, respectSourceDescriptionTypes);
+        collectCriterionObjectTypes(document, respectCriterionObjectTypes);
       }
     };
 

@@ -7,18 +7,17 @@
     "coverage/",
     "lib/",
     "output/",
-    "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
+    "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
     "tests/performance/api-definitions/",
-    "LICENSE.md",
-    "snapshot*.txt",
-    ".changeset/pre.json",
-    "*.html",
-    "tests/e2e/**/*.yaml",
     "tests/smoke/**/*.yaml",
+    "snapshot*.txt",
+    "*.html",
     "*.hbs",
     "*.toml",
-    "CHANGELOG.md"
+    "LICENSE.md",
+    "CHANGELOG.md",
+    ".changeset/pre.json"
   ],
   "experimentalSortImports": {
     "groups": [

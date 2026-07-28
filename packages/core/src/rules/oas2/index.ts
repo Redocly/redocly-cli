@@ -36,6 +36,7 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { ResponseContainsHeader } from '../common/response-contains-header.js';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example.js';
 import { SecurityDefined } from '../common/security-defined.js';
+import { SecurityScopesDefined } from '../common/security-scopes-defined.js';
 import { SpecStrictRefs } from '../common/spec-strict-refs.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
@@ -75,6 +76,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'parameter-description': ParameterDescription as Oas2Rule,
   'operation-singular-tag': OperationSingularTag as Oas2Rule,
   'security-defined': SecurityDefined as Oas2Rule,
+  'security-scopes-defined': SecurityScopesDefined as Oas2Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
   'no-identical-paths': NoIdenticalPaths as Oas2Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,

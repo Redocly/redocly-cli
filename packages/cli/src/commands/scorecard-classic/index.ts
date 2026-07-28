@@ -96,7 +96,7 @@ export async function handleScorecardClassic({
   const externalRefResolver = new BaseResolver(config.resolve);
   const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
 
-  collectSpecData?.(document.parsed);
+  collectSpecData?.(document);
 
   const documentInfo = (document as ExtendedDocument).parsed?.info;
   const builtInMetadata = documentInfo?.['x-metadata'] || {};

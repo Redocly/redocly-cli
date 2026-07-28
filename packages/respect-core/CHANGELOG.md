@@ -1,5 +1,102 @@
 # @redocly/respect-core
 
+## 2.41.0
+
+### Patch Changes
+
+- Fixed an issue in `respect` where the execution of parent workflow's steps didn't halt after a step that referenced another workflow had failed.
+- Updated @redocly/openapi-core to v2.41.0.
+
+## 2.40.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.40.0.
+
+## 2.39.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.39.0.
+
+## 2.38.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.38.0.
+
+## 2.37.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.37.0.
+
+## 2.36.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.36.0.
+
+## 2.35.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.35.1.
+
+## 2.35.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.35.0.
+
+## 2.34.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.34.0.
+
+## 2.33.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.2.
+
+## 2.33.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.33.1.
+
+## 2.33.0
+
+### Patch Changes
+
+- Fixed a remote code execution vulnerability where a crafted `$faker` expression in an Arazzo description could execute arbitrary JavaScript during Redocly Respect runs.
+  Reported by Hamza Haroon (GitHub: @thegr1ffyn).
+- Updated @redocly/openapi-core to v2.33.0.
+
+## 2.32.2
+
+### Patch Changes
+
+- Fixed `respect` schema checks to honor `readOnly` and `writeOnly` based on context.
+
+  **Warning:** `writeOnly` properties in responses are reported as errors.
+
+- Updated @redocly/openapi-core to v2.32.2.
+
+## 2.32.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.1.
+
+## 2.32.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.32.0.
+
 ## 2.31.6
 
 ### Patch Changes
