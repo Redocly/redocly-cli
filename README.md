@@ -151,7 +151,7 @@ redocly generate-client openapi.yaml --output src/client.ts
 ```
 
 Inline types plus a typed client instance and one async function per operation, with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events.
-The same command can also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generators`.
+The same command can also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generator`.
 For detailed information, read the [ `generate-client` docs](./docs/@v2/commands/generate-client.md).
 
 ### Transform an OpenAPI description
