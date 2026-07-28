@@ -10,7 +10,7 @@ Both layers existed only because the config schema didn't model client generatio
 
 ## Decision
 
-`redocly.yaml` models client generation with **typed, first-class keys**: a top-level `client` block for shared defaults and a per-API `apis.<name>.client` block layered over it field by field (the `pagination` block merges additively), with the output path at `apis.<name>.clientOutput`.
+`redocly.yaml` models client generation with **typed, first-class keys**: a top-level `client` block for defaults and a per-API `apis.<name>.client` block that replaces it wholesale for that API (one resolution path, no field-by-field merging), with the output path at `apis.<name>.clientOutput`.
 The schema lives in `@redocly/openapi-core`'s config types, so the config is linted like any other block.
 Precedence, low → high: **top-level `client` → `apis.<name>.client` → CLI flags**.
 The `x-client-generator` extension and the `*.config.ts` / `--config-file` layer are removed.

@@ -312,6 +312,7 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
+    // TODO: move `client` into the Redocly config schema (@redocly/config).
     client: 'Client',
     telemetry: { enum: ['on', 'off'] },
     resolve: {
@@ -336,6 +337,7 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
     client: 'Client',
     clientOutput: { type: 'string' },
   },

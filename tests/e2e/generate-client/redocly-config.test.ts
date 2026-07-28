@@ -161,9 +161,9 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('a per-api client block MERGES onto the top-level one (shared defaults + per-api overrides)', () => {
-    // The Reunite adoption relies on this layering: shared generators/errorMode at the
-    // top level, one api overriding a single field (`runtime`) without losing the rest.
+  it('a per-api client block REPLACES the top-level one (no field-by-field merging)', () => {
+    // One resolution path, obvious to reason about: an api with its own `client`
+    // uses that block wholesale; the top-level block only serves apis without one.
     const dir = project(
       [
         'client:',
@@ -180,11 +180,11 @@ describe('generate-client redocly.yaml config', () => {
     const res = run(dir, ['cafe']);
     expect(res.status, res.stderr).toBe(0);
     const entry = readFileSync(join(dir, 'out.ts'), 'utf-8');
-    // The per-api override applied…
+    // The per-api block applied…
     expect(entry).toContain("from '@redocly/client-generator'");
-    // …without dropping the shared defaults: result mode and the zod generator.
-    expect(entry).toContain('Result<');
-    expect(existsSync(join(dir, 'out.zod.ts'))).toBe(true);
+    // …and the top-level fields did NOT leak in: default throw mode, no zod module.
+    expect(entry).not.toContain('Result<');
+    expect(existsSync(join(dir, 'out.zod.ts'))).toBe(false);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -192,20 +192,14 @@ describe('generate-client redocly.yaml config', () => {
     const dir = project(
       [
         'client:',
-        '  generators: [sdk, zod]', // shared defaults that must survive the per-api override
+        '  generators: [sdk]',
         '  serverUrl: https://top-level.example.com',
-        '  pagination:',
-        '    style: cursor',
-        '    cursorParam: after',
-        '    nextCursor: /page/endCursor',
-        '    items: /items',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
         '    client:',
+        '      generators: [sdk]',
         '      serverUrl: https://per-api.example.com',
-        '      pagination:', // partial: must layer onto the shared convention, not replace it
-        '        exclude: [getRevenue]',
       ].join('\n') + '\n'
     );
     writeFileSync(join(dir, 'standalone.yaml'), SPEC, 'utf-8'); // not registered under `apis:`
@@ -214,9 +208,6 @@ describe('generate-client redocly.yaml config', () => {
     expect(matched.status, matched.stderr).toBe(0);
     const matchedOut = readFileSync(join(dir, 'matched.ts'), 'utf-8');
     expect(matchedOut).toContain('serverUrl: "https://per-api.example.com"');
-    expect(matchedOut).toContain('pagination: {'); // top-level convention kept, field by field
-    // The shared `generators` default kept too: the zod module is emitted alongside.
-    expect(existsSync(join(dir, 'matched.zod.ts'))).toBe(true);
 
     const unmatched = run(dir, ['./standalone.yaml', '--output', './unmatched.ts']);
     expect(unmatched.status, unmatched.stderr).toBe(0);
@@ -466,29 +457,26 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('a per-api block holding only `runtime: package` inherits generators and outputMode', () => {
-    // The api's block sets one field; `generators: [sdk, zod]` and `outputMode: split`
-    // must still arrive from the top level (3 files), with the per-api runtime layered in.
+  it('a per-api block drives split output, extra generators, and the package runtime', () => {
     const dir = project(
       [
-        'client:',
-        '  generators: [sdk, zod]',
-        '  outputMode: split',
         'apis:',
         '  realm:',
         '    root: ./openapi.yaml',
         '    clientOutput: ./out/client.ts',
         '    client:',
+        '      generators: [sdk, zod]',
+        '      outputMode: split',
         '      runtime: package',
       ].join('\n') + '\n'
     );
     const res = run(dir, ['realm']);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
-    expect(existsSync(join(dir, 'out/client.schemas.ts'))).toBe(true); // outputMode inherited
-    expect(existsSync(join(dir, 'out/client.zod.ts'))).toBe(true); // generators inherited
+    expect(existsSync(join(dir, 'out/client.schemas.ts'))).toBe(true); // split layout
+    expect(existsSync(join(dir, 'out/client.zod.ts'))).toBe(true);
     expect(readFileSync(join(dir, 'out/client.ts'), 'utf-8')).toContain(
-      "from '@redocly/client-generator'" // the per-api runtime applied on top
+      "from '@redocly/client-generator'" // package runtime
     );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

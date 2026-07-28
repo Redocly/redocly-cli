@@ -3,7 +3,7 @@
 ## Introduction
 
 The `client` configuration provides settings for the [`generate-client`](../../commands/generate-client.md) command.
-The block can be used at the root of the configuration file, where it holds shared defaults, and inside an [API-specific section](./apis.md) (`apis.<name>.client`), where it overrides the root block field by field.
+The block can be used at the root of the configuration file, where it holds defaults, and inside an [API-specific section](./apis.md) (`apis.<name>.client`), where it overrides the root block for the specific API.
 
 The input and output are not part of the `client` block:
 
@@ -57,10 +57,10 @@ Per operation, precedence is `operations[id]`, then `x-redocly-pagination`, then
 
 ## Examples
 
-### Configure shared defaults with a per-API override
+### Configure defaults with a per-API override
 
-A per-API `client` block overrides the top-level `client` field by field; unspecified fields fall back to the top-level defaults.
-A file-path invocation matching no `apis:` entry uses only the top-level `client`, and CLI flags take precedence over the resolved configuration.
+An API with its own `client` block uses that block in place of the top-level one; the top-level block applies to APIs without one.
+A file-path invocation matching no `apis:` entry uses the top-level `client`, and CLI flags take precedence over the resolved configuration.
 
 ```yaml
 client:
@@ -71,13 +71,19 @@ apis:
   cafe:
     root: ./openapi.yaml
     clientOutput: ./src/api/client.ts
-    client:
+    client: # replaces the top-level block for this API
+      generators:
+        - sdk
+        - zod
       argsStyle: grouped
+  orders:
+    root: ./orders.yaml # no client block — uses the top-level one
+    clientOutput: ./src/api/orders.client.ts
 ```
 
 ### Declare pagination
 
-The nested `pagination` block layers the same way: per-API `operations` merge by operationId, and `exclude` lists union with the top-level ones.
+Declare the convention once, with per-operation overrides and exclusions:
 
 ```yaml
 client:
