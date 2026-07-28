@@ -7,6 +7,15 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.41.1 (2026-07-28)
+
+### Patch Changes
+
+- Fixed an issue where the `drift` command's `schema-consistency` rule reported false-positive findings for `oneOf` schemas with a `discriminator`.
+  Payloads are validated only against the branch selected by the discriminator value instead of every `oneOf` branch.
+  Schemas whose discriminator does not meet Ajv's structural requirements keep the previous behavior.
+- Extended the `drift` command's built-in undocumented-header ignore list with `x-amz-`, `x-amzn-` and `x-github-` prefixes, and the `x-hub-signature` / `x-hub-signature-256` webhook signature headers.
+
 ## 2.41.0 (2026-07-27)
 
 ### Minor Changes
