@@ -520,7 +520,7 @@ describe('runTestFile', () => {
     );
   }, 8000);
 
-  it('should throw an error when dependsOn has workflowId with not successful steps expectations', async () => {
+  it('should mark the workflow as failed and continue when a dependsOn workflow has failed steps', async () => {
     const mockDocument = makeDocumentFromString(
       JSON.stringify({
         arazzo: '1.0.1',
@@ -611,12 +611,24 @@ describe('runTestFile', () => {
       }
     );
 
-    await expect(
-      runTestFile({
-        options: { file: 'test.yaml', ...defaultRespectOptions },
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrowError('Dependent workflows has failed steps');
+    const result = await runTestFile({
+      options: { file: 'test.yaml', ...defaultRespectOptions },
+      executedStepsCount: { value: 0 },
+    });
+
+    // the workflow with the failed dependency is marked as failed, the run continues
+    expect(result.executedWorkflows).toHaveLength(2);
+    const failedWorkflow = result.executedWorkflows.find(
+      (workflow) => workflow.workflowId === 'second-workflow'
+    );
+    const failedStep = failedWorkflow?.executedSteps[0] as Step;
+    expect(failedStep.checks[0]?.passed).toBe(false);
+    expect(cleanColors(failedStep.checks[0]?.message || '')).toEqual(
+      'Dependent workflows of workflow second-workflow have failed steps: get-bird-workflow.'
+    );
+    // the top-level get-bird-workflow run plus its run as a dependency;
+    // the steps of second-workflow itself must not run
+    expect(runStep).toHaveBeenCalledTimes(2);
   }, 8000);
 
   it('should throw an error when sourcedescription OpenAPI file does not exist', async () => {

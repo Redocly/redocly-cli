@@ -96,12 +96,12 @@ async function runWorkflows({
       try {
         await handleDependsOn({ workflow, ctx, config: options.config, executedStepsCount });
       } catch (error) {
-        if (!(error instanceof WorkflowDependencyNotFoundError)) {
+        if (!(error instanceof WorkflowDependencyError)) {
           throw error;
         }
 
-        // an unresolvable dependsOn reference fails this workflow but must not
-        // abort the remaining workflows and files
+        // an unresolvable or failed dependsOn dependency fails this workflow
+        // but must not abort the remaining workflows and files
         const startTime = performance.now();
         // a synthetic step to carry the failed check; it has no operation to call
         const failedStep = {
@@ -289,9 +289,10 @@ export async function runWorkflow({
   };
 }
 
-// Thrown when a dependsOn entry cannot be resolved to a workflow. Handled per
-// workflow in runWorkflows so one broken reference doesn't abort the rest of the run.
-class WorkflowDependencyNotFoundError extends Error {}
+// Thrown when a dependsOn entry cannot be resolved to a workflow or a dependency
+// workflow fails. Handled per workflow in runWorkflows so one broken dependency
+// doesn't abort the rest of the run.
+class WorkflowDependencyError extends Error {}
 
 async function handleDependsOn({
   workflow,
@@ -312,7 +313,7 @@ async function handleDependsOn({
     const resolvedWorkflow = resolveWorkflowReference({ ref: workflowId, ctx });
 
     if (!resolvedWorkflow) {
-      throw new WorkflowDependencyNotFoundError(
+      throw new WorkflowDependencyError(
         `Workflow ${red(workflowId)} from dependsOn of workflow ${red(
           workflow.workflowId
         )} is not found.`
@@ -336,11 +337,16 @@ async function handleDependsOn({
     })
   );
 
-  const totals = calculateTotals(dependenciesWorkflows);
-  const hasProblems = totals.steps.failed > 0;
+  const failedDependencies = dependenciesWorkflows
+    .filter((dependencyWorkflow) => calculateTotals([dependencyWorkflow]).steps.failed > 0)
+    .map((dependencyWorkflow) => dependencyWorkflow.workflowId);
 
-  if (hasProblems) {
-    throw new Error('Dependent workflows has failed steps');
+  if (failedDependencies.length) {
+    throw new WorkflowDependencyError(
+      `Dependent workflows of workflow ${red(workflow.workflowId)} have failed steps: ${red(
+        failedDependencies.join(', ')
+      )}.`
+    );
   }
 }
 

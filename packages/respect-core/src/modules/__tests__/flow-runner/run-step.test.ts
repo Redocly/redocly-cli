@@ -1279,7 +1279,7 @@ describe('runStep', () => {
     expect(runWorkflow).toHaveBeenCalled();
   });
 
-  it('should log error when onSuccess step criteria with goto StepId and WorkflowId provided', async () => {
+  it('should fail the step when onSuccess goto action has both StepId and WorkflowId provided', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {
@@ -1389,17 +1389,22 @@ describe('runStep', () => {
       return { ...context };
     });
 
-    await expect(
-      runStep({
-        step: stepOne,
-        ctx: context,
-        workflowId,
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrowError(
+    context.executedSteps = [];
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId,
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    // the broken action definition fails the step without a duplicate registration
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
+    expect(executedStep.checks.at(-1)?.message).toEqual(
       'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action'
     );
-
     expect(displayChecks).toHaveBeenCalled();
     expect(runWorkflow).not.toHaveBeenCalled();
   });
@@ -1773,7 +1778,7 @@ describe('runStep', () => {
     expect(checkCriteria).toHaveBeenCalledTimes(3);
   });
 
-  it('should result with an error when onFailure step criteria with retry StepId and WorkflowId provided', async () => {
+  it('should fail the step when onFailure retry action has both StepId and WorkflowId provided', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {
@@ -1881,14 +1886,20 @@ describe('runStep', () => {
       },
     } as unknown as TestContext;
 
-    await expect(
-      runStep({
-        step: stepOne,
-        ctx: context,
-        workflowId,
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrow(
+    context.executedSteps = [];
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId,
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    // the broken action definition fails the step without a duplicate registration
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
+    expect(executedStep.checks.at(-1)?.message).toEqual(
       'Cannot use both workflowId: failure-action-workflow and stepId: failure-action-step in retry action'
     );
   });

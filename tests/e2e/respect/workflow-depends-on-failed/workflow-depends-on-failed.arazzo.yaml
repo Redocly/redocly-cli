@@ -1,0 +1,32 @@
+arazzo: 1.0.1
+info:
+  title: Test that the run continues when a `dependsOn` workflow has failed steps
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+
+workflows:
+  - workflowId: failing-dependency
+    steps:
+      - stepId: list-menu-items
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 500
+  - workflowId: workflow-with-failing-depends-on
+    dependsOn:
+      - failing-dependency
+    steps:
+      - stepId: list-menu-items-dependent
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: independent-workflow
+    steps:
+      - stepId: list-menu-items-again
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
