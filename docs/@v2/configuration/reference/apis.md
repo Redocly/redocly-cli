@@ -68,7 +68,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - clientOutput
 - Output file path
-- When running `generate-client` without specifying an API, the generated TypeScript client is saved to this location.
+- The generated client is saved to this location unless `--output` overrides it.
 
 {% /table %}
 
