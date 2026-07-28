@@ -8,6 +8,17 @@ import ts from 'typescript';
 
 import { isIdentifier } from './identifier.js';
 
+// TypeScript 7 (the native compiler) ships only the tsc binary — none of the compiler
+// API everything below is built on — yet its package resolves fine, so the first
+// `ts.*` call would die with a bare TypeError. Fail with instructions instead.
+if (typeof ts?.createSourceFile !== 'function') {
+  throw new Error(
+    `Client generation needs the TypeScript compiler API, but the installed \`typescript\` package` +
+      `${ts?.version ? ` (${ts.version})` : ''} does not include it — TypeScript 7 ships only the native tsc. ` +
+      `Install TypeScript 6 for generation (npm i -D typescript@6); your app can still compile the generated client with TypeScript 7.`
+  );
+}
+
 export { ts };
 
 const printer = ts.createPrinter({

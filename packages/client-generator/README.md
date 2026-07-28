@@ -10,7 +10,7 @@ See https://github.com/Redocly/redocly-cli for the full project.
 
 The generated client uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`), so by default it is a single self-contained file with zero runtime dependencies that runs in browsers, Node ≥ 18, Bun, Deno, and edge runtimes.
 (Running the generator itself requires the Node version in this package's `engines` field.)
-Code is produced through the TypeScript compiler AST, not string templates; `typescript` is the only peer dependency.
+Code is produced through the TypeScript compiler AST, not string templates; `typescript` is the only peer dependency (6.x — TypeScript 7's native compiler has no compiler API; your app can still compile the generated client with 7).
 
 This package is the engine behind the [`generate-client` command](https://redocly.com/docs/cli/commands/generate-client) — install [`@redocly/cli`](https://www.npmjs.com/package/@redocly/cli) to run it from the command line or `redocly.yaml`.
 How to use the generated client — auth, middleware, retries, pagination, Server-Sent Events, and the add-on generators (`zod`, `tanstack-query`, `swr`, `mock`, `transformers`) — is documented in [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client).

@@ -53,7 +53,7 @@
     "@redocly/openapi-core": "2.41.1"
   },
   "peerDependencies": {
-    "typescript": ">=5.5.0"
+    "typescript": ">=5.5.0 <7"
   },
   "devDependencies": {
     "typescript": "6.0.2"
