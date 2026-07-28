@@ -53,7 +53,7 @@ With `runtime: 'package'` the generated client also imports its whole engine fro
 
 ### Write a custom generator
 
-A custom generator reads the same spec-derived model the built-ins consume, runs in the same pass, and returns files.
+A custom generator reads the same API model the built-ins consume, runs in the same pass, and returns files.
 Build real TypeScript with the emit toolkit from `@redocly/client-generator/generate` — the same `ts.factory` + printer the built-in generators use, so the schema→type mapping matches the sdk's exactly:
 
 ```ts
@@ -102,14 +102,14 @@ See [Custom generators](https://redocly.com/docs/cli/guides/customize-client-gen
 
 ### Pre-configure a published SDK
 
-The `setup` option takes a module that default-exports a `{ config, middleware }` object (optionally wrapped in `defineClientSetup` for editor typing); its defaults are included into the generated client so a published SDK ships them built in, and consumers can still override.
+The `setup` option takes a module that default-exports a `{ config, middleware }` object (optionally wrapped in `defineClientSetup` for editor typing); its defaults are included in the generated client so a published SDK ships them built in, and consumers can still override.
 See [Publisher defaults](https://redocly.com/docs/cli/guides/customize-client-generation#publisher-defaults).
 
 ## API
 
 ### `generateClient`
 
-Loads the spec, builds the client, and writes the files.
+Loads the description, builds the client, and writes the files.
 
 ```ts
 async function generateClient(options: GenerateClientOptions): Promise<GenerateClientResult>;
@@ -121,7 +121,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used for spec loading.
+`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used to load the description.
 
 ### `collectGeneratedFiles`
 
@@ -153,7 +153,7 @@ The `@redocly/client-generator/generate` entry also exports the emit toolkit the
 
 ### `defineClientSetup`
 
-Optional typing sugar for authoring a publisher setup module — a plain default-exported `{ config, middleware }` object works too, with no imports:
+Optional typing helper for authoring a publisher setup module — a plain default-exported `{ config, middleware }` object works too, with no imports:
 
 ```ts
 function defineClientSetup(setup: {
@@ -189,7 +189,8 @@ Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Development
 
-This package is part of the Redocly CLI monorepo. Run all commands from the repo root:
+This package is part of the Redocly CLI monorepo.
+Run all commands from the repo root:
 
 ```sh
 npm run compile                 # build this package

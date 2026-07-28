@@ -29,7 +29,7 @@ See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/gener
 ## Package runtime
 
 By default the runtime is embedded in the generated file, so the client is self-contained.
-With [`--runtime package`](../commands/generate-client.md#runtime-distribution) the generated file instead imports the runtime from `@redocly/client-generator` — your application code is **identical in both modes** (same exports, same call shapes); only where the engine lives changes.
+With [`--runtime package`](../commands/generate-client.md#choose-a-runtime) the generated file instead imports the runtime from `@redocly/client-generator` — your application code is **identical in both modes** (same exports, same call shapes); only where the engine lives changes.
 Choose `package` when you want engine fixes and improvements via `npm update @redocly/client-generator`, with no regeneration.
 
 Install the runtime as a regular dependency and set the mode in `redocly.yaml`:
@@ -85,7 +85,7 @@ A setter is generated for each `securityScheme` the runtime can apply:
 `setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`.
 `mutualTLS` is not injectable.
 Cookie apiKey credentials travel in the `Cookie` request header, which browsers refuse to set — cookie auth works only in server-side clients (the generator warns when a spec declares one).
-Bearer and apiKey credentials accept a **`TokenProvider`** — a string or a (possibly async) function called per request, handy for refresh flows:
+Bearer and apiKey credentials accept a **`TokenProvider`** — a string or a (possibly async) function called per request, useful for refresh flows:
 
 ```ts
 import { setBearer } from './client.ts';
@@ -93,7 +93,7 @@ import { setBearer } from './client.ts';
 setBearer(async () => await getFreshAccessToken());
 ```
 
-Each setter is sugar over the exported `client` instance's `auth` member (`export const setBearer = client.auth.bearer;`), so it configures that instance.
+Each setter is shorthand for the exported `client` instance's `auth` member (`export const setBearer = client.auth.bearer;`), so it configures that instance.
 Equivalently, pass credentials up front with `configure({ auth: { … } })` or set them via `client.auth.bearer(…)` / `client.auth.basic(…)` / `client.auth.apiKey(scheme, …)`.
 
 For **multiple independent instances** with different credentials, build extra clients over the same generated descriptors — the generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
@@ -123,12 +123,13 @@ await updateOrder('ord_01khr…', { ...orderBody });
 await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
 ```
 
-An unknown top-level key in the grouped object (for example a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`) fails the call with a `TypeError` naming the key — TypeScript catches this at compile time, and the runtime check covers transpilers that skip type-checking, so a mis-shaped call can never silently drop data.
+An unknown top-level key in the grouped object (for example a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`) fails the call with a `TypeError` naming the key.
+TypeScript catches this at compile time; the runtime check covers transpilers that skip type-checking, so a mis-shaped call never silently drops data.
 
 ## Error handling
 
 By default (`--error-mode throw`) an operation throws `ApiError` on any non-2xx response and returns the success body directly.
-With `--error-mode result` it never throws for HTTP errors, returning a discriminated `Result<TData, TError>` whose `error` is typed from the spec's 4xx/5xx bodies:
+With `--error-mode result` it never throws for HTTP errors, returning a discriminated `Result<TData, TError>` whose `error` is typed from the description's 4xx/5xx bodies:
 
 ```ts
 // throw (default)
@@ -150,7 +151,7 @@ The choice is fixed at generate time.
 ## Middleware
 
 Beyond the single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`, the client takes **composable middleware** for cross-cutting concerns (auth refresh, logging, tracing, request IDs).
-Register with `use()` (sugar for `client.use()`); it accepts several at once:
+Register with `use()` (shorthand for `client.use()`); it accepts several at once:
 
 ```ts
 import { use } from './client.ts';
@@ -165,12 +166,16 @@ use({
 });
 ```
 
-`onRequest` runs in registration order; `onResponse` runs in reverse (onion).
+`onRequest` runs in registration order; `onResponse` runs in reverse order.
 `onRequest` may mutate `ctx` (`url`, `method`, `headers`, and `body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`.
 `onError` (throw mode only) is threaded through each middleware.
-`ctx.operation`'s fields are typed as the spec's literal unions (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete, and a misspelled operation id fails compilation instead of silently never matching.
+`ctx.operation`'s fields are typed as literal unions from the description (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete, and a misspelled operation id fails compilation instead of silently never matching.
 A header for a single call instead goes in that operation's trailing `init` argument.
-Per-request headers merge lowest to highest: injected auth credentials, then typed header parameters, then the caller's `init.headers` — the caller always wins.
+Per-request headers merge lowest to highest — the caller always wins:
+
+1. Injected auth credentials.
+2. Typed header parameters.
+3. The caller's `init.headers`.
 
 `use()` appends to the middleware chain, composing with any already-registered or publisher pre-configured middleware.
 `configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher pre-configured](./customize-client-generation.md#publisher-defaults)) middleware.
@@ -243,7 +248,9 @@ Binary fields (`format: binary`) are typed as `Blob`:
 await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 ```
 
-`Blob`/strings pass through, arrays append one field per item, nested objects are JSON-encoded, `undefined`/`null` are skipped. A multipart body whose schema isn't a concrete object keeps the raw `FormData` type. `format: byte` (base64) stays a `string`.
+`Blob`/strings pass through, arrays append one field per item, nested objects are JSON-encoded, `undefined`/`null` are skipped.
+A multipart body whose schema isn't a concrete object keeps the raw `FormData` type.
+`format: byte` (base64) stays a `string`.
 
 ## Response decoding
 
@@ -254,7 +261,8 @@ Force a reader per call with `parseAs`:
 const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 ```
 
-`parseAs` accepts `'json'`, `'text'`, `'blob'`, `'arrayBuffer'`, `'formData'`, `'stream'`, or `'auto'` (default). It changes the runtime reader only, not the static return type.
+`parseAs` accepts `'json'`, `'text'`, `'blob'`, `'arrayBuffer'`, `'formData'`, `'stream'`, or `'auto'` (default).
+It changes the runtime reader only, not the static return type.
 
 An operation whose success response declares no content is typed `void`, but if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data — reach it with a cast while the description catches up.
 
@@ -298,7 +306,7 @@ The same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.opera
 
 ## Discriminated unions
 
-A `oneOf` / `anyOf` with a usable discriminator gets an exported `is<Member>` type guard per member, taken from the spec's `discriminator` or inferred when every member pins a shared property to a distinct string `const`:
+A `oneOf` / `anyOf` with a usable discriminator gets an exported `is<Member>` type guard per member, taken from the description's `discriminator` or inferred when every member pins a shared property to a distinct string `const`:
 
 ```ts
 export type MenuItem = Beverage | Dessert;
@@ -328,7 +336,7 @@ SSE always throws `ApiError` on a non-2xx initial response, regardless of `--err
 
 ## Pagination
 
-Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-pagination` extension in the spec.
+Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-pagination` extension in the description.
 The rule fields, the generate-time verification, and the precedence between the convention, `x-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
 Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
 
@@ -350,7 +358,8 @@ for await (const page of client.listOrders.pages()) {
 }
 ```
 
-The flat free functions keep both iterators, with one asymmetry to note: the flat function itself takes positional arguments, but its `.pages`/`.items` always take the grouped shape (they are the client method's iterators).
+The flat free functions keep both iterators.
+Note that the flat function itself takes positional arguments, but its `.pages`/`.items` always take the grouped shape — they are the client method's iterators.
 
 Resume by passing the advance param in the initial args — iteration starts from there instead of the beginning.
 Abort by passing an `AbortSignal`, forwarded to every page request:
@@ -365,7 +374,8 @@ for await (const page of client.listOrders.pages(
 }
 ```
 
-A failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client — there `.pages()` yields raw pages (not `{ data, error, response }` envelopes; only the one-shot call keeps the envelope) and the throw-mode-only `onError` middleware hook is not invoked.
+A failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client.
+On a result-mode client, `.pages()` yields raw pages rather than `{ data, error, response }` envelopes — only the one-shot call keeps the envelope — and the throw-mode-only `onError` middleware hook is not invoked.
 
 For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
 
