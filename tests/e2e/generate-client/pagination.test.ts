@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { killServer, repoRoot, startServer } from './helpers.js';
 
-// Auto-pagination end to end, over a live server: the `x-pagination` extension arm
+// Auto-pagination end to end, over a live server: the `x-redocly-pagination` extension arm
 // (cursor style — three pages, resume, abort) generated with NO config, the
 // config-convention arm (offset style, applied only where it structurally fits), and a
 // package-mode arm proving `.pages()`/`.items()` ship from the installed runtime.
@@ -79,7 +79,7 @@ describe('generate-client pagination consumer', () => {
 
   test('generate all three arms and assert the emitted pagination surface', async () => {
     const generateClient = await loadGenerateClient();
-    // Extension arm: NO pagination config — `x-pagination` alone drives `listOrders`.
+    // Extension arm: NO pagination config — `x-redocly-pagination` alone drives `listOrders`.
     await generateClient({ api: fixture, output: apiFile });
     // Convention arm: an offset rule applied to every operation it structurally fits.
     await generateClient({

@@ -60,7 +60,7 @@ export type Config = {
    * type stripping (`node client.ts`). */
   importExt?: 'js' | 'ts';
   /** Auto-pagination rules (convention + per-operation overrides + `exclude`), resolved
-   * together with each operation's `x-pagination` extension. Explicit rules that don't
+   * together with each operation's `x-redocly-pagination` extension. Explicit rules that don't
    * fit their operation fail generation. */
   pagination?: PaginationConfig;
 };

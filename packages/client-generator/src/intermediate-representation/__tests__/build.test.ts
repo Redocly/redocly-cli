@@ -254,24 +254,24 @@ describe('buildOperation — tags', () => {
   });
 });
 
-describe('buildOperation — x-pagination extension', () => {
-  it('captures the x-pagination value verbatim, without validation', () => {
+describe('buildOperation — x-redocly-pagination extension', () => {
+  it('captures the x-redocly-pagination value verbatim, without validation', () => {
     const extension = { style: 'cursor', cursorParam: 'cursor', bogus: 42 };
     const op = buildOpOnly({
       paths: {
         '/orders': {
-          get: { operationId: 'listOrders', 'x-pagination': extension, responses: {} },
+          get: { operationId: 'listOrders', 'x-redocly-pagination': extension, responses: {} },
         } as never,
       },
     });
     expect(op.paginationExtension).toBe(extension);
   });
 
-  it('captures a non-object x-pagination value too (validated by the emitter, not the IR)', () => {
+  it('captures a non-object x-redocly-pagination value too (validated by the emitter, not the IR)', () => {
     const op = buildOpOnly({
       paths: {
         '/orders': {
-          get: { operationId: 'listOrders', 'x-pagination': 'nonsense', responses: {} },
+          get: { operationId: 'listOrders', 'x-redocly-pagination': 'nonsense', responses: {} },
         } as never,
       },
     });

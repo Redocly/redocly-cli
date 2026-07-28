@@ -40,7 +40,7 @@ export type {
   TokenProvider,
 } from './runtime/index.js';
 export type { Config } from './config.js';
-// The user-facing pagination rule shapes (`Config.pagination` / `x-pagination`).
+// The user-facing pagination rule shapes (`Config.pagination` / `x-redocly-pagination`).
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './emitters/pagination.js';
 export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
 export { mergeConfig } from './config-file.js';

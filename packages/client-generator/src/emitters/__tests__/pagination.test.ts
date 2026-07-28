@@ -278,7 +278,7 @@ describe('resolveOperationPagination — sources and precedence', () => {
     });
   });
 
-  it('applies the x-pagination extension when no per-op rule exists', () => {
+  it('applies the x-redocly-pagination extension when no per-op rule exists', () => {
     const op = listOrders({ paginationExtension: OFFSET_RULE });
     const result = resolveOperationPagination(op, modelWith([op]), undefined);
     expect(result.spec).toEqual({ style: 'offset', param: 'offset', items: '/orders' });
@@ -394,12 +394,17 @@ describe('resolveOperationPagination — rule-shape validation (any source)', ()
       { ...OFFSET_RULE, limitParam: 25 },
       '"limitParam" must be a query parameter name',
     ],
-  ])('rejects %s from the extension with the x-pagination source', (_case, rule, problem) => {
-    const op = listOrders({ paginationExtension: rule });
-    const { spec, error } = resolveOperationPagination(op, model(), undefined);
-    expect(spec).toBeUndefined();
-    expect(error).toBe(`Pagination for operation "listOrders" (x-pagination): ${problem}`);
-  });
+  ])(
+    'rejects %s from the extension with the x-redocly-pagination source',
+    (_case, rule, problem) => {
+      const op = listOrders({ paginationExtension: rule });
+      const { spec, error } = resolveOperationPagination(op, model(), undefined);
+      expect(spec).toBeUndefined();
+      expect(error).toBe(
+        `Pagination for operation "listOrders" (x-redocly-pagination): ${problem}`
+      );
+    }
+  );
 
   it('names the per-operation config source in shape errors', () => {
     const { error } = resolveOperationPagination(listOrders(), model(), {
@@ -449,7 +454,7 @@ describe('resolveOperationPagination — fit verification', () => {
     const op = listOrders({ paginationExtension: rule });
     const { spec, error } = resolveOperationPagination(op, modelWith([op]), undefined);
     expect(spec).toBeUndefined();
-    expect(error).toBe(`Pagination for operation "listOrders" (x-pagination): ${problem}`);
+    expect(error).toBe(`Pagination for operation "listOrders" (x-redocly-pagination): ${problem}`);
   });
 
   it('convention that does not fit resolves to nothing, silently', () => {
@@ -471,7 +476,7 @@ describe('resolveOperationPagination — fit verification', () => {
     });
     const { error } = resolveOperationPagination(op, modelWith([op]), undefined);
     expect(error).toBe(
-      'Pagination for operation "listOrders" (x-pagination): ' +
+      'Pagination for operation "listOrders" (x-redocly-pagination): ' +
         'the operation has no JSON success response'
     );
     const conventionOnly = listOrders({
@@ -489,7 +494,7 @@ describe('resolveOperationPagination — fit verification', () => {
     });
     const { error } = resolveOperationPagination(sseOp, modelWith([sseOp]), undefined);
     expect(error).toBe(
-      'Pagination for operation "listOrders" (x-pagination): ' +
+      'Pagination for operation "listOrders" (x-redocly-pagination): ' +
         'the operation is a Server-Sent Events stream'
     );
     const conventionOnly = listOrders({
@@ -572,7 +577,9 @@ describe('resolveOperationPagination — fit verification', () => {
       const op = withParamSchema(name, schema, rule);
       const { spec, error } = resolveOperationPagination(op, modelWith([op]), undefined);
       expect(spec).toBeUndefined();
-      expect(error).toBe(`Pagination for operation "listOrders" (x-pagination): ${problem}`);
+      expect(error).toBe(
+        `Pagination for operation "listOrders" (x-redocly-pagination): ${problem}`
+      );
     });
 
     it('convention with a misfitting advance param resolves to nothing, silently', () => {
@@ -700,9 +707,9 @@ describe('resolveModelPagination', () => {
     });
     expect(() => resolveModelPagination(modelWith([bad1, bad2]), undefined)).toThrow(
       'Invalid pagination configuration:\n' +
-        '  - Pagination for operation "listOrders" (x-pagination): ' +
+        '  - Pagination for operation "listOrders" (x-redocly-pagination): ' +
         'query parameter "after" is not declared on the operation\n' +
-        '  - Pagination for operation "listRefunds" (x-pagination): ' +
+        '  - Pagination for operation "listRefunds" (x-redocly-pagination): ' +
         '"style" must be one of "cursor" | "offset" | "page" | "link" (got "nope")'
     );
   });

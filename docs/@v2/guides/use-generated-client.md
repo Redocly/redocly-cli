@@ -336,8 +336,8 @@ SSE always throws `ApiError` on a non-2xx initial response, regardless of `--err
 
 ## Pagination
 
-Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-pagination` extension in the description.
-The rule fields, the generate-time verification, and the precedence between the convention, `x-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
+Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-redocly-pagination` extension in the description.
+The rule fields, the generate-time verification, and the precedence between the convention, `x-redocly-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
 Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
 
 Four styles are supported:

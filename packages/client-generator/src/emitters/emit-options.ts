@@ -59,7 +59,7 @@ export type EmitOptions = {
   importExt?: 'js' | 'ts';
   /**
    * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
-   * resolved together with each operation's `x-pagination` extension. Verified
+   * resolved together with each operation's `x-redocly-pagination` extension. Verified
    * statically: an explicit rule that doesn't fit its operation fails generation.
    */
   pagination?: PaginationConfig;

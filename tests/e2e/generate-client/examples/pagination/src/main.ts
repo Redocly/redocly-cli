@@ -5,7 +5,7 @@
 // yield the array under `/orders`. The generator applies it only where it
 // STRUCTURALLY FITS — `listOrders` has the param and the pointers resolve, so it keeps
 // its one-shot call and gains `.pages()` / `.items()`; `getOrder` has no `cursor`
-// param, so it stays a plain call. (Explicit declarations — `x-pagination` in the spec
+// param, so it stays a plain call. (Explicit declarations — `x-redocly-pagination` in the spec
 // or per-operation config — that don't fit fail generation instead of being skipped.)
 import { configure, listOrders } from './api/client.js';
 

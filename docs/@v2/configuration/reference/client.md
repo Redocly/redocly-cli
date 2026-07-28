@@ -15,7 +15,7 @@ The input and output are not part of the `client` block:
 
 Each scalar option mirrors the matching CLI flag and shares its default — see the [command options](../../commands/generate-client.md#options) for the full description of each value.
 The `pagination` option is config-only — a structured, durable contract that belongs in versioned configuration rather than a shell string.
-For runs without a configuration file, declare pagination per operation with the `x-pagination` extension in the description, or pass `pagination` to the programmatic `generateClient(...)`.
+For runs without a configuration file, declare pagination per operation with the `x-redocly-pagination` extension in the description, or pass `pagination` to the programmatic `generateClient(...)`.
 
 | Option           | Type                                    | Description                                                                                                                                                                                                                                     |
 | ---------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -48,12 +48,12 @@ See [Pagination in the usage guide](../../guides/use-generated-client.md#paginat
 | `limitParam`  | string                    | Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.                                                                                                                                                                                                                                     |
 | `items`       | string                    | **REQUIRED**. JSON pointer to the page's item array in the response; use `''` when the response body is the item array itself.                                                                                                                                                                                                           |
 | `exclude`     | [string]                  | operationIds that no source may paginate; wins over overrides, extensions, and the convention.                                                                                                                                                                                                                                           |
-| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the description's `x-pagination` and the convention.                                                                                                                                                                                                      |
+| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the description's `x-redocly-pagination` and the convention.                                                                                                                                                                                              |
 
 The rules are verified at generate time: the advance parameter must be a declared query parameter of the right type (string for `cursor`, numeric for `offset` and `page`), and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array and `hasMore` on a boolean.
 A convention that doesn't fit an operation skips it; an explicit rule that doesn't fit fails generation.
-The `x-pagination` operation extension in the API description takes the same rule fields.
-Per operation, precedence is `operations[id]`, then `x-pagination`, then the convention.
+The `x-redocly-pagination` operation extension in the API description takes the same rule fields.
+Per operation, precedence is `operations[id]`, then `x-redocly-pagination`, then the convention.
 
 ## Examples
 

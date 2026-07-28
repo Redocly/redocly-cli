@@ -1100,7 +1100,12 @@ function linkPageCall(config: ClientConfig, op: OperationDescriptor, caps: Capab
       acceptFor(readKind)
     );
     if (!response.ok) {
-      throw new ApiError(prepared.url, response.status, response.statusText, await readError(response));
+      throw new ApiError(
+        prepared.url,
+        response.status,
+        response.statusText,
+        await readError(response)
+      );
     }
     return {
       page: await parse(response, readKind),
@@ -1180,7 +1185,11 @@ function createClientCore<
           : spec.style === 'link'
             ? Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
-                  paginateCapability(caps, op).pagesByLink(linkPageCall(config, op, caps), args, init),
+                  paginateCapability(caps, op).pagesByLink(
+                    linkPageCall(config, op, caps),
+                    args,
+                    init
+                  ),
                 items: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).itemsByLink(
                     linkPageCall(config, op, caps),
