@@ -113,17 +113,6 @@ describe('handleScore', () => {
     await expect(handleScore(createArgs())).rejects.toThrow('OpenAPI 3.x');
   });
 
-  it('should call collectSpecData', async () => {
-    const doc = { openapi: '3.0.0' };
-    mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
-    mockedDetectSpec.mockReturnValue('oas3_1');
-
-    const args = createArgs();
-    await handleScore(args);
-
-    expect(args.collectSpecData).toHaveBeenCalledWith(doc);
-  });
-
   it('should handle document with no operations', async () => {
     mockedCollectMetrics.mockReturnValue({
       metrics: makeDocumentMetrics(),

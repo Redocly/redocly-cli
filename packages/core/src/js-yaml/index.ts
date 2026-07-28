@@ -31,4 +31,4 @@ export const parseYaml = (str: string, opts?: LoadOptions): unknown => {
   return documents[0];
 };
 
-export const stringifyYaml = (obj: any, opts?: DumpOptions): string => dump(obj, opts);
+export const stringifyYaml = (obj: unknown, opts?: DumpOptions): string => dump(obj, opts);
