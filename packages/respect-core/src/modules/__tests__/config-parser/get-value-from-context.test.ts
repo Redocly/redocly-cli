@@ -212,6 +212,30 @@ describe('getValueFromContext', () => {
     ).toThrow(/workflow .*notExistingWorkflow.* is not found.*Available workflows: workflowTestId/);
   });
 
+  it('should throw for a legacy form reference with extra segments after the workflowId', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          workflows: [
+            {
+              workflowId: 'workflowTestId',
+              steps: [],
+            },
+          ],
+        },
+      },
+    } as any;
+    expect(() =>
+      getValueFromContext({
+        value: '$sourceDescriptions.test.workflows.workflowTestId.steps.stepA',
+        ctx,
+        logger,
+      })
+    ).toThrow(
+      /invalid workflow reference format.*\$sourceDescriptions\.<name>\.<workflowId>.*\$sourceDescriptions\.<name>\.workflows\.<workflowId>/
+    );
+  });
+
   it('should throw for the legacy form when there is no workflowId provided', () => {
     const ctx = {
       $sourceDescriptions: {

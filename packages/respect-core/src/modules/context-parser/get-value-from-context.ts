@@ -388,6 +388,16 @@ const resolveValue = (
             )}.${availableWorkflowsHint}`
       );
     }
+
+    // a `workflows` reference with extra segments after the workflowId is not
+    // valid in either supported form
+    if (path.split('.')[2] === 'workflows') {
+      throw new Error(
+        `Can't resolve ${red(
+          path
+        )}: invalid workflow reference format. Use $sourceDescriptions.<name>.<workflowId> or $sourceDescriptions.<name>.workflows.<workflowId>.`
+      );
+    }
   }
 
   if (path && path.trim().startsWith('faker.')) {

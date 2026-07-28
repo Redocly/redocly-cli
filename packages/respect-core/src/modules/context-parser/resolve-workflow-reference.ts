@@ -15,8 +15,7 @@ export function parseSourceDescriptionWorkflowRef(
     return { sourceDescriptionName: parts[1], workflowId: parts[2], isLegacyForm: false };
   }
 
-  // Extra segments after the workflowId are tolerated for backward compatibility.
-  if (parts.length >= 4 && parts[2] === 'workflows' && parts[1] && parts[3]) {
+  if (parts.length === 4 && parts[2] === 'workflows' && parts[1] && parts[3]) {
     return { sourceDescriptionName: parts[1], workflowId: parts[3], isLegacyForm: true };
   }
 

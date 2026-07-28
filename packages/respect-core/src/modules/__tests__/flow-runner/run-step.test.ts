@@ -4178,13 +4178,15 @@ describe('runStep', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    await runStep({
+    const result = await runStep({
       step,
       ctx: localCTX,
       workflowId,
       executedStepsCount: { value: 0 },
     });
 
+    // a broken workflow reference ends the workflow, same as any other failed step
+    expect(result).toEqual({ shouldEnd: true });
     expect(runWorkflow).not.toHaveBeenCalled();
     expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
       'Workflow $sourceDescriptions.wrong-reusable-api.reusable-external-workflow not found.'
@@ -4216,13 +4218,15 @@ describe('runStep', () => {
       options: { logger },
     } as unknown as TestContext;
 
-    await runStep({
+    const result = await runStep({
       step,
       ctx: localCTX,
       workflowId: 'test-workflow',
       executedStepsCount: { value: 0 },
     });
 
+    // a broken workflow reference ends the workflow, same as any other failed step
+    expect(result).toEqual({ shouldEnd: true });
     expect(runWorkflow).not.toHaveBeenCalled();
     expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
       'Workflow $sourceDescriptions.reusable-api.info not found.'

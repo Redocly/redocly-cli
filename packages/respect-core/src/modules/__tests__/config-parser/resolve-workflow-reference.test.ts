@@ -77,13 +77,13 @@ describe('resolveWorkflowReference', () => {
     ).toBeUndefined();
   });
 
-  it('should ignore extra segments after the workflowId in the legacy form for backward compatibility', () => {
+  it('should return undefined for a legacy form reference with extra segments after the workflowId', () => {
     expect(
       resolveWorkflowReference({
         ref: '$sourceDescriptions.externalApi.workflows.externalWorkflow.steps',
         ctx,
       })
-    ).toEqual(externalWorkflow);
+    ).toBeUndefined();
   });
 
   it('should return undefined for other runtime expressions', () => {

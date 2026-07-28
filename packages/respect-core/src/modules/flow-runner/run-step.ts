@@ -77,7 +77,8 @@ export async function runStep({
       // register the step so the failed check is displayed and counted in the totals
       ctx.executedSteps.push(step);
       printUnknownStep(step, ctx.options.logger);
-      return;
+      // a broken workflow reference ends the workflow, same as any other failed step
+      return { shouldEnd: true };
     }
 
     const workflowCtx = await resolveWorkflowContext(

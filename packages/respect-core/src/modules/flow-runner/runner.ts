@@ -102,7 +102,7 @@ async function runWorkflows({
 
         // an unresolvable or failed dependsOn dependency fails this workflow
         // but must not abort the remaining workflows and files
-        const startTime = performance.now();
+        const failureTime = performance.now();
         // a synthetic step to carry the failed check; it has no operation to call
         const failedStep = {
           stepId: 'dependsOn',
@@ -126,9 +126,9 @@ async function runWorkflows({
         executedWorkflows.push({
           type: 'workflow',
           workflowId: workflow.workflowId,
-          startTime,
-          endTime: performance.now(),
-          totalTimeMs: performance.now() - startTime,
+          startTime: failureTime,
+          endTime: failureTime,
+          totalTimeMs: 0,
           executedSteps: [failedStep],
           ctx,
           globalTimeoutError: false,
