@@ -406,7 +406,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         // $ref sibling keys belong to the ref node itself and walk from its own location;
         // the resolved node's (or hops') keys are walked in their own frames
         for (const propName of Object.keys(node)) {
-          if (propName !== '$ref' && rawNode[propName] !== resolvedNode[propName]) {
+          if (propName !== '$ref' && rawNode[propName] !== resolvedNode?.[propName]) {
             walkProp(propName, rawNode[propName], location, node);
           }
         }

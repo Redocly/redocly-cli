@@ -1022,6 +1022,38 @@ describe('sibling $ref resolution by spec', () => {
     });
   });
 
+  it('should not crash when a $ref with siblings resolves to null', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Nullish:
+              $ref: '#/components/schemas/Target'
+              description: composed over null
+            Target: null
+      `,
+      ''
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).components.schemas.Nullish).toEqual({
+      $ref: '#/components/schemas/Target',
+      description: 'composed over null',
+    });
+  });
+
   it('should bundle discriminator mappings that point to composed schemas', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
