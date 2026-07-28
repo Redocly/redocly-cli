@@ -35,7 +35,7 @@ export const handlerBuildCommand = async ({
     const api = await redoc.loadAndBundleSpec(
       isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi)
     );
-    collectSpecData?.(api);
+    collectSpecData?.({ parsed: api });
     const pageHTML = await getPageHTML(api, pathToApi, { ...options, redocVersion }, argv.config);
 
     mkdirSync(dirname(options.output), { recursive: true });
