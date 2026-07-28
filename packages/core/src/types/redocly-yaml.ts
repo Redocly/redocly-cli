@@ -369,8 +369,6 @@ const Client: NodeType = {
     pagination: 'ClientPagination',
   },
 };
-
-// Style-conditional field requirements are enforced by the generator with richer messages.
 const ClientPaginationRule: NodeType = {
   properties: {
     style: { enum: ['cursor', 'offset', 'page', 'link'] },
