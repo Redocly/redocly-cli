@@ -305,6 +305,15 @@ describe('pagesByLink / itemsByLink (link style)', () => {
     expect(calls[1].args?.params).toEqual({ per_page: '5', page: '2' });
   });
 
+  it('keeps every value of a repeated query param in the next target', async () => {
+    const { call, calls } = linkStub([
+      { page: ['a'], linkHeader: '<https://x/orders?tag=dogs&tag=cats&page=2>; rel="next"' },
+      { page: ['b'], linkHeader: null },
+    ]);
+    await collect(pagesByLink(call, {}));
+    expect(calls[1].args?.params).toEqual({ tag: ['dogs', 'cats'], page: '2' });
+  });
+
   it('resolves a relative next target against the page URL', async () => {
     const { call, calls } = linkStub([
       { page: [1], linkHeader: '</orders?cursor=abc>; rel="next"' },

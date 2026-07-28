@@ -165,8 +165,15 @@ export async function* pagesByLink<TPage>(
       throw new Error('Pagination did not advance: the Link rel="next" target repeats');
     }
     previous = next;
-    const linkParams: Record<string, string> = {};
-    for (const [key, value] of new URL(next).searchParams) linkParams[key] = value;
+    // A repeated key (`?tag=a&tag=b`) folds into an array — the query serializer
+    // expands arrays back into repeated pairs.
+    const linkParams: Record<string, string | string[]> = {};
+    for (const [key, value] of new URL(next).searchParams) {
+      const seen = linkParams[key];
+      if (seen === undefined) linkParams[key] = value;
+      else if (Array.isArray(seen)) seen.push(value);
+      else linkParams[key] = [seen, value];
+    }
     params = { ...args.params, ...linkParams };
   }
 }
