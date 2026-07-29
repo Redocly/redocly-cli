@@ -1,0 +1,72 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should fail the workflow whose dependsOn workflow has failed steps and still run the remaining workflows 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-depends-on-failed.arazzo.yaml / failing-dependency 
+ 
+  ✗ GET /menu - step list-menu-items 
+    ✗ success criteria check - $statusCode == 500
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Running required workflow for workflow-with-failing-depends-on
+  Running workflow workflow-depends-on-failed.arazzo.yaml / failing-dependency 
+ 
+  ✗ GET /menu - step list-menu-items 
+    ✗ success criteria check - $statusCode == 500
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-depends-on-failed.arazzo.yaml / workflow-with-failing-depends-on 
+ 
+  ✗ dependsOn 
+    ✗ unexpected error
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-depends-on-failed.arazzo.yaml / independent-workflow 
+ 
+  ✓ GET /menu - step list-menu-items-again 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: failing-dependency
+ 
+    stepId - list-menu-items 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 500"}
+      
+  Workflow name: workflow-with-failing-depends-on
+ 
+    stepId - dependsOn 
+    ✗ unexpected error 
+    Reason: Dependent workflows of workflow workflow-with-failing-depends-on have failed steps: failing-dependency. 
+  Summary for workflow-depends-on-failed.arazzo.yaml
+  
+  Workflows: 1 passed, 2 failed, 3 total
+  Steps: 1 passed, 2 failed, 3 total
+  Checks: 7 passed, 2 failed, 9 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                       │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x workflow-depends-on-failed.arazzo.yaml                                       │ 3          │ 1       │ 2       │ -        │
+└────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+"
+`;

@@ -7,7 +7,7 @@ vi.mock('../../../flow-runner/context/create-test-context.js');
 
 describe('resolveWorkflowContext', async () => {
   const config = await createConfig({});
-  const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';
+  const workflowId = '$sourceDescriptions.tickets-from-museum-api.get-museum-tickets';
   const apiClient = new ApiFetcher({});
   const resolvedWorkflow = {
     workflowId: 'get-museum-tickets',
@@ -379,6 +379,30 @@ describe('resolveWorkflowContext', async () => {
     );
   });
 
+  it('should still resolve the legacy `$sourceDescriptions.<name>.workflows.<workflowId>` form for backward compatibility', async () => {
+    const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, config);
+
+    expect(createTestContext).toHaveBeenCalledWith(
+      commonCtx.$sourceDescriptions['tickets-from-museum-api'],
+      {
+        input: undefined,
+        skip: undefined,
+        workflow: ['get-museum-tickets'],
+        filePath: expect.stringContaining('examples/museum-api/museum-tickets.yaml'),
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
+        verbose: undefined,
+        metadata: commonCtx.options.metadata,
+      },
+      apiClient
+    );
+  });
+
   it('should call createTestContext with empty filePath when there are no ctx.sourceDescriptions', async () => {
     const ctx = {
       ...commonCtx,
@@ -554,7 +578,7 @@ describe('resolveWorkflowContext', async () => {
         },
       },
     } as any;
-    const workflowId = '$sourceDescriptions.wrong-api.workflows.get-museum-tickets';
+    const workflowId = '$sourceDescriptions.wrong-api.get-museum-tickets';
 
     await expect(
       resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)

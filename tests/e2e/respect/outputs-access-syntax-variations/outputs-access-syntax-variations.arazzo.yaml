@@ -29,6 +29,7 @@ workflows:
           schedule: $response.body
           firstEventData: $response.body#/0/date
       - stepId: buy-ticket
+        # the legacy `$sourceDescriptions.<name>.workflows.<workflowId>` form is kept here for backward compatibility coverage
         workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
         outputs:
           ticketId: $outputs.ticketId
