@@ -193,6 +193,15 @@ describe('pages — offset style', () => {
     expect(sentParams('offset')).toEqual([10, 11]);
   });
 
+  it('treats a null or empty starting position like an absent one (page falls back to 1)', async () => {
+    // `QueryValue` allows null, and `Number(null)`/`Number('')` are 0 — a one-shot call
+    // omits the param for those values, so the iterator must not start at page 0.
+    const data = [{ orders: ['k'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    await collect(pages(call, PAGE, { params: { page: null } }));
+    expect(sentParams('page')).toEqual([1, 2]);
+  });
+
   it('coerces a string offset to a number so advancing adds instead of concatenating', async () => {
     const data = [{ orders: ['k', 'm'] }, { orders: [] }];
     const { call, sentParams } = stub(data);

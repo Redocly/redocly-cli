@@ -144,8 +144,9 @@ export function parseSseFrame(
     else if (field === 'data') dataLines.push(val);
     else if (field === 'id') id = val;
     else if (field === 'retry') {
-      const n = Number(val);
-      if (!Number.isNaN(n)) retry = n;
+      // ASCII digits only, per the EventSource spec — anything else is ignored
+      // (`Number('')` is 0 and would zero the reconnect backoff).
+      if (/^\d+$/.test(val)) retry = Number(val);
     }
   }
   if (!sawField) return undefined;

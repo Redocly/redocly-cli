@@ -32,6 +32,11 @@ describe('parseSseFrame', () => {
     const ev = parseSseFrame('data\nretry: soon', 'text');
     expect(ev).toEqual({ event: undefined, data: '', id: undefined, retry: undefined });
     expect(parseSseFrame('data:tight', 'text')?.data).toBe('tight');
+    // Per the EventSource spec `retry` is ASCII digits only — an empty or non-integer
+    // value is ignored, NOT coerced (Number('') is 0, which would zero the backoff).
+    expect(parseSseFrame('data: x\nretry:', 'text')?.retry).toBeUndefined();
+    expect(parseSseFrame('data: x\nretry: 12.5', 'text')?.retry).toBeUndefined();
+    expect(parseSseFrame('data: x\nretry: -5', 'text')?.retry).toBeUndefined();
   });
 
   it('returns undefined for comment-only frames and ignores unknown fields', () => {

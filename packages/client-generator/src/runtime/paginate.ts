@@ -81,10 +81,13 @@ export async function* pages<TPage>(
     throw new Error('link-style pagination iterates via pagesByLink');
   } else {
     // Coerce the starting position to a number: a caller may pass `params[spec.param]` as a
-    // string (common from URL/form input), and `+=` on a string would concatenate.
+    // string (common from URL/form input), and `+=` on a string would concatenate. `null`
+    // and `''` count as absent — `Number` would turn them into 0, but a one-shot call
+    // omits the param for those values, so the iterator must not start at position 0.
     const start = args.params?.[spec.param];
     const fallback = spec.style === 'page' ? 1 : 0;
-    let position = start === undefined || Number.isNaN(Number(start)) ? fallback : Number(start);
+    const absent = start === undefined || start === null || start === '';
+    let position = absent || Number.isNaN(Number(start)) ? fallback : Number(start);
     let previousItems: string | undefined;
     while (true) {
       const page = await call(

@@ -398,7 +398,7 @@ describe('generate-client redocly.yaml config', () => {
     const bare = withServerUrl('api.example.com');
     const bad = run(bare, ['cafe']);
     expect(bad.status).not.toBe(0);
-    expect(bad.stderr).toContain('--server-url must be an absolute URL');
+    expect(bad.stderr).toContain('serverUrl must be an absolute URL');
     rmSync(bare, { recursive: true, force: true });
 
     for (const ok of ['https://api.example.com', '/v1']) {
@@ -414,7 +414,7 @@ describe('generate-client redocly.yaml config', () => {
       const dir = withServerUrl(`"${hostile}"`);
       const res = run(dir, ['cafe']);
       expect(res.status, `expected rejection for ${hostile}`).not.toBe(0);
-      expect(res.stderr).toContain('--server-url must be an absolute URL');
+      expect(res.stderr).toContain('serverUrl must be an absolute URL');
       rmSync(dir, { recursive: true, force: true });
     }
   }, 60_000);

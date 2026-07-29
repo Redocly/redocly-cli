@@ -142,7 +142,7 @@ export async function handleGenerateClient({
     seenOutputs.add(outputPath);
     if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
       throw new HandledError(
-        `\n❌  --server-url must be an absolute URL (https://api.example.com) or a root-relative path (/v1).\n   Got: ${clientConfig.serverUrl}\n`
+        `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
       );
     }
 
