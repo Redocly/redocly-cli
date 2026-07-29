@@ -120,8 +120,7 @@ export async function sendTelemetry({
       type: 'com.redocly.command.ran',
       source: 'urn:redocly:cli',
       origin: 'redocly-cli',
-      // esbuild inlines `production` for released builds; from source it stays `development`.
-      env: process.env.REDOCLY_CLI_BUILD_ENV || 'development',
+      env: process.env.REDOCLY_CLI_BUILD_ENV || 'development', // should become "production" ab build time
       osPlatform: os.platform(),
       actor: {
         id: anonymous_id,
