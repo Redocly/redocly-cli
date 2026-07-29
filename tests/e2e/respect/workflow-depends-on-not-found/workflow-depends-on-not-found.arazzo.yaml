@@ -1,0 +1,26 @@
+arazzo: 1.0.1
+info:
+  title: Test that the run continues when `dependsOn` references an unknown workflow
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+
+workflows:
+  - workflowId: workflow-with-broken-depends-on
+    dependsOn:
+      - $sourceDescriptions.cafe-api.not-existing-workflow
+    steps:
+      - stepId: list-menu-items
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: independent-workflow
+    steps:
+      - stepId: list-menu-items-again
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200

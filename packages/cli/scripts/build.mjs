@@ -21,6 +21,9 @@ const result = await build({
   // Keep function names so stack traces in bug reports stay navigable.
   keepNames: true,
   metafile: true,
+  define: {
+    'process.env.REDOCLY_CLI_BUILD_ENV': '"production"',
+  },
   // Avoid errors when external dependencies use CJS syntax.
   banner: {
     js: [

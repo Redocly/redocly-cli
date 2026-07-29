@@ -8,6 +8,7 @@ import {
   type Step,
   type StepExecutionResult,
   type Check,
+  type PublicWorkflowStep,
 } from '@redocly/respect-core';
 
 export function composeJsonLogsFiles(
@@ -73,20 +74,24 @@ function mapJsonStep(
     return mapJsonWorkflow(step as WorkflowExecutionResult);
   }
 
-  const publicStep = ctx.$workflows[workflowId].steps[step.stepId];
+  // synthetic steps (e.g. a failed dependsOn resolution) have no declared
+  // counterpart in the workflow, so there is no public step to read from
+  const publicStep = ctx.$workflows[workflowId].steps[step.stepId] as
+    | PublicWorkflowStep
+    | undefined;
   return {
     type: 'step',
     stepId: step.stepId,
     workflowId,
     request: {
-      method: publicStep.request?.method || '',
+      method: publicStep?.request?.method || '',
       url: step.response?.requestUrl || '',
-      headers: publicStep.request?.header || {},
-      body: publicStep.request?.body,
+      headers: publicStep?.request?.header || {},
+      body: publicStep?.request?.body,
     },
     response: {
       statusCode: step.response?.statusCode || 0,
-      body: publicStep.response?.body,
+      body: publicStep?.response?.body,
       headers: step.response?.header || {},
       time: step.response?.time || 0,
       size: step.response?.responseSize,
@@ -95,7 +100,7 @@ function mapJsonStep(
       ...check,
       status: calculateCheckStatus(check),
     })),
-    totalTimeMs: publicStep.response?.time || 0,
+    totalTimeMs: publicStep?.response?.time || 0,
     retriesLeft: step.retriesLeft,
     status: calculateStepStatus(step.checks),
   };

@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.41.2
+
+### Patch Changes
+
+- Updated js-yaml from `5.2.1` to `5.2.2` to resolve a vulnerability in YAML parsing.
+
 ## 2.41.1
 
 ## 2.41.0
