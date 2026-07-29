@@ -88,7 +88,7 @@ describe('Arazzo workflow-dependsOn', () => {
         dependsOn:
           - events-crud
           - events-crus
-          - $sourceDescriptions.tickets-from-museum-apis.workflows.get-museum-tickets
+          - $sourceDescriptions.tickets-from-museum-apis.get-museum-tickets
         description: >-
           This workflow demonstrates how to get the museum opening hours and buy tickets.
         parameters:
@@ -107,7 +107,7 @@ describe('Arazzo workflow-dependsOn', () => {
           - stepId: buy-ticket
             description: >-
               Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-            workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+            workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
             outputs:
               ticketId: $outputs.ticketId
       - workflowId: events-crud
