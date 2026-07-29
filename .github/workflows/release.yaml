@@ -35,7 +35,7 @@ jobs:
           cache: 'npm'
 
       - name: Update NPM for trusted publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
       - name: Install Dependencies
         run: npm ci
 
@@ -75,7 +75,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Update NPM for trusted publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: Update package versions
         run: |
