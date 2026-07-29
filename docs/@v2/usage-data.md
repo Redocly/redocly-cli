@@ -21,7 +21,7 @@ When a command is run, the following data is collected:
 - API specification type and version
 - Arazzo x-security authentication types
 - platform (Linux, macOS, Windows)
-- Anonymous ID (a randomly generated identifier that doesn't contain personal information)
+- anonymous ID (a randomly generated identifier that doesn't contain personal information)
 - command execution time
 - whether the CLI runs from a released build or development build
 
