@@ -62,6 +62,19 @@ describe('resolveGenerators', () => {
     expect(registry.has('route-map')).toBe(true);
   });
 
+  it('rejects URL specifiers — remote generator modules are not supported', async () => {
+    // Mirrors core's plugin loading; a `data:` URL would otherwise reach `import()`
+    // and execute inline code straight from the config.
+    for (const specifier of [
+      'https://example.com/generator.mjs',
+      'data:text/javascript,export default {}',
+    ]) {
+      await expect(resolveGenerators([specifier])).rejects.toThrow(
+        /Remote generator modules are not supported/
+      );
+    }
+  });
+
   it('throws an actionable error when a specifier cannot be loaded', async () => {
     await expect(
       resolveGenerators(['./does-not-exist.ts'], { configDir: fixtures })

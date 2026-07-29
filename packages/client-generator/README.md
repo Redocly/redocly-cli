@@ -34,7 +34,7 @@ console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes.`);
 ```
 
 Every `redocly.yaml` `client` option is accepted with the same name and default — see the [`client` configuration reference](https://redocly.com/docs/cli/configuration/reference/client).
-For type-safe authoring of a standalone options object, annotate it with `satisfies Config`.
+For type-safe authoring of a standalone options object, annotate it with `satisfies GenerateClientOptions`.
 
 ### Build extra client instances
 

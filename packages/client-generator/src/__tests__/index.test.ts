@@ -47,6 +47,41 @@ describe('generateClient setup validation', () => {
       generateClient({ api: 'unused.yaml', output: '/tmp/never.ts', setup: 'C:\\team\\setup.ts' })
     ).rejects.not.toThrow(/local file path/);
   });
+
+  it('resolves a relative setup path against configDir, as documented', async () => {
+    // The test runs with a cwd far from `dir`, so a cwd-based resolve would ENOENT.
+    const dir = await mkdtemp(join(tmpdir(), 'setup-configdir-'));
+    try {
+      await writeFile(
+        join(dir, 'openapi.yaml'),
+        outdent`
+          openapi: 3.1.0
+          info: { title: t, version: '1' }
+          paths:
+            /a:
+              get:
+                operationId: getA
+                responses:
+                  '204': { description: no content }
+        `
+      );
+      await writeFile(
+        join(dir, 'setup.ts'),
+        `export default { config: { serverUrl: 'https://baked.example.com' } };`
+      );
+      await generateClient({
+        api: join(dir, 'openapi.yaml'),
+        output: join(dir, 'client.ts'),
+        setup: './setup.ts',
+        configDir: dir,
+      });
+      expect(await readFile(join(dir, 'client.ts'), 'utf-8')).toContain(
+        'https://baked.example.com'
+      );
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('collectGeneratedFiles', () => {

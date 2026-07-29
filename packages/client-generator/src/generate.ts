@@ -110,10 +110,9 @@ export async function generateClient(
   // expression baked into the client. Applied across all output modes by the emitter.
   let setupBlock: string | undefined;
   if (options.setup) {
-    // Resolve a relative setup path against the cwd, consistent with `output` above.
-    // The CLI pre-resolves it (relative to cwd, like --output) and a config-file
-    // `setup` is pre-resolved against the config dir, so both arrive absolute here.
-    const setupPath = resolve(options.setup);
+    // A relative setup path resolves against `configDir` (cwd when absent), like
+    // generator specifiers. The CLI pre-resolves its inputs, so they arrive absolute.
+    const setupPath = resolve(options.configDir ?? process.cwd(), options.setup);
     setupBlock = bakeSetup(await readFile(setupPath, 'utf-8'));
   }
 

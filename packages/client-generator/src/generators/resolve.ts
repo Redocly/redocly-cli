@@ -5,7 +5,7 @@
 // default (or `generator`) export validated, and registered under its declared name. Built-ins are
 // seeded fresh per call (see `builtinGenerators`), so registration never mutates the built-in table.
 
-import { isPlainObject } from '@redocly/openapi-core';
+import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
 import { isAbsolute, resolve as resolvePath } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -79,6 +79,13 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
 
 /** Dynamically import a generator from a path (resolved against `configDir`) or package specifier. */
 async function importGenerator(specifier: string, configDir: string): Promise<CustomGenerator> {
+  // Like core's plugin loading: a URL specifier would reach `import()` — and a `data:`
+  // URL executes inline code straight from the config.
+  if (isAbsoluteUrl(specifier)) {
+    throw new NotSupportedError(
+      `Remote generator modules are not supported — use a local path or a package name. Got: ${specifier}`
+    );
+  }
   const isPath = specifier.startsWith('.') || isAbsolute(specifier);
   const target = isPath ? pathToFileURL(resolvePath(configDir, specifier)).href : specifier;
   let module: Record<string, unknown>;

@@ -1,5 +1,5 @@
-import { type Config as OpenApiTsConfig } from '@redocly/client-generator';
-import { type Config, HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
+import { type GenerateClientConfig } from '@redocly/client-generator';
+import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
@@ -23,20 +23,10 @@ export type GenerateClientCommandArgv = {
   setup?: string;
 };
 
-type ClientConfig = Partial<OpenApiTsConfig>;
-
-type Job = {
-  name: string;
-  api: string;
-  aliasConfig: Config;
-  clientOutput?: string;
-  client: ClientConfig;
-};
-
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
 const URL_SCHEME = /^[a-z][a-z0-9+.-]+:/i;
 
-function resolveSetup(client: ClientConfig, configDir: string): ClientConfig {
+function resolveSetup(client: GenerateClientConfig, configDir: string): GenerateClientConfig {
   const { setup } = client;
   if (typeof setup !== 'string') return client;
   if (URL_SCHEME.test(setup)) {
@@ -74,9 +64,8 @@ export async function handleGenerateClient({
   const { generateClient, mergeConfig } = await import('@redocly/client-generator');
 
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
-  const apisCfg = config.resolvedConfig.apis ?? {};
 
-  const cliFlags: ClientConfig = {
+  const cliFlags: GenerateClientConfig = {
     serverUrl: argv['server-url'],
     outputMode: argv['output-mode'],
     runtime: argv.runtime,
@@ -98,8 +87,9 @@ export async function handleGenerateClient({
         : resolveSetup({ setup: argv.setup }, process.cwd()).setup,
   };
 
-  const optedIn = Object.keys(apisCfg).filter(
-    (name) => isPlainObject(apisCfg[name].client) || apisCfg[name].clientOutput !== undefined
+  const apis = config.resolvedConfig.apis ?? {};
+  const optedIn = Object.keys(apis).filter(
+    (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
   );
   if (argv.api === undefined) {
     if (argv.output) {
@@ -118,29 +108,26 @@ export async function handleGenerateClient({
     config
   );
 
-  const jobs: Job[] = entrypoints.map(({ path, alias }) => {
-    const aliasConfig = config.forAlias(alias);
-    const { client } = aliasConfig.resolvedConfig;
-    return {
-      name: alias ?? basename(path, extname(path)),
-      api: path,
-      aliasConfig,
-      clientOutput: alias === undefined ? undefined : apisCfg[alias]?.clientOutput,
-      client: resolveSetup((isPlainObject(client) ? client : {}) as ClientConfig, configDir),
-    };
-  });
-
   const seenOutputs = new Set<string>();
 
-  for (const job of jobs) {
-    const merged = mergeConfig(job.client, cliFlags);
+  for (const { path, alias } of entrypoints) {
+    const name = alias ?? basename(path, extname(path));
+    // `forAlias` layers the api's entry over the root config, so `client` is the
+    // per-api block when the api declares one and the top-level block otherwise.
+    const aliasConfig = config.forAlias(alias);
+    const { client, clientOutput } = aliasConfig.resolvedConfig;
+    const clientBlock = resolveSetup(
+      (isPlainObject(client) ? client : {}) as GenerateClientConfig,
+      configDir
+    );
+    const merged = mergeConfig(clientBlock, cliFlags);
 
     const outputPath =
       argv.output !== undefined
         ? resolvePath(argv.output)
-        : job.clientOutput !== undefined
-          ? resolvePath(configDir, job.clientOutput)
-          : resolvePath(configDir, fileNameFor(job.name));
+        : clientOutput !== undefined
+          ? resolvePath(configDir, clientOutput)
+          : resolvePath(configDir, fileNameFor(name));
 
     if (!outputPath.endsWith('.ts')) {
       throw new HandledError(
@@ -160,12 +147,12 @@ export async function handleGenerateClient({
     }
 
     try {
-      logger.info(gray(`\n  Generating TypeScript client for ${job.name}... \n`));
+      logger.info(gray(`\n  Generating TypeScript client for ${name}... \n`));
       const result = await generateClient({
         ...merged,
-        api: job.api,
+        api: path,
         output: outputPath,
-        config: job.aliasConfig,
+        config: aliasConfig,
         configDir,
       });
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
@@ -176,7 +163,7 @@ export async function handleGenerateClient({
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HandledError(
-        `\n❌  Failed to generate TypeScript client for ${job.name}.\n   ${message}\n`
+        `\n❌  Failed to generate TypeScript client for ${name}.\n   ${message}\n`
       );
     }
   }
