@@ -291,6 +291,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
   arazzo1_1Rules: {
     'criteria-unique': 'off',
     'no-criteria-xpath': 'off',
+    'spec-parameters-in-by-context': 'error',
     'no-enum-type-mismatch': 'warn',
     'no-mixed-number-range-constraints': 'off',
     'no-required-schema-properties-undefined': 'warn',

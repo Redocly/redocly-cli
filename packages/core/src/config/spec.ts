@@ -302,6 +302,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'requestBody-replacements-unique': 'error',
     'sourceDescription-name-unique': 'error',
     'sourceDescription-type': 'error',
+    'spec-parameters-in-by-context': 'error',
     'sourceDescriptions-not-empty': 'error',
     'spec-step-mutually-exclusive-fields': 'error',
     'step-onFailure-unique': 'error',

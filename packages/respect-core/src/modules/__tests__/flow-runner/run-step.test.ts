@@ -1381,7 +1381,7 @@ describe('runStep', () => {
     expect(capturedInputs).toEqual({ birdId: 'abc-123' });
   });
 
-   it('should fail the step when onSuccess goto action has both StepId and WorkflowId provided', async () => {
+  it('should fail the step when onSuccess goto action has both StepId and WorkflowId provided', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {

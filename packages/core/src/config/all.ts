@@ -313,6 +313,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'criteria-unique': 'error',
     'no-criteria-xpath': 'off',
     'no-enum-type-mismatch': 'error',
+    'spec-parameters-in-by-context': 'error',
     'no-mixed-number-range-constraints': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-schema-type-mismatch': 'error',

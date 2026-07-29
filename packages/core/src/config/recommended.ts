@@ -298,6 +298,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-x-security-both-scheme-and-scheme-name': 'off',
     'no-x-security-scheme-name-without-openapi': 'off',
     'outputs-defined': 'warn',
+    'spec-parameters-in-by-context': 'error',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'warn',
     'sourceDescription-name-unique': 'error',

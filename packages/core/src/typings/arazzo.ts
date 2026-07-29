@@ -185,9 +185,8 @@ export interface OnSuccessObject {
   type: 'goto' | 'end';
   stepId?: string;
   workflowId?: string;
-  parameters?: ActionParameter[];
+  parameters?: (ActionParameter | Parameter)[];
   criteria?: CriterionObject[];
-  parameters?: Parameter[]; // added in Arazzo 1.1
 }
 
 export interface OnFailureObject {
@@ -197,9 +196,8 @@ export interface OnFailureObject {
   stepId?: string;
   retryAfter?: number;
   retryLimit?: number;
-  parameters?: ActionParameter[];
+  parameters?: (ActionParameter | Parameter)[];
   criteria?: CriterionObject[];
-  parameters?: Parameter[]; // added in Arazzo 1.1
 }
 
 export interface Step {

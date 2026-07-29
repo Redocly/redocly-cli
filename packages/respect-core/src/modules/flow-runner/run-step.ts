@@ -10,6 +10,7 @@ import type {
   RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
+  Workflow,
 } from '../../types.js';
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
