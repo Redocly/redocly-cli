@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.34.18
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.3.0` version to resolve a denial-of-service vulnerability in YAML parsing.
+  Applied NPM audit fix to prevent potential security vulnerabilities.
+
 ## 1.34.17
 
 ## 1.34.16
