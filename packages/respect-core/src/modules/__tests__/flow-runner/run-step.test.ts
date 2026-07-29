@@ -857,6 +857,159 @@ describe('runStep', () => {
     expect(checkCriteria).toHaveBeenCalled();
   });
 
+  it('should fail the step with a clear error when a goto action references a workflow that is not found', async () => {
+    const apiClient = new ApiFetcher({});
+    const stepOne: Step = {
+      stepId: 'get-bird',
+      'x-operation': {
+        url: 'http://localhost:3000/bird',
+        method: 'get',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onSuccess: [
+        {
+          name: 'success-action',
+          workflowId: '$sourceDescriptions.unknown-api.some-workflow',
+          type: 'goto',
+          criteria: [{ condition: '$statusCode == 200' }],
+        },
+      ],
+      checks: [],
+      response: {} as any,
+    };
+
+    vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        unexpectedErrorCheck: true,
+        statusCodeCheck: true,
+      };
+    });
+
+    vi.mocked(checkCriteria).mockImplementation(() => [
+      {
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
+        severity: 'error',
+      },
+    ]);
+
+    const context = {
+      ...basicCTX,
+      apiClient,
+      workflows: [],
+      $sourceDescriptions: {},
+      executedSteps: [],
+    } as unknown as TestContext;
+
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    // the step is registered exactly once — the failed action check must not
+    // produce a second entry
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(cleanColors(executedStep.checks.at(-1)?.message || '')).toEqual(
+      'Workflow $sourceDescriptions.unknown-api.some-workflow referenced in the goto action of step get-bird is not found.'
+    );
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
+  });
+
+  it('should fail the step with a clear error when a goto action workflowId matches a document field instead of a workflow', async () => {
+    const apiClient = new ApiFetcher({});
+    const stepOne: Step = {
+      stepId: 'get-bird',
+      'x-operation': {
+        url: 'http://localhost:3000/bird',
+        method: 'get',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onSuccess: [
+        {
+          name: 'success-action',
+          workflowId: '$sourceDescriptions.reusable-api.info',
+          type: 'goto',
+          criteria: [{ condition: '$statusCode == 200' }],
+        },
+      ],
+      checks: [],
+      response: {} as any,
+    };
+
+    vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        unexpectedErrorCheck: true,
+        statusCodeCheck: true,
+      };
+    });
+
+    vi.mocked(checkCriteria).mockImplementation(() => [
+      {
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
+        severity: 'error',
+      },
+    ]);
+
+    const context = {
+      ...basicCTX,
+      apiClient,
+      workflows: [],
+      $sourceDescriptions: {
+        'reusable-api': {
+          info: { title: 'Reusable API', version: '1.0' },
+          workflows: [{ workflowId: 'reusable-external-workflow', steps: [] }],
+        },
+      },
+      executedSteps: [],
+    } as unknown as TestContext;
+
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(cleanColors(executedStep.checks.at(-1)?.message || '')).toEqual(
+      'Workflow $sourceDescriptions.reusable-api.info referenced in the goto action of step get-bird is not found.'
+    );
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
+  });
+
   it('should execute onSuccess step criteria with goto StepId provided by reference', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
@@ -1085,6 +1238,19 @@ describe('runStep', () => {
               },
             ],
           },
+          {
+            workflowId: 'success-action-workflow',
+            steps: [
+              {
+                stepId: 'success-action-step',
+                'x-operation': {
+                  url: 'http://localhost:3000/bird',
+                  method: 'get',
+                },
+                checks: [],
+              },
+            ],
+          },
         ],
       },
     } as unknown as TestContext;
@@ -1113,7 +1279,7 @@ describe('runStep', () => {
     expect(runWorkflow).toHaveBeenCalled();
   });
 
-  it('should log error when onSuccess step criteria with goto StepId and WorkflowId provided', async () => {
+  it('should fail the step when onSuccess goto action has both StepId and WorkflowId provided', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {
@@ -1223,17 +1389,22 @@ describe('runStep', () => {
       return { ...context };
     });
 
-    await expect(
-      runStep({
-        step: stepOne,
-        ctx: context,
-        workflowId,
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrowError(
+    context.executedSteps = [];
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId,
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    // the broken action definition fails the step without a duplicate registration
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
+    expect(executedStep.checks.at(-1)?.message).toEqual(
       'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action'
     );
-
     expect(displayChecks).toHaveBeenCalled();
     expect(runWorkflow).not.toHaveBeenCalled();
   });
@@ -1607,7 +1778,7 @@ describe('runStep', () => {
     expect(checkCriteria).toHaveBeenCalledTimes(3);
   });
 
-  it('should result with an error when onFailure step criteria with retry StepId and WorkflowId provided', async () => {
+  it('should fail the step when onFailure retry action has both StepId and WorkflowId provided', async () => {
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {
@@ -1715,14 +1886,20 @@ describe('runStep', () => {
       },
     } as unknown as TestContext;
 
-    await expect(
-      runStep({
-        step: stepOne,
-        ctx: context,
-        workflowId,
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrow(
+    context.executedSteps = [];
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId,
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    // the broken action definition fails the step without a duplicate registration
+    expect(context.executedSteps).toHaveLength(1);
+    const executedStep = context.executedSteps[0] as Step;
+    expect(executedStep.checks.at(-1)?.passed).toEqual(false);
+    expect(executedStep.checks.at(-1)?.message).toEqual(
       'Cannot use both workflowId: failure-action-workflow and stepId: failure-action-step in retry action'
     );
   });
@@ -2699,7 +2876,7 @@ describe('runStep', () => {
   it('should run step with workflowId from external workflowSpec', async () => {
     const step: Step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
       checks: [],
       response: {} as any,
     };
@@ -3029,7 +3206,7 @@ describe('runStep', () => {
           steps: [
             {
               stepId: 'get-bird',
-              workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+              workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
               checks: [],
             },
           ],
@@ -3106,7 +3283,7 @@ describe('runStep', () => {
   it('should run step with workflowId from external workflow and populate inputs from the parameters', async () => {
     const step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
       parameters: [
         {
           name: 'workflowLevelParam',
@@ -3452,7 +3629,7 @@ describe('runStep', () => {
           steps: [
             {
               stepId: 'get-bird',
-              workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+              workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
               parameters: [
                 {
                   name: 'workflowLevelParam',
@@ -3553,7 +3730,7 @@ describe('runStep', () => {
     });
 
     expect(resolveWorkflowContext).toHaveBeenCalledWith(
-      '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
+      '$sourceDescriptions.reusable-api.reusable-external-workflow',
       {
         inputs: {
           properties: {
@@ -3600,7 +3777,7 @@ describe('runStep', () => {
   it('should run step with not existing workflowId and populate step.checks with an error', async () => {
     const step: Step = {
       stepId: 'get-bird',
-      workflowId: '$sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow',
+      workflowId: '$sourceDescriptions.wrong-reusable-api.reusable-external-workflow',
       outputs: {
         stepOutput: '$outputs.reusableWorkflowOutput.stepOutput',
       },
@@ -4001,17 +4178,112 @@ describe('runStep', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    await runStep({
+    const result = await runStep({
       step,
       ctx: localCTX,
       workflowId,
       executedStepsCount: { value: 0 },
     });
 
+    // a broken workflow reference ends the workflow, same as any other failed step
+    expect(result).toEqual({ shouldEnd: true });
     expect(runWorkflow).not.toHaveBeenCalled();
     expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
-      'Workflow $sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow not found.'
+      'Workflow $sourceDescriptions.wrong-reusable-api.reusable-external-workflow not found.'
     );
+    // the failed step must be part of the execution results so the run fails
+    expect(localCTX.executedSteps).toHaveLength(1);
+    expect((localCTX.executedSteps[0] as Step).checks[0]?.passed).toBe(false);
+    expect(displayChecks).toHaveBeenCalled();
+  });
+
+  it('should populate step.checks with an error when workflowId matches a document field instead of a workflow', async () => {
+    const step: Step = {
+      stepId: 'get-bird',
+      workflowId: '$sourceDescriptions.reusable-api.info',
+      checks: [],
+      response: {} as any,
+    };
+    const localCTX = {
+      apiClient,
+      executedSteps: [],
+      workflows: [],
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      $sourceDescriptions: {
+        'reusable-api': {
+          info: { title: 'Reusable API', version: '1.0' },
+          workflows: [{ workflowId: 'reusable-external-workflow', steps: [] }],
+        },
+      },
+      options: { logger },
+    } as unknown as TestContext;
+
+    const result = await runStep({
+      step,
+      ctx: localCTX,
+      workflowId: 'test-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    // a broken workflow reference ends the workflow, same as any other failed step
+    expect(result).toEqual({ shouldEnd: true });
+    expect(runWorkflow).not.toHaveBeenCalled();
+    expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
+      'Workflow $sourceDescriptions.reusable-api.info not found.'
+    );
+    // the failed step must be part of the execution results so the run fails
+    expect(localCTX.executedSteps).toHaveLength(1);
+    expect((localCTX.executedSteps[0] as Step).checks[0]?.passed).toBe(false);
+    expect(displayChecks).toHaveBeenCalled();
+  });
+
+  it('should register the step in executed steps when call step outputs fail to resolve', async () => {
+    const step: Step = {
+      stepId: 'buy-ticket',
+      workflowId: '$sourceDescriptions.reusable-api.reusable-external-workflow',
+      outputs: {
+        ticketId: '$outputs.nonExistingOutput.deepField',
+      },
+      checks: [],
+      response: {} as any,
+    };
+    const localCTX = {
+      apiClient,
+      executedSteps: [],
+      workflows: [],
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      $sourceDescriptions: {
+        'reusable-api': {
+          workflows: [{ workflowId: 'reusable-external-workflow', steps: [] }],
+        },
+      },
+      $steps: {},
+      $outputs: {},
+      $workflows: {},
+      options: { logger },
+    } as unknown as TestContext;
+
+    vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => localCTX);
+    vi.mocked(runWorkflow).mockImplementationOnce(async () => {
+      return {
+        type: 'workflow',
+        workflowId: 'reusable-external-workflow',
+        executedSteps: [],
+        ctx: localCTX,
+      } as unknown as WorkflowExecutionResult;
+    });
+
+    await runStep({
+      step,
+      ctx: localCTX,
+      workflowId: 'test-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    // the child workflow result and the step itself with its failed check
+    expect(localCTX.executedSteps).toHaveLength(2);
+    const failedStep = localCTX.executedSteps[1] as Step;
+    expect(failedStep.checks[0]?.passed).toBe(false);
   });
 
   it('should report global timeout error and end execution', async () => {

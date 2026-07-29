@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should fail the workflow with an unresolvable dependsOn reference and still run the remaining workflows 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-depends-on-not-found.arazzo.yaml / workflow-with-broken-depends-on 
+ 
+  ✗ dependsOn 
+    ✗ unexpected error
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-depends-on-not-found.arazzo.yaml / independent-workflow 
+ 
+  ✓ GET /menu - step list-menu-items-again 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: workflow-with-broken-depends-on
+ 
+    stepId - dependsOn 
+    ✗ unexpected error 
+    Reason: Workflow $sourceDescriptions.cafe-api.not-existing-workflow from dependsOn of workflow workflow-with-broken-depends-on is not found. 
+  Summary for workflow-depends-on-not-found.arazzo.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 4 passed, 1 failed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                          │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x workflow-depends-on-not-found.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+"
+`;

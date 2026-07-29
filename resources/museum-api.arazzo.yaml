@@ -34,7 +34,7 @@ workflows:
       - stepId: buy-ticket
         description: >-
           Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+        workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
         outputs:
           ticketId: $outputs.ticketId
   - workflowId: events-crud

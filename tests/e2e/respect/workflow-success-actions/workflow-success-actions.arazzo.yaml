@@ -17,7 +17,7 @@ workflows:
     successActions:
       - name: repeated-success-action-1
         type: goto
-        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+        workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
         criteria:
           - condition: $statusCode == 200
       - name: repeated-success-action-2 # this should not be executed as there is another action with the same criteria
@@ -57,7 +57,7 @@ workflows:
         onSuccess:
           - type: goto
             name: step-onSuccess-action
-            workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+            workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
             criteria:
               - condition: $statusCode == 200
       - stepId: create-event
