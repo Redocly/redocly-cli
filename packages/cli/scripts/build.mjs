@@ -19,7 +19,7 @@ const result = await build({
   target: 'node20.19',
   metafile: true,
   define: {
-    'process.env.REDOCLY_CLI_BUILD_ENV': JSON.stringify('production'),
+    'process.env.REDOCLY_CLI_BUILD_ENV': '"production"',
   },
   // Avoid errors when external dependencies use CJS syntax.
   banner: {

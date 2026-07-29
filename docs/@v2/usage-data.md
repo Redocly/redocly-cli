@@ -23,6 +23,7 @@ When a command is run, the following data is collected:
 - Platform (Linux, macOS, Windows)
 - Anonymous ID (a randomly generated identifier that doesn't contain personal information)
 - Command execution time
+- whether the CLI runs from a released build or from source
 
 Values such as file names, organization IDs, and URLs are removed, replaced by just "URL" or "file", etc.
 
