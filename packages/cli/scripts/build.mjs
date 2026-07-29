@@ -17,6 +17,9 @@ const result = await build({
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
+  minify: true,
+  // Keep function names so stack traces in bug reports stay navigable.
+  keepNames: true,
   metafile: true,
   // Avoid errors when external dependencies use CJS syntax.
   banner: {
