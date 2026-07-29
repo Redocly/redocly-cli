@@ -178,6 +178,14 @@ describe('pages — offset style', () => {
     expect(sentParams('offset')).toEqual([0, 2, 4, 5]);
   });
 
+  it('throws when the server clamps past-the-end requests to the same page (infinite-loop guard)', async () => {
+    // A common API pattern: an out-of-range offset/page returns the LAST page again
+    // instead of an empty one — without a guard the iterator never terminates.
+    const lastPage = { orders: [{ id: 1 }, { id: 2 }] };
+    const { call } = stub([lastPage, lastPage, lastPage]);
+    await expect(collect(pages(call, OFFSET))).rejects.toThrow(/did not advance/);
+  });
+
   it('starts at the caller offset when provided', async () => {
     const data = [{ orders: ['k'] }, { orders: [] }];
     const { call, sentParams } = stub(data);
@@ -321,6 +329,23 @@ describe('pagesByLink / itemsByLink (link style)', () => {
     ]);
     await collect(pagesByLink(call));
     expect(calls[1].args?.params).toEqual({ cursor: 'abc' });
+  });
+
+  it('follows links when the page URL itself is relative (relative serverUrl, mocked fetch)', async () => {
+    // `response.url` is empty under mocks and constructed Responses, so the fallback page
+    // URL can be relative (`serverUrl: '/api'`) — resolution must not require an absolute base.
+    const calls: Array<{ args?: Record<string, unknown> }> = [];
+    const replies = [
+      { page: ['a'], linkHeader: '</orders?page=2>; rel="next"' },
+      { page: ['b'], linkHeader: null },
+    ];
+    const call = async (args?: Record<string, unknown>) => {
+      calls.push({ args });
+      return { ...replies[calls.length - 1], url: `/orders?call=${calls.length}` };
+    };
+    const seen = await collect(pagesByLink(call));
+    expect(seen).toEqual([['a'], ['b']]);
+    expect(calls[1].args?.params).toEqual({ page: '2' });
   });
 
   it('throws when the next target repeats (infinite-loop guard)', async () => {

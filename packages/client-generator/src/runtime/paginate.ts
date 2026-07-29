@@ -85,14 +85,23 @@ export async function* pages<TPage>(
     const start = args.params?.[spec.param];
     const fallback = spec.style === 'page' ? 1 : 0;
     let position = start === undefined || Number.isNaN(Number(start)) ? fallback : Number(start);
+    let previousItems: string | undefined;
     while (true) {
       const page = await call(
         { ...args, params: { ...args.params, [spec.param]: position } },
         init
       );
-      yield page;
       const pageItems = resolvePointer(page, spec.items);
+      // Some APIs clamp a past-the-end offset/page to the last non-empty page instead
+      // of returning an empty one — the repeated page would otherwise loop forever
+      // (the position always "advances", so a cursor-style token check can't catch it).
+      const serialized = Array.isArray(pageItems) ? JSON.stringify(pageItems) : undefined;
+      if (serialized !== undefined && serialized === previousItems) {
+        throw new Error('Pagination did not advance: the operation returned the same page twice');
+      }
+      yield page;
       if (!Array.isArray(pageItems) || pageItems.length === 0) return;
+      previousItems = serialized;
       position += spec.style === 'page' ? 1 : pageItems.length;
     }
   }
@@ -159,9 +168,13 @@ export async function* pagesByLink<TPage>(
     yield page as TPage;
     const target = linkNext(linkHeader);
     if (target === undefined) return;
-    // A relative target resolves against the page's own URL (RFC 8288 §3.1).
-    const next = new URL(target, url).toString();
-    if (next === previous || next === url) {
+    // A relative target resolves against the page's own URL (RFC 8288 §3.1) — which may
+    // itself be relative (relative `serverUrl`, mocked fetch), so both resolve against a
+    // placeholder origin. It never reaches the wire: only the target's query params
+    // carry into the next call.
+    const pageUrl = new URL(url, 'http://relative.invalid');
+    const next = new URL(target, pageUrl).toString();
+    if (next === previous || next === pageUrl.toString()) {
       throw new Error('Pagination did not advance: the Link rel="next" target repeats');
     }
     previous = next;
