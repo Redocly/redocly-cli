@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 2.41.2
+
+### Patch Changes
+
+- Updated js-yaml from `5.2.1` to `5.2.2` to resolve a vulnerability in YAML parsing.
+- Added support for the Arazzo spec-compliant workflow reference form `$sourceDescriptions.<name>.<workflowId>` in `dependsOn`, step `workflowId`, and success/failure action `workflowId`.
+
+  Unresolvable workflow references fail only the affected workflow with a clear error message, and no longer abort the whole run or pass unnoticed.
+
+- Updated @redocly/openapi-core to v2.41.2.
+- Updated @redocly/respect-core to v2.41.2.
+
 ## 2.41.1
 
 ### Patch Changes
