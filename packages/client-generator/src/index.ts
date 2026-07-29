@@ -39,10 +39,14 @@ export type {
   SseOptions,
   TokenProvider,
 } from './runtime/index.js';
-export type { GenerateClientConfig } from './config.js';
 // The user-facing pagination rule shapes (`Config.pagination` / `x-redocly-pagination`).
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './emitters/pagination.js';
-export type { GenerateClientOptions, GenerateClientResult, LoadResult } from './types.js';
+export type {
+  GenerateClientConfig,
+  GenerateClientOptions,
+  GenerateClientResult,
+  LoadResult,
+} from './types.js';
 export { mergeConfig } from './config-file.js';
 // The custom-generator authoring API (`defineGenerator` + the IR types); the
 // TypeScript-emitting toolkit lives in `@redocly/client-generator/generate`.

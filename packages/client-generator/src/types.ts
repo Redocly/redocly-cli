@@ -99,6 +99,13 @@ export type GenerateClientOptions = {
   pagination?: PaginationConfig;
 };
 
+/**
+ * A partial generation config: the shape of a `redocly.yaml` `client` block or a set
+ * of CLI flag overrides. `mergeConfig` (config-file.ts) layers these onto each other,
+ * and the caller supplies `api`/`output` when invoking `generateClient(...)`.
+ */
+export type GenerateClientConfig = Partial<GenerateClientOptions>;
+
 export type GenerateClientResult = {
   /** The `--output` anchor path (the entry file in multi-file modes). */
   outputPath: string;

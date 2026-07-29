@@ -14,40 +14,12 @@ describe('mergeConfig', () => {
     });
   });
 
-  it('layers a partial pagination override onto the shared convention instead of replacing it', () => {
+  it('replaces `pagination` wholesale, like every other key', () => {
+    const override = { style: 'offset', offsetParam: 'offset', items: '/rows' } as const;
     const merged = mergeConfig(
-      {
-        pagination: {
-          style: 'cursor',
-          cursorParam: 'cursor',
-          items: '/items',
-          operations: { listA: { style: 'cursor', cursorParam: 'a', items: '/a' } },
-        },
-      },
-      {
-        pagination: {
-          limitParam: 'perPage',
-          operations: { listB: { style: 'offset', offsetParam: 'b', items: '/b' } },
-        },
-      }
+      { pagination: { style: 'cursor', cursorParam: 'cursor', items: '/items' } },
+      { pagination: override }
     );
-    expect(merged.pagination).toEqual({
-      style: 'cursor',
-      cursorParam: 'cursor',
-      items: '/items',
-      limitParam: 'perPage',
-      operations: {
-        listA: { style: 'cursor', cursorParam: 'a', items: '/a' },
-        listB: { style: 'offset', offsetParam: 'b', items: '/b' },
-      },
-    });
-  });
-
-  it('unions pagination `exclude` (a per-API exclude adds to the shared one, never replaces it)', () => {
-    const merged = mergeConfig(
-      { pagination: { style: 'cursor', cursorParam: 'c', items: '/i', exclude: ['a', 'shared'] } },
-      { pagination: { exclude: ['b', 'shared'] } }
-    );
-    expect(merged.pagination?.exclude).toEqual(['a', 'shared', 'b']);
+    expect(merged.pagination).toEqual(override);
   });
 });

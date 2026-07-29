@@ -120,7 +120,7 @@ export async function handleGenerateClient({
       (isPlainObject(client) ? client : {}) as GenerateClientConfig,
       configDir
     );
-    const merged = mergeConfig(clientBlock, cliFlags);
+    const clientConfig = mergeConfig(clientBlock, cliFlags);
 
     const outputPath =
       argv.output !== undefined
@@ -140,16 +140,16 @@ export async function handleGenerateClient({
       );
     }
     seenOutputs.add(outputPath);
-    if (merged.serverUrl !== undefined && !isValidServerUrl(merged.serverUrl)) {
+    if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
       throw new HandledError(
-        `\n❌  --server-url must be an absolute URL (https://api.example.com) or a root-relative path (/v1).\n   Got: ${merged.serverUrl}\n`
+        `\n❌  --server-url must be an absolute URL (https://api.example.com) or a root-relative path (/v1).\n   Got: ${clientConfig.serverUrl}\n`
       );
     }
 
     try {
       logger.info(gray(`\n  Generating TypeScript client for ${name}... \n`));
       const result = await generateClient({
-        ...merged,
+        ...clientConfig,
         api: path,
         output: outputPath,
         config: aliasConfig,
