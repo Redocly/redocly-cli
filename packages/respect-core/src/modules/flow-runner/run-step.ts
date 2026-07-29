@@ -313,17 +313,21 @@ export async function runStep({
     // step instead of throwing: an escaped error would make runWorkflow
     // register the step a second time
     function failStepWithActionError(message: string): { shouldEnd: true } {
-      step.checks.push({
+      const failedCheck: Check = {
         name: CHECKS.UNEXPECTED_ERROR,
         message,
         passed: false,
         severity: ctx.severity['UNEXPECTED_ERROR'],
-      });
-      // the plain step path has already registered the step copy;
-      // the child workflow path has not
+      };
+      step.checks.push(failedCheck);
       if (!ctx.executedSteps.includes(step)) {
+        // the child workflow path has not registered nor printed the step yet
         ctx.executedSteps.push(step);
         printUnknownStep(step, ctx.options.logger);
+      } else {
+        // the plain step path printed the step before the actions ran — print
+        // the action failure so the live output doesn't end on a passing step
+        printUnknownStep({ ...step, checks: [failedCheck] }, ctx.options.logger);
       }
       return { shouldEnd: true };
     }
