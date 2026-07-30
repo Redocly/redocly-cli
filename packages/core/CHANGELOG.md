@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.43.0
+
+### Minor Changes
+
+- Added a `skipPluginEval` option to `loadConfig` that resolves plugin paths without importing or executing plugin code — the returned plugins contain only their `absolutePath`.
+
 ## 2.42.0
 
 ### Minor Changes
