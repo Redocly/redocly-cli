@@ -91,12 +91,17 @@ interface Composition {
   nullable: boolean;
   required: string[];
   names: Set<string>;
+  /** Wrapped so that a literal `undefined` stays distinguishable from absence. */
+  literal?: { values: unknown[] };
 }
 
 /**
- * The constraints a value has to satisfy, gathered across `allOf` and through
+ * Every constraint a value has to satisfy, gathered across `allOf` and through
  * the `$ref`s inside it. A composed schema states nothing itself, so reading
  * only its own keywords would accept any value at all.
+ *
+ * This is the single place constraints are collected. `matches` reads nothing
+ * off a schema directly, so a keyword handled here is handled everywhere.
  */
 function compose(spec: Schema, schema: Schema, depth = 0): Composition {
   const { schema: target } = resolve(spec, schema);
@@ -107,6 +112,7 @@ function compose(spec: Schema, schema: Schema, depth = 0): Composition {
     nullable: target.nullable === true,
     required: [...(target.required ?? [])],
     names: new Set(Object.keys(target.properties ?? {})),
+    literal: literalOf(target),
   };
 
   for (const sub of target.allOf ?? []) {
@@ -114,11 +120,20 @@ function compose(spec: Schema, schema: Schema, depth = 0): Composition {
 
     composition.type ??= inherited.type;
     composition.nullable ||= inherited.nullable;
+    composition.literal ??= inherited.literal;
     composition.required.push(...inherited.required);
     for (const name of inherited.names) composition.names.add(name);
   }
 
   return composition;
+}
+
+/** The values a schema pins itself to, whether by `enum` or by 3.1's `const`. */
+function literalOf(schema: Schema): { values: unknown[] } | undefined {
+  if (Array.isArray(schema.enum)) return { values: schema.enum };
+  if ('const' in schema) return { values: [schema.const] };
+
+  return undefined;
 }
 
 /** OpenAPI 3.1 allows a list of types, 3.0 only a single one. */
@@ -149,15 +164,15 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
   const { schema: target } = resolve(spec, schema);
   if (!target) return false;
 
-  if (target.enum) return target.enum.includes(value as never);
-  // OpenAPI 3.1 spells a single-value enum this way, and a union of literals is
-  // otherwise indistinguishable: every branch would accept every value.
-  if ('const' in target) return target.const === value;
-
-  const { type, nullable, required, names } = compose(spec, target);
+  const { type, nullable, required, names, literal } = compose(spec, target);
   const types = typesOf(type);
 
+  // Nullability outranks every other constraint: a nullable enum still takes null.
   if (value === null && nullable) return true;
+
+  // Without this a union of literals is indistinguishable, and every branch
+  // accepts every value of the shared type.
+  if (literal) return literal.values.includes(value);
 
   // Properties without a `type` still describe an object.
   const objectish = types.includes('object') || (types.length === 0 && names.size > 0);

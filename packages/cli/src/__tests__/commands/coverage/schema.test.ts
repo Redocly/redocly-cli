@@ -153,6 +153,28 @@ describe('matches', () => {
     expect(matches(SPEC, nullableString, 42)).toBe(false);
   });
 
+  it('accepts null for a nullable enum or const', () => {
+    expect(matches(SPEC, { enum: ['a', 'b'], nullable: true }, null)).toBe(true);
+    expect(matches(SPEC, { const: 'a', nullable: true }, null)).toBe(true);
+    expect(matches(SPEC, { enum: ['a', 'b'] }, null)).toBe(false);
+  });
+
+  it('applies an enum reached through allOf', () => {
+    const wrapped = {
+      allOf: [{ type: 'string' }, { enum: ['live', 'draft'] }],
+    };
+
+    expect(matches(SPEC, wrapped, 'live')).toBe(true);
+    expect(matches(SPEC, wrapped, 'other')).toBe(false);
+  });
+
+  it('applies a const reached through allOf', () => {
+    const wrapped = { allOf: [{ type: 'string' }, { const: 'only' }] };
+
+    expect(matches(SPEC, wrapped, 'only')).toBe(true);
+    expect(matches(SPEC, wrapped, 'other')).toBe(false);
+  });
+
   it('honours an OpenAPI 3.1 const', () => {
     expect(matches(SPEC, { const: 'a' }, 'a')).toBe(true);
     expect(matches(SPEC, { const: 'a' }, 'b')).toBe(false);
