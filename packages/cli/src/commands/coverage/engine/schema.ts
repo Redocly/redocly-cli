@@ -97,28 +97,14 @@ function compose(spec: Schema, schema: Schema, depth = 0): Composition {
   return composition;
 }
 
-/**
- * Whether a value plausibly satisfies a branch. Without this a union credits
- * every alternative from a single value, and every branch reads as covered no
- * matter what the API actually returned.
- */
-export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
-  const { schema: target } = resolve(spec, schema);
-  if (!target) return false;
+/** OpenAPI 3.1 allows a list of types, 3.0 only a single one. */
+function typesOf(type: string | string[] | undefined): string[] {
+  if (Array.isArray(type)) return type;
 
-  if (target.enum) return target.enum.includes(value as never);
+  return type ? [type] : [];
+}
 
-  const { type, required, names } = compose(spec, target);
-
-  if (type === 'object' || names.size > 0) {
-    if (!isPlainObject(value)) return false;
-
-    const keys = new Set(Object.keys(value));
-    if (!required.every((key) => keys.has(key))) return false;
-
-    return names.size === 0 || [...keys].some((key) => names.has(key));
-  }
-
+function matchesType(type: string, value: unknown): boolean {
   if (type === 'array') return Array.isArray(value);
   if (type === 'string') return typeof value === 'string';
   if (type === 'boolean') return typeof value === 'boolean';
@@ -127,4 +113,85 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
   if (type === 'null') return value === null;
 
   return true;
+}
+
+/**
+ * Whether a value could satisfy a branch at all. This is the hard filter only:
+ * choosing between the branches that survive it is `fit`'s job, because a value
+ * that merely shares a property name with a branch has not exercised it.
+ */
+export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
+  const { schema: target } = resolve(spec, schema);
+  if (!target) return false;
+
+  if (target.enum) return target.enum.includes(value as never);
+
+  const { type, required, names } = compose(spec, target);
+  const types = typesOf(type);
+
+  if (types.includes('object') || (types.length === 0 && names.size > 0)) {
+    if (!isPlainObject(value)) return types.includes('null') && value === null;
+
+    const keys = new Set(Object.keys(value));
+
+    return required.every((key) => keys.has(key));
+  }
+
+  if (types.length === 0) return true;
+
+  return types.some((one) => matchesType(one, value));
+}
+
+/** How many of a value's own properties a branch declares. */
+export function fit(spec: Schema, schema: Schema, value: unknown): number {
+  if (!isPlainObject(value)) return 0;
+
+  const { schema: target } = resolve(spec, schema);
+  if (!target) return 0;
+
+  const { names } = compose(spec, target);
+
+  return Object.keys(value).filter((key) => names.has(key)).length;
+}
+
+/**
+ * The branch a `discriminator` names, which settles the choice outright when
+ * the description provides one.
+ */
+function discriminated(parent: Schema, branches: Schema[], value: unknown): number | undefined {
+  const propertyName = parent.discriminator?.propertyName;
+  if (!propertyName || !isPlainObject(value)) return undefined;
+
+  const key = value[propertyName];
+  if (typeof key !== 'string') return undefined;
+
+  const mapped = parent.discriminator.mapping?.[key] ?? `#/components/schemas/${key}`;
+  const index = branches.findIndex((branch) => isRef(branch) && branch.$ref === mapped);
+
+  return index === -1 ? undefined : index;
+}
+
+/**
+ * The branch indices a value exercises. Where several remain possible, only the
+ * best fitting ones count: crediting every branch a value merely could be makes
+ * union coverage meaningless.
+ */
+export function selectBranches(
+  spec: Schema,
+  parent: Schema,
+  branches: Schema[],
+  value: unknown
+): number[] {
+  const named = discriminated(parent, branches, value);
+  if (named !== undefined) return [named];
+
+  const possible = branches
+    .map((branch, index) => ({ branch, index }))
+    .filter(({ branch }) => matches(spec, branch, value));
+  if (possible.length <= 1) return possible.map(({ index }) => index);
+
+  const scored = possible.map(({ branch, index }) => ({ index, score: fit(spec, branch, value) }));
+  const best = Math.max(...scored.map(({ score }) => score));
+
+  return scored.filter(({ score }) => score === best).map(({ index }) => index);
 }

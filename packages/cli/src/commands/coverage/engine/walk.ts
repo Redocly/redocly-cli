@@ -1,6 +1,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import { MAX_DEPTH, matches, resolve, VARIANT_KEYWORDS, type Schema } from './schema.js';
+import { MAX_DEPTH, resolve, selectBranches, VARIANT_KEYWORDS, type Schema } from './schema.js';
 import { siteKey } from './sites.js';
 
 export interface Coverage {
@@ -48,11 +48,9 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
     const key = siteKey(next.owner, next.prefix, keyword);
     if (!next.coverage.variants.has(key)) next.coverage.variants.set(key, new Set());
 
-    for (const [index, branch] of branches.entries()) {
-      if (!matches(next.spec, branch, value)) continue;
-
+    for (const index of selectBranches(next.spec, target, branches, value)) {
       next.coverage.variants.get(key)!.add(index);
-      walk(branch, value, next);
+      walk(branches[index], value, next);
     }
   }
 

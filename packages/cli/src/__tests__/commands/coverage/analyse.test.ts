@@ -144,6 +144,65 @@ describe('coverage of a schema that only holds a union', () => {
   });
 });
 
+describe('a union whose branches share a property', () => {
+  const MEDIA: Schema = {
+    components: {
+      schemas: {
+        Media: {
+          oneOf: [{ $ref: '#/components/schemas/Photo' }, { $ref: '#/components/schemas/Video' }],
+        },
+        Photo: {
+          type: 'object',
+          properties: { kind: { type: 'string' }, width: { type: 'integer' } },
+        },
+        Video: {
+          type: 'object',
+          properties: { kind: { type: 'string' }, duration: { type: 'integer' } },
+        },
+      },
+    },
+  };
+
+  function photo() {
+    const coverage = createCoverage();
+    walkRoot(MEDIA, coverage, { $ref: '#/components/schemas/Media' }, { kind: 'photo', width: 10 });
+
+    return summarize(MEDIA, coverage, { total: 1, withBody: 1 });
+  }
+
+  it('credits only the branch the value actually fits', () => {
+    expect(photo().schemas.find(({ name }) => name === 'Media')?.unusedVariants).toEqual([
+      { path: '', keyword: 'oneOf', branches: [1] },
+    ]);
+  });
+
+  it('does not mark the sibling branch as reached', () => {
+    expect(photo().unusedSchemas).toEqual(['Video']);
+  });
+});
+
+describe('a union with a discriminator', () => {
+  const PETS: Schema = {
+    components: {
+      schemas: {
+        Pet: {
+          oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+          discriminator: { propertyName: 'petType' },
+        },
+        Cat: { type: 'object', properties: { petType: { type: 'string' } } },
+        Dog: { type: 'object', properties: { petType: { type: 'string' } } },
+      },
+    },
+  };
+
+  it('picks the branch the discriminator names, not both', () => {
+    const coverage = createCoverage();
+    walkRoot(PETS, coverage, { $ref: '#/components/schemas/Pet' }, { petType: 'Cat' });
+
+    expect(summarize(PETS, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual(['Dog']);
+  });
+});
+
 describe('additionalProperties', () => {
   const MAP: Schema = {
     components: {

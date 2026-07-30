@@ -123,6 +123,14 @@ describe('matches', () => {
     expect(matches(SPEC, { enum: ['a', 'b'] }, 'c')).toBe(false);
   });
 
+  it('honours an OpenAPI 3.1 type array', () => {
+    const nullableString = { type: ['string', 'null'] };
+
+    expect(matches(SPEC, nullableString, 'x')).toBe(true);
+    expect(matches(SPEC, nullableString, null)).toBe(true);
+    expect(matches(SPEC, nullableString, 42)).toBe(false);
+  });
+
   it('rejects a branch whose $ref points nowhere', () => {
     expect(matches(SPEC, { $ref: '#/components/schemas/Absent' }, {})).toBe(false);
   });
