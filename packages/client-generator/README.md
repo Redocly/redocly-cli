@@ -4,7 +4,7 @@ Generate a typed TypeScript client from an OpenAPI description.
 See https://github.com/Redocly/redocly-cli for the full project.
 
 > [!WARNING]
-> This package is experimental: the generated output, options, and the plugin API may change in any minor release until it is declared stable (see [ADR-0013](./docs/adr/0013-experimental-status.md)).
+> This package is experimental: the generated output, options, and the plugin API may change in any minor release until it is declared stable (see [ADR-0013](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/docs/adr/0013-experimental-status.md)).
 > Pin your version if you depend on the output, and expect to regenerate when you upgrade.
 > Feedback is very welcome while we stabilize it.
 
@@ -122,7 +122,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the [`Config` type](./src/config.ts) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used to load the description.
+`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used to load the description.
 
 ### `collectGeneratedFiles`
 
@@ -186,7 +186,7 @@ Each is a standalone Vite app with a checked-in, drift-checked generated client.
 - [`generate-client` command reference](https://redocly.com/docs/cli/commands/generate-client) — CLI usage, flags, and `redocly.yaml` configuration.
 - [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client) — the runtime API and the add-on generators.
 - [Customize client generation](https://redocly.com/docs/cli/guides/customize-client-generation) — publisher defaults and custom generators.
-- [`ARCHITECTURE.md`](./ARCHITECTURE.md) and the [ADRs](./docs/adr/) — how the package is built and why.
+- [`ARCHITECTURE.md`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/ARCHITECTURE.md) and the [ADRs](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/docs/adr) — how the package is built and why.
 
 ## Development
 
