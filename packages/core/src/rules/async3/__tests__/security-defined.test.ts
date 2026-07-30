@@ -1123,4 +1123,65 @@ describe('Async3 security-defined', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report when an external $ref points outside components.securitySchemes', async () => {
+    const results = await lintMultiFileDocument(
+      outdent`
+        asyncapi: '3.0.0'
+        info:
+          title: Async3 External Security Ref
+          version: 1.0.0
+        servers:
+          production:
+            host: broker.example.com
+            protocol: mqtt
+            security:
+              - $ref: '/other.yaml#/components/securitySchemes/apiKeyAuth'
+        channels:
+          userSignups:
+            address: user/signedup
+        operations:
+          sendUserSignups:
+            action: send
+            channel:
+              $ref: '#/channels/userSignups'
+            security:
+              - $ref: '/other.yaml#/components/schemas/SomethingElse'
+      `,
+      [
+        {
+          absoluteRef: '/other.yaml',
+          body: outdent`
+            components:
+              securitySchemes:
+                apiKeyAuth:
+                  type: httpApiKey
+                  name: api_key
+                  in: header
+              schemas:
+                SomethingElse:
+                  type: object
+          `,
+        },
+      ]
+    );
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/operations/sendUserSignups/security/0",
+              "reportOnKey": true,
+              "source": "/asyncapi.yaml",
+            },
+          ],
+          "message": "Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

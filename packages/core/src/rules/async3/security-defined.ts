@@ -11,6 +11,7 @@ import type { UserContext } from '../../walk.js';
 import { hasSecurityRequirements, isAsyncOperationSecured } from '../utils.js';
 
 const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
+const COMPONENTS_POINTER = '#/components/';
 
 type SecurityReference = {
   location: Location;
@@ -98,7 +99,9 @@ export const SecurityDefined: Async3Rule = () => {
       },
       leave(_root, { report, resolve }: UserContext) {
         for (const reference of references) {
-          if (reference.local && !pointsToSecurityScheme(reference.refPointer)) {
+          const checkPointer =
+            reference.local || reference.refPointer.startsWith(COMPONENTS_POINTER);
+          if (checkPointer && !pointsToSecurityScheme(reference.refPointer)) {
             report({
               message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
               location: reference.location.key(),
