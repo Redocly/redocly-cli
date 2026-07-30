@@ -1,6 +1,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import { MAX_DEPTH, VARIANT_KEYWORDS, type Schema } from './schema.js';
+import { branchPath, MAX_DEPTH, VARIANT_KEYWORDS, type Schema } from './schema.js';
 
 export interface Site {
   owner: string;
@@ -17,14 +17,6 @@ export function siteKey(owner: string, path: string, keyword: string): string {
   return `${owner}${path ? `.${path}` : ''}#${keyword}`;
 }
 
-/**
- * The path inside one branch of a union. Sibling branches can each declare a
- * union at the same property, so without the branch in the path those nested
- * sites share a key and overwrite each other.
- */
-export function branchPath(path: string, keyword: string, index: number): string {
-  return `${path ? `${path}.` : ''}${keyword}[${index}]`;
-}
 
 /**
  * Every union site inside one named schema. Stops at `$ref` because the target

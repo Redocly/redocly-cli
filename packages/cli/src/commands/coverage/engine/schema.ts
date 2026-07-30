@@ -13,6 +13,15 @@ export const VARIANT_KEYWORDS = ['oneOf', 'anyOf'] as const;
 export const MAX_DEPTH = 40;
 
 /**
+ * The path inside one branch of a union. Sibling branches can each declare the
+ * same property, so without the branch in the path they collide: their sites
+ * overwrite each other and their properties read as one.
+ */
+export function branchPath(path: string, keyword: string, index: number): string {
+  return `${path ? `${path}.` : ''}${keyword}[${index}]`;
+}
+
+/**
  * Follow a local `$ref`, reporting the component name it pointed at.
  *
  * Coverage groups its results by schema name, so it reads a bundled document
@@ -76,6 +85,16 @@ export function declared(spec: Schema, schema: Schema, path = '', depth = 0): [s
     if (isRef(sub)) continue;
 
     found.push(...declared(spec, sub, path, depth + 1));
+  }
+
+  // Alternatives are kept apart under their own branch path, the way the walk
+  // records them. Merging them would read as one shape nothing ever sends.
+  for (const keyword of VARIANT_KEYWORDS) {
+    for (const [index, branch] of ((target[keyword] ?? []) as Schema[]).entries()) {
+      if (isRef(branch)) continue;
+
+      found.push(...declared(spec, branch, branchPath(path, keyword, index), depth + 1));
+    }
   }
 
   if (target.items && !isRef(target.items)) {
@@ -179,6 +198,7 @@ function discriminated(
 export function selectBranches(
   spec: Schema,
   parent: Schema,
+  keyword: string,
   branches: Schema[],
   value: unknown
 ): number[] {
@@ -192,6 +212,10 @@ export function selectBranches(
 
   const scored = possible.map(({ branch, index }) => ({ index, score: fit(spec, branch, value) }));
   const best = Math.max(...scored.map(({ score }) => score));
+  const winners = scored.filter(({ score }) => score === best).map(({ index }) => index);
 
-  return scored.filter(({ score }) => score === best).map(({ index }) => index);
+  // `anyOf` lets a value be several of its alternatives at once, so each one it
+  // fits was exercised. `oneOf` means exactly one, so a tie is the description
+  // being ambiguous rather than the value having covered both.
+  return keyword === 'oneOf' ? winners.slice(0, 1) : winners;
 }

@@ -76,8 +76,10 @@ describe('declared', () => {
     expect(names.sort()).toEqual(['a', 'b']);
   });
 
-  it('does not merge properties across oneOf branches, which are alternatives', () => {
-    expect(declared(SPEC, SPEC.components.schemas.Either)).toEqual([]);
+  it('keeps oneOf branches apart rather than merging them, since they are alternatives', () => {
+    const names = declared(SPEC, SPEC.components.schemas.Either).map(([name]) => name);
+
+    expect(names.sort()).toEqual(['oneOf[0].a', 'oneOf[1].b']);
   });
 
   it('names a property once when two allOf branches both declare it', () => {

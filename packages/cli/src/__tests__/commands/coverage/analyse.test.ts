@@ -181,6 +181,45 @@ describe('a union whose branches share a property', () => {
   });
 });
 
+describe('a oneOf whose branches a value fits equally', () => {
+  function spec(keyword: string): Schema {
+    return {
+      components: {
+        schemas: {
+          Media: {
+            [keyword]: [
+              { $ref: '#/components/schemas/Photo' },
+              { $ref: '#/components/schemas/Video' },
+            ],
+          },
+          Photo: { type: 'object', properties: { kind: { type: 'string' } } },
+          Video: { type: 'object', properties: { kind: { type: 'string' } } },
+        },
+      },
+    };
+  }
+
+  function reportFor(keyword: string) {
+    const description = spec(keyword);
+    const coverage = createCoverage();
+    walkRoot(description, coverage, { $ref: '#/components/schemas/Media' }, { kind: 'x' });
+
+    return summarize(description, coverage, { total: 1, withBody: 1 });
+  }
+
+  it('credits one branch only, because oneOf means exactly one', () => {
+    expect(reportFor('oneOf').schemas.find(({ name }) => name === 'Media')?.unusedVariants).toEqual([
+      { path: '', keyword: 'oneOf', branches: [1] },
+    ]);
+  });
+
+  it('credits every fitting branch of an anyOf, which permits more than one', () => {
+    expect(reportFor('anyOf').schemas.find(({ name }) => name === 'Media')?.unusedVariants).toEqual(
+      []
+    );
+  });
+});
+
 describe('a union with a discriminator', () => {
   const PETS: Schema = {
     components: {

@@ -1,6 +1,7 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
 import {
+  branchPath,
   composedNames,
   MAX_DEPTH,
   resolve,
@@ -8,7 +9,7 @@ import {
   VARIANT_KEYWORDS,
   type Schema,
 } from './schema.js';
-import { branchPath, siteKey } from './sites.js';
+import { siteKey } from './sites.js';
 
 export interface Coverage {
   /** Named schema → property paths a value carried. */
@@ -62,7 +63,7 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
     const key = siteKey(next.owner, next.prefix, keyword);
     if (!next.coverage.variants.has(key)) next.coverage.variants.set(key, new Set());
 
-    for (const index of selectBranches(next.spec, target, branches, value)) {
+    for (const index of selectBranches(next.spec, target, keyword, branches, value)) {
       next.coverage.variants.get(key)!.add(index);
       walk(branches[index], value, { ...next, prefix: branchPath(next.prefix, keyword, index) });
     }
