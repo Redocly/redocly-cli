@@ -1,5 +1,7 @@
 import { isPlainObject, isRef, unescapePointerFragment } from '@redocly/openapi-core';
 
+import { SchemaValidator } from '../../drift/engine/schema-validator.js';
+
 // A schema node is an arbitrary JSON Schema object; narrowing it to `unknown`
 // would force a cast at every keyword access.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,164 +87,60 @@ export function declared(spec: Schema, schema: Schema, path = '', depth = 0): [s
   return [...byPath.values()];
 }
 
-interface Composition {
-  type?: string | string[];
-  format?: string;
-  /** OpenAPI 3.0 spells a nullable value this way; 3.1 puts `null` in `type`. */
-  nullable: boolean;
-  required: string[];
-  names: Set<string>;
-  /** Wrapped so that a literal `undefined` stays distinguishable from absence. */
-  literal?: { values: unknown[] };
-  /** One entry per `oneOf`/`anyOf`; a value has to satisfy a branch of each. */
-  unions: Schema[][];
-}
+const validator = new SchemaValidator();
+const validatable = new WeakMap<Schema, Schema>();
 
 /**
- * Every constraint a value has to satisfy, gathered across `allOf` and through
- * the `$ref`s inside it. A composed schema states nothing itself, so reading
- * only its own keywords would accept any value at all.
+ * A branch in the form Ajv can compile.
  *
- * This is the single place constraints are collected. `matches` reads nothing
- * off a schema directly, so a keyword handled here is handled everywhere.
+ * Coverage reads a description that still carries `$ref`s, and a pointer like
+ * `#/components/schemas/User` resolves against the root Ajv compiles. Putting
+ * the components beside the branch gives those pointers something to find.
+ *
+ * Memoized because the validator caches compiled schemas by object identity,
+ * so a fresh wrapper per call would recompile every branch of every exchange.
  */
-function compose(spec: Schema, schema: Schema, depth = 0): Composition {
-  const { schema: target } = resolve(spec, schema);
-  if (!target || depth > MAX_DEPTH) {
-    return { nullable: false, required: [], names: new Set(), unions: [] };
-  }
+function forValidation(spec: Schema, schema: Schema): Schema {
+  const cached = validatable.get(schema);
+  if (cached) return cached;
 
-  const composition: Composition = {
-    type: target.type,
-    format: target.format,
-    nullable: target.nullable === true,
-    required: [...(target.required ?? [])],
-    names: new Set(Object.keys(target.properties ?? {})),
-    literal: literalOf(target),
-    unions: VARIANT_KEYWORDS.filter((keyword) => target[keyword]?.length).map(
-      (keyword) => target[keyword] as Schema[]
-    ),
-  };
+  const wrapped: Schema = { allOf: [schema], components: spec.components };
+  validatable.set(schema, wrapped);
 
-  for (const sub of target.allOf ?? []) {
-    const inherited = compose(spec, sub, depth + 1);
-
-    composition.type ??= inherited.type;
-    composition.format ??= inherited.format;
-    composition.nullable ||= inherited.nullable;
-    composition.literal ??= inherited.literal;
-    composition.required.push(...inherited.required);
-    composition.unions.push(...inherited.unions);
-    for (const name of inherited.names) composition.names.add(name);
-  }
-
-  return composition;
-}
-
-/** The values a schema pins itself to, whether by `enum` or by 3.1's `const`. */
-function literalOf(schema: Schema): { values: unknown[] } | undefined {
-  if (Array.isArray(schema.enum)) return { values: schema.enum };
-  if ('const' in schema) return { values: [schema.const] };
-
-  return undefined;
-}
-
-/** OpenAPI 3.1 allows a list of types, 3.0 only a single one. */
-function typesOf(type: string | string[] | undefined): string[] {
-  if (Array.isArray(type)) return type;
-
-  return type ? [type] : [];
-}
-
-function matchesType(type: string, value: unknown): boolean {
-  if (type === 'object') return isPlainObject(value);
-  if (type === 'array') return Array.isArray(value);
-  if (type === 'string') return typeof value === 'string';
-  if (type === 'boolean') return typeof value === 'boolean';
-  if (type === 'integer') return typeof value === 'number' && Number.isInteger(value);
-  if (type === 'number') return typeof value === 'number';
-  if (type === 'null') return value === null;
-
-  return true;
+  return wrapped;
 }
 
 /**
- * Whether a value could satisfy a branch at all. This is the hard filter only:
- * choosing between the branches that survive it is `fit`'s job, because a value
- * that merely shares a property name with a branch has not exercised it.
+ * Whether a value satisfies a branch, decided by the same validator `drift`
+ * judges traffic with. Hand-reading keywords here only ever covered the ones
+ * someone had thought of, and every gap credited a branch nothing exercised.
  */
-export function matches(spec: Schema, schema: Schema, value: unknown, depth = 0): boolean {
-  const { schema: target } = resolve(spec, schema);
-  if (!target) return false;
-
-  const { type, nullable, required, names, literal, unions } = compose(spec, target);
-  const types = typesOf(type);
-
-  // Nullability outranks every other constraint: a nullable enum still takes null.
-  if (value === null && nullable) return true;
-
-  // Without this a union of literals is indistinguishable, and every branch
-  // accepts every value of the shared type.
-  if (literal) return literal.values.includes(value);
-
-  // A schema whose only constraint is a nested union states nothing itself, so
-  // without this it accepts every value and its branches all read as covered.
-  if (depth <= MAX_DEPTH) {
-    const satisfied = unions.every((branches) =>
-      branches.some((branch) => matches(spec, branch, value, depth + 1))
-    );
-    if (!satisfied) return false;
-  }
-
-  // Properties without a `type` still describe an object.
-  const objectish = types.includes('object') || (types.length === 0 && names.size > 0);
-
-  if (objectish && isPlainObject(value)) {
-    const keys = new Set(Object.keys(value));
-
-    return required.every((key) => keys.has(key));
-  }
-
-  // A 3.1 type array can allow an object alongside other types, so a non-object
-  // value still has the rest of the list to satisfy.
-  if (types.length === 0) return unions.length > 0 || !objectish;
-
-  return types.some((one) => matchesType(one, value));
+export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
+  return validator.validate(forValidation(spec, schema), value).valid;
 }
 
 /** Every property name a schema carries, including the ones it composes in. */
-export function composedNames(spec: Schema, schema: Schema): Set<string> {
-  return compose(spec, schema).names;
+export function composedNames(spec: Schema, schema: Schema, depth = 0): Set<string> {
+  const { schema: target } = resolve(spec, schema);
+  if (!target || depth > MAX_DEPTH) return new Set();
+
+  const names = new Set(Object.keys(target.properties ?? {}));
+  for (const sub of target.allOf ?? []) {
+    for (const name of composedNames(spec, sub, depth + 1)) names.add(name);
+  }
+
+  return names;
 }
 
 /**
- * The `format`s worth telling apart when two branches share a type. Used only
- * to rank branches, never to reject a value: OpenAPI treats `format` as
- * advisory, so a stricter reading here would drop valid coverage.
+ * How much of a value a branch accounts for. The validator says which branches
+ * a value could be; where several could, the one declaring most of what the
+ * value carries is the one it exercised.
  */
-const FORMAT_TESTS: Record<string, (value: string) => boolean> = {
-  uuid: (value) => /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value),
-  date: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
-  'date-time': (value) => !Number.isNaN(Date.parse(value)) && /[T ]/.test(value),
-  email: (value) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value),
-  uri: (value) => /^[a-z][a-z0-9+.-]*:/i.test(value),
-  ipv4: (value) => /^(\d{1,3}\.){3}\d{1,3}$/.test(value),
-};
-
-/** How much of a value a branch accounts for, used to rank the branches it could be. */
 export function fit(spec: Schema, schema: Schema, value: unknown): number {
-  const { schema: target } = resolve(spec, schema);
-  if (!target) return 0;
-
-  const { names, format } = compose(spec, target);
-
-  if (typeof value === 'string') {
-    const test = format ? FORMAT_TESTS[format] : undefined;
-
-    return test?.(value) ? 1 : 0;
-  }
-
   if (!isPlainObject(value)) return 0;
+
+  const names = composedNames(spec, schema);
 
   return Object.keys(value).filter((key) => names.has(key)).length;
 }

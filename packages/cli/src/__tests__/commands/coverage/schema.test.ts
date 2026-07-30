@@ -153,10 +153,15 @@ describe('matches', () => {
     expect(matches(SPEC, nullableString, 42)).toBe(false);
   });
 
-  it('accepts null for a nullable enum or const', () => {
-    expect(matches(SPEC, { enum: ['a', 'b'], nullable: true }, null)).toBe(true);
-    expect(matches(SPEC, { const: 'a', nullable: true }, null)).toBe(true);
-    expect(matches(SPEC, { enum: ['a', 'b'] }, null)).toBe(false);
+  it('still holds a nullable enum to the values it lists', () => {
+    // `nullable` relaxes the type, but the enum keeps listing what is allowed,
+    // so a description that means to permit null has to say so. `drift` reads
+    // it the same way, and the two have to agree on what a value satisfies.
+    const nullable = { type: 'string', enum: ['a', 'b'], nullable: true };
+
+    expect(matches(SPEC, nullable, null)).toBe(false);
+    expect(matches(SPEC, nullable, 'a')).toBe(true);
+    expect(matches(SPEC, { ...nullable, enum: ['a', 'b', null] }, null)).toBe(true);
   });
 
   it('applies an enum reached through allOf', () => {
