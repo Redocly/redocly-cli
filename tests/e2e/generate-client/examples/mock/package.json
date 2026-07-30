@@ -1,0 +1,22 @@
+{
+  "name": "@redocly-examples/mock",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "redocly generate-client",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@redocly/cli": "latest",
+    "msw": "^2.0.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

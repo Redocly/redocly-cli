@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI usage for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when linting an API description, bundling or splitting multi-file descriptions, joining several APIs into one, transforming a description with decorators, building or previewing API docs, testing a live API with respect to its description.
+description: Redocly CLI usage for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when linting an API description, bundling or splitting multi-file descriptions, joining several APIs into one, transforming a description with decorators, building or previewing API docs, testing a live API with respect to its description, generating a TypeScript client from an OpenAPI description.
 ---
 
 # Redocly CLI usage
@@ -38,6 +38,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `preview`                                   | Local preview of a Redocly project                                  |
 | `respect`                                   | Run API tests described in an Arazzo description against a live API |
 | `generate-arazzo`                           | Scaffold an Arazzo description from an OpenAPI description          |
+| `generate-client`                           | Generate a typed, zero-dependency TypeScript client [experimental]  |
 | `login` / `logout` / `push` / `push-status` | Authenticate and push to the Redocly platform (Reunite)             |
 
 Exit codes: `0` success, `1` problems found or execution failed, `2` configuration error.
@@ -118,6 +119,29 @@ rules:
   my-plugin/operation-id-not-test: error
 ```
 
+## Generate a TypeScript client
+
+`generate-client <api> --output client.ts` turns an OpenAPI description into a typed client — one self-contained file with zero runtime dependencies (auth, retries, middleware, typed SSE, pagination included).
+Configure it durably under a `client` block in `redocly.yaml` instead of flags:
+
+```yaml
+client:
+  generators: [sdk, zod] # add-ons: tanstack-query, swr, mock, transformers, or a plugin path
+  outputMode: split
+  pagination: # config-only, no CLI flag
+    style: cursor
+    cursorParam: after
+    nextCursor: /page/endCursor
+    items: /items
+apis:
+  my-api:
+    root: ./openapi/openapi.yaml
+    clientOutput: ./src/api/client.ts
+```
+
+With `apis.<name>.clientOutput` set, a bare `redocly generate-client` generates every opted-in API.
+An API's own `client` block replaces the top-level one wholesale — repeat the shared fields in it.
+
 ## Test a live API
 
 `respect` executes an [Arazzo](https://spec.openapis.org/arazzo/latest.html) description as a test suite against a running API, asserting real responses match the description.
@@ -139,6 +163,7 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 - `respect` currently covers only synchronous HTTP flow.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
+- `generate-client` needs the `typescript` package (6.x) available at generation time; the generated client itself compiles with any TypeScript, including 7.
 
 ## Resources
 

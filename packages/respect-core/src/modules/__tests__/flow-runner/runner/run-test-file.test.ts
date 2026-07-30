@@ -9,6 +9,7 @@ import {
 import * as fs from 'node:fs';
 
 import { type Step, type TestContext } from '../../../../types.js';
+import { cleanColors } from '../../../../utils/clean-colors.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
 
 vi.mock('@redocly/openapi-core', async () => {
@@ -339,7 +340,7 @@ describe('runTestFile', () => {
     expect(runStep).toHaveBeenCalledTimes(3);
   }, 8000);
 
-  it('should throw an error when dependsOn has not existing workflowId', async () => {
+  it('should mark the workflow as failed and continue when dependsOn has not existing workflowId', async () => {
     const mockDocument = makeDocumentFromString(
       JSON.stringify({
         arazzo: '1.0.1',
@@ -421,20 +422,105 @@ describe('runTestFile', () => {
       },
     } as any);
 
-    await expect(
-      runTestFile({
-        options: { file: 'test.yaml', ...defaultRespectOptions },
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrow(
-      expect.objectContaining({
-        // @ts-expect-error
-        message: expect.stringContaining('Workflow', 'not-existing-workflowId', 'not found'),
-      })
+    const result = await runTestFile({
+      options: { file: 'test.yaml', ...defaultRespectOptions },
+      executedStepsCount: { value: 0 },
+    });
+
+    // the workflow with the broken dependsOn is marked as failed, the run continues
+    expect(result.executedWorkflows).toHaveLength(2);
+    const failedWorkflow = result.executedWorkflows.find(
+      (workflow) => workflow.workflowId === 'second-workflow'
+    );
+    const failedStep = failedWorkflow?.executedSteps[0] as Step;
+    expect(failedStep.checks[0]?.passed).toBe(false);
+    expect(cleanColors(failedStep.checks[0]?.message || '')).toEqual(
+      'Workflow not-existing-workflowId from dependsOn of workflow second-workflow is not found.'
+    );
+    expect(runStep).toHaveBeenCalledTimes(1);
+  }, 8000);
+
+  it('should mark the workflow as failed and continue when dependsOn references a workflow that is not found in a source description', async () => {
+    const mockDocument = makeDocumentFromString(
+      JSON.stringify({
+        arazzo: '1.0.1',
+        info: {
+          title: 'Cat Facts API',
+          version: '1.0',
+        },
+        sourceDescriptions: [
+          {
+            name: 'cats',
+            type: 'openapi',
+            url: 'api-samples/cats.yaml',
+          },
+        ],
+        workflows: [
+          {
+            workflowId: 'get-bird-workflow',
+            steps: [
+              {
+                stepId: 'delete-step',
+                'x-operation': {
+                  url: 'http://localhost:3000/delete-mock',
+                  method: 'delete',
+                },
+                successCriteria: [
+                  {
+                    condition: '$statusCode == 204',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            workflowId: 'second-workflow',
+            dependsOn: ['$sourceDescriptions.cats.not-existing-workflow'],
+            steps: [
+              {
+                stepId: 'delete-mock',
+                'x-operation': {
+                  url: 'http://localhost:3000/delete-mock',
+                  method: 'delete',
+                },
+                successCriteria: [
+                  {
+                    condition: '$statusCode == 204',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+      'api-test-framework/test.yml'
+    );
+
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
+      bundle: {
+        parsed: mockDocument.parsed,
+      },
+    } as any);
+
+    const result = await runTestFile({
+      options: { file: 'test.yaml', ...defaultRespectOptions },
+      executedStepsCount: { value: 0 },
+    });
+
+    // the workflow with the broken dependsOn is marked as failed, the run continues
+    expect(result.executedWorkflows).toHaveLength(2);
+    const failedWorkflow = result.executedWorkflows.find(
+      (workflow) => workflow.workflowId === 'second-workflow'
+    );
+    const failedStep = failedWorkflow?.executedSteps[0] as Step;
+    expect(failedStep.checks[0]?.passed).toBe(false);
+    expect(cleanColors(failedStep.checks[0]?.message || '')).toEqual(
+      'Workflow $sourceDescriptions.cats.not-existing-workflow from dependsOn of workflow second-workflow is not found.'
     );
   }, 8000);
 
-  it('should throw an error when dependsOn has workflowId with not successful steps expectations', async () => {
+  it('should mark the workflow as failed and continue when a dependsOn workflow has failed steps', async () => {
     const mockDocument = makeDocumentFromString(
       JSON.stringify({
         arazzo: '1.0.1',
@@ -525,12 +611,24 @@ describe('runTestFile', () => {
       }
     );
 
-    await expect(
-      runTestFile({
-        options: { file: 'test.yaml', ...defaultRespectOptions },
-        executedStepsCount: { value: 0 },
-      })
-    ).rejects.toThrowError('Dependent workflows has failed steps');
+    const result = await runTestFile({
+      options: { file: 'test.yaml', ...defaultRespectOptions },
+      executedStepsCount: { value: 0 },
+    });
+
+    // the workflow with the failed dependency is marked as failed, the run continues
+    expect(result.executedWorkflows).toHaveLength(2);
+    const failedWorkflow = result.executedWorkflows.find(
+      (workflow) => workflow.workflowId === 'second-workflow'
+    );
+    const failedStep = failedWorkflow?.executedSteps[0] as Step;
+    expect(failedStep.checks[0]?.passed).toBe(false);
+    expect(cleanColors(failedStep.checks[0]?.message || '')).toEqual(
+      'Dependent workflows of workflow second-workflow have failed steps: get-bird-workflow.'
+    );
+    // the top-level get-bird-workflow run plus its run as a dependency;
+    // the steps of second-workflow itself must not run
+    expect(runStep).toHaveBeenCalledTimes(2);
   }, 8000);
 
   it('should throw an error when sourcedescription OpenAPI file does not exist', async () => {

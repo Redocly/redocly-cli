@@ -1,0 +1,4 @@
+node_modules
+dist
+src/api/
+package-lock.json

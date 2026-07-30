@@ -12,6 +12,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/**/*.ts',
           'packages/core/src/**/*.ts',
           'packages/respect-core/src/**/*.ts',
+          'packages/client-generator/src/**/*.ts',
         ],
         provider: 'istanbul',
         exclude: [

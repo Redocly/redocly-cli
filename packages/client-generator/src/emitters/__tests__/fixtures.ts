@@ -1,0 +1,77 @@
+import type {
+  ApiModel,
+  NamedSchemaModel,
+  OperationModel,
+  ParamModel,
+  ResponseBodyModel,
+  SchemaModel,
+} from '../../intermediate-representation/model.js';
+import { emitClientSingleFile } from '../client-assembly.js';
+
+/** A plain `string` scalar — the default schema for params and the most-reused leaf. */
+export const SCALAR: SchemaModel = { kind: 'scalar', scalar: 'string' };
+
+/** A minimal valid `ApiModel`; spread `overrides` to vary one facet per test. */
+export function apiModel(overrides: Partial<ApiModel> = {}): ApiModel {
+  return {
+    title: 'T',
+    version: '1.0.0',
+    serverUrl: 'https://api.example.com',
+    services: [{ name: 'Default', operations: [] }],
+    schemas: [],
+    securitySchemes: [],
+    ...overrides,
+  };
+}
+
+export function namedSchema(
+  name: string,
+  schema: SchemaModel,
+  description?: string
+): NamedSchemaModel {
+  return { name, schema, description };
+}
+
+/** A minimal `GET /p` operation; spread `overrides` to add params, a body, responses, etc. */
+export function operation(overrides: Partial<OperationModel> = {}): OperationModel {
+  return {
+    name: 'op',
+    method: 'get',
+    path: '/p',
+    pathParams: [],
+    queryParams: [],
+    headerParams: [],
+    cookieParams: [],
+    successResponses: [],
+    errorResponses: [],
+    security: [],
+    tags: [],
+    ...overrides,
+  };
+}
+
+export function param(
+  name: string,
+  loc: ParamModel['in'],
+  required: boolean,
+  schema: SchemaModel = SCALAR
+): ParamModel {
+  return { name, in: loc, schema, required };
+}
+
+/** An `ApiModel` with a single `Default` service holding `ops`; spread `extra` to vary. */
+export function modelWith(ops: OperationModel[], extra: Partial<ApiModel> = {}): ApiModel {
+  return apiModel({ services: [{ name: 'Default', operations: ops }], ...extra });
+}
+
+/** A JSON `ResponseBodyModel`, defaulting to `status: 200`; spread to vary status/schema. */
+export function response(overrides: Partial<ResponseBodyModel> = {}): ResponseBodyModel {
+  return { contentType: 'application/json', schema: SCALAR, status: 200, ...overrides };
+}
+
+/** Emit a single-file (inline-runtime) client whose only operation is `operation(op)`. */
+export function emitWithOp(op: Partial<OperationModel>): string {
+  return emitClientSingleFile(
+    apiModel({ services: [{ name: 'Default', operations: [operation(op)] }] })
+  );
+}

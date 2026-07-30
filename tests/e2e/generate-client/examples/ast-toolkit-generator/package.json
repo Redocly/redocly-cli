@@ -1,0 +1,14 @@
+{
+  "name": "@redocly-examples/ast-toolkit-generator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "redocly generate-client"
+  },
+  "devDependencies": {
+    "@redocly/cli": "latest",
+    "@redocly/client-generator": "latest",
+    "typescript": "^5.5.0"
+  }
+}

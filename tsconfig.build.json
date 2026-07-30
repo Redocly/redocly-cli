@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "packages/core" }, { "path": "packages/respect-core" }]
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/respect-core" },
+    { "path": "packages/client-generator" }
+  ]
 }

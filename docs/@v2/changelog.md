@@ -7,6 +7,39 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.42.0 (2026-07-30)
+
+### Minor Changes
+
+- Added an experimental `generate-client` command that generates a typed, zero-dependency TypeScript client from an OpenAPI description — auth, retries, middleware, typed SSE streaming, pagination, and multipart included — plus optional companion generators for Zod validation, TanStack Query and SWR hooks, MSW mocks, and date transformers.
+  See the [`generate-client` command reference](https://redocly.com/docs/cli/commands/generate-client) and the [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client) guide.
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.1.0.
+- Updated @redocly/openapi-core to v2.42.0.
+
+## 2.41.2 (2026-07-29)
+
+### Patch Changes
+
+- Updated js-yaml from `5.2.1` to `5.2.2` to resolve a vulnerability in YAML parsing.
+- Added support for the Arazzo spec-compliant workflow reference form `$sourceDescriptions.<name>.<workflowId>` in `dependsOn`, step `workflowId`, and success/failure action `workflowId`.
+
+  Unresolvable workflow references fail only the affected workflow with a clear error message, and no longer abort the whole run or pass unnoticed.
+
+- Updated @redocly/openapi-core to v2.41.2.
+- Updated @redocly/respect-core to v2.41.2.
+
+## 2.41.1 (2026-07-28)
+
+### Patch Changes
+
+- Fixed an issue where the `drift` command's `schema-consistency` rule reported false-positive findings for `oneOf` schemas with a `discriminator`.
+  Payloads are validated only against the branch selected by the discriminator value instead of every `oneOf` branch.
+  Schemas whose discriminator does not meet Ajv's structural requirements keep the previous behavior.
+- Extended the `drift` command's built-in undocumented-header ignore list with `x-amz-`, `x-amzn-` and `x-github-` prefixes, and the `x-hub-signature` / `x-hub-signature-256` webhook signature headers.
+
 ## 2.41.0 (2026-07-27)
 
 ### Minor Changes

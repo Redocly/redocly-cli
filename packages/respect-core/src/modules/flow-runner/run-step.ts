@@ -10,7 +10,6 @@ import type {
   RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
-  Workflow,
 } from '../../types.js';
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
@@ -18,6 +17,7 @@ import {
   getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
+  resolveWorkflowReference,
   type ParameterWithoutIn,
 } from '../context-parser/index.js';
 import {
@@ -64,11 +64,7 @@ export async function runStep({
   );
 
   if (targetWorkflowRef) {
-    const targetWorkflow =
-      ctx.workflows.find((w) => w.workflowId === targetWorkflowRef) ||
-      (getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger }) as
-        | Workflow
-        | undefined);
+    const targetWorkflow = resolveWorkflowReference({ ref: targetWorkflowRef, ctx });
 
     if (!targetWorkflow) {
       const failedCall: Check = {
@@ -78,7 +74,11 @@ export async function runStep({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
-      return;
+      // register the step so the failed check is displayed and counted in the totals
+      ctx.executedSteps.push(step);
+      printUnknownStep(step, ctx.options.logger);
+      // a broken workflow reference ends the workflow, same as any other failed step
+      return { shouldEnd: true };
     }
 
     const workflowCtx = await resolveWorkflowContext(
@@ -150,6 +150,9 @@ export async function runStep({
           severity: ctx.severity['UNEXPECTED_ERROR'],
         };
         step.checks.push(failedCall);
+        // register the step so the failed check is displayed and counted in the totals
+        ctx.executedSteps.push(step);
+        printUnknownStep(step, ctx.options.logger);
       }
 
       // save local $steps context
@@ -306,11 +309,34 @@ export async function runStep({
     shouldEnd?: boolean;
     stepResult?: { shouldEnd: boolean } | void;
   } | void> {
+    // reports a broken action definition or reference as a failed check on the
+    // step instead of throwing: an escaped error would make runWorkflow
+    // register the step a second time
+    function failStepWithActionError(message: string): { shouldEnd: true } {
+      const failedCheck: Check = {
+        name: CHECKS.UNEXPECTED_ERROR,
+        message,
+        passed: false,
+        severity: ctx.severity['UNEXPECTED_ERROR'],
+      };
+      step.checks.push(failedCheck);
+      if (!ctx.executedSteps.includes(step)) {
+        // the child workflow path has not registered nor printed the step yet
+        ctx.executedSteps.push(step);
+        printUnknownStep(step, ctx.options.logger);
+      } else {
+        // the plain step path printed the step before the actions ran — print
+        // the action failure so the live output doesn't end on a passing step
+        printUnknownStep({ ...step, checks: [failedCheck] }, ctx.options.logger);
+      }
+      return { shouldEnd: true };
+    }
+
     for (const action of actions) {
       const { type, criteria } = action;
 
       if (action.workflowId && action.stepId) {
-        throw new Error(
+        return failStepWithActionError(
           `Cannot use both workflowId: ${action.workflowId} and stepId: ${action.stepId} in ${action.type} action`
         );
       }
@@ -324,12 +350,16 @@ export async function runStep({
 
       if (matchesCriteria) {
         const targetWorkflow = action.workflowId
-          ? (getValueFromContext({
-              value: action.workflowId,
-              ctx,
-              logger: ctx.options.logger,
-            }) as Workflow)
+          ? resolveWorkflowReference({ ref: action.workflowId, ctx })
           : undefined;
+
+        if (action.workflowId && !targetWorkflow) {
+          return failStepWithActionError(
+            `Workflow ${red(action.workflowId)} referenced in the ${type} action of step ${red(
+              stepId
+            )} is not found.`
+          );
+        }
         const targetCtx =
           action.workflowId && targetWorkflow
             ? await resolveWorkflowContext(
@@ -376,7 +406,9 @@ export async function runStep({
           } else if (targetStep) {
             const stepToRun = workflow?.steps.find((s) => s.stepId === targetStep) as Step;
             if (!stepToRun) {
-              throw new Error(`Step ${targetStep} not found in workflow ${workflowId}`);
+              return failStepWithActionError(
+                `Step ${targetStep} not found in workflow ${workflowId}`
+              );
             }
             await runStep({
               step: stepToRun,
@@ -404,7 +436,9 @@ export async function runStep({
           return { shouldEnd: true };
         } else if (type === 'goto') {
           if (!targetWorkflow && !targetStep) {
-            throw new Error('Either workflowId or stepId must be provided in goto action');
+            return failStepWithActionError(
+              'Either workflowId or stepId must be provided in goto action'
+            );
           }
 
           if (targetWorkflow || targetStep) {
