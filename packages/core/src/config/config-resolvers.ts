@@ -55,6 +55,7 @@ export type ConfigOptions = {
   configPath?: string;
   externalRefResolver?: BaseResolver;
   customExtends?: string[];
+  skipPluginEval?: boolean;
 };
 
 export async function resolveConfig({
@@ -62,6 +63,7 @@ export async function resolveConfig({
   configPath,
   externalRefResolver,
   customExtends,
+  skipPluginEval,
 }: ConfigOptions): Promise<{
   resolvedConfig: ResolvedConfig;
   resolvedRefMap: ResolvedRefMap;
@@ -107,7 +109,8 @@ export async function resolveConfig({
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
     const plugins = await resolvePlugins(
       pluginsOrPaths.map((p) => (isPluginResolveInfo(p) ? p.absolutePath : p)),
-      rootConfigDir
+      rootConfigDir,
+      skipPluginEval
     );
     resolvedPlugins = [...plugins, defaultPlugin];
   }
@@ -196,7 +199,8 @@ export const preResolvePluginPath = (
 
 export async function resolvePlugins(
   plugins: (string | Plugin)[],
-  configDir: string
+  configDir: string,
+  skipPluginEval = false
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
@@ -269,6 +273,31 @@ export async function resolvePlugins(
   }
 
   const resolvedPlugins: Set<string> = new Set();
+
+  if (skipPluginEval) {
+    const pluginRefs: Plugin[] = [];
+    for (const plugin of plugins) {
+      if (!isString(plugin)) {
+        pluginRefs.push(plugin);
+        continue;
+      }
+      const absolutePath = path.isAbsolute(plugin)
+        ? plugin
+        : (
+            preResolvePluginPath(
+              plugin,
+              path.join(configDir, CONFIG_FILE_NAME),
+              configDir
+            ) as PluginResolveInfo
+          ).absolutePath;
+      if (!resolvedPlugins.has(absolutePath)) {
+        resolvedPlugins.add(absolutePath);
+        // Plugin code is intentionally not loaded — the caller gets only the resolved path.
+        pluginRefs.push({ absolutePath } as Plugin);
+      }
+    }
+    return pluginRefs;
+  }
 
   const instances = await Promise.all(
     plugins.map(async (p) => {
