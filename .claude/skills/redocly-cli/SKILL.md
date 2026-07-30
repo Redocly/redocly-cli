@@ -168,7 +168,6 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 ## Resources
 
 - [Command reference](https://redocly.com/docs/cli/commands)
-- [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client)
 - [Built-in rules](https://redocly.com/docs/cli/rules)
 - [Decorators](https://redocly.com/docs/cli/decorators)
 - [Configuration](https://redocly.com/docs/cli/configuration)
