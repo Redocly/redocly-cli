@@ -1,7 +1,7 @@
 name: limit
 description: |
-  Use to return a number of results per page.
-  If there is more data, use in combination with `after` to page through the data.
+  Specify the number of results per page.
+  If there is more data, use in combination with `after` to page through all results.
 in: query
 required: false
 schema:
