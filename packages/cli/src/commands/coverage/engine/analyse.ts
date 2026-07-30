@@ -1,7 +1,7 @@
 import { isPlainObject, isRef } from '@redocly/openapi-core';
 
 import { isHttpMethod } from '../../drift/openapi/loader.js';
-import { declared, type Schema } from './schema.js';
+import { declared, resolve, type Schema } from './schema.js';
 import { collectSites, siteKey } from './sites.js';
 import type { Coverage } from './walk.js';
 
@@ -50,7 +50,10 @@ function summarizeOperations(spec: Schema, exercised: Set<string>): OperationCov
   let total = 0;
 
   for (const [pathTemplate, item] of Object.entries(spec.paths ?? {}) as [string, Schema][]) {
-    for (const [method, operation] of Object.entries(item ?? {}) as [string, Schema][]) {
+    const { schema: pathItem } = resolve(spec, item);
+    if (!pathItem) continue;
+
+    for (const [method, operation] of Object.entries(pathItem) as [string, Schema][]) {
       // A path item also carries `parameters`, `summary`, and `$ref`, none of
       // which are operations.
       if (!isHttpMethod(method) || !isPlainObject(operation)) continue;

@@ -1,4 +1,4 @@
-import { bundle, isPlainObject, logger, type Config } from '@redocly/openapi-core';
+import { BaseResolver, bundle, isPlainObject, logger, type Config } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -6,7 +6,12 @@ import type { VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { selectTrafficParser } from '../drift/log-formats/registry.js';
-import { isHttpMethod, loadOpenApiIndex } from '../drift/openapi/loader.js';
+import {
+  detectOpenApi3Spec,
+  isHttpMethod,
+  loadOpenApiIndex,
+  resolveSpecFiles,
+} from '../drift/openapi/loader.js';
 import { matchOperation } from '../drift/openapi/matcher.js';
 import type { MatchMode, TrafficFormat } from '../drift/types/index.js';
 import { listFilesRecursively, normalizeFsPath } from '../drift/utils/files.js';
@@ -35,9 +40,38 @@ export type CoverageArgv = {
  * the component it came from — and coverage is reported per component.
  */
 async function loadReferencedSpec(specPath: string, config: Config): Promise<Schema> {
-  const { bundle: bundled } = await bundle({ ref: specPath, config, dereference: false });
+  const { specFiles } = await resolveSpecFiles(specPath);
+  const externalRefResolver = new BaseResolver(config.resolve);
+  const roots: { file: string; parsed: Schema }[] = [];
 
-  return bundled.parsed as Schema;
+  for (const specFile of specFiles) {
+    const resolvedDocument = await externalRefResolver.resolveDocument(null, specFile, true);
+    // A folder holds the files a root description references as well, and only
+    // the roots describe operations.
+    if (resolvedDocument instanceof Error || !detectOpenApi3Spec(resolvedDocument)) continue;
+
+    const { bundle: bundled } = await bundle({
+      config,
+      doc: resolvedDocument,
+      externalRefResolver,
+      dereference: false,
+    });
+    roots.push({ file: specFile, parsed: bundled.parsed as Schema });
+  }
+
+  if (roots.length === 0) {
+    return exitWithError(`No OpenAPI 3.x description found at: ${specPath}`);
+  }
+
+  if (roots.length > 1) {
+    return exitWithError(
+      `Coverage measures one description at a time, but ${specPath} holds several:\n` +
+        roots.map(({ file }) => `  ${normalizeFsPath(file)}`).join('\n') +
+        '\nPoint --api at one of them.'
+    );
+  }
+
+  return roots[0].parsed;
 }
 
 async function writeReport(output: string, content: string): Promise<void> {
@@ -56,7 +90,10 @@ function collectSchemas(spec: Schema): Map<string, { request?: Schema; responses
   const byOperation = new Map<string, { request?: Schema; responses: Schema }>();
 
   for (const [pathTemplate, item] of Object.entries(spec.paths ?? {}) as [string, Schema][]) {
-    for (const [method, operation] of Object.entries(item) as [string, Schema][]) {
+    const { schema: pathItem } = resolve(spec, item);
+    if (!pathItem) continue;
+
+    for (const [method, operation] of Object.entries(pathItem) as [string, Schema][]) {
       if (!isHttpMethod(method) || !isPlainObject(operation)) continue;
 
       const { requestBody, responses } = operation as Schema;

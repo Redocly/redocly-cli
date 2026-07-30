@@ -44,3 +44,23 @@ describe('operation coverage', () => {
     expect(report([]).operations.total).toBe(3);
   });
 });
+
+describe('a path item behind a $ref', () => {
+  const REFERENCED: Schema = {
+    paths: {
+      '/thing': { $ref: '#/components/pathItems/Thing' },
+    },
+    components: {
+      pathItems: {
+        Thing: { get: { operationId: 'getThing', responses: {} } },
+      },
+      schemas: {},
+    },
+  };
+
+  it('counts the operations the referenced path item declares', () => {
+    const result = summarize(REFERENCED, createCoverage(), { total: 0, withBody: 0 }, undefined, new Set(['get /thing']));
+
+    expect(result.operations).toMatchObject({ seen: 1, total: 1, unused: [] });
+  });
+});

@@ -72,6 +72,13 @@ describe('E2E coverage', () => {
     await matchSnapshot('coverage-schema-filter', output);
   });
 
+  it('accepts a folder for --api, as the flag documents', async () => {
+    const { output, code } = runCoverage(['traffic.har', '--api', '.']);
+
+    expect(code).toBe(0);
+    await matchSnapshot('coverage-stylish', output);
+  });
+
   // Not snapshotted: the stack trace names minified chunks, which change on
   // every build. `drift` reports a missing traffic path the same way.
   it('fails when the traffic path does not exist', () => {
