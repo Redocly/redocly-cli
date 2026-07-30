@@ -51,22 +51,44 @@ export function resolve(
  * `$ref` inside it alone: the target reports those under its own name, so
  * counting them here too would report them as unused on both schemas.
  */
-export function declared(spec: Schema, schema: Schema, depth = 0): [string, Schema][] {
+export function declared(spec: Schema, schema: Schema, path = '', depth = 0): [string, Schema][] {
   if (depth > MAX_DEPTH) return [];
 
   const { schema: target } = resolve(spec, schema);
   if (!target) return [];
 
-  return [
-    ...(Object.entries(target.properties ?? {}) as [string, Schema][]),
-    ...(target.allOf ?? []).flatMap((sub: Schema) =>
-      isRef(sub) ? [] : declared(spec, sub, depth + 1)
-    ),
-  ];
+  const found: [string, Schema][] = [];
+
+  for (const [property, sub] of Object.entries(target.properties ?? {}) as [string, Schema][]) {
+    const propertyPath = path ? `${path}.${property}` : property;
+
+    found.push([propertyPath, sub]);
+
+    // The walk records a nested inline object under a dotted path, so the two
+    // have to enumerate the same shape or the nested gaps never surface. A
+    // `$ref` still stops it: the walk reports what is behind one by its name.
+    if (!isRef(sub)) found.push(...declared(spec, sub, propertyPath, depth + 1));
+  }
+
+  for (const sub of target.allOf ?? []) {
+    if (isRef(sub)) continue;
+
+    found.push(...declared(spec, sub, path, depth + 1));
+  }
+
+  if (target.items && !isRef(target.items)) {
+    found.push(...declared(spec, target.items, path, depth + 1));
+  }
+
+  const byPath = new Map(found.map((entry) => [entry[0], entry]));
+
+  return [...byPath.values()];
 }
 
 interface Composition {
-  type?: string;
+  type?: string | string[];
+  /** OpenAPI 3.0 spells a nullable value this way; 3.1 puts `null` in `type`. */
+  nullable: boolean;
   required: string[];
   names: Set<string>;
 }
@@ -78,10 +100,11 @@ interface Composition {
  */
 function compose(spec: Schema, schema: Schema, depth = 0): Composition {
   const { schema: target } = resolve(spec, schema);
-  if (!target || depth > MAX_DEPTH) return { required: [], names: new Set() };
+  if (!target || depth > MAX_DEPTH) return { nullable: false, required: [], names: new Set() };
 
   const composition: Composition = {
     type: target.type,
+    nullable: target.nullable === true,
     required: [...(target.required ?? [])],
     names: new Set(Object.keys(target.properties ?? {})),
   };
@@ -90,6 +113,7 @@ function compose(spec: Schema, schema: Schema, depth = 0): Composition {
     const inherited = compose(spec, sub, depth + 1);
 
     composition.type ??= inherited.type;
+    composition.nullable ||= inherited.nullable;
     composition.required.push(...inherited.required);
     for (const name of inherited.names) composition.names.add(name);
   }
@@ -126,8 +150,10 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
 
   if (target.enum) return target.enum.includes(value as never);
 
-  const { type, required, names } = compose(spec, target);
+  const { type, nullable, required, names } = compose(spec, target);
   const types = typesOf(type);
+
+  if (value === null && nullable) return true;
 
   if (types.includes('object') || (types.length === 0 && names.size > 0)) {
     if (!isPlainObject(value)) return types.includes('null') && value === null;
@@ -140,6 +166,11 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
   if (types.length === 0) return true;
 
   return types.some((one) => matchesType(one, value));
+}
+
+/** Every property name a schema carries, including the ones it composes in. */
+export function composedNames(spec: Schema, schema: Schema): Set<string> {
+  return compose(spec, schema).names;
 }
 
 /** How many of a value's own properties a branch declares. */

@@ -223,6 +223,57 @@ describe('additionalProperties', () => {
 
     expect(summarize(MAP, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual(['Extra']);
   });
+
+  it('does not walk a property inherited through allOf against it either', () => {
+    const inheritedMap: Schema = {
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { name: { type: 'string' } } },
+          Bag: {
+            allOf: [{ $ref: '#/components/schemas/Base' }],
+            additionalProperties: { $ref: '#/components/schemas/Extra' },
+          },
+          Extra: { type: 'object', properties: { note: { type: 'string' } } },
+        },
+      },
+    };
+
+    const coverage = createCoverage();
+    walkRoot(inheritedMap, coverage, { $ref: '#/components/schemas/Bag' }, { name: 'x' });
+
+    expect(summarize(inheritedMap, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual([
+      'Extra',
+    ]);
+  });
+});
+
+describe('a nested inline object', () => {
+  const NESTED: Schema = {
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            address: {
+              type: 'object',
+              properties: { city: { type: 'string' }, postcode: { type: 'string' } },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  it('reports the nested field the traffic never carried', () => {
+    const coverage = createCoverage();
+    walkRoot(NESTED, coverage, { $ref: '#/components/schemas/Person' }, { address: { city: 'x' } });
+
+    expect(
+      summarize(NESTED, coverage, { total: 1, withBody: 1 }).schemas.find(
+        ({ name }) => name === 'Person'
+      )
+    ).toMatchObject({ seen: 2, count: 3, unusedProperties: ['address.postcode'] });
+  });
 });
 
 describe('coverage of a schema composed with allOf', () => {

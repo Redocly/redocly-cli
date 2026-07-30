@@ -1,6 +1,13 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import { MAX_DEPTH, resolve, selectBranches, VARIANT_KEYWORDS, type Schema } from './schema.js';
+import {
+  composedNames,
+  MAX_DEPTH,
+  resolve,
+  selectBranches,
+  VARIANT_KEYWORDS,
+  type Schema,
+} from './schema.js';
 import { siteKey } from './sites.js';
 
 export interface Coverage {
@@ -75,9 +82,10 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
     walk(sub, (value as Record<string, unknown>)[property], { ...next, prefix: path });
   }
 
-  // `additionalProperties` describes only the keys `properties` does not.
+  // `additionalProperties` describes only the keys the schema does not declare,
+  // counting the ones it composes in through `allOf`.
   if (isPlainObject(target.additionalProperties)) {
-    const declaredKeys = new Set(Object.keys(target.properties ?? {}));
+    const declaredKeys = composedNames(next.spec, target);
 
     for (const [key, item] of Object.entries(value)) {
       if (declaredKeys.has(key)) continue;

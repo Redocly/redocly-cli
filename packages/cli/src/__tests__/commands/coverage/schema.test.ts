@@ -80,6 +80,28 @@ describe('declared', () => {
     expect(declared(SPEC, SPEC.components.schemas.Either)).toEqual([]);
   });
 
+  it('names a property once when two allOf branches both declare it', () => {
+    const overlapping: Schema = {
+      allOf: [
+        { type: 'object', properties: { a: { type: 'string' } } },
+        { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+      ],
+    };
+
+    expect(declared(SPEC, overlapping).map(([name]) => name).sort()).toEqual(['a', 'b']);
+  });
+
+  it('reaches a property nested in an inline object, as the walk records it', () => {
+    const nested: Schema = {
+      type: 'object',
+      properties: {
+        address: { type: 'object', properties: { city: { type: 'string' } } },
+      },
+    };
+
+    expect(declared(SPEC, nested).map(([name]) => name).sort()).toEqual(['address', 'address.city']);
+  });
+
   it('stops at a $ref inside allOf, which the target reports under its own name', () => {
     const names = declared(SPEC, SPEC.components.schemas.Composed).map(([name]) => name);
 
@@ -129,6 +151,11 @@ describe('matches', () => {
     expect(matches(SPEC, nullableString, 'x')).toBe(true);
     expect(matches(SPEC, nullableString, null)).toBe(true);
     expect(matches(SPEC, nullableString, 42)).toBe(false);
+  });
+
+  it('accepts null for an OpenAPI 3.0 nullable branch', () => {
+    expect(matches(SPEC, { type: 'string', nullable: true }, null)).toBe(true);
+    expect(matches(SPEC, { type: 'string' }, null)).toBe(false);
   });
 
   it('rejects a branch whose $ref points nowhere', () => {
