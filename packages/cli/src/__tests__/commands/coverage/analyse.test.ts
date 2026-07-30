@@ -310,6 +310,38 @@ describe('a union of same-typed branches split by format', () => {
   });
 });
 
+describe('a union branch split by a format inside allOf', () => {
+  const WRAPPED: Schema = {
+    components: {
+      schemas: {
+        Id: {
+          oneOf: [
+            { allOf: [{ type: 'string' }, { format: 'uuid' }] },
+            { allOf: [{ type: 'string' }, { format: 'date' }] },
+          ],
+        },
+        Holder: { type: 'object', properties: { id: { $ref: '#/components/schemas/Id' } } },
+      },
+    },
+  };
+
+  it('ranks by the format the allOf declares', () => {
+    const coverage = createCoverage();
+    walkRoot(
+      WRAPPED,
+      coverage,
+      { $ref: '#/components/schemas/Holder' },
+      { id: '6fa459ea-ee8a-3ca4-894e-db77e160355e' }
+    );
+
+    expect(
+      summarize(WRAPPED, coverage, { total: 1, withBody: 1 }).schemas.find(
+        ({ name }) => name === 'Id'
+      )?.unusedVariants
+    ).toEqual([{ path: '', keyword: 'oneOf', branches: [1] }]);
+  });
+});
+
 describe('unions nested inside sibling branches', () => {
   const WRAPPER: Schema = {
     components: {

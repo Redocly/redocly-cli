@@ -87,12 +87,15 @@ export function declared(spec: Schema, schema: Schema, path = '', depth = 0): [s
 
 interface Composition {
   type?: string | string[];
+  format?: string;
   /** OpenAPI 3.0 spells a nullable value this way; 3.1 puts `null` in `type`. */
   nullable: boolean;
   required: string[];
   names: Set<string>;
   /** Wrapped so that a literal `undefined` stays distinguishable from absence. */
   literal?: { values: unknown[] };
+  /** One entry per `oneOf`/`anyOf`; a value has to satisfy a branch of each. */
+  unions: Schema[][];
 }
 
 /**
@@ -105,23 +108,31 @@ interface Composition {
  */
 function compose(spec: Schema, schema: Schema, depth = 0): Composition {
   const { schema: target } = resolve(spec, schema);
-  if (!target || depth > MAX_DEPTH) return { nullable: false, required: [], names: new Set() };
+  if (!target || depth > MAX_DEPTH) {
+    return { nullable: false, required: [], names: new Set(), unions: [] };
+  }
 
   const composition: Composition = {
     type: target.type,
+    format: target.format,
     nullable: target.nullable === true,
     required: [...(target.required ?? [])],
     names: new Set(Object.keys(target.properties ?? {})),
     literal: literalOf(target),
+    unions: VARIANT_KEYWORDS.filter((keyword) => target[keyword]?.length).map(
+      (keyword) => target[keyword] as Schema[]
+    ),
   };
 
   for (const sub of target.allOf ?? []) {
     const inherited = compose(spec, sub, depth + 1);
 
     composition.type ??= inherited.type;
+    composition.format ??= inherited.format;
     composition.nullable ||= inherited.nullable;
     composition.literal ??= inherited.literal;
     composition.required.push(...inherited.required);
+    composition.unions.push(...inherited.unions);
     for (const name of inherited.names) composition.names.add(name);
   }
 
@@ -160,11 +171,11 @@ function matchesType(type: string, value: unknown): boolean {
  * choosing between the branches that survive it is `fit`'s job, because a value
  * that merely shares a property name with a branch has not exercised it.
  */
-export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
+export function matches(spec: Schema, schema: Schema, value: unknown, depth = 0): boolean {
   const { schema: target } = resolve(spec, schema);
   if (!target) return false;
 
-  const { type, nullable, required, names, literal } = compose(spec, target);
+  const { type, nullable, required, names, literal, unions } = compose(spec, target);
   const types = typesOf(type);
 
   // Nullability outranks every other constraint: a nullable enum still takes null.
@@ -173,6 +184,15 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
   // Without this a union of literals is indistinguishable, and every branch
   // accepts every value of the shared type.
   if (literal) return literal.values.includes(value);
+
+  // A schema whose only constraint is a nested union states nothing itself, so
+  // without this it accepts every value and its branches all read as covered.
+  if (depth <= MAX_DEPTH) {
+    const satisfied = unions.every((branches) =>
+      branches.some((branch) => matches(spec, branch, value, depth + 1))
+    );
+    if (!satisfied) return false;
+  }
 
   // Properties without a `type` still describe an object.
   const objectish = types.includes('object') || (types.length === 0 && names.size > 0);
@@ -185,7 +205,7 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
 
   // A 3.1 type array can allow an object alongside other types, so a non-object
   // value still has the rest of the list to satisfy.
-  if (types.length === 0) return !objectish;
+  if (types.length === 0) return unions.length > 0 || !objectish;
 
   return types.some((one) => matchesType(one, value));
 }
@@ -214,15 +234,15 @@ export function fit(spec: Schema, schema: Schema, value: unknown): number {
   const { schema: target } = resolve(spec, schema);
   if (!target) return 0;
 
+  const { names, format } = compose(spec, target);
+
   if (typeof value === 'string') {
-    const test = target.format ? FORMAT_TESTS[target.format] : undefined;
+    const test = format ? FORMAT_TESTS[format] : undefined;
 
     return test?.(value) ? 1 : 0;
   }
 
   if (!isPlainObject(value)) return 0;
-
-  const { names } = compose(spec, target);
 
   return Object.keys(value).filter((key) => names.has(key)).length;
 }

@@ -194,6 +194,28 @@ describe('matches', () => {
     expect(matches(SPEC, { type: 'string' }, null)).toBe(false);
   });
 
+  it('requires a value to satisfy one alternative of a nested union', () => {
+    const spec: Schema = {
+      components: {
+        schemas: {
+          Inner: { oneOf: [{ type: 'string' }, { type: 'boolean' }] },
+        },
+      },
+    };
+    const inner = { $ref: '#/components/schemas/Inner' };
+
+    expect(matches(spec, inner, 'text')).toBe(true);
+    expect(matches(spec, inner, true)).toBe(true);
+    expect(matches(spec, inner, 42)).toBe(false);
+  });
+
+  it('applies a union reached through allOf', () => {
+    const wrapped = { allOf: [{ anyOf: [{ type: 'string' }, { type: 'boolean' }] }] };
+
+    expect(matches(SPEC, wrapped, 'text')).toBe(true);
+    expect(matches(SPEC, wrapped, 42)).toBe(false);
+  });
+
   it('rejects a branch whose $ref points nowhere', () => {
     expect(matches(SPEC, { $ref: '#/components/schemas/Absent' }, {})).toBe(false);
   });
