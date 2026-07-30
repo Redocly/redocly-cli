@@ -129,6 +129,7 @@ function typesOf(type: string | string[] | undefined): string[] {
 }
 
 function matchesType(type: string, value: unknown): boolean {
+  if (type === 'object') return isPlainObject(value);
   if (type === 'array') return Array.isArray(value);
   if (type === 'string') return typeof value === 'string';
   if (type === 'boolean') return typeof value === 'boolean';
@@ -155,15 +156,18 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
 
   if (value === null && nullable) return true;
 
-  if (types.includes('object') || (types.length === 0 && names.size > 0)) {
-    if (!isPlainObject(value)) return types.includes('null') && value === null;
+  // Properties without a `type` still describe an object.
+  const objectish = types.includes('object') || (types.length === 0 && names.size > 0);
 
+  if (objectish && isPlainObject(value)) {
     const keys = new Set(Object.keys(value));
 
     return required.every((key) => keys.has(key));
   }
 
-  if (types.length === 0) return true;
+  // A 3.1 type array can allow an object alongside other types, so a non-object
+  // value still has the rest of the list to satisfy.
+  if (types.length === 0) return !objectish;
 
   return types.some((one) => matchesType(one, value));
 }
@@ -189,15 +193,24 @@ export function fit(spec: Schema, schema: Schema, value: unknown): number {
  * The branch a `discriminator` names, which settles the choice outright when
  * the description provides one.
  */
-function discriminated(parent: Schema, branches: Schema[], value: unknown): number | undefined {
+function discriminated(
+  spec: Schema,
+  parent: Schema,
+  branches: Schema[],
+  value: unknown
+): number | undefined {
   const propertyName = parent.discriminator?.propertyName;
   if (!propertyName || !isPlainObject(value)) return undefined;
 
   const key = value[propertyName];
   if (typeof key !== 'string') return undefined;
 
-  const mapped = parent.discriminator.mapping?.[key] ?? `#/components/schemas/${key}`;
-  const index = branches.findIndex((branch) => isRef(branch) && branch.$ref === mapped);
+  // A mapping value is either a `$ref` or a bare component name, and without a
+  // mapping the value itself names the component.
+  const mapped: string = parent.discriminator.mapping?.[key] ?? key;
+  const wanted = mapped.includes('/') ? mapped.split('/').at(-1) : mapped;
+
+  const index = branches.findIndex((branch) => resolve(spec, branch).name === wanted);
 
   return index === -1 ? undefined : index;
 }
@@ -213,7 +226,7 @@ export function selectBranches(
   branches: Schema[],
   value: unknown
 ): number[] {
-  const named = discriminated(parent, branches, value);
+  const named = discriminated(spec, parent, branches, value);
   if (named !== undefined) return [named];
 
   const possible = branches

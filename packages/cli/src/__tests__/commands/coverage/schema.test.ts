@@ -153,6 +153,14 @@ describe('matches', () => {
     expect(matches(SPEC, nullableString, 42)).toBe(false);
   });
 
+  it('accepts a non-object value when the type array also allows one', () => {
+    const either = { type: ['object', 'string'] };
+
+    expect(matches(SPEC, either, 'x')).toBe(true);
+    expect(matches(SPEC, either, {})).toBe(true);
+    expect(matches(SPEC, either, 42)).toBe(false);
+  });
+
   it('accepts null for an OpenAPI 3.0 nullable branch', () => {
     expect(matches(SPEC, { type: 'string', nullable: true }, null)).toBe(true);
     expect(matches(SPEC, { type: 'string' }, null)).toBe(false);

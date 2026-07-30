@@ -201,6 +201,26 @@ describe('a union with a discriminator', () => {
 
     expect(summarize(PETS, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual(['Dog']);
   });
+
+  it('accepts a mapping written as a bare component name', () => {
+    const mapped: Schema = {
+      components: {
+        schemas: {
+          Pet: {
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            discriminator: { propertyName: 'petType', mapping: { kitten: 'Cat' } },
+          },
+          Cat: { type: 'object', properties: { petType: { type: 'string' } } },
+          Dog: { type: 'object', properties: { petType: { type: 'string' } } },
+        },
+      },
+    };
+
+    const coverage = createCoverage();
+    walkRoot(mapped, coverage, { $ref: '#/components/schemas/Pet' }, { petType: 'kitten' });
+
+    expect(summarize(mapped, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual(['Dog']);
+  });
 });
 
 describe('additionalProperties', () => {
@@ -244,6 +264,34 @@ describe('additionalProperties', () => {
     expect(summarize(inheritedMap, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual([
       'Extra',
     ]);
+  });
+});
+
+describe('an inline additionalProperties schema', () => {
+  const COLLIDING: Schema = {
+    components: {
+      schemas: {
+        Bag: {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          additionalProperties: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+        },
+      },
+    },
+  };
+
+  it('does not credit a parent property the payload never carried', () => {
+    const coverage = createCoverage();
+    walkRoot(COLLIDING, coverage, { $ref: '#/components/schemas/Bag' }, { extra: { name: 'y' } });
+
+    expect(
+      summarize(COLLIDING, coverage, { total: 1, withBody: 1 }).schemas.find(
+        ({ name }) => name === 'Bag'
+      )
+    ).toMatchObject({ seen: 0, unusedProperties: ['name'] });
   });
 });
 

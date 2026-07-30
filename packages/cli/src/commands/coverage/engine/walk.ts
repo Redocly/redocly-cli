@@ -34,6 +34,12 @@ interface WalkContext {
   owner: string;
   prefix: string;
   depth: number;
+  /**
+   * Whether the walk is inside an inline `additionalProperties`. Those values
+   * sit outside the owner's property paths, so recording their names would
+   * credit a parent property that shares one.
+   */
+  mapped: boolean;
 }
 
 export function walk(schema: Schema | undefined, value: unknown, context: WalkContext): void {
@@ -42,8 +48,9 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
   const { schema: target, name } = resolve(context.spec, schema);
   if (!target) return;
 
+  // A `$ref` puts the walk back inside a named schema, where paths count again.
   const next: WalkContext = name
-    ? { ...context, owner: name, prefix: '', depth: context.depth + 1 }
+    ? { ...context, owner: name, prefix: '', depth: context.depth + 1, mapped: false }
     : { ...context, depth: context.depth + 1 };
 
   if (name) next.coverage.visited.add(name);
@@ -74,10 +81,12 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
     if (!(property in value)) continue;
 
     const path = next.prefix ? `${next.prefix}.${property}` : property;
-    if (!next.coverage.properties.has(next.owner)) {
-      next.coverage.properties.set(next.owner, new Set());
+    if (!next.mapped) {
+      if (!next.coverage.properties.has(next.owner)) {
+        next.coverage.properties.set(next.owner, new Set());
+      }
+      next.coverage.properties.get(next.owner)!.add(path);
     }
-    next.coverage.properties.get(next.owner)!.add(path);
 
     walk(sub, (value as Record<string, unknown>)[property], { ...next, prefix: path });
   }
@@ -90,11 +99,11 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
     for (const [key, item] of Object.entries(value)) {
       if (declaredKeys.has(key)) continue;
 
-      walk(target.additionalProperties, item, next);
+      walk(target.additionalProperties, item, { ...next, mapped: true });
     }
   }
 }
 
 export function walkRoot(spec: Schema, coverage: Coverage, schema: Schema, value: unknown): void {
-  walk(schema, value, { spec, coverage, owner: '(inline)', prefix: '', depth: 0 });
+  walk(schema, value, { spec, coverage, owner: '(inline)', prefix: '', depth: 0, mapped: false });
 }
