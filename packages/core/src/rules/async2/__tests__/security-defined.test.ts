@@ -6,7 +6,7 @@ import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('Async2 security-defined', () => {
-  it('should report when an operation references an undefined security scheme', async () => {
+  it('should report when a security scheme is undefined at the operation level', async () => {
     const document = parseYamlToDocument(
       outdent`
         asyncapi: '2.6.0'
@@ -56,7 +56,7 @@ describe('Async2 security-defined', () => {
     `);
   });
 
-  it('should report when a server references an undefined security scheme', async () => {
+  it('should report when a security scheme is undefined at the server level', async () => {
     const document = parseYamlToDocument(
       outdent`
         asyncapi: '2.6.0'
