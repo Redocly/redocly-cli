@@ -223,6 +223,39 @@ describe('a union with a discriminator', () => {
   });
 });
 
+describe('component schemas with nothing inside them', () => {
+  const LEAVES: Schema = {
+    components: {
+      schemas: {
+        Status: { type: 'string', enum: ['live', 'draft'] },
+        Count: { type: 'integer' },
+        Tags: { type: 'array', items: { $ref: '#/components/schemas/Status' } },
+        Thing: { type: 'object', properties: { id: { type: 'string' } } },
+      },
+    },
+  };
+
+  it('lists an unreached enum, primitive, or array of refs as nothing reached', () => {
+    const coverage = createCoverage();
+    walkRoot(LEAVES, coverage, { $ref: '#/components/schemas/Thing' }, { id: 'x' });
+
+    expect(summarize(LEAVES, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual([
+      'Count',
+      'Status',
+      'Tags',
+    ]);
+  });
+
+  it('does not clutter the schema list with them', () => {
+    const coverage = createCoverage();
+    walkRoot(LEAVES, coverage, { $ref: '#/components/schemas/Thing' }, { id: 'x' });
+
+    expect(
+      summarize(LEAVES, coverage, { total: 1, withBody: 1 }).schemas.map(({ name }) => name)
+    ).toEqual(['Thing']);
+  });
+});
+
 describe('a union of const literals', () => {
   const LITERALS: Schema = {
     components: {

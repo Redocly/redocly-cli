@@ -97,6 +97,11 @@ export function summarize(
 
     const names = declared(spec, schema).map(([property]) => property);
     const sites = collectSites(schema, name);
+    const reached = coverage.visited.has(name);
+
+    // An enum, a primitive, or an array of `$ref`s holds nothing to break down,
+    // but the traffic still either reached it or did not.
+    if (!reached) unusedSchemas.push(name);
     if (names.length === 0 && sites.size === 0) continue;
 
     const seenPropertyPaths = coverage.properties.get(name) ?? new Set<string>();
@@ -115,8 +120,6 @@ export function summarize(
       .sort((a, b) => a.path.localeCompare(b.path));
 
     const seen = names.length - unusedProperties.length;
-    const reached = coverage.visited.has(name);
-    if (!reached) unusedSchemas.push(name);
 
     totalProperties += names.length;
     seenProperties += seen;
