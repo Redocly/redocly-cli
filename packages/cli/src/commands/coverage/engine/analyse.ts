@@ -39,6 +39,12 @@ export interface CoverageReport {
   exchanges: ExchangeCounts;
   operations: OperationCoverage;
   seenProperties: number;
+  /**
+   * The same count over exchanges the API accepted. Testing a rejection is real
+   * coverage, so it stays in `seenProperties`; the gap between the two says how
+   * much of the figure a broken run could be propping up.
+   */
+  seenPropertiesAccepted: number;
   totalProperties: number;
   schemas: SchemaCoverage[];
   unusedSchemas: string[];
@@ -74,7 +80,8 @@ export function summarize(
   coverage: Coverage,
   exchanges: ExchangeCounts,
   schemaFilter?: string,
-  exercisedOperations: Set<string> = new Set()
+  exercisedOperations: Set<string> = new Set(),
+  seenPropertiesAccepted?: number
 ): CoverageReport {
   const schemas: SchemaCoverage[] = [];
   const unusedSchemas: string[] = [];
@@ -120,6 +127,7 @@ export function summarize(
     exchanges,
     operations: summarizeOperations(spec, exercisedOperations),
     seenProperties,
+    seenPropertiesAccepted: seenPropertiesAccepted ?? seenProperties,
     totalProperties,
     schemas: schemas.sort((a, b) => a.name.localeCompare(b.name)),
     unusedSchemas: unusedSchemas.sort(),

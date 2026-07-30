@@ -23,8 +23,18 @@ function stylish(report: CoverageReport, all: boolean): string {
       report.seenProperties,
       report.totalProperties
     )}%) over ${report.exchanges.withBody} of ${report.exchanges.total} exchange(s)`,
-    '',
   ];
+
+  if (report.seenPropertiesAccepted < report.seenProperties) {
+    lines.push(
+      `${report.seenPropertiesAccepted} of those came from a response the API accepted (${percentage(
+        report.seenPropertiesAccepted,
+        report.totalProperties
+      )}%)`
+    );
+  }
+
+  lines.push('');
 
   for (const { name, reached, seen, count, unusedProperties, unusedVariants } of report.schemas) {
     if (!reached && !all) continue;

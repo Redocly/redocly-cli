@@ -1,5 +1,6 @@
 2/3 operations exercised (67%)
-6/11 documented properties observed (55%) over 2 of 2 exchange(s)
+7/11 documented properties observed (64%) over 3 of 3 exchange(s)
+6 of those came from a response the API accepted (55%)
 
   Badge  0/1
     name
@@ -11,8 +12,7 @@
     (root)  oneOf branch 1 never matched
   Square  0/1
     side
-  UpdateUserRequest  1/2
-    neverSent
+✓ UpdateUserRequest  2/2
   User  3/4
     neverSent
     badge  oneOf branch 1 never matched

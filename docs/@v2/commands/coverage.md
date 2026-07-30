@@ -93,6 +93,15 @@ Schemas nothing reached — 166
 Property coverage is measured over the exchanges that carried a body, because those are the only ones a schema describes.
 The second figure reports both counts: here 117 of the 340 parsed exchanges had one.
 
+## Rejected requests
+
+Everything the traffic carried counts, whatever status came back.
+Sending a body the API rejects is a real test, and the error response it returns is documented behavior worth covering.
+
+Coverage does report the split, because a rejected exchange covers the description without confirming it works.
+When some properties were seen only on exchanges the API did not accept, a second figure gives the count over accepted ones alone.
+A wide gap between the two means much of the coverage rests on requests that failed, which is worth a look before trusting the headline number.
+
 ### Investigate a single schema
 
 ```bash

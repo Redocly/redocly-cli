@@ -149,6 +149,7 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
   const schemasByOperation = collectSchemas(spec);
 
   const coverage = createCoverage();
+  const acceptedCoverage = createCoverage();
   const exercisedOperations = new Set<string>();
   let exchangeIndex = 0;
   let walked = 0;
@@ -173,6 +174,9 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
       const entry = schemasByOperation.get(key);
       if (!entry) continue;
 
+      const status = exchange.response?.status;
+      const accepted = status !== undefined && status >= 200 && status < 300;
+
       const pairs: [Schema | undefined, unknown][] = [
         [
           bodySchema(spec, responseHolder(entry.responses, exchange.response?.status), exchange.response?.contentType),
@@ -187,6 +191,9 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
 
         used = true;
         walkRoot(spec, coverage, schema, value);
+        // Tracked a second time so the report can say how much of the figure
+        // rests on exchanges the API accepted.
+        if (accepted) walkRoot(spec, acceptedCoverage, schema, value);
       }
 
       if (used) walked += 1;
@@ -202,7 +209,9 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
     coverage,
     { total: exchangeIndex, withBody: walked },
     argv.schema,
-    exercisedOperations
+    exercisedOperations,
+    summarize(spec, acceptedCoverage, { total: exchangeIndex, withBody: walked }, argv.schema)
+      .seenProperties
   );
   const rendered = renderCoverage(report, { format: argv.format, all: Boolean(argv.all) });
 

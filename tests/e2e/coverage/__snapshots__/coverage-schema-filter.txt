@@ -1,5 +1,5 @@
 2/3 operations exercised (67%)
-3/4 documented properties observed (75%) over 2 of 2 exchange(s)
+3/4 documented properties observed (75%) over 3 of 3 exchange(s)
 
   User  3/4
     neverSent

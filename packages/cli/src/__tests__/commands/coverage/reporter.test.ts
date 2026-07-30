@@ -5,6 +5,7 @@ const REPORT: CoverageReport = {
   exchanges: { total: 3, withBody: 2 },
   operations: { seen: 1, total: 2, unused: ['GET /health  getHealth'] },
   seenProperties: 3,
+  seenPropertiesAccepted: 3,
   totalProperties: 6,
   schemas: [
     {
@@ -37,6 +38,21 @@ describe('renderCoverage', () => {
     ]);
   });
 
+  it('names the accepted-only figure when some coverage came from rejected traffic', () => {
+    const output = renderCoverage(
+      { ...REPORT, seenProperties: 3, seenPropertiesAccepted: 1 },
+      { format: 'stylish', all: false }
+    );
+
+    expect(output).toContain('1 of those came from a response the API accepted');
+  });
+
+  it('stays quiet about the split when every exchange was accepted', () => {
+    expect(renderCoverage(REPORT, { format: 'stylish', all: false })).not.toContain(
+      'came from a response the API accepted'
+    );
+  });
+
   it('ends with a trailing newline, as the other commands render', () => {
     expect(renderCoverage(REPORT, { format: 'stylish', all: false })).toMatch(/\n$/);
   });
@@ -66,6 +82,7 @@ describe('renderCoverage', () => {
       exchanges: { total: 1, withBody: 1 },
       operations: { seen: 1, total: 1, unused: [] },
       seenProperties: 0,
+      seenPropertiesAccepted: 0,
       totalProperties: 0,
       schemas: [
         {
@@ -96,6 +113,7 @@ describe('renderCoverage', () => {
       exchanges: { total: 0, withBody: 0 },
       operations: { seen: 0, total: 0, unused: [] },
       seenProperties: 0,
+      seenPropertiesAccepted: 0,
       totalProperties: 0,
       schemas: [],
       unusedSchemas: [],
