@@ -1,0 +1,37 @@
+swagger: '2.0'
+info: { title: Swagger2 API, version: 1.0.0 }
+host: api.example.com
+basePath: /v2
+schemes: [https]
+consumes: [application/json]
+produces: [application/json]
+securityDefinitions:
+  ApiKey: { type: apiKey, name: X-API-Key, in: header }
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPet
+      parameters:
+        - { name: id, in: path, required: true, type: integer }
+        - { name: verbose, in: query, required: false, type: boolean }
+      responses:
+        '200': { description: ok, schema: { $ref: '#/definitions/Pet' } }
+  /pets:
+    post:
+      operationId: createPet
+      parameters:
+        - { name: body, in: body, required: true, schema: { $ref: '#/definitions/Pet' } }
+      responses:
+        '201': { description: created, schema: { $ref: '#/definitions/Pet' } }
+definitions:
+  Pet:
+    type: object
+    required: [id, name]
+    properties:
+      id: { type: integer }
+      name: { type: string }
+      owner: { $ref: '#/definitions/Owner' }
+  Owner:
+    type: object
+    properties:
+      name: { type: string }

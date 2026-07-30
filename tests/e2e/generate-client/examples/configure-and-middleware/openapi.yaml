@@ -1,0 +1,169 @@
+openapi: 3.2.0
+info:
+  title: Payments API
+  description: Demo payments API for the configure-and-middleware example.
+  version: 1.0.0
+servers:
+  - url: https://api.payments.example.com
+tags:
+  - name: Payments
+    description: Payment operations.
+security:
+  - ApiKeyAuth: []
+paths:
+  /payments:
+    get:
+      tags:
+        - Payments
+      summary: List payments
+      operationId: listPayments
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filter by payment status.
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentList'
+        '503':
+          description: Temporarily unavailable — retry later.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    post:
+      tags:
+        - Payments
+      summary: Create a payment
+      operationId: createPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '201':
+          description: Payment created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '402':
+          description: Payment declined.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /payments/{paymentId}:
+    get:
+      tags:
+        - Payments
+      summary: Retrieve a payment
+      operationId: getPayment
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          description: ID of the payment.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          description: Payment not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: API key for server-to-server access.
+  schemas:
+    PaymentStatus:
+      type: string
+      description: Payment status.
+      enum:
+        - pending
+        - settled
+        - failed
+    Payment:
+      type: object
+      properties:
+        id:
+          description: Payment ID.
+          type: string
+        amount:
+          description: Amount in cents.
+          type: integer
+          minimum: 0
+        currency:
+          description: ISO 4217 currency code.
+          type: string
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+      required:
+        - id
+        - amount
+        - currency
+        - status
+    PaymentRequest:
+      type: object
+      properties:
+        amount:
+          description: Amount in cents.
+          type: integer
+          minimum: 1
+        currency:
+          description: ISO 4217 currency code.
+          type: string
+        reference:
+          description: Free-form merchant reference.
+          type: string
+      required:
+        - amount
+        - currency
+    PaymentList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+      required:
+        - items
+    ProblemDetails:
+      type: object
+      description: RFC 9457 problem document.
+      properties:
+        type:
+          description: URI reference that identifies the problem type.
+          type: string
+          default: about:blank
+        title:
+          description: Short summary of the problem type.
+          type: string
+        status:
+          description: HTTP status code.
+          type: integer
+        detail:
+          description: Occurrence-specific explanation.
+          type: string
+      required:
+        - title
+        - status

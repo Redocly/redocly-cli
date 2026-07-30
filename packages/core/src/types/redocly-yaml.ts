@@ -312,6 +312,8 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
+    // TODO: move `client` into the Redocly config schema (@redocly/config).
+    client: 'Client',
     telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
@@ -335,6 +337,9 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
+    client: 'Client',
+    clientOutput: { type: 'string' },
   },
 });
 
@@ -346,6 +351,43 @@ const ConfigHTTP: NodeType = {
         type: 'string',
       },
     },
+  },
+};
+
+const Client: NodeType = {
+  properties: {
+    generators: { type: 'array', items: { type: 'string' } },
+    argsStyle: { enum: ['flat', 'grouped'] },
+    serverUrl: { type: 'string' },
+    outputMode: { enum: ['single', 'split'] },
+    runtime: { enum: ['inline', 'package'] },
+    importExt: { enum: ['js', 'ts'] },
+    errorMode: { enum: ['throw', 'result'] },
+    dateType: { enum: ['string', 'Date'] },
+    mockData: { enum: ['static', 'faker'] },
+    mockSeed: { type: 'number' },
+    queryKeyPrefix: { type: 'string' },
+    setup: { type: 'string' },
+    pagination: 'ClientPagination',
+  },
+};
+const ClientPaginationRule: NodeType = {
+  properties: {
+    style: { enum: ['cursor', 'offset', 'page', 'link'] },
+    cursorParam: { type: 'string' },
+    nextCursor: { type: 'string' },
+    hasMore: { type: 'string' },
+    offsetParam: { type: 'string' },
+    limitParam: { type: 'string' },
+    items: { type: 'string' },
+  },
+};
+
+const ClientPagination: NodeType = {
+  properties: {
+    ...ClientPaginationRule.properties,
+    exclude: { type: 'array', items: { type: 'string' } },
+    operations: mapOf('ClientPaginationRule'),
   },
 };
 
@@ -745,6 +787,9 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigApis,
   ConfigGovernance,
   ConfigHTTP,
+  Client,
+  ClientPagination,
+  ClientPaginationRule,
   Where,
   BuiltinRule,
   CustomRule,

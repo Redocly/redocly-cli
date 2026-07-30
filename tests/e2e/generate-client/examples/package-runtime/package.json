@@ -1,0 +1,19 @@
+{
+  "name": "@redocly-examples/package-runtime",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "redocly generate-client",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@redocly/client-generator": "latest"
+  },
+  "devDependencies": {
+    "@redocly/cli": "latest",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0"
+  }
+}

@@ -1,0 +1,36 @@
+openapi: 3.0.3
+info: { title: Error Mode API, version: 1.0.0 }
+servers:
+  - { url: https://api.example.com }
+paths:
+  /things/{id}:
+    get:
+      operationId: getThing
+      tags: [things]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProblemDetails' }
+components:
+  schemas:
+    Thing:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        name: { type: string }
+    ProblemDetails:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string }
+        status: { type: integer }
