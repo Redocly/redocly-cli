@@ -2223,10 +2223,21 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "aiSearch": "rootRedoclyConfigSchema.access.rbac.features.aiSearch",
+      "mcp": "rootRedoclyConfigSchema.access.rbac.features.mcp",
     },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.access.rbac.features.aiSearch": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.access.rbac.features.mcp": {
     "additionalProperties": {
       "type": "string",
     },
@@ -10756,10 +10767,21 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "aiSearch": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.features.aiSearch",
+      "mcp": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.features.mcp",
     },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.features.aiSearch": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.features.mcp": {
     "additionalProperties": {
       "type": "string",
     },
@@ -20161,7 +20183,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "docs": "rootRedoclyConfigSchema.env_additionalProperties.mcp.docs",
-      "gateway": "rootRedoclyConfigSchema.env_additionalProperties.mcp.gateway",
       "hide": {
         "type": "boolean",
       },
@@ -20185,24 +20206,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.mcp.gateway": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedHosts": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "hide": {
-        "type": "boolean",
       },
     },
     "required": undefined,
@@ -23205,10 +23208,21 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "aiSearch": "rootRedoclyConfigSchema.env_additionalProperties.rbac.features.aiSearch",
+      "mcp": "rootRedoclyConfigSchema.env_additionalProperties.rbac.features.mcp",
     },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.rbac.features.aiSearch": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.rbac.features.mcp": {
     "additionalProperties": {
       "type": "string",
     },
@@ -33889,7 +33903,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "docs": "rootRedoclyConfigSchema.mcp.docs",
-      "gateway": "rootRedoclyConfigSchema.mcp.gateway",
       "hide": {
         "type": "boolean",
       },
@@ -33913,24 +33926,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.mcp.gateway": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedHosts": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "hide": {
-        "type": "boolean",
       },
     },
     "required": undefined,
@@ -36933,10 +36928,21 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "aiSearch": "rootRedoclyConfigSchema.rbac.features.aiSearch",
+      "mcp": "rootRedoclyConfigSchema.rbac.features.mcp",
     },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.rbac.features.aiSearch": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.rbac.features.mcp": {
     "additionalProperties": {
       "type": "string",
     },
