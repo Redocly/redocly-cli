@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.43.1
+
+### Patch Changes
+
+- Fixed `skipPluginEval` to keep `extends` unresolved instead of failing when the config extends a plugin preset.
+
 ## 2.43.0
 
 ### Minor Changes
