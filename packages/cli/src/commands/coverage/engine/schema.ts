@@ -150,6 +150,9 @@ export function matches(spec: Schema, schema: Schema, value: unknown): boolean {
   if (!target) return false;
 
   if (target.enum) return target.enum.includes(value as never);
+  // OpenAPI 3.1 spells a single-value enum this way, and a union of literals is
+  // otherwise indistinguishable: every branch would accept every value.
+  if ('const' in target) return target.const === value;
 
   const { type, nullable, required, names } = compose(spec, target);
   const types = typesOf(type);
@@ -177,12 +180,32 @@ export function composedNames(spec: Schema, schema: Schema): Set<string> {
   return compose(spec, schema).names;
 }
 
-/** How many of a value's own properties a branch declares. */
-export function fit(spec: Schema, schema: Schema, value: unknown): number {
-  if (!isPlainObject(value)) return 0;
+/**
+ * The `format`s worth telling apart when two branches share a type. Used only
+ * to rank branches, never to reject a value: OpenAPI treats `format` as
+ * advisory, so a stricter reading here would drop valid coverage.
+ */
+const FORMAT_TESTS: Record<string, (value: string) => boolean> = {
+  uuid: (value) => /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value),
+  date: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
+  'date-time': (value) => !Number.isNaN(Date.parse(value)) && /[T ]/.test(value),
+  email: (value) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value),
+  uri: (value) => /^[a-z][a-z0-9+.-]*:/i.test(value),
+  ipv4: (value) => /^(\d{1,3}\.){3}\d{1,3}$/.test(value),
+};
 
+/** How much of a value a branch accounts for, used to rank the branches it could be. */
+export function fit(spec: Schema, schema: Schema, value: unknown): number {
   const { schema: target } = resolve(spec, schema);
   if (!target) return 0;
+
+  if (typeof value === 'string') {
+    const test = target.format ? FORMAT_TESTS[target.format] : undefined;
+
+    return test?.(value) ? 1 : 0;
+  }
+
+  if (!isPlainObject(value)) return 0;
 
   const { names } = compose(spec, target);
 

@@ -153,6 +153,12 @@ describe('matches', () => {
     expect(matches(SPEC, nullableString, 42)).toBe(false);
   });
 
+  it('honours an OpenAPI 3.1 const', () => {
+    expect(matches(SPEC, { const: 'a' }, 'a')).toBe(true);
+    expect(matches(SPEC, { const: 'a' }, 'b')).toBe(false);
+    expect(matches(SPEC, { const: 0 }, 0)).toBe(true);
+  });
+
   it('accepts a non-object value when the type array also allows one', () => {
     const either = { type: ['object', 'string'] };
 

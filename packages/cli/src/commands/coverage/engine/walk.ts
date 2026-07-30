@@ -8,7 +8,7 @@ import {
   VARIANT_KEYWORDS,
   type Schema,
 } from './schema.js';
-import { siteKey } from './sites.js';
+import { branchPath, siteKey } from './sites.js';
 
 export interface Coverage {
   /** Named schema → property paths a value carried. */
@@ -64,7 +64,7 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
 
     for (const index of selectBranches(next.spec, target, branches, value)) {
       next.coverage.variants.get(key)!.add(index);
-      walk(branches[index], value, next);
+      walk(branches[index], value, { ...next, prefix: branchPath(next.prefix, keyword, index) });
     }
   }
 

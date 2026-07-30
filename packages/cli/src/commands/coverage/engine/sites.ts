@@ -18,6 +18,15 @@ export function siteKey(owner: string, path: string, keyword: string): string {
 }
 
 /**
+ * The path inside one branch of a union. Sibling branches can each declare a
+ * union at the same property, so without the branch in the path those nested
+ * sites share a key and overwrite each other.
+ */
+export function branchPath(path: string, keyword: string, index: number): string {
+  return `${path ? `${path}.` : ''}${keyword}[${index}]`;
+}
+
+/**
  * Every union site inside one named schema. Stops at `$ref` because the target
  * is enumerated under its own name.
  */
@@ -35,7 +44,9 @@ export function collectSites(
     if (!branches?.length) continue;
 
     sites.set(siteKey(owner, path, keyword), { owner, path, keyword, count: branches.length });
-    for (const branch of branches) collectSites(branch, owner, path, sites, depth + 1);
+    for (const [index, branch] of branches.entries()) {
+      collectSites(branch, owner, branchPath(path, keyword, index), sites, depth + 1);
+    }
   }
 
   for (const branch of schema.allOf ?? []) collectSites(branch, owner, path, sites, depth + 1);

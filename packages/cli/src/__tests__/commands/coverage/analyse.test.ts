@@ -223,6 +223,100 @@ describe('a union with a discriminator', () => {
   });
 });
 
+describe('a union of const literals', () => {
+  const LITERALS: Schema = {
+    components: {
+      schemas: {
+        Status: { oneOf: [{ const: 'active' }, { const: 'archived' }, { const: 'draft' }] },
+        Holder: { type: 'object', properties: { status: { $ref: '#/components/schemas/Status' } } },
+      },
+    },
+  };
+
+  it('credits only the literal the value carried', () => {
+    const coverage = createCoverage();
+    walkRoot(LITERALS, coverage, { $ref: '#/components/schemas/Holder' }, { status: 'archived' });
+
+    expect(
+      summarize(LITERALS, coverage, { total: 1, withBody: 1 }).schemas.find(
+        ({ name }) => name === 'Status'
+      )?.unusedVariants
+    ).toEqual([{ path: '', keyword: 'oneOf', branches: [0, 2] }]);
+  });
+});
+
+describe('a union of same-typed branches split by format', () => {
+  const FORMATS: Schema = {
+    components: {
+      schemas: {
+        Id: {
+          oneOf: [
+            { type: 'string', format: 'uuid' },
+            { type: 'string', format: 'date' },
+          ],
+        },
+        Holder: { type: 'object', properties: { id: { $ref: '#/components/schemas/Id' } } },
+      },
+    },
+  };
+
+  it('credits the branch whose format the value satisfies', () => {
+    const coverage = createCoverage();
+    walkRoot(
+      FORMATS,
+      coverage,
+      { $ref: '#/components/schemas/Holder' },
+      { id: '6fa459ea-ee8a-3ca4-894e-db77e160355e' }
+    );
+
+    expect(
+      summarize(FORMATS, coverage, { total: 1, withBody: 1 }).schemas.find(
+        ({ name }) => name === 'Id'
+      )?.unusedVariants
+    ).toEqual([{ path: '', keyword: 'oneOf', branches: [1] }]);
+  });
+});
+
+describe('unions nested inside sibling branches', () => {
+  const WRAPPER: Schema = {
+    components: {
+      schemas: {
+        Wrapper: {
+          oneOf: [
+            {
+              type: 'object',
+              required: ['a'],
+              properties: { x: { oneOf: [{ type: 'string' }, { type: 'integer' }] } },
+            },
+            {
+              type: 'object',
+              required: ['b'],
+              properties: {
+                x: { oneOf: [{ type: 'boolean' }, { type: 'null' }, { type: 'array' }] },
+              },
+            },
+          ],
+        },
+      },
+    },
+  };
+
+  it('keeps each branch its own union site', () => {
+    const coverage = createCoverage();
+    walkRoot(WRAPPER, coverage, { $ref: '#/components/schemas/Wrapper' }, { a: 1, x: 'text' });
+
+    expect(
+      summarize(WRAPPER, coverage, { total: 1, withBody: 1 }).schemas.find(
+        ({ name }) => name === 'Wrapper'
+      )?.unusedVariants
+    ).toEqual([
+      { path: '', keyword: 'oneOf', branches: [1] },
+      { path: 'oneOf[0].x', keyword: 'oneOf', branches: [1] },
+      { path: 'oneOf[1].x', keyword: 'oneOf', branches: [0, 1, 2] },
+    ]);
+  });
+});
+
 describe('additionalProperties', () => {
   const MAP: Schema = {
     components: {
