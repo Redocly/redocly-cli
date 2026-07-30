@@ -1,0 +1,16 @@
+2/3 operations exercised (67%)
+4/8 documented properties observed (50%) over 2 of 2 exchange(s)
+
+✓ Identified  1/1
+  UpdateUserRequest  1/2
+    neverSent
+  User  2/3
+    neverSent
+    badge  oneOf branch 1 never matched
+
+Operations nothing reached — 1
+    pass --all to list them
+
+Schemas nothing reached — 2
+    pass --all to list them
+

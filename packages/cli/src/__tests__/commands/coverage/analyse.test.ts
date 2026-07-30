@@ -1,0 +1,159 @@
+import { summarize } from '../../../commands/coverage/engine/analyse.js';
+import type { Schema } from '../../../commands/coverage/engine/schema.js';
+import { createCoverage, walkRoot } from '../../../commands/coverage/engine/walk.js';
+
+const SPEC: Schema = {
+  openapi: '3.0.3',
+  components: {
+    schemas: {
+      Thing: {
+        type: 'object',
+        properties: {
+          always: { type: 'string' },
+          never: { type: 'string' },
+          nested: { $ref: '#/components/schemas/Nested' },
+          choice: { oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Nested' }] },
+        },
+      },
+      Nested: {
+        type: 'object',
+        properties: { inner: { type: 'string' }, unreached: { type: 'string' } },
+      },
+    },
+  },
+};
+
+const THING = { $ref: '#/components/schemas/Thing' };
+
+function report(values: unknown[], schemaFilter?: string) {
+  const coverage = createCoverage();
+  for (const value of values) walkRoot(SPEC, coverage, THING, value);
+
+  return summarize(SPEC, coverage, { total: values.length, withBody: values.length }, schemaFilter);
+}
+
+function schemaNamed(values: unknown[], name: string) {
+  const found = report(values).schemas.find((schema) => schema.name === name);
+  if (!found) throw new Error(`no report for ${name}`);
+
+  return found;
+}
+
+describe('coverage', () => {
+  it('credits a property the value carried', () => {
+    expect(schemaNamed([{ always: 'x' }], 'Thing').unusedProperties).toEqual([
+      'choice',
+      'nested',
+      'never',
+    ]);
+  });
+
+  it('reports every property when nothing reached the schema', () => {
+    expect(schemaNamed([], 'Thing').unusedProperties).toEqual([
+      'always',
+      'choice',
+      'nested',
+      'never',
+    ]);
+  });
+
+  it('attributes properties reached through a $ref to the target schema', () => {
+    expect(schemaNamed([{ nested: { inner: 'x' } }], 'Nested').unusedProperties).toEqual([
+      'unreached',
+    ]);
+  });
+
+  it('counts a property present but null as observed', () => {
+    expect(schemaNamed([{ always: null }], 'Thing').unusedProperties).not.toContain('always');
+  });
+
+  it('reports the union branch a value never matched', () => {
+    expect(schemaNamed([{ choice: 'text' }], 'Thing').unusedVariants).toEqual([
+      { path: 'choice', keyword: 'oneOf', branches: [1] },
+    ]);
+  });
+
+  it('reports the other branch when the value takes the object form', () => {
+    expect(schemaNamed([{ choice: { inner: 'x' } }], 'Thing').unusedVariants).toEqual([
+      { path: 'choice', keyword: 'oneOf', branches: [0] },
+    ]);
+  });
+
+  it('reports no unused branch once both have been seen', () => {
+    const values = [{ choice: 'text' }, { choice: { inner: 'x' } }];
+
+    expect(schemaNamed(values, 'Thing').unusedVariants).toEqual([]);
+  });
+
+  it('descends only into the branch that matched', () => {
+    expect(schemaNamed([{ choice: 'text' }], 'Nested').unusedProperties).toEqual([
+      'inner',
+      'unreached',
+    ]);
+  });
+
+  it('lists a schema nothing reached', () => {
+    expect(report([{ always: 'x' }]).unusedSchemas).toEqual(['Nested']);
+  });
+
+  it('omits a schema once a value reached it', () => {
+    expect(report([{ nested: { inner: 'x' } }]).unusedSchemas).toEqual([]);
+  });
+
+  it('narrows to one schema when a filter is given', () => {
+    expect(report([], 'Nested').schemas.map(({ name }) => name)).toEqual(['Nested']);
+  });
+
+  it('counts observed against declared properties across schemas', () => {
+    const result = report([{ always: 'x', nested: { inner: 'y' } }]);
+
+    expect(result.totalProperties).toBe(6);
+    expect(result.seenProperties).toBe(3);
+  });
+});
+
+describe('coverage of a schema composed with allOf', () => {
+  const INHERITING: Schema = {
+    components: {
+      schemas: {
+        Base: { type: 'object', properties: { id: { type: 'string' } } },
+        Child: {
+          allOf: [
+            { $ref: '#/components/schemas/Base' },
+            { type: 'object', properties: { extra: { type: 'string' } } },
+          ],
+        },
+      },
+    },
+  };
+
+  function inherited(value: unknown) {
+    const coverage = createCoverage();
+    walkRoot(INHERITING, coverage, { $ref: '#/components/schemas/Child' }, value);
+
+    return summarize(INHERITING, coverage, { total: 1, withBody: 1 });
+  }
+
+  it('credits an inherited property to the schema that declares it', () => {
+    const result = inherited({ id: 'a', extra: 'b' });
+
+    expect(result.schemas).toEqual([
+      { name: 'Base', seen: 1, count: 1, unusedProperties: [], unusedVariants: [] },
+      { name: 'Child', seen: 1, count: 1, unusedProperties: [], unusedVariants: [] },
+    ]);
+  });
+
+  it('does not report an inherited property as unused on the inheriting schema', () => {
+    expect(inherited({ id: 'a' }).schemas.find(({ name }) => name === 'Child')).toEqual({
+      name: 'Child',
+      seen: 0,
+      count: 1,
+      unusedProperties: ['extra'],
+      unusedVariants: [],
+    });
+  });
+
+  it('does not list a schema the traffic reached as one nothing reached', () => {
+    expect(inherited({ id: 'a', extra: 'b' }).unusedSchemas).toEqual([]);
+  });
+});

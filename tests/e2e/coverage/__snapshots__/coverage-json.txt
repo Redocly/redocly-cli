@@ -1,0 +1,73 @@
+{
+  "exchanges": {
+    "total": 2,
+    "withBody": 2
+  },
+  "operations": {
+    "seen": 2,
+    "total": 3,
+    "unused": [
+      "GET /health  getHealth"
+    ]
+  },
+  "seenProperties": 4,
+  "totalProperties": 8,
+  "schemas": [
+    {
+      "name": "Badge",
+      "seen": 0,
+      "count": 1,
+      "unusedProperties": [
+        "name"
+      ],
+      "unusedVariants": []
+    },
+    {
+      "name": "Health",
+      "seen": 0,
+      "count": 1,
+      "unusedProperties": [
+        "status"
+      ],
+      "unusedVariants": []
+    },
+    {
+      "name": "Identified",
+      "seen": 1,
+      "count": 1,
+      "unusedProperties": [],
+      "unusedVariants": []
+    },
+    {
+      "name": "UpdateUserRequest",
+      "seen": 1,
+      "count": 2,
+      "unusedProperties": [
+        "neverSent"
+      ],
+      "unusedVariants": []
+    },
+    {
+      "name": "User",
+      "seen": 2,
+      "count": 3,
+      "unusedProperties": [
+        "neverSent"
+      ],
+      "unusedVariants": [
+        {
+          "path": "badge",
+          "keyword": "oneOf",
+          "branches": [
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "unusedSchemas": [
+    "Badge",
+    "Health"
+  ]
+}
+

@@ -1,0 +1,21 @@
+2/3 operations exercised (67%)
+4/8 documented properties observed (50%) over 2 of 2 exchange(s)
+
+  Badge  0/1
+    name
+  Health  0/1
+    status
+✓ Identified  1/1
+  UpdateUserRequest  1/2
+    neverSent
+  User  2/3
+    neverSent
+    badge  oneOf branch 1 never matched
+
+Operations nothing reached — 1
+    GET /health  getHealth
+
+Schemas nothing reached — 2
+    Badge
+    Health
+

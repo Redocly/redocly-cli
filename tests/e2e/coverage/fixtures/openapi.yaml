@@ -1,0 +1,84 @@
+openapi: 3.0.3
+info:
+  title: Coverage fixture
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /users/{userId}:
+    get:
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      operationId: updateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: The updated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          description: Never called by the fixture traffic.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  schemas:
+    Identified:
+      type: object
+      properties:
+        id:
+          type: string
+    User:
+      allOf:
+        - $ref: '#/components/schemas/Identified'
+        - type: object
+          properties:
+            bio:
+              type: string
+            neverSent:
+              type: string
+            badge:
+              oneOf:
+                - type: string
+                - $ref: '#/components/schemas/Badge'
+    Badge:
+      type: object
+      properties:
+        name:
+          type: string
+    UpdateUserRequest:
+      type: object
+      properties:
+        bio:
+          type: string
+        neverSent:
+          type: string
+    Health:
+      type: object
+      properties:
+        status:
+          type: string

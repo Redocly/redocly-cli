@@ -34,7 +34,7 @@ type HttpMethod = (typeof HTTP_METHODS)[number];
 
 const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
 
-function isHttpMethod(value: string): value is HttpMethod {
+export function isHttpMethod(value: string): value is HttpMethod {
   return (HTTP_METHODS as readonly string[]).includes(value);
 }
 

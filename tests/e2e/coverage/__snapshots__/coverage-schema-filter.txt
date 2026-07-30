@@ -1,0 +1,10 @@
+2/3 operations exercised (67%)
+2/3 documented properties observed (67%) over 2 of 2 exchange(s)
+
+  User  2/3
+    neverSent
+    badge  oneOf branch 1 never matched
+
+Operations nothing reached — 1
+    pass --all to list them
+
