@@ -5,6 +5,7 @@ const REPORT: CoverageReport = {
   exchanges: { total: 3, withBody: 2 },
   operations: { seen: 1, total: 2, unused: ['GET /health  getHealth'] },
   parameters: { seen: 0, total: 0, unused: [], unusedValues: [] },
+  statuses: { seen: 0, total: 0, unused: [] },
   seenProperties: 3,
   seenPropertiesAccepted: 3,
   totalProperties: 6,
@@ -33,9 +34,10 @@ describe('renderCoverage', () => {
   it('leads with the headline figures', () => {
     const output = renderCoverage(REPORT, { format: 'stylish', all: false });
 
-    expect(output.split('\n').slice(0, 3)).toEqual([
+    expect(output.split('\n').slice(0, 4)).toEqual([
       '1/2 operations exercised (50%)',
       '0/0 documented parameters sent (0%)',
+      '0/0 documented responses returned (0%)',
       '3/6 documented properties observed (50%) over 2 of 3 exchange(s)',
     ]);
   });
@@ -84,6 +86,7 @@ describe('renderCoverage', () => {
       exchanges: { total: 1, withBody: 1 },
       operations: { seen: 1, total: 1, unused: [] },
       parameters: { seen: 0, total: 0, unused: [], unusedValues: [] },
+      statuses: { seen: 0, total: 0, unused: [] },
       seenProperties: 0,
       seenPropertiesAccepted: 0,
       totalProperties: 0,
@@ -116,6 +119,7 @@ describe('renderCoverage', () => {
       exchanges: { total: 0, withBody: 0 },
       operations: { seen: 0, total: 0, unused: [] },
       parameters: { seen: 0, total: 0, unused: [], unusedValues: [] },
+      statuses: { seen: 0, total: 0, unused: [] },
       seenProperties: 0,
       seenPropertiesAccepted: 0,
       totalProperties: 0,

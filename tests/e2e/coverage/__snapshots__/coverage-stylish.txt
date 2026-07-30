@@ -1,5 +1,6 @@
 2/3 operations exercised (67%)
 2/3 documented parameters sent (67%)
+2/4 documented responses returned (50%)
 7/11 documented properties observed (64%) over 3 of 3 exchange(s)
 6/11 observed on an exchange the API accepted (55%)
 
@@ -19,6 +20,9 @@ Parameters nothing sent — 1
     pass --all to list them
 
 Parameter values nothing used — 1
+    pass --all to list them
+
+Responses nothing returned — 2
     pass --all to list them
 
 Schemas nothing reached — 3

@@ -14,6 +14,7 @@ The `coverage` command reports:
 
 - documented operations no request reached
 - documented parameters no request sent, and the `enum` values none of them carried
+- documented responses the API never returned
 - documented properties no request or response carried
 - `oneOf` and `anyOf` branches nothing ever matched
 - component schemas nothing reached at all

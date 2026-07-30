@@ -3,6 +3,7 @@ import { isPlainObject, isRef } from '@redocly/openapi-core';
 import { isHttpMethod } from '../../drift/openapi/loader.js';
 import type { ParameterCoverage } from './parameters.js';
 import { declared, resolve, type Schema } from './schema.js';
+import type { StatusCoverage } from './statuses.js';
 import { collectSites, siteKey } from './sites.js';
 import type { Coverage } from './walk.js';
 
@@ -40,6 +41,7 @@ export interface CoverageReport {
   exchanges: ExchangeCounts;
   operations: OperationCoverage;
   parameters: ParameterCoverage;
+  statuses: StatusCoverage;
   seenProperties: number;
   /**
    * The same count over exchanges the API accepted. Testing a rejection is real
@@ -84,7 +86,7 @@ export function summarize(
   schemaFilter?: string,
   exercisedOperations: Set<string> = new Set(),
   seenPropertiesAccepted?: number
-): Omit<CoverageReport, 'parameters'> {
+): Omit<CoverageReport, 'parameters' | 'statuses'> {
   const schemas: SchemaCoverage[] = [];
   const unusedSchemas: string[] = [];
   let seenProperties = 0;

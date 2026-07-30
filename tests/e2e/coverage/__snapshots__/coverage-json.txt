@@ -117,6 +117,14 @@
     "unusedValues": [
       "GET /users/{userId}  query.include=shape"
     ]
+  },
+  "statuses": {
+    "seen": 2,
+    "total": 4,
+    "unused": [
+      "GET /health  200",
+      "GET /users/{userId}  404"
+    ]
   }
 }
 

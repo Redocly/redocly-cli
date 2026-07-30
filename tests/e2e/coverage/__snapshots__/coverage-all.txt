@@ -1,5 +1,6 @@
 2/3 operations exercised (67%)
 2/3 documented parameters sent (67%)
+2/4 documented responses returned (50%)
 7/11 documented properties observed (64%) over 3 of 3 exchange(s)
 6/11 observed on an exchange the API accepted (55%)
 
@@ -26,6 +27,10 @@ Parameters nothing sent — 1
 
 Parameter values nothing used — 1
     GET /users/{userId}  query.include=shape
+
+Responses nothing returned — 2
+    GET /health  200
+    GET /users/{userId}  404
 
 Schemas nothing reached — 3
     Badge

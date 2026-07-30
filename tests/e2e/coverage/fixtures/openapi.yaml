@@ -32,6 +32,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '404':
+          description: Never returned by the fixture traffic.
     put:
       operationId: updateUser
       requestBody:

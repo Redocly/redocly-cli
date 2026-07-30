@@ -23,6 +23,13 @@ import {
   recordParameters,
   summarizeParameters,
 } from './engine/parameters.js';
+import {
+  collectStatuses,
+  createStatusUse,
+  matchStatusKey,
+  recordStatus,
+  summarizeStatuses,
+} from './engine/statuses.js';
 import { resolve, type Schema } from './engine/schema.js';
 import { createCoverage, walkRoot } from './engine/walk.js';
 import { renderCoverage, type CoverageFormat } from './reporter.js';
@@ -130,18 +137,9 @@ function bodySchema(
 }
 
 function responseHolder(responses: Schema, status: number | undefined): Schema | undefined {
-  if (status === undefined) return responses.default;
+  const key = matchStatusKey(Object.keys(responses), status);
 
-  const statusClass = `${Math.floor(status / 100)}XX`;
-
-  // `drift` accepts the lowercase form too, and the two have to agree on which
-  // schema describes a response.
-  return (
-    responses[String(status)] ??
-    responses[statusClass] ??
-    responses[statusClass.toLowerCase()] ??
-    responses.default
-  );
+  return key ? responses[key] : undefined;
 }
 
 export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>): Promise<void> {
@@ -158,6 +156,8 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
   const acceptedCoverage = createCoverage();
   const declaredParameters = collectParameters(spec);
   const parameterUse = createParameterUse();
+  const declaredStatuses = collectStatuses(spec);
+  const statusUse = createStatusUse();
   const exercisedOperations = new Set<string>();
   let exchangeIndex = 0;
   let walked = 0;
@@ -183,6 +183,7 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
         pathParams: matched.pathParams,
         headers: exchange.request.headers,
       });
+      recordStatus(statusUse, key, exchange.response?.status, declaredStatuses.get(key) ?? []);
 
       const entry = schemasByOperation.get(key);
       if (!entry) continue;
@@ -228,6 +229,7 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
         .seenProperties
     ),
     parameters: summarizeParameters(declaredParameters, parameterUse),
+    statuses: summarizeStatuses(declaredStatuses, statusUse),
   };
   const rendered = renderCoverage(report, { format: argv.format, all: Boolean(argv.all) });
 
