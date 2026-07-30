@@ -118,10 +118,12 @@ export async function resolveConfig({
   const bundledConfig = bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
-    resolvedPlugins
+    resolvedPlugins,
+    skipPluginEval
   );
 
-  if (bundledConfig.apis) {
+  // The apis merge relies on `extends` being resolved, which requires evaluated plugins.
+  if (bundledConfig.apis && !skipPluginEval) {
     bundledConfig.apis = Object.fromEntries(
       Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
         const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
