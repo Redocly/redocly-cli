@@ -1,4 +1,3 @@
-// packages/client-generator/src/config-file.ts
 import type { GenerateClientConfig } from './types.js';
 
 /**
