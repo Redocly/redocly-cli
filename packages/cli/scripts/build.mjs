@@ -3,7 +3,10 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const packageDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 
 rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
@@ -18,8 +21,7 @@ const result = await build({
   format: 'esm',
   target: 'node20.19',
   minify: true,
-  // Keep function names so stack traces in bug reports stay navigable.
-  keepNames: true,
+  keepNames: false,
   metafile: true,
   define: {
     'process.env.REDOCLY_CLI_BUILD_ENV': '"production"',
@@ -38,15 +40,19 @@ const result = await build({
   logLevel: 'info',
 });
 
-const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
-if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
+const entryChunkInputs = Object.keys(
+  result.metafile.outputs['lib/index.js']?.inputs ?? {},
+);
+if (
+  entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))
+) {
   throw new Error(
-    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
+    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands',
   );
 }
 
 const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
-  Object.keys(chunk.inputs)
+  Object.keys(chunk.inputs),
 );
 
 const seenPkgRoots = new Set();
@@ -54,7 +60,9 @@ const licenseGroups = new Map();
 
 for (const relInput of allInputs) {
   const absInput = path.resolve(packageDir, relInput).replace(/\\/g, '/');
-  const pkgRootMatch = absInput.match(/^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)/);
+  const pkgRootMatch = absInput.match(
+    /^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)/,
+  );
   if (!pkgRootMatch) continue;
   const pkgRoot = pkgRootMatch[1];
   if (seenPkgRoots.has(pkgRoot)) continue;
@@ -72,7 +80,9 @@ for (const relInput of allInputs) {
   if (!licenseGroups.has(spdx)) {
     licenseGroups.set(spdx, { text: licenseText, packages: [] });
   }
-  const entry = copyrightLine ? `${name}@${version} — ${copyrightLine}` : `${name}@${version}`;
+  const entry = copyrightLine
+    ? `${name}@${version} — ${copyrightLine}`
+    : `${name}@${version}`;
   licenseGroups.get(spdx).packages.push(entry);
 }
 
@@ -84,18 +94,27 @@ const sections = [...licenseGroups.entries()]
       .map((pkg) => `  ${pkg}`)
       .join('\n');
     const licenseBody = text ?? '(no license text found)';
-    return `${'='.repeat(60)}\n${spdx}\n\nPackages:\n${packageList}\n\nLicense text:\n${licenseBody}`;
+    return `${'='.repeat(
+      60,
+    )}\n${spdx}\n\nPackages:\n${packageList}\n\nLicense text:\n${licenseBody}`;
   });
 
 writeFileSync(
   path.join(packageDir, 'THIRD_PARTY_NOTICES'),
-  `Third-party software bundled in @redocly/cli\n\n${sections.join('\n\n')}\n`
+  `Third-party software bundled in @redocly/cli\n\n${sections.join('\n\n')}\n`,
 );
 
 function findLicenseText(pkgRoot) {
-  for (const filename of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md']) {
+  for (const filename of [
+    'LICENSE',
+    'LICENSE.md',
+    'LICENSE.txt',
+    'LICENCE',
+    'LICENCE.md',
+  ]) {
     const licensePath = path.join(pkgRoot, filename);
-    if (existsSync(licensePath)) return readFileSync(licensePath, 'utf-8').trimEnd();
+    if (existsSync(licensePath))
+      return readFileSync(licensePath, 'utf-8').trimEnd();
   }
   return null;
 }
