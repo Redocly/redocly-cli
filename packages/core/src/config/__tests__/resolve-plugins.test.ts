@@ -39,6 +39,16 @@ describe('resolving a plugin', () => {
     ]);
   });
 
+  it('should keep extends unresolved when skipPluginEval is true', async () => {
+    const config = await loadConfig({
+      configPath: path.join(__dirname, 'fixtures/skip-plugin-eval-config.yaml'),
+      skipPluginEval: true,
+    });
+
+    expect(config.resolvedConfig.extends).toEqual(['test-plugin/recommended']);
+    expect(config.resolvedConfig.apis).toEqual({ main: { root: './openapi.yaml' } });
+  });
+
   it('should return the default project plugin path without loading plugin code when skipPluginEval is true', async () => {
     const config = await loadConfig({
       configPath: path.join(__dirname, 'fixtures/default-plugin/redocly.yaml'),
