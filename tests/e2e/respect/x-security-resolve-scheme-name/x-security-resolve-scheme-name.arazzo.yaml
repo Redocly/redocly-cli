@@ -1,32 +1,38 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API
+  title: Redocly Cafe API
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 
 workflows:
-  - workflowId: events-crud
+  - workflowId: menu-items
     inputs:
       type: object
       properties:
         secret:
           type: string
     steps:
-      - stepId: apply-basic-auth-scheme-when-step-has-operationId
-        operationId: getMuseumHours
+      - stepId: apply-oauth2-scheme-when-step-has-operationId
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
         x-security:
-          - schemeName: MuseumPlaceholderAuth
+          - schemeName: OAuth2
             values:
-              username: John
-              password: $inputs.secret
-      - stepId: apply-basic-auth-scheme-when-step-has-operationPath
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1museum-hours/get'
+              accessToken: $inputs.secret
+      - stepId: apply-api-key-scheme-when-step-has-operationPath
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
         x-security:
-          - schemeName: MuseumPlaceholderAuth
+          - schemeName: ApiKey
             values:
-              username: John
-              password: $inputs.secret
+              apiKey: $inputs.secret

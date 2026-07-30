@@ -1,12 +1,12 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API
+  title: Redocly Cafe API
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 
 workflows:
   - workflowId: basic-auth-workflow
@@ -25,17 +25,19 @@ workflows:
           default: some-password
     steps:
       - stepId: step-with-basic-auth-scheme
-        operationId: getMuseumHours
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
       - stepId: step-with-basic-auth-scheme-2
-        operationId: createSpecialEvent
+        operationId: createOrder
         requestBody:
           payload:
-            name: 'Mermaid Treasure Identification and Analysis'
-            location: 'Under the seaaa 🦀 🎶 🌊.'
-            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
-            dates:
-              - 2025-01-01
-              - 2025-01-02
-            price: 0
+            customerName: Mary Ann
+            orderItems:
+              - menuItemId: prd_0000000000seedtrams0000000
+                quantity: 2
+                comment: No sugar!
         successCriteria:
-          - condition: $statusCode == 201
+          - condition: $statusCode == 401

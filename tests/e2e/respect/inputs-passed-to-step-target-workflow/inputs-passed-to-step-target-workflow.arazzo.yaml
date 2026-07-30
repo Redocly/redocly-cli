@@ -3,12 +3,12 @@ info:
   title: Test inputs passed to step target workflow
   version: 1.0.0
 sourceDescriptions:
-  - name: events
+  - name: clients
     url: ./events.arazzo.yaml
     type: arazzo
 workflows:
   - workflowId: inputs-passed-to-step-target-workflow
-    summary: PEARL Merchandising API - Health Check for PRD
+    summary: Redocly Cafe API - Health Check for PRD
     inputs:
       type: object
       properties:
@@ -20,7 +20,7 @@ workflows:
           type: string
     steps:
       - stepId: health-workflow
-        workflowId: $sourceDescriptions.events.events-crud
+        workflowId: $sourceDescriptions.clients.client-registration
         parameters:
           - name: custom_price
             value: 800

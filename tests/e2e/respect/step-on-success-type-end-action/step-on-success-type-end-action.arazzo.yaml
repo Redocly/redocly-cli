@@ -5,40 +5,32 @@ info:
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 
 workflows:
-  - workflowId: events-crud
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+  - workflowId: client-registration
     steps:
-      - stepId: list-events
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
+      - stepId: list-menu-items
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
         outputs:
-          events: $response.body
+          menuItems: $response.body
         successCriteria:
           - condition: $statusCode == 200
         onSuccess:
           - type: end
             name: step-onSuccess-action-end
-      - stepId: create-event
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+      - stepId: create-client
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
         requestBody:
           payload:
-            name: 'Mermaid Treasure Identification and Analysis'
+            name: respect-e2e-client
         successCriteria:
           - condition: $statusCode == 201
-  - workflowId: get-museum-hours
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+  - workflowId: get-menu-items
     steps:
-      - stepId: get-museum-hours
-        operationId: $sourceDescriptions.museum-api.getMuseumHours
+      - stepId: get-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 200

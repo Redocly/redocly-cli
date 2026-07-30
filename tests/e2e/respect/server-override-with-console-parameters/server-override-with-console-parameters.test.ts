@@ -5,10 +5,10 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Snapshot is intentionally should show failed request to museum-api-bad-endpoint
+// Snapshot is intentionally should show failed request to cafe-api-bad-endpoint
 test('should use server override from CLI and env', () => {
   process.env.REDOCLY_CLI_RESPECT_SERVER =
-    'museum-api=https://museum-api-bad-endpoint.com/museum-api-bad-endpoint,tickets-from-museum-api=https://redocly.com/_mock/docs/openapi/museum-api';
+    'cafe-api=https://cafe-api-bad-endpoint.com/cafe-api-bad-endpoint,menu-from-cafe-api=https://api.cafe.redocly.com';
 
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'server-override-with-console-parameters.arazzo.yaml');

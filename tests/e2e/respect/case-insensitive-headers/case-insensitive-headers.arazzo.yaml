@@ -1,27 +1,23 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API
+  title: Redocly Cafe API
   description: >-
     Testing case insensitive headers in workflows
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 
 workflows:
-  - workflowId: get-museum-hours
+  - workflowId: get-menu-items
     description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to list the cafe menu items.
     steps:
-      - stepId: get-museum-hours
+      - stepId: get-menu-items
         description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
+          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
         parameters:
           - in: header
             name: CammelCasedHeader
@@ -35,8 +31,8 @@ workflows:
           - in: header
             name: ContenT-TypE
             value: third
-        operationId: museum-api.getMuseumHours
+        operationId: cafe-api.listMenuItems
         successCriteria:
           - condition: $request.header.content-type == 'third'
-          - condition: $request.header.CammelCasedHeader == 'custom-header' && $response.header.X-Frame-Options == 'deny'
-          - condition: $response.header.X-Content-Type-Options == 'nosniff'
+          - condition: $request.header.CammelCasedHeader == 'custom-header' && $response.header.X-Powered-By == 'Express'
+          - condition: $response.header.Content-TYPE == 'application/json; charset=utf-8'

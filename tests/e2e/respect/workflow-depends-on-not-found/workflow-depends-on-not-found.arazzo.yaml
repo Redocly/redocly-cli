@@ -7,7 +7,7 @@ info:
 sourceDescriptions:
   - name: cafe-api
     type: openapi
-    url: ../../../../resources/cafe.yaml
+    url: ../cafe-api.yaml
 
 workflows:
   - workflowId: workflow-with-broken-depends-on

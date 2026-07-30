@@ -1,87 +1,75 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API
+  title: Redocly Cafe API
   description: >-
-    An imaginary, but delightful Museum API for interacting with museum services
-    and information. Built with love by Redocly.
+    Testing severity levels for failing checks against the Redocly Cafe API
+    described with deliberately wrong response definitions.
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api-with-errors.yaml
+    url: ../cafe-api-with-errors.yaml
 
 workflows:
-  - workflowId: get-museum-hours
+  - workflowId: get-menu-items
     description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to list the cafe menu items.
     steps:
-      - stepId: get-museum-hours
+      - stepId: get-menu-items
         parameters:
           - in: header
             name: Content-Type
             value: application/json
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
         description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
-        operationId: museum-api.getMuseumHours
+          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
+        operationId: cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
         outputs:
-          schedule: $response.body
-  - workflowId: events-crud
+          menu: $response.body
+  - workflowId: client-registration
     description: >-
-      This workflow demonstrates how to list, create, update, and delete special events at the museum.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to register an OAuth2 client and retrieve a menu item photo description.
     steps:
-      - stepId: create-event
+      - stepId: create-client
         description: >-
-          Create a new special event.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+          Try to register a new OAuth2 client without the required `name` field.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
         requestBody:
           payload:
-            name: 'Mermaid Treasure Identification and Analysis'
-            location: 'Under the seaaa 🦀 🎶 🌊.'
-            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
-            dates:
-              - '2023-09-05'
-              - '2023-09-08'
-            price: 0
+            clientName: respect-e2e-client
         successCriteria:
-          - condition: $statusCode == 201
+          - condition: $statusCode == 400
           - context: $response.body
-            condition: "$[?@.name == 'Mermaid Treasure Identification and Analysis']"
+            condition: "$[?@.title == 'Validation failed']"
             type: jsonpath
-        outputs:
-          createdEventId: $response.body#/eventId
-          name: $response.body#/name
-
-      - stepId: update-event
-        description: >-
-          Update the created event with new details.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/patch'
-        parameters:
-          - name: eventId
-            in: path
-            value: $steps.create-event.outputs.createdEventId
-        requestBody:
-          payload:
-            name: 'Orca Identification and Analysis'
-            location: 'Under the seaaa 🦀 🎶 🌊.'
-            dates:
-              - '2023-09-05'
-              - '2023-09-08'
-            price: 0
-        successCriteria:
-          - condition: $statusCode == 200
           - context: $response.body
-            condition: "$[?@.name == 'Orca Identification and Analysis']"
+            condition: '$[?@.status == 400]'
             type:
               type: jsonpath
               version: draft-goessner-dispatch-jsonpath-00
+        outputs:
+          errorField: $response.body#/details/errors/0/path/0
+          errorTitle: $response.body#/title
+
+      - stepId: get-menu-item-photo
+        description: >-
+          Retrieve the photo text description of a seeded menu item.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu-item-images~1{menuItemId}/get'
+        parameters:
+          - name: menuItemId
+            in: path
+            value: prd_0000000000seedtrams0000000
+          - in: header
+            name: Accept
+            value: text/plain
+          - in: header
+            name: x-error-field
+            value: $steps.create-client.outputs.errorField
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body == 'A classic Italian tiramisu layered with mascarpone and espresso'

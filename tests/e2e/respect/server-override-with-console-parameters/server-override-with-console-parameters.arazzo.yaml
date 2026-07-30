@@ -1,43 +1,34 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API
+  title: Redocly Cafe API
   description: >-
-    An imaginary, but delightful Museum API for interacting with museum services
-    and information. Built with love by Redocly.
+    Testing server override with console parameters against the Redocly Cafe API.
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
-  - name: tickets-from-museum-api
+    url: ../cafe-api.yaml
+  - name: menu-from-cafe-api
     type: arazzo
-    url: ../museum-tickets.yaml
+    url: ../cafe-menu.arazzo.yaml
 
 workflows:
-  - workflowId: get-museum-hours
+  - workflowId: get-menu-items
     description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to search the cafe menu using an external workflow.
     steps:
-      - stepId: buy-ticket
+      - stepId: search-menu
         description: >-
-          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-        workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
+          Search the cafe menu by calling an external workflow from another Arazzo file.
+        workflowId: $sourceDescriptions.menu-from-cafe-api.search-menu-items
         outputs:
-          ticketId: $outputs.ticketId
-  - workflowId: events-crud
+          total: $outputs.total
+  - workflowId: client-registration
     description: >-
-      This workflow demonstrates how to list, create, update, and delete special events at the museum.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to list the cafe menu items.
     steps:
-      - stepId: list-events
+      - stepId: list-menu-items
         description: >-
-          Request the list of events.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
+          Request the list of menu items.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'

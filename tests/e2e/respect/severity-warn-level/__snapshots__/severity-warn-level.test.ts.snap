@@ -3,14 +3,13 @@
 exports[`should use warn severity level 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow severity-level.arazzo.yaml / get-museum-hours 
+  Running workflow severity-level.arazzo.yaml / get-menu-items 
  
-  ✗ GET /museum-hours - step get-museum-hours 
+  ✗ GET /menu - step get-menu-items 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
       accept: html/text, application/problem+json
-      authorization: Basic Og==
       content-type: application/json 
  
 
@@ -19,126 +18,76 @@ exports[`should use warn severity level 1`] = `
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
+      {
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
         },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ] 
+        "items": []
+      } 
  
     ✓ success criteria check - $statusCode == 200
     ⚠ status code check
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow severity-level.arazzo.yaml / events-crud 
+  Running workflow severity-level.arazzo.yaml / client-registration 
  
-  ✓ POST /special-events - step create-event 
+  ✓ POST /oauth2/register - step create-client 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://api.cafe.redocly.com/oauth2/register
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
-      authorization: Basic Og==
     Request Body:
       {
-        "name": "Mermaid Treasure Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 0
+        "clientName": "respect-e2e-client"
       } 
  
 
-    Response status code: 201
+    Response status code: 400
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
-        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
-        "name": "Mermaid Treasure Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 0
+        "type": "about:blank",
+        "title": "Validation failed",
+        "status": 400,
+        "instance": "/oauth2/register",
+        "details": {
+          "errors": [
+            {
+              "code": "invalid_type",
+              "expected": "string",
+              "received": "undefined",
+              "path": [
+                "name"
+              ],
+              "message": "Required"
+            }
+          ]
+        }
       } 
  
-    ✓ success criteria check - $statusCode == 201
-    ✓ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
-    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ success criteria check - $statusCode == 400
+    ✓ success criteria check - $[?@.title == 'Validation failed']
+    ✓ success criteria check - $[?@.status == 400]
+    ✓ status code check - $statusCode in [201, 400, 401, 500]
     ✓ content-type check
     ✓ schema check
  
-  ✗ PATCH /special-events/{eventId} - step update-event 
+  ✗ GET /menu-item-images/{menuItemId} - step get-menu-item-photo 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://api.cafe.redocly.com/menu-item-images/prd_0000000000seedtrams0000000
     Request Headers:
-      content-type: application/json
-      accept: json, application/problem+json
-      authorization: Basic Og==
-    Request Body:
-      {
-        "name": "Orca Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 0
-      } 
+      accept: text/plain
+      x-error-field: name 
  
 
     Response status code: 200
@@ -146,44 +95,34 @@ exports[`should use warn severity level 1`] = `
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      {
-        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
-        "name": "Orca Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 0
-      } 
+      A classic Italian tiramisu layered with mascarpone and espresso 
  
     ✓ success criteria check - $statusCode == 200
-    ✓ success criteria check - $[?@.name == 'Orca Identification and Analysis']
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ success criteria check - $response.body == 'A classic Italian tiramisu laye...
+    ✓ status code check - $statusCode in [200, 404, 500]
     ⚠ content-type check
  
 
   Failed tests info:
 
-  Workflow name: get-museum-hours
+  Workflow name: get-menu-items
  
-    stepId - get-museum-hours 
+    stepId - get-menu-items 
     ⚠ status code check 
       
       
-  Workflow name: events-crud
+  Workflow name: client-registration
  
-    stepId - update-event 
+    stepId - get-menu-item-photo 
     ⚠ content-type check 
-      Content type application/json for 200 response is not described in the schema.
-      Expected content types: json.
+      Content type text/plain for 200 response is not described in the schema.
+      Expected content types: image/png, text/csv.
        
   Summary for severity-level.arazzo.yaml
   
   Workflows: 2 passed, 2 total
   Steps: 3 passed, 2 warnings, 3 total
-  Checks: 11 passed, 2 warnings, 11 total
+  Checks: 12 passed, 2 warnings, 12 total
   Time: <test>ms 
  
  

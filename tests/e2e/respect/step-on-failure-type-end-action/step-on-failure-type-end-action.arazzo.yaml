@@ -1,27 +1,23 @@
 arazzo: 1.0.1
 info:
-  title: Test `successActions` in workflows
+  title: Test `failureActions` in workflows
   description: Testing functionality of `end` action in `onFailure` action.
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 
 workflows:
-  - workflowId: events-crud
+  - workflowId: client-registration
     description: >-
-      This workflow demonstrates how to list, create, update, and delete special events at the museum.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to list menu items and register an OAuth2 client in the cafe API.
     steps:
-      - stepId: list-events
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
+      - stepId: list-menu-items
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
         outputs:
-          events: $response.body
+          menuItems: $response.body
         successCriteria:
           - condition: $statusCode == 201
         onFailure:
@@ -32,31 +28,23 @@ workflows:
           # This goto action should not be called because previous action is an end action.
           - type: goto
             name: step-onFailure-action-goto
-            stepId: create-event
+            stepId: create-client
           - type: retry
             name: step-onFailure-action-retry
             retryLimit: 1
             retryAfter: 3
-      - stepId: create-event
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+      - stepId: create-client
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
         requestBody:
           payload:
-            name: 'Mermaid Treasure Identification and Analysis'
-            location: 'Under the seaaa 🦀 🎶 🌊.'
-            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
-            dates:
-              - '2023-09-05'
-              - '2023-09-08'
-            price: 0
+            name: respect-e2e-client
+            grantTypes:
+              - client_credentials
         successCriteria:
           - condition: $statusCode == 201
-  - workflowId: get-museum-hours
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+  - workflowId: get-menu-items
     steps:
-      - stepId: get-museum-hours
-        operationId: $sourceDescriptions.museum-api.getMuseumHours
+      - stepId: get-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
