@@ -5,7 +5,7 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Snapshot is intentionally should show failed request to cafe-api-bad-endpoint
+// Snapshot intentionally shows a failed request to cafe-api-bad-endpoint
 test('should use server override from CLI and env', () => {
   process.env.REDOCLY_CLI_RESPECT_SERVER =
     'cafe-api=https://cafe-api-bad-endpoint.com/cafe-api-bad-endpoint,menu-from-cafe-api=https://api.cafe.redocly.com';

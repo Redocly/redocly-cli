@@ -42,7 +42,7 @@ workflows:
         operationId: createOrder
         requestBody:
           contentType: application/x-www-form-urlencoded
-          payload: customerName={$steps.first-step.outputs.menu#/object}&location=Lviv"
+          payload: customerName={$steps.first-step.outputs.menu#/object}&location=Lviv
           replacements:
             - target: /location
               value: 'New York'
