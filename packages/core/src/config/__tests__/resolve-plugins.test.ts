@@ -1,5 +1,6 @@
 import * as path from 'path';
 
+import { defaultPlugin } from '../builtIn.js';
 import { loadConfig } from '../load.js';
 
 describe('resolving a plugin', () => {
@@ -24,5 +25,29 @@ describe('resolving a plugin', () => {
     const plugin = config.plugins[0];
 
     expect(plugin.decorators?.oas3).toHaveProperty('test-plugin/inject-x-stats');
+  });
+
+  it('should return only plugin paths without loading plugin code when skipPluginEval is true', async () => {
+    const config = await loadConfig({
+      configPath: path.join(__dirname, 'fixtures/skip-plugin-eval-config.yaml'),
+      skipPluginEval: true,
+    });
+
+    expect(config.plugins).toEqual([
+      { absolutePath: path.join(__dirname, 'fixtures/throwing-plugin.cjs') },
+      defaultPlugin,
+    ]);
+  });
+
+  it('should return the default project plugin path without loading plugin code when skipPluginEval is true', async () => {
+    const config = await loadConfig({
+      configPath: path.join(__dirname, 'fixtures/default-plugin/redocly.yaml'),
+      skipPluginEval: true,
+    });
+
+    expect(config.plugins).toEqual([
+      { absolutePath: path.join(__dirname, 'fixtures/default-plugin/@theme/plugin.js') },
+      defaultPlugin,
+    ]);
   });
 });
