@@ -13,6 +13,7 @@ The `coverage` command supports OpenAPI 3.x descriptions only.
 The `coverage` command reports:
 
 - documented operations no request reached
+- documented parameters no request sent, and the `enum` values none of them carried
 - documented properties no request or response carried
 - `oneOf` and `anyOf` branches nothing ever matched
 - component schemas nothing reached at all
@@ -121,6 +122,17 @@ The JSON format carries the same figures for a dashboard or a trend check:
 ```bash
 redocly coverage ./traffic.har --api ./openapi.yaml --format json -o ./coverage.json
 ```
+
+## Parameters
+
+Query, path, header, and cookie parameters are covered the same way bodies are.
+A parameter counts once a request carried it, and an `enum` value counts once a request carried that value.
+
+This is where a description and its traffic drift apart quietly.
+A parameter the client never sends is one nobody has checked the server still honors, and an `enum` value nothing carried is a branch of the API that has never run.
+Neither shows up as a failure, because nothing went wrong: the request that would have exercised it was never made.
+
+A parameter is matched case-insensitively, since a header arrives in whatever case the client chose.
 
 ## Union branches
 

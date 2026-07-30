@@ -107,6 +107,16 @@
     "Badge",
     "Health",
     "Square"
-  ]
+  ],
+  "parameters": {
+    "seen": 2,
+    "total": 3,
+    "unused": [
+      "GET /users/{userId}  query.neverSentParam"
+    ],
+    "unusedValues": [
+      "GET /users/{userId}  query.include=shape"
+    ]
+  }
 }
 

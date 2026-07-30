@@ -4,6 +4,7 @@ import { renderCoverage } from '../../../commands/coverage/reporter.js';
 const REPORT: CoverageReport = {
   exchanges: { total: 3, withBody: 2 },
   operations: { seen: 1, total: 2, unused: ['GET /health  getHealth'] },
+  parameters: { seen: 0, total: 0, unused: [], unusedValues: [] },
   seenProperties: 3,
   seenPropertiesAccepted: 3,
   totalProperties: 6,
@@ -29,11 +30,12 @@ const REPORT: CoverageReport = {
 };
 
 describe('renderCoverage', () => {
-  it('leads with both headline figures', () => {
+  it('leads with the headline figures', () => {
     const output = renderCoverage(REPORT, { format: 'stylish', all: false });
 
-    expect(output.split('\n').slice(0, 2)).toEqual([
+    expect(output.split('\n').slice(0, 3)).toEqual([
       '1/2 operations exercised (50%)',
+      '0/0 documented parameters sent (0%)',
       '3/6 documented properties observed (50%) over 2 of 3 exchange(s)',
     ]);
   });
@@ -44,12 +46,12 @@ describe('renderCoverage', () => {
       { format: 'stylish', all: false }
     );
 
-    expect(output).toContain('1 of those came from a response the API accepted');
+    expect(output).toContain('1/6 observed on an exchange the API accepted');
   });
 
   it('stays quiet about the split when every exchange was accepted', () => {
     expect(renderCoverage(REPORT, { format: 'stylish', all: false })).not.toContain(
-      'came from a response the API accepted'
+      'observed on an exchange the API accepted'
     );
   });
 
@@ -81,6 +83,7 @@ describe('renderCoverage', () => {
     const unions: CoverageReport = {
       exchanges: { total: 1, withBody: 1 },
       operations: { seen: 1, total: 1, unused: [] },
+      parameters: { seen: 0, total: 0, unused: [], unusedValues: [] },
       seenProperties: 0,
       seenPropertiesAccepted: 0,
       totalProperties: 0,
@@ -112,6 +115,7 @@ describe('renderCoverage', () => {
     const empty: CoverageReport = {
       exchanges: { total: 0, withBody: 0 },
       operations: { seen: 0, total: 0, unused: [] },
+      parameters: { seen: 0, total: 0, unused: [], unusedValues: [] },
       seenProperties: 0,
       seenPropertiesAccepted: 0,
       totalProperties: 0,

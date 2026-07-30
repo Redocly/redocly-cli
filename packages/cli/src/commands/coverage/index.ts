@@ -17,6 +17,12 @@ import type { MatchMode, TrafficFormat } from '../drift/types/index.js';
 import { listFilesRecursively, normalizeFsPath } from '../drift/utils/files.js';
 import { pickSchemaByMime } from '../drift/utils/http.js';
 import { summarize } from './engine/analyse.js';
+import {
+  collectParameters,
+  createParameterUse,
+  recordParameters,
+  summarizeParameters,
+} from './engine/parameters.js';
 import { resolve, type Schema } from './engine/schema.js';
 import { createCoverage, walkRoot } from './engine/walk.js';
 import { renderCoverage, type CoverageFormat } from './reporter.js';
@@ -150,6 +156,8 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
 
   const coverage = createCoverage();
   const acceptedCoverage = createCoverage();
+  const declaredParameters = collectParameters(spec);
+  const parameterUse = createParameterUse();
   const exercisedOperations = new Set<string>();
   let exchangeIndex = 0;
   let walked = 0;
@@ -170,6 +178,11 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
 
       const key = operationKey(matched.operation.method, matched.operation.pathTemplate);
       exercisedOperations.add(key);
+      recordParameters(parameterUse, key, {
+        query: exchange.request.query,
+        pathParams: matched.pathParams,
+        headers: exchange.request.headers,
+      });
 
       const entry = schemasByOperation.get(key);
       if (!entry) continue;
@@ -204,15 +217,18 @@ export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>
     return exitWithError('No HTTP exchanges were parsed from the provided traffic files.');
   }
 
-  const report = summarize(
-    spec,
-    coverage,
-    { total: exchangeIndex, withBody: walked },
-    argv.schema,
-    exercisedOperations,
-    summarize(spec, acceptedCoverage, { total: exchangeIndex, withBody: walked }, argv.schema)
-      .seenProperties
-  );
+  const report = {
+    ...summarize(
+      spec,
+      coverage,
+      { total: exchangeIndex, withBody: walked },
+      argv.schema,
+      exercisedOperations,
+      summarize(spec, acceptedCoverage, { total: exchangeIndex, withBody: walked }, argv.schema)
+        .seenProperties
+    ),
+    parameters: summarizeParameters(declaredParameters, parameterUse),
+  };
   const rendered = renderCoverage(report, { format: argv.format, all: Boolean(argv.all) });
 
   if (argv.output) {

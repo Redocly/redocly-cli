@@ -14,6 +14,17 @@ paths:
           required: true
           schema:
             type: string
+        - name: include
+          in: query
+          schema:
+            type: string
+            enum:
+              - badge
+              - shape
+        - name: neverSentParam
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: A user.

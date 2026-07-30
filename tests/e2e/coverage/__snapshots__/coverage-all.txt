@@ -1,6 +1,7 @@
 2/3 operations exercised (67%)
+2/3 documented parameters sent (67%)
 7/11 documented properties observed (64%) over 3 of 3 exchange(s)
-6 of those came from a response the API accepted (55%)
+6/11 observed on an exchange the API accepted (55%)
 
   Badge  0/1
     name
@@ -19,6 +20,12 @@
 
 Operations nothing reached — 1
     GET /health  getHealth
+
+Parameters nothing sent — 1
+    GET /users/{userId}  query.neverSentParam
+
+Parameter values nothing used — 1
+    GET /users/{userId}  query.include=shape
 
 Schemas nothing reached — 3
     Badge

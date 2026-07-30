@@ -1,6 +1,7 @@
 2/3 operations exercised (67%)
+2/3 documented parameters sent (67%)
 7/11 documented properties observed (64%) over 3 of 3 exchange(s)
-6 of those came from a response the API accepted (55%)
+6/11 observed on an exchange the API accepted (55%)
 
 ✓ Circle  1/1
 ✓ Identified  1/1
@@ -12,6 +13,12 @@
     badge  oneOf branch 1 never matched
 
 Operations nothing reached — 1
+    pass --all to list them
+
+Parameters nothing sent — 1
+    pass --all to list them
+
+Parameter values nothing used — 1
     pass --all to list them
 
 Schemas nothing reached — 3

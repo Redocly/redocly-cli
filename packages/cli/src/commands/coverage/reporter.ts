@@ -12,12 +12,16 @@ function percentage(seen: number, total: number): number {
 }
 
 function stylish(report: CoverageReport, all: boolean): string {
-  const { operations } = report;
+  const { operations, parameters } = report;
 
   const lines = [
     `${operations.seen}/${operations.total} operations exercised (${percentage(
       operations.seen,
       operations.total
+    )}%)`,
+    `${parameters.seen}/${parameters.total} documented parameters sent (${percentage(
+      parameters.seen,
+      parameters.total
     )}%)`,
     `${report.seenProperties}/${report.totalProperties} documented properties observed (${percentage(
       report.seenProperties,
@@ -27,7 +31,9 @@ function stylish(report: CoverageReport, all: boolean): string {
 
   if (report.seenPropertiesAccepted < report.seenProperties) {
     lines.push(
-      `${report.seenPropertiesAccepted} of those came from a response the API accepted (${percentage(
+      `${report.seenPropertiesAccepted}/${
+        report.totalProperties
+      } observed on an exchange the API accepted (${percentage(
         report.seenPropertiesAccepted,
         report.totalProperties
       )}%)`
@@ -50,6 +56,8 @@ function stylish(report: CoverageReport, all: boolean): string {
 
   for (const [title, entries] of [
     ['Operations nothing reached', report.operations.unused],
+    ['Parameters nothing sent', parameters.unused],
+    ['Parameter values nothing used', parameters.unusedValues],
     ['Schemas nothing reached', report.unusedSchemas],
   ] as const) {
     if (entries.length === 0) continue;
