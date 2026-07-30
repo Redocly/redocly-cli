@@ -49,9 +49,10 @@ export function collectConfigPlugins(
 export function bundleConfig(
   document: Document,
   resolvedRefMap: ResolvedRefMap,
-  plugins: Plugin[]
+  plugins: Plugin[],
+  skipPluginEval = false
 ): ResolvedConfig {
-  const visitorsData: ConfigBundlerVisitorData = { plugins };
+  const visitorsData: ConfigBundlerVisitorData = { plugins, skipPluginEval };
   const ctx: BundleContext = {
     problems: [],
     specVersion: 'config',
