@@ -1,0 +1,45 @@
+arazzo: 1.0.1
+info:
+  title: Test resolved path parameter rendering in verbose output
+  description: >-
+    Chains a step output into a path parameter and renders the resolved request URL
+    in verbose output.
+    The id is taken from the request query so every printed response body stays deterministic.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ../cafe-api.yaml
+
+workflows:
+  - workflowId: photo-by-menu-item-id
+    description: >-
+      This workflow demonstrates how a step output resolves inside a path parameter.
+    steps:
+      - stepId: search-menu-by-id
+        description: >-
+          Search the menu by a menu item id and capture the id from the request query.
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: prd_0000000000seedtrams0000000
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          menuItemId: $request.query.search
+      - stepId: get-menu-item-photo
+        description: >-
+          Retrieve the photo text description using the menu item id from the previous step.
+        operationId: cafe-api.getMenuItemPhoto
+        parameters:
+          - in: path
+            name: menuItemId
+            value: $steps.search-menu-by-id.outputs.menuItemId
+          - in: header
+            name: Accept
+            value: text/plain
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body == 'A classic Italian tiramisu layered with mascarpone and espresso'
