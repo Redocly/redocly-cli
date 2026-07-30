@@ -112,6 +112,60 @@ describe('coverage', () => {
   });
 });
 
+describe('coverage of a schema that only holds a union', () => {
+  const UNIONS: Schema = {
+    components: {
+      schemas: {
+        Shape: {
+          oneOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Square' }],
+        },
+        Circle: { type: 'object', required: ['radius'], properties: { radius: { type: 'number' } } },
+        Square: { type: 'object', required: ['side'], properties: { side: { type: 'number' } } },
+        Holder: { type: 'object', properties: { shape: { $ref: '#/components/schemas/Shape' } } },
+      },
+    },
+  };
+
+  function circle() {
+    const coverage = createCoverage();
+    walkRoot(UNIONS, coverage, { $ref: '#/components/schemas/Holder' }, { shape: { radius: 1 } });
+
+    return summarize(UNIONS, coverage, { total: 1, withBody: 1 });
+  }
+
+  it('does not call a union schema unreached when a value went through it', () => {
+    expect(circle().unusedSchemas).toEqual(['Square']);
+  });
+
+  it('reports the branch that never matched', () => {
+    expect(circle().schemas.find(({ name }) => name === 'Shape')?.unusedVariants).toEqual([
+      { path: '', keyword: 'oneOf', branches: [1] },
+    ]);
+  });
+});
+
+describe('additionalProperties', () => {
+  const MAP: Schema = {
+    components: {
+      schemas: {
+        Bag: {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          additionalProperties: { $ref: '#/components/schemas/Extra' },
+        },
+        Extra: { type: 'object', properties: { note: { type: 'string' } } },
+      },
+    },
+  };
+
+  it('does not walk a declared property against the additionalProperties schema', () => {
+    const coverage = createCoverage();
+    walkRoot(MAP, coverage, { $ref: '#/components/schemas/Bag' }, { name: 'x' });
+
+    expect(summarize(MAP, coverage, { total: 1, withBody: 1 }).unusedSchemas).toEqual(['Extra']);
+  });
+});
+
 describe('coverage of a schema composed with allOf', () => {
   const INHERITING: Schema = {
     components: {
@@ -138,14 +192,15 @@ describe('coverage of a schema composed with allOf', () => {
     const result = inherited({ id: 'a', extra: 'b' });
 
     expect(result.schemas).toEqual([
-      { name: 'Base', seen: 1, count: 1, unusedProperties: [], unusedVariants: [] },
-      { name: 'Child', seen: 1, count: 1, unusedProperties: [], unusedVariants: [] },
+      { name: 'Base', reached: true, seen: 1, count: 1, unusedProperties: [], unusedVariants: [] },
+      { name: 'Child', reached: true, seen: 1, count: 1, unusedProperties: [], unusedVariants: [] },
     ]);
   });
 
   it('does not report an inherited property as unused on the inheriting schema', () => {
     expect(inherited({ id: 'a' }).schemas.find(({ name }) => name === 'Child')).toEqual({
       name: 'Child',
+      reached: true,
       seen: 0,
       count: 1,
       unusedProperties: ['extra'],

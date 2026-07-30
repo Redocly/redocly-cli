@@ -46,6 +46,22 @@ describe('resolve', () => {
     expect(resolve(SPEC, { $ref: '#/components/schemas/Absent' }).schema).toBeUndefined();
   });
 
+  it('follows a chain of aliases to the schema that actually declares something', () => {
+    const spec: Schema = {
+      components: {
+        schemas: {
+          Alias: { $ref: '#/components/schemas/Real' },
+          Real: { type: 'object', properties: { id: { type: 'string' } } },
+        },
+      },
+    };
+
+    expect(resolve(spec, { $ref: '#/components/schemas/Alias' })).toEqual({
+      schema: spec.components.schemas.Real,
+      name: 'Real',
+    });
+  });
+
   it('decodes the ~1 and ~0 escapes in a pointer segment', () => {
     const spec: Schema = { paths: { '/a~b': { get: { type: 'string' } } } };
 

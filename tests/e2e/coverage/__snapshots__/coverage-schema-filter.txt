@@ -1,7 +1,7 @@
 2/3 operations exercised (67%)
-2/3 documented properties observed (67%) over 2 of 2 exchange(s)
+3/4 documented properties observed (75%) over 2 of 2 exchange(s)
 
-  User  2/3
+  User  3/4
     neverSent
     badge  oneOf branch 1 never matched
 

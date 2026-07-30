@@ -65,6 +65,26 @@ components:
               oneOf:
                 - type: string
                 - $ref: '#/components/schemas/Badge'
+            shape:
+              $ref: '#/components/schemas/Shape'
+    Shape:
+      oneOf:
+        - $ref: '#/components/schemas/Circle'
+        - $ref: '#/components/schemas/Square'
+    Circle:
+      type: object
+      required:
+        - radius
+      properties:
+        radius:
+          type: number
+    Square:
+      type: object
+      required:
+        - side
+      properties:
+        side:
+          type: number
     Badge:
       type: object
       properties:

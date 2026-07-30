@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, isRef } from '@redocly/openapi-core';
 
 import { isHttpMethod } from '../../drift/openapi/loader.js';
 import { declared, type Schema } from './schema.js';
@@ -13,6 +13,8 @@ export interface UnusedVariant {
 
 export interface SchemaCoverage {
   name: string;
+  /** Whether a value reached this schema, regardless of what it carried. */
+  reached: boolean;
   seen: number;
   count: number;
   unusedProperties: string[];
@@ -80,6 +82,8 @@ export function summarize(
 
   for (const [name, schema] of Object.entries(components)) {
     if (schemaFilter && name !== schemaFilter) continue;
+    // An alias declares nothing of its own; the schema it points at reports it.
+    if (isRef(schema)) continue;
 
     const names = declared(spec, schema).map(([property]) => property);
     const sites = collectSites(schema, name);
@@ -101,11 +105,12 @@ export function summarize(
       .sort((a, b) => a.path.localeCompare(b.path));
 
     const seen = names.length - unusedProperties.length;
-    if (seen === 0 && !coverage.properties.has(name)) unusedSchemas.push(name);
+    const reached = coverage.visited.has(name);
+    if (!reached) unusedSchemas.push(name);
 
     totalProperties += names.length;
     seenProperties += seen;
-    schemas.push({ name, seen, count: names.length, unusedProperties, unusedVariants });
+    schemas.push({ name, reached, seen, count: names.length, unusedProperties, unusedVariants });
   }
 
   return {

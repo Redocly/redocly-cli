@@ -89,7 +89,16 @@ function bodySchema(
 function responseHolder(responses: Schema, status: number | undefined): Schema | undefined {
   if (status === undefined) return responses.default;
 
-  return responses[String(status)] ?? responses[`${Math.floor(status / 100)}XX`] ?? responses.default;
+  const statusClass = `${Math.floor(status / 100)}XX`;
+
+  // `drift` accepts the lowercase form too, and the two have to agree on which
+  // schema describes a response.
+  return (
+    responses[String(status)] ??
+    responses[statusClass] ??
+    responses[statusClass.toLowerCase()] ??
+    responses.default
+  );
 }
 
 export async function handleCoverage({ argv, config }: CommandArgs<CoverageArgv>): Promise<void> {

@@ -9,12 +9,20 @@ const REPORT: CoverageReport = {
   schemas: [
     {
       name: 'User',
+      reached: true,
       seen: 3,
       count: 4,
       unusedProperties: ['neverSent'],
       unusedVariants: [{ path: 'badge', keyword: 'oneOf', branches: [1] }],
     },
-    { name: 'Badge', seen: 0, count: 1, unusedProperties: ['name'], unusedVariants: [] },
+    {
+      name: 'Badge',
+      reached: false,
+      seen: 0,
+      count: 1,
+      unusedProperties: ['name'],
+      unusedVariants: [],
+    },
   ],
   unusedSchemas: ['Badge'],
 };
@@ -51,6 +59,30 @@ describe('renderCoverage', () => {
     const output = renderCoverage(REPORT, { format: 'stylish', all: true });
 
     expect(output).toContain('badge  oneOf branch 1 never matched');
+  });
+
+  it('shows a reached schema whose only finding is an unmatched branch', () => {
+    const unions: CoverageReport = {
+      exchanges: { total: 1, withBody: 1 },
+      operations: { seen: 1, total: 1, unused: [] },
+      seenProperties: 0,
+      totalProperties: 0,
+      schemas: [
+        {
+          name: 'Shape',
+          reached: true,
+          seen: 0,
+          count: 0,
+          unusedProperties: [],
+          unusedVariants: [{ path: '', keyword: 'oneOf', branches: [1] }],
+        },
+      ],
+      unusedSchemas: [],
+    };
+
+    expect(renderCoverage(unions, { format: 'stylish', all: false })).toContain(
+      '(root)  oneOf branch 1 never matched'
+    );
   });
 
   it('renders valid JSON carrying the same figures', () => {

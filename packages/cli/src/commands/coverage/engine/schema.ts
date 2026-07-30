@@ -25,13 +25,25 @@ export function resolve(
   if (!schema) return {};
   if (!isRef(schema)) return { schema };
 
-  const pointer = schema.$ref.replace(/^#\//, '').split('/').map(unescapePointerFragment);
-  let node: Schema | undefined = spec;
-  for (const segment of pointer) {
-    node = node?.[segment];
+  // A component can be a bare alias for another one, so follow the chain to the
+  // schema that actually declares something.
+  let node: Schema | undefined = schema;
+  let name: string | undefined;
+  for (let depth = 0; isRef(node) && depth <= MAX_DEPTH; depth += 1) {
+    const pointer: string[] = node.$ref
+      .replace(/^#\//, '')
+      .split('/')
+      .map(unescapePointerFragment);
+    let target: Schema | undefined = spec;
+    for (const segment of pointer) {
+      target = target?.[segment];
+    }
+
+    node = target;
+    name = pointer.at(-1);
   }
 
-  return { schema: node, name: pointer.at(-1) };
+  return { schema: node, name };
 }
 
 /**

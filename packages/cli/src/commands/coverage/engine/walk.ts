@@ -8,10 +8,16 @@ export interface Coverage {
   properties: Map<string, Set<string>>;
   /** Union site key → branch indices a value matched. */
   variants: Map<string, Set<number>>;
+  /**
+   * Named schemas a value reached. Tracked apart from `properties` because a
+   * schema can be reached without carrying one: a union holds only branches,
+   * and an object can inherit every property it has.
+   */
+  visited: Set<string>;
 }
 
 export function createCoverage(): Coverage {
-  return { properties: new Map(), variants: new Map() };
+  return { properties: new Map(), variants: new Map(), visited: new Set() };
 }
 
 interface WalkContext {
@@ -32,6 +38,8 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
   const next: WalkContext = name
     ? { ...context, owner: name, prefix: '', depth: context.depth + 1 }
     : { ...context, depth: context.depth + 1 };
+
+  if (name) next.coverage.visited.add(name);
 
   for (const keyword of VARIANT_KEYWORDS) {
     const branches: Schema[] | undefined = target[keyword];
@@ -69,8 +77,15 @@ export function walk(schema: Schema | undefined, value: unknown, context: WalkCo
     walk(sub, (value as Record<string, unknown>)[property], { ...next, prefix: path });
   }
 
+  // `additionalProperties` describes only the keys `properties` does not.
   if (isPlainObject(target.additionalProperties)) {
-    for (const item of Object.values(value)) walk(target.additionalProperties, item, next);
+    const declaredKeys = new Set(Object.keys(target.properties ?? {}));
+
+    for (const [key, item] of Object.entries(value)) {
+      if (declaredKeys.has(key)) continue;
+
+      walk(target.additionalProperties, item, next);
+    }
   }
 }
 

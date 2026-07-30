@@ -10,11 +10,12 @@
       "GET /health  getHealth"
     ]
   },
-  "seenProperties": 4,
-  "totalProperties": 8,
+  "seenProperties": 6,
+  "totalProperties": 11,
   "schemas": [
     {
       "name": "Badge",
+      "reached": false,
       "seen": 0,
       "count": 1,
       "unusedProperties": [
@@ -23,7 +24,16 @@
       "unusedVariants": []
     },
     {
+      "name": "Circle",
+      "reached": true,
+      "seen": 1,
+      "count": 1,
+      "unusedProperties": [],
+      "unusedVariants": []
+    },
+    {
       "name": "Health",
+      "reached": false,
       "seen": 0,
       "count": 1,
       "unusedProperties": [
@@ -33,13 +43,41 @@
     },
     {
       "name": "Identified",
+      "reached": true,
       "seen": 1,
       "count": 1,
       "unusedProperties": [],
       "unusedVariants": []
     },
     {
+      "name": "Shape",
+      "reached": true,
+      "seen": 0,
+      "count": 0,
+      "unusedProperties": [],
+      "unusedVariants": [
+        {
+          "path": "",
+          "keyword": "oneOf",
+          "branches": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Square",
+      "reached": false,
+      "seen": 0,
+      "count": 1,
+      "unusedProperties": [
+        "side"
+      ],
+      "unusedVariants": []
+    },
+    {
       "name": "UpdateUserRequest",
+      "reached": true,
       "seen": 1,
       "count": 2,
       "unusedProperties": [
@@ -49,8 +87,9 @@
     },
     {
       "name": "User",
-      "seen": 2,
-      "count": 3,
+      "reached": true,
+      "seen": 3,
+      "count": 4,
       "unusedProperties": [
         "neverSent"
       ],
@@ -67,7 +106,8 @@
   ],
   "unusedSchemas": [
     "Badge",
-    "Health"
+    "Health",
+    "Square"
   ]
 }
 

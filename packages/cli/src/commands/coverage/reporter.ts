@@ -26,8 +26,8 @@ function stylish(report: CoverageReport, all: boolean): string {
     '',
   ];
 
-  for (const { name, seen, count, unusedProperties, unusedVariants } of report.schemas) {
-    if (seen === 0 && !all) continue;
+  for (const { name, reached, seen, count, unusedProperties, unusedVariants } of report.schemas) {
+    if (!reached && !all) continue;
 
     const clean = unusedProperties.length === 0 && unusedVariants.length === 0;
     lines.push(`${clean ? '✓' : ' '} ${name}  ${seen}/${count}`);
