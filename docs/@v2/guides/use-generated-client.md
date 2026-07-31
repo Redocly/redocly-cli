@@ -419,7 +419,7 @@ useQuery(internal.getOrderOptions({ orderId }));
 When several generated APIs share one `QueryClient`, their operationIds can collide (two APIs with a `check` operation would mix caches).
 Set `queryKeyPrefix` in the `client` block to namespace every key: `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
 
-## Formatting and linting the generated files
+## Format and lint the generated files
 
 The generator prints one canonical style — the TypeScript compiler's printer (four-space indent, double quotes).
 If your project's formatter enforces a different style, its check fails on freshly generated files.
