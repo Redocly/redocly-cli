@@ -3,19 +3,21 @@ info:
   title: Allow reserved query params
   version: 1.0.0
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 workflows:
   - workflowId: allow-reserved
     steps:
       - stepId: get-with-allow-reserved
-        operationId: museum-api.getMuseumHours
+        operationId: cafe-api.listMenuItems
         parameters:
           - in: query
-            name: startDate
+            name: search
             value: 2023-02-23
           - in: query
             name: filter
             value: 'https://example.com/path/to;x,y(z)a*b.c[1]@v'
             x-allowReserved: true
+        successCriteria:
+          - condition: $statusCode == 400

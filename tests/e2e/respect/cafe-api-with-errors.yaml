@@ -1,11 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Redocly Cafe
+  title: Redocly Cafe with errors
   description: >
-    Demo API for cafe operators (not customers) to manage menus, orders, and
-    revenue.
-
-    Create API credentials and try it yourself in a realistic OpenAPI workflow.
+    Copy of the Redocly Cafe API description with deliberately wrong response
+    definitions (status codes and content types) used to trigger failing checks
+    in severity-level tests.
   version: 1.0.0
   contact:
     email: team@redocly.com
@@ -99,10 +98,12 @@ paths:
           example: Latte
         - $ref: '#/components/parameters/Limit'
       responses:
-        '200':
+        # Deliberate error: the live API returns 200 with application/json,
+        # but this file documents 201 with html/text, so the status code check fails.
+        '201':
           description: Successful operation.
           content:
-            application/json:
+            html/text:
               schema:
                 $ref: '#/components/schemas/MenuItemList'
         '400':
@@ -216,7 +217,9 @@ paths:
               schema:
                 type: string
                 format: binary
-            text/plain:
+            # Deliberate error: the live API returns text/plain,
+            # but this file documents text/csv, so the content-type check fails.
+            text/csv:
               schema:
                 description: Alternative image text.
                 type: string

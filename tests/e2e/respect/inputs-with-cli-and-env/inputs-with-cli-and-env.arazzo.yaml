@@ -6,15 +6,15 @@ info:
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
-  - name: tickets-from-museum-api
+    url: ../cafe-api.yaml
+  - name: menu-from-cafe-api
     type: arazzo
-    url: ../museum-tickets.yaml
+    url: ../cafe-menu.arazzo.yaml
 
 workflows:
-  - workflowId: get-museum-hours
+  - workflowId: get-menu-items
     inputs:
       type: object
       properties:
@@ -27,33 +27,40 @@ workflows:
               type: string
               default: acme-inc
     description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
+      This workflow demonstrates how to list the cafe menu items and search the menu.
     parameters:
       - in: header
         name: Authorization
         value: $inputs.env.AUTH_TOKEN
     steps:
-      - stepId: get-museum-hours
+      - stepId: get-menu-items
         description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
-        operationId: museum-api.getMuseumHours
+          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
         successCriteria:
           - condition: $statusCode == 200
         outputs:
-          schedule: $response.body
-      - stepId: buy-ticket
+          menu: $response.body
+      - stepId: search-menu
         description: >-
-          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-        workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
+          Search the cafe menu by calling an external workflow from another Arazzo file.
+        workflowId: $sourceDescriptions.menu-from-cafe-api.search-menu-items
         outputs:
-          ticketId: $outputs.ticketId
+          total: $outputs.total
       - stepId: test-default-input
-        operationId: museum-api.getMuseumHours
+        operationId: cafe-api.listMenuItems
         parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
           - in: query
             name: organizationId
             value: $inputs.env.organizationId
-  - workflowId: events-crud
+  - workflowId: client-registration
     inputs:
       type: object
       properties:
@@ -67,34 +74,27 @@ workflows:
         password:
           type: string
     description: >-
-      This workflow demonstrates how to list, create, update, and delete special events at the museum.
+      This workflow demonstrates how to pass inputs into an OAuth2 client registration request.
     parameters:
       - in: header
         name: Authorization
         value: Basic Og==
     steps:
-      - stepId: create-event
+      - stepId: create-client
         parameters:
           - in: header
             name: username-token
             value: $inputs.env.AUTH_TOKEN
         description: >-
-          Create a new special event.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+          Try to register a new OAuth2 client without the required `name` field.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
         requestBody:
           payload:
             additionalName: $inputs.username
             additionalPassword: $inputs.password
             additionalEnv: $inputs.env.AUTH_TOKEN
-            name: 'Mermaid Treasure Identification and Analysis'
-            location: 'Under the seaaa 🦀 🎶 🌊.'
-            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
-            dates:
-              - '2023-09-05'
-              - '2023-09-08'
-            price: 0
         successCriteria:
-          - condition: $statusCode == 201
+          - condition: $statusCode == 400
           - context: $response.body
-            condition: "$[?@.name == 'Mermaid Treasure Identification and Analysis']"
+            condition: "$[?@.title == 'Validation failed']"
             type: jsonpath

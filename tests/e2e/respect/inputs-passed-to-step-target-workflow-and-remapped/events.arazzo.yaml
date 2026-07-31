@@ -6,14 +6,14 @@ info:
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: ../cafe-api.yaml
 
 workflows:
-  - workflowId: events-crud
+  - workflowId: client-registration
     description: >-
-      This workflow demonstrates how to list, create, update, and delete special events at the museum.
+      This workflow demonstrates how to pass inputs into an OAuth2 client registration request.
     parameters:
       - in: header
         name: Authorization
@@ -40,24 +40,18 @@ workflows:
               type: string
               format: password
     steps:
-      - stepId: create-event
+      - stepId: create-client
         description: >-
-          Create a new special event.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+          Try to register a new OAuth2 client without the required `name` field.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
         requestBody:
           payload:
             PROJECT_CLIENT_ID: $inputs.PROJECT_CLIENT_ID
             PROJECT_CLIENT_SECRET: $inputs.PROJECT_CLIENT_SECRET
             PROJECT_SUBSCRIPTION_KEY: $inputs.PROJECT_SUBSCRIPTION_KEY
-            name: 'Mermaid Treasure Identification and Analysis'
-            location: 'Under the seaaa 🦀 🎶 🌊.'
-            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
-            dates:
-              - '2023-09-05'
-              - '2023-09-08'
             price: $inputs.custom_price
         successCriteria:
-          - condition: $statusCode == 201
+          - condition: $statusCode == 400
           - context: $response.body
-            condition: "$[?@.name == 'Mermaid Treasure Identification and Analysis']"
+            condition: "$[?@.title == 'Validation failed']"
             type: jsonpath

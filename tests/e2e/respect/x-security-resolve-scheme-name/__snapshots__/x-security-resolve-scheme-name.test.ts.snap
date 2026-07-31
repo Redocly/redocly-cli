@@ -3,14 +3,14 @@
 exports[`should resolve securitySchemes described in x-security by schemeName 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow x-security-resolve-scheme-name.arazzo.yaml / events-crud 
+  Running workflow x-security-resolve-scheme-name.arazzo.yaml / menu-items 
  
-  ✓ GET /museum-hours - step apply-basic-auth-scheme-when-step-has-operationId 
+  ✓ GET /menu - step apply-oauth2-scheme-when-step-has-operationId 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic ******** 
+      authorization: Bearer ******** 
  
 
     Response status code: 200
@@ -18,69 +18,29 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
+      {
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
         },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ] 
+        "items": []
+      } 
  
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
  
-  ✓ GET /museum-hours - step apply-basic-auth-scheme-when-step-has-operationPath 
+  ✓ GET /menu - step apply-api-key-scheme-when-step-has-operationPath 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic ******** 
+      x-api-key: ******** 
  
 
     Response status code: 200
@@ -88,60 +48,20 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
+      {
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
         },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ] 
+        "items": []
+      } 
  
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
  

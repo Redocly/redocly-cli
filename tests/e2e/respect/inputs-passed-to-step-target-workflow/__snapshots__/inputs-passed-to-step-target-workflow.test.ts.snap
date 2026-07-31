@@ -6,11 +6,11 @@ exports[`should pass inputs to step target workflow with additional input parame
   Running workflow inputs-passed-to-step-target-workflow.arazzo.yaml / inputs-passed-to-step-target-workflow 
  
   Running child workflow for the step health-workflow 
-  Running workflow events.arazzo.yaml / events-crud 
+  Running workflow events.arazzo.yaml / client-registration 
  
-  ✓ POST /special-events - step create-event 
+  ✓ POST /oauth2/register - step create-client 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://api.cafe.redocly.com/oauth2/register
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -21,37 +21,38 @@ exports[`should pass inputs to step target workflow with additional input parame
         "PROJECT_CLIENT_ID": "0000001",
         "PROJECT_CLIENT_SECRET": "PROJECT_CLIENT_SECRET",
         "PROJECT_SUBSCRIPTION_KEY": "PROJECT_SUBSCRIPTION_KEY",
-        "name": "Mermaid Treasure Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
         "price": 800
       } 
  
 
-    Response status code: 201
+    Response status code: 400
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
-        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
-        "name": "Mermaid Treasure Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 800
+        "type": "about:blank",
+        "title": "Validation failed",
+        "status": 400,
+        "instance": "/oauth2/register",
+        "details": {
+          "errors": [
+            {
+              "code": "invalid_type",
+              "expected": "string",
+              "received": "undefined",
+              "path": [
+                "name"
+              ],
+              "message": "Required"
+            }
+          ]
+        }
       } 
  
-    ✓ success criteria check - $statusCode == 201
-    ✓ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
-    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ success criteria check - $statusCode == 400
+    ✓ success criteria check - $[?@.title == 'Validation failed']
+    ✓ status code check - $statusCode in [201, 400, 401, 500]
     ✓ content-type check
     ✓ schema check
  
