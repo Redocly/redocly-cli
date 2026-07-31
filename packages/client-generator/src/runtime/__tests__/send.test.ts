@@ -29,7 +29,7 @@ describe('send', () => {
         },
       ],
     };
-    await send(config, op, 'https://x/pets', { method: 'POST' }, { name: 'Rex' }, false, {});
+    await send(config, op, 'https://x/pets', { method: 'POST' }, { name: 'Rex' }, undefined, {});
     expect(JSON.parse(calls[0].init.body as string)).toEqual({ name: 'Mutated' });
     expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
       'application/json'
@@ -39,17 +39,36 @@ describe('send', () => {
   it('passes string/FormData/URLSearchParams/binary bodies through untouched', async () => {
     const { calls, fetchImpl } = fetchSpy([ok(), ok(), ok(), ok()]);
     const config: ClientConfig = { fetch: fetchImpl };
-    await send(config, op, 'u', { method: 'POST' }, 'raw-string', false, {});
+    await send(config, op, 'u', { method: 'POST' }, 'raw-string', undefined, {});
     expect(calls[0].init.body).toBe('raw-string');
     const fd = new FormData();
-    await send(config, op, 'u', { method: 'POST' }, fd, false, {});
+    await send(config, op, 'u', { method: 'POST' }, fd, undefined, {});
     expect(calls[1].init.body).toBe(fd);
     const usp = new URLSearchParams('a=1');
-    await send(config, op, 'u', { method: 'POST' }, usp, false, {});
+    await send(config, op, 'u', { method: 'POST' }, usp, undefined, {});
     expect(calls[2].init.body).toBe(usp);
     const bytes = new Uint8Array([1, 2]);
-    await send(config, op, 'u', { method: 'POST' }, bytes, false, {});
+    await send(config, op, 'u', { method: 'POST' }, bytes, undefined, {});
     expect(calls[3].init.body).toBe(bytes);
+  });
+
+  it("defaults Content-Type to the operation's declared body content type", async () => {
+    // The descriptor carries the spec's request content type (e.g. merge-patch) —
+    // hardcoding application/json makes strict servers reject the PATCH.
+    const { calls, fetchImpl } = fetchSpy([ok()]);
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'PATCH' },
+      { name: 'x' },
+      { contentType: 'application/merge-patch+json' },
+      {}
+    );
+    expect(JSON.parse(calls[0].init.body as string)).toEqual({ name: 'x' });
+    expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
+      'application/merge-patch+json'
+    );
   });
 
   it('keeps an explicit Content-Type instead of forcing application/json', async () => {
@@ -60,7 +79,7 @@ describe('send', () => {
       'u',
       { method: 'POST', headers: { 'content-type': 'application/vnd.custom+json' } },
       { a: 1 },
-      false,
+      undefined,
       {}
     );
     const headers = calls[0].init.headers as Record<string, string>;
@@ -93,7 +112,7 @@ describe('send', () => {
       'https://x/pets',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(order).toEqual(['B', 'A']);
@@ -114,7 +133,7 @@ describe('send', () => {
       'u',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(cancelled).toBe(true);
@@ -132,7 +151,7 @@ describe('send', () => {
       'https://x/pets',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(response.status).toBe(200);
@@ -148,7 +167,7 @@ describe('send', () => {
       'u',
       { method: 'GET', retry: { retries: 2, retryDelay: 1, jitter: false } },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(response.status).toBe(200);
@@ -164,7 +183,7 @@ describe('send', () => {
         'u',
         { method: 'GET' },
         undefined,
-        false,
+        undefined,
         {}
       )
     ).rejects.toThrow('down');
@@ -178,7 +197,7 @@ describe('send', () => {
       'u',
       { method: 'POST' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(out1.response.status).toBe(503);
@@ -194,7 +213,7 @@ describe('send', () => {
       'u',
       { method: 'POST' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(out2.response.status).toBe(200);
@@ -208,7 +227,7 @@ describe('send', () => {
       'u',
       { method: 'GET', headers: { 'X-A': 'per-call' } },
       undefined,
-      false,
+      undefined,
       {}
     );
     const headers = calls[0].init.headers as Record<string, string>;
@@ -225,7 +244,7 @@ describe('send', () => {
       'u',
       { method: 'GET', headers: new Headers({ 'X-Trace': 'from-headers-instance' }) },
       undefined,
-      false,
+      undefined,
       {}
     );
     // Header names round-trip lowercased through `Headers`; HTTP treats them case-insensitively.
@@ -239,7 +258,7 @@ describe('send', () => {
       'u',
       { method: 'GET', headers: [['X-Trace', 'from-pairs']] },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect((calls[1].init.headers as Record<string, string>)['X-Trace']).toBe('from-pairs');
@@ -253,7 +272,7 @@ describe('send', () => {
       'u',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect((calls[0].init.headers as Record<string, string>)['X-S']).toBe('static');
@@ -261,7 +280,8 @@ describe('send', () => {
 
   it('multipart body uses the wired capability after onRequest; throws without it', async () => {
     const { calls, fetchImpl } = fetchSpy([ok()]);
-    await send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { orgId: '1' }, true, {
+    const multipartBody = { contentType: 'multipart/form-data', multipart: true };
+    await send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { orgId: '1' }, multipartBody, {
       serializeMultipart: (b) => {
         const fd = new FormData();
         fd.append('orgId', String((b as { orgId: string }).orgId));
@@ -270,7 +290,7 @@ describe('send', () => {
     });
     expect(calls[0].init.body).toBeInstanceOf(FormData);
     await expect(
-      send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { a: 1 }, true, {})
+      send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { a: 1 }, multipartBody, {})
     ).rejects.toThrow(/capability/i);
   });
 
@@ -285,7 +305,7 @@ describe('send', () => {
         'u',
         { method: 'GET', signal: controller.signal },
         undefined,
-        false,
+        undefined,
         {}
       )
     ).rejects.toThrow('gone');
@@ -301,7 +321,7 @@ describe('send', () => {
         'https://x/pets',
         { method: 'GET' },
         undefined,
-        false,
+        undefined,
         {}
       );
       expect(response.status).toBe(200);
@@ -321,7 +341,7 @@ describe('send', () => {
       'https://x/pets',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(response.status).toBe(200);
@@ -346,7 +366,7 @@ describe('send', () => {
       'u',
       {},
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(seen).toEqual(['GET']);

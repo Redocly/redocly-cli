@@ -702,7 +702,7 @@ async function send(
   url: string,
   init: RequestOptions,
   body: unknown | undefined,
-  multipart: boolean,
+  bodySpec: { contentType: string; multipart?: boolean } | undefined,
   caps: SendCapabilities,
   accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
@@ -735,7 +735,7 @@ async function send(
     const isURLSearchParams = value instanceof URLSearchParams;
     if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
       payload = value as BodyInit;
-    } else if (multipart) {
+    } else if (bodySpec?.multipart === true) {
       if (!caps.serializeMultipart) {
         throw new Error('Multipart capability not wired: cannot serialize the request body');
       }
@@ -743,7 +743,8 @@ async function send(
     } else {
       payload = JSON.stringify(value);
       if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
-        context.headers['Content-Type'] = 'application/json';
+        // The spec's declared request content type (e.g. application/merge-patch+json).
+        context.headers['Content-Type'] = bodySpec?.contentType ?? 'application/json';
       }
     }
   }
@@ -1014,7 +1015,7 @@ async function execute(
     prepared.url,
     sendInit,
     prepared.body,
-    op.body?.multipart === true,
+    op.body,
     caps,
     acceptFor(readKind)
   );
@@ -1095,7 +1096,7 @@ function linkPageCall(config: ClientConfig, op: OperationDescriptor, caps: Capab
       prepared.url,
       sendInit,
       prepared.body,
-      op.body?.multipart === true,
+      op.body,
       caps,
       acceptFor(readKind)
     );

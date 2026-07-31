@@ -53,7 +53,7 @@ export async function* sse<T>(
         url,
         { ...rest, method: rest.method ?? 'GET', headers: sendHeaders },
         requestBody,
-        false,
+        undefined,
         {}
       );
       if (!response.ok) {

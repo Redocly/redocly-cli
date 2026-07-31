@@ -228,7 +228,7 @@ async function execute(
     prepared.url,
     sendInit,
     prepared.body,
-    op.body?.multipart === true,
+    op.body,
     caps,
     acceptFor(readKind)
   );
@@ -309,7 +309,7 @@ function linkPageCall(config: ClientConfig, op: OperationDescriptor, caps: Capab
       prepared.url,
       sendInit,
       prepared.body,
-      op.body?.multipart === true,
+      op.body,
       caps,
       acceptFor(readKind)
     );
