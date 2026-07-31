@@ -17,24 +17,17 @@ export const POTENTIALLY_SECRET_FIELDS = [
  * raw value.
  */
 function collectSecretPatterns(secretsSet: Set<string>): string[] {
-  const patterns: string[] = [];
+  const patterns = new Set<string>();
   for (const secret of secretsSet) {
     if (!secret) continue;
-    const variants = [
-      secret,
-      JSON.stringify(secret).slice(1, -1),
-      encodeURIComponent(secret),
-      // URLSearchParams serializes to `secret=value`; drop the key to keep
-      // the form-urlencoded variant (spaces become `+`, unlike encodeURIComponent).
-      new URLSearchParams([['secret', secret]]).toString().slice('secret='.length),
-    ];
-    for (const variant of variants) {
-      if (!patterns.includes(variant)) {
-        patterns.push(variant);
-      }
-    }
+    patterns.add(secret);
+    patterns.add(JSON.stringify(secret).slice(1, -1));
+    patterns.add(encodeURIComponent(secret));
+    // URLSearchParams serializes to `secret=value`; drop the key to keep
+    // the form-urlencoded variant (spaces become `+`, unlike encodeURIComponent).
+    patterns.add(new URLSearchParams([['secret', secret]]).toString().slice('secret='.length));
   }
-  return patterns;
+  return Array.from(patterns);
 }
 
 export function maskSecrets<T extends { [x: string]: any } | string>(
