@@ -1,5 +1,7 @@
+import { TimeoutError } from '../errors.js';
+import { defaultRetryOn } from '../index.js';
 import { middlewareChain, send } from '../send.js';
-import type { ClientConfig, RequestContext } from '../types.js';
+import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
 
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
@@ -29,7 +31,7 @@ describe('send', () => {
         },
       ],
     };
-    await send(config, op, 'https://x/pets', { method: 'POST' }, { name: 'Rex' }, false, {});
+    await send(config, op, 'https://x/pets', { method: 'POST' }, { name: 'Rex' }, undefined, {});
     expect(JSON.parse(calls[0].init.body as string)).toEqual({ name: 'Mutated' });
     expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
       'application/json'
@@ -39,17 +41,36 @@ describe('send', () => {
   it('passes string/FormData/URLSearchParams/binary bodies through untouched', async () => {
     const { calls, fetchImpl } = fetchSpy([ok(), ok(), ok(), ok()]);
     const config: ClientConfig = { fetch: fetchImpl };
-    await send(config, op, 'u', { method: 'POST' }, 'raw-string', false, {});
+    await send(config, op, 'u', { method: 'POST' }, 'raw-string', undefined, {});
     expect(calls[0].init.body).toBe('raw-string');
     const fd = new FormData();
-    await send(config, op, 'u', { method: 'POST' }, fd, false, {});
+    await send(config, op, 'u', { method: 'POST' }, fd, undefined, {});
     expect(calls[1].init.body).toBe(fd);
     const usp = new URLSearchParams('a=1');
-    await send(config, op, 'u', { method: 'POST' }, usp, false, {});
+    await send(config, op, 'u', { method: 'POST' }, usp, undefined, {});
     expect(calls[2].init.body).toBe(usp);
     const bytes = new Uint8Array([1, 2]);
-    await send(config, op, 'u', { method: 'POST' }, bytes, false, {});
+    await send(config, op, 'u', { method: 'POST' }, bytes, undefined, {});
     expect(calls[3].init.body).toBe(bytes);
+  });
+
+  it("defaults Content-Type to the operation's declared body content type", async () => {
+    // The descriptor carries the spec's request content type (e.g. merge-patch) —
+    // hardcoding application/json makes strict servers reject the PATCH.
+    const { calls, fetchImpl } = fetchSpy([ok()]);
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'PATCH' },
+      { name: 'x' },
+      { contentType: 'application/merge-patch+json' },
+      {}
+    );
+    expect(JSON.parse(calls[0].init.body as string)).toEqual({ name: 'x' });
+    expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
+      'application/merge-patch+json'
+    );
   });
 
   it('keeps an explicit Content-Type instead of forcing application/json', async () => {
@@ -60,7 +81,7 @@ describe('send', () => {
       'u',
       { method: 'POST', headers: { 'content-type': 'application/vnd.custom+json' } },
       { a: 1 },
-      false,
+      undefined,
       {}
     );
     const headers = calls[0].init.headers as Record<string, string>;
@@ -93,7 +114,7 @@ describe('send', () => {
       'https://x/pets',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(order).toEqual(['B', 'A']);
@@ -114,7 +135,7 @@ describe('send', () => {
       'u',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(cancelled).toBe(true);
@@ -132,7 +153,7 @@ describe('send', () => {
       'https://x/pets',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(response.status).toBe(200);
@@ -148,7 +169,7 @@ describe('send', () => {
       'u',
       { method: 'GET', retry: { retries: 2, retryDelay: 1, jitter: false } },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(response.status).toBe(200);
@@ -164,7 +185,7 @@ describe('send', () => {
         'u',
         { method: 'GET' },
         undefined,
-        false,
+        undefined,
         {}
       )
     ).rejects.toThrow('down');
@@ -178,7 +199,7 @@ describe('send', () => {
       'u',
       { method: 'POST' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(out1.response.status).toBe(503);
@@ -194,10 +215,200 @@ describe('send', () => {
       'u',
       { method: 'POST' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(out2.response.status).toBe(200);
+  });
+
+  it('sends X-Redocly-Client outside browsers; a caller header wins; false disables', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok(), ok()]);
+    const clientHeader = 'redocly-client-generator';
+    await send(
+      { fetch: fetchImpl, clientHeader },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    await send(
+      { fetch: fetchImpl, clientHeader },
+      op,
+      'u',
+      { method: 'GET', headers: { 'X-Redocly-Client': 'my-app/2.0' } },
+      undefined,
+      undefined,
+      {}
+    );
+    await send(
+      { fetch: fetchImpl, clientHeader: false },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    const headerOf = (index: number) =>
+      (calls[index].init.headers as Record<string, string>)['X-Redocly-Client'];
+    expect(headerOf(0)).toBe('redocly-client-generator');
+    expect(headerOf(1)).toBe('my-app/2.0');
+    expect(headerOf(2)).toBeUndefined();
+  });
+
+  it('never sends the client header in a browser (a custom header would force CORS preflight)', async () => {
+    (globalThis as { document?: unknown }).document = {};
+    try {
+      const { calls, fetchImpl } = fetchSpy([ok()]);
+      await send(
+        { fetch: fetchImpl, clientHeader: 'redocly-client-generator' },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      );
+      expect((calls[0].init.headers as Record<string, string>)['X-Redocly-Client']).toBeUndefined();
+    } finally {
+      delete (globalThis as { document?: unknown }).document;
+    }
+  });
+
+  it('idempotencyKey generates one stable key per call and makes POST retries safe by default', async () => {
+    const { calls, fetchImpl } = fetchSpy([new Response(null, { status: 503 }), ok()]);
+    const { response } = await send(
+      {
+        fetch: fetchImpl,
+        idempotencyKey: true,
+        retry: { retries: 1, retryDelay: 1, jitter: false },
+      },
+      op,
+      'u',
+      { method: 'POST' },
+      { a: 1 },
+      undefined,
+      {}
+    );
+    // The keyed POST is retried (the default policy treats it as safe to re-send)…
+    expect(response.status).toBe(200);
+    expect(calls.length).toBe(2);
+    // …and BOTH attempts carry the SAME key — that is the whole point of the header.
+    const keys = calls.map(
+      (call) => (call.init.headers as Record<string, string>)['Idempotency-Key']
+    );
+    expect(keys[0]).toMatch(/[0-9a-f-]{36}/);
+    expect(keys[1]).toBe(keys[0]);
+  });
+
+  it('idempotencyKey: caller header and per-call key win; GET never gets one', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok(), ok()]);
+    const config: ClientConfig = { fetch: fetchImpl, idempotencyKey: () => 'from-factory' };
+    await send(config, op, 'u', { method: 'POST' }, { a: 1 }, undefined, {});
+    await send(
+      config,
+      op,
+      'u',
+      { method: 'POST', headers: { 'Idempotency-Key': 'caller-set' } },
+      { a: 1 },
+      undefined,
+      {}
+    );
+    await send(config, op, 'u', { method: 'GET' }, undefined, undefined, {});
+    const keyOf = (index: number) =>
+      (calls[index].init.headers as Record<string, string>)['Idempotency-Key'];
+    expect(keyOf(0)).toBe('from-factory');
+    expect(keyOf(1)).toBe('caller-set');
+    expect(keyOf(2)).toBeUndefined();
+  });
+
+  it('aborts an attempt after `timeout` ms and retries it like a transport error', async () => {
+    let attempts = 0;
+    const fetchImpl = ((url: string, init: RequestInit) => {
+      attempts++;
+      if (attempts === 1) {
+        // Never resolves — only the abort (the timeout) settles it.
+        return new Promise((_, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+        });
+      }
+      return Promise.resolve(ok());
+    }) as unknown as typeof fetch;
+    const { response } = await send(
+      { fetch: fetchImpl, timeout: 30, retry: { retries: 1, retryDelay: 1, jitter: false } },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    expect(response.status).toBe(200);
+    expect(attempts).toBe(2);
+  });
+
+  it('a custom retryOn composes with the exported defaultRetryOn, keeping timeout retries', async () => {
+    // The adoption footgun: `retryOn: ({ response }) => (response?.status ?? 0) >= 500`
+    // REPLACES the default policy, so timeouts (no response) silently stop retrying.
+    // Composing with the exported default keeps both behaviors.
+    let attempts = 0;
+    const fetchImpl = ((url: string, init: RequestInit) => {
+      attempts++;
+      if (attempts === 1) {
+        return new Promise((_, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+        });
+      }
+      return Promise.resolve(ok());
+    }) as unknown as typeof fetch;
+    const { response } = await send(
+      {
+        fetch: fetchImpl,
+        timeout: 30,
+        retry: {
+          retries: 1,
+          retryDelay: 1,
+          jitter: false,
+          retryOn: (ctx: RetryContext) => defaultRetryOn(ctx) || (ctx.response?.status ?? 0) >= 500,
+        },
+      },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    expect(response.status).toBe(200);
+    expect(attempts).toBe(2);
+  });
+
+  it('per-call timeout overrides the config value and surfaces as a STRUCTURED TimeoutError', async () => {
+    // A bare DOMException("operation was aborted due to timeout") is undiagnosable in
+    // logs — the wrapped error carries the operation, the effective budget, and the attempt.
+    const hanging = ((url: string, init: RequestInit) =>
+      new Promise((_, reject) => {
+        init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+      })) as unknown as typeof fetch;
+    const rejection = send(
+      { fetch: hanging, timeout: 60_000 },
+      op,
+      'u',
+      { method: 'GET', timeout: 20 },
+      undefined,
+      undefined,
+      {}
+    );
+    await expect(rejection).rejects.toBeInstanceOf(TimeoutError);
+    await expect(rejection).rejects.toMatchObject({
+      name: 'TimeoutError',
+      operationId: 'createPet',
+      timeout: 20,
+      attempt: 1,
+    });
+    await expect(rejection).rejects.toThrow('"createPet" timed out after 20 ms');
   });
 
   it('resolves async config.headers once and merges per-call headers over them', async () => {
@@ -208,7 +419,7 @@ describe('send', () => {
       'u',
       { method: 'GET', headers: { 'X-A': 'per-call' } },
       undefined,
-      false,
+      undefined,
       {}
     );
     const headers = calls[0].init.headers as Record<string, string>;
@@ -225,7 +436,7 @@ describe('send', () => {
       'u',
       { method: 'GET', headers: new Headers({ 'X-Trace': 'from-headers-instance' }) },
       undefined,
-      false,
+      undefined,
       {}
     );
     // Header names round-trip lowercased through `Headers`; HTTP treats them case-insensitively.
@@ -239,7 +450,7 @@ describe('send', () => {
       'u',
       { method: 'GET', headers: [['X-Trace', 'from-pairs']] },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect((calls[1].init.headers as Record<string, string>)['X-Trace']).toBe('from-pairs');
@@ -253,7 +464,7 @@ describe('send', () => {
       'u',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect((calls[0].init.headers as Record<string, string>)['X-S']).toBe('static');
@@ -261,7 +472,8 @@ describe('send', () => {
 
   it('multipart body uses the wired capability after onRequest; throws without it', async () => {
     const { calls, fetchImpl } = fetchSpy([ok()]);
-    await send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { orgId: '1' }, true, {
+    const multipartBody = { contentType: 'multipart/form-data', multipart: true };
+    await send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { orgId: '1' }, multipartBody, {
       serializeMultipart: (b) => {
         const fd = new FormData();
         fd.append('orgId', String((b as { orgId: string }).orgId));
@@ -270,7 +482,7 @@ describe('send', () => {
     });
     expect(calls[0].init.body).toBeInstanceOf(FormData);
     await expect(
-      send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { a: 1 }, true, {})
+      send({ fetch: fetchImpl }, op, 'u', { method: 'POST' }, { a: 1 }, multipartBody, {})
     ).rejects.toThrow(/capability/i);
   });
 
@@ -285,7 +497,7 @@ describe('send', () => {
         'u',
         { method: 'GET', signal: controller.signal },
         undefined,
-        false,
+        undefined,
         {}
       )
     ).rejects.toThrow('gone');
@@ -301,7 +513,7 @@ describe('send', () => {
         'https://x/pets',
         { method: 'GET' },
         undefined,
-        false,
+        undefined,
         {}
       );
       expect(response.status).toBe(200);
@@ -321,7 +533,7 @@ describe('send', () => {
       'https://x/pets',
       { method: 'GET' },
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(response.status).toBe(200);
@@ -346,7 +558,7 @@ describe('send', () => {
       'u',
       {},
       undefined,
-      false,
+      undefined,
       {}
     );
     expect(seen).toEqual(['GET']);

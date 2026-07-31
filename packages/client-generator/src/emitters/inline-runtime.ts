@@ -25,7 +25,10 @@ const HEADER =
 // never flags exported declarations, so unused types in a given output are fine).
 const KEEP_EXPORTS: Partial<Record<RuntimeModuleName, (statement: ts.Statement) => boolean>> = {
   'types.ts': () => true,
-  'errors.ts': ts.isClassDeclaration, // ApiError stays public; abortError goes local
+  'errors.ts': ts.isClassDeclaration, // ApiError/TimeoutError stay public; abortError goes local
+  // defaultRetryOn stays public so custom `retryOn` predicates can compose with it.
+  'retry.ts': (statement) =>
+    ts.isFunctionDeclaration(statement) && statement.name?.text === 'defaultRetryOn',
   'setup.ts': () => true, // mergeSetup — the baked-setup wiring calls it
 };
 

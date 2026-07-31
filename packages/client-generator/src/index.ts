@@ -19,7 +19,13 @@ export type {
 // The setup-contract names above (Middleware, OperationContext, RequestContext, RetryConfig,
 // RetryContext, RetryStrategy) are re-exports of the same runtime types — one definition,
 // two entry points; the rest of the runtime's type surface is re-exported here.
-export { ApiError, createClient, mergeSetup } from './runtime/index.js';
+export {
+  ApiError,
+  createClient,
+  defaultRetryOn,
+  mergeSetup,
+  TimeoutError,
+} from './runtime/index.js';
 export type {
   ApiErrorLike,
   AuthCredentials,

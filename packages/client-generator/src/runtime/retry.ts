@@ -5,11 +5,16 @@ const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
 const TRANSIENT_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 
 /**
- * The default retry predicate: idempotent methods only, on a transport error or a
+ * The default retry predicate: idempotent methods — or any request carrying an
+ * `Idempotency-Key` header, which makes re-sending safe — on a transport error or a
  * transient status. A custom `retryOn` fully replaces this (no method check kept).
  */
 export function defaultRetryOn(ctx: RetryContext): boolean {
-  if (!IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase())) return false;
+  const safeToResend =
+    IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase()) ||
+    'Idempotency-Key' in ctx.request.headers ||
+    'idempotency-key' in ctx.request.headers;
+  if (!safeToResend) return false;
   return ctx.response === undefined || TRANSIENT_STATUS.has(ctx.response.status);
 }
 

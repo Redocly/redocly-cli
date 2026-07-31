@@ -51,9 +51,11 @@ export async function* sse<T>(
         config,
         op,
         url,
-        { ...rest, method: rest.method ?? 'GET', headers: sendHeaders },
+        // `timeout: 0` opts the stream out of a config-level timeout — an event stream
+        // is long-lived by design and must not be severed after N milliseconds.
+        { ...rest, method: rest.method ?? 'GET', headers: sendHeaders, timeout: 0 },
         requestBody,
-        false,
+        undefined,
         {}
       );
       if (!response.ok) {
