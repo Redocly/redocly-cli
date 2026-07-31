@@ -1,6 +1,6 @@
 openapi: 3.2.0
 info:
-  title: Redocly Cafe
+  title: Redocly Cafe with errors
   description: >
     Copy of the Redocly Cafe API description with deliberately wrong response
     definitions (status codes and content types) used to trigger failing checks
@@ -98,6 +98,8 @@ paths:
           example: Latte
         - $ref: '#/components/parameters/Limit'
       responses:
+        # Deliberate error: the live API returns 200 with application/json,
+        # but this file documents 201 with html/text, so the status code check fails.
         '201':
           description: Successful operation.
           content:
@@ -215,6 +217,8 @@ paths:
               schema:
                 type: string
                 format: binary
+            # Deliberate error: the live API returns text/plain,
+            # but this file documents text/csv, so the content-type check fails.
             text/csv:
               schema:
                 description: Alternative image text.

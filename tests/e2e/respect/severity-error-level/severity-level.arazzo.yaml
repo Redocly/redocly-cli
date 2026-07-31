@@ -1,6 +1,6 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Cafe API
+  title: Severity error level
   description: >-
     Testing severity levels for failing checks against the Redocly Cafe API
     described with deliberately wrong response definitions.

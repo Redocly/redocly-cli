@@ -1,6 +1,6 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Cafe API
+  title: Server override with console parameters
   description: >-
     Testing server override with console parameters against the Redocly Cafe API.
   version: 1.0.0

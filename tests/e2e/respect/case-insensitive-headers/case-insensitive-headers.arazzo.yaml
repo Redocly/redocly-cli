@@ -1,6 +1,6 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Cafe API
+  title: Case insensitive headers
   description: >-
     Testing case insensitive headers in workflows
   version: 1.0.0
