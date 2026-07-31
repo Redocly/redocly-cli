@@ -392,7 +392,7 @@ function reexportLines(ctx: EmitContext, hasSse: boolean): string {
   return (
     // `createClient` is re-exported so package-mode consumers can build additional
     // instances from the generated module alone — symmetric with inline output.
-    `export { ApiError, createClient } from '${PACKAGE_SPECIFIER}';\n` +
+    `export { ApiError, createClient, TimeoutError } from '${PACKAGE_SPECIFIER}';\n` +
     `export type { ${types.join(', ')} } from '${PACKAGE_SPECIFIER}';`
   );
 }

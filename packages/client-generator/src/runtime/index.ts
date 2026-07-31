@@ -36,6 +36,6 @@ export function createClient<
   });
 }
 
-export { ApiError } from './errors.js';
+export { ApiError, TimeoutError } from './errors.js';
 export { mergeSetup } from './setup.js';
 export type * from './types.js';

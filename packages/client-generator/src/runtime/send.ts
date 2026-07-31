@@ -1,4 +1,4 @@
-import { abortError } from './errors.js';
+import { abortError, TimeoutError } from './errors.js';
 import { defaultRetryOn, retryDelay, sleep } from './retry.js';
 import type {
   ClientConfig,
@@ -168,6 +168,16 @@ export async function send(
       ) {
         await sleep(retryDelay(retry, attempt, null), signal);
         continue;
+      }
+      // Our timeout fired (never the caller's own abort — that rethrows untouched):
+      // wrap the bare DOMException with the context a log line needs.
+      if (
+        timeout &&
+        !signal?.aborted &&
+        error instanceof DOMException &&
+        error.name === 'TimeoutError'
+      ) {
+        throw new TimeoutError(op.id, timeout, attempt);
       }
       throw error;
     }

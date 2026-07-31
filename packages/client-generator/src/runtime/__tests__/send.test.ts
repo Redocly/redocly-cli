@@ -1,3 +1,4 @@
+import { TimeoutError } from '../errors.js';
 import { middlewareChain, send } from '../send.js';
 import type { ClientConfig, RequestContext } from '../types.js';
 
@@ -347,22 +348,30 @@ describe('send', () => {
     expect(attempts).toBe(2);
   });
 
-  it('per-call timeout overrides the config value; without retries it surfaces as TimeoutError', async () => {
+  it('per-call timeout overrides the config value and surfaces as a STRUCTURED TimeoutError', async () => {
+    // A bare DOMException("operation was aborted due to timeout") is undiagnosable in
+    // logs — the wrapped error carries the operation, the effective budget, and the attempt.
     const hanging = ((url: string, init: RequestInit) =>
       new Promise((_, reject) => {
         init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
       })) as unknown as typeof fetch;
-    await expect(
-      send(
-        { fetch: hanging, timeout: 60_000 },
-        op,
-        'u',
-        { method: 'GET', timeout: 20 },
-        undefined,
-        undefined,
-        {}
-      )
-    ).rejects.toMatchObject({ name: 'TimeoutError' });
+    const rejection = send(
+      { fetch: hanging, timeout: 60_000 },
+      op,
+      'u',
+      { method: 'GET', timeout: 20 },
+      undefined,
+      undefined,
+      {}
+    );
+    await expect(rejection).rejects.toBeInstanceOf(TimeoutError);
+    await expect(rejection).rejects.toMatchObject({
+      name: 'TimeoutError',
+      operationId: 'createPet',
+      timeout: 20,
+      attempt: 1,
+    });
+    await expect(rejection).rejects.toThrow('"createPet" timed out after 20 ms');
   });
 
   it('resolves async config.headers once and merges per-call headers over them', async () => {

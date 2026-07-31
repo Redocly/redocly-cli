@@ -77,7 +77,7 @@ export const getOrder = (orderId: string, params: {
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 export const streamEvents = (init: SseOptions = {}) => client.streamEvents({}, init);
 
-export { ApiError, createClient } from '@redocly/client-generator';
+export { ApiError, createClient, TimeoutError } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';
 "
 `;
@@ -177,7 +177,7 @@ export const getOrder = (orderId: string, params: {
     expand?: string;
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 
-export { ApiError, createClient } from '@redocly/client-generator';
+export { ApiError, createClient, TimeoutError } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions } from '@redocly/client-generator';
 "
 `;
@@ -280,7 +280,7 @@ export const getOrder = (orderId: string, params: {
     expand?: string;
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 
-export { ApiError, createClient } from '@redocly/client-generator';
+export { ApiError, createClient, TimeoutError } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions, Result } from '@redocly/client-generator';
 "
 `;

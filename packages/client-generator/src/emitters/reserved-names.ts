@@ -22,6 +22,7 @@ export const WIRING_NAMES = [
   'createClient',
   'mergeSetup',
   'ApiError',
+  'TimeoutError',
   'configure',
   'use',
   'auth',

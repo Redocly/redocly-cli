@@ -458,6 +458,21 @@ export class ApiError extends Error {
   }
 }
 
+/** The error thrown when a request attempt exceeds the configured `timeout` — carries
+ * the context a log line needs (which operation, what budget, which attempt). */
+export class TimeoutError extends Error {
+  public readonly operationId: string;
+  public readonly timeout: number;
+  public readonly attempt: number;
+  constructor(operationId: string, timeout: number, attempt: number) {
+    super(`Request "${operationId}" timed out after ${timeout} ms (attempt ${attempt})`);
+    this.name = 'TimeoutError';
+    this.operationId = operationId;
+    this.timeout = timeout;
+    this.attempt = attempt;
+  }
+}
+
 /** The error to throw for an aborted request: the caller's abort reason when it is an Error. */
 // `globalThis.Error` (not bare `Error`) so a spec schema named `Error` cannot shadow it
 // when this module is embedded alongside generated types (inline mode).
@@ -834,6 +849,16 @@ async function send(
       ) {
         await sleep(retryDelay(retry, attempt, null), signal);
         continue;
+      }
+      // Our timeout fired (never the caller's own abort — that rethrows untouched):
+      // wrap the bare DOMException with the context a log line needs.
+      if (
+        timeout &&
+        !signal?.aborted &&
+        error instanceof DOMException &&
+        error.name === 'TimeoutError'
+      ) {
+        throw new TimeoutError(op.id, timeout, attempt);
       }
       throw error;
     }

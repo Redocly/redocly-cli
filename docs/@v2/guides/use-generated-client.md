@@ -205,6 +205,7 @@ Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant
 
 A `timeout` (milliseconds) aborts an attempt that takes too long — including reading the body — and composes with your own `AbortSignal`.
 Each retry attempt gets a fresh budget; a timed-out attempt retries under the same policy as a network error.
+When retries are exhausted, the failure surfaces as a `TimeoutError` (exported next to `ApiError`) carrying `operationId`, the effective `timeout`, and the `attempt` number — everything a log line needs.
 Set it on the instance (`configure({ timeout: 10_000 })`) or per call (`{ timeout: 500 }`, where `0` disables the instance default).
 SSE streams are long-lived by design and never inherit the instance timeout.
 
