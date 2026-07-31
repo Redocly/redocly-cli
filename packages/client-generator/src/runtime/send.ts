@@ -64,8 +64,9 @@ export async function send(
   caps: SendCapabilities,
   accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
-  const { retry: callRetry, ...fetchInit } = init;
+  const { retry: callRetry, timeout: callTimeout, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
+  const timeout = callTimeout ?? config.timeout;
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
     Accept: accept,
@@ -115,10 +116,18 @@ export async function send(
   while (true) {
     attempt++;
     if (signal?.aborted) throw abortError(signal);
+    // A fresh timeout budget per attempt; the caller's signal still wins the race.
+    // The composed signal also governs reading the response body.
+    const attemptSignal = timeout
+      ? signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(timeout)])
+        : AbortSignal.timeout(timeout)
+      : signal;
     let response: Response;
     try {
       response = await doFetch(context.url, {
         ...fetchInit,
+        signal: attemptSignal,
         method: context.method,
         headers: context.headers,
         body: payload,

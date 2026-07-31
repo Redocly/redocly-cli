@@ -171,6 +171,10 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
     | Record<string, string>
     | (() => Record<string, string> | Promise<Record<string, string>>);
   retry?: RetryConfig<Op>;
+  /** Milliseconds before a request attempt aborts (covers the body read too; each retry
+   * attempt gets a fresh budget). Per-call `timeout` overrides it, `0` disables it.
+   * SSE streams are long-lived by design and never inherit this value. */
+  timeout?: number;
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -183,8 +187,13 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
 /** Response readers for the per-call `parseAs` override. */
 export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';
 
-/** Per-call options: standard `RequestInit` plus a retry override and a forced reader. */
-export type RequestOptions = RequestInit & { retry?: RetryConfig; parseAs?: ParseAs };
+/** Per-call options: standard `RequestInit` plus a retry override, a timeout override
+ * (`0` disables the config default), and a forced reader. */
+export type RequestOptions = RequestInit & {
+  retry?: RetryConfig;
+  timeout?: number;
+  parseAs?: ParseAs;
+};
 
 /** Per-call options for an SSE stream; reconnect defaults to true. */
 export type SseOptions = RequestInit & { reconnect?: boolean; reconnectDelay?: number };

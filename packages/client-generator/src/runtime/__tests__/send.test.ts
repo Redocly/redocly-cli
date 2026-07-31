@@ -219,6 +219,49 @@ describe('send', () => {
     expect(out2.response.status).toBe(200);
   });
 
+  it('aborts an attempt after `timeout` ms and retries it like a transport error', async () => {
+    let attempts = 0;
+    const fetchImpl = ((url: string, init: RequestInit) => {
+      attempts++;
+      if (attempts === 1) {
+        // Never resolves — only the abort (the timeout) settles it.
+        return new Promise((_, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+        });
+      }
+      return Promise.resolve(ok());
+    }) as unknown as typeof fetch;
+    const { response } = await send(
+      { fetch: fetchImpl, timeout: 30, retry: { retries: 1, retryDelay: 1, jitter: false } },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    expect(response.status).toBe(200);
+    expect(attempts).toBe(2);
+  });
+
+  it('per-call timeout overrides the config value; without retries it surfaces as TimeoutError', async () => {
+    const hanging = ((url: string, init: RequestInit) =>
+      new Promise((_, reject) => {
+        init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+      })) as unknown as typeof fetch;
+    await expect(
+      send(
+        { fetch: hanging, timeout: 60_000 },
+        op,
+        'u',
+        { method: 'GET', timeout: 20 },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toMatchObject({ name: 'TimeoutError' });
+  });
+
   it('resolves async config.headers once and merges per-call headers over them', async () => {
     const { calls, fetchImpl } = fetchSpy([ok()]);
     await send(

@@ -310,6 +310,10 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
     | Record<string, string>
     | (() => Record<string, string> | Promise<Record<string, string>>);
   retry?: RetryConfig<Op>;
+  /** Milliseconds before a request attempt aborts (covers the body read too; each retry
+   * attempt gets a fresh budget). Per-call `timeout` overrides it, `0` disables it.
+   * SSE streams are long-lived by design and never inherit this value. */
+  timeout?: number;
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -322,8 +326,13 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
 /** Response readers for the per-call `parseAs` override. */
 export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';
 
-/** Per-call options: standard `RequestInit` plus a retry override and a forced reader. */
-export type RequestOptions = RequestInit & { retry?: RetryConfig; parseAs?: ParseAs };
+/** Per-call options: standard `RequestInit` plus a retry override, a timeout override
+ * (`0` disables the config default), and a forced reader. */
+export type RequestOptions = RequestInit & {
+  retry?: RetryConfig;
+  timeout?: number;
+  parseAs?: ParseAs;
+};
 
 /** Per-call options for an SSE stream; reconnect defaults to true. */
 export type SseOptions = RequestInit & { reconnect?: boolean; reconnectDelay?: number };
@@ -706,8 +715,9 @@ async function send(
   caps: SendCapabilities,
   accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
-  const { retry: callRetry, ...fetchInit } = init;
+  const { retry: callRetry, timeout: callTimeout, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
+  const timeout = callTimeout ?? config.timeout;
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
     Accept: accept,
@@ -757,10 +767,18 @@ async function send(
   while (true) {
     attempt++;
     if (signal?.aborted) throw abortError(signal);
+    // A fresh timeout budget per attempt; the caller's signal still wins the race.
+    // The composed signal also governs reading the response body.
+    const attemptSignal = timeout
+      ? signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(timeout)])
+        : AbortSignal.timeout(timeout)
+      : signal;
     let response: Response;
     try {
       response = await doFetch(context.url, {
         ...fetchInit,
+        signal: attemptSignal,
         method: context.method,
         headers: context.headers,
         body: payload,

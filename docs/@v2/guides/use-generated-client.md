@@ -196,6 +196,11 @@ By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS
 `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe.
 Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
 
+A `timeout` (milliseconds) aborts an attempt that takes too long — including reading the body — and composes with your own `AbortSignal`.
+Each retry attempt gets a fresh budget; a timed-out attempt retries under the same policy as a network error.
+Set it on the instance (`configure({ timeout: 10_000 })`) or per call (`{ timeout: 500 }`, where `0` disables the instance default).
+SSE streams are long-lived by design and never inherit the instance timeout.
+
 A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts.
 To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
 
