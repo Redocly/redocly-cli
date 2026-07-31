@@ -4,7 +4,7 @@ Generate a typed TypeScript client from an OpenAPI description.
 See https://github.com/Redocly/redocly-cli for the full project.
 
 > [!WARNING]
-> This package is experimental: the generated output, options, and the plugin API may change in any minor release until it is declared stable (see [ADR-0013](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/docs/adr/0013-experimental-status.md)).
+> This package is experimental: the generated output, options, and the plugin API may change in any minor release until it is declared stable.
 > Pin your version if you depend on the output, and expect to regenerate when you upgrade.
 > Feedback is very welcome while we stabilize it.
 
