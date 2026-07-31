@@ -19,7 +19,7 @@ export const POTENTIALLY_SECRET_FIELDS = [
 function collectSecretPatterns(secretsSet: Set<string>): string[] {
   const patterns = new Set<string>();
   for (const secret of secretsSet) {
-    if (!secret) continue;
+    if (!secret.trim()) continue;
     patterns.add(secret);
     patterns.add(JSON.stringify(secret).slice(1, -1));
     patterns.add(encodeURIComponent(secret));

@@ -153,6 +153,11 @@ describe('maskSecrets', () => {
     expect(result).toEqual('Bearer ********');
   });
 
+  it('should ignore a whitespace-only secret', () => {
+    const result = maskSecrets('filter=a+b', new Set([' ']));
+    expect(result).toEqual('filter=a+b');
+  });
+
   it('should preserve ArrayBuffer objects without breaking them', () => {
     const originalArrayBuffer = new ArrayBuffer(8);
     const originalData = new Uint8Array(originalArrayBuffer);
