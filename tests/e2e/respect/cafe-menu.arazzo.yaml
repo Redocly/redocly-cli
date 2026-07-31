@@ -1,0 +1,34 @@
+arazzo: 1.0.1
+info:
+  title: Redocly Cafe API Menu Search
+  description: >-
+    A part of the Redocly Cafe API test fixtures.
+    Searches the cafe menu and exposes the search result as workflow outputs.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: cafe-api.yaml
+
+workflows:
+  - workflowId: search-menu-items
+    description: >-
+      This workflow demonstrates how to search menu items in the cafe menu.
+    steps:
+      - stepId: search-menu
+        description: >-
+          Search menu items resolving request details with listMenuItems operationId from cafe-api.yaml description.
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          total: $response.body#/page/total
+          fullBody: $response.body
+    outputs:
+      total: $steps.search-menu.outputs.total
+      stepFullBody: $steps.search-menu.outputs.fullBody

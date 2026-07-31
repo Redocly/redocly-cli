@@ -1,54 +1,50 @@
 arazzo: 1.0.1
 info:
   title: Test `failureActions` in workflows
-  description: Testing functionality based on MuseumAPI example using mockserver
+  description: Testing functionality based on the Redocly Cafe API example
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
-  - name: tickets-from-museum-api
+    url: ../cafe-api.yaml
+  - name: menu-from-cafe-api
     type: arazzo
-    url: ../museum-tickets.yaml
+    url: ../cafe-menu.arazzo.yaml
 
 workflows:
-  - workflowId: get-museum-hours
+  - workflowId: get-menu-items
     failureActions:
       - name: repeated-failure-action-1
         type: retry
         retryLimit: 1
-        workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
+        workflowId: $sourceDescriptions.menu-from-cafe-api.search-menu-items
         criteria:
           - condition: $statusCode == 200
       - name: repeated-failure-action-2 # this should not be executed as there is another action with the s
         type: goto
-        workflowId: $sourceDescriptions.tickets-from-museum-api.get-museum-tickets
+        workflowId: $sourceDescriptions.menu-from-cafe-api.search-menu-items
         criteria:
           - condition: $statusCode == 200
     description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
+      This workflow demonstrates how to list the cafe menu items.
     steps:
-      - stepId: get-museum-hours
+      - stepId: get-menu-items
         description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
-        operationId: $sourceDescriptions.museum-api.getMuseumHours
+          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 201
         outputs:
-          schedule: $response.body
-      - stepId: get-museum-hours-2
+          menuItems: $response.body
+      - stepId: get-menu-items-2
         description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
-        operationId: $sourceDescriptions.museum-api.getMuseumHours
+          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 201
         outputs:
-          schedule: $response.body
+          menuItems: $response.body
         onFailure:
           - type: retry
             name: not-executed-retry
