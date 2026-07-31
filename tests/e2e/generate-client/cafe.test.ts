@@ -82,10 +82,8 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       throw new Error(`generate-client (consumer pass) failed:\n${consumerGen.stderr}`);
     }
     generated = readFileSync(generatedFile, 'utf-8');
-    if (!generated.includes(`{ serverUrl: "${SERVER_BASE}" }`)) {
-      throw new Error(
-        `--server-url was not honoured; expected \`{ serverUrl: "${SERVER_BASE}" }\``
-      );
+    if (!generated.includes(`serverUrl: "${SERVER_BASE}"`)) {
+      throw new Error(`--server-url was not honoured; expected \`serverUrl: "${SERVER_BASE}"\``);
     }
 
     // Type-check the consumer.

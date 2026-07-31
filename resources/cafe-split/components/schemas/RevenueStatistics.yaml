@@ -33,11 +33,11 @@ properties:
     minimum: 0
   startDate:
     type: string
-    format: date
+    format: date-time
     description: Start date of the revenue calculation period.
   endDate:
     type: string
-    format: date
+    format: date-time
     description: End date of the revenue calculation period.
 required:
   - revenue

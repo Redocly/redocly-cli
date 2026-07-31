@@ -177,6 +177,10 @@ Per-request headers merge lowest to highest — the caller always wins:
 2. Typed header parameters.
 3. The caller's `init.headers`.
 
+Outside browsers, the client also identifies itself to the API with an `X-Redocly-Client` header (useful for the API owner's telemetry).
+Override it with `configure({ clientHeader: 'my-service/2.0' })`, or disable it with `clientHeader: false`.
+Browsers never send it — a custom header would force a CORS preflight.
+
 `use()` appends to the middleware chain, composing with any already-registered or publisher pre-configured middleware.
 `configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher pre-configured](./customize-client-generation.md#publisher-defaults)) middleware.
 
@@ -194,7 +198,19 @@ await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 
 By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`).
 `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe.
+
+A custom `retryOn` **replaces** the default policy entirely — a predicate like `({ response }) => (response?.status ?? 0) >= 500` silently stops retrying network errors and timeouts, which have no `response`.
+Compose with the exported default instead: `retryOn: (ctx) => defaultRetryOn(ctx) || myRule(ctx)`.
+
+For APIs that support [idempotency keys](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), set `idempotencyKey: true` (or a key factory) on the instance: every `POST`/`PATCH` gets an `Idempotency-Key` header — one stable key per logical call, re-sent unchanged on every retry attempt — and the default retry policy then treats those requests as safe to retry.
+Per call, pass a literal key (`{ idempotencyKey: 'order-42-submit' }`) or `false` to skip; a caller-set `Idempotency-Key` header always wins.
 Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
+
+A `timeout` (milliseconds) aborts an attempt that takes too long — including reading the body — and composes with your own `AbortSignal`.
+Each retry attempt gets a fresh budget; a timed-out attempt retries under the same policy as a network error.
+When retries are exhausted, the failure surfaces as a `TimeoutError` (exported next to `ApiError`) carrying `operationId`, the effective `timeout`, and the `attempt` number — everything a log line needs.
+Set it on the instance (`configure({ timeout: 10_000 })`) or per call (`{ timeout: 500 }`, where `0` disables the instance default).
+SSE streams are long-lived by design and never inherit the instance timeout.
 
 A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts.
 To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
@@ -407,7 +423,7 @@ useQuery(internal.getOrderOptions({ orderId }));
 When several generated APIs share one `QueryClient`, their operationIds can collide (two APIs with a `check` operation would mix caches).
 Set `queryKeyPrefix` in the `client` block to namespace every key: `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
 
-## Formatting and linting the generated files
+## Format and lint the generated files
 
 The generator prints one canonical style — the TypeScript compiler's printer (four-space indent, double quotes).
 If your project's formatter enforces a different style, its check fails on freshly generated files.

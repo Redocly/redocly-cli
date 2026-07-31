@@ -1,5 +1,23 @@
 # @redocly/openapi-core
 
+## 2.43.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.53.1.
+
+## 2.43.1
+
+### Patch Changes
+
+- Fixed `skipPluginEval` to keep `extends` unresolved instead of failing when the config extends a plugin preset.
+
+## 2.43.0
+
+### Minor Changes
+
+- Added a `skipPluginEval` option to `loadConfig` that resolves plugin paths without importing or executing plugin code — the returned plugins contain only their `absolutePath`.
+
 ## 2.42.0
 
 ### Minor Changes

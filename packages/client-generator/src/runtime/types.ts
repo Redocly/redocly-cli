@@ -171,6 +171,18 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
     | Record<string, string>
     | (() => Record<string, string> | Promise<Record<string, string>>);
   retry?: RetryConfig<Op>;
+  /** Milliseconds before a request attempt aborts (covers the body read too; each retry
+   * attempt gets a fresh budget). Per-call `timeout` overrides it, `0` disables it.
+   * SSE streams are long-lived by design and never inherit this value. */
+  timeout?: number;
+  /** Send an `Idempotency-Key` header on POST/PATCH (one stable key per logical call,
+   * reused across retry attempts) — which also makes those retries safe under the
+   * default retry policy. `true` generates a UUID per call; a function supplies the key. */
+  idempotencyKey?: boolean | (() => string);
+  /** Identifies this client to the API via an `X-Redocly-Client` header (the generator
+   * bakes a default). Sent only OUTSIDE browsers — a custom header would force a CORS
+   * preflight. Override with your own value, or `false` to disable. */
+  clientHeader?: string | false;
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -183,8 +195,15 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
 /** Response readers for the per-call `parseAs` override. */
 export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';
 
-/** Per-call options: standard `RequestInit` plus a retry override and a forced reader. */
-export type RequestOptions = RequestInit & { retry?: RetryConfig; parseAs?: ParseAs };
+/** Per-call options: standard `RequestInit` plus a retry override, a timeout override
+ * (`0` disables the config default), and a forced reader. */
+export type RequestOptions = RequestInit & {
+  retry?: RetryConfig;
+  timeout?: number;
+  /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
+  idempotencyKey?: string | boolean | (() => string);
+  parseAs?: ParseAs;
+};
 
 /** Per-call options for an SSE stream; reconnect defaults to true. */
 export type SseOptions = RequestInit & { reconnect?: boolean; reconnectDelay?: number };

@@ -68,7 +68,7 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
     tags: readonly string[];
 }>["tags"][number];
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://cafe.example.com" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://cafe.example.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const setBearer = client.auth.bearer;
@@ -77,7 +77,7 @@ export const getOrder = (orderId: string, params: {
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 export const streamEvents = (init: SseOptions = {}) => client.streamEvents({}, init);
 
-export { ApiError, createClient } from '@redocly/client-generator';
+export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';
 "
 `;
@@ -166,7 +166,7 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
     tags: readonly string[];
 }>["tags"][number];
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const listOrders = Object.assign((params: {
@@ -177,7 +177,7 @@ export const getOrder = (orderId: string, params: {
     expand?: string;
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 
-export { ApiError, createClient } from '@redocly/client-generator';
+export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions } from '@redocly/client-generator';
 "
 `;
@@ -269,7 +269,7 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
     tags: readonly string[];
 }>["tags"][number];
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", errorMode: "result" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", errorMode: "result", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const listOrders = Object.assign((params: {
@@ -280,7 +280,7 @@ export const getOrder = (orderId: string, params: {
     expand?: string;
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 
-export { ApiError, createClient } from '@redocly/client-generator';
+export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';
 export type { ClientConfig, Middleware, RequestOptions, Result } from '@redocly/client-generator';
 "
 `;

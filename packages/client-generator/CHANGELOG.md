@@ -1,5 +1,28 @@
 # @redocly/client-generator
 
+## 0.2.0
+
+### Minor Changes
+
+- Added three request-hardening options to generated clients: `timeout` aborts slow attempts (a fresh budget per retry attempt, composable with your own `AbortSignal`; failures surface as a structured `TimeoutError` carrying the operation, budget, and attempt), `idempotencyKey` stamps POST/PATCH requests with a stable `Idempotency-Key` header and makes their retries safe under the default policy, and an `X-Redocly-Client` identification header is sent outside browsers (override or disable it with `clientHeader`). The default retry predicate is now exported as `defaultRetryOn` so custom `retryOn` rules can compose with it instead of replacing it.
+
+### Patch Changes
+
+- Fixed request bodies to be sent with the operation's declared content type (for example `application/merge-patch+json`) instead of always `application/json`, and pagination pointers (`items`, `nextCursor`, `hasMore`) to resolve through `allOf` response schemas, so collection schemas composed from a shared base no longer need flattening.
+- Updated @redocly/openapi-core to v2.43.2.
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.1.
+
+## 0.1.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.0.
+
 ## 0.1.0
 
 ### Minor Changes

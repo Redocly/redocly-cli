@@ -1,4 +1,4 @@
-import { abortError } from './errors.js';
+import { abortError, TimeoutError } from './errors.js';
 import { defaultRetryOn, retryDelay, sleep } from './retry.js';
 import type {
   ClientConfig,
@@ -60,18 +60,47 @@ export async function send(
   url: string,
   init: RequestOptions,
   body: unknown | undefined,
-  multipart: boolean,
+  bodySpec: { contentType: string; multipart?: boolean } | undefined,
   caps: SendCapabilities,
   accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
-  const { retry: callRetry, ...fetchInit } = init;
+  const { retry: callRetry, timeout: callTimeout, idempotencyKey: callKey, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
+  const timeout = callTimeout ?? config.timeout;
+  const idempotency = callKey ?? config.idempotencyKey;
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
     Accept: accept,
     ...extra,
     ...toHeaderRecord(fetchInit.headers),
   };
+  const method = (fetchInit.method ?? 'GET').toUpperCase();
+  // One stable key per LOGICAL call — set before the retry loop so every attempt
+  // re-sends the same key; a caller-provided header always wins.
+  if (
+    idempotency !== undefined &&
+    idempotency !== false &&
+    (method === 'POST' || method === 'PATCH') &&
+    !('Idempotency-Key' in headers) &&
+    !('idempotency-key' in headers)
+  ) {
+    headers['Idempotency-Key'] =
+      typeof idempotency === 'string'
+        ? idempotency
+        : typeof idempotency === 'function'
+          ? idempotency()
+          : crypto.randomUUID();
+  }
+  // Client identification for the API owner's telemetry — never in browsers, where a
+  // custom header would force a CORS preflight the API may not allow.
+  if (
+    typeof config.clientHeader === 'string' &&
+    typeof document === 'undefined' &&
+    !('X-Redocly-Client' in headers) &&
+    !('x-redocly-client' in headers)
+  ) {
+    headers['X-Redocly-Client'] = config.clientHeader;
+  }
   const context: RequestContext = {
     url,
     method: fetchInit.method ?? 'GET',
@@ -93,7 +122,7 @@ export async function send(
     const isURLSearchParams = value instanceof URLSearchParams;
     if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
       payload = value as BodyInit;
-    } else if (multipart) {
+    } else if (bodySpec?.multipart === true) {
       if (!caps.serializeMultipart) {
         throw new Error('Multipart capability not wired: cannot serialize the request body');
       }
@@ -101,7 +130,8 @@ export async function send(
     } else {
       payload = JSON.stringify(value);
       if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
-        context.headers['Content-Type'] = 'application/json';
+        // The spec's declared request content type (e.g. application/merge-patch+json).
+        context.headers['Content-Type'] = bodySpec?.contentType ?? 'application/json';
       }
     }
   }
@@ -114,10 +144,18 @@ export async function send(
   while (true) {
     attempt++;
     if (signal?.aborted) throw abortError(signal);
+    // A fresh timeout budget per attempt; the caller's signal still wins the race.
+    // The composed signal also governs reading the response body.
+    const attemptSignal = timeout
+      ? signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(timeout)])
+        : AbortSignal.timeout(timeout)
+      : signal;
     let response: Response;
     try {
       response = await doFetch(context.url, {
         ...fetchInit,
+        signal: attemptSignal,
         method: context.method,
         headers: context.headers,
         body: payload,
@@ -130,6 +168,16 @@ export async function send(
       ) {
         await sleep(retryDelay(retry, attempt, null), signal);
         continue;
+      }
+      // Our timeout fired (never the caller's own abort — that rethrows untouched):
+      // wrap the bare DOMException with the context a log line needs.
+      if (
+        timeout &&
+        !signal?.aborted &&
+        error instanceof DOMException &&
+        error.name === 'TimeoutError'
+      ) {
+        throw new TimeoutError(op.id, timeout, attempt);
       }
       throw error;
     }
