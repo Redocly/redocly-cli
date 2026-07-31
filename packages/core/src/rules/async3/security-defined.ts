@@ -27,10 +27,9 @@ function getRefPointer(ref: string): string {
 }
 
 function pointsToSecurityScheme(pointer: string): boolean {
-  return (
-    pointer.startsWith(SECURITY_SCHEMES_POINTER) &&
-    !pointer.slice(SECURITY_SCHEMES_POINTER.length).includes('/')
-  );
+  if (!pointer.startsWith(SECURITY_SCHEMES_POINTER)) return false;
+  const schemeName = pointer.slice(SECURITY_SCHEMES_POINTER.length);
+  return schemeName !== '' && !schemeName.includes('/');
 }
 
 export const SecurityDefined: Async3Rule = () => {
