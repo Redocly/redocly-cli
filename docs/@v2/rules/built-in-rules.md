@@ -177,7 +177,7 @@ Use the rules in this section for Open-RPC specific linting.
 
 ## Rule ideas
 
-Apart from built-in rules, Redocly CLI supports [configurable rules](./rules/configurable-rules.md) and [custom plugins](./custom-plugins/index.md).
+Apart from built-in rules, Redocly CLI supports [configurable rules](../rules/configurable-rules.md) and [custom plugins](../custom-plugins/index.md).
 However, if you have an idea for a built-in rule you believe benefits the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) in the Redocly CLI repository.
 
 ## Resources

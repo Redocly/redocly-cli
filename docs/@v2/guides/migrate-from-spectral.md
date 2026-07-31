@@ -123,7 +123,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 |                                        | `spec-components-invalid-map-name`            |
 
 {% admonition type="info" name="Missing a rule you rely on?" %}
-Missing a rule? [Request one](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) — include the Spectral rule name and what it should check, and we'll consider adding it.
+Missing a rule? [Request one](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) — include the Spectral rule name and what it should check.
 Meanwhile, configurable rules can often cover the gap today.
 {% /admonition %}
 
