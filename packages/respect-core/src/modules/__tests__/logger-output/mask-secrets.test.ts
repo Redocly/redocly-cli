@@ -148,6 +148,11 @@ describe('maskSecrets', () => {
     expect(result.log.entries[0].response.content.text).toBe('{"token":"********"}');
   });
 
+  it('should mask a longer secret that starts with a shorter one', () => {
+    const result = maskSecrets('Bearer passphrase123', new Set(['pass', 'passphrase123']));
+    expect(result).toEqual('Bearer ********');
+  });
+
   it('should preserve ArrayBuffer objects without breaking them', () => {
     const originalArrayBuffer = new ArrayBuffer(8);
     const originalData = new Uint8Array(originalArrayBuffer);

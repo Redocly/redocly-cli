@@ -27,7 +27,9 @@ function collectSecretPatterns(secretsSet: Set<string>): string[] {
     // the form-urlencoded variant (spaces become `+`, unlike encodeURIComponent).
     patterns.add(new URLSearchParams([['secret', secret]]).toString().slice('secret='.length));
   }
-  return Array.from(patterns);
+  // Longest first: a short secret nested in a longer one would otherwise mask
+  // only the prefix and leave the rest of the longer secret visible.
+  return Array.from(patterns).sort((left, right) => right.length - left.length);
 }
 
 export function maskSecrets<T extends { [x: string]: any } | string>(
