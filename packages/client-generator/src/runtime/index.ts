@@ -37,5 +37,8 @@ export function createClient<
 }
 
 export { ApiError, TimeoutError } from './errors.js';
+// Exported so custom `retryOn` predicates can COMPOSE with the default policy
+// (`retryOn: (ctx) => defaultRetryOn(ctx) || myRule(ctx)`) instead of replacing it.
+export { defaultRetryOn } from './retry.js';
 export { mergeSetup } from './setup.js';
 export type * from './types.js';

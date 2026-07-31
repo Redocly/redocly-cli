@@ -1310,7 +1310,7 @@ const TRANSIENT_STATUS = new Set([408, 429, 500, 502, 503, 504]);
  * `Idempotency-Key` header, which makes re-sending safe — on a transport error or a
  * transient status. A custom `retryOn` fully replaces this (no method check kept).
  */
-function defaultRetryOn(ctx: RetryContext): boolean {
+export function defaultRetryOn(ctx: RetryContext): boolean {
   const safeToResend =
     IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase()) ||
     'Idempotency-Key' in ctx.request.headers ||

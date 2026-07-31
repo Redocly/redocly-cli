@@ -199,6 +199,9 @@ await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`).
 `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe.
 
+A custom `retryOn` **replaces** the default policy entirely — a predicate like `({ response }) => (response?.status ?? 0) >= 500` silently stops retrying network errors and timeouts, which have no `response`.
+Compose with the exported default instead: `retryOn: (ctx) => defaultRetryOn(ctx) || myRule(ctx)`.
+
 For APIs that support [idempotency keys](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), set `idempotencyKey: true` (or a key factory) on the instance: every `POST`/`PATCH` gets an `Idempotency-Key` header — one stable key per logical call, re-sent unchanged on every retry attempt — and the default retry policy then treats those requests as safe to retry.
 Per call, pass a literal key (`{ idempotencyKey: 'order-42-submit' }`) or `false` to skip; a caller-set `Idempotency-Key` header always wins.
 Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.

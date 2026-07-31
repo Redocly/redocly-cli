@@ -183,7 +183,7 @@ describe('emitClientSingleFile (package arm)', () => {
 
   it('re-exports the public surface', () => {
     expect(output).toContain(
-      "export { ApiError, createClient, TimeoutError } from '@redocly/client-generator';"
+      "export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';"
     );
     expect(output).toContain(
       "export type { ClientConfig, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';"

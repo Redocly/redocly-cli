@@ -1,6 +1,7 @@
 import { TimeoutError } from '../errors.js';
+import { defaultRetryOn } from '../index.js';
 import { middlewareChain, send } from '../send.js';
-import type { ClientConfig, RequestContext } from '../types.js';
+import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
 
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
@@ -337,6 +338,42 @@ describe('send', () => {
     }) as unknown as typeof fetch;
     const { response } = await send(
       { fetch: fetchImpl, timeout: 30, retry: { retries: 1, retryDelay: 1, jitter: false } },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    expect(response.status).toBe(200);
+    expect(attempts).toBe(2);
+  });
+
+  it('a custom retryOn composes with the exported defaultRetryOn, keeping timeout retries', async () => {
+    // The adoption footgun: `retryOn: ({ response }) => (response?.status ?? 0) >= 500`
+    // REPLACES the default policy, so timeouts (no response) silently stop retrying.
+    // Composing with the exported default keeps both behaviors.
+    let attempts = 0;
+    const fetchImpl = ((url: string, init: RequestInit) => {
+      attempts++;
+      if (attempts === 1) {
+        return new Promise((_, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+        });
+      }
+      return Promise.resolve(ok());
+    }) as unknown as typeof fetch;
+    const { response } = await send(
+      {
+        fetch: fetchImpl,
+        timeout: 30,
+        retry: {
+          retries: 1,
+          retryDelay: 1,
+          jitter: false,
+          retryOn: (ctx: RetryContext) => defaultRetryOn(ctx) || (ctx.response?.status ?? 0) >= 500,
+        },
+      },
       op,
       'u',
       { method: 'GET' },

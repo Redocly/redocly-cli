@@ -26,6 +26,7 @@ export const WIRING_NAMES = [
   'configure',
   'use',
   'auth',
+  'defaultRetryOn',
   'ClientConfig',
   'RequestOptions',
   'SseOptions',
