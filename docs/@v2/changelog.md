@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.43.2 (2026-07-31)
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.2.0.
+- Updated @redocly/openapi-core to v2.43.2.
+
 ## 2.43.1 (2026-07-30)
 
 ### Patch Changes
