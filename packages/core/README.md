@@ -177,8 +177,13 @@ async function loadConfig(options?: {
   configPath?: string;
   // allows to add custom `extends` instead of the one from the config file
   customExtends?: string[];
+  // whether to resolve plugin paths without importing the plugin code
+  skipPluginEval?: boolean;
 }): Promise<Config>;
 ```
+
+With `skipPluginEval`, `config.plugins` contains only the absolute paths of the referenced plugins, so use it to find out which plugin files a config points to without running their code.
+Note that `extends` entries referencing a plugin preset, such as `my-plugin/config-name`, throw an error in this mode; built-in presets, such as `recommended`, still work.
 
 ### `lintConfig`
 
