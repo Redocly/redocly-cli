@@ -182,8 +182,8 @@ async function loadConfig(options?: {
 }): Promise<Config>;
 ```
 
-With `skipPluginEval`, `config.plugins` contains only the absolute paths of the referenced plugins, so use it to find out which plugin files a config points to without running their code.
-In this mode `extends` is kept as authored, because presets live in plugin code: neither plugin nor built-in presets are resolved, and the root config isn't merged into the `apis` entries.
+Use `skipPluginEval` to read a config without executing any plugin code, for example when the plugins come from an untrusted source.
+The returned config is incomplete: rules and decorators from plugins aren't loaded, and `extends` isn't resolved, so the presets it lists are ignored.
 
 ### `lintConfig`
 
