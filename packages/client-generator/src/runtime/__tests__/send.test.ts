@@ -219,6 +219,62 @@ describe('send', () => {
     expect(out2.response.status).toBe(200);
   });
 
+  it('sends X-Redocly-Client outside browsers; a caller header wins; false disables', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok(), ok()]);
+    const clientHeader = 'redocly-client-generator';
+    await send(
+      { fetch: fetchImpl, clientHeader },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    await send(
+      { fetch: fetchImpl, clientHeader },
+      op,
+      'u',
+      { method: 'GET', headers: { 'X-Redocly-Client': 'my-app/2.0' } },
+      undefined,
+      undefined,
+      {}
+    );
+    await send(
+      { fetch: fetchImpl, clientHeader: false },
+      op,
+      'u',
+      { method: 'GET' },
+      undefined,
+      undefined,
+      {}
+    );
+    const headerOf = (index: number) =>
+      (calls[index].init.headers as Record<string, string>)['X-Redocly-Client'];
+    expect(headerOf(0)).toBe('redocly-client-generator');
+    expect(headerOf(1)).toBe('my-app/2.0');
+    expect(headerOf(2)).toBeUndefined();
+  });
+
+  it('never sends the client header in a browser (a custom header would force CORS preflight)', async () => {
+    (globalThis as { document?: unknown }).document = {};
+    try {
+      const { calls, fetchImpl } = fetchSpy([ok()]);
+      await send(
+        { fetch: fetchImpl, clientHeader: 'redocly-client-generator' },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      );
+      expect((calls[0].init.headers as Record<string, string>)['X-Redocly-Client']).toBeUndefined();
+    } finally {
+      delete (globalThis as { document?: unknown }).document;
+    }
+  });
+
   it('idempotencyKey generates one stable key per call and makes POST retries safe by default', async () => {
     const { calls, fetchImpl } = fetchSpy([new Response(null, { status: 503 }), ok()]);
     const { response } = await send(

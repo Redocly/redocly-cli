@@ -250,6 +250,9 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
     // relative URL, which Node's fetch rejects.
     ...(serverUrl !== undefined ? [`serverUrl: ${codeString(serverUrl)}`] : []),
     ...(ctx.errorMode === 'result' ? ['errorMode: "result"'] : []),
+    // Client identification for API-owner telemetry; the runtime sends it only
+    // outside browsers, and `configure({ clientHeader: false })` disables it.
+    'clientHeader: "redocly-client-generator"',
   ];
   const config = fields.length > 0 ? `{ ${fields.join(', ')} }` : '{}';
   // Precedence, lowest → highest: spec defaults → baked publisher setup → app `configure()`.

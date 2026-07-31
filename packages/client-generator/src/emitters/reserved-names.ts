@@ -102,6 +102,7 @@ const GLOBAL_NAMES = [
   'clearTimeout',
   'crypto',
   'decodeURIComponent',
+  'document',
   'encodeURIComponent',
   'fetch',
   'globalThis',

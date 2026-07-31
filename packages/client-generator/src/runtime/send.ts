@@ -91,6 +91,16 @@ export async function send(
           ? idempotency()
           : crypto.randomUUID();
   }
+  // Client identification for the API owner's telemetry — never in browsers, where a
+  // custom header would force a CORS preflight the API may not allow.
+  if (
+    typeof config.clientHeader === 'string' &&
+    typeof document === 'undefined' &&
+    !('X-Redocly-Client' in headers) &&
+    !('x-redocly-client' in headers)
+  ) {
+    headers['X-Redocly-Client'] = config.clientHeader;
+  }
   const context: RequestContext = {
     url,
     method: fetchInit.method ?? 'GET',

@@ -55,7 +55,7 @@ describe('generate-client base consumer (single-file output)', () => {
     expect(generated).toContain('export const listPets = (');
     // The spec's server URL is baked into the client instance.
     expect(generated).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3102" });'
+      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3102", clientHeader: "redocly-client-generator" });'
     );
     // An OAS 3.1 enum that includes null renders as a nullable union.
     expect(generated).toMatch(/status\?:\s*\("available" \| "pending" \| "sold"\) \| null;/);

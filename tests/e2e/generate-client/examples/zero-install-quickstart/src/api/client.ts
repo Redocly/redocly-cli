@@ -318,6 +318,10 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
    * reused across retry attempts) — which also makes those retries safe under the
    * default retry policy. `true` generates a UUID per call; a function supplies the key. */
   idempotencyKey?: boolean | (() => string);
+  /** Identifies this client to the API via an `X-Redocly-Client` header (the generator
+   * bakes a default). Sent only OUTSIDE browsers — a custom header would force a CORS
+   * preflight. Override with your own value, or `false` to disable. */
+  clientHeader?: string | false;
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -752,6 +756,16 @@ async function send(
         : typeof idempotency === 'function'
           ? idempotency()
           : crypto.randomUUID();
+  }
+  // Client identification for the API owner's telemetry — never in browsers, where a
+  // custom header would force a CORS preflight the API may not allow.
+  if (
+    typeof config.clientHeader === 'string' &&
+    typeof document === 'undefined' &&
+    !('X-Redocly-Client' in headers) &&
+    !('x-redocly-client' in headers)
+  ) {
+    headers['X-Redocly-Client'] = config.clientHeader;
   }
   const context: RequestContext = {
     url,
@@ -1309,7 +1323,7 @@ export function createClient<
   return createClientCore<Ops, Id, Path, Tag>(operations, config, {});
 }
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.cafe.redocly.com" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.cafe.redocly.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const listMenuItems = (params: {

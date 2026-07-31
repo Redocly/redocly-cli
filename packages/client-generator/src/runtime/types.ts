@@ -179,6 +179,10 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
    * reused across retry attempts) — which also makes those retries safe under the
    * default retry policy. `true` generates a UUID per call; a function supplies the key. */
   idempotencyKey?: boolean | (() => string);
+  /** Identifies this client to the API via an `X-Redocly-Client` header (the generator
+   * bakes a default). Sent only OUTSIDE browsers — a custom header would force a CORS
+   * preflight. Override with your own value, or `false` to disable. */
+  clientHeader?: string | false;
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */

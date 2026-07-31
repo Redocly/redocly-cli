@@ -177,6 +177,10 @@ Per-request headers merge lowest to highest — the caller always wins:
 2. Typed header parameters.
 3. The caller's `init.headers`.
 
+Outside browsers, the client also identifies itself to the API with an `X-Redocly-Client` header (useful for the API owner's telemetry).
+Override it with `configure({ clientHeader: 'my-service/2.0' })`, or disable it with `clientHeader: false`.
+Browsers never send it — a custom header would force a CORS preflight.
+
 `use()` appends to the middleware chain, composing with any already-registered or publisher pre-configured middleware.
 `configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher pre-configured](./customize-client-generation.md#publisher-defaults)) middleware.
 

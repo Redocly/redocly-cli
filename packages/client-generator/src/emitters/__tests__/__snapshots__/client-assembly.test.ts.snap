@@ -68,7 +68,7 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
     tags: readonly string[];
 }>["tags"][number];
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://cafe.example.com" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://cafe.example.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const setBearer = client.auth.bearer;
@@ -166,7 +166,7 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
     tags: readonly string[];
 }>["tags"][number];
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const listOrders = Object.assign((params: {
@@ -269,7 +269,7 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
     tags: readonly string[];
 }>["tags"][number];
 
-export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", errorMode: "result" });
+export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", errorMode: "result", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
 export const listOrders = Object.assign((params: {

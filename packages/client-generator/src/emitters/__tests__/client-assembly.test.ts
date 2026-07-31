@@ -114,7 +114,7 @@ describe('emitClientSingleFile (package arm)', () => {
 
   it('bakes the serverUrl into the createClient config and narrows ctx.operation', () => {
     expect(output).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://x" });'
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://x", clientHeader: "redocly-client-generator" });'
     );
   });
 
@@ -232,7 +232,7 @@ describe('emitClientSingleFile (package arm)', () => {
     );
     // Precedence lowest→highest: spec default → baked setup (→ app configure()).
     expect(out).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x" } }, mergeSetup(__redoclySetup, {})));'
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x", clientHeader: "redocly-client-generator" } }, mergeSetup(__redoclySetup, {})));'
     );
   });
 
@@ -251,7 +251,9 @@ describe('emitClientSingleFile (package arm)', () => {
       serverUrl: 'https://x',
       errorMode: 'result',
     });
-    expect(out).toContain('{ serverUrl: "https://x", errorMode: "result" }');
+    expect(out).toContain(
+      '{ serverUrl: "https://x", errorMode: "result", clientHeader: "redocly-client-generator" }'
+    );
     expect(out).toContain('result: Result<GetOrderResult, GetOrderError>;');
     expect(out).toContain('type Result');
   });
@@ -312,7 +314,7 @@ describe('emitClientSingleFile (package arm)', () => {
     );
     // model fixture has a serverUrl — still baked.
     expect(out).toContain(
-      'export const client = createClient<Ops>(OPERATIONS, { serverUrl: "https://api.example.com" });'
+      'export const client = createClient<Ops>(OPERATIONS, { serverUrl: "https://api.example.com", clientHeader: "redocly-client-generator" });'
     );
     expect(out).toContain('export const { configure, use } = client;');
   });
@@ -320,7 +322,7 @@ describe('emitClientSingleFile (package arm)', () => {
   it('emits an empty config object when neither options nor the document set a serverUrl', () => {
     const out = emit(modelWith([getOrder], { serverUrl: undefined, schemas: SCHEMAS }));
     expect(out).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, {});'
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { clientHeader: "redocly-client-generator" });'
     );
   });
 
@@ -407,7 +409,7 @@ describe('emitClientSingleFile (embed arm)', () => {
     );
     // Precedence lowest→highest: spec default → baked setup (→ app configure()).
     expect(out).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x" } }, mergeSetup(__redoclySetup, {})));'
+      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x", clientHeader: "redocly-client-generator" } }, mergeSetup(__redoclySetup, {})));'
     );
   });
 
