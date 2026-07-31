@@ -22,7 +22,11 @@ function collectSecretPatterns(secretsSet: Set<string>): string[] {
     if (!secret.trim()) continue;
     patterns.add(secret);
     patterns.add(JSON.stringify(secret).slice(1, -1));
-    patterns.add(encodeURIComponent(secret));
+    // A lone surrogate reaching us through a captured `\uD800` escape makes
+    // encodeURIComponent throw; URLSearchParams substitutes U+FFFD instead.
+    if (secret.isWellFormed()) {
+      patterns.add(encodeURIComponent(secret));
+    }
     // URLSearchParams serializes to `secret=value`; drop the key to keep
     // the form-urlencoded variant (spaces become `+`, unlike encodeURIComponent).
     patterns.add(new URLSearchParams([['secret', secret]]).toString().slice('secret='.length));

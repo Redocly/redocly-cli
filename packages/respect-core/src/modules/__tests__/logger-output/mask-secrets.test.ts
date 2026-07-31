@@ -158,6 +158,12 @@ describe('maskSecrets', () => {
     expect(result).toEqual('filter=a+b');
   });
 
+  it('should mask a secret containing a lone surrogate', () => {
+    const secret = `tok${String.fromCharCode(0xd800)}en`;
+    const result = maskSecrets({ access_token: secret }, new Set([secret]));
+    expect(result).toEqual({ access_token: '********' });
+  });
+
   it('should preserve ArrayBuffer objects without breaking them', () => {
     const originalArrayBuffer = new ArrayBuffer(8);
     const originalData = new Uint8Array(originalArrayBuffer);
