@@ -86,6 +86,41 @@ describe('resolveSchemaPointer', () => {
     expect(resolveSchemaPointer(root, '/anything', model)).toBe(ORDER);
   });
 
+  it('resolves properties through an intersection (allOf collections), across ref members too', () => {
+    // The common shape: `allOf: [$ref: Collection.yaml, { properties: { items: [...] } }]`.
+    const collection: SchemaModel = {
+      kind: 'object',
+      properties: [
+        {
+          name: 'page',
+          schema: {
+            kind: 'object',
+            properties: [{ name: 'endCursor', schema: SCALAR, required: false }],
+          },
+          required: false,
+        },
+      ],
+    };
+    const listPage: SchemaModel = {
+      kind: 'intersection',
+      members: [
+        { kind: 'ref', name: 'Collection' },
+        {
+          kind: 'object',
+          properties: [{ name: 'items', schema: ORDER_LIST, required: true }],
+        },
+      ],
+    };
+    const allOfModel = modelWith([], {
+      schemas: [namedSchema('Order', ORDER), namedSchema('Collection', collection)],
+    });
+    // A property declared on the inline member…
+    expect(resolveSchemaPointer(listPage, '/items', allOfModel)).toBe(ORDER_LIST);
+    // …and one that lives inside the $ref'd member, through a nested step.
+    expect(resolveSchemaPointer(listPage, '/page/endCursor', allOfModel)).toBe(SCALAR);
+    expect(resolveSchemaPointer(listPage, '/missing', allOfModel)).toBeUndefined();
+  });
+
   it('steps into array items only for a numeric token', () => {
     expect(resolveSchemaPointer(ORDER_LIST, '/0', model)).toBe(ORDER);
     expect(resolveSchemaPointer(ORDER_LIST, '/12', model)).toBe(ORDER);
@@ -93,11 +128,9 @@ describe('resolveSchemaPointer', () => {
     expect(resolveSchemaPointer(ORDER_LIST, '/01', model)).toBeUndefined();
   });
 
-  it('bails on unions and intersections (v1 is strict)', () => {
+  it('bails on unions (genuinely ambiguous — v1 is strict)', () => {
     const union: SchemaModel = { kind: 'union', members: [ORDER_PAGE, { kind: 'null' }] };
     expect(resolveSchemaPointer(union, '/orders', model)).toBeUndefined();
-    const intersection: SchemaModel = { kind: 'intersection', members: [ORDER_PAGE] };
-    expect(resolveSchemaPointer(intersection, '/orders', model)).toBeUndefined();
   });
 
   it('bails when a step lands on a scalar', () => {
