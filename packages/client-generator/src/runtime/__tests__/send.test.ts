@@ -219,6 +219,53 @@ describe('send', () => {
     expect(out2.response.status).toBe(200);
   });
 
+  it('idempotencyKey generates one stable key per call and makes POST retries safe by default', async () => {
+    const { calls, fetchImpl } = fetchSpy([new Response(null, { status: 503 }), ok()]);
+    const { response } = await send(
+      {
+        fetch: fetchImpl,
+        idempotencyKey: true,
+        retry: { retries: 1, retryDelay: 1, jitter: false },
+      },
+      op,
+      'u',
+      { method: 'POST' },
+      { a: 1 },
+      undefined,
+      {}
+    );
+    // The keyed POST is retried (the default policy treats it as safe to re-send)…
+    expect(response.status).toBe(200);
+    expect(calls.length).toBe(2);
+    // …and BOTH attempts carry the SAME key — that is the whole point of the header.
+    const keys = calls.map(
+      (call) => (call.init.headers as Record<string, string>)['Idempotency-Key']
+    );
+    expect(keys[0]).toMatch(/[0-9a-f-]{36}/);
+    expect(keys[1]).toBe(keys[0]);
+  });
+
+  it('idempotencyKey: caller header and per-call key win; GET never gets one', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok(), ok()]);
+    const config: ClientConfig = { fetch: fetchImpl, idempotencyKey: () => 'from-factory' };
+    await send(config, op, 'u', { method: 'POST' }, { a: 1 }, undefined, {});
+    await send(
+      config,
+      op,
+      'u',
+      { method: 'POST', headers: { 'Idempotency-Key': 'caller-set' } },
+      { a: 1 },
+      undefined,
+      {}
+    );
+    await send(config, op, 'u', { method: 'GET' }, undefined, undefined, {});
+    const keyOf = (index: number) =>
+      (calls[index].init.headers as Record<string, string>)['Idempotency-Key'];
+    expect(keyOf(0)).toBe('from-factory');
+    expect(keyOf(1)).toBe('caller-set');
+    expect(keyOf(2)).toBeUndefined();
+  });
+
   it('aborts an attempt after `timeout` ms and retries it like a transport error', async () => {
     let attempts = 0;
     const fetchImpl = ((url: string, init: RequestInit) => {

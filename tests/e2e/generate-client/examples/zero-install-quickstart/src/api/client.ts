@@ -314,6 +314,10 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
    * attempt gets a fresh budget). Per-call `timeout` overrides it, `0` disables it.
    * SSE streams are long-lived by design and never inherit this value. */
   timeout?: number;
+  /** Send an `Idempotency-Key` header on POST/PATCH (one stable key per logical call,
+   * reused across retry attempts) — which also makes those retries safe under the
+   * default retry policy. `true` generates a UUID per call; a function supplies the key. */
+  idempotencyKey?: boolean | (() => string);
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -331,6 +335,8 @@ export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formD
 export type RequestOptions = RequestInit & {
   retry?: RetryConfig;
   timeout?: number;
+  /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
+  idempotencyKey?: string | boolean | (() => string);
   parseAs?: ParseAs;
 };
 
@@ -616,11 +622,16 @@ const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
 const TRANSIENT_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 
 /**
- * The default retry predicate: idempotent methods only, on a transport error or a
+ * The default retry predicate: idempotent methods — or any request carrying an
+ * `Idempotency-Key` header, which makes re-sending safe — on a transport error or a
  * transient status. A custom `retryOn` fully replaces this (no method check kept).
  */
 function defaultRetryOn(ctx: RetryContext): boolean {
-  if (!IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase())) return false;
+  const safeToResend =
+    IDEMPOTENT_METHODS.has(ctx.request.method.toUpperCase()) ||
+    'Idempotency-Key' in ctx.request.headers ||
+    'idempotency-key' in ctx.request.headers;
+  if (!safeToResend) return false;
   return ctx.response === undefined || TRANSIENT_STATUS.has(ctx.response.status);
 }
 
@@ -715,15 +726,33 @@ async function send(
   caps: SendCapabilities,
   accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
-  const { retry: callRetry, timeout: callTimeout, ...fetchInit } = init;
+  const { retry: callRetry, timeout: callTimeout, idempotencyKey: callKey, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
   const timeout = callTimeout ?? config.timeout;
+  const idempotency = callKey ?? config.idempotencyKey;
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
     Accept: accept,
     ...extra,
     ...toHeaderRecord(fetchInit.headers),
   };
+  const method = (fetchInit.method ?? 'GET').toUpperCase();
+  // One stable key per LOGICAL call — set before the retry loop so every attempt
+  // re-sends the same key; a caller-provided header always wins.
+  if (
+    idempotency !== undefined &&
+    idempotency !== false &&
+    (method === 'POST' || method === 'PATCH') &&
+    !('Idempotency-Key' in headers) &&
+    !('idempotency-key' in headers)
+  ) {
+    headers['Idempotency-Key'] =
+      typeof idempotency === 'string'
+        ? idempotency
+        : typeof idempotency === 'function'
+          ? idempotency()
+          : crypto.randomUUID();
+  }
   const context: RequestContext = {
     url,
     method: fetchInit.method ?? 'GET',

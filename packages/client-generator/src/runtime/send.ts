@@ -64,15 +64,33 @@ export async function send(
   caps: SendCapabilities,
   accept = 'application/json'
 ): Promise<{ response: Response; context: RequestContext }> {
-  const { retry: callRetry, timeout: callTimeout, ...fetchInit } = init;
+  const { retry: callRetry, timeout: callTimeout, idempotencyKey: callKey, ...fetchInit } = init;
   const retry: RetryConfig = { ...config.retry, ...callRetry };
   const timeout = callTimeout ?? config.timeout;
+  const idempotency = callKey ?? config.idempotencyKey;
   const extra = typeof config.headers === 'function' ? await config.headers() : config.headers;
   const headers: Record<string, string> = {
     Accept: accept,
     ...extra,
     ...toHeaderRecord(fetchInit.headers),
   };
+  const method = (fetchInit.method ?? 'GET').toUpperCase();
+  // One stable key per LOGICAL call — set before the retry loop so every attempt
+  // re-sends the same key; a caller-provided header always wins.
+  if (
+    idempotency !== undefined &&
+    idempotency !== false &&
+    (method === 'POST' || method === 'PATCH') &&
+    !('Idempotency-Key' in headers) &&
+    !('idempotency-key' in headers)
+  ) {
+    headers['Idempotency-Key'] =
+      typeof idempotency === 'string'
+        ? idempotency
+        : typeof idempotency === 'function'
+          ? idempotency()
+          : crypto.randomUUID();
+  }
   const context: RequestContext = {
     url,
     method: fetchInit.method ?? 'GET',

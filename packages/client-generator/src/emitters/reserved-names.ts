@@ -100,6 +100,7 @@ const GLOBAL_NAMES = [
   'URLSearchParams',
   'btoa',
   'clearTimeout',
+  'crypto',
   'decodeURIComponent',
   'encodeURIComponent',
   'fetch',

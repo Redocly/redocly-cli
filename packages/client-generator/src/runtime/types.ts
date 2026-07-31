@@ -175,6 +175,10 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
    * attempt gets a fresh budget). Per-call `timeout` overrides it, `0` disables it.
    * SSE streams are long-lived by design and never inherit this value. */
   timeout?: number;
+  /** Send an `Idempotency-Key` header on POST/PATCH (one stable key per logical call,
+   * reused across retry attempts) — which also makes those retries safe under the
+   * default retry policy. `true` generates a UUID per call; a function supplies the key. */
+  idempotencyKey?: boolean | (() => string);
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -192,6 +196,8 @@ export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formD
 export type RequestOptions = RequestInit & {
   retry?: RetryConfig;
   timeout?: number;
+  /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
+  idempotencyKey?: string | boolean | (() => string);
   parseAs?: ParseAs;
 };
 
