@@ -7,7 +7,7 @@ import { descriptorStatements, opsInterfaceStatements, packageIdents } from '../
 import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
 import { printStatements } from '../ts.js';
-import { apiModel, modelWith, operation, param } from './fixtures.js';
+import { apiModel, modelWith, operation, param, response } from './fixtures.js';
 
 function emitDescriptors(model: ApiModel): string {
   return printStatements(descriptorStatements(model, packageIdents(model), 'string'));
@@ -344,6 +344,53 @@ describe('descriptorStatements', () => {
     // Non-paginated entries carry no pagination field.
     expect(out).toContain('ping: { id: "ping", method: "GET", path: "/ping" }');
   });
+
+  it('emits responseHeaders coerce specs from declared success-response headers', () => {
+    const out = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          path: '/customers',
+          successResponses: [
+            response({
+              schema: { kind: 'array', items: { kind: 'ref', name: 'Customer' } },
+            }),
+          ],
+          successResponseHeaders: [
+            {
+              name: 'pagination-total',
+              schema: { kind: 'scalar', scalar: 'integer' },
+              required: true,
+            },
+            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
+        }),
+      ])
+    );
+    expect(out).toContain(
+      'responseHeaders: [{ name: "pagination-total", key: "paginationTotal", type: "number" }, { name: "link", key: "link", type: "string" }]'
+    );
+  });
+
+  it('emits safe unique response-header descriptor keys', () => {
+    const out = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          successResponses: [response()],
+          successResponseHeaders: [
+            { name: '3d-secure', schema: { kind: 'scalar', scalar: 'boolean' } },
+            { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
+            { name: 'x_foo', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
+        }),
+      ])
+    );
+
+    expect(out).toContain(
+      'responseHeaders: [{ name: "3d-secure", key: "_3dSecure", type: "boolean" }, { name: "x-foo", key: "xFoo", type: "number" }, { name: "x_foo", key: "xFoo_2", type: "string" }]'
+    );
+  });
 });
 
 describe('opsInterfaceStatements', () => {
@@ -569,7 +616,7 @@ describe('opsInterfaceStatements', () => {
     // Result mode: `result` is the envelope, so `page` carries the raw page for `.pages()`.
     const out = emitOps(modelWith([listOrders]), { pagination, errorMode: 'result' });
     expect(out).toMatch(
-      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
+      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}mode: "result";\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
     );
     // Throw mode emits no page member — `result` already IS the raw page.
     expect(emitOps(modelWith([listOrders]), { pagination })).not.toContain('page:');
@@ -606,5 +653,58 @@ describe('opsInterfaceStatements', () => {
     ]);
     const out = emitOps(modelWith([listOrders]), { pagination, dateType: 'Date' });
     expect(out).toContain('item: Date;');
+  });
+
+  it('adds a headers member from declared success-response headers', () => {
+    const out = emitOps(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          path: '/customers',
+          successResponses: [
+            response({
+              schema: { kind: 'array', items: { kind: 'ref', name: 'Customer' } },
+            }),
+          ],
+          successResponseHeaders: [
+            { name: 'pagination-total', schema: { kind: 'scalar', scalar: 'integer' } },
+          ],
+        }),
+      ])
+    );
+    expect(out).toContain('headers: {\n            paginationTotal?: number;\n        };');
+  });
+
+  it('emits safe unique keys, requiredness, and only runtime-supported header types', () => {
+    const out = emitOps(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          path: '/customers',
+          successResponses: [response()],
+          successResponseHeaders: [
+            {
+              name: '3d-secure',
+              schema: { kind: 'scalar', scalar: 'boolean' },
+              required: true,
+            },
+            { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
+            { name: 'x_foo', schema: { kind: 'scalar', scalar: 'string' } },
+            {
+              name: 'x-ids',
+              schema: {
+                kind: 'array',
+                items: { kind: 'scalar', scalar: 'integer' },
+              },
+            },
+          ],
+        }),
+      ])
+    );
+
+    expect(out).toContain('_3dSecure: boolean;');
+    expect(out).toContain('xFoo?: number;');
+    expect(out).toContain('xFoo_2?: string;');
+    expect(out).toContain('xIds?: string;');
   });
 });

@@ -38,4 +38,11 @@ describe('package root entry (lib/index.js)', () => {
     );
     expect(outsideRuntime).toEqual([]);
   });
+
+  it('re-exports Envelope and EnvelopeResult for package-mode clients', () => {
+    // Package-mode sugar imports EnvelopeResult; the generated file re-exports Envelope.
+    const dts = readFileSync(join(libDir, 'index.d.ts'), 'utf-8');
+    expect(dts).toMatch(/\bEnvelope\b/);
+    expect(dts).toMatch(/\bEnvelopeResult\b/);
+  });
 });

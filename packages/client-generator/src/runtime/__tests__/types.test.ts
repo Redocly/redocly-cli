@@ -1,6 +1,7 @@
 import type {
   Client,
   ClientConfig,
+  Envelope,
   Middleware,
   OperationContext,
   OperationDescriptor,
@@ -24,6 +25,18 @@ interface TestOps {
   [key: string]: { args: object; result: unknown; kind?: 'sse'; item?: unknown };
 }
 
+// Shared by the envelope tests below.
+type Customer = { id: string };
+interface EnvelopeOps {
+  listCustomers: {
+    args: { params?: { limit?: number } };
+    result: Customer[];
+    headers: { paginationTotal?: number };
+  };
+  ping: { args: Record<string, never>; result: string };
+  [key: string]: { args: object; result: unknown; headers?: object };
+}
+
 describe('Client<Ops> mapped type', () => {
   it('types methods, optionality, and sse per the Ops entry', () => {
     // Runtime stub — expectTypeOf reads only the static type, but property access must not throw.
@@ -31,12 +44,10 @@ describe('Client<Ops> mapped type', () => {
 
     expectTypeOf(client.requiredArgs).toBeCallableWith({ orderId: 'ord_1' });
     expectTypeOf(client.requiredArgs).toBeCallableWith({ orderId: 'ord_1' }, { parseAs: 'json' });
-    expectTypeOf(client.requiredArgs).returns.resolves.toEqualTypeOf<{ id: string }>();
 
     // All-optional args → the args object itself is optional.
     expectTypeOf(client.optionalArgs).toBeCallableWith();
     expectTypeOf(client.optionalArgs).toBeCallableWith({ params: { limit: 5 } });
-    expectTypeOf(client.optionalArgs).returns.resolves.toEqualTypeOf<string[]>();
 
     // SSE entries return typed async generators and take SseOptions.
     expectTypeOf(client.streaming).returns.toEqualTypeOf<
@@ -52,6 +63,13 @@ describe('Client<Ops> mapped type', () => {
     expectTypeOf(client.auth.apiKey).toBeCallableWith('scheme', 'key');
 
     const _typeOnly = (): void => {
+      // Default (no init) calls resolve to the plain body. Asserted through calls because
+      // `.returns` on the generic throw-mode method instantiates `Init` at its constraint,
+      // which is the (intended) body-or-envelope union.
+      expectTypeOf(client.requiredArgs({ orderId: 'ord_1' })).resolves.toEqualTypeOf<{
+        id: string;
+      }>();
+      expectTypeOf(client.optionalArgs()).resolves.toEqualTypeOf<string[]>();
       // @ts-expect-error required args cannot be omitted
       void client.requiredArgs();
     };
@@ -100,6 +118,7 @@ describe('Client<Ops> mapped type', () => {
       listOrders: {
         args: { params?: { cursor?: string } };
         result: Result<OrderPage, { title: string }>;
+        mode: 'result';
         item: { id: string };
         page: OrderPage;
       };
@@ -107,6 +126,7 @@ describe('Client<Ops> mapped type', () => {
         args: object;
         result: unknown;
         kind?: 'sse';
+        mode?: 'result';
         item?: unknown;
         page?: unknown;
       };
@@ -191,5 +211,100 @@ describe('Client<Ops> mapped type', () => {
     >().toEqualTypeOf<string>();
     const init: RequestOptions = { retry: { retries: 1 }, parseAs: 'auto' };
     expect(init.parseAs).toBe('auto');
+  });
+
+  it('envelope: true returns { data, headers, response }; default stays the body', () => {
+    const client = { auth: {} } as unknown as Client<EnvelopeOps>;
+
+    expectTypeOf(client.listCustomers).toBeCallableWith(
+      { params: { limit: 1 } },
+      { envelope: true }
+    );
+
+    const _typeOnly = (): void => {
+      // Default stays the body; a literal envelope: true narrows to the envelope.
+      expectTypeOf(client.listCustomers({ params: { limit: 1 } })).resolves.toEqualTypeOf<
+        Customer[]
+      >();
+      expectTypeOf(client.listCustomers({}, { envelope: true })).resolves.toEqualTypeOf<
+        Envelope<Customer[], { paginationTotal?: number }>
+      >();
+      // Ops without a headers slot still get an empty typed headers object.
+      expectTypeOf(client.ping({}, { envelope: true })).resolves.toEqualTypeOf<
+        Envelope<string, Record<string, never>>
+      >();
+    };
+    void _typeOnly;
+
+    const init: RequestOptions = { envelope: true };
+    expect(init.envelope).toBe(true);
+  });
+
+  it('result-mode entries ignore envelope: true without changing their return type', () => {
+    interface ResultModeOps {
+      listCustomers: {
+        args: Record<string, never>;
+        result: Result<string[], { title: string }>;
+        mode: 'result';
+        headers: { paginationTotal?: number };
+      };
+      [key: string]: {
+        args: object;
+        result: unknown;
+        mode?: 'result';
+        headers?: object;
+      };
+    }
+    const client = { auth: {} } as unknown as Client<ResultModeOps>;
+
+    const _typeOnly = (): void => {
+      expectTypeOf(client.listCustomers({}, { envelope: true })).resolves.toEqualTypeOf<
+        Result<string[], { title: string }>
+      >();
+    };
+    void _typeOnly;
+  });
+
+  it('keeps the plain body for init objects that never mention envelope', () => {
+    const client = { auth: {} } as unknown as Client<EnvelopeOps>;
+
+    const _typeOnly = (): void => {
+      expectTypeOf(client.listCustomers({}, {})).resolves.toEqualTypeOf<Customer[]>();
+      expectTypeOf(
+        client.listCustomers({}, { headers: { 'X-Trace': '1' } })
+      ).resolves.toEqualTypeOf<Customer[]>();
+      expectTypeOf(
+        client.listCustomers({}, { signal: new AbortController().signal, parseAs: 'json' })
+      ).resolves.toEqualTypeOf<Customer[]>();
+    };
+    void _typeOnly;
+  });
+
+  it('returns a union when the envelope flag is widened', () => {
+    const client = { auth: {} } as unknown as Client<EnvelopeOps>;
+
+    const _typeOnly = (): void => {
+      const widened = { envelope: true };
+      expectTypeOf(client.listCustomers({}, widened)).resolves.toEqualTypeOf<
+        Customer[] | Envelope<Customer[], { paginationTotal?: number }>
+      >();
+
+      const annotated: RequestOptions = { envelope: true };
+      expectTypeOf(client.listCustomers({}, annotated)).resolves.toEqualTypeOf<
+        Customer[] | Envelope<Customer[], { paginationTotal?: number }>
+      >();
+
+      // The tanstack queryFn shape: a spread of possibly-envelope options plus signal.
+      const spreadCall = (outer?: RequestOptions) =>
+        client.listCustomers({}, { ...outer, signal: new AbortController().signal });
+      expectTypeOf(spreadCall).returns.resolves.toEqualTypeOf<
+        Customer[] | Envelope<Customer[], { paginationTotal?: number }>
+      >();
+
+      expectTypeOf(client.listCustomers({}, { envelope: false })).resolves.toEqualTypeOf<
+        Customer[]
+      >();
+    };
+    void _typeOnly;
   });
 });

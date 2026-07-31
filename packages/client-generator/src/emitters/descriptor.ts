@@ -18,6 +18,7 @@ import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-t
 import type { EmitContext } from './operations.js';
 import type { ModelPagination } from './pagination.js';
 import { WIRING_NAMES } from './reserved-names.js';
+import { responseHeadersTypeLiteral, responseHeaderSpecs } from './response-headers.js';
 import { isSseOp, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase } from './support.js';
 import { jsdoc, literalExpression, parseStatements, ts } from './ts.js';
@@ -71,6 +72,7 @@ function descriptorValue(
     .filter((alternative) => alternative.length > 0);
   const sse = isSseOp(op);
   const responseKind = sse ? 'sse' : computeResponse(op.successResponses, dateType).responseKind;
+  const responseHeaders = responseHeaderSpecs(op.successResponseHeaders);
   return {
     // The spec's operationId, NOT the (possibly renamed) map key: `id` drives middleware
     // targeting (`ctx.operation.id`) and must match inline mode's `operationMetaExpr`.
@@ -94,6 +96,7 @@ function descriptorValue(
     ...(security.length > 0 ? { security } : {}),
     // The resolved spec is already normalized with stable key order (see pagination.ts).
     ...(pagination?.has(op.name) ? { pagination: pagination.get(op.name)!.spec } : {}),
+    ...(responseHeaders === undefined ? {} : { responseHeaders }),
   };
 }
 
@@ -199,6 +202,28 @@ function opsMember(op: OperationModel, ident: string, ctx: EmitContext): ts.Prop
     factory.createPropertySignature(undefined, 'args', undefined, args),
     factory.createPropertySignature(undefined, 'result', undefined, resultType(op, ctx)),
   ];
+  if (ctx.errorMode === 'result' && !isSseOp(op)) {
+    members.push(
+      factory.createPropertySignature(
+        undefined,
+        'mode',
+        undefined,
+        factory.createLiteralTypeNode(factory.createStringLiteral('result'))
+      )
+    );
+  }
+  // Declared success-response headers type the throw-mode `{ envelope: true }` bag.
+  const responseHeaders = op.successResponseHeaders;
+  if (responseHeaders && responseHeaders.length > 0) {
+    members.push(
+      factory.createPropertySignature(
+        undefined,
+        'headers',
+        undefined,
+        responseHeadersTypeLiteral(responseHeaders)
+      )
+    );
+  }
   // Paginated operations declare the page's element type — it drives the runtime's
   // `.pages()`/`.items()` members on the method (`Client<Ops>` keys off `item`).
   const paginated = ctx.pagination?.get(op.name);

@@ -13,6 +13,7 @@ import type {
   ParseAs,
   QueryValue,
   RequestOptions,
+  ResponseHeaderSpec,
   SecuritySpec,
   ServerSentEvent,
   SseOptions,
@@ -210,6 +211,38 @@ async function prepareRequest(
   return { url, init: mergedInit, body };
 }
 
+/** Coerce a single declared response header value; omit when absent or unparsable. */
+function coerceResponseHeader(
+  raw: string | null,
+  type: ResponseHeaderSpec['type']
+): string | number | boolean | undefined {
+  if (raw === null) return undefined;
+  if (type === 'number') {
+    if (raw.trim() === '') return undefined;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : undefined;
+  }
+  if (type === 'boolean') {
+    if (raw === 'true') return true;
+    if (raw === 'false') return false;
+    return undefined;
+  }
+  return raw;
+}
+
+/** Build the camelCase declared-header bag for a throw-mode envelope. */
+function readEnvelopeHeaders(
+  response: Response,
+  specs: readonly ResponseHeaderSpec[] | undefined
+): Record<string, string | number | boolean> {
+  const headers: Record<string, string | number | boolean> = {};
+  for (const spec of specs ?? []) {
+    const value = coerceResponseHeader(response.headers.get(spec.name), spec.type);
+    if (value !== undefined) headers[spec.key] = value;
+  }
+  return headers;
+}
+
 /** One non-SSE call: send, then branch on the configured error mode. */
 async function execute(
   config: ClientConfig,
@@ -220,7 +253,8 @@ async function execute(
 ): Promise<unknown> {
   const prepared = await prepareRequest(config, op, args, init, caps);
   const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
-  const { parseAs, ...sendInit } = prepared.init;
+  // `parseAs` / `envelope` are client options, not fetch RequestInit fields.
+  const { parseAs, envelope, ...sendInit } = prepared.init;
   const readKind = parseAs ?? kindFor(op);
   const { response, context } = await send(
     config,
@@ -251,7 +285,15 @@ async function execute(
     }
     throw error;
   }
-  return parse(response, readKind);
+  const data = await parse(response, readKind);
+  if (envelope === true) {
+    return {
+      data,
+      headers: readEnvelopeHeaders(response, op.responseHeaders),
+      response,
+    };
+  }
+  return data;
 }
 
 /** The paginate capability, or a descriptive throw when a paginated op is iterated unwired. */
@@ -272,9 +314,14 @@ function pageCall(
   method: (args?: OperationArgs, init?: RequestOptions) => Promise<unknown>,
   config: ClientConfig
 ) {
-  if (config.errorMode !== 'result') return method;
+  const callWithoutEnvelope = (args?: OperationArgs, init?: RequestOptions) => {
+    if (!init || init.envelope === undefined) return method(args, init);
+    const { envelope: _envelope, ...pageInit } = init;
+    return method(args, pageInit);
+  };
+  if (config.errorMode !== 'result') return callWithoutEnvelope;
   return async (args?: OperationArgs, init?: RequestOptions) => {
-    const envelope = (await method(args, init)) as {
+    const envelope = (await callWithoutEnvelope(args, init)) as {
       data: unknown;
       error: unknown;
       response: Response;
@@ -300,7 +347,7 @@ function pageCall(
 function linkPageCall(config: ClientConfig, op: OperationDescriptor, caps: Capabilities) {
   return async (args: OperationArgs = {}, init: RequestOptions = {}) => {
     const prepared = await prepareRequest(config, op, args, init, caps);
-    const { parseAs, ...sendInit } = prepared.init;
+    const { parseAs, envelope: _envelope, ...sendInit } = prepared.init;
     const readKind = parseAs ?? kindFor(op);
     const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
     const { response } = await send(

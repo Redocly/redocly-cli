@@ -17,10 +17,23 @@ function emitResult(op: Partial<OperationModel>, schemas: string[] = []): string
   );
 }
 
+/** Throw-mode flat sugar is generic over `init` so `{ envelope: true }` narrows the return. */
+function envelopeFlatSugar(
+  name: string,
+  argsBeforeInit: string,
+  callArgs: string,
+  resultType: string,
+  headersType = 'Record<string, never>'
+): string {
+  const params = argsBeforeInit ? `${argsBeforeInit}, init?: I` : 'init?: I';
+  const promise = `Promise<EnvelopeResult<${resultType}, ${headersType}, I>>`;
+  return `export const ${name} = <I extends RequestOptions | undefined = undefined>(${params}): ${promise} => client.${name}(${callArgs}, init) as ${promise};`;
+}
+
 describe('flat sugar — argument-list permutations (renderArgList)', () => {
   it('renders an operation with no inputs: only the trailing init, forwarding empty args', () => {
     const out = emitWithOp({});
-    expect(out).toContain('export const op = (init: RequestOptions = {}) => client.op({}, init);');
+    expect(out).toContain(envelopeFlatSugar('op', '', '{}', 'OpResult'));
   });
 
   it('orders path params by their position in the URL template, not in pathParams[]', () => {
@@ -33,7 +46,12 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
       ],
     });
     expect(out).toContain(
-      'export const getNested = (first: string, second: number, init: RequestOptions = {}) => client.getNested({ first, second }, init);'
+      envelopeFlatSugar(
+        'getNested',
+        'first: string, second: number',
+        '{ first, second }',
+        'GetNestedResult'
+      )
     );
   });
 
@@ -49,7 +67,7 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
       pathParams: [param('pet-id', 'path', true)],
     });
     expect(out).toContain(
-      'export const getPet = (pet_id: string, init: RequestOptions = {}) => client.getPet({ "pet-id": pet_id }, init);'
+      envelopeFlatSugar('getPet', 'pet_id: string', '{ "pet-id": pet_id }', 'GetPetResult')
     );
   });
 
@@ -133,7 +151,7 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
       headerParams: [param('X-Api-Version', 'header', true)],
     });
     expect(out).toMatch(/headers: \{\n {4}"X-Api-Version": string;\n\}, init/);
-    expect(out).toContain('=> client.getThing({ headers }, init);');
+    expect(out).toContain('=> client.getThing({ headers }, init) as Promise<');
   });
 
   it('defaults the `headers` slot to `= {}` when all header params are optional', () => {
@@ -183,9 +201,7 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
     expect(out).toContain(
       'export const streamMessages = (init: SseOptions = {}) => client.streamMessages({}, init);'
     );
-    expect(out).toContain(
-      'export const listThings = (init: RequestOptions = {}) => client.listThings({}, init);'
-    );
+    expect(out).toContain(envelopeFlatSugar('listThings', '', '{}', 'ListThingsResult'));
   });
 });
 
