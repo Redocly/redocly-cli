@@ -1,5 +1,6 @@
 import { logger } from '../../logger.js';
 import type { ExtendedSecurity } from '../../typings/arazzo.js';
+import type { OAuth2Auth } from '../../typings/openapi.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -8,12 +9,40 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],
-  oauth2: ['accessToken'],
   openIdConnect: ['accessToken'],
   mutualTLS: [],
 } as const;
 
-type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
+type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE | 'oauth2';
+
+function getOAuth2RequiredValues(
+  flows: OAuth2Auth['flows'] | undefined,
+  values: Record<string, unknown> | undefined
+): readonly string[] {
+  if (values?.accessToken) {
+    return [];
+  }
+
+  const hasClientCredentialsFlow = Boolean(flows?.clientCredentials);
+  const hasPasswordFlow = Boolean(flows?.password);
+
+  if (hasClientCredentialsFlow && hasPasswordFlow) {
+    const hasClientCredentials = !!(values && values.clientId && values.clientSecret);
+    const hasPasswordCredentials = !!(values && values.username && values.password);
+    if (hasClientCredentials || hasPasswordCredentials) {
+      return [];
+    }
+    return ['clientId', 'clientSecret'];
+  }
+
+  if (hasClientCredentialsFlow) {
+    return ['clientId', 'clientSecret'];
+  }
+  if (hasPasswordFlow) {
+    return ['username', 'password'];
+  }
+  return ['accessToken'];
+}
 
 function validateSecuritySchemas(
   extendedSecurity: ExtendedSecurity[] | undefined,
@@ -31,7 +60,7 @@ function validateSecuritySchemas(
 
     const { scheme, values } = securitySchema;
     // TODO: Struct rule does not check before this point, so we need to check it here. Investigate if we can move this check to the Struct rule.
-    const authType = scheme?.type === 'http' ? scheme.scheme : scheme?.type;
+    const authType = (scheme?.type === 'http' ? scheme.scheme : scheme?.type) as AuthType;
 
     if (authType === 'mutualTLS') {
       logger.warn(
@@ -40,7 +69,10 @@ function validateSecuritySchemas(
       continue;
     }
 
-    const requiredValues = REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType];
+    const requiredValues =
+      authType === 'oauth2'
+        ? getOAuth2RequiredValues((scheme as OAuth2Auth)?.flows, values as Record<string, unknown>)
+        : REQUIRED_VALUES_BY_AUTH_TYPE[authType as keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE];
 
     if (requiredValues) {
       for (const requiredValue of requiredValues) {
