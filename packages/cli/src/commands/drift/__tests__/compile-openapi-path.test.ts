@@ -1,4 +1,4 @@
-import { compileOpenApiPath } from '../../../commands/drift/utils/http.js';
+import { compileOpenApiPath } from '../utils/http.js';
 
 describe('compileOpenApiPath', () => {
   it('compiles a segment that is a single parameter', () => {
