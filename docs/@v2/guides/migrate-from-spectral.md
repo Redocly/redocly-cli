@@ -122,6 +122,11 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 |                                        | `scalar-property-missing-example`             |
 |                                        | `spec-components-invalid-map-name`            |
 
+{% admonition type="info" name="Missing a rule you rely on?" %}
+Missing a rule? [Request one](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) — include the Spectral rule name and what it should check, and we'll consider adding it.
+Meanwhile, configurable rules can often cover the gap today.
+{% /admonition %}
+
 ### Configurable and extensible rules
 
 If the built-in rules don't meet your requirements, don't worry! Redocly allows you to build any rule to meet your needs, using [configurable rules](../rules/configurable-rules.md). Declare which elements of the OpenAPI description should comply with the rule, and then define the criteria that it should be checked against.
