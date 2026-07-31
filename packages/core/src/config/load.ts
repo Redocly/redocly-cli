@@ -59,9 +59,10 @@ export async function loadConfig(
     configPath?: string;
     customExtends?: string[];
     externalRefResolver?: BaseResolver;
+    skipPluginEval?: boolean;
   } = {}
 ): Promise<Config> {
-  const { configPath = findConfig(), customExtends, externalRefResolver } = options;
+  const { configPath = findConfig(), customExtends, externalRefResolver, skipPluginEval } = options;
 
   const resolver = externalRefResolver ?? new BaseResolver();
 
@@ -78,6 +79,7 @@ export async function loadConfig(
     customExtends,
     configPath,
     externalRefResolver,
+    skipPluginEval,
   });
 
   const ignore = await loadIgnoreConfig(configPath, resolver);
