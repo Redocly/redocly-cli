@@ -7,7 +7,7 @@ import { BaseResolver, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
 import { analyzeApi, type ApiAnalysis } from '../build-graph.js';
 import { buildApiIndex, type ApiIndex } from '../build-index.js';
-import { buildNodeEnvelope, findIndexNode, hasIndexLocation } from '../slice.js';
+import { appendDepsClosure, buildNodeEnvelope, findIndexNode, hasIndexLocation } from '../slice.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = join(__dirname, 'fixtures', 'split');
@@ -111,5 +111,50 @@ describe('buildNodeEnvelope outside cwd', () => {
     const envelope = buildNodeEnvelope({ indexNode: errorNode, analysis, cwd: outsideCwd });
     expect(envelope.file).toBe('../common/Error.yaml');
     expect(envelope.content).toContain('message');
+  });
+});
+
+describe('appendDepsClosure', () => {
+  it('appends the transitive dependency closure in BFS order', async () => {
+    const { analysis, index } = await analyzed();
+
+    const indexNode = findIndexNode(index.structure, 'POST /tickets')!;
+    if (!hasIndexLocation(indexNode)) throw new Error('operation node must carry a location');
+    const base = buildNodeEnvelope({ indexNode, analysis, cwd: FIXTURE_ROOT });
+
+    const withDeps = appendDepsClosure({
+      envelope: base,
+      indexNode,
+      analysis,
+      index,
+      cwd: FIXTURE_ROOT,
+    });
+
+    expect(withDeps.deps!.map((dep) => dep.file)).toEqual([
+      'components/schemas/Ticket.yaml',
+      'components/schemas/TicketId.yaml',
+    ]);
+    expect(withDeps.deps![0].content).toContain('ticketId');
+    expect(withDeps.truncated).toBeUndefined();
+  });
+
+  it('truncates the closure at the byte cap and says so', async () => {
+    const { analysis, index } = await analyzed();
+
+    const indexNode = findIndexNode(index.structure, 'POST /tickets')!;
+    if (!hasIndexLocation(indexNode)) throw new Error('operation node must carry a location');
+    const base = buildNodeEnvelope({ indexNode, analysis, cwd: FIXTURE_ROOT });
+
+    const capped = appendDepsClosure({
+      envelope: base,
+      indexNode,
+      analysis,
+      index,
+      cwd: FIXTURE_ROOT,
+      capBytes: 10,
+    });
+
+    expect(capped.deps!.length).toBeLessThan(2);
+    expect(capped.truncated).toBe(true);
   });
 });

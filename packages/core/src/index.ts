@@ -155,7 +155,9 @@ export {
   type IndexGroupBy,
 } from './api-graph/build-index.js';
 export {
+  appendDepsClosure,
   buildNodeEnvelope,
+  DEPS_CONTENT_CAP_BYTES,
   findIndexNode,
   hasIndexLocation,
   type ApiNodeEnvelope,
