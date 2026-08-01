@@ -126,6 +126,17 @@ export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js'
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
+export {
+  commonDir,
+  compareStrings,
+  mapForeignLocation,
+  mapRootPointer,
+  OPERATION_METHODS,
+  parsePointerSegments,
+  toNodeId,
+  type MappedNode,
+} from './api-graph/node-id.js';
+export type { DependencyGraph, GraphEdge, GraphNode, NodeKind } from './api-graph/types.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
