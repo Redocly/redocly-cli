@@ -154,6 +154,14 @@ export {
   type ApiIndexNode,
   type IndexGroupBy,
 } from './api-graph/build-index.js';
+export {
+  buildNodeEnvelope,
+  findIndexNode,
+  hasIndexLocation,
+  type ApiNodeEnvelope,
+  type ApiNodeRef,
+  type LocatedIndexNode,
+} from './api-graph/slice.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
