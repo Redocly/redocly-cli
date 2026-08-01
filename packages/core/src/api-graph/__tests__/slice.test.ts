@@ -157,4 +157,23 @@ describe('appendDepsClosure', () => {
     expect(capped.deps!.length).toBeLessThan(2);
     expect(capped.truncated).toBe(true);
   });
+
+  it('returns an empty closure for grouping nodes instead of walking the graph', async () => {
+    const { analysis, index } = await analyzed();
+
+    const operationsSection = findIndexNode(index.structure, 'Operations')!;
+    if (!hasIndexLocation(operationsSection)) throw new Error('Operations carries paths location');
+    const base = buildNodeEnvelope({ indexNode: operationsSection, analysis, cwd: FIXTURE_ROOT });
+
+    const withDeps = appendDepsClosure({
+      envelope: base,
+      indexNode: operationsSection,
+      analysis,
+      index,
+      cwd: FIXTURE_ROOT,
+    });
+
+    expect(withDeps.deps).toEqual([]);
+    expect(withDeps.truncated).toBeUndefined();
+  });
 });

@@ -3,6 +3,7 @@ import type { Document } from '../resolve.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { ApiAnalysis } from './build-graph.js';
 import { toRelativePath, type ApiIndex, type ApiIndexNode } from './build-index.js';
+import type { NodeKind } from './types.js';
 
 export type ApiNodeRef = {
   ref: string;
@@ -96,12 +97,19 @@ export function buildNodeEnvelope(options: {
   };
 }
 
-// Keyed by analysis only: an ApiAnalysis is always paired with the cwd it was built with,
-// so cwd doesn't need to be part of the cache key.
-const documentsByFileCache = new WeakMap<ApiAnalysis, Map<string, Document>>();
+// Nested by analysis, then cwd: the same analysis can be sliced against more than one cwd.
+const documentsByFileCache = new WeakMap<ApiAnalysis, Map<string, Map<string, Document>>>();
 
 export const DEPS_CONTENT_CAP_BYTES = 65536;
 
+// Only these graph node kinds carry content of their own; a root/path node is pure structure.
+const SEEDABLE_KINDS = new Set<NodeKind>(['operation', 'component', 'file']);
+
+/**
+ * Deps are meaningful only for content leaves — operations and components (or the file that
+ * defines one). A grouping or structural node (a section, a tag group, a path spine node)
+ * yields an empty closure by design: it has no content of its own to walk from.
+ */
 export function appendDepsClosure(options: {
   envelope: ApiNodeEnvelope;
   indexNode: LocatedIndexNode;
@@ -113,12 +121,16 @@ export function appendDepsClosure(options: {
   const { envelope, indexNode, analysis, index, cwd } = options;
   const capBytes = options.capBytes ?? DEPS_CONTENT_CAP_BYTES;
 
+  const nodesById = new Map(analysis.graph.nodes.map((node) => [node.id, node]));
+  const seed = nodesById.has(indexNode.id) ? indexNode.id : indexNode.file;
+  const seedNode = nodesById.get(seed);
+  if (!seedNode?.kind || !SEEDABLE_KINDS.has(seedNode.kind)) {
+    return { ...envelope, deps: [] };
+  }
+
   const leavesById = new Map<string, LocatedIndexNode>();
   const leavesByFile = new Map<string, LocatedIndexNode>();
   collectLocatedLeaves(index.structure, leavesById, leavesByFile);
-
-  const graphIds = new Set(analysis.graph.nodes.map((node) => node.id));
-  const seed = graphIds.has(indexNode.id) ? indexNode.id : indexNode.file;
 
   const adjacency = new Map<string, string[]>();
   for (const edge of analysis.graph.edges) {
@@ -158,6 +170,24 @@ export function appendDepsClosure(options: {
   return { ...envelope, deps, ...(truncated ? { truncated: true } : {}) };
 }
 
+// Mirrors the component sections in build-index.ts's groupComponents: a leaf's id is
+// `${section}/${name}`, e.g. `schemas/Ticket`.
+const COMPONENT_SECTIONS = [
+  'schemas',
+  'responses',
+  'parameters',
+  'requestBodies',
+  'headers',
+  'securitySchemes',
+  'examples',
+  'links',
+  'callbacks',
+];
+
+function isComponentLeafId(id: string): boolean {
+  return COMPONENT_SECTIONS.some((section) => id.startsWith(`${section}/`));
+}
+
 function collectLocatedLeaves(
   nodes: ApiIndexNode[],
   byId: Map<string, LocatedIndexNode>,
@@ -170,8 +200,10 @@ function collectLocatedLeaves(
     }
     if (hasIndexLocation(node)) {
       byId.set(node.id, node);
-      // First leaf wins per file: whole-file components map a graph file node to an envelope.
-      if (!byFile.has(node.file)) byFile.set(node.file, node);
+      // Only a component leaf may stand in for its whole file: a component file holds exactly
+      // one component, but a path-item file can hold several operations, so an operation leaf
+      // must never alias the shared file back to itself.
+      if (isComponentLeafId(node.id) && !byFile.has(node.file)) byFile.set(node.file, node);
     }
   }
 }
@@ -195,7 +227,8 @@ function wholeFileEnvelope(
 }
 
 function documentsByFile(analysis: ApiAnalysis, cwd: string): Map<string, Document> {
-  const cached = documentsByFileCache.get(analysis);
+  const byCwd = documentsByFileCache.get(analysis) ?? new Map<string, Map<string, Document>>();
+  const cached = byCwd.get(cwd);
   if (cached) return cached;
 
   const documents = new Map<string, Document>();
@@ -211,7 +244,8 @@ function documentsByFile(analysis: ApiAnalysis, cwd: string): Map<string, Docume
       );
     }
   }
-  documentsByFileCache.set(analysis, documents);
+  byCwd.set(cwd, documents);
+  documentsByFileCache.set(analysis, byCwd);
   return documents;
 }
 
