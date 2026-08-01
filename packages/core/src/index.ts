@@ -137,6 +137,7 @@ export {
   type MappedNode,
 } from './api-graph/node-id.js';
 export type { DependencyGraph, GraphEdge, GraphNode, NodeKind } from './api-graph/types.js';
+export { buildApiGraph, collectConnectedIds, walkStructure } from './api-graph/build-graph.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';

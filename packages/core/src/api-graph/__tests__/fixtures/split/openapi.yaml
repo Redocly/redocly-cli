@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: Split API
+  version: 1.0.0
+paths:
+  /tickets:
+    $ref: './paths/tickets.yaml'
+components:
+  schemas:
+    Ticket:
+      $ref: './components/schemas/Ticket.yaml'

@@ -1,0 +1,17 @@
+post:
+  operationId: buyTickets
+  responses:
+    '201':
+      description: Created.
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Ticket.yaml'
+  callbacks:
+    onEvent:
+      '{$request.body#/callbackUrl}':
+        post:
+          operationId: handleEvent
+          responses:
+            '200':
+              description: ok

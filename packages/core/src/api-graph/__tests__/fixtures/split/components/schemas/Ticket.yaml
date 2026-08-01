@@ -1,0 +1,4 @@
+type: object
+properties:
+  ticketId:
+    type: string
