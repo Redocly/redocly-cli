@@ -136,5 +136,9 @@ describe('buildApiGraph', () => {
     expect(
       graph.nodes.find((node) => node.id === 'POST {$request.body#/callbackUrl}')
     ).toBeUndefined();
+
+    // A ref inside a callback subtree attributes to the OUTER spine operation,
+    // never to a callback-owned node or the path-item file.
+    expect(graph.edges.some((edge) => edge.from === 'paths/tickets.yaml')).toBe(false);
   });
 });

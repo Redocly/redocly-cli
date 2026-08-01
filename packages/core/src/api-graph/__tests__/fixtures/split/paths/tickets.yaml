@@ -15,3 +15,7 @@ post:
           responses:
             '200':
               description: ok
+              content:
+                application/json:
+                  schema:
+                    $ref: '../components/schemas/Ticket.yaml'

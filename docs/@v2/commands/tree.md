@@ -299,8 +299,10 @@ cafe.yaml
 - shorthand pointer (the node id): `schemas/Order`
 - bare component name: `Order` — ambiguous bare names match all candidates and print a note to `stderr`
 - a wildcard pattern: `schemas/Order*` — `*` and `?` match against node ids (file ids in `--files` mode)
-- a file path (in `--files` mode): `components/schemas/Order.yaml`
+- a file path: `components/schemas/Order.yaml` — in the structure view this addresses a component that lives in its own file; in `--files` mode it addresses the file node.
 - the root file itself: the whole tree is affected
+
+For a multi-file API, components split into their own files are addressed by file path — their `schemas/<Name>` ids belong to components defined inline in the root file.
 
 Examples of the different input forms:
 

@@ -56,7 +56,7 @@ describe('tree', () => {
     );
   });
 
-  test('tree shows what a component pointer is used by', async () => {
+  test('tree reports no matches for a component pointer split into its own file', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
@@ -75,7 +75,7 @@ describe('tree', () => {
     );
   });
 
-  test('tree points a file used-by to --files in the default view', async () => {
+  test('tree shows what a component file is used by in the default view', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
