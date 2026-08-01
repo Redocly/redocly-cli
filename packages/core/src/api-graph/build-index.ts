@@ -107,7 +107,7 @@ export function buildApiIndex(
   };
 }
 
-function toRelativePath(absoluteRef: string, cwd: string): string {
+export function toRelativePath(absoluteRef: string, cwd: string): string {
   return isAbsoluteUrl(absoluteRef)
     ? absoluteRef
     : path.relative(cwd, absoluteRef).split(path.sep).join('/');

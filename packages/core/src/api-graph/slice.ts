@@ -2,7 +2,7 @@ import { isRef } from '../ref-utils.js';
 import type { Document } from '../resolve.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { ApiAnalysis } from './build-graph.js';
-import type { ApiIndexNode } from './build-index.js';
+import { toRelativePath, type ApiIndexNode } from './build-index.js';
 
 export type ApiNodeRef = {
   ref: string;
@@ -78,7 +78,7 @@ export function buildNodeEnvelope(options: {
     return {
       ref,
       resolved: true,
-      file: relativeToCwd(resolvedRef.document.source.absoluteRef, cwd),
+      file: toRelativePath(resolvedRef.document.source.absoluteRef, cwd),
       pointer: resolvedRef.nodePointer.startsWith('#')
         ? resolvedRef.nodePointer
         : `#${resolvedRef.nodePointer}`,
@@ -96,23 +96,16 @@ export function buildNodeEnvelope(options: {
   };
 }
 
-function relativeToCwd(absoluteRef: string, cwd: string): string {
-  // Mirrors build-index's toRelativePath; kept local to avoid a cross-module helper for two lines.
-  return absoluteRef.startsWith(cwd)
-    ? absoluteRef.slice(cwd.length).replace(/^\//, '')
-    : absoluteRef;
-}
-
 function documentsByFile(analysis: ApiAnalysis, cwd: string): Map<string, Document> {
   const documents = new Map<string, Document>();
   documents.set(
-    relativeToCwd(analysis.rootDocument.source.absoluteRef, cwd),
+    toRelativePath(analysis.rootDocument.source.absoluteRef, cwd),
     analysis.rootDocument
   );
   for (const resolvedRef of analysis.resolvedRefMap.values()) {
     if (resolvedRef.document) {
       documents.set(
-        relativeToCwd(resolvedRef.document.source.absoluteRef, cwd),
+        toRelativePath(resolvedRef.document.source.absoluteRef, cwd),
         resolvedRef.document
       );
     }

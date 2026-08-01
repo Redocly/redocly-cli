@@ -82,3 +82,34 @@ describe('buildNodeEnvelope', () => {
     expect(envelope.content).toContain('type: object');
   });
 });
+
+describe('buildNodeEnvelope outside cwd', () => {
+  it('resolves nodes whose file lives outside the working directory', async () => {
+    const outsideCwd = join(__dirname, 'fixtures', 'outside', 'sub');
+    const resolver = new BaseResolver();
+    const rootDocument = (await resolver.resolveDocument(
+      null,
+      join(outsideCwd, 'openapi.yaml'),
+      true
+    )) as Document;
+    const specVersion = detectSpec(rootDocument.parsed);
+    const types = normalizeTypes(getTypes(specVersion), {});
+    const analysis = await analyzeApi({
+      rootDocument,
+      specVersion,
+      types,
+      externalRefResolver: resolver,
+      cwd: outsideCwd,
+      resolveRef: (base, uri) => join(dirname(base), uri),
+    });
+    const index = buildApiIndex(analysis, { specVersion, cwd: outsideCwd, groupBy: 'tags' });
+
+    const errorNode = findIndexNode(index.structure, 'schemas/Error')!;
+    expect(errorNode.file).toBe('../common/Error.yaml');
+    if (!hasIndexLocation(errorNode)) throw new Error('component node must carry a location');
+
+    const envelope = buildNodeEnvelope({ indexNode: errorNode, analysis, cwd: outsideCwd });
+    expect(envelope.file).toBe('../common/Error.yaml');
+    expect(envelope.content).toContain('message');
+  });
+});
