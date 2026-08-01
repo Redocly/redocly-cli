@@ -3,7 +3,7 @@
 ## Introduction
 
 The `tree` command prints the structure of an API description: its paths, operations, and the component dependency chains between them through `$ref`.
-The default view bundles the description first, so a multi-file API shows the same full tree as its single-file form.
+The structure view walks the original files, so every node belongs to the file that defines it — a multi-file API shows which file each path, operation, and component lives in.
 The command works fully with OpenAPI 2.0 and 3.x.
 AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of their top-level referenced (`$ref`) components rather than a paths and operations tree.
 
@@ -434,8 +434,56 @@ redocly tree cafe.yaml --format=mermaid --output cafe.md
 
 ### Invalid descriptions
 
-The default view bundles the description before walking it.
-If the description cannot be bundled — for example, it has unresolvable or invalid `$ref`s — `tree` prints the bundling problems and exits with a non-zero code instead of printing a partial tree.
+In the structure view an unresolvable `$ref` appears as an unresolved node marked ❌, and the command prints a warning to stderr for each one.
+
+{% tabs %}
+{% tab label="API description" %}
+
+```yaml
+# openapi.yaml
+openapi: 3.2.0
+info:
+  title: Test API
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/Item.yaml'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: 'https://example.com/error.yaml'
+```
+
+{% /tab %}
+{% tab label="Output" %}
+
+```bash
+redocly tree openapi.yaml
+```
+
+```
+Could not resolve https://example.com/error.yaml — shown as unresolved (❌).
+Could not resolve schemas/Item.yaml — shown as unresolved (❌).
+openapi.yaml
+└── /items
+    └── GET
+        ├── https://example.com/error.yaml 🔗 ❌
+        └── schemas/Item.yaml ❌
+```
+
+The unresolvable references are shown in the tree and printed as warnings to stderr, allowing you to see the partial structure even when some `$ref`s cannot be resolved.
+
+{% /tab %}
+{% /tabs %}
 
 ### File-level graph
 
