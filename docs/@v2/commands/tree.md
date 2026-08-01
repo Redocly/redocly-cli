@@ -105,7 +105,7 @@ An operation is shown as the method only (`GET`) under its path, since the path 
 Markers legend:
 
 - `🔁` — a cycle: the node references one of its ancestors (a recursive schema). It is marked and not expanded further, so traversal terminates. A node that simply appears in more than one place (fan-in, without forming a cycle) is shown without a marker and expanded under each parent.
-- `❌` — an unresolvable `$ref` (only in `--files` mode; in the default view an unresolvable `$ref` is an error, see below)
+- `❌` — an unresolvable `$ref` (in the structure view it also prints a warning to stderr, see _Invalid descriptions_ below)
 - `🔗` — a reference to a URL
 
 A recursive schema produces the `🔁` marker:
@@ -158,7 +158,8 @@ menu.yaml
 {% /tab  %}
 {% /tabs  %}
 
-`❌` and `🔗` appear only with `--files`. In the default view an unresolvable `$ref` is a bundling error instead (see _Invalid descriptions_ below), so this example must be run with `--files`:
+`❌` and `🔗` appear in both views.
+This example uses `--files` to show the file-level graph:
 
 {% tabs %}
 {% tab label="API description" %}
@@ -205,8 +206,8 @@ openapi.yaml
 {% /tab  %}
 {% /tabs  %}
 
-The default view bundles the description, so components and operations split across files are resolved to their canonical place.
-A multi-file API therefore produces the same tree as its single-file equivalent — operations and named components, not file nodes.
+The structure view walks the original files, so a multi-file API shows the files that define its parts.
+Components that live in their own files appear as file nodes with real paths, and every path and operation reports its defining file.
 
 ### Limit the depth
 
@@ -463,7 +464,7 @@ paths:
                 $ref: 'https://example.com/error.yaml'
 ```
 
-{% /tab %}
+{% /tab  %}
 {% tab label="Output" %}
 
 ```bash
@@ -482,8 +483,8 @@ openapi.yaml
 
 The unresolvable references are shown in the tree and printed as warnings to stderr, allowing you to see the partial structure even when some `$ref`s cannot be resolved.
 
-{% /tab %}
-{% /tabs %}
+{% /tab  %}
+{% /tabs  %}
 
 ### File-level graph
 
