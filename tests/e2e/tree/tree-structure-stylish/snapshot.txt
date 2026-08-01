@@ -1,19 +1,21 @@
 openapi.yaml
 ├── /orders
 │   ├── GET
-│   │   └── schemas/OrderList
-│   │       └── schemas/Order
-│   │           ├── schemas/MenuItem
-│   │           └── schemas/OrderStatus
-│   └── POST
-│       └── schemas/Order
-│           ├── schemas/MenuItem
-│           └── schemas/OrderStatus
+│   ├── POST
+│   └── paths/orders.yaml
+│       ├── components/schemas/Order.yaml
+│       │   ├── components/schemas/MenuItem.yaml
+│       │   └── components/schemas/OrderStatus.yaml
+│       └── components/schemas/OrderList.yaml
+│           └── components/schemas/Order.yaml
+│               ├── components/schemas/MenuItem.yaml
+│               └── components/schemas/OrderStatus.yaml
 └── /orders/{orderId}
     ├── DELETE
-    │   └── schemas/Error
-    └── GET
-        └── schemas/Order
-            ├── schemas/MenuItem
-            └── schemas/OrderStatus
+    ├── GET
+    └── paths/orders_{orderId}.yaml
+        ├── components/schemas/Error.yaml
+        └── components/schemas/Order.yaml
+            ├── components/schemas/MenuItem.yaml
+            └── components/schemas/OrderStatus.yaml
 

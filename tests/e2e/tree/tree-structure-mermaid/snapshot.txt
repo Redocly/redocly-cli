@@ -5,24 +5,28 @@ flowchart LR
   n3["GET /orders"]
   n4["GET /orders/{orderId}"]
   n5["POST /orders"]
-  n6["openapi.yaml"]:::root
-  n7["schemas/Error"]
-  n8["schemas/MenuItem"]
-  n9["schemas/Order"]
-  n10["schemas/OrderList"]
-  n11["schemas/OrderStatus"]
+  n6["components/schemas/Error.yaml"]
+  n7["components/schemas/MenuItem.yaml"]
+  n8["components/schemas/Order.yaml"]
+  n9["components/schemas/OrderList.yaml"]
+  n10["components/schemas/OrderStatus.yaml"]
+  n11["openapi.yaml"]:::root
+  n12["paths/orders.yaml"]
+  n13["paths/orders_{orderId}.yaml"]
   n0 --> n3
   n0 --> n5
+  n0 --> n12
   n1 --> n2
   n1 --> n4
-  n2 --> n7
-  n3 --> n10
-  n4 --> n9
-  n5 --> n9
-  n6 --> n0
-  n6 --> n1
+  n1 --> n13
+  n8 --> n7
+  n8 --> n10
   n9 --> n8
-  n9 --> n11
-  n10 --> n9
+  n11 --> n0
+  n11 --> n1
+  n12 --> n8
+  n12 --> n9
+  n13 --> n6
+  n13 --> n8
   classDef root font-weight:bold
 

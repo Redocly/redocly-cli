@@ -4,41 +4,71 @@
       "id": "/orders",
       "resolved": true,
       "kind": "path",
-      "file": "openapi.yaml"
+      "file": "paths/orders.yaml"
     },
     {
       "id": "/orders/{orderId}",
       "resolved": true,
       "kind": "path",
-      "file": "openapi.yaml"
+      "file": "paths/orders_{orderId}.yaml"
     },
     {
       "id": "DELETE /orders/{orderId}",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml",
+      "file": "paths/orders_{orderId}.yaml",
       "operationId": "cancelOrder"
     },
     {
       "id": "GET /orders",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml",
+      "file": "paths/orders.yaml",
       "operationId": "listOrders"
     },
     {
       "id": "GET /orders/{orderId}",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml",
+      "file": "paths/orders_{orderId}.yaml",
       "operationId": "getOrder"
     },
     {
       "id": "POST /orders",
       "resolved": true,
       "kind": "operation",
-      "file": "openapi.yaml",
+      "file": "paths/orders.yaml",
       "operationId": "createOrder"
+    },
+    {
+      "id": "components/schemas/Error.yaml",
+      "resolved": true,
+      "kind": "file",
+      "file": "components/schemas/Error.yaml"
+    },
+    {
+      "id": "components/schemas/MenuItem.yaml",
+      "resolved": true,
+      "kind": "file",
+      "file": "components/schemas/MenuItem.yaml"
+    },
+    {
+      "id": "components/schemas/Order.yaml",
+      "resolved": true,
+      "kind": "file",
+      "file": "components/schemas/Order.yaml"
+    },
+    {
+      "id": "components/schemas/OrderList.yaml",
+      "resolved": true,
+      "kind": "file",
+      "file": "components/schemas/OrderList.yaml"
+    },
+    {
+      "id": "components/schemas/OrderStatus.yaml",
+      "resolved": true,
+      "kind": "file",
+      "file": "components/schemas/OrderStatus.yaml"
     },
     {
       "id": "openapi.yaml",
@@ -48,34 +78,16 @@
       "root": true
     },
     {
-      "id": "schemas/Error",
+      "id": "paths/orders.yaml",
       "resolved": true,
-      "kind": "component",
-      "file": "openapi.yaml"
+      "kind": "file",
+      "file": "paths/orders.yaml"
     },
     {
-      "id": "schemas/MenuItem",
+      "id": "paths/orders_{orderId}.yaml",
       "resolved": true,
-      "kind": "component",
-      "file": "openapi.yaml"
-    },
-    {
-      "id": "schemas/Order",
-      "resolved": true,
-      "kind": "component",
-      "file": "openapi.yaml"
-    },
-    {
-      "id": "schemas/OrderList",
-      "resolved": true,
-      "kind": "component",
-      "file": "openapi.yaml"
-    },
-    {
-      "id": "schemas/OrderStatus",
-      "resolved": true,
-      "kind": "component",
-      "file": "openapi.yaml"
+      "kind": "file",
+      "file": "paths/orders_{orderId}.yaml"
     }
   ],
   "links": [
@@ -90,6 +102,13 @@
       "refs": []
     },
     {
+      "source": "/orders",
+      "target": "paths/orders.yaml",
+      "refs": [
+        "paths/orders.yaml"
+      ]
+    },
+    {
       "source": "/orders/{orderId}",
       "target": "DELETE /orders/{orderId}",
       "refs": []
@@ -100,31 +119,31 @@
       "refs": []
     },
     {
-      "source": "DELETE /orders/{orderId}",
-      "target": "schemas/Error",
+      "source": "/orders/{orderId}",
+      "target": "paths/orders_{orderId}.yaml",
       "refs": [
-        "#/components/schemas/Error"
+        "paths/orders_{orderId}.yaml"
       ]
     },
     {
-      "source": "GET /orders",
-      "target": "schemas/OrderList",
+      "source": "components/schemas/Order.yaml",
+      "target": "components/schemas/MenuItem.yaml",
       "refs": [
-        "#/components/schemas/OrderList"
+        "MenuItem.yaml"
       ]
     },
     {
-      "source": "GET /orders/{orderId}",
-      "target": "schemas/Order",
+      "source": "components/schemas/Order.yaml",
+      "target": "components/schemas/OrderStatus.yaml",
       "refs": [
-        "#/components/schemas/Order"
+        "OrderStatus.yaml"
       ]
     },
     {
-      "source": "POST /orders",
-      "target": "schemas/Order",
+      "source": "components/schemas/OrderList.yaml",
+      "target": "components/schemas/Order.yaml",
       "refs": [
-        "#/components/schemas/Order"
+        "Order.yaml"
       ]
     },
     {
@@ -138,24 +157,31 @@
       "refs": []
     },
     {
-      "source": "schemas/Order",
-      "target": "schemas/MenuItem",
+      "source": "paths/orders.yaml",
+      "target": "components/schemas/Order.yaml",
       "refs": [
-        "#/components/schemas/MenuItem"
+        "../components/schemas/Order.yaml"
       ]
     },
     {
-      "source": "schemas/Order",
-      "target": "schemas/OrderStatus",
+      "source": "paths/orders.yaml",
+      "target": "components/schemas/OrderList.yaml",
       "refs": [
-        "#/components/schemas/OrderStatus"
+        "../components/schemas/OrderList.yaml"
       ]
     },
     {
-      "source": "schemas/OrderList",
-      "target": "schemas/Order",
+      "source": "paths/orders_{orderId}.yaml",
+      "target": "components/schemas/Error.yaml",
       "refs": [
-        "#/components/schemas/Order"
+        "../components/schemas/Error.yaml"
+      ]
+    },
+    {
+      "source": "paths/orders_{orderId}.yaml",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "../components/schemas/Order.yaml"
       ]
     }
   ]

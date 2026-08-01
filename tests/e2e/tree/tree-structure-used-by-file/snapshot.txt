@@ -1,3 +1,12 @@
-No nodes affected.
+openapi.yaml
+├── /orders
+│   └── paths/orders.yaml
+│       ├── components/schemas/Order.yaml
+│       └── components/schemas/OrderList.yaml
+│           └── components/schemas/Order.yaml
+└── /orders/{orderId}
+    └── paths/orders_{orderId}.yaml
+        └── components/schemas/Order.yaml
 
-components/schemas/Order.yaml does not match any path, operation, or component of openapi.yaml. For file-level analysis, use `--files`.
+0 of 4 operations affected · affected paths: /orders, /orders/{orderId}
+
