@@ -128,6 +128,19 @@ export function walkStructure(options: {
   let currentPathItemNode: unknown;
   let currentPathItemRawLocation: Location | undefined;
 
+  // Remembers the spine operation whose subtree is currently being walked, plus the absolute
+  // ref of the file that operation is defined in. Inside that same file — including the
+  // operation's own callbacks, whose nested PathItem/Operation never overwrite this tracking,
+  // same identity rule as above — a $ref's owner site collapses to a bare FILE node by
+  // `mapForeignLocation` (it has no `components/...`-shaped pointer of its own); redirecting
+  // that owner to the operation instead matches the old bundled walk, where the same ref's
+  // owner was the operation. Once a ref has hopped into a *different* file (e.g. a component
+  // schema referencing another schema), the site's absoluteRef no longer matches
+  // `currentOperationFileAbs`, so it correctly keeps the current file-owner behavior.
+  let currentOperationNode: unknown;
+  let currentOperationNodeId: string | undefined;
+  let currentOperationFileAbs: string | undefined;
+
   const visitor: Oas3Visitor = {
     PathItem: {
       enter(node, vctx) {
@@ -154,11 +167,28 @@ export function walkStructure(options: {
           nodes.get(operationNodeId)!.operationId = node.operationId;
         }
         nodes.get(operationNodeId)!.file = toNodeId(vctx.location.source.absoluteRef, cwd);
+
+        currentOperationNode = node;
+        currentOperationNodeId = operationNodeId;
+        currentOperationFileAbs = vctx.location.source.absoluteRef;
+      },
+      leave(node) {
+        if (node === currentOperationNode) {
+          currentOperationNode = undefined;
+          currentOperationNodeId = undefined;
+          currentOperationFileAbs = undefined;
+        }
       },
     },
     ref: {
       enter(refNode, vctx, resolved) {
-        const ownerId = nodeFor(vctx.location);
+        const mappedOwner = mapToNode(vctx.location.source.absoluteRef, vctx.location.pointer);
+        const ownerId =
+          currentOperationNodeId !== undefined &&
+          mappedOwner.kind === 'file' &&
+          vctx.location.source.absoluteRef === currentOperationFileAbs
+            ? currentOperationNodeId
+            : nodeFor(vctx.location);
         const refString = String(refNode.$ref);
         // Mirrors NoUnresolvedRefs: `resolved.location` can be truthy (pointing at a fallback
         // location) even when the pointer path inside the target document doesn't exist, so

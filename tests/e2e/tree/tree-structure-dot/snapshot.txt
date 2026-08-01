@@ -19,14 +19,14 @@ digraph tree {
   "/orders/{orderId}" -> "DELETE /orders/{orderId}";
   "/orders/{orderId}" -> "GET /orders/{orderId}";
   "/orders/{orderId}" -> "paths/orders_{orderId}.yaml";
+  "DELETE /orders/{orderId}" -> "components/schemas/Error.yaml";
+  "GET /orders" -> "components/schemas/OrderList.yaml";
+  "GET /orders/{orderId}" -> "components/schemas/Order.yaml";
+  "POST /orders" -> "components/schemas/Order.yaml";
   "components/schemas/Order.yaml" -> "components/schemas/MenuItem.yaml";
   "components/schemas/Order.yaml" -> "components/schemas/OrderStatus.yaml";
   "components/schemas/OrderList.yaml" -> "components/schemas/Order.yaml";
   "openapi.yaml" -> "/orders";
   "openapi.yaml" -> "/orders/{orderId}";
-  "paths/orders.yaml" -> "components/schemas/Order.yaml";
-  "paths/orders.yaml" -> "components/schemas/OrderList.yaml";
-  "paths/orders_{orderId}.yaml" -> "components/schemas/Error.yaml";
-  "paths/orders_{orderId}.yaml" -> "components/schemas/Order.yaml";
 }
 

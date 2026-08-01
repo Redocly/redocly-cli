@@ -19,14 +19,14 @@ flowchart LR
   n1 --> n2
   n1 --> n4
   n1 --> n13
+  n2 --> n6
+  n3 --> n9
+  n4 --> n8
+  n5 --> n8
   n8 --> n7
   n8 --> n10
   n9 --> n8
   n11 --> n0
   n11 --> n1
-  n12 --> n8
-  n12 --> n9
-  n13 --> n6
-  n13 --> n8
   classDef root font-weight:bold
 

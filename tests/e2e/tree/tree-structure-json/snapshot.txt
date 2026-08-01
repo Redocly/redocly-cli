@@ -126,6 +126,34 @@
       ]
     },
     {
+      "source": "DELETE /orders/{orderId}",
+      "target": "components/schemas/Error.yaml",
+      "refs": [
+        "../components/schemas/Error.yaml"
+      ]
+    },
+    {
+      "source": "GET /orders",
+      "target": "components/schemas/OrderList.yaml",
+      "refs": [
+        "../components/schemas/OrderList.yaml"
+      ]
+    },
+    {
+      "source": "GET /orders/{orderId}",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "../components/schemas/Order.yaml"
+      ]
+    },
+    {
+      "source": "POST /orders",
+      "target": "components/schemas/Order.yaml",
+      "refs": [
+        "../components/schemas/Order.yaml"
+      ]
+    },
+    {
       "source": "components/schemas/Order.yaml",
       "target": "components/schemas/MenuItem.yaml",
       "refs": [
@@ -155,34 +183,6 @@
       "source": "openapi.yaml",
       "target": "/orders/{orderId}",
       "refs": []
-    },
-    {
-      "source": "paths/orders.yaml",
-      "target": "components/schemas/Order.yaml",
-      "refs": [
-        "../components/schemas/Order.yaml"
-      ]
-    },
-    {
-      "source": "paths/orders.yaml",
-      "target": "components/schemas/OrderList.yaml",
-      "refs": [
-        "../components/schemas/OrderList.yaml"
-      ]
-    },
-    {
-      "source": "paths/orders_{orderId}.yaml",
-      "target": "components/schemas/Error.yaml",
-      "refs": [
-        "../components/schemas/Error.yaml"
-      ]
-    },
-    {
-      "source": "paths/orders_{orderId}.yaml",
-      "target": "components/schemas/Order.yaml",
-      "refs": [
-        "../components/schemas/Order.yaml"
-      ]
     }
   ]
 }

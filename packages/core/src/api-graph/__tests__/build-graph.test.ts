@@ -110,11 +110,21 @@ describe('buildApiGraph', () => {
     expect(
       graph.edges.some((edge) => edge.from === '/tickets' && edge.to === 'paths/tickets.yaml')
     ).toBe(true);
+    // The operation's response schema $ref lives directly in the operation's own file, so its
+    // owner is the operation itself, not the file — matching the old bundled walk, where this
+    // ref's owner was the operation. (A ref found after hopping into a further file, e.g. a
+    // component schema referencing another schema, would still collapse to the file — that
+    // case isn't exercised by this fixture.)
+    expect(
+      graph.edges.some(
+        (edge) => edge.from === 'POST /tickets' && edge.to === 'components/schemas/Ticket.yaml'
+      )
+    ).toBe(true);
     expect(
       graph.edges.some(
         (edge) => edge.from === 'paths/tickets.yaml' && edge.to === 'components/schemas/Ticket.yaml'
       )
-    ).toBe(true);
+    ).toBe(false);
 
     const pathNode = graph.nodes.find((node) => node.id === '/tickets');
     expect(pathNode).toMatchObject({ kind: 'path', file: 'paths/tickets.yaml' });
