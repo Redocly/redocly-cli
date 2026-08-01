@@ -147,6 +147,13 @@ export {
   type CollectedComponent,
   type CollectedOperation,
 } from './api-graph/build-graph.js';
+export {
+  buildApiIndex,
+  SUMMARY_LIMIT,
+  type ApiIndex,
+  type ApiIndexNode,
+  type IndexGroupBy,
+} from './api-graph/build-index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
