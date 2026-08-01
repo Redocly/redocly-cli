@@ -2,7 +2,12 @@ import { isRef } from '../ref-utils.js';
 import type { Document } from '../resolve.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { ApiAnalysis } from './build-graph.js';
-import { toRelativePath, type ApiIndex, type ApiIndexNode } from './build-index.js';
+import {
+  COMPONENT_SECTIONS,
+  toRelativePath,
+  type ApiIndex,
+  type ApiIndexNode,
+} from './build-index.js';
 import type { NodeKind } from './types.js';
 
 export type ApiNodeRef = {
@@ -170,20 +175,7 @@ export function appendDepsClosure(options: {
   return { ...envelope, deps, ...(truncated ? { truncated: true } : {}) };
 }
 
-// Mirrors the component sections in build-index.ts's groupComponents: a leaf's id is
-// `${section}/${name}`, e.g. `schemas/Ticket`.
-const COMPONENT_SECTIONS = [
-  'schemas',
-  'responses',
-  'parameters',
-  'requestBodies',
-  'headers',
-  'securitySchemes',
-  'examples',
-  'links',
-  'callbacks',
-];
-
+// A component leaf's id is `${section}/${name}` (see groupComponents), e.g. `schemas/Ticket`.
 function isComponentLeafId(id: string): boolean {
   return COMPONENT_SECTIONS.some((section) => id.startsWith(`${section}/`));
 }

@@ -9,6 +9,7 @@ import {
 import type { NormalizedNodeType } from '../types/index.js';
 import { normalizeVisitors, type Oas3Visitor } from '../visitors.js';
 import { walkDocument, type UserContext, type WalkContext } from '../walk.js';
+import { COMPONENT_SECTIONS } from './build-index.js';
 import {
   compareStrings,
   mapForeignLocation,
@@ -58,18 +59,6 @@ export type ApiAnalysis = {
   resolvedRefMap: ResolvedRefMap;
   rootDocument: Document;
 };
-
-const COMPONENT_SECTIONS = [
-  ['NamedSchemas', 'schemas'],
-  ['NamedResponses', 'responses'],
-  ['NamedParameters', 'parameters'],
-  ['NamedRequestBodies', 'requestBodies'],
-  ['NamedHeaders', 'headers'],
-  ['NamedSecuritySchemes', 'securitySchemes'],
-  ['NamedExamples', 'examples'],
-  ['NamedLinks', 'links'],
-  ['NamedCallbacks', 'callbacks'],
-] as const;
 
 export async function buildApiGraph(options: {
   rootDocument: Document;
@@ -233,8 +222,12 @@ export function walkStructure(options: {
       }
     };
 
+  // Each section's visitor is its Named* node type: schemas → NamedSchemas, and so on.
   const namedComponentVisitors = Object.fromEntries(
-    COMPONENT_SECTIONS.map(([visitorName, section]) => [visitorName, collectNamed(section)])
+    COMPONENT_SECTIONS.map((section) => [
+      `Named${section[0].toUpperCase()}${section.slice(1)}`,
+      collectNamed(section),
+    ])
   );
 
   // The dynamically built Named* keys can't be inferred as visitor members,

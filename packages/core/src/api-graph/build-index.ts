@@ -13,6 +13,19 @@ import type {
 export const SUMMARY_LIMIT = 160;
 const UNTAGGED = 'untagged';
 
+/** OpenAPI component sections, in the order the index lists them. */
+export const COMPONENT_SECTIONS = [
+  'schemas',
+  'responses',
+  'parameters',
+  'requestBodies',
+  'headers',
+  'securitySchemes',
+  'examples',
+  'links',
+  'callbacks',
+];
+
 export type IndexGroupBy = 'tags' | 'paths';
 
 export type ApiIndexNode = {
@@ -218,18 +231,7 @@ function groupByPaths(operations: CollectedOperation[], cwd: string): ApiIndexNo
 
 function groupComponents(components: CollectedComponent[], cwd: string): ApiIndexNode[] {
   const sections = [...new Set(components.map((component) => component.section))];
-  const canonicalOrder = [
-    'schemas',
-    'responses',
-    'parameters',
-    'requestBodies',
-    'headers',
-    'securitySchemes',
-    'examples',
-    'links',
-    'callbacks',
-  ];
-  sections.sort((a, b) => canonicalOrder.indexOf(a) - canonicalOrder.indexOf(b));
+  sections.sort((a, b) => COMPONENT_SECTIONS.indexOf(a) - COMPONENT_SECTIONS.indexOf(b));
   return sections.map((section) => ({
     id: `components/${section}`,
     title: section,
