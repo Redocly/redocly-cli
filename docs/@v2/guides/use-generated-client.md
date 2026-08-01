@@ -280,7 +280,9 @@ const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 `parseAs` accepts `'json'`, `'text'`, `'blob'`, `'arrayBuffer'`, `'formData'`, `'stream'`, or `'auto'` (default).
 It changes the runtime reader only, not the static return type.
 
-An operation whose success response declares no content is typed `void`, but if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data — reach it with a cast while the description catches up.
+An operation whose success response declares no content is typed `void`.
+However, if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data.
+Reach it with a cast while the description catches up.
 
 ## Response headers (envelope)
 
@@ -300,13 +302,17 @@ const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope
 ```
 
 - `headers` is a safe camelCase object of headers declared on the operation's success response.
-  String, number, and boolean schemas drive the TypeScript type and number/boolean coercion; complex header schemas remain strings because HTTP exposes header values as text.
-  Required response headers are required properties — the type trusts the API description, the same way response body types do; colliding normalized names get a deterministic numeric suffix.
+  String, number, and boolean schemas drive the TypeScript type and number/boolean coercion.
+  Complex header schemas remain strings because HTTP exposes header values as text.
+  Required response headers are required properties — the type trusts the API description, the same way response body types do.
+  Colliding normalized names get a deterministic numeric suffix.
 - `response` is the raw `Response` — use it for undocumented headers.
 - Non-2xx responses still throw `ApiError`.
 - Default call sites stay body-only (non-breaking), including calls that pass other options (`headers`, `signal`, `parseAs`, a retry override).
 - In `--error-mode result` the flag is ignored; that mode already returns `response`.
-- The TanStack Query and SWR wrappers don't accept `envelope` — it's excluded from their options and stripped from the forwarded call, so cached data is always the plain body; call the sdk function directly when you need headers.
+- The TanStack Query and SWR wrappers don't accept `envelope`.
+It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
+Call the sdk function directly when you need headers.
 
 ## Runtime validation
 
