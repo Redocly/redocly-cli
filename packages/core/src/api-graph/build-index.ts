@@ -97,10 +97,12 @@ export function buildApiIndex(
     });
   }
 
+  const docDescription = meta.info ? buildDocDescription(meta.info) : undefined;
+
   return {
     docName: toRelativePath(rootDocument.source.absoluteRef, cwd),
     spec: specVersion,
-    ...(meta.info ? spreadDefined('docDescription', buildDocDescription(meta.info)) : {}),
+    ...(docDescription ? { docDescription } : {}),
     structure,
   };
 }
@@ -141,10 +143,6 @@ function buildDocDescription(docInfo: {
   description?: string;
 }): string | undefined {
   return truncateSummary([docInfo.title, docInfo.description].filter(Boolean).join(' — '));
-}
-
-function spreadDefined(key: 'docDescription', value: string | undefined) {
-  return value === undefined ? {} : { [key]: value };
 }
 
 function toOperationNode(operation: CollectedOperation, cwd: string): ApiIndexNode {
