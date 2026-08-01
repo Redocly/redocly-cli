@@ -1,188 +1,127 @@
 {
-  "nodes": [
+  "docName": "openapi.yaml",
+  "spec": "oas3_2",
+  "docDescription": "Sample Cafe API",
+  "structure": [
     {
-      "id": "/orders",
-      "resolved": true,
-      "kind": "path",
-      "file": "paths/orders.yaml"
-    },
-    {
-      "id": "/orders/{orderId}",
-      "resolved": true,
-      "kind": "path",
-      "file": "paths/orders_{orderId}.yaml"
-    },
-    {
-      "id": "DELETE /orders/{orderId}",
-      "resolved": true,
-      "kind": "operation",
-      "file": "paths/orders_{orderId}.yaml",
-      "operationId": "cancelOrder"
-    },
-    {
-      "id": "GET /orders",
-      "resolved": true,
-      "kind": "operation",
-      "file": "paths/orders.yaml",
-      "operationId": "listOrders"
-    },
-    {
-      "id": "GET /orders/{orderId}",
-      "resolved": true,
-      "kind": "operation",
-      "file": "paths/orders_{orderId}.yaml",
-      "operationId": "getOrder"
-    },
-    {
-      "id": "POST /orders",
-      "resolved": true,
-      "kind": "operation",
-      "file": "paths/orders.yaml",
-      "operationId": "createOrder"
-    },
-    {
-      "id": "components/schemas/Error.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "components/schemas/Error.yaml"
-    },
-    {
-      "id": "components/schemas/MenuItem.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "components/schemas/MenuItem.yaml"
-    },
-    {
-      "id": "components/schemas/Order.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "components/schemas/Order.yaml"
-    },
-    {
-      "id": "components/schemas/OrderList.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "components/schemas/OrderList.yaml"
-    },
-    {
-      "id": "components/schemas/OrderStatus.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "components/schemas/OrderStatus.yaml"
-    },
-    {
-      "id": "openapi.yaml",
-      "resolved": true,
-      "kind": "root",
+      "id": "Overview",
+      "title": "Overview",
+      "pointer": "#/info",
       "file": "openapi.yaml",
-      "root": true
+      "start_line": 3,
+      "end_line": 4
     },
     {
-      "id": "paths/orders.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "paths/orders.yaml"
-    },
-    {
-      "id": "paths/orders_{orderId}.yaml",
-      "resolved": true,
-      "kind": "file",
-      "file": "paths/orders_{orderId}.yaml"
-    }
-  ],
-  "links": [
-    {
-      "source": "/orders",
-      "target": "GET /orders",
-      "refs": []
-    },
-    {
-      "source": "/orders",
-      "target": "POST /orders",
-      "refs": []
-    },
-    {
-      "source": "/orders",
-      "target": "paths/orders.yaml",
-      "refs": [
-        "paths/orders.yaml"
+      "id": "Operations",
+      "title": "Operations",
+      "pointer": "#/paths",
+      "file": "openapi.yaml",
+      "start_line": 6,
+      "end_line": 9,
+      "nodes": [
+        {
+          "id": "untagged",
+          "title": "untagged",
+          "nodes": [
+            {
+              "id": "GET /orders",
+              "title": "GET /orders — List orders",
+              "operationId": "listOrders",
+              "pointer": "#/get",
+              "file": "paths/orders.yaml",
+              "start_line": 2,
+              "end_line": 10,
+              "summary": "List orders"
+            },
+            {
+              "id": "POST /orders",
+              "title": "POST /orders — Create an order",
+              "operationId": "createOrder",
+              "pointer": "#/post",
+              "file": "paths/orders.yaml",
+              "start_line": 12,
+              "end_line": 26,
+              "summary": "Create an order"
+            },
+            {
+              "id": "GET /orders/{orderId}",
+              "title": "GET /orders/{orderId} — Get an order by id",
+              "operationId": "getOrder",
+              "pointer": "#/get",
+              "file": "paths/orders_{orderId}.yaml",
+              "start_line": 2,
+              "end_line": 16,
+              "summary": "Get an order by id"
+            },
+            {
+              "id": "DELETE /orders/{orderId}",
+              "title": "DELETE /orders/{orderId} — Cancel an order by id",
+              "operationId": "cancelOrder",
+              "pointer": "#/delete",
+              "file": "paths/orders_{orderId}.yaml",
+              "start_line": 18,
+              "end_line": 32,
+              "summary": "Cancel an order by id"
+            }
+          ]
+        }
       ]
     },
     {
-      "source": "/orders/{orderId}",
-      "target": "DELETE /orders/{orderId}",
-      "refs": []
-    },
-    {
-      "source": "/orders/{orderId}",
-      "target": "GET /orders/{orderId}",
-      "refs": []
-    },
-    {
-      "source": "/orders/{orderId}",
-      "target": "paths/orders_{orderId}.yaml",
-      "refs": [
-        "paths/orders_{orderId}.yaml"
+      "id": "Components",
+      "title": "Components",
+      "pointer": "#/components",
+      "file": "openapi.yaml",
+      "start_line": 11,
+      "end_line": 21,
+      "nodes": [
+        {
+          "id": "components/schemas",
+          "title": "schemas",
+          "nodes": [
+            {
+              "id": "schemas/Order",
+              "title": "Order",
+              "pointer": "#/",
+              "file": "components/schemas/Order.yaml",
+              "start_line": 1,
+              "end_line": 10
+            },
+            {
+              "id": "schemas/OrderStatus",
+              "title": "OrderStatus",
+              "pointer": "#/",
+              "file": "components/schemas/OrderStatus.yaml",
+              "start_line": 1,
+              "end_line": 5
+            },
+            {
+              "id": "schemas/MenuItem",
+              "title": "MenuItem",
+              "pointer": "#/",
+              "file": "components/schemas/MenuItem.yaml",
+              "start_line": 1,
+              "end_line": 8
+            },
+            {
+              "id": "schemas/OrderList",
+              "title": "OrderList",
+              "pointer": "#/",
+              "file": "components/schemas/OrderList.yaml",
+              "start_line": 1,
+              "end_line": 6
+            },
+            {
+              "id": "schemas/Error",
+              "title": "Error",
+              "pointer": "#/",
+              "file": "components/schemas/Error.yaml",
+              "start_line": 1,
+              "end_line": 6
+            }
+          ]
+        }
       ]
-    },
-    {
-      "source": "DELETE /orders/{orderId}",
-      "target": "components/schemas/Error.yaml",
-      "refs": [
-        "../components/schemas/Error.yaml"
-      ]
-    },
-    {
-      "source": "GET /orders",
-      "target": "components/schemas/OrderList.yaml",
-      "refs": [
-        "../components/schemas/OrderList.yaml"
-      ]
-    },
-    {
-      "source": "GET /orders/{orderId}",
-      "target": "components/schemas/Order.yaml",
-      "refs": [
-        "../components/schemas/Order.yaml"
-      ]
-    },
-    {
-      "source": "POST /orders",
-      "target": "components/schemas/Order.yaml",
-      "refs": [
-        "../components/schemas/Order.yaml"
-      ]
-    },
-    {
-      "source": "components/schemas/Order.yaml",
-      "target": "components/schemas/MenuItem.yaml",
-      "refs": [
-        "MenuItem.yaml"
-      ]
-    },
-    {
-      "source": "components/schemas/Order.yaml",
-      "target": "components/schemas/OrderStatus.yaml",
-      "refs": [
-        "OrderStatus.yaml"
-      ]
-    },
-    {
-      "source": "components/schemas/OrderList.yaml",
-      "target": "components/schemas/Order.yaml",
-      "refs": [
-        "Order.yaml"
-      ]
-    },
-    {
-      "source": "openapi.yaml",
-      "target": "/orders",
-      "refs": []
-    },
-    {
-      "source": "openapi.yaml",
-      "target": "/orders/{orderId}",
-      "refs": []
     }
   ]
 }

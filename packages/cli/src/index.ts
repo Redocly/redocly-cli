@@ -3,9 +3,10 @@ import './utils/assert-node-version.js';
 
 import {
   logger,
+  type ComponentNamesStrategy,
+  type IndexGroupBy,
   type OutputFormat,
   type RuleSeverity,
-  type ComponentNamesStrategy,
 } from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
@@ -102,6 +103,11 @@ yargs(hideBin(process.argv))
             description: 'Use a specific output format.',
             choices: ['stylish', 'json', 'mermaid', 'dot'] as ReadonlyArray<TreeFormat>,
             default: 'stylish' as TreeFormat,
+          },
+          'group-by': {
+            description: 'Group operations in the JSON index by tags or by paths.',
+            choices: ['tags', 'paths'] as ReadonlyArray<IndexGroupBy>,
+            default: 'tags' as IndexGroupBy,
           },
           output: {
             alias: 'o',

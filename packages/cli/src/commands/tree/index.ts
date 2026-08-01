@@ -1,5 +1,6 @@
 import {
   BaseResolver,
+  buildApiIndex,
   detectSpec,
   getTypes,
   logger,
@@ -8,6 +9,7 @@ import {
   slash,
   type CollectFn,
   type Document,
+  type IndexGroupBy,
   type NormalizedNodeType,
   type ResolvedRefMap,
   type SpecVersion,
@@ -22,9 +24,11 @@ import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
 import { buildStructureGraph } from './build-structure.js';
 import { filterAffected, filterOperations, limitGraphLevel } from './filter-affected.js';
+import { filterIndexByIds, filterIndexSections, limitIndexLevel } from './filter-index.js';
 import { matchAffectedBy, wildcardToRegExp } from './match-affected-by.js';
 import { commonDir } from './node-id.js';
 import { renderDot } from './print/dot.js';
+import { renderIndexJson } from './print/index-json.js';
 import { renderJson } from './print/json.js';
 import { renderMermaid } from './print/mermaid.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
@@ -38,6 +42,7 @@ export type TreeArgv = {
   operations?: boolean;
   uses?: string[];
   files?: boolean;
+  'group-by': IndexGroupBy;
 } & VerifyConfigOptions;
 
 type TreeModeContext = {
@@ -193,7 +198,7 @@ async function handleStructureMode({
     externalRefResolver,
   });
 
-  const { graph } = await buildStructureGraph({
+  const { analysis } = await buildStructureGraph({
     rootDocument,
     specVersion,
     types,
@@ -201,12 +206,19 @@ async function handleStructureMode({
     externalRefResolver,
     cwd,
   });
+  const graph = analysis.graph;
 
   for (const node of graph.nodes) {
     if (!node.resolved) {
       logger.warn(`Could not resolve ${node.id} — shown as unresolved (❌).\n`);
     }
   }
+
+  const isOpenApi = specVersion.startsWith('oas');
+  const index =
+    argv.format === 'json' && isOpenApi
+      ? buildApiIndex(analysis, { specVersion, cwd, groupBy: argv['group-by'] })
+      : undefined;
 
   // Structure mode resolves exactly one API (handleTree rejects more), so there is a single root.
   const rootId = graph.roots[0];
@@ -249,6 +261,22 @@ async function handleStructureMode({
     stylishOptions = { ...stylishOptions, showOperationId: true };
   }
 
+  if (index !== undefined) {
+    let printedIndex = index;
+    if (argv['uses']) {
+      const keepIds = new Set(printedGraph.nodes.map((node) => node.id));
+      printedIndex = filterIndexByIds(printedIndex, keepIds);
+    }
+    if (argv.operations) {
+      printedIndex = filterIndexSections(printedIndex, ['Operations', 'Webhooks']);
+    }
+    if (argv.level !== undefined) {
+      printedIndex = limitIndexLevel(printedIndex, argv.level);
+    }
+    emitRendered(renderIndexJson(printedIndex), argv);
+    return;
+  }
+
   renderOutput(printedGraph, argv, stylishOptions);
 }
 
@@ -268,6 +296,10 @@ function renderOutput(
     }
   }
   const rendered = renderGraph(printedGraph, argv.format, stylishOptions);
+  emitRendered(rendered, argv);
+}
+
+function emitRendered(rendered: string, argv: TreeArgv): void {
   if (argv.output) {
     writeFileSync(argv.output, rendered + '\n');
     logger.info(`Tree written to ${argv.output}\n`);

@@ -1,13 +1,12 @@
 import {
-  buildApiGraph,
+  analyzeApi,
+  type ApiAnalysis,
   type BaseResolver,
   type Config,
   type Document,
   type NormalizedNodeType,
   type SpecVersion,
 } from '@redocly/openapi-core';
-
-import type { DependencyGraph } from './types.js';
 
 export async function buildStructureGraph(options: {
   rootDocument: Document;
@@ -16,9 +15,9 @@ export async function buildStructureGraph(options: {
   config: Config;
   externalRefResolver: BaseResolver;
   cwd: string;
-}): Promise<{ graph: DependencyGraph }> {
+}): Promise<{ analysis: ApiAnalysis }> {
   const { rootDocument, specVersion, types, externalRefResolver, cwd } = options;
-  const graph = await buildApiGraph({
+  const analysis = await analyzeApi({
     rootDocument,
     specVersion,
     types,
@@ -26,5 +25,5 @@ export async function buildStructureGraph(options: {
     cwd,
     resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
   });
-  return { graph };
+  return { analysis };
 }

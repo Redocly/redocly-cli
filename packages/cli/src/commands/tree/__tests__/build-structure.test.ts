@@ -23,7 +23,7 @@ async function structureOf(
   const specVersion = detectSpec(parsed);
   const config = await createConfig({});
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  const { graph } = await buildStructureGraph({
+  const { analysis } = await buildStructureGraph({
     rootDocument,
     specVersion,
     types,
@@ -31,7 +31,7 @@ async function structureOf(
     externalRefResolver,
     cwd: CWD,
   });
-  return graph;
+  return analysis.graph;
 }
 
 function edgeRefs(graph: DependencyGraph, from: string, to: string): string[] | undefined {
@@ -497,7 +497,7 @@ describe('buildStructureGraph (multi-file parity)', () => {
     if (rootDocument instanceof Error) throw rootDocument;
     const specVersion = detectSpec(rootDocument.parsed);
     const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-    const { graph } = await buildStructureGraph({
+    const { analysis } = await buildStructureGraph({
       rootDocument,
       specVersion,
       types,
@@ -505,7 +505,7 @@ describe('buildStructureGraph (multi-file parity)', () => {
       externalRefResolver,
       cwd: path.dirname(apiPath),
     });
-    return graph;
+    return analysis.graph;
   }
 
   it('walks a split multi-file description into real file nodes and cross-file edges', async () => {
