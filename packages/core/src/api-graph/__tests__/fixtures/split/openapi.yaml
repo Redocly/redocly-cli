@@ -2,6 +2,12 @@ openapi: 3.0.3
 info:
   title: Split API
   version: 1.0.0
+  description: Multi-file description for api-graph tests.
+servers:
+  - url: https://api.example.com/v1
+tags:
+  - name: Tickets
+    description: Buy tickets and manage reservations.
 paths:
   /tickets:
     $ref: './paths/tickets.yaml'

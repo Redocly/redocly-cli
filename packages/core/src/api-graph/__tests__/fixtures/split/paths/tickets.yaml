@@ -1,4 +1,6 @@
 post:
+  summary: Buy museum tickets
+  tags: [Tickets]
   operationId: buyTickets
   responses:
     '201':

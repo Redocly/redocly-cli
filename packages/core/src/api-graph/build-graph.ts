@@ -1,5 +1,5 @@
 import type { SpecVersion } from '../oas-types.js';
-import { isAbsoluteUrl, type Location } from '../ref-utils.js';
+import { isAbsoluteUrl, isRef, type Location } from '../ref-utils.js';
 import {
   resolveDocument,
   type BaseResolver,
@@ -8,7 +8,7 @@ import {
 } from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
 import { normalizeVisitors, type Oas3Visitor } from '../visitors.js';
-import { walkDocument, type WalkContext } from '../walk.js';
+import { walkDocument, type UserContext, type WalkContext } from '../walk.js';
 import {
   compareStrings,
   mapForeignLocation,
@@ -20,6 +20,57 @@ import {
 } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
+export type CollectedOperation = {
+  id: string;
+  method: string;
+  containerKey: string;
+  isWebhook: boolean;
+  tags: string[];
+  summary?: string;
+  description?: string;
+  operationId?: string;
+  deprecated?: boolean;
+  location: Location;
+  pathItemLocation: Location;
+};
+
+export type CollectedComponent = {
+  section: string;
+  name: string;
+  description?: string;
+  location: Location;
+};
+
+export type ApiIndexMeta = {
+  info?: { title?: string; description?: string; location: Location };
+  servers?: { urls: string[]; location: Location };
+  declaredTags: { name: string; description?: string; location: Location }[];
+  operations: CollectedOperation[];
+  components: CollectedComponent[];
+  pathsLocation?: Location;
+  webhooksLocation?: Location;
+  componentsLocation?: Location;
+};
+
+export type ApiAnalysis = {
+  graph: DependencyGraph;
+  meta: ApiIndexMeta;
+  resolvedRefMap: ResolvedRefMap;
+  rootDocument: Document;
+};
+
+const COMPONENT_SECTIONS = [
+  ['NamedSchemas', 'schemas'],
+  ['NamedResponses', 'responses'],
+  ['NamedParameters', 'parameters'],
+  ['NamedRequestBodies', 'requestBodies'],
+  ['NamedHeaders', 'headers'],
+  ['NamedSecuritySchemes', 'securitySchemes'],
+  ['NamedExamples', 'examples'],
+  ['NamedLinks', 'links'],
+  ['NamedCallbacks', 'callbacks'],
+] as const;
+
 export async function buildApiGraph(options: {
   rootDocument: Document;
   specVersion: SpecVersion;
@@ -28,6 +79,18 @@ export async function buildApiGraph(options: {
   cwd: string;
   resolveRef: (base: string, uri: string) => string;
 }): Promise<DependencyGraph> {
+  const { graph } = await analyzeApi(options);
+  return graph;
+}
+
+export async function analyzeApi(options: {
+  rootDocument: Document;
+  specVersion: SpecVersion;
+  types: Record<string, NormalizedNodeType>;
+  externalRefResolver: BaseResolver;
+  cwd: string;
+  resolveRef: (base: string, uri: string) => string;
+}): Promise<ApiAnalysis> {
   const { rootDocument, specVersion, types, externalRefResolver, cwd, resolveRef } = options;
 
   const resolvedRefMap = await resolveDocument({
@@ -38,7 +101,16 @@ export async function buildApiGraph(options: {
 
   const ctx: WalkContext = { problems: [], specVersion, visitorsData: {} };
 
-  return walkStructure({ document: rootDocument, types, resolvedRefMap, ctx, cwd, resolveRef });
+  const { graph, meta } = walkStructure({
+    document: rootDocument,
+    types,
+    resolvedRefMap,
+    ctx,
+    cwd,
+    resolveRef,
+  });
+
+  return { graph, meta, resolvedRefMap, rootDocument };
 }
 
 export function walkStructure(options: {
@@ -48,7 +120,7 @@ export function walkStructure(options: {
   ctx: WalkContext;
   cwd: string;
   resolveRef: (base: string, uri: string) => string;
-}): DependencyGraph {
+}): { graph: DependencyGraph; meta: ApiIndexMeta } {
   const { document, types, resolvedRefMap, ctx, cwd, resolveRef } = options;
 
   const rootAbs = document.source.absoluteRef;
@@ -56,6 +128,7 @@ export function walkStructure(options: {
 
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
+  const meta: ApiIndexMeta = { declaredTags: [], operations: [], components: [] };
 
   const addOrUpdateNode = (mapped: MappedNode & { file: string }, resolved: boolean) => {
     const node = nodes.get(mapped.id) ?? { id: mapped.id, resolved: false };
@@ -141,7 +214,66 @@ export function walkStructure(options: {
   let currentOperationNodeId: string | undefined;
   let currentOperationFileAbs: string | undefined;
 
-  const visitor: Oas3Visitor = {
+  let currentWebhookPathItemNode: unknown;
+  let currentWebhookKey: string | undefined;
+  let currentWebhookPathItemLocation: Location | undefined;
+
+  const collectNamed =
+    (section: string) =>
+    (node: Record<string, unknown>, collectorCtx: Pick<UserContext, 'location' | 'resolve'>) => {
+      for (const name of Object.keys(node)) {
+        const value = node[name];
+        const target = isRef(value)
+          ? collectorCtx.resolve(value)
+          : { node: value, location: collectorCtx.location.child([name]) };
+        if (!target.location) continue;
+        // Resolved nodes are untyped JSON, so narrowing to the one field we read is safe.
+        const description = (target.node as { description?: string } | undefined)?.description;
+        meta.components.push({ section, name, description, location: target.location });
+      }
+    };
+
+  const namedComponentVisitors = Object.fromEntries(
+    COMPONENT_SECTIONS.map(([visitorName, section]) => [visitorName, collectNamed(section)])
+  );
+
+  // The dynamically built Named* keys can't be inferred as visitor members,
+  // so the assembled object needs an explicit Oas3Visitor assertion.
+  const visitor = {
+    ...namedComponentVisitors,
+    Info(node, vctx) {
+      meta.info = { title: node.title, description: node.description, location: vctx.location };
+    },
+    // Oas3Visitor has no dedicated ServerList entry, so node falls back to the visitor
+    // type's untyped catch-all — annotate it explicitly to avoid implicit `any` below.
+    ServerList(node: { url?: string }[], vctx) {
+      meta.servers = {
+        urls: node.map((server) => server.url).filter((url): url is string => Boolean(url)),
+        location: vctx.location,
+      };
+    },
+    Tag(node, vctx) {
+      meta.declaredTags.push({
+        name: node.name,
+        description: node.description,
+        location: vctx.location,
+      });
+    },
+    Paths: {
+      enter(_node, vctx) {
+        meta.pathsLocation ??= vctx.location;
+      },
+    },
+    WebhooksMap: {
+      enter(_node, vctx) {
+        meta.webhooksLocation ??= vctx.location;
+      },
+    },
+    Components: {
+      enter(_node, vctx) {
+        meta.componentsLocation ??= vctx.location;
+      },
+    },
     PathItem: {
       enter(node, vctx) {
         if (vctx.rawLocation.source.absoluteRef !== rootAbs) return;
@@ -152,10 +284,37 @@ export function walkStructure(options: {
           currentPathItemNode = node;
           currentPathItemRawLocation = vctx.rawLocation;
         }
+        if (segments.length === 2 && segments[0] === 'webhooks') {
+          currentWebhookPathItemNode = node;
+          currentWebhookKey = segments[1];
+          currentWebhookPathItemLocation = vctx.location;
+        }
       },
     },
     Operation: {
       enter(node, vctx) {
+        if (
+          currentWebhookPathItemNode !== undefined &&
+          vctx.parent === currentWebhookPathItemNode
+        ) {
+          const method = String(vctx.key);
+          if (OPERATION_METHODS.has(method)) {
+            meta.operations.push({
+              id: `${method.toUpperCase()} ${currentWebhookKey}`,
+              method: method.toUpperCase(),
+              containerKey: currentWebhookKey!,
+              isWebhook: true,
+              tags: node.tags ?? [],
+              summary: node.summary,
+              description: node.description,
+              operationId: node.operationId,
+              deprecated: node.deprecated,
+              location: vctx.location,
+              pathItemLocation: currentWebhookPathItemLocation!,
+            });
+          }
+          return;
+        }
         if (currentPathItemRawLocation === undefined || vctx.parent !== currentPathItemNode) {
           return;
         }
@@ -171,6 +330,20 @@ export function walkStructure(options: {
         currentOperationNode = node;
         currentOperationNodeId = operationNodeId;
         currentOperationFileAbs = vctx.location.source.absoluteRef;
+
+        meta.operations.push({
+          id: operationNodeId,
+          method: method.toUpperCase(),
+          containerKey: parsePointerSegments(currentPathItemRawLocation.pointer)[1],
+          isWebhook: false,
+          tags: node.tags ?? [],
+          summary: node.summary,
+          description: node.description,
+          operationId: node.operationId,
+          deprecated: node.deprecated,
+          location: vctx.location,
+          pathItemLocation: currentPathItemRawLocation,
+        });
       },
       leave(node) {
         if (node === currentOperationNode) {
@@ -200,7 +373,7 @@ export function walkStructure(options: {
         addEdge(ownerId, targetId, refString);
       },
     },
-  };
+  } as Oas3Visitor;
 
   addOrUpdateNode({ id: rootId, kind: 'root', file: rootId }, true);
   nodes.get(rootId)!.root = true;
@@ -211,7 +384,7 @@ export function walkStructure(options: {
   );
   walkDocument({ document, rootType: types.Root, normalizedVisitors, resolvedRefMap, ctx });
 
-  return finalizeGraph(rootId, nodes, edges);
+  return { graph: finalizeGraph(rootId, nodes, edges), meta };
 }
 
 /** Keeps only nodes reachable from the root, sorted for stable output. */
