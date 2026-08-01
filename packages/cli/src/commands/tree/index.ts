@@ -193,7 +193,7 @@ async function handleStructureMode({
     externalRefResolver,
   });
 
-  const { graph, problems } = await buildStructureGraph({
+  const { graph } = await buildStructureGraph({
     rootDocument,
     specVersion,
     types,
@@ -202,11 +202,10 @@ async function handleStructureMode({
     cwd,
   });
 
-  for (const problem of problems) {
-    logger.warn(`${problem.message}\n`);
-  }
-  if (problems.some((problem) => problem.severity === 'error')) {
-    return exitWithError(`Cannot display the tree: ${api.path} has bundling errors (see above).`);
+  for (const node of graph.nodes) {
+    if (!node.resolved) {
+      logger.warn(`Could not resolve ${node.id} — shown as unresolved (❌).\n`);
+    }
   }
 
   // Structure mode resolves exactly one API (handleTree rejects more), so there is a single root.
