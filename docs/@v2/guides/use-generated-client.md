@@ -311,8 +311,8 @@ const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope
 - Default call sites stay body-only (non-breaking), including calls that pass other options (`headers`, `signal`, `parseAs`, a retry override).
 - In `--error-mode result` the flag is ignored; that mode already returns `response`.
 - The TanStack Query and SWR wrappers don't accept `envelope`.
-It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
-Call the sdk function directly when you need headers.
+  It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
+  Call the sdk function directly when you need headers.
 
 ## Runtime validation
 
