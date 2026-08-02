@@ -6,6 +6,7 @@
 // package. The `/generate` entry re-exports `generateClient` from here and
 // layers the sync TS toolkit on top.
 
+import { stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
@@ -13,9 +14,14 @@ import type { EmitOptions } from './emitters/emit-options.js';
 import { NotSupportedError } from './errors.js';
 import { validateSelection } from './generators/meta.js';
 import { resolveGenerators } from './generators/resolve.js';
-import type { GeneratedFile, GeneratorDescriptor, OutputMode } from './generators/types.js';
+import type {
+  CodeSample,
+  GeneratedFile,
+  GeneratorDescriptor,
+  OutputMode,
+} from './generators/types.js';
 import { buildApiModel } from './intermediate-representation/build.js';
-import type { ApiModel } from './intermediate-representation/model.js';
+import { allOperations, type ApiModel } from './intermediate-representation/model.js';
 import { normalizeSwagger2 } from './intermediate-representation/normalize-swagger2.js';
 import { loadSpec } from './loader.js';
 import type { GenerateClientOptions, GenerateClientResult } from './types.js';
@@ -53,6 +59,38 @@ export function runGenerators(
     }
   }
   return files;
+}
+
+/**
+ * An OpenAPI Overlay (1.0.0) adding per-operation `x-codeSamples`, collected from
+ * every selected generator that implements the `sample` hook; undefined when no
+ * generator contributed a sample. Docs tooling applies it to the description —
+ * generation stays side-effect-free on the source.
+ */
+function codeSamplesOverlay(
+  model: ApiModel,
+  emit: EmitOptions,
+  selected: string[],
+  registry: Map<string, GeneratorDescriptor>
+): string | undefined {
+  const actions = [];
+  for (const op of allOperations(model.services)) {
+    const samples = selected
+      .map((name) => registry.get(name)?.sample?.(op, { model, emit }))
+      .filter((sample): sample is CodeSample => sample !== undefined);
+    if (samples.length > 0) {
+      actions.push({
+        target: `$.paths['${op.path.replaceAll("'", "''")}'].${op.method}`,
+        update: { 'x-codeSamples': samples },
+      });
+    }
+  }
+  if (actions.length === 0) return undefined;
+  return stringifyYaml({
+    overlay: '1.0.0',
+    info: { title: `Code samples for ${model.title}`, version: model.version },
+    actions,
+  });
 }
 
 export async function generateClient(
@@ -130,6 +168,13 @@ export async function generateClient(
     generators: selected,
     registry,
   });
+
+  if (options.codeSamples === true) {
+    const overlay = codeSamplesOverlay(model, emit, selected, registry);
+    if (overlay !== undefined) {
+      files.push({ path: outputPath.replace(/\.[^.]+$/, '.code-samples.yaml'), content: overlay });
+    }
+  }
 
   const written: GenerateClientResult['files'] = [];
   for (const file of files) {

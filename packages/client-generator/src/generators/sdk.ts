@@ -1,8 +1,10 @@
 import { join } from 'node:path';
 
 import { emitClientSingleFile, emitClientSplit } from '../emitters/client-assembly.js';
+import { packageIdents } from '../emitters/descriptor.js';
+import type { OperationModel } from '../intermediate-representation/model.js';
 import { anchor } from './anchor.js';
-import type { Generator } from './types.js';
+import type { CodeSample, Generator, SampleContext } from './types.js';
 
 /**
  * The default generator: the full typed client (model types + runtime + endpoints).
@@ -26,3 +28,32 @@ export const sdkGenerator: Generator = ({ model, outputPath, outputMode, emit })
   }
   return [{ path: outputPath, content: emitClientSingleFile(model, emit) }];
 };
+
+/** One idiomatic TS call per operation — the `x-codeSamples` reference implementation. */
+export function sdkSample(op: OperationModel, ctx: SampleContext): CodeSample {
+  const ident = packageIdents(ctx.model).get(op.name) ?? op.name;
+  const requiredQuery = op.queryParams.filter((param) => param.required);
+  const slots: string[] = [];
+  if (requiredQuery.length > 0) {
+    slots.push(
+      `params: { ${requiredQuery.map((param) => `'${param.name}': /* … */`).join(', ')} }`
+    );
+  }
+  if (op.requestBody) slots.push('body: { /* … */ }');
+  const args =
+    ctx.emit.argsStyle === 'grouped'
+      ? op.pathParams.length + slots.length > 0
+        ? [
+            `{ ${[...op.pathParams.map((param) => `'${param.name}': '<${param.name}>'`), ...slots].join(', ')} }`,
+          ]
+        : []
+      : [
+          ...op.pathParams.map((param) => `'<${param.name}>'`),
+          ...(slots.length > 0 ? [`{ ${slots.join(', ')} }`] : []),
+        ];
+  return {
+    lang: 'typescript',
+    label: 'TypeScript SDK',
+    source: `import { ${ident} } from './client';\n\nconst result = await ${ident}(${args.join(', ')});\n`,
+  };
+}

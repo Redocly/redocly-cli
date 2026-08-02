@@ -89,6 +89,12 @@ export type GenerateClientOptions = {
    * type stripping (`node client.ts`). */
   importExt?: 'js' | 'ts';
   /**
+   * Emit `<output stem>.code-samples.yaml` — an OpenAPI Overlay adding per-operation
+   * `x-codeSamples` collected from every selected generator that implements `sample()`.
+   * Config-only (`client.codeSamples`), like `pagination`.
+   */
+  codeSamples?: boolean;
+  /**
    * Auto-pagination rules: a convention rule (applied to every operation it
    * structurally fits), per-operation overrides, and `exclude`d operationIds —
    * resolved together with each operation's `x-redocly-pagination` extension (per-op config >

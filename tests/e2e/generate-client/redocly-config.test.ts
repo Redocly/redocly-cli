@@ -161,6 +161,26 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
+  it('client.codeSamples emits an x-codeSamples overlay next to the client', () => {
+    const dir = project(
+      [
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./out.ts',
+        '    client:',
+        '      generators: [sdk]',
+        '      codeSamples: true',
+      ].join('\n') + '\n'
+    );
+    const res = run(dir, ['cafe']);
+    expect(res.status, res.stderr).toBe(0);
+    const overlay = readFileSync(join(dir, 'out.code-samples.yaml'), 'utf-8');
+    expect(overlay).toContain('x-codeSamples');
+    expect(overlay).toContain('lang: typescript');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
   it('a per-api client block REPLACES the top-level one (no field-by-field merging)', () => {
     // One resolution path, obvious to reason about: an api with its own `client`
     // uses that block wholesale; the top-level block only serves apis without one.

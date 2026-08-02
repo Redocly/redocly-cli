@@ -7,8 +7,8 @@ import type { EmitOptions } from '../emitters/emit-options.js';
 import { NotSupportedError } from '../errors.js';
 import type { GeneratorDescriptor, GeneratorName } from './types.js';
 
-export type BuiltinMeta = Omit<GeneratorDescriptor, 'run'> & {
-  load: () => Promise<Pick<GeneratorDescriptor, 'run'>>;
+export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample'> & {
+  load: () => Promise<Pick<GeneratorDescriptor, 'run' | 'sample'>>;
 };
 
 function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): BuiltinMeta {
@@ -22,7 +22,9 @@ function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): Builtin
 
 export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   // sdk is the base client; zod emits a standalone schema module importing nothing from it.
-  sdk: { load: () => import('./sdk.js').then((m) => ({ run: m.sdkGenerator })) },
+  sdk: {
+    load: () => import('./sdk.js').then((m) => ({ run: m.sdkGenerator, sample: m.sdkSample })),
+  },
   zod: { load: () => import('./zod.js').then((m) => ({ run: m.zodGenerator })) },
   // transformers import the schema *types* from the sdk entry module (so sdk must run) and
   // assign `Date` values to those fields, which only type-checks when the sdk types dates as `Date`.

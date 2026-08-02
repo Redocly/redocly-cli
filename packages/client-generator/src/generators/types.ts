@@ -2,7 +2,7 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
 import type { ErrorMode } from '../emitters/operations.js';
 import type { DateType } from '../emitters/types.js';
-import type { ApiModel } from '../intermediate-representation/model.js';
+import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
 /**
  * How the generated client is partitioned across files.
@@ -46,6 +46,12 @@ export type GeneratorInput = {
  */
 export type Generator = (input: GeneratorInput) => GeneratedFile[];
 
+/** One idiomatic call snippet for an operation, rendered for docs (`x-codeSamples`). */
+export type CodeSample = { lang: string; label?: string; source: string };
+
+/** What a `sample` hook receives besides the operation. */
+export type SampleContext = { model: ApiModel; emit: EmitOptions };
+
 /**
  * A generator plus its declared compatibility contract. `validateGenerators`
  * checks these *before* anything is emitted, so an incompatible selection fails
@@ -60,6 +66,9 @@ export type Generator = (input: GeneratorInput) => GeneratedFile[];
  */
 export type GeneratorDescriptor = {
   run: Generator;
+  /** Optional: one idiomatic call snippet per operation for docs (`x-codeSamples`);
+   * collected into an overlay when `codeSamples` is enabled. Return undefined to skip. */
+  sample?: (operation: OperationModel, ctx: SampleContext) => CodeSample | undefined;
   // `string[]` (not `GeneratorName[]`) so a custom generator may require a built-in or another
   // custom generator by name; built-in descriptors still type-check (their names are strings).
   requires?: string[];

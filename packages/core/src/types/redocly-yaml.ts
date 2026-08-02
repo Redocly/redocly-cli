@@ -379,6 +379,7 @@ const Client: NodeType = {
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    codeSamples: { type: 'boolean' },
     setup: { type: 'string' },
     pagination: 'ClientPagination',
   },

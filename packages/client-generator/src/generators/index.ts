@@ -1,7 +1,7 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock.js';
-import { sdkGenerator } from './sdk.js';
+import { sdkGenerator, sdkSample } from './sdk.js';
 import { swrGenerator } from './swr.js';
 import { tanstackQueryGenerator } from './tanstack-query.js';
 import { transformersGenerator } from './transformers.js';
@@ -20,8 +20,8 @@ export type {
 // statically anyway). Compatibility metadata lives in BUILTIN_META — one home;
 // only the eagerly imported `run` functions live here. The pipeline entry never
 // touches this module: it loads built-ins lazily through the meta table.
-const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run'>> = {
-  sdk: { run: sdkGenerator },
+const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> = {
+  sdk: { run: sdkGenerator, sample: sdkSample },
   zod: { run: zodGenerator },
   transformers: { run: transformersGenerator },
   'tanstack-query': { run: tanstackQueryGenerator('react') },
