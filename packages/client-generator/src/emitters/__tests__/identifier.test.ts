@@ -49,6 +49,13 @@ describe('uniqueIdent', () => {
     expect(uniqueIdent('new', new Set())).toBe('_new');
   });
 
+  it('treats strict-mode reserved words as reserved (modules are always strict)', () => {
+    // GitHub's real description has a schema named `package`; `type X = package[]` is TS1214.
+    expect(uniqueIdent('package', new Set())).toBe('_package');
+    expect(uniqueIdent('let', new Set())).toBe('_let');
+    expect(uniqueIdent('await', new Set())).toBe('_await');
+  });
+
   it('suffixes collisions with an incrementing counter', () => {
     const used = new Set<string>();
     expect(uniqueIdent('a.b', used)).toBe('a_b');
