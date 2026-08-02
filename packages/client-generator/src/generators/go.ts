@@ -32,7 +32,10 @@ const GO = RESERVED_WORDS.go;
 
 /** An exported Go identifier (PascalCase; keywords can't collide since these start uppercase). */
 function exported(name: string): string {
-  return identifierFor(name, { style: 'pascal', reserved: GO });
+  const ident = identifierFor(name, { style: 'pascal', reserved: GO });
+  // A digit-leading name gets `_`-prefixed by identifierFor, which in Go means
+  // UNexported — encoding/json would silently skip the field. `N` (number) keeps it exported.
+  return ident.startsWith('_') ? `N${ident.slice(1)}` : ident;
 }
 
 /** The Go type for a schema; `required=false` optionals become pointers at the field site. */

@@ -114,6 +114,19 @@ describe('renderGoModels', () => {
     expectGoCompiles(out);
   });
 
+  it('exports digit-leading field names with an N prefix (an _-prefixed field is invisible to encoding/json)', () => {
+    const out = renderGoModels(
+      model({
+        PaymentMethod: {
+          kind: 'object',
+          properties: [{ name: '3ds', schema: STRING, required: false }],
+        },
+      })
+    );
+    expect(out).toContain('N3ds *string `json:"3ds,omitempty"`');
+    expectGoCompiles(out);
+  });
+
   it('keeps +1 and -1 fields distinct and exported (GitHub reactions)', () => {
     const out = renderGoModels(
       model({
