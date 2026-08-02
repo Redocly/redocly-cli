@@ -114,6 +114,23 @@ describe('renderGoModels', () => {
     expectGoCompiles(out);
   });
 
+  it('keeps +1 and -1 fields distinct and exported (GitHub reactions)', () => {
+    const out = renderGoModels(
+      model({
+        Reactions: {
+          kind: 'object',
+          properties: [
+            { name: '+1', schema: INT, required: true },
+            { name: '-1', schema: INT, required: true },
+          ],
+        },
+      })
+    );
+    expect(out).toContain('Plus1 int64 `json:"+1"`');
+    expect(out).toContain('Minus1 int64 `json:"-1"`');
+    expectGoCompiles(out);
+  });
+
   it('maps nullability and records to pointers and maps', () => {
     const out = renderGoModels(
       model({

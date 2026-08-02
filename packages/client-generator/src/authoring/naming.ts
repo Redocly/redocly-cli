@@ -5,12 +5,18 @@
 
 /** Split on delimiters and camel/acronym boundaries: 'APIKey-v2' → ['api', 'key', 'v2']. */
 function splitWords(name: string): string[] {
-  return name
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .split(/[^A-Za-z0-9]+/)
-    .filter((word) => word !== '')
-    .map((word) => word.toLowerCase());
+  return (
+    name
+      // A leading sign on a number is meaning, not a delimiter: '+1'/'-1' (GitHub
+      // reactions) must not collapse to the same identifier.
+      .replace(/^\+(?=\d)/, 'plus ')
+      .replace(/^-(?=\d)/, 'minus ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+      .split(/[^A-Za-z0-9]+/)
+      .filter((word) => word !== '')
+      .map((word) => word.toLowerCase())
+  );
 }
 
 const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);

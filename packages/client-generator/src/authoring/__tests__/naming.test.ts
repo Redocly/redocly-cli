@@ -11,6 +11,15 @@ describe('casing', () => {
     expect(casing.snake('APIKey')).toBe('api_key');
     expect(casing.pascal('api_key_v2')).toBe('ApiKeyV2');
   });
+
+  it('names signed numbers Plus*/Minus* so +1 and -1 stay distinct (GitHub reactions)', () => {
+    expect(casing.pascal('+1')).toBe('Plus1');
+    expect(casing.pascal('-1')).toBe('Minus1');
+    expect(casing.snake('+1')).toBe('plus_1');
+    expect(casing.screaming('-1')).toBe('MINUS_1');
+    // A minus that is just a word delimiter is untouched.
+    expect(casing.pascal('x-header')).toBe('XHeader');
+  });
 });
 
 describe('identifierFor', () => {

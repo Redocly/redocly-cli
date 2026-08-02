@@ -129,6 +129,25 @@ describe('renderPythonModels', () => {
     expectCompiles(out);
   });
 
+  it('keeps +1 and -1 fields distinct (a collision silently drops one from the field map)', () => {
+    const out = renderPythonModels(
+      model({
+        Reactions: {
+          kind: 'object',
+          properties: [
+            { name: '+1', schema: INT, required: true },
+            { name: '-1', schema: INT, required: true },
+          ],
+        },
+      })
+    );
+    expect(out).toContain('plus_1: int');
+    expect(out).toContain('minus_1: int');
+    expect(out).toContain('"plus_1": "+1"');
+    expect(out).toContain('"minus_1": "-1"');
+    expectCompiles(out);
+  });
+
   it('renders nullable and record shapes idiomatically', () => {
     const out = renderPythonModels(
       model({
