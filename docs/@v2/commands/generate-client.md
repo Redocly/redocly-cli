@@ -59,6 +59,7 @@ redocly generate-client [--help] [--version]
 Instead of passing flags every time, keep the settings in `redocly.yaml` under a top-level `client` block and per-API `apis.<name>.client` / `clientOutput` — see the [`client` configuration reference](../configuration/reference/client.md) for the fields.
 CLI flags take precedence over the configuration.
 Auto-pagination has no CLI flag; it's declared only as [`client.pagination`](../configuration/reference/client.md#pagination-object) configuration or the `x-redocly-pagination` operation extension.
+Code samples for docs are config-only too: [`client.codeSamples`](../configuration/reference/client.md) emits an `x-codeSamples` overlay next to the client.
 
 ```yaml
 client:

@@ -67,7 +67,30 @@ The built-in generators cover common targets.
 For anything else derived from the same description (validators in another library, a permissions map, a house-style SDK), write a **custom generator**: it reads the same API model the built-ins consume, so its output never drifts from the description.
 A generator adds artifacts _next to_ the client — it doesn't change the generated client's behavior; for that, use [publisher defaults](#publisher-defaults) or let the consumer compose [middleware](./use-generated-client.md#middleware).
 
-A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator` from the package root, and build real TypeScript with the emit toolkit from `@redocly/client-generator/generate` — the same `ts.factory` + printer the built-in generators use, so the schema→type mapping matches the sdk's exactly:
+A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator` from the package root.
+The output is text, so a generator can emit **any language** — Python models, a Go client, a permissions matrix — not just TypeScript.
+
+### Language-neutral helpers
+
+The package root exports pure helpers over the API model that cover the cross-language variance points, so a generator in any output language never re-implements schema semantics:
+
+| Helper                                          | Use                                                                                                                                     |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `flattenAllOf(schema, model)`                   | The merged property view of `allOf` compositions — languages without intersection types render this.                                    |
+| `discriminatorCases(schema, model)`             | `{ property, cases }` dispatch table for discriminated unions (sealed hierarchy, type switch, `Union` — each language renders its own). |
+| `isNullable(schema)` / `unwrapNullable(schema)` | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                           |
+| `enumValues(schema)`                            | Values plus SCREAMING_SNAKE member-name suggestions.                                                                                    |
+| `casing` / `identifierFor(name, opts)`          | camel/pascal/snake/screaming casing; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped, pass your own set).       |
+| `CodeWriter`                                    | Indentation-aware text builder — no manual whitespace bookkeeping.                                                                      |
+| `docText(description)`                          | Description text as trimmed lines for any comment syntax.                                                                               |
+
+A generator that imports only these helpers (and not the TypeScript toolkit below) runs without the `typescript` package installed.
+
+For a repo-local, agent-readable version of this guidance, copy the [`AGENTS.md` template](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/eject-assets/AGENTS.md) into your generators directory — it gives any coding agent the contract, the model reference, and this helper table.
+
+### TypeScript artifacts
+
+For TypeScript output, build real syntax trees with the emit toolkit from `@redocly/client-generator/generate` — the same `ts.factory` + printer the built-in generators use, so the schema→type mapping matches the sdk's exactly:
 
 ```ts
 // response-map-generator.ts
@@ -138,6 +161,12 @@ await generateClient({
   generators: ['sdk', 'response-map'],
 });
 ```
+
+### Code samples for docs
+
+A generator that knows how to call an operation can also document it: implement the optional `sample(operation, ctx)` hook to return one idiomatic snippet (`{ lang, label, source }`) per operation.
+With `codeSamples: true` in the `client` block, generation collects every selected generator's samples into `<output stem>.code-samples.yaml` — an [OpenAPI Overlay](https://spec.openapis.org/overlay/latest.html) adding `x-codeSamples` per operation, ready for docs tooling to apply.
+The built-in `sdk` generator ships the TypeScript reference implementation, so enabling the flag alone gives your Redoc docs per-operation TypeScript examples that never drift from the SDK.
 
 Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
 See the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for the runnable toolkit-based plugin (including type-importing referenced schemas), the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building one, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the description's tags.
