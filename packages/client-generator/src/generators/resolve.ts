@@ -10,7 +10,7 @@ import { isAbsolute, resolve as resolvePath } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { NotSupportedError } from '../errors.js';
-import { builtinGenerators } from './index.js';
+import { BUILTIN_META, type BuiltinMeta } from './meta.js';
 import type { CustomGenerator, GeneratorDescriptor } from './types.js';
 
 export type ResolvedGenerators = {
@@ -35,12 +35,21 @@ export async function resolveGenerators(
   entries: string[],
   options: ResolveOptions = {}
 ): Promise<ResolvedGenerators> {
-  const registry = builtinGenerators();
+  // Built-ins are loaded lazily through BUILTIN_META so a selection without a
+  // TypeScript-emitting generator never loads the `typescript` package.
+  const registry = new Map<string, GeneratorDescriptor>();
   for (const custom of options.customGenerators ?? []) register(registry, custom);
 
   const selected: string[] = [];
   for (const entry of entries) {
     if (registry.has(entry)) {
+      selected.push(entry);
+      continue;
+    }
+    const meta = (BUILTIN_META as Record<string, BuiltinMeta>)[entry];
+    if (meta !== undefined) {
+      const { load, ...compatibility } = meta;
+      registry.set(entry, { ...compatibility, ...(await load()) });
       selected.push(entry);
       continue;
     }
@@ -63,7 +72,7 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
       'Invalid custom generator: expected an object with a non-empty string `name` and a `run` function (build one with `defineGenerator`).'
     );
   }
-  if (registry.has(custom.name)) {
+  if (registry.has(custom.name) || custom.name in BUILTIN_META) {
     throw new NotSupportedError(
       `Generator name "${custom.name}" collides with an existing generator. Rename the custom generator.`
     );

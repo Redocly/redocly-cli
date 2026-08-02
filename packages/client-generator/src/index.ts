@@ -68,6 +68,6 @@ import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
-  const generate = await import('./generate.js');
-  return generate.generateClient(options);
+  const pipeline = await import('./pipeline.js');
+  return pipeline.generateClient(options);
 }

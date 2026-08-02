@@ -4,12 +4,11 @@
 // import or declare, the platform globals the emitted code references bare (a
 // same-named schema TYPE would shadow them), and every top-level declaration of the
 // runtime sources (in embed mode ALL of them — even module-local helpers — share
-// the module scope with the generated code). The runtime layer is parsed from
-// `RUNTIME_SOURCES`, so it tracks the real runtime with no hand-maintained list to
-// drift.
+// the module scope with the generated code). The runtime layer is precomputed from
+// the runtime sources at prepare time (`RUNTIME_DECLARED_NAMES`), so it tracks the
+// real runtime with no hand-maintained list to drift.
 
-import { RUNTIME_SOURCES } from './runtime-sources.js';
-import { parseStatements, ts } from './ts.js';
+import { RUNTIME_DECLARED_NAMES } from './runtime-sources.js';
 
 /** Module-scope identifiers every package-mode sdk file emits or imports — never renamed. */
 export const WIRING_NAMES = [
@@ -116,30 +115,18 @@ const GLOBAL_NAMES = [
 
 let cached: Set<string> | undefined;
 
-/** Every name the generated modules reserve: wiring + satellite + globals + runtime declarations. */
+/** Every name the generated modules reserve: wiring + satellite + globals + runtime
+ * declarations. The runtime layer is precomputed at prepare time
+ * (`RUNTIME_DECLARED_NAMES`), so building this set never needs the TS parser —
+ * keeping the pipeline `typescript`-free for non-TS generator selections. */
 export function reservedModuleNames(): Set<string> {
   if (cached === undefined) {
-    cached = new Set([...WIRING_NAMES, ...SATELLITE_NAMES, ...GLOBAL_NAMES]);
-    for (const source of Object.values(RUNTIME_SOURCES)) {
-      for (const statement of parseStatements(source)) collectDeclaredName(statement, cached);
-    }
+    cached = new Set([
+      ...WIRING_NAMES,
+      ...SATELLITE_NAMES,
+      ...GLOBAL_NAMES,
+      ...RUNTIME_DECLARED_NAMES,
+    ]);
   }
   return cached;
-}
-
-function collectDeclaredName(statement: ts.Statement, into: Set<string>): void {
-  if (
-    (ts.isFunctionDeclaration(statement) ||
-      ts.isClassDeclaration(statement) ||
-      ts.isInterfaceDeclaration(statement) ||
-      ts.isTypeAliasDeclaration(statement) ||
-      ts.isEnumDeclaration(statement)) &&
-    statement.name !== undefined
-  ) {
-    into.add(statement.name.text);
-  } else if (ts.isVariableStatement(statement)) {
-    for (const declaration of statement.declarationList.declarations) {
-      if (ts.isIdentifier(declaration.name)) into.add(declaration.name.text);
-    }
-  }
 }
