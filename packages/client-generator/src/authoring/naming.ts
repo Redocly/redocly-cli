@@ -32,7 +32,7 @@ export const casing = {
 };
 
 /** Keyword sets for the first-party target languages; authors pass their own set for others. */
-export const RESERVED_WORDS: Record<'typescript' | 'python' | 'go', ReadonlySet<string>> = {
+export const RESERVED_WORDS: Record<'typescript' | 'python' | 'go' | 'php', ReadonlySet<string>> = {
   // prettier-ignore
   typescript: new Set([
     'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete',
@@ -53,6 +53,20 @@ export const RESERVED_WORDS: Record<'typescript' | 'python' | 'go', ReadonlySet<
     'break', 'case', 'chan', 'const', 'continue', 'default', 'defer', 'else', 'fallthrough',
     'for', 'func', 'go', 'goto', 'if', 'import', 'interface', 'map', 'package', 'range',
     'return', 'select', 'struct', 'switch', 'type', 'var',
+  ]),
+  // PHP keywords + compile-time constants are case-insensitive; the set stays lowercase
+  // because `identifierFor` matches on the lowercased candidate.
+  // prettier-ignore
+  php: new Set([
+    'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch', 'class', 'clone',
+    'const', 'continue', 'declare', 'default', 'die', 'do', 'echo', 'else', 'elseif', 'empty',
+    'enddeclare', 'endfor', 'endforeach', 'endif', 'endswitch', 'endwhile', 'enum', 'eval',
+    'exit', 'extends', 'final', 'finally', 'fn', 'for', 'foreach', 'function', 'global', 'goto',
+    'if', 'implements', 'include', 'instanceof', 'insteadof', 'interface', 'isset', 'list',
+    'match', 'namespace', 'new', 'or', 'print', 'private', 'protected', 'public', 'readonly',
+    'require', 'return', 'static', 'switch', 'throw', 'trait', 'try', 'unset', 'use', 'var',
+    'while', 'xor', 'yield', 'true', 'false', 'null', 'int', 'float', 'bool', 'string', 'void',
+    'iterable', 'object', 'mixed', 'never', 'self', 'parent',
   ]),
 };
 

@@ -36,5 +36,8 @@ describe('identifierFor', () => {
     expect(identifierFor('order', { style: 'camel', reserved: RESERVED_WORDS.python })).toBe(
       'order'
     );
+    expect(identifierFor('class', { style: 'camel', reserved: RESERVED_WORDS.php })).toBe('class_');
+    expect(identifierFor('list', { style: 'camel', reserved: RESERVED_WORDS.php })).toBe('list_');
+    expect(identifierFor('echo', { style: 'camel', reserved: RESERVED_WORDS.php })).toBe('echo_');
   });
 });
