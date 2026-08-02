@@ -1,6 +1,7 @@
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import {
   discriminatorCases,
+  schemaAtPointer,
   docText,
   enumValues,
   flattenAllOf,
@@ -107,5 +108,38 @@ describe('docText', () => {
   it('normalizes a description into trimmed lines, dropping blank edges', () => {
     expect(docText('  First line.\r\n\r\nSecond.\n')).toEqual(['First line.', '', 'Second.']);
     expect(docText(undefined)).toEqual([]);
+  });
+});
+
+describe('schemaAtPointer', () => {
+  it('walks object properties, arrays, records, and intersections through refs', () => {
+    const order: SchemaModel = {
+      kind: 'object',
+      properties: [{ name: 'id', schema: STRING, required: true }],
+    };
+    const page: SchemaModel = {
+      kind: 'intersection',
+      members: [
+        {
+          kind: 'object',
+          properties: [
+            {
+              name: 'items',
+              schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
+              required: true,
+            },
+          ],
+        },
+      ],
+    };
+    const m = model({ Order: order, Page: page });
+    expect(schemaAtPointer({ kind: 'ref', name: 'Page' }, '/items/0', m)).toEqual(order);
+    expect(schemaAtPointer(page, '/items', m)).toEqual({
+      kind: 'array',
+      items: { kind: 'ref', name: 'Order' },
+    });
+    expect(schemaAtPointer(page, '/missing', m)).toBeUndefined();
+    expect(schemaAtPointer(page, 'items', m)).toBeUndefined();
+    expect(schemaAtPointer(page, '', m)).toEqual(page);
   });
 });

@@ -83,6 +83,8 @@ The package root exports pure helpers over the API model that cover the cross-la
 | `casing` / `identifierFor(name, opts)`          | camel/pascal/snake/screaming casing; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped, pass your own set).       |
 | `CodeWriter`                                    | Indentation-aware text builder — no manual whitespace bookkeeping.                                                                      |
 | `docText(description)`                          | Description text as trimmed lines for any comment syntax.                                                                               |
+| `schemaAtPointer(schema, pointer, model)`       | Resolve an RFC 6901 JSON pointer over a schema, through refs and `allOf` — e.g. a pagination `items` pointer to its element type.       |
+| `paginationRuleFor(op, config)`                 | The pagination rule applying to an operation (per-op config > `x-redocly-pagination` > fitting convention), normalized.                 |
 
 A generator that imports only these helpers (and not the TypeScript toolkit below) runs without the `typescript` package installed.
 

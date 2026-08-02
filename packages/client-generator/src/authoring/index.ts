@@ -4,12 +4,14 @@
 
 export { CodeWriter } from './code-writer.js';
 export { casing, identifierFor, RESERVED_WORDS } from './naming.js';
+export { paginationRuleFor, type NeutralPaginationRule } from './pagination.js';
 export {
   discriminatorCases,
   docText,
   enumValues,
   flattenAllOf,
   isNullable,
+  schemaAtPointer,
   unwrapNullable,
 } from './schema.js';
 
@@ -25,4 +27,6 @@ export const AUTHORING_HELPER_NAMES = [
   'unwrapNullable',
   'enumValues',
   'docText',
+  'schemaAtPointer',
+  'paginationRuleFor',
 ] as const;

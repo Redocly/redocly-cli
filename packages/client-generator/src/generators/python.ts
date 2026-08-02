@@ -5,6 +5,8 @@
 
 import {
   CodeWriter,
+  paginationRuleFor,
+  schemaAtPointer,
   discriminatorCases,
   docText,
   enumValues,
@@ -240,41 +242,21 @@ function isMultipart(op: OperationModel): boolean {
   return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
 }
 
-/**
- * Pagination for one operation — per-op config rule > `x-redocly-pagination` >
- * the convention rule (applied only when its advance param exists on the op and
- * the op is not excluded). Normalized to the snake_case spec dict the embedded
- * Python runtime consumes. Local minimal resolution: the TS resolver's static
- * fit verification lives in the TS toolkit; porting it to the neutral layer is
- * a recorded follow-up.
- */
+/** The neutral pagination rule mapped to the snake_case spec dict the embedded
+ * Python runtime consumes. */
 function paginationSpec(
   op: OperationModel,
   emit: { pagination?: Record<string, unknown> }
 ): Record<string, unknown> | undefined {
-  const config = emit.pagination ?? {};
-  const id = op.specName ?? op.name;
-  if (Array.isArray(config.exclude) && config.exclude.includes(id)) return undefined;
-  const operations = (config.operations ?? {}) as Record<string, Record<string, unknown>>;
-  let rule: Record<string, unknown> | undefined =
-    operations[id] ?? (op.paginationExtension as Record<string, unknown> | undefined);
-  if (rule === undefined && typeof config.style === 'string') {
-    const { exclude: _exclude, operations: _operations, ...convention } = config;
-    const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
-    const fits =
-      convention.style === 'link' ||
-      (typeof advance === 'string' && op.queryParams.some((param) => param.name === advance));
-    if (fits) rule = convention as Record<string, unknown>;
-  }
-  if (rule === undefined || typeof rule.style !== 'string') return undefined;
-  const param = rule.style === 'cursor' ? rule.cursorParam : rule.offsetParam;
+  const rule = paginationRuleFor(op, emit.pagination);
+  if (rule === undefined) return undefined;
   return {
     style: rule.style,
-    ...(typeof param === 'string' ? { param } : {}),
-    ...(typeof rule.nextCursor === 'string' ? { next_cursor: rule.nextCursor } : {}),
-    ...(typeof rule.hasMore === 'string' ? { has_more: rule.hasMore } : {}),
-    ...(typeof rule.limitParam === 'string' ? { limit_param: rule.limitParam } : {}),
-    ...(typeof rule.items === 'string' ? { items: rule.items } : {}),
+    ...(rule.param !== undefined ? { param: rule.param } : {}),
+    ...(rule.nextCursor !== undefined ? { next_cursor: rule.nextCursor } : {}),
+    ...(rule.hasMore !== undefined ? { has_more: rule.hasMore } : {}),
+    ...(rule.limitParam !== undefined ? { limit_param: rule.limitParam } : {}),
+    ...(rule.items !== undefined ? { items: rule.items } : {}),
   };
 }
 
@@ -382,7 +364,8 @@ function writePaginationWrappers(
   writer: CodeWriter,
   op: OperationModel,
   ident: string,
-  isAsync: boolean
+  isAsync: boolean,
+  itemType: string
 ): void {
   const success = successSchema(op);
   const pageType = success === undefined ? 'Any' : pythonType(success);
@@ -441,11 +424,11 @@ function writePaginationWrappers(
       });
     });
     writer.blank();
-    writer.block(`async def ${ident}_items(${signature}) -> ${iterType}[Any]:`, () => {
+    writer.block(`async def ${ident}_items(${signature}) -> ${iterType}[${itemType}]:`, () => {
       writer.line(`op = _OPERATIONS["${ident}"]`);
       writeCallClosure();
       writer.block(`async for item in ${itemsFn}(_page, op["pagination"], base):`, () => {
-        writer.line('yield item');
+        writer.line(itemType === 'Any' ? 'yield item' : `yield decode(${itemType}, item)`);
       });
     });
   } else {
@@ -459,10 +442,14 @@ function writePaginationWrappers(
       );
     });
     writer.blank();
-    writer.block(`def ${ident}_items(${signature}) -> ${iterType}[Any]:`, () => {
+    writer.block(`def ${ident}_items(${signature}) -> ${iterType}[${itemType}]:`, () => {
       writer.line(`op = _OPERATIONS["${ident}"]`);
       writeCallClosure();
-      writer.line(`return ${itemsFn}(_page, op["pagination"], base)`);
+      writer.line(
+        itemType === 'Any'
+          ? `return ${itemsFn}(_page, op["pagination"], base)`
+          : `return (decode(${itemType}, item) for item in ${itemsFn}(_page, op["pagination"], base))`
+      );
     });
   }
   writer.blank();
@@ -506,8 +493,23 @@ function writeClientClass(
     writer.blank();
     for (const { op, ident } of operationIdents(model)) {
       writeMethod(writer, op, ident, errorMode, isAsync);
-      if (paginationSpecs.get(ident) !== undefined) {
-        writePaginationWrappers(writer, op, ident, isAsync);
+      const spec = paginationSpecs.get(ident);
+      if (spec !== undefined) {
+        const success = successSchema(op);
+        // Resolve the items ARRAY, then take its raw element schema — a `ref`
+        // element keeps its name (a deref'd result would type as Any).
+        const itemsArray =
+          success !== undefined && typeof spec.items === 'string'
+            ? schemaAtPointer(success, spec.items, model)
+            : undefined;
+        const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
+        writePaginationWrappers(
+          writer,
+          op,
+          ident,
+          isAsync,
+          element === undefined ? 'Any' : pythonType(element)
+        );
       }
     }
   });

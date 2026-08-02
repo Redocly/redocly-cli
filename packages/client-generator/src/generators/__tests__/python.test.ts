@@ -351,6 +351,7 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('"pagination": {"style": "cursor", "param": "after"');
     expect(out).toContain('def list_orders_pages(');
     expect(out).toContain('def list_orders_items(');
+    expect(out).toContain('-> Iterator[Order]:'); // typed via schemaAtPointer on the items pointer
     expect(out).toContain('iter_pages(');
     expect(out).toContain('async for page in aiter_pages(');
     expect(out).toContain('-> Iterator[OrderPage]:');

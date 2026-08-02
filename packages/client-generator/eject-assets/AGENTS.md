@@ -44,16 +44,18 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 
 ## Helpers (import from '@redocly/client-generator')
 
-| Helper                                                | Use                                                                                                     |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `flattenAllOf(schema, model)`                         | The merged property view of allOf compositions — languages without intersection types render this.      |
-| `discriminatorCases(schema, model)`                   | `{ property, cases }` dispatch table for discriminated unions.                                          |
-| `isNullable(schema)` / `unwrapNullable(schema)`       | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                           |
-| `enumValues(schema)`                                  | Values plus SCREAMING_SNAKE member-name suggestions.                                                    |
-| `casing` / `identifierFor(name, { style, reserved })` | camel/pascal/snake/screaming; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped). |
-| `CodeWriter`                                          | Indentation-aware text builder — no manual whitespace bookkeeping.                                      |
-| `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                    |
-| `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                  |
+| Helper                                                | Use                                                                                                                              |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `flattenAllOf(schema, model)`                         | The merged property view of allOf compositions — languages without intersection types render this.                               |
+| `discriminatorCases(schema, model)`                   | `{ property, cases }` dispatch table for discriminated unions.                                                                   |
+| `isNullable(schema)` / `unwrapNullable(schema)`       | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
+| `enumValues(schema)`                                  | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |
+| `casing` / `identifierFor(name, { style, reserved })` | camel/pascal/snake/screaming; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped).                          |
+| `CodeWriter`                                          | Indentation-aware text builder — no manual whitespace bookkeeping.                                                               |
+| `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                                             |
+| `schemaAtPointer(schema, pointer, model)`             | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
+| `paginationRuleFor(op, config)`                       | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
+| `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                                           |
 
 Worked example: the built-in `python` generator
 (`packages/client-generator/src/generators/python.ts` in the Redocly CLI repo) is

@@ -93,3 +93,49 @@ export function docText(description?: string): string[] {
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
   return lines;
 }
+
+/** One pointer step over a (dereferenced) schema; an intersection takes the LAST member that resolves, since later `allOf` members refine earlier ones. */
+function stepIntoSchema(
+  schema: SchemaModel,
+  key: string,
+  model: ApiModel
+): SchemaModel | undefined {
+  if (schema.kind === 'object') return schema.properties.find((p) => p.name === key)?.schema;
+  if (schema.kind === 'record') return schema.value;
+  if (schema.kind === 'array' && /^(0|[1-9]\d*)$/.test(key)) return schema.items;
+  if (schema.kind === 'intersection') {
+    let match: SchemaModel | undefined;
+    for (const member of schema.members) {
+      const target = deref(member, model);
+      if (target === undefined) continue;
+      match = stepIntoSchema(target, key, model) ?? match;
+    }
+    return match;
+  }
+  return undefined;
+}
+
+/**
+ * Resolve an RFC 6901 JSON pointer (`~1` → `/`, `~0` → `~`) over a schema, walking the
+ * VALUE shape it describes: object property steps by name, record values for any token,
+ * array items for numeric tokens, with `ref` steps resolved through the model's named
+ * schemas (cycle-guarded) and intersections (`allOf`) resolved across their members.
+ * Unions bail (genuinely ambiguous). Returns `undefined` on any miss.
+ */
+export function schemaAtPointer(
+  schema: SchemaModel,
+  pointer: string,
+  model: ApiModel
+): SchemaModel | undefined {
+  let current = deref(schema, model);
+  if (current === undefined || (pointer !== '' && !pointer.startsWith('/'))) return undefined;
+  if (pointer === '') return current;
+  for (const token of pointer.slice(1).split('/')) {
+    const key = token.replaceAll('~1', '/').replaceAll('~0', '~');
+    const next = stepIntoSchema(current, key, model);
+    if (next === undefined) return undefined;
+    current = deref(next, model);
+    if (current === undefined) return undefined;
+  }
+  return current;
+}
