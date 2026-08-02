@@ -1,8 +1,15 @@
 import { type GenerateClientConfig } from '@redocly/client-generator';
 import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
+import { readFileSync } from 'node:fs';
 import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
+import {
+  BUILTIN_GENERATOR_NAMES,
+  categorizeGenerateClientError,
+  collectToolkitImports,
+  generateClientTelemetry,
+} from '../utils/generate-client-telemetry.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 
@@ -61,7 +68,8 @@ export async function handleGenerateClient({
   argv,
   config,
 }: CommandArgs<GenerateClientCommandArgv>) {
-  const { generateClient, mergeConfig } = await import('@redocly/client-generator');
+  const { AUTHORING_HELPER_NAMES, generateClient, mergeConfig } =
+    await import('@redocly/client-generator');
 
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
@@ -121,6 +129,7 @@ export async function handleGenerateClient({
       configDir
     );
     const clientConfig = mergeConfig(clientBlock, cliFlags);
+    collectGeneratorUsage(clientConfig.generators ?? [], AUTHORING_HELPER_NAMES);
 
     const outputPath =
       argv.output !== undefined
@@ -162,9 +171,38 @@ export async function handleGenerateClient({
       logger.info('\n' + blue(summary) + '\n');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      generateClientTelemetry.generate_client_error_category =
+        categorizeGenerateClientError(message);
       throw new HandledError(
         `\n❌  Failed to generate TypeScript client for ${name}.\n   ${message}\n`
       );
     }
   }
+}
+
+/** Telemetry: allowlisted built-in names, custom count, and OUR helper names a
+ * path generator imports — never user code, paths, or names. */
+function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[]): void {
+  const builtins = new Set(generateClientTelemetry.generate_client_builtin_generators ?? []);
+  const toolkitImports = new Set(generateClientTelemetry.generate_client_toolkit_imports ?? []);
+  let customCount = generateClientTelemetry.generate_client_custom_generators_count ?? 0;
+  for (const entry of entries) {
+    if (BUILTIN_GENERATOR_NAMES.has(entry)) {
+      builtins.add(entry);
+      continue;
+    }
+    customCount++;
+    if (entry.startsWith('.') || isAbsolute(entry)) {
+      try {
+        for (const helper of collectToolkitImports(readFileSync(entry, 'utf-8'), knownHelpers)) {
+          toolkitImports.add(helper);
+        }
+      } catch {
+        // Unreadable path: generation fails later with its own error; nothing to record.
+      }
+    }
+  }
+  generateClientTelemetry.generate_client_builtin_generators = [...builtins];
+  generateClientTelemetry.generate_client_custom_generators_count = customCount;
+  generateClientTelemetry.generate_client_toolkit_imports = [...toolkitImports];
 }

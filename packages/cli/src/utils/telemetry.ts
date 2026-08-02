@@ -22,6 +22,7 @@ import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
+import type { GenerateClientTelemetry } from './generate-client-telemetry.js';
 import type { ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
@@ -46,6 +47,7 @@ export async function sendTelemetry({
   lint_rules_with_errors,
   lint_rules_with_warnings,
   lint_rules_with_ignored_problems,
+  generate_client,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -60,6 +62,7 @@ export async function sendTelemetry({
   lint_rules_with_errors: string[] | undefined;
   lint_rules_with_warnings: string[] | undefined;
   lint_rules_with_ignored_problems: string[] | undefined;
+  generate_client?: GenerateClientTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -128,6 +131,18 @@ export async function sendTelemetry({
         lint_rules_with_ignored_problems: lint_rules_with_ignored_problems?.length
           ? JSON.stringify(lint_rules_with_ignored_problems)
           : undefined,
+        // generate-client usage (names of OUR generators/helpers only — never user
+        // code, paths, or names; see utils/generate-client-telemetry.ts).
+        generate_client_builtin_generators: generate_client?.generate_client_builtin_generators
+          ?.length
+          ? JSON.stringify(generate_client.generate_client_builtin_generators)
+          : undefined,
+        generate_client_custom_generators_count:
+          generate_client?.generate_client_custom_generators_count,
+        generate_client_toolkit_imports: generate_client?.generate_client_toolkit_imports?.length
+          ? JSON.stringify(generate_client.generate_client_toolkit_imports)
+          : undefined,
+        generate_client_error_category: generate_client?.generate_client_error_category,
       },
     ];
 
