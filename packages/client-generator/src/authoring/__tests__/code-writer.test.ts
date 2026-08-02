@@ -11,6 +11,15 @@ describe('CodeWriter', () => {
     expect(writer.toString()).toBe('class Pet:\n  def __init__(self):\n    self.name = name\n');
   });
 
+  it('block() without a close suits dedent-terminated languages (Python)', () => {
+    const writer = new CodeWriter('    ');
+    writer.block('class Pet:', () => {
+      writer.line('name: str');
+    });
+    writer.line('PETS = []');
+    expect(writer.toString()).toBe('class Pet:\n    name: str\nPETS = []\n');
+  });
+
   it('block() wraps open/body/close; blank() emits an empty line without indentation', () => {
     const writer = new CodeWriter('    ');
     writer.block(

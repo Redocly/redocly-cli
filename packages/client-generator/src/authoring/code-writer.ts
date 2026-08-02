@@ -25,11 +25,12 @@ export class CodeWriter {
     return this;
   }
 
-  /** `open` at the current depth, `body` indented, `close` back at the current depth. */
-  block(open: string, body: () => void, close: string): this {
+  /** `open` at the current depth, `body` indented, `close` back at the current depth.
+   * Omit `close` for languages whose blocks end by dedent alone (Python, YAML). */
+  block(open: string, body: () => void, close?: string): this {
     this.line(open);
     this.indent(body);
-    return this.line(close);
+    return close === undefined ? this : this.line(close);
   }
 
   toString(): string {
