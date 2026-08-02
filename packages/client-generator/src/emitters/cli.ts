@@ -70,7 +70,7 @@ export function commandData(
         : undefined;
       const responseSchema = jsonSuccessSchema(op);
       commands.push({
-        ...(service.name !== 'Default' ? { group: service.name } : {}),
+        ...(op.tags.length > 0 ? { group: op.tags[0] } : {}),
         name: op.name,
         ...(op.summary !== undefined ? { summary: op.summary } : {}),
         method: op.method.toUpperCase(),
