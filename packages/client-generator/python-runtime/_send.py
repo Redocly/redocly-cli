@@ -6,6 +6,7 @@
 # the reverse on_response onion.
 from __future__ import annotations
 
+import asyncio
 import random
 import time
 import uuid
@@ -125,5 +126,90 @@ def send(
             and retry_on({"attempt": attempt, "response": response})
         ):
             time.sleep(_retry_delay(merged_retry, attempt, response.headers.get("retry-after")))
+            continue
+        return response
+
+
+async def send_async(
+    client: httpx.AsyncClient,
+    config: Dict[str, Any],
+    op: Dict[str, Any],
+    url: str,
+    *,
+    method: str,
+    headers: Optional[Dict[str, str]] = None,
+    params: Optional[Dict[str, Any]] = None,
+    json_body: Any = None,
+    content: Any = None,
+    files: Any = None,
+    timeout: Optional[float] = None,
+    idempotency_key: Any = None,
+    retry: Optional[Dict[str, Any]] = None,
+) -> httpx.Response:
+    """The async mirror of send() — same retry/timeout/idempotency semantics."""
+    merged_retry: Dict[str, Any] = {**(config.get("retry") or {}), **(retry or {})}
+    effective_timeout = timeout if timeout is not None else config.get("timeout")
+    merged_headers: Dict[str, str] = {**(config.get("headers") or {}), **(headers or {})}
+    key = idempotency_key if idempotency_key is not None else config.get("idempotency_key")
+    if (
+        key not in (None, False)
+        and method.upper() in ("POST", "PATCH")
+        and "Idempotency-Key" not in merged_headers
+    ):
+        merged_headers["Idempotency-Key"] = (
+            key if isinstance(key, str) else key() if callable(key) else str(uuid.uuid4())
+        )
+    context = {
+        "url": url,
+        "method": method.upper(),
+        "headers": merged_headers,
+        "body": json_body,
+        "operation": op,
+    }
+    middleware: List[Any] = config.get("middleware") or []
+    for mw in middleware:
+        on_request = getattr(mw, "on_request", None) or (mw.get("on_request") if isinstance(mw, dict) else None)
+        if on_request:
+            on_request(context)
+    max_attempts = 1 + int(merged_retry.get("retries", 0))
+    retry_on = merged_retry.get("retry_on") or (
+        lambda ctx: _default_retry_on(context["method"], context["headers"], ctx.get("response"))
+    )
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            response = await client.request(
+                context["method"],
+                context["url"],
+                headers=context["headers"],
+                params=params,
+                json=context["body"] if content is None and files is None else None,
+                content=content,
+                files=files,
+                timeout=effective_timeout if effective_timeout is not None else httpx.USE_CLIENT_DEFAULT,
+            )
+        except httpx.TimeoutException:
+            if attempt < max_attempts and retry_on({"attempt": attempt, "response": None}):
+                await asyncio.sleep(_retry_delay(merged_retry, attempt, None))
+                continue
+            raise ApiTimeoutError(op.get("id", "?"), float(effective_timeout or 0), attempt) from None
+        except httpx.TransportError:
+            if attempt < max_attempts and retry_on({"attempt": attempt, "response": None}):
+                await asyncio.sleep(_retry_delay(merged_retry, attempt, None))
+                continue
+            raise
+        for mw in reversed(middleware):
+            on_response = getattr(mw, "on_response", None) or (mw.get("on_response") if isinstance(mw, dict) else None)
+            if on_response:
+                replaced = on_response(response, context)
+                if replaced is not None:
+                    response = replaced
+        if (
+            not response.is_success
+            and attempt < max_attempts
+            and retry_on({"attempt": attempt, "response": response})
+        ):
+            await asyncio.sleep(_retry_delay(merged_retry, attempt, response.headers.get("retry-after")))
             continue
         return response

@@ -76,7 +76,7 @@ function declaredNames() {
 
 // The Python runtime (python-runtime/*.py) embeds the same way: hand-authored
 // once, stitched into every generated Python client by the python generator.
-const PYTHON_MODULES = ['_errors', '_auth', '_send'];
+const PYTHON_MODULES = ['_errors', '_auth', '_url', '_decode', '_send'];
 const pythonDir = join(pkgRoot, 'python-runtime');
 const pythonOut = join(pkgRoot, 'src', 'emitters', 'python-runtime-sources.ts');
 const pythonEntries = PYTHON_MODULES.map((name) => {

@@ -14,7 +14,14 @@ import {
   RESERVED_WORDS,
   unwrapNullable,
 } from '../authoring/index.js';
-import type { ApiModel, PropertyModel, SchemaModel } from '../intermediate-representation/model.js';
+import { PYTHON_RUNTIME_SOURCES } from '../emitters/python-runtime-sources.js';
+import type {
+  ApiModel,
+  OperationModel,
+  PropertyModel,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
+import type { Generator } from './types.js';
 
 const PY = RESERVED_WORDS.python;
 
@@ -163,3 +170,240 @@ export function renderPythonModels(model: ApiModel): string {
   for (const emit of aliases) emit();
   return writer.toString();
 }
+
+/** The operation's primary JSON success schema, or undefined for void/no-body ops. */
+function successSchema(op: OperationModel): SchemaModel | undefined {
+  return op.successResponses.find((r) => r.contentType.toLowerCase().includes('json'))?.schema;
+}
+
+/** Security specs for the descriptor dict — the wire shape resolve_auth consumes. */
+function securitySpecs(op: OperationModel, model: ApiModel): unknown[][] {
+  return op.security
+    .map((alternative) =>
+      alternative.flatMap((key): Array<Record<string, string>> => {
+        const scheme = model.securitySchemes.find((s) => s.key === key);
+        if (scheme === undefined) return [];
+        if (scheme.kind === 'bearer' || scheme.kind === 'basic') {
+          return [{ scheme: key, kind: scheme.kind }];
+        }
+        if (scheme.kind === 'apiKeyHeader') {
+          return [{ scheme: key, kind: 'apiKey', name: scheme.headerName, in: 'header' }];
+        }
+        if (scheme.kind === 'apiKeyQuery') {
+          return [{ scheme: key, kind: 'apiKey', name: scheme.paramName, in: 'query' }];
+        }
+        return [{ scheme: key, kind: 'apiKey', name: scheme.cookieName, in: 'cookie' }];
+      })
+    )
+    .filter((alternative) => alternative.length > 0);
+}
+
+/** JSON → Python literal (dicts/lists/strings/numbers/bools/None). */
+function pythonLiteral(value: unknown): string {
+  if (value === null || value === undefined) return 'None';
+  if (value === true) return 'True';
+  if (value === false) return 'False';
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(pythonLiteral).join(', ')}]`;
+  const entries = Object.entries(value as Record<string, unknown>)
+    .map(([key, entry]) => `${JSON.stringify(key)}: ${pythonLiteral(entry)}`)
+    .join(', ');
+  return `{${entries}}`;
+}
+
+/** Every operation with its collision-free snake_case Python method name. */
+function operationIdents(model: ApiModel): Array<{ op: OperationModel; ident: string }> {
+  const used = new Set<string>();
+  const out: Array<{ op: OperationModel; ident: string }> = [];
+  for (const service of model.services) {
+    for (const op of service.operations) {
+      let ident = identifierFor(op.name, { style: 'snake', reserved: PY });
+      let suffix = 2;
+      while (used.has(ident))
+        ident = `${identifierFor(op.name, { style: 'snake', reserved: PY })}_${suffix++}`;
+      used.add(ident);
+      out.push({ op, ident });
+    }
+  }
+  return out;
+}
+
+function writeMethod(
+  writer: CodeWriter,
+  op: OperationModel,
+  ident: string,
+  errorMode: 'throw' | 'result',
+  isAsync: boolean
+): void {
+  const pathArgs = op.pathParams.map((param) => ({
+    param,
+    python: identifierFor(param.name, { style: 'snake', reserved: PY }),
+  }));
+  const queryArgs = op.queryParams.map((param) => ({
+    param,
+    python: identifierFor(param.name, { style: 'snake', reserved: PY }),
+  }));
+  const positional = pathArgs.map(({ param, python }) => `${python}: ${pythonType(param.schema)}`);
+  const bodyArg = op.requestBody ? [`body: ${pythonType(op.requestBody.schema)}`] : [];
+  const kwargs = [
+    ...queryArgs.map(({ param, python }) => {
+      const annotation = pythonType(param.schema);
+      const optional = annotation.startsWith('Optional[') ? annotation : `Optional[${annotation}]`;
+      return `${python}: ${optional} = None`;
+    }),
+    'headers: Optional[Dict[str, str]] = None',
+    'timeout: Optional[float] = None',
+    'retry: Optional[Dict[str, Any]] = None',
+    'idempotency_key: Any = None',
+  ];
+  const success = successSchema(op);
+  const returns =
+    errorMode === 'result' ? 'Result' : success === undefined ? 'None' : pythonType(success);
+  const prefix = isAsync ? 'async def' : 'def';
+  const awaitKw = isAsync ? 'await ' : '';
+  const sendFn = isAsync ? 'send_async' : 'send';
+  const signature = ['self', ...positional, ...bodyArg, '*', ...kwargs].join(', ');
+  writer.block(`${prefix} ${ident}(${signature}) -> ${returns}:`, () => {
+    writeDocstring(writer, op.summary);
+    writer.line(`op = _OPERATIONS["${ident}"]`);
+    writer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
+    writer.line('params: Dict[str, Any] = dict(auth_query)');
+    for (const { param, python } of queryArgs) {
+      writer.block(`if ${python} is not None:`, () => {
+        writer.line(`params[${JSON.stringify(param.name)}] = encode(${python})`);
+      });
+    }
+    const pathDict = pathArgs
+      .map(({ param, python }) => `${JSON.stringify(param.name)}: ${python}`)
+      .join(', ');
+    writer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
+    const bodyKw = op.requestBody ? ', json_body=encode(body)' : '';
+    writer.line(
+      `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +
+        `headers={**auth_headers, **(headers or {})}, params=params${bodyKw}, ` +
+        'timeout=timeout, retry=retry, idempotency_key=idempotency_key)'
+    );
+    const decoded =
+      success === undefined ? 'None' : `decode(${pythonType(success)}, _safe_json(response))`;
+    if (errorMode === 'result') {
+      writer.block('if not response.is_success:', () => {
+        writer.line('return Result(data=None, error=_safe_json(response), response=response)');
+      });
+      writer.line(`return Result(data=${decoded}, error=None, response=response)`);
+    } else {
+      writer.block('if not response.is_success:', () => {
+        writer.line(
+          'raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))'
+        );
+      });
+      writer.line(success === undefined ? 'return None' : `return ${decoded}`);
+    }
+  });
+  writer.blank();
+}
+
+function writeClientClass(
+  writer: CodeWriter,
+  model: ApiModel,
+  errorMode: 'throw' | 'result',
+  isAsync: boolean
+): void {
+  const name = isAsync ? 'AsyncClient' : 'Client';
+  const httpType = isAsync ? 'httpx.AsyncClient' : 'httpx.Client';
+  writer.block(`class ${name}:`, () => {
+    writeDocstring(
+      writer,
+      `${isAsync ? 'Async ' : ''}client for ${model.title} (${model.version}).`
+    );
+    writer.block(
+      `def __init__(self, server_url: str = ${JSON.stringify(model.serverUrl ?? '')}, *, ` +
+        'auth: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None, ' +
+        'timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, ' +
+        'middleware: Optional[List[Any]] = None, idempotency_key: Any = None, ' +
+        `http_client: Optional[${httpType}] = None) -> None:`,
+      () => {
+        writer.line('self._server_url = server_url');
+        writer.line('self._auth = auth or {}');
+        writer.line('self._config: Dict[str, Any] = {');
+        writer.indent(() => {
+          writer.line('"headers": headers or {},');
+          writer.line('"timeout": timeout,');
+          writer.line('"retry": retry or {},');
+          writer.line('"middleware": middleware or [],');
+          writer.line('"idempotency_key": idempotency_key,');
+        });
+        writer.line('}');
+        writer.line(`self._http = http_client or ${httpType}()`);
+      }
+    );
+    writer.blank();
+    for (const { op, ident } of operationIdents(model)) {
+      writeMethod(writer, op, ident, errorMode, isAsync);
+    }
+  });
+  writer.blank();
+}
+
+/** The whole generated file: header, models, embedded runtime, descriptors, clients. */
+export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
+  const errorMode = emit.errorMode ?? 'throw';
+  const writer = new CodeWriter('    ');
+  writer.line(
+    `# Generated by @redocly/client-generator (python) from "${model.title}" ${model.version}.`
+  );
+  writer.line('# Do not edit by hand — regenerate with `redocly generate-client`.');
+  writer.line('# Requires Python >= 3.9 and httpx: pip install httpx');
+  writer.blank();
+
+  // Models (with the shared imports header).
+  writer.line(renderPythonModels(model).trimEnd());
+  writer.blank();
+  writer.blank();
+
+  // The embedded runtime, stitched into one module: `from __future__` may appear
+  // only at the top of a file, and the intra-runtime relative imports resolve to
+  // this same file — both are dropped; duplicate stdlib imports are legal Python.
+  writer.line('# ─── Embedded runtime (@redocly/client-generator python runtime) ───');
+  for (const source of Object.values(PYTHON_RUNTIME_SOURCES)) {
+    const stitched = source
+      .split('\n')
+      .filter((line) => !line.startsWith('from __future__') && !line.startsWith('from ._'))
+      .join('\n')
+      .trim();
+    writer.line(stitched);
+    writer.blank();
+  }
+  writer.blank();
+  writer.block('def _safe_json(response: httpx.Response) -> Any:', () => {
+    writer.block('try:', () => {
+      writer.line('return response.json()');
+    });
+    writer.block('except Exception:', () => {
+      writer.line('return None');
+    });
+  });
+  writer.blank();
+
+  // The wire-shape descriptor table the runtime routes by.
+  writer.line('_OPERATIONS = {');
+  writer.indent(() => {
+    for (const { op, ident } of operationIdents(model)) {
+      const descriptor = {
+        id: op.specName ?? op.name,
+        method: op.method.toUpperCase(),
+        path: op.path,
+        ...(securitySpecs(op, model).length > 0 ? { security: securitySpecs(op, model) } : {}),
+      };
+      writer.line(`"${ident}": ${pythonLiteral(descriptor)},`);
+    }
+  });
+  writer.line('}');
+  writer.blank();
+  writer.blank();
+
+  writeClientClass(writer, model, errorMode, false);
+  writeClientClass(writer, model, errorMode, true);
+
+  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: writer.toString() }];
+};

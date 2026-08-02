@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { renderPythonModels } from '../python.js';
+import { pythonGenerator, renderPythonModels } from '../python.js';
 
 const hasPython = spawnSync('python3', ['--version']).status === 0;
 
@@ -147,5 +147,156 @@ describe('renderPythonModels', () => {
     );
     expect(out).toContain('tag: Optional[str]');
     expect(out).toContain('meta: Dict[str, str]');
+  });
+});
+
+const CAFE: ApiModel = {
+  title: 'Cafe',
+  version: '1.0.0',
+  serverUrl: 'https://api.cafe.example',
+  services: [
+    {
+      name: 'Orders',
+      operations: [
+        {
+          name: 'listOrders',
+          specName: 'listOrders',
+          method: 'get',
+          path: '/orders',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [
+            { name: 'after', in: 'query', required: false, schema: STRING },
+            { name: 'limit', in: 'query', required: false, schema: INT },
+          ],
+          headerParams: [],
+          cookieParams: [],
+          security: [['BearerAuth']],
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'application/json',
+              schema: { kind: 'ref', name: 'OrderPage' },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'getOrder',
+          specName: 'getOrder',
+          method: 'get',
+          path: '/orders/{orderId}',
+          tags: ['Orders'],
+          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'application/json',
+              schema: { kind: 'ref', name: 'Order' },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'createOrder',
+          specName: 'createOrder',
+          method: 'post',
+          path: '/orders',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          requestBody: { contentType: 'application/json', schema: { kind: 'ref', name: 'Order' } },
+          successResponses: [
+            {
+              status: '201',
+              contentType: 'application/json',
+              schema: { kind: 'ref', name: 'Order' },
+            },
+          ],
+          errorResponses: [],
+        },
+      ],
+    },
+  ],
+  schemas: [
+    {
+      name: 'Order',
+      schema: {
+        kind: 'object',
+        properties: [{ name: 'id', schema: STRING, required: true }],
+      },
+    },
+    {
+      name: 'OrderPage',
+      schema: {
+        kind: 'object',
+        properties: [
+          {
+            name: 'items',
+            schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
+            required: true,
+          },
+        ],
+      },
+    },
+  ],
+  securitySchemes: [{ key: 'BearerAuth', kind: 'bearer' }],
+} as unknown as ApiModel;
+
+function generate(errorMode: 'throw' | 'result' = 'throw'): string {
+  const files = pythonGenerator({
+    model: CAFE,
+    outputPath: '/out/client.ts',
+    outputMode: 'single',
+    emit: { errorMode },
+  });
+  expect(files).toHaveLength(1);
+  expect(files[0].path).toBe('/out/client.py');
+  return files[0].content;
+}
+
+describe('pythonGenerator (full client assembly)', () => {
+  it('renders typed sync methods — kwargs for query params, positional path params, hydrated returns', () => {
+    const out = generate();
+    expect(out).toContain('class Client:');
+    expect(out).toContain(
+      'def list_orders(self, *, after: Optional[str] = None, limit: Optional[int] = None'
+    );
+    expect(out).toContain(') -> OrderPage:');
+    expect(out).toContain('def get_order(self, order_id: str, *');
+    expect(out).toContain('def create_order(self, body: Order, *');
+    expect(out).toContain('return decode(OrderPage, _safe_json(response))');
+    // Wire names survive the snake_case kwargs.
+    expect(out).toContain('params["after"] = encode(after)');
+  });
+
+  it('embeds the runtime, the descriptor table, and an async mirror', () => {
+    const out = generate();
+    expect(out).toContain('def send('); // embedded runtime
+    expect(out).toContain('async def send_async('); // async mirror
+    expect(out).toContain('_OPERATIONS = {');
+    expect(out).toContain('"id": "listOrders"');
+    expect(out).toContain('class AsyncClient:');
+    expect(out).toContain('async def list_orders(');
+    expect(out).not.toContain('from ._'); // relative imports stitched away
+  });
+
+  it('raises ApiError in throw mode; returns Result in result mode', () => {
+    expect(generate('throw')).toContain('raise ApiError(');
+    const result = generate('result');
+    expect(result).toContain(') -> Result:');
+    expect(result).toContain('return Result(data=None, error=');
+  });
+
+  it('the assembled file is valid Python', () => {
+    expectCompiles(generate());
+    expectCompiles(generate('result'));
   });
 });
