@@ -41,6 +41,17 @@ for order in client.list_orders_items(limit=50):
     print(order)
 ```
 
+### Go SDK
+
+The `go` generator emits a self-contained `<stem>.go` — a full Go SDK over the standard library (zero dependencies, Go ≥ 1.21):
+structs with `json` tags (allOf flattened, typed-const enums, discriminated-union unmarshal dispatchers), a `Client` with one `(T, error)` method per operation taking a `context.Context`, auth, retries with `Retry-After` and jittered backoff, per-attempt timeouts, idempotency keys, and middleware hooks.
+Go's `(T, error)` returns are the error mode; `errorMode` does not change the output.
+
+```go
+api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return "TOKEN" }}})
+order, err := api.GetOrder(ctx, "ord_123")
+```
+
 ## Package runtime
 
 By default the runtime is embedded in the generated file, so the client is self-contained.
