@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { renderGoModels } from '../go.js';
+import { goGenerator, renderGoModels } from '../go.js';
 
 const hasGo = spawnSync('go', ['version']).status === 0;
 
@@ -132,6 +132,150 @@ describe('renderGoModels', () => {
     );
     expect(out).toContain('Tag *string `json:"tag"`');
     expect(out).toContain('Meta map[string]string `json:"meta"`');
+    expectGoCompiles(out);
+  });
+});
+
+const CAFE: ApiModel = {
+  title: 'Cafe',
+  version: '1.0.0',
+  serverUrl: 'https://api.cafe.example',
+  services: [
+    {
+      name: 'Orders',
+      operations: [
+        {
+          name: 'listOrders',
+          specName: 'listOrders',
+          method: 'get',
+          path: '/orders',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [
+            { name: 'after', in: 'query', required: false, schema: STRING },
+            { name: 'limit', in: 'query', required: false, schema: INT },
+          ],
+          headerParams: [],
+          cookieParams: [],
+          security: [['BearerAuth']],
+          paginationExtension: {
+            style: 'cursor',
+            cursorParam: 'after',
+            nextCursor: '/next',
+            items: '/items',
+          },
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'application/json',
+              schema: { kind: 'ref', name: 'OrderPage' },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'getOrder',
+          specName: 'getOrder',
+          method: 'get',
+          path: '/orders/{orderId}',
+          tags: ['Orders'],
+          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'application/json',
+              schema: { kind: 'ref', name: 'Order' },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'createOrder',
+          specName: 'createOrder',
+          method: 'post',
+          path: '/orders',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          requestBody: { contentType: 'application/json', schema: { kind: 'ref', name: 'Order' } },
+          successResponses: [
+            {
+              status: '201',
+              contentType: 'application/json',
+              schema: { kind: 'ref', name: 'Order' },
+            },
+          ],
+          errorResponses: [],
+        },
+      ],
+    },
+  ],
+  schemas: [
+    {
+      name: 'Order',
+      schema: { kind: 'object', properties: [{ name: 'id', schema: STRING, required: true }] },
+    },
+    {
+      name: 'OrderPage',
+      schema: {
+        kind: 'object',
+        properties: [
+          {
+            name: 'items',
+            schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
+            required: true,
+          },
+        ],
+      },
+    },
+  ],
+  securitySchemes: [{ key: 'BearerAuth', kind: 'bearer' }],
+} as unknown as ApiModel;
+
+function generateGo(): string {
+  const files = goGenerator({
+    model: CAFE,
+    outputPath: '/out/client.ts',
+    outputMode: 'single',
+    emit: {},
+  });
+  expect(files).toHaveLength(1);
+  expect(files[0].path).toBe('/out/client.go');
+  return files[0].content;
+}
+
+describe('goGenerator (full client assembly)', () => {
+  it('renders (T, error) methods over the operations table with typed params structs', () => {
+    const out = generateGo();
+    expect(out).toContain('type Client struct {');
+    expect(out).toContain('func New(config Config) *Client {');
+    expect(out).toContain('type ListOrdersParams struct {');
+    expect(out).toContain('After *string');
+    expect(out).toContain(
+      'func (c *Client) ListOrders(ctx context.Context, params *ListOrdersParams) (OrderPage, error) {'
+    );
+    expect(out).toContain(
+      'func (c *Client) GetOrder(ctx context.Context, orderId string) (Order, error) {'
+    );
+    expect(out).toContain(
+      'func (c *Client) CreateOrder(ctx context.Context, body Order) (Order, error) {'
+    );
+    expect(out).toContain('return out, apiErrorFrom(resp, requestURL)');
+  });
+
+  it('assembles one compilable file: models + embedded runtime + operations table', () => {
+    const out = generateGo();
+    expect(out).toContain('var operations = map[string]operationMeta{');
+    expect(out).toContain('"listOrders": {');
+    expect(out).toContain('func send(ctx context.Context'); // embedded runtime
+    expect((out.match(/^package client$/gm) ?? []).length).toBe(1);
     expectGoCompiles(out);
   });
 });

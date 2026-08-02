@@ -25,6 +25,7 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
   'transformers',
   'mock',
   'python',
+  'go',
 ]);
 
 const IMPORT_RE =

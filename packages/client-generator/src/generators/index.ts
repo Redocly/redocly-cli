@@ -1,4 +1,5 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
+import { goGenerator, goSample } from './go.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock.js';
 import { pythonGenerator, pythonSample } from './python.js';
@@ -32,6 +33,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   swr: { run: swrGenerator },
   mock: { run: mockGenerator },
   python: { run: pythonGenerator, sample: pythonSample },
+  go: { run: goGenerator, sample: goSample },
 };
 
 const GENERATORS = Object.fromEntries(

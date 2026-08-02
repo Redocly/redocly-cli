@@ -27,7 +27,8 @@ export type GeneratorName =
   | 'swr'
   | 'transformers'
   | 'mock'
-  | 'python';
+  | 'python'
+  | 'go';
 
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {

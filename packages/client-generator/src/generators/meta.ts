@@ -57,6 +57,10 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
     load: () =>
       import('./python.js').then((m) => ({ run: m.pythonGenerator, sample: m.pythonSample })),
   },
+  // go emits a standalone full Go SDK (stdlib-only) — no TypeScript involved.
+  go: {
+    load: () => import('./go.js').then((m) => ({ run: m.goGenerator, sample: m.goSample })),
+  },
 };
 
 /**

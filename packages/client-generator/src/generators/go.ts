@@ -16,7 +16,14 @@ import {
   RESERVED_WORDS,
   unwrapNullable,
 } from '../authoring/index.js';
-import type { ApiModel, PropertyModel, SchemaModel } from '../intermediate-representation/model.js';
+import { GO_RUNTIME_SOURCE } from '../emitters/go-runtime-sources.js';
+import type {
+  ApiModel,
+  OperationModel,
+  PropertyModel,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
+import type { CodeSample, Generator, SampleContext } from './types.js';
 
 const GO = RESERVED_WORDS.go;
 
@@ -203,4 +210,331 @@ export function renderGoModels(model: ApiModel): string {
     writer.blank();
   }
   return writer.toString();
+}
+
+/** The operation's primary JSON success schema, or undefined for void/no-body ops. */
+function successSchema(op: OperationModel): SchemaModel | undefined {
+  return op.successResponses.find((r) => r.contentType.toLowerCase().includes('json'))?.schema;
+}
+
+/** Go composite literal for one operation's security OR-alternatives. */
+function goSecurityLiteral(op: OperationModel, model: ApiModel): string | undefined {
+  const alternatives = op.security
+    .map((alternative) =>
+      alternative.flatMap((key): string[] => {
+        const scheme = model.securitySchemes.find((s) => s.key === key);
+        if (scheme === undefined) return [];
+        if (scheme.kind === 'bearer' || scheme.kind === 'basic') {
+          return [`{Scheme: ${JSON.stringify(key)}, Kind: ${JSON.stringify(scheme.kind)}}`];
+        }
+        const name =
+          scheme.kind === 'apiKeyHeader'
+            ? scheme.headerName
+            : scheme.kind === 'apiKeyQuery'
+              ? scheme.paramName
+              : scheme.cookieName;
+        const location =
+          scheme.kind === 'apiKeyHeader'
+            ? 'header'
+            : scheme.kind === 'apiKeyQuery'
+              ? 'query'
+              : 'cookie';
+        return [
+          `{Scheme: ${JSON.stringify(key)}, Kind: "apiKey", Name: ${JSON.stringify(name)}, In: ${JSON.stringify(location)}}`,
+        ];
+      })
+    )
+    .filter((alternative) => alternative.length > 0);
+  if (alternatives.length === 0) return undefined;
+  return `[][]SecuritySpec{${alternatives.map((specs) => `{${specs.join(', ')}}`).join(', ')}}`;
+}
+
+/** Every operation with its collision-free exported Go method name. */
+function goOperationIdents(model: ApiModel): Array<{ op: OperationModel; ident: string }> {
+  const used = new Set<string>();
+  const out: Array<{ op: OperationModel; ident: string }> = [];
+  for (const service of model.services) {
+    for (const op of service.operations) {
+      let ident = exported(op.name);
+      let suffix = 2;
+      while (used.has(ident)) ident = `${exported(op.name)}${suffix++}`;
+      used.add(ident);
+      out.push({ op, ident });
+    }
+  }
+  return out;
+}
+
+/** A query-value expression formatted to string for url.Values. */
+function goQueryFormat(expr: string, type: string): string {
+  if (type === 'string') return expr;
+  if (type === 'int64') return `strconv.FormatInt(${expr}, 10)`;
+  if (type === 'float64') return `strconv.FormatFloat(${expr}, 'f', -1, 64)`;
+  if (type === 'bool') return `strconv.FormatBool(${expr})`;
+  return `fmt.Sprint(${expr})`;
+}
+
+/** Strip the package clause and import lines/blocks so a section stitches into one file. */
+function stripHeader(source: string): string {
+  const lines = source.split('\n');
+  const out: string[] = [];
+  let inImportBlock = false;
+  for (const line of lines) {
+    if (line.startsWith('package ')) continue;
+    if (line.startsWith('import (')) {
+      inImportBlock = true;
+      continue;
+    }
+    if (inImportBlock) {
+      if (line.startsWith(')')) inImportBlock = false;
+      continue;
+    }
+    if (line.startsWith('import ')) continue;
+    out.push(line);
+  }
+  return out.join('\n').trim();
+}
+
+function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): void {
+  const pathArgs = op.pathParams.map((param) => ({
+    param,
+    go: identifierFor(param.name, { style: 'camel', reserved: GO }),
+    type: goType(param.schema),
+  }));
+  const hasParams = op.queryParams.length > 0;
+  const success = successSchema(op);
+  const returnType = success === undefined ? undefined : goType(success);
+  const args = [
+    'ctx context.Context',
+    ...pathArgs.map(({ go, type }) => `${go} ${type}`),
+    ...(op.requestBody ? [`body ${goType(op.requestBody.schema)}`] : []),
+    ...(hasParams ? [`params *${ident}Params`] : []),
+  ];
+  const returns = returnType === undefined ? 'error' : `(${returnType}, error)`;
+  const fail = (errExpr: string) =>
+    returnType === undefined ? `return ${errExpr}` : `return out, ${errExpr}`;
+  writeDocComment(writer, ident, op.summary);
+  writer.block(
+    `func (c *Client) ${ident}(${args.join(', ')}) ${returns} {`,
+    () => {
+      if (returnType !== undefined) writer.line(`var out ${returnType}`);
+      writer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
+      writer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
+      if (hasParams) {
+        writer.block(
+          'if params != nil {',
+          () => {
+            for (const param of op.queryParams) {
+              const field = exported(param.name);
+              writer.block(
+                `if params.${field} != nil {`,
+                () => {
+                  writer.line(
+                    `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema))})`
+                  );
+                },
+                '}'
+              );
+            }
+          },
+          '}'
+        );
+      }
+      const pathDict = pathArgs
+        .map(({ param, go, type }) => `${JSON.stringify(param.name)}: ${goQueryFormat(go, type)}`)
+        .join(', ');
+      writer.line(
+        `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
+      );
+      const specFields = [
+        'OperationID: op.ID',
+        'Method: op.Method',
+        'URL: requestURL',
+        'Headers: authHeaders',
+        'Query: query',
+      ];
+      if (op.requestBody) {
+        writer.line('payload, err := json.Marshal(body)');
+        writer.block(
+          'if err != nil {',
+          () => {
+            writer.line(fail('err'));
+          },
+          '}'
+        );
+        specFields.push('Body: bytes.NewReader(payload)');
+        specFields.push(`ContentType: ${JSON.stringify(op.requestBody.contentType)}`);
+      }
+      writer.line(`resp, err := send(ctx, &c.config, requestSpec{${specFields.join(', ')}})`);
+      writer.block(
+        'if err != nil {',
+        () => {
+          writer.line(fail('err'));
+        },
+        '}'
+      );
+      writer.block(
+        'if resp.StatusCode >= 400 {',
+        () => {
+          writer.line(fail('apiErrorFrom(resp, requestURL)'));
+        },
+        '}'
+      );
+      if (returnType === undefined) {
+        writer.line('return decodeJSON(resp, nil)');
+      } else {
+        writer.block(
+          'if err := decodeJSON(resp, &out); err != nil {',
+          () => {
+            writer.line('return out, err');
+          },
+          '}'
+        );
+        writer.line('return out, nil');
+      }
+    },
+    '}'
+  );
+  writer.blank();
+}
+
+/** The whole generated file: models + embedded runtime + operations table + Client. */
+export const goGenerator: Generator = ({ model, outputPath }) => {
+  const writer = new CodeWriter('\t');
+  writer.line(
+    `// Code generated by @redocly/client-generator (go) from "${model.title}" ${model.version}. DO NOT EDIT.`
+  );
+  writer.line(
+    '// Regenerate with `redocly generate-client`. Standard library only — zero dependencies.'
+  );
+  writer.line('package client');
+  writer.blank();
+  // One merged import block: the runtime uses every entry; generated code uses a subset.
+  writer.block(
+    'import (',
+    () => {
+      for (const spec of [
+        'bytes',
+        'context',
+        'encoding/base64',
+        'encoding/json',
+        'errors',
+        'fmt',
+        'io',
+        'math/rand',
+        'net/http',
+        'net/url',
+        'strconv',
+        'strings',
+        'time',
+      ]) {
+        writer.line(JSON.stringify(spec));
+      }
+    },
+    ')'
+  );
+  writer.blank();
+
+  writer.line(stripHeader(renderGoModels(model)));
+  writer.blank();
+  writer.line('// ─── Embedded runtime (@redocly/client-generator go runtime) ───');
+  writer.line(stripHeader(GO_RUNTIME_SOURCE));
+  writer.blank();
+
+  writer.block(
+    'type operationMeta struct {',
+    () => {
+      writer.line('ID       string');
+      writer.line('Method   string');
+      writer.line('Path     string');
+      writer.line('Security [][]SecuritySpec');
+    },
+    '}'
+  );
+  writer.blank();
+  writer.block(
+    'var operations = map[string]operationMeta{',
+    () => {
+      for (const { op } of goOperationIdents(model)) {
+        const id = op.specName ?? op.name;
+        const security = goSecurityLiteral(op, model);
+        const fields = [
+          `ID: ${JSON.stringify(id)}`,
+          `Method: ${JSON.stringify(op.method.toUpperCase())}`,
+          `Path: ${JSON.stringify(op.path)}`,
+          ...(security !== undefined ? [`Security: ${security}`] : []),
+        ];
+        writer.line(`${JSON.stringify(id)}: {${fields.join(', ')}},`);
+      }
+    },
+    '}'
+  );
+  writer.blank();
+
+  // Per-operation query-parameter structs (pointer fields: absent = not sent).
+  for (const { op, ident } of goOperationIdents(model)) {
+    if (op.queryParams.length === 0) continue;
+    writer.block(
+      `type ${ident}Params struct {`,
+      () => {
+        for (const param of op.queryParams) {
+          const fieldType = goType(param.schema);
+          writer.line(
+            `${exported(param.name)} ${fieldType.startsWith('*') ? fieldType : `*${fieldType}`}`
+          );
+        }
+      },
+      '}'
+    );
+    writer.blank();
+  }
+
+  writeDocComment(writer, 'Client', `Client for ${model.title} (${model.version}).`);
+  writer.block(
+    'type Client struct {',
+    () => {
+      writer.line('config Config');
+    },
+    '}'
+  );
+  writer.blank();
+  writer.block(
+    'func New(config Config) *Client {',
+    () => {
+      writer.block(
+        'if config.ServerURL == "" {',
+        () => {
+          writer.line(`config.ServerURL = ${JSON.stringify(model.serverUrl ?? '')}`);
+        },
+        '}'
+      );
+      writer.line('return &Client{config: config}');
+    },
+    '}'
+  );
+  writer.blank();
+
+  for (const { op, ident } of goOperationIdents(model)) {
+    writeGoMethod(writer, op, ident);
+  }
+
+  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.go'), content: writer.toString() }];
+};
+
+/** One idiomatic Go call per operation — feeds `x-codeSamples` for docs. */
+export function goSample(op: OperationModel, _ctx: SampleContext): CodeSample {
+  const ident = exported(op.name);
+  const args = [
+    'ctx',
+    ...op.pathParams.map(
+      (param) => `"<${identifierFor(param.name, { style: 'camel', reserved: GO })}>"`
+    ),
+    ...(op.requestBody ? [`${goType(op.requestBody.schema)}{ /* … */ }`] : []),
+    ...(op.queryParams.length > 0 ? ['nil'] : []),
+  ];
+  return {
+    lang: 'go',
+    label: 'Go SDK',
+    source: `client := client.New(client.Config{})\nresult, err := client.${ident}(${args.join(', ')})\n`,
+  };
 }

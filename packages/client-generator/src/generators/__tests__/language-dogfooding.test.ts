@@ -10,17 +10,17 @@ import { fileURLToPath } from 'node:url';
 const ALLOWED_SPECIFIERS = new Set([
   '../authoring/index.js',
   '../emitters/python-runtime-sources.js', // pure embedded strings, generated at prepare time
+  '../emitters/go-runtime-sources.js',
   '../intermediate-representation/model.js', // type-only IR shapes
   './types.js', // the generator contract
 ]);
 
-const source = readFileSync(
-  resolve(dirname(fileURLToPath(import.meta.url)), '../python.ts'),
-  'utf-8'
-);
-
-describe('python generator dogfooding invariant', () => {
+describe.each(['python.ts', 'go.ts'])('%s dogfooding invariant', (file) => {
   it('imports only what the authoring skill offers to any custom generator', () => {
+    const source = readFileSync(
+      resolve(dirname(fileURLToPath(import.meta.url)), '..', file),
+      'utf-8'
+    );
     const specifiers = [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1]);
     expect(specifiers.length).toBeGreaterThan(0);
     const violations = specifiers.filter((specifier) => !ALLOWED_SPECIFIERS.has(specifier));
