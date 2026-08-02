@@ -20,6 +20,7 @@ const MODULES = [
   'sse',
   'create-client',
   'paginate',
+  'cli',
 ];
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
