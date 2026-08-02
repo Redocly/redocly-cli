@@ -26,6 +26,21 @@ redocly generate-client openapi.yaml --output src/client.ts --generator sdk --ge
 `tanstack-query` and `swr` wrap the throw-mode `sdk` functions, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
 See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
 
+### Python SDK
+
+The `python` generator emits a self-contained `<stem>.py` next to the configured output — a full Python SDK over [httpx](https://www.python-httpx.org/) (`pip install httpx`, Python ≥ 3.9):
+typed dataclass models (allOf flattened, enums, discriminated unions), a `Client` and an `AsyncClient` with one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware hooks, pagination iterators (`<op>_pages()` / `<op>_items()`, `async for` variants), SSE streaming, and multipart bodies.
+`errorMode` maps to raising `ApiError` (default) or returning a `Result` dataclass.
+No TypeScript is involved: generating with only `python` selected does not require the `typescript` package.
+
+```python
+from client import Client
+
+client = Client(auth={"bearer": "TOKEN"})
+for order in client.list_orders_items(limit=50):
+    print(order)
+```
+
 ## Package runtime
 
 By default the runtime is embedded in the generated file, so the client is self-contained.

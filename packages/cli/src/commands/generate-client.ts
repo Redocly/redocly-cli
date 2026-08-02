@@ -156,7 +156,7 @@ export async function handleGenerateClient({
     }
 
     try {
-      logger.info(gray(`\n  Generating TypeScript client for ${name}... \n`));
+      logger.info(gray(`\n  Generating client for ${name}... \n`));
       const result = await generateClient({
         ...clientConfig,
         api: path,
@@ -165,7 +165,7 @@ export async function handleGenerateClient({
         configDir,
       });
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
-      const summary = `TypeScript client successfully generated: ${fileCount} (${
+      const summary = `Client successfully generated: ${fileCount} (${
         result.bytes
       } bytes) at ${yellow(result.outputPath)}.`;
       logger.info('\n' + blue(summary) + '\n');
@@ -173,9 +173,7 @@ export async function handleGenerateClient({
       const message = error instanceof Error ? error.message : String(error);
       generateClientTelemetry.generate_client_error_category =
         categorizeGenerateClientError(message);
-      throw new HandledError(
-        `\n❌  Failed to generate TypeScript client for ${name}.\n   ${message}\n`
-      );
+      throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
     }
   }
 }

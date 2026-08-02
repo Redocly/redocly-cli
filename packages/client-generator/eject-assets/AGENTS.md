@@ -55,6 +55,12 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                    |
 | `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                  |
 
+Worked example: the built-in `python` generator
+(`packages/client-generator/src/generators/python.ts` in the Redocly CLI repo) is
+authored with exactly this toolkit and nothing else — models via `flattenAllOf`/
+`enumValues`/`discriminatorCases`, all code through `CodeWriter`, every name through
+`identifierFor(..., RESERVED_WORDS.python)`.
+
 TypeScript-emitting generators may additionally use the TS toolkit from
 `@redocly/client-generator/generate` (`ts`, `printStatements`, `schemaToTypeNode`, …).
 
