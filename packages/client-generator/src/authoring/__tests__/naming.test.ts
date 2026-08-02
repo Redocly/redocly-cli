@@ -1,0 +1,31 @@
+import { casing, identifierFor, RESERVED_WORDS } from '../naming.js';
+
+describe('casing', () => {
+  it('splits on delimiters and case boundaries, handling acronyms', () => {
+    for (const input of ['order-item', 'order_item', 'orderItem', 'OrderItem', 'order item']) {
+      expect(casing.camel(input)).toBe('orderItem');
+      expect(casing.pascal(input)).toBe('OrderItem');
+      expect(casing.snake(input)).toBe('order_item');
+      expect(casing.screaming(input)).toBe('ORDER_ITEM');
+    }
+    expect(casing.snake('APIKey')).toBe('api_key');
+    expect(casing.pascal('api_key_v2')).toBe('ApiKeyV2');
+  });
+});
+
+describe('identifierFor', () => {
+  it('sanitizes invalid characters and leading digits, then applies the style', () => {
+    expect(identifierFor('2nd-item', { style: 'snake' })).toBe('_2nd_item');
+    expect(identifierFor('user.name', { style: 'camel' })).toBe('userName');
+  });
+
+  it('suffixes an underscore for reserved words of the target language', () => {
+    expect(identifierFor('class', { style: 'snake', reserved: RESERVED_WORDS.python })).toBe(
+      'class_'
+    );
+    expect(identifierFor('type', { style: 'camel', reserved: RESERVED_WORDS.go })).toBe('type_');
+    expect(identifierFor('order', { style: 'camel', reserved: RESERVED_WORDS.python })).toBe(
+      'order'
+    );
+  });
+});
