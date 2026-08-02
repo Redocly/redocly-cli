@@ -127,7 +127,9 @@ export function renderPythonModels(model: ApiModel): string {
   writer.blank();
   writer.line('from dataclasses import dataclass');
   writer.line('from enum import Enum');
-  writer.line('from typing import Any, ClassVar, Dict, List, Literal, Optional, Union');
+  writer.line(
+    'from typing import Any, AsyncIterator, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple, Union'
+  );
   writer.blank();
   writer.blank();
 
@@ -229,6 +231,53 @@ function operationIdents(model: ApiModel): Array<{ op: OperationModel; ident: st
   return out;
 }
 
+/** The op's SSE success response, when it streams text/event-stream. */
+function sseResponse(op: OperationModel) {
+  return op.successResponses.find((r) => r.contentType.toLowerCase().includes('text/event-stream'));
+}
+
+function isMultipart(op: OperationModel): boolean {
+  return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
+}
+
+/**
+ * Pagination for one operation — per-op config rule > `x-redocly-pagination` >
+ * the convention rule (applied only when its advance param exists on the op and
+ * the op is not excluded). Normalized to the snake_case spec dict the embedded
+ * Python runtime consumes. Local minimal resolution: the TS resolver's static
+ * fit verification lives in the TS toolkit; porting it to the neutral layer is
+ * a recorded follow-up.
+ */
+function paginationSpec(
+  op: OperationModel,
+  emit: { pagination?: Record<string, unknown> }
+): Record<string, unknown> | undefined {
+  const config = emit.pagination ?? {};
+  const id = op.specName ?? op.name;
+  if (Array.isArray(config.exclude) && config.exclude.includes(id)) return undefined;
+  const operations = (config.operations ?? {}) as Record<string, Record<string, unknown>>;
+  let rule: Record<string, unknown> | undefined =
+    operations[id] ?? (op.paginationExtension as Record<string, unknown> | undefined);
+  if (rule === undefined && typeof config.style === 'string') {
+    const { exclude: _exclude, operations: _operations, ...convention } = config;
+    const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
+    const fits =
+      convention.style === 'link' ||
+      (typeof advance === 'string' && op.queryParams.some((param) => param.name === advance));
+    if (fits) rule = convention as Record<string, unknown>;
+  }
+  if (rule === undefined || typeof rule.style !== 'string') return undefined;
+  const param = rule.style === 'cursor' ? rule.cursorParam : rule.offsetParam;
+  return {
+    style: rule.style,
+    ...(typeof param === 'string' ? { param } : {}),
+    ...(typeof rule.nextCursor === 'string' ? { next_cursor: rule.nextCursor } : {}),
+    ...(typeof rule.hasMore === 'string' ? { has_more: rule.hasMore } : {}),
+    ...(typeof rule.limitParam === 'string' ? { limit_param: rule.limitParam } : {}),
+    ...(typeof rule.items === 'string' ? { items: rule.items } : {}),
+  };
+}
+
 function writeMethod(
   writer: CodeWriter,
   op: OperationModel,
@@ -258,9 +307,18 @@ function writeMethod(
     'idempotency_key: Any = None',
   ];
   const success = successSchema(op);
+  const sse = sseResponse(op);
   const returns =
-    errorMode === 'result' ? 'Result' : success === undefined ? 'None' : pythonType(success);
-  const prefix = isAsync ? 'async def' : 'def';
+    sse !== undefined
+      ? `${isAsync ? 'AsyncIterator' : 'Iterator'}[ServerSentEvent]`
+      : errorMode === 'result'
+        ? 'Result'
+        : success === undefined
+          ? 'None'
+          : pythonType(success);
+  // Streaming methods are plain defs returning an (async) iterator — an `async def`
+  // would force awaiting the call before iterating it.
+  const prefix = isAsync && sse === undefined ? 'async def' : 'def';
   const awaitKw = isAsync ? 'await ' : '';
   const sendFn = isAsync ? 'send_async' : 'send';
   const signature = ['self', ...positional, ...bodyArg, '*', ...kwargs].join(', ');
@@ -278,7 +336,23 @@ function writeMethod(
       .map(({ param, python }) => `${JSON.stringify(param.name)}: ${python}`)
       .join(', ');
     writer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
-    const bodyKw = op.requestBody ? ', json_body=encode(body)' : '';
+    if (sse !== undefined) {
+      const dataKind = sse.schema !== undefined && sse.schema.kind !== 'unknown' ? 'json' : 'text';
+      writer.block('def _open(extra_headers: Dict[str, str]):', () => {
+        writer.line(
+          'return self._http.stream(op["method"], url, ' +
+            'headers={**auth_headers, **(headers or {}), **extra_headers}, params=params, timeout=timeout)'
+        );
+      });
+      writer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
+      return;
+    }
+    if (isMultipart(op)) writer.line('form_data, form_files = to_multipart(body)');
+    const bodyKw = op.requestBody
+      ? isMultipart(op)
+        ? ', data=form_data, files=form_files'
+        : ', json_body=encode(body)'
+      : '';
     writer.line(
       `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +
         `headers={**auth_headers, **(headers or {})}, params=params${bodyKw}, ` +
@@ -303,11 +377,103 @@ function writeMethod(
   writer.blank();
 }
 
+/** `<ident>_pages` / `<ident>_items` iterator methods for a paginated operation. */
+function writePaginationWrappers(
+  writer: CodeWriter,
+  op: OperationModel,
+  ident: string,
+  isAsync: boolean
+): void {
+  const success = successSchema(op);
+  const pageType = success === undefined ? 'Any' : pythonType(success);
+  const queryArgs = op.queryParams.map((param) => ({
+    param,
+    python: identifierFor(param.name, { style: 'snake', reserved: PY }),
+  }));
+  const kwargs = [
+    ...queryArgs.map(({ param, python }) => {
+      const annotation = pythonType(param.schema);
+      const optional = annotation.startsWith('Optional[') ? annotation : `Optional[${annotation}]`;
+      return `${python}: ${optional} = None`;
+    }),
+    'headers: Optional[Dict[str, str]] = None',
+    'timeout: Optional[float] = None',
+    'retry: Optional[Dict[str, Any]] = None',
+  ];
+  const signature = ['self', '*', ...kwargs].join(', ');
+  const iterType = isAsync ? 'AsyncIterator' : 'Iterator';
+  const pagesFn = isAsync ? 'aiter_pages' : 'iter_pages';
+  const itemsFn = isAsync ? 'aiter_items' : 'iter_items';
+
+  const writeCallClosure = () => {
+    writer.line('base: Dict[str, Any] = {}');
+    for (const { param, python } of queryArgs) {
+      writer.block(`if ${python} is not None:`, () => {
+        writer.line(`base[${JSON.stringify(param.name)}] = encode(${python})`);
+      });
+    }
+    const prefix = isAsync ? 'async def' : 'def';
+    const awaitKw = isAsync ? 'await ' : '';
+    writer.block(`${prefix} _page(page_params: Dict[str, Any]) -> Tuple[Any, Any]:`, () => {
+      writer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
+      writer.line('url = build_url(self._server_url, op["path"], {})');
+      writer.line(
+        `response = ${awaitKw}${isAsync ? 'send_async' : 'send'}(self._http, self._config, op, url, method=op["method"], ` +
+          'headers={**auth_headers, **(headers or {})}, params={**page_params, **auth_query}, ' +
+          'timeout=timeout, retry=retry)'
+      );
+      writer.block('if not response.is_success:', () => {
+        writer.line(
+          'raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))'
+        );
+      });
+      writer.line('return _safe_json(response), response');
+    });
+  };
+
+  // pages: raw page JSON decoded into the page model per page.
+  if (isAsync) {
+    writer.block(`async def ${ident}_pages(${signature}) -> ${iterType}[${pageType}]:`, () => {
+      writer.line(`op = _OPERATIONS["${ident}"]`);
+      writeCallClosure();
+      writer.block(`async for page in ${pagesFn}(_page, op["pagination"], base):`, () => {
+        writer.line(pageType === 'Any' ? 'yield page' : `yield decode(${pageType}, page)`);
+      });
+    });
+    writer.blank();
+    writer.block(`async def ${ident}_items(${signature}) -> ${iterType}[Any]:`, () => {
+      writer.line(`op = _OPERATIONS["${ident}"]`);
+      writeCallClosure();
+      writer.block(`async for item in ${itemsFn}(_page, op["pagination"], base):`, () => {
+        writer.line('yield item');
+      });
+    });
+  } else {
+    writer.block(`def ${ident}_pages(${signature}) -> ${iterType}[${pageType}]:`, () => {
+      writer.line(`op = _OPERATIONS["${ident}"]`);
+      writeCallClosure();
+      writer.line(
+        pageType === 'Any'
+          ? `return ${pagesFn}(_page, op["pagination"], base)`
+          : `return (decode(${pageType}, page) for page in ${pagesFn}(_page, op["pagination"], base))`
+      );
+    });
+    writer.blank();
+    writer.block(`def ${ident}_items(${signature}) -> ${iterType}[Any]:`, () => {
+      writer.line(`op = _OPERATIONS["${ident}"]`);
+      writeCallClosure();
+      writer.line(`return ${itemsFn}(_page, op["pagination"], base)`);
+    });
+  }
+  writer.blank();
+}
+
 function writeClientClass(
   writer: CodeWriter,
   model: ApiModel,
   errorMode: 'throw' | 'result',
-  isAsync: boolean
+  isAsync: boolean,
+  paginationSpecs: Map<string, Record<string, unknown> | undefined>
 ): void {
   const name = isAsync ? 'AsyncClient' : 'Client';
   const httpType = isAsync ? 'httpx.AsyncClient' : 'httpx.Client';
@@ -340,6 +506,9 @@ function writeClientClass(
     writer.blank();
     for (const { op, ident } of operationIdents(model)) {
       writeMethod(writer, op, ident, errorMode, isAsync);
+      if (paginationSpecs.get(ident) !== undefined) {
+        writePaginationWrappers(writer, op, ident, isAsync);
+      }
     }
   });
   writer.blank();
@@ -386,6 +555,13 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   writer.blank();
 
   // The wire-shape descriptor table the runtime routes by.
+  const paginationSpecs = new Map<string, Record<string, unknown> | undefined>();
+  for (const { op, ident } of operationIdents(model)) {
+    paginationSpecs.set(
+      ident,
+      paginationSpec(op, emit as { pagination?: Record<string, unknown> })
+    );
+  }
   writer.line('_OPERATIONS = {');
   writer.indent(() => {
     for (const { op, ident } of operationIdents(model)) {
@@ -394,6 +570,9 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
         method: op.method.toUpperCase(),
         path: op.path,
         ...(securitySpecs(op, model).length > 0 ? { security: securitySpecs(op, model) } : {}),
+        ...(paginationSpecs.get(ident) !== undefined
+          ? { pagination: paginationSpecs.get(ident) }
+          : {}),
       };
       writer.line(`"${ident}": ${pythonLiteral(descriptor)},`);
     }
@@ -402,8 +581,8 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   writer.blank();
   writer.blank();
 
-  writeClientClass(writer, model, errorMode, false);
-  writeClientClass(writer, model, errorMode, true);
+  writeClientClass(writer, model, errorMode, false, paginationSpecs);
+  writeClientClass(writer, model, errorMode, true, paginationSpecs);
 
   return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: writer.toString() }];
 };

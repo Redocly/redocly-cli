@@ -172,6 +172,12 @@ const CAFE: ApiModel = {
           headerParams: [],
           cookieParams: [],
           security: [['BearerAuth']],
+          paginationExtension: {
+            style: 'cursor',
+            cursorParam: 'after',
+            nextCursor: '/next',
+            items: '/items',
+          },
           successResponses: [
             {
               status: '200',
@@ -179,6 +185,44 @@ const CAFE: ApiModel = {
               schema: { kind: 'ref', name: 'OrderPage' },
             },
           ],
+          errorResponses: [],
+        },
+        {
+          name: 'streamEvents',
+          specName: 'streamEvents',
+          method: 'get',
+          path: '/events',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'text/event-stream',
+              schema: { kind: 'object', properties: [] },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'uploadPhoto',
+          specName: 'uploadPhoto',
+          method: 'post',
+          path: '/photos',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          requestBody: {
+            contentType: 'multipart/form-data',
+            schema: { kind: 'object', properties: [] },
+          },
+          successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
           errorResponses: [],
         },
         {
@@ -298,5 +342,29 @@ describe('pythonGenerator (full client assembly)', () => {
   it('the assembled file is valid Python', () => {
     expectCompiles(generate());
     expectCompiles(generate('result'));
+  });
+});
+
+describe('pythonGenerator parity features', () => {
+  it('paginated operations gain pages/items iterators, sync and async', () => {
+    const out = generate();
+    expect(out).toContain('"pagination": {"style": "cursor", "param": "after"');
+    expect(out).toContain('def list_orders_pages(');
+    expect(out).toContain('def list_orders_items(');
+    expect(out).toContain('iter_pages(');
+    expect(out).toContain('async for page in aiter_pages(');
+    expect(out).toContain('-> Iterator[OrderPage]:');
+  });
+
+  it('SSE operations stream typed events; multipart bodies route through to_multipart', () => {
+    const out = generate();
+    expect(out).toContain('def stream_events(');
+    expect(out).toContain('-> Iterator[ServerSentEvent]:');
+    expect(out).toContain('iter_sse(');
+    expect(out).toContain('-> AsyncIterator[ServerSentEvent]:');
+    expect(out).toContain('aiter_sse(');
+    expect(out).toContain('form_data, form_files = to_multipart(body)');
+    expect(out).toContain('data=form_data, files=form_files');
+    expectCompiles(out);
   });
 });
