@@ -13,8 +13,11 @@ import {
   flattenAllOf,
   identifierFor,
   isNullable,
+  paginationRuleFor,
   RESERVED_WORDS,
+  schemaAtPointer,
   unwrapNullable,
+  type NeutralPaginationRule,
 } from '../authoring/index.js';
 import { GO_RUNTIME_SOURCE } from '../emitters/go-runtime-sources.js';
 import type {
@@ -295,6 +298,30 @@ function stripHeader(source: string): string {
   return out.join('\n').trim();
 }
 
+/** The op's SSE success response, when it streams text/event-stream. */
+function sseResponse(op: OperationModel) {
+  return op.successResponses.find((response) =>
+    response.contentType.toLowerCase().includes('text/event-stream')
+  );
+}
+
+function isMultipart(op: OperationModel): boolean {
+  return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
+}
+
+/** The neutral rule as a `&PaginationSpec{…}` composite literal for the operations table. */
+function goPaginationLiteral(rule: NeutralPaginationRule): string {
+  const fields = [
+    `Style: ${JSON.stringify(rule.style)}`,
+    ...(rule.param !== undefined ? [`Param: ${JSON.stringify(rule.param)}`] : []),
+    ...(rule.nextCursor !== undefined ? [`NextCursor: ${JSON.stringify(rule.nextCursor)}`] : []),
+    ...(rule.hasMore !== undefined ? [`HasMore: ${JSON.stringify(rule.hasMore)}`] : []),
+    ...(rule.limitParam !== undefined ? [`LimitParam: ${JSON.stringify(rule.limitParam)}`] : []),
+    ...(rule.items !== undefined ? [`Items: ${JSON.stringify(rule.items)}`] : []),
+  ];
+  return `&PaginationSpec{${fields.join(', ')}}`;
+}
+
 function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
@@ -310,14 +337,20 @@ function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): v
     ...(op.requestBody ? [`body ${goType(op.requestBody.schema)}`] : []),
     ...(hasParams ? [`params *${ident}Params`] : []),
   ];
-  const returns = returnType === undefined ? 'error' : `(${returnType}, error)`;
+  const sse = sseResponse(op);
+  const returns =
+    sse !== undefined
+      ? 'func(yield func(ServerSentEvent, error) bool)'
+      : returnType === undefined
+        ? 'error'
+        : `(${returnType}, error)`;
   const fail = (errExpr: string) =>
     returnType === undefined ? `return ${errExpr}` : `return out, ${errExpr}`;
   writeDocComment(writer, ident, op.summary);
   writer.block(
     `func (c *Client) ${ident}(${args.join(', ')}) ${returns} {`,
     () => {
-      if (returnType !== undefined) writer.line(`var out ${returnType}`);
+      if (sse === undefined && returnType !== undefined) writer.line(`var out ${returnType}`);
       writer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
       writer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
       if (hasParams) {
@@ -346,6 +379,36 @@ function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): v
       writer.line(
         `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
       );
+      if (sse !== undefined) {
+        writer.block(
+          'open := func(extraHeaders map[string]string) (*http.Response, error) {',
+          () => {
+            writer.line('merged := map[string]string{}');
+            writer.block(
+              'for key, value := range authHeaders {',
+              () => {
+                writer.line('merged[key] = value');
+              },
+              '}'
+            );
+            writer.block(
+              'for key, value := range extraHeaders {',
+              () => {
+                writer.line('merged[key] = value');
+              },
+              '}'
+            );
+            writer.line(
+              'return send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: merged, Query: query})'
+            );
+          },
+          '}'
+        );
+        writer.line(
+          `return iterSSE(open, ${sse.schema !== undefined && sse.schema.kind !== 'unknown'})`
+        );
+        return;
+      }
       const specFields = [
         'OperationID: op.ID',
         'Method: op.Method',
@@ -353,7 +416,18 @@ function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): v
         'Headers: authHeaders',
         'Query: query',
       ];
-      if (op.requestBody) {
+      if (op.requestBody && isMultipart(op)) {
+        writer.line('contentType, reader, err := toMultipart(body)');
+        writer.block(
+          'if err != nil {',
+          () => {
+            writer.line(fail('err'));
+          },
+          '}'
+        );
+        specFields.push('Body: reader');
+        specFields.push('ContentType: contentType');
+      } else if (op.requestBody) {
         writer.line('payload, err := json.Marshal(body)');
         writer.block(
           'if err != nil {',
@@ -398,9 +472,199 @@ function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): v
   writer.blank();
 }
 
+/** `<Op>Pages` / `<Op>Items` iterators over the runtime's `iterPages`, hydrated via `reencode`. */
+function writeGoPaginationWrappers(
+  writer: CodeWriter,
+  op: OperationModel,
+  ident: string,
+  pageType: string,
+  itemType: string
+): void {
+  const pathArgs = op.pathParams.map((param) => ({
+    param,
+    go: identifierFor(param.name, { style: 'camel', reserved: GO }),
+    type: goType(param.schema),
+  }));
+  const hasParams = op.queryParams.length > 0;
+  const args = [
+    'ctx context.Context',
+    ...pathArgs.map(({ go, type }) => `${go} ${type}`),
+    ...(hasParams ? [`params *${ident}Params`] : []),
+  ].join(', ');
+
+  const writeCallClosure = () => {
+    writer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
+    writer.line('base := url.Values{}');
+    if (hasParams) {
+      writer.block(
+        'if params != nil {',
+        () => {
+          for (const param of op.queryParams) {
+            const field = exported(param.name);
+            writer.block(
+              `if params.${field} != nil {`,
+              () => {
+                writer.line(
+                  `base.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema))})`
+                );
+              },
+              '}'
+            );
+          }
+        },
+        '}'
+      );
+    }
+    writer.block(
+      'call := func(pageParams url.Values) (any, *http.Response, error) {',
+      () => {
+        writer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
+        writer.block(
+          'for key, values := range pageParams {',
+          () => {
+            writer.block(
+              'for _, value := range values {',
+              () => {
+                writer.line('query.Set(key, value)');
+              },
+              '}'
+            );
+          },
+          '}'
+        );
+        const pathDict = pathArgs
+          .map(({ param, go, type }) => `${JSON.stringify(param.name)}: ${goQueryFormat(go, type)}`)
+          .join(', ');
+        writer.line(
+          `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
+        );
+        writer.line(
+          'resp, err := send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: authHeaders, Query: query})'
+        );
+        writer.block(
+          'if err != nil {',
+          () => {
+            writer.line('return nil, nil, err');
+          },
+          '}'
+        );
+        writer.block(
+          'if resp.StatusCode >= 400 {',
+          () => {
+            writer.line('return nil, resp, apiErrorFrom(resp, requestURL)');
+          },
+          '}'
+        );
+        writer.line('var raw any');
+        writer.block(
+          'if err := decodeJSON(resp, &raw); err != nil {',
+          () => {
+            writer.line('return nil, resp, err');
+          },
+          '}'
+        );
+        writer.line('return raw, resp, nil');
+      },
+      '}'
+    );
+    writer.line('pages := iterPages(call, *op.Pagination, base)');
+  };
+
+  writer.line(
+    `// ${ident}Pages iterates ${ident} response pages; use with \`for page, err := range\`.`
+  );
+  writer.block(
+    `func (c *Client) ${ident}Pages(${args}) func(yield func(${pageType}, error) bool) {`,
+    () => {
+      writeCallClosure();
+      writer.block(
+        `return func(yield func(${pageType}, error) bool) {`,
+        () => {
+          writer.block(
+            'pages(func(raw any, err error) bool {',
+            () => {
+              writer.line(`var page ${pageType}`);
+              writer.block(
+                'if err == nil {',
+                () => {
+                  writer.line('err = reencode(raw, &page)');
+                },
+                '}'
+              );
+              writer.line('return yield(page, err)');
+            },
+            '})'
+          );
+        },
+        '}'
+      );
+    },
+    '}'
+  );
+  writer.blank();
+
+  writer.line(`// ${ident}Items iterates the items of every ${ident} page.`);
+  writer.block(
+    `func (c *Client) ${ident}Items(${args}) func(yield func(${itemType}, error) bool) {`,
+    () => {
+      writeCallClosure();
+      writer.block(
+        `return func(yield func(${itemType}, error) bool) {`,
+        () => {
+          writer.block(
+            'pages(func(raw any, err error) bool {',
+            () => {
+              writer.block(
+                'if err != nil {',
+                () => {
+                  writer.line(`var zero ${itemType}`);
+                  writer.line('return yield(zero, err)');
+                },
+                '}'
+              );
+              writer.line('pageItems, _ := resolvePointer(raw, op.Pagination.Items).([]any)');
+              writer.block(
+                'for _, item := range pageItems {',
+                () => {
+                  writer.line(`var typed ${itemType}`);
+                  writer.block(
+                    'if err := reencode(item, &typed); err != nil {',
+                    () => {
+                      writer.line('return yield(typed, err)');
+                    },
+                    '}'
+                  );
+                  writer.block(
+                    'if !yield(typed, nil) {',
+                    () => {
+                      writer.line('return false');
+                    },
+                    '}'
+                  );
+                },
+                '}'
+              );
+              writer.line('return true');
+            },
+            '})'
+          );
+        },
+        '}'
+      );
+    },
+    '}'
+  );
+  writer.blank();
+}
+
 /** The whole generated file: models + embedded runtime + operations table + Client. */
-export const goGenerator: Generator = ({ model, outputPath }) => {
+export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   const writer = new CodeWriter('\t');
+  const paginationRules = new Map<string, NeutralPaginationRule>();
+  for (const { op, ident } of goOperationIdents(model)) {
+    const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);
+    if (rule !== undefined) paginationRules.set(ident, rule);
+  }
   writer.line(
     `// Code generated by @redocly/client-generator (go) from "${model.title}" ${model.version}. DO NOT EDIT.`
   );
@@ -422,6 +686,7 @@ export const goGenerator: Generator = ({ model, outputPath }) => {
         'fmt',
         'io',
         'math/rand',
+        'mime/multipart',
         'net/http',
         'net/url',
         'strconv',
@@ -444,10 +709,11 @@ export const goGenerator: Generator = ({ model, outputPath }) => {
   writer.block(
     'type operationMeta struct {',
     () => {
-      writer.line('ID       string');
-      writer.line('Method   string');
-      writer.line('Path     string');
-      writer.line('Security [][]SecuritySpec');
+      writer.line('ID         string');
+      writer.line('Method     string');
+      writer.line('Path       string');
+      writer.line('Security   [][]SecuritySpec');
+      writer.line('Pagination *PaginationSpec');
     },
     '}'
   );
@@ -455,14 +721,16 @@ export const goGenerator: Generator = ({ model, outputPath }) => {
   writer.block(
     'var operations = map[string]operationMeta{',
     () => {
-      for (const { op } of goOperationIdents(model)) {
+      for (const { op, ident } of goOperationIdents(model)) {
         const id = op.specName ?? op.name;
         const security = goSecurityLiteral(op, model);
+        const rule = paginationRules.get(ident);
         const fields = [
           `ID: ${JSON.stringify(id)}`,
           `Method: ${JSON.stringify(op.method.toUpperCase())}`,
           `Path: ${JSON.stringify(op.path)}`,
           ...(security !== undefined ? [`Security: ${security}`] : []),
+          ...(rule !== undefined ? [`Pagination: ${goPaginationLiteral(rule)}`] : []),
         ];
         writer.line(`${JSON.stringify(id)}: {${fields.join(', ')}},`);
       }
@@ -516,6 +784,24 @@ export const goGenerator: Generator = ({ model, outputPath }) => {
 
   for (const { op, ident } of goOperationIdents(model)) {
     writeGoMethod(writer, op, ident);
+    const rule = paginationRules.get(ident);
+    if (rule === undefined) continue;
+    const success = successSchema(op);
+    const pageType = success === undefined ? 'any' : goType(success);
+    // Resolve the items ARRAY, then take its raw element, so a `ref` element
+    // keeps its name (a deref'd result would type as `any`).
+    const itemsArray =
+      success !== undefined && rule.items !== undefined
+        ? schemaAtPointer(success, rule.items, model)
+        : undefined;
+    const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
+    writeGoPaginationWrappers(
+      writer,
+      op,
+      ident,
+      pageType,
+      element === undefined ? 'any' : goType(element)
+    );
   }
 
   return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.go'), content: writer.toString() }];

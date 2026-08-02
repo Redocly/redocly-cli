@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -385,4 +386,398 @@ func apiErrorFrom(resp *http.Response, requestURL string) error {
 		}
 	}
 	return &APIError{URL: requestURL, Status: resp.StatusCode, StatusText: resp.Status, Body: body}
+}
+
+// ─── Pagination ───
+
+// PaginationSpec mirrors the descriptor table's pagination entries.
+type PaginationSpec struct {
+	Style      string
+	Param      string
+	NextCursor string
+	HasMore    string
+	LimitParam string
+	Items      string
+}
+
+// resolvePointer walks an RFC 6901 JSON pointer over decoded JSON; nil on any miss.
+func resolvePointer(data any, pointer string) any {
+	if pointer == "" {
+		return data
+	}
+	if !strings.HasPrefix(pointer, "/") {
+		return nil
+	}
+	current := data
+	for _, token := range strings.Split(pointer[1:], "/") {
+		key := strings.ReplaceAll(strings.ReplaceAll(token, "~1", "/"), "~0", "~")
+		switch typed := current.(type) {
+		case map[string]any:
+			current = typed[key]
+		case []any:
+			index, err := strconv.Atoi(key)
+			if err != nil || index < 0 || index >= len(typed) {
+				return nil
+			}
+			current = typed[index]
+		default:
+			return nil
+		}
+		if current == nil {
+			return nil
+		}
+	}
+	return current
+}
+
+// reencode converts decoded JSON (maps/slices) into a typed value via a JSON round-trip.
+func reencode(raw any, target any) error {
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, target)
+}
+
+type pageCall func(params url.Values) (any, *http.Response, error)
+
+// iterPages yields raw page JSON per the pagination spec — the same stop
+// conditions and infinite-loop guards as the TypeScript runtime. The returned
+// function is a range-over-func iterator (Go 1.23+) and plainly callable before that.
+func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield func(any, error) bool) {
+	return func(yield func(any, error) bool) {
+		switch spec.Style {
+		case "cursor":
+			var cursor any
+			if values, ok := base[spec.Param]; ok && len(values) > 0 {
+				cursor = values[0]
+			}
+			for {
+				params := cloneValues(base)
+				if cursor != nil {
+					params.Set(spec.Param, fmt.Sprint(cursor))
+				}
+				page, _, err := call(params)
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				if !yield(page, nil) {
+					return
+				}
+				if spec.HasMore != "" {
+					if more, ok := resolvePointer(page, spec.HasMore).(bool); ok && !more {
+						return
+					}
+				}
+				next := resolvePointer(page, spec.NextCursor)
+				if next == nil || next == "" {
+					return
+				}
+				switch next.(type) {
+				case string, float64:
+				default:
+					yield(nil, fmt.Errorf("pagination cursor at %s is not a string or number", spec.NextCursor))
+					return
+				}
+				if cursor != nil && fmt.Sprint(next) == fmt.Sprint(cursor) {
+					yield(nil, errors.New("pagination did not advance: the operation returned the same cursor twice"))
+					return
+				}
+				cursor = next
+			}
+		case "link":
+			params := cloneValues(base)
+			previous := ""
+			for {
+				page, resp, err := call(params)
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				if !yield(page, nil) {
+					return
+				}
+				target := linkNext(resp.Header.Get("Link"))
+				if target == "" {
+					return
+				}
+				pageURL := ""
+				if resp.Request != nil && resp.Request.URL != nil {
+					pageURL = resp.Request.URL.String()
+				}
+				baseURL, err := url.Parse(pageURL)
+				if err != nil || pageURL == "" {
+					baseURL, _ = url.Parse("http://relative.invalid")
+				}
+				targetURL, err := baseURL.Parse(target)
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				next := targetURL.String()
+				if next == previous || next == pageURL {
+					yield(nil, errors.New(`pagination did not advance: the Link rel="next" target repeats`))
+					return
+				}
+				previous = next
+				params = cloneValues(base)
+				for key, values := range targetURL.Query() {
+					for _, value := range values {
+						params.Add(key, value)
+					}
+				}
+			}
+		default: // offset / page
+			position := 0
+			if spec.Style == "page" {
+				position = 1
+			}
+			if values, ok := base[spec.Param]; ok && len(values) > 0 && values[0] != "" {
+				if parsed, err := strconv.Atoi(values[0]); err == nil {
+					position = parsed
+				}
+			}
+			previousItems := ""
+			for {
+				params := cloneValues(base)
+				params.Set(spec.Param, strconv.Itoa(position))
+				page, _, err := call(params)
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				items, _ := resolvePointer(page, spec.Items).([]any)
+				serialized := ""
+				if items != nil {
+					serialized = fmt.Sprint(items)
+					if serialized == previousItems {
+						yield(nil, errors.New("pagination did not advance: the operation returned the same page twice"))
+						return
+					}
+				}
+				if !yield(page, nil) {
+					return
+				}
+				if len(items) == 0 {
+					return
+				}
+				previousItems = serialized
+				if spec.Style == "page" {
+					position++
+				} else {
+					position += len(items)
+				}
+			}
+		}
+	}
+}
+
+func cloneValues(values url.Values) url.Values {
+	out := url.Values{}
+	for key, entries := range values {
+		for _, entry := range entries {
+			out.Add(key, entry)
+		}
+	}
+	return out
+}
+
+func linkNext(header string) string {
+	if header == "" {
+		return ""
+	}
+	for _, entry := range strings.Split(header, ",") {
+		parts := strings.Split(entry, ";")
+		if len(parts) < 2 {
+			continue
+		}
+		target := strings.TrimSpace(parts[0])
+		if !strings.HasPrefix(target, "<") || !strings.HasSuffix(target, ">") {
+			continue
+		}
+		for _, param := range parts[1:] {
+			trimmed := strings.TrimSpace(param)
+			if strings.HasPrefix(trimmed, "rel=") {
+				rel := strings.Trim(strings.TrimPrefix(trimmed, "rel="), `"`)
+				for _, kind := range strings.Fields(rel) {
+					if kind == "next" {
+						return strings.Trim(target, "<>")
+					}
+				}
+			}
+		}
+	}
+	return ""
+}
+
+// ─── Server-Sent Events ───
+
+// ServerSentEvent is one decoded event; Data is the raw text (or parsed JSON
+// for operations that declare a JSON event stream).
+type ServerSentEvent struct {
+	Event string
+	Data  any
+	ID    string
+	Retry int
+}
+
+func parseSSEFrame(raw string, jsonData bool) (ServerSentEvent, bool, error) {
+	event := ServerSentEvent{Retry: -1}
+	sawField := false
+	var dataLines []string
+	normalized := strings.ReplaceAll(strings.ReplaceAll(raw, "\r\n", "\n"), "\r", "\n")
+	for _, line := range strings.Split(normalized, "\n") {
+		if line == "" || strings.HasPrefix(line, ":") {
+			continue
+		}
+		field, value, _ := strings.Cut(line, ":")
+		value = strings.TrimPrefix(value, " ")
+		sawField = true
+		switch field {
+		case "event":
+			event.Event = value
+		case "data":
+			dataLines = append(dataLines, value)
+		case "id":
+			event.ID = value
+		case "retry":
+			if parsed, err := strconv.Atoi(value); err == nil && parsed >= 0 && value != "" {
+				event.Retry = parsed
+			}
+		}
+	}
+	if !sawField {
+		return event, false, nil
+	}
+	text := strings.Join(dataLines, "\n")
+	event.Data = text
+	if jsonData && text != "" {
+		var parsed any
+		if err := json.Unmarshal([]byte(text), &parsed); err != nil {
+			return event, false, err
+		}
+		event.Data = parsed
+	}
+	return event, true, nil
+}
+
+// iterSSE streams events, reconnecting on dropped connections with Last-Event-ID
+// (a fresh open call = fresh auth); a 4xx/5xx or a bad JSON payload is definitive.
+func iterSSE(open func(extraHeaders map[string]string) (*http.Response, error), jsonData bool) func(yield func(ServerSentEvent, error) bool) {
+	return func(yield func(ServerSentEvent, error) bool) {
+		lastEventID := ""
+		serverRetry := -1
+		failures := 0
+		for {
+			headers := map[string]string{"Accept": "text/event-stream"}
+			if lastEventID != "" {
+				headers["Last-Event-ID"] = lastEventID
+			}
+			resp, err := open(headers)
+			if err == nil && resp.StatusCode >= 400 {
+				yield(ServerSentEvent{}, apiErrorFrom(resp, ""))
+				return
+			}
+			if err == nil {
+				failures = 0
+				buffer := ""
+				chunk := make([]byte, 4096)
+				clean := false
+				for {
+					n, readErr := resp.Body.Read(chunk)
+					buffer += string(chunk[:n])
+					for {
+						frame, rest, found := strings.Cut(buffer, "\n\n")
+						if !found {
+							break
+						}
+						buffer = rest
+						event, ok, parseErr := parseSSEFrame(frame, jsonData)
+						if parseErr != nil {
+							resp.Body.Close()
+							yield(ServerSentEvent{}, parseErr)
+							return
+						}
+						if ok {
+							if event.ID != "" {
+								lastEventID = event.ID
+							}
+							if event.Retry >= 0 {
+								serverRetry = event.Retry
+							}
+							if !yield(event, nil) {
+								resp.Body.Close()
+								return
+							}
+						}
+					}
+					if readErr == io.EOF {
+						clean = true
+						break
+					}
+					if readErr != nil {
+						break
+					}
+				}
+				resp.Body.Close()
+				if clean {
+					if strings.TrimSpace(buffer) != "" {
+						if event, ok, parseErr := parseSSEFrame(buffer, jsonData); parseErr == nil && ok {
+							yield(event, nil)
+						}
+					}
+					return
+				}
+			}
+			failures++
+			base := time.Second
+			if serverRetry >= 0 {
+				base = time.Duration(serverRetry) * time.Millisecond
+			}
+			delay := base * time.Duration(1<<(failures-1))
+			if delay > 30*time.Second {
+				delay = 30 * time.Second
+			}
+			time.Sleep(time.Duration(rand.Int63n(int64(delay) + 1)))
+		}
+	}
+}
+
+// ─── Multipart ───
+
+// toMultipart splits a typed body into a multipart/form-data payload: []byte
+// values upload as file parts, everything else as form fields (nested values
+// JSON-encoded) — mirroring the TypeScript runtime's FormData serialization.
+func toMultipart(body any) (string, io.Reader, error) {
+	var wire map[string]any
+	if err := reencode(body, &wire); err != nil {
+		return "", nil, err
+	}
+	buffer := &bytes.Buffer{}
+	writer := multipart.NewWriter(buffer)
+	for key, value := range wire {
+		switch typed := value.(type) {
+		case string:
+			if err := writer.WriteField(key, typed); err != nil {
+				return "", nil, err
+			}
+		case float64, bool:
+			if err := writer.WriteField(key, fmt.Sprint(typed)); err != nil {
+				return "", nil, err
+			}
+		default:
+			encoded, err := json.Marshal(typed)
+			if err != nil {
+				return "", nil, err
+			}
+			if err := writer.WriteField(key, string(encoded)); err != nil {
+				return "", nil, err
+			}
+		}
+	}
+	if err := writer.Close(); err != nil {
+		return "", nil, err
+	}
+	return writer.FormDataContentType(), buffer, nil
 }

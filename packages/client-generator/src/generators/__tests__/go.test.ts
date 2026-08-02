@@ -174,6 +174,44 @@ const CAFE: ApiModel = {
           errorResponses: [],
         },
         {
+          name: 'streamEvents',
+          specName: 'streamEvents',
+          method: 'get',
+          path: '/events',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'text/event-stream',
+              schema: { kind: 'object', properties: [] },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'uploadPhoto',
+          specName: 'uploadPhoto',
+          method: 'post',
+          path: '/photos',
+          tags: ['Orders'],
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          requestBody: {
+            contentType: 'multipart/form-data',
+            schema: { kind: 'object', properties: [] },
+          },
+          successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
+          errorResponses: [],
+        },
+        {
           name: 'getOrder',
           specName: 'getOrder',
           method: 'get',
@@ -276,6 +314,30 @@ describe('goGenerator (full client assembly)', () => {
     expect(out).toContain('"listOrders": {');
     expect(out).toContain('func send(ctx context.Context'); // embedded runtime
     expect((out.match(/^package client$/gm) ?? []).length).toBe(1);
+    expectGoCompiles(out);
+  });
+});
+
+describe('goGenerator parity features', () => {
+  it('paginated operations gain Pages/Items yield-func iterators with typed elements', () => {
+    const out = generateGo();
+    expect(out).toContain('Pagination: &PaginationSpec{Style: "cursor", Param: "after"');
+    expect(out).toContain(
+      'func (c *Client) ListOrdersPages(ctx context.Context, params *ListOrdersParams) func(yield func(OrderPage, error) bool) {'
+    );
+    expect(out).toContain(
+      'func (c *Client) ListOrdersItems(ctx context.Context, params *ListOrdersParams) func(yield func(Order, error) bool) {'
+    );
+    expect(out).toContain('iterPages(call, *op.Pagination, base)');
+  });
+
+  it('SSE operations stream events; multipart bodies route through toMultipart', () => {
+    const out = generateGo();
+    expect(out).toContain(
+      'func (c *Client) StreamEvents(ctx context.Context) func(yield func(ServerSentEvent, error) bool) {'
+    );
+    expect(out).toContain('return iterSSE(open,');
+    expect(out).toContain('contentType, reader, err := toMultipart(body)');
     expectGoCompiles(out);
   });
 });

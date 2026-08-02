@@ -44,12 +44,20 @@ for order in client.list_orders_items(limit=50):
 ### Go SDK
 
 The `go` generator emits a self-contained `<stem>.go` — a full Go SDK over the standard library (zero dependencies, Go ≥ 1.21):
-structs with `json` tags (allOf flattened, typed-const enums, discriminated-union unmarshal dispatchers), a `Client` with one `(T, error)` method per operation taking a `context.Context`, auth, retries with `Retry-After` and jittered backoff, per-attempt timeouts, idempotency keys, and middleware hooks.
+structs with `json` tags (allOf flattened, typed-const enums, discriminated-union unmarshal dispatchers), a `Client` with one `(T, error)` method per operation taking a `context.Context`, auth, retries with `Retry-After` and jittered backoff, per-attempt timeouts, idempotency keys, middleware hooks, pagination iterators (`<Op>Pages` / `<Op>Items`, `range`-over-func style), SSE streaming, and multipart bodies.
 Go's `(T, error)` returns are the error mode; `errorMode` does not change the output.
+The iterators are `func(yield func(T, error) bool)` values: `for … range` over them needs Go ≥ 1.23; on 1.21–1.22 call them with a callback instead.
 
 ```go
 api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return "TOKEN" }}})
 order, err := api.GetOrder(ctx, "ord_123")
+
+for order, err := range api.ListOrdersItems(ctx, nil) {
+	if err != nil {
+		break
+	}
+	fmt.Println(order.Id)
+}
 ```
 
 ## Package runtime
