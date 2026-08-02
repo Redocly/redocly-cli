@@ -50,6 +50,7 @@ export function runGenerators(
       outputPath: options.outputPath,
       outputMode: options.outputMode,
       emit: options.emit,
+      selected: options.generators,
     })) {
       if (seen.has(file.path)) {
         throw new Error(`Generator conflict: ${file.path} already emitted by an earlier generator`);

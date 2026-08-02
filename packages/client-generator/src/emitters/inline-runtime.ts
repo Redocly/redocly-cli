@@ -76,6 +76,11 @@ function embedModule(name: RuntimeModuleName): string {
   return parts.join('').trim();
 }
 
+/** The cli engine (`runCli` + types) stripped for embedding into `<stem>.cli.ts`. */
+export function embedCliRuntime(): string {
+  return embedModule('cli.ts');
+}
+
 // The embedded equivalent of the package barrel's `createClient`: `createClientCore`
 // with only the included capabilities wired. EXPORTED — the design spec promises the
 // generated module re-exports `createClient`/`OPERATIONS`/`Ops` so apps can build

@@ -27,6 +27,7 @@ export type GeneratorName =
   | 'swr'
   | 'transformers'
   | 'mock'
+  | 'cli'
   | 'python'
   | 'go';
 
@@ -39,6 +40,8 @@ export type GeneratorInput = {
   outputMode: OutputMode;
   /** Emit options — serverUrl, runtime, and the generator knobs (dateType, mockData, …); see `EmitOptions`. */
   emit: EmitOptions;
+  /** Every generator name in the run — lets a generator adapt to co-selection (cli wires zod validation when `zod` is selected). */
+  selected?: string[];
 };
 
 /**

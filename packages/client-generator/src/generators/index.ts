@@ -1,4 +1,5 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
+import { cliGenerator, cliSample } from './cli.js';
 import { goGenerator, goSample } from './go.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock.js';
@@ -32,6 +33,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   'tanstack-query-solid': { run: tanstackQueryGenerator('solid') },
   swr: { run: swrGenerator },
   mock: { run: mockGenerator },
+  cli: { run: cliGenerator, sample: cliSample },
   python: { run: pythonGenerator, sample: pythonSample },
   go: { run: goGenerator, sample: goSample },
 };

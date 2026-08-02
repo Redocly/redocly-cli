@@ -386,15 +386,18 @@ export async function runCli(
   if (body !== undefined) variables.body = body;
   const argument = Object.keys(variables).length > 0 ? variables : undefined;
 
+  // The client's methods are typed per-operation; the dispatcher only needs "callable
+  // by name", so one localized widening here keeps the emitted wiring cast-free.
+  const methods = wiring.client as Record<string, unknown>;
   try {
     if (globals.pageAll && !globals.dryRun) {
-      const pages = (
-        wiring.client[command.name] as { pages: (variables?: unknown) => AsyncIterable<unknown> }
-      ).pages;
-      for await (const page of pages(argument)) stdout(JSON.stringify(page));
+      const paginated = methods[command.name] as {
+        pages: (variables?: unknown) => AsyncIterable<unknown>;
+      };
+      for await (const page of paginated.pages(argument)) stdout(JSON.stringify(page));
       return 0;
     }
-    const method = wiring.client[command.name] as (variables?: unknown) => Promise<unknown>;
+    const method = methods[command.name] as (variables?: unknown) => Promise<unknown>;
     const result = await method(argument);
     if (globals.dryRun) {
       stdout(JSON.stringify(captured, null, 2));
