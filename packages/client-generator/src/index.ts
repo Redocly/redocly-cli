@@ -3,6 +3,9 @@
 // builtins; guarded by entry-weight.test.ts). The generation stack lives behind the dynamic
 // import inside `generateClient` and the `@redocly/client-generator/generate` entry.
 
+// The language-neutral generator-authoring toolkit — pure functions over the IR,
+// safe on this runtime-only entry (no typescript, no openapi-core, no builtins).
+export * from './authoring/index.js';
 export { NotSupportedError } from './errors.js';
 export { defineClientSetup } from './runtime-contract.js';
 export type {

@@ -10,9 +10,10 @@ function deref(schema: SchemaModel, model: ApiModel): SchemaModel | undefined {
   const seen = new Set<string>();
   let current = schema;
   while (current.kind === 'ref') {
-    if (seen.has(current.name)) return undefined;
-    seen.add(current.name);
-    const named = model.schemas.find((s) => s.name === current.name);
+    const { name } = current;
+    if (seen.has(name)) return undefined;
+    seen.add(name);
+    const named = model.schemas.find((s) => s.name === name);
     if (named === undefined) return undefined;
     current = named.schema;
   }

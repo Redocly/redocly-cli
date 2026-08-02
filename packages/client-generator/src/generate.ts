@@ -31,6 +31,9 @@ export {
   printStatements,
   ts,
 } from './emitters/ts.js';
+// The language-neutral authoring helpers, re-exported here so both toolkit
+// entries offer the full authoring surface (the root offers them TS-free).
+export * from './authoring/index.js';
 export { operationSignature } from './emitters/operation-signature.js';
 export type { OperationSignature } from './emitters/operation-signature.js';
 export { schemaToTypeNode } from './emitters/types.js';
