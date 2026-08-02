@@ -18,13 +18,43 @@ Incompatible selections fail fast with an explanation.
 | `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                                                                                                                                                                                        | `swr` `^2`                                               |
 | `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                                                                                                         | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
 | `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                       | none                                                     |
+| `cli`            | `<output>.cli.ts` — a bin-ready [command-line interface](#generated-cli) over the client: typed flags, `--json` bodies, env auth, `--page-all`.                                                                                                                 | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
 ```
 
-`tanstack-query` and `swr` wrap the throw-mode `sdk` functions, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
+`tanstack-query`, `swr`, and `cli` wrap the throw-mode `sdk` client, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
 See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+
+### Generated CLI
+
+The `cli` generator emits `<stem>.cli.ts` — a zero-dependency, bin-ready command-line interface over the generated client.
+Path params are positional, query params become typed `--kebab-name` flags (enums list their choices in `--help`, array params repeat the flag), and JSON request bodies arrive via `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
+When `zod` is co-selected, requests are validated before they are sent.
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator cli
+npx tsx src/client.cli.ts orders listOrders --status open --limit 10
+npx tsx src/client.cli.ts orders createOrder --json @order.json
+npx tsx src/client.cli.ts orders listOrders --page-all   # one JSON page per line
+npx tsx src/client.cli.ts schema createOrder             # request/response schemas
+```
+
+Credentials come from environment variables derived from the file stem (constant-cased): bearer → `<PREFIX>_TOKEN` (or `--token`), basic → `<PREFIX>_USERNAME`/`<PREFIX>_PASSWORD`, apiKey → `<PREFIX>_API_KEY_<SCHEME>`.
+`--server-url` overrides the baked server; `--dry-run` prints the prepared request (credentials redacted) without sending it; blob responses require `--output <path>`; SSE operations stream events as one JSON object per line.
+
+Exit codes are a documented contract, and errors print one JSON object to stderr so stdout stays clean for piping:
+
+| Code | Meaning                                             |
+| ---- | --------------------------------------------------- |
+| 0    | success                                             |
+| 1    | API error (status other than 401/403)               |
+| 2    | auth error (401/403)                                |
+| 3    | validation error (zod co-selected)                  |
+| 4    | usage error (unknown command or flag, bad `--json`) |
+
+To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
 
 ### Python SDK
 

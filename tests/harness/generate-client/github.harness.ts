@@ -2,6 +2,7 @@
 // scale case that shook out the strict-mode reserved-word and +1/-1 naming bugs.
 
 import {
+  cliBar,
   fetchGithubDescription,
   goBar,
   hasGo,
@@ -19,6 +20,10 @@ beforeAll(async () => {
 describe('github REST description', () => {
   it('sdk (TypeScript) passes strict tsc', () => {
     typescriptBar(github);
+  });
+
+  it('cli passes strict Node-typed tsc', () => {
+    cliBar(github);
   });
 
   it.skipIf(!hasPython)('python imports cleanly', () => {

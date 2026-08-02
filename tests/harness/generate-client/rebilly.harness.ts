@@ -4,7 +4,7 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { goBar, hasGo, hasPython, pythonBar, typescriptBar } from './helpers.js';
+import { cliBar, goBar, hasGo, hasPython, pythonBar, typescriptBar } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rebilly = join(__dirname, '../../smoke/rebilly/rebilly-description.yaml');
@@ -12,6 +12,10 @@ const rebilly = join(__dirname, '../../smoke/rebilly/rebilly-description.yaml');
 describe('rebilly description', () => {
   it('sdk (TypeScript) passes strict tsc', () => {
     typescriptBar(rebilly);
+  });
+
+  it('cli passes strict Node-typed tsc', () => {
+    cliBar(rebilly);
   });
 
   it.skipIf(!hasPython)('python imports cleanly', () => {

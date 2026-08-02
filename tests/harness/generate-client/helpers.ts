@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, strictTypecheck } from '../../e2e/generate-client/helpers.js';
+import { generate, repoRoot, strictTypecheck } from '../../e2e/generate-client/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -33,10 +33,15 @@ export const hasPython = spawnSync('python3', ['--version']).status === 0;
 export const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
 export const hasGo = spawnSync('go', ['version']).status === 0;
 
-/** Generate with `--generator <name>` into a fresh temp dir; returns the dir. */
-export function generateWith(generator: string, description: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `harness-${generator}-`));
-  generate(description, join(dir, 'client.ts'), ['--generator', generator]);
+/** Generate with `--generator <name>` (repeatable) into a fresh temp dir; returns the dir. */
+export function generateWith(generator: string | string[], description: string): string {
+  const generators = Array.isArray(generator) ? generator : [generator];
+  const dir = mkdtempSync(join(tmpdir(), `harness-${generators.join('-')}-`));
+  generate(
+    description,
+    join(dir, 'client.ts'),
+    generators.flatMap((name) => ['--generator', name])
+  );
   return dir;
 }
 
@@ -45,6 +50,35 @@ export function typescriptBar(description: string): void {
   const dir = generateWith('sdk', description);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   strictTypecheck(dir);
+}
+
+/** CLI bar: the generated `<stem>.cli.ts` passes a strict, Node-typed `tsc --noEmit`. */
+export function cliBar(description: string): void {
+  const dir = generateWith(['sdk', 'cli'], description);
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
+  writeFileSync(
+    join(dir, 'tsconfig.json'),
+    JSON.stringify({
+      compilerOptions: {
+        module: 'nodenext',
+        moduleResolution: 'nodenext',
+        target: 'es2022',
+        lib: ['ES2022', 'DOM'],
+        strict: true,
+        noEmit: true,
+        skipLibCheck: true,
+        types: ['node'],
+        // The temp dir has no node_modules; resolve @types/node from the repo.
+        typeRoots: [join(repoRoot, 'node_modules/@types')],
+      },
+      include: ['**/*.ts'],
+    }),
+    'utf-8'
+  );
+  const tsc = spawnSync(join(repoRoot, 'node_modules/.bin/tsc'), ['-p', dir], {
+    encoding: 'utf-8',
+  });
+  expect(tsc.status, `${tsc.stdout}\n${tsc.stderr}`).toBe(0);
 }
 
 /**
