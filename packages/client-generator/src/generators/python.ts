@@ -21,7 +21,7 @@ import type {
   PropertyModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
-import type { Generator } from './types.js';
+import type { CodeSample, Generator, SampleContext } from './types.js';
 
 const PY = RESERVED_WORDS.python;
 
@@ -586,3 +586,26 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
 
   return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: writer.toString() }];
 };
+
+/** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */
+export function pythonSample(op: OperationModel, _ctx: SampleContext): CodeSample {
+  const ident = identifierFor(op.name, { style: 'snake', reserved: PY });
+  const args = [
+    ...op.pathParams.map((param) => {
+      const python = identifierFor(param.name, { style: 'snake', reserved: PY });
+      return `${python}="<${python}>"`;
+    }),
+    ...op.queryParams
+      .filter((param) => param.required)
+      .map((param) => {
+        const python = identifierFor(param.name, { style: 'snake', reserved: PY });
+        return `${python}=...`;
+      }),
+    ...(op.requestBody ? ['body=...'] : []),
+  ];
+  return {
+    lang: 'python',
+    label: 'Python SDK',
+    source: `from client import Client\n\nclient = Client()\nresult = client.${ident}(${args.join(', ')})\n`,
+  };
+}

@@ -26,7 +26,8 @@ export type GeneratorName =
   | 'tanstack-query-solid'
   | 'swr'
   | 'transformers'
-  | 'mock';
+  | 'mock'
+  | 'python';
 
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {

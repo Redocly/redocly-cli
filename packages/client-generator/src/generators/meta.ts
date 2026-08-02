@@ -51,6 +51,12 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
     requires: ['sdk'],
     load: () => import('./mock.js').then((m) => ({ run: m.mockGenerator })),
   },
+  // python emits a standalone full Python SDK (httpx) — no TypeScript involved,
+  // so a python-only selection never loads the `typescript` package.
+  python: {
+    load: () =>
+      import('./python.js').then((m) => ({ run: m.pythonGenerator, sample: m.pythonSample })),
+  },
 };
 
 /**

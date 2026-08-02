@@ -24,6 +24,7 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
   'swr',
   'transformers',
   'mock',
+  'python',
 ]);
 
 const IMPORT_RE =

@@ -1,6 +1,7 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock.js';
+import { pythonGenerator, pythonSample } from './python.js';
 import { sdkGenerator, sdkSample } from './sdk.js';
 import { swrGenerator } from './swr.js';
 import { tanstackQueryGenerator } from './tanstack-query.js';
@@ -30,6 +31,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   'tanstack-query-solid': { run: tanstackQueryGenerator('solid') },
   swr: { run: swrGenerator },
   mock: { run: mockGenerator },
+  python: { run: pythonGenerator, sample: pythonSample },
 };
 
 const GENERATORS = Object.fromEntries(
