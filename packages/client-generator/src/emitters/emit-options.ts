@@ -1,8 +1,8 @@
 import type { ApiModel } from '../intermediate-representation/model.js';
+import { escapeJsDoc } from './jsdoc.js';
 import type { ArgsStyle } from './operations.js';
 import type { PaginationConfig } from './pagination.js';
 import { splitLines } from './support.js';
-import { escapeJsDoc } from './ts.js';
 import type { DateType } from './types.js';
 
 // The public option vocabulary is re-exported from this module, so generators

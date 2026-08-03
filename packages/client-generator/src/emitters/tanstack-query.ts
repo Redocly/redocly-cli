@@ -9,8 +9,7 @@
 // through the client instance's grouped methods, so the module is independent of the
 // sdk's `--args-style`.
 //
-// The factory bodies are authored as source text and round-tripped through
-// `parseStatements` → `printStatements`, which validates the syntax at generation time
+// The factory bodies are authored as source text — the emitted module verbatim
 // and normalizes everything to the printer's canonical style. Every interpolated piece
 // is generator-derived (sanitized operation names, JSON-pointer property chains built
 // here) — never raw spec text.
@@ -24,7 +23,6 @@ import {
   resolveModelPagination,
   resolveSchemaPointer,
 } from './pagination.js';
-import { parseStatements, printStatements } from './ts.js';
 import { hasInputs, isQuery, variablesName, wrappableOperations } from './wrapper-support.js';
 
 export type TanstackOptions = {
@@ -50,7 +48,7 @@ export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): st
     factoriesSource(model, ops, pagination, opts.queryKeyPrefix),
     ...defaultBindings(ops, pagination),
   ].join('\n');
-  return printStatements(parseStatements(source));
+  return source;
 }
 
 /**
