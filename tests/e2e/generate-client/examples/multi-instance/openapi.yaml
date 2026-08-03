@@ -1,0 +1,81 @@
+openapi: 3.2.0
+info:
+  title: Projects API
+  description: Demo per-tenant projects API for the multi-instance example.
+  version: 1.0.0
+servers:
+  - url: https://acme.api.example.com
+    description: Default tenant — each client instance overrides `serverUrl`.
+tags:
+  - name: Projects
+    description: Project operations.
+security:
+  - BearerAuth: []
+paths:
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: List projects
+      operationId: listProjects
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectList'
+    post:
+      tags:
+        - Projects
+      summary: Create a project
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+      responses:
+        '201':
+          description: Project created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Per-tenant access token.
+  schemas:
+    Project:
+      type: object
+      properties:
+        id:
+          description: Project ID.
+          type: string
+        name:
+          description: Project name.
+          type: string
+      required:
+        - id
+        - name
+    ProjectRequest:
+      type: object
+      properties:
+        name:
+          description: Project name.
+          type: string
+      required:
+        - name
+    ProjectList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+      required:
+        - items

@@ -1,0 +1,25 @@
+import { spawnSync } from 'node:child_process';
+import { existsSync, readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// Regenerate each example's client in place. A `redocly.yaml` example uses the CLI
+// (a no-arg run fans out over its `apis:` entry's `client` block); the programmatic
+// example runs its own `generate.ts`.
+const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = join(pkgRoot, '..', '..');
+const cli = join(repoRoot, 'packages/cli/lib/index.js');
+const tsx = join(repoRoot, 'node_modules/.bin/tsx');
+const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
+const examples = readdirSync(examplesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
+  .map((entry) => entry.name)
+  .sort();
+
+for (const name of examples) {
+  const cwd = join(examplesDir, name);
+  const res = existsSync(join(cwd, 'redocly.yaml'))
+    ? spawnSync('node', [cli, 'generate-client'], { cwd, stdio: 'inherit' })
+    : spawnSync(tsx, [join(cwd, 'generate.ts')], { cwd, stdio: 'inherit' });
+  if (res.status !== 0) process.exit(res.status ?? 1);
+}

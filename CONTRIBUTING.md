@@ -199,10 +199,11 @@ To test local changes as a package, you can use the following steps:
 1. (Optional) Change the version of the packages.
 
 1. Run `npm run pack:prepare` in the repository's root.
-   This command generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
+   This command generates **redocly-cli.tgz**, **respect-core.tgz**, **openapi-core.tgz**, and **client-generator.tgz** files.
 
 1. Copy these **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI.
    To install `openapi-core`: repeat this step, but with **openapi-core.tgz** file.
+   Apps that consume a `runtime: package` generated client install **client-generator.tgz** the same way.
 
 ## Tests
 
@@ -213,6 +214,7 @@ Run `npm test` to start both unit and e2e tests (and additionally typecheck the 
 ### Unit tests
 
 Run unit tests with this command: `npm run unit`.
+This command runs the suite for every package whose tests match the discovery glob — there is no per-package `npm test` script.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
@@ -343,11 +345,11 @@ mlc docs/
 The tool only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors.
 Take care when renaming pages or titles.
 
-## Contribute to the cookbook
+## Contribute to the Cookbook
 
-The [cookbook](./cookbook) is a community collection of rulesets, configuration, custom plugins, and other Redocly CLI additions.
+The [Cookbook](./cookbook) is a community collection of rulesets, configuration, custom plugins, and other Redocly CLI additions.
 Unlike the packages, it is not built or tested as part of the CLI — treat every entry as a shared example that people use at their own risk.
-A cookbook-only change does not affect the published packages, so it does not need a changeset; add the `no changeset needed` label to the pull request instead.
+A Cookbook-only change does not affect the published packages, so it does not need a changeset; add the `no changeset needed` label to the pull request instead.
 
 To add an entry:
 
@@ -365,7 +367,7 @@ To add an entry:
 1. Add a `README.md` to the directory that explains the problem the entry solves and any context a reader needs to reuse it successfully.
    Follow the structure of the existing entries.
 
-1. List your entry in the relevant section of the [cookbook catalog](./cookbook/README.md).
+1. List your entry in the relevant section of the [Cookbook catalog](./cookbook/README.md).
 
 1. Open a pull request.
    Someone from Redocly will review it, suggest changes if needed, and merge it once it is ready.

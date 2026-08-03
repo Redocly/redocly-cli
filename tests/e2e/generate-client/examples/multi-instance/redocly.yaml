@@ -1,0 +1,11 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+# `runtime: package` because multi-instance needs `createClient`, which the
+# package exports; the default `inline` mode keeps it module-local.
+apis:
+  multi-instance:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+      runtime: package

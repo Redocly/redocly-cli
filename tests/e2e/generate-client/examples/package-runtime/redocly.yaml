@@ -1,0 +1,12 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+# `runtime: package` makes the generated client import the engine from
+# `@redocly/client-generator` instead of inlining it — runtime fixes arrive
+# via `npm update @redocly/client-generator`, no regeneration needed.
+apis:
+  package-runtime:
+    root: ../_shared/cafe.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+      runtime: package

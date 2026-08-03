@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: Transformers Fixture
+  version: 1.0.0
+  description: |
+    Exercises the `--date-type Date` sdk knob + the `transformers` generator
+    across the date-bearing shapes: a top-level `date-time` scalar, an array of
+    `date` scalars, and a `$ref` to another schema that also carries a date (to
+    drive transformer composition `transformPet -> transformOwner`).
+servers:
+  - url: http://localhost:3199
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A single pet.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          description: Top-level date-time scalar — converted to Date.
+          type: string
+          format: date-time
+        dates:
+          description: Array of date scalars — each element converted to Date.
+          type: array
+          items:
+            type: string
+            format: date
+        owner:
+          description: Ref to a date-bearing schema — drives transformer composition.
+          $ref: '#/components/schemas/Owner'
+    Owner:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        since:
+          description: Nested/ref'd date — converted via transformOwner.
+          type: string
+          format: date

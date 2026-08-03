@@ -34,6 +34,6 @@ it('sendTelemetry calls all telemetry functions', async () => {
   expect(respondWithinMs).toHaveBeenCalled();
   expect(RedoclyOAuthClient).toHaveBeenCalled();
   expect(getReuniteUrl).toHaveBeenCalled();
-  expect(mockMapToCloudEvent).toHaveBeenCalled();
+  expect(mockMapToCloudEvent).toHaveBeenCalledWith(expect.objectContaining({ env: 'development' }));
   expect(mockOtelSend).toHaveBeenCalled();
 });

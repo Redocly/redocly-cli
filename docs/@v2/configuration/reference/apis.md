@@ -58,6 +58,18 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 - Output file path
 - When running `bundle` without specifying an API, the bundled API description is saved to this location.
 
+---
+
+- client
+- [Client object](./client.md)
+- TypeScript client generation configuration override for this API, used by the `generate-client` command.
+
+---
+
+- clientOutput
+- Output file path
+- The generated client is saved to this location unless `--output` overrides it.
+
 {% /table %}
 
 ## Examples

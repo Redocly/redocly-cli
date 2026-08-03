@@ -1,5 +1,44 @@
 # @redocly/openapi-core
 
+## 2.43.3
+
+## 2.43.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.53.1.
+
+## 2.43.1
+
+### Patch Changes
+
+- Fixed `skipPluginEval` to keep `extends` unresolved instead of failing when the config extends a plugin preset.
+
+## 2.43.0
+
+### Minor Changes
+
+- Added a `skipPluginEval` option to `loadConfig` that resolves plugin paths without importing or executing plugin code — the returned plugins contain only their `absolutePath`.
+
+## 2.42.0
+
+### Minor Changes
+
+- Added an experimental `generate-client` command that generates a typed, zero-dependency TypeScript client from an OpenAPI description — auth, retries, middleware, typed SSE streaming, pagination, and multipart included — plus optional companion generators for Zod validation, TanStack Query and SWR hooks, MSW mocks, and date transformers.
+  See the [`generate-client` command reference](https://redocly.com/docs/cli/commands/generate-client) and the [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client) guide.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.53.0.
+
+## 2.41.2
+
+### Patch Changes
+
+- Updated js-yaml from `5.2.1` to `5.2.2` to resolve a vulnerability in YAML parsing.
+
+## 2.41.1
+
 ## 2.41.0
 
 ### Minor Changes

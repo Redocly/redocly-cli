@@ -61,66 +61,90 @@ It is also possible to configure additional rules for specific APIs using the [A
 
 ### Redocly rules and Spectral equivalents
 
-Included here is an attempt to map the simliar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues)?
+Included here is an attempt to map the similar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues)?
+Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent exists, it is the same Redocly rule as for OpenAPI 3.x (for example, `oas2-operation-security-defined` maps to `security-defined`).
 
-| Spectral rules                         | Redocly rules                                 |
-| -------------------------------------- | --------------------------------------------- |
-| `duplicated-entry-in-enum`             |                                               |
-| `info-contact`                         | `info-contact`                                |
-| `info-description`                     |                                               |
-| `info-license`                         | `info-license`                                |
-| `license-url`                          | `info-license-strict`                         |
-| `no-$ref-siblings`                     |                                               |
-| `no-eval-in-markdown`                  |                                               |
-| `no-script-tags-in-markdown`           |                                               |
-| `oas3-api-servers`                     | `no-empty-servers`                            |
-| `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`          |
-| `oas3-operation-security-defined`      | `security-defined`                            |
-| `oas3-parameter-description`           | `parameter-description`                       |
-| `oas3-schema`                          | `struct`                                      |
-| `oas3-server-not-example.com`          | `no-server-example.com`                       |
-| `oas3-server-trailing-slash`           | `no-server-trailing-slash`                    |
-| `oas3-unused-component`                | `no-unused-components`                        |
-| `oas3-valid-media-example`             | `no-invalid-media-type-examples`              |
-| `oas3-valid-schema-example`            | `no-invalid-schema-examples`                  |
-| `openapi-tags`                         |                                               |
-| `openapi-tags-alphabetical`            | `tags-alphabetical`                           |
-| `openapi-tags-uniqueness`              | `no-duplicated-tag-names`                     |
-| `operation-description`                | `operation-description`                       |
-| `operation-operationId`                | `operation-operationId`                       |
-| `operation-operationId-unique`         | `operation-operationId-unique`                |
-| `operation-operationId-valid-in-url`   | `operation-operationId-url-safe`              |
-| `operation-parameters`                 | `operation-parameters-unique`                 |
-| `operation-singular-tag`               | `operation-singular-tag`                      |
-| `operation-success-response`           | `operation-2xx-response`                      |
-| `operation-tag-defined`                | `operation-tag-defined`                       |
-| `operation-tags`                       |                                               |
-| `path-declarations-must-exist`         | `path-declaration-must-exist`                 |
-| `path-keys-no-trailing-slash`          | `no-path-trailing-slash`                      |
-| `path-not-include-query`               | `path-not-include-query`                      |
-| `path-params`                          | `path-parameters-defined`                     |
-| `tag-description`                      | `tag-description`                             |
-| `typed-enum`                           | `no-enum-type-mismatch`                       |
-|                                        | `boolean-parameter-prefixes`                  |
-|                                        | `no-ambiguous-paths`                          |
-|                                        | `no-http-verbs-in-paths`                      |
-|                                        | `no-identical-paths`                          |
-|                                        | `no-invalid-parameter-examples`               |
-|                                        | `no-server-variables-empty-enum`              |
-|                                        | `no-undefined-server-variable`                |
-|                                        | `no-unresolved-refs`                          |
-|                                        | `operation-4xx-problem-details-rfc7807`       |
-|                                        | `operation-4xx-response`                      |
-|                                        | `operation-summary`                           |
-|                                        | `path-segment-plural`                         |
-|                                        | `paths-kebab-case`                            |
-|                                        | `request-mime-type`                           |
-|                                        | `required-string-property-missing-min-length` |
-|                                        | `response-contains-header`                    |
-|                                        | `response-contains-property`                  |
-|                                        | `response-mime-type`                          |
-|                                        | `scalar-property-missing-example`             |
-|                                        | `spec-components-invalid-map-name`            |
+| Spectral rules                         | Redocly rules                                                    |
+| -------------------------------------- | ---------------------------------------------------------------- |
+| `array-items`                          |                                                                  |
+| `contact-properties`                   |                                                                  |
+| `duplicated-entry-in-enum`             |                                                                  |
+| `info-contact`                         | `info-contact`                                                   |
+| `info-description`                     |                                                                  |
+| `info-license`                         | `info-license`                                                   |
+| `license-url`                          | `info-license-strict`                                            |
+| `no-$ref-siblings`                     |                                                                  |
+| `no-eval-in-markdown`                  |                                                                  |
+| `no-script-tags-in-markdown`           |                                                                  |
+| `oas3-api-servers`                     | `no-empty-servers`                                               |
+| `oas3-callbacks-in-callbacks`          |                                                                  |
+| `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`                             |
+| `oas3-operation-security-defined`      | `security-defined`                                               |
+| `oas3-parameter-description`           | `parameter-description`                                          |
+| `oas3-schema`                          | `struct`                                                         |
+| `oas3-server-not-example.com`          | `no-server-example.com`                                          |
+| `oas3-server-trailing-slash`           | `no-server-trailing-slash`                                       |
+| `oas3-server-variables`                | `no-undefined-server-variable`, `no-server-variables-empty-enum` |
+| `oas3-unused-component`                | `no-unused-components`                                           |
+| `oas3-valid-media-example`             | `no-invalid-media-type-examples`                                 |
+| `oas3-valid-schema-example`            | `no-invalid-schema-examples`                                     |
+| `oas3_1-callbacks-in-webhook`          |                                                                  |
+| `oas3_1-servers-in-webhook`            |                                                                  |
+| `openapi-tags`                         |                                                                  |
+| `openapi-tags-alphabetical`            | `tags-alphabetical`                                              |
+| `openapi-tags-uniqueness`              | `no-duplicated-tag-names`                                        |
+| `operation-description`                | `operation-description`                                          |
+| `operation-operationId`                | `operation-operationId`                                          |
+| `operation-operationId-unique`         | `operation-operationId-unique`                                   |
+| `operation-operationId-valid-in-url`   | `operation-operationId-url-safe`                                 |
+| `operation-parameters`                 | `operation-parameters-unique`                                    |
+| `operation-singular-tag`               | `operation-singular-tag`                                         |
+| `operation-success-response`           | `operation-2xx-response`                                         |
+| `operation-tag-defined`                | `operation-tag-defined`                                          |
+| `operation-tags`                       |                                                                  |
+| `path-declarations-must-exist`         | `path-declaration-must-exist`                                    |
+| `path-keys-no-trailing-slash`          | `no-path-trailing-slash`                                         |
+| `path-not-include-query`               | `path-not-include-query`                                         |
+| `path-params`                          | `path-parameters-defined`                                        |
+| `tag-description`                      | `tag-description`                                                |
+| `typed-enum`                           | `no-enum-type-mismatch`                                          |
+|                                        | `array-parameter-serialization`                                  |
+|                                        | `boolean-parameter-prefixes`                                     |
+|                                        | `component-name-unique`                                          |
+|                                        | `no-ambiguous-paths`                                             |
+|                                        | `no-http-verbs-in-paths`                                         |
+|                                        | `no-identical-paths`                                             |
+|                                        | `no-invalid-parameter-examples`                                  |
+|                                        | `no-mixed-number-range-constraints`                              |
+|                                        | `no-required-schema-properties-undefined`                        |
+|                                        | `no-schema-type-mismatch`                                        |
+|                                        | `no-unresolved-refs`                                             |
+|                                        | `nullable-type-sibling`                                          |
+|                                        | `operation-4xx-problem-details-rfc7807`                          |
+|                                        | `operation-4xx-response`                                         |
+|                                        | `operation-summary`                                              |
+|                                        | `path-http-verbs-order`                                          |
+|                                        | `path-segment-plural`                                            |
+|                                        | `paths-kebab-case`                                               |
+|                                        | `request-mime-type`                                              |
+|                                        | `required-string-property-missing-min-length`                    |
+|                                        | `response-contains-header`                                       |
+|                                        | `response-contains-property`                                     |
+|                                        | `response-mime-type`                                             |
+|                                        | `scalar-property-missing-example`                                |
+|                                        | `security-scopes-defined`                                        |
+|                                        | `spec-components-invalid-map-name`                               |
+|                                        | `spec-discriminator-defaultMapping`                              |
+|                                        | `spec-example-values`                                            |
+|                                        | `spec-no-invalid-encoding-combinations`                          |
+|                                        | `spec-no-invalid-tag-parents`                                    |
+|                                        | `spec-querystring-parameters`                                    |
+|                                        | `spec-strict-refs`                                               |
+
+{% admonition type="info" name="Missing a rule you rely on?" %}
+Missing a rule? [Request one](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) — include the Spectral rule name and what it should check.
+Meanwhile, configurable rules can often cover the gap today.
+{% /admonition %}
 
 ### Configurable and extensible rules
 

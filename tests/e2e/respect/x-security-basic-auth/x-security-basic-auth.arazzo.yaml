@@ -1,12 +1,12 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API
+  title: X-Security basic auth
   version: 1.0.0
 
 sourceDescriptions:
-  - name: museum-api
+  - name: cafe-api
     type: openapi
-    url: ../museum-api.yaml
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 
 workflows:
   - workflowId: basic-auth-workflow
@@ -17,7 +17,11 @@ workflows:
           type: string
     steps:
       - stepId: step-with-basic-auth-scheme
-        operationId: getMuseumHours
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
         x-security:
           - scheme:
               type: http

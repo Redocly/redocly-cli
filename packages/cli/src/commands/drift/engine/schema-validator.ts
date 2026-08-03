@@ -121,6 +121,7 @@ function relaxRequiredForTarget(
 
 export class SchemaValidator {
   private readonly ajv: Ajv2020Instance;
+  private readonly fallbackAjv: Ajv2020Instance;
   private readonly objectSchemaCaches = {
     none: new WeakMap<object, ValidateFunction>(),
     request: new WeakMap<object, ValidateFunction>(),
@@ -129,10 +130,11 @@ export class SchemaValidator {
   private readonly scalarSchemaCache = new Map<string, ValidateFunction>();
 
   public constructor(options?: { coerceTypes?: boolean }) {
-    this.ajv = new AjvConstructor({
+    const ajvOptions: Options = {
       strict: false,
       allErrors: true,
       allowUnionTypes: true,
+      discriminator: true,
       coerceTypes: options?.coerceTypes ? 'array' : false,
       validateFormats: true,
       verbose: true,
@@ -141,9 +143,16 @@ export class SchemaValidator {
         // Treat it as a no-op format to avoid noisy unknown-format warnings.
         enum: true,
       },
-    });
+    };
+
+    this.ajv = new AjvConstructor(ajvOptions);
+    // Ajv rejects loosely defined discriminators at compile time (for example
+    // when the tag property has no `const`/`enum` or is not required); such
+    // schemas fall back to being validated against every oneOf branch.
+    this.fallbackAjv = new AjvConstructor({ ...ajvOptions, discriminator: false });
 
     applyFormats(this.ajv);
+    applyFormats(this.fallbackAjv);
   }
 
   public validate(
@@ -184,7 +193,7 @@ export class SchemaValidator {
       }
 
       const effectiveSchema = target ? relaxRequiredForTarget(schema, target) : schema;
-      const compiled = this.ajv.compile(effectiveSchema as AnySchema);
+      const compiled = this.compileSchema(effectiveSchema as AnySchema);
       cache.set(schema, compiled);
       return compiled;
     }
@@ -195,8 +204,16 @@ export class SchemaValidator {
       return cached;
     }
 
-    const compiled = this.ajv.compile(schema as AnySchema);
+    const compiled = this.compileSchema(schema as AnySchema);
     this.scalarSchemaCache.set(cacheKey, compiled);
     return compiled;
+  }
+
+  private compileSchema(schema: AnySchema): ValidateFunction {
+    try {
+      return this.ajv.compile(schema);
+    } catch {
+      return this.fallbackAjv.compile(schema);
+    }
   }
 }

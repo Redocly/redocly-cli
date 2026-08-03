@@ -1,0 +1,58 @@
+openapi: 3.2.0
+info:
+  title: Cafe Menu (Node native)
+  description: A tiny slice of the Redocly Cafe demo API — just enough for a first call.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+    description: Live demo server.
+paths:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemList'
+components:
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        id:
+          description: Menu item ID.
+          type: string
+        name:
+          description: Menu item name.
+          type: string
+        price:
+          description: Price in cents.
+          type: integer
+      required:
+        - id
+        - name
+        - price
+    MenuItemList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+      required:
+        - items

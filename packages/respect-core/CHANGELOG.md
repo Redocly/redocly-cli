@@ -1,5 +1,52 @@
 # @redocly/respect-core
 
+## 2.43.3
+
+### Patch Changes
+
+- Fixed an issue where secrets masking did not cover encoded secrets in `har-output`.
+- Updated @redocly/openapi-core to v2.43.3.
+
+## 2.43.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.2.
+
+## 2.43.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.1.
+
+## 2.43.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.0.
+
+## 2.42.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.42.0.
+
+## 2.41.2
+
+### Patch Changes
+
+- Added support for the Arazzo spec-compliant workflow reference form `$sourceDescriptions.<name>.<workflowId>` in `dependsOn`, step `workflowId`, and success/failure action `workflowId`.
+
+  Unresolvable workflow references fail only the affected workflow with a clear error message, and no longer abort the whole run or pass unnoticed.
+
+- Updated @redocly/openapi-core to v2.41.2.
+
+## 2.41.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.41.1.
+
 ## 2.41.0
 
 ### Patch Changes

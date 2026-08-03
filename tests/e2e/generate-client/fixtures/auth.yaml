@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info: { title: Auth Breadth API, version: 1.0.0 }
+servers:
+  - { url: https://api.example.com }
+paths:
+  /bearer:
+    get:
+      operationId: getBearer
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+  /basic:
+    get:
+      operationId: getBasic
+      security:
+        - Basic: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+  /query:
+    get:
+      operationId: getQuery
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+      security:
+        - QueryKey: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+  /cookie:
+    get:
+      operationId: getCookie
+      security:
+        - CookieKey: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+  /header:
+    get:
+      operationId: getHeader
+      security:
+        - HeaderKey: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+components:
+  securitySchemes:
+    Bearer: { type: http, scheme: bearer }
+    Basic: { type: http, scheme: basic }
+    QueryKey: { type: apiKey, in: query, name: api_key }
+    CookieKey: { type: apiKey, in: cookie, name: sid }
+    HeaderKey: { type: apiKey, in: header, name: X-Key }
+  schemas:
+    Thing:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
