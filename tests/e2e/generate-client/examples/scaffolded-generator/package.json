@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "scaffold": "redocly scaffold-generator my-generator",
     "generate": "redocly generate-client"
   },
   "devDependencies": {

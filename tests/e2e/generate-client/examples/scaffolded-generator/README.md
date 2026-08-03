@@ -6,6 +6,7 @@ The generator reads the same API model the built-ins consume, so the summary reg
 ```sh
 npm run generate
 cat src/api/client.operations.md
+npm run scaffold    # try the command yourself: scaffolds a fresh generators/my-generator.mjs
 ```
 
 To customize a built-in language generator instead of writing one from scratch, see the [`ejected-generator`](../ejected-generator) example.

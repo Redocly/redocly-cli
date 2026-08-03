@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "update-generator": "redocly eject-generator php --update",
     "generate": "redocly generate-client"
   },
   "devDependencies": {
