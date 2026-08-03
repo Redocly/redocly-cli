@@ -443,6 +443,33 @@ describe('collect refs', () => {
     expect(resolvedRefs.get('foobar.yaml::#/target')!.node).toEqual({ contact: {} });
   });
 
+  it('should resolve a pointer that traverses through a composed ref into an array item', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          $ref: '#/listAlias/0'
+        listAlias:
+          $ref: '#/list'
+          description: alias with sibling
+        list:
+          - contact: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const infoRef = resolvedRefs.get('foobar.yaml::#/listAlias/0')!;
+    expect(infoRef.node).toEqual({ contact: {} });
+    // a ref passed through mid-pointer is not a composition chain of the outer ref
+    expect(infoRef.chain).toBeUndefined();
+  });
+
   it('should record each level of a multi-hop composed chain independently', async () => {
     const rootDocument = parseYamlToDocument(
       outdent`
