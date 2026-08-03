@@ -88,6 +88,18 @@ describe('tree', () => {
     );
   });
 
+  test('tree --uses filters the JSON index and keeps split components by file', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--uses',
+      'components/schemas/Order.yaml',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('uses-json'));
+  });
+
   test('tree --files prints the file-level graph', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--files']);
     const result = getCommandOutput(args, { testPath: samplePath });

@@ -266,6 +266,11 @@ async function handleStructureMode({
     if (argv['uses']) {
       const keepIds = new Set(printedGraph.nodes.map((node) => node.id));
       printedIndex = filterIndexByIds(printedIndex, keepIds);
+      if (index.structure.some((section) => section.id === 'Webhooks')) {
+        logger.warn(
+          'Webhooks are not part of the dependency graph yet, so they are omitted from --uses-filtered output.\n'
+        );
+      }
     }
     if (argv.operations) {
       printedIndex = filterIndexSections(printedIndex, ['Operations', 'Webhooks']);

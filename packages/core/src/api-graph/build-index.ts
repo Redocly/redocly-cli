@@ -14,7 +14,7 @@ export const SUMMARY_LIMIT = 160;
 const UNTAGGED = 'untagged';
 
 /** OpenAPI component sections, in the order the index lists them. */
-export const COMPONENT_SECTIONS = [
+export const COMPONENT_SECTIONS: readonly string[] = [
   'schemas',
   'responses',
   'parameters',

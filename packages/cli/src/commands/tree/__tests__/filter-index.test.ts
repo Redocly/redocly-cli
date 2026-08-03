@@ -15,7 +15,13 @@ const INDEX: ApiIndex = {
           id: 'Tickets',
           title: 'Tickets',
           nodes: [
-            { id: 'GET /tickets', title: 'GET /tickets' },
+            // Shares its `file` with the schemas/Order leaf below on purpose: an operation must
+            // never be kept by file alone, only a component leaf may be.
+            {
+              id: 'GET /tickets',
+              title: 'GET /tickets',
+              file: 'components/schemas/Order.yaml',
+            },
             { id: 'POST /tickets', title: 'POST /tickets' },
           ],
         },
@@ -25,6 +31,17 @@ const INDEX: ApiIndex = {
       id: 'Webhooks',
       title: 'Webhooks',
       nodes: [{ id: 'POST newTicket', title: 'POST newTicket' }],
+    },
+    {
+      id: 'Components',
+      title: 'Components',
+      nodes: [
+        {
+          id: 'components/schemas',
+          title: 'schemas',
+          nodes: [{ id: 'schemas/Order', title: 'Order', file: 'components/schemas/Order.yaml' }],
+        },
+      ],
     },
   ],
 };
@@ -37,6 +54,16 @@ describe('filterIndexByIds', () => {
       'POST /tickets',
     ]);
   });
+
+  it('keeps a split component leaf by its file id, and never keeps an operation by file alone', () => {
+    const filtered = filterIndexByIds(INDEX, new Set(['components/schemas/Order.yaml']));
+    // Only 'Components' survives: 'GET /tickets' shares the same file but isn't a component
+    // leaf, so id-matching alone decides its fate, and 'components/schemas/Order.yaml' is not
+    // its id.
+    expect(filtered.structure.map((section) => section.id)).toEqual(['Components']);
+    const schemas = filtered.structure[0].nodes!.find((node) => node.id === 'components/schemas')!;
+    expect(schemas.nodes!.map((node) => node.id)).toEqual(['schemas/Order']);
+  });
 });
 
 describe('limitIndexLevel', () => {
@@ -46,6 +73,7 @@ describe('limitIndexLevel', () => {
       'Overview',
       'Operations',
       'Webhooks',
+      'Components',
     ]);
     expect(limited.structure[1].nodes).toBeUndefined();
   });

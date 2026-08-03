@@ -1,4 +1,21 @@
-import type { ApiIndex, ApiIndexNode } from '@redocly/openapi-core';
+import { COMPONENT_SECTIONS, type ApiIndex, type ApiIndexNode } from '@redocly/openapi-core';
+
+const COMPONENT_LEAF_PREFIXES = COMPONENT_SECTIONS.map((section) => `${section}/`);
+
+// A split component's graph id is the file that defines it (e.g. `components/schemas/Order.yaml`),
+// while its index id is semantic (`schemas/Order`) — so a component leaf is also kept when its
+// `file` is in the keep set. Operations keep pure id-matching: an unrelated operation that
+// happens to live in the same file as a kept one must still be dropped.
+function isComponentLeaf(node: ApiIndexNode): boolean {
+  return COMPONENT_LEAF_PREFIXES.some((prefix) => node.id.startsWith(prefix));
+}
+
+function isKept(node: ApiIndexNode, keepIds: Set<string>): boolean {
+  return (
+    keepIds.has(node.id) ||
+    (isComponentLeaf(node) && node.file !== undefined && keepIds.has(node.file))
+  );
+}
 
 export function filterIndexByIds(index: ApiIndex, keepIds: Set<string>): ApiIndex {
   return { ...index, structure: keepNodes(index.structure, keepIds) };
@@ -8,9 +25,9 @@ function keepNodes(nodes: ApiIndexNode[], keepIds: Set<string>): ApiIndexNode[] 
   const kept: ApiIndexNode[] = [];
   for (const node of nodes) {
     const keptChildren = node.nodes ? keepNodes(node.nodes, keepIds) : [];
-    if (keepIds.has(node.id) && keptChildren.length === 0) {
+    if (isKept(node, keepIds) && keptChildren.length === 0) {
       kept.push(node.nodes ? { ...node, nodes: undefined } : node);
-    } else if (keepIds.has(node.id) || keptChildren.length > 0) {
+    } else if (isKept(node, keepIds) || keptChildren.length > 0) {
       kept.push({ ...node, nodes: keptChildren });
     }
   }

@@ -149,6 +149,7 @@ export {
 } from './api-graph/build-graph.js';
 export {
   buildApiIndex,
+  COMPONENT_SECTIONS,
   SUMMARY_LIMIT,
   type ApiIndex,
   type ApiIndexNode,
