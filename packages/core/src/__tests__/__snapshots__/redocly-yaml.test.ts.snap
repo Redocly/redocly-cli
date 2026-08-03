@@ -2799,9 +2799,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -3477,6 +3474,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {
@@ -5729,9 +5729,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -6367,6 +6364,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {
@@ -11343,9 +11343,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -12021,6 +12018,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {
@@ -14273,9 +14273,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -14911,6 +14908,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {
@@ -19289,9 +19289,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -20613,6 +20610,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {
@@ -25310,9 +25310,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -25327,6 +25324,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
         "type": "string",
       },
+      "metadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi.metadata",
       "samplesMaxInlineArgs": {
         "type": "number",
       },
@@ -25660,6 +25658,18 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi.metadata": {
+    "additionalProperties": {},
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiId": {
         "type": "string",
       },
     },
@@ -27723,9 +27733,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -28853,6 +28860,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {
@@ -32999,9 +33009,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "downloadUrls": "rootRedoclyConfigSchema.graphql.downloadUrls",
-      "excludeFromSearch": {
-        "type": "boolean",
-      },
       "feedback": "rootRedoclyConfigSchema.graphql.feedback",
       "fieldExpandLevel": {
         "type": "number",
@@ -34323,6 +34330,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "disableDeepLinks": {
+        "type": "boolean",
+      },
+      "disableRouter": {
         "type": "boolean",
       },
       "disableSearch": {

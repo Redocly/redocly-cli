@@ -2,11 +2,13 @@ import type { Arazzo1RuleSet } from '../../oas-types.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import { SourceDescriptionType } from '../arazzo/sourceDescription-type.js';
 import { Assertions } from '../common/assertions/index.js';
+import { NoDuplicatedEnumValues } from '../common/no-duplicated-enum-values.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
 import { NoMixedNumberRangeConstraints } from '../common/no-mixed-number-range-constraints.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
+import { NoUnsafeMarkdown } from '../common/no-unsafe-markdown.js';
 import { Struct } from '../common/struct.js';
 import { NoCriteriaXpath } from '../respect/no-criteria-xpath.js';
 import { NoXSecurityBothSchemeAndSchemeName } from '../respect/no-x-security-both-scheme-and-scheme-name.js';
@@ -30,6 +32,8 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   assertions: Assertions as Arazzo1Rule,
   'criteria-unique': CriteriaUnique,
   'no-criteria-xpath': NoCriteriaXpath,
+  'no-duplicated-enum-values': NoDuplicatedEnumValues as Arazzo1Rule,
+  'no-unsafe-markdown': NoUnsafeMarkdown as Arazzo1Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Arazzo1Rule,
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Arazzo1Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Arazzo1Rule,

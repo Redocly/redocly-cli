@@ -68,14 +68,14 @@ Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent ex
 | -------------------------------------- | ---------------------------------------------------------------- |
 | `array-items`                          |                                                                  |
 | `contact-properties`                   |                                                                  |
-| `duplicated-entry-in-enum`             |                                                                  |
+| `duplicated-entry-in-enum`             | `no-duplicated-enum-values`                                      |
 | `info-contact`                         | `info-contact`                                                   |
 | `info-description`                     |                                                                  |
 | `info-license`                         | `info-license`                                                   |
 | `license-url`                          | `info-license-strict`                                            |
 | `no-$ref-siblings`                     |                                                                  |
 | `no-eval-in-markdown`                  |                                                                  |
-| `no-script-tags-in-markdown`           |                                                                  |
+| `no-script-tags-in-markdown`           | `no-unsafe-markdown`                                             |
 | `oas3-api-servers`                     | `no-empty-servers`                                               |
 | `oas3-callbacks-in-callbacks`          |                                                                  |
 | `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`                             |
