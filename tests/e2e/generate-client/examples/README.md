@@ -30,6 +30,8 @@ The generated client under `src/api/` is gitignored — CI regenerates every cli
 | [python-sdk](./python-sdk)                             | CLI · `python`                 | a full Python SDK (httpx): typed dataclasses, sync/async clients, pagination iterators                                                              |
 | [go-sdk](./go-sdk)                                     | CLI · `go`                     | a full Go SDK (stdlib-only): typed structs, `(T, error)` methods, `context.Context`                                                                 |
 | [php-sdk](./php-sdk)                                   | CLI · `php`                    | a full PHP SDK (curl extension): promoted-constructor classes, native enums, named-argument methods                                                 |
+| [ejected-generator](./ejected-generator)               | CLI · ejected `php`            | `eject-generator php` vendored + customized: the path entry shadows the built-in name; regeneration keeps the customization                         |
+| [scaffolded-generator](./scaffolded-generator)         | CLI · `sdk` + scaffolded       | `scaffold-generator` skeleton filled in — a markdown operations summary emitted next to the client                                                  |
 
 ## Run one
 
