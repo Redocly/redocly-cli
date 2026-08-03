@@ -8,6 +8,7 @@ npm run generate
 head src/api/client.php   # the customized banner is in the generated header
 ```
 
-In your own repo, ejecting also writes `generators/.pristine/php.mjs` (commit it) and `generators/AGENTS.md` — the authoring guide your coding agent reads before editing the generator.
+`generators/AGENTS.md` (committed here, exactly as the command drops it) is the authoring guide your coding agent reads before editing the generator — point your agent at it and describe the change you want.
+In your own repo, ejecting also writes `generators/.pristine/php.mjs`; commit it — it is the merge base for updates.
 When a newer generator version ships, `redocly eject-generator php --update` three-way-merges it into your customized copy (pristine × new × yours); clean hunks apply silently, real conflicts get standard markers.
 The ejected file imports the authoring toolkit and the embedded runtime from `@redocly/client-generator`, so runtime fixes still arrive with plain `npm update` — no merge needed.

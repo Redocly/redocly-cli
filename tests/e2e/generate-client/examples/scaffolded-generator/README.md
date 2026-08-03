@@ -1,6 +1,6 @@
 # scaffolded-generator
 
-`redocly scaffold-generator ops-summary` created the skeleton for `generators/ops-summary.mjs` (plus `AGENTS.md`, the authoring guide for your coding agent); this example filled the skeleton in to emit a markdown operations summary next to the client.
+`redocly scaffold-generator ops-summary` created the skeleton for `generators/ops-summary.mjs` plus `generators/AGENTS.md` (committed here) — the authoring guide your coding agent uses as context to fill the skeleton in; this example evolved it into a markdown operations summary emitted next to the client.
 The generator reads the same API model the built-ins consume, so the summary regenerates with the spec and can never drift from it.
 
 ```sh

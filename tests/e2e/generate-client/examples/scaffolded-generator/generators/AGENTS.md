@@ -1,3 +1,5 @@
+<!-- redocly-generators:begin — managed by `redocly eject-generator`; content between markers is refreshed on eject -->
+
 # Writing custom client generators
 
 A generator is a plain module: `(input) => GeneratedFile[]`. It receives the
@@ -74,3 +76,5 @@ TypeScript-emitting generators may additionally use the TS toolkit from
 If you had to work around a **missing helper** or a wrong default, tell the user
 and suggest filing an issue at https://github.com/Redocly/redocly-cli/issues —
 include the generator snippet and the helper you expected to exist.
+
+<!-- redocly-generators:end -->
