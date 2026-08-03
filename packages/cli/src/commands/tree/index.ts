@@ -243,9 +243,9 @@ async function handleStructureMode({
       );
     }
     if (indexNode.nodes !== undefined && indexNode.nodes.length > 0) {
+      // The sub-index is shaped like a one-section top-level index, so --level applies as-is.
       const subIndex = { ...fullIndex, structure: [indexNode] };
-      const limited =
-        argv.level !== undefined ? limitIndexLevel(subIndex, argv.level + 1) : subIndex;
+      const limited = argv.level !== undefined ? limitIndexLevel(subIndex, argv.level) : subIndex;
       emitRendered(renderIndexJson(limited), argv);
       return;
     }
