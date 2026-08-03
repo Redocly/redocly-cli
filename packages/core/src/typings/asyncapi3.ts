@@ -46,22 +46,6 @@ export interface ExternalDoc {
   description?: string;
 }
 
-export interface Async3Components {
-  schemas?: Record<string, unknown>;
-  messages?: Record<string, unknown>;
-  securitySchemes?: Record<string, Async3SecurityScheme>;
-  parameters?: Record<string, unknown>;
-  correlationIds?: Record<string, unknown>;
-  operationTraits?: Record<string, Async3OperationTrait>;
-  messageTraits?: Record<string, unknown>;
-  serverBindings?: Record<string, unknown>;
-  channelBindings?: Record<string, unknown>;
-  operationBindings?: Record<string, unknown>;
-  messageBindings?: Record<string, unknown>;
-  channels?: Record<string, Async3Channel>;
-  servers?: Record<string, Referenced<Async3Server>>;
-}
-
 export interface Async3Server {
   host: string;
   protocol: string;

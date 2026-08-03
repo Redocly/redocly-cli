@@ -10,6 +10,8 @@ import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { hasSecurityRequirements, isAsyncOperationSecured } from '../utils.js';
 
+const REFERENCE = 'https://redocly.com/docs/cli/rules/async/security-defined';
+
 export const SecurityDefined: Async2Rule = () => {
   const referencedSchemes = new Map<
     string,
@@ -32,6 +34,7 @@ export const SecurityDefined: Async2Rule = () => {
             report({
               message: `There is no \`${name}\` security scheme defined.`,
               location: reportedFromLocation.key(),
+              reference: REFERENCE,
             });
           }
         }
@@ -46,6 +49,7 @@ export const SecurityDefined: Async2Rule = () => {
             report({
               message: `Every operation should have security defined on it.`,
               location: location.key(),
+              reference: REFERENCE,
             });
           }
         }

@@ -12,6 +12,7 @@ import { hasSecurityRequirements, isAsyncOperationSecured } from '../utils.js';
 
 const SECURITY_SCHEMES_POINTER = '#/components/securitySchemes/';
 const COMPONENTS_POINTER = '#/components/';
+const REFERENCE = 'https://redocly.com/docs/cli/rules/async/security-defined';
 
 type SecurityReference = {
   location: Location;
@@ -104,6 +105,7 @@ export const SecurityDefined: Async3Rule = () => {
             report({
               message: `Security scheme \`$ref\` must point to \`#/components/securitySchemes\`.`,
               location: reference.location.key(),
+              reference: REFERENCE,
             });
             continue;
           }
@@ -112,6 +114,7 @@ export const SecurityDefined: Async3Rule = () => {
             report({
               message: `There is no \`${reference.name}\` security scheme defined.`,
               location: reference.location.key(),
+              reference: REFERENCE,
             });
           }
         }
@@ -135,6 +138,7 @@ export const SecurityDefined: Async3Rule = () => {
             report({
               message: `Every operation should have security defined on it.`,
               location: operationsLocation.child([opName]).key(),
+              reference: REFERENCE,
             });
           }
         }
