@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type EjectGeneratorCommandArgv = {
@@ -98,6 +99,7 @@ function threeWayMerge(
   );
   for (const file of Object.values(paths)) rmSync(file, { force: true });
   if (result.error || result.status === null || result.status < 0) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'merge-tool-missing';
     throw new HandledError(
       '\n❌  `--update` needs `git` on PATH for the three-way merge. Alternative: eject to a temporary directory and diff by hand.\n'
     );
@@ -107,7 +109,15 @@ function threeWayMerge(
 
 export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorCommandArgv>) => {
   const name = argv.generator ?? '';
+  // Coarse usage telemetry: our command action, an ALLOWLISTED built-in name, and the
+  // outcome category — never user paths, file contents, or user-chosen names.
+  ejectGeneratorTelemetry.eject_generator_action = argv.update ? 'update' : 'eject';
+  if (EJECTABLE.has(name) || TS_BUILTINS.has(name)) {
+    ejectGeneratorTelemetry.eject_generator_name = name;
+  }
   if (TS_BUILTINS.has(name)) {
+    ejectGeneratorTelemetry.eject_generator_action = 'guidance';
+    ejectGeneratorTelemetry.eject_generator_outcome = 'success';
     logger.info(
       `\nThe "${name}" generator is not ejectable — it is TypeScript-toolkit based.\n` +
         `Customize its output instead: publisher defaults via \`client.setup\`, behavior via middleware,\n` +
@@ -117,6 +127,7 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
     return;
   }
   if (!EJECTABLE.has(name)) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'unknown-generator';
     throw new HandledError(
       `\n❌  Unknown generator "${name}". Ejectable generators: ${[...EJECTABLE].join(', ')}.\n`
     );
@@ -132,6 +143,7 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
 
   if (argv.update) {
     if (!existsSync(target) || !existsSync(pristine)) {
+      ejectGeneratorTelemetry.eject_generator_outcome = 'missing-pristine';
       throw new HandledError(
         `\n❌  Nothing to update: ${printedTarget} (and its pristine snapshot) must exist. Eject first.\n`
       );
@@ -145,7 +157,9 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
     writeFileSync(target, merged, 'utf-8');
     writeFileSync(pristine, asset, 'utf-8');
     dropAgentsSkill(dir, assetsDir);
+    ejectGeneratorTelemetry.eject_generator_outcome = conflicts > 0 ? 'conflicts' : 'success';
     if (conflicts > 0) {
+      ejectGeneratorTelemetry.eject_generator_conflicts = conflicts;
       logger.warn(
         `Updated ${printedTarget} with ${conflicts} conflict(s) — resolve the <<<<<<< markers, then regenerate.\n`
       );
@@ -156,6 +170,7 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
   }
 
   if (existsSync(target) && !argv.force) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'already-exists';
     throw new HandledError(
       `\n❌  ${printedTarget} already exists. Use --update to merge the newer version in, or --force to overwrite.\n`
     );
@@ -164,6 +179,7 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
   writeFileSync(target, asset, 'utf-8');
   writeFileSync(pristine, asset, 'utf-8');
   dropAgentsSkill(dir, assetsDir);
+  ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configPath = `./${relative(process.cwd(), target).split('\\').join('/')}`;
   logger.info(
     `Ejected the "${name}" generator to ${printedTarget} (pristine snapshot committed alongside).\n` +

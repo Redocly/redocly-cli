@@ -1,6 +1,8 @@
 import {
+  BUILTIN_GENERATOR_NAMES,
   categorizeGenerateClientError,
   collectToolkitImports,
+  parseEjectedProvenance,
 } from '../utils/generate-client-telemetry.js';
 
 describe('collectToolkitImports', () => {
@@ -36,5 +38,33 @@ describe('categorizeGenerateClientError', () => {
       categorizeGenerateClientError('The "swr" generator does not support --error-mode "result"')
     ).toBe('not-supported');
     expect(categorizeGenerateClientError('boom')).toBe('other');
+    expect(categorizeGenerateClientError('Generator "php" failed: something broke')).toBe(
+      'generator-run'
+    );
+  });
+});
+
+describe('BUILTIN_GENERATOR_NAMES', () => {
+  it('covers every current built-in — a missing name silently degrades the usage event', () => {
+    for (const name of ['sdk', 'zod', 'mock', 'cli', 'python', 'go', 'php']) {
+      expect(BUILTIN_GENERATOR_NAMES.has(name), name).toBe(true);
+    }
+  });
+});
+
+describe('parseEjectedProvenance', () => {
+  it('reads OUR provenance header — an allowlisted name and version, nothing user-authored', () => {
+    const source =
+      '// Ejected from @redocly/client-generator@0.2.0 — the built-in "php" generator.\n// rest…';
+    expect(parseEjectedProvenance(source)).toEqual({ name: 'php', version: '0.2.0' });
+  });
+
+  it('returns undefined for non-ejected files and non-allowlisted names', () => {
+    expect(parseEjectedProvenance('export default { name: "mine", run() {} }')).toBeUndefined();
+    expect(
+      parseEjectedProvenance(
+        '// Ejected from @redocly/client-generator@0.2.0 — the built-in "evil()" generator.'
+      )
+    ).toBeUndefined();
   });
 });

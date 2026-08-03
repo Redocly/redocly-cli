@@ -45,13 +45,20 @@ export function runGenerators(
   const seen = new Set<string>();
   for (const name of options.generators) {
     const generator = options.registry.get(name)!;
-    for (const file of generator.run({
-      model,
-      outputPath: options.outputPath,
-      outputMode: options.outputMode,
-      emit: options.emit,
-      selected: options.generators,
-    })) {
+    let generated: GeneratedFile[];
+    try {
+      generated = generator.run({
+        model,
+        outputPath: options.outputPath,
+        outputMode: options.outputMode,
+        emit: options.emit,
+        selected: options.generators,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Generator "${name}" failed: ${message}`);
+    }
+    for (const file of generated) {
       if (seen.has(file.path)) {
         throw new Error(`Generator conflict: ${file.path} already emitted by an earlier generator`);
       }

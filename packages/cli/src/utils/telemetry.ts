@@ -22,7 +22,10 @@ import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import type { GenerateClientTelemetry } from './generate-client-telemetry.js';
+import type {
+  EjectGeneratorTelemetry,
+  GenerateClientTelemetry,
+} from './generate-client-telemetry.js';
 import type { ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
@@ -48,6 +51,7 @@ export async function sendTelemetry({
   lint_rules_with_warnings,
   lint_rules_with_ignored_problems,
   generate_client,
+  eject_generator,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -63,6 +67,7 @@ export async function sendTelemetry({
   lint_rules_with_warnings: string[] | undefined;
   lint_rules_with_ignored_problems: string[] | undefined;
   generate_client?: GenerateClientTelemetry;
+  eject_generator?: EjectGeneratorTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -143,6 +148,16 @@ export async function sendTelemetry({
           ? JSON.stringify(generate_client.generate_client_toolkit_imports)
           : undefined,
         generate_client_error_category: generate_client?.generate_client_error_category,
+        generate_client_ejected_generators: generate_client?.generate_client_ejected_generators
+          ?.length
+          ? JSON.stringify(generate_client.generate_client_ejected_generators)
+          : undefined,
+        // eject-generator / scaffold-generator usage (action, allowlisted name, coarse
+        // outcome — never user paths or user-chosen names).
+        eject_generator_action: eject_generator?.eject_generator_action,
+        eject_generator_name: eject_generator?.eject_generator_name,
+        eject_generator_outcome: eject_generator?.eject_generator_outcome,
+        eject_generator_conflicts: eject_generator?.eject_generator_conflicts,
       },
     ];
 

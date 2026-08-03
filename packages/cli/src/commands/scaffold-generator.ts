@@ -2,6 +2,7 @@ import { HandledError, logger } from '@redocly/openapi-core';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
+import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
 import { type CommandArgs } from '../wrapper.js';
 import { ejectAssetsDir } from './eject-generator.js';
 
@@ -61,12 +62,17 @@ export const handleScaffoldGenerator = async ({
   argv,
 }: CommandArgs<ScaffoldGeneratorCommandArgv>) => {
   const name = argv.generator ?? '';
+  // Coarse usage telemetry: action + outcome category only — a scaffolded generator's
+  // name is user-chosen and never transmitted.
+  ejectGeneratorTelemetry.eject_generator_action = 'scaffold';
   if (!/^[a-z][a-z0-9-]*$/.test(name)) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'invalid-name';
     throw new HandledError(
       `\n❌  Generator name must be kebab-case (got "${name}"). Example: redocly scaffold-generator route-map\n`
     );
   }
   if (BUILTIN_NAMES.has(name)) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'builtin-name';
     throw new HandledError(
       `\n❌  "${name}" is a built-in generator — use \`redocly eject-generator ${name}\` to vendor it, or pick another name.\n`
     );
@@ -74,6 +80,7 @@ export const handleScaffoldGenerator = async ({
   const dir = resolve(argv.dir ?? './generators');
   const target = join(dir, `${name}.mjs`);
   if (existsSync(target)) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'already-exists';
     throw new HandledError(`\n❌  ${relative(process.cwd(), target)} already exists.\n`);
   }
   mkdirSync(dir, { recursive: true });
@@ -90,6 +97,7 @@ export const handleScaffoldGenerator = async ({
     );
   }
 
+  ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configPath = `./${relative(process.cwd(), target).split('\\').join('/')}`;
   logger.info(
     `Scaffolded ${relative(process.cwd(), target)}.\n` +

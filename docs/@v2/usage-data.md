@@ -22,6 +22,9 @@ When a command is run, the following data is collected:
 - names of lint rules that reported errors, warnings, or ignored problems
 - Arazzo x-security authentication types
 - for `generate-client`: which built-in generators ran, the count of custom generators, which of the package's own exported helper names a custom generator imports, and a coarse error category on failure.
+  When a path-loaded generator carries the `eject-generator` provenance header, its built-in origin and the version it was ejected from are included (for example `php@0.2.0`) — the file's contents, path, and any user-chosen names are never transmitted.
+- for `eject-generator` and `scaffold-generator`: the action (`eject`, `update`, `guidance`, `scaffold`), the built-in generator name for eject actions, and a coarse outcome category (such as `success`, `conflicts` with the conflict count, `already-exists`, or `merge-tool-missing`).
+  A scaffolded generator's name is user-chosen and is never transmitted.
   Custom generator file contents, paths, and names are never collected.
 - platform (Linux, macOS, Windows)
 - anonymous ID (a randomly generated identifier that doesn't contain personal information)

@@ -9,6 +9,7 @@ import {
   categorizeGenerateClientError,
   collectToolkitImports,
   generateClientTelemetry,
+  parseEjectedProvenance,
 } from '../utils/generate-client-telemetry.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -183,6 +184,7 @@ export async function handleGenerateClient({
 function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[]): void {
   const builtins = new Set(generateClientTelemetry.generate_client_builtin_generators ?? []);
   const toolkitImports = new Set(generateClientTelemetry.generate_client_toolkit_imports ?? []);
+  const ejected = new Set(generateClientTelemetry.generate_client_ejected_generators ?? []);
   let customCount = generateClientTelemetry.generate_client_custom_generators_count ?? 0;
   for (const entry of entries) {
     if (BUILTIN_GENERATOR_NAMES.has(entry)) {
@@ -192,9 +194,12 @@ function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[
     customCount++;
     if (entry.startsWith('.') || isAbsolute(entry)) {
       try {
-        for (const helper of collectToolkitImports(readFileSync(entry, 'utf-8'), knownHelpers)) {
+        const source = readFileSync(entry, 'utf-8');
+        for (const helper of collectToolkitImports(source, knownHelpers)) {
           toolkitImports.add(helper);
         }
+        const provenance = parseEjectedProvenance(source);
+        if (provenance) ejected.add(`${provenance.name}@${provenance.version}`);
       } catch {
         // Unreadable path: generation fails later with its own error; nothing to record.
       }
@@ -203,4 +208,5 @@ function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[
   generateClientTelemetry.generate_client_builtin_generators = [...builtins];
   generateClientTelemetry.generate_client_custom_generators_count = customCount;
   generateClientTelemetry.generate_client_toolkit_imports = [...toolkitImports];
+  generateClientTelemetry.generate_client_ejected_generators = [...ejected];
 }

@@ -8,6 +8,8 @@ export type GenerateClientTelemetry = {
   generate_client_custom_generators_count?: number;
   generate_client_toolkit_imports?: string[];
   generate_client_error_category?: string;
+  /** Ejected built-ins in the run, as `<name>@<ejected-from-version>` (from OUR provenance header). */
+  generate_client_ejected_generators?: string[];
 };
 
 /** Populated by handleGenerateClient; spread into the telemetry payload by the wrapper. */
@@ -24,8 +26,10 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
   'swr',
   'transformers',
   'mock',
+  'cli',
   'python',
   'go',
+  'php',
 ]);
 
 const IMPORT_RE =
@@ -48,12 +52,41 @@ export function collectToolkitImports(source: string, knownHelpers: readonly str
   return [...found];
 }
 
+const PROVENANCE_RE =
+  /^\/\/ Ejected from @redocly\/client-generator@([\w.-]+) — the built-in "([a-z-]+)" generator\./;
+
+/**
+ * The `<name>`/`<version>` from OUR eject provenance header, when the file carries one
+ * and the name is allowlisted — an ejected generator's origin, never user-authored text.
+ */
+export function parseEjectedProvenance(
+  source: string
+): { name: string; version: string } | undefined {
+  const match = source.match(PROVENANCE_RE);
+  if (!match || !BUILTIN_GENERATOR_NAMES.has(match[2])) return undefined;
+  return { name: match[2], version: match[1] };
+}
+
 /** Coarse category from an error message — never the message itself. */
 export function categorizeGenerateClientError(message: string): string {
   if (message.includes('Invalid pagination configuration')) return 'pagination';
   if (message.includes('Could not load generator')) return 'generator-load';
+  if (/^Generator "[^"]+" failed:/.test(message)) return 'generator-run';
   if (message.includes('Unknown generator') || message.includes('does not support')) {
     return 'not-supported';
   }
   return 'other';
 }
+
+export type EjectGeneratorTelemetry = {
+  /** 'eject' | 'update' | 'guidance' | 'scaffold'. */
+  eject_generator_action?: string;
+  /** Allowlisted built-in name only; scaffold and unknown names stay unnamed. */
+  eject_generator_name?: string;
+  /** Coarse outcome: success | conflicts | already-exists | missing-pristine | merge-tool-missing | unknown-generator | builtin-name | invalid-name. */
+  eject_generator_outcome?: string;
+  eject_generator_conflicts?: number;
+};
+
+/** Populated by the eject/scaffold handlers; spread into the telemetry payload by the wrapper. */
+export const ejectGeneratorTelemetry: EjectGeneratorTelemetry = {};
