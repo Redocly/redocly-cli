@@ -29,6 +29,7 @@ export async function fetchGithubDescription(): Promise<string> {
   return cached;
 }
 
+export const hasPhp = spawnSync('php', ['--version']).status === 0;
 export const hasPython = spawnSync('python3', ['--version']).status === 0;
 export const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
 export const hasGo = spawnSync('go', ['version']).status === 0;
@@ -91,6 +92,18 @@ export function pythonBar(description: string): void {
     ? spawnSync('python3', ['-c', 'import client'], { cwd: dir, encoding: 'utf-8' })
     : spawnSync('python3', ['-m', 'py_compile', 'client.py'], { cwd: dir, encoding: 'utf-8' });
   expect(check.status, check.stderr).toBe(0);
+}
+
+/** PHP bar: the generated `<stem>.php` parses (`php -l`) and declares (`require`). */
+export function phpBar(description: string): void {
+  const dir = generateWith('php', description);
+  const lint = spawnSync('php', ['-l', 'client.php'], { cwd: dir, encoding: 'utf-8' });
+  expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
+  const declare = spawnSync('php', ['-r', "require 'client.php'; echo 'DECLARED';"], {
+    cwd: dir,
+    encoding: 'utf-8',
+  });
+  expect(declare.status, `${declare.stdout}\n${declare.stderr}`).toBe(0);
 }
 
 /** Go bar: `go build` + `go vet` (vet catches json tags on unexported fields). */

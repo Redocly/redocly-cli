@@ -4,7 +4,16 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliBar, goBar, hasGo, hasPython, pythonBar, typescriptBar } from './helpers.js';
+import {
+  cliBar,
+  goBar,
+  hasGo,
+  hasPhp,
+  hasPython,
+  phpBar,
+  pythonBar,
+  typescriptBar,
+} from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rebilly = join(__dirname, '../../smoke/rebilly/rebilly-description.yaml');
@@ -24,5 +33,9 @@ describe('rebilly description', () => {
 
   it.skipIf(!hasGo)('go builds and vets cleanly', () => {
     goBar(rebilly);
+  });
+
+  it.skipIf(!hasPhp)('php parses and declares cleanly', () => {
+    phpBar(rebilly);
   });
 });

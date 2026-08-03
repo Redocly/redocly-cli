@@ -118,6 +118,7 @@ export function phpType(schema: SchemaModel, model: ApiModel): string {
 /** Wire value → typed value expression, or undefined when the raw value is already right. */
 function hydration(schema: SchemaModel, expr: string, model: ApiModel): string | undefined {
   const bare = unwrapNullable(schema);
+  if (bare.kind === 'omit') return hydration({ kind: 'ref', name: bare.base }, expr, model);
   if (bare.kind === 'ref') {
     const kind = classify(bare.name, model);
     if (kind === 'class') return `${className(bare.name)}::fromArray(${expr})`;
@@ -141,6 +142,7 @@ function hydration(schema: SchemaModel, expr: string, model: ApiModel): string |
 /** Typed value → wire value expression, or undefined when it serializes as-is. */
 function serialization(schema: SchemaModel, expr: string, model: ApiModel): string | undefined {
   const bare = unwrapNullable(schema);
+  if (bare.kind === 'omit') return serialization({ kind: 'ref', name: bare.base }, expr, model);
   if (bare.kind === 'ref') {
     const kind = classify(bare.name, model);
     if (kind === 'class') return `${expr}->toArray()`;

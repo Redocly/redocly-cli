@@ -6,7 +6,9 @@ import {
   fetchGithubDescription,
   goBar,
   hasGo,
+  hasPhp,
   hasPython,
+  phpBar,
   pythonBar,
   typescriptBar,
 } from './helpers.js';
@@ -32,5 +34,9 @@ describe('github REST description', () => {
 
   it.skipIf(!hasGo)('go builds and vets cleanly', () => {
     goBar(github);
+  });
+
+  it.skipIf(!hasPhp)('php parses and declares cleanly', () => {
+    phpBar(github);
   });
 });

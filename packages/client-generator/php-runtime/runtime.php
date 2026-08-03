@@ -189,7 +189,6 @@ function rawSend(Config $config, array $request): array
     $errno = curl_errno($handle);
     $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
     $effectiveUrl = (string) curl_getinfo($handle, CURLINFO_EFFECTIVE_URL);
-    curl_close($handle);
     if ($errno !== 0) {
         $timedOut = $errno === CURLE_OPERATION_TIMEDOUT || $errno === CURLE_COULDNT_CONNECT;
         return [
