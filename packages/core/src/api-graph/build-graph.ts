@@ -60,18 +60,6 @@ export type ApiAnalysis = {
   rootDocument: Document;
 };
 
-export async function buildApiGraph(options: {
-  rootDocument: Document;
-  specVersion: SpecVersion;
-  types: Record<string, NormalizedNodeType>;
-  externalRefResolver: BaseResolver;
-  cwd: string;
-  resolveRef: (base: string, uri: string) => string;
-}): Promise<DependencyGraph> {
-  const { graph } = await analyzeApi(options);
-  return graph;
-}
-
 export async function analyzeApi(options: {
   rootDocument: Document;
   specVersion: SpecVersion;
@@ -102,7 +90,7 @@ export async function analyzeApi(options: {
   return { graph, meta, resolvedRefMap, rootDocument };
 }
 
-export function walkStructure(options: {
+function walkStructure(options: {
   document: Document;
   types: Record<string, NormalizedNodeType>;
   resolvedRefMap: ResolvedRefMap;

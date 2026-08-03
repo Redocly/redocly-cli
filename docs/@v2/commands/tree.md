@@ -35,13 +35,16 @@ Use `--files` for the multi-API file graph.
 | apis         | [string] | In default mode, exactly one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to APIs from the Redocly configuration file.                                                                                                                                                     |
 | --config     | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                       |
 | --files      | boolean  | Display the file-level `$ref` graph instead of the document structure.                                                                                                                                                                                                                                                 |
-| --format     | string   | Output format: `stylish` (default, tree view), `json`, `mermaid`, or `dot`.                                                                                                                                                                                                                                            |
+| --format     | string   | Output format: `stylish` (default, tree view), `json` (the machine-readable index, see _The agent index_ below), `mermaid`, or `dot`.                                                                                                                                                                                  |
+| --group-by   | string   | Group operations in the JSON index by `tags` (default) or by `paths`.                                                                                                                                                                                                                                                  |
 | --help       | boolean  | Display help.                                                                                                                                                                                                                                                                                                          |
 | --level      | number   | Limit the displayed depth of the tree. Level 1 shows the paths, level 2 adds the operations, and deeper levels add the component chains. Branches cut by the limit end with `…`.                                                                                                                                       |
+| --node       | string   | Print one JSON-index node instead of the tree: a branch returns its sub-index, a leaf returns its raw source lines and the `$ref`s it uses. Accepts a semantic id (`GET /orders`, `schemas/Order`, a tag name) or `<file>#<pointer>`. Structure view only.                                                             |
 | --operations | boolean  | Display only the API surface — paths, operations, and webhooks — without component chains. Operations show their `operationId` in parentheses. Not available with `--files`.                                                                                                                                           |
 | --output, -o | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                        |
 | --uses       | [string] | Display only the part of the tree that uses (depends on) the given components, paths, or files. The default view accepts a JSON pointer, shorthand pointer, bare component name, or file path; `*` and `?` wildcards match node ids. `--files` mode accepts file paths only. Repeat the option to pass several values. |
 | --version    | boolean  | Display version number.                                                                                                                                                                                                                                                                                                |
+| --with-deps  | boolean  | With `--node` on a leaf: append the transitive `$ref` closure as `deps`, capped at 64 KB with a `truncated` marker.                                                                                                                                                                                                    |
 
 ## Examples
 
@@ -542,3 +545,32 @@ flowchart LR
   n4 --> n1
   classDef root font-weight:bold
 ```
+
+## The agent index
+
+Large API descriptions do not fit in an LLM's context window.
+Instead of feeding the whole file to a model, generate a compact index of it and let the agent navigate in bounded steps.
+The index is generated deterministically from the document structure — no AI calls or API keys are needed.
+
+1. Get the map: `redocly tree openapi.yaml --format=json --level 2` prints the sections, tags, and counts — a few kilobytes for any spec size.
+2. Drill into a branch the agent picked: `redocly tree openapi.yaml --node Tickets` returns that tag's operations with summaries, files, and line ranges.
+3. Fetch a leaf with everything it needs: `redocly tree openapi.yaml --node 'GET /orders' --with-deps` returns the operation's raw source lines, its resolved `$ref`s, and the transitive dependency closure as `deps` — a self-contained slice for generating a client call, writing a contract test, or reviewing the endpoint.
+
+Every index node carries a stable semantic id, a JSON pointer, the defining `file`, its `start_line`/`end_line` range, and a `summary` taken from the description itself,
+so an agent can also read the exact lines directly with plain file tools instead of calling the CLI again:
+
+```json
+{
+  "id": "POST /tickets",
+  "title": "POST /tickets — Buy museum tickets",
+  "operationId": "buyMuseumTickets",
+  "pointer": "#/paths/~1tickets/post",
+  "file": "openapi.yaml",
+  "start_line": 22,
+  "end_line": 31,
+  "summary": "Buy museum tickets"
+}
+```
+
+Ids for operations and components are stable across groupings; group nodes (tag names, path prefixes) depend on the selected `--group-by`,
+so pass the same `--group-by` value when addressing a group by id, or use the grouping-independent `<file>#<pointer>` form.

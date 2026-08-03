@@ -139,9 +139,7 @@ export {
 export type { DependencyGraph, GraphEdge, GraphNode, NodeKind } from './api-graph/types.js';
 export {
   analyzeApi,
-  buildApiGraph,
   collectConnectedIds,
-  walkStructure,
   type ApiAnalysis,
   type ApiIndexMeta,
   type CollectedComponent,

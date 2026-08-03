@@ -5,7 +5,7 @@ import { detectSpec } from '../../detect-spec.js';
 import { getTypes } from '../../oas-types.js';
 import { BaseResolver, makeDocumentFromString, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
-import { buildApiGraph } from '../build-graph.js';
+import { analyzeApi } from '../build-graph.js';
 import type { DependencyGraph } from '../types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -19,7 +19,7 @@ async function graphOfString(yaml: string): Promise<DependencyGraph> {
 async function graphOfDocument(document: Document, cwd: string): Promise<DependencyGraph> {
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(getTypes(specVersion), {});
-  return buildApiGraph({
+  const { graph } = await analyzeApi({
     rootDocument: document,
     specVersion,
     types,
@@ -27,9 +27,10 @@ async function graphOfDocument(document: Document, cwd: string): Promise<Depende
     cwd,
     resolveRef: (base, uri) => join(dirname(base), uri),
   });
+  return graph;
 }
 
-describe('buildApiGraph', () => {
+describe('analyzeApi structure graph', () => {
   it('builds the root -> path -> operation spine for a single file', async () => {
     const graph = await graphOfString(
       [

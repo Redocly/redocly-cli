@@ -1,4 +1,5 @@
 import {
+  analyzeApi,
   BaseResolver,
   createConfig,
   detectSpec,
@@ -9,7 +10,6 @@ import {
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
-import { buildStructureGraph } from '../build-structure.js';
 import type { DependencyGraph } from '../types.js';
 
 const CWD = '/project';
@@ -23,22 +23,22 @@ async function structureOf(
   const specVersion = detectSpec(parsed);
   const config = await createConfig({});
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  const { analysis } = await buildStructureGraph({
+  const { graph } = await analyzeApi({
     rootDocument,
     specVersion,
     types,
-    config,
     externalRefResolver,
     cwd: CWD,
+    resolveRef: (base, uri) => path.resolve(path.dirname(base), uri),
   });
-  return analysis.graph;
+  return graph;
 }
 
 function edgeRefs(graph: DependencyGraph, from: string, to: string): string[] | undefined {
   return graph.edges.find((edge) => edge.from === from && edge.to === to)?.refs;
 }
 
-describe('buildStructureGraph', () => {
+describe('tree structure graph', () => {
   it('attaches operationId to operation nodes when defined', async () => {
     const graph = await structureOf({
       openapi: '3.0.0',
@@ -487,7 +487,7 @@ describe('buildStructureGraph', () => {
   });
 });
 
-describe('buildStructureGraph (multi-file parity)', () => {
+describe('tree structure graph (multi-file parity)', () => {
   const sampleSplit = path.join(process.cwd(), 'tests/e2e/tree/sample-split/openapi.yaml');
 
   async function structureGraphOf(apiPath: string): Promise<DependencyGraph> {
@@ -497,15 +497,15 @@ describe('buildStructureGraph (multi-file parity)', () => {
     if (rootDocument instanceof Error) throw rootDocument;
     const specVersion = detectSpec(rootDocument.parsed);
     const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-    const { analysis } = await buildStructureGraph({
+    const { graph } = await analyzeApi({
       rootDocument,
       specVersion,
       types,
-      config,
       externalRefResolver,
       cwd: path.dirname(apiPath),
+      resolveRef: (base, uri) => path.resolve(path.dirname(base), uri),
     });
-    return analysis.graph;
+    return graph;
   }
 
   it('walks a split multi-file description into real file nodes and cross-file edges', async () => {

@@ -1,4 +1,5 @@
 import {
+  analyzeApi,
   appendDepsClosure,
   BaseResolver,
   buildApiIndex,
@@ -26,7 +27,6 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
-import { buildStructureGraph } from './build-structure.js';
 import { filterAffected, filterOperations, limitGraphLevel } from './filter-affected.js';
 import { filterIndexByIds, filterIndexSections, limitIndexLevel } from './filter-index.js';
 import { matchAffectedBy, wildcardToRegExp } from './match-affected-by.js';
@@ -210,13 +210,13 @@ async function handleStructureMode({
     externalRefResolver,
   });
 
-  const { analysis } = await buildStructureGraph({
+  const analysis = await analyzeApi({
     rootDocument,
     specVersion,
     types,
-    config,
     externalRefResolver,
     cwd,
+    resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
   });
   const graph = analysis.graph;
 
