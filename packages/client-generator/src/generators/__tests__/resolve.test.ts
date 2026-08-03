@@ -32,11 +32,14 @@ describe('resolveGenerators', () => {
     expect(registry.has('extra')).toBe(true);
   });
 
-  it('rejects a custom generator whose name collides with a built-in', async () => {
-    const custom: CustomGenerator = { name: 'sdk', run: noopRun };
-    await expect(resolveGenerators(['sdk'], { customGenerators: [custom] })).rejects.toThrow(
-      /collides/
-    );
+  it('a custom generator may take over a built-in name (ejected generators shadow their origin)', async () => {
+    const custom: CustomGenerator = { name: 'python', run: noopRun, sample: () => undefined };
+    const { selected, registry } = await resolveGenerators(['python'], {
+      customGenerators: [custom],
+    });
+    expect(selected).toEqual(['python']);
+    expect(registry.get('python')?.run).toBe(noopRun);
+    expect(typeof registry.get('python')?.sample).toBe('function');
   });
 
   it('rejects two custom generators with the same name', async () => {
