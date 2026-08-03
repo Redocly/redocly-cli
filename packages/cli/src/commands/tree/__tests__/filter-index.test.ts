@@ -64,6 +64,30 @@ describe('filterIndexByIds', () => {
     const schemas = filtered.structure[0].nodes!.find((node) => node.id === 'components/schemas')!;
     expect(schemas.nodes!.map((node) => node.id)).toEqual(['schemas/Order']);
   });
+
+  it('does not keep an inline component leaf by file — the root document is not a split-out file', () => {
+    const index: ApiIndex = {
+      docName: 'openapi.yaml',
+      spec: 'oas3_0',
+      structure: [
+        {
+          id: 'Components',
+          title: 'Components',
+          nodes: [
+            {
+              id: 'components/schemas',
+              title: 'schemas',
+              nodes: [{ id: 'schemas/Pet', title: 'Pet', file: 'openapi.yaml' }],
+            },
+          ],
+        },
+      ],
+    };
+    // keepIds contains the root document's own id (the file every inline node shares), but not
+    // 'schemas/Pet' itself — before the fix this kept every inline component unconditionally.
+    const filtered = filterIndexByIds(index, new Set(['openapi.yaml']));
+    expect(filtered.structure).toEqual([]);
+  });
 });
 
 describe('limitIndexLevel', () => {
