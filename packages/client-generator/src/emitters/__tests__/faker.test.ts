@@ -1,14 +1,14 @@
 import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { fakerExpression } from '../faker.js';
-import { printNodes } from '../ts.js';
+import { renderMockValue } from '../mock-value.js';
 
-/** Emit `schema`'s faker expression and print it to source for substring assertions. */
+/** Emit `schema`'s faker expression and render it to source for substring assertions. */
 function emit(
   schema: SchemaModel,
   schemas: NamedSchemaModel[] = [],
   dateType?: 'string' | 'Date'
 ): string {
-  return printNodes([fakerExpression(schema, schemas, { dateType })]);
+  return renderMockValue(fakerExpression(schema, schemas, { dateType }), '');
 }
 
 describe('fakerExpression', () => {
@@ -337,9 +337,10 @@ describe('fakerExpression', () => {
   });
 
   it('defaults dateType to string when opts is omitted', () => {
-    const out = printNodes([
+    const out = renderMockValue(
       fakerExpression({ kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } }, []),
-    ]);
+      ''
+    );
     expect(out).toBe('faker.date.recent().toISOString()');
   });
 
