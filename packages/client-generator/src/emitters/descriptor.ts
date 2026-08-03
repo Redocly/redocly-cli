@@ -22,6 +22,8 @@ import { WIRING_NAMES } from './reserved-names.js';
 import { responseHeadersTypeLiteral, responseHeaderSpecs } from './response-headers.js';
 import { isSseOp, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase } from './support.js';
+import { codeLiteral } from './ts-literal.js';
+import { tsJsdoc } from './ts-type.js';
 import { jsdoc, literalExpression, parseStatements, ts } from './ts.js';
 import { type DateType, schemaToTypeNode } from './types.js';
 
@@ -161,6 +163,45 @@ export function descriptorStatements(
         : '')
   );
   return [operations, ...derived];
+}
+
+/** Text twin of `descriptorStatements` — printer-equivalent (pinned by its test). */
+export function renderDescriptors(
+  model: ApiModel,
+  idents: Map<string, string>,
+  dateType: DateType,
+  pagination?: ModelPagination
+): string {
+  const ops = allOperations(model.services);
+  if (ops.length === 0) return '';
+  const entryLines = ops.map((op, index) => {
+    const value = codeLiteral(descriptorValue(op, model.securitySchemes, dateType, pagination));
+    return `    ${idents.get(op.name)!}: ${value}${index === ops.length - 1 ? '' : ','}`;
+  });
+  const blocks = [
+    [
+      ...tsJsdoc(
+        'The wire-shape descriptor for every operation, keyed by operationId — the data the\n' +
+          'runtime routes requests by. Also minification-safe static metadata (method, path,\n' +
+          'tags) for cache keys, tracing span names, and request logging.',
+        undefined,
+        ''
+      ),
+      'export const OPERATIONS = {',
+      ...entryLines,
+      '} as const satisfies Record<string, OperationDescriptor>;',
+    ].join('\n'),
+    'export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];',
+    'export type OperationPath = (typeof OPERATIONS)[keyof typeof OPERATIONS]["path"];',
+  ];
+  if (ops.some((op) => op.tags.length > 0)) {
+    blocks.push(
+      'export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS], {\n' +
+        '    tags: readonly string[];\n' +
+        '}>["tags"][number];'
+    );
+  }
+  return blocks.join('\n\n');
 }
 
 /**
