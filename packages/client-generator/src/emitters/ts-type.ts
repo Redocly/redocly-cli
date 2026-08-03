@@ -1,9 +1,6 @@
-// TypeScript TYPES as source text — the template-based replacement for the AST
-// printer path (`schemaToTypeNode` + `printNodes`). Pure string logic over the
-// IR: no `typescript` import, so the sdk generator joins the same TS-free
-// authoring model as python/go/php. Formatting matches the printer (4-space
-// indent, double quotes, union/intersection parenthesization) so the migration
-// does not churn generated output shape.
+// TypeScript TYPES as source text: pure string logic over the IR, no
+// `typescript` import. Formatting contract: 4-space indent, double-quoted
+// literals, compound members parenthesized inside unions/intersections/arrays.
 
 import type {
   NamedSchemaModel,

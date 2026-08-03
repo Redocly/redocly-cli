@@ -6,18 +6,16 @@ import type {
 
 /**
  * A discriminated union we can emit guards for, found while walking the schema
- * tree. `makeParamType` builds the guard's `value` parameter type — the named
- * union for a top-level union (`MenuItem`), or the inline member union for one
- * nested inside another schema (`SuccessItem | ErrorItem`). `label` is the same,
- * rendered for the JSDoc line. A thunk (not a cached node) avoids reusing one
- * `ts.TypeNode` across the several guard declarations a site produces.
+ * tree. `label` is the guard's `value` parameter type — the union's name for a
+ * top-level union (`MenuItem`), the inline member union (`SuccessItem | ErrorItem`)
+ * for one nested inside another schema.
  */
 type UnionSite = {
   union: Extract<SchemaModel, { kind: 'union' }>;
   label: string;
 };
 
-/** Text twin of `typeGuardStatements` (printer-equivalence-pinned); same detection, string body. */
+/** `is<Member>(value): value is <Member>` guards for every discriminated union (explicit or implicit). */
 export function renderTypeGuards(schemas: NamedSchemaModel[]): string {
   const byName = new Map(schemas.map((s) => [s.name, s.schema] as const));
   const blocks: string[] = [];

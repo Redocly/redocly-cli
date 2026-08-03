@@ -1,7 +1,6 @@
-// Plain data → TypeScript expression text: the template-based replacement for
-// `literalExpression` + the printer. Single-line, printer-matching formatting
-// (`{ a: 1, b: [2, 3] }`); keys stay bare when they pass the identifier GRAMMAR
-// (reserved words are legal object-literal keys), quoted otherwise.
+// Plain data → TypeScript expression text. Single-line (`{ a: 1, b: [2, 3] }`);
+// keys stay bare when they pass the identifier GRAMMAR (reserved words are legal
+// object-literal keys), quoted otherwise.
 
 import { isIdentifier } from './identifier.js';
 

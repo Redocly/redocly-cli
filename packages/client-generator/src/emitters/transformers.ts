@@ -457,16 +457,13 @@ function convertCollection(
     }
   }
   const next = nextItemVar(itemVar);
-  const body = convert(ident(next), element, byName, seen, next, indent + INDENT);
+  // The loop sits one `if` level in, and the forEach body one more.
+  const body = convert(ident(next), element, byName, seen, next, indent + INDENT + INDENT);
   if (body.length === 0) return [];
   const iterable = isRecord ? `Object.values(${target.text})` : target.text;
   return ifThen(
     isRecord ? target.text : `Array.isArray(${target.text})`,
-    (inner) => [
-      `${inner}${iterable}.forEach(${next} => {`,
-      ...convert(ident(next), element, byName, seen, next, inner + INDENT),
-      `${inner}});`,
-    ],
+    (inner) => [`${inner}${iterable}.forEach(${next} => {`, ...body, `${inner}});`],
     indent
   );
 }

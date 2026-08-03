@@ -1,7 +1,6 @@
 // The value tree the mock/faker emitters build and render: keeps object structure
 // (for intersection merging and `...overrides` spreading) until the final render,
-// where indentation is threaded — the text-template equivalent of passing
-// `ts.ObjectLiteralExpression` around. Deliberately tiny.
+// where indentation is threaded. Deliberately tiny.
 
 import { safeIdent } from './identifier.js';
 

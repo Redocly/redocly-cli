@@ -1,5 +1,4 @@
-// Shared operation-shape predicates. The type/parameter RENDERING that used to
-// live here moved to the text templates in render-client.ts.
+// Shared operation-shape predicates.
 
 import type { RequestBodyModel } from '../intermediate-representation/model.js';
 

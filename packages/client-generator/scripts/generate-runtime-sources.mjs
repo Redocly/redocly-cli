@@ -129,8 +129,7 @@ writeFileSync(
 // Stripped variants for inline embedding (emitters/inline-runtime.ts): imports dropped,
 // `export` removed except on the kept surface — done HERE at prepare time so the embed
 // path needs no TypeScript at generate time. Slices are AST-position-driven (no regexes),
-// so comments and formatting survive byte-for-byte — the algorithm previously lived in
-// inline-runtime.ts's embedModule and moved here verbatim.
+// so comments and formatting survive byte-for-byte.
 const KEEP_EXPORTS = {
   'types.ts': () => true,
   'errors.ts': (statement) => ts.isClassDeclaration(statement),

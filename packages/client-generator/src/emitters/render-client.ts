@@ -1,9 +1,6 @@
-// The text-template client assembly — a DEEP module: its lasting public surface is
-// the same two functions client-assembly.ts exposes today (single-file / split
-// emission); everything below is internal plumbing that used to be spread across
-// operation-types / operation-aliases / descriptor as AST builders. The part
-// renderers are exported for the printer-equivalence tests only, and the exports
-// shrink to the assembly seam when the flip lands.
+// The operation-level renderers behind the client assembly: the `Ops` type map,
+// the `<Op>*` alias cluster, the flat call sugar, and the split layout's schema
+// import list — all derived from the IR and the shared `EmitContext`.
 
 import {
   allOperations,
@@ -208,7 +205,7 @@ function errorArgText(op: OperationModel, ctx: EmitContext, indent: string): str
   return members.join(' | ');
 }
 
-/** The `Ops` type map — text twin of `opsInterfaceStatements` (printer-equivalence-pinned). */
+/** `export type Ops = { <ident>: { args; result; item?; page?; kind? } }` — what `createClient<Ops>` consumes. */
 export function renderOpsType(
   model: ApiModel,
   idents: Map<string, string>,
@@ -260,7 +257,7 @@ export function renderOpsType(
   ].join('\n');
 }
 
-/** One operation's `<Op>*` aliases — text twin of the alias cluster (equivalence-pinned). */
+/** One operation's `<Op>*` aliases (Result/Error/Params/Body/Headers/Cookies/Variables), collision-suppressed. */
 export function renderAliases(
   op: OperationModel,
   ctx: EmitContext,

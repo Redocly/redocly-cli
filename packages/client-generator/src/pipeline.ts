@@ -126,7 +126,9 @@ export async function generateClient(
   const { document, version } = await loadSpec(options.api, options.config);
   const normalized =
     version === 'oas2'
-      ? normalizeSwagger2(document as unknown as Record<string, unknown>)
+      ? // loadSpec types the parsed document as OAS3 for the common path; a detected
+        // swagger-2 document is re-viewed as raw data for normalization.
+        normalizeSwagger2(document as unknown as Record<string, unknown>)
       : document;
   const model = buildApiModel(normalized);
 
