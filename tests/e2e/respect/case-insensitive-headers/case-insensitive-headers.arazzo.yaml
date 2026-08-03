@@ -8,7 +8,7 @@ info:
 sourceDescriptions:
   - name: cafe-api
     type: openapi
-    url: ../cafe-api.yaml
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 
 workflows:
   - workflowId: get-menu-items
@@ -17,7 +17,7 @@ workflows:
     steps:
       - stepId: get-menu-items
         description: >-
-          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
+          List menu items by resolving request details with listMenuItems operationId from Cafe API description.
         parameters:
           - in: header
             name: CammelCasedHeader

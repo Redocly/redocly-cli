@@ -1,5 +1,11 @@
 # @redocly/cli
 
+## 2.43.3
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.43.3.
+
 ## 2.43.2
 
 ### Patch Changes
