@@ -79,6 +79,48 @@ export function typeGuardStatements(schemas: NamedSchemaModel[]): ts.FunctionDec
 
 const { factory } = ts;
 
+/** Text twin of `typeGuardStatements` (printer-equivalence-pinned); same detection, string body. */
+export function renderTypeGuards(schemas: NamedSchemaModel[]): string {
+  const byName = new Map(schemas.map((s) => [s.name, s.schema] as const));
+  const blocks: string[] = [];
+  const emitted = new Set<string>();
+  for (const named of schemas) {
+    for (const site of collectUnionSites(named)) {
+      const discriminator =
+        site.union.discriminator ?? detectImplicitDiscriminator(site.union, byName);
+      if (!discriminator) continue;
+      const valuesByTarget = new Map<string, string[]>();
+      for (const entry of discriminator.mapping) {
+        if (!byName.has(entry.schemaName)) continue;
+        const existing = valuesByTarget.get(entry.schemaName);
+        if (existing) existing.push(entry.value);
+        else valuesByTarget.set(entry.schemaName, [entry.value]);
+      }
+      for (const [schemaName, values] of valuesByTarget) {
+        const guardName = `is${schemaName}`;
+        if (emitted.has(guardName)) continue;
+        emitted.add(guardName);
+        const access = `(value as Record<string, unknown>)[${JSON.stringify(discriminator.propertyName)}]`;
+        const check =
+          values.length === 1
+            ? `${access} === ${JSON.stringify(values[0])}`
+            : `([${values.map((value) => JSON.stringify(value)).join(', ')}] as readonly unknown[]).includes(${access})`;
+        blocks.push(
+          [
+            '/**',
+            ` * Narrow a \`${site.label}\` to \`${schemaName}\` via its \`${discriminator.propertyName}\` discriminant.`,
+            ' */',
+            `export function ${guardName}(value: ${site.label}): value is ${schemaName} {`,
+            `    return ${check};`,
+            '}',
+          ].join('\n')
+        );
+      }
+    }
+  }
+  return blocks.join('\n\n');
+}
+
 /**
  * The discriminated-union sites reachable from a named schema, in a stable order:
  * the schema itself (when it is a union), then any nested unions found by walking
