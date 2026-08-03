@@ -19,6 +19,7 @@ import { ParametersUnique } from './parameters-unique.js';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique.js';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
+import { SpecParametersInByContext } from './spec-parameters-in-by-context.js';
 import { SpecStepMutuallyExclusiveFields } from './spec-step-mutually-exclusive-fields.js';
 import { StepOnFailureUnique } from './step-onFailure-unique.js';
 import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
@@ -43,6 +44,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,
   'sourceDescription-type': SourceDescriptionType,
   'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty,
+  'spec-parameters-in-by-context': SpecParametersInByContext,
   'spec-step-mutually-exclusive-fields': SpecStepMutuallyExclusiveFields,
   'step-onFailure-unique': StepOnFailureUnique,
   'step-onSuccess-unique': StepOnSuccessUnique,

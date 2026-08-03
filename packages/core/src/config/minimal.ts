@@ -280,6 +280,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'sourceDescription-name-unique': 'off',
     'sourceDescription-type': 'off',
     'sourceDescriptions-not-empty': 'off',
+    'spec-parameters-in-by-context': 'off',
     'spec-step-mutually-exclusive-fields': 'warn',
     'step-onFailure-unique': 'off',
     'step-onSuccess-unique': 'off',
@@ -292,6 +293,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
   arazzo1_1Rules: {
     'criteria-unique': 'off',
     'no-criteria-xpath': 'off',
+    'spec-parameters-in-by-context': 'error',
     'no-enum-type-mismatch': 'warn',
     'no-mixed-number-range-constraints': 'off',
     'no-required-schema-properties-undefined': 'warn',
