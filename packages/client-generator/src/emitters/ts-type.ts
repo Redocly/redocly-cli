@@ -104,7 +104,7 @@ export function tsType(schema: SchemaModel, dateType: DateType = 'string', inden
       return schema.members
         .map((member) => {
           const rendered = tsType(member, dateType, indent);
-          return member.kind === 'intersection' ? `(${rendered})` : rendered;
+          return isCompound(member) ? `(${rendered})` : rendered;
         })
         .join(' | ');
     case 'intersection':

@@ -1,6 +1,6 @@
 // Client assembly, shared by both runtime distributions and both output modes. The
-// wiring (descriptor map + `Ops` interface, emitters/descriptor.ts) is identical; only
-// the runtime block differs — `runtime: 'package'` imports `createClient` from
+// wiring (descriptor map + `Ops` interface) is identical; only the runtime block
+// differs — `runtime: 'package'` imports `createClient` from
 // `@redocly/client-generator`, everything else (inline, the default) embeds the
 // assembled runtime sources in its place (emitters/inline-runtime.ts). Single-file
 // layout: runtime (import line | embedded block) → schema types → type guards →
@@ -8,6 +8,7 @@
 // (package mode only) type re-exports — the embedded types are already exported in
 // place, so the embed arm needs none. Split mode moves the schema types + guards into
 // a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
+// Text templates throughout — no `typescript` at generate time.
 
 import {
   allOperations,
@@ -16,31 +17,22 @@ import {
   type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
 import { apiKeySetterName } from './auth.js';
-import { descriptorStatements, opsInterfaceStatements, packageIdents } from './descriptor.js';
+import { packageIdents, renderDescriptors } from './descriptor.js';
 import { banner, type EmitOptions, HEADER, renderTitleComment } from './emit-options.js';
-import { codeString, isIdentifier } from './identifier.js';
+import { codeString } from './identifier.js';
 import { assembleInlineRuntime } from './inline-runtime.js';
-import { renderOperationAliases, sseAliases } from './operation-aliases.js';
-import { operationSignature } from './operation-signature.js';
-import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-types.js';
-import { type EmitContext, renderArgList } from './operations.js';
+import { isTypedMultipart } from './operation-types.js';
+import type { EmitContext } from './operations.js';
 import { resolveModelPagination } from './pagination.js';
-import { responseHeadersTypeLiteral } from './response-headers.js';
-import { isSseOp } from './sse.js';
-import { pascalCase } from './support.js';
 import {
-  arrow,
-  exportConstStatement,
-  parseStatements,
-  printNodes,
-  printStatements,
-  ts,
-  typedArrow,
-} from './ts.js';
-import { typeGuardStatements } from './type-guards.js';
-import { typesStatements } from './types.js';
-
-const { factory } = ts;
+  collectEntrySchemaRefs,
+  renderAliases,
+  renderFlatSugar,
+  renderOpsType,
+} from './render-client.js';
+import { isSseOp } from './sse.js';
+import { renderTypeAliases } from './ts-type.js';
+import { renderTypeGuards } from './type-guards.js';
 
 const PACKAGE_SPECIFIER = '@redocly/client-generator';
 
@@ -80,7 +72,6 @@ function emitClient(
     errorMode: options.errorMode ?? 'throw',
     dateType: options.dateType ?? 'string',
     schemaNames: new Set(model.schemas.map((s) => s.name)),
-    schemas: model.schemas,
     pagination,
   };
   const flat = ctx.argsStyle === 'flat';
@@ -93,14 +84,14 @@ function emitClient(
   const wiring =
     ops.length > 0
       ? [
-          ...opsInterfaceStatements(model, idents, ctx),
-          ...descriptorStatements(model, idents, ctx.dateType, pagination),
+          renderOpsType(model, idents, ctx),
+          renderDescriptors(model, idents, ctx.dateType, pagination),
         ]
       : // A spec with no operations still gets the uniform wiring shape.
-        parseStatements(
-          'export type Ops = Record<string, never>;\n' +
-            'export const OPERATIONS = {} as const satisfies Record<string, OperationDescriptor>;'
-        );
+        [
+          'export type Ops = Record<string, never>;',
+          'export const OPERATIONS = {} as const satisfies Record<string, OperationDescriptor>;',
+        ];
 
   const runtimeSection = embed
     ? assembleInlineRuntime({
@@ -118,12 +109,16 @@ function emitClient(
         hasRegular,
         hasApiKey: apiKeySchemes.length > 0,
       });
-  const schemaStatements = [
-    ...typesStatements(model.schemas, ctx.dateType),
-    ...typeGuardStatements(model.schemas),
-  ];
-  const bodyStatements = [...ops.flatMap((op) => aliasStatements(op, ctx)), ...wiring];
-  const sugar = printNodes(sugarStatements(ops, idents, ctx, model.securitySchemes, apiKeySchemes));
+  const schemaSection = [
+    renderTypeAliases(model.schemas, ctx.dateType),
+    renderTypeGuards(model.schemas),
+  ]
+    .filter((section) => section.length > 0)
+    .join('\n\n');
+  const bodySection = [...ops.map((op) => renderAliases(op, ctx, 'wire')), ...wiring]
+    .filter((section) => section.length > 0)
+    .join('\n\n');
+  const sugar = sugarSection(ops, idents, ctx, model.securitySchemes, apiKeySchemes);
   // Embed mode exports its whole public surface in place; only the package arm re-exports.
   const reexports = embed ? '' : reexportLines(ctx, hasSse);
 
@@ -138,7 +133,7 @@ function emitClient(
         HEADER,
         renderTitleComment(model),
         ...(embed ? [] : [runtimeSection]),
-        printStatements([...schemaStatements, ...bodyStatements]),
+        [schemaSection, bodySection].filter((section) => section.length > 0).join('\n\n'),
         ...(embed ? [runtimeSection] : []),
         clientSection(options, ctx, model),
         sugar,
@@ -147,53 +142,32 @@ function emitClient(
     };
   }
 
-  const body = printStatements(bodyStatements);
-  const hasSchemas = schemaStatements.length > 0;
+  const hasSchemas = schemaSection.length > 0;
   return {
     entry: banner([
       HEADER,
       renderTitleComment(model),
       hasSchemas
-        ? schemaLinks(
-            body + '\n' + sugar,
-            ctx.schemaNames,
-            `./${splitStem}.schemas.${options.importExt ?? 'js'}`
-          )
+        ? schemaLinks(model, ctx, `./${splitStem}.schemas.${options.importExt ?? 'js'}`)
         : '',
       ...(embed ? [] : [runtimeSection]),
-      body,
+      bodySection,
       ...(embed ? [runtimeSection] : []),
       clientSection(options, ctx, model),
       sugar,
       reexports,
     ]),
-    schemas: hasSchemas
-      ? banner([HEADER, renderTitleComment(model), printStatements(schemaStatements)])
-      : undefined,
+    schemas: hasSchemas ? banner([HEADER, renderTitleComment(model), schemaSection]) : undefined,
   };
 }
 
 /**
  * The entry ⇄ schemas linkage of the split layout: a type-only import of exactly the
- * schema names the entry's own code references, plus the public `export *` re-export.
- * Referenced names are found by walking the printed entry code's identifiers (an AST
- * pass over the emitted text, not a substring search — operation JSDoc may mention a
- * schema name, and importing an unreferenced type would trip `noUnusedLocals`).
+ * schema names the entry's own code references (derived from the IR — the same
+ * sources the alias/Ops renderers type), plus the public `export *` re-export.
  */
-function schemaLinks(entryCode: string, schemaNames: Set<string>, specifier: string): string {
-  const referenced = new Set<string>();
-  // Only TYPE references count as uses of the type-only import: a value-position
-  // identifier that happens to share a schema's name (every descriptor's `id:` key,
-  // for a schema named `id`) must not drag the name in — strict consumer lint
-  // configs flag the resulting unused import.
-  const visit = (node: ts.Node): void => {
-    if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
-      if (schemaNames.has(node.typeName.text)) referenced.add(node.typeName.text);
-    }
-    node.forEachChild(visit);
-  };
-  for (const statement of parseStatements(entryCode)) visit(statement);
-  const names = [...referenced].sort();
+function schemaLinks(model: ApiModel, ctx: EmitContext, specifier: string): string {
+  const names = collectEntrySchemaRefs(model, ctx);
   const importLine =
     names.length > 0 ? `import type { ${names.join(', ')} } from '${specifier}';\n` : '';
   return `${importLine}export * from '${specifier}';`;
@@ -211,8 +185,6 @@ function importLine(
     'OperationDescriptor',
     // Flat sugar signatures reference the per-call option types.
     ...(refs.hasFlatRegular ? ['RequestOptions'] : []),
-    // Flat throw-mode sugar return types vary with the inferred request-option type.
-    ...(refs.hasFlatRegular && ctx.errorMode !== 'result' ? ['EnvelopeResult'] : []),
     // `Ops` wraps results in `Result` in result mode — but only NON-SSE members
     // (an SSE-only spec would otherwise import it unused and fail noUnusedLocals).
     ...(ctx.errorMode === 'result' && refs.hasRegular ? ['Result'] : []),
@@ -222,29 +194,6 @@ function importLine(
   ].sort();
   const names = [...values, ...types.map((t) => `type ${t}`)].join(', ');
   return `import { ${names} } from '${PACKAGE_SPECIFIER}';`;
-}
-
-/** One operation's `<Op>*` aliases — the same emitters and suppression rules as inline mode. */
-function aliasStatements(op: OperationModel, ctx: EmitContext): ts.Statement[] {
-  const { pathParams } = operationSignature(op);
-  const ordered = pathParams.map((p) => p.param);
-  const identMap = new Map(pathParams.map((p) => [p.param.name, p.ident]));
-  if (isSseOp(op)) return sseAliases(op, ordered, identMap, ctx, 'wire');
-  const { responseType } = computeResponse(op.successResponses, ctx.dateType);
-  const errorMembers =
-    ctx.errorMode === 'result' ? errorTypeNodes(op.errorResponses, ctx.dateType) : [];
-  const errorAlias = errorMembers.length > 0 ? `${pascalCase(op.name)}Error` : '';
-  return renderOperationAliases(
-    op,
-    responseType,
-    ordered,
-    identMap,
-    errorAlias,
-    errorMembers,
-    ctx,
-    true,
-    'wire'
-  );
 }
 
 /** The (optional) baked setup + the default `client` instance. */
@@ -267,7 +216,7 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
     ? `mergeSetup({ config: ${config} }, mergeSetup(__redoclySetup, {}))`
     : config;
   // The trailing type args narrow `ctx.operation` to the spec's literal unions.
-  // `OperationTag` mirrors descriptorStatements' gate: derived only when some
+  // `OperationTag` mirrors the descriptor block's gate: derived only when some
   // operation is tagged (it would otherwise be `never`); zero-ops specs have no
   // derived unions at all, so they keep the string defaults.
   const ops = allOperations(model.services);
@@ -286,182 +235,44 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
 }
 
 /** Core destructure + per-scheme auth setters + per-operation call sugar. */
-function sugarStatements(
+function sugarSection(
   ops: OperationModel[],
   idents: Map<string, string>,
   ctx: EmitContext,
   schemes: SecuritySchemeModel[],
   apiKeySchemes: SecuritySchemeModel[]
-): ts.Statement[] {
-  const statements = [...parseStatements('export const { configure, use } = client;')];
+): string {
+  const lines = ['export const { configure, use } = client;'];
   // Auth sugar in `authSetterNames` order: bearer, basic, then each apiKey scheme.
   // The runtime's auth members close over the instance config (no `this`), so
   // direct bindings are safe.
   if (schemes.some((s) => s.kind === 'bearer')) {
-    statements.push(...parseStatements('export const setBearer = client.auth.bearer;'));
+    lines.push('export const setBearer = client.auth.bearer;');
   }
   if (schemes.some((s) => s.kind === 'basic')) {
-    statements.push(...parseStatements('export const setBasicAuth = client.auth.basic;'));
+    lines.push('export const setBasicAuth = client.auth.basic;');
   }
   for (const scheme of apiKeySchemes) {
     const name = apiKeySetterName(scheme.key, apiKeySchemes.length === 1);
-    statements.push(
-      ...parseStatements(
-        `export const ${name} = (value: TokenProvider) => client.auth.apiKey(${codeString(scheme.key)}, value);`
-      )
+    lines.push(
+      `export const ${name} = (value: TokenProvider) => client.auth.apiKey(${codeString(scheme.key)}, value);`
     );
   }
-  if (ops.length === 0) return statements;
+  if (ops.length === 0) return lines.join('\n');
   if (ctx.argsStyle === 'grouped') {
     // Grouped style: the client methods already take the grouped args shape.
     const names = ops.map((op) => idents.get(op.name)!).join(', ');
-    statements.push(...parseStatements(`export const { ${names} } = client;`));
-    return statements;
+    lines.push(`export const { ${names} } = client;`);
+    return lines.join('\n');
   }
-  for (const op of ops) statements.push(flatSugarStatement(op, idents.get(op.name)!, ctx));
-  return statements;
-}
-
-/**
- * One flat one-liner: today's positional signature forwarding to the grouped client
- * method. Path values are keyed by the WIRE name (the runtime routes
- * `args[param.name]`); a path param literally named `params`/`body`/`headers` would
- * collide with the slot keys — a spec-acknowledged runtime-contract limitation.
- * A paginated operation's arrow is wrapped in `Object.assign(…, { pages, items })`
- * so the flat sugar preserves the method-attached iterators.
- * Throw-mode (non-SSE) arrows are generic over `init` so `{ envelope: true }` narrows
- * the return type to `Envelope<…>` (plain `RequestOptions` would collapse the overload).
- */
-function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext): ts.Statement {
-  const { pathParams } = operationSignature(op);
-  const params = renderArgList(
-    op,
-    pathParams.map((p) => p.param),
-    new Map(pathParams.map((p) => [p.param.name, p.ident])),
-    ctx
-  );
-  const props: ts.ObjectLiteralElementLike[] = pathParams.map(({ param, ident: paramIdent }) =>
-    param.name === paramIdent
-      ? factory.createShorthandPropertyAssignment(paramIdent)
-      : factory.createPropertyAssignment(
-          isIdentifier(param.name) ? param.name : factory.createStringLiteral(param.name),
-          factory.createIdentifier(paramIdent)
-        )
-  );
-  if (op.queryParams.length > 0) props.push(factory.createShorthandPropertyAssignment('params'));
-  if (op.requestBody) props.push(factory.createShorthandPropertyAssignment('body'));
-  if (op.headerParams.length > 0) {
-    props.push(factory.createShorthandPropertyAssignment('headers'));
-  }
-  if (op.cookieParams.length > 0) {
-    props.push(factory.createShorthandPropertyAssignment('cookies'));
-  }
-  const call = factory.createCallExpression(
-    factory.createPropertyAccessExpression(factory.createIdentifier('client'), ident),
-    undefined,
-    [factory.createObjectLiteralExpression(props, false), factory.createIdentifier('init')]
-  );
-  const fn =
-    ctx.errorMode !== 'result' && !isSseOp(op)
-      ? envelopeAwareFlatArrow(op, params, call, ctx)
-      : arrow(params, call);
-  if (!ctx.pagination?.has(op.name)) return exportConstStatement(ident, fn);
-  const methodMember = (name: string) =>
-    factory.createPropertyAssignment(
-      name,
-      factory.createPropertyAccessExpression(
-        factory.createPropertyAccessExpression(factory.createIdentifier('client'), ident),
-        name
-      )
-    );
-  return exportConstStatement(
-    ident,
-    factory.createCallExpression(
-      factory.createPropertyAccessExpression(factory.createIdentifier('Object'), 'assign'),
-      undefined,
-      [
-        fn,
-        factory.createObjectLiteralExpression(
-          [methodMember('pages'), methodMember('items')],
-          false
-        ),
-      ]
-    )
-  );
-}
-
-/**
- * `<I extends RequestOptions | undefined = undefined>(…, init?: I) =>
- * Promise<EnvelopeResult<Result, Headers, I>>`
- */
-function envelopeAwareFlatArrow(
-  op: OperationModel,
-  params: ts.ParameterDeclaration[],
-  call: ts.Expression,
-  ctx: EmitContext
-): ts.ArrowFunction {
-  // `renderArgList` always appends `init` last — retype it as optional generic `I`
-  // (no default: `init?: I = {}` is invalid, and `init: I = {}` fails under strict
-  // generic checks). Cast the call's Promise so the conditional return type sticks.
-  const initTyped = [
-    ...params.slice(0, -1),
-    factory.createParameterDeclaration(
-      undefined,
-      undefined,
-      'init',
-      factory.createToken(ts.SyntaxKind.QuestionToken),
-      factory.createTypeReferenceNode('I')
-    ),
-  ];
-  const resultType = flatResultType(op, ctx);
-  const headersType = flatHeadersType(op, ctx);
-  const returnType = factory.createTypeReferenceNode('Promise', [
-    factory.createTypeReferenceNode('EnvelopeResult', [
-      resultType,
-      headersType,
-      factory.createTypeReferenceNode('I'),
-    ]),
-  ]);
-  const typeParam = factory.createTypeParameterDeclaration(
-    undefined,
-    'I',
-    factory.createUnionTypeNode([
-      factory.createTypeReferenceNode('RequestOptions'),
-      factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
-    ]),
-    factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword)
-  );
-  const castCall = factory.createAsExpression(call, returnType);
-  return typedArrow([typeParam], initTyped, returnType, castCall);
-}
-
-function flatResultType(op: OperationModel, ctx: EmitContext): ts.TypeNode {
-  const { responseType } = computeResponse(op.successResponses, ctx.dateType);
-  const resultName = `${pascalCase(op.name)}Result`;
-  return ctx.schemaNames.has(resultName)
-    ? responseType
-    : factory.createTypeReferenceNode(resultName);
-}
-
-function flatHeadersType(op: OperationModel, ctx: EmitContext): ts.TypeNode {
-  const headers = op.successResponseHeaders;
-  if (!headers || headers.length === 0) {
-    return factory.createTypeReferenceNode('Record', [
-      factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-      factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword),
-    ]);
-  }
-  const alias = `${pascalCase(op.name)}ResponseHeaders`;
-  return ctx.schemaNames.has(alias)
-    ? responseHeadersTypeLiteral(headers, ctx.schemas)
-    : factory.createTypeReferenceNode(alias);
+  for (const op of ops) lines.push(renderFlatSugar(op, idents.get(op.name)!, ctx));
+  return lines.join('\n');
 }
 
 /** Public type surface re-exported for single-import DX (plus the `ApiError` class). */
 function reexportLines(ctx: EmitContext, hasSse: boolean): string {
   const types = [
     'ClientConfig',
-    'Envelope',
     'Middleware',
     'RequestOptions',
     ...(ctx.errorMode === 'result' ? ['Result'] : []),

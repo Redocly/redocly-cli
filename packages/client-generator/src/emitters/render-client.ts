@@ -12,8 +12,9 @@ import {
   type ParamModel,
   type RequestBodyModel,
   type ResponseBodyModel,
+  type SchemaModel,
 } from '../intermediate-representation/model.js';
-import { safeIdent } from './identifier.js';
+import { isIdentifier, safeIdent } from './identifier.js';
 import { operationSignature } from './operation-signature.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
@@ -310,4 +311,111 @@ export function renderAliases(
     blocks.push(`export type ${name}Variables = ${variables};`);
   }
   return blocks.join('\n\n');
+}
+
+/** The flat sugar's parameter list (path args, slots, trailing `init`), as text. */
+function argListText(
+  op: OperationModel,
+  orderedPathParams: ParamModel[],
+  pathParamIdent: Map<string, string>,
+  ctx: EmitContext
+): string {
+  const { dateType } = ctx;
+  const args: string[] = orderedPathParams.map(
+    (param) => `${pathParamIdent.get(param.name)!}: ${tsType(param.schema, dateType)}`
+  );
+  const slot = (name: string, params: ParamModel[]) =>
+    `${name}: ${paramsTypeText(params, dateType)}${params.some((p) => p.required) ? '' : ' = {}'}`;
+  if (op.queryParams.length > 0) args.push(slot('params', op.queryParams));
+  if (op.requestBody) {
+    args.push(
+      `body${op.requestBody.required ? '' : '?'}: ${bodyTypeText(op.requestBody, dateType)}`
+    );
+  }
+  if (op.headerParams.length > 0) args.push(slot('headers', op.headerParams));
+  if (op.cookieParams.length > 0) args.push(slot('cookies', op.cookieParams));
+  args.push(`init: ${isSseOp(op) ? 'SseOptions' : 'RequestOptions'} = {}`);
+  return args.join(', ');
+}
+
+/** One flat one-liner: the positional signature forwarding to the grouped client method. */
+export function renderFlatSugar(op: OperationModel, ident: string, ctx: EmitContext): string {
+  const { pathParams } = operationSignature(op);
+  const params = argListText(
+    op,
+    pathParams.map((p) => p.param),
+    new Map(pathParams.map((p) => [p.param.name, p.ident])),
+    ctx
+  );
+  const props: string[] = pathParams.map(({ param, ident: paramIdent }) =>
+    param.name === paramIdent
+      ? paramIdent
+      : `${isIdentifier(param.name) ? param.name : JSON.stringify(param.name)}: ${paramIdent}`
+  );
+  if (op.queryParams.length > 0) props.push('params');
+  if (op.requestBody) props.push('body');
+  if (op.headerParams.length > 0) props.push('headers');
+  if (op.cookieParams.length > 0) props.push('cookies');
+  const args = props.length === 0 ? '{}' : `{ ${props.join(', ')} }`;
+  const fn = `(${params}) => client.${ident}(${args}, init)`;
+  if (!ctx.pagination?.has(op.name)) return `export const ${ident} = ${fn};`;
+  return `export const ${ident} = Object.assign(${fn}, { pages: client.${ident}.pages, items: client.${ident}.items });`;
+}
+
+/**
+ * Schema names the ENTRY file's own types reference — the split layout's type-only
+ * import list. Derived from the IR (the exact sources the alias/Ops renderers type):
+ * every ref reachable from operation inputs, success responses, error responses
+ * (result mode only — throw mode never renders them), and pagination item schemas.
+ * Named schema BODIES are not expanded: a ref renders as its bare name.
+ */
+export function collectEntrySchemaRefs(model: ApiModel, ctx: EmitContext): string[] {
+  const referenced = new Set<string>();
+  const walk = (schema: SchemaModel): void => {
+    switch (schema.kind) {
+      case 'ref':
+        referenced.add(schema.name);
+        return;
+      case 'omit':
+        referenced.add(schema.base);
+        return;
+      case 'array':
+        walk(schema.items);
+        return;
+      case 'record':
+        walk(schema.value);
+        return;
+      case 'object':
+        for (const property of schema.properties) walk(property.schema);
+        return;
+      case 'union':
+      case 'intersection':
+        for (const member of schema.members) walk(member);
+        return;
+      default:
+        return;
+    }
+  };
+  for (const op of allOperations(model.services)) {
+    for (const param of [
+      ...op.pathParams,
+      ...op.queryParams,
+      ...op.headerParams,
+      ...op.cookieParams,
+    ]) {
+      walk(param.schema);
+    }
+    if (op.requestBody) walk(op.requestBody.schema);
+    for (const response of op.successResponses) {
+      walk(response.schema);
+      // SSE responses type their event payload from the stream's item schema.
+      if (response.itemSchema) walk(response.itemSchema);
+    }
+    if (ctx.errorMode === 'result') {
+      for (const response of op.errorResponses) walk(response.schema);
+    }
+    const paginated = ctx.pagination?.get(op.name);
+    if (paginated) walk(paginated.itemSchema);
+  }
+  return [...referenced].filter((name) => ctx.schemaNames.has(name)).sort();
 }

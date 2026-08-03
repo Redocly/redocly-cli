@@ -89,6 +89,46 @@ const CASES: Array<[string, SchemaModel, DateType?]> = [
       ],
     },
   ],
+  [
+    'multi enum inside a union (parenthesized) — the OAS 3.1 nullable-enum shape',
+    {
+      kind: 'union',
+      members: [
+        { kind: 'enum', values: ['active', 'archived'], scalar: 'string' },
+        { kind: 'null' },
+      ],
+    },
+  ],
+  [
+    'union inside a union (parenthesized)',
+    {
+      kind: 'union',
+      members: [{ kind: 'union', members: [STRING, { kind: 'null' }] }, INT],
+    },
+  ],
+  [
+    'intersection inside a union (parenthesized)',
+    {
+      kind: 'union',
+      members: [
+        {
+          kind: 'intersection',
+          members: [
+            { kind: 'ref', name: 'A' },
+            { kind: 'ref', name: 'B' },
+          ],
+        },
+        { kind: 'null' },
+      ],
+    },
+  ],
+  [
+    'single-value enum inside a union stays bare',
+    {
+      kind: 'union',
+      members: [{ kind: 'enum', values: ['only'], scalar: 'string' }, { kind: 'null' }],
+    },
+  ],
   ['omit', { kind: 'omit', base: 'Pet', keys: ['id', 'createdAt'] }],
 ];
 
