@@ -55,38 +55,13 @@ describe('filterIndexByIds', () => {
     ]);
   });
 
-  it('keeps a split component leaf by its file id, and never keeps an operation by file alone', () => {
-    const filtered = filterIndexByIds(INDEX, new Set(['components/schemas/Order.yaml']));
-    // Only 'Components' survives: 'GET /tickets' shares the same file but isn't a component
-    // leaf, so id-matching alone decides its fate, and 'components/schemas/Order.yaml' is not
-    // its id.
+  it('matches component leaves by their semantic id for split and inline alike', () => {
+    // Graph and index share the id space (split aliases keep `section/Name` ids in the graph),
+    // so a keep-set of graph ids prunes the index without any file-based fallback.
+    const filtered = filterIndexByIds(INDEX, new Set(['schemas/Order']));
     expect(filtered.structure.map((section) => section.id)).toEqual(['Components']);
     const schemas = filtered.structure[0].nodes!.find((node) => node.id === 'components/schemas')!;
     expect(schemas.nodes!.map((node) => node.id)).toEqual(['schemas/Order']);
-  });
-
-  it('does not keep an inline component leaf by file — the root document is not a split-out file', () => {
-    const index: ApiIndex = {
-      docName: 'openapi.yaml',
-      spec: 'oas3_0',
-      structure: [
-        {
-          id: 'Components',
-          title: 'Components',
-          nodes: [
-            {
-              id: 'components/schemas',
-              title: 'schemas',
-              nodes: [{ id: 'schemas/Pet', title: 'Pet', file: 'openapi.yaml' }],
-            },
-          ],
-        },
-      ],
-    };
-    // keepIds contains the root document's own id (the file every inline node shares), but not
-    // 'schemas/Pet' itself — before the fix this kept every inline component unconditionally.
-    const filtered = filterIndexByIds(index, new Set(['openapi.yaml']));
-    expect(filtered.structure).toEqual([]);
   });
 });
 

@@ -1,3 +1,16 @@
-No nodes affected.
+openapi.yaml
+├── /orders
+│   ├── GET
+│   │   └── schemas/OrderList
+│   │       └── schemas/Order
+│   │           └── schemas/OrderStatus
+│   └── POST
+│       └── schemas/Order
+│           └── schemas/OrderStatus
+└── /orders/{orderId}
+    └── GET
+        └── schemas/Order
+            └── schemas/OrderStatus
 
-schemas/Order* does not match any path, operation, or component of openapi.yaml.
+3 of 4 operations affected · affected paths: /orders, /orders/{orderId}
+

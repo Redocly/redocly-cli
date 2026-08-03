@@ -118,7 +118,7 @@ async function loadApi({
   if (rootDocument instanceof Error) {
     return exitWithError(`Failed to load ${apiPath}: ${rootDocument.message}`);
   }
-  collectSpecData?.(rootDocument.parsed);
+  collectSpecData?.(rootDocument);
   const specVersion = detectSpec(rootDocument.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
   return { rootDocument, specVersion, types };

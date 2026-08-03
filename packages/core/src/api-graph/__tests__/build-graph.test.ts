@@ -96,29 +96,30 @@ describe('analyzeApi structure graph', () => {
       file: 'paths/tickets.yaml',
     });
 
-    // The root's `components.schemas.Ticket` alias has no INCOMING edge on the original
-    // document (the operation's $ref points straight at the file), so the graph drops it
-    // as unreachable — the real file node replaces it. Phase 2's index view restores
-    // semantic component names from the Named* visitors.
-    expect(graph.nodes.find((node) => node.id === 'schemas/Ticket')).toBeUndefined();
-
-    const schemaFile = graph.nodes.find((node) => node.id === 'components/schemas/Ticket.yaml');
-    expect(schemaFile).toMatchObject({ kind: 'file', resolved: true });
-
-    const pathItemFile = graph.nodes.find((node) => node.id === 'paths/tickets.yaml');
-    expect(pathItemFile).toMatchObject({ kind: 'file', resolved: true });
-
+    // The root's `components.schemas.Ticket` alias is a whole-file ref, so the file keeps the
+    // canonical `schemas/Ticket` id (with the real defining file attached) — the same id the
+    // bundled walk used to produce. Neither the aliased file nor the path-item file appear as
+    // separate file nodes.
+    const ticketSchema = graph.nodes.find((node) => node.id === 'schemas/Ticket');
+    expect(ticketSchema).toMatchObject({
+      kind: 'component',
+      file: 'components/schemas/Ticket.yaml',
+      resolved: true,
+    });
     expect(
-      graph.edges.some((edge) => edge.from === '/tickets' && edge.to === 'paths/tickets.yaml')
-    ).toBe(true);
+      graph.nodes.find((node) => node.id === 'components/schemas/Ticket.yaml')
+    ).toBeUndefined();
+    expect(graph.nodes.find((node) => node.id === 'paths/tickets.yaml')).toBeUndefined();
+
     // The operation's response schema $ref lives directly in the operation's own file, so its
-    // owner is the operation itself, not the file — matching the old bundled walk, where this
-    // ref's owner was the operation. (A ref found after hopping into a further file, e.g. a
-    // component schema referencing another schema, would still collapse to the file — that
-    // case isn't exercised by this fixture.)
+    // owner is the operation itself — and the whole-file target collapses to the alias id.
+    expect(
+      graph.edges.some((edge) => edge.from === 'POST /tickets' && edge.to === 'schemas/Ticket')
+    ).toBe(true);
+    // TicketId.yaml has no root alias, so it stays a plain file node behind the schema.
     expect(
       graph.edges.some(
-        (edge) => edge.from === 'POST /tickets' && edge.to === 'components/schemas/Ticket.yaml'
+        (edge) => edge.from === 'schemas/Ticket' && edge.to === 'components/schemas/TicketId.yaml'
       )
     ).toBe(true);
     expect(

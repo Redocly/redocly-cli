@@ -516,20 +516,19 @@ describe('tree structure graph (multi-file parity)', () => {
     expect(nodes).toContainEqual({ id: 'GET /orders', kind: 'operation' });
     expect(nodes).toContainEqual({ id: 'POST /orders', kind: 'operation' });
 
-    // The root's `components.schemas.*` aliases only $ref out to a file and have no incoming
-    // edge on the original document, so they are unreachable and dropped — the real file node
-    // they point to stands in for the component instead.
-    expect(graph.nodes.find((node) => node.id === 'schemas/Order')).toBeUndefined();
-    expect(graph.nodes.find((node) => node.id === 'schemas/OrderList')).toBeUndefined();
-    expect(nodes).toContainEqual({ id: 'components/schemas/Order.yaml', kind: 'file' });
-    expect(nodes).toContainEqual({ id: 'components/schemas/OrderList.yaml', kind: 'file' });
+    // The root's `components.schemas.*` whole-file aliases keep their canonical `schemas/Name`
+    // ids (with the real defining file attached) — split and single-file layouts produce the
+    // same component ids.
+    expect(nodes).toContainEqual({ id: 'schemas/Order', kind: 'component' });
+    expect(nodes).toContainEqual({ id: 'schemas/OrderList', kind: 'component' });
+    expect(graph.nodes.find((node) => node.id === 'components/schemas/Order.yaml')).toBeUndefined();
+    expect(graph.nodes.find((node) => node.id === 'schemas/Order')?.file).toBe(
+      'components/schemas/Order.yaml'
+    );
 
-    // Transitive component-to-component chains survive across files.
+    // Transitive component-to-component chains survive across files under semantic ids.
     expect(
-      graph.edges.some(
-        (edge) =>
-          edge.from === 'components/schemas/Order.yaml' && edge.to.startsWith('components/schemas/')
-      )
+      graph.edges.some((edge) => edge.from === 'schemas/Order' && edge.to.startsWith('schemas/'))
     ).toBe(true);
   });
 });

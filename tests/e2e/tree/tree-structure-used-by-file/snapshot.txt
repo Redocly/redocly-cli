@@ -1,13 +1,13 @@
 openapi.yaml
 ├── /orders
 │   ├── GET
-│   │   └── components/schemas/OrderList.yaml
-│   │       └── components/schemas/Order.yaml
+│   │   └── schemas/OrderList
+│   │       └── schemas/Order
 │   └── POST
-│       └── components/schemas/Order.yaml
+│       └── schemas/Order
 └── /orders/{orderId}
     └── GET
-        └── components/schemas/Order.yaml
+        └── schemas/Order
 
 3 of 4 operations affected · affected paths: /orders, /orders/{orderId}
 

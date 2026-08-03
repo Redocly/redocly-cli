@@ -7,6 +7,7 @@ import {
   type ResolvedRefMap,
 } from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 import { normalizeVisitors, type Oas3Visitor } from '../visitors.js';
 import { walkDocument, type UserContext, type WalkContext } from '../walk.js';
 import { COMPONENT_SECTIONS } from './build-index.js';
@@ -107,6 +108,16 @@ function walkStructure(options: {
   const edges = new Map<string, GraphEdge>();
   const meta: ApiIndexMeta = { declaredTags: [], operations: [], components: [] };
 
+  // A split layout defines root components as whole-file refs (`Order: {$ref: Order.yaml}`).
+  // Bundling used to inline those files under their component names; to keep the same canonical
+  // ids without bundling, map each aliased file to its `section/Name` id up front, and remember
+  // the alias entries themselves so they don't become self-edges.
+  const { fileAliases, aliasEntryPointers } = collectRootComponentAliases(
+    document.parsed,
+    rootAbs,
+    resolveRef
+  );
+
   const addOrUpdateNode = (mapped: MappedNode & { file: string }, resolved: boolean) => {
     const node = nodes.get(mapped.id) ?? { id: mapped.id, resolved: false };
     if (resolved) node.resolved = true;
@@ -125,10 +136,20 @@ function walkStructure(options: {
     edges.set(edgeKey, edge);
   };
 
-  const mapToNode = (absoluteRef: string, pointer: string): MappedNode & { file: string } =>
-    absoluteRef === rootAbs
-      ? { ...mapRootPointer(pointer, rootId), file: rootId }
-      : mapForeignLocation(toNodeId(absoluteRef, cwd), pointer);
+  const mapToNode = (absoluteRef: string, pointer: string): MappedNode & { file: string } => {
+    if (absoluteRef === rootAbs) {
+      return { ...mapRootPointer(pointer, rootId), file: rootId };
+    }
+    const fileId = toNodeId(absoluteRef, cwd);
+    const mapped = mapForeignLocation(fileId, pointer);
+    const alias = fileAliases.get(absoluteRef);
+    // Any location that falls back to the whole file collapses to the aliased component,
+    // exactly as it did when the file was bundled under that name.
+    if (alias !== undefined && mapped.kind === 'file') {
+      return { id: alias, kind: 'component', file: fileId };
+    }
+    return mapped;
+  };
 
   const nodeFor = (location: Location): string => {
     const mapped = mapToNode(location.source.absoluteRef, location.pointer);
@@ -336,6 +357,21 @@ function walkStructure(options: {
     },
     ref: {
       enter(refNode, vctx, resolved) {
+        if (vctx.location.source.absoluteRef === rootAbs) {
+          if (aliasEntryPointers.has(vctx.location.pointer)) return;
+          // A root paths/webhooks entry that is a whole-file ref used to be inlined by the
+          // bundler: the spine and its operations come from the PathItem visitor, so a resolved
+          // entry adds no edge. An unresolved one still must surface as a broken file node.
+          const segments = parsePointerSegments(vctx.location.pointer);
+          if (
+            segments.length === 2 &&
+            (segments[0] === 'paths' || segments[0] === 'webhooks') &&
+            resolved.node !== undefined &&
+            resolved.location
+          ) {
+            return;
+          }
+        }
         const mappedOwner = mapToNode(vctx.location.source.absoluteRef, vctx.location.pointer);
         const ownerId =
           currentOperationNodeId !== undefined &&
@@ -366,6 +402,55 @@ function walkStructure(options: {
   walkDocument({ document, rootType: types.Root, normalizedVisitors, resolvedRefMap, ctx });
 
   return { graph: finalizeGraph(rootId, nodes, edges), meta };
+}
+
+const OAS2_ALIAS_SECTIONS = ['definitions', 'parameters', 'responses', 'securityDefinitions'];
+
+/** Finds root component entries that are plain whole-file refs and maps the file to the entry id. */
+function collectRootComponentAliases(
+  parsed: unknown,
+  rootAbs: string,
+  resolveRef: (base: string, uri: string) => string
+): { fileAliases: Map<string, string>; aliasEntryPointers: Set<string> } {
+  const fileAliases = new Map<string, string>();
+  const aliasEntryPointers = new Set<string>();
+  const root = parsed as Record<string, Record<string, Record<string, unknown>>> | undefined;
+
+  const collectSection = (
+    section: Record<string, unknown>,
+    idPrefix: string,
+    pointerPrefix: string
+  ) => {
+    for (const [name, value] of Object.entries(section)) {
+      const refString = (value as { $ref?: unknown } | undefined)?.$ref;
+      if (typeof refString !== 'string') continue;
+      const [uri, fragment] = refString.split('#');
+      // Only whole-file refs behave like bundle-time inlining; refs into a named section of
+      // another file already map to a canonical foreign id on their own.
+      if (uri === '' || (fragment !== undefined && fragment !== '/' && fragment !== '')) continue;
+      fileAliases.set(resolveRef(rootAbs, uri), `${idPrefix}/${name}`);
+      aliasEntryPointers.add(`${pointerPrefix}/${escapeAliasKey(name)}`);
+    }
+  };
+
+  const components = root?.components;
+  if (components !== undefined) {
+    for (const [section, entries] of Object.entries(components)) {
+      if (!isPlainObject(entries)) continue;
+      collectSection(entries, section, `#/components/${escapeAliasKey(section)}`);
+    }
+  }
+  for (const section of OAS2_ALIAS_SECTIONS) {
+    const entries = root?.[section];
+    if (!isPlainObject(entries)) continue;
+    collectSection(entries, section, `#/${section}`);
+  }
+
+  return { fileAliases, aliasEntryPointers };
+}
+
+function escapeAliasKey(key: string): string {
+  return key.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
 /** Keeps only nodes reachable from the root, sorted for stable output. */
