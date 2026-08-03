@@ -9,7 +9,7 @@ info:
 sourceDescriptions:
   - name: cafe-api
     type: openapi
-    url: cafe-api.yaml
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 
 workflows:
   - workflowId: search-menu-items
@@ -18,7 +18,7 @@ workflows:
     steps:
       - stepId: search-menu
         description: >-
-          Search menu items resolving request details with listMenuItems operationId from cafe-api.yaml description.
+          Search menu items resolving request details with listMenuItems operationId from Cafe API description.
         operationId: listMenuItems
         parameters:
           - in: query
