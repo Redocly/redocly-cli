@@ -14,6 +14,7 @@ import {
   isAbsoluteUrl,
   isAnchor,
   isExternalValue,
+  isRefWithSiblings,
   Location,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
@@ -503,14 +504,13 @@ export async function resolveDocument(opts: {
       if (resolvedRef.document && isRef(target)) {
         // A $ref with sibling keys is a composition (JSON Schema 2020-12), not a transparent
         // alias — record it as a chain hop so the composition survives for consumers that need it.
-        const chainHop: ResolvedRefChainHop | undefined =
-          Object.keys(target).length > 1
-            ? {
-                node: target,
-                document: resolvedRef.document,
-                location: new Location(resolvedRef.document.source, resolvedRef.nodePointer!),
-              }
-            : undefined;
+        const chainHop: ResolvedRefChainHop | undefined = isRefWithSiblings(target)
+          ? {
+              node: target,
+              document: resolvedRef.document,
+              location: new Location(resolvedRef.document.source, resolvedRef.nodePointer!),
+            }
+          : undefined;
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
         if (chainHop && resolvedRef.resolved) {
           // rebuilt rather than mutated: the returned chain array is shared with the

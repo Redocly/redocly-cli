@@ -140,6 +140,11 @@ export function makeBundleVisitor({
   let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
 
+  // a composed $ref (with sibling keys) in the chain is the effective target,
+  // so the composition survives in the bundled output
+  const effectiveTarget = (resolved: ResolveResult<NonUndefined>): ComponentTarget =>
+    resolved.chain?.[0] ?? { node: resolved.node, location: resolved.location! };
+
   const firstSchemaLocationByName = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version)!;
@@ -152,11 +157,7 @@ export function makeBundleVisitor({
           return;
         }
 
-        // a composed $ref (with sibling keys) in the chain is the effective target,
-        // so the composition survives in the bundled output
-        const target = resolved.chain?.length
-          ? { node: resolved.chain[0].node, location: resolved.chain[0].location }
-          : { node: resolved.node, location: resolved.location };
+        const target = effectiveTarget(resolved);
 
         if (
           target.location.source === rootDocument.source &&
@@ -249,7 +250,7 @@ export function makeBundleVisitor({
 
         discriminator.defaultMapping = saveComponent(
           schemaComponentType,
-          resolved.chain?.[0] ?? resolved,
+          effectiveTarget(resolved),
           ctx
         );
       },
@@ -266,11 +267,7 @@ export function makeBundleVisitor({
               return;
             }
 
-            mapping[name] = saveComponent(
-              schemaComponentType,
-              resolved.chain?.[0] ?? resolved,
-              ctx
-            );
+            mapping[name] = saveComponent(schemaComponentType, effectiveTarget(resolved), ctx);
           }
         },
       },
@@ -316,7 +313,7 @@ export function makeBundleVisitor({
   function isEqualOrEqualRef(node: unknown, target: ComponentTarget, ctx: UserContext) {
     if (isRef(node)) {
       const resolved = ctx.resolve(node, rootLocation.absolutePointer);
-      const effectiveLocation = resolved.chain?.[0]?.location ?? resolved.location;
+      const effectiveLocation = resolved.location && effectiveTarget(resolved).location;
       if (effectiveLocation?.absolutePointer === target.location.absolutePointer) {
         return true;
       }

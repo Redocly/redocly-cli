@@ -984,18 +984,7 @@ describe('sibling $ref resolution by spec', () => {
     });
 
     expect(problems).toHaveLength(0);
-    expect((res.parsed as any).components.schemas.BadRequest).toEqual({
-      title: 'Bad request',
-      type: 'object',
-      $ref: '#/components/schemas/BaseProblem',
-      properties: {
-        status: { type: 'integer', minimum: 400, maximum: 400 },
-      },
-      required: ['status'],
-    });
-    expect(
-      (res.parsed as any).paths['/demo'].get.responses['400'].content['application/json'].schema
-    ).toEqual({ $ref: '#/components/schemas/BadRequest' });
+    expect(res.parsed).toMatchSnapshot();
   });
 
   it('should bundle refs inside $ref siblings that collide with resolved schema keys', async () => {

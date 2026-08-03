@@ -554,6 +554,48 @@ components:
 
 `;
 
+exports[`sibling $ref resolution by spec > should keep sibling keywords when an external schema file has a root-level $ref 1`] = `
+openapi: 3.1.0
+info:
+  title: Root-level $ref with sibling keywords
+  version: 1.0.0
+paths:
+  /demo:
+    get:
+      responses:
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+components:
+  schemas:
+    BadRequest:
+      title: Bad request
+      type: object
+      $ref: '#/components/schemas/BaseProblem'
+      properties:
+        status:
+          type: integer
+          minimum: 400
+          maximum: 400
+      required:
+        - status
+    ProblemAlias:
+      $ref: '#/components/schemas/BaseProblem'
+      title: Problem alias
+    Problem:
+      $ref: '#/components/schemas/ProblemAlias'
+      description: Composed problem
+    BaseProblem:
+      type: object
+      properties:
+        title:
+          type: string
+
+`;
+
 exports[`sibling $ref resolution by spec > should not resolve non-description/summary sibling ref 1`] = `
 openapi: 3.1.0
 info:

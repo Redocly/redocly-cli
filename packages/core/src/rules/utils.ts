@@ -2,6 +2,7 @@ import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import { default as levenshtein } from 'js-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
+import type { ResolvedRefChainHop } from '../resolve.js';
 import type {
   Oas3Example,
   Oas3Schema,
@@ -13,7 +14,7 @@ import type {
 import type { Oas2Tag } from '../typings/swagger.js';
 import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { NonUndefined, ResolvedChainHop, UserContext } from '../walk.js';
+import type { NonUndefined, UserContext } from '../walk.js';
 import type { AjvValidator } from './ajv.js';
 
 export const resolveSchema = <T extends NonUndefined>(
@@ -23,7 +24,7 @@ export const resolveSchema = <T extends NonUndefined>(
 ): {
   schema: T | undefined;
   location: string | undefined;
-  chain?: ResolvedChainHop[];
+  chain?: ResolvedRefChainHop[];
 } => {
   if (isRef(schemaOrRef)) {
     const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);

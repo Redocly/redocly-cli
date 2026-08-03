@@ -1,7 +1,7 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef } from './ref-utils.js';
+import { Location, isRef, isRefWithSiblings } from './ref-utils.js';
 import type {
   ResolveError,
   Source,
@@ -35,21 +35,18 @@ export type NonUndefined =
   | object
   | Record<string, any>;
 
-// A composed $ref (with sibling keys) the resolution chased through on the way to `node`.
-export type ResolvedChainHop = ResolvedRefChainHop;
-
 export type ResolveResult<T extends NonUndefined> =
   | {
       node: T;
       location: Location;
       error?: ResolveError | YamlParseError;
-      chain?: ResolvedChainHop[];
+      chain?: ResolvedRefChainHop[];
     }
   | {
       node: undefined;
       location: undefined;
       error?: ResolveError | YamlParseError;
-      chain?: ResolvedChainHop[];
+      chain?: ResolvedRefChainHop[];
     };
 
 export type ResolveFn = <T extends NonUndefined>(
@@ -208,8 +205,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
-    if (nodeIsRef && Object.keys(node).length > 1) {
-      // composed $refs can also be reached as chain hops — record this walk to avoid a repeat
+    if (isRefWithSiblings(node)) {
+      // remember it, so the same node is not walked again as a chain hop
       walkedComposedRefs.add(composedRefWalkId(type, location));
     }
 
@@ -394,8 +391,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
 
       if (nodeIsRef && resolvedChain?.length) {
-        // the target composes another $ref: the hop is walked as a ref node from its own
-        // location (it has no parent there); its resolution carries the rest of the chain
+        // walk the composed $ref the resolution passed through; the rest of the chain
+        // is walked recursively the same way
         const chainHop = resolvedChain[0];
         if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
           walkNode(chainHop.node, type, chainHop.location, undefined, key);
@@ -403,8 +400,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
 
       if (nodeIsRef) {
-        // $ref sibling keys belong to the ref node itself and walk from its own location;
-        // the resolved node's (or hops') keys are walked in their own frames
+        // walk the keys written next to $ref; they resolve against the ref's own location
         for (const propName of Object.keys(node)) {
           if (propName !== '$ref' && rawNode[propName] !== resolvedNode?.[propName]) {
             walkProp(propName, rawNode[propName], location, node);
