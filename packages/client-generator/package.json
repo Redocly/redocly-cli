@@ -16,6 +16,11 @@
       "import": "./lib/generate.js",
       "default": "./lib/generate.js"
     },
+    "./runtime-sources": {
+      "types": "./lib/runtime-sources.d.ts",
+      "import": "./lib/runtime-sources.js",
+      "default": "./lib/runtime-sources.js"
+    },
     "./package.json": "./package.json"
   },
   "engines": {
