@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.43.3
+
+### Patch Changes
+
+- Fixed an issue where secrets masking did not cover encoded secrets in `har-output`.
+- Updated @redocly/openapi-core to v2.43.3.
+
 ## 2.43.2
 
 ### Patch Changes
