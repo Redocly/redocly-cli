@@ -7,6 +7,7 @@
 import ts from 'typescript';
 
 import { isIdentifier } from './identifier.js';
+import { escapeJsDoc } from './jsdoc.js';
 
 // TypeScript 7 (the native compiler) ships only the tsc binary — none of the compiler
 // API everything below is built on — yet its package resolves fine, so the first
@@ -91,10 +92,7 @@ export function jsdoc<T extends ts.Node>(node: T, text: string): T {
   return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, body, true);
 }
 
-/** Backslash-escape any comment-closing star-slash so it cannot terminate a block comment. */
-export function escapeJsDoc(text: string): string {
-  return text.replace(/\*\//g, '*\\/');
-}
+export { escapeJsDoc } from './jsdoc.js';
 
 const { factory } = ts;
 
