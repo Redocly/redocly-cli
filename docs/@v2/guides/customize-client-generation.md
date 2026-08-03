@@ -102,48 +102,32 @@ For a repo-local, agent-readable version of this guidance, copy the [`AGENTS.md`
 
 ### TypeScript artifacts
 
-For TypeScript output, build real syntax trees with the emit toolkit from `@redocly/client-generator/generate` — the same `ts.factory` + printer the built-in generators use, so the schema→type mapping matches the sdk's exactly:
+For TypeScript output, render types with the text toolkit from `@redocly/client-generator/generate` — `tsType` is the same schema→type renderer the built-in sdk uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
 
-```ts
-// response-map-generator.ts
-import { defineGenerator } from '@redocly/client-generator';
-import { printStatements, schemaToTypeNode, ts } from '@redocly/client-generator/generate';
+```js
+import { tsType } from '@redocly/client-generator/generate';
 
-const { factory } = ts;
-
-export default defineGenerator({
+export default {
   name: 'response-map',
   requires: ['sdk'],
   run({ model, outputPath }) {
-    // One `ResponseShapes` entry per operation with a JSON success body.
     const members = model.services
       .flatMap((service) => service.operations)
       .flatMap((op) => {
         const success = op.successResponses.find((r) => r.contentType.includes('json'));
-        if (!success) return [];
-        return [
-          factory.createPropertySignature(
-            undefined,
-            op.name,
-            undefined,
-            schemaToTypeNode(success.schema)
-          ),
-        ];
+        return success ? [`    ${op.name}: ${tsType(success.schema, 'string', '    ')};`] : [];
       });
-    const alias = factory.createTypeAliasDeclaration(
-      [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-      'ResponseShapes',
-      undefined,
-      factory.createTypeLiteralNode(members)
-    );
     return [
-      { path: outputPath.replace(/\.ts$/, '.responses.ts'), content: printStatements([alias]) },
+      {
+        path: outputPath.replace(/\.ts$/, '.responses.ts'),
+        content: `export type ResponseShapes = {\n${members.join('\n')}\n};\n`,
+      },
     ];
   },
-});
+};
 ```
 
-The toolkit exports `ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, and more; the package root exports the model (IR) types.
+The toolkit exports `tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, and more; the package root exports the model (IR) types and the language-neutral helpers.
 For a trivial artifact, returning a plain string as `content` works too — no toolkit required.
 
 Select a generator in `redocly.yaml` by path or package name:
@@ -181,7 +165,7 @@ With `codeSamples: true` in the `client` block, generation collects every select
 The built-in `sdk` generator ships the TypeScript reference implementation, so enabling the flag alone gives your Redoc docs per-operation TypeScript examples that never drift from the SDK.
 
 Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
-See the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for the runnable toolkit-based plugin (including type-importing referenced schemas), the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building one, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the description's tags.
+See the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for the runnable `tsType`-based plugin (including type-importing referenced schemas), the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building one, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the description's tags.
 
 ## Resources
 

@@ -58,3 +58,10 @@ describe('pipeline (lib/pipeline.js)', () => {
     expect(emitterFiles).toEqual([]);
   });
 });
+
+describe('the sdk generator itself (lib/generators/sdk.js)', () => {
+  it('loads no typescript — the whole emit path is text templates (setup baking stays lazy)', () => {
+    const { externals } = staticGraph(join(libDir, 'generators/sdk.js'));
+    expect(externals.has('typescript')).toBe(false);
+  });
+});

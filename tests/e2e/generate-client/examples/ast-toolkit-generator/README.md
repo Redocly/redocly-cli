@@ -1,13 +1,13 @@
 # AST toolkit generator example
 
 A custom generator that builds its output as a real TypeScript AST with the
-`@redocly/client-generator/generate` entry — the same `ts.factory` + printer toolkit the built-in
+`@redocly/client-generator/generate` entry — the same type-rendering toolkit the built-in
 generators use — instead of concatenating strings
 (compare with the string-building [`custom-generator`](../custom-generator) example).
 
 - [`response-map-generator.mjs`](./response-map-generator.mjs) — the generator.
   For every operation with a JSON success response it derives the response body's TypeScript type
-  with `schemaToTypeNode` and prints `src/api/client.responses.ts`:
+  with `tsType` and renders `src/api/client.responses.ts`:
 
   ```ts
   import type { MenuItemList, Order, OrderItem } from './client.js';
@@ -31,8 +31,8 @@ runtime-only.
 The `/generate` entry holds everything that runs at **generation time** — it loads the TypeScript
 compiler and `@redocly/openapi-core`, which an app must never pull in:
 
-- the emit toolkit used here (`ts`, `printStatements`, `parseStatements`, `operationSignature`,
-  `schemaToTypeNode`, `pascalCase`, …),
+- the text toolkit used here (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`,
+  `pascalCase`, …),
 - `generateClient` (also re-exported from the root behind a dynamic import) and
   `collectGeneratedFiles` for in-memory generation.
 

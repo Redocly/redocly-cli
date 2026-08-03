@@ -1,7 +1,6 @@
 import { codeLiteral } from '../ts-literal.js';
-import { literalExpression, printNodes } from '../ts.js';
 
-// Equivalence against the AST printer's own output — same bar as ts-type.test.ts.
+// Literal expectations for the data-literal renderer (single-line, printer-style).
 const CASES: Array<[string, unknown]> = [
   ['string', 'plain'],
   ['string with quotes and backslashes', 'say "hi" \\ done'],
@@ -31,8 +30,8 @@ const CASES: Array<[string, unknown]> = [
   ],
 ];
 
-describe('codeLiteral matches the AST printer', () => {
+describe('codeLiteral', () => {
   it.each(CASES)('%s', (_label, value) => {
-    expect(codeLiteral(value)).toBe(printNodes([literalExpression(value)]));
+    expect(codeLiteral(value)).toMatchSnapshot();
   });
 });

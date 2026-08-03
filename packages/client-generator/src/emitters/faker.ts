@@ -177,13 +177,16 @@ function boundsArg(meta: SchemaMetadata | undefined): string {
   return props.length > 0 ? `{ ${props.join(', ')} }` : '';
 }
 
-/** `faker.helpers.multiple(() => <item>, { count: 1 })` — one element keeps output small. */
+/** `faker.helpers.multiple(() => <item>, { count: 1 })` — one element keeps output small.
+ * An object-literal arrow body must be parenthesized (`() => ({ … })`), or the braces
+ * parse as a block. */
 function multiple(item: MockValue): MockValue {
+  const object = isObjectValue(item);
   return {
     kind: 'wrap',
-    before: 'faker.helpers.multiple(() => ',
+    before: `faker.helpers.multiple(() => ${object ? '(' : ''}`,
     value: item,
-    after: ', { count: 1 })',
+    after: `${object ? ')' : ''}, { count: 1 })`,
   };
 }
 
