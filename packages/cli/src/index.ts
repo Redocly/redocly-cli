@@ -18,6 +18,10 @@ import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
+import {
+  handleEjectGenerator,
+  type EjectGeneratorCommandArgv,
+} from './commands/eject-generator.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
@@ -35,6 +39,10 @@ import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
+import {
+  handleScaffoldGenerator,
+  type ScaffoldGeneratorCommandArgv,
+} from './commands/scaffold-generator.js';
 import { handleScore } from './commands/score/index.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type {
@@ -953,6 +961,59 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
+    }
+  )
+  .command(
+    'eject-generator [generator]',
+    'Vendor a built-in client generator into your repo as an editable file [experimental].',
+    (yargs) =>
+      yargs
+        .positional('generator', {
+          describe: 'Built-in generator to eject (python, go, php).',
+          type: 'string',
+        })
+        .options({
+          dir: {
+            describe: 'Directory to eject into.',
+            type: 'string',
+            default: './generators',
+            requiresArg: true,
+          },
+          force: {
+            describe: 'Overwrite an existing ejected file (discards local edits).',
+            type: 'boolean',
+            default: false,
+          },
+          update: {
+            describe:
+              'Three-way merge a newer generator version into your customized copy (pristine × new × yours).',
+            type: 'boolean',
+            default: false,
+          },
+        }),
+    async (argv) => {
+      commandWrapper(handleEjectGenerator)(argv as Arguments<EjectGeneratorCommandArgv>);
+    }
+  )
+  .command(
+    'scaffold-generator [generator]',
+    'Create a custom client-generator skeleton plus the authoring guide (AGENTS.md) [experimental].',
+    (yargs) =>
+      yargs
+        .positional('generator', {
+          describe: 'Name for the new generator (kebab-case).',
+          type: 'string',
+        })
+        .options({
+          dir: {
+            describe: 'Directory to scaffold into.',
+            type: 'string',
+            default: './generators',
+            requiresArg: true,
+          },
+        }),
+    async (argv) => {
+      commandWrapper(handleScaffoldGenerator)(argv as Arguments<ScaffoldGeneratorCommandArgv>);
     }
   )
   .command(

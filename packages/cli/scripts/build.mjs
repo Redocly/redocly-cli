@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -91,6 +91,14 @@ const sections = [...licenseGroups.entries()]
 writeFileSync(
   path.join(packageDir, 'THIRD_PARTY_NOTICES'),
   `Third-party software bundled in @redocly/cli\n\n${sections.join('\n\n')}\n`
+);
+
+// Ship the eject assets (generator files + the authoring AGENTS.md) inside lib/, so the
+// bundled CLI finds them relative to its own module in both the repo and the published package.
+cpSync(
+  path.join(packageDir, '..', 'client-generator', 'eject-assets'),
+  path.join(packageDir, 'lib', 'eject-assets'),
+  { recursive: true }
 );
 
 function findLicenseText(pkgRoot) {
