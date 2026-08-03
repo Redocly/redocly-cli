@@ -24,7 +24,7 @@ export function isSseOp(op: OperationModel): boolean {
 }
 
 /** The per-event schema: `itemSchema` → the response `schema` → undefined (typeless slots skipped). */
-function eventSchema(op: OperationModel): SchemaModel | undefined {
+export function eventSchema(op: OperationModel): SchemaModel | undefined {
   const r = sseResponse(op);
   if (!r) return undefined;
   if (r.itemSchema && r.itemSchema.kind !== 'unknown') return r.itemSchema;
