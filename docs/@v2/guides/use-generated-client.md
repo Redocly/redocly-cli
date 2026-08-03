@@ -71,6 +71,24 @@ for order in client.list_orders_items(limit=50):
     print(order)
 ```
 
+### PHP SDK
+
+The `php` generator emits a self-contained `<stem>.php` — a full PHP SDK over the curl extension (zero Composer dependencies, PHP ≥ 8.1):
+promoted-constructor classes with `fromArray`/`toArray` hydration (allOf flattened, native backed enums, `match`-based discriminated-union dispatchers), a `Client` with one typed method per operation (optional query params as nullable named arguments), auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware callables, pagination generators (`<op>Pages()` / `<op>Items()`), SSE streaming, and multipart bodies.
+Exceptions are the error mode (`ApiError` / `TimeoutError`); `errorMode` does not change the output.
+The namespace derives from the API title (for example `CafeOrdersApi`).
+
+```php
+require 'client.php';
+
+use CafeOrdersApi\{Client, Config};
+
+$client = new Client(new Config(auth: ['bearer' => 'TOKEN']));
+foreach ($client->listOrdersItems(limit: 50) as $order) {
+    echo $order->id, PHP_EOL;
+}
+```
+
 ### Go SDK
 
 The `go` generator emits a self-contained `<stem>.go` — a full Go SDK over the standard library (zero dependencies, Go ≥ 1.21):
