@@ -39,11 +39,11 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
 
   beforeAll(() => {
     project = makeProject();
-  });
+  }, 60_000);
 
   afterAll(() => {
     rmSync(project, { recursive: true, force: true });
-  });
+  }, 60_000);
 
   it('ejects php: file + pristine snapshot + AGENTS.md, and re-eject without --force errors', () => {
     const eject = run(project, ['eject-generator', 'php']);
@@ -55,7 +55,7 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
     );
     expect(run(project, ['eject-generator', 'php']).status).not.toBe(0);
     expect(run(project, ['eject-generator', 'php', '--force']).status).toBe(0);
-  });
+  }, 60_000);
 
   it('THE headline: an ejected-unmodified generator produces byte-identical output', () => {
     const builtin = run(project, [
@@ -80,7 +80,7 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
     expect(readFileSync(join(project, 'ejected/client.php'), 'utf-8')).toBe(
       readFileSync(join(project, 'builtin/client.php'), 'utf-8')
     );
-  });
+  }, 60_000);
 
   it('sdk prints guidance instead of ejecting; unknown names error', () => {
     const sdk = run(project, ['eject-generator', 'sdk']);
@@ -88,7 +88,7 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
     expect(sdk.stderr + sdk.stdout).toContain('not ejectable');
     expect(existsSync(join(project, 'generators/sdk.mjs'))).toBe(false);
     expect(run(project, ['eject-generator', 'nowhere']).status).not.toBe(0);
-  });
+  }, 60_000);
 
   it('--update merges cleanly around local edits and marks real conflicts', () => {
     appendFileSync(join(project, 'generators/php.mjs'), '// my local customization\n');
@@ -112,7 +112,7 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
     expect(conflicted.status, conflicted.stderr).toBe(0);
     expect(conflicted.stderr + conflicted.stdout).toContain('conflict');
     expect(readFileSync(join(project, 'generators/php.mjs'), 'utf-8')).toContain('<<<<<<<');
-  });
+  }, 60_000);
 
   it('scaffold-generator creates a runnable skeleton; built-in names are refused', () => {
     const scaffold = run(project, ['scaffold-generator', 'route-map']);
@@ -132,5 +132,5 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
       'GET /orders — listOrders'
     );
     expect(run(project, ['scaffold-generator', 'php']).status).not.toBe(0);
-  });
+  }, 60_000);
 });

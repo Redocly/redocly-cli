@@ -18,6 +18,8 @@
           page: commands/drift.md
         - label: eject
           page: commands/eject.md
+        - label: eject-generator
+          page: commands/eject-generator.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
         - label: generate-client
@@ -42,6 +44,8 @@
           page: commands/push-status.md
         - label: respect
           page: commands/respect.md
+        - label: scaffold-generator
+          page: commands/scaffold-generator.md
         - label: score
           page: commands/score.md
         - label: scorecard-classic
