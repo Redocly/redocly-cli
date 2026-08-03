@@ -8,21 +8,23 @@ import {
 describe('collectToolkitImports', () => {
   it('returns only OUR helper names from client-generator imports — never user identifiers', () => {
     const source = [
-      "import { flattenAllOf, CodeWriter, mySecretHelper } from '@redocly/client-generator';",
+      "import { flattenAllOf, Printer, mySecretHelper } from '@redocly/client-generator';",
       "import { printStatements } from '@redocly/client-generator/generate';",
       "import { internalThing } from './our-private-module.js';",
     ].join('\n');
-    expect(
-      collectToolkitImports(source, ['flattenAllOf', 'CodeWriter', 'printStatements'])
-    ).toEqual(['flattenAllOf', 'CodeWriter', 'printStatements']);
+    expect(collectToolkitImports(source, ['flattenAllOf', 'Printer', 'printStatements'])).toEqual([
+      'flattenAllOf',
+      'Printer',
+      'printStatements',
+    ]);
   });
 
   it('handles aliased and type-only named imports', () => {
     const source =
-      "import { type flattenAllOf, CodeWriter as Writer } from '@redocly/client-generator';";
-    expect(collectToolkitImports(source, ['flattenAllOf', 'CodeWriter'])).toEqual([
+      "import { type flattenAllOf, Printer as Writer } from '@redocly/client-generator';";
+    expect(collectToolkitImports(source, ['flattenAllOf', 'Printer'])).toEqual([
       'flattenAllOf',
-      'CodeWriter',
+      'Printer',
     ]);
   });
 });

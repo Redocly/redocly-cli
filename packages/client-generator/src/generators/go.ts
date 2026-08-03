@@ -6,7 +6,7 @@
 
 import {
   casing,
-  CodeWriter,
+  Printer,
   discriminatorCases,
   docText,
   enumValues,
@@ -79,7 +79,7 @@ export function goType(schema: SchemaModel): string {
   }
 }
 
-function writeDocComment(writer: CodeWriter, name: string, description?: string): void {
+function writeDocComment(writer: Printer, name: string, description?: string): void {
   const lines = docText(description);
   if (lines.length === 0) return;
   writer.line(`// ${name} — ${lines[0]}`);
@@ -87,7 +87,7 @@ function writeDocComment(writer: CodeWriter, name: string, description?: string)
 }
 
 function writeStruct(
-  writer: CodeWriter,
+  writer: Printer,
   name: string,
   properties: PropertyModel[],
   description?: string
@@ -121,7 +121,7 @@ function writeStruct(
 
 /** Render every named schema: typed-const enums, structs (allOf flattened), union dispatchers. */
 export function renderGoModels(model: ApiModel): string {
-  const writer = new CodeWriter('\t');
+  const writer = new Printer('\t');
   writer.line('package client');
   writer.blank();
   const needsJSON = model.schemas.some(
@@ -325,7 +325,7 @@ function goPaginationLiteral(rule: NeutralPaginationRule): string {
   return `&PaginationSpec{${fields.join(', ')}}`;
 }
 
-function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): void {
+function writeGoMethod(writer: Printer, op: OperationModel, ident: string): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
     go: identifierFor(param.name, { style: 'camel', reserved: GO }),
@@ -477,7 +477,7 @@ function writeGoMethod(writer: CodeWriter, op: OperationModel, ident: string): v
 
 /** `<Op>Pages` / `<Op>Items` iterators over the runtime's `iterPages`, hydrated via `reencode`. */
 function writeGoPaginationWrappers(
-  writer: CodeWriter,
+  writer: Printer,
   op: OperationModel,
   ident: string,
   pageType: string,
@@ -662,7 +662,7 @@ function writeGoPaginationWrappers(
 
 /** The whole generated file: models + embedded runtime + operations table + Client. */
 export const goGenerator: Generator = ({ model, outputPath, emit }) => {
-  const writer = new CodeWriter('\t');
+  const writer = new Printer('\t');
   const paginationRules = new Map<string, NeutralPaginationRule>();
   for (const { op, ident } of goOperationIdents(model)) {
     const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);

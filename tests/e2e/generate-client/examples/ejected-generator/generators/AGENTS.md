@@ -51,7 +51,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `isNullable(schema)` / `unwrapNullable(schema)`       | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
 | `enumValues(schema)`                                  | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |
 | `casing` / `identifierFor(name, { style, reserved })` | camel/pascal/snake/screaming; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped).                          |
-| `CodeWriter`                                          | Indentation-aware text builder — no manual whitespace bookkeeping.                                                               |
+| `Printer`                                             | Indentation-aware text builder — no manual whitespace bookkeeping.                                                               |
 | `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                                             |
 | `schemaAtPointer(schema, pointer, model)`             | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
 | `paginationRuleFor(op, config)`                       | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
@@ -60,7 +60,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 Worked example: the built-in `python` generator
 (`packages/client-generator/src/generators/python.ts` in the Redocly CLI repo) is
 authored with exactly this toolkit and nothing else — models via `flattenAllOf`/
-`enumValues`/`discriminatorCases`, all code through `CodeWriter`, every name through
+`enumValues`/`discriminatorCases`, all code through `Printer`, every name through
 `identifierFor(..., RESERVED_WORDS.python)`.
 
 TypeScript-emitting generators may additionally use the TS toolkit from

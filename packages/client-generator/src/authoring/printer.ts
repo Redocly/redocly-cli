@@ -1,7 +1,7 @@
 // A small indentation-aware text builder for emitting code in ANY language —
 // deliberately not an AST. Part of the language-neutral authoring toolkit.
 
-export class CodeWriter {
+export class Printer {
   private readonly lines: string[] = [];
   private depth = 0;
 

@@ -22,7 +22,7 @@ redocly scaffold-generator my-sdk --dir ./generators
 ## How it works
 
 The skeleton is a runnable generator: it walks every operation of the API description and emits one file.
-Replace its body with your output logic — the `CodeWriter`, naming, and schema helpers from `@redocly/client-generator` (installed once as a dev dependency) handle indentation, identifier sanitization, and schema semantics in any output language.
+Replace its body with your output logic — the `Printer`, naming, and schema helpers from `@redocly/client-generator` (installed once as a dev dependency) handle indentation, identifier sanitization, and schema semantics in any output language.
 
 ```yaml
 client:

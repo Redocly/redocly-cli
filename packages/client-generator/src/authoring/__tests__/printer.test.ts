@@ -1,8 +1,8 @@
-import { CodeWriter } from '../code-writer.js';
+import { Printer } from '../printer.js';
 
-describe('CodeWriter', () => {
+describe('Printer', () => {
   it('builds indented blocks in any language without manual whitespace bookkeeping', () => {
-    const writer = new CodeWriter();
+    const writer = new Printer();
     writer.line('class Pet:').indent(() => {
       writer.line('def __init__(self):').indent(() => {
         writer.line('self.name = name');
@@ -12,7 +12,7 @@ describe('CodeWriter', () => {
   });
 
   it('block() without a close suits dedent-terminated languages (Python)', () => {
-    const writer = new CodeWriter('    ');
+    const writer = new Printer('    ');
     writer.block('class Pet:', () => {
       writer.line('name: str');
     });
@@ -21,7 +21,7 @@ describe('CodeWriter', () => {
   });
 
   it('block() wraps open/body/close; blank() emits an empty line without indentation', () => {
-    const writer = new CodeWriter('    ');
+    const writer = new Printer('    ');
     writer.block(
       'func main() {',
       () => {

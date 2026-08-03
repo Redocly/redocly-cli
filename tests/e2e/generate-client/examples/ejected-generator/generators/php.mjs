@@ -8,7 +8,7 @@
 // extension: promoted-constructor classes with fromArray/toArray hydration, native
 // backed enums, match-based discriminator dispatchers, and a Client over the
 // embedded runtime. Exceptions are the error mode (`errorMode` does not apply).
-import { CodeWriter, docText, discriminatorCases, enumValues, flattenAllOf, identifierFor, isNullable, paginationRuleFor, RESERVED_WORDS, schemaAtPointer, unwrapNullable, } from '@redocly/client-generator';
+import { Printer, docText, discriminatorCases, enumValues, flattenAllOf, identifierFor, isNullable, paginationRuleFor, RESERVED_WORDS, schemaAtPointer, unwrapNullable, } from '@redocly/client-generator';
 import { PHP_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
 const PHP = RESERVED_WORDS.php;
 function className(name) {
@@ -214,7 +214,7 @@ function writeClass(writer, name, properties, model, description) {
 }
 /** Render every named schema: classes (allOf flattened), native enums, union dispatchers. */
 export function renderPhpModels(model) {
-    const writer = new CodeWriter('    ');
+    const writer = new Printer('    ');
     for (const { name, schema } of model.schemas) {
         const asEnum = enumValues(schema);
         if (asEnum !== undefined && (asEnum.scalar === 'string' || asEnum.scalar === 'integer')) {
@@ -485,7 +485,7 @@ function stripPhpHeader(source) {
 }
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
 export const phpGenerator = ({ model, outputPath, emit }) => {
-    const writer = new CodeWriter('    ');
+    const writer = new Printer('    ');
     const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
     writer.line('<?php');
     writer.blank();

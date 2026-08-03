@@ -2,7 +2,7 @@
 // no typescript, no @redocly/openapi-core, no Node builtins — so it is exported
 // from the package ROOT: a custom generator importing only these stays TS-free.
 
-export { CodeWriter } from './code-writer.js';
+export { Printer } from './printer.js';
 export { casing, identifierFor, RESERVED_WORDS } from './naming.js';
 export { paginationRuleFor, type NeutralPaginationRule } from './pagination.js';
 export {
@@ -17,7 +17,7 @@ export {
 
 /** Every value exported above — the skill's helper table and Tier-2 telemetry key off this. */
 export const AUTHORING_HELPER_NAMES = [
-  'CodeWriter',
+  'Printer',
   'casing',
   'identifierFor',
   'RESERVED_WORDS',

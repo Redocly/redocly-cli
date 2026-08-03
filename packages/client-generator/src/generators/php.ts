@@ -6,7 +6,7 @@
 // embedded runtime. Exceptions are the error mode (`errorMode` does not apply).
 
 import {
-  CodeWriter,
+  Printer,
   docText,
   discriminatorCases,
   enumValues,
@@ -159,14 +159,14 @@ function serialization(schema: SchemaModel, expr: string, model: ApiModel): stri
   return undefined;
 }
 
-function writeDocComment(writer: CodeWriter, name: string, description?: string): void {
+function writeDocComment(writer: Printer, name: string, description?: string): void {
   const lines = docText(description);
   if (lines.length === 0) return;
   writer.line(`/** ${name} — ${lines.join(' ')} */`);
 }
 
 function writeClass(
-  writer: CodeWriter,
+  writer: Printer,
   name: string,
   properties: PropertyModel[],
   model: ApiModel,
@@ -259,7 +259,7 @@ function writeClass(
 
 /** Render every named schema: classes (allOf flattened), native enums, union dispatchers. */
 export function renderPhpModels(model: ApiModel): string {
-  const writer = new CodeWriter('    ');
+  const writer = new Printer('    ');
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined && (asEnum.scalar === 'string' || asEnum.scalar === 'integer')) {
@@ -424,7 +424,7 @@ function methodArgs(op: OperationModel, model: ApiModel, includeBody: boolean): 
 }
 
 /** The shared prologue: resolve auth, build query/url, merge headers. */
-function writeRequestSetup(writer: CodeWriter, op: OperationModel, args: MethodArgs): void {
+function writeRequestSetup(writer: Printer, op: OperationModel, args: MethodArgs): void {
   writer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
   writer.line(
     "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
@@ -452,7 +452,7 @@ function writeRequestSetup(writer: CodeWriter, op: OperationModel, args: MethodA
   );
 }
 
-function writePhpMethod(writer: CodeWriter, op: OperationModel, model: ApiModel): void {
+function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): void {
   const args = methodArgs(op, model, true);
   const sse = sseResponse(op);
   const success = successSchema(op);
@@ -535,7 +535,7 @@ function writePhpMethod(writer: CodeWriter, op: OperationModel, model: ApiModel)
 
 /** `<op>Pages()` / `<op>Items()` generators over the runtime's iterPages. */
 function writePhpPaginationWrappers(
-  writer: CodeWriter,
+  writer: Printer,
   op: OperationModel,
   model: ApiModel,
   pageHydration: string | undefined,
@@ -659,7 +659,7 @@ function stripPhpHeader(source: string): string {
 
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
 export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
-  const writer = new CodeWriter('    ');
+  const writer = new Printer('    ');
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
   writer.line('<?php');
   writer.blank();
