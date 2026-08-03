@@ -1,4 +1,4 @@
-// Scaffolded with `redocly scaffold-generator ops-summary`, then filled in:
+// Architected with `redocly architect-generator ops-summary`, then filled in:
 // emits a markdown operations summary next to the client — an artifact no
 // built-in generator covers, derived from the same API model, so it can
 // never drift from the description.

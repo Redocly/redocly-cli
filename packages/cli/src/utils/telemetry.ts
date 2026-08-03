@@ -152,7 +152,7 @@ export async function sendTelemetry({
           ?.length
           ? JSON.stringify(generate_client.generate_client_ejected_generators)
           : undefined,
-        // eject-generator / scaffold-generator usage (action, allowlisted name, coarse
+        // eject-generator / architect-generator usage (action, allowlisted name, coarse
         // outcome — never user paths or user-chosen names).
         eject_generator_action: eject_generator?.eject_generator_action,
         eject_generator_name: eject_generator?.eject_generator_name,

@@ -61,13 +61,13 @@ Express un-bypassable behavior as middleware, not a custom `fetch`.
 A setup file may import **only** from `@redocly/client-generator`.
 See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
 
-## Eject and scaffold
+## Eject and architect
 
 The fastest paths to a customized generator are the two commands:
 
 - [`redocly eject-generator <name>`](../commands/eject-generator.md) vendors a built-in language generator (`python`, `go`, `php`) into `./generators/` as an editable file, with a pristine snapshot for [three-way updates](../commands/eject-generator.md#how-it-works) and the `AGENTS.md` authoring guide for your coding agent.
   An ejected-unmodified generator produces byte-identical output, and the path entry takes over the built-in name — regeneration survives every customization.
-- [`redocly scaffold-generator <name>`](../commands/scaffold-generator.md) creates a runnable skeleton for an artifact no built-in covers.
+- [`redocly architect-generator <name>`](../commands/architect-generator.md) creates a runnable skeleton for an artifact no built-in covers.
 
 Both drop `AGENTS.md` next to the generator: your agent reads it to learn the model shape, the helper library, and the verify loop (edit the generator → `redocly generate-client` → review the client diff — generated files are never hand-edited).
 

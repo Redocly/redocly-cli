@@ -79,14 +79,14 @@ export function categorizeGenerateClientError(message: string): string {
 }
 
 export type EjectGeneratorTelemetry = {
-  /** 'eject' | 'update' | 'guidance' | 'scaffold'. */
+  /** 'eject' | 'update' | 'guidance' | 'architect'. */
   eject_generator_action?: string;
-  /** Allowlisted built-in name only; scaffold and unknown names stay unnamed. */
+  /** Allowlisted built-in name only; architect and unknown names stay unnamed. */
   eject_generator_name?: string;
   /** Coarse outcome: success | conflicts | already-exists | missing-pristine | merge-tool-missing | unknown-generator | builtin-name | invalid-name. */
   eject_generator_outcome?: string;
   eject_generator_conflicts?: number;
 };
 
-/** Populated by the eject/scaffold handlers; spread into the telemetry payload by the wrapper. */
+/** Populated by the eject/architect handlers; spread into the telemetry payload by the wrapper. */
 export const ejectGeneratorTelemetry: EjectGeneratorTelemetry = {};

@@ -6,7 +6,7 @@ import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
 import { type CommandArgs } from '../wrapper.js';
 import { ejectAssetsDir } from './eject-generator.js';
 
-export type ScaffoldGeneratorCommandArgv = {
+export type ArchitectGeneratorCommandArgv = {
   generator?: string;
   config?: string;
   dir?: string;
@@ -29,7 +29,7 @@ const BUILTIN_NAMES = new Set([
 ]);
 
 function skeleton(name: string): string {
-  return `// A custom generator scaffolded by \`redocly scaffold-generator\`.
+  return `// A custom generator architected by \`redocly architect-generator\`.
 // It runs from the \`generators\` list in redocly.yaml and emits files next to the
 // configured client output. The authoring guide for your agent is in ./AGENTS.md;
 // the deep reference is the "Customize client generation" guide in the Redocly docs.
@@ -58,17 +58,17 @@ export default {
 `;
 }
 
-export const handleScaffoldGenerator = async ({
+export const handleArchitectGenerator = async ({
   argv,
-}: CommandArgs<ScaffoldGeneratorCommandArgv>) => {
+}: CommandArgs<ArchitectGeneratorCommandArgv>) => {
   const name = argv.generator ?? '';
-  // Coarse usage telemetry: action + outcome category only — a scaffolded generator's
+  // Coarse usage telemetry: action + outcome category only — a architected generator's
   // name is user-chosen and never transmitted.
-  ejectGeneratorTelemetry.eject_generator_action = 'scaffold';
+  ejectGeneratorTelemetry.eject_generator_action = 'architect';
   if (!/^[a-z][a-z0-9-]*$/.test(name)) {
     ejectGeneratorTelemetry.eject_generator_outcome = 'invalid-name';
     throw new HandledError(
-      `\n❌  Generator name must be kebab-case (got "${name}"). Example: redocly scaffold-generator route-map\n`
+      `\n❌  Generator name must be kebab-case (got "${name}"). Example: redocly architect-generator route-map\n`
     );
   }
   if (BUILTIN_NAMES.has(name)) {
@@ -100,7 +100,7 @@ export const handleScaffoldGenerator = async ({
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configPath = `./${relative(process.cwd(), target).split('\\').join('/')}`;
   logger.info(
-    `Scaffolded ${relative(process.cwd(), target)}.\n` +
+    `Architected ${relative(process.cwd(), target)}.\n` +
       `Add it to your config and run \`redocly generate-client\`:\n\n` +
       `  client:\n    generators:\n      - sdk\n      - ${configPath}\n`
   );

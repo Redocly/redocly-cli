@@ -34,7 +34,7 @@ function run(cwd: string, args: string[]) {
   return spawnSync('node', [cliEntry, ...args], { cwd, encoding: 'utf-8' });
 }
 
-describe('eject-generator / scaffold-generator (end-to-end)', () => {
+describe('eject-generator / architect-generator (end-to-end)', () => {
   let project: string;
 
   beforeAll(() => {
@@ -119,23 +119,23 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
     expect(readFileSync(join(project, 'generators/php.mjs'), 'utf-8')).toContain('<<<<<<<');
   }, 60_000);
 
-  it('scaffold-generator creates a runnable skeleton; built-in names are refused', () => {
-    const scaffold = run(project, ['scaffold-generator', 'route-map']);
-    expect(scaffold.status, scaffold.stderr).toBe(0);
+  it('architect-generator creates a runnable skeleton; built-in names are refused', () => {
+    const architect = run(project, ['architect-generator', 'route-map']);
+    expect(architect.status, architect.stderr).toBe(0);
     const generate = run(project, [
       'generate-client',
       'openapi.yaml',
       '--output',
-      'scaffolded/client.ts',
+      'architected/client.ts',
       '--generator',
       'sdk',
       '--generator',
       './generators/route-map.mjs',
     ]);
     expect(generate.status, generate.stderr).toBe(0);
-    expect(readFileSync(join(project, 'scaffolded/client.route-map.txt'), 'utf-8')).toContain(
+    expect(readFileSync(join(project, 'architected/client.route-map.txt'), 'utf-8')).toContain(
       'GET /orders — listOrders'
     );
-    expect(run(project, ['scaffold-generator', 'php']).status).not.toBe(0);
+    expect(run(project, ['architect-generator', 'php']).status).not.toBe(0);
   }, 60_000);
 });

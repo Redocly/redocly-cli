@@ -12,6 +12,10 @@ import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
+import {
+  handleArchitectGenerator,
+  type ArchitectGeneratorCommandArgv,
+} from './commands/architect-generator.js';
 import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
@@ -39,10 +43,6 @@ import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
-import {
-  handleScaffoldGenerator,
-  type ScaffoldGeneratorCommandArgv,
-} from './commands/scaffold-generator.js';
 import { handleScore } from './commands/score/index.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type {
@@ -996,7 +996,7 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'scaffold-generator [generator]',
+    'architect-generator [generator]',
     'Create a custom client-generator skeleton plus the authoring guide (AGENTS.md) [experimental].',
     (yargs) =>
       yargs
@@ -1006,14 +1006,14 @@ yargs(hideBin(process.argv))
         })
         .options({
           dir: {
-            describe: 'Directory to scaffold into.',
+            describe: 'Directory to architect into.',
             type: 'string',
             default: './generators',
             requiresArg: true,
           },
         }),
     async (argv) => {
-      commandWrapper(handleScaffoldGenerator)(argv as Arguments<ScaffoldGeneratorCommandArgv>);
+      commandWrapper(handleArchitectGenerator)(argv as Arguments<ArchitectGeneratorCommandArgv>);
     }
   )
   .command(

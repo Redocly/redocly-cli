@@ -1,5 +1,5 @@
+import { handleArchitectGenerator } from '../../commands/architect-generator.js';
 import { handleEjectGenerator } from '../../commands/eject-generator.js';
-import { handleScaffoldGenerator } from '../../commands/scaffold-generator.js';
 import { ejectGeneratorTelemetry } from '../../utils/generate-client-telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
 
@@ -14,7 +14,7 @@ function reset() {
   }
 }
 
-describe('eject/scaffold telemetry (coarse categories only)', () => {
+describe('eject/architect telemetry (coarse categories only)', () => {
   beforeEach(reset);
 
   it('sdk guidance records the allowlisted name and a guidance action', async () => {
@@ -37,12 +37,12 @@ describe('eject/scaffold telemetry (coarse categories only)', () => {
     expect(ejectGeneratorTelemetry.eject_generator_name).toBeUndefined();
   });
 
-  it('scaffolding a built-in name records the refusal, not the name', async () => {
+  it('architecting a built-in name records the refusal, not the name', async () => {
     await expect(
-      handleScaffoldGenerator({ ...baseArgs, argv: { generator: 'php' } } as CommandArgs<never>)
+      handleArchitectGenerator({ ...baseArgs, argv: { generator: 'php' } } as CommandArgs<never>)
     ).rejects.toThrow(/built-in generator/);
     expect(ejectGeneratorTelemetry).toEqual({
-      eject_generator_action: 'scaffold',
+      eject_generator_action: 'architect',
       eject_generator_outcome: 'builtin-name',
     });
   });

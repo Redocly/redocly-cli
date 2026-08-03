@@ -1,15 +1,15 @@
-# `scaffold-generator`
+# `architect-generator`
 
 ## Introduction
 
-The `scaffold-generator` command creates a custom client-generator skeleton — for emitting an artifact no built-in generator covers (a route map, a facade, an SDK in another language).
+The `architect-generator` command creates a custom client-generator skeleton — for emitting an artifact no built-in generator covers (a route map, a facade, an SDK in another language).
 It also drops `AGENTS.md`, the authoring guide that teaches your coding agent the generator contract, the API model shape, and the language-neutral helpers.
 
 ## Usage
 
 ```bash
-redocly scaffold-generator route-map
-redocly scaffold-generator my-sdk --dir ./generators
+redocly architect-generator route-map
+redocly architect-generator my-sdk --dir ./generators
 ```
 
 ## Options
@@ -17,7 +17,7 @@ redocly scaffold-generator my-sdk --dir ./generators
 | Option    | Type   | Description                                                          |
 | --------- | ------ | -------------------------------------------------------------------- |
 | generator | string | Name for the new generator (kebab-case; built-in names are refused). |
-| `--dir`   | string | Directory to scaffold into. Default `./generators`.                  |
+| `--dir`   | string | Directory to architect into. Default `./generators`.                 |
 
 ## How it works
 

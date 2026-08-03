@@ -1,10 +1,10 @@
 {
-  "name": "@redocly-examples/scaffolded-generator",
+  "name": "@redocly-examples/architected-generator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "scaffold": "redocly scaffold-generator my-generator",
+    "architect": "redocly architect-generator my-generator",
     "generate": "redocly generate-client"
   },
   "devDependencies": {
