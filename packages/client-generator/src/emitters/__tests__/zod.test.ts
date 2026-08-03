@@ -1,5 +1,4 @@
 import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { printStatements } from '../ts.js';
 import { renderZodModule, schemaToZodExpression } from '../zod.js';
 import { apiModel, operation, response } from './fixtures.js';
 
@@ -438,8 +437,7 @@ describe('renderZodModule — operation validation surface', () => {
 });
 
 describe('schemaToZodExpression — direct export', () => {
-  it('is callable directly and returns an expression node', () => {
-    const node = schemaToZodExpression({ kind: 'scalar', scalar: 'string' });
-    expect(printStatements([node])).toBe('z.string()');
+  it('is callable directly and returns the expression source text', () => {
+    expect(schemaToZodExpression({ kind: 'scalar', scalar: 'string' })).toBe('z.string()');
   });
 });
