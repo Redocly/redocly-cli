@@ -3,6 +3,7 @@
 # Backup package.json files
 cp packages/core/package.json packages/core/package.json.bak
 cp packages/respect-core/package.json packages/respect-core/package.json.bak
+cp packages/client-generator/package.json packages/client-generator/package.json.bak
 
 # Build and pack core package
 cd packages/core
@@ -17,6 +18,13 @@ respect_core=$(npm pack | tail -n 1)
 mv $respect_core ../../respect-core.tgz
 cd ../../
 
+# Update and pack client-generator package
+cd packages/client-generator
+jq '.dependencies["@redocly/openapi-core"] = "./openapi-core.tgz"' package.json > tmp.json && mv tmp.json package.json
+client_generator=$(npm pack | tail -n 1)
+mv $client_generator ../../client-generator.tgz
+cd ../../
+
 # Pack cli from its staged, dependency-free publish directory
 cd packages/cli
 npm run prepare:publish-dir
@@ -28,3 +36,4 @@ cd ../../
 # Restore original package.json files
 mv packages/core/package.json.bak packages/core/package.json
 mv packages/respect-core/package.json.bak packages/respect-core/package.json
+mv packages/client-generator/package.json.bak packages/client-generator/package.json

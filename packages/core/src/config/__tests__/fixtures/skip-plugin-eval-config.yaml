@@ -1,0 +1,7 @@
+extends:
+  - 'test-plugin/recommended'
+plugins:
+  - './throwing-plugin.cjs'
+apis:
+  main:
+    root: ./openapi.yaml

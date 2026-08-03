@@ -36,7 +36,7 @@ properties:
       - string
       - 'null'
     format: binary
-    description: Photo of the menu item. Must be a PNG image and less than 1MB.
+    description: Photo of the menu item. Must be a PNG image less than 1MB in size.
   photoUrl:
     readOnly: true
     type: string

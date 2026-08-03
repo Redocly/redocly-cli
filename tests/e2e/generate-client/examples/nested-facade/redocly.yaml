@@ -1,0 +1,13 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+#
+# The custom generator below derives a nested, resource-grouped facade
+# (`api.orders.listOrders(…)`) from the spec's tags — so the nesting regenerates
+# with the spec instead of living in a hand-maintained file.
+apis:
+  nested-facade:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+        - ./nested-facade-generator.mjs

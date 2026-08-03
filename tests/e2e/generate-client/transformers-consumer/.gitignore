@@ -1,0 +1,3 @@
+# Generated fresh by transformers.test.ts in beforeAll and removed in afterAll.
+client.ts
+client.transformers.ts

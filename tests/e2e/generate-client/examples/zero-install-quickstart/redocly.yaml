@@ -1,0 +1,8 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+apis:
+  zero-install-quickstart:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk

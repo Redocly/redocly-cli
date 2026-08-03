@@ -1,0 +1,4 @@
+# Generated fresh by pagination.test.ts in beforeAll; excluded from the root typecheck.
+api.ts
+api-offset.ts
+api-package.ts

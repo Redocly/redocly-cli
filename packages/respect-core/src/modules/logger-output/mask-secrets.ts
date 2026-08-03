@@ -10,39 +10,56 @@ export const POTENTIALLY_SECRET_FIELDS = [
   'client_secret',
 ];
 
+/**
+ * A secret can appear in a log or capture already encoded: a JSON body
+ * escapes quotes and backslashes, a form-urlencoded body or a URL
+ * percent-encodes special characters. Mask those variants along with the
+ * raw value.
+ */
+function collectSecretPatterns(secretsSet: Set<string>): string[] {
+  const patterns = new Set<string>();
+  for (const secret of secretsSet) {
+    if (!secret.trim()) continue;
+    patterns.add(secret);
+    patterns.add(JSON.stringify(secret).slice(1, -1));
+    // A lone surrogate reaching us through a captured `\uD800` escape makes
+    // encodeURIComponent throw; URLSearchParams substitutes U+FFFD instead.
+    if (secret.isWellFormed()) {
+      patterns.add(encodeURIComponent(secret));
+    }
+    // URLSearchParams serializes to `secret=value`; drop the key to keep
+    // the form-urlencoded variant (spaces become `+`, unlike encodeURIComponent).
+    patterns.add(new URLSearchParams([['secret', secret]]).toString().slice('secret='.length));
+  }
+  // Longest first: a short secret nested in a longer one would otherwise mask
+  // only the prefix and leave the rest of the longer secret visible.
+  return Array.from(patterns).sort((left, right) => right.length - left.length);
+}
+
 export function maskSecrets<T extends { [x: string]: any } | string>(
   target: T,
   secretsSet: Set<string>
 ): T {
-  const maskValue = (value: string, secret: string): string => {
-    return value.replace(secret, '*'.repeat(8));
-  };
-
-  if (typeof target === 'string') {
-    let maskedString = target as string;
-    secretsSet.forEach((secret) => {
-      maskedString = maskedString.split(secret).join('*'.repeat(8));
-    });
-    return maskedString as T;
-  }
-
-  const masked = deepCopy(target);
-  const maskIfContainsSecret = (value: string): string => {
+  const patterns = collectSecretPatterns(secretsSet);
+  const maskString = (value: string): string => {
     let maskedValue = value;
-
-    for (const secret of secretsSet) {
-      if (maskedValue.includes(secret)) {
-        maskedValue = maskValue(maskedValue, secret);
+    for (const pattern of patterns) {
+      if (maskedValue.includes(pattern)) {
+        maskedValue = maskedValue.split(pattern).join('*'.repeat(8));
       }
     }
-
     return maskedValue;
   };
 
+  if (typeof target === 'string') {
+    return maskString(target) as T;
+  }
+
+  const masked = deepCopy(target);
   const maskRecursive = (current: any) => {
     for (const key in current) {
       if (typeof current[key] === 'string') {
-        current[key] = maskIfContainsSecret(current[key]);
+        current[key] = maskString(current[key]);
       } else if (isPlainObject(current[key]) || Array.isArray(current[key])) {
         // Skip special objects that should not be modified
         if (

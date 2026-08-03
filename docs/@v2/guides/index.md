@@ -85,6 +85,18 @@ How to create a custom decorator to hide OpenAPI specification extensions.
 Combine built-in and custom rules to match your API's standards.
 {% /card %}
 
+{% card title="Use the generated client"
+    to="./use-generated-client"
+  %}
+Authenticate, handle errors, and compose middleware with a client from `generate-client`.
+{% /card %}
+
+{% card title="Customize client generation"
+    to="./customize-client-generation"
+  %}
+Pre-configure publisher defaults and write custom client generators.
+{% /card %}
+
 {% card title="Set up tab completion"
     to="./autocomplete"
   %}

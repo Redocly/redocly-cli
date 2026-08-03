@@ -9,8 +9,39 @@ get:
     - $ref: ../components/parameters/After.yaml
     - $ref: ../components/parameters/Before.yaml
     - $ref: ../components/parameters/Sort.yaml
+      description: |-
+        Sorts the collection by a single field. Prefix with `-` for descending order
+        (for example, `-price`); omit the prefix for ascending order (`price`).
+
+        **Sortable fields:** `name`, `price`, `createdAt`, `updatedAt`, `id`
+      example: '-price'
     - $ref: ../components/parameters/Filter.yaml
+      description: |-
+        Filters the collection items using space-separated `field:value` pairs.
+
+        **Filterable fields:** `name`, `category`, `price`, `createdAt`, `id`
+
+        **Format:** `field1:value1 field2:value2`
+
+        **Supported operators:**
+        - `field:value` - Exact match
+        - `field:value1,value2` - Match any of the comma-separated values (OR)
+        - Time ranges (on `createdAt`): Use `30d` (30 days), `7d` (7 days), `1h` (1 hour), etc.
+
+        **Examples:**
+        - `category:beverage` - Filter by a single category.
+        - `category:beverage,dessert` - Filter by multiple categories.
+        - `createdAt:7d` - Menu items created in the last 7 days.
+        - `name:Latte` - Filter by name.
+        - `category:beverage price:400` - Combine multiple filters.
+      example: category:beverage
     - $ref: ../components/parameters/Search.yaml
+      description: |-
+        Performs a case-insensitive text search across the searchable fields, returning
+        items where any of them contain the search term as a substring.
+
+        **Searchable fields:** `name`, `photoTextDescription`
+      example: Latte
     - $ref: ../components/parameters/Limit.yaml
   responses:
     '200':

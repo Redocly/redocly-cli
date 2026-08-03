@@ -3,52 +3,43 @@
 exports[`should use server override from CLI and env 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow server-override-with-console-parameters.arazzo.yaml / get-museum-hours 
+  Running workflow server-override-with-console-parameters.arazzo.yaml / get-menu-items 
  
-  Running child workflow for the step buy-ticket 
-  Running workflow museum-tickets.yaml / get-museum-tickets 
+  Running child workflow for the step search-menu 
+  Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✗ POST /tickets - step buy-tickets 
+  ✗ GET /menu - step search-menu 
 
-    Request URL: https://museum-api-bad-endpoint.com/museum-api-bad-endpoint/tickets
+    Request URL: https://cafe-api-bad-endpoint.com/cafe-api-bad-endpoint/menu?search=mermaid-treasure-latte
     Request Headers:
-      content-type: application/json
-      accept: application/json, application/problem+json
-      authorization: Basic Og==
-    Request Body:
-      {
-        "ticketType": "general",
-        "ticketDate": "2023-09-07",
-        "email": "todd@example.com"
-      } 
+      accept: application/json, application/problem+json 
  
     ✗ failed network request
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow server-override-with-console-parameters.arazzo.yaml / events-crud 
+  Running workflow server-override-with-console-parameters.arazzo.yaml / client-registration 
  
-  ✗ GET /special-events - step list-events 
+  ✗ GET /menu - step list-menu-items 
 
-    Request URL: https://museum-api-bad-endpoint.com/museum-api-bad-endpoint/special-events
+    Request URL: https://cafe-api-bad-endpoint.com/cafe-api-bad-endpoint/menu
     Request Headers:
-      accept: application/json, application/problem+json
-      authorization: Basic Og== 
+      accept: application/json, application/problem+json 
  
     ✗ failed network request
  
 
   Failed tests info:
 
-  Workflow name: get-museum-hours
+  Workflow name: get-menu-items
  
-    stepId - buy-ticket 
+    stepId - search-menu 
     ✗ unexpected error 
-    Reason: Failed to resolve output "ticketId" in workflow "get-museum-tickets": Error in resolving runtime expression '$steps.buy-tickets.outputs.ticketId'. 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
-  Workflow name: events-crud
+  Workflow name: client-registration
  
-    stepId - list-events 
+    stepId - list-menu-items 
     ✗ failed network request 
       fetch failed (cause: ENOTFOUND)
        

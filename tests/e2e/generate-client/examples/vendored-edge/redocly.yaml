@@ -1,0 +1,10 @@
+# redocly.yaml — how the vendored src/api/client.ts was produced (and how the
+# repo's CI drift-checks it). The deployed worker does NOT need this file or the
+# CLI: the client is generated once, then the single output file is copied in.
+apis:
+  vendored-edge:
+    root: ./openapi.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
