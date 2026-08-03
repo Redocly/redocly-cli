@@ -62,15 +62,16 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   // so a python-only selection never loads the `typescript` package.
   python: {
     load: () =>
-      import('./python.js').then((m) => ({ run: m.pythonGenerator, sample: m.pythonSample })),
+      import('./python/index.js').then((m) => ({ run: m.pythonGenerator, sample: m.pythonSample })),
   },
   // go emits a standalone full Go SDK (stdlib-only) — no TypeScript involved.
   go: {
-    load: () => import('./go.js').then((m) => ({ run: m.goGenerator, sample: m.goSample })),
+    load: () => import('./go/index.js').then((m) => ({ run: m.goGenerator, sample: m.goSample })),
   },
   // php emits a standalone full PHP SDK (curl extension) — no TypeScript involved.
   php: {
-    load: () => import('./php.js').then((m) => ({ run: m.phpGenerator, sample: m.phpSample })),
+    load: () =>
+      import('./php/index.js').then((m) => ({ run: m.phpGenerator, sample: m.phpSample })),
   },
 };
 

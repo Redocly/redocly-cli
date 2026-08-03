@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { pythonGenerator, renderPythonModels } from '../python.js';
+import { pythonGenerator, renderPythonModels } from '../python/index.js';
 
 const hasPython = spawnSync('python3', ['--version']).status === 0;
 

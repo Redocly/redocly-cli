@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { phpGenerator, renderPhpModels } from '../php.js';
+import { phpGenerator, renderPhpModels } from '../php/index.js';
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
 

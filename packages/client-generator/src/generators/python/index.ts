@@ -15,15 +15,15 @@ import {
   isNullable,
   RESERVED_WORDS,
   unwrapNullable,
-} from '../authoring/index.js';
-import { PYTHON_RUNTIME_SOURCES } from '../emitters/python-runtime-sources.js';
+} from '../../authoring/index.js';
+import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
 import type {
   ApiModel,
   OperationModel,
   PropertyModel,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import type { CodeSample, Generator, SampleContext } from './types.js';
+} from '../../intermediate-representation/model.js';
+import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 const PY = RESERVED_WORDS.python;
 

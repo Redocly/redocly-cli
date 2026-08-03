@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { goGenerator, renderGoModels } from '../go.js';
+import { goGenerator, renderGoModels } from '../go/index.js';
 
 const hasGo = spawnSync('go', ['version']).status === 0;
 

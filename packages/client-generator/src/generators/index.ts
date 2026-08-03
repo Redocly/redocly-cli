@@ -1,10 +1,10 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
 import { cliGenerator, cliSample } from './cli.js';
-import { goGenerator, goSample } from './go.js';
+import { goGenerator, goSample } from './go/index.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock.js';
-import { phpGenerator, phpSample } from './php.js';
-import { pythonGenerator, pythonSample } from './python.js';
+import { phpGenerator, phpSample } from './php/index.js';
+import { pythonGenerator, pythonSample } from './python/index.js';
 import { sdkGenerator, sdkSample } from './sdk.js';
 import { swrGenerator } from './swr.js';
 import { tanstackQueryGenerator } from './tanstack-query.js';

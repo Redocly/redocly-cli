@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -21,10 +21,10 @@ const EJECTABLE = [
 ];
 
 for (const { name, run, sample } of EJECTABLE) {
-  const source = readFileSync(join(pkgRoot, 'src', 'generators', `${name}.ts`), 'utf-8')
-    .replaceAll("'../authoring/index.js'", "'@redocly/client-generator'")
+  const source = readFileSync(join(pkgRoot, 'src', 'generators', name, 'index.ts'), 'utf-8')
+    .replaceAll("'../../authoring/index.js'", "'@redocly/client-generator'")
     .replaceAll(
-      `'../emitters/${name}-runtime-sources.js'`,
+      `'../../emitters/${name}-runtime-sources.js'`,
       "'@redocly/client-generator/runtime-sources'"
     );
   const stripped = ts.transpileModule(source, {
@@ -49,4 +49,11 @@ for (const { name, run, sample } of EJECTABLE) {
     process.stderr.write(`eject asset ${name}.mjs failed node --check:\n${check.stderr}`);
     process.exit(1);
   }
+  // The generator's OWN skill ships beside its code: eject drops it as
+  // `generators/<name>.AGENTS.md` so the agent that edits the ejected file
+  // starts from the generator's design, not from reverse-engineering it.
+  copyFileSync(
+    join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'),
+    join(outDir, `${name}.AGENTS.md`)
+  );
 }

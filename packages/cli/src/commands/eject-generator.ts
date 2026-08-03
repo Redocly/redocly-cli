@@ -64,6 +64,16 @@ function dropAgentsSkill(dir: string, assetsDir: string): void {
   );
 }
 
+/** The generator's OWN design skill, refreshed on every eject/update (it documents OUR
+ * generator; user notes belong outside it). Dropped as `generators/<name>.AGENTS.md`. */
+function dropGeneratorSkill(dir: string, assetsDir: string, name: string): void {
+  writeFileSync(
+    join(dir, `${name}.AGENTS.md`),
+    readFileSync(join(assetsDir, 'generators', `${name}.AGENTS.md`), 'utf-8'),
+    'utf-8'
+  );
+}
+
 /** 3-way merge via `git merge-file`; returns the merged text and the conflict count. */
 function threeWayMerge(
   customized: string,
@@ -157,6 +167,7 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
     writeFileSync(target, merged, 'utf-8');
     writeFileSync(pristine, asset, 'utf-8');
     dropAgentsSkill(dir, assetsDir);
+    dropGeneratorSkill(dir, assetsDir, name);
     ejectGeneratorTelemetry.eject_generator_outcome = conflicts > 0 ? 'conflicts' : 'success';
     if (conflicts > 0) {
       ejectGeneratorTelemetry.eject_generator_conflicts = conflicts;
@@ -179,6 +190,7 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
   writeFileSync(target, asset, 'utf-8');
   writeFileSync(pristine, asset, 'utf-8');
   dropAgentsSkill(dir, assetsDir);
+  dropGeneratorSkill(dir, assetsDir, name);
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configPath = `./${relative(process.cwd(), target).split('\\').join('/')}`;
   logger.info(

@@ -1,0 +1,42 @@
+# The `go` generator — its skill
+
+This file is the generator's DESIGN. It ships to users on `redocly eject-generator go`
+(as `generators/go.AGENTS.md`) and governs our own changes: **to change the generator,
+edit this skill first, then make the code match it** — a diff to `index.ts` that has no
+covering sentence here is incomplete.
+
+## What it emits
+
+One self-contained `<stem>.go` (`package client`): structs with `json` tags, a `Client`
+with one `(T, error)` method per operation taking a `context.Context`, and the embedded
+runtime. Go ≥ 1.21, standard library only — zero dependencies.
+
+## Design decisions that must hold
+
+- **Models are structs**: required fields by value, optionals as pointers with
+  `,omitempty`; the `json` tag always carries the exact wire name.
+- **Naming:** exported PascalCase via `identifierFor` + an `N` prefix for digit-leading
+  names (`3ds` → `N3ds` — an `_`-prefixed field is unexported and invisible to
+  `encoding/json`); `+1`/`-1` become `Plus1`/`Minus1`.
+- **Enums** are typed consts (`type Status string` + `StatusInProgress Status = …`);
+  **discriminated unions** are `type X = any` plus a generated `UnmarshalX([]byte)`
+  dispatcher; **allOf** is flattened.
+- **Errors:** `(T, error)` returns ARE the error mode — `errorMode` does not change the
+  output. Non-2xx → `*APIError`; timeouts → `*TimeoutError`.
+- **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
+  `context.WithTimeout`, idempotency keys, middleware, pagination (`<Op>Pages`/`<Op>Items`
+  as `func(yield func(T, error) bool)` — `range`-over-func needs Go ≥ 1.23; 1.21 calls
+  them with a callback), SSE, multipart.
+- The runtime is hand-written in `go-runtime/runtime.go` (gofmt-clean, `go vet`-clean)
+  and embedded at prepare time.
+- Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
+
+## The modify loop
+
+1. Edit this skill: state the new behavior or decision.
+2. Change `index.ts` (and `go-runtime/runtime.go` for runtime behavior; `gofmt -w` +
+   `go vet ./...` it, then `npm run prepare -w @redocly/client-generator`).
+3. Verify: `npm run compile`, then
+   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/go.test.ts`
+   (real `go build` + `go vet` bars), the e2e smoke (`tests/e2e/generate-client/go.test.ts`),
+   and `npm run harness`.

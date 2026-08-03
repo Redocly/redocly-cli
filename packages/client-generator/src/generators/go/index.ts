@@ -18,15 +18,15 @@ import {
   schemaAtPointer,
   unwrapNullable,
   type NeutralPaginationRule,
-} from '../authoring/index.js';
-import { GO_RUNTIME_SOURCE } from '../emitters/go-runtime-sources.js';
+} from '../../authoring/index.js';
+import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 import type {
   ApiModel,
   OperationModel,
   PropertyModel,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import type { CodeSample, Generator, SampleContext } from './types.js';
+} from '../../intermediate-representation/model.js';
+import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 const GO = RESERVED_WORDS.go;
 

@@ -53,6 +53,11 @@ describe('eject-generator / scaffold-generator (end-to-end)', () => {
     expect(readFileSync(join(project, 'generators/AGENTS.md'), 'utf-8')).toContain(
       'redocly-generators:begin'
     );
+    // The generator's OWN design skill ships alongside — the file an agent reads
+    // before editing the ejected generator.
+    expect(readFileSync(join(project, 'generators/php.AGENTS.md'), 'utf-8')).toContain(
+      'edit this skill first'
+    );
     expect(run(project, ['eject-generator', 'php']).status).not.toBe(0);
     expect(run(project, ['eject-generator', 'php', '--force']).status).toBe(0);
   }, 60_000);
