@@ -126,6 +126,10 @@ export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js'
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
+// Experimental: the `tree` command engine; the API may change without a major release.
+export { commonDir, compareStrings, mapRootPointer, toNodeId } from './api-graph/node-id.js';
+export type { DependencyGraph, GraphEdge, GraphNode, NodeKind } from './api-graph/types.js';
+export { analyzeApi, collectConnectedIds, type ApiAnalysis } from './api-graph/build-graph.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';

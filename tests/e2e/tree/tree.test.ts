@@ -75,7 +75,7 @@ describe('tree', () => {
     );
   });
 
-  test('tree points a file used-by to --files in the default view', async () => {
+  test('tree matches a file used-by against the defining files in the default view', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
@@ -86,6 +86,25 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       snapshot('tree-structure-used-by-file')
     );
+  });
+
+  test('tree points an unknown file used-by to --files', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--uses',
+      'paths/unknown.yaml',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-structure-used-by-unknown-file')
+    );
+  });
+
+  test('tree errors on an unresolvable ref in the default view', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml']);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'unresolved') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-unresolved'));
   });
 
   test('tree --files prints the file-level graph', async () => {

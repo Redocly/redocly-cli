@@ -1,6 +1,11 @@
-import { isAbsoluteUrl, type Document, type ResolvedRefMap } from '@redocly/openapi-core';
+import {
+  compareStrings,
+  isAbsoluteUrl,
+  toNodeId,
+  type Document,
+  type ResolvedRefMap,
+} from '@redocly/openapi-core';
 
-import { compareStrings, toNodeId } from './node-id.js';
 import type { DependencyGraph, GraphEdge, GraphNode } from './types.js';
 
 export function buildGraph(

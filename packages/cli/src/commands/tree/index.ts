@@ -1,5 +1,7 @@
 import {
+  analyzeApi,
   BaseResolver,
+  commonDir,
   detectSpec,
   getTypes,
   logger,
@@ -20,10 +22,8 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
-import { buildStructureGraph } from './build-structure.js';
 import { filterAffected, filterOperations, limitGraphLevel } from './filter-affected.js';
 import { matchAffectedBy, wildcardToRegExp } from './match-affected-by.js';
-import { commonDir } from './node-id.js';
 import { renderDot } from './print/dot.js';
 import { renderJson } from './print/json.js';
 import { renderMermaid } from './print/mermaid.js';
@@ -101,7 +101,7 @@ async function loadApi({
   if (rootDocument instanceof Error) {
     return exitWithError(`Failed to load ${apiPath}: ${rootDocument.message}`);
   }
-  collectSpecData?.(rootDocument.parsed);
+  collectSpecData?.(rootDocument);
   const specVersion = detectSpec(rootDocument.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
   return { rootDocument, specVersion, types };
@@ -193,20 +193,25 @@ async function handleStructureMode({
     externalRefResolver,
   });
 
-  const { graph, problems } = await buildStructureGraph({
+  const { graph } = await analyzeApi({
     rootDocument,
     specVersion,
     types,
-    config,
     externalRefResolver,
     cwd,
+    resolveRef: (base, uri) => externalRefResolver.resolveExternalRef(base, uri),
   });
 
-  for (const problem of problems) {
-    logger.warn(`${problem.message}\n`);
+  // An unresolvable `$ref` means the description is not a valid API document, so the structure
+  // view stops instead of printing a partial tree; `--files` still renders broken links inline.
+  const unresolved = graph.nodes.filter((node) => !node.resolved);
+  for (const node of unresolved) {
+    logger.warn(`Can't resolve $ref to ${node.id}.\n`);
   }
-  if (problems.some((problem) => problem.severity === 'error')) {
-    return exitWithError(`Cannot display the tree: ${api.path} has bundling errors (see above).`);
+  if (unresolved.length > 0) {
+    return exitWithError(
+      `Cannot display the tree: ${api.path} has unresolved references (see above).`
+    );
   }
 
   // Structure mode resolves exactly one API (handleTree rejects more), so there is a single root.

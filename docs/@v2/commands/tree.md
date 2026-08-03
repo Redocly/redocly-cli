@@ -3,7 +3,7 @@
 ## Introduction
 
 The `tree` command prints the structure of an API description: its paths, operations, and the component dependency chains between them through `$ref`.
-The default view bundles the description first, so a multi-file API shows the same full tree as its single-file form.
+The default view resolves every `$ref` first, so a multi-file API shows the same full tree as its single-file form.
 The command works fully with OpenAPI 2.0 and 3.x.
 AsyncAPI and Arazzo descriptions are supported too, but render as a flat list of their top-level referenced (`$ref`) components rather than a paths and operations tree.
 
@@ -158,7 +158,7 @@ menu.yaml
 {% /tab  %}
 {% /tabs  %}
 
-`❌` and `🔗` appear only with `--files`. In the default view an unresolvable `$ref` is a bundling error instead (see _Invalid descriptions_ below), so this example must be run with `--files`:
+`❌` and `🔗` appear only with `--files`. In the default view an unresolvable `$ref` is an error instead (see _Invalid descriptions_ below), so this example must be run with `--files`:
 
 {% tabs %}
 {% tab label="API description" %}
@@ -205,8 +205,8 @@ openapi.yaml
 {% /tab  %}
 {% /tabs  %}
 
-The default view bundles the description, so components and operations split across files are resolved to their canonical place.
-A multi-file API therefore produces the same tree as its single-file equivalent — operations and named components, not file nodes.
+The default view resolves the description, so components and operations split across files land in their canonical place.
+A multi-file API therefore produces the same tree as its single-file equivalent — operations and named components, not file nodes — and every node keeps the file it is defined in (visible in the `json` format).
 
 ### Limit the depth
 
@@ -298,7 +298,7 @@ cafe.yaml
 - shorthand pointer (the node id): `schemas/Order`
 - bare component name: `Order` — ambiguous bare names match all candidates and print a note to `stderr`
 - a wildcard pattern: `schemas/Order*` — `*` and `?` match against node ids (file ids in `--files` mode)
-- a file path (in `--files` mode): `components/schemas/Order.yaml`
+- a file path: `components/schemas/Order.yaml` — matches every node defined in that file (in the default view and in `--files` mode)
 - the root file itself: the whole tree is affected
 
 Examples of the different input forms:
@@ -368,7 +368,7 @@ components:
 {% tab label="json" %}
 
 The graph in the common `nodes`/`links` shape (compatible with D3, force-graph, and similar tools).
-Every node carries `resolved` and `external`; `kind` and `file` are present in the default view, and operation nodes carry `operationId` when it is defined.
+Every node carries `resolved` and `external`; `kind` and `file` (the file the node is defined in) are present in the default view, and operation nodes carry `operationId` when it is defined.
 Each link carries the exact `$ref` strings.
 
 ```json
@@ -434,8 +434,8 @@ redocly tree cafe.yaml --format=mermaid --output cafe.md
 
 ### Invalid descriptions
 
-The default view bundles the description before walking it.
-If the description cannot be bundled — for example, it has unresolvable or invalid `$ref`s — `tree` prints the bundling problems and exits with a non-zero code instead of printing a partial tree.
+The default view resolves the description before walking it.
+If any `$ref` cannot be resolved, `tree` prints the unresolved references and exits with a non-zero code instead of printing a partial tree.
 
 ### File-level graph
 

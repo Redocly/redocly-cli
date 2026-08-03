@@ -1,32 +1,6 @@
-import type { DependencyGraph, GraphEdge } from './types.js';
+import { collectConnectedIds } from '@redocly/openapi-core';
 
-export function collectConnectedIds(
-  seeds: string[],
-  edges: GraphEdge[],
-  { reverse = false }: { reverse?: boolean } = {}
-): Set<string> {
-  const adjacency = new Map<string, string[]>();
-  for (const edge of edges) {
-    const from = reverse ? edge.to : edge.from;
-    const to = reverse ? edge.from : edge.to;
-    const neighbours = adjacency.get(from) ?? [];
-    neighbours.push(to);
-    adjacency.set(from, neighbours);
-  }
-
-  const seen = new Set(seeds);
-  const queue = [...seen];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    for (const next of adjacency.get(current) ?? []) {
-      if (!seen.has(next)) {
-        seen.add(next);
-        queue.push(next);
-      }
-    }
-  }
-  return seen;
-}
+import type { DependencyGraph } from './types.js';
 
 export function filterOperations(graph: DependencyGraph): DependencyGraph {
   // The API surface: paths, operations, and webhook entries. Webhook nodes carry the generic

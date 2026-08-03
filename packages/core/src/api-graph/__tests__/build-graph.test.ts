@@ -1,17 +1,10 @@
-import {
-  BaseResolver,
-  createConfig,
-  detectSpec,
-  getTypes,
-  normalizeTypes,
-  resolveDocument,
-  Source,
-  type Document,
-  type WalkContext,
-} from '@redocly/openapi-core';
 import * as path from 'node:path';
 
-import { buildStructureGraph, walkStructure } from '../build-structure.js';
+import { detectSpec } from '../../detect-spec.js';
+import { getTypes } from '../../oas-types.js';
+import { BaseResolver, Source, type Document } from '../../resolve.js';
+import { normalizeTypes } from '../../types/index.js';
+import { analyzeApi } from '../build-graph.js';
 import type { DependencyGraph } from '../types.js';
 
 const CWD = '/project';
@@ -24,27 +17,22 @@ async function structureOf(
   const document = { source: new Source(ROOT_ABS, ''), parsed } as Document;
   const specVersion = detectSpec(parsed);
   const types = normalizeTypes(getTypes(specVersion), {});
-  const resolvedRefMap = await resolveDocument({
+  const { graph } = await analyzeApi({
     rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-  const ctx = { problems: [], specVersion, visitorsData: {} } as unknown as WalkContext;
-  return walkStructure({
-    document,
+    specVersion,
     types,
-    resolvedRefMap,
-    ctx,
+    externalRefResolver,
     cwd: CWD,
     resolveRef: (base, uri) => path.resolve(path.dirname(base), uri),
   });
+  return graph;
 }
 
 function edgeRefs(graph: DependencyGraph, from: string, to: string): string[] | undefined {
   return graph.edges.find((edge) => edge.from === from && edge.to === to)?.refs;
 }
 
-describe('walkStructure', () => {
+describe('analyzeApi', () => {
   it('attaches operationId to operation nodes when defined', async () => {
     const graph = await structureOf({
       openapi: '3.0.0',
@@ -493,28 +481,27 @@ describe('walkStructure', () => {
   });
 });
 
-describe('buildStructureGraph (multi-file parity)', () => {
+describe('analyzeApi (multi-file parity)', () => {
   const sampleSplit = path.join(process.cwd(), 'tests/e2e/tree/sample-split/openapi.yaml');
 
   async function structureGraphOf(apiPath: string): Promise<DependencyGraph> {
-    const config = await createConfig({});
     const externalRefResolver = new BaseResolver();
     const rootDocument = await externalRefResolver.resolveDocument(null, apiPath, true);
     if (rootDocument instanceof Error) throw rootDocument;
     const specVersion = detectSpec(rootDocument.parsed);
-    const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-    const { graph } = await buildStructureGraph({
+    const types = normalizeTypes(getTypes(specVersion), {});
+    const { graph } = await analyzeApi({
       rootDocument,
       specVersion,
       types,
-      config,
       externalRefResolver,
       cwd: path.dirname(apiPath),
+      resolveRef: (base, uri) => path.resolve(path.dirname(base), uri),
     });
     return graph;
   }
 
-  it('bundles referenced path-items and components into a single-file-equivalent tree', async () => {
+  it('resolves referenced path-items and components into a single-file-equivalent tree', async () => {
     const graph = await structureGraphOf(sampleSplit);
     const nodes = graph.nodes.map((node) => ({ id: node.id, kind: node.kind }));
 
@@ -531,42 +518,13 @@ describe('buildStructureGraph (multi-file parity)', () => {
     ).toBe(true);
   });
 
-  it('returns bundle problems for an unresolved reference', async () => {
-    const config = await createConfig({});
-    const externalRefResolver = new BaseResolver();
-    const rootDocument = {
-      source: new Source('/project/openapi.yaml', ''),
-      parsed: {
-        openapi: '3.0.0',
-        info: { title: 't', version: '1' },
-        paths: {
-          '/a': {
-            get: {
-              responses: {
-                '200': {
-                  description: 'ok',
-                  content: {
-                    'application/json': { schema: { $ref: './missing.yaml#/X' } },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    } as Document;
-    const specVersion = detectSpec(rootDocument.parsed);
-    const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+  it('attributes nodes to the files that define them', async () => {
+    const graph = await structureGraphOf(sampleSplit);
 
-    const { problems } = await buildStructureGraph({
-      rootDocument,
-      specVersion,
-      types,
-      config,
-      externalRefResolver,
-      cwd: '/project',
-    });
-
-    expect(problems.some((problem) => problem.severity === 'error')).toBe(true);
+    expect(graph.nodes.find((node) => node.id === 'GET /orders')?.file).toBe('paths/orders.yaml');
+    expect(graph.nodes.find((node) => node.id === 'schemas/Order')?.file).toBe(
+      'components/schemas/Order.yaml'
+    );
+    expect(graph.nodes.find((node) => node.id === 'openapi.yaml')?.file).toBe('openapi.yaml');
   });
 });

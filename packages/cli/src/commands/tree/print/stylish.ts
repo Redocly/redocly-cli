@@ -1,4 +1,5 @@
-import { compareStrings } from '../node-id.js';
+import { compareStrings } from '@redocly/openapi-core';
+
 import type { DependencyGraph } from '../types.js';
 
 export type StylishOptions = {

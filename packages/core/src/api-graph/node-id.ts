@@ -1,11 +1,7 @@
-import {
-  escapePointerFragment,
-  isAbsoluteUrl,
-  slash,
-  unescapePointerFragment,
-} from '@redocly/openapi-core';
 import * as path from 'node:path';
 
+import { escapePointerFragment, isAbsoluteUrl, unescapePointerFragment } from '../ref-utils.js';
+import { slash } from '../utils/slash.js';
 import type { NodeKind } from './types.js';
 
 export const compareStrings = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);

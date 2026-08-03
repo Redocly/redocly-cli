@@ -1,7 +1,6 @@
-import { slash } from '@redocly/openapi-core';
+import { mapRootPointer, slash } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
-import { mapRootPointer } from './node-id.js';
 import type { DependencyGraph } from './types.js';
 
 export type AffectedByMatch = {
