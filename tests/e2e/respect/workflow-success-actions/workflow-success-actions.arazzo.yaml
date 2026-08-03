@@ -7,7 +7,7 @@ info:
 sourceDescriptions:
   - name: cafe-api
     type: openapi
-    url: ../cafe-api.yaml
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
   - name: menu-from-cafe-api
     type: arazzo
     url: ../cafe-menu.arazzo.yaml
@@ -30,7 +30,7 @@ workflows:
     steps:
       - stepId: get-menu-items
         description: >-
-          List menu items by resolving request details with listMenuItems operationId from cafe-api.yaml description.
+          List menu items by resolving request details with listMenuItems operationId from Cafe API description.
         operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 200

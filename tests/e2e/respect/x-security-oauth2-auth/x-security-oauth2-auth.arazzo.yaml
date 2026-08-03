@@ -6,7 +6,7 @@ info:
 sourceDescriptions:
   - name: cafe-api
     type: openapi
-    url: ../cafe-api.yaml
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 
 workflows:
   - workflowId: oauth2-auth-workflow
