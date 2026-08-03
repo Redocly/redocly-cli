@@ -10,6 +10,7 @@ import type {
   Oas3Tag,
   Oas3_2Tag,
   Oas3_1Schema,
+  OasRef,
   Referenced,
 } from '../typings/openapi.js';
 import type { Oas2Schema, Oas2Tag } from '../typings/swagger.js';
@@ -47,9 +48,23 @@ export const schemaHasProperty = (
   schemaOrRef: Referenced<AnySchema> | undefined,
   propertyName: string,
   ctx: UserContext,
-  visited: Set<AnySchema> = new Set(),
+  visited: Set<AnySchema | OasRef> = new Set(),
   resolveFrom?: string
 ): boolean => {
+  if (isRef(schemaOrRef)) {
+    if (visited.has(schemaOrRef)) return false;
+    visited.add(schemaOrRef);
+
+    // OAS 3.1 allows schema keywords next to $ref; the OasRef type doesn't model them, hence the cast
+    const { $ref: _ref, ...refSiblings } = schemaOrRef as OasRef & AnySchema;
+    if (
+      Object.keys(refSiblings).length > 0 &&
+      schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveFrom)
+    ) {
+      return true;
+    }
+  }
+
   const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveFrom);
   if (!schema || visited.has(schema)) return false;
   visited.add(schema);

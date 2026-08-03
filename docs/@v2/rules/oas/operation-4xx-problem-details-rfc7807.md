@@ -22,7 +22,7 @@ define new error response formats for HTTP APIs.
 Every operation with (400-499) HTTP response should have content-type `application/problem+json` and fields `title` and `type` according to the [specification](https://datatracker.ietf.org/doc/html/rfc7807).
 
 The rule resolves `$ref`s and composed schemas when checking for the `type` and `title` properties:
-a property defined in any `allOf` part, or in every `oneOf` or `anyOf` variant, satisfies the check.
+a property defined in any `allOf` part, in every `oneOf` or `anyOf` variant, or in keywords placed next to a `$ref` (OAS 3.1), satisfies the check.
 
 ## Configuration
 
