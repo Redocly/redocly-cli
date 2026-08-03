@@ -104,6 +104,104 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
     `);
   });
 
+  it('should not report when `type` and `title` are defined via oneOf with allOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '400':
+                  description: Test
+                  content:
+                    application/problem+json:
+                      schema:
+                        oneOf:
+                          - $ref: '#/components/schemas/ProblemDetails'
+                          - allOf:
+                              - type: object
+                                properties:
+                                  type:
+                                    type: string
+                              - properties:
+                                  title:
+                                    type: string
+        components:
+          schemas:
+            ProblemDetails:
+              type: object
+              properties:
+                type:
+                  type: string
+                title:
+                  type: string
+                status:
+                  type: integer
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when `type` and `title` are defined via oneOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '400':
+                  description: Test
+                  content:
+                    application/problem+json:
+                      schema:
+                        oneOf:
+                          - $ref: '#/components/schemas/ProblemDetails'
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                              title:
+                                type: string
+                              validationErrors:
+                                type: array
+                                items:
+                                  type: string
+        components:
+          schemas:
+            ProblemDetails:
+              type: object
+              properties:
+                type:
+                  type: string
+                title:
+                  type: string
+                status:
+                  type: integer
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should not report when `type` and `title` are defined via allOf', async () => {
     const document = parseYamlToDocument(
       outdent`
