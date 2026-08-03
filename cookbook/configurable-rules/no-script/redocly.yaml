@@ -1,0 +1,11 @@
+extends: []
+
+rules:
+  rule/no-script-tags-in-markdown:
+    subject:
+      type: any
+      property: description
+    assertions:
+      notPattern: '<script'
+    severity: warn
+    message: Markdown descriptions should not contain script tags.

@@ -151,6 +151,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   operation-operationId: warn
+  security-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -163,6 +164,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   operation-operationId: warn
+  security-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -222,6 +224,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   spec-components-invalid-map-name: error
   spec-discriminator-defaultMapping: warn
   spec-example-values: error
@@ -268,6 +271,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   spec-components-invalid-map-name: error
   struct: error
   tag-description: warn
@@ -310,6 +314,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   spec-components-invalid-map-name: error
   struct: error
   tag-description: warn
@@ -343,6 +348,7 @@ rules:
   path-parameters-defined: error
   path-params-defined: error
   security-defined: error
+  security-scopes-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -358,6 +364,8 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-defined: error
+  security-scopes-defined: warn
   struct: error
   tag-description: warn
 ```
@@ -373,6 +381,8 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   operation-operationId: warn
+  security-defined: error
+  security-scopes-defined: warn
   struct: error
   tag-description: warn
 ```

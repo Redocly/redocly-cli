@@ -49,11 +49,12 @@ const IGNORED_UNDOCUMENTED_HEADERS = new Set([
   'upgrade-insecure-requests',
   'user-agent',
   'via',
-  'x-amzn-trace-id',
   'x-client-trace-id',
   'x-cloud-trace-context',
   'x-correlation-id',
   'x-http-method-override',
+  'x-hub-signature',
+  'x-hub-signature-256',
   'x-method-override',
   'x-real-ip',
   'x-request-id',
@@ -67,9 +68,12 @@ const IGNORED_UNDOCUMENTED_HEADER_PREFIXES = [
   'cf-',
   'sec-ch-',
   'sec-fetch-',
+  'x-amz-',
+  'x-amzn-',
   'x-b3-',
   'x-envoy-',
   'x-forwarded-',
+  'x-github-',
 ];
 
 const SET_COOKIE_SEPARATOR = '\n';
@@ -238,14 +242,55 @@ export function pickSchemaByMime(
   return contentMap['*/*'];
 }
 
-export function shouldIgnoreHeaderAsUndocumented(headerName: string): boolean {
+export interface HeaderIgnoreList {
+  names: Set<string>;
+  prefixes: string[];
+}
+
+/**
+ * Turn user-supplied ignore patterns into an exact-name set and a prefix list.
+ * A pattern ending in `*` (for example `x-consumer-*`) matches every header that
+ * starts with the text before the `*`; anything else is an exact header name.
+ */
+export function parseHeaderIgnoreList(patterns: string[]): HeaderIgnoreList {
+  const names = new Set<string>();
+  const prefixes: string[] = [];
+  for (const pattern of patterns) {
+    const normalized = pattern.trim().toLowerCase();
+    if (normalized.length === 0) {
+      continue;
+    }
+    if (normalized.endsWith('*')) {
+      prefixes.push(normalized.slice(0, -1));
+    } else {
+      names.add(normalized);
+    }
+  }
+  return { names, prefixes };
+}
+
+export function shouldIgnoreHeaderAsUndocumented(
+  headerName: string,
+  extraIgnored?: HeaderIgnoreList
+): boolean {
   const normalizedHeaderName = headerName.toLowerCase();
   if (normalizedHeaderName.startsWith(':')) {
     return true;
   }
 
-  return (
+  if (
     IGNORED_UNDOCUMENTED_HEADERS.has(normalizedHeaderName) ||
     IGNORED_UNDOCUMENTED_HEADER_PREFIXES.some((prefix) => normalizedHeaderName.startsWith(prefix))
-  );
+  ) {
+    return true;
+  }
+
+  if (extraIgnored) {
+    return (
+      extraIgnored.names.has(normalizedHeaderName) ||
+      extraIgnored.prefixes.some((prefix) => normalizedHeaderName.startsWith(prefix))
+    );
+  }
+
+  return false;
 }

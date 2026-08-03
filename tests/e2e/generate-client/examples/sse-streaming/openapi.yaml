@@ -1,0 +1,58 @@
+openapi: 3.2.0
+info:
+  title: Cafe Order Events
+  description: Demo event-stream API for the sse-streaming example.
+  version: 1.0.0
+servers:
+  - url: https://events.cafe.example.com
+tags:
+  - name: Events
+    description: Live event streams.
+paths:
+  /order-events:
+    get:
+      tags:
+        - Events
+      summary: Stream order status changes
+      operationId: streamOrderEvents
+      responses:
+        '200':
+          description: A stream of order status changes.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: '#/components/schemas/OrderEvent'
+  /kitchen-ticker:
+    get:
+      tags:
+        - Events
+      summary: Stream the kitchen ticker
+      operationId: streamKitchenTicker
+      responses:
+        '200':
+          description: A long-lived stream of raw ticker lines.
+          content:
+            text/event-stream: {}
+components:
+  schemas:
+    OrderEvent:
+      type: object
+      properties:
+        orderId:
+          description: Order ID.
+          type: string
+        status:
+          description: New order status.
+          type: string
+          enum:
+            - placed
+            - preparing
+            - ready
+            - completed
+        seq:
+          description: Monotonic event sequence number.
+          type: integer
+      required:
+        - orderId
+        - status
+        - seq

@@ -1,4 +1,4 @@
-import type { Finding, RuleContext, TrafficRule } from '../../types/index.js';
+import type { Finding, NormalizedRequest, RuleContext, TrafficRule } from '../../types/index.js';
 
 interface SecuritySchemeEvaluation {
   schemeName: string;
@@ -202,7 +202,9 @@ function evaluateScheme(context: RuleContext, schemeName: string): SecuritySchem
       satisfied,
       reason: satisfied
         ? 'Authorization uses bearer token as expected for OAuth2/OpenID Connect.'
-        : `Authorization scheme "${actualAuthScheme ?? 'unknown'}" does not satisfy OAuth2/OpenID Connect (expected bearer).`,
+        : `Authorization scheme "${
+            actualAuthScheme ?? 'unknown'
+          }" does not satisfy OAuth2/OpenID Connect (expected bearer).`,
     };
   }
 
@@ -323,7 +325,9 @@ function createSecuritySummary(issues: SecurityIssue[]): string {
     return `Authentication check failed. ${optionSummaries[0]}`;
   }
 
-  return `None of the documented authentication options matched. Any one of these options would satisfy the OpenAPI security requirements: ${optionSummaries.join(' | ')}`;
+  return `None of the documented authentication options matched. Any one of these options would satisfy the OpenAPI security requirements: ${optionSummaries.join(
+    ' | '
+  )}`;
 }
 
 function getSensitiveQueryKeys(context: RuleContext): string[] {
@@ -338,12 +342,35 @@ function getSensitiveQueryKeys(context: RuleContext): string[] {
   });
 }
 
+// Mirrors the W3C Secure Contexts definition of potentially trustworthy origins:
+// localhost, *.localhost, 127.0.0.0/8, and [::1] never leave the machine.
+const LOOPBACK_HOSTNAME_PATTERN = /^(?:(?:.+\.)?localhost|127(?:\.\d{1,3}){3}|::1)$/i;
+
+function isLoopbackRequest(request: NormalizedRequest): boolean {
+  let hostname: string | undefined;
+  try {
+    hostname = new URL(request.url).hostname;
+  } catch {
+    hostname = request.host?.replace(/:\d+$/, '');
+  }
+
+  if (!hostname) {
+    return false;
+  }
+
+  return LOOPBACK_HOSTNAME_PATTERN.test(hostname.replace(/^\[|\]$/g, ''));
+}
+
 function shouldFlagInsecureTransport(context: RuleContext): {
   flag: boolean;
   hasAuthHeader: boolean;
   sensitiveQueryKeys: string[];
 } {
-  if (context.exchange.request.protocol !== 'http:' || !context.exchange.request.protocolKnown) {
+  if (
+    context.exchange.request.protocol !== 'http:' ||
+    !context.exchange.request.protocolKnown ||
+    isLoopbackRequest(context.exchange.request)
+  ) {
     return {
       flag: false,
       hasAuthHeader: false,

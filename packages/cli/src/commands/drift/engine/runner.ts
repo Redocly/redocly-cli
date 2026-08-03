@@ -21,6 +21,7 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
     openApiIndex: options.openApiIndex,
     matchMode: options.matchMode,
     ignoreCookies: options.ignoreCookies,
+    ignoreHeaders: options.ignoreHeaders,
     previewFindingsLimit: options.previewFindingsLimit,
     activeRules: options.activeRules,
     server: options.server,

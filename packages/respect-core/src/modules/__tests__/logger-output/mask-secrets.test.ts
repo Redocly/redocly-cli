@@ -103,6 +103,67 @@ describe('maskSecrets', () => {
     expect(result).toEqual('Bearer ********');
   });
 
+  it('should mask a URL-encoded occurrence of a secret', () => {
+    const result = maskSecrets('password=p%40ss+word', new Set(['p@ss word']));
+    expect(result).toEqual('password=********');
+  });
+
+  it('should mask a JSON-escaped occurrence of a secret', () => {
+    const result = maskSecrets(JSON.stringify({ password: 'pa"ss' }), new Set(['pa"ss']));
+    expect(result).toEqual('{"password":"********"}');
+  });
+
+  it('should mask every occurrence of a secret within one value', () => {
+    const result = maskSecrets(
+      { body: '{"password":"hunter2","confirmPassword":"hunter2"}' },
+      new Set(['hunter2'])
+    );
+    expect(result).toEqual({ body: '{"password":"********","confirmPassword":"********"}' });
+  });
+
+  it('should mask secrets everywhere in a HAR capture', () => {
+    const har = {
+      log: {
+        entries: [
+          {
+            request: {
+              headers: [{ name: 'authorization', value: 'Bearer hunter2' }],
+              postData: {
+                mimeType: 'application/x-www-form-urlencoded',
+                text: 'password=p%40ss+word',
+              },
+            },
+            response: {
+              content: { mimeType: 'application/json', text: '{"token":"hunter2"}' },
+            },
+          },
+        ],
+      },
+    };
+
+    const result = maskSecrets(har, new Set(['hunter2', 'p@ss word']));
+
+    expect(result.log.entries[0].request.headers[0].value).toBe('Bearer ********');
+    expect(result.log.entries[0].request.postData.text).toBe('password=********');
+    expect(result.log.entries[0].response.content.text).toBe('{"token":"********"}');
+  });
+
+  it('should mask a longer secret that starts with a shorter one', () => {
+    const result = maskSecrets('Bearer passphrase123', new Set(['pass', 'passphrase123']));
+    expect(result).toEqual('Bearer ********');
+  });
+
+  it('should ignore a whitespace-only secret', () => {
+    const result = maskSecrets('filter=a+b', new Set([' ']));
+    expect(result).toEqual('filter=a+b');
+  });
+
+  it('should mask a secret containing a lone surrogate', () => {
+    const secret = `tok${String.fromCharCode(0xd800)}en`;
+    const result = maskSecrets({ access_token: secret }, new Set([secret]));
+    expect(result).toEqual({ access_token: '********' });
+  });
+
   it('should preserve ArrayBuffer objects without breaking them', () => {
     const originalArrayBuffer = new ArrayBuffer(8);
     const originalData = new Uint8Array(originalArrayBuffer);

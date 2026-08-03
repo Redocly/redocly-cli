@@ -2,7 +2,10 @@ import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import { default as levenshtein } from 'js-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
+import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi.js';
+import type { Async3Operation, Async3OperationTrait } from '../typings/asyncapi3.js';
 import type {
+  Oas3Example,
   Oas3Schema,
   Oas3Tag,
   Oas3_2Tag,
@@ -10,6 +13,7 @@ import type {
   Referenced,
 } from '../typings/openapi.js';
 import type { Oas2Tag } from '../typings/swagger.js';
+import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
 import type { AjvValidator } from './ajv.js';
@@ -42,6 +46,28 @@ export function oasTypeOf(value: unknown) {
   } else {
     return typeof value;
   }
+}
+
+type SecuredOperation = Async2Operation | Async3Operation;
+type SecuredTrait = Async2OperationTrait | Async3OperationTrait;
+
+export function hasSecurityRequirements(node: { security?: unknown } | undefined): boolean {
+  const security = node?.security;
+  return Array.isArray(security) && security.length > 0;
+}
+
+export function isAsyncOperationSecured(
+  operation: SecuredOperation | undefined,
+  resolve: UserContext['resolve'],
+  resolveFrom?: string
+): boolean {
+  if (hasSecurityRequirements(operation)) return true;
+  if (!Array.isArray(operation?.traits)) return false;
+  for (const trait of operation.traits) {
+    const traitNode = isRef(trait) ? resolve<SecuredTrait>(trait, resolveFrom).node : trait;
+    if (hasSecurityRequirements(traitNode)) return true;
+  }
+  return false;
 }
 
 /**
@@ -164,6 +190,15 @@ export function getSuggest(given: string, variants: string[]): string[] {
 
   // if (bestMatch.distance <= 4) return bestMatch.string;
   return distances.map((d) => d.variant);
+}
+
+export function getExampleValueToValidate(
+  example: unknown
+): { value: unknown; field: 'dataValue' | 'value' } | undefined {
+  if (!isPlainObject<Oas3Example>(example)) return undefined;
+  if (isDefined(example.dataValue)) return { value: example.dataValue, field: 'dataValue' };
+  if (isDefined(example.value)) return { value: example.value, field: 'value' };
+  return undefined;
 }
 
 export function validateExample({

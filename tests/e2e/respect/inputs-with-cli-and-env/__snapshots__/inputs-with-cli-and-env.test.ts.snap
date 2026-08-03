@@ -3,11 +3,11 @@
 exports[`should use inputs from CLI and env 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow inputs-with-cli-and-env.arazzo.yaml / get-museum-hours 
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / get-menu-items 
  
-  ✓ GET /museum-hours - step get-museum-hours 
+  ✓ GET /menu - step get-menu-items 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og== 
@@ -18,104 +18,61 @@ exports[`should use inputs from CLI and env 1`] = `
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
+      {
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
         },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ] 
+        "items": []
+      } 
  
     ✓ success criteria check - $statusCode == 200
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
  
-  Running child workflow for the step buy-ticket 
-  Running workflow museum-tickets.yaml / get-museum-tickets 
+  Running child workflow for the step search-menu 
+  Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✓ POST /tickets - step buy-tickets 
+  ✓ GET /menu - step search-menu 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
-      content-type: application/json
-      accept: application/json, application/problem+json
-      authorization: Basic Og==
-    Request Body:
-      {
-        "ticketType": "general",
-        "ticketDate": "2023-09-07",
-        "email": "todd@example.com"
-      } 
+      accept: application/json, application/problem+json 
  
 
-    Response status code: 201
+    Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
-        "message": "Museum general entry ticket purchased",
-        "ticketId": "382c0820-0530-4f4b-99af-13811ad0f17a",
-        "ticketType": "general",
-        "ticketDate": "2023-09-07",
-        "confirmationCode": "ticket-general-e5e5c6-dce78"
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
       } 
  
-    ✓ success criteria check - $statusCode == 201
-    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
  
  
-  ✓ GET /museum-hours - step test-default-input 
+  ✓ GET /menu - step test-default-input 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours?organizationId=acme-inc
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte&organizationId=acme-inc
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og== 
@@ -126,70 +83,30 @@ exports[`should use inputs from CLI and env 1`] = `
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
+      {
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
         },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ] 
+        "items": []
+      } 
  
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow inputs-with-cli-and-env.arazzo.yaml / events-crud 
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / client-registration 
  
-  ✓ POST /special-events - step create-event 
+  ✓ POST /oauth2/register - step create-client 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://api.cafe.redocly.com/oauth2/register
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -199,38 +116,38 @@ exports[`should use inputs from CLI and env 1`] = `
       {
         "additionalName": "John",
         "additionalPassword": "password",
-        "additionalEnv": "Basic Og==",
-        "name": "Mermaid Treasure Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 0
+        "additionalEnv": "Basic Og=="
       } 
  
 
-    Response status code: 201
+    Response status code: 400
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
-        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
-        "name": "Mermaid Treasure Identification and Analysis",
-        "location": "Under the seaaa 🦀 🎶 🌊.",
-        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
-        "dates": [
-          "2023-09-05",
-          "2023-09-08"
-        ],
-        "price": 0
+        "type": "about:blank",
+        "title": "Validation failed",
+        "status": 400,
+        "instance": "/oauth2/register",
+        "details": {
+          "errors": [
+            {
+              "code": "invalid_type",
+              "expected": "string",
+              "received": "undefined",
+              "path": [
+                "name"
+              ],
+              "message": "Required"
+            }
+          ]
+        }
       } 
  
-    ✓ success criteria check - $statusCode == 201
-    ✓ success criteria check - $[?@.name == 'Mermaid Treasure Identification and ...
-    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ success criteria check - $statusCode == 400
+    ✓ success criteria check - $[?@.title == 'Validation failed']
+    ✓ status code check - $statusCode in [201, 400, 401, 500]
     ✓ content-type check
     ✓ schema check
  

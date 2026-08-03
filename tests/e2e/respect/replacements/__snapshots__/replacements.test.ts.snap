@@ -5,12 +5,11 @@ exports[`should replace values in the request body 1`] = `
  
   Running workflow replacements.arazzo.yaml / replacements 
  
-  ✓ GET /special-events/{eventId} - step first-step 
+  ✓ GET /menu - step first-step 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
-      accept: application/json, application/problem+json
-      authorization: Basic Og== 
+      accept: application/json, application/problem+json 
  
 
     Response status code: 200
@@ -19,39 +18,35 @@ exports[`should replace values in the request body 1`] = `
     Response Size: <test> bytes
     Response Body:
       {
-        "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",
-        "name": "Time Traveler Tea Party",
-        "location": "Temporal Tearoom",
-        "eventDescription": "Sip tea with important historical figures.",
-        "dates": [
-          "2023-11-18",
-          "2023-11-25",
-          "2023-12-02"
-        ],
-        "price": 60
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
       } 
  
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
  
-  ✓ POST /tickets - step step-with-json-replacements 
+  ✓ POST /oauth2/register - step step-with-json-replacements 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
+    Request URL: https://api.cafe.redocly.com/oauth2/register
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
-      authorization: Basic Og==
     Request Body:
       {
-        "eventId": "my-custom-event-id",
-        "name": "Time Traveler Tea Party",
-        "location": "Time Traveler Tea Party",
-        "eventDescription": "Sip tea with important historical figures.",
-        "dates": [
+        "object": "my-custom-object",
+        "page": [
           "2025-01-01"
         ],
-        "price": 60
+        "items": "list"
       } 
  
 
@@ -61,61 +56,81 @@ exports[`should replace values in the request body 1`] = `
     Response Size: <test> bytes
     Response Body:
       {
-        "type": "object",
-        "title": "Error validating body. data must have required property 'ticketType', data must have required property 'ticketDate', data must have required property 'email', data/eventId must match format \\"uuid\\""
+        "type": "about:blank",
+        "title": "Validation failed",
+        "status": 400,
+        "instance": "/oauth2/register",
+        "details": {
+          "errors": [
+            {
+              "code": "invalid_type",
+              "expected": "string",
+              "received": "undefined",
+              "path": [
+                "name"
+              ],
+              "message": "Required"
+            }
+          ]
+        }
       } 
  
-    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [201, 400, 401, 500]
     ✓ content-type check
     ✓ schema check
  
-  ✓ PATCH /special-events/{eventId} - step step-with-form-urlencoded-replacements 
+  ✓ POST /orders - step step-with-form-urlencoded-replacements 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://api.cafe.redocly.com/orders
     Request Headers:
       content-type: application/x-www-form-urlencoded
       accept: application/json, application/problem+json
-      authorization: Basic Og==
     Request Body:
-      "name=Time+Traveler+Tea+Party&location=New+York" 
+      "customerName=list&location=New+York" 
  
 
-    Response status code: 400
+    Response status code: 401
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
-        "type": "object",
-        "title": "Media type \\"application/x-www-form-urlencoded\\" is not supported"
+        "type": "about:blank",
+        "title": "Unauthorized",
+        "status": 401,
+        "instance": "/orders"
       } 
  
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
     ✓ content-type check
     ✓ schema check
  
-  ✓ PATCH /special-events/{eventId} - step step-with-form-urlencoded-replacements-2 
+  ✓ POST /orders - step step-with-form-urlencoded-replacements-2 
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://api.cafe.redocly.com/orders
     Request Headers:
       content-type: application/x-www-form-urlencoded
       accept: application/json, application/problem+json
-      authorization: Basic Og==
     Request Body:
-      "name=Time+Traveler+Tea+Party&location=Jakarta" 
+      "customerName=list&location=Jakarta" 
  
 
-    Response status code: 400
+    Response status code: 401
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
-        "type": "object",
-        "title": "Media type \\"application/x-www-form-urlencoded\\" is not supported"
+        "type": "about:blank",
+        "title": "Unauthorized",
+        "status": 401,
+        "instance": "/orders"
       } 
  
-    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
     ✓ content-type check
     ✓ schema check
  
@@ -124,7 +139,7 @@ exports[`should replace values in the request body 1`] = `
   
   Workflows: 1 passed, 1 total
   Steps: 4 passed, 4 total
-  Checks: 12 passed, 12 total
+  Checks: 15 passed, 15 total
   Time: <test>ms 
  
  

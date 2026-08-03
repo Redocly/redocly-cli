@@ -1,0 +1,159 @@
+// Behavioral e2e for SSE: a hand-written `node:http` server streams real
+// `text/event-stream` frames, drops mid-stream, and the generated client
+// auto-reconnects (resuming via `Last-Event-ID`). A second scenario aborts the
+// stream mid-flight and asserts the loop completes WITHOUT throwing.
+import { spawnSync, type ChildProcess } from 'node:child_process';
+import { existsSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { generate, killServer, repoRoot, startServer } from './helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixture = join(__dirname, 'fixtures/sse.yaml');
+const consumerDir = join(__dirname, 'sse-consumer');
+const generatedFile = join(consumerDir, 'api.ts');
+const serverScript = join(consumerDir, 'server.ts');
+const indexScript = join(consumerDir, 'index.ts');
+const abortScript = join(consumerDir, 'index-abort.ts');
+const finiteScript = join(consumerDir, 'index-finite.ts');
+const connectRetryScript = join(consumerDir, 'index-connect-retry.ts');
+
+const SERVER_PORT = 3104;
+const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
+
+describe('generate-client SSE consumer (reconnect + abort)', () => {
+  let serverProcess: ChildProcess | undefined;
+
+  beforeAll(async () => {
+    if (existsSync(generatedFile)) {
+      rmSync(generatedFile, { force: true });
+    }
+
+    generate(fixture, generatedFile);
+    expect(existsSync(generatedFile)).toBe(true);
+
+    // The consumer dir is excluded from the root typecheck (api.ts is gitignored),
+    // so type-check it here against the fresh generation.
+    const typecheckResult = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
+      encoding: 'utf-8',
+      cwd: repoRoot,
+    });
+    expect(
+      typecheckResult.status,
+      `tsc stdout:\n${typecheckResult.stdout}\nstderr:\n${typecheckResult.stderr}`
+    ).toBe(0);
+
+    serverProcess = await startServer(
+      serverScript,
+      consumerDir,
+      { SSE_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'sse-server'
+    );
+  }, 30_000);
+
+  afterAll(async () => {
+    if (serverProcess) {
+      await killServer(serverProcess);
+    }
+  });
+
+  test('reconnect: events stream across a dropped connection, resuming via Last-Event-ID', () => {
+    const runResult = spawnSync('npx', ['tsx', indexScript, SERVER_BASE], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 20_000,
+    });
+    expect(
+      runResult.status,
+      `consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      events: string[];
+      ids: Array<string | undefined>;
+      lastEventIds: Array<string | null>;
+    };
+
+    // Typed `data.text` parsed across a reconnect: a, b (first connection), c (resume).
+    expect(parsed.events).toEqual(['a', 'b', 'c']);
+    // Event ids surfaced on the typed event.
+    expect(parsed.ids).toEqual(['1', '2', '3']);
+    // The reconnect carried `Last-Event-ID: 2` (1st connection: none; 2nd: '2').
+    expect(parsed.lastEventIds).toEqual([null, '2']);
+  }, 30_000);
+
+  test('clean close: a finite stream finishes (no endless reconnect) and flushes the final undelimited frame', () => {
+    const runResult = spawnSync('npx', ['tsx', finiteScript, SERVER_BASE], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 20_000,
+    });
+    expect(
+      runResult.status,
+      `finite consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      events: string[];
+      ids: Array<string | undefined>;
+      finished: boolean;
+    };
+
+    // The loop ran to completion: a clean server close finished the stream rather than
+    // reconnecting forever. `c` was delivered only via the final-frame flush (the third
+    // frame had no trailing delimiter before the server closed).
+    expect(parsed.finished).toBe(true);
+    expect(parsed.events).toEqual(['a', 'b', 'c']);
+    expect(parsed.ids).toEqual(['1', '2', '3']);
+  }, 30_000);
+
+  test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', () => {
+    const runResult = spawnSync('npx', ['tsx', connectRetryScript], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 20_000,
+    });
+    expect(
+      runResult.status,
+      `connect-retry consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      calls: number;
+      events: string[];
+      finished: boolean;
+    };
+
+    // The first send attempt threw (simulated connection failure); the iterator reconnected
+    // and the second attempt streamed the event, then finished.
+    expect(parsed.calls).toBe(2);
+    expect(parsed.events).toEqual(['a']);
+    expect(parsed.finished).toBe(true);
+  }, 30_000);
+
+  test('abort: aborting the stream via AbortSignal completes the loop without throwing', () => {
+    const runResult = spawnSync('npx', ['tsx', abortScript, SERVER_BASE], {
+      encoding: 'utf-8',
+      cwd: consumerDir,
+      timeout: 20_000,
+    });
+    expect(
+      runResult.status,
+      `abort consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
+    ).toBe(0);
+
+    const parsed = JSON.parse(runResult.stdout.trim()) as {
+      aborted: boolean;
+      received: number;
+      error: string | null;
+    };
+
+    // The loop saw the first event, then the abort terminated it cleanly: no
+    // AbortError escaped the `for await`.
+    expect(parsed.aborted).toBe(true);
+    expect(parsed.received).toBeGreaterThanOrEqual(1);
+    expect(parsed.error).toBeNull();
+  }, 30_000);
+});

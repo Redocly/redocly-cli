@@ -2,6 +2,10 @@ import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
 import { red } from 'colorette';
 
 import { type RuntimeExpressionContext, type TestContext, type Workflow } from '../../types.js';
+import {
+  parseSourceDescriptionWorkflowRef,
+  resolveWorkflowReference,
+} from './resolve-workflow-reference.js';
 
 export interface ParsedParameters {
   queryParams: Record<string, string>;
@@ -316,26 +320,84 @@ const resolveValue = (
     return path.slice(7, -2);
   }
 
-  // $sourceDescriptions.<name>.workflows.<workflowId>
-  if (path.startsWith('$sourceDescriptions.') && path.includes('.workflows.')) {
-    const parts = path.split('.');
+  if (path.startsWith('$sourceDescriptions.')) {
+    const parsedRef = parseSourceDescriptionWorkflowRef(path);
 
-    const sourceDescriptionName = parts[1];
-    const workflowId = parts[3];
+    if (parsedRef) {
+      const { sourceDescriptionName, workflowId: reference, isLegacyForm } = parsedRef;
+      const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
+      const sourceDescriptionDocument = sourceDescriptions?.[sourceDescriptionName];
 
-    if (!sourceDescriptionName || !workflowId) {
-      return undefined;
+      if (!sourceDescriptionDocument) {
+        throw new Error(
+          `Can't resolve ${red(path)}: source description ${red(
+            sourceDescriptionName
+          )} is not found. Available source descriptions: ${Object.keys(
+            sourceDescriptions ?? {}
+          ).join(', ')}.`
+        );
+      }
+
+      const workflow = resolveWorkflowReference({ ref: path, ctx });
+
+      if (workflow) {
+        return workflow;
+      }
+
+      if (!isLegacyForm) {
+        // Raw Source Description Objects (name, url, type) are only carried by the
+        // test context — they are not exposed on the runtime expression context.
+        const sourceDescriptionObject = (
+          'sourceDescriptions' in ctx ? ctx.sourceDescriptions : undefined
+        )?.find(({ name }) => name === sourceDescriptionName);
+
+        if (
+          sourceDescriptionObject &&
+          Object.prototype.hasOwnProperty.call(sourceDescriptionObject, reference)
+        ) {
+          return (sourceDescriptionObject as Record<string, unknown>)[reference];
+        }
+
+        if (Object.prototype.hasOwnProperty.call(sourceDescriptionDocument, reference)) {
+          return sourceDescriptionDocument[reference];
+        }
+      }
+
+      const availableWorkflows = (
+        Array.isArray(sourceDescriptionDocument.workflows)
+          ? (sourceDescriptionDocument.workflows as Workflow[])
+          : []
+      )
+        .map((workflow) => workflow.workflowId)
+        .join(', ');
+      const availableWorkflowsHint = availableWorkflows
+        ? ` Available workflows: ${availableWorkflows}.`
+        : '';
+
+      throw new Error(
+        isLegacyForm
+          ? `Can't resolve ${red(path)}: workflow ${red(
+              reference
+            )} is not found in source description ${red(
+              sourceDescriptionName
+            )}.${availableWorkflowsHint}`
+          : `Can't resolve ${red(path)}: ${red(
+              reference
+            )} does not match a workflow or a field of source description ${red(
+              sourceDescriptionName
+            )}.${availableWorkflowsHint}`
+      );
     }
 
-    const sourceDescriptions = getFrom(ctx)('$sourceDescriptions');
-
-    if (!sourceDescriptions[sourceDescriptionName]) {
-      return undefined;
+    // a `workflows` reference with extra segments after the workflowId is not
+    // valid in either supported form
+    if (path.split('.')[2] === 'workflows') {
+      throw new Error(
+        `Can't resolve ${red(
+          path
+        )}: invalid workflow reference format. Use $sourceDescriptions.<name>.<workflowId> or $sourceDescriptions.<name>.workflows.<workflowId>.`
+      );
     }
-
-    return sourceDescriptions[sourceDescriptionName].workflows.find(
-      (workflow: Workflow) => workflow.workflowId === workflowId
-    );
   }
 
   if (path && path.trim().startsWith('faker.')) {

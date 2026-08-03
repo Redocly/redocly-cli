@@ -41,8 +41,62 @@ paths:
         - $ref: '#/components/parameters/After'
         - $ref: '#/components/parameters/Before'
         - $ref: '#/components/parameters/Sort'
+          description: >-
+            Sorts the collection by a single field. Prefix with `-` for
+            descending order
+
+            (for example, `-price`); omit the prefix for ascending order
+            (`price`).
+
+
+            **Sortable fields:** `name`, `price`, `createdAt`, `updatedAt`, `id`
+          example: '-price'
         - $ref: '#/components/parameters/Filter'
+          description: >-
+            Filters the collection items using space-separated `field:value`
+            pairs.
+
+
+            **Filterable fields:** `name`, `category`, `price`, `createdAt`,
+            `id`
+
+
+            **Format:** `field1:value1 field2:value2`
+
+
+            **Supported operators:**
+
+            - `field:value` - Exact match
+
+            - `field:value1,value2` - Match any of the comma-separated values
+            (OR)
+
+            - Time ranges (on `createdAt`): Use `30d` (30 days), `7d` (7 days),
+            `1h` (1 hour), etc.
+
+
+            **Examples:**
+
+            - `category:beverage` - Filter by a single category.
+
+            - `category:beverage,dessert` - Filter by multiple categories.
+
+            - `createdAt:7d` - Menu items created in the last 7 days.
+
+            - `name:Latte` - Filter by name.
+
+            - `category:beverage price:400` - Combine multiple filters.
+          example: category:beverage
         - $ref: '#/components/parameters/Search'
+          description: >-
+            Performs a case-insensitive text search across the searchable
+            fields, returning
+
+            items where any of them contain the search term as a substring.
+
+
+            **Searchable fields:** `name`, `photoTextDescription`
+          example: Latte
         - $ref: '#/components/parameters/Limit'
       responses:
         '200':
@@ -182,11 +236,67 @@ paths:
             - orders:read
       parameters:
         - $ref: '#/components/parameters/Filter'
+          description: >-
+            Filters the collection items using space-separated `field:value`
+            pairs.
+
+
+            **Filterable fields:** `customerName`, `status`, `totalPrice`,
+            `createdAt`, `id`
+
+
+            **Format:** `field1:value1 field2:value2`
+
+
+            **Supported operators:**
+
+            - `field:value` - Exact match
+
+            - `field:value1,value2` - Match any of the comma-separated values
+            (OR)
+
+            - Time ranges (on `createdAt`): Use `30d` (30 days), `7d` (7 days),
+            `1h` (1 hour), etc.
+
+
+            **Examples:**
+
+            - `status:placed` - Filter by a single status.
+
+            - `status:placed,completed` - Filter by multiple statuses.
+
+            - `createdAt:30d` - Orders created in the last 30 days.
+
+            - `id:ord_01h1s5z6vf2mm1mz3hevnn9va7` - Filter by a specific order
+            ID.
+
+            - `status:placed createdAt:7d` - Combine multiple filters.
+          example: status:placed
         - $ref: '#/components/parameters/Sort'
+          description: >-
+            Sorts the collection by a single field. Prefix with `-` for
+            descending order
+
+            (for example, `-createdAt`); omit the prefix for ascending order
+            (`createdAt`).
+
+
+            **Sortable fields:** `customerName`, `status`, `totalPrice`,
+            `createdAt`, `updatedAt`, `id`
+          example: '-createdAt'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/After'
         - $ref: '#/components/parameters/Before'
         - $ref: '#/components/parameters/Search'
+          description: >-
+            Performs a case-insensitive text search across the searchable
+            fields, returning
+
+            items where any of them contain the search term as a substring.
+
+
+            **Searchable fields:** `customerName`, `id`
+          example: John
       responses:
         '200':
           description: Successful operation.
@@ -209,8 +319,8 @@ paths:
       description: >
         Create a new order.
 
-        Order items cannot be changed - if they need to be updated, the order
-        should be canceled and a new one placed.
+        Order items cannot be changed - if they need to be updated, cancel the
+        order and place a new one.
       operationId: createOrder
       security:
         - OAuth2:
@@ -311,8 +421,8 @@ paths:
       description: >
         Update an existing order status.
 
-        Order items cannot be changed - if they need to be updated, the order
-        should be canceled and a new one placed.
+        Order items cannot be changed - if they need to be updated, cancel the
+        order and place a new one.
       operationId: updateOrder
       security:
         - OAuth2:
@@ -368,11 +478,9 @@ paths:
       tags:
         - Orders
       summary: Delete an order
-      description: >
+      description: |
         Delete the order.
-
-        To keep the order history, the order should be canceled instead of
-        deleted.
+        To keep the order history, cancel the order instead of deleting it.
       operationId: deleteOrder
       security:
         - OAuth2:
@@ -407,6 +515,15 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Filter'
           required: true
+          description: >-
+            Selects the order whose items to return, using a single
+            `orderId:<value>` pair
+
+            (for example, `orderId:ord_01h1s5z6vf2mm1mz3hevnn9va7`).
+
+
+            This filter is required and only the `orderId` field is supported.
+          example: orderId:ord_01h1s5z6vf2mm1mz3hevnn9va7
       responses:
         '200':
           description: Successful operation.
@@ -453,8 +570,8 @@ paths:
             Defaults to 30 days ago if not provided.
           schema:
             type: string
-            format: date
-          example: '2026-01-01'
+            format: date-time
+          example: '2026-01-01T00:00:00Z'
         - name: endDate
           in: query
           required: false
@@ -465,8 +582,8 @@ paths:
             Defaults to current time if not provided.
           schema:
             type: string
-            format: date
-          example: '2026-01-31'
+            format: date-time
+          example: '2026-01-31T23:59:59Z'
       responses:
         '200':
           description: Revenue statistics retrieved successfully.
@@ -608,7 +725,7 @@ components:
       required: false
       description: >
         Use the `startCursor` as a value for the `before` parameter to get the
-        next page.
+        previous page.
       schema:
         type: string
     Sort:
@@ -625,31 +742,20 @@ components:
       description: >-
         Filters the collection items using space-separated `field:value` pairs.
 
+        See each list endpoint for the specific fields it supports.
+
 
         **Format:** `field1:value1 field2:value2`
 
 
         **Supported operators:**
 
-        - `field:value` - Exact match
+        - `field:value` - exact match
 
-        - `field:value1,value2` - Match any of the comma-separated values (OR)
+        - `field:value1,value2` - match any of the comma-separated values (OR)
 
-        - Time ranges: Use `30d` (30 days), `7d` (7 days), `1h` (1 hour), etc.
-
-
-        **Examples:**
-
-        - `status:placed` - Filter by single status.
-
-        - `status:placed,completed` - Filter by multiple statuses.
-
-        - `createdAt:30d` - Filter orders created in the last 30 days.
-
-        - `orderId:ord_01h1s5z6vf2mm1mz3hevnn9va7` - Filter by specific order
-        ID.
-
-        - `status:placed createdAt:7d` - Combine multiple filters.
+        - Time ranges (on date fields): use `30d` (30 days), `7d` (7 days), `1h`
+        (1 hour), etc.
       in: query
       required: false
       schema:
@@ -658,29 +764,23 @@ components:
       name: search
       in: query
       description: >-
-        Performs a case-insensitive text search across relevant fields in the
-        collection.
+        Performs a case-insensitive text search across the endpoint's searchable
+        fields,
 
+        returning items where any of those fields contain the search term as a
+        substring.
 
-        **Fields searched depend on the endpoint:**
-
-        - **Menu items:** `name`, `photoTextDescription`
-
-        - **Orders:** `customerName`, `id`
-
-
-        Returns items where any of the searchable fields contain the search term
-        as a substring.
+        See each list endpoint for the specific fields it searches.
       required: false
       schema:
         type: string
     Limit:
       name: limit
       description: >
-        Use to return a number of results per page.
+        Specify the number of results per page.
 
         If there is more data, use in combination with `after` to page through
-        the data.
+        all results.
       in: query
       required: false
       schema:
@@ -803,7 +903,7 @@ components:
             - string
             - 'null'
           format: binary
-          description: Photo of the menu item. Must be a PNG image and less than 1MB.
+          description: Photo of the menu item. Must be a PNG image less than 1MB in size.
         photoUrl:
           readOnly: true
           type: string
@@ -911,7 +1011,7 @@ components:
             problem, e.g. by adding a fragment identifier or sub-path to the
             problem type.
 
-            May be used to locate the root of this problem in the source code.
+            Can be used to locate the root of this problem in the source code.
           example: /some/uri-reference#specific-occurrence-context
         details:
           description: Additional error details.
@@ -1087,11 +1187,11 @@ components:
           minimum: 0
         startDate:
           type: string
-          format: date
+          format: date-time
           description: Start date of the revenue calculation period.
         endDate:
           type: string
-          format: date
+          format: date-time
           description: End date of the revenue calculation period.
       required:
         - revenue

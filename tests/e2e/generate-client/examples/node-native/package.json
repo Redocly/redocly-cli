@@ -1,0 +1,14 @@
+{
+  "name": "@redocly-examples/node-native",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "redocly generate-client",
+    "start": "node src/main.ts"
+  },
+  "devDependencies": {
+    "@redocly/cli": "latest",
+    "typescript": "^5.5.0"
+  }
+}

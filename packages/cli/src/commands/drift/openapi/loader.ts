@@ -82,6 +82,7 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       name: String(entry.name ?? ''),
       in: location,
       required: Boolean(entry.required) || location === 'path',
+      style: typeof entry.style === 'string' ? entry.style : undefined,
       schema: entry.schema,
     });
   }

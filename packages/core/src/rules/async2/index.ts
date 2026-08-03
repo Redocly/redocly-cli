@@ -10,11 +10,13 @@ import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schem
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { OperationOperationId } from '../common/operation-operationId.js';
+import { SecurityScopesDefined } from '../common/security-scopes-defined.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
+import { SecurityDefined } from './security-defined.js';
 
 export const rules: Async2RuleSet<'built-in'> = {
   struct: Struct as Async2Rule,
@@ -23,6 +25,7 @@ export const rules: Async2RuleSet<'built-in'> = {
   'info-contact': InfoContact as Async2Rule,
   'info-license-strict': InfoLicenseStrict as Async2Rule,
   'operation-operationId': OperationOperationId as Async2Rule,
+  'security-defined': SecurityDefined,
   'channels-kebab-case': ChannelsKebabCase,
   'no-channel-trailing-slash': NoChannelTrailingSlash,
   'tag-description': TagDescription as Async2Rule,
@@ -32,6 +35,7 @@ export const rules: Async2RuleSet<'built-in'> = {
   'no-enum-type-mismatch': NoEnumTypeMismatch as Async2Rule,
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Async2Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Async2Rule,
+  'security-scopes-defined': SecurityScopesDefined as Async2Rule,
 };
 
 export const preprocessors = {};

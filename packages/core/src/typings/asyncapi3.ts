@@ -1,28 +1,13 @@
+import type { Referenced } from './openapi.js';
+
 export type Async3Definition = {
   asyncapi: string;
-  servers?: Record<string, any>;
+  servers?: Record<string, Referenced<Async3Server>>;
   info: Async3Info;
   channels?: Record<string, Channel>;
   components?: Record<string, any>;
   operations?: Record<string, Async3Operation>;
   defaultContentType?: string;
-};
-
-export type Async3Operation = {
-  action: 'send' | 'receive';
-  channel: Channel;
-  title?: string;
-  summary?: string;
-  description?: string;
-  security?: Record<string, any>[];
-  tags?: Tag[];
-  externalDocs?: ExternalDocumentation;
-  bindings?: Record<string, any>;
-  traits?: Record<string, any>[];
-  messages?: Record<string, any>[];
-  reply?: Record<string, any>;
-
-  'x-send-operations'?: string[]; // internal type
 };
 
 export interface Async3Info {
@@ -61,18 +46,61 @@ export interface ExternalDoc {
   description?: string;
 }
 
-export type Channel = {
+export interface Async3Server {
+  host: string;
+  protocol: string;
+  protocolVersion?: string;
+  pathname?: string;
+  description?: string;
+  variables?: Record<string, unknown>;
+  security?: Array<Referenced<Async3SecurityScheme>>;
+  bindings?: unknown;
+}
+
+export interface Async3Channel {
   address?: string | null;
-  messages?: Record<string, any>;
+  messages?: Record<string, unknown>;
   title?: string;
   summary?: string;
   description?: string;
-  servers?: Record<string, any>[];
-  parameters?: Record<string, any>;
-  tags?: Record<string, any>;
+  servers?: Array<Referenced<Async3Server>>;
+  parameters?: Record<string, unknown>;
+  tags?: Tag[];
   externalDocs?: ExternalDocumentation;
   bindings?: ChannelBindings;
-};
+}
+
+/**
+ * @deprecated Use `Async3Channel` instead.
+ */
+export type Channel = Async3Channel;
+
+export interface Async3OperationTrait {
+  title?: string;
+  summary?: string;
+  description?: string;
+  tags?: Tag[];
+  externalDocs?: ExternalDoc;
+  bindings?: unknown;
+  security?: Array<Referenced<Async3SecurityScheme>>;
+}
+
+export interface Async3Operation {
+  action?: 'send' | 'receive';
+  channel?: Referenced<Async3Channel>;
+  title?: string;
+  summary?: string;
+  description?: string;
+  tags?: Tag[];
+  externalDocs?: ExternalDoc;
+  operationId?: string;
+  security?: Array<Referenced<Async3SecurityScheme>>;
+  bindings?: unknown;
+  traits?: Array<Referenced<Async3OperationTrait>>;
+  reply?: unknown;
+
+  'x-send-operations'?: string[]; // internal type
+}
 
 export interface ExternalDocumentation {
   url: string;
@@ -104,4 +132,41 @@ export type AmqpChannelBindingExchange = {
   durable?: boolean;
   autoDelete?: boolean;
   vhost?: string;
+};
+
+export type Async3OAuth2Flow = {
+  authorizationUrl?: string;
+  tokenUrl?: string;
+  refreshUrl?: string;
+  availableScopes?: Record<string, string>;
+};
+
+export type Async3SecurityScheme = {
+  type:
+    | 'userPassword'
+    | 'apiKey'
+    | 'X509'
+    | 'symmetricEncryption'
+    | 'asymmetricEncryption'
+    | 'httpApiKey'
+    | 'http'
+    | 'oauth2'
+    | 'openIdConnect'
+    | 'plain'
+    | 'scramSha256'
+    | 'scramSha512'
+    | 'gssapi';
+  description?: string;
+  name?: string;
+  in?: string;
+  scheme?: string;
+  bearerFormat?: string;
+  flows?: {
+    implicit?: Async3OAuth2Flow;
+    password?: Async3OAuth2Flow;
+    clientCredentials?: Async3OAuth2Flow;
+    authorizationCode?: Async3OAuth2Flow;
+  };
+  openIdConnectUrl?: string;
+  scopes?: string[];
 };

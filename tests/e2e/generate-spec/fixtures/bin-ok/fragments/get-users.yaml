@@ -1,0 +1,49 @@
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List users
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of users returned.
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          required: false
+          description: Field to sort the returned users by.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A page of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+components:
+  schemas:
+    User:
+      allOf:
+        - $ref: '#/components/schemas/NewUser'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+    NewUser:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Full display name.
+        email:
+          type: string
+          format: email

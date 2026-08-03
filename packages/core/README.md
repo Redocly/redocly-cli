@@ -177,8 +177,13 @@ async function loadConfig(options?: {
   configPath?: string;
   // allows to add custom `extends` instead of the one from the config file
   customExtends?: string[];
+  // whether to resolve plugin paths without importing the plugin code
+  skipPluginEval?: boolean;
 }): Promise<Config>;
 ```
+
+Use `skipPluginEval` to read a config without executing any plugin code, for example when the plugins come from an untrusted source.
+The returned config is incomplete: rules and decorators from plugins aren't loaded, and `extends` isn't resolved, so the presets it lists are ignored.
 
 ### `lintConfig`
 

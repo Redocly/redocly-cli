@@ -106,7 +106,7 @@ The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Ch
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 
-Looking for more examples? Check out our [Cookbook](https://github.com/Redocly/redocly-cli-cookbook).
+Looking for more examples? Check out our [Cookbook](./cookbook/README.md).
 
 ### API contract testing with Respect
 
@@ -138,6 +138,21 @@ Respect is Redocly's community-edition product. Looking for something more? We a
 - Proactive API quality assurance
 
 Learn more about [Respect](https://redocly.com/respect) and [get started with API contract testing](https://redocly.com/docs/respect/get-started).
+
+### Generate a TypeScript client
+
+> ⚠️ **Experimental** — flags, output, and configuration may change in any minor release until declared stable.
+
+Turn an OpenAPI description (3.0/3.1/3.2 or Swagger 2.0) into a typed TypeScript client with the `generate-client` command.
+The emitted client has zero runtime dependencies and runs in browsers, Node, Bun, Deno, and edge runtimes.
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts
+```
+
+Inline types plus a typed client instance and one async function per operation, with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events.
+The same command can also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generator`.
+For detailed information, read the [ `generate-client` docs](./docs/@v2/commands/generate-client.md).
 
 ### Transform an OpenAPI description
 

@@ -1,0 +1,61 @@
+rules:
+  rule/no-http-basic:
+    message: HTTP Basic should not be used.
+    subject:
+      type: SecurityScheme
+      property: scheme
+    assertions:
+      notPattern: /basic/i
+    severity: error
+
+  rule/operation-security:
+    message: Security must be defined at the operation level.
+    subject:
+      type: Operation
+      property: security
+    assertions:
+      defined: true
+    severity: warn
+
+  rule/https-server-urls:
+    message: Server URLs must start with "https:".
+    subject:
+      type: Server
+      property: url
+    assertions:
+      pattern: /^https:/
+    severity: error
+
+  rule/limit-string-length:
+    message: Strings must have maxLength defined, or be an enum/const
+    subject:
+      type: Schema
+    assertions:
+      requireAny:
+        - maxLength
+        - enum
+        - const
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: string
+          defined: true
+    severity: warn
+
+  rule/limit-array-length:
+    message: Arrays must have a maxItems property
+    subject:
+      type: Schema
+    assertions:
+      required:
+        - maxItems
+    where:
+      - subject:
+          type: Schema
+          property: type
+        assertions:
+          const: array
+          defined: true
+    severity: warn

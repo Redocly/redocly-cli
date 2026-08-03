@@ -24,6 +24,11 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import {
+  handleGenerateClient,
+  type GenerateClientCommandArgv,
+} from './commands/generate-client.js';
+import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -926,6 +931,175 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
+    'generate-client [api]',
+    'Generate a TypeScript client from an OpenAPI description [experimental].',
+    (yargs) => {
+      return yargs
+        .env('REDOCLY_CLI_GENERATE_CLIENT')
+        .positional('api', {
+          describe: 'OpenAPI description file path (or alias from redocly.yaml `apis:`).',
+          type: 'string',
+        })
+        .options({
+          output: {
+            alias: 'o',
+            describe: 'Output file path for the generated client (must end in .ts).',
+            type: 'string',
+            requiresArg: true,
+          },
+          'server-url': {
+            describe:
+              'Override the server URL inlined into the generated runtime. Defaults to `servers[0].url`.',
+            type: 'string',
+            requiresArg: true,
+          },
+          'output-mode': {
+            describe:
+              'How the client is split across files: `single` (default, one file) or `split` (schema types and guards in a sibling `<name>.schemas.ts` the entry re-exports).',
+            choices: ['single', 'split'] as const,
+            requiresArg: true,
+          },
+          runtime: {
+            describe:
+              "Runtime distribution: 'inline' (default) embeds the runtime in the generated file; 'package' imports it from @redocly/client-generator.",
+            choices: ['inline', 'package'] as const,
+            requiresArg: true,
+          },
+          'import-ext': {
+            describe:
+              "Extension in generated relative imports: 'js' (default) suits tsc and bundlers; 'ts' suits runtimes that resolve specifiers literally, like Node's built-in type stripping (node client.ts).",
+            choices: ['js', 'ts'] as const,
+            requiresArg: true,
+          },
+          setup: {
+            describe:
+              'Path to a publisher setup module (a file default-exporting { config, middleware }) that gets included into the generated client — pre-configure defaults such as the server URL, retries, headers, and middleware, so a published SDK ships with them built in. Works across all output modes.',
+            type: 'string',
+            requiresArg: true,
+          },
+          'args-style': {
+            describe:
+              'How operation inputs are passed: `flat` (default) spreads path params as positional arguments followed by `params`/`body`/`headers`; `grouped` bundles every input into a single `args` object (the per-call request `init` stays a separate trailing argument).',
+            choices: ['flat', 'grouped'] as const,
+            requiresArg: true,
+          },
+          'error-mode': {
+            describe:
+              "Error handling: 'throw' (default) throws ApiError on non-2xx; 'result' returns { data, error, response }.",
+            choices: ['throw', 'result'] as const,
+            requiresArg: true,
+          },
+          'date-type': {
+            describe:
+              "How `date-time`/`date` string fields are typed: 'string' (default) keeps the ISO wire shape; 'Date' emits a `Date` (pair with --generator transformers so the runtime value matches).",
+            choices: ['string', 'Date'] as const,
+            requiresArg: true,
+          },
+          'mock-data': {
+            describe:
+              "How the `mock` generator produces data: 'static' (default) inlines deterministic literals (zero-dep); 'faker' emits @faker-js/faker calls for realistic data (install @faker-js/faker as a dev dependency).",
+            choices: ['static', 'faker'] as const,
+            requiresArg: true,
+          },
+          'mock-seed': {
+            describe:
+              'Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so generated data is reproducible across runs. Ignored in static mode.',
+            type: 'number',
+            requiresArg: true,
+          },
+          generator: {
+            describe:
+              'Generator to run; repeat the flag to run several (default: sdk). A built-in name (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generator sdk --generator zod',
+            type: 'string',
+            array: true,
+            requiresArg: true,
+          },
+          config: {
+            describe: 'Path to the config file.',
+            type: 'string',
+            requiresArg: true,
+          },
+        });
+    },
+    async (argv) => {
+      commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
+    }
+  )
+  .command(
+    'generate-spec <traffic>',
+    'Infer an OpenAPI description from recorded HTTP traffic, optionally refined with AI [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_GENERATE_SPEC')
+        .positional('traffic', {
+          describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
+          type: 'string',
+        })
+        .option({
+          type: {
+            describe: 'Target API description type.',
+            choices: ['openapi'] as const,
+            default: 'openapi' as const,
+          },
+          'traffic-format': {
+            describe: 'Traffic input format.',
+            choices: [
+              'auto',
+              'har',
+              'kong',
+              'nginx-json',
+              'apache-json',
+              'ndjson',
+            ] as ReadonlyArray<TrafficFormat>,
+            default: 'auto' as TrafficFormat,
+          },
+          server: {
+            describe:
+              'Server URL the traffic was captured against: only requests under it are considered, the rest of their URL becomes the API path, and it becomes the servers URL of the generated description.',
+            type: 'string',
+          },
+          title: {
+            describe: 'Title for the generated API description.',
+            type: 'string',
+          },
+          'with-ai': {
+            describe:
+              'Refine the inferred description with an AI provider to narrow the hypothesis.',
+            type: 'boolean',
+            default: false,
+          },
+          'ai-provider': {
+            describe:
+              'AI provider used with --with-ai; runs the "claude", "codex", or "cursor" CLI in non-interactive mode.',
+            choices: ['claude', 'codex', 'cursor'] as ReadonlyArray<
+              GenerateSpecArgv['ai-provider']
+            >,
+            default: 'claude' as GenerateSpecArgv['ai-provider'],
+          },
+          'ai-model': {
+            describe:
+              'Model passed to the selected AI provider (provider-specific default applies).',
+            type: 'string',
+          },
+          'ai-concurrency': {
+            describe: 'Number of operations refined in parallel with --with-ai.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
+          output: {
+            alias: 'o',
+            describe: 'Write the generated description to this file instead of stdout.',
+            type: 'string',
+          },
+          config: { describe: 'Path to the config file.', type: 'string' },
+        }),
+    async (argv) => {
+      const { handleGenerateSpec } = await import('./commands/generate-spec/index.js');
+      commandWrapper(handleGenerateSpec)(argv as Arguments<GenerateSpecArgv>);
+    }
+  )
+  .command(
     'scorecard-classic [api]',
     'Run quality scorecards with multiple rule levels to validate and maintain API description standards.',
     (yargs) => {
@@ -1007,6 +1181,11 @@ yargs(hideBin(process.argv))
             describe: 'Ignore cookie-based checks (useful for logs exported without cookies).',
             type: 'boolean',
             default: false,
+          },
+          'ignore-headers': {
+            describe:
+              'Comma-separated header names to skip in undocumented-header checks. A trailing "*" matches by prefix, e.g. "x-consumer-*".',
+            type: 'string',
           },
           'max-findings': {
             describe: 'Maximum findings shown in pretty output.',
@@ -1090,6 +1269,11 @@ yargs(hideBin(process.argv))
           describe: 'Ignore cookie-based checks.',
           type: 'boolean',
           default: false,
+        },
+        'ignore-headers': {
+          describe:
+            'Comma-separated header names to skip in undocumented-header checks. A trailing "*" matches by prefix, e.g. "x-consumer-*".',
+          type: 'string',
         },
         'max-findings': {
           describe: 'Maximum findings shown in pretty output.',

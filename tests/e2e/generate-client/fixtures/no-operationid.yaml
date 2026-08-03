@@ -1,0 +1,20 @@
+openapi: 3.0.3
+info: { title: No OperationId API, version: 1.0.0 }
+servers:
+  - { url: https://api.example.com }
+paths:
+  /giftcards/{cardId}:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Giftcard' }
+components:
+  schemas:
+    Giftcard:
+      type: object
+      required: [cardId]
+      properties:
+        cardId: { type: string }

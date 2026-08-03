@@ -47,6 +47,7 @@ const builtInOAS2Rules = [
   'response-contains-header',
   'scalar-property-missing-example',
   'security-defined',
+  'security-scopes-defined',
   'spec-strict-refs',
   'no-required-schema-properties-undefined',
   'no-schema-type-mismatch',
@@ -93,6 +94,7 @@ const builtInOAS3Rules = [
   'response-contains-header',
   'scalar-property-missing-example',
   'security-defined',
+  'security-scopes-defined',
   'spec-strict-refs',
   'no-required-schema-properties-undefined',
   'no-schema-type-mismatch',
@@ -127,6 +129,7 @@ const builtInAsync2Rules = [
   'info-contact',
   'info-license-strict',
   'operation-operationId',
+  'security-defined',
   'tag-description',
   'tags-alphabetical',
   'channels-kebab-case',
@@ -136,6 +139,7 @@ const builtInAsync2Rules = [
   'no-enum-type-mismatch',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'security-scopes-defined',
 ] as const;
 export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
 
@@ -143,6 +147,7 @@ const builtInAsync3Rules = [
   'info-contact',
   'info-license-strict',
   'operation-operationId',
+  'security-defined',
   'tag-description',
   'tags-alphabetical',
   'channels-kebab-case',
@@ -152,6 +157,7 @@ const builtInAsync3Rules = [
   'no-enum-type-mismatch',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'security-scopes-defined',
 ] as const;
 export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
 
@@ -308,6 +314,8 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
     apis: 'ConfigApis', // Override apis with internal format
+    // TODO: move `client` into the Redocly config schema (@redocly/config).
+    client: 'Client',
     telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
@@ -331,6 +339,9 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
+    client: 'Client',
+    clientOutput: { type: 'string' },
   },
 });
 
@@ -342,6 +353,43 @@ const ConfigHTTP: NodeType = {
         type: 'string',
       },
     },
+  },
+};
+
+const Client: NodeType = {
+  properties: {
+    generators: { type: 'array', items: { type: 'string' } },
+    argsStyle: { enum: ['flat', 'grouped'] },
+    serverUrl: { type: 'string' },
+    outputMode: { enum: ['single', 'split'] },
+    runtime: { enum: ['inline', 'package'] },
+    importExt: { enum: ['js', 'ts'] },
+    errorMode: { enum: ['throw', 'result'] },
+    dateType: { enum: ['string', 'Date'] },
+    mockData: { enum: ['static', 'faker'] },
+    mockSeed: { type: 'number' },
+    queryKeyPrefix: { type: 'string' },
+    setup: { type: 'string' },
+    pagination: 'ClientPagination',
+  },
+};
+const ClientPaginationRule: NodeType = {
+  properties: {
+    style: { enum: ['cursor', 'offset', 'page', 'link'] },
+    cursorParam: { type: 'string' },
+    nextCursor: { type: 'string' },
+    hasMore: { type: 'string' },
+    offsetParam: { type: 'string' },
+    limitParam: { type: 'string' },
+    items: { type: 'string' },
+  },
+};
+
+const ClientPagination: NodeType = {
+  properties: {
+    ...ClientPaginationRule.properties,
+    exclude: { type: 'array', items: { type: 'string' } },
+    operations: mapOf('ClientPaginationRule'),
   },
 };
 
@@ -741,6 +789,9 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigApis,
   ConfigGovernance,
   ConfigHTTP,
+  Client,
+  ClientPagination,
+  ClientPaginationRule,
   Where,
   BuiltinRule,
   CustomRule,

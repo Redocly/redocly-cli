@@ -14,6 +14,7 @@ Documentation commands:
 API management commands:
 
 - [`bundle`](bundle.md) Bundle API description.
+- [`generate-client`](generate-client.md) Generate a typed TypeScript client from an OpenAPI description [experimental feature].
 - [`join`](join.md) Join API descriptions [experimental feature].
 - [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
 - [`split`](split.md) Split API description into a multi-file structure.
@@ -31,6 +32,7 @@ Testing commands:
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo description from an OpenAPI description.
 - [`drift`](drift.md) Detect drift between recorded HTTP traffic and an OpenAPI description [experimental feature].
 - [`proxy`](proxy.md) Capture live HTTP traffic through a reverse proxy into a HAR file [experimental feature].
+- [`generate-spec`](generate-spec.md) Infer an OpenAPI description from recorded HTTP traffic [experimental feature].
 
 Redocly platform commands:
 

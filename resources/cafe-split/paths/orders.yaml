@@ -9,11 +9,42 @@ get:
         - orders:read
   parameters:
     - $ref: ../components/parameters/Filter.yaml
+      description: |-
+        Filters the collection items using space-separated `field:value` pairs.
+
+        **Filterable fields:** `customerName`, `status`, `totalPrice`, `createdAt`, `id`
+
+        **Format:** `field1:value1 field2:value2`
+
+        **Supported operators:**
+        - `field:value` - Exact match
+        - `field:value1,value2` - Match any of the comma-separated values (OR)
+        - Time ranges (on `createdAt`): Use `30d` (30 days), `7d` (7 days), `1h` (1 hour), etc.
+
+        **Examples:**
+        - `status:placed` - Filter by a single status.
+        - `status:placed,completed` - Filter by multiple statuses.
+        - `createdAt:30d` - Orders created in the last 30 days.
+        - `id:ord_01h1s5z6vf2mm1mz3hevnn9va7` - Filter by a specific order ID.
+        - `status:placed createdAt:7d` - Combine multiple filters.
+      example: status:placed
     - $ref: ../components/parameters/Sort.yaml
+      description: |-
+        Sorts the collection by a single field. Prefix with `-` for descending order
+        (for example, `-createdAt`); omit the prefix for ascending order (`createdAt`).
+
+        **Sortable fields:** `customerName`, `status`, `totalPrice`, `createdAt`, `updatedAt`, `id`
+      example: '-createdAt'
     - $ref: ../components/parameters/Limit.yaml
     - $ref: ../components/parameters/After.yaml
     - $ref: ../components/parameters/Before.yaml
     - $ref: ../components/parameters/Search.yaml
+      description: |-
+        Performs a case-insensitive text search across the searchable fields, returning
+        items where any of them contain the search term as a substring.
+
+        **Searchable fields:** `customerName`, `id`
+      example: John
   responses:
     '200':
       description: Successful operation.
@@ -35,7 +66,7 @@ post:
   summary: Create order
   description: |
     Create a new order.
-    Order items cannot be changed - if they need to be updated, the order should be canceled and a new one placed.
+    Order items cannot be changed - if they need to be updated, cancel the order and place a new one.
   operationId: createOrder
   security:
     - OAuth2:

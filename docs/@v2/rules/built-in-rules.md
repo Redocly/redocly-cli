@@ -35,6 +35,7 @@ The rules list is split into sections.
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [nullable-type-sibling](./oas/nullable-type-sibling.md): `nullable` must be used with a `type`
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
+- [security-scopes-defined](./common/security-scopes-defined.md): Scopes used in security requirements must be defined in the corresponding OAuth2 security scheme
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
 - [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`
@@ -122,6 +123,7 @@ Other rules, such as the `struct` and `info.*`, also apply to AsyncAPI.
 
 - [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
 - [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
+- [security-defined](./async/security-defined.md): Security scheme names referenced from operations or servers must be defined in `components.securitySchemes`
 
 ## Arazzo rules
 
@@ -173,6 +175,11 @@ Use the rules in this section for Open-RPC specific linting.
 - [spec-no-required-params-after-optional](./openrpc/spec-no-required-params-after-optional.md): Required parameters must be positioned before optional parameters
 - [info-contact](./oas/info-contact.md): Contact section is defined under `info`
 - [info-license](./oas/info-license.md): License section is defined under `info`
+
+## Rule ideas
+
+Apart from built-in rules, Redocly CLI supports [configurable rules](../rules/configurable-rules.md) and [custom plugins](../custom-plugins/index.md).
+However, if you have an idea for a built-in rule you believe benefits the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) in the Redocly CLI repository.
 
 ## Resources
 
