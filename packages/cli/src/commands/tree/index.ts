@@ -1,8 +1,12 @@
 import {
+  appendDepsClosure,
   BaseResolver,
   buildApiIndex,
+  buildNodeEnvelope,
   detectSpec,
+  findIndexNode,
   getTypes,
+  hasIndexLocation,
   logger,
   normalizeTypes,
   resolveDocument,
@@ -43,6 +47,8 @@ export type TreeArgv = {
   uses?: string[];
   files?: boolean;
   'group-by': IndexGroupBy;
+  node?: string;
+  'with-deps'?: boolean;
 } & VerifyConfigOptions;
 
 type TreeModeContext = {
@@ -61,6 +67,12 @@ export async function handleTree({ argv, config, collectSpecData }: CommandArgs<
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const cwd = process.cwd();
+
+  if (argv.files && argv.node !== undefined) {
+    return exitWithError(
+      'The --node option applies to the structure view and cannot be combined with --files.'
+    );
+  }
 
   if (argv.files) {
     if (argv.operations) {
@@ -215,6 +227,41 @@ async function handleStructureMode({
   }
 
   const isOpenApi = specVersion.startsWith('oas');
+
+  if (!isOpenApi && (argv.node !== undefined || argv['with-deps'])) {
+    return exitWithError(
+      'The --node, --with-deps, and --group-by options support OpenAPI descriptions only for now.'
+    );
+  }
+
+  if (argv.node !== undefined) {
+    const fullIndex = buildApiIndex(analysis, { specVersion, cwd, groupBy: argv['group-by'] });
+    const indexNode = findIndexNode(fullIndex.structure, argv.node);
+    if (!indexNode) {
+      return exitWithError(
+        `No index node matches "${argv.node}". Run \`redocly tree --format=json\` to list node ids.`
+      );
+    }
+    if (indexNode.nodes !== undefined && indexNode.nodes.length > 0) {
+      const subIndex = { ...fullIndex, structure: [indexNode] };
+      const limited =
+        argv.level !== undefined ? limitIndexLevel(subIndex, argv.level + 1) : subIndex;
+      emitRendered(renderIndexJson(limited), argv);
+      return;
+    }
+    if (!hasIndexLocation(indexNode)) {
+      return exitWithError(
+        `Node "${indexNode.id}" has no source location. Pick one of its child nodes.`
+      );
+    }
+    let envelope = buildNodeEnvelope({ indexNode, analysis, cwd });
+    if (argv['with-deps']) {
+      envelope = appendDepsClosure({ envelope, indexNode, analysis, index: fullIndex, cwd });
+    }
+    emitRendered(JSON.stringify(envelope, null, 2), argv);
+    return;
+  }
+
   const index =
     argv.format === 'json' && isOpenApi
       ? buildApiIndex(analysis, { specVersion, cwd, groupBy: argv['group-by'] })

@@ -149,4 +149,74 @@ describe('tree', () => {
     const result = getCommandOutput(args, { testPath: multiApiPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-multi-api'));
   });
+
+  test('tree prints the agent index as JSON', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json']);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('index-json'));
+  });
+
+  test('tree groups the index by paths', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--format=json',
+      '--group-by=paths',
+    ]);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('index-json-by-paths'));
+  });
+
+  test('tree --node on a branch returns its sub-index', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--node', 'Tickets']);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-branch'));
+  });
+
+  test('tree --node on a leaf returns its source and refs', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--node', 'GET /orders']);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-leaf'));
+  });
+
+  test('tree --node accepts a file#pointer selector', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--node',
+      'paths/orders.yaml#/get',
+    ]);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-leaf-pointer'));
+  });
+
+  test('tree --node --with-deps appends the dependency closure', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--node',
+      'GET /orders',
+      '--with-deps',
+    ]);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-with-deps'));
+  });
+
+  test('tree --node reports an unknown selector', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--node', 'GET /nowhere']);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-unknown'));
+  });
+
+  test('tree --uses with --format json warns that webhooks are omitted', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--uses',
+      'schemas/Ticket',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('uses-json-webhooks-warning'));
+  });
 });

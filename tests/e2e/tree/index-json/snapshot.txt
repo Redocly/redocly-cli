@@ -1,0 +1,141 @@
+{
+  "docName": "openapi.yaml",
+  "spec": "oas3_1",
+  "docDescription": "Museum API — Imaginary, but delightful Museum API for interview practice.",
+  "structure": [
+    {
+      "id": "Overview",
+      "title": "Overview",
+      "pointer": "#/info",
+      "file": "openapi.yaml",
+      "start_line": 3,
+      "end_line": 5,
+      "summary": "Imaginary, but delightful Museum API for interview practice."
+    },
+    {
+      "id": "Servers",
+      "title": "Servers",
+      "pointer": "#/servers",
+      "file": "openapi.yaml",
+      "start_line": 7,
+      "end_line": 7,
+      "summary": "https://api.fake-museum-example.com/v1.1"
+    },
+    {
+      "id": "Operations",
+      "title": "Operations",
+      "pointer": "#/paths",
+      "file": "openapi.yaml",
+      "start_line": 12,
+      "end_line": 39,
+      "nodes": [
+        {
+          "id": "Tickets",
+          "title": "Tickets",
+          "pointer": "#/tags/0",
+          "file": "openapi.yaml",
+          "start_line": 9,
+          "end_line": 10,
+          "summary": "Buy tickets and manage reservations.",
+          "nodes": [
+            {
+              "id": "POST /tickets",
+              "title": "POST /tickets — Buy museum tickets",
+              "operationId": "buyMuseumTickets",
+              "pointer": "#/paths/~1tickets/post",
+              "file": "openapi.yaml",
+              "start_line": 22,
+              "end_line": 31,
+              "summary": "Buy museum tickets"
+            },
+            {
+              "id": "POST /legacy-tickets",
+              "title": "POST /legacy-tickets — Buy tickets the old way",
+              "deprecated": true,
+              "pointer": "#/paths/~1legacy-tickets/post",
+              "file": "openapi.yaml",
+              "start_line": 34,
+              "end_line": 39,
+              "summary": "Buy tickets the old way"
+            }
+          ]
+        },
+        {
+          "id": "untagged",
+          "title": "untagged",
+          "nodes": [
+            {
+              "id": "GET /museum-hours",
+              "title": "GET /museum-hours — Get museum hours",
+              "operationId": "getMuseumHours",
+              "pointer": "#/paths/~1museum-hours/get",
+              "file": "openapi.yaml",
+              "start_line": 14,
+              "end_line": 19,
+              "summary": "Get museum hours"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Webhooks",
+      "title": "Webhooks",
+      "pointer": "#/webhooks",
+      "file": "openapi.yaml",
+      "start_line": 41,
+      "end_line": 46,
+      "nodes": [
+        {
+          "id": "POST publicationOfNewEvent",
+          "title": "POST publicationOfNewEvent — New event added",
+          "pointer": "#/webhooks/publicationOfNewEvent/post",
+          "file": "openapi.yaml",
+          "start_line": 43,
+          "end_line": 46,
+          "summary": "New event added"
+        }
+      ]
+    },
+    {
+      "id": "Components",
+      "title": "Components",
+      "pointer": "#/components",
+      "file": "openapi.yaml",
+      "start_line": 48,
+      "end_line": 58,
+      "nodes": [
+        {
+          "id": "components/schemas",
+          "title": "schemas",
+          "nodes": [
+            {
+              "id": "schemas/Ticket",
+              "title": "Ticket",
+              "pointer": "#/components/schemas/Ticket",
+              "file": "openapi.yaml",
+              "start_line": 50,
+              "end_line": 54,
+              "summary": "A ticket for museum entry or special event."
+            }
+          ]
+        },
+        {
+          "id": "components/securitySchemes",
+          "title": "securitySchemes",
+          "nodes": [
+            {
+              "id": "securitySchemes/MuseumPlaceholderAuth",
+              "title": "MuseumPlaceholderAuth",
+              "pointer": "#/components/securitySchemes/MuseumPlaceholderAuth",
+              "file": "openapi.yaml",
+              "start_line": 57,
+              "end_line": 58
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

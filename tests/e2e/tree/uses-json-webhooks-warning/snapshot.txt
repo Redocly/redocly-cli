@@ -1,0 +1,65 @@
+{
+  "docName": "openapi.yaml",
+  "spec": "oas3_1",
+  "docDescription": "Museum API — Imaginary, but delightful Museum API for interview practice.",
+  "structure": [
+    {
+      "id": "Operations",
+      "title": "Operations",
+      "pointer": "#/paths",
+      "file": "openapi.yaml",
+      "start_line": 12,
+      "end_line": 39,
+      "nodes": [
+        {
+          "id": "Tickets",
+          "title": "Tickets",
+          "pointer": "#/tags/0",
+          "file": "openapi.yaml",
+          "start_line": 9,
+          "end_line": 10,
+          "summary": "Buy tickets and manage reservations.",
+          "nodes": [
+            {
+              "id": "POST /tickets",
+              "title": "POST /tickets — Buy museum tickets",
+              "operationId": "buyMuseumTickets",
+              "pointer": "#/paths/~1tickets/post",
+              "file": "openapi.yaml",
+              "start_line": 22,
+              "end_line": 31,
+              "summary": "Buy museum tickets"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Components",
+      "title": "Components",
+      "pointer": "#/components",
+      "file": "openapi.yaml",
+      "start_line": 48,
+      "end_line": 58,
+      "nodes": [
+        {
+          "id": "components/schemas",
+          "title": "schemas",
+          "nodes": [
+            {
+              "id": "schemas/Ticket",
+              "title": "Ticket",
+              "pointer": "#/components/schemas/Ticket",
+              "file": "openapi.yaml",
+              "start_line": 50,
+              "end_line": 54,
+              "summary": "A ticket for museum entry or special event."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Webhooks are not part of the dependency graph yet, so they are omitted from --uses-filtered output.

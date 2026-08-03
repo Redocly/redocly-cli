@@ -1,0 +1,75 @@
+{
+  "id": "GET /orders",
+  "pointer": "#/get",
+  "file": "paths/orders.yaml",
+  "start_line": 2,
+  "end_line": 10,
+  "content": "  operationId: listOrders\n  summary: List orders\n  responses:\n    '200':\n      description: A list of orders.\n      content:\n        application/json:\n          schema:\n            $ref: ../components/schemas/OrderList.yaml",
+  "refs": [
+    {
+      "ref": "../components/schemas/OrderList.yaml",
+      "resolved": true,
+      "file": "components/schemas/OrderList.yaml",
+      "pointer": "#/"
+    }
+  ],
+  "deps": [
+    {
+      "id": "schemas/OrderList",
+      "pointer": "#/",
+      "file": "components/schemas/OrderList.yaml",
+      "start_line": 1,
+      "end_line": 6,
+      "content": "type: object\nproperties:\n  items:\n    type: array\n    items:\n      $ref: Order.yaml",
+      "refs": [
+        {
+          "ref": "Order.yaml",
+          "resolved": true,
+          "file": "components/schemas/Order.yaml",
+          "pointer": "#/"
+        }
+      ]
+    },
+    {
+      "id": "schemas/Order",
+      "pointer": "#/",
+      "file": "components/schemas/Order.yaml",
+      "start_line": 1,
+      "end_line": 10,
+      "content": "type: object\nproperties:\n  id:\n    type: string\n  status:\n    $ref: OrderStatus.yaml\n  items:\n    type: array\n    items:\n      $ref: MenuItem.yaml",
+      "refs": [
+        {
+          "ref": "MenuItem.yaml",
+          "resolved": true,
+          "file": "components/schemas/MenuItem.yaml",
+          "pointer": "#/"
+        },
+        {
+          "ref": "OrderStatus.yaml",
+          "resolved": true,
+          "file": "components/schemas/OrderStatus.yaml",
+          "pointer": "#/"
+        }
+      ]
+    },
+    {
+      "id": "schemas/MenuItem",
+      "pointer": "#/",
+      "file": "components/schemas/MenuItem.yaml",
+      "start_line": 1,
+      "end_line": 8,
+      "content": "type: object\nproperties:\n  id:\n    type: string\n  name:\n    type: string\n  price:\n    type: number",
+      "refs": []
+    },
+    {
+      "id": "schemas/OrderStatus",
+      "pointer": "#/",
+      "file": "components/schemas/OrderStatus.yaml",
+      "start_line": 1,
+      "end_line": 5,
+      "content": "type: string\nenum:\n  - placed\n  - served\n  - paid",
+      "refs": []
+    }
+  ]
+}
+

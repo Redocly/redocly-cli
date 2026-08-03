@@ -109,6 +109,17 @@ yargs(hideBin(process.argv))
             choices: ['tags', 'paths'] as ReadonlyArray<IndexGroupBy>,
             default: 'tags' as IndexGroupBy,
           },
+          node: {
+            description:
+              'Print one JSON-index node: a branch returns its sub-index, a leaf returns its raw source lines and refs. Accepts a semantic id or file#/pointer.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          'with-deps': {
+            description: 'With --node on a leaf: append the transitive $ref closure.',
+            type: 'boolean' as const,
+            default: false,
+          },
           output: {
             alias: 'o',
             description: 'Write the output to a file instead of stdout.',
