@@ -18,9 +18,12 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   decode/encode is reflective (`_decode.py`, `get_type_hints`) — no per-model codecs.
 - **Naming:** fields/methods snake*case via `identifierFor(..., RESERVED_WORDS.python)`;
   reserved words get a trailing underscore (`class*`); `+1`/`-1`become`plus_1`/`minus_1`.
-- **Enums** are `class X(str, Enum)` with SCREAMING members; **discriminated unions** are
-  `Union[...]` aliases plus a decode dispatch on the discriminator property; **allOf** is
-  flattened via `flattenAllOf`.
+- **Enums** are `class X(str, Enum)` with SCREAMING members; **unions** are `Union[...]`
+  aliases, decoded by trying each member in order (the first that hydrates wins — see
+  `_decode.py`); a discriminator, when present, is emitted as a table COMMENT on the
+  alias, not as runtime dispatch. (Discriminator-driven dispatch is a known improvement
+  candidate: update this paragraph first, then `_decode.py`.) **allOf** is flattened via
+  `flattenAllOf`.
 - **Errors:** `errorMode` maps to raising `ApiError` (default) or returning a `Result`
   dataclass — the only generator with both modes outside TypeScript.
 - **Parity surface:** auth (bearer/basic/apiKey), retries with `Retry-After` + jittered
