@@ -260,6 +260,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-schema-type-mismatch': 'warn',
     'operation-operationId': 'warn',
     'security-scopes-defined': 'off',
+    'spec-ref-targets': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
   },

@@ -260,6 +260,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'no-schema-type-mismatch': 'error',
     'operation-operationId': 'error',
     'security-scopes-defined': 'error',
+    'spec-ref-targets': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
   },

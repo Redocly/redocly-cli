@@ -363,6 +363,7 @@ rules:
   no-schema-type-mismatch: error
   operation-operationId: warn
   security-scopes-defined: warn
+  spec-ref-targets: warn
   struct: error
   tag-description: warn
 ```

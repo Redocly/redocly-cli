@@ -260,6 +260,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-schema-type-mismatch': 'off',
     'operation-operationId': 'off',
     'security-scopes-defined': 'off',
+    'spec-ref-targets': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
   },

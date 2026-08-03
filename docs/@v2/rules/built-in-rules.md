@@ -123,6 +123,7 @@ Other rules, such as the `struct` and `info.*`, also apply to AsyncAPI.
 
 - [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
 - [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
+- [spec-ref-targets](./async/spec-ref-targets.md): Operation, reply, and channel `$ref`s must point to the targets the AsyncAPI 3.0 specification requires
 
 ## Arazzo rules
 

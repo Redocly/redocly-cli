@@ -260,6 +260,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-schema-type-mismatch': 'error',
     'operation-operationId': 'warn',
     'security-scopes-defined': 'warn',
+    'spec-ref-targets': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
   },
