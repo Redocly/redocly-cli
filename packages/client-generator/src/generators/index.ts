@@ -3,6 +3,7 @@ import { cliGenerator, cliSample } from './cli.js';
 import { goGenerator, goSample } from './go.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock.js';
+import { phpGenerator, phpSample } from './php.js';
 import { pythonGenerator, pythonSample } from './python.js';
 import { sdkGenerator, sdkSample } from './sdk.js';
 import { swrGenerator } from './swr.js';
@@ -36,6 +37,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   cli: { run: cliGenerator, sample: cliSample },
   python: { run: pythonGenerator, sample: pythonSample },
   go: { run: goGenerator, sample: goSample },
+  php: { run: phpGenerator, sample: phpSample },
 };
 
 const GENERATORS = Object.fromEntries(

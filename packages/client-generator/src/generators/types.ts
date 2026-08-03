@@ -29,7 +29,8 @@ export type GeneratorName =
   | 'mock'
   | 'cli'
   | 'python'
-  | 'go';
+  | 'go'
+  | 'php';
 
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {

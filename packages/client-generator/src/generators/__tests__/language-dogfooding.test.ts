@@ -11,11 +11,12 @@ const ALLOWED_SPECIFIERS = new Set([
   '../authoring/index.js',
   '../emitters/python-runtime-sources.js', // pure embedded strings, generated at prepare time
   '../emitters/go-runtime-sources.js',
+  '../emitters/php-runtime-sources.js',
   '../intermediate-representation/model.js', // type-only IR shapes
   './types.js', // the generator contract
 ]);
 
-describe.each(['python.ts', 'go.ts'])('%s dogfooding invariant', (file) => {
+describe.each(['python.ts', 'go.ts', 'php.ts'])('%s dogfooding invariant', (file) => {
   it('imports only what the authoring skill offers to any custom generator', () => {
     const source = readFileSync(
       resolve(dirname(fileURLToPath(import.meta.url)), '..', file),

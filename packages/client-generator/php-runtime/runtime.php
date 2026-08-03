@@ -141,14 +141,26 @@ function retryDelay(int $attempt, array $retry, ?string $retryAfter): float
     return $delay * (0.5 + mt_rand() / mt_getrandmax() / 2);
 }
 
+/** Append query params in form style: list values repeat the key (`tag=a&tag=b`). */
+function appendQuery(string $url, array $query): string
+{
+    $pairs = [];
+    foreach ($query as $name => $value) {
+        foreach (is_array($value) ? $value : [$value] as $single) {
+            $encoded = is_bool($single) ? ($single ? 'true' : 'false') : (string) $single;
+            $pairs[] = rawurlencode($name) . '=' . rawurlencode($encoded);
+        }
+    }
+    if ($pairs === []) {
+        return $url;
+    }
+    return $url . (str_contains($url, '?') ? '&' : '?') . implode('&', $pairs);
+}
+
 /** One raw curl exchange. Returns `['status', 'reason', 'headers', 'body', 'url', 'timedOut']`. */
 function rawSend(Config $config, array $request): array
 {
-    $url = $request['url'];
-    $query = $request['query'] ?? [];
-    if ($query !== []) {
-        $url .= (str_contains($url, '?') ? '&' : '?') . http_build_query($query);
-    }
+    $url = appendQuery($request['url'], $request['query'] ?? []);
     $handle = curl_init($url);
     $headerLines = [];
     foreach ($request['headers'] ?? [] as $name => $value) {

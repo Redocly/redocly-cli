@@ -68,6 +68,10 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   go: {
     load: () => import('./go.js').then((m) => ({ run: m.goGenerator, sample: m.goSample })),
   },
+  // php emits a standalone full PHP SDK (curl extension) — no TypeScript involved.
+  php: {
+    load: () => import('./php.js').then((m) => ({ run: m.phpGenerator, sample: m.phpSample })),
+  },
 };
 
 /**
