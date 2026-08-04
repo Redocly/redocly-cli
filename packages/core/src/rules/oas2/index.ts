@@ -5,6 +5,7 @@ import { InfoContact } from '../common/info-contact.js';
 import { InfoLicenseStrict } from '../common/info-license-strict.js';
 import { InfoLicense } from '../common/info-license.js';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths.js';
+import { NoDuplicatedEnumValues } from '../common/no-duplicated-enum-values.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths.js';
@@ -15,6 +16,7 @@ import { NoPathTrailingSlash } from '../common/no-path-trailing-slash.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
+import { NoUnsafeMarkdown } from '../common/no-unsafe-markdown.js';
 import { Operation2xxResponse } from '../common/operation-2xx-response.js';
 import { Operation4xxResponse } from '../common/operation-4xx-response.js';
 import { OperationDescription } from '../common/operation-description.js';
@@ -92,6 +94,8 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'spec-strict-refs': SpecStrictRefs as Oas2Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas2Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas2Rule,
+  'no-duplicated-enum-values': NoDuplicatedEnumValues as Oas2Rule,
+  'no-unsafe-markdown': NoUnsafeMarkdown as Oas2Rule,
   'no-duplicated-tag-names': NoDuplicatedTagNames as Oas2Rule,
 };
 
