@@ -50,9 +50,9 @@ describe('generate-client base consumer (single-file output)', () => {
     expect(generated).toContain('// ─── Embedded runtime');
     expect(generated).toContain('as const satisfies Record<string, OperationDescriptor>');
     expect(generated).toContain('export const { configure, use } = client;');
-    expect(generated).toContain('export const getPetById = (');
-    expect(generated).toContain('export const getSlowPet = (');
-    expect(generated).toContain('export const listPets = (');
+    expect(generated).toContain('export const getPetById = <I extends RequestOptions');
+    expect(generated).toContain('export const getSlowPet = <I extends RequestOptions');
+    expect(generated).toContain('export const listPets = <I extends RequestOptions');
     // The spec's server URL is baked into the client instance.
     expect(generated).toContain(
       'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3102", clientHeader: "redocly-client-generator" });'

@@ -127,6 +127,23 @@ export function arrow(params: ts.ParameterDeclaration[], body: ts.ConciseBody): 
   );
 }
 
+/** An arrow with type parameters, an explicit return type, and a body. */
+export function typedArrow(
+  typeParameters: ts.TypeParameterDeclaration[],
+  params: ts.ParameterDeclaration[],
+  returnType: ts.TypeNode,
+  body: ts.ConciseBody
+): ts.ArrowFunction {
+  return factory.createArrowFunction(
+    undefined,
+    typeParameters,
+    params,
+    returnType,
+    factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+    body
+  );
+}
+
 /** `[<elements…>] as const`. */
 export function constArray(elements: ts.Expression[]): ts.Expression {
   return factory.createAsExpression(

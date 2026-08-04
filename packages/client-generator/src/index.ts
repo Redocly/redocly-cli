@@ -32,6 +32,8 @@ export type {
   Client,
   ClientConfig,
   ClientCore,
+  Envelope,
+  EnvelopeResult,
   OperationDescriptor,
   OperationMethodIdentity,
   OpsShape,

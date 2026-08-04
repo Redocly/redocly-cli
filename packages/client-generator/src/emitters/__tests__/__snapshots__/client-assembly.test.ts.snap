@@ -8,7 +8,7 @@ exports[`emitClientSingleFile (package arm) > matches the golden output for a sm
  * T (v1.0.0)
  */
 
-import { createClient, type OperationDescriptor, type RequestOptions, type SseOptions } from '@redocly/client-generator';
+import { createClient, type EnvelopeResult, type OperationDescriptor, type RequestOptions, type SseOptions } from '@redocly/client-generator';
 
 export type Order = {
     id: string;
@@ -72,13 +72,13 @@ export const client = createClient<Ops, OperationId, OperationPath, OperationTag
 
 export const { configure, use } = client;
 export const setBearer = client.auth.bearer;
-export const getOrder = (orderId: string, params: {
+export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {
     expand?: string;
-} = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
+} = {}, init?: I): Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>> => client.getOrder({ orderId, params }, init) as Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>>;
 export const streamEvents = (init: SseOptions = {}) => client.streamEvents({}, init);
 
 export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';
-export type { ClientConfig, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';
+export type { ClientConfig, Envelope, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';
 "
 `;
 
@@ -90,7 +90,7 @@ exports[`emitClientSingleFile — pagination > matches the golden output for a p
  * T (v1.0.0)
  */
 
-import { createClient, type OperationDescriptor, type RequestOptions } from '@redocly/client-generator';
+import { createClient, type EnvelopeResult, type OperationDescriptor, type RequestOptions } from '@redocly/client-generator';
 
 export type Order = {};
 
@@ -169,16 +169,16 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
 export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.example.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
-export const listOrders = Object.assign((params: {
+export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {
     cursor?: string;
     limit?: string;
-} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: client.listOrders.pages, items: client.listOrders.items });
-export const getOrder = (orderId: string, params: {
+} = {}, init?: I): Promise<EnvelopeResult<ListOrdersResult, Record<string, never>, I>> => client.listOrders({ params }, init) as Promise<EnvelopeResult<ListOrdersResult, Record<string, never>, I>>, { pages: client.listOrders.pages, items: client.listOrders.items });
+export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {
     expand?: string;
-} = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
+} = {}, init?: I): Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>> => client.getOrder({ orderId, params }, init) as Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>>;
 
 export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';
-export type { ClientConfig, Middleware, RequestOptions } from '@redocly/client-generator';
+export type { ClientConfig, Envelope, Middleware, RequestOptions } from '@redocly/client-generator';
 "
 `;
 
@@ -239,6 +239,7 @@ export type Ops = {
             params?: ListOrdersParams;
         };
         result: Result<ListOrdersResult, unknown>;
+        mode: "result";
         item: Order;
         page: ListOrdersResult;
     };
@@ -248,6 +249,7 @@ export type Ops = {
             params?: GetOrderParams;
         };
         result: Result<GetOrderResult, GetOrderError>;
+        mode: "result";
     };
 };
 
@@ -281,6 +283,6 @@ export const getOrder = (orderId: string, params: {
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);
 
 export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';
-export type { ClientConfig, Middleware, RequestOptions, Result } from '@redocly/client-generator';
+export type { ClientConfig, Envelope, Middleware, RequestOptions, Result } from '@redocly/client-generator';
 "
 `;
