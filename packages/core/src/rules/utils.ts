@@ -30,15 +30,15 @@ export type AnySchema =
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
   ctx: UserContext,
-  resolveFrom?: string
+  resolveFrom?: Location
 ): {
-  schema: T | undefined;
-  location: string | undefined;
+  schema?: T;
+  location?: Location;
 } => {
   if (isRef(schemaOrRef)) {
-    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);
+    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom?.source.absoluteRef);
     return resolved
-      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
+      ? { schema: resolved.node, location: resolved.location }
       : { schema: undefined, location: resolveFrom };
   }
 
@@ -50,7 +50,7 @@ export const schemaHasProperty = (
   propertyName: string,
   ctx: UserContext,
   visited: Set<AnySchema | OasRef> = new Set(),
-  resolveFrom?: string
+  resolveLocation?: Location
 ): boolean => {
   if (isRef(schemaOrRef)) {
     if (visited.has(schemaOrRef)) return false;
@@ -60,13 +60,13 @@ export const schemaHasProperty = (
     const { $ref: _ref, ...refSiblings } = schemaOrRef as OasRef & AnySchema;
     if (
       isNotEmptyObject(refSiblings) &&
-      schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveFrom)
+      schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveLocation)
     ) {
       return true;
     }
   }
 
-  const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveFrom);
+  const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveLocation);
   if (!schema || visited.has(schema)) return false;
   visited.add(schema);
 
