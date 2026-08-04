@@ -97,6 +97,12 @@ Authenticate, handle errors, and compose middleware with a client from `generate
 Pre-configure publisher defaults and write custom client generators.
 {% /card %}
 
+{% card title="Agent context savings with tree"
+    to="./tree-agent-index-benchmark"
+  %}
+Measured token counts for exploring an API description with the `tree` index instead of reading the whole file, up to GitHub's 9.8 MB description.
+{% /card %}
+
 {% card title="Set up tab completion"
     to="./autocomplete"
   %}

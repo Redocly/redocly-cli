@@ -556,7 +556,7 @@ Large API descriptions do not fit in an LLM's context window.
 Instead of feeding the whole file to a model, generate a compact index of it and let the agent navigate in bounded steps.
 The index is generated deterministically from the document structure — no AI calls or API keys are needed.
 It is available for OpenAPI descriptions; `--node`, `--with-deps`, and `--group-by` report an error for other specification types.
-For a measured comparison of how much context this saves, see [Agent context savings with tree](../guides/tree-agent-index-benchmark.md).
+For a measured comparison of how much context this saves — on descriptions up to the 9.8 MB GitHub REST API, where the whole file is 1.9 million tokens — see [Agent context savings with tree](../guides/tree-agent-index-benchmark.md).
 
 1. Get the map: `redocly tree openapi.yaml --format=json --level 2` prints the sections, tags, and counts — a few kilobytes for any spec size.
 2. Drill into a branch the agent picked: `redocly tree openapi.yaml --node Tickets` returns that tag's operations with summaries, files, and line ranges.
