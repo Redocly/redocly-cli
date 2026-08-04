@@ -17,6 +17,7 @@ import type { Oas2Schema, Oas2Tag } from '../typings/swagger.js';
 import { getOwn } from '../utils/get-own.js';
 import { isDefined } from '../utils/is-defined.js';
 import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
+import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
 import type { AjvValidator } from './ajv.js';
@@ -58,7 +59,7 @@ export const schemaHasProperty = (
     // OAS 3.1 allows schema keywords next to $ref; the OasRef type doesn't model them, hence the cast
     const { $ref: _ref, ...refSiblings } = schemaOrRef as OasRef & AnySchema;
     if (
-      Object.keys(refSiblings).length > 0 &&
+      isNotEmptyObject(refSiblings) &&
       schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveFrom)
     ) {
       return true;
