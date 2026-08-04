@@ -44,9 +44,7 @@ export const resolveSchema = <T extends NonUndefined>(
         ? { ...resolved.node, ...siblings }
         : resolved.node;
 
-    return resolved
-      ? { schema, location: resolved.location }
-      : { schema: undefined, location: location };
+    return resolved ? { schema, location: resolved.location } : { schema: undefined, location };
   }
 
   return { schema: schemaOrRef, location };
