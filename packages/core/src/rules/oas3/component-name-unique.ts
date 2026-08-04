@@ -10,6 +10,9 @@ import type {
   Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi.js';
+import { componentNameFromTitle } from '../../utils/component-name-from-title.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
+import { isString } from '../../utils/is-string.js';
 import { isSupportedExtension } from '../../utils/is-supported-extension.js';
 import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Problem, UserContext } from '../../walk.js';
@@ -32,6 +35,8 @@ type ComponentsMapValue = { absolutePointers: Set<string>; locations: Location[]
 
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   const components = new Map<string, ComponentsMapValue>();
+  const useTitleStrategy = options.strategy === 'title';
+  let rootSourceRef: string;
 
   const typeNames: string[] = [];
   if (options.schemas !== 'off') {
@@ -55,11 +60,19 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
 
-          addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
+          const titleName = getTitleComponentName(typeName, resolvedRef);
+          if (titleName) {
+            addFoundComponent(typeName, titleName, resolvedRef.location);
+          } else {
+            addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
+          }
         }
       },
     },
     Root: {
+      enter(_: AnyOas3Definition, { location }: UserContext) {
+        rootSourceRef = location.source.absoluteRef;
+      },
       leave(root: AnyOas3Definition, ctx: UserContext) {
         components.forEach((value, key, _) => {
           if (value.absolutePointers.size > 1) {
@@ -146,6 +159,23 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   function addComponentFromAbsoluteLocation(typeName: string, location: Location): void {
     const componentName = getComponentNameFromAbsoluteLocation(location.absolutePointer.toString());
     addFoundComponent(typeName, componentName, location);
+  }
+
+  function getTitleComponentName(
+    typeName: string,
+    resolved: { node: unknown; location: Location }
+  ): string | null {
+    if (
+      !useTitleStrategy ||
+      typeName !== TYPE_NAME_SCHEMA ||
+      resolved.location.source.absoluteRef === rootSourceRef
+    ) {
+      return null;
+    }
+
+    const { node } = resolved;
+    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
+    return title === '' ? null : componentNameFromTitle(title);
   }
 };
 
