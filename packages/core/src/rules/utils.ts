@@ -20,7 +20,7 @@ import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import type { AjvValidator } from './ajv.js';
+import { type AjvValidator, getDialectBySpecVersion } from './ajv.js';
 
 export type AnySchema =
   | Oas3Schema
@@ -56,13 +56,17 @@ export const schemaHasProperty = (
     if (visited.has(schemaOrRef)) return false;
     visited.add(schemaOrRef);
 
-    // OAS 3.1 allows schema keywords next to $ref; the OasRef type doesn't model them, hence the cast
-    const { $ref: _ref, ...refSiblings } = schemaOrRef as OasRef & AnySchema;
-    if (
-      isNotEmptyObject(refSiblings) &&
-      schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveLocation)
-    ) {
-      return true;
+    // Keywords next to $ref only apply in JSON Schema 2020-12 based specs (OAS 3.1+);
+    // draft-4 based specs (OAS 2.0, 3.0) ignore them.
+    // The OasRef type doesn't model sibling keywords, hence the cast.
+    if (getDialectBySpecVersion(ctx.specVersion) === '2020') {
+      const { $ref: _ref, ...refSiblings } = schemaOrRef as OasRef & AnySchema;
+      if (
+        isNotEmptyObject(refSiblings) &&
+        schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveLocation)
+      ) {
+        return true;
+      }
     }
   }
 
