@@ -213,7 +213,6 @@ const Message: NodeType = {
       description:
         'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
     },
-    deprecated: { type: 'boolean' },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
@@ -286,7 +285,6 @@ const MessageTrait: NodeType = {
       description:
         'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
     },
-    deprecated: { type: 'boolean' },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',

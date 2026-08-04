@@ -20,7 +20,7 @@ channels:
     subscribe:
       operationId: userSignedUp
       tags:
-        - test-tag
+        - name: test-tag
       message:
         $ref: '#/components/messages/UserSignedUp'
 
