@@ -42,13 +42,6 @@ describe('Client<Ops> mapped type', () => {
     // Runtime stub — expectTypeOf reads only the static type, but property access must not throw.
     const client = { auth: {} } as unknown as Client<TestOps>;
 
-    expectTypeOf(client.requiredArgs).toBeCallableWith({ orderId: 'ord_1' });
-    expectTypeOf(client.requiredArgs).toBeCallableWith({ orderId: 'ord_1' }, { parseAs: 'json' });
-
-    // All-optional args → the args object itself is optional.
-    expectTypeOf(client.optionalArgs).toBeCallableWith();
-    expectTypeOf(client.optionalArgs).toBeCallableWith({ params: { limit: 5 } });
-
     // SSE entries return typed async generators and take SseOptions.
     expectTypeOf(client.streaming).returns.toEqualTypeOf<
       AsyncGenerator<ServerSentEvent<{ text: string }>>
@@ -63,9 +56,12 @@ describe('Client<Ops> mapped type', () => {
     expectTypeOf(client.auth.apiKey).toBeCallableWith('scheme', 'key');
 
     const _typeOnly = (): void => {
-      // Default (no init) calls resolve to the plain body. Asserted through calls because
-      // `.returns` on the generic throw-mode method instantiates `Init` at its constraint,
-      // which is the (intended) body-or-envelope union.
+      // Assert throw-mode call sites through calls: `toBeCallableWith` / `.returns` on the
+      // generic method resolve Parameters to `never` once intersected with operationId.
+      void client.requiredArgs({ orderId: 'ord_1' });
+      void client.requiredArgs({ orderId: 'ord_1' }, { parseAs: 'json' });
+      void client.optionalArgs();
+      void client.optionalArgs({ params: { limit: 5 } });
       expectTypeOf(client.requiredArgs({ orderId: 'ord_1' })).resolves.toEqualTypeOf<{
         id: string;
       }>();
@@ -85,8 +81,7 @@ describe('Client<Ops> mapped type', () => {
       listCafeOrders: paginated,
     } as unknown as Client<TestOps>;
 
-    // The one-shot method is unchanged; .pages yields the result, .items the item type.
-    expectTypeOf(client.listOrders).toBeCallableWith({ params: { cursor: 'c2' } });
+    // .pages yields the result, .items the item type (non-generic — toBeCallableWith is fine).
     expectTypeOf(client.listOrders.pages).returns.toEqualTypeOf<
       AsyncGenerator<{ orders: Array<{ id: string }>; nextCursor?: string }>
     >();
@@ -102,6 +97,8 @@ describe('Client<Ops> mapped type', () => {
     expectTypeOf(client.listCafeOrders.items).returns.toEqualTypeOf<AsyncGenerator<string>>();
 
     const _typeOnly = (): void => {
+      // One-shot stays callable; assert via a call (generic ThrowMethod × identity).
+      void client.listOrders({ params: { cursor: 'c2' } });
       // @ts-expect-error non-paginated operations have no .pages
       void client.requiredArgs.pages;
       // @ts-expect-error non-paginated operations have no .items
@@ -216,16 +213,14 @@ describe('Client<Ops> mapped type', () => {
   it('envelope: true returns { data, headers, response }; default stays the body', () => {
     const client = { auth: {} } as unknown as Client<EnvelopeOps>;
 
-    expectTypeOf(client.listCustomers).toBeCallableWith(
-      { params: { limit: 1 } },
-      { envelope: true }
-    );
-
     const _typeOnly = (): void => {
       // Default stays the body; a literal envelope: true narrows to the envelope.
       expectTypeOf(client.listCustomers({ params: { limit: 1 } })).resolves.toEqualTypeOf<
         Customer[]
       >();
+      expectTypeOf(
+        client.listCustomers({ params: { limit: 1 } }, { envelope: true })
+      ).resolves.toEqualTypeOf<Envelope<Customer[], { paginationTotal?: number }>>();
       expectTypeOf(client.listCustomers({}, { envelope: true })).resolves.toEqualTypeOf<
         Envelope<Customer[], { paginationTotal?: number }>
       >();
