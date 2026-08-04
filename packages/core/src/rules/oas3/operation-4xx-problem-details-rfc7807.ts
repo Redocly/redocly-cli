@@ -1,6 +1,13 @@
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { validateDefinedAndNonEmpty } from '../utils.js';
+import {
+  missingRequiredField,
+  resolveSchema,
+  schemaHasProperty,
+  validateDefinedAndNonEmpty,
+} from '../utils.js';
+
+const reference = 'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807';
 
 /**
  * Validation according to rfc7807 - https://datatracker.ietf.org/doc/html/rfc7807
@@ -16,8 +23,7 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
           report({
             message: 'Response `4xx` must have content-type `application/problem+json`.',
             location: location.key(),
-            reference:
-              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
+            reference,
           });
       },
       MediaType: {
@@ -25,29 +31,28 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
           return key !== 'application/problem+json';
         },
         enter(media, ctx: UserContext) {
-          validateDefinedAndNonEmpty({
-            fieldName: 'schema',
-            value: media,
+          validateDefinedAndNonEmpty({ fieldName: 'schema', value: media, ctx, reference });
+
+          if (!media.schema) return;
+
+          const { schema, location: schemaLocation } = resolveSchema(
+            media.schema,
             ctx,
-            reference:
-              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
-          });
-        },
-        SchemaProperties(schema, ctx: UserContext) {
-          validateDefinedAndNonEmpty({
-            fieldName: 'type',
-            value: schema,
-            ctx,
-            reference:
-              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
-          });
-          validateDefinedAndNonEmpty({
-            fieldName: 'title',
-            value: schema,
-            ctx,
-            reference:
-              'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807',
-          });
+            ctx.location.child('schema')
+          );
+          if (!schema || !schemaLocation) return;
+
+          for (const fieldName of ['type', 'title']) {
+            if (!schemaHasProperty(media.schema, fieldName, ctx)) {
+              ctx.report({
+                message: missingRequiredField('SchemaProperties', fieldName),
+                location: schema.properties
+                  ? schemaLocation.child(['properties', fieldName]).key()
+                  : schemaLocation.key(),
+                reference,
+              });
+            }
+          }
         },
       },
     },
