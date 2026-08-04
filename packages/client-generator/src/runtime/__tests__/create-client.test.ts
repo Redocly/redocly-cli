@@ -604,4 +604,197 @@ describe('createClientCore', () => {
     await client.getOrder({ orderId: '1' });
     expect(calls[0].url).toBe('/orders/1');
   });
+
+  it('envelope: true returns data, coerced declared headers, and the raw Response', async () => {
+    const ops = {
+      listCustomers: {
+        id: 'listCustomers',
+        method: 'GET',
+        path: '/customers',
+        responseHeaders: [
+          { name: 'pagination-total', key: 'paginationTotal', type: 'number' },
+          { name: 'x-flag', key: 'xFlag', type: 'boolean' },
+          { name: 'x-label', key: 'xLabel', type: 'string' },
+        ],
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const { fetchImpl } = spy([
+      new Response(JSON.stringify([{ id: 'c1' }]), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+          'Pagination-Total': '128',
+          'X-Flag': 'true',
+          'X-Label': 'vip',
+          'X-Undocumented': 'keep-via-response',
+        },
+      }),
+    ]);
+    const client = createClientCore<{
+      listCustomers: {
+        args: Record<string, never>;
+        result: Array<{ id: string }>;
+        headers: { paginationTotal?: number; xFlag?: boolean; xLabel?: string };
+      };
+      [k: string]: { args: object; result: unknown; headers?: object };
+    }>(ops, { serverUrl: 'https://x', fetch: fetchImpl });
+
+    const envelope = await client.listCustomers({}, { envelope: true });
+    expect(envelope.data).toEqual([{ id: 'c1' }]);
+    expect(envelope.headers).toEqual({
+      paginationTotal: 128,
+      xFlag: true,
+      xLabel: 'vip',
+    });
+    expect(envelope.response.headers.get('X-Undocumented')).toBe('keep-via-response');
+    // Default throw mode is unchanged.
+    const { fetchImpl: fetch2 } = spy([
+      new Response(JSON.stringify([{ id: 'c2' }]), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'Pagination-Total': '1' },
+      }),
+    ]);
+    type ListOps = {
+      listCustomers: {
+        args: Record<string, never>;
+        result: Array<{ id: string }>;
+        headers: { paginationTotal?: number; xFlag?: boolean; xLabel?: string };
+      };
+      [k: string]: { args: object; result: unknown; headers?: object };
+    };
+    const client2 = createClientCore<ListOps>(ops, {
+      serverUrl: 'https://x',
+      fetch: fetch2,
+    });
+    expect(await client2.listCustomers()).toEqual([{ id: 'c2' }]);
+  });
+
+  it('envelope: true omits missing declared headers and ignores the flag in result mode', async () => {
+    const ops = {
+      listCustomers: {
+        id: 'listCustomers',
+        method: 'GET',
+        path: '/customers',
+        responseHeaders: [{ name: 'pagination-total', key: 'paginationTotal', type: 'number' }],
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const body = new Response(JSON.stringify([]), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+    const { fetchImpl } = spy([body.clone(), body.clone()]);
+    const throwClient = createClientCore<{
+      listCustomers: {
+        args: Record<string, never>;
+        result: unknown[];
+        headers: { paginationTotal?: number };
+      };
+      [k: string]: { args: object; result: unknown; headers?: object };
+    }>(ops, { serverUrl: 'https://x', fetch: fetchImpl });
+    expect(await throwClient.listCustomers({}, { envelope: true })).toEqual({
+      data: [],
+      headers: {},
+      response: expect.any(Response),
+    });
+
+    const { fetchImpl: fetchResult } = spy([
+      new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'Pagination-Total': '3' },
+      }),
+    ]);
+    const resultClient = createClientCore<{
+      listCustomers: { args: Record<string, never>; result: unknown[] };
+      [k: string]: { args: object; result: unknown };
+    }>(ops, { serverUrl: 'https://x', fetch: fetchResult, errorMode: 'result' });
+    const result = await resultClient.listCustomers({}, { envelope: true });
+    expect(result).toMatchObject({ data: [], error: undefined });
+    expect(result).toHaveProperty('response');
+    expect(result).not.toHaveProperty('headers');
+  });
+
+  it('coerces boolean response headers case-insensitively and trims whitespace', async () => {
+    const ops = {
+      listCustomers: {
+        id: 'listCustomers',
+        method: 'GET',
+        path: '/customers',
+        responseHeaders: [
+          { name: 'x-flag', key: 'xFlag', type: 'boolean' },
+          { name: 'x-enabled', key: 'xEnabled', type: 'boolean' },
+        ],
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const { fetchImpl } = spy([
+      new Response(JSON.stringify([]), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+          'X-Flag': 'TRUE',
+          'X-Enabled': ' False ',
+        },
+      }),
+    ]);
+    const client = createClientCore<{
+      listCustomers: {
+        args: Record<string, never>;
+        result: unknown[];
+        headers: { xFlag?: boolean; xEnabled?: boolean };
+      };
+      [key: string]: { args: object; result: unknown; headers?: object };
+    }>(ops, { serverUrl: 'https://x', fetch: fetchImpl });
+
+    expect((await client.listCustomers({}, { envelope: true })).headers).toEqual({
+      xFlag: true,
+      xEnabled: false,
+    });
+  });
+
+  it('omits blank numeric response headers instead of coercing them to zero', async () => {
+    const ops = {
+      listCustomers: {
+        id: 'listCustomers',
+        method: 'GET',
+        path: '/customers',
+        responseHeaders: [{ name: 'pagination-total', key: 'paginationTotal', type: 'number' }],
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const { fetchImpl } = spy([
+      new Response(JSON.stringify([{ id: 'c1' }]), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'Pagination-Total': '   ' },
+      }),
+    ]);
+    const client = createClientCore<{
+      listCustomers: {
+        args: Record<string, never>;
+        result: unknown[];
+        headers: { paginationTotal?: number };
+      };
+      [key: string]: { args: object; result: unknown; headers?: object };
+    }>(ops, { serverUrl: 'https://x', fetch: fetchImpl });
+
+    const result = await client.listCustomers({}, { envelope: true });
+
+    expect(result.headers).toEqual({});
+  });
+
+  it('pagination ignores envelope: true and still resolves pointers against response data', async () => {
+    const { fetchImpl } = spy([
+      jsonOk({ orders: [{ id: 'o1' }], nextCursor: 'c2' }),
+      jsonOk({ orders: [{ id: 'o2' }] }),
+    ]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { serverUrl: 'https://x', fetch: fetchImpl },
+      { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
+    );
+
+    const seen: string[] = [];
+    for await (const order of client.listOrders.items({}, { envelope: true })) {
+      seen.push(order.id);
+    }
+
+    expect(seen).toEqual(['o1', 'o2']);
+  });
 });

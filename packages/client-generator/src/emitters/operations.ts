@@ -1,4 +1,8 @@
-import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
+import type {
+  NamedSchemaModel,
+  OperationModel,
+  ParamModel,
+} from '../intermediate-representation/model.js';
 import { bodyTypeNode, renderParamsObjectArg, simpleParam } from './operation-types.js';
 import type { ModelPagination } from './pagination.js';
 import { isSseOp } from './sse.js';
@@ -33,6 +37,8 @@ export type EmitContext = {
   dateType: DateType;
   /** Names of every exported schema, used for `<Op>*` alias collision suppression. */
   schemaNames: Set<string>;
+  /** Named schemas — used to resolve `$ref` / `allOf` wrappers on response-header types. */
+  schemas?: readonly NamedSchemaModel[];
   /** Resolved auto-pagination per operation name (absent ⇒ nothing paginates). */
   pagination?: ModelPagination;
 };

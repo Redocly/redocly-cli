@@ -9,6 +9,7 @@ import { jsdocText } from './jsdoc.js';
 import { operationSignature } from './operation-signature.js';
 import { bodyTypeNode, paramsTypeLiteral, propertyKey } from './operation-types.js';
 import type { EmitContext } from './operations.js';
+import { responseHeadersTypeLiteral } from './response-headers.js';
 import { pascalCase } from './support.js';
 import { jsdoc, ts } from './ts.js';
 import { schemaToTypeNode } from './types.js';
@@ -80,6 +81,14 @@ export function renderOperationAliases(
 
   if (op.headerParams.length > 0 && !schemaNames.has(`${name}Headers`)) {
     aliases.push(exportType(`${name}Headers`, paramsTypeLiteral(op.headerParams, dateType)));
+  }
+
+  // Response headers (envelope) — distinct from request `<Op>Headers`.
+  const responseHeaders = op.successResponseHeaders;
+  if (responseHeaders && responseHeaders.length > 0 && !schemaNames.has(`${name}ResponseHeaders`)) {
+    aliases.push(
+      exportType(`${name}ResponseHeaders`, responseHeadersTypeLiteral(responseHeaders, ctx.schemas))
+    );
   }
 
   if (op.cookieParams.length > 0 && !schemaNames.has(`${name}Cookies`)) {

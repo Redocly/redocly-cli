@@ -86,9 +86,11 @@ describe('renderSwrModule', () => {
         'export const getPetKey = (vars: GetPetVariables) => ["getPet", vars] as const;'
       );
       expect(out).toContain(
-        'export function useGetPet(vars: GetPetVariables, init?: RequestOptions) {'
+        'export function useGetPet(vars: GetPetVariables, init?: Omit<RequestOptions, "envelope">) {'
       );
-      expect(out).toContain('return useSWR(getPetKey(vars), () => getPet(vars, init));');
+      expect(out).toContain(
+        'return useSWR(getPetKey(vars), () => getPet(vars, { ...init, envelope: undefined }));'
+      );
     });
   });
 
@@ -96,8 +98,20 @@ describe('renderSwrModule', () => {
     it('drops the vars param; key takes no args', () => {
       const out = render([{ name: 'listPets', method: 'get', path: '/pets' }]);
       expect(out).toContain('export const listPetsKey = () => ["listPets"] as const;');
-      expect(out).toContain('export function useListPets(init?: RequestOptions) {');
-      expect(out).toContain('return useSWR(listPetsKey(), () => listPets(init));');
+      expect(out).toContain(
+        'export function useListPets(init?: Omit<RequestOptions, "envelope">) {'
+      );
+      // Grouped signature is `(args?, init?)` — the init must not land in the args slot.
+      expect(out).toContain(
+        'return useSWR(listPetsKey(), () => listPets({}, { ...init, envelope: undefined }));'
+      );
+    });
+
+    it('flat style: the no-input sugar takes the init directly', () => {
+      const out = render([{ name: 'listPets', method: 'get', path: '/pets' }], 'flat');
+      expect(out).toContain(
+        'return useSWR(listPetsKey(), () => listPets({ ...init, envelope: undefined }));'
+      );
     });
   });
 
@@ -140,7 +154,9 @@ describe('renderSwrModule', () => {
         ],
         'flat'
       );
-      expect(out).toContain('() => getPet(vars.petId, vars.params, init)');
+      expect(out).toContain(
+        '() => getPet(vars.petId, vars.params, { ...init, envelope: undefined })'
+      );
     });
 
     it('mutation: spreads arg.<path> (URL-template order), then params, body, headers', () => {

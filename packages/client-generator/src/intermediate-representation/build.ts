@@ -28,6 +28,7 @@ import type {
   PropertyModel,
   RequestBodyModel,
   ResponseBodyModel,
+  ResponseHeaderModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
@@ -524,7 +525,7 @@ function buildOperation(
     ? buildRequestBody(deref(doc, operation.requestBody), `${method} ${path}`, doc)
     : undefined;
 
-  const successResponses = buildSuccessResponses(operation, path, doc);
+  const { successResponses, successResponseHeaders } = buildSuccessResponse(operation, path, doc);
   const errorResponses = buildErrorResponses(operation, path, doc);
   const security = resolveOperationSecurity(operation, doc, injectable);
 
@@ -545,6 +546,7 @@ function buildOperation(
     cookieParams,
     requestBody,
     successResponses,
+    ...(successResponseHeaders === undefined ? {} : { successResponseHeaders }),
     errorResponses,
     security,
     tags: Array.isArray(operation.tags) ? operation.tags.filter((t) => typeof t === 'string') : [],
@@ -628,11 +630,14 @@ function buildRequestBody(
   };
 }
 
-function buildSuccessResponses(
+function buildSuccessResponse(
   operation: Oas3Operation,
   path: string,
   doc: Oas3Definition
-): ResponseBodyModel[] {
+): {
+  successResponses: ResponseBodyModel[];
+  successResponseHeaders?: ResponseHeaderModel[];
+} {
   const responses = operation.responses ?? {};
   // An explicit code beats the `2XX` range wildcard (per the spec), which beats `default`.
   const successCodes = Object.keys(responses).filter((code) => /^2\d\d$/.test(code));
@@ -642,17 +647,24 @@ function buildSuccessResponses(
   }
   // Pick the first success response.
   const code = successCodes[0];
-  if (!code) return [];
+  if (!code) return { successResponses: [] };
   const responseRaw = responses[code];
-  if (!responseRaw) return [];
+  if (!responseRaw) return { successResponses: [] };
   const response = deref<Oas3ResponseShape>(doc, responseRaw);
+  const successResponseHeaders = buildResponseHeaders(
+    response.headers,
+    `paths.${path}.response.${code}`,
+    doc
+  );
   const content = response.content;
-  if (!content) return [];
+  if (!content) {
+    return {
+      successResponses: [],
+      ...(successResponseHeaders === undefined ? {} : { successResponseHeaders }),
+    };
+  }
 
   const status = code === 'default' || code === '2XX' ? code : Number(code);
-  // Declared response header names (lowercased) — `link`-style pagination fits by them.
-  const headerNames = Object.keys(response.headers ?? {}).map((name) => name.toLowerCase());
-  const headers = headerNames.length > 0 ? headerNames : undefined;
   const result: ResponseBodyModel[] = [];
   for (const [contentType, media] of Object.entries(content)) {
     const schema = schemaFromSlot(
@@ -670,10 +682,41 @@ function buildSuccessResponses(
       schema,
       status,
       ...(item === undefined ? {} : { itemSchema: item }),
-      ...(headers === undefined ? {} : { headers }),
     });
   }
-  return result;
+  return {
+    successResponses: result,
+    ...(successResponseHeaders === undefined ? {} : { successResponseHeaders }),
+  };
+}
+
+type Oas3HeaderShape = {
+  schema?: Referenced<Oas3Schema | Oas3_1Schema> | boolean;
+  required?: boolean;
+};
+
+/** Build typed success-response headers; absent when the response declares none. */
+function buildResponseHeaders(
+  headers: Record<string, unknown> | undefined,
+  location: string,
+  doc: Oas3Definition
+): ResponseHeaderModel[] | undefined {
+  if (!headers) return undefined;
+  const result: ResponseHeaderModel[] = [];
+  for (const [rawName, rawHeader] of Object.entries(headers)) {
+    const header = deref<Oas3HeaderShape>(doc, rawHeader as Referenced<Oas3HeaderShape>);
+    const model: ResponseHeaderModel = {
+      name: rawName.toLowerCase(),
+      schema: schemaFromSlot(
+        header.schema === undefined ? undefined : deref(doc, header.schema),
+        `${location}.headers.${rawName}`,
+        doc
+      ),
+    };
+    if (header.required === true) model.required = true;
+    result.push(model);
+  }
+  return result.length > 0 ? result : undefined;
 }
 
 function buildErrorResponses(
