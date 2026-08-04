@@ -78,6 +78,13 @@ describe('buildApiIndex', () => {
     expect(ticketsPath.nodes!.map((node) => node.id)).toEqual(['GET /tickets', 'POST /tickets']);
   });
 
+  it('takes the Servers section from the root list, not from an operation override', async () => {
+    const index = await indexOfFixture(join(__dirname, 'fixtures', 'server-overrides'));
+
+    const servers = index.structure.find((section) => section.id === 'Servers')!;
+    expect(servers.summary).toBe('https://api.example.com');
+  });
+
   it('adds a Webhooks section from webhook operations', async () => {
     const index = await indexOfFixture(join(__dirname, 'fixtures', 'webhooks'));
 

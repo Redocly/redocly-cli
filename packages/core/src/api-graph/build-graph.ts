@@ -249,6 +249,8 @@ function walkStructure(options: {
     // Oas3Visitor has no dedicated ServerList entry, so node falls back to the visitor
     // type's untyped catch-all — annotate it explicitly to avoid implicit `any` below.
     ServerList(node: { url?: string }[], vctx) {
+      // Path items and operations can override servers; only the root list describes the API.
+      if (vctx.rawLocation.pointer !== '#/servers') return;
       meta.servers = {
         urls: node.map((server) => server.url).filter((url): url is string => Boolean(url)),
         location: vctx.location,
