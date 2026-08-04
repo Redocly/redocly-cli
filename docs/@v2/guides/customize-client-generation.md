@@ -76,6 +76,9 @@ For anything else derived from the same description (validators in another libra
 A generator adds artifacts _next to_ the client — it doesn't change the generated client's behavior; for that, use [publisher defaults](#publisher-defaults) or let the consumer compose [middleware](./use-generated-client.md#middleware).
 
 A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator` from the package root.
+Emitted file paths must stay inside the `--output` directory — subdirectories are fine, escapes are rejected.
+A generator may declare `contract` (the `GENERATOR_CONTRACT` number exported by `@redocly/client-generator`); when a future CLI changes the model shape incompatibly, the mismatch then fails upfront with the fix path instead of producing wrong output.
+Ejected generators declare it automatically.
 The output is text, so a generator can emit **any language** — Python models, a Go client, a permissions matrix — not just TypeScript.
 
 ### Language-neutral helpers

@@ -93,4 +93,11 @@ export type GeneratorDescriptor = {
 export type CustomGenerator = GeneratorDescriptor & {
   /** Unique name, used in `generators` selection, `requires`, and collision detection. */
   name: string;
+  /**
+   * The generator contract this module was written against (see `GENERATOR_CONTRACT`).
+   * A declared mismatch is rejected at resolve time with the fix path; omitting it
+   * accepts the generator as current (friction-free hand authoring). Ejected
+   * generators carry it automatically.
+   */
+  contract?: number;
 };

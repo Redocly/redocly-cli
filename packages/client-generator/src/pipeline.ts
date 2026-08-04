@@ -8,7 +8,7 @@
 
 import { stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, sep } from 'node:path';
 
 import type { EmitOptions } from './emitters/emit-options.js';
 import { NotSupportedError } from './errors.js';
@@ -43,6 +43,9 @@ export function runGenerators(
 ): GeneratedFile[] {
   const files: GeneratedFile[] = [];
   const seen = new Set<string>();
+  // Every emitted path must stay under the --output directory: generator modules are
+  // user-chosen code, but a stray `../` or absolute path must not write elsewhere.
+  const outputRoot = resolve(dirname(options.outputPath));
   for (const name of options.generators) {
     const generator = options.registry.get(name)!;
     let generated: GeneratedFile[];
@@ -58,7 +61,24 @@ export function runGenerators(
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Generator "${name}" failed: ${message}`);
     }
+    if (
+      !Array.isArray(generated) ||
+      generated.some(
+        (file) =>
+          typeof file?.path !== 'string' || file.path === '' || typeof file.content !== 'string'
+      )
+    ) {
+      throw new Error(
+        `Generator "${name}" failed: run() must return an array of { path, content } files.`
+      );
+    }
     for (const file of generated) {
+      const resolved = resolve(outputRoot, file.path);
+      if (resolved !== outputRoot && !resolved.startsWith(outputRoot + sep)) {
+        throw new Error(
+          `Generator "${name}" failed: file path escapes the output directory: ${file.path}`
+        );
+      }
       if (seen.has(file.path)) {
         throw new Error(`Generator conflict: ${file.path} already emitted by an earlier generator`);
       }

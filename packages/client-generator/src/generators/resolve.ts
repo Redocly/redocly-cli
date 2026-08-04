@@ -10,6 +10,7 @@ import { isAbsolute, resolve as resolvePath } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { NotSupportedError } from '../errors.js';
+import { GENERATOR_CONTRACT } from './contract.js';
 import { BUILTIN_META, type BuiltinMeta } from './meta.js';
 import type { CustomGenerator, GeneratorDescriptor } from './types.js';
 
@@ -75,6 +76,16 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
   if (registry.has(custom.name)) {
     throw new NotSupportedError(
       `Generator name "${custom.name}" collides with an existing generator. Rename the custom generator.`
+    );
+  }
+  // A declared contract must match exactly — the number only moves on breaking
+  // changes, so any difference means the generator and this CLI disagree on the IR.
+  if (custom.contract !== undefined && custom.contract !== GENERATOR_CONTRACT) {
+    throw new NotSupportedError(
+      `Generator "${custom.name}" declares generator contract ${custom.contract}; this CLI provides ${GENERATOR_CONTRACT}. ` +
+        (custom.contract > GENERATOR_CONTRACT
+          ? 'Update @redocly/cli.'
+          : 'Update the generator — `redocly eject-generator <name> --update` for ejected files, or upgrade the package.')
     );
   }
   // A custom generator MAY take over a built-in name — that's how an ejected

@@ -28,6 +28,8 @@
 
 import type { CustomGenerator } from './generators/types.js';
 
+export { GENERATOR_CONTRACT } from './generators/contract.js';
+
 /**
  * Identity helper for authoring a custom generator with full type inference and one validation
  * choke-point. `export default defineGenerator({ name, run, … })`. Returns its argument unchanged.

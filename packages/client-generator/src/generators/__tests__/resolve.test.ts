@@ -1,6 +1,7 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { GENERATOR_CONTRACT } from '../contract.js';
 import { resolveGenerators } from '../resolve.js';
 import type { CustomGenerator } from '../types.js';
 
@@ -23,6 +24,26 @@ describe('resolveGenerators', () => {
     });
     expect(selected).toEqual(['sdk', 'route-map']);
     expect(registry.get('route-map')?.run).toBe(noopRun);
+  });
+
+  it('accepts a generator declaring the current contract; rejects any other with the fix path', async () => {
+    const current: CustomGenerator = { name: 'ok', run: noopRun, contract: GENERATOR_CONTRACT };
+    await expect(resolveGenerators(['ok'], { customGenerators: [current] })).resolves.toBeTruthy();
+
+    const stale: CustomGenerator = { name: 'old', run: noopRun, contract: GENERATOR_CONTRACT - 1 };
+    await expect(resolveGenerators(['old'], { customGenerators: [stale] })).rejects.toThrow(
+      /declares generator contract \d+.*provides \d+.*eject-generator/s
+    );
+
+    const future: CustomGenerator = { name: 'new', run: noopRun, contract: GENERATOR_CONTRACT + 1 };
+    await expect(resolveGenerators(['new'], { customGenerators: [future] })).rejects.toThrow(
+      /Update @redocly\/cli/
+    );
+    // No declaration keeps friction-free authoring — accepted as current.
+    const undeclared: CustomGenerator = { name: 'bare', run: noopRun };
+    await expect(
+      resolveGenerators(['bare'], { customGenerators: [undeclared] })
+    ).resolves.toBeTruthy();
   });
 
   it('registers an inline custom that is available (for requires) but not selected', async () => {
