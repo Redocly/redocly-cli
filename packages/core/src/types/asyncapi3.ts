@@ -213,13 +213,13 @@ const Message: NodeType = {
       description:
         'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
     },
+    deprecated: { type: 'boolean' },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
     examples: 'MessageExampleList',
     traits: 'MessageTraitList',
   },
-  additionalProperties: {},
   description: 'Describes a message received on a given channel and operation.',
 };
 
@@ -286,12 +286,12 @@ const MessageTrait: NodeType = {
       description:
         'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
     },
+    deprecated: { type: 'boolean' },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
     examples: 'MessageExampleList',
   },
-  additionalProperties: {},
   description:
     'Describes a trait that MAY be applied to a Message Object. This object MAY contain any property from the Message Object, except payload and traits.',
 };
