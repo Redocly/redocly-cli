@@ -7,8 +7,9 @@ import {
   getMajorSpecVersion,
   isGraphqlRef,
   type Config,
-  type CollectFn,
+  type CollectSpecData,
   type Exact,
+  type NormalizedProblem,
   type SpecVersion,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
@@ -24,11 +25,14 @@ import {
   collectCriterionObjectTypes,
 } from './utils/telemetry.js';
 
+export type CollectResults = (results: NormalizedProblem[]) => void;
+
 export type CommandArgs<T extends CommandArgv> = {
   argv: T;
   config: Config;
   version: string;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
+  collectResults?: CollectResults;
 };
 
 export function commandWrapper<T extends CommandArgv>(
@@ -45,7 +49,7 @@ export function commandWrapper<T extends CommandArgv>(
     const respectXSecurityAuthTypes = new Set<string>();
     const respectSourceDescriptionTypes = new Set<string>();
     const respectCriterionObjectTypes = new Set<string>();
-    const collectSpecData: CollectFn = ({ parsed: document, source }) => {
+    const collectSpecData: CollectSpecData = ({ parsed: document, source }) => {
       specVersion = 'unknown';
       specKeyword = undefined;
       specFullVersion = undefined;
@@ -83,6 +87,24 @@ export function commandWrapper<T extends CommandArgv>(
         collectCriterionObjectTypes(document, respectCriterionObjectTypes);
       }
     };
+    const lintRulesWithErrors = new Set<string>();
+    const lintRulesWithWarnings = new Set<string>();
+    const lintRulesWithIgnoredProblems = new Set<string>();
+    const collectResults: CollectResults = (results) => {
+      try {
+        for (const problem of results) {
+          if (problem.ignored) {
+            lintRulesWithIgnoredProblems.add(problem.ruleId);
+          } else if (problem.severity === 'error') {
+            lintRulesWithErrors.add(problem.ruleId);
+          } else {
+            lintRulesWithWarnings.add(problem.ruleId);
+          }
+        }
+      } catch (err) {
+        // Do nothing.
+      }
+    };
 
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
@@ -92,7 +114,7 @@ export function commandWrapper<T extends CommandArgv>(
       telemetry = config.resolvedConfig.telemetry;
       code = 1;
       if (typeof commandHandler === 'function') {
-        await commandHandler({ argv, config, version, collectSpecData });
+        await commandHandler({ argv, config, version, collectSpecData, collectResults });
       }
       code = 0;
     } catch (err) {
@@ -121,6 +143,9 @@ export function commandWrapper<T extends CommandArgv>(
           respect_x_security_auth_types: [...respectXSecurityAuthTypes],
           respect_source_description_types: [...respectSourceDescriptionTypes],
           respect_criterion_object_types: [...respectCriterionObjectTypes],
+          lint_rules_with_errors: [...lintRulesWithErrors],
+          lint_rules_with_warnings: [...lintRulesWithWarnings],
+          lint_rules_with_ignored_problems: [...lintRulesWithIgnoredProblems],
         });
       }
       process.once('beforeExit', () => {
