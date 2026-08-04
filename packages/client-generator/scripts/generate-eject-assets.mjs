@@ -1,8 +1,10 @@
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+
+import { ejectedSkill } from './ejected-skill.mjs';
 
 // Build the ejectable generator assets: the neutral-toolkit language generators,
 // type-stripped to plain ESM (comments preserved) with imports rewritten to the
@@ -52,8 +54,7 @@ for (const { name, run, sample } of EJECTABLE) {
   // The generator's OWN skill ships beside its code: eject drops it as
   // `generators/<name>.AGENTS.md` so the agent that edits the ejected file
   // starts from the generator's design, not from reverse-engineering it.
-  copyFileSync(
-    join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'),
-    join(outDir, `${name}.AGENTS.md`)
-  );
+  // The intro and modify loop are rewritten for the user's repo on the way.
+  const skill = readFileSync(join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'), 'utf-8');
+  writeFileSync(join(outDir, `${name}.AGENTS.md`), ejectedSkill(skill, name));
 }

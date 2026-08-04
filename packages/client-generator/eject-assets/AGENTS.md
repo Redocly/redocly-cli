@@ -56,7 +56,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                                           |
 
 Worked example: the built-in `python` generator
-(`packages/client-generator/src/generators/python.ts` in the Redocly CLI repo) is
+(`packages/client-generator/src/generators/python/index.ts` in the Redocly CLI repo) is
 authored with exactly this toolkit and nothing else — models via `flattenAllOf`/
 `enumValues`/`discriminatorCases`, all code through `Printer`, every name through
 `identifierFor(..., RESERVED_WORDS.python)`.

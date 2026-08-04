@@ -1,9 +1,8 @@
 # The `php` generator — its skill
 
-This file is the generator's DESIGN. It ships to users on `redocly eject-generator php`
-(as `generators/php.AGENTS.md`) and governs our own changes: **to change the generator,
-edit this skill first, then make the code match it** — a diff to `index.ts` that has no
-covering sentence here is incomplete.
+This file is the DESIGN of your ejected `php` generator (`generators/php.mjs`):
+**to change the generator, edit this skill first, then make the code match it** — a diff
+to `generators/php.mjs` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -64,9 +63,8 @@ $idempotencyKey` on mutating methods.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change `index.ts` (and `php-runtime/runtime.php` for runtime behavior; `php -l` it,
-   then `npm run prepare -w @redocly/client-generator`).
-3. Verify: `npm run compile`, then
-   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/php.test.ts`
-   (real `php -l` + `require` bars), the e2e smoke (`tests/e2e/generate-client/php.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
+2. Make `generators/php.mjs` match it.
+3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
+   generated files are never hand-edited.
+
+Newer built-in versions merge in with `redocly eject-generator php --update`.
