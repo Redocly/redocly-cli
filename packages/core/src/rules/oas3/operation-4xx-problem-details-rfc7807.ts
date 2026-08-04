@@ -1,8 +1,11 @@
-import { isRef } from '../../ref-utils.js';
-import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import { missingRequiredField, schemaHasProperty, validateDefinedAndNonEmpty } from '../utils.js';
+import {
+  missingRequiredField,
+  resolveSchema,
+  schemaHasProperty,
+  validateDefinedAndNonEmpty,
+} from '../utils.js';
 
 const reference = 'https://redocly.com/docs/cli/rules/oas/operation-4xx-problem-details-rfc7807';
 
@@ -32,9 +35,7 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
 
           if (!media.schema) return;
 
-          const { node: schema, location: schemaLocation } = isRef(media.schema)
-            ? ctx.resolve<Oas3Schema | Oas3_1Schema>(media.schema)
-            : { node: media.schema, location: ctx.location.child('schema') };
+          const { schema, location: schemaLocation } = resolveSchema(media.schema, ctx);
           if (!schema || !schemaLocation) return;
 
           for (const fieldName of ['type', 'title']) {
