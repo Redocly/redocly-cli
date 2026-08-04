@@ -1903,8 +1903,9 @@ function coerceResponseHeader(
     return Number.isFinite(value) ? value : undefined;
   }
   if (type === 'boolean') {
-    if (raw === 'true') return true;
-    if (raw === 'false') return false;
+    const value = raw.trim().toLowerCase();
+    if (value === 'true') return true;
+    if (value === 'false') return false;
     return undefined;
   }
   return raw;

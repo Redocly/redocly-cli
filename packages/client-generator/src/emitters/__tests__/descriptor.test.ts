@@ -391,6 +391,37 @@ describe('descriptorStatements', () => {
       'responseHeaders: [{ name: "3d-secure", key: "_3dSecure", type: "boolean" }, { name: "x-foo", key: "xFoo", type: "number" }, { name: "x_foo", key: "xFoo_2", type: "string" }]'
     );
   });
+
+  it('unwraps nullable header schemas to the inner coerce type', () => {
+    const out = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          successResponses: [response()],
+          successResponseHeaders: [
+            {
+              name: 'x-flag',
+              schema: {
+                kind: 'union',
+                members: [{ kind: 'scalar', scalar: 'boolean' }, { kind: 'null' }],
+              },
+            },
+            {
+              name: 'x-count',
+              schema: {
+                kind: 'union',
+                members: [{ kind: 'scalar', scalar: 'integer' }, { kind: 'null' }],
+              },
+            },
+          ],
+        }),
+      ])
+    );
+
+    expect(out).toContain(
+      'responseHeaders: [{ name: "x-flag", key: "xFlag", type: "boolean" }, { name: "x-count", key: "xCount", type: "number" }]'
+    );
+  });
 });
 
 describe('opsInterfaceStatements', () => {

@@ -713,6 +713,43 @@ describe('createClientCore', () => {
     expect(result).not.toHaveProperty('headers');
   });
 
+  it('coerces boolean response headers case-insensitively and trims whitespace', async () => {
+    const ops = {
+      listCustomers: {
+        id: 'listCustomers',
+        method: 'GET',
+        path: '/customers',
+        responseHeaders: [
+          { name: 'x-flag', key: 'xFlag', type: 'boolean' },
+          { name: 'x-enabled', key: 'xEnabled', type: 'boolean' },
+        ],
+      },
+    } satisfies Record<string, OperationDescriptor>;
+    const { fetchImpl } = spy([
+      new Response(JSON.stringify([]), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+          'X-Flag': 'TRUE',
+          'X-Enabled': ' False ',
+        },
+      }),
+    ]);
+    const client = createClientCore<{
+      listCustomers: {
+        args: Record<string, never>;
+        result: unknown[];
+        headers: { xFlag?: boolean; xEnabled?: boolean };
+      };
+      [key: string]: { args: object; result: unknown; headers?: object };
+    }>(ops, { serverUrl: 'https://x', fetch: fetchImpl });
+
+    expect((await client.listCustomers({}, { envelope: true })).headers).toEqual({
+      xFlag: true,
+      xEnabled: false,
+    });
+  });
+
   it('omits blank numeric response headers instead of coercing them to zero', async () => {
     const ops = {
       listCustomers: {

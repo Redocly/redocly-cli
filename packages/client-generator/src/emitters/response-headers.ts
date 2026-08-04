@@ -16,6 +16,12 @@ type PlannedResponseHeader = ResponseHeaderModel & {
 
 /** Runtime coerce hint from a header schema (complex schemas fall back to string). */
 export function headerParseType(schema: SchemaModel): ResponseHeaderSpec['type'] {
+  // Nullable wrappers (`boolean | null`, OpenAPI 3.0 `nullable`) unwrap to the inner type.
+  if (schema.kind === 'union') {
+    const members = schema.members.filter((member) => member.kind !== 'null');
+    if (members.length === 1) return headerParseType(members[0]);
+    return 'string';
+  }
   if (schema.kind === 'scalar') {
     if (schema.scalar === 'integer' || schema.scalar === 'number') return 'number';
     if (schema.scalar === 'boolean') return 'boolean';
