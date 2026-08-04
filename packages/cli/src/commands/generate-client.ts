@@ -52,8 +52,6 @@ function fileNameFor(name: string): string {
   return `${name.replace(/[\\/]/g, '_')}.client.ts`;
 }
 
-// Accepts an absolute http(s) URL or a root-relative path; rejects bare hostnames,
-// protocol-relative `//host`, and non-http(s) schemes.
 function isValidServerUrl(value: string): boolean {
   if (value.startsWith('//')) return false;
   if (value.startsWith('/')) return true;
@@ -84,9 +82,6 @@ export async function handleGenerateClient({
     dateType: argv['date-type'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
-    // Like `setup` below: flag paths resolve against the cwd, while config-file entries
-    // resolve against the config dir (in `resolveGenerators`). Package specifiers and
-    // built-in names pass through.
     generators: argv.generator?.map((specifier) =>
       specifier.startsWith('.') ? resolvePath(specifier) : specifier
     ),
@@ -121,8 +116,6 @@ export async function handleGenerateClient({
 
   for (const { path, alias } of entrypoints) {
     const name = alias ?? basename(path, extname(path));
-    // `forAlias` layers the api's entry over the root config, so `client` is the
-    // per-api block when the api declares one and the top-level block otherwise.
     const aliasConfig = config.forAlias(alias);
     const { client, clientOutput } = aliasConfig.resolvedConfig;
     const clientBlock = resolveSetup(
