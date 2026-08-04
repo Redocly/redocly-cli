@@ -26,8 +26,10 @@ Checks that only specification-permitted properties are used next to a `$ref`.
 
 OpenAPI 3.1 treats `$ref` differently depending on where it appears:
 
-- In a **Schema Object** keywords next to `$ref` take effect, so any sibling is allowed.
-- As a **Reference Object** `$ref` cannot be extended, so besides `$ref` only `summary` and `description` are allowed.
+- In a **Schema Object** keywords next to `$ref` take effect.
+  All siblings are allowed.
+- A **Reference Object** `$ref` cannot be extended.
+  Only `summary` and `description` are allowed alongside `$ref`.
 
 OAS 2.0 and OAS 3.0 predate JSON Schema 2020-12 and allow only the `$ref` itself.
 AsyncAPI and Open-RPC also allow only the `$ref` itself.
@@ -36,8 +38,7 @@ A Path Item Object is the exception: every OpenAPI version lists `$ref` among it
 
 ## Configuration
 
-To configure the rule, add it to the `rules` object in your configuration file, and
-set the desired [severity](../../rules.md#severity-settings).
+To configure the rule, add it to the `rules` object in your configuration file, and set the desired [severity](../../rules.md#severity-settings).
 
 | Option   | Type   | Description                                                                              |
 | -------- | ------ | ---------------------------------------------------------------------------------------- |
@@ -59,10 +60,8 @@ rules:
   spec-ref-siblings: error
 ```
 
-Example of **incorrect** siblings next to a Reference Object `$ref` (OAS 3.1), where neither
-`headers` nor the `x-internal` extension is allowed:
+Example of **incorrect** siblings next to a Reference Object `$ref` (OAS 3.1), where neither `headers` nor the `x-internal` extension is allowed:
 
-```yaml Example
 responses:
   '200':
     $ref: '#/components/responses/Ok'
@@ -73,20 +72,16 @@ responses:
           type: integer
 ```
 
-Example of **correct** siblings next to a Reference Object `$ref` (OAS 3.1), where only
-`summary` and `description` are allowed:
+Example of **correct** siblings next to a Reference Object `$ref` (OAS 3.1), where only `summary` and `description` are allowed:
 
-```yaml Example
 responses:
   '200':
     $ref: '#/components/responses/Ok'
     description: overrides the referenced description
 ```
 
-Example of **correct** siblings next to a Schema Object `$ref` (OAS 3.1), where JSON Schema
-2020-12 keywords are allowed:
+Example of **correct** siblings next to a Schema Object `$ref` (OAS 3.1), where JSON Schema 2020-12 keywords are allowed:
 
-```yaml Example
 schema:
   $ref: '#/components/schemas/Base'
   readOnly: true
