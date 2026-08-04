@@ -138,6 +138,28 @@ describe('spec-ref-siblings', () => {
     expect(results).toHaveLength(0);
   });
 
+  it('does not report Path Item siblings, because `$ref` is one of its own fields', async () => {
+    const results = await lint(outdent`
+      openapi: 3.1.0
+      info: { title: t, version: 1.0.0 }
+      paths:
+        /x:
+          $ref: '#/components/pathItems/Shared'
+          summary: a summary
+          servers:
+            - url: https://example.com
+      components:
+        pathItems:
+          Shared:
+            get:
+              responses:
+                '200':
+                  description: ok
+    `);
+
+    expect(results).toHaveLength(0);
+  });
+
   it('reports a $ref sibling in AsyncAPI 2.x', async () => {
     const results = await lint(outdent`
       asyncapi: '2.6.0'

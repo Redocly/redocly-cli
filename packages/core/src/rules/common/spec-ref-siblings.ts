@@ -3,7 +3,9 @@ import type { Async2Rule, Async3Rule, Oas2Rule, OpenRpc1Rule } from '../../visit
 export const SpecRefSiblings: Oas2Rule | Async2Rule | Async3Rule | OpenRpc1Rule = () => {
   return {
     ref: {
-      leave(ref, { report, location }) {
+      leave(ref, { report, location, type }) {
+        if (type.name === 'PathItem') return;
+
         for (const key of Object.keys(ref)) {
           if (key === '$ref') continue;
           report({

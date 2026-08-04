@@ -32,6 +32,8 @@ OpenAPI 3.1 treats `$ref` differently depending on where it appears:
 OAS 2.0 and OAS 3.0 predate JSON Schema 2020-12 and allow only the `$ref` itself.
 AsyncAPI and Open-RPC also allow only the `$ref` itself.
 
+A Path Item Object is the exception: every OpenAPI version lists `$ref` among its own fields, so a Path Item keeps its siblings and the rule does not report them.
+
 ## Configuration
 
 To configure the rule, add it to the `rules` object in your configuration file, and

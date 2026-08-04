@@ -6,7 +6,7 @@ export const SpecRefSiblings: Oas3Rule = () => {
       leave(ref, { report, location, type, specVersion }) {
         const allowsRefSiblings = specVersion !== 'oas3_0';
 
-        if (allowsRefSiblings && type.name === 'Schema') return;
+        if ((allowsRefSiblings && type.name === 'Schema') || type.name === 'PathItem') return;
 
         for (const key of Object.keys(ref)) {
           if (key === '$ref') continue;
