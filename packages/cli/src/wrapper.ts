@@ -97,7 +97,7 @@ export function commandWrapper<T extends CommandArgv>(
             lintRulesWithIgnoredProblems.add(problem.ruleId);
           } else if (problem.severity === 'error') {
             lintRulesWithErrors.add(problem.ruleId);
-          } else {
+          } else if (problem.severity === 'warn') {
             lintRulesWithWarnings.add(problem.ruleId);
           }
         }
