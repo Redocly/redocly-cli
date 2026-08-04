@@ -11,6 +11,7 @@ import {
   docText,
   enumValues,
   flattenAllOf,
+  headerCoerceType,
   identifierFor,
   isNullable,
   paginationRuleFor,
@@ -326,7 +327,36 @@ function goPaginationLiteral(rule: NeutralPaginationRule): string {
   return `&PaginationSpec{${fields.join(', ')}}`;
 }
 
-function writeGoMethod(printer: Printer, op: OperationModel, ident: string): void {
+/** Declared response headers planned for the `<Op>Headers` struct: field, wire name, coerce helper. */
+function envelopeHeaderPlan(
+  op: OperationModel,
+  model: ApiModel
+): Array<{ field: string; name: string; goType: string; helper: string }> {
+  const used = new Set<string>();
+  return (op.successResponseHeaders ?? []).map((header) => {
+    const base = exported(header.name);
+    let field = base;
+    let suffix = 2;
+    while (used.has(field)) field = `${base}${suffix++}`;
+    used.add(field);
+    const coerce = headerCoerceType(header.schema, model);
+    const mapping = {
+      integer: { goType: '*int64', helper: 'headerInt64' },
+      number: { goType: '*float64', helper: 'headerFloat64' },
+      boolean: { goType: '*bool', helper: 'headerBool' },
+      string: { goType: '*string', helper: 'headerString' },
+    }[coerce];
+    return { field, name: header.name, ...mapping };
+  });
+}
+
+function writeGoMethod(
+  printer: Printer,
+  op: OperationModel,
+  ident: string,
+  model?: ApiModel,
+  envelope = false
+): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
     go: identifierFor(param.name, { style: 'camel', reserved: GO }),
@@ -335,6 +365,20 @@ function writeGoMethod(printer: Printer, op: OperationModel, ident: string): voi
   const hasParams = op.queryParams.length > 0;
   const success = successSchema(op);
   const returnType = success === undefined ? undefined : goType(success);
+  const headerPlan = envelope ? envelopeHeaderPlan(op, model!) : [];
+  if (envelope) {
+    printer.line(
+      `// ${ident}Headers carries the declared response headers of ${ident}WithHeaders (nil when absent or unparsable).`
+    );
+    printer.block(
+      `type ${ident}Headers struct {`,
+      () => {
+        for (const planned of headerPlan) printer.line(`${planned.field} ${planned.goType}`);
+      },
+      '}'
+    );
+    printer.blank();
+  }
   const args = [
     'ctx context.Context',
     ...pathArgs.map(({ go, type }) => `${go} ${type}`),
@@ -342,19 +386,34 @@ function writeGoMethod(printer: Printer, op: OperationModel, ident: string): voi
     ...(hasParams ? [`params *${ident}Params`] : []),
   ];
   const sse = sseResponse(op);
-  const returns =
-    sse !== undefined
+  const returns = envelope
+    ? returnType === undefined
+      ? `(${ident}Headers, error)`
+      : `(${returnType}, ${ident}Headers, error)`
+    : sse !== undefined
       ? 'func(yield func(ServerSentEvent, error) bool)'
       : returnType === undefined
         ? 'error'
         : `(${returnType}, error)`;
   const fail = (errExpr: string) =>
-    returnType === undefined ? `return ${errExpr}` : `return out, ${errExpr}`;
-  writeDocComment(printer, ident, op.summary);
+    envelope
+      ? returnType === undefined
+        ? `return headers, ${errExpr}`
+        : `return out, headers, ${errExpr}`
+      : returnType === undefined
+        ? `return ${errExpr}`
+        : `return out, ${errExpr}`;
+  const funcName = envelope ? `${ident}WithHeaders` : ident;
+  writeDocComment(
+    printer,
+    funcName,
+    envelope ? `Like ${ident}, also returning the declared response headers.` : op.summary
+  );
   printer.block(
-    `func (c *Client) ${ident}(${args.join(', ')}) ${returns} {`,
+    `func (c *Client) ${funcName}(${args.join(', ')}) ${returns} {`,
     () => {
       if (sse === undefined && returnType !== undefined) printer.line(`var out ${returnType}`);
+      if (envelope) printer.line(`var headers ${ident}Headers`);
       printer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
       printer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
       if (hasParams) {
@@ -458,7 +517,21 @@ function writeGoMethod(printer: Printer, op: OperationModel, ident: string): voi
         },
         '}'
       );
-      if (returnType === undefined) {
+      if (envelope) {
+        printer.block(
+          `if err := decodeJSON(resp, ${returnType === undefined ? 'nil' : '&out'}); err != nil {`,
+          () => {
+            printer.line(fail('err'));
+          },
+          '}'
+        );
+        for (const planned of headerPlan) {
+          printer.line(
+            `headers.${planned.field} = ${planned.helper}(resp.Header, ${JSON.stringify(planned.name)})`
+          );
+        }
+        printer.line(returnType === undefined ? 'return headers, nil' : 'return out, headers, nil');
+      } else if (returnType === undefined) {
         printer.line('return decodeJSON(resp, nil)');
       } else {
         printer.block(
@@ -845,6 +918,9 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
 
   for (const { op, ident } of goOperationIdents(model)) {
     writeGoMethod(printer, op, ident);
+    if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
+      writeGoMethod(printer, op, ident, model, true);
+    }
     const rule = paginationRules.get(ident);
     if (rule === undefined) continue;
     const success = successSchema(op);

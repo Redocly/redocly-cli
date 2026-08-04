@@ -2,7 +2,12 @@
 // discriminators, nullability, enums) exposed as pure functions over the IR, so
 // a generator in ANY output language never re-implements schema semantics.
 
-import type { ApiModel, PropertyModel, SchemaModel } from '../intermediate-representation/model.js';
+import type {
+  ApiModel,
+  NamedSchemaModel,
+  PropertyModel,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
 import { casing } from './naming.js';
 
 /** Follow a `ref` chain through the model's named schemas; undefined on a miss or cycle. */
@@ -138,4 +143,52 @@ export function schemaAtPointer(
     if (current === undefined) return undefined;
   }
   return current;
+}
+
+/**
+ * The wire-coerce hint for a response HEADER schema: `'integer'` / `'number'` /
+ * `'boolean'` for scalar-ish leaves, `'string'` for everything else (headers are
+ * strings on the wire; complex schemas have no sensible coercion). Resolves `ref`s
+ * through the model, peels nullable unions and constraint-only `allOf` members.
+ */
+export function headerCoerceType(
+  schema: SchemaModel,
+  model: { schemas: readonly NamedSchemaModel[] },
+  seen: Set<string> = new Set()
+): 'string' | 'number' | 'integer' | 'boolean' {
+  if (schema.kind === 'ref') {
+    if (seen.has(schema.name)) return 'string';
+    seen.add(schema.name);
+    const named = model.schemas.find((entry) => entry.name === schema.name);
+    if (named === undefined) return 'string';
+    return headerCoerceType(named.schema, model, seen);
+  }
+  if (schema.kind === 'intersection') {
+    const members = schema.members.filter((member) => member.kind !== 'unknown');
+    if (members.length === 1) return headerCoerceType(members[0], model, seen);
+    const types = [
+      ...new Set(members.map((member) => headerCoerceType(member, model, new Set(seen)))),
+    ];
+    if (types.length === 1) return types[0];
+    // An integer member refined by a number bound (or vice versa) stays numeric.
+    if (types.every((type) => type === 'integer' || type === 'number')) return 'number';
+    return 'string';
+  }
+  if (schema.kind === 'union') {
+    const members = schema.members.filter((member) => member.kind !== 'null');
+    if (members.length === 1) return headerCoerceType(members[0], model, seen);
+    return 'string';
+  }
+  if (schema.kind === 'scalar' || schema.kind === 'enum') {
+    if (schema.scalar === 'integer') return 'integer';
+    if (schema.scalar === 'number') return 'number';
+    if (schema.scalar === 'boolean') return 'boolean';
+  }
+  if (schema.kind === 'literal') {
+    if (typeof schema.value === 'number') {
+      return Number.isInteger(schema.value) ? 'integer' : 'number';
+    }
+    if (typeof schema.value === 'boolean') return 'boolean';
+  }
+  return 'string';
 }

@@ -23,6 +23,11 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   dispatcher; **allOf** is flattened.
 - **Errors:** `(T, error)` returns ARE the error mode — `errorMode` does not change the
   output. Non-2xx → `*APIError`; timeouts → `*TimeoutError`.
+- **Response headers:** an operation that DECLARES success-response headers gains a
+  `<Op>WithHeaders(ctx, …) (T, <Op>Headers, error)` variant; `<Op>Headers` is a
+  generated struct with pointer fields (nil when absent or unparsable), coerced to
+  int64/bool/string. Operations without declared headers get no variant, and the
+  base method stays `(T, error)`.
 - **Servers:** when the description declares servers, one `<Name>URL(...)` function per
   server is emitted (named from the server description); server VARIABLES become string
   parameters (Go has no defaults — the doc comment states the spec default), so templated

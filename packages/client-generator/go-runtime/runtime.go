@@ -375,6 +375,51 @@ func decodeJSON(resp *http.Response, target any) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
+// headerString returns the named response header, or nil when absent.
+func headerString(header http.Header, name string) *string {
+	value := header.Get(name)
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+// headerInt64 parses the named header as an integer; nil when absent or unparsable.
+func headerInt64(header http.Header, name string) *int64 {
+	raw := strings.TrimSpace(header.Get(name))
+	if raw == "" {
+		return nil
+	}
+	value, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil {
+		return nil
+	}
+	return &value
+}
+
+// headerFloat64 parses the named header as a number; nil when absent or unparsable.
+func headerFloat64(header http.Header, name string) *float64 {
+	raw := strings.TrimSpace(header.Get(name))
+	if raw == "" {
+		return nil
+	}
+	value, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		return nil
+	}
+	return &value
+}
+
+// headerBool parses a `true`/`false` header; nil when absent or anything else.
+func headerBool(header http.Header, name string) *bool {
+	raw := strings.ToLower(strings.TrimSpace(header.Get(name)))
+	if raw != "true" && raw != "false" {
+		return nil
+	}
+	value := raw == "true"
+	return &value
+}
+
 // apiErrorFrom builds the structured error for a non-2xx response.
 func apiErrorFrom(resp *http.Response, requestURL string) error {
 	defer resp.Body.Close()

@@ -35,6 +35,42 @@ final class TimeoutError extends \RuntimeException
 }
 
 /** One parsed `text/event-stream` frame. */
+/** A `<op>WithHeaders()` result: the decoded body plus coerced declared headers. */
+final class Envelope
+{
+    public function __construct(
+        public readonly mixed $data,
+        public readonly array $headers,
+        public readonly int $status,
+    ) {
+    }
+}
+
+/** Coerce declared response headers per `[name, key, type]` specs; absent/unparsable omitted. */
+function readEnvelopeHeaders(array $response, array $specs): array
+{
+    $headers = [];
+    foreach ($specs as [$name, $key, $type]) {
+        $raw = $response['headers'][$name] ?? null;
+        if ($raw === null) {
+            continue;
+        }
+        if ($type === 'integer' || $type === 'number') {
+            if (is_numeric($raw)) {
+                $headers[$key] = $type === 'integer' ? (int) $raw : (float) $raw;
+            }
+        } elseif ($type === 'boolean') {
+            $lower = strtolower(trim($raw));
+            if ($lower === 'true' || $lower === 'false') {
+                $headers[$key] = $lower === 'true';
+            }
+        } else {
+            $headers[$key] = $raw;
+        }
+    }
+    return $headers;
+}
+
 final class ServerSentEvent
 {
     public function __construct(

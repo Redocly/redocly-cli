@@ -210,6 +210,14 @@ const CAFE: ApiModel = {
             nextCursor: '/next',
             items: '/items',
           },
+          successResponseHeaders: [
+            {
+              name: 'pagination-total',
+              schema: { kind: 'scalar', scalar: 'integer' },
+              required: true,
+            },
+            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
           successResponses: [
             {
               status: '200',
@@ -398,6 +406,19 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('aiter_sse(');
     expect(out).toContain('form_data, form_files = to_multipart(body)');
     expect(out).toContain('data=form_data, files=form_files');
+    expectCompiles(out);
+  });
+
+  it('emits a _with_headers envelope variant only for ops with declared response headers', () => {
+    const out = generate();
+    expect(out).toContain('def list_orders_with_headers(');
+    expect(out).toContain('async def list_orders_with_headers(');
+    expect(out).toContain(') -> Envelope[OrderPage]:');
+    expect(out).toContain(
+      'read_envelope_headers(response, [("pagination-total", "pagination_total", "integer"), ("link", "link", "string")])'
+    );
+    // No declared headers, no variant.
+    expect(out).not.toContain('get_order_with_headers');
     expectCompiles(out);
   });
 

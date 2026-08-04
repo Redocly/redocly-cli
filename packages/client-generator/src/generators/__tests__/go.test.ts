@@ -206,6 +206,14 @@ const CAFE: ApiModel = {
             nextCursor: '/next',
             items: '/items',
           },
+          successResponseHeaders: [
+            {
+              name: 'pagination-total',
+              schema: { kind: 'scalar', scalar: 'integer' },
+              required: true,
+            },
+            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
           successResponses: [
             {
               status: '200',
@@ -380,6 +388,21 @@ describe('goGenerator parity features', () => {
     );
     expect(out).toContain('return iterSSE(open,');
     expect(out).toContain('contentType, reader, err := toMultipart(body)');
+    expectGoCompiles(out);
+  });
+
+  it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
+    const out = generateGo();
+    expect(out).toContain('type ListOrdersHeaders struct {');
+    expect(out).toContain('PaginationTotal *int64');
+    expect(out).toContain('Link *string');
+    expect(out).toContain(
+      'func (c *Client) ListOrdersWithHeaders(ctx context.Context, params *ListOrdersParams) (OrderPage, ListOrdersHeaders, error) {'
+    );
+    expect(out).toContain('headers.PaginationTotal = headerInt64(resp.Header, "pagination-total")');
+    expect(out).toContain('return out, headers, nil');
+    // No declared headers, no variant.
+    expect(out).not.toContain('GetOrderWithHeaders');
     expectGoCompiles(out);
   });
 

@@ -36,6 +36,11 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 $idempotencyKey` on mutating methods.
 - **Non-JSON success bodies** (PDFs, images, octet streams) return the raw body as
   `string` — a binary download must never degrade to `void`.
+- **Response headers:** an operation that DECLARES success-response headers gains a
+  `<op>WithHeaders()` variant returning an `Envelope` (`data`, `headers` — coerced to
+  int/bool/string with camelCase keys, absent/unparsable values omitted — and `status`).
+  Operations without declared headers get no variant, and the base method stays
+  body-only (PHP cannot vary a return type on a flag).
 - **Servers:** when the description declares servers, a `Servers` class is emitted with
   one static method per server; server VARIABLES become named string arguments defaulting
   to the spec's defaults (`Servers::production(organizationId: 'org_x')`), so templated
@@ -54,8 +59,9 @@ $idempotencyKey` on mutating methods.
   after operationIds (`$client->getCustomer($id)`); optional query params keep their
   named-argument style (`filter:`, `sort:`, `limit:`).
 - Collection wrappers exposing pagination RESPONSE HEADERS (`getTotalItems()`,
-  `getLimit()`) have no equivalent — migrate to `<op>Items()` / `<op>Pages()`
-  generators, or capture headers with a middleware callable.
+  `getLimit()`) map to the `<op>WithHeaders()` envelope
+  (`->headers['paginationTotal']`); plain iteration maps to `<op>Items()` /
+  `<op>Pages()` generators.
 - Dedicated validation-exception classes exposing field errors map to
   `catch (ApiError $e)` + `$e->status === 422` + the decoded `$e->body`.
 - Session/bearer token flows map to `auth: ['bearer' => $tokenProvider]` with a

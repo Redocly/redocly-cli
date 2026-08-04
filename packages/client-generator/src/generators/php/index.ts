@@ -11,6 +11,7 @@ import {
   discriminatorCases,
   enumValues,
   flattenAllOf,
+  headerCoerceType,
   identifierFor,
   isNullable,
   paginationRuleFor,
@@ -464,7 +465,27 @@ function writeRequestSetup(printer: Printer, op: OperationModel, args: MethodArg
   );
 }
 
-function writePhpMethod(printer: Printer, op: OperationModel, model: ApiModel): void {
+/** Declared response headers as runtime coerce specs: `[wire name, camelCase key, type]`. */
+function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
+  const used = new Set<string>();
+  const specs = (op.successResponseHeaders ?? []).map((header) => {
+    let key = identifierFor(header.name, { style: 'camel', reserved: PHP });
+    let suffix = 2;
+    while (used.has(key))
+      key = `${identifierFor(header.name, { style: 'camel', reserved: PHP })}_${suffix++}`;
+    used.add(key);
+    const type = headerCoerceType(header.schema, model);
+    return `[${phpString(header.name)}, ${phpString(key)}, ${phpString(type)}]`;
+  });
+  return `[${specs.join(', ')}]`;
+}
+
+function writePhpMethod(
+  printer: Printer,
+  op: OperationModel,
+  model: ApiModel,
+  envelope = false
+): void {
   const args = methodArgs(op, model, true);
   const sse = sseResponse(op);
   const success = successSchema(op);
@@ -473,17 +494,25 @@ function writePhpMethod(printer: Printer, op: OperationModel, model: ApiModel): 
     sse === undefined &&
     success === undefined &&
     op.successResponses.some((response) => response.contentType !== '');
-  const returnType =
-    sse !== undefined
+  const returnType = envelope
+    ? 'Envelope'
+    : sse !== undefined
       ? '\\Generator'
       : success !== undefined
         ? phpType(success, model)
         : rawBody
           ? 'string'
           : 'void';
-  writeDocComment(printer, methodName(op), op.summary ?? `${op.method.toUpperCase()} ${op.path}`);
+  const name = envelope ? `${methodName(op)}WithHeaders` : methodName(op);
+  writeDocComment(
+    printer,
+    name,
+    envelope
+      ? `Like ${methodName(op)}(), returning an Envelope with the declared response headers.`
+      : (op.summary ?? `${op.method.toUpperCase()} ${op.path}`)
+  );
   printer.block(
-    `public function ${methodName(op)}(${args.signature.join(', ')}): ${returnType}`,
+    `public function ${name}(${args.signature.join(', ')}): ${returnType}`,
     () => {},
     ''
   );
@@ -543,6 +572,18 @@ function writePhpMethod(printer: Printer, op: OperationModel, model: ApiModel): 
         },
         '}'
       );
+      const decoded = rawBody
+        ? "$response['body']"
+        : ((success === undefined
+            ? undefined
+            : hydration(success, 'decodeJson($response)', model)) ?? 'decodeJson($response)');
+      if (envelope) {
+        printer.line(`$data = ${decoded};`);
+        printer.line(
+          `return new Envelope(data: $data, headers: readEnvelopeHeaders($response, ${envelopeHeaderSpecs(op, model)}), status: $response['status']);`
+        );
+        return;
+      }
       if (rawBody) {
         printer.line("return $response['body'];");
         return;
@@ -551,9 +592,7 @@ function writePhpMethod(printer: Printer, op: OperationModel, model: ApiModel): 
         printer.line('decodeJson($response);');
         return;
       }
-      const typed =
-        success === undefined ? undefined : hydration(success, 'decodeJson($response)', model);
-      printer.line(`return ${typed ?? 'decodeJson($response)'};`);
+      printer.line(`return ${decoded};`);
     },
     '}'
   );
@@ -822,6 +861,9 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
 
       for (const op of operations) {
         writePhpMethod(printer, op, model);
+        if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
+          writePhpMethod(printer, op, model, true);
+        }
         const rule = paginationRules.get(op.name);
         if (rule === undefined) continue;
         const success = successSchema(op);

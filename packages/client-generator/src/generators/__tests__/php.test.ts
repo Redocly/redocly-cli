@@ -244,6 +244,14 @@ const CAFE: ApiModel = {
             nextCursor: '/next',
             items: '/items',
           },
+          successResponseHeaders: [
+            {
+              name: 'pagination-total',
+              schema: { kind: 'scalar', scalar: 'integer' },
+              required: true,
+            },
+            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
           successResponses: [
             {
               status: '200',
@@ -432,6 +440,18 @@ describe('phpGenerator (full client assembly)', () => {
       'public function getOrderPdf(string $orderId, ?array $headers = null): string'
     );
     expect(out).toContain("return $response['body'];");
+  });
+
+  it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
+    const out = generatePhp();
+    expect(out).toContain('public function listOrdersWithHeaders(');
+    expect(out).toContain(
+      "readEnvelopeHeaders($response, [['pagination-total', 'paginationTotal', 'integer'], ['link', 'link', 'string']])"
+    );
+    expect(out).toContain("status: $response['status']");
+    // No declared headers, no variant.
+    expect(out).not.toContain('getOrderWithHeaders');
+    expectPhpRuns(out);
   });
 
   it('emits a Servers class with named variable arguments defaulting to the spec defaults', () => {

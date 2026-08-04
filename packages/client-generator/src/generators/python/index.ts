@@ -11,6 +11,7 @@ import {
   docText,
   enumValues,
   flattenAllOf,
+  headerCoerceType,
   identifierFor,
   isNullable,
   RESERVED_WORDS,
@@ -332,12 +333,29 @@ function paginationSpec(
   };
 }
 
+/** Declared response headers as runtime coerce specs: `("wire-name", "snake_key", "type")`. */
+function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
+  const used = new Set<string>();
+  const specs = (op.successResponseHeaders ?? []).map((header) => {
+    const base = identifierFor(header.name, { style: 'snake', reserved: PY });
+    let key = base;
+    let suffix = 2;
+    while (used.has(key)) key = `${base}_${suffix++}`;
+    used.add(key);
+    const type = headerCoerceType(header.schema, model);
+    return `(${JSON.stringify(header.name)}, ${JSON.stringify(key)}, ${JSON.stringify(type)})`;
+  });
+  return `[${specs.join(', ')}]`;
+}
+
 function writeMethod(
   printer: Printer,
   op: OperationModel,
   ident: string,
   errorMode: 'throw' | 'result',
-  isAsync: boolean
+  isAsync: boolean,
+  model?: ApiModel,
+  envelope = false
 ): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
@@ -362,8 +380,9 @@ function writeMethod(
   ];
   const success = successSchema(op);
   const sse = sseResponse(op);
-  const returns =
-    sse !== undefined
+  const returns = envelope
+    ? `Envelope[${success === undefined ? 'None' : pythonType(success)}]`
+    : sse !== undefined
       ? `${isAsync ? 'AsyncIterator' : 'Iterator'}[ServerSentEvent]`
       : errorMode === 'result'
         ? 'Result'
@@ -376,8 +395,14 @@ function writeMethod(
   const awaitKw = isAsync ? 'await ' : '';
   const sendFn = isAsync ? 'send_async' : 'send';
   const signature = ['self', ...positional, ...bodyArg, '*', ...kwargs].join(', ');
-  printer.block(`${prefix} ${ident}(${signature}) -> ${returns}:`, () => {
-    writeDocstring(printer, op.summary);
+  const defName = envelope ? `${ident}_with_headers` : ident;
+  printer.block(`${prefix} ${defName}(${signature}) -> ${returns}:`, () => {
+    writeDocstring(
+      printer,
+      envelope
+        ? `Like ${ident}(), returning an Envelope with the declared response headers.`
+        : op.summary
+    );
     printer.line(`op = _OPERATIONS["${ident}"]`);
     printer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
     printer.line('params: Dict[str, Any] = dict(auth_query)');
@@ -414,7 +439,16 @@ function writeMethod(
     );
     const decoded =
       success === undefined ? 'None' : `decode(${pythonType(success)}, _safe_json(response))`;
-    if (errorMode === 'result') {
+    if (envelope) {
+      printer.block('if not response.is_success:', () => {
+        printer.line(
+          'raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))'
+        );
+      });
+      printer.line(
+        `return Envelope(data=${decoded}, headers=read_envelope_headers(response, ${envelopeHeaderSpecs(op, model!)}), response=response)`
+      );
+    } else if (errorMode === 'result') {
       printer.block('if not response.is_success:', () => {
         printer.line('return Result(data=None, error=_safe_json(response), response=response)');
       });
@@ -565,6 +599,9 @@ function writeClientClass(
     printer.blank();
     for (const { op, ident } of operationIdents(model)) {
       writeMethod(printer, op, ident, errorMode, isAsync);
+      if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
+        writeMethod(printer, op, ident, errorMode, isAsync, model, true);
+      }
       const spec = paginationSpecs.get(ident);
       if (spec !== undefined) {
         const success = successSchema(op);

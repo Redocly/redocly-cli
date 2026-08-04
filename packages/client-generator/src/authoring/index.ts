@@ -10,6 +10,7 @@ export {
   docText,
   enumValues,
   flattenAllOf,
+  headerCoerceType,
   isNullable,
   schemaAtPointer,
   unwrapNullable,
@@ -27,6 +28,7 @@ export const AUTHORING_HELPER_NAMES = [
   'unwrapNullable',
   'enumValues',
   'docText',
+  'headerCoerceType',
   'schemaAtPointer',
   'paginationRuleFor',
 ] as const;

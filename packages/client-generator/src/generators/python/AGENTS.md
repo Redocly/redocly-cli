@@ -26,6 +26,11 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   hydrates wins — see `_decode.py`). **allOf** is flattened via `flattenAllOf`.
 - **Errors:** `errorMode` maps to raising `ApiError` (default) or returning a `Result`
   dataclass — the only generator with both modes outside TypeScript.
+- **Response headers:** an operation that DECLARES success-response headers gains a
+  `<op>_with_headers()` variant (sync and async) returning `Envelope[T]` — `data`,
+  `headers` (coerced to int/bool/str with snake_case keys; absent/unparsable values
+  omitted), and the raw `response`. Operations without declared headers get no
+  variant, and the base method stays body-only.
 - **Servers:** when the description declares servers, a `Servers` class is emitted with
   one static method per server; server VARIABLES become keyword arguments defaulting to
   the spec's defaults (`Servers.production(organization_id="org_x")`), so templated base

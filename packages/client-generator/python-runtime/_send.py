@@ -10,11 +10,47 @@ import asyncio
 import random
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
 
 import httpx
 
 from ._errors import ApiTimeoutError
+
+T = TypeVar("T")
+
+
+@dataclass
+class Envelope(Generic[T]):
+    """A *_with_headers() result: decoded body + coerced declared headers + raw response."""
+
+    data: T
+    headers: Dict[str, Any]
+    response: httpx.Response
+
+
+def read_envelope_headers(
+    response: httpx.Response, specs: List[Tuple[str, str, str]]
+) -> Dict[str, Any]:
+    """Coerce declared response headers per (name, key, type) specs; absent/unparsable omitted."""
+    headers: Dict[str, Any] = {}
+    for name, key, type_ in specs:
+        raw = response.headers.get(name)
+        if raw is None:
+            continue
+        if type_ in ("integer", "number"):
+            try:
+                headers[key] = int(raw) if type_ == "integer" else float(raw)
+            except ValueError:
+                pass
+        elif type_ == "boolean":
+            lower = raw.strip().lower()
+            if lower in ("true", "false"):
+                headers[key] = lower == "true"
+        else:
+            headers[key] = raw
+    return headers
+
 
 _IDEMPOTENT_METHODS = {"GET", "HEAD", "PUT", "DELETE", "OPTIONS"}
 _TRANSIENT_STATUS = {408, 429, 500, 502, 503, 504}

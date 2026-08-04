@@ -1,6 +1,7 @@
 // Success-response header helpers: descriptor parse hints + Ops / alias type text
 // for throw-mode `{ envelope: true }`.
 
+import { headerCoerceType } from '../authoring/index.js';
 import type {
   NamedSchemaModel,
   ResponseHeaderModel,
@@ -19,49 +20,15 @@ type PlannedResponseHeader = ResponseHeaderModel & {
 
 /**
  * Runtime coerce hint from a header schema (complex schemas fall back to string).
- * Resolves `$ref` through `schemas`, peels nullable unions and metadata-only
- * `allOf` intersections, then maps scalar/literal/enum leaves to number/boolean.
+ * Delegates to the neutral `headerCoerceType`; JavaScript has one number type,
+ * so `integer` collapses to `number`.
  */
 export function headerParseType(
   schema: SchemaModel,
-  schemas: readonly NamedSchemaModel[] = [],
-  seen: Set<string> = new Set()
+  schemas: readonly NamedSchemaModel[] = []
 ): ResponseHeaderSpec['type'] {
-  if (schema.kind === 'ref') {
-    if (seen.has(schema.name)) return 'string';
-    seen.add(schema.name);
-    const named = schemas.find((entry) => entry.name === schema.name);
-    if (named === undefined) return 'string';
-    return headerParseType(named.schema, schemas, seen);
-  }
-  if (schema.kind === 'intersection') {
-    // Drop unknown members (constraint-only allOf branches) and unwrap a sole remainder.
-    const members = schema.members.filter((member) => member.kind !== 'unknown');
-    if (members.length === 1) return headerParseType(members[0], schemas, seen);
-    const types = [
-      ...new Set(members.map((member) => headerParseType(member, schemas, new Set(seen)))),
-    ];
-    return types.length === 1 ? types[0] : 'string';
-  }
-  // Nullable wrappers (`boolean | null`, OpenAPI 3.0 `nullable`) unwrap to the inner type.
-  if (schema.kind === 'union') {
-    const members = schema.members.filter((member) => member.kind !== 'null');
-    if (members.length === 1) return headerParseType(members[0], schemas, seen);
-    return 'string';
-  }
-  if (schema.kind === 'scalar') {
-    if (schema.scalar === 'integer' || schema.scalar === 'number') return 'number';
-    if (schema.scalar === 'boolean') return 'boolean';
-  }
-  if (schema.kind === 'literal') {
-    if (typeof schema.value === 'number') return 'number';
-    if (typeof schema.value === 'boolean') return 'boolean';
-  }
-  if (schema.kind === 'enum') {
-    if (schema.scalar === 'integer' || schema.scalar === 'number') return 'number';
-    if (schema.scalar === 'boolean') return 'boolean';
-  }
-  return 'string';
+  const coerce = headerCoerceType(schema, { schemas });
+  return coerce === 'integer' ? 'number' : coerce;
 }
 
 /** Descriptor `responseHeaders` entries from the success response's declared headers. */
