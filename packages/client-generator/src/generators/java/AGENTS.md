@@ -59,8 +59,8 @@ switch patterns), HTTP over `java.net.http.HttpClient` — part of the JDK since
   / `Iterable<Order> listOrdersItems()`), SSE (`Iterator<ServerSentEvent>` with
   `Last-Event-ID` reconnect), multipart (hand-built body), `X-Redocly-Client` header.
 - The runtime is hand-written in `java-runtime/` and embedded at prepare time; verified
-  with `javac` (and the smoke against the shared mock server). Harness gains a `javaBar`
-  (`javac` on the large real-world descriptions' output). CI runners ship a JDK.
+  with `javac` (and the smoke against the shared mock server). The large-description
+  suite gains a `javaBar` (`javac` on the big real-world outputs). CI runners ship a JDK.
 - Authored ONLY with the neutral toolkit — the dogfooding guard extends to `java/index.ts`.
 
 ## The modify loop (once implemented)
@@ -69,4 +69,4 @@ switch patterns), HTTP over `java.net.http.HttpClient` — part of the JDK since
 2. Change `index.ts` (and `java-runtime/` for runtime behavior, then
    `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, the generator unit suite (real `javac` bars), the e2e
-   smoke, and `npm run harness`.
+   smoke, and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).

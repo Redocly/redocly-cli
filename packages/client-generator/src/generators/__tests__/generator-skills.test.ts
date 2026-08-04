@@ -19,7 +19,7 @@ describe.each(['python', 'go', 'php'])('%s generator skill', (name) => {
     const skill = readFileSync(skillPath, 'utf-8');
     expect(skill).toContain(`${name}-runtime/`);
     expect(skill).toContain('edit this skill first');
-    expect(skill).toContain('npm run harness');
+    expect(skill).toContain('large-descriptions.test.ts');
   });
 
   it('is what eject ships — the prepared asset matches the source byte-for-byte', () => {

@@ -14,7 +14,6 @@
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
-    "harness": "VITEST_SUITE=harness vitest run",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint ./packages",

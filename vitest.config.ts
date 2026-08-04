@@ -39,13 +39,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
       include: ['tests/smoke/rebilly/**/*.smoke.ts'],
     },
   }),
-  harness: defineConfig({
-    test: {
-      include: ['tests/harness/**/*.harness.ts'],
-      testTimeout: 300_000,
-      hookTimeout: 300_000,
-    },
-  }),
   default: defineConfig({}),
 };
 

@@ -42,4 +42,4 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 3. Verify: `npm run compile`, then
    `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/python.test.ts`
    (real `py_compile` bars), the e2e smoke (`tests/e2e/generate-client/python.test.ts`),
-   and `npm run harness` (import bars over the large real-world descriptions).
+   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).

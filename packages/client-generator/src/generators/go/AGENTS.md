@@ -39,4 +39,4 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 3. Verify: `npm run compile`, then
    `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/go.test.ts`
    (real `go build` + `go vet` bars), the e2e smoke (`tests/e2e/generate-client/go.test.ts`),
-   and `npm run harness`.
+   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
