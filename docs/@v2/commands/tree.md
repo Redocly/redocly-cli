@@ -308,8 +308,9 @@ cafe.yaml
 - a file path: `components/schemas/Order.yaml` — addresses every node the file defines (in `--files` mode, the file node itself)
 - the root file itself: the whole tree is affected
 
-Components split into their own files keep their canonical `schemas/<Name>` ids,
+Components that the root document declares (`components: {schemas: {Order: {$ref: ./Order.yaml}}}`) keep their canonical `schemas/Order` id even when they live in their own file,
 so every form above works the same for single-file and multi-file APIs.
+A component that no root entry declares — for example in `redocly split` output, where operation files reference component files directly — is addressed by its file path instead.
 
 Examples of the different input forms:
 
@@ -556,7 +557,7 @@ Large API descriptions do not fit in an LLM's context window.
 Instead of feeding the whole file to a model, generate a compact index of it and let the agent navigate in bounded steps.
 The index is generated deterministically from the document structure — no AI calls or API keys are needed.
 It is available for OpenAPI descriptions; `--node`, `--with-deps`, and `--group-by` report an error for other specification types.
-For a measured comparison of how much context this saves — on descriptions up to the 9.8 MB GitHub REST API, where the whole file is 1.9 million tokens — see [Agent context savings with tree](../guides/tree-agent-index-benchmark.md).
+For a measured comparison of how much context this saves — on GitHub's 9.8 MB REST API description, where the whole file is 1.9 million tokens — see [Agent context savings with tree](../guides/tree-agent-index-benchmark.md).
 
 1. Get the map: `redocly tree openapi.yaml --format=json --level 2` prints the sections, tags, and counts — a few kilobytes for any spec size.
 2. Drill into a branch the agent picked: `redocly tree openapi.yaml --node Tickets` returns that tag's operations with summaries, files, and line ranges.

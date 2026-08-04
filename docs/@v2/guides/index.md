@@ -100,7 +100,7 @@ Pre-configure publisher defaults and write custom client generators.
 {% card title="Agent context savings with tree"
     to="./tree-agent-index-benchmark"
   %}
-Measured token counts for exploring an API description with the `tree` index instead of reading the whole file, up to GitHub's 9.8 MB description.
+Measured token counts for exploring GitHub's 9.8 MB REST API description with the `tree` index instead of reading the whole file.
 {% /card %}
 
 {% card title="Set up tab completion"
