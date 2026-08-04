@@ -6,6 +6,7 @@
 import {
   allOperations,
   type ApiModel,
+  type NamedSchemaModel,
   type OperationModel,
   type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
@@ -44,7 +45,8 @@ function descriptorValue(
   op: OperationModel,
   schemes: SecuritySchemeModel[],
   dateType: DateType,
-  pagination?: ModelPagination
+  pagination?: ModelPagination,
+  schemas: readonly NamedSchemaModel[] = []
 ) {
   const params = [...op.pathParams, ...op.queryParams, ...op.headerParams, ...op.cookieParams].map(
     (p) => ({
@@ -72,7 +74,7 @@ function descriptorValue(
     .filter((alternative) => alternative.length > 0);
   const sse = isSseOp(op);
   const responseKind = sse ? 'sse' : computeResponse(op.successResponses, dateType).responseKind;
-  const responseHeaders = responseHeaderSpecs(op.successResponseHeaders);
+  const responseHeaders = responseHeaderSpecs(op.successResponseHeaders, schemas);
   return {
     // The spec's operationId, NOT the (possibly renamed) map key: `id` drives middleware
     // targeting (`ctx.operation.id`) and must match inline mode's `operationMetaExpr`.
@@ -112,7 +114,9 @@ export function descriptorStatements(
   const entries = ops.map((op) =>
     factory.createPropertyAssignment(
       idents.get(op.name)!,
-      literalExpression(descriptorValue(op, model.securitySchemes, dateType, pagination))
+      literalExpression(
+        descriptorValue(op, model.securitySchemes, dateType, pagination, model.schemas)
+      )
     )
   );
   const operations = jsdoc(
@@ -220,7 +224,7 @@ function opsMember(op: OperationModel, ident: string, ctx: EmitContext): ts.Prop
         undefined,
         'headers',
         undefined,
-        responseHeadersTypeLiteral(responseHeaders)
+        responseHeadersTypeLiteral(responseHeaders, ctx.schemas)
       )
     );
   }

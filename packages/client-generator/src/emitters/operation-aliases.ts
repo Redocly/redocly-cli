@@ -86,7 +86,9 @@ export function renderOperationAliases(
   // Response headers (envelope) — distinct from request `<Op>Headers`.
   const responseHeaders = op.successResponseHeaders;
   if (responseHeaders && responseHeaders.length > 0 && !schemaNames.has(`${name}ResponseHeaders`)) {
-    aliases.push(exportType(`${name}ResponseHeaders`, responseHeadersTypeLiteral(responseHeaders)));
+    aliases.push(
+      exportType(`${name}ResponseHeaders`, responseHeadersTypeLiteral(responseHeaders, ctx.schemas))
+    );
   }
 
   if (op.cookieParams.length > 0 && !schemaNames.has(`${name}Cookies`)) {

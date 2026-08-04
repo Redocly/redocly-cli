@@ -80,6 +80,7 @@ function emitClient(
     errorMode: options.errorMode ?? 'throw',
     dateType: options.dateType ?? 'string',
     schemaNames: new Set(model.schemas.map((s) => s.name)),
+    schemas: model.schemas,
     pagination,
   };
   const flat = ctx.argsStyle === 'flat';
@@ -452,7 +453,7 @@ function flatHeadersType(op: OperationModel, ctx: EmitContext): ts.TypeNode {
   }
   const alias = `${pascalCase(op.name)}ResponseHeaders`;
   return ctx.schemaNames.has(alias)
-    ? responseHeadersTypeLiteral(headers)
+    ? responseHeadersTypeLiteral(headers, ctx.schemas)
     : factory.createTypeReferenceNode(alias);
 }
 

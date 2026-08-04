@@ -7,7 +7,7 @@ import { descriptorStatements, opsInterfaceStatements, packageIdents } from '../
 import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
 import { printStatements } from '../ts.js';
-import { apiModel, modelWith, operation, param, response } from './fixtures.js';
+import { apiModel, modelWith, namedSchema, operation, param, response } from './fixtures.js';
 
 function emitDescriptors(model: ApiModel): string {
   return printStatements(descriptorStatements(model, packageIdents(model), 'string'));
@@ -420,6 +420,42 @@ describe('descriptorStatements', () => {
 
     expect(out).toContain(
       'responseHeaders: [{ name: "x-flag", key: "xFlag", type: "boolean" }, { name: "x-count", key: "xCount", type: "number" }]'
+    );
+  });
+
+  it('resolves $ref and allOf wrappers on response-header schemas to the coerce type', () => {
+    const out = emitDescriptors(
+      apiModel({
+        schemas: [namedSchema('Count', { kind: 'scalar', scalar: 'integer' })],
+        services: [
+          {
+            name: 'Default',
+            operations: [
+              operation({
+                name: 'listCustomers',
+                successResponses: [response()],
+                successResponseHeaders: [
+                  { name: 'x-total', schema: { kind: 'ref', name: 'Count' } },
+                  {
+                    name: 'x-capped',
+                    schema: {
+                      kind: 'intersection',
+                      members: [
+                        { kind: 'ref', name: 'Count' },
+                        { kind: 'unknown', metadata: { minimum: 0 } },
+                      ],
+                    },
+                  },
+                ],
+              }),
+            ],
+          },
+        ],
+      })
+    );
+
+    expect(out).toContain(
+      'responseHeaders: [{ name: "x-total", key: "xTotal", type: "number" }, { name: "x-capped", key: "xCapped", type: "number" }]'
     );
   });
 });

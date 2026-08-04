@@ -1,7 +1,11 @@
 // Success-response header helpers: descriptor parse hints + Ops / alias type shapes
 // for throw-mode `{ envelope: true }`.
 
-import type { ResponseHeaderModel, SchemaModel } from '../intermediate-representation/model.js';
+import type {
+  NamedSchemaModel,
+  ResponseHeaderModel,
+  SchemaModel,
+} from '../intermediate-representation/model.js';
 import type { ResponseHeaderSpec } from '../runtime/types.js';
 import { uniqueIdent } from './identifier.js';
 import { headerPropertyKey } from './support.js';
@@ -14,12 +18,36 @@ type PlannedResponseHeader = ResponseHeaderModel & {
   type: ResponseHeaderSpec['type'];
 };
 
-/** Runtime coerce hint from a header schema (complex schemas fall back to string). */
-export function headerParseType(schema: SchemaModel): ResponseHeaderSpec['type'] {
+/**
+ * Runtime coerce hint from a header schema (complex schemas fall back to string).
+ * Resolves `$ref` through `schemas`, peels nullable unions and metadata-only
+ * `allOf` intersections, then maps scalar/literal/enum leaves to number/boolean.
+ */
+export function headerParseType(
+  schema: SchemaModel,
+  schemas: readonly NamedSchemaModel[] = [],
+  seen: Set<string> = new Set()
+): ResponseHeaderSpec['type'] {
+  if (schema.kind === 'ref') {
+    if (seen.has(schema.name)) return 'string';
+    seen.add(schema.name);
+    const named = schemas.find((entry) => entry.name === schema.name);
+    if (named === undefined) return 'string';
+    return headerParseType(named.schema, schemas, seen);
+  }
+  if (schema.kind === 'intersection') {
+    // Drop unknown members (constraint-only allOf branches) and unwrap a sole remainder.
+    const members = schema.members.filter((member) => member.kind !== 'unknown');
+    if (members.length === 1) return headerParseType(members[0], schemas, seen);
+    const types = [
+      ...new Set(members.map((member) => headerParseType(member, schemas, new Set(seen)))),
+    ];
+    return types.length === 1 ? types[0] : 'string';
+  }
   // Nullable wrappers (`boolean | null`, OpenAPI 3.0 `nullable`) unwrap to the inner type.
   if (schema.kind === 'union') {
     const members = schema.members.filter((member) => member.kind !== 'null');
-    if (members.length === 1) return headerParseType(members[0]);
+    if (members.length === 1) return headerParseType(members[0], schemas, seen);
     return 'string';
   }
   if (schema.kind === 'scalar') {
@@ -39,9 +67,10 @@ export function headerParseType(schema: SchemaModel): ResponseHeaderSpec['type']
 
 /** Descriptor `responseHeaders` entries from the success response's declared headers. */
 export function responseHeaderSpecs(
-  headers: ResponseHeaderModel[] | undefined
+  headers: ResponseHeaderModel[] | undefined,
+  schemas: readonly NamedSchemaModel[] = []
 ): ResponseHeaderSpec[] | undefined {
-  const planned = planResponseHeaders(headers);
+  const planned = planResponseHeaders(headers, schemas);
   if (planned.length === 0) return undefined;
   return planned.map((header) => ({
     name: header.name,
@@ -51,9 +80,12 @@ export function responseHeaderSpecs(
 }
 
 /** Type literal for Ops.`headers` / `<Op>ResponseHeaders`. */
-export function responseHeadersTypeLiteral(headers: ResponseHeaderModel[]): ts.TypeNode {
+export function responseHeadersTypeLiteral(
+  headers: ResponseHeaderModel[],
+  schemas: readonly NamedSchemaModel[] = []
+): ts.TypeNode {
   return factory.createTypeLiteralNode(
-    planResponseHeaders(headers).map((header) => {
+    planResponseHeaders(headers, schemas).map((header) => {
       return factory.createPropertySignature(
         undefined,
         factory.createIdentifier(header.key),
@@ -64,12 +96,15 @@ export function responseHeadersTypeLiteral(headers: ResponseHeaderModel[]): ts.T
   );
 }
 
-function planResponseHeaders(headers: ResponseHeaderModel[] | undefined): PlannedResponseHeader[] {
+function planResponseHeaders(
+  headers: ResponseHeaderModel[] | undefined,
+  schemas: readonly NamedSchemaModel[]
+): PlannedResponseHeader[] {
   const used = new Set<string>();
   return (headers ?? []).map((header) => ({
     ...header,
     key: uniqueIdent(headerPropertyKey(header.name), used),
-    type: headerParseType(header.schema),
+    type: headerParseType(header.schema, schemas),
   }));
 }
 
