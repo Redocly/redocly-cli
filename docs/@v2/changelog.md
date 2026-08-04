@@ -7,6 +7,25 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.44.0 (2026-08-04)
+
+### Minor Changes
+
+- Added the `no-duplicated-enum-values` rule that requires all values in an `enum` to be unique.
+  The rule is enabled at the `warn` level in the `recommended` ruleset.
+
+  **Note**: linting output may include new warnings for API descriptions that contain duplicated enum values.
+
+- Added the `no-unsafe-markdown` rule that disallows potentially executable content in `description` fields.
+  The rule is enabled at the `warn` level in the `recommended` ruleset.
+
+  **Note**: linting output may include new warnings for `description` fields that contain potentially executable content.
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.3.0.
+- Updated @redocly/openapi-core to v2.44.0.
+
 ## 2.43.3 (2026-08-03)
 
 ### Patch Changes
