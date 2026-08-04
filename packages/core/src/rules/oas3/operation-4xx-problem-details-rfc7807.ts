@@ -35,7 +35,11 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
 
           if (!media.schema) return;
 
-          const { schema, location: schemaLocation } = resolveSchema(media.schema, ctx);
+          const { schema, location: schemaLocation } = resolveSchema(
+            media.schema,
+            ctx,
+            ctx.location.child('schema')
+          );
           if (!schema || !schemaLocation) return;
 
           for (const fieldName of ['type', 'title']) {
