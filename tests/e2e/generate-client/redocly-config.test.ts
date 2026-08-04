@@ -183,7 +183,8 @@ describe('generate-client redocly.yaml config', () => {
     // The per-api block applied…
     expect(entry).toContain("from '@redocly/client-generator'");
     // …and the top-level fields did NOT leak in: default throw mode, no zod module.
-    expect(entry).not.toContain('Result<');
+    // (`\b` keeps the throw-mode `EnvelopeResult<` from matching.)
+    expect(entry).not.toMatch(/\bResult</);
     expect(existsSync(join(dir, 'out.zod.ts'))).toBe(false);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
