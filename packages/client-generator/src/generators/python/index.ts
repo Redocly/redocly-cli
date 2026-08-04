@@ -22,6 +22,7 @@ import type {
   OperationModel,
   PropertyModel,
   SchemaModel,
+  ServerModel,
 } from '../../intermediate-representation/model.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
@@ -173,6 +174,77 @@ export function renderPythonModels(model: ApiModel): string {
   }
   for (const emit of aliases) emit();
   return writer.toString();
+}
+
+/** The server URL as a Python expression: literals concatenated with declared-variable args. */
+function serverUrlExpression(server: ServerModel): string {
+  const declared = new Set(server.variables.map((variable) => variable.name));
+  const parts: string[] = [];
+  let literal = '';
+  let rest = server.url;
+  const template = /\{([^{}]+)\}/;
+  for (let match = template.exec(rest); match !== null; match = template.exec(rest)) {
+    literal += rest.slice(0, match.index);
+    if (declared.has(match[1])) {
+      if (literal !== '') parts.push(JSON.stringify(literal));
+      literal = '';
+      parts.push(fieldName(match[1]).python);
+    } else {
+      // An undeclared variable has nothing to substitute; keep its placeholder visible.
+      literal += match[0];
+    }
+    rest = rest.slice(match.index + match[0].length);
+  }
+  literal += rest;
+  if (literal !== '' || parts.length === 0) parts.push(JSON.stringify(literal));
+  return parts.join(' + ');
+}
+
+/** One static method per declared server; server variables become keyword arguments. */
+function writePythonServers(writer: Printer, model: ApiModel): void {
+  const servers = model.servers ?? [];
+  if (servers.length === 0) return;
+  const usedNames = new Set<string>();
+  writer.block('class Servers:', () => {
+    writer.line(
+      '"""The declared servers; variables default to the values from the description."""'
+    );
+    writer.blank();
+    servers.forEach((server, index) => {
+      let name = identifierFor(server.description ?? `server${index + 1}`, {
+        style: 'snake',
+        reserved: PY,
+      });
+      if (usedNames.has(name)) name = `${name}_${index + 1}`;
+      usedNames.add(name);
+      const params = server.variables.map(
+        (variable) =>
+          `${fieldName(variable.name).python}: str = ${JSON.stringify(variable.default)}`
+      );
+      if (index > 0) writer.blank();
+      writer.line('@staticmethod');
+      writer.block(`def ${name}(${params.join(', ')}) -> str:`, () => {
+        writer.line(`return ${serverUrlExpression(server)}`);
+      });
+    });
+  });
+  writer.blank();
+}
+
+/** `DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})` registration lines. */
+function discriminatorRegistrations(model: ApiModel): string[] {
+  const lines: string[] = [];
+  for (const { name, schema } of model.schemas) {
+    const cases = discriminatorCases(schema, model);
+    if (cases === undefined) continue;
+    const mapping = cases.cases
+      .map((entry) => `${JSON.stringify(entry.value)}: ${className(entry.schemaName)}`)
+      .join(', ');
+    lines.push(
+      `DISCRIMINATORS[${className(name)}] = (${JSON.stringify(cases.property)}, {${mapping}})`
+    );
+  }
+  return lines;
 }
 
 /** The operation's primary JSON success schema, or undefined for void/no-body ops. */
@@ -531,6 +603,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   writer.line(renderPythonModels(model).trimEnd());
   writer.blank();
   writer.blank();
+  writePythonServers(writer, model);
 
   // The embedded runtime, stitched into one module: `from __future__` may appear
   // only at the top of a file, and the intra-runtime relative imports resolve to
@@ -546,6 +619,12 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
     writer.blank();
   }
   writer.blank();
+  const registrations = discriminatorRegistrations(model);
+  if (registrations.length > 0) {
+    writer.line('# Discriminated unions dispatch by their property inside decode().');
+    for (const registration of registrations) writer.line(registration);
+    writer.blank();
+  }
   writer.block('def _safe_json(response: httpx.Response) -> Any:', () => {
     writer.block('try:', () => {
       writer.line('return response.json()');

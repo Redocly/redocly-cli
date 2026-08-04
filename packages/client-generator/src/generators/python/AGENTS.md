@@ -19,13 +19,18 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Naming:** fields/methods snake*case via `identifierFor(..., RESERVED_WORDS.python)`;
   reserved words get a trailing underscore (`class*`); `+1`/`-1`become`plus_1`/`minus_1`.
 - **Enums** are `class X(str, Enum)` with SCREAMING members; **unions** are `Union[...]`
-  aliases, decoded by trying each member in order (the first that hydrates wins — see
-  `_decode.py`); a discriminator, when present, is emitted as a table COMMENT on the
-  alias, not as runtime dispatch. (Discriminator-driven dispatch is a known improvement
-  candidate: update this paragraph first, then `_decode.py`.) **allOf** is flattened via
-  `flattenAllOf`.
+  aliases. A DISCRIMINATED union registers its dispatch table in the runtime's
+  `DISCRIMINATORS` registry (`DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})`),
+  and `decode()` routes through it — `isinstance` narrowing works on decoded members.
+  Undiscriminated unions decode by trying each member in order (the first that
+  hydrates wins — see `_decode.py`). **allOf** is flattened via `flattenAllOf`.
 - **Errors:** `errorMode` maps to raising `ApiError` (default) or returning a `Result`
   dataclass — the only generator with both modes outside TypeScript.
+- **Servers:** when the description declares servers, a `Servers` class is emitted with
+  one static method per server; server VARIABLES become keyword arguments defaulting to
+  the spec's defaults (`Servers.production(organization_id="org_x")`), so templated base
+  URLs need no manual string building. The client's baked default stays `servers[0]`
+  with variable defaults substituted.
 - **Parity surface:** auth (bearer/basic/apiKey), retries with `Retry-After` + jittered
   backoff, timeouts, idempotency keys, middleware, pagination (`<op>_pages()` /
   `<op>_items()` + `aiter` mirrors), SSE (`iter_sse`/`aiter_sse`), multipart.

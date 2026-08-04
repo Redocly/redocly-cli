@@ -25,6 +25,7 @@ import type {
   OperationModel,
   PropertyModel,
   SchemaModel,
+  ServerModel,
 } from '../../intermediate-representation/model.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
@@ -660,6 +661,62 @@ function writeGoPaginationWrappers(
   writer.blank();
 }
 
+/** The server URL as a Go expression: literals concatenated with declared-variable params. */
+function serverUrlExpression(server: ServerModel): string {
+  const declared = new Set(server.variables.map((variable) => variable.name));
+  const parts: string[] = [];
+  let literal = '';
+  let rest = server.url;
+  const template = /\{([^{}]+)\}/;
+  for (let match = template.exec(rest); match !== null; match = template.exec(rest)) {
+    literal += rest.slice(0, match.index);
+    if (declared.has(match[1])) {
+      if (literal !== '') parts.push(JSON.stringify(literal));
+      literal = '';
+      parts.push(identifierFor(match[1], { style: 'camel', reserved: GO }));
+    } else {
+      // An undeclared variable has nothing to substitute; keep its placeholder visible.
+      literal += match[0];
+    }
+    rest = rest.slice(match.index + match[0].length);
+  }
+  literal += rest;
+  if (literal !== '' || parts.length === 0) parts.push(JSON.stringify(literal));
+  return parts.join(' + ');
+}
+
+/** One `<Name>URL` function per declared server; server variables become parameters. */
+function writeGoServers(writer: Printer, model: ApiModel): void {
+  const servers = model.servers ?? [];
+  if (servers.length === 0) return;
+  const usedNames = new Set<string>();
+  servers.forEach((server, index) => {
+    let name = `${exported(server.description ?? `server${index + 1}`)}URL`;
+    if (usedNames.has(name)) name = `${name}${index + 1}`;
+    usedNames.add(name);
+    const params = server.variables.map(
+      (variable) => `${identifierFor(variable.name, { style: 'camel', reserved: GO })} string`
+    );
+    const defaults = server.variables
+      .map(
+        (variable) =>
+          `${identifierFor(variable.name, { style: 'camel', reserved: GO })} default: ${JSON.stringify(variable.default)}`
+      )
+      .join(', ');
+    writer.line(
+      `// ${name} returns the ${JSON.stringify(server.description ?? server.url)} base URL${defaults === '' ? '.' : ` (${defaults}).`}`
+    );
+    writer.block(
+      `func ${name}(${params.join(', ')}) string {`,
+      () => {
+        writer.line(`return ${serverUrlExpression(server)}`);
+      },
+      '}'
+    );
+    writer.blank();
+  });
+}
+
 /** The whole generated file: models + embedded runtime + operations table + Client. */
 export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   const writer = new Printer('\t');
@@ -705,6 +762,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
 
   writer.line(stripHeader(renderGoModels(model)));
   writer.blank();
+  writeGoServers(writer, model);
   writer.line('// ─── Embedded runtime (@redocly/client-generator go runtime) ───');
   writer.line(stripHeader(GO_RUNTIME_SOURCE));
   writer.blank();

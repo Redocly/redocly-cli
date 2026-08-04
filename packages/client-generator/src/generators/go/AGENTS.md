@@ -23,6 +23,11 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   dispatcher; **allOf** is flattened.
 - **Errors:** `(T, error)` returns ARE the error mode — `errorMode` does not change the
   output. Non-2xx → `*APIError`; timeouts → `*TimeoutError`.
+- **Servers:** when the description declares servers, one `<Name>URL(...)` function per
+  server is emitted (named from the server description); server VARIABLES become string
+  parameters (Go has no defaults — the doc comment states the spec default), so templated
+  base URLs need no manual string building. The client's baked default stays `servers[0]`
+  with variable defaults substituted.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   `context.WithTimeout`, idempotency keys, middleware, pagination (`<Op>Pages`/`<Op>Items`
   as `func(yield func(T, error) bool)` — `range`-over-func needs Go ≥ 1.23; 1.21 calls

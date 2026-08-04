@@ -7,6 +7,7 @@ import type { ApiModel, SchemaModel } from '../../intermediate-representation/mo
 import { pythonGenerator, renderPythonModels } from '../python/index.js';
 
 const hasPython = spawnSync('python3', ['--version']).status === 0;
+const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
 
 /** Assert the rendered source is valid Python (skipped when python3 is absent). */
 function expectCompiles(source: string): void {
@@ -172,7 +173,19 @@ describe('renderPythonModels', () => {
 const CAFE: ApiModel = {
   title: 'Cafe',
   version: '1.0.0',
-  serverUrl: 'https://api.cafe.example',
+  serverUrl: 'https://api.cafe.example/organizations/unknown',
+  servers: [
+    {
+      url: 'https://api.cafe.example/organizations/{organizationId}',
+      description: 'Live server',
+      variables: [{ name: 'organizationId', default: 'unknown' }],
+    },
+    {
+      url: 'https://api-sandbox.cafe.example/organizations/{organizationId}',
+      description: 'Sandbox server',
+      variables: [{ name: 'organizationId', default: 'unknown' }],
+    },
+  ],
   services: [
     {
       name: 'Orders',
@@ -386,5 +399,77 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('form_data, form_files = to_multipart(body)');
     expect(out).toContain('data=form_data, files=form_files');
     expectCompiles(out);
+  });
+
+  it('emits a Servers class with keyword arguments defaulting to the spec defaults', () => {
+    const out = generate();
+    expect(out).toContain('class Servers:');
+    expect(out).toContain('def live_server(organization_id: str = "unknown") -> str:');
+    expect(out).toContain('def sandbox_server(organization_id: str = "unknown") -> str:');
+    expect(out).toContain('return "https://api.cafe.example/organizations/" + organization_id');
+    expectCompiles(out);
+  });
+
+  it('decodes discriminated unions through the DISCRIMINATORS registry', () => {
+    const files = pythonGenerator({
+      model: {
+        title: 'Pets',
+        version: '1.0.0',
+        serverUrl: 'https://pets.example',
+        services: [],
+        schemas: [
+          { name: 'Cat', schema: { kind: 'object', properties: [] } },
+          {
+            name: 'Dog',
+            schema: {
+              kind: 'object',
+              properties: [{ name: 'barks', schema: { kind: 'scalar', scalar: 'boolean' } }],
+            },
+          },
+          {
+            name: 'Pet',
+            schema: {
+              kind: 'union',
+              members: [
+                { kind: 'ref', name: 'Cat' },
+                { kind: 'ref', name: 'Dog' },
+              ],
+              discriminator: {
+                propertyName: 'petType',
+                mapping: [
+                  { value: 'cat', schemaName: 'Cat' },
+                  { value: 'dog', schemaName: 'Dog' },
+                ],
+              },
+            },
+          },
+        ],
+        securitySchemes: [],
+      } as unknown as ApiModel,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    });
+    const out = files[0].content;
+    expect(out).toContain('DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, "dog": Dog})');
+    // Behavioral: first-member-wins would hydrate {"petType": "dog"} as Cat (empty
+    // dataclasses accept anything); the registry must dispatch it to Dog.
+    if (!hasHttpx) return;
+    const dir = mkdtempSync(join(tmpdir(), 'py-dispatch-'));
+    try {
+      writeFileSync(join(dir, 'client.py'), out);
+      const run = spawnSync(
+        'python3',
+        [
+          '-c',
+          'import client; print(type(client.decode(client.Pet, {"petType": "dog"})).__name__)',
+        ],
+        { cwd: dir, encoding: 'utf-8' }
+      );
+      expect(run.status, run.stderr).toBe(0);
+      expect(run.stdout.trim()).toBe('Dog');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

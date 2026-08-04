@@ -8,7 +8,12 @@ from __future__ import annotations
 import dataclasses
 import typing
 from enum import Enum
-from typing import Any, get_args, get_origin, get_type_hints
+from typing import Any, Dict, Tuple, get_args, get_origin, get_type_hints
+
+# Discriminated unions: resolved Union annotation -> (wire property, {value: class}).
+# The generated module registers its unions here; decode() dispatches through it
+# before falling back to trying members in order.
+DISCRIMINATORS: Dict[Any, Tuple[str, Dict[str, Any]]] = {}
 
 
 def decode(type_: Any, data: Any):
@@ -18,6 +23,15 @@ def decode(type_: Any, data: Any):
         return data
     origin = get_origin(type_)
     if origin is typing.Union:
+        discriminator = DISCRIMINATORS.get(type_)
+        if discriminator is not None and isinstance(data, dict):
+            wire_property, mapping = discriminator
+            target = mapping.get(data.get(wire_property))
+            if target is not None:
+                try:
+                    return decode(target, data)
+                except (TypeError, ValueError, KeyError):
+                    pass
         for member in get_args(type_):
             if member is type(None):
                 continue

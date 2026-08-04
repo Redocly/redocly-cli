@@ -169,7 +169,19 @@ describe('renderGoModels', () => {
 const CAFE: ApiModel = {
   title: 'Cafe',
   version: '1.0.0',
-  serverUrl: 'https://api.cafe.example',
+  serverUrl: 'https://api.cafe.example/organizations/unknown',
+  servers: [
+    {
+      url: 'https://api.cafe.example/organizations/{organizationId}',
+      description: 'Live server',
+      variables: [{ name: 'organizationId', default: 'unknown' }],
+    },
+    {
+      url: 'https://api-sandbox.cafe.example/organizations/{organizationId}',
+      description: 'Sandbox server',
+      variables: [{ name: 'organizationId', default: 'unknown' }],
+    },
+  ],
   services: [
     {
       name: 'Orders',
@@ -368,6 +380,16 @@ describe('goGenerator parity features', () => {
     );
     expect(out).toContain('return iterSSE(open,');
     expect(out).toContain('contentType, reader, err := toMultipart(body)');
+    expectGoCompiles(out);
+  });
+
+  it('emits one URL function per declared server with variables as parameters', () => {
+    const out = generateGo();
+    expect(out).toContain('func LiveServerURL(organizationId string) string {');
+    expect(out).toContain('func SandboxServerURL(organizationId string) string {');
+    expect(out).toContain('return "https://api.cafe.example/organizations/" + organizationId');
+    // Go has no default arguments; the spec default lives in the doc comment.
+    expect(out).toContain('organizationId default: "unknown"');
     expectGoCompiles(out);
   });
 });
