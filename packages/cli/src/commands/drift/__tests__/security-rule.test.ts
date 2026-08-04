@@ -1,9 +1,5 @@
-import { SecurityRule } from '../../../commands/drift/rules/builtins/security.js';
-import type {
-  MatchedOperation,
-  NormalizedExchange,
-  RuleContext,
-} from '../../../commands/drift/types/index.js';
+import { SecurityRule } from '../rules/builtins/security.js';
+import type { MatchedOperation, NormalizedExchange, RuleContext } from '../types/index.js';
 
 function createMatchedOperation(): MatchedOperation {
   return {
