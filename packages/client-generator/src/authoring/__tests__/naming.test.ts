@@ -12,6 +12,13 @@ describe('casing', () => {
     expect(casing.pascal('api_key_v2')).toBe('ApiKeyV2');
   });
 
+  it('keeps a plural acronym as one word (Rebilly title "All APIs")', () => {
+    expect(casing.pascal('All APIs')).toBe('AllApis');
+    expect(casing.snake('externalIDs')).toBe('external_ids');
+    // A real word after the acronym still splits.
+    expect(casing.pascal('APIServer')).toBe('ApiServer');
+  });
+
   it('names signed numbers Plus*/Minus* so +1 and -1 stay distinct (GitHub reactions)', () => {
     expect(casing.pascal('+1')).toBe('Plus1');
     expect(casing.pascal('-1')).toBe('Minus1');

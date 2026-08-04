@@ -25,6 +25,7 @@ import type {
   OperationModel,
   PropertyModel,
   SchemaModel,
+  ServerModel,
 } from '../../intermediate-representation/model.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
@@ -115,6 +116,12 @@ export function phpType(schema: SchemaModel, model: ApiModel): string {
   }
 }
 
+/** True when the named schema renders as an `unmarshalX` union dispatcher. */
+function isDiscriminatedUnion(name: string, model: ApiModel): boolean {
+  const named = model.schemas.find((candidate) => candidate.name === name);
+  return named !== undefined && discriminatorCases(named.schema, model) !== undefined;
+}
+
 /** Wire value → typed value expression, or undefined when the raw value is already right. */
 function hydration(schema: SchemaModel, expr: string, model: ApiModel): string | undefined {
   const bare = unwrapNullable(schema);
@@ -123,6 +130,7 @@ function hydration(schema: SchemaModel, expr: string, model: ApiModel): string |
     const kind = classify(bare.name, model);
     if (kind === 'class') return `${className(bare.name)}::fromArray(${expr})`;
     if (kind === 'enum') return `${className(bare.name)}::from(${expr})`;
+    if (isDiscriminatedUnion(bare.name, model)) return `unmarshal${className(bare.name)}(${expr})`;
     const target = deref(bare, model);
     return target === undefined ? undefined : hydration(target, expr, model);
   }
@@ -147,6 +155,10 @@ function serialization(schema: SchemaModel, expr: string, model: ApiModel): stri
     const kind = classify(bare.name, model);
     if (kind === 'class') return `${expr}->toArray()`;
     if (kind === 'enum') return `${expr}->value`;
+    // A union value may be a hydrated member instance or a raw (default-case) array.
+    if (isDiscriminatedUnion(bare.name, model)) {
+      return `is_object(${expr}) ? ${expr}->toArray() : ${expr}`;
+    }
     const target = deref(bare, model);
     return target === undefined ? undefined : serialization(target, expr, model);
   }
@@ -456,8 +468,19 @@ function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): v
   const args = methodArgs(op, model, true);
   const sse = sseResponse(op);
   const success = successSchema(op);
+  // Non-JSON success bodies (PDFs, images, octet streams) return the raw body string.
+  const rawBody =
+    sse === undefined &&
+    success === undefined &&
+    op.successResponses.some((response) => response.contentType !== '');
   const returnType =
-    sse !== undefined ? '\\Generator' : success === undefined ? 'void' : phpType(success, model);
+    sse !== undefined
+      ? '\\Generator'
+      : success !== undefined
+        ? phpType(success, model)
+        : rawBody
+          ? 'string'
+          : 'void';
   writeDocComment(writer, methodName(op), op.summary ?? `${op.method.toUpperCase()} ${op.path}`);
   writer.block(
     `public function ${methodName(op)}(${args.signature.join(', ')}): ${returnType}`,
@@ -520,6 +543,10 @@ function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): v
         },
         '}'
       );
+      if (rawBody) {
+        writer.line("return $response['body'];");
+        return;
+      }
       if (returnType === 'void') {
         writer.line('decodeJson($response);');
         return;
@@ -643,6 +670,67 @@ function writePhpPaginationWrappers(
   writer.blank();
 }
 
+/** The server URL as a PHP expression: literals concatenated with declared-variable arguments. */
+function serverUrlExpression(server: ServerModel): string {
+  const declared = new Set(server.variables.map((variable) => variable.name));
+  const parts: string[] = [];
+  let literal = '';
+  let rest = server.url;
+  const template = /\{([^{}]+)\}/;
+  for (let match = template.exec(rest); match !== null; match = template.exec(rest)) {
+    literal += rest.slice(0, match.index);
+    if (declared.has(match[1])) {
+      if (literal !== '') parts.push(phpString(literal));
+      literal = '';
+      parts.push(`${'$'}${propertyName(match[1])}`);
+    } else {
+      // An undeclared variable has nothing to substitute; keep its placeholder visible.
+      literal += match[0];
+    }
+    rest = rest.slice(match.index + match[0].length);
+  }
+  literal += rest;
+  if (literal !== '' || parts.length === 0) parts.push(phpString(literal));
+  return parts.join(' . ');
+}
+
+/** One static method per declared server; server variables become named string arguments. */
+function writeServers(writer: Printer, model: ApiModel): void {
+  const servers = model.servers ?? [];
+  if (servers.length === 0) return;
+  const usedNames = new Set<string>();
+  writer.line('/** The declared servers; variables default to the values from the description. */');
+  writer.block('final class Servers', () => {}, '');
+  writer.block(
+    '{',
+    () => {
+      servers.forEach((server, index) => {
+        let name = identifierFor(server.description ?? `server${index + 1}`, {
+          style: 'camel',
+          reserved: PHP,
+        });
+        if (usedNames.has(name)) name = `${name}${index + 1}`;
+        usedNames.add(name);
+        const params = server.variables.map(
+          (variable) =>
+            `string ${'$'}${propertyName(variable.name)} = ${phpString(variable.default)}`
+        );
+        if (index > 0) writer.blank();
+        writer.block(`public static function ${name}(${params.join(', ')}): string`, () => {}, '');
+        writer.block(
+          '{',
+          () => {
+            writer.line(`return ${serverUrlExpression(server)};`);
+          },
+          '}'
+        );
+      });
+    },
+    '}'
+  );
+  writer.blank();
+}
+
 /** Drop the standalone header (<?php, declare, namespace, leading comments) for stitching. */
 function stripPhpHeader(source: string): string {
   const lines = source.split('\n');
@@ -675,6 +763,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
   writer.line(`namespace ${namespace};`);
   writer.blank();
   writer.line(renderPhpModels(model));
+  writeServers(writer, model);
   writer.line('// ─── Embedded runtime (@redocly/client-generator php runtime) ───');
   writer.line(stripPhpHeader(PHP_RUNTIME_SOURCE));
   writer.blank();
@@ -708,7 +797,8 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
   writer.blank();
 
   writeDocComment(writer, 'Client', `Client for ${model.title} (${model.version}).`);
-  writer.block('final class Client', () => {}, '');
+  // Not final: PHP test suites mock concrete classes (createMock(Client::class)).
+  writer.block('class Client', () => {}, '');
   writer.block(
     '{',
     () => {

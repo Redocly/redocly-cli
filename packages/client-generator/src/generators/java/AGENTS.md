@@ -60,7 +60,7 @@ switch patterns), HTTP over `java.net.http.HttpClient` — part of the JDK since
   `Last-Event-ID` reconnect), multipart (hand-built body), `X-Redocly-Client` header.
 - The runtime is hand-written in `java-runtime/` and embedded at prepare time; verified
   with `javac` (and the smoke against the shared mock server). Harness gains a `javaBar`
-  (`javac` on Rebilly + GitHub output). GitHub CI runners ship a JDK.
+  (`javac` on the large real-world descriptions' output). CI runners ship a JDK.
 - Authored ONLY with the neutral toolkit — the dogfooding guard extends to `java/index.ts`.
 
 ## The modify loop (once implemented)

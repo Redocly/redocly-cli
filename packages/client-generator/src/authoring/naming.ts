@@ -11,6 +11,9 @@ function splitWords(name: string): string[] {
       // reactions) must not collapse to the same identifier.
       .replace(/^\+(?=\d)/, 'plus ')
       .replace(/^-(?=\d)/, 'minus ')
+      // A plural acronym is one word: fold the trailing 's' in so the
+      // acronym-boundary rule below doesn't split 'APIs' into 'AP Is'.
+      .replace(/([A-Z]{2,})s(?![a-z])/g, '$1S')
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
       .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
       .split(/[^A-Za-z0-9]+/)

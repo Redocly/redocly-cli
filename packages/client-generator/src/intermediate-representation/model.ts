@@ -240,11 +240,25 @@ export type NamedSchemaModel = {
   description?: string;
 };
 
+export type ServerVariableModel = {
+  name: string;
+  default: string;
+  description?: string;
+};
+
+/** One declared server, URL kept TEMPLATED — `serverUrl` carries the substituted default. */
+export type ServerModel = {
+  url: string;
+  description?: string;
+  variables: ServerVariableModel[];
+};
+
 export type ApiModel = {
   title: string;
   version: string;
   description?: string;
   serverUrl: string;
+  servers?: ServerModel[];
   services: ServiceModel[];
   schemas: NamedSchemaModel[];
   securitySchemes: SecuritySchemeModel[];

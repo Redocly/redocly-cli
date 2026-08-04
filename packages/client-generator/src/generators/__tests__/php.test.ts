@@ -142,6 +142,45 @@ describe('renderPhpModels', () => {
     expectModelsRun(out);
   });
 
+  it('hydrates discriminated-union properties through the dispatcher so instanceof works', () => {
+    const out = renderPhpModels(
+      model({
+        Cat: { kind: 'object', properties: [] },
+        Dog: { kind: 'object', properties: [] },
+        Pet: {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'Cat' },
+            { kind: 'ref', name: 'Dog' },
+          ],
+          discriminator: {
+            propertyName: 'petType',
+            mapping: [
+              { value: 'cat', schemaName: 'Cat' },
+              { value: 'dog', schemaName: 'Dog' },
+            ],
+          },
+        },
+        Owner: {
+          kind: 'object',
+          properties: [
+            { name: 'pet', schema: { kind: 'ref', name: 'Pet' }, required: true },
+            {
+              name: 'pets',
+              schema: { kind: 'array', items: { kind: 'ref', name: 'Pet' } },
+              required: false,
+            },
+          ],
+        },
+      })
+    );
+    expect(out).toContain("pet: unmarshalPet($data['pet'])");
+    expect(out).toContain('array_map(static fn ($item) => unmarshalPet($item)');
+    // Serialization must accept both hydrated instances and raw arrays.
+    expect(out).toContain('is_object($this->pet) ? $this->pet->toArray() : $this->pet');
+    expectModelsRun(out);
+  });
+
   it('maps nullability and reserved names idiomatically', () => {
     const out = renderPhpModels(
       model({
@@ -168,7 +207,19 @@ describe('renderPhpModels', () => {
 const CAFE: ApiModel = {
   title: 'Cafe Orders API',
   version: '1.0.0',
-  serverUrl: 'https://api.cafe.example',
+  serverUrl: 'https://api.cafe.example/organizations/unknown',
+  servers: [
+    {
+      url: 'https://api.cafe.example/organizations/{organizationId}',
+      description: 'Live server',
+      variables: [{ name: 'organizationId', default: 'unknown' }],
+    },
+    {
+      url: 'https://api-sandbox.cafe.example/organizations/{organizationId}',
+      description: 'Sandbox server',
+      variables: [{ name: 'organizationId', default: 'unknown' }],
+    },
+  ],
   services: [
     {
       name: 'Orders',
@@ -218,6 +269,26 @@ const CAFE: ApiModel = {
               status: '200',
               contentType: 'application/json',
               schema: { kind: 'ref', name: 'Order' },
+            },
+          ],
+          errorResponses: [],
+        },
+        {
+          name: 'getOrderPdf',
+          specName: 'getOrderPdf',
+          method: 'get',
+          path: '/orders/{orderId}/pdf',
+          tags: ['Orders'],
+          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
+          queryParams: [],
+          headerParams: [],
+          cookieParams: [],
+          security: [],
+          successResponses: [
+            {
+              status: '200',
+              contentType: 'application/pdf',
+              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'binary' } },
             },
           ],
           errorResponses: [],
@@ -330,7 +401,9 @@ describe('phpGenerator (full client assembly)', () => {
     expect(out.startsWith('<?php')).toBe(true);
     expect(out).toContain('namespace CafeOrdersApi;');
     expect(out).toContain('const OPERATIONS = [');
-    expect(out).toContain('final class Client');
+    // Not final: PHP suites mock concrete classes (createMock(Client::class)).
+    expect(out).toContain('\nclass Client');
+    expect(out).not.toContain('final class Client');
     expect(out).toContain('public function __construct(private Config $config)');
     expect(out).toContain(
       'public function getOrder(string $orderId, ?array $headers = null): Order'
@@ -350,6 +423,27 @@ describe('phpGenerator (full client assembly)', () => {
     expect(out).toContain('public function streamEvents(?array $headers = null): \\Generator');
     expect(out).toContain('yield from iterSse($open,');
     expect(out).toContain('toMultipart($body)');
+    expectPhpRuns(out);
+  });
+
+  it('returns the raw body string for non-JSON success responses (PDF download)', () => {
+    const out = generatePhp();
+    expect(out).toContain(
+      'public function getOrderPdf(string $orderId, ?array $headers = null): string'
+    );
+    expect(out).toContain("return $response['body'];");
+  });
+
+  it('emits a Servers class with named variable arguments defaulting to the spec defaults', () => {
+    const out = generatePhp();
+    expect(out).toContain('final class Servers');
+    expect(out).toContain(
+      "public static function liveServer(string $organizationId = 'unknown'): string"
+    );
+    expect(out).toContain(
+      "public static function sandboxServer(string $organizationId = 'unknown'): string"
+    );
+    expect(out).toContain("return 'https://api.cafe.example/organizations/' . $organizationId;");
     expectPhpRuns(out);
   });
 });

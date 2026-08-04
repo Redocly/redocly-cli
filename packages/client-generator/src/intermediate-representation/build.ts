@@ -221,6 +221,15 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
   const version = doc.info?.version ?? '0.0.0';
   const description = doc.info?.description;
   const serverUrl = resolveServerUrl(doc.servers?.[0]);
+  const servers = (doc.servers ?? []).map((server) => ({
+    url: server.url,
+    description: server.description,
+    variables: Object.entries(server.variables ?? {}).map(([name, variable]) => ({
+      name,
+      default: variable.default,
+      description: variable.description,
+    })),
+  }));
 
   const schemas = buildNamedSchemas(doc);
   const securitySchemes = buildSecuritySchemes(doc);
@@ -231,6 +240,7 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
     version,
     description,
     serverUrl,
+    servers,
     services,
     schemas,
     securitySchemes,

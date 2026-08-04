@@ -77,7 +77,16 @@ function declaredNames() {
 
 // The Python runtime (python-runtime/*.py) embeds the same way: hand-authored
 // once, stitched into every generated Python client by the python generator.
-const PYTHON_MODULES = ['_errors', '_auth', '_url', '_decode', '_send', '_paginate', '_sse', '_multipart'];
+const PYTHON_MODULES = [
+  '_errors',
+  '_auth',
+  '_url',
+  '_decode',
+  '_send',
+  '_paginate',
+  '_sse',
+  '_multipart',
+];
 const pythonDir = join(pkgRoot, 'python-runtime');
 const pythonOut = join(pkgRoot, 'src', 'emitters', 'python-runtime-sources.ts');
 const pythonEntries = PYTHON_MODULES.map((name) => {
@@ -139,7 +148,13 @@ const KEEP_EXPORTS = {
 };
 
 function stripModule(name, source) {
-  const file = ts.createSourceFile('__embed.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const file = ts.createSourceFile(
+    '__embed.ts',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS
+  );
   const keeps = KEEP_EXPORTS[name];
   const parts = [];
   for (const statement of file.statements) {
