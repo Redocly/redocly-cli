@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 2.44.1
+
+### Patch Changes
+
+- Updated `undici` to the `6.28.0` version.
+- Fixed an issue where the `operation-4xx-problem-details-rfc7807` rule incorrectly reported the `type` and `title` properties inherited through `allOf` as missing.
+- Updated @redocly/openapi-core to v2.44.1.
+
 ## 2.44.0
 
 ### Minor Changes

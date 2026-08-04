@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.44.1
+
+### Patch Changes
+
+- Fixed an issue where the `operation-4xx-problem-details-rfc7807` rule incorrectly reported the `type` and `title` properties inherited through `allOf` as missing.
+
 ## 2.44.0
 
 ### Minor Changes

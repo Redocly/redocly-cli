@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.44.1 (2026-08-04)
+
+### Patch Changes
+
+- Updated `undici` to the `6.28.0` version.
+- Fixed an issue where the `operation-4xx-problem-details-rfc7807` rule incorrectly reported the `type` and `title` properties inherited through `allOf` as missing.
+- Updated @redocly/openapi-core to v2.44.1.
+
 ## 2.44.0 (2026-08-04)
 
 ### Minor Changes
