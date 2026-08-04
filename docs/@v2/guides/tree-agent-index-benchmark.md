@@ -1,11 +1,11 @@
 # How much context the `tree` index saves an agent
 
 The [`tree`](../commands/tree.md) command's JSON index lets an AI agent work with an API description that does not fit in its context window.
-This guide measures what that saves on a real, production-grade description, and shows what the agent sees at each step.
+This guide measures what that saves on three real descriptions — from a 1.3 MB production API to the 9.8 MB GitHub REST API — and shows what the agent sees at each step.
 For the command reference, see [`tree`](../commands/tree.md).
 
 All numbers are actual counts from real command output, tokenized with a BPE tokenizer (`gpt-tokenizer`, o200k family; other model families tokenize slightly differently, with the same order of magnitude).
-The description used here is anonymized as `test.yaml`.
+The main walkthrough uses a production description anonymized as `test.yaml`; the scaling section at the end repeats the experiment on two public descriptions, named openly.
 
 ## The setup
 
@@ -199,10 +199,68 @@ The chain's cost is bounded by the _largest branch_ and the _deepest single clos
 On a 42 KB description the same chain costs about 4,000 tokens: the description grew 31 times (42 KB to 1.3 MB), the chain grew 3 to 6 times.
 For descriptions that fit the context window, the index saves tokens; past the window size, it is the difference between an impossible task and a routine one.
 
+## Scaling up: Google Compute Engine and the GitHub REST API
+
+The 1.3 MB description above is large, but public API catalogs go much further.
+To see how the chain behaves as descriptions grow, the same experiment ran on two public descriptions, unmodified:
+
+- **Google Compute Engine API v1** — 3.5 MB, OpenAPI 3.0.
+  Google publishes its APIs in its own Discovery format rather than OpenAPI, so this is the [APIs.guru](https://apis.guru/) OpenAPI conversion of the official Discovery document — the real Compute Engine API surface, mechanically converted.
+- **GitHub REST API** — 9.8 MB, OpenAPI 3.0.3.
+  The official first-party description from [`github/rest-api-description`](https://github.com/github/rest-api-description), the same file GitHub's own SDKs are generated from, and the largest well-known public OpenAPI description.
+
+### Google Compute Engine: 3.5 MB, 730k tokens
+
+The whole file is **730,154 tokens** — three and a half 200k windows.
+The full unfiltered index is 157,149 tokens (1,437 nodes), so the agent starts from the level-2 map instead.
+
+Task: _"Create a VM instance."_
+
+| Step                                            | Command                                                                | Output size |     Tokens |
+| ----------------------------------------------- | ---------------------------------------------------------------------- | ----------: | ---------: |
+| 1. Map the spec (4 sections, 90 tags)           | `--format=json --level 2`                                              |     22.5 KB |      5,635 |
+| 2. Open the `instances` branch (~40 operations) | `--node instances`                                                     |     28.7 KB |      7,040 |
+| 3. The insert operation with its closure        | `--node 'POST /projects/{project}/zones/{zone}/instances' --with-deps` |     81.3 KB |     17,695 |
+| **Total**                                       |                                                                        |             | **30,370** |
+
+Step 3 is where the 64 KB closure cap earns its keep: the `Instance` schema fans out across the whole description, and the closure delivered the **31 nearest schemas** (`Instance`, `AttachedDisk`, `Scheduling`, …) in dependency order, filling 61.9 KB of the 64 KB budget.
+Anything deeper stays one `--node` call away instead of flooding the response.
+
+### GitHub REST API: 9.8 MB, 1.9M tokens
+
+The whole file is **1,946,991 tokens** — nearly ten 200k windows; it does not fit even a 1M-token window.
+And this is the scale where the full index stops fitting too: `--format=json` with no filters produces 306,525 tokens (3,038 nodes), more than the window itself.
+Hierarchical drill-down is no longer an optimization here — it is the only way an agent can work with this file at all.
+
+Task: _"Create a repository for the authenticated user."_
+
+| Step                                           | Command                                 | Output size |     Tokens |
+| ---------------------------------------------- | --------------------------------------- | ----------: | ---------: |
+| 1. Map the spec (47 tags)                      | `--format=json --level 2`               |     15.1 KB |      3,678 |
+| 2. Open the `repos` branch — the API's largest | `--node repos`                          |    103.4 KB |     27,017 |
+| 3. The create operation with its closure       | `--node 'POST /user/repos' --with-deps` |     82.4 KB |     18,946 |
+| **Total**                                      |                                         |             | **49,641** |
+
+The closure again filled its budget almost exactly — 63.6 KB of 64 KB — but with only **14 schemas** this time: GitHub's schemas are individually much larger than Google's, so fewer of them fit the same bound.
+The bound is what matters: the response stays predictable regardless of how heavy the schema graph is.
+
+### The curve across all three
+
+| Description                          |   Size | Whole file (tokens) | Chain (+114 instruction) | vs. whole file |
+| ------------------------------------ | -----: | ------------------: | -----------------------: | -------------: |
+| `test.yaml` (production, anonymized) | 1.3 MB |             267,739 |            10,557–24,567 |         11–25× |
+| Google Compute Engine v1             | 3.5 MB |             730,154 |                   30,370 |           ~24× |
+| GitHub REST API                      | 9.8 MB |           1,946,991 |                   49,641 |           ~39× |
+
+The description grew 7.5 times (1.3 MB to 9.8 MB); the chain grew 2 times (24.6k to 49.6k tokens).
+The multiplier keeps growing with size because the chain pays for a _path_ through the tree — one map, one branch, one closure — while reading the file pays for everything.
+And past a certain size the comparison stops being about savings at all: at 1.3 MB the whole file misses a 200k window by a third, at 9.8 MB it misses it ten times over and even the index alone no longer fits — yet the drill-down chain still lands at a quarter of the window, with room to work.
+
 ## Methodology notes
 
 - Every output above comes from a real command run against the real file; sizes are the byte counts of captured `stdout`.
 - Token counts come from `countTokens()` in `gpt-tokenizer` over the exact captured text, not from a characters-per-token estimate.
 - The JSON samples are real command output, shortened by dropping whole nodes (never by truncating values), with names replaced by `test.yaml` and `example.com`.
+- The Google and GitHub descriptions are public, so they are named and used unmodified: the Compute Engine file comes from APIs.guru (`googleapis.com/compute/v1`, converted from Google's official Discovery document), the GitHub file from the `main` branch of [`github/rest-api-description`](https://github.com/github/rest-api-description) (`api.github.com.yaml`, version 1.1.4).
 - The agent chooses which nodes to open; the command syntax comes from the 114-token instruction counted separately above.
-- Each command invocation analyzes the description again (about 3 seconds for 1.3 MB; the split layout adds file reads across 1,002 files). A long-running process that keeps the analysis in memory would pay that cost once per session instead of once per step.
+- Each command invocation analyzes the description again (about 3 seconds for 1.3 MB, 42 seconds for 9.8 MB; the split layout adds file reads across 1,002 files). A long-running process that keeps the analysis in memory would pay that cost once per session instead of once per step.
