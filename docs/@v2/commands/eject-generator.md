@@ -28,11 +28,13 @@ redocly eject-generator php --force
 
 ## How it works
 
-Ejecting writes three things:
+Ejecting writes four things:
 
 - `<dir>/<name>.mjs` — the generator, the exact code the built-in runs, readable plain ESM.
 - `<dir>/.pristine/<name>.mjs` — a pristine snapshot (commit it); `--update` uses it as the merge base.
-- `<dir>/AGENTS.md` — the generator-authoring guide for your coding agent, marker-delimited so your own additions survive refreshes.
+- `<dir>/AGENTS.md` — the generator-authoring guide for your coding agent (the contract, the model shape, the helper library), shared by every ejected generator and marker-delimited so your own additions survive refreshes.
+- `<dir>/<name>.AGENTS.md` — this generator's own design doc: the decisions its code implements and the modify loop (edit the design first, then make the code match).
+  It's dropped once and then it's yours — evolve it with your customizations.
 
 The ejected file imports the authoring toolkit, so install it once:
 

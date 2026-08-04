@@ -67,7 +67,7 @@ The fastest path to a customized generator is
 [`redocly eject-generator <name>`](../commands/eject-generator.md): it vendors a built-in language generator (`python`, `go`, `php`) into `./generators/` as an editable file, with a pristine snapshot for [three-way updates](../commands/eject-generator.md#how-it-works) and the `AGENTS.md` authoring guide for your coding agent.
 An ejected-unmodified generator produces byte-identical output, and the path entry takes over the built-in name — regeneration survives every customization.
 
-Eject drops `AGENTS.md` next to the generator: your agent reads it to learn the model shape, the helper library, and the verify loop (edit the generator → `redocly generate-client` → review the client diff — generated files are never hand-edited).
+Eject drops two guides next to the generator: the shared `AGENTS.md` authoring guide (the model shape, the helper library, and the verify loop — edit the generator → `redocly generate-client` → review the client diff; generated files are never hand-edited) and the generator's own `<name>.AGENTS.md` design doc, which your agent treats as the source of truth: state the change there first, then make the code match.
 
 ## Custom generators
 

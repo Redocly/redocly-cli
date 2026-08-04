@@ -59,7 +59,7 @@ To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at
 ### Python SDK
 
 The `python` generator emits a self-contained `<stem>.py` next to the configured output — a full Python SDK over [httpx](https://www.python-httpx.org/) (`pip install httpx`, Python ≥ 3.9):
-typed dataclass models (allOf flattened, enums, discriminated unions), a `Client` and an `AsyncClient` with one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware hooks, pagination iterators (`<op>_pages()` / `<op>_items()`, `async for` variants), SSE streaming, and multipart bodies.
+typed dataclass models (allOf flattened, enums, discriminated unions decoded by their discriminator), a `Client` and an `AsyncClient` with one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware hooks, pagination iterators (`<op>_pages()` / `<op>_items()`, `async for` variants), SSE streaming, multipart bodies, `<op>_with_headers()` envelope variants for operations that declare response headers, and a `Servers` class for templated server URLs.
 `errorMode` maps to raising `ApiError` (default) or returning a `Result` dataclass.
 No TypeScript is involved: generating with only `python` selected does not require the `typescript` package.
 
@@ -74,7 +74,7 @@ for order in client.list_orders_items(limit=50):
 ### PHP SDK
 
 The `php` generator emits a self-contained `<stem>.php` — a full PHP SDK over the curl extension (zero Composer dependencies, PHP ≥ 8.1):
-promoted-constructor classes with `fromArray`/`toArray` hydration (allOf flattened, native backed enums, `match`-based discriminated-union dispatchers), a `Client` with one typed method per operation (optional query params as nullable named arguments), auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware callables, pagination generators (`<op>Pages()` / `<op>Items()`), SSE streaming, and multipart bodies.
+promoted-constructor classes with `fromArray`/`toArray` hydration (allOf flattened, native backed enums, `match`-based discriminated-union dispatchers), a `Client` with one typed method per operation (optional query params as nullable named arguments), auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware callables, pagination generators (`<op>Pages()` / `<op>Items()`), SSE streaming, multipart bodies, binary downloads (non-JSON success bodies return the raw `string`), `<op>WithHeaders()` envelope variants for operations that declare response headers, and a `Servers` class for templated server URLs.
 Exceptions are the error mode (`ApiError` / `TimeoutError`); `errorMode` does not change the output.
 The namespace derives from the API title (for example `CafeOrdersApi`).
 
@@ -92,7 +92,7 @@ foreach ($client->listOrdersItems(limit: 50) as $order) {
 ### Go SDK
 
 The `go` generator emits a self-contained `<stem>.go` — a full Go SDK over the standard library (zero dependencies, Go ≥ 1.21):
-structs with `json` tags (allOf flattened, typed-const enums, discriminated-union unmarshal dispatchers), a `Client` with one `(T, error)` method per operation taking a `context.Context`, auth, retries with `Retry-After` and jittered backoff, per-attempt timeouts, idempotency keys, middleware hooks, pagination iterators (`<Op>Pages` / `<Op>Items`, `range`-over-func style), SSE streaming, and multipart bodies.
+structs with `json` tags (allOf flattened, typed-const enums, discriminated-union unmarshal dispatchers), a `Client` with one `(T, error)` method per operation taking a `context.Context`, auth, retries with `Retry-After` and jittered backoff, per-attempt timeouts, idempotency keys, middleware hooks, pagination iterators (`<Op>Pages` / `<Op>Items`, `range`-over-func style), SSE streaming, multipart bodies, `<Op>WithHeaders` envelope variants (a typed headers struct) for operations that declare response headers, and `<Name>URL` helpers for templated server URLs.
 Go's `(T, error)` returns are the error mode; `errorMode` does not change the output.
 The iterators are `func(yield func(T, error) bool)` values: `for … range` over them needs Go ≥ 1.23; on 1.21–1.22 call them with a callback instead.
 
@@ -395,6 +395,7 @@ const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope
 - The TanStack Query and SWR wrappers don't accept `envelope`.
   It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
   Call the sdk function directly when you need headers.
+- The Python, PHP, and Go SDKs expose the same information as separate variants — `<op>_with_headers()`, `<op>WithHeaders()`, and `<Op>WithHeaders` — emitted only for operations that declare success-response headers (those languages cannot vary a return type on a flag).
 
 ## Runtime validation
 
