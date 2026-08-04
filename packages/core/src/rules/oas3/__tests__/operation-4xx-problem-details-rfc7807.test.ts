@@ -369,44 +369,6 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should not report when `type` and `title` are defined as `$ref` siblings in OAS 3.1', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        openapi: "3.1.0"
-        paths:
-          /pets:
-            get:
-              summary: List all pets
-              operationId: listPets
-              responses:
-                '400':
-                  description: Test
-                  content:
-                    application/problem+json:
-                      schema:
-                        $ref: '#/components/schemas/Base'
-                        properties:
-                          type:
-                            type: string
-                          title:
-                            type: string
-        components:
-          schemas:
-            Base:
-              type: object
-              description: A base problem schema without own properties
-        `,
-      'foobar.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
-    });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
-  });
-
   it('should report `application/problem+json` must have `schema` property', async () => {
     const document = parseYamlToDocument(
       outdent`

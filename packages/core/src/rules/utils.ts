@@ -17,7 +17,6 @@ import type { Oas2Schema, Oas2Tag } from '../typings/swagger.js';
 import { getOwn } from '../utils/get-own.js';
 import { isDefined } from '../utils/is-defined.js';
 import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
-import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
 import { type AjvValidator } from './ajv.js';
@@ -36,15 +35,10 @@ export const resolveSchema = <T extends NonUndefined>(
   location?: Location;
 } => {
   if (isRef(schemaOrRef)) {
-    const { $ref: _, ...siblings } = schemaOrRef;
     const resolved = ctx.resolve<T>(schemaOrRef, location?.source.absoluteRef);
-
-    const schema =
-      isNotEmptyObject(siblings) && isPlainObject<T & object>(resolved.node)
-        ? { ...resolved.node, ...siblings }
-        : resolved.node;
-
-    return resolved ? { schema, location: resolved.location } : { schema: undefined, location };
+    return resolved
+      ? { schema: resolved.node, location: resolved.location }
+      : { schema: undefined, location };
   }
 
   return { schema: schemaOrRef, location };
