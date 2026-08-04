@@ -171,14 +171,14 @@ function serialization(schema: SchemaModel, expr: string, model: ApiModel): stri
   return undefined;
 }
 
-function writeDocComment(writer: Printer, name: string, description?: string): void {
+function writeDocComment(printer: Printer, name: string, description?: string): void {
   const lines = docText(description);
   if (lines.length === 0) return;
-  writer.line(`/** ${name} — ${lines.join(' ')} */`);
+  printer.line(`/** ${name} — ${lines.join(' ')} */`);
 }
 
 function writeClass(
-  writer: Printer,
+  printer: Printer,
   name: string,
   properties: PropertyModel[],
   model: ApiModel,
@@ -189,34 +189,34 @@ function writeClass(
     ...properties.filter((property) => property.required),
     ...properties.filter((property) => !property.required),
   ];
-  writeDocComment(writer, className(name), description);
-  writer.block(`final class ${className(name)}`, () => {}, '');
-  writer.block(
+  writeDocComment(printer, className(name), description);
+  printer.block(`final class ${className(name)}`, () => {}, '');
+  printer.block(
     '{',
     () => {
-      writer.block(
+      printer.block(
         'public function __construct(',
         () => {
           for (const property of ordered) {
             const type = phpType(property.schema, model);
             if (property.required) {
-              writer.line(`public ${type} ${'$'}${propertyName(property.name)},`);
+              printer.line(`public ${type} ${'$'}${propertyName(property.name)},`);
             } else {
               const nullable = type === 'mixed' || type.startsWith('?') ? type : `?${type}`;
-              writer.line(`public ${nullable} ${'$'}${propertyName(property.name)} = null,`);
+              printer.line(`public ${nullable} ${'$'}${propertyName(property.name)} = null,`);
             }
           }
         },
         ') {'
       );
-      writer.line('}');
-      writer.blank();
+      printer.line('}');
+      printer.blank();
 
-      writer.block('public static function fromArray(array $data): self', () => {}, '');
-      writer.block(
+      printer.block('public static function fromArray(array $data): self', () => {}, '');
+      printer.block(
         '{',
         () => {
-          writer.block(
+          printer.block(
             'return new self(',
             () => {
               for (const property of ordered) {
@@ -224,11 +224,11 @@ function writeClass(
                 const typed = hydration(property.schema, raw, model);
                 const php = propertyName(property.name);
                 if (property.required) {
-                  writer.line(`${php}: ${typed ?? raw},`);
+                  printer.line(`${php}: ${typed ?? raw},`);
                 } else if (typed === undefined) {
-                  writer.line(`${php}: ${raw} ?? null,`);
+                  printer.line(`${php}: ${raw} ?? null,`);
                 } else {
-                  writer.line(`${php}: isset(${raw}) ? ${typed} : null,`);
+                  printer.line(`${php}: isset(${raw}) ? ${typed} : null,`);
                 }
               }
             },
@@ -237,65 +237,65 @@ function writeClass(
         },
         '}'
       );
-      writer.blank();
+      printer.blank();
 
-      writer.block('public function toArray(): array', () => {}, '');
-      writer.block(
+      printer.block('public function toArray(): array', () => {}, '');
+      printer.block(
         '{',
         () => {
-          writer.line('$data = [];');
+          printer.line('$data = [];');
           for (const property of ordered) {
             const value = `$this->${propertyName(property.name)}`;
             const wire = serialization(property.schema, value, model) ?? value;
             if (property.required) {
-              writer.line(`$data[${phpString(property.name)}] = ${wire};`);
+              printer.line(`$data[${phpString(property.name)}] = ${wire};`);
             } else {
-              writer.block(
+              printer.block(
                 `if (${value} !== null) {`,
                 () => {
-                  writer.line(`$data[${phpString(property.name)}] = ${wire};`);
+                  printer.line(`$data[${phpString(property.name)}] = ${wire};`);
                 },
                 '}'
               );
             }
           }
-          writer.line('return $data;');
+          printer.line('return $data;');
         },
         '}'
       );
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** Render every named schema: classes (allOf flattened), native enums, union dispatchers. */
 export function renderPhpModels(model: ApiModel): string {
-  const writer = new Printer('    ');
+  const printer = new Printer('    ');
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined && (asEnum.scalar === 'string' || asEnum.scalar === 'integer')) {
       const backing = asEnum.scalar === 'string' ? 'string' : 'int';
-      writeDocComment(writer, className(name), schema.description);
-      writer.block(`enum ${className(name)}: ${backing}`, () => {}, '');
-      writer.block(
+      writeDocComment(printer, className(name), schema.description);
+      printer.block(`enum ${className(name)}: ${backing}`, () => {}, '');
+      printer.block(
         '{',
         () => {
           asEnum.values.forEach((value) => {
             const member = identifierFor(String(value), { style: 'pascal', reserved: PHP });
             const literal = typeof value === 'string' ? phpString(value) : String(value);
-            writer.line(`case ${member} = ${literal};`);
+            printer.line(`case ${member} = ${literal};`);
           });
         },
         '}'
       );
-      writer.blank();
+      printer.blank();
       continue;
     }
     if (schema.kind === 'object' || schema.kind === 'intersection') {
       const flat = flattenAllOf(schema, model);
       if (flat !== undefined) {
-        writeClass(writer, name, flat.properties, model, flat.description ?? schema.description);
+        writeClass(printer, name, flat.properties, model, flat.description ?? schema.description);
         continue;
       }
     }
@@ -305,35 +305,35 @@ export function renderPhpModels(model: ApiModel): string {
       const table = cases.cases
         .map((entry) => `${entry.value} -> ${className(entry.schemaName)}`)
         .join(', ');
-      writer.line(
+      printer.line(
         `/** ${typeName} is a discriminated union (${phpString(cases.property)}): ${table}. */`
       );
-      writer.block(`function unmarshal${typeName}(array $data): mixed`, () => {}, '');
-      writer.block(
+      printer.block(`function unmarshal${typeName}(array $data): mixed`, () => {}, '');
+      printer.block(
         '{',
         () => {
-          writer.block(
+          printer.block(
             `return match ($data[${phpString(cases.property)}] ?? null) {`,
             () => {
               for (const entry of cases.cases) {
-                writer.line(
+                printer.line(
                   `${phpString(entry.value)} => ${className(entry.schemaName)}::fromArray($data),`
                 );
               }
-              writer.line('default => $data,');
+              printer.line('default => $data,');
             },
             '};'
           );
         },
         '}'
       );
-      writer.blank();
+      printer.blank();
       continue;
     }
     // Everything else (plain unions, aliases, records) has no PHP declaration;
     // references resolve to the underlying type via phpType.
   }
-  return writer.toString();
+  return printer.toString();
 }
 
 /** The op's primary JSON success schema, or undefined for void/no-body ops. */
@@ -436,16 +436,16 @@ function methodArgs(op: OperationModel, model: ApiModel, includeBody: boolean): 
 }
 
 /** The shared prologue: resolve auth, build query/url, merge headers. */
-function writeRequestSetup(writer: Printer, op: OperationModel, args: MethodArgs): void {
-  writer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
-  writer.line(
+function writeRequestSetup(printer: Printer, op: OperationModel, args: MethodArgs): void {
+  printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+  printer.line(
     "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
   );
   for (const { php, wire } of args.queryArgs) {
-    writer.block(
+    printer.block(
       `if (${'$'}${php} !== null) {`,
       () => {
-        writer.line(`$query[${phpString(wire)}] = ${'$'}${php};`);
+        printer.line(`$query[${phpString(wire)}] = ${'$'}${php};`);
       },
       '}'
     );
@@ -453,18 +453,18 @@ function writeRequestSetup(writer: Printer, op: OperationModel, args: MethodArgs
   const pathDict = args.pathArgs
     .map(({ php, wire }) => `${phpString(wire)} => ${'$'}${php}`)
     .join(', ');
-  writer.line(`$url = buildUrl($this->config->serverUrl, $op['path'], [${pathDict}]);`);
-  writer.line('$requestHeaders = array_merge($authHeaders, $headers ?? []);');
-  writer.block(
+  printer.line(`$url = buildUrl($this->config->serverUrl, $op['path'], [${pathDict}]);`);
+  printer.line('$requestHeaders = array_merge($authHeaders, $headers ?? []);');
+  printer.block(
     'if ($cookies !== []) {',
     () => {
-      writer.line("$requestHeaders['Cookie'] = implode('; ', $cookies);");
+      printer.line("$requestHeaders['Cookie'] = implode('; ', $cookies);");
     },
     '}'
   );
 }
 
-function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): void {
+function writePhpMethod(printer: Printer, op: OperationModel, model: ApiModel): void {
   const args = methodArgs(op, model, true);
   const sse = sseResponse(op);
   const success = successSchema(op);
@@ -481,37 +481,37 @@ function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): v
         : rawBody
           ? 'string'
           : 'void';
-  writeDocComment(writer, methodName(op), op.summary ?? `${op.method.toUpperCase()} ${op.path}`);
-  writer.block(
+  writeDocComment(printer, methodName(op), op.summary ?? `${op.method.toUpperCase()} ${op.path}`);
+  printer.block(
     `public function ${methodName(op)}(${args.signature.join(', ')}): ${returnType}`,
     () => {},
     ''
   );
-  writer.block(
+  printer.block(
     '{',
     () => {
-      writeRequestSetup(writer, op, args);
+      writeRequestSetup(printer, op, args);
       if (sse !== undefined) {
         const jsonData = sse.schema !== undefined && sse.schema.kind !== 'unknown';
-        writer.line('$url = appendQuery($url, $query);');
-        writer.block(
+        printer.line('$url = appendQuery($url, $query);');
+        printer.block(
           '$open = function (array $extraHeaders) use ($url, $requestHeaders): \\CurlHandle {',
           () => {
-            writer.line('$handle = curl_init($url);');
-            writer.line('$lines = [];');
-            writer.block(
+            printer.line('$handle = curl_init($url);');
+            printer.line('$lines = [];');
+            printer.block(
               'foreach (array_merge($requestHeaders, $extraHeaders) as $name => $value) {',
               () => {
-                writer.line("$lines[] = $name . ': ' . $value;");
+                printer.line("$lines[] = $name . ': ' . $value;");
               },
               '}'
             );
-            writer.line('curl_setopt($handle, CURLOPT_HTTPHEADER, $lines);');
-            writer.line('return $handle;');
+            printer.line('curl_setopt($handle, CURLOPT_HTTPHEADER, $lines);');
+            printer.line('return $handle;');
           },
           '};'
         );
-        writer.line(`yield from iterSse($open, ${jsonData ? 'true' : 'false'});`);
+        printer.line(`yield from iterSse($open, ${jsonData ? 'true' : 'false'});`);
         return;
       }
       const request = [
@@ -522,11 +522,11 @@ function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): v
         `'query' => $query`,
       ];
       if (op.requestBody && isMultipart(op)) {
-        writer.line('[$contentType, $encoded] = toMultipart($body);');
+        printer.line('[$contentType, $encoded] = toMultipart($body);');
         request.push(`'body' => $encoded`, `'contentType' => $contentType`);
       } else if (op.requestBody) {
         const wire = serialization(op.requestBody.schema, '$body', model) ?? '$body';
-        writer.line(`$payload = json_encode(${wire});`);
+        printer.line(`$payload = json_encode(${wire});`);
         request.push(
           `'body' => $payload`,
           `'contentType' => ${phpString(op.requestBody.contentType)}`
@@ -535,34 +535,34 @@ function writePhpMethod(writer: Printer, op: OperationModel, model: ApiModel): v
       if (MUTATING.has(op.method.toLowerCase()) && op.requestBody) {
         request.push(`'idempotencyKey' => $idempotencyKey`);
       }
-      writer.line(`$response = send($this->config, [${request.join(', ')}]);`);
-      writer.block(
+      printer.line(`$response = send($this->config, [${request.join(', ')}]);`);
+      printer.block(
         "if ($response['status'] >= 400) {",
         () => {
-          writer.line('throw apiErrorFrom($response);');
+          printer.line('throw apiErrorFrom($response);');
         },
         '}'
       );
       if (rawBody) {
-        writer.line("return $response['body'];");
+        printer.line("return $response['body'];");
         return;
       }
       if (returnType === 'void') {
-        writer.line('decodeJson($response);');
+        printer.line('decodeJson($response);');
         return;
       }
       const typed =
         success === undefined ? undefined : hydration(success, 'decodeJson($response)', model);
-      writer.line(`return ${typed ?? 'decodeJson($response)'};`);
+      printer.line(`return ${typed ?? 'decodeJson($response)'};`);
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** `<op>Pages()` / `<op>Items()` generators over the runtime's iterPages. */
 function writePhpPaginationWrappers(
-  writer: Printer,
+  printer: Printer,
   op: OperationModel,
   model: ApiModel,
   pageHydration: string | undefined,
@@ -573,13 +573,13 @@ function writePhpPaginationWrappers(
   const name = methodName(op);
 
   const writeCall = () => {
-    writer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
-    writer.line('$base = [];');
+    printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+    printer.line('$base = [];');
     for (const { php, wire } of args.queryArgs) {
-      writer.block(
+      printer.block(
         `if (${'$'}${php} !== null) {`,
         () => {
-          writer.line(`$base[${phpString(wire)}] = ${'$'}${php};`);
+          printer.line(`$base[${phpString(wire)}] = ${'$'}${php};`);
         },
         '}'
       );
@@ -587,77 +587,77 @@ function writePhpPaginationWrappers(
     const pathDict = args.pathArgs
       .map(({ php, wire }) => `${phpString(wire)} => ${'$'}${php}`)
       .join(', ');
-    writer.block(
+    printer.block(
       '$call = function (array $params) use ($op, $headers): array {',
       () => {
-        writer.line(
+        printer.line(
           "[$authHeaders, $authQuery, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
         );
-        writer.line(`$url = buildUrl($this->config->serverUrl, $op['path'], [${pathDict}]);`);
-        writer.line('$requestHeaders = array_merge($authHeaders, $headers ?? []);');
-        writer.block(
+        printer.line(`$url = buildUrl($this->config->serverUrl, $op['path'], [${pathDict}]);`);
+        printer.line('$requestHeaders = array_merge($authHeaders, $headers ?? []);');
+        printer.block(
           'if ($cookies !== []) {',
           () => {
-            writer.line("$requestHeaders['Cookie'] = implode('; ', $cookies);");
+            printer.line("$requestHeaders['Cookie'] = implode('; ', $cookies);");
           },
           '}'
         );
-        writer.line(
+        printer.line(
           "$response = send($this->config, ['operationId' => $op['id'], 'method' => $op['method'], 'url' => $url, 'headers' => $requestHeaders, 'query' => array_merge($params, $authQuery)]);"
         );
-        writer.block(
+        printer.block(
           "if ($response['status'] >= 400) {",
           () => {
-            writer.line('throw apiErrorFrom($response);');
+            printer.line('throw apiErrorFrom($response);');
           },
           '}'
         );
-        writer.line('return [decodeJson($response), $response];');
+        printer.line('return [decodeJson($response), $response];');
       },
       '};'
     );
   };
 
-  writer.line(`/** ${name} response pages, following the pagination rule automatically. */`);
-  writer.block(
+  printer.line(`/** ${name} response pages, following the pagination rule automatically. */`);
+  printer.block(
     `public function ${name}Pages(${args.signature.join(', ')}): \\Generator`,
     () => {},
     ''
   );
-  writer.block(
+  printer.block(
     '{',
     () => {
       writeCall();
-      writer.block(
+      printer.block(
         "foreach (iterPages($call, $op['pagination'], $base) as $page) {",
         () => {
-          writer.line(`yield ${pageHydration ?? '$page'};`);
+          printer.line(`yield ${pageHydration ?? '$page'};`);
         },
         '}'
       );
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 
-  writer.line(`/** The items of every ${name} page. */`);
-  writer.block(
+  printer.line(`/** The items of every ${name} page. */`);
+  printer.block(
     `public function ${name}Items(${args.signature.join(', ')}): \\Generator`,
     () => {},
     ''
   );
-  writer.block(
+  printer.block(
     '{',
     () => {
       writeCall();
-      writer.block(
+      printer.block(
         "foreach (iterPages($call, $op['pagination'], $base) as $page) {",
         () => {
-          writer.line(`$items = resolvePointer($page, ${phpString(itemsPointer ?? '')});`);
-          writer.block(
+          printer.line(`$items = resolvePointer($page, ${phpString(itemsPointer ?? '')});`);
+          printer.block(
             'foreach (is_array($items) ? $items : [] as $item) {',
             () => {
-              writer.line(`yield ${itemHydration ?? '$item'};`);
+              printer.line(`yield ${itemHydration ?? '$item'};`);
             },
             '}'
           );
@@ -667,7 +667,7 @@ function writePhpPaginationWrappers(
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** The server URL as a PHP expression: literals concatenated with declared-variable arguments. */
@@ -695,13 +695,15 @@ function serverUrlExpression(server: ServerModel): string {
 }
 
 /** One static method per declared server; server variables become named string arguments. */
-function writeServers(writer: Printer, model: ApiModel): void {
+function writeServers(printer: Printer, model: ApiModel): void {
   const servers = model.servers ?? [];
   if (servers.length === 0) return;
   const usedNames = new Set<string>();
-  writer.line('/** The declared servers; variables default to the values from the description. */');
-  writer.block('final class Servers', () => {}, '');
-  writer.block(
+  printer.line(
+    '/** The declared servers; variables default to the values from the description. */'
+  );
+  printer.block('final class Servers', () => {}, '');
+  printer.block(
     '{',
     () => {
       servers.forEach((server, index) => {
@@ -715,12 +717,12 @@ function writeServers(writer: Printer, model: ApiModel): void {
           (variable) =>
             `string ${'$'}${propertyName(variable.name)} = ${phpString(variable.default)}`
         );
-        if (index > 0) writer.blank();
-        writer.block(`public static function ${name}(${params.join(', ')}): string`, () => {}, '');
-        writer.block(
+        if (index > 0) printer.blank();
+        printer.block(`public static function ${name}(${params.join(', ')}): string`, () => {}, '');
+        printer.block(
           '{',
           () => {
-            writer.line(`return ${serverUrlExpression(server)};`);
+            printer.line(`return ${serverUrlExpression(server)};`);
           },
           '}'
         );
@@ -728,7 +730,7 @@ function writeServers(writer: Printer, model: ApiModel): void {
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** Drop the standalone header (<?php, declare, namespace, leading comments) for stitching. */
@@ -747,26 +749,26 @@ function stripPhpHeader(source: string): string {
 
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
 export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
-  const writer = new Printer('    ');
+  const printer = new Printer('    ');
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
-  writer.line('<?php');
-  writer.blank();
-  writer.line(
+  printer.line('<?php');
+  printer.blank();
+  printer.line(
     `// Code generated by @redocly/client-generator (php) from ${phpString(model.title)} ${model.version}. DO NOT EDIT.`
   );
-  writer.line(
+  printer.line(
     '// Regenerate with `redocly generate-client`. PHP >= 8.1, curl extension — zero Composer dependencies.'
   );
-  writer.blank();
-  writer.line('declare(strict_types=1);');
-  writer.blank();
-  writer.line(`namespace ${namespace};`);
-  writer.blank();
-  writer.line(renderPhpModels(model));
-  writeServers(writer, model);
-  writer.line('// ─── Embedded runtime (@redocly/client-generator php runtime) ───');
-  writer.line(stripPhpHeader(PHP_RUNTIME_SOURCE));
-  writer.blank();
+  printer.blank();
+  printer.line('declare(strict_types=1);');
+  printer.blank();
+  printer.line(`namespace ${namespace};`);
+  printer.blank();
+  printer.line(renderPhpModels(model));
+  writeServers(printer, model);
+  printer.line('// ─── Embedded runtime (@redocly/client-generator php runtime) ───');
+  printer.line(stripPhpHeader(PHP_RUNTIME_SOURCE));
+  printer.blank();
 
   const operations = model.services.flatMap((service) => service.operations);
   const paginationRules = new Map<string, NeutralPaginationRule>();
@@ -775,7 +777,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
     if (rule !== undefined) paginationRules.set(op.name, rule);
   }
 
-  writer.block(
+  printer.block(
     'const OPERATIONS = [',
     () => {
       for (const op of operations) {
@@ -789,37 +791,37 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
           ...(security !== undefined ? [`'security' => ${security}`] : []),
           ...(rule !== undefined ? [`'pagination' => ${phpPaginationLiteral(rule)}`] : []),
         ];
-        writer.line(`${phpString(id)} => [${fields.join(', ')}],`);
+        printer.line(`${phpString(id)} => [${fields.join(', ')}],`);
       }
     },
     '];'
   );
-  writer.blank();
+  printer.blank();
 
-  writeDocComment(writer, 'Client', `Client for ${model.title} (${model.version}).`);
+  writeDocComment(printer, 'Client', `Client for ${model.title} (${model.version}).`);
   // Not final: PHP test suites mock concrete classes (createMock(Client::class)).
-  writer.block('class Client', () => {}, '');
-  writer.block(
+  printer.block('class Client', () => {}, '');
+  printer.block(
     '{',
     () => {
-      writer.block('public function __construct(private Config $config)', () => {}, '');
-      writer.block(
+      printer.block('public function __construct(private Config $config)', () => {}, '');
+      printer.block(
         '{',
         () => {
-          writer.block(
+          printer.block(
             "if ($this->config->serverUrl === '') {",
             () => {
-              writer.line(`$this->config->serverUrl = ${phpString(model.serverUrl ?? '')};`);
+              printer.line(`$this->config->serverUrl = ${phpString(model.serverUrl ?? '')};`);
             },
             '}'
           );
         },
         '}'
       );
-      writer.blank();
+      printer.blank();
 
       for (const op of operations) {
-        writePhpMethod(writer, op, model);
+        writePhpMethod(printer, op, model);
         const rule = paginationRules.get(op.name);
         if (rule === undefined) continue;
         const success = successSchema(op);
@@ -834,13 +836,13 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
         const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
         const itemHydration =
           element === undefined ? undefined : hydration(element, '$item', model);
-        writePhpPaginationWrappers(writer, op, model, pageHydration, itemHydration, rule.items);
+        writePhpPaginationWrappers(printer, op, model, pageHydration, itemHydration, rule.items);
       }
     },
     '}'
   );
 
-  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.php'), content: writer.toString() }];
+  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.php'), content: printer.toString() }];
 };
 
 /** One idiomatic PHP call per operation — feeds `x-codeSamples` for docs. */

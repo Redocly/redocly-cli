@@ -80,21 +80,21 @@ export function goType(schema: SchemaModel): string {
   }
 }
 
-function writeDocComment(writer: Printer, name: string, description?: string): void {
+function writeDocComment(printer: Printer, name: string, description?: string): void {
   const lines = docText(description);
   if (lines.length === 0) return;
-  writer.line(`// ${name} — ${lines[0]}`);
-  for (const line of lines.slice(1)) writer.line(`// ${line}`);
+  printer.line(`// ${name} — ${lines[0]}`);
+  for (const line of lines.slice(1)) printer.line(`// ${line}`);
 }
 
 function writeStruct(
-  writer: Printer,
+  printer: Printer,
   name: string,
   properties: PropertyModel[],
   description?: string
 ): void {
-  writeDocComment(writer, exported(name), description);
-  writer.block(
+  writeDocComment(printer, exported(name), description);
+  printer.block(
     `type ${exported(name)} struct {`,
     () => {
       for (const property of properties) {
@@ -112,51 +112,51 @@ function writeStruct(
           }
           tag = `\`json:"${property.name},omitempty"\``;
         }
-        writer.line(`${field} ${fieldType} ${tag}`);
+        printer.line(`${field} ${fieldType} ${tag}`);
       }
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** Render every named schema: typed-const enums, structs (allOf flattened), union dispatchers. */
 export function renderGoModels(model: ApiModel): string {
-  const writer = new Printer('\t');
-  writer.line('package client');
-  writer.blank();
+  const printer = new Printer('\t');
+  printer.line('package client');
+  printer.blank();
   const needsJSON = model.schemas.some(
     ({ schema }) => discriminatorCases(schema, model) !== undefined
   );
   if (needsJSON) {
-    writer.line('import "encoding/json"');
-    writer.blank();
+    printer.line('import "encoding/json"');
+    printer.blank();
   }
 
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined) {
       const base = asEnum.scalar === 'string' ? 'string' : 'int64';
-      writeDocComment(writer, exported(name), schema.description);
-      writer.line(`type ${exported(name)} ${base}`);
-      writer.blank();
-      writer.block(
+      writeDocComment(printer, exported(name), schema.description);
+      printer.line(`type ${exported(name)} ${base}`);
+      printer.blank();
+      printer.block(
         'const (',
         () => {
           asEnum.values.forEach((value) => {
             const member = exported(name) + casing.pascal(String(value));
-            writer.line(`${member} ${exported(name)} = ${JSON.stringify(value)}`);
+            printer.line(`${member} ${exported(name)} = ${JSON.stringify(value)}`);
           });
         },
         ')'
       );
-      writer.blank();
+      printer.blank();
       continue;
     }
     if (schema.kind === 'object' || schema.kind === 'intersection') {
       const flat = flattenAllOf(schema, model);
       if (flat !== undefined) {
-        writeStruct(writer, name, flat.properties, flat.description ?? schema.description);
+        writeStruct(printer, name, flat.properties, flat.description ?? schema.description);
         continue;
       }
     }
@@ -166,57 +166,57 @@ export function renderGoModels(model: ApiModel): string {
       const table = cases.cases
         .map((entry) => `${entry.value} -> ${exported(entry.schemaName)}`)
         .join(', ');
-      writer.line(`// ${typeName} is a discriminated union ("${cases.property}"): ${table}.`);
-      writer.line(`type ${typeName} = any`);
-      writer.blank();
-      writer.line(
+      printer.line(`// ${typeName} is a discriminated union ("${cases.property}"): ${table}.`);
+      printer.line(`type ${typeName} = any`);
+      printer.blank();
+      printer.line(
         `// Unmarshal${typeName} decodes into the member selected by "${cases.property}".`
       );
-      writer.block(
+      printer.block(
         `func Unmarshal${typeName}(data []byte) (${typeName}, error) {`,
         () => {
-          writer.block(
+          printer.block(
             'var probe struct {',
             () => {
-              writer.line(`Discriminant string \`json:"${cases.property}"\``);
+              printer.line(`Discriminant string \`json:"${cases.property}"\``);
             },
             '}'
           );
-          writer.block(
+          printer.block(
             'if err := json.Unmarshal(data, &probe); err != nil {',
             () => {
-              writer.line('return nil, err');
+              printer.line('return nil, err');
             },
             '}'
           );
-          writer.block(
+          printer.block(
             'switch probe.Discriminant {',
             () => {
               for (const entry of cases.cases) {
-                writer.block(`case ${JSON.stringify(entry.value)}:`, () => {
-                  writer.line(`var value ${exported(entry.schemaName)}`);
-                  writer.line('err := json.Unmarshal(data, &value)');
-                  writer.line('return value, err');
+                printer.block(`case ${JSON.stringify(entry.value)}:`, () => {
+                  printer.line(`var value ${exported(entry.schemaName)}`);
+                  printer.line('err := json.Unmarshal(data, &value)');
+                  printer.line('return value, err');
                 });
               }
             },
             '}'
           );
-          writer.line('var fallback any');
-          writer.line('err := json.Unmarshal(data, &fallback)');
-          writer.line('return fallback, err');
+          printer.line('var fallback any');
+          printer.line('err := json.Unmarshal(data, &fallback)');
+          printer.line('return fallback, err');
         },
         '}'
       );
-      writer.blank();
+      printer.blank();
       continue;
     }
     // Everything else (plain unions, scalar aliases, records) becomes a type alias.
-    writeDocComment(writer, exported(name), schema.description);
-    writer.line(`type ${exported(name)} = ${goType(schema)}`);
-    writer.blank();
+    writeDocComment(printer, exported(name), schema.description);
+    printer.line(`type ${exported(name)} = ${goType(schema)}`);
+    printer.blank();
   }
-  return writer.toString();
+  return printer.toString();
 }
 
 /** The operation's primary JSON success schema, or undefined for void/no-body ops. */
@@ -326,7 +326,7 @@ function goPaginationLiteral(rule: NeutralPaginationRule): string {
   return `&PaginationSpec{${fields.join(', ')}}`;
 }
 
-function writeGoMethod(writer: Printer, op: OperationModel, ident: string): void {
+function writeGoMethod(printer: Printer, op: OperationModel, ident: string): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
     go: identifierFor(param.name, { style: 'camel', reserved: GO }),
@@ -350,23 +350,23 @@ function writeGoMethod(writer: Printer, op: OperationModel, ident: string): void
         : `(${returnType}, error)`;
   const fail = (errExpr: string) =>
     returnType === undefined ? `return ${errExpr}` : `return out, ${errExpr}`;
-  writeDocComment(writer, ident, op.summary);
-  writer.block(
+  writeDocComment(printer, ident, op.summary);
+  printer.block(
     `func (c *Client) ${ident}(${args.join(', ')}) ${returns} {`,
     () => {
-      if (sse === undefined && returnType !== undefined) writer.line(`var out ${returnType}`);
-      writer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
-      writer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
+      if (sse === undefined && returnType !== undefined) printer.line(`var out ${returnType}`);
+      printer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
+      printer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
       if (hasParams) {
-        writer.block(
+        printer.block(
           'if params != nil {',
           () => {
             for (const param of op.queryParams) {
               const field = exported(param.name);
-              writer.block(
+              printer.block(
                 `if params.${field} != nil {`,
                 () => {
-                  writer.line(
+                  printer.line(
                     `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema))})`
                   );
                 },
@@ -380,35 +380,35 @@ function writeGoMethod(writer: Printer, op: OperationModel, ident: string): void
       const pathDict = pathArgs
         .map(({ param, go, type }) => `${JSON.stringify(param.name)}: ${goQueryFormat(go, type)}`)
         .join(', ');
-      writer.line(
+      printer.line(
         `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
       );
       if (sse !== undefined) {
-        writer.block(
+        printer.block(
           'open := func(extraHeaders map[string]string) (*http.Response, error) {',
           () => {
-            writer.line('merged := map[string]string{}');
-            writer.block(
+            printer.line('merged := map[string]string{}');
+            printer.block(
               'for key, value := range authHeaders {',
               () => {
-                writer.line('merged[key] = value');
+                printer.line('merged[key] = value');
               },
               '}'
             );
-            writer.block(
+            printer.block(
               'for key, value := range extraHeaders {',
               () => {
-                writer.line('merged[key] = value');
+                printer.line('merged[key] = value');
               },
               '}'
             );
-            writer.line(
+            printer.line(
               'return send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: merged, Query: query})'
             );
           },
           '}'
         );
-        writer.line(
+        printer.line(
           `return iterSSE(open, ${sse.schema !== undefined && sse.schema.kind !== 'unknown'})`
         );
         return;
@@ -421,64 +421,64 @@ function writeGoMethod(writer: Printer, op: OperationModel, ident: string): void
         'Query: query',
       ];
       if (op.requestBody && isMultipart(op)) {
-        writer.line('contentType, reader, err := toMultipart(body)');
-        writer.block(
+        printer.line('contentType, reader, err := toMultipart(body)');
+        printer.block(
           'if err != nil {',
           () => {
-            writer.line(fail('err'));
+            printer.line(fail('err'));
           },
           '}'
         );
         specFields.push('Body: reader');
         specFields.push('ContentType: contentType');
       } else if (op.requestBody) {
-        writer.line('payload, err := json.Marshal(body)');
-        writer.block(
+        printer.line('payload, err := json.Marshal(body)');
+        printer.block(
           'if err != nil {',
           () => {
-            writer.line(fail('err'));
+            printer.line(fail('err'));
           },
           '}'
         );
         specFields.push('Body: bytes.NewReader(payload)');
         specFields.push(`ContentType: ${JSON.stringify(op.requestBody.contentType)}`);
       }
-      writer.line(`resp, err := send(ctx, &c.config, requestSpec{${specFields.join(', ')}})`);
-      writer.block(
+      printer.line(`resp, err := send(ctx, &c.config, requestSpec{${specFields.join(', ')}})`);
+      printer.block(
         'if err != nil {',
         () => {
-          writer.line(fail('err'));
+          printer.line(fail('err'));
         },
         '}'
       );
-      writer.block(
+      printer.block(
         'if resp.StatusCode >= 400 {',
         () => {
-          writer.line(fail('apiErrorFrom(resp, requestURL)'));
+          printer.line(fail('apiErrorFrom(resp, requestURL)'));
         },
         '}'
       );
       if (returnType === undefined) {
-        writer.line('return decodeJSON(resp, nil)');
+        printer.line('return decodeJSON(resp, nil)');
       } else {
-        writer.block(
+        printer.block(
           'if err := decodeJSON(resp, &out); err != nil {',
           () => {
-            writer.line('return out, err');
+            printer.line('return out, err');
           },
           '}'
         );
-        writer.line('return out, nil');
+        printer.line('return out, nil');
       }
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** `<Op>Pages` / `<Op>Items` iterators over the runtime's `iterPages`, hydrated via `reencode`. */
 function writeGoPaginationWrappers(
-  writer: Printer,
+  printer: Printer,
   op: OperationModel,
   ident: string,
   pageType: string,
@@ -497,18 +497,18 @@ function writeGoPaginationWrappers(
   ].join(', ');
 
   const writeCallClosure = () => {
-    writer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
-    writer.line('base := url.Values{}');
+    printer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
+    printer.line('base := url.Values{}');
     if (hasParams) {
-      writer.block(
+      printer.block(
         'if params != nil {',
         () => {
           for (const param of op.queryParams) {
             const field = exported(param.name);
-            writer.block(
+            printer.block(
               `if params.${field} != nil {`,
               () => {
-                writer.line(
+                printer.line(
                   `base.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema))})`
                 );
               },
@@ -519,17 +519,17 @@ function writeGoPaginationWrappers(
         '}'
       );
     }
-    writer.block(
+    printer.block(
       'call := func(pageParams url.Values) (any, *http.Response, error) {',
       () => {
-        writer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
-        writer.block(
+        printer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
+        printer.block(
           'for key, values := range pageParams {',
           () => {
-            writer.block(
+            printer.block(
               'for _, value := range values {',
               () => {
-                writer.line('query.Set(key, value)');
+                printer.line('query.Set(key, value)');
               },
               '}'
             );
@@ -539,63 +539,63 @@ function writeGoPaginationWrappers(
         const pathDict = pathArgs
           .map(({ param, go, type }) => `${JSON.stringify(param.name)}: ${goQueryFormat(go, type)}`)
           .join(', ');
-        writer.line(
+        printer.line(
           `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
         );
-        writer.line(
+        printer.line(
           'resp, err := send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: authHeaders, Query: query})'
         );
-        writer.block(
+        printer.block(
           'if err != nil {',
           () => {
-            writer.line('return nil, nil, err');
+            printer.line('return nil, nil, err');
           },
           '}'
         );
-        writer.block(
+        printer.block(
           'if resp.StatusCode >= 400 {',
           () => {
-            writer.line('return nil, resp, apiErrorFrom(resp, requestURL)');
+            printer.line('return nil, resp, apiErrorFrom(resp, requestURL)');
           },
           '}'
         );
-        writer.line('var raw any');
-        writer.block(
+        printer.line('var raw any');
+        printer.block(
           'if err := decodeJSON(resp, &raw); err != nil {',
           () => {
-            writer.line('return nil, resp, err');
+            printer.line('return nil, resp, err');
           },
           '}'
         );
-        writer.line('return raw, resp, nil');
+        printer.line('return raw, resp, nil');
       },
       '}'
     );
-    writer.line('pages := iterPages(call, *op.Pagination, base)');
+    printer.line('pages := iterPages(call, *op.Pagination, base)');
   };
 
-  writer.line(
+  printer.line(
     `// ${ident}Pages iterates ${ident} response pages; use with \`for page, err := range\`.`
   );
-  writer.block(
+  printer.block(
     `func (c *Client) ${ident}Pages(${args}) func(yield func(${pageType}, error) bool) {`,
     () => {
       writeCallClosure();
-      writer.block(
+      printer.block(
         `return func(yield func(${pageType}, error) bool) {`,
         () => {
-          writer.block(
+          printer.block(
             'pages(func(raw any, err error) bool {',
             () => {
-              writer.line(`var page ${pageType}`);
-              writer.block(
+              printer.line(`var page ${pageType}`);
+              printer.block(
                 'if err == nil {',
                 () => {
-                  writer.line('err = reencode(raw, &page)');
+                  printer.line('err = reencode(raw, &page)');
                 },
                 '}'
               );
-              writer.line('return yield(page, err)');
+              printer.line('return yield(page, err)');
             },
             '})'
           );
@@ -605,50 +605,50 @@ function writeGoPaginationWrappers(
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 
-  writer.line(`// ${ident}Items iterates the items of every ${ident} page.`);
-  writer.block(
+  printer.line(`// ${ident}Items iterates the items of every ${ident} page.`);
+  printer.block(
     `func (c *Client) ${ident}Items(${args}) func(yield func(${itemType}, error) bool) {`,
     () => {
       writeCallClosure();
-      writer.block(
+      printer.block(
         `return func(yield func(${itemType}, error) bool) {`,
         () => {
-          writer.block(
+          printer.block(
             'pages(func(raw any, err error) bool {',
             () => {
-              writer.block(
+              printer.block(
                 'if err != nil {',
                 () => {
-                  writer.line(`var zero ${itemType}`);
-                  writer.line('return yield(zero, err)');
+                  printer.line(`var zero ${itemType}`);
+                  printer.line('return yield(zero, err)');
                 },
                 '}'
               );
-              writer.line('pageItems, _ := resolvePointer(raw, op.Pagination.Items).([]any)');
-              writer.block(
+              printer.line('pageItems, _ := resolvePointer(raw, op.Pagination.Items).([]any)');
+              printer.block(
                 'for _, item := range pageItems {',
                 () => {
-                  writer.line(`var typed ${itemType}`);
-                  writer.block(
+                  printer.line(`var typed ${itemType}`);
+                  printer.block(
                     'if err := reencode(item, &typed); err != nil {',
                     () => {
-                      writer.line('return yield(typed, err)');
+                      printer.line('return yield(typed, err)');
                     },
                     '}'
                   );
-                  writer.block(
+                  printer.block(
                     'if !yield(typed, nil) {',
                     () => {
-                      writer.line('return false');
+                      printer.line('return false');
                     },
                     '}'
                   );
                 },
                 '}'
               );
-              writer.line('return true');
+              printer.line('return true');
             },
             '})'
           );
@@ -658,7 +658,7 @@ function writeGoPaginationWrappers(
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 }
 
 /** The server URL as a Go expression: literals concatenated with declared-variable params. */
@@ -686,7 +686,7 @@ function serverUrlExpression(server: ServerModel): string {
 }
 
 /** One `<Name>URL` function per declared server; server variables become parameters. */
-function writeGoServers(writer: Printer, model: ApiModel): void {
+function writeGoServers(printer: Printer, model: ApiModel): void {
   const servers = model.servers ?? [];
   if (servers.length === 0) return;
   const usedNames = new Set<string>();
@@ -703,38 +703,38 @@ function writeGoServers(writer: Printer, model: ApiModel): void {
           `${identifierFor(variable.name, { style: 'camel', reserved: GO })} default: ${JSON.stringify(variable.default)}`
       )
       .join(', ');
-    writer.line(
+    printer.line(
       `// ${name} returns the ${JSON.stringify(server.description ?? server.url)} base URL${defaults === '' ? '.' : ` (${defaults}).`}`
     );
-    writer.block(
+    printer.block(
       `func ${name}(${params.join(', ')}) string {`,
       () => {
-        writer.line(`return ${serverUrlExpression(server)}`);
+        printer.line(`return ${serverUrlExpression(server)}`);
       },
       '}'
     );
-    writer.blank();
+    printer.blank();
   });
 }
 
 /** The whole generated file: models + embedded runtime + operations table + Client. */
 export const goGenerator: Generator = ({ model, outputPath, emit }) => {
-  const writer = new Printer('\t');
+  const printer = new Printer('\t');
   const paginationRules = new Map<string, NeutralPaginationRule>();
   for (const { op, ident } of goOperationIdents(model)) {
     const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);
     if (rule !== undefined) paginationRules.set(ident, rule);
   }
-  writer.line(
+  printer.line(
     `// Code generated by @redocly/client-generator (go) from "${model.title}" ${model.version}. DO NOT EDIT.`
   );
-  writer.line(
+  printer.line(
     '// Regenerate with `redocly generate-client`. Standard library only — zero dependencies.'
   );
-  writer.line('package client');
-  writer.blank();
+  printer.line('package client');
+  printer.blank();
   // One merged import block: the runtime uses every entry; generated code uses a subset.
-  writer.block(
+  printer.block(
     'import (',
     () => {
       for (const spec of [
@@ -753,33 +753,33 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
         'strings',
         'time',
       ]) {
-        writer.line(JSON.stringify(spec));
+        printer.line(JSON.stringify(spec));
       }
     },
     ')'
   );
-  writer.blank();
+  printer.blank();
 
-  writer.line(stripHeader(renderGoModels(model)));
-  writer.blank();
-  writeGoServers(writer, model);
-  writer.line('// ─── Embedded runtime (@redocly/client-generator go runtime) ───');
-  writer.line(stripHeader(GO_RUNTIME_SOURCE));
-  writer.blank();
+  printer.line(stripHeader(renderGoModels(model)));
+  printer.blank();
+  writeGoServers(printer, model);
+  printer.line('// ─── Embedded runtime (@redocly/client-generator go runtime) ───');
+  printer.line(stripHeader(GO_RUNTIME_SOURCE));
+  printer.blank();
 
-  writer.block(
+  printer.block(
     'type operationMeta struct {',
     () => {
-      writer.line('ID         string');
-      writer.line('Method     string');
-      writer.line('Path       string');
-      writer.line('Security   [][]SecuritySpec');
-      writer.line('Pagination *PaginationSpec');
+      printer.line('ID         string');
+      printer.line('Method     string');
+      printer.line('Path       string');
+      printer.line('Security   [][]SecuritySpec');
+      printer.line('Pagination *PaginationSpec');
     },
     '}'
   );
-  writer.blank();
-  writer.block(
+  printer.blank();
+  printer.block(
     'var operations = map[string]operationMeta{',
     () => {
       for (const { op, ident } of goOperationIdents(model)) {
@@ -793,58 +793,58 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
           ...(security !== undefined ? [`Security: ${security}`] : []),
           ...(rule !== undefined ? [`Pagination: ${goPaginationLiteral(rule)}`] : []),
         ];
-        writer.line(`${JSON.stringify(id)}: {${fields.join(', ')}},`);
+        printer.line(`${JSON.stringify(id)}: {${fields.join(', ')}},`);
       }
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 
   // Per-operation query-parameter structs (pointer fields: absent = not sent).
   for (const { op, ident } of goOperationIdents(model)) {
     if (op.queryParams.length === 0) continue;
-    writer.block(
+    printer.block(
       `type ${ident}Params struct {`,
       () => {
         for (const param of op.queryParams) {
           const fieldType = goType(param.schema);
-          writer.line(
+          printer.line(
             `${exported(param.name)} ${fieldType.startsWith('*') ? fieldType : `*${fieldType}`}`
           );
         }
       },
       '}'
     );
-    writer.blank();
+    printer.blank();
   }
 
-  writeDocComment(writer, 'Client', `Client for ${model.title} (${model.version}).`);
-  writer.block(
+  writeDocComment(printer, 'Client', `Client for ${model.title} (${model.version}).`);
+  printer.block(
     'type Client struct {',
     () => {
-      writer.line('config Config');
+      printer.line('config Config');
     },
     '}'
   );
-  writer.blank();
-  writer.block(
+  printer.blank();
+  printer.block(
     'func New(config Config) *Client {',
     () => {
-      writer.block(
+      printer.block(
         'if config.ServerURL == "" {',
         () => {
-          writer.line(`config.ServerURL = ${JSON.stringify(model.serverUrl ?? '')}`);
+          printer.line(`config.ServerURL = ${JSON.stringify(model.serverUrl ?? '')}`);
         },
         '}'
       );
-      writer.line('return &Client{config: config}');
+      printer.line('return &Client{config: config}');
     },
     '}'
   );
-  writer.blank();
+  printer.blank();
 
   for (const { op, ident } of goOperationIdents(model)) {
-    writeGoMethod(writer, op, ident);
+    writeGoMethod(printer, op, ident);
     const rule = paginationRules.get(ident);
     if (rule === undefined) continue;
     const success = successSchema(op);
@@ -857,7 +857,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
         : undefined;
     const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
     writeGoPaginationWrappers(
-      writer,
+      printer,
       op,
       ident,
       pageType,
@@ -865,7 +865,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
     );
   }
 
-  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.go'), content: writer.toString() }];
+  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.go'), content: printer.toString() }];
 };
 
 /** One idiomatic Go call per operation — feeds `x-codeSamples` for docs. */

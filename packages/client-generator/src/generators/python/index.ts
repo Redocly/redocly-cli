@@ -73,88 +73,88 @@ export function pythonType(schema: SchemaModel): string {
   }
 }
 
-function writeDocstring(writer: Printer, description?: string): void {
+function writeDocstring(printer: Printer, description?: string): void {
   const lines = docText(description);
   if (lines.length === 0) return;
   if (lines.length === 1) {
-    writer.line(`"""${lines[0]}"""`);
+    printer.line(`"""${lines[0]}"""`);
     return;
   }
-  writer.line(`"""${lines[0]}`);
-  for (const line of lines.slice(1)) writer.line(line);
-  writer.line('"""');
+  printer.line(`"""${lines[0]}`);
+  for (const line of lines.slice(1)) printer.line(line);
+  printer.line('"""');
 }
 
 function writeDataclass(
-  writer: Printer,
+  printer: Printer,
   name: string,
   properties: PropertyModel[],
   description?: string
 ): void {
-  writer.line('@dataclass');
-  writer.block(`class ${className(name)}:`, () => {
-    writeDocstring(writer, description);
+  printer.line('@dataclass');
+  printer.block(`class ${className(name)}:`, () => {
+    writeDocstring(printer, description);
     // Required fields first — a dataclass field without a default may not follow one with.
     const ordered = [
       ...properties.filter((property) => property.required),
       ...properties.filter((property) => !property.required),
     ];
     const fieldMap: Array<[string, string]> = [];
-    if (ordered.length === 0) writer.line('pass');
+    if (ordered.length === 0) printer.line('pass');
     for (const property of ordered) {
       const { python, renamed } = fieldName(property.name);
       if (renamed) fieldMap.push([python, property.name]);
       const baseType = pythonType(property.schema);
       if (property.required) {
-        writer.line(`${python}: ${baseType}`);
+        printer.line(`${python}: ${baseType}`);
       } else {
         const optional = baseType.startsWith('Optional[') ? baseType : `Optional[${baseType}]`;
-        writer.line(`${python}: ${optional} = None`);
+        printer.line(`${python}: ${optional} = None`);
       }
     }
     if (fieldMap.length > 0) {
-      writer.blank();
-      writer.line('# Python field name -> wire (JSON) name, for (de)serialization.');
+      printer.blank();
+      printer.line('# Python field name -> wire (JSON) name, for (de)serialization.');
       const entries = fieldMap.map(([py, wire]) => `"${py}": ${JSON.stringify(wire)}`).join(', ');
-      writer.line(`_field_map: ClassVar[Dict[str, str]] = {${entries}}`);
+      printer.line(`_field_map: ClassVar[Dict[str, str]] = {${entries}}`);
     }
   });
-  writer.blank();
-  writer.blank();
+  printer.blank();
+  printer.blank();
 }
 
 /** Render every named schema: Enum classes, dataclasses (allOf flattened), union aliases. */
 export function renderPythonModels(model: ApiModel): string {
-  const writer = new Printer('    ');
-  writer.line('from __future__ import annotations');
-  writer.blank();
-  writer.line('from dataclasses import dataclass');
-  writer.line('from enum import Enum');
-  writer.line(
+  const printer = new Printer('    ');
+  printer.line('from __future__ import annotations');
+  printer.blank();
+  printer.line('from dataclasses import dataclass');
+  printer.line('from enum import Enum');
+  printer.line(
     'from typing import Any, AsyncIterator, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple, Union'
   );
-  writer.blank();
-  writer.blank();
+  printer.blank();
+  printer.blank();
 
   const aliases: Array<() => void> = [];
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined) {
       const base = asEnum.scalar === 'string' ? 'str, Enum' : 'int, Enum';
-      writer.block(`class ${className(name)}(${base}):`, () => {
-        writeDocstring(writer, schema.description);
+      printer.block(`class ${className(name)}(${base}):`, () => {
+        writeDocstring(printer, schema.description);
         asEnum.values.forEach((value, index) => {
-          writer.line(`${asEnum.memberNames[index]} = ${JSON.stringify(value)}`);
+          printer.line(`${asEnum.memberNames[index]} = ${JSON.stringify(value)}`);
         });
       });
-      writer.blank();
-      writer.blank();
+      printer.blank();
+      printer.blank();
       continue;
     }
     if (schema.kind === 'object' || schema.kind === 'intersection') {
       const flat = flattenAllOf(schema, model);
       if (flat !== undefined) {
-        writeDataclass(writer, name, flat.properties, flat.description ?? schema.description);
+        writeDataclass(printer, name, flat.properties, flat.description ?? schema.description);
         continue;
       }
     }
@@ -166,14 +166,14 @@ export function renderPythonModels(model: ApiModel): string {
         const table = cases.cases
           .map((entry) => `${entry.value} -> ${className(entry.schemaName)}`)
           .join(', ');
-        writer.line(`# Discriminated by "${cases.property}": ${table}`);
+        printer.line(`# Discriminated by "${cases.property}": ${table}`);
       }
-      writer.line(`${className(name)} = ${pythonType(schema)}`);
-      writer.blank();
+      printer.line(`${className(name)} = ${pythonType(schema)}`);
+      printer.blank();
     });
   }
   for (const emit of aliases) emit();
-  return writer.toString();
+  return printer.toString();
 }
 
 /** The server URL as a Python expression: literals concatenated with declared-variable args. */
@@ -201,15 +201,15 @@ function serverUrlExpression(server: ServerModel): string {
 }
 
 /** One static method per declared server; server variables become keyword arguments. */
-function writePythonServers(writer: Printer, model: ApiModel): void {
+function writePythonServers(printer: Printer, model: ApiModel): void {
   const servers = model.servers ?? [];
   if (servers.length === 0) return;
   const usedNames = new Set<string>();
-  writer.block('class Servers:', () => {
-    writer.line(
+  printer.block('class Servers:', () => {
+    printer.line(
       '"""The declared servers; variables default to the values from the description."""'
     );
-    writer.blank();
+    printer.blank();
     servers.forEach((server, index) => {
       let name = identifierFor(server.description ?? `server${index + 1}`, {
         style: 'snake',
@@ -221,14 +221,14 @@ function writePythonServers(writer: Printer, model: ApiModel): void {
         (variable) =>
           `${fieldName(variable.name).python}: str = ${JSON.stringify(variable.default)}`
       );
-      if (index > 0) writer.blank();
-      writer.line('@staticmethod');
-      writer.block(`def ${name}(${params.join(', ')}) -> str:`, () => {
-        writer.line(`return ${serverUrlExpression(server)}`);
+      if (index > 0) printer.blank();
+      printer.line('@staticmethod');
+      printer.block(`def ${name}(${params.join(', ')}) -> str:`, () => {
+        printer.line(`return ${serverUrlExpression(server)}`);
       });
     });
   });
-  writer.blank();
+  printer.blank();
 }
 
 /** `DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})` registration lines. */
@@ -333,7 +333,7 @@ function paginationSpec(
 }
 
 function writeMethod(
-  writer: Printer,
+  printer: Printer,
   op: OperationModel,
   ident: string,
   errorMode: 'throw' | 'result',
@@ -376,38 +376,38 @@ function writeMethod(
   const awaitKw = isAsync ? 'await ' : '';
   const sendFn = isAsync ? 'send_async' : 'send';
   const signature = ['self', ...positional, ...bodyArg, '*', ...kwargs].join(', ');
-  writer.block(`${prefix} ${ident}(${signature}) -> ${returns}:`, () => {
-    writeDocstring(writer, op.summary);
-    writer.line(`op = _OPERATIONS["${ident}"]`);
-    writer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
-    writer.line('params: Dict[str, Any] = dict(auth_query)');
+  printer.block(`${prefix} ${ident}(${signature}) -> ${returns}:`, () => {
+    writeDocstring(printer, op.summary);
+    printer.line(`op = _OPERATIONS["${ident}"]`);
+    printer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
+    printer.line('params: Dict[str, Any] = dict(auth_query)');
     for (const { param, python } of queryArgs) {
-      writer.block(`if ${python} is not None:`, () => {
-        writer.line(`params[${JSON.stringify(param.name)}] = encode(${python})`);
+      printer.block(`if ${python} is not None:`, () => {
+        printer.line(`params[${JSON.stringify(param.name)}] = encode(${python})`);
       });
     }
     const pathDict = pathArgs
       .map(({ param, python }) => `${JSON.stringify(param.name)}: ${python}`)
       .join(', ');
-    writer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
+    printer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
     if (sse !== undefined) {
       const dataKind = sse.schema !== undefined && sse.schema.kind !== 'unknown' ? 'json' : 'text';
-      writer.block('def _open(extra_headers: Dict[str, str]):', () => {
-        writer.line(
+      printer.block('def _open(extra_headers: Dict[str, str]):', () => {
+        printer.line(
           'return self._http.stream(op["method"], url, ' +
             'headers={**auth_headers, **(headers or {}), **extra_headers}, params=params, timeout=timeout)'
         );
       });
-      writer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
+      printer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
       return;
     }
-    if (isMultipart(op)) writer.line('form_data, form_files = to_multipart(body)');
+    if (isMultipart(op)) printer.line('form_data, form_files = to_multipart(body)');
     const bodyKw = op.requestBody
       ? isMultipart(op)
         ? ', data=form_data, files=form_files'
         : ', json_body=encode(body)'
       : '';
-    writer.line(
+    printer.line(
       `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +
         `headers={**auth_headers, **(headers or {})}, params=params${bodyKw}, ` +
         'timeout=timeout, retry=retry, idempotency_key=idempotency_key)'
@@ -415,25 +415,25 @@ function writeMethod(
     const decoded =
       success === undefined ? 'None' : `decode(${pythonType(success)}, _safe_json(response))`;
     if (errorMode === 'result') {
-      writer.block('if not response.is_success:', () => {
-        writer.line('return Result(data=None, error=_safe_json(response), response=response)');
+      printer.block('if not response.is_success:', () => {
+        printer.line('return Result(data=None, error=_safe_json(response), response=response)');
       });
-      writer.line(`return Result(data=${decoded}, error=None, response=response)`);
+      printer.line(`return Result(data=${decoded}, error=None, response=response)`);
     } else {
-      writer.block('if not response.is_success:', () => {
-        writer.line(
+      printer.block('if not response.is_success:', () => {
+        printer.line(
           'raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))'
         );
       });
-      writer.line(success === undefined ? 'return None' : `return ${decoded}`);
+      printer.line(success === undefined ? 'return None' : `return ${decoded}`);
     }
   });
-  writer.blank();
+  printer.blank();
 }
 
 /** `<ident>_pages` / `<ident>_items` iterator methods for a paginated operation. */
 function writePaginationWrappers(
-  writer: Printer,
+  printer: Printer,
   op: OperationModel,
   ident: string,
   isAsync: boolean,
@@ -461,74 +461,74 @@ function writePaginationWrappers(
   const itemsFn = isAsync ? 'aiter_items' : 'iter_items';
 
   const writeCallClosure = () => {
-    writer.line('base: Dict[str, Any] = {}');
+    printer.line('base: Dict[str, Any] = {}');
     for (const { param, python } of queryArgs) {
-      writer.block(`if ${python} is not None:`, () => {
-        writer.line(`base[${JSON.stringify(param.name)}] = encode(${python})`);
+      printer.block(`if ${python} is not None:`, () => {
+        printer.line(`base[${JSON.stringify(param.name)}] = encode(${python})`);
       });
     }
     const prefix = isAsync ? 'async def' : 'def';
     const awaitKw = isAsync ? 'await ' : '';
-    writer.block(`${prefix} _page(page_params: Dict[str, Any]) -> Tuple[Any, Any]:`, () => {
-      writer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
-      writer.line('url = build_url(self._server_url, op["path"], {})');
-      writer.line(
+    printer.block(`${prefix} _page(page_params: Dict[str, Any]) -> Tuple[Any, Any]:`, () => {
+      printer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
+      printer.line('url = build_url(self._server_url, op["path"], {})');
+      printer.line(
         `response = ${awaitKw}${isAsync ? 'send_async' : 'send'}(self._http, self._config, op, url, method=op["method"], ` +
           'headers={**auth_headers, **(headers or {})}, params={**page_params, **auth_query}, ' +
           'timeout=timeout, retry=retry)'
       );
-      writer.block('if not response.is_success:', () => {
-        writer.line(
+      printer.block('if not response.is_success:', () => {
+        printer.line(
           'raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))'
         );
       });
-      writer.line('return _safe_json(response), response');
+      printer.line('return _safe_json(response), response');
     });
   };
 
   // pages: raw page JSON decoded into the page model per page.
   if (isAsync) {
-    writer.block(`async def ${ident}_pages(${signature}) -> ${iterType}[${pageType}]:`, () => {
-      writer.line(`op = _OPERATIONS["${ident}"]`);
+    printer.block(`async def ${ident}_pages(${signature}) -> ${iterType}[${pageType}]:`, () => {
+      printer.line(`op = _OPERATIONS["${ident}"]`);
       writeCallClosure();
-      writer.block(`async for page in ${pagesFn}(_page, op["pagination"], base):`, () => {
-        writer.line(pageType === 'Any' ? 'yield page' : `yield decode(${pageType}, page)`);
+      printer.block(`async for page in ${pagesFn}(_page, op["pagination"], base):`, () => {
+        printer.line(pageType === 'Any' ? 'yield page' : `yield decode(${pageType}, page)`);
       });
     });
-    writer.blank();
-    writer.block(`async def ${ident}_items(${signature}) -> ${iterType}[${itemType}]:`, () => {
-      writer.line(`op = _OPERATIONS["${ident}"]`);
+    printer.blank();
+    printer.block(`async def ${ident}_items(${signature}) -> ${iterType}[${itemType}]:`, () => {
+      printer.line(`op = _OPERATIONS["${ident}"]`);
       writeCallClosure();
-      writer.block(`async for item in ${itemsFn}(_page, op["pagination"], base):`, () => {
-        writer.line(itemType === 'Any' ? 'yield item' : `yield decode(${itemType}, item)`);
+      printer.block(`async for item in ${itemsFn}(_page, op["pagination"], base):`, () => {
+        printer.line(itemType === 'Any' ? 'yield item' : `yield decode(${itemType}, item)`);
       });
     });
   } else {
-    writer.block(`def ${ident}_pages(${signature}) -> ${iterType}[${pageType}]:`, () => {
-      writer.line(`op = _OPERATIONS["${ident}"]`);
+    printer.block(`def ${ident}_pages(${signature}) -> ${iterType}[${pageType}]:`, () => {
+      printer.line(`op = _OPERATIONS["${ident}"]`);
       writeCallClosure();
-      writer.line(
+      printer.line(
         pageType === 'Any'
           ? `return ${pagesFn}(_page, op["pagination"], base)`
           : `return (decode(${pageType}, page) for page in ${pagesFn}(_page, op["pagination"], base))`
       );
     });
-    writer.blank();
-    writer.block(`def ${ident}_items(${signature}) -> ${iterType}[${itemType}]:`, () => {
-      writer.line(`op = _OPERATIONS["${ident}"]`);
+    printer.blank();
+    printer.block(`def ${ident}_items(${signature}) -> ${iterType}[${itemType}]:`, () => {
+      printer.line(`op = _OPERATIONS["${ident}"]`);
       writeCallClosure();
-      writer.line(
+      printer.line(
         itemType === 'Any'
           ? `return ${itemsFn}(_page, op["pagination"], base)`
           : `return (decode(${itemType}, item) for item in ${itemsFn}(_page, op["pagination"], base))`
       );
     });
   }
-  writer.blank();
+  printer.blank();
 }
 
 function writeClientClass(
-  writer: Printer,
+  printer: Printer,
   model: ApiModel,
   errorMode: 'throw' | 'result',
   isAsync: boolean,
@@ -536,35 +536,35 @@ function writeClientClass(
 ): void {
   const name = isAsync ? 'AsyncClient' : 'Client';
   const httpType = isAsync ? 'httpx.AsyncClient' : 'httpx.Client';
-  writer.block(`class ${name}:`, () => {
+  printer.block(`class ${name}:`, () => {
     writeDocstring(
-      writer,
+      printer,
       `${isAsync ? 'Async ' : ''}client for ${model.title} (${model.version}).`
     );
-    writer.block(
+    printer.block(
       `def __init__(self, server_url: str = ${JSON.stringify(model.serverUrl ?? '')}, *, ` +
         'auth: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None, ' +
         'timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, ' +
         'middleware: Optional[List[Any]] = None, idempotency_key: Any = None, ' +
         `http_client: Optional[${httpType}] = None) -> None:`,
       () => {
-        writer.line('self._server_url = server_url');
-        writer.line('self._auth = auth or {}');
-        writer.line('self._config: Dict[str, Any] = {');
-        writer.indent(() => {
-          writer.line('"headers": headers or {},');
-          writer.line('"timeout": timeout,');
-          writer.line('"retry": retry or {},');
-          writer.line('"middleware": middleware or [],');
-          writer.line('"idempotency_key": idempotency_key,');
+        printer.line('self._server_url = server_url');
+        printer.line('self._auth = auth or {}');
+        printer.line('self._config: Dict[str, Any] = {');
+        printer.indent(() => {
+          printer.line('"headers": headers or {},');
+          printer.line('"timeout": timeout,');
+          printer.line('"retry": retry or {},');
+          printer.line('"middleware": middleware or [],');
+          printer.line('"idempotency_key": idempotency_key,');
         });
-        writer.line('}');
-        writer.line(`self._http = http_client or ${httpType}()`);
+        printer.line('}');
+        printer.line(`self._http = http_client or ${httpType}()`);
       }
     );
-    writer.blank();
+    printer.blank();
     for (const { op, ident } of operationIdents(model)) {
-      writeMethod(writer, op, ident, errorMode, isAsync);
+      writeMethod(printer, op, ident, errorMode, isAsync);
       const spec = paginationSpecs.get(ident);
       if (spec !== undefined) {
         const success = successSchema(op);
@@ -576,7 +576,7 @@ function writeClientClass(
             : undefined;
         const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
         writePaginationWrappers(
-          writer,
+          printer,
           op,
           ident,
           isAsync,
@@ -585,55 +585,55 @@ function writeClientClass(
       }
     }
   });
-  writer.blank();
+  printer.blank();
 }
 
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
 export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   const errorMode = emit.errorMode ?? 'throw';
-  const writer = new Printer('    ');
-  writer.line(
+  const printer = new Printer('    ');
+  printer.line(
     `# Generated by @redocly/client-generator (python) from "${model.title}" ${model.version}.`
   );
-  writer.line('# Do not edit by hand — regenerate with `redocly generate-client`.');
-  writer.line('# Requires Python >= 3.9 and httpx: pip install httpx');
-  writer.blank();
+  printer.line('# Do not edit by hand — regenerate with `redocly generate-client`.');
+  printer.line('# Requires Python >= 3.9 and httpx: pip install httpx');
+  printer.blank();
 
   // Models (with the shared imports header).
-  writer.line(renderPythonModels(model).trimEnd());
-  writer.blank();
-  writer.blank();
-  writePythonServers(writer, model);
+  printer.line(renderPythonModels(model).trimEnd());
+  printer.blank();
+  printer.blank();
+  writePythonServers(printer, model);
 
   // The embedded runtime, stitched into one module: `from __future__` may appear
   // only at the top of a file, and the intra-runtime relative imports resolve to
   // this same file — both are dropped; duplicate stdlib imports are legal Python.
-  writer.line('# ─── Embedded runtime (@redocly/client-generator python runtime) ───');
+  printer.line('# ─── Embedded runtime (@redocly/client-generator python runtime) ───');
   for (const source of Object.values(PYTHON_RUNTIME_SOURCES)) {
     const stitched = source
       .split('\n')
       .filter((line) => !line.startsWith('from __future__') && !line.startsWith('from ._'))
       .join('\n')
       .trim();
-    writer.line(stitched);
-    writer.blank();
+    printer.line(stitched);
+    printer.blank();
   }
-  writer.blank();
+  printer.blank();
   const registrations = discriminatorRegistrations(model);
   if (registrations.length > 0) {
-    writer.line('# Discriminated unions dispatch by their property inside decode().');
-    for (const registration of registrations) writer.line(registration);
-    writer.blank();
+    printer.line('# Discriminated unions dispatch by their property inside decode().');
+    for (const registration of registrations) printer.line(registration);
+    printer.blank();
   }
-  writer.block('def _safe_json(response: httpx.Response) -> Any:', () => {
-    writer.block('try:', () => {
-      writer.line('return response.json()');
+  printer.block('def _safe_json(response: httpx.Response) -> Any:', () => {
+    printer.block('try:', () => {
+      printer.line('return response.json()');
     });
-    writer.block('except Exception:', () => {
-      writer.line('return None');
+    printer.block('except Exception:', () => {
+      printer.line('return None');
     });
   });
-  writer.blank();
+  printer.blank();
 
   // The wire-shape descriptor table the runtime routes by.
   const paginationSpecs = new Map<string, Record<string, unknown> | undefined>();
@@ -643,8 +643,8 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
       paginationSpec(op, emit as { pagination?: Record<string, unknown> })
     );
   }
-  writer.line('_OPERATIONS = {');
-  writer.indent(() => {
+  printer.line('_OPERATIONS = {');
+  printer.indent(() => {
     for (const { op, ident } of operationIdents(model)) {
       const descriptor = {
         id: op.specName ?? op.name,
@@ -655,17 +655,17 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
           ? { pagination: paginationSpecs.get(ident) }
           : {}),
       };
-      writer.line(`"${ident}": ${pythonLiteral(descriptor)},`);
+      printer.line(`"${ident}": ${pythonLiteral(descriptor)},`);
     }
   });
-  writer.line('}');
-  writer.blank();
-  writer.blank();
+  printer.line('}');
+  printer.blank();
+  printer.blank();
 
-  writeClientClass(writer, model, errorMode, false, paginationSpecs);
-  writeClientClass(writer, model, errorMode, true, paginationSpecs);
+  writeClientClass(printer, model, errorMode, false, paginationSpecs);
+  writeClientClass(printer, model, errorMode, true, paginationSpecs);
 
-  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: writer.toString() }];
+  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: printer.toString() }];
 };
 
 /** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */
