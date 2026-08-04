@@ -29,6 +29,9 @@ it('sendTelemetry calls all telemetry functions', async () => {
     respect_x_security_auth_types: undefined,
     respect_source_description_types: undefined,
     respect_criterion_object_types: undefined,
+    lint_rules_with_errors: undefined,
+    lint_rules_with_warnings: undefined,
+    lint_rules_with_ignored_problems: undefined,
   });
 
   expect(respondWithinMs).toHaveBeenCalled();
