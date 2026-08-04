@@ -1,9 +1,0 @@
-# redocly.yaml — drives `redocly generate-client` for this example.
-apis:
-  architected-generator:
-    root: ../_shared/cafe.yaml
-    clientOutput: ./src/api/client.ts
-    client:
-      generators:
-        - sdk
-        - ./generators/ops-summary.mjs

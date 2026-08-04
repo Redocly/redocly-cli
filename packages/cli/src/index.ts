@@ -12,10 +12,6 @@ import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import {
-  handleArchitectGenerator,
-  type ArchitectGeneratorCommandArgv,
-} from './commands/architect-generator.js';
 import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
@@ -993,27 +989,6 @@ yargs(hideBin(process.argv))
         }),
     async (argv) => {
       commandWrapper(handleEjectGenerator)(argv as Arguments<EjectGeneratorCommandArgv>);
-    }
-  )
-  .command(
-    'architect-generator [generator]',
-    'Create a custom client-generator skeleton plus the authoring guide (AGENTS.md) [experimental].',
-    (yargs) =>
-      yargs
-        .positional('generator', {
-          describe: 'Name for the new generator (kebab-case).',
-          type: 'string',
-        })
-        .options({
-          dir: {
-            describe: 'Directory to architect into.',
-            type: 'string',
-            default: './generators',
-            requiresArg: true,
-          },
-        }),
-    async (argv) => {
-      commandWrapper(handleArchitectGenerator)(argv as Arguments<ArchitectGeneratorCommandArgv>);
     }
   )
   .command(

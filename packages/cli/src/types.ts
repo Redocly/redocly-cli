@@ -1,6 +1,5 @@
 import type { RuleSeverity } from '@redocly/openapi-core';
 
-import type { ArchitectGeneratorCommandArgv } from './commands/architect-generator.js';
 import type { LoginArgv, LogoutArgv } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { BundleArgv } from './commands/bundle.js';
@@ -49,8 +48,7 @@ export type CommandArgv =
   | DriftArgv
   | ProxyArgv
   | GenerateArazzoCommandArgv
-  | EjectGeneratorCommandArgv
-  | ArchitectGeneratorCommandArgv;
+  | EjectGeneratorCommandArgv;
 
 export type VerifyConfigOptions = {
   config?: string;

@@ -1,4 +1,3 @@
-import { handleArchitectGenerator } from '../../commands/architect-generator.js';
 import { handleEjectGenerator } from '../../commands/eject-generator.js';
 import { ejectGeneratorTelemetry } from '../../utils/generate-client-telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -14,7 +13,7 @@ function reset() {
   }
 }
 
-describe('eject/architect telemetry (coarse categories only)', () => {
+describe('eject telemetry (coarse categories only)', () => {
   beforeEach(reset);
 
   it('sdk guidance records the allowlisted name and a guidance action', async () => {
@@ -35,15 +34,5 @@ describe('eject/architect telemetry (coarse categories only)', () => {
     ).rejects.toThrow(/Unknown generator/);
     expect(ejectGeneratorTelemetry.eject_generator_outcome).toBe('unknown-generator');
     expect(ejectGeneratorTelemetry.eject_generator_name).toBeUndefined();
-  });
-
-  it('architecting a built-in name records the refusal, not the name', async () => {
-    await expect(
-      handleArchitectGenerator({ ...baseArgs, argv: { generator: 'php' } } as CommandArgs<never>)
-    ).rejects.toThrow(/built-in generator/);
-    expect(ejectGeneratorTelemetry).toEqual({
-      eject_generator_action: 'architect',
-      eject_generator_outcome: 'builtin-name',
-    });
   });
 });

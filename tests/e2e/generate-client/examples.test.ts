@@ -85,7 +85,7 @@ describe('examples generate with the current generator', () => {
 });
 
 describe('generator-authoring examples carry the current AGENTS.md', () => {
-  // The eject/architect examples commit the AGENTS.md drop so browsers see the full
+  // The ejected example commits the AGENTS.md drop so browsers see the full
   // story; this pins them byte-for-byte to the shipped template (markers included).
   const template = readFileSync(
     join(repoRoot, 'packages/client-generator/eject-assets/AGENTS.md'),
@@ -93,13 +93,11 @@ describe('generator-authoring examples carry the current AGENTS.md', () => {
   ).trim();
   const expected = `<!-- redocly-generators:begin — managed by \`redocly eject-generator\`; content between markers is refreshed on eject -->\n\n${template}\n\n<!-- redocly-generators:end -->\n`;
 
-  for (const example of ['ejected-generator', 'architected-generator']) {
-    it(`${example}/generators/AGENTS.md matches the shipped template`, () => {
-      const dropped = readFileSync(join(examplesDir, example, 'generators/AGENTS.md'), 'utf-8');
-      expect(
-        dropped,
-        `stale — re-run \`redocly eject-generator\` or \`architect-generator\` in the example`
-      ).toBe(expected);
-    });
-  }
+  it('ejected-generator/generators/AGENTS.md matches the shipped template', () => {
+    const dropped = readFileSync(
+      join(examplesDir, 'ejected-generator', 'generators/AGENTS.md'),
+      'utf-8'
+    );
+    expect(dropped, 'stale — re-run `redocly eject-generator` in the example').toBe(expected);
+  });
 });

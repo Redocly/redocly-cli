@@ -44,8 +44,6 @@
           page: commands/push-status.md
         - label: respect
           page: commands/respect.md
-        - label: architect-generator
-          page: commands/architect-generator.md
         - label: score
           page: commands/score.md
         - label: scorecard-classic
