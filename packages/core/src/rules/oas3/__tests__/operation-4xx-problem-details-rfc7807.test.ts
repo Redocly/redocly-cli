@@ -11,10 +11,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -41,7 +41,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1pets/get/responses/400",
+              "pointer": "#/paths/~1menu/get/responses/400",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
@@ -61,10 +61,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -89,7 +89,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/type",
+              "pointer": "#/paths/~1menu/get/responses/400/content/application~1problem+json/schema/properties/type",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
@@ -109,10 +109,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -157,10 +157,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -207,10 +207,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -253,10 +253,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -290,7 +290,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema",
+              "pointer": "#/paths/~1menu/get/responses/400/content/application~1problem+json/schema",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
@@ -304,7 +304,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema",
+              "pointer": "#/paths/~1menu/get/responses/400/content/application~1problem+json/schema",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
@@ -324,10 +324,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -374,10 +374,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       outdent`
         openapi: "3.0.0"
         paths:
-          /pets:
+          /menu:
             get:
-              summary: List all pets
-              operationId: listPets
+              summary: List menu items
+              operationId: listMenuItems
               responses:
                 '400':
                   description: Test
@@ -398,7 +398,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema",
+              "pointer": "#/paths/~1menu/get/responses/400/content/application~1problem+json/schema",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
