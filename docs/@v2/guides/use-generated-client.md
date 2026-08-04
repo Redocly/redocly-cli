@@ -101,10 +101,10 @@ api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return
 order, err := api.GetOrder(ctx, "ord_123")
 
 for order, err := range api.ListOrdersItems(ctx, nil) {
-	if err != nil {
-		break
-	}
-	fmt.Println(order.Id)
+    if err != nil {
+        break
+    }
+    fmt.Println(order.Id)
 }
 ```
 

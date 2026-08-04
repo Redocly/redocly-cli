@@ -26,13 +26,19 @@ describe('generate-client go generator (end-to-end)', () => {
     expect(existsSync(generatedFile)).toBe(true);
   });
 
-  it.skipIf(!hasGo)('the generated client compiles (go build)', () => {
-    const result = spawnSync('go', ['build', '-o', 'smoke', '.'], {
-      cwd: consumerDir,
-      encoding: 'utf-8',
-    });
-    expect(result.status, result.stderr).toBe(0);
-  });
+  it.skipIf(!hasGo)(
+    'the generated client compiles (go build)',
+    () => {
+      const result = spawnSync('go', ['build', '-o', 'smoke', '.'], {
+        cwd: consumerDir,
+        encoding: 'utf-8',
+      });
+      expect(result.status, result.stderr).toBe(0);
+    },
+    // The first build on a cold CI cache compiles the stdlib and takes well over
+    // the 5s default.
+    180_000
+  );
 
   it.skipIf(!hasGo)(
     'the compiled smoke runs real HTTP: hydration, bodies, APIError',

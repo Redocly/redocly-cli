@@ -8,6 +8,10 @@ import { goGenerator, renderGoModels } from '../go/index.js';
 
 const hasGo = spawnSync('go', ['version']).status === 0;
 
+// Every `expectGoCompiles` bar shells out to `go build`; the first build on a cold
+// CI cache compiles the stdlib and takes well over the 5s default.
+vi.setConfig({ testTimeout: 180_000 });
+
 /** Assert the rendered source is compilable Go (skipped without the toolchain). */
 function expectGoCompiles(source: string): void {
   if (!hasGo) return;

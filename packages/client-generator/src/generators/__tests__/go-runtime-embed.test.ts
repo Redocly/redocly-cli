@@ -7,6 +7,9 @@ import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const hasGo = spawnSync('go', ['version']).status === 0;
 
+// `go build`/`go vet` on a cold CI cache compile the stdlib — well over the 5s default.
+vi.setConfig({ testTimeout: 180_000 });
+
 describe('GO_RUNTIME_SOURCE (the embedded Go runtime)', () => {
   it('embeds the load-bearing declarations', () => {
     for (const declaration of [
