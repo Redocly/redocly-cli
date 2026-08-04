@@ -210,6 +210,18 @@ export type OperationDescriptor = {
   /** OR-alternatives, each an AND-set: the runtime applies the first fully-configured one. */
   security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
+  /**
+   * Declared success-response headers for throw-mode `{ envelope: true }`.
+   * `name` is the lowercased wire name; `key` is the camelCase envelope property.
+   */
+  responseHeaders?: readonly ResponseHeaderSpec[];
+};
+
+/** One declared response header the runtime coerces into the envelope `headers` object. */
+export type ResponseHeaderSpec = {
+  name: string;
+  key: string;
+  type: 'string' | 'number' | 'boolean';
 };
 
 /** A query value: scalars, arrays of scalars, or objects (serialized as deepObject brackets). */
@@ -342,6 +354,19 @@ export type RequestOptions = RequestInit & {
   /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
   idempotencyKey?: string | boolean | (() => string);
   parseAs?: ParseAs;
+  /**
+   * Throw mode only: return `{ data, headers, response }` instead of the parsed body;
+   * ignored in result mode. The explicit `| undefined` keeps the wrappers' emitted
+   * `envelope: undefined` strip legal under `exactOptionalPropertyTypes`.
+   */
+  envelope?: boolean | undefined;
+};
+
+/** Throw-mode success envelope when `RequestOptions.envelope` is `true`. */
+export type Envelope<TData, THeaders = Record<string, never>> = {
+  data: TData;
+  headers: THeaders;
+  response: Response;
 };
 
 /** Per-call options for an SSE stream; reconnect defaults to true. */
@@ -363,7 +388,17 @@ export type Result<TData, TError> =
  */
 export type OpsShape = Record<
   string,
-  { args: object; result: unknown; kind?: 'sse'; item?: unknown; page?: unknown }
+  {
+    args: object;
+    result: unknown;
+    kind?: 'sse';
+    item?: unknown;
+    page?: unknown;
+    /** Declared success-response headers for `{ envelope: true }` (camelCase keys). */
+    headers?: object;
+    /** Result-mode entries ignore the throw-only `envelope` option. */
+    mode?: 'result';
+  }
 >;
 
 /** The always-present client members (assigned after the operation loop — they win collisions). */
@@ -422,6 +457,61 @@ type Paginated<Entry extends OpsShape[string]> = 'item' extends keyof Entry
  */
 export type OperationMethodIdentity = { readonly operationId: string };
 
+/** Declared response-header bag for an Ops entry; empty object when none are declared. */
+type HeadersOf<Entry extends OpsShape[string]> = 'headers' extends keyof Entry
+  ? NonNullable<Entry['headers']>
+  : Record<string, never>;
+
+/**
+ * Return type of a throw-mode call: the body by default, `Envelope<…>` for a literal
+ * `envelope: true`, their union when the flag is a widened `boolean`. Exact
+ * `RequestOptions` stays the body — pre-envelope package-mode flat sugar typed every
+ * `init` parameter as `RequestOptions`, and widening that would break upgrades without
+ * a regenerate. The `keyof` presence gate keeps `{ headers }` / `{ signal }` as the body
+ * (`TInit['envelope']` through `TInit & RequestOptions` would otherwise be
+ * `boolean | undefined`).
+ */
+export type EnvelopeResult<
+  TData,
+  THeaders,
+  TInit extends RequestOptions | undefined,
+> = TInit extends undefined
+  ? TData
+  : RequestOptions extends TInit
+    ? TInit extends RequestOptions
+      ? TData
+      : EnvelopeResultForKnownInit<TData, THeaders, TInit>
+    : EnvelopeResultForKnownInit<TData, THeaders, TInit>;
+
+type EnvelopeResultForKnownInit<TData, THeaders, TInit> = 'envelope' extends keyof TInit
+  ? [TInit['envelope' & keyof TInit]] extends [true]
+    ? Envelope<TData, THeaders>
+    : [TInit['envelope' & keyof TInit]] extends [false | undefined]
+      ? TData
+      : TData | Envelope<TData, THeaders>
+  : TData;
+
+/** A one-shot method whose return shape never varies with per-call options. */
+type BodyMethod<Entry extends OpsShape[string]> =
+  NoRequiredKeys<Entry['args']> extends true
+    ? (args?: Entry['args'], init?: RequestOptions) => Promise<Entry['result']>
+    : (args: Entry['args'], init?: RequestOptions) => Promise<Entry['result']>;
+
+/**
+ * One-shot (non-SSE) method: default returns the body; `{ envelope: true }` returns
+ * `{ data, headers, response }` with typed declared headers.
+ */
+type ThrowMethod<Entry extends OpsShape[string]> =
+  NoRequiredKeys<Entry['args']> extends true
+    ? <Init extends RequestOptions | undefined = undefined>(
+        args?: Entry['args'],
+        init?: Init
+      ) => Promise<EnvelopeResult<Entry['result'], HeadersOf<Entry>, Init>>
+    : <Init extends RequestOptions | undefined = undefined>(
+        args: Entry['args'],
+        init?: Init
+      ) => Promise<EnvelopeResult<Entry['result'], HeadersOf<Entry>, Init>>;
+
 /** The typed instance client: one bound method per operation plus the core members. */
 export type Client<Ops extends OpsShape, Op extends OperationContext = OperationContext> = {
   [K in keyof Ops]: Ops[K] extends { kind: 'sse' }
@@ -435,9 +525,7 @@ export type Client<Ops extends OpsShape, Op extends OperationContext = Operation
             init?: SseOptions
           ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>) &
         OperationMethodIdentity
-    : (NoRequiredKeys<Ops[K]['args']> extends true
-        ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
-        : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>) &
+    : (Ops[K] extends { mode: 'result' } ? BodyMethod<Ops[K]> : ThrowMethod<Ops[K]>) &
         OperationMethodIdentity &
         Paginated<Ops[K]>;
 } & ClientCore<Op>;
@@ -1083,6 +1171,39 @@ async function prepareRequest(
   return { url, init: mergedInit, body };
 }
 
+/** Coerce a single declared response header value; omit when absent or unparsable. */
+function coerceResponseHeader(
+  raw: string | null,
+  type: ResponseHeaderSpec['type']
+): string | number | boolean | undefined {
+  if (raw === null) return undefined;
+  if (type === 'number') {
+    if (raw.trim() === '') return undefined;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : undefined;
+  }
+  if (type === 'boolean') {
+    const value = raw.trim().toLowerCase();
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return undefined;
+  }
+  return raw;
+}
+
+/** Build the camelCase declared-header bag for a throw-mode envelope. */
+function readEnvelopeHeaders(
+  response: Response,
+  specs: readonly ResponseHeaderSpec[] | undefined
+): Record<string, string | number | boolean> {
+  const headers: Record<string, string | number | boolean> = {};
+  for (const spec of specs ?? []) {
+    const value = coerceResponseHeader(response.headers.get(spec.name), spec.type);
+    if (value !== undefined) headers[spec.key] = value;
+  }
+  return headers;
+}
+
 /** One non-SSE call: send, then branch on the configured error mode. */
 async function execute(
   config: ClientConfig,
@@ -1093,7 +1214,8 @@ async function execute(
 ): Promise<unknown> {
   const prepared = await prepareRequest(config, op, args, init, caps);
   const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
-  const { parseAs, ...sendInit } = prepared.init;
+  // `parseAs` / `envelope` are client options, not fetch RequestInit fields.
+  const { parseAs, envelope, ...sendInit } = prepared.init;
   const readKind = parseAs ?? kindFor(op);
   const { response, context } = await send(
     config,
@@ -1124,7 +1246,15 @@ async function execute(
     }
     throw error;
   }
-  return parse(response, readKind);
+  const data = await parse(response, readKind);
+  if (envelope === true) {
+    return {
+      data,
+      headers: readEnvelopeHeaders(response, op.responseHeaders),
+      response,
+    };
+  }
+  return data;
 }
 
 /** The paginate capability, or a descriptive throw when a paginated op is iterated unwired. */
@@ -1145,9 +1275,14 @@ function pageCall(
   method: (args?: OperationArgs, init?: RequestOptions) => Promise<unknown>,
   config: ClientConfig
 ) {
-  if (config.errorMode !== 'result') return method;
+  const callWithoutEnvelope = (args?: OperationArgs, init?: RequestOptions) => {
+    if (!init || init.envelope === undefined) return method(args, init);
+    const { envelope: _envelope, ...pageInit } = init;
+    return method(args, pageInit);
+  };
+  if (config.errorMode !== 'result') return callWithoutEnvelope;
   return async (args?: OperationArgs, init?: RequestOptions) => {
-    const envelope = (await method(args, init)) as {
+    const envelope = (await callWithoutEnvelope(args, init)) as {
       data: unknown;
       error: unknown;
       response: Response;
@@ -1173,7 +1308,7 @@ function pageCall(
 function linkPageCall(config: ClientConfig, op: OperationDescriptor, caps: Capabilities) {
   return async (args: OperationArgs = {}, init: RequestOptions = {}) => {
     const prepared = await prepareRequest(config, op, args, init, caps);
-    const { parseAs, ...sendInit } = prepared.init;
+    const { parseAs, envelope: _envelope, ...sendInit } = prepared.init;
     const readKind = parseAs ?? kindFor(op);
     const opCtx: OperationContext = { id: op.id, path: op.path, tags: [...(op.tags ?? [])] };
     const { response } = await send(
@@ -1351,7 +1486,7 @@ export function createClient<
 export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.cafe.redocly.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
-export const listMenuItems = (params: {
+export const listMenuItems = <I extends RequestOptions | undefined = undefined>(params: {
     /**
      * Case-insensitive substring match on item names.
      */
@@ -1362,11 +1497,11 @@ export const listMenuItems = (params: {
      * @maximum 100
      */
     limit?: number;
-} = {}, init: RequestOptions = {}) => client.listMenuItems({ params }, init);
-export const getMenuItemPhoto = (menuItemId: string, params: {
+} = {}, init?: I): Promise<EnvelopeResult<ListMenuItemsResult, Record<string, never>, I>> => client.listMenuItems({ params }, init) as Promise<EnvelopeResult<ListMenuItemsResult, Record<string, never>, I>>;
+export const getMenuItemPhoto = <I extends RequestOptions | undefined = undefined>(menuItemId: string, params: {
     /**
      * Photo size to retrieve.
      */
     photoSize?: "thumbnail" | "medium" | "large";
-} = {}, init: RequestOptions = {}) => client.getMenuItemPhoto({ menuItemId, params }, init);
-export const registerOAuth2Client = (body: RegisterClientRequest, init: RequestOptions = {}) => client.registerOAuth2Client({ body }, init);
+} = {}, init?: I): Promise<EnvelopeResult<GetMenuItemPhotoResult, Record<string, never>, I>> => client.getMenuItemPhoto({ menuItemId, params }, init) as Promise<EnvelopeResult<GetMenuItemPhotoResult, Record<string, never>, I>>;
+export const registerOAuth2Client = <I extends RequestOptions | undefined = undefined>(body: RegisterClientRequest, init?: I): Promise<EnvelopeResult<RegisterOAuth2ClientResult, Record<string, never>, I>> => client.registerOAuth2Client({ body }, init) as Promise<EnvelopeResult<RegisterOAuth2ClientResult, Record<string, never>, I>>;

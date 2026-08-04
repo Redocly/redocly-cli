@@ -172,7 +172,8 @@ function applyRule(
     // only to operations that document it; an explicit rule applies regardless (a spec
     // often under-documents headers) but says so, since the runtime then depends on an
     // undocumented behavior.
-    const documentsLink = page.headers?.includes('link') === true;
+    const documentsLink =
+      op.successResponseHeaders?.some((header) => header.name === 'link') === true;
     if (!documentsLink && !explicit) return {};
     if (!documentsLink) {
       logger.warn(

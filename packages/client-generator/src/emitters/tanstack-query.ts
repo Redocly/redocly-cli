@@ -143,18 +143,18 @@ function optionsMember(op: OperationModel): string {
   return (
     `    ${op.name}Options: (${params}) => queryOptions({\n` +
     `        queryKey: ${op.name}QueryKey(${keyArg}),\n` +
-    `        queryFn: ({ signal }) => instance.${op.name}(${callArgs}, { ...init, signal }),\n` +
+    `        queryFn: ({ signal }) => instance.${op.name}(${callArgs}, { ...init, signal, envelope: undefined }),\n` +
     `    })`
   );
 }
 
-/** `<op>Mutation(init?)` — per-call `RequestOptions` (headers, a retry override) reach the mutation. */
+/** `<op>Mutation(init?)` — per-call options (headers, a retry override) reach the mutation. */
 function mutationMember(op: OperationModel, prefix: string | undefined): string {
   const mutationFn = hasInputs(op)
-    ? `(vars: ${variablesName(op)}) => instance.${op.name}(vars, init)`
-    : `() => instance.${op.name}({}, init)`;
+    ? `(vars: ${variablesName(op)}) => instance.${op.name}(vars, { ...init, envelope: undefined })`
+    : `() => instance.${op.name}({}, { ...init, envelope: undefined })`;
   return (
-    `    ${op.name}Mutation: (init?: RequestOptions) => ({\n` +
+    `    ${op.name}Mutation: (${INIT_PARAM}) => ({\n` +
     `        mutationKey: [${keyElements(op, prefix)}] as const,\n` +
     `        mutationFn: ${mutationFn},\n` +
     `    })`
@@ -178,7 +178,7 @@ function infiniteMember(
   return (
     `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
     `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +
-    `        queryFn: ({ pageParam, signal }) => instance.${op.name}(${override}, { ...init, signal }),\n` +
+    `        queryFn: ({ pageParam, signal }) => instance.${op.name}(${override}, { ...init, signal, envelope: undefined }),\n` +
     nextPageSource(model, op, spec) +
     `    })`
   );
@@ -255,13 +255,20 @@ function cursorStopChecks(model: ApiModel, op: OperationModel, pointer: string):
   ];
 }
 
+/**
+ * The `init` parameter every factory takes. The throw-only `envelope` option is
+ * excluded from the type and stripped in the forwarding calls — cached query data
+ * must stay the plain body.
+ */
+const INIT_PARAM = 'init?: Omit<RequestOptions, "envelope">';
+
 /** The shared `(vars, init?)` parameter list plus how `vars` reaches the key and the call. */
 function varsPieces(op: OperationModel): { params: string; keyArg: string; callArgs: string } {
   if (!hasInputs(op)) {
-    return { params: 'init?: RequestOptions', keyArg: '', callArgs: '{}' };
+    return { params: INIT_PARAM, keyArg: '', callArgs: '{}' };
   }
   return {
-    params: `vars: ${variablesName(op)}, init?: RequestOptions`,
+    params: `vars: ${variablesName(op)}, ${INIT_PARAM}`,
     keyArg: 'vars',
     callArgs: 'vars',
   };

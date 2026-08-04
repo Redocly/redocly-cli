@@ -50,8 +50,12 @@ describe('generate-client tanstack-query generator', () => {
       [
         "import { useMutation, useQuery } from '@tanstack/react-query';",
         "import { createPetMutation, getPetByIdOptions, listPetsOptions } from './client.tanstack.js';",
+        "import type { Pet } from './client.js';",
         'export function useGetPet(id: number) {',
-        '  return useQuery(getPetByIdOptions({ id }));',
+        '  const query = useQuery(getPetByIdOptions({ id }));',
+        '  // Wrapper inits exclude `envelope`: cached data is the plain body, never an envelope.',
+        '  const pet: Pet | undefined = query.data;',
+        '  return pet;',
         '}',
         'export function useListPets() {',
         "  return useQuery(listPetsOptions({ params: { filter: { name: 'rex' } } }));",
