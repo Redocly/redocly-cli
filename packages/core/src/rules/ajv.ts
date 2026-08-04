@@ -17,7 +17,7 @@ function getSchemaIdKey(dialect: AjvDialect) {
   return dialect === 'draft4' ? 'id' : '$id';
 }
 
-export function getDialectBySpecVersion(specVersion: UserContext['specVersion']): AjvDialect {
+function getDialectBySpecVersion(specVersion: UserContext['specVersion']): AjvDialect {
   if (specVersion === 'oas2' || specVersion === 'oas3_0') return 'draft4';
   return '2020';
 }

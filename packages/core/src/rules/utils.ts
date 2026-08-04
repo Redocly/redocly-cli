@@ -20,7 +20,7 @@ import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import { type AjvValidator, getDialectBySpecVersion } from './ajv.js';
+import { type AjvValidator } from './ajv.js';
 
 export type AnySchema =
   | Oas3Schema
@@ -30,19 +30,26 @@ export type AnySchema =
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
   ctx: UserContext,
-  resolveFrom?: Location
+  location?: Location
 ): {
   schema?: T;
   location?: Location;
 } => {
   if (isRef(schemaOrRef)) {
-    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom?.source.absoluteRef);
+    const { $ref: _, ...siblings } = schemaOrRef;
+    const resolved = ctx.resolve<T>(schemaOrRef, location?.source.absoluteRef);
+
+    const schema =
+      isNotEmptyObject(siblings) && isPlainObject<T & object>(resolved.node)
+        ? { ...resolved.node, ...siblings }
+        : resolved.node;
+
     return resolved
-      ? { schema: resolved.node, location: resolved.location }
-      : { schema: undefined, location: resolveFrom };
+      ? { schema, location: resolved.location }
+      : { schema: undefined, location: location };
   }
 
-  return { schema: schemaOrRef, location: resolveFrom };
+  return { schema: schemaOrRef, location };
 };
 
 export const schemaHasProperty = (
@@ -52,24 +59,6 @@ export const schemaHasProperty = (
   visited: Set<AnySchema | OasRef> = new Set(),
   resolveLocation?: Location
 ): boolean => {
-  if (isRef(schemaOrRef)) {
-    if (visited.has(schemaOrRef)) return false;
-    visited.add(schemaOrRef);
-
-    // Keywords next to $ref only apply in JSON Schema 2020-12 based specs (OAS 3.1+);
-    // draft-4 based specs (OAS 2.0, 3.0) ignore them.
-    // The OasRef type doesn't model sibling keywords, hence the cast.
-    if (getDialectBySpecVersion(ctx.specVersion) === '2020') {
-      const { $ref: _ref, ...refSiblings } = schemaOrRef as OasRef & AnySchema;
-      if (
-        isNotEmptyObject(refSiblings) &&
-        schemaHasProperty(refSiblings, propertyName, ctx, visited, resolveLocation)
-      ) {
-        return true;
-      }
-    }
-  }
-
   const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveLocation);
   if (!schema || visited.has(schema)) return false;
   visited.add(schema);
