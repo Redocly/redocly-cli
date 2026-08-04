@@ -325,10 +325,12 @@ type HeadersOf<Entry extends OpsShape[string]> = 'headers' extends keyof Entry
 
 /**
  * Return type of a throw-mode call: the body by default, `Envelope<…>` for a literal
- * `envelope: true`, their union when the flag is statically unknowable (a widened
- * `boolean`). The `keyof` presence gate is load-bearing: without it, inits with no
- * `envelope` key (`{ headers }`, `{ signal }`) would resolve `TInit['envelope']`
- * through `TInit & RequestOptions` to `boolean | undefined` and widen to the union.
+ * `envelope: true`, their union when the flag is a widened `boolean`. Exact
+ * `RequestOptions` stays the body — pre-envelope package-mode flat sugar typed every
+ * `init` parameter as `RequestOptions`, and widening that would break upgrades without
+ * a regenerate. The `keyof` presence gate keeps `{ headers }` / `{ signal }` as the body
+ * (`TInit['envelope']` through `TInit & RequestOptions` would otherwise be
+ * `boolean | undefined`).
  */
 export type EnvelopeResult<
   TData,
@@ -336,13 +338,19 @@ export type EnvelopeResult<
   TInit extends RequestOptions | undefined,
 > = TInit extends undefined
   ? TData
-  : 'envelope' extends keyof TInit
-    ? [TInit['envelope' & keyof TInit]] extends [true]
-      ? Envelope<TData, THeaders>
-      : [TInit['envelope' & keyof TInit]] extends [false | undefined]
-        ? TData
-        : TData | Envelope<TData, THeaders>
-    : TData;
+  : RequestOptions extends TInit
+    ? TInit extends RequestOptions
+      ? TData
+      : EnvelopeResultForKnownInit<TData, THeaders, TInit>
+    : EnvelopeResultForKnownInit<TData, THeaders, TInit>;
+
+type EnvelopeResultForKnownInit<TData, THeaders, TInit> = 'envelope' extends keyof TInit
+  ? [TInit['envelope' & keyof TInit]] extends [true]
+    ? Envelope<TData, THeaders>
+    : [TInit['envelope' & keyof TInit]] extends [false | undefined]
+      ? TData
+      : TData | Envelope<TData, THeaders>
+  : TData;
 
 /** A one-shot method whose return shape never varies with per-call options. */
 type BodyMethod<Entry extends OpsShape[string]> =

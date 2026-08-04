@@ -289,10 +289,11 @@ describe('Client<Ops> mapped type', () => {
         Customer[] | Envelope<Customer[], { paginationTotal?: number }>
       >();
 
+      // Exact `RequestOptions` stays the body — package-mode sugar generated before
+      // envelope typed every `init` as `RequestOptions`, and widening that would break
+      // upgrades that don't regenerate. Narrow with `{ envelope: true }` (or `as const`).
       const annotated: RequestOptions = { envelope: true };
-      expectTypeOf(client.listCustomers({}, annotated)).resolves.toEqualTypeOf<
-        Customer[] | Envelope<Customer[], { paginationTotal?: number }>
-      >();
+      expectTypeOf(client.listCustomers({}, annotated)).resolves.toEqualTypeOf<Customer[]>();
 
       // The tanstack queryFn shape: a spread of possibly-envelope options plus signal.
       const spreadCall = (outer?: RequestOptions) =>
@@ -304,6 +305,20 @@ describe('Client<Ops> mapped type', () => {
       expectTypeOf(client.listCustomers({}, { envelope: false })).resolves.toEqualTypeOf<
         Customer[]
       >();
+    };
+    void _typeOnly;
+  });
+
+  it('keeps the plain body for exact RequestOptions (pre-envelope package-mode sugar)', () => {
+    const client = { auth: {} } as unknown as Client<EnvelopeOps>;
+
+    // Mimics flat sugar emitted before envelope: `(init: RequestOptions = {}) => …`.
+    const oldSugar = (init: RequestOptions = {}) => client.listCustomers({}, init);
+
+    const _typeOnly = (): void => {
+      expectTypeOf(oldSugar).returns.resolves.toEqualTypeOf<Customer[]>();
+      expectTypeOf(oldSugar({})).resolves.toEqualTypeOf<Customer[]>();
+      expectTypeOf(oldSugar({ headers: { 'X-Trace': '1' } })).resolves.toEqualTypeOf<Customer[]>();
     };
     void _typeOnly;
   });
