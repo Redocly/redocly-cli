@@ -16,6 +16,7 @@ import {
   type SchemaModel,
 } from '../intermediate-representation/model.js';
 import { fakerExpression } from './faker.js';
+import { isIdentifier } from './identifier.js';
 import {
   expr,
   isObjectValue,
@@ -126,12 +127,25 @@ function factoryFor(named: NamedSchemaModel, model: ApiModel, opts: MockOptions)
   ].join('\n');
 }
 
+/**
+ * The interpolation gate for values that land in emitted CODE positions (binding
+ * names, `http.<method>` member access). The pipeline sanitizes operation names
+ * before any emitter runs; this re-checks at the construction site so a hostile
+ * name can never become code even if that invariant regresses.
+ */
+function codeIdent(value: string): string {
+  if (!isIdentifier(value)) {
+    throw new Error(`Unsafe identifier in mock emission: ${JSON.stringify(value)}`);
+  }
+  return value;
+}
+
 /** `export const <op>Handler = (override?: <OverrideType>) => http.<method>('<path>', () => <response>);`. */
 function handlerFor(op: OperationModel, model: ApiModel, opts: MockOptions): string {
   const override = overrideParam(op, model, opts);
   const params = override ?? '';
-  const call = `http.${op.method}(${JSON.stringify(mswPath(op.path))}, () => ${responseExpression(op, model, opts)})`;
-  return `export const ${op.name}Handler = (${params}) => ${call};`;
+  const call = `http.${codeIdent(op.method)}(${JSON.stringify(mswPath(op.path))}, () => ${responseExpression(op, model, opts)})`;
+  return `export const ${codeIdent(op.name)}Handler = (${params}) => ${call};`;
 }
 
 /**
@@ -147,8 +161,8 @@ function errorHandlerFor(op: OperationModel, model: ApiModel, opts: MockOptions)
   const first = op.errorResponses[0];
   const sampled = renderMockValue(bodyValue(first.schema, model, opts), '');
   const resolver = `() => HttpResponse.json(body ?? ${sampled}, { status })`;
-  const call = `http.${op.method}(${JSON.stringify(mswPath(op.path))}, ${resolver})`;
-  return `export const ${op.name}ErrorHandler = (status: ${errorStatusType(op)}, body?: ${errorBodyType(op)}) => ${call};`;
+  const call = `http.${codeIdent(op.method)}(${JSON.stringify(mswPath(op.path))}, ${resolver})`;
+  return `export const ${codeIdent(op.name)}ErrorHandler = (status: ${errorStatusType(op)}, body?: ${errorBodyType(op)}) => ${call};`;
 }
 
 /**
@@ -239,7 +253,7 @@ function statusCode(status: ResponseBodyModel['status'] | undefined): number {
 
 /** `export const handlers = [<op>Handler(), …];`. */
 function handlersArray(operations: OperationModel[]): string {
-  const elements = operations.map((op) => `${op.name}Handler()`).join(', ');
+  const elements = operations.map((op) => `${codeIdent(op.name)}Handler()`).join(', ');
   return `export const handlers = [${elements}];`;
 }
 
