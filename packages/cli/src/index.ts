@@ -4,7 +4,6 @@ import './utils/assert-node-version.js';
 import {
   logger,
   type ComponentNamesStrategy,
-  type IndexGroupBy,
   type OutputFormat,
   type RuleSeverity,
 } from '@redocly/openapi-core';
@@ -106,53 +105,98 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'mermaid', 'dot'] as ReadonlyArray<TreeFormat>,
+            choices: ['stylish', 'json'] as ReadonlyArray<TreeFormat>,
             default: 'stylish' as TreeFormat,
           },
-          'group-by': {
-            description: 'Group operations in the JSON index by tags or by paths.',
-            choices: ['tags', 'paths'] as ReadonlyArray<IndexGroupBy>,
-            default: 'tags' as IndexGroupBy,
-          },
-          node: {
-            description:
-              'Print one JSON-index node: a branch returns its sub-index, a leaf returns its raw source lines and refs. Accepts a semantic id or file#/pointer.',
+          tag: {
+            description: 'Show the operations of one tag.',
             type: 'string' as const,
             requiresArg: true,
           },
-          'with-deps': {
-            description: 'With --node on a leaf: append the transitive $ref closure.',
+          path: {
+            description: 'Show the operations of one path.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          webhook: {
+            description: 'Show the operations of one webhook.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          operation: {
+            description:
+              'Show one operation: an HTTP method (with --path or --webhook) or an operationId.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          component: {
+            description:
+              'Show a component section (schemas, responses, …) or, with --name, one component.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          name: {
+            description: 'Component name; requires --component.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          paths: {
+            description: 'List every path with its methods.',
             type: 'boolean' as const,
-            default: false,
+          },
+          operations: {
+            description: 'List every operation.',
+            type: 'boolean' as const,
+          },
+          'used-by': {
+            description:
+              'With a selector: show every operation and component that transitively references it.',
+            type: 'boolean' as const,
+          },
+          'with-deps': {
+            description:
+              'With an operation or component selection: append its raw source and transitive $ref closure.',
+            type: 'boolean' as const,
           },
           output: {
             alias: 'o',
             description: 'Write the output to a file instead of stdout.',
             type: 'string',
           },
-          level: {
-            description: 'Limit the displayed depth of the tree.',
-            type: 'number',
-            requiresArg: true,
-          },
-          operations: {
-            description: 'Show only the API surface: paths, operations, and webhooks.',
-            type: 'boolean',
-            default: false,
-          },
-          uses: {
-            description:
-              'Show only the part of the tree that uses (depends on) the given components, paths, or files. Accepts `*` and `?` wildcards.',
-            array: true,
-            type: 'string',
-            requiresArg: true,
-          },
           files: {
-            description: 'Show the file-level $ref graph instead of the document structure.',
-            type: 'boolean',
-            default: false,
+            description: 'Show the file-level graph instead of the API structure.',
+            type: 'boolean' as const,
           },
-        }),
+        })
+        .conflicts('paths', [
+          'operations',
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'component',
+          'name',
+          'used-by',
+          'with-deps',
+        ])
+        .conflicts('operations', ['tag', 'path', 'webhook', 'operation', 'component', 'name'])
+        .conflicts('component', ['tag', 'path', 'webhook', 'operation'])
+        .conflicts('webhook', ['path', 'tag'])
+        .conflicts('path', ['tag'])
+        .conflicts('tag', ['operation'])
+        .conflicts('used-by', ['with-deps'])
+        .conflicts('files', [
+          'paths',
+          'operations',
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'component',
+          'name',
+          'used-by',
+          'with-deps',
+        ]),
     (argv) => {
       commandWrapper(handleTree)(argv);
     }

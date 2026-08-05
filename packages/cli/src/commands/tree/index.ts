@@ -1,23 +1,42 @@
 import {
   analyzeApi,
-  appendDepsClosure,
   BaseResolver,
-  buildApiIndex,
-  buildNodeEnvelope,
+  buildComponentCard,
+  buildComponentListing,
+  buildOperationCard,
+  buildOperationListing,
+  buildOverview,
+  buildPathListing,
+  buildUsedByReport,
+  COMPONENT_SECTIONS,
   detectSpec,
-  findIndexNode,
+  findComponent,
+  findOperationByOperationId,
+  findOperationByPathMethod,
+  findWebhookOperation,
   getTypes,
-  hasIndexLocation,
+  HTTP_METHODS,
+  listOperations,
   logger,
+  normalizeComponentSection,
   normalizeTypes,
   resolveDocument,
-  slash,
+  suggestNames,
+  toOperationListItem,
+  type ApiAnalysis,
+  type ApiOverview,
   type CollectFn,
+  type CollectedOperation,
+  type ComponentCard,
+  type ComponentListItem,
   type Document,
-  type IndexGroupBy,
   type NormalizedNodeType,
+  type OperationCard,
+  type OperationListItem,
+  type PathListItem,
   type ResolvedRefMap,
   type SpecVersion,
+  type UsedByReport,
 } from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
 import * as path from 'node:path';
@@ -27,29 +46,230 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
-import { filterAffected, filterOperations, limitGraphLevel } from './filter-affected.js';
-import { filterIndexByIds, filterIndexSections, limitIndexLevel } from './filter-index.js';
-import { matchAffectedBy, wildcardToRegExp } from './match-affected-by.js';
+import { filterAffected } from './filter-affected.js';
 import { commonDir } from './node-id.js';
-import { renderDot } from './print/dot.js';
-import { renderIndexJson } from './print/index-json.js';
 import { renderJson } from './print/json.js';
-import { renderMermaid } from './print/mermaid.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
+import { renderView } from './print/views.js';
 import type { DependencyGraph, TreeFormat } from './types.js';
 
 export type TreeArgv = {
   apis?: string[];
   format: TreeFormat;
   output?: string;
-  level?: number;
-  operations?: boolean;
-  uses?: string[];
   files?: boolean;
-  'group-by': IndexGroupBy;
-  node?: string;
+  paths?: boolean;
+  operations?: boolean;
+  tag?: string;
+  path?: string;
+  webhook?: string;
+  operation?: string;
+  component?: string;
+  name?: string;
+  'used-by'?: boolean;
   'with-deps'?: boolean;
 } & VerifyConfigOptions;
+
+export type TreeView =
+  | { kind: 'overview'; overview: ApiOverview }
+  | { kind: 'operations'; items: OperationListItem[]; scope?: string }
+  | { kind: 'paths'; items: PathListItem[] }
+  | { kind: 'components'; section: string; items: ComponentListItem[] }
+  | { kind: 'operation-card'; card: OperationCard }
+  | { kind: 'component-card'; card: ComponentCard }
+  | { kind: 'used-by'; report: UsedByReport };
+
+export class TreeSelectorError extends Error {}
+
+function selectorHint(
+  kind: string,
+  input: string,
+  candidates: string[],
+  listCommand: string
+): never {
+  const suggestions = suggestNames(input, candidates);
+  const didYouMean = suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
+  throw new TreeSelectorError(
+    `No ${kind} "${input}".${didYouMean} Run \`${listCommand}\` to list ${kind}s.`
+  );
+}
+
+export function resolveTreeView(
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string
+): TreeView {
+  const meta = analysis.meta;
+  const usedBy = argv['used-by'] === true;
+  const withDeps = argv['with-deps'] === true;
+
+  if (usedBy && withDeps) {
+    throw new TreeSelectorError(
+      '--used-by and --with-deps cannot be combined: --used-by returns the operations and components that reference the selection, --with-deps returns the selection with its dependency closure.'
+    );
+  }
+
+  const finishOperation = (operation: CollectedOperation): TreeView =>
+    usedBy
+      ? { kind: 'used-by', report: buildUsedByReport(analysis, operation.id, cwd) }
+      : {
+          kind: 'operation-card',
+          card: buildOperationCard(analysis, operation, { specVersion, cwd, withDeps }),
+        };
+
+  if (argv.component !== undefined) {
+    const section = normalizeComponentSection(argv.component);
+    if (section === undefined) {
+      throw new TreeSelectorError(
+        `Unknown component section "${argv.component}". Sections: ${COMPONENT_SECTIONS.join(', ')}.`
+      );
+    }
+    if (argv.name === undefined) {
+      if (usedBy || withDeps) {
+        throw new TreeSelectorError('Add --name to use --used-by or --with-deps with --component.');
+      }
+      return {
+        kind: 'components',
+        section,
+        items: buildComponentListing(analysis, { cwd, section }),
+      };
+    }
+    const component = findComponent(meta, section, argv.name);
+    if (!component) {
+      selectorHint(
+        'component',
+        argv.name,
+        meta.components
+          .filter((candidate) => candidate.section === section)
+          .map((candidate) => candidate.name),
+        `redocly tree <api> --component=${section}`
+      );
+    }
+    if (usedBy) {
+      return {
+        kind: 'used-by',
+        report: buildUsedByReport(analysis, `${section}/${component.name}`, cwd),
+      };
+    }
+    return {
+      kind: 'component-card',
+      card: buildComponentCard(analysis, component, { specVersion, cwd, withDeps }),
+    };
+  }
+
+  if (argv.name !== undefined) throw new TreeSelectorError('--name requires --component.');
+
+  if (argv.path !== undefined || argv.webhook !== undefined) {
+    const scopeOperations =
+      argv.webhook !== undefined
+        ? listOperations(meta, { webhook: argv.webhook })
+        : listOperations(meta, { path: argv.path });
+    if (scopeOperations.length === 0) {
+      if (argv.webhook !== undefined) {
+        const knownWebhookKeys = [
+          ...new Set(
+            meta.operations
+              .filter((operation) => operation.isWebhook)
+              .map((operation) => operation.containerKey)
+          ),
+        ];
+        const suggestions = suggestNames(argv.webhook, knownWebhookKeys);
+        const didYouMean =
+          suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
+        throw new TreeSelectorError(`No webhook "${argv.webhook}".${didYouMean}`);
+      }
+      const knownPaths = [
+        ...new Set(
+          meta.operations
+            .filter((operation) => !operation.isWebhook)
+            .map((operation) => operation.containerKey)
+        ),
+      ];
+      selectorHint('path', argv.path!, knownPaths, 'redocly tree <api> --paths');
+    }
+    if (argv.operation !== undefined) {
+      const operation =
+        argv.webhook !== undefined
+          ? findWebhookOperation(meta, argv.webhook, argv.operation)
+          : findOperationByPathMethod(meta, argv.path!, argv.operation);
+      if (!operation) {
+        throw new TreeSelectorError(
+          `No ${argv.operation.toUpperCase()} operation on "${argv.webhook ?? argv.path}". Available: ${scopeOperations
+            .map((candidate) => candidate.method)
+            .join(', ')}.`
+        );
+      }
+      return finishOperation(operation);
+    }
+    if (withDeps) {
+      throw new TreeSelectorError('--with-deps requires --operation (or --component with --name).');
+    }
+    if (usedBy) {
+      // A path's used-by is the used-by of its path node; keep v1 simple: require an operation.
+      throw new TreeSelectorError('--used-by requires --operation, or --component with --name.');
+    }
+    return {
+      kind: 'operations',
+      scope: argv.webhook ?? argv.path,
+      items: scopeOperations.map((operation) => toOperationListItem(operation, cwd)),
+    };
+  }
+
+  if (argv.operation !== undefined) {
+    if (argv.tag !== undefined) {
+      throw new TreeSelectorError(
+        '--operation with an operationId selects one operation; combining it with --tag is ambiguous. Drop --tag, or use --tag alone to list its operations.'
+      );
+    }
+    if (HTTP_METHODS.has(argv.operation.toLowerCase())) {
+      throw new TreeSelectorError(
+        `"${argv.operation}" looks like an HTTP method. Add --path (or --webhook) to select the operation, or pass an operationId.`
+      );
+    }
+    const operation = findOperationByOperationId(meta, argv.operation);
+    if (!operation) {
+      selectorHint(
+        'operation',
+        argv.operation,
+        meta.operations
+          .map((candidate) => candidate.operationId)
+          .filter((operationId): operationId is string => operationId !== undefined),
+        'redocly tree <api> --operations'
+      );
+    }
+    return finishOperation(operation);
+  }
+
+  if (argv.tag !== undefined) {
+    const items = buildOperationListing(analysis, { cwd, tag: argv.tag });
+    if (items.length === 0) {
+      selectorHint(
+        'tag',
+        argv.tag,
+        [...new Set(meta.operations.flatMap((operation) => operation.tags))],
+        'redocly tree <api>'
+      );
+    }
+    if (usedBy || withDeps) {
+      throw new TreeSelectorError(
+        '--used-by and --with-deps need a single operation or component.'
+      );
+    }
+    return { kind: 'operations', scope: argv.tag, items };
+  }
+
+  if (withDeps)
+    throw new TreeSelectorError('--with-deps requires an operation or component selection.');
+  if (usedBy)
+    throw new TreeSelectorError('--used-by requires an operation or component selection.');
+
+  if (argv.operations)
+    return { kind: 'operations', items: buildOperationListing(analysis, { cwd }) };
+  if (argv.paths) return { kind: 'paths', items: buildPathListing(analysis, { cwd }) };
+
+  return { kind: 'overview', overview: buildOverview(analysis, { specVersion, cwd }) };
+}
 
 type TreeModeContext = {
   argv: TreeArgv;
@@ -60,26 +280,11 @@ type TreeModeContext = {
 };
 
 export async function handleTree({ argv, config, collectSpecData }: CommandArgs<TreeArgv>) {
-  if (argv.level !== undefined && (!Number.isInteger(argv.level) || argv.level < 1)) {
-    return exitWithError('The --level value must be a positive integer.');
-  }
-
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const cwd = process.cwd();
 
-  if (argv.files && argv.node !== undefined) {
-    return exitWithError(
-      'The --node option applies to the structure view and cannot be combined with --files.'
-    );
-  }
-
   if (argv.files) {
-    if (argv.operations) {
-      return exitWithError(
-        'The --operations option applies to the structure view and cannot be combined with --files.'
-      );
-    }
     return handleFilesMode({ apis, argv, config, collectSpecData, externalRefResolver, cwd });
   }
 
@@ -130,7 +335,6 @@ async function handleFilesMode({
   config,
   collectSpecData,
   externalRefResolver,
-  cwd,
 }: TreeModeContext & { apis: Entrypoint[] }): Promise<void> {
   const resolutions: Array<{ rootDocument: Document; refMap: ResolvedRefMap }> = [];
   for (const { path: apiPath } of apis) {
@@ -157,42 +361,7 @@ async function handleFilesMode({
     resolveRef: (refBase, uri) => externalRefResolver.resolveExternalRef(refBase, uri),
   });
 
-  let printedGraph = graph;
-  let stylishOptions: StylishOptions = {};
-  if (argv['uses']) {
-    const knownIds = new Set(graph.nodes.map((node) => node.id));
-    // Match paths the way they are displayed — relative to the API root — and fall
-    // back to paths relative to the current working directory. A `*`/`?` wildcard
-    // matches the displayed file ids directly.
-    const changedIds = argv['uses'].flatMap((file) => {
-      if (/[*?]/.test(file)) {
-        const matcher = wildcardToRegExp(file);
-        const matches = graph.nodes.map((node) => node.id).filter((id) => matcher.test(id));
-        if (matches.length === 0) {
-          logger.warn(`${file} does not match any file of the processed APIs.\n`);
-        }
-        return matches;
-      }
-      const fromRoot = slash(path.relative(base, path.resolve(base, file)));
-      if (knownIds.has(fromRoot)) return [fromRoot];
-      const fromCwd = slash(path.relative(base, path.resolve(cwd, file)));
-      return [knownIds.has(fromCwd) ? fromCwd : fromRoot];
-    });
-    for (const id of changedIds) {
-      if (!knownIds.has(id)) {
-        logger.warn(`${id} is not referenced by any of the processed APIs.\n`);
-      }
-    }
-    const knownChanged = changedIds.filter((id) => knownIds.has(id));
-    printedGraph = filterAffected(graph, knownChanged);
-    stylishOptions = {
-      summary: `${printedGraph.nodes.length} of ${graph.nodes.length} files affected · affected roots: ${
-        printedGraph.roots.join(', ') || 'none'
-      }`,
-    };
-  }
-
-  renderOutput(printedGraph, argv, stylishOptions);
+  renderOutput(graph, argv, {});
 }
 
 async function handleStructureMode({
@@ -227,109 +396,53 @@ async function handleStructureMode({
   }
 
   const isOpenApi = specVersion.startsWith('oas');
+  const usesSelectors =
+    argv.tag !== undefined ||
+    argv.path !== undefined ||
+    argv.webhook !== undefined ||
+    argv.operation !== undefined ||
+    argv.component !== undefined ||
+    argv.name !== undefined ||
+    argv.paths === true ||
+    argv.operations === true ||
+    argv['used-by'] === true ||
+    argv['with-deps'] === true;
 
-  if (!isOpenApi && (argv.node !== undefined || argv['with-deps'])) {
-    return exitWithError(
-      'The --node, --with-deps, and --group-by options support OpenAPI descriptions only for now.'
-    );
-  }
-
-  if (argv.node !== undefined) {
-    const fullIndex = buildApiIndex(analysis, { specVersion, cwd, groupBy: argv['group-by'] });
-    const indexNode = findIndexNode(fullIndex.structure, argv.node);
-    if (!indexNode) {
+  if (!isOpenApi) {
+    // Selectors need the OpenAPI-specific analysis; the plain {nodes, links} graph still
+    // renders for any spec type, in both stylish and json.
+    if (usesSelectors) {
       return exitWithError(
-        `No index node matches "${argv.node}". Run \`redocly tree --format=json\` to list node ids.`
+        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --paths, --operations, --used-by, --with-deps) support OpenAPI descriptions only for now.'
       );
     }
-    if (indexNode.nodes !== undefined && indexNode.nodes.length > 0) {
-      // The sub-index is shaped like a one-section top-level index, so --level applies as-is.
-      const subIndex = { ...fullIndex, structure: [indexNode] };
-      const limited = argv.level !== undefined ? limitIndexLevel(subIndex, argv.level) : subIndex;
-      emitRendered(renderIndexJson(limited), argv);
-      return;
-    }
-    if (!hasIndexLocation(indexNode)) {
-      return exitWithError(
-        `Node "${indexNode.id}" has no source location. Pick one of its child nodes.`
-      );
-    }
-    let envelope = buildNodeEnvelope({ indexNode, analysis, cwd });
-    if (argv['with-deps']) {
-      envelope = appendDepsClosure({ envelope, indexNode, analysis, index: fullIndex, cwd });
-    }
-    emitRendered(JSON.stringify(envelope, null, 2), argv);
+    renderOutput(graph, argv, {});
     return;
   }
 
-  const index =
-    argv.format === 'json' && isOpenApi
-      ? buildApiIndex(analysis, { specVersion, cwd, groupBy: argv['group-by'] })
-      : undefined;
+  let view: TreeView;
+  try {
+    view = resolveTreeView(argv, analysis, specVersion, cwd);
+  } catch (error) {
+    if (error instanceof TreeSelectorError) return exitWithError(error.message);
+    throw error;
+  }
 
-  // Structure mode resolves exactly one API (handleTree rejects more), so there is a single root.
-  const rootId = graph.roots[0];
-
-  let printedGraph = graph;
-  let stylishOptions: StylishOptions = {};
-
-  if (argv['uses']) {
-    const match = matchAffectedBy(graph, argv['uses'], { cwd, rootId });
-
-    for (const note of match.notes) {
-      logger.warn(note + '\n');
-    }
-    for (const warning of match.warnings) {
-      logger.warn(warning + '\n');
-    }
-
-    printedGraph = filterAffected(graph, match.changedIds);
-
+  if (view.kind === 'used-by' && argv.format === 'stylish') {
+    // Human impact view: reuse the graph filter + stylish tree.
+    const printedGraph = filterAffected(graph, [view.report.target.id]);
     const totalOperations = graph.nodes.filter((node) => node.kind === 'operation').length;
     const affectedOperations = printedGraph.nodes.filter(
       (node) => node.kind === 'operation'
     ).length;
-    const affectedPaths = printedGraph.nodes
-      .filter((node) => node.kind === 'path')
-      .map((node) => node.id);
-    const summary =
-      totalOperations > 0
-        ? `${affectedOperations} of ${totalOperations} operations affected · affected paths: ${affectedPaths.join(', ') || 'none'}`
-        : `${printedGraph.nodes.length} of ${graph.nodes.length} nodes affected`;
-
-    stylishOptions = {
-      summary,
+    renderOutput(printedGraph, argv, {
+      summary: `${affectedOperations} of ${totalOperations} operations affected`,
       emptyMessage: 'No nodes affected.',
-    };
-  }
-
-  if (argv.operations) {
-    printedGraph = filterOperations(printedGraph);
-    stylishOptions = { ...stylishOptions, showOperationId: true };
-  }
-
-  if (index !== undefined) {
-    let printedIndex = index;
-    if (argv['uses']) {
-      const keepIds = new Set(printedGraph.nodes.map((node) => node.id));
-      printedIndex = filterIndexByIds(printedIndex, keepIds);
-      if (index.structure.some((section) => section.id === 'Webhooks')) {
-        logger.warn(
-          'Webhooks are not part of the dependency graph yet, so they are omitted from --uses-filtered output.\n'
-        );
-      }
-    }
-    if (argv.operations) {
-      printedIndex = filterIndexSections(printedIndex, ['Operations', 'Webhooks']);
-    }
-    if (argv.level !== undefined) {
-      printedIndex = limitIndexLevel(printedIndex, argv.level);
-    }
-    emitRendered(renderIndexJson(printedIndex), argv);
+    });
     return;
   }
 
-  renderOutput(printedGraph, argv, stylishOptions);
+  emitRendered(renderView(view, argv.format), argv);
 }
 
 function renderOutput(
@@ -337,17 +450,7 @@ function renderOutput(
   argv: TreeArgv,
   stylishOptions: StylishOptions
 ): void {
-  let printedGraph = graph;
-  if (argv.level !== undefined) {
-    // The stylish view cuts by DISPLAY depth (matching `tree -L`); graph formats have no display
-    // depth, so they keep the nodes within `level` steps of the root instead.
-    if (argv.format === 'stylish') {
-      stylishOptions = { ...stylishOptions, maxLevel: argv.level };
-    } else {
-      printedGraph = limitGraphLevel(printedGraph, argv.level);
-    }
-  }
-  const rendered = renderGraph(printedGraph, argv.format, stylishOptions);
+  const rendered = renderGraph(graph, argv.format, stylishOptions);
   emitRendered(rendered, argv);
 }
 
@@ -365,14 +468,5 @@ function renderGraph(
   format: TreeFormat,
   stylishOptions: StylishOptions
 ): string {
-  switch (format) {
-    case 'json':
-      return renderJson(graph);
-    case 'mermaid':
-      return renderMermaid(graph);
-    case 'dot':
-      return renderDot(graph);
-    default:
-      return renderStylish(graph, stylishOptions);
-  }
+  return format === 'json' ? renderJson(graph) : renderStylish(graph, stylishOptions);
 }
