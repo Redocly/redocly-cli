@@ -19,6 +19,7 @@ When a command is run, the following data is collected:
 - Node.js and NPM versions
 - whether the `redocly.yaml` configuration file exists
 - API specification type and version
+- names of lint rules that reported errors, warnings, or ignored problems
 - Arazzo x-security authentication types
 - platform (Linux, macOS, Windows)
 - anonymous ID (a randomly generated identifier that doesn't contain personal information)

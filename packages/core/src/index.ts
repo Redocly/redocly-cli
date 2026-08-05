@@ -130,7 +130,7 @@ export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
-export type { CollectFn, Exact } from './utils/types.js';
+export type { CollectSpecData, Exact } from './utils/types.js';
 export type * from './typings/openapi.js';
 export type * from './typings/swagger.js';
 export type * from './typings/asyncapi3.js';

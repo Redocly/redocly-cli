@@ -1,4 +1,9 @@
-import { type Config, detectSpec, makeDocumentFromString } from '@redocly/openapi-core';
+import {
+  type Config,
+  type NormalizedProblem,
+  detectSpec,
+  makeDocumentFromString,
+} from '@redocly/openapi-core';
 import * as process from 'node:process';
 
 import { handleLint } from '../commands/lint.js';
@@ -136,6 +141,30 @@ describe('commandWrapper', () => {
         spec_version: 'graphql',
         spec_keyword: undefined,
         spec_full_version: undefined,
+      })
+    );
+  });
+
+  it('should collect the names of lint rules that reported problems', async () => {
+    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
+    });
+    vi.mocked(handleLint).mockImplementation(async ({ collectResults: collectLintResults }) => {
+      collectLintResults?.([
+        { ruleId: 'no-unused-components', severity: 'error' },
+        { ruleId: 'info-license', severity: 'warn' },
+        { ruleId: 'operation-summary', severity: 'warn', ignored: true },
+      ] as NormalizedProblem[]);
+    });
+    process.env.REDOCLY_TELEMETRY = 'on';
+
+    const wrappedHandler = commandWrapper(handleLint);
+    await wrappedHandler({} as any);
+    expect(sendTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lint_rules_with_errors: ['no-unused-components'],
+        lint_rules_with_warnings: ['info-license'],
+        lint_rules_with_ignored_problems: ['operation-summary'],
       })
     );
   });

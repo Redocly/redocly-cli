@@ -1,6 +1,6 @@
 import {
   type Config,
-  type CollectFn,
+  type CollectSpecData,
   type LoggerInterface,
   type BaseResolver,
 } from '@redocly/openapi-core';
@@ -22,7 +22,7 @@ export type RespectOptions = {
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout?: number;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
   envVariables?: Record<string, string>;
   version?: string;
@@ -79,7 +79,7 @@ async function runFile({
   options: RunOptions;
   startedAt: number;
   executedStepsCount: ExecutedStepsCount;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
 }): Promise<RunFileResult> {
   const result = await runTestFile({ options, collectSpecData, executedStepsCount });
 
