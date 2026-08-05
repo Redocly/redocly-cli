@@ -6,8 +6,11 @@ import { getTypes, type SpecVersion } from '../../oas-types.js';
 import { BaseResolver, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
 import { analyzeApi, type ApiAnalysis } from '../build-graph.js';
+import { findComponent, findOperationByPathMethod } from '../select.js';
 import {
   buildComponentListing,
+  buildComponentCard,
+  buildOperationCard,
   buildOperationListing,
   buildOverview,
   buildPathListing,
@@ -92,5 +95,45 @@ describe('views: overview and listings', () => {
     );
     const overview = buildOverview(analysis, { specVersion, cwd });
     expect(overview.webhooks).toBe(1);
+  });
+});
+
+describe('views: cards', () => {
+  it('builds an operation card with typed refs and no content by default', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'split')
+    );
+    const operation = findOperationByPathMethod(analysis.meta, '/tickets', 'post')!;
+    const card = buildOperationCard(analysis, operation, { specVersion, cwd });
+
+    expect(card).toMatchObject({ method: 'post', path: '/tickets', operationId: 'buyTickets' });
+    expect(card.content).toBeUndefined();
+    const schemaRef = card.refs.find((ref) => ref.name === 'Ticket');
+    expect(schemaRef).toMatchObject({ component: 'schemas', resolved: true });
+    expect(card.usedBy).toEqual([]);
+  });
+
+  it('builds a component card whose usedBy lists the referencing operation', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'split')
+    );
+    const component = findComponent(analysis.meta, 'schemas', 'Ticket')!;
+    const card = buildComponentCard(analysis, component, { specVersion, cwd });
+
+    expect(card).toMatchObject({ component: 'schemas', name: 'Ticket' });
+    expect(card.usedBy.map((entry) => entry.id)).toContain('POST /tickets');
+    const operationEntry = card.usedBy.find((entry) => entry.id === 'POST /tickets');
+    expect(operationEntry).toMatchObject({ method: 'post', path: '/tickets' });
+  });
+
+  it('appends content and the deps closure with withDeps', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'split')
+    );
+    const operation = findOperationByPathMethod(analysis.meta, '/tickets', 'post')!;
+    const card = buildOperationCard(analysis, operation, { specVersion, cwd, withDeps: true });
+
+    expect(card.content).toContain('operationId: buyTickets');
+    expect(card.deps!.map((dep) => dep.id)).toContain('schemas/Ticket');
   });
 });

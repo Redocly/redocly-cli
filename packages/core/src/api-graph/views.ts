@@ -1,7 +1,22 @@
 import type { SpecVersion } from '../oas-types.js';
-import type { ApiAnalysis, CollectedOperation } from './build-graph.js';
-import { COMPONENT_SECTIONS, toFileRange, toRelativePath, truncateSummary } from './build-index.js';
+import type { Location } from '../ref-utils.js';
+import type { ApiAnalysis, CollectedComponent, CollectedOperation } from './build-graph.js';
+import {
+  COMPONENT_SECTIONS,
+  buildApiIndex,
+  toFileRange,
+  toRelativePath,
+  truncateSummary,
+} from './build-index.js';
 import { listOperations } from './select.js';
+import {
+  appendDepsClosure,
+  buildNodeEnvelope,
+  collectNodeRefs,
+  type ApiNodeEnvelope,
+  type ApiNodeRef,
+  type LocatedIndexNode,
+} from './slice.js';
 
 export type FileRange = { pointer: string; file: string; start_line: number; end_line: number };
 
@@ -151,4 +166,176 @@ export function buildComponentListing(
         ...toFileRange(component.location, options.cwd),
       };
     });
+}
+
+export type TypedRef = ApiNodeRef & { component?: string; name?: string };
+
+export type UsedByEntry = {
+  id: string;
+  component?: string;
+  name?: string;
+  method?: string;
+  path?: string;
+  webhook?: string;
+  operationId?: string;
+} & Partial<FileRange>;
+
+export type OperationCard = OperationListItem & {
+  description?: string;
+  refs: TypedRef[];
+  usedBy: UsedByEntry[];
+  content?: string;
+  deps?: ApiNodeEnvelope[];
+  truncated?: boolean;
+};
+
+export type ComponentCard = {
+  component: string;
+  name: string;
+  summary?: string;
+  refs: TypedRef[];
+  usedBy: UsedByEntry[];
+  content?: string;
+  deps?: ApiNodeEnvelope[];
+  truncated?: boolean;
+} & FileRange;
+
+const COMPONENT_POINTER_PATTERN = /^#\/components\/([^/]+)\/([^/]+)$/;
+
+function classifyRef(ref: ApiNodeRef): TypedRef {
+  if (!ref.resolved || ref.pointer === undefined) return { ...ref, component: 'unknown' };
+  const componentMatch = ref.pointer.match(COMPONENT_POINTER_PATTERN);
+  if (componentMatch && COMPONENT_SECTIONS.includes(componentMatch[1])) {
+    const name = componentMatch[2].replace(/~1/g, '/').replace(/~0/g, '~');
+    return { ...ref, component: componentMatch[1], name };
+  }
+  // A component split into its own file is referenced at the file root.
+  if (ref.pointer === '#/' || ref.pointer === '#') {
+    const fileMatch = ref.file?.match(/(?:^|\/)components\/([^/]+)\/([^/]+)\.(?:yaml|yml|json)$/);
+    if (fileMatch && COMPONENT_SECTIONS.includes(fileMatch[1])) {
+      return { ...ref, component: fileMatch[1], name: fileMatch[2] };
+    }
+  }
+  return { ...ref, component: 'unknown' };
+}
+
+export function buildUsedBy(analysis: ApiAnalysis, nodeId: string, cwd: string): UsedByEntry[] {
+  const entries: UsedByEntry[] = [];
+  for (const edge of analysis.graph.edges) {
+    if (edge.to !== nodeId || edge.refs.length === 0) continue;
+    entries.push(toUsedByEntry(analysis, edge.from, cwd));
+  }
+  return entries.sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): UsedByEntry {
+  const operation = analysis.meta.operations.find((candidate) => candidate.id === nodeId);
+  if (operation) {
+    return {
+      id: nodeId,
+      method: operation.method.toLowerCase(),
+      ...(operation.isWebhook
+        ? { webhook: operation.containerKey }
+        : { path: operation.containerKey }),
+      ...(operation.operationId ? { operationId: operation.operationId } : {}),
+      ...toFileRange(operation.location, cwd),
+    };
+  }
+  const slashIndex = nodeId.indexOf('/');
+  if (slashIndex > 0) {
+    const section = nodeId.slice(0, slashIndex);
+    const name = nodeId.slice(slashIndex + 1);
+    const component = analysis.meta.components.find(
+      (candidate) => candidate.section === section && candidate.name === name
+    );
+    if (component) {
+      return { id: nodeId, component: section, name, ...toFileRange(component.location, cwd) };
+    }
+  }
+  const graphNode = analysis.graph.nodes.find((candidate) => candidate.id === nodeId);
+  return { id: nodeId, ...(graphNode?.file ? { file: graphNode.file } : {}) };
+}
+
+function locatedNodeFor(id: string, location: Location, cwd: string): LocatedIndexNode {
+  return { id, title: id, ...toFileRange(location, cwd) };
+}
+
+function appendRetrieval<
+  CardType extends { content?: string; deps?: ApiNodeEnvelope[]; truncated?: boolean },
+>(
+  card: CardType,
+  located: LocatedIndexNode,
+  analysis: ApiAnalysis,
+  options: { specVersion: SpecVersion; cwd: string }
+): CardType {
+  const envelope = appendDepsClosure({
+    envelope: buildNodeEnvelope({ indexNode: located, analysis, cwd: options.cwd }),
+    indexNode: located,
+    analysis,
+    index: buildApiIndex(analysis, {
+      specVersion: options.specVersion,
+      cwd: options.cwd,
+      groupBy: 'tags',
+    }),
+    cwd: options.cwd,
+  });
+  return {
+    ...card,
+    content: envelope.content,
+    deps: envelope.deps,
+    ...(envelope.truncated ? { truncated: true } : {}),
+  };
+}
+
+export function buildOperationCard(
+  analysis: ApiAnalysis,
+  operation: CollectedOperation,
+  options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean }
+): OperationCard {
+  const { cwd } = options;
+  const range = toFileRange(operation.location, cwd);
+  const description = truncateSummary(operation.description);
+  const card: OperationCard = {
+    ...toOperationListItem(operation, cwd),
+    ...(description ? { description } : {}),
+    refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
+      classifyRef
+    ),
+    usedBy: buildUsedBy(analysis, operation.id, cwd),
+  };
+  if (!options.withDeps) return card;
+  return appendRetrieval(
+    card,
+    locatedNodeFor(operation.id, operation.location, cwd),
+    analysis,
+    options
+  );
+}
+
+export function buildComponentCard(
+  analysis: ApiAnalysis,
+  component: CollectedComponent,
+  options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean }
+): ComponentCard {
+  const { cwd } = options;
+  const componentId = `${component.section}/${component.name}`;
+  const range = toFileRange(component.location, cwd);
+  const summary = truncateSummary(component.description);
+  const card: ComponentCard = {
+    component: component.section,
+    name: component.name,
+    ...(summary ? { summary } : {}),
+    ...range,
+    refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
+      classifyRef
+    ),
+    usedBy: buildUsedBy(analysis, componentId, cwd),
+  };
+  if (!options.withDeps) return card;
+  return appendRetrieval(
+    card,
+    locatedNodeFor(componentId, component.location, cwd),
+    analysis,
+    options
+  );
 }
