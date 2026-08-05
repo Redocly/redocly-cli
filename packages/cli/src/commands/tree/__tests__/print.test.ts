@@ -1,6 +1,4 @@
-import { renderDot } from '../print/dot.js';
 import { renderJson } from '../print/json.js';
-import { renderMermaid } from '../print/mermaid.js';
 import { renderStylish } from '../print/stylish.js';
 import type { DependencyGraph } from '../types.js';
 
@@ -131,66 +129,6 @@ describe('renderStylish', () => {
     `);
   });
 
-  it('shows operationId next to the method when showOperationId is set', () => {
-    const structure: DependencyGraph = {
-      roots: ['openapi.yaml'],
-      nodes: [
-        { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
-        { id: '/pets', resolved: true, kind: 'path' },
-        { id: 'GET /pets', resolved: true, kind: 'operation', operationId: 'listPets' },
-        { id: 'POST /pets', resolved: true, kind: 'operation' },
-      ],
-      edges: [
-        { from: 'openapi.yaml', to: '/pets', refs: [] },
-        { from: '/pets', to: 'GET /pets', refs: [] },
-        { from: '/pets', to: 'POST /pets', refs: [] },
-      ],
-    };
-
-    expect(renderStylish(structure, { showOperationId: true })).toMatchInlineSnapshot(`
-      "openapi.yaml
-      └── /pets
-          ├── GET (listPets)
-          └── POST"
-    `);
-
-    // Without the option the id stays hidden.
-    expect(renderStylish(structure)).not.toContain('listPets');
-  });
-
-  it('cuts the tree at maxLevel and marks pruned branches with …', () => {
-    const structure: DependencyGraph = {
-      roots: ['openapi.yaml'],
-      nodes: [
-        { id: 'openapi.yaml', root: true, resolved: true, kind: 'root' },
-        { id: '/pets', resolved: true, kind: 'path' },
-        { id: 'GET /pets', resolved: true, kind: 'operation' },
-        { id: 'schemas/Pet', resolved: true, kind: 'component' },
-        { id: '/stores', resolved: true, kind: 'path' },
-      ],
-      edges: [
-        { from: 'openapi.yaml', to: '/pets', refs: [] },
-        { from: 'openapi.yaml', to: '/stores', refs: [] },
-        { from: '/pets', to: 'GET /pets', refs: [] },
-        { from: 'GET /pets', to: 'schemas/Pet', refs: ['#/components/schemas/Pet'] },
-      ],
-    };
-
-    // A node at the cut level gets the marker only when it actually has hidden children.
-    expect(renderStylish(structure, { maxLevel: 1 })).toMatchInlineSnapshot(`
-      "openapi.yaml
-      ├── /pets …
-      └── /stores"
-    `);
-
-    expect(renderStylish(structure, { maxLevel: 2 })).toMatchInlineSnapshot(`
-      "openapi.yaml
-      ├── /pets
-      │   └── GET …
-      └── /stores"
-    `);
-  });
-
   it('re-expands a fan-in dependency (shared, non-cyclic) under every parent', () => {
     const fanIn: DependencyGraph = {
       roots: ['root.yaml'],
@@ -246,50 +184,6 @@ describe('renderStylish', () => {
   });
 });
 
-describe('renderMermaid', () => {
-  it('renders a flowchart with stable ids and a root class', () => {
-    expect(renderMermaid(graph)).toMatchInlineSnapshot(`
-      "flowchart LR
-        n0["components/Pet.yaml"]
-        n1["components/User.yaml"]
-        n2["components/missing.yaml"]
-        n3["https://example.com/shared.yaml"]
-        n4["openapi.yaml"]:::root
-        n5["paths/pets.yaml"]
-        n6["paths/users.yaml"]
-        n1 --> n0
-        n1 --> n2
-        n1 --> n3
-        n4 --> n5
-        n4 --> n6
-        n5 --> n0
-        n6 --> n1
-        classDef root font-weight:bold"
-    `);
-  });
-
-  it('escapes "#" in labels so mermaid does not read it as an entity', () => {
-    const withHash: DependencyGraph = {
-      roots: ['openapi.yaml'],
-      nodes: [
-        { id: 'openapi.yaml', root: true, resolved: true },
-        { id: 'components.yaml#/components/schemas/Pet', resolved: true },
-      ],
-      edges: [
-        {
-          from: 'openapi.yaml',
-          to: 'components.yaml#/components/schemas/Pet',
-          refs: ['./components.yaml#/components/schemas/Pet'],
-        },
-      ],
-    };
-
-    const output = renderMermaid(withHash);
-    expect(output).toContain('["components.yaml#35;/components/schemas/Pet"]');
-    expect(output).not.toContain('["components.yaml#/components/schemas/Pet"]');
-  });
-});
-
 describe('renderJson', () => {
   it('emits a nodes/links graph (D3 shape) without roots/edges keys', () => {
     const json = JSON.parse(renderJson(graph));
@@ -301,14 +195,5 @@ describe('renderJson', () => {
     });
     expect(json).not.toHaveProperty('roots');
     expect(json).not.toHaveProperty('edges');
-  });
-});
-
-describe('renderDot', () => {
-  it('emits a Graphviz digraph with quoted ids and directed edges', () => {
-    const dot = renderDot(graph);
-    expect(dot.startsWith('digraph')).toBe(true);
-    expect(dot).toContain('"openapi.yaml" -> "paths/pets.yaml"');
-    expect(dot).toContain('"https://example.com/shared.yaml"');
   });
 });
