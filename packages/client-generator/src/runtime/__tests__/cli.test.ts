@@ -336,3 +336,83 @@ describe('runCli', () => {
     expect(commandText).toContain('List orders.');
   });
 });
+
+describe('help output', () => {
+  const MULTILINE: CliCommand = {
+    group: 'Some multi-word tag',
+    name: 'listThings',
+    summary: 'List things.',
+    method: 'GET',
+    path: '/things',
+    positionals: [],
+    flags: [
+      {
+        name: 'cursor',
+        param: 'cursor',
+        type: 'string',
+        required: false,
+        description:
+          'Cursor value for pagination.\nReturns items starting at this cursor.\n\nSee the guide.',
+      },
+    ],
+  };
+
+  async function help(argv: string[], commands = COMMANDS) {
+    const { wiring, out } = fakeWiring();
+    const code = await runCli(commands, wiring, argv);
+    return { code, text: out.join('\n') };
+  }
+
+  it('lists every global flag and the credential env vars', async () => {
+    const { code, text } = await help(['--help']);
+    expect(code).toBe(0);
+    expect(text).toContain('Global flags:');
+    for (const flag of [
+      '--server-url',
+      '--format',
+      '--dry-run',
+      '--page-all',
+      '--output',
+      '--token',
+      '--json',
+    ]) {
+      expect(text).toContain(flag);
+    }
+    // The env vars are how credentials actually get in.
+    expect(text).toContain('_TOKEN');
+  });
+
+  it('points at the grouped form in the footer, since a bare command fails for grouped APIs', async () => {
+    const { text } = await help(['--help']);
+    expect(text).toContain('<group> <command> --help');
+  });
+
+  it('collapses a multiline flag description onto one line', async () => {
+    const { text } = await help(['some-multi-word-tag', 'listThings', '--help'], [MULTILINE]);
+    const cursorLine = text.split('\n').find((line) => line.includes('--cursor'));
+    expect(cursorLine).toContain(
+      'Cursor value for pagination. Returns items starting at this cursor. See the guide.'
+    );
+    expect(text.split('\n').filter((line) => line.startsWith('Returns items'))).toEqual([]);
+  });
+
+  it('addresses a multi-word tag by its kebab slug while showing the original title', async () => {
+    const { code, text } = await help(['--help'], [MULTILINE]);
+    expect(code).toBe(0);
+    // Typed without quoting…
+    expect(text).toContain('some-multi-word-tag');
+    // …but the human name is still shown.
+    expect(text).toContain('Some multi-word tag');
+    expect(parseInvocation([MULTILINE], ['some-multi-word-tag', 'listThings'])).toMatchObject({
+      kind: 'run',
+      command: MULTILINE,
+    });
+  });
+
+  it('resolves a bare operationId to its grouped command', () => {
+    expect(parseInvocation(COMMANDS, ['getOrder', 'ord_1'])).toMatchObject({
+      kind: 'run',
+      command: GET,
+    });
+  });
+});

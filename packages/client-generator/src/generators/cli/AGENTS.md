@@ -12,6 +12,16 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
 
 - **Argument shape:** path params positional, query params typed `--kebab-name` flags,
   JSON bodies via `--json '<json>' | @file | @-` (stdin).
+- **Help is the whole interface.** A flag that exists but isn't in `--help` doesn't exist
+  to the user, so the top-level help carries a `Global flags:` section (`--server-url`,
+  `--format`, `--dry-run`, `--page-all`, `--output`, `--token`, `--json`) plus the
+  credential environment variables. Descriptions are collapsed to ONE line — an OpenAPI
+  description with newlines otherwise breaks the alignment of every following flag. The
+  footer names the form that actually works for a grouped API
+  (`<bin> <group> <command> --help`).
+- **Commands are addressable the way a shell allows.** A group slug is kebab-cased so a
+  multi-word OpenAPI tag can be typed without quoting, while help shows the original tag.
+  A bare operationId resolves to its grouped command when unambiguous.
 - **Exit codes are a contract:** 0 ok, 1 API error, 2 auth, 3 validation, 4 usage.
   Errors print ONE JSON object to stderr so stdout stays pipeable.
 - **Credentials come from the environment** (a stem-derived prefix, e.g.

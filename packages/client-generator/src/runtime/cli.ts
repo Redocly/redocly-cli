@@ -86,6 +86,24 @@ const GLOBAL_FLAGS: Record<string, { key: keyof CliGlobals; boolean?: boolean }>
   json: { key: 'json' },
 };
 
+/**
+ * The shell-typable form of a group name: an OpenAPI tag can contain spaces ("Some
+ * multi-word tag"), which only resolves if the user quotes it. Commands are addressed by
+ * this slug; help still shows the original tag.
+ */
+function groupSlug(group: string): string {
+  return group
+    .trim()
+    .replace(/[^A-Za-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+}
+
+/** A description on ONE line: newlines in an OpenAPI description wreck help alignment. */
+function oneLine(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}
+
 /** Resolve argv against the command table. Pure — no I/O, no env. */
 export function parseInvocation(commands: CliCommand[], argv: string[]): CliInvocation {
   if (argv.length === 0 || argv[0] === '--help') return { kind: 'help' };
@@ -97,17 +115,31 @@ export function parseInvocation(commands: CliCommand[], argv: string[]): CliInvo
       : { kind: 'usage-error', message: `Unknown command: schema ${argv[1] ?? ''}`.trim() };
   }
 
-  const groups = new Set(commands.filter((c) => c.group).map((c) => c.group as string));
+  const slugs = new Set(commands.filter((c) => c.group).map((c) => groupSlug(c.group as string)));
   let command: CliCommand | undefined;
   let rest: string[];
-  if (groups.has(argv[0])) {
+  if (slugs.has(argv[0])) {
     if (argv[1] === '--help' || argv[1] === undefined) return { kind: 'help', topic: argv[0] };
-    command = commands.find((c) => c.group === argv[0] && c.name === argv[1]);
+    command = commands.find((c) => c.group && groupSlug(c.group) === argv[0] && c.name === argv[1]);
     if (!command) return { kind: 'usage-error', message: `Unknown command: ${argv[0]} ${argv[1]}` };
     rest = argv.slice(2);
   } else {
-    command = commands.find((c) => c.group === undefined && c.name === argv[0]);
-    if (!command) return { kind: 'usage-error', message: `Unknown command: ${argv[0]}` };
+    // An ungrouped command, or a bare operationId — knowing the group shouldn't be
+    // required when the name alone is unambiguous.
+    const named = commands.filter((c) => c.name === argv[0]);
+    command =
+      named.find((c) => c.group === undefined) ?? (named.length === 1 ? named[0] : undefined);
+    if (!command) {
+      const ambiguous = named.length > 1;
+      return {
+        kind: 'usage-error',
+        message: ambiguous
+          ? `Ambiguous command: ${argv[0]} — prefix it with its group (${named
+              .map((c) => groupSlug(c.group as string))
+              .join(', ')})`
+          : `Unknown command: ${argv[0]}`,
+      };
+    }
     rest = argv.slice(1);
   }
   if (rest.includes('--help')) return { kind: 'help', topic: command };
@@ -247,7 +279,7 @@ function renderHelp(
     const command = topic;
     const usage = [
       binName,
-      ...(command.group ? [command.group] : []),
+      ...(command.group ? [groupSlug(command.group)] : []),
       command.name,
       ...command.positionals.map((slot) => `<${slot.name}>`),
       ...(command.flags.length > 0 ? ['[flags]'] : []),
@@ -261,32 +293,56 @@ function renderHelp(
         const choices = flag.enum ? ` (one of: ${flag.enum.join(', ')})` : '';
         const required = flag.required ? ' [required]' : '';
         lines.push(
-          `  --${flag.name} <${flag.type}>${choices}${required}  ${flag.description ?? ''}`.trimEnd()
+          `  --${flag.name} <${flag.type}>${choices}${required}  ${oneLine(flag.description ?? '')}`.trimEnd()
         );
       }
     }
     return lines;
   }
-  const scope = typeof topic === 'string' ? commands.filter((c) => c.group === topic) : commands;
+  const scope =
+    typeof topic === 'string'
+      ? commands.filter((c) => c.group && groupSlug(c.group) === topic)
+      : commands;
   const lines =
     typeof topic === 'string'
       ? [`Usage: ${binName} ${topic} <command> …`, '', 'Commands:']
       : [`Usage: ${binName} [group] <command> …`, '', 'Commands:'];
   const seenGroups = new Set<string>();
+  const grouped = commands.some((c) => c.group);
   for (const command of scope) {
     if (typeof topic !== 'string' && command.group) {
-      if (seenGroups.has(command.group)) continue;
-      seenGroups.add(command.group);
-      lines.push(`  ${command.group} <command>`);
+      const slug = groupSlug(command.group);
+      if (seenGroups.has(slug)) continue;
+      seenGroups.add(slug);
+      // The slug is what you type; the tag is what you recognize.
+      const title = slug === command.group ? '' : `  (${command.group})`;
+      lines.push(`  ${slug} <command>${title}`);
       continue;
     }
     lines.push(
-      `  ${[command.group, command.name].filter(Boolean).join(' ')}  ${command.summary ?? ''}`.trimEnd()
+      `  ${[command.group === undefined ? undefined : groupSlug(command.group), command.name]
+        .filter(Boolean)
+        .join(' ')}  ${oneLine(command.summary ?? '')}`.trimEnd()
     );
   }
+  // Flags that apply to every command, and the env vars credentials come from: a flag
+  // absent from --help may as well not exist.
+  const prefix = envPrefix(binName);
   lines.push(
     '',
-    `Run ${binName} <command> --help for command details; ${binName} schema <command> prints its schemas.`
+    'Global flags:',
+    '  --server-url <url>      Override the baked server URL',
+    '  --format <json|ndjson>  Output format',
+    '  --dry-run               Print the prepared request without sending it',
+    '  --page-all              Follow pagination, one JSON page per line',
+    '  --output <path>         Write the response body to a file (required for binary)',
+    '  --token <token>         Bearer token',
+    `  --json <json|@file|@->  Request body`,
+    '',
+    'Environment:',
+    `  ${prefix}_TOKEN, ${prefix}_USERNAME/${prefix}_PASSWORD, ${prefix}_API_KEY_<SCHEME>`,
+    '',
+    `Run ${binName} ${grouped ? '<group> <command>' : '<command>'} --help for command details; ${binName} schema <command> prints its schemas.`
   );
   return lines;
 }
