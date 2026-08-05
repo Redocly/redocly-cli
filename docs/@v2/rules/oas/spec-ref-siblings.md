@@ -62,6 +62,7 @@ rules:
 
 Example of **incorrect** siblings next to a Reference Object `$ref` (OAS 3.1), where neither `headers` nor the `x-internal` extension is allowed:
 
+```yaml
 responses:
   '200':
     $ref: '#/components/responses/Ok'
@@ -74,6 +75,7 @@ responses:
 
 Example of **correct** siblings next to a Reference Object `$ref` (OAS 3.1), where only `summary` and `description` are allowed:
 
+```yaml
 responses:
   '200':
     $ref: '#/components/responses/Ok'
@@ -82,6 +84,7 @@ responses:
 
 Example of **correct** siblings next to a Schema Object `$ref` (OAS 3.1), where JSON Schema 2020-12 keywords are allowed:
 
+```yaml
 schema:
   $ref: '#/components/schemas/Base'
   readOnly: true
