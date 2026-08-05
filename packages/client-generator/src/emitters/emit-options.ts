@@ -58,6 +58,13 @@ export type EmitOptions = {
    */
   importExt?: 'js' | 'ts';
   /**
+   * Command name the `cli` generator uses in help output and to derive its credential
+   * environment variables. Defaults to the output stem with non-word characters folded
+   * to `-` — the stem follows the TypeScript file convention, and `openapi.client` reads
+   * as a filename in a usage line.
+   */
+  binName?: string;
+  /**
    * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
    * resolved together with each operation's `x-redocly-pagination` extension. Verified
    * statically: an explicit rule that doesn't fit its operation fails generation.

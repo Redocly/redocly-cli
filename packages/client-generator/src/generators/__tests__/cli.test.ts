@@ -83,3 +83,27 @@ describe('cliGenerator', () => {
     expect(sample?.source).toContain('Orders getOrder <orderId>');
   });
 });
+
+describe('bin name', () => {
+  it('folds the TypeScript stem into a command-like name', () => {
+    // `openapi.client` in a usage line reads as a filename, and yields OPENAPI_CLIENT_* anyway.
+    const out = cliGenerator({
+      model: MODEL,
+      outputPath: '/out/openapi.client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(out).toContain('binName: "openapi-client"');
+    expect(out).not.toContain('binName: "openapi.client"');
+  });
+
+  it('honors an explicit binName', () => {
+    const out = cliGenerator({
+      model: MODEL,
+      outputPath: '/out/openapi.client.ts',
+      outputMode: 'single',
+      emit: { binName: 'cafe' },
+    })[0].content;
+    expect(out).toContain('binName: "cafe"');
+  });
+});

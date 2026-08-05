@@ -374,6 +374,7 @@ const Client: NodeType = {
     outputMode: { enum: ['single', 'split'] },
     runtime: { enum: ['inline', 'package'] },
     importExt: { enum: ['js', 'ts'] },
+    binName: { type: 'string' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },

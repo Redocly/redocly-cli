@@ -24,6 +24,10 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
   A bare operationId resolves to its grouped command when unambiguous.
 - **Exit codes are a contract:** 0 ok, 1 API error, 2 auth, 3 validation, 4 usage.
   Errors print ONE JSON object to stderr so stdout stays pipeable.
+- **The bin name is a command name, not a filename.** It defaults to the output stem with
+  dots and other non-word characters folded to `-` (`openapi.client` → `openapi-client`),
+  because the stem follows the TypeScript file convention and a usage line reading
+  `openapi.client orders …` looks like a path. `client.binName` overrides it.
 - **Credentials come from the environment** (a stem-derived prefix, e.g.
   `CLIENT_TOKEN`) or explicit flags; `--dry-run` prints the prepared request with
   credentials REDACTED.

@@ -899,6 +899,12 @@ yargs(hideBin(process.argv))
             choices: ['inline', 'package'] as const,
             requiresArg: true,
           },
+          'bin-name': {
+            description:
+              "Command name for the `cli` generator's help output and credential env vars. Defaults to the output stem.",
+            type: 'string',
+            requiresArg: true,
+          },
           'import-ext': {
             describe:
               "Extension in generated relative imports: 'js' (default) suits tsc and bundlers; 'ts' suits runtimes that resolve specifiers literally, like Node's built-in type stripping (node client.ts).",

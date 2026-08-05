@@ -88,6 +88,8 @@ export type GenerateClientOptions = {
    * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
    * type stripping (`node client.ts`). */
   importExt?: 'js' | 'ts';
+  /** Command name for the `cli` generator; defaults to the output stem, sanitized. */
+  binName?: string;
   /**
    * Emit `<output stem>.code-samples.yaml` — an OpenAPI Overlay adding per-operation
    * `x-codeSamples` collected from every selected generator that implements `sample()`.
