@@ -5,6 +5,7 @@ import type {
   Async3SecurityScheme,
   Async3Server,
 } from '../../typings/asyncapi3.js';
+import type { Referenced } from '../../typings/openapi.js';
 import type { Async3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { hasSecurityRequirements, isAsyncOperationSecured } from '../utils.js';
@@ -34,9 +35,9 @@ function pointsToSecurityScheme(pointer: string): boolean {
 
 export const SecurityDefined: Async3Rule = () => {
   const references: SecurityReference[] = [];
-  let rootServers: Record<string, Async3Server> | undefined;
+  let rootServers: Record<string, Referenced<Async3Server>> | undefined;
   let rootServersFrom: string | undefined;
-  let rootOperations: Record<string, Async3Operation> | undefined;
+  let rootOperations: Record<string, Referenced<Async3Operation>> | undefined;
   let rootOperationsFrom: string | undefined;
   let rootOperationsLocation: Location | undefined;
 
@@ -54,7 +55,7 @@ export const SecurityDefined: Async3Rule = () => {
       : channelRef;
     const channelServers = channel?.servers;
 
-    let applicableServers: Array<Async3Server>;
+    let applicableServers: Array<Referenced<Async3Server>>;
     let serversFrom: string | undefined;
     if (channelServers && channelServers.length > 0) {
       applicableServers = channelServers;
@@ -85,7 +86,8 @@ export const SecurityDefined: Async3Rule = () => {
         }
         const operationsNode = root?.operations;
         if (isRef(operationsNode)) {
-          const resolvedOperations = resolve<Record<string, Async3Operation>>(operationsNode);
+          const resolvedOperations =
+            resolve<Record<string, Referenced<Async3Operation>>>(operationsNode);
           rootOperations = resolvedOperations.node ?? undefined;
           rootOperationsFrom = resolvedOperations.location?.source.absoluteRef;
           rootOperationsLocation = resolvedOperations.location;
@@ -143,7 +145,7 @@ export const SecurityDefined: Async3Rule = () => {
       },
     },
     SecuritySchemeList: {
-      enter(list: Array<Async3SecurityScheme>, { location, resolve }: UserContext) {
+      enter(list: Array<Referenced<Async3SecurityScheme>>, { location, resolve }: UserContext) {
         if (!list) return;
         for (let i = 0; i < list.length; i++) {
           const item = list[i];
