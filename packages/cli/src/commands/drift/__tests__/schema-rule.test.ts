@@ -1,11 +1,11 @@
-import { SchemaConsistencyRule } from '../../../commands/drift/rules/builtins/schema.js';
+import { SchemaConsistencyRule } from '../rules/builtins/schema.js';
 import type {
   MatchedOperation,
   NormalizedExchange,
   OpenApiParameter,
   RuleContext,
-} from '../../../commands/drift/types/index.js';
-import { parseHeaderIgnoreList } from '../../../commands/drift/utils/http.js';
+} from '../types/index.js';
+import { parseHeaderIgnoreList } from '../utils/http.js';
 
 function createMatchedOperation(requestParameters?: OpenApiParameter[]): MatchedOperation {
   return {
