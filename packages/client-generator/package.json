@@ -34,8 +34,7 @@
   "scripts": {
     "examples:regen": "node scripts/regenerate-examples.mjs",
     "prepare": "node scripts/generate-runtime-sources.mjs && node scripts/generate-eject-assets.mjs",
-    "typecheck:examples": "node scripts/typecheck-examples.mjs",
-    "prepublishOnly": "rm -rf lib *.tsbuildinfo && tsc -b tsconfig.build.json"
+    "typecheck:examples": "node scripts/typecheck-examples.mjs"
   },
   "license": "MIT",
   "repository": {
