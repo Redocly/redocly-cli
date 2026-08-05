@@ -22,6 +22,11 @@ and either the embedded runtime (`runtime: inline`) or imports from
 - **Zero runtime dependencies.** `Date`, `Blob`, `fetch` — nothing else.
 - **Names are collision-safe:** `packageIdents` seeds every reserved wiring name before
   any operation is sanitized, so renames are deterministic (`configure` → `configure_2`).
+  A rename becomes part of the SDK's public API, so the warning must say WHICH cause it
+  is and what the publisher can do: a duplicate `operationId` in the description (fix the
+  description — the only real fix), a name that isn't a valid identifier, or a clash with
+  a name the generated module already declares. A vague "collides or is invalid" message
+  leaves the publisher unable to act.
 - **Throw mode returns the body**; `{ envelope: true }` opts into
   `{ data, headers, response }` with typed declared headers. Result mode returns
   `{ data, error, response }` and ignores `envelope`.

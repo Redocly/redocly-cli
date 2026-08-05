@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { ApiModel, OperationModel, SchemaModel } from '../model.js';
 import {
   assertPathParamsAvoidArgSlots,
@@ -354,5 +356,58 @@ describe('assertSafeIdentifiers', () => {
     expect(() => assertSafeIdentifiers(m)).toThrow(
       /security scheme name .* is not a safe identifier/
     );
+  });
+});
+
+describe('rename warnings name the cause and the fix', () => {
+  function warningsFor(build: () => void): string {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    try {
+      build();
+      return warn.mock.calls.map(([message]) => message).join('');
+    } finally {
+      warn.mockRestore();
+    }
+  }
+
+  it('says the description has a duplicate operationId — the only real fix', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(
+        model([], [op({ name: 'patchCreditMemo' }), op({ name: 'patchCreditMemo' })])
+      )
+    );
+    expect(messages).toContain('two operations share the operationId "patchCreditMemo"');
+    expect(messages).toContain('patchCreditMemo_2');
+    expect(messages).toContain('give each operation a unique operationId');
+    // The old message blamed the identifier and offered nothing to act on.
+    expect(messages).not.toContain('is not a valid TypeScript identifier');
+  });
+
+  it('says which reserved name a schema clashed with', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(model([{ name: 'Error', schema: { kind: 'unknown' } }]))
+    );
+    expect(messages).toContain('schema "Error"');
+    expect(messages).toContain('a name the generated client already declares');
+    expect(messages).toContain('Error_2');
+  });
+
+  it('says a name was not a usable identifier when that is the actual cause', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(model([{ name: 'not a name!', schema: { kind: 'unknown' } }]))
+    );
+    expect(messages).toContain('is not a usable identifier');
+  });
+  it('says an operation collided with a schema of the same name — the common real case', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(
+        model(
+          [{ name: 'PatchCreditMemo', schema: { kind: 'unknown' } }],
+          [op({ name: 'PatchCreditMemo' })]
+        )
+      )
+    );
+    expect(messages).toContain('collides with the schema of the same name');
+    expect(messages).toContain('rename the operation or the schema in the description');
   });
 });
