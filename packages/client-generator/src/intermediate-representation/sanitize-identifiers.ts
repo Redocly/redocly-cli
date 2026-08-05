@@ -204,7 +204,7 @@ function warnRename(what: string, from: string, to: string, cause: RenameCause):
       : cause.kind === 'schema-collision'
         ? `${what} ${name} collides with the schema of the same name, so it is emitted as ${renamed} — rename the operation or the schema in the description to control its name`
         : cause.kind === 'reserved'
-          ? `${what} ${name} is a name the generated client already declares, so it is emitted as ${renamed}`
+          ? `${what} ${name} is a name a generated client already declares, so it is emitted as ${renamed} — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate`
           : `${what} ${name} is not a usable identifier, so it is emitted as ${renamed}`;
   logger.warn(`generate-client: ${explanation}.\n`);
 }

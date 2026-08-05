@@ -67,6 +67,10 @@ The CLI can also emit its own reference documentation as Markdown (every command
 
 `python`, `go`, and `php` emit a full SDK for that language — one self-contained file, no dependencies beyond the language's own HTTP support (`httpx` for Python; the standard library for Go; the curl extension for PHP).
 
+One file is the deliverable, not a limitation we haven't gotten to: it can be downloaded from a docs page, committed, and read end to end, and it has no package to publish or import graph to wire up.
+A description the size of a large public API produces a file of a few megabytes, which every one of these languages loads without trouble.
+If you want a different layout, [eject the generator](../commands/eject-generator.md) — `run` returns the list of files, so splitting the output is a change to your own copy.
+
 **They are the TypeScript client in another language.** Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, pagination iterators, SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
 Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
 
@@ -179,6 +183,10 @@ api := client.New(client.Config{Middleware: []client.Middleware{{
 
 A property or parameter whose name is a reserved word gets a trailing underscore, while the wire name is preserved — `tag.type_` in Python, `$tag->type_` in PHP, `tag.Type_` in Go, all serializing as `type`.
 The same applies to method arguments: `list_tags(type_=...)`, `ListTagsParams{Type_: ...}`.
+
+Type and method **names** are resolved once, in the shared model, against a reserved set that is the union across the supported languages.
+A schema therefore keeps the same name in every SDK you generate from the description — `Error` becomes `Error_2` in the Python SDK too, even though Python would accept `Error`, so an API's TypeScript, Python, PHP, and Go clients stay talkable-about with one vocabulary.
+Every rename is reported with its cause, so a publisher who wants a different name renames the schema or operation in the description.
 
 ## Package runtime
 

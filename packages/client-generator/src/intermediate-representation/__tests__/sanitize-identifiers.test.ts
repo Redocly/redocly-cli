@@ -388,8 +388,10 @@ describe('rename warnings name the cause and the fix', () => {
       sanitizeIdentifiers(model([{ name: 'Error', schema: { kind: 'unknown' } }]))
     );
     expect(messages).toContain('schema "Error"');
-    expect(messages).toContain('a name the generated client already declares');
+    expect(messages).toContain('a name a generated client already declares');
     expect(messages).toContain('Error_2');
+    // The reserved set is the union across languages, so the name is the same in every SDK.
+    expect(messages).toContain('spans every target language');
   });
 
   it('says a name was not a usable identifier when that is the actual cause', () => {
