@@ -410,6 +410,16 @@ describe('goGenerator parity features', () => {
     expectGoCompiles(out);
   });
 
+  it('bakes the serverUrl option, not just the description server', () => {
+    const files = goGenerator({
+      model: CAFE,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { serverUrl: 'https://override.example' },
+    });
+    expect(files[0].content).toContain('config.ServerURL = "https://override.example"');
+  });
+
   it('emits one URL function per declared server with variables as parameters', () => {
     const out = generateGo();
     expect(out).toContain('func LiveServerURL(organizationId string) string {');

@@ -566,7 +566,8 @@ function writeClientClass(
   model: ApiModel,
   errorMode: 'throw' | 'result',
   isAsync: boolean,
-  paginationSpecs: Map<string, Record<string, unknown> | undefined>
+  paginationSpecs: Map<string, Record<string, unknown> | undefined>,
+  serverUrl: string
 ): void {
   const name = isAsync ? 'AsyncClient' : 'Client';
   const httpType = isAsync ? 'httpx.AsyncClient' : 'httpx.Client';
@@ -576,7 +577,7 @@ function writeClientClass(
       `${isAsync ? 'Async ' : ''}client for ${model.title} (${model.version}).`
     );
     printer.block(
-      `def __init__(self, server_url: str = ${JSON.stringify(model.serverUrl ?? '')}, *, ` +
+      `def __init__(self, server_url: str = ${JSON.stringify(serverUrl)}, *, ` +
         'auth: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None, ' +
         'timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, ' +
         'middleware: Optional[List[Any]] = None, idempotency_key: Any = None, ' +
@@ -699,8 +700,10 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   printer.blank();
   printer.blank();
 
-  writeClientClass(printer, model, errorMode, false, paginationSpecs);
-  writeClientClass(printer, model, errorMode, true, paginationSpecs);
+  // The `serverUrl` option overrides the description's server, like the TS sdk.
+  const serverUrl = emit.serverUrl ?? model.serverUrl ?? '';
+  writeClientClass(printer, model, errorMode, false, paginationSpecs, serverUrl);
+  writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl);
 
   return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: printer.toString() }];
 };

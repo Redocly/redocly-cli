@@ -422,6 +422,16 @@ describe('pythonGenerator parity features', () => {
     expectCompiles(out);
   });
 
+  it('bakes the serverUrl option, not just the description server', () => {
+    const files = pythonGenerator({
+      model: CAFE,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { serverUrl: 'https://override.example' },
+    });
+    expect(files[0].content).toContain('server_url: str = "https://override.example"');
+  });
+
   it('emits a Servers class with keyword arguments defaulting to the spec defaults', () => {
     const out = generate();
     expect(out).toContain('class Servers:');

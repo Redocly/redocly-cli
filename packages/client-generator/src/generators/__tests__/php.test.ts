@@ -454,6 +454,16 @@ describe('phpGenerator (full client assembly)', () => {
     expectPhpRuns(out);
   });
 
+  it('bakes the serverUrl option, not just the description server', () => {
+    const files = phpGenerator({
+      model: CAFE,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { serverUrl: 'https://override.example' },
+    });
+    expect(files[0].content).toContain("$this->config->serverUrl = 'https://override.example';");
+  });
+
   it('emits a Servers class with named variable arguments defaulting to the spec defaults', () => {
     const out = generatePhp();
     expect(out).toContain('final class Servers');

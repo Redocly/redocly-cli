@@ -850,7 +850,9 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
           printer.block(
             "if ($this->config->serverUrl === '') {",
             () => {
-              printer.line(`$this->config->serverUrl = ${phpString(model.serverUrl ?? '')};`);
+              printer.line(
+                `$this->config->serverUrl = ${phpString(emit.serverUrl ?? model.serverUrl ?? '')};`
+              );
             },
             '}'
           );

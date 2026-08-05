@@ -906,7 +906,9 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
       printer.block(
         'if config.ServerURL == "" {',
         () => {
-          printer.line(`config.ServerURL = ${JSON.stringify(model.serverUrl ?? '')}`);
+          printer.line(
+            `config.ServerURL = ${JSON.stringify(emit.serverUrl ?? model.serverUrl ?? '')}`
+          );
         },
         '}'
       );
