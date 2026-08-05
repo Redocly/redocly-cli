@@ -613,3 +613,45 @@ describe('collect refs', () => {
     });
   });
 });
+
+describe('remote refs with query strings', () => {
+  it('should resolve a pointer into a remote file with a query string', async () => {
+    const plainTextFetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        text: () =>
+          Promise.resolve(
+            outdent`
+              openapi: 3.1.0
+              paths:
+                /api/invoices:
+                  get:
+                    operationId: listInvoices
+            `
+          ),
+        headers: { get: () => 'text/plain; charset=utf-8' },
+      })
+    );
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /test:
+            $ref: 'https://localhost/test.yaml?ref=blah#/paths/~1api~1invoices'
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: plainTextFetch as any, headers: [] },
+      }),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const resolvedRef = Array.from(resolvedRefs.values())[0];
+    expect(resolvedRef.resolved).toBe(true);
+    expect(resolvedRef.node).toEqual({ get: { operationId: 'listInvoices' } });
+  });
+});
