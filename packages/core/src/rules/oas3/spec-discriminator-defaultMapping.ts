@@ -1,6 +1,7 @@
+import type { Location } from '../../ref-utils.js';
 import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import { type Oas3Rule } from '../../visitors.js';
-import { type UserContext } from '../../walk.js';
+import type { UserContext } from '../../walk.js';
 import { resolveSchema } from '../utils.js';
 
 export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
@@ -26,9 +27,9 @@ export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
 
           const isDiscriminatorPropertyRequired = (
             schemaOrRef: Oas3Schema | Oas3_1Schema | undefined,
-            resolveFrom?: string
+            location?: Location
           ): boolean => {
-            const resolved = resolveSchema(schemaOrRef, ctx, resolveFrom);
+            const resolved = resolveSchema(schemaOrRef, ctx, location);
             if (!resolved.schema || visited.has(resolved.schema)) {
               return true;
             }

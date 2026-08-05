@@ -11,35 +11,125 @@ import type {
   Oas3Tag,
   Oas3_2Tag,
   Oas3_1Schema,
+  OasRef,
   Referenced,
 } from '../typings/openapi.js';
-import type { Oas2Tag } from '../typings/swagger.js';
+import type { Oas2Schema, Oas2Tag } from '../typings/swagger.js';
+import { getOwn } from '../utils/get-own.js';
 import { isDefined } from '../utils/is-defined.js';
+import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import type { AjvValidator } from './ajv.js';
+import { type AjvValidator } from './ajv.js';
+
+export type AnySchema =
+  | Oas3Schema
+  | Oas3_1Schema
+  | (Oas2Schema & { anyOf?: undefined; oneOf?: undefined });
 
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
   ctx: UserContext,
-  resolveFrom?: string
+  location?: Location
 ): {
-  schema: T | undefined;
-  location: string | undefined;
+  schema?: T;
+  location?: Location;
   chain?: ResolvedRefChainHop[];
 } => {
   if (isRef(schemaOrRef)) {
-    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);
+    const resolved = ctx.resolve<T>(schemaOrRef, location?.source.absoluteRef);
     return resolved
-      ? {
-          schema: resolved.node,
-          location: resolved.location?.source.absoluteRef,
-          chain: resolved.chain,
-        }
-      : { schema: undefined, location: resolveFrom };
+      ? { schema: resolved.node, location: resolved.location, chain: resolved.chain }
+      : { schema: undefined, location };
   }
 
-  return { schema: schemaOrRef, location: resolveFrom };
+  return { schema: schemaOrRef, location };
+};
+
+const schemaDefinesProperty = (
+  schema: AnySchema,
+  propertyName: string,
+  ctx: UserContext,
+  visited: Set<AnySchema | OasRef>,
+  location?: Location
+): boolean => {
+  if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
+    return true;
+  }
+
+  if (
+    schema.allOf?.some((branch) => schemaHasProperty(branch, propertyName, ctx, visited, location))
+  ) {
+    return true;
+  }
+
+  if (
+    isNotEmptyArray<AnySchema>(schema.anyOf) &&
+    schema.anyOf.every((branch) =>
+      schemaHasProperty(branch, propertyName, ctx, new Set(visited), location)
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    isNotEmptyArray<AnySchema>(schema.oneOf) &&
+    schema.oneOf.every((branch) =>
+      schemaHasProperty(branch, propertyName, ctx, new Set(visited), location)
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+export const schemaHasProperty = (
+  schemaOrRef: Referenced<AnySchema> | undefined,
+  propertyName: string,
+  ctx: UserContext,
+  visited: Set<AnySchema | OasRef> = new Set(),
+  resolveLocation?: Location
+): boolean => {
+  // a $ref can carry sibling keywords that compose the target, so check them first
+  if (
+    isRef(schemaOrRef) &&
+    schemaDefinesProperty(schemaOrRef as AnySchema, propertyName, ctx, visited, resolveLocation)
+  ) {
+    return true;
+  }
+
+  const { schema, location, chain } = resolveSchema(schemaOrRef, ctx, resolveLocation);
+  if (!schema) return false;
+
+  if (!visited.has(schema)) {
+    visited.add(schema);
+    if (schemaDefinesProperty(schema, propertyName, ctx, visited, location)) {
+      return true;
+    }
+  }
+
+  // composed $refs the resolution chased through contribute their sibling keywords too,
+  // even when the chain end was already visited through another branch
+  for (const chainHop of chain ?? []) {
+    if (!isPlainObject(chainHop.node) || visited.has(chainHop.node as AnySchema)) {
+      continue;
+    }
+    visited.add(chainHop.node as AnySchema);
+    if (
+      schemaDefinesProperty(
+        chainHop.node as AnySchema,
+        propertyName,
+        ctx,
+        visited,
+        chainHop.location
+      )
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 export function oasTypeOf(value: unknown) {

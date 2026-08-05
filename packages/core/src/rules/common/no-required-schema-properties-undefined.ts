@@ -1,17 +1,10 @@
-import { isRef, type Location } from '../../ref-utils.js';
-import type { Oas3Schema, Oas3_1Schema, OasRef } from '../../typings/openapi.js';
-import type { Oas2Schema } from '../../typings/swagger.js';
-import { getOwn } from '../../utils/get-own.js';
+import { type Location } from '../../ref-utils.js';
+import type { OasRef } from '../../typings/openapi.js';
 import { isNotEmptyArray } from '../../utils/is-not-empty-array.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { ResolveResult, UserContext } from '../../walk.js';
-import { resolveSchema } from '../utils.js';
-
-type AnySchema =
-  | Oas3Schema
-  | Oas3_1Schema
-  | (Oas2Schema & { anyOf?: undefined; oneOf?: undefined });
+import { type AnySchema, resolveSchema, schemaHasProperty } from '../utils.js';
 
 export const NoRequiredSchemaPropertiesUndefined:
   | Oas3Rule
@@ -22,97 +15,15 @@ export const NoRequiredSchemaPropertiesUndefined:
   const parents: AnySchema[] = [];
   const validatedRefNodes = new Set<unknown>();
 
-  const definesProperty = (
-    schema: AnySchema,
-    propertyName: string,
-    visited: Set<AnySchema>,
-    ctx: UserContext,
-    resolveFrom?: string
-  ): boolean => {
-    if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
-      return true;
-    }
-
-    if (schema.allOf?.some((s) => hasProperty(s, propertyName, visited, ctx, resolveFrom))) {
-      return true;
-    }
-
-    if (
-      isNotEmptyArray<AnySchema>(schema.anyOf) &&
-      schema.anyOf.every((s) => hasProperty(s, propertyName, new Set(visited), ctx, resolveFrom))
-    ) {
-      return true;
-    }
-
-    if (
-      isNotEmptyArray<AnySchema>(schema.oneOf) &&
-      schema.oneOf.every((s) => hasProperty(s, propertyName, new Set(visited), ctx, resolveFrom))
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const hasProperty = (
-    schemaOrRef: AnySchema | undefined,
-    propertyName: string,
-    visited: Set<AnySchema>,
-    ctx: UserContext,
-    resolveFrom?: string
-  ): boolean => {
-    // A JSON Schema 2020-12 $ref can carry sibling keywords that compose the target,
-    // so check them before the $ref is resolved away.
-    if (
-      isRef(schemaOrRef) &&
-      definesProperty(schemaOrRef as AnySchema, propertyName, visited, ctx, resolveFrom)
-    ) {
-      return true;
-    }
-
-    const { schema, location, chain } = resolveSchema(schemaOrRef, ctx, resolveFrom);
-    if (!schema) return false;
-
-    if (!visited.has(schema)) {
-      visited.add(schema);
-      if (definesProperty(schema, propertyName, visited, ctx, location)) {
-        return true;
-      }
-    }
-
-    // composed $refs the resolution chased through contribute their sibling keywords too,
-    // even when the chain end was already visited through another branch
-    for (const chainHop of chain ?? []) {
-      if (!isPlainObject(chainHop.node) || visited.has(chainHop.node)) {
-        continue;
-      }
-      visited.add(chainHop.node as AnySchema);
-      if (
-        definesProperty(
-          chainHop.node as AnySchema,
-          propertyName,
-          visited,
-          ctx,
-          chainHop.location.source.absoluteRef
-        )
-      ) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   const reportUndefinedRequired = (
     schema: AnySchema,
     schemaLocation: Location,
-    ctx: UserContext,
-    resolveFrom?: string
+    ctx: UserContext
   ) => {
     if (!isNotEmptyArray<string>(schema.required)) return;
 
     for (const [i, requiredProperty] of schema.required.entries()) {
-      if (!hasProperty(schema, requiredProperty, new Set(), ctx, resolveFrom)) {
+      if (!schemaHasProperty(schema, requiredProperty, ctx, new Set(), schemaLocation)) {
         ctx.report({
           message: `Required property '${requiredProperty}' is not defined.`,
           location: schemaLocation.child(['required', i]),
@@ -139,7 +50,7 @@ export const NoRequiredSchemaPropertiesUndefined:
             continue;
           }
           validatedRefNodes.add(node);
-          reportUndefinedRequired(node as AnySchema, location, ctx, location.source.absoluteRef);
+          reportUndefinedRequired(node as AnySchema, location, ctx);
         }
       },
     },
@@ -172,8 +83,8 @@ export const NoRequiredSchemaPropertiesUndefined:
 
         for (const [i, requiredProperty] of currentSchema.required.entries()) {
           if (
-            !hasProperty(currentSchema, requiredProperty, new Set(), ctx) &&
-            !hasProperty(compositionRoot, requiredProperty, new Set(), ctx)
+            !schemaHasProperty(currentSchema, requiredProperty, ctx) &&
+            !schemaHasProperty(compositionRoot, requiredProperty, ctx)
           ) {
             ctx.report({
               message: `Required property '${requiredProperty}' is not defined.`,

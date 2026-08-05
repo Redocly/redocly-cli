@@ -7,7 +7,7 @@ The command reads a traffic log (or a folder of logs), builds a deterministic ba
 This is an experimental feature.
 Its behavior, command, flags, and output may change in future releases.
 
-The `generate-spec` command generates OpenAPI 3.1 descriptions only.
+The `generate-spec` command generates OpenAPI 3.2 descriptions only.
 {% /admonition %}
 
 ## Supported traffic formats

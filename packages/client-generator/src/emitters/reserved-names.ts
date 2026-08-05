@@ -34,6 +34,8 @@ export const WIRING_NAMES = [
   'OperationDescriptor',
   'ServerSentEvent',
   'Result',
+  'Envelope',
+  'EnvelopeResult',
   'TokenProvider',
   '__redoclySetup',
 ];

@@ -10,7 +10,7 @@ import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
 import { normalizeTypes, type NodeType } from './types/index.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
-import type { CollectFn } from './utils/types.js';
+import type { CollectSpecData } from './utils/types.js';
 import {
   normalizeVisitors,
   type Arazzo1Visitor,
@@ -36,7 +36,7 @@ export async function lint(opts: {
   ref: string;
   config: Config;
   externalRefResolver?: BaseResolver;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;

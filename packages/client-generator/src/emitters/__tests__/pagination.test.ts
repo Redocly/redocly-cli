@@ -265,8 +265,11 @@ describe('resolveOperationPagination — sources and precedence', () => {
     function linkOp(extra: Partial<OperationModel> = {}): OperationModel {
       return listOrders({
         successResponses: [
-          response({ schema: { kind: 'ref', name: 'OrderPage' }, headers: ['link'] }),
+          response({
+            schema: { kind: 'ref', name: 'OrderPage' },
+          }),
         ],
+        successResponseHeaders: [{ name: 'link', schema: { kind: 'scalar', scalar: 'string' } }],
         ...extra,
       });
     }

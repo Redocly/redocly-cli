@@ -3,12 +3,14 @@ import type { Async2Rule } from '../../visitors.js';
 import { Assertions } from '../common/assertions/index.js';
 import { InfoContact } from '../common/info-contact.js';
 import { InfoLicenseStrict } from '../common/info-license-strict.js';
+import { NoDuplicatedEnumValues } from '../common/no-duplicated-enum-values.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
 import { NoMixedNumberRangeConstraints } from '../common/no-mixed-number-range-constraints.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
+import { NoUnsafeMarkdown } from '../common/no-unsafe-markdown.js';
 import { OperationOperationId } from '../common/operation-operationId.js';
 import { SecurityScopesDefined } from '../common/security-scopes-defined.js';
 import { Struct } from '../common/struct.js';
@@ -30,6 +32,8 @@ export const rules: Async2RuleSet<'built-in'> = {
   'no-channel-trailing-slash': NoChannelTrailingSlash,
   'tag-description': TagDescription as Async2Rule,
   'tags-alphabetical': TagsAlphabetical as Async2Rule,
+  'no-duplicated-enum-values': NoDuplicatedEnumValues as Async2Rule,
+  'no-unsafe-markdown': NoUnsafeMarkdown as Async2Rule,
   'no-duplicated-tag-names': NoDuplicatedTagNames as Async2Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Async2Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Async2Rule,

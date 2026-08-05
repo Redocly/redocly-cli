@@ -5,7 +5,7 @@ import {
   bundle,
   createConfig,
   type BaseResolver,
-  type CollectFn,
+  type CollectSpecData,
   type LoggerInterface,
   type NormalizedProblem,
 } from '@redocly/openapi-core';
@@ -19,7 +19,7 @@ type BundleArazzoOptions = {
   filePath: string;
   base?: string;
   externalRefResolver?: BaseResolver;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
   version?: string;
   logger: LoggerInterface;
   skipLint?: boolean;

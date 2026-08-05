@@ -32,6 +32,7 @@ The rules list is split into sections.
 ### Special rules
 
 - [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
+- [no-unsafe-markdown](./common/no-unsafe-markdown.md): No potentially executable content in `description` fields
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [nullable-type-sibling](./oas/nullable-type-sibling.md): `nullable` must be used with a `type`
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
@@ -82,6 +83,7 @@ The rules list is split into sections.
 ### Requests, Responses, and Schemas
 
 - [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unique naming of parameters, schemas, request bodies and responses
+- [no-duplicated-enum-values](./common/no-duplicated-enum-values.md): All values in an `enum` must be unique
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema

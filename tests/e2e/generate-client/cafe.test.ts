@@ -150,7 +150,8 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       'registerOAuth2Client',
     ];
     for (const name of expected) {
-      expect(generated).toContain(`export const ${name} = (`);
+      // Plain arrow, generic envelope-aware arrow, or Object.assign-wrapped (paginated).
+      expect(generated).toMatch(new RegExp(`export const ${name} = (Object\\.assign\\()?[(<]`));
     }
   });
 
@@ -178,15 +179,17 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   });
 
   test('generated file uses ergonomic signatures (positional path params + params object + body)', () => {
-    expect(generated).toContain('export const deleteMenuItem = (menuItemId: string,');
-    expect(generated).toContain('export const getMenuItemPhoto = (menuItemId: string,');
-    expect(generated).toContain('export const updateOrder = (orderId: string,');
-    expect(generated).toContain('export const listMenuItems = (params:');
+    // Throw-mode flat sugar is generic over `init` (envelope-aware return type).
+    const sugar = '<I extends RequestOptions | undefined = undefined>';
+    expect(generated).toContain(`export const deleteMenuItem = ${sugar}(menuItemId: string,`);
+    expect(generated).toContain(`export const getMenuItemPhoto = ${sugar}(menuItemId: string,`);
+    expect(generated).toContain(`export const updateOrder = ${sugar}(orderId: string,`);
+    expect(generated).toContain(`export const listMenuItems = ${sugar}(params:`);
     // readOnly fields are dropped from the create body (Bucket C).
     expect(generated).toContain(
-      'export const createOrder = (body: Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">,'
+      `export const createOrder = ${sugar}(body: Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">,`
     );
-    expect(generated).toContain('export const createMenuItem = (body: FormData,');
+    expect(generated).toContain(`export const createMenuItem = ${sugar}(body: FormData,`);
   });
 
   // Named string enums get a runtime const-object companion by default, which the
