@@ -231,7 +231,7 @@ function writeClass(
     ...properties.filter((property) => !property.required),
   ];
   writeDocComment(printer, className(name), description);
-  printer.block(`final class ${className(name)}`, () => {}, '');
+  printer.line(`final class ${className(name)}`);
   printer.block(
     '{',
     () => {
@@ -253,7 +253,7 @@ function writeClass(
       printer.line('}');
       printer.blank();
 
-      printer.block('public static function fromArray(array $data): self', () => {}, '');
+      printer.line('public static function fromArray(array $data): self');
       printer.block(
         '{',
         () => {
@@ -280,7 +280,7 @@ function writeClass(
       );
       printer.blank();
 
-      printer.block('public function toArray(): array', () => {}, '');
+      printer.line('public function toArray(): array');
       printer.block(
         '{',
         () => {
@@ -318,7 +318,7 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
     if (asEnum !== undefined && (asEnum.scalar === 'string' || asEnum.scalar === 'integer')) {
       const backing = asEnum.scalar === 'string' ? 'string' : 'int';
       writeDocComment(printer, className(name), schema.description);
-      printer.block(`enum ${className(name)}: ${backing}`, () => {}, '');
+      printer.line(`enum ${className(name)}: ${backing}`);
       printer.block(
         '{',
         () => {
@@ -356,7 +356,7 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
       printer.line(
         `/** ${typeName} is a discriminated union (${phpString(cases.property)}): ${table}. */`
       );
-      printer.block(`function unmarshal${typeName}(array $data): mixed`, () => {}, '');
+      printer.line(`function unmarshal${typeName}(array $data): mixed`);
       printer.block(
         '{',
         () => {
@@ -571,11 +571,7 @@ function writePhpMethod(
       ? `Like ${methodName(op)}(), returning an Envelope with the declared response headers.`
       : (op.summary ?? `${op.method.toUpperCase()} ${op.path}`)
   );
-  printer.block(
-    `public function ${name}(${args.signature.join(', ')}): ${returnType}`,
-    () => {},
-    ''
-  );
+  printer.line(`public function ${name}(${args.signature.join(', ')}): ${returnType}`);
   printer.block(
     '{',
     () => {
@@ -719,11 +715,7 @@ function writePhpPaginationWrappers(
   };
 
   printer.line(`/** ${name} response pages, following the pagination rule automatically. */`);
-  printer.block(
-    `public function ${name}Pages(${args.signature.join(', ')}): \\Generator`,
-    () => {},
-    ''
-  );
+  printer.line(`public function ${name}Pages(${args.signature.join(', ')}): \\Generator`);
   printer.block(
     '{',
     () => {
@@ -741,11 +733,7 @@ function writePhpPaginationWrappers(
   printer.blank();
 
   printer.line(`/** The items of every ${name} page. */`);
-  printer.block(
-    `public function ${name}Items(${args.signature.join(', ')}): \\Generator`,
-    () => {},
-    ''
-  );
+  printer.line(`public function ${name}Items(${args.signature.join(', ')}): \\Generator`);
   printer.block(
     '{',
     () => {
@@ -802,7 +790,7 @@ function writeServers(printer: Printer, model: ApiModel): void {
   printer.line(
     '/** The declared servers; variables default to the values from the description. */'
   );
-  printer.block('final class Servers', () => {}, '');
+  printer.line('final class Servers');
   printer.block(
     '{',
     () => {
@@ -818,7 +806,7 @@ function writeServers(printer: Printer, model: ApiModel): void {
             `string ${'$'}${propertyName(variable.name)} = ${phpString(variable.default)}`
         );
         if (index > 0) printer.blank();
-        printer.block(`public static function ${name}(${params.join(', ')}): string`, () => {}, '');
+        printer.line(`public static function ${name}(${params.join(', ')}): string`);
         printer.block(
           '{',
           () => {
@@ -901,11 +889,11 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
 
   writeDocComment(printer, 'Client', `Client for ${model.title} (${model.version}).`);
   // Not final: PHP test suites mock concrete classes (createMock(Client::class)).
-  printer.block('class Client', () => {}, '');
+  printer.line('class Client');
   printer.block(
     '{',
     () => {
-      printer.block('public function __construct(private Config $config)', () => {}, '');
+      printer.line('public function __construct(private Config $config)');
       printer.block(
         '{',
         () => {

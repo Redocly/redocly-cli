@@ -454,6 +454,20 @@ describe('phpGenerator (full client assembly)', () => {
     expectPhpRuns(out);
   });
 
+  it('puts the brace on the line after a declaration, with no blank line between', () => {
+    const out = renderPhpModels(
+      model({
+        Status: { kind: 'enum', values: ['open'], scalar: 'string' },
+        Order: { kind: 'object', properties: [{ name: 'id', schema: STRING, required: true }] },
+      })
+    );
+    expect(out).toContain('final class Order\n{');
+    expect(out).toContain('enum Status: string\n{');
+    expect(out).toContain('public static function fromArray(array $data): self\n    {');
+    expect(out).not.toMatch(/\n\n\s*\{/);
+    expectModelsRun(out);
+  });
+
   it('maps date/date-time to DateTimeImmutable under dateType: Date, hydrating both ways', () => {
     const DATE_TIME: SchemaModel = {
       kind: 'scalar',
