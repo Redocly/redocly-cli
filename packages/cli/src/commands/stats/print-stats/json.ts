@@ -11,6 +11,7 @@ export function printStatsJson(statsAccumulator: OASStatsAccumulator | AsyncAPIS
     json[key] = {
       metric: stat.metric,
       total: stat.total,
+      ...(stat.counts && { counts: stat.counts }),
     };
   }
 
