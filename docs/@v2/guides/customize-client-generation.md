@@ -85,6 +85,8 @@ Emitted file paths must stay inside the `--output` directory — subdirectories 
 The API model and the helper library are the generator contract, and it changes under semver: a breaking change bumps the major version (the minor, while the package is `0.x`).
 Declare the version you authored against with `requiresGenerator: '^1.2.0'`, and an incompatible CLI fails upfront — naming the version it has, the version you need, and the upgrade — instead of feeding your generator a model shape it doesn't expect.
 Ejected generators record it for you.
+The accepted range forms are `^1.2.0`, `~1.2.0`, `>=1.2.0`, and an exact `1.2.0`; anything else is rejected as unreadable rather than guessed at.
+Omitting `requiresGenerator` means "assume current" — convenient while you iterate, and worth setting before you share the generator.
 
 **A generator can declare its own options** with a JSON Schema, so publishers configure it the way they configure the built-ins:
 

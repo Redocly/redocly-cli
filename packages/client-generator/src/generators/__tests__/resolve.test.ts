@@ -1,7 +1,7 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GENERATOR_CONTRACT } from '../contract.js';
+import { GENERATOR_VERSION } from '../compatibility.js';
 import { resolveGenerators } from '../resolve.js';
 import type { CustomGenerator } from '../types.js';
 
@@ -49,19 +49,40 @@ describe('resolveGenerators', () => {
     expect(explicit.selected).toEqual(['sdk', 'zod', 'cli']);
   });
 
-  it('accepts a generator declaring the current contract; rejects any other with the fix path', async () => {
-    const current: CustomGenerator = { name: 'ok', run: noopRun, contract: GENERATOR_CONTRACT };
-    await expect(resolveGenerators(['ok'], { customGenerators: [current] })).resolves.toBeTruthy();
+  it('accepts a generator whose requiresGenerator range covers the running version', async () => {
+    const [major, minor] = GENERATOR_VERSION.split('.');
+    const covering: CustomGenerator = {
+      name: 'ok',
+      run: noopRun,
+      requiresGenerator: `^${major}.${minor}.0`,
+    };
+    await expect(resolveGenerators(['ok'], { customGenerators: [covering] })).resolves.toBeTruthy();
 
-    const stale: CustomGenerator = { name: 'old', run: noopRun, contract: GENERATOR_CONTRACT - 1 };
-    await expect(resolveGenerators(['old'], { customGenerators: [stale] })).rejects.toThrow(
-      /declares generator contract \d+.*provides \d+.*eject-generator/s
+    // A generator written against a newer toolkit than this CLI ships.
+    const ahead: CustomGenerator = {
+      name: 'ahead',
+      run: noopRun,
+      requiresGenerator: `>=${Number(major) + 1}.0.0`,
+    };
+    await expect(resolveGenerators(['ahead'], { customGenerators: [ahead] })).rejects.toThrow(
+      new RegExp(
+        `"ahead" needs @redocly/client-generator >=${Number(major) + 1}\\.0\\.0.*this CLI ships ${GENERATOR_VERSION}`,
+        's'
+      )
     );
 
-    const future: CustomGenerator = { name: 'new', run: noopRun, contract: GENERATOR_CONTRACT + 1 };
-    await expect(resolveGenerators(['new'], { customGenerators: [future] })).rejects.toThrow(
-      /Update @redocly\/cli/
+    // A generator pinned to a toolkit older than the one running: update the generator.
+    const behind: CustomGenerator = { name: 'behind', run: noopRun, requiresGenerator: '0.0.1' };
+    await expect(resolveGenerators(['behind'], { customGenerators: [behind] })).rejects.toThrow(
+      /eject-generator/
     );
+
+    // An unreadable range is rejected as such — never guessed at.
+    const vague: CustomGenerator = { name: 'vague', run: noopRun, requiresGenerator: '1.x || 2' };
+    await expect(resolveGenerators(['vague'], { customGenerators: [vague] })).rejects.toThrow(
+      /requiresGenerator "1.x \|\| 2", which is not a range we read/
+    );
+
     // No declaration keeps friction-free authoring — accepted as current.
     const undeclared: CustomGenerator = { name: 'bare', run: noopRun };
     await expect(

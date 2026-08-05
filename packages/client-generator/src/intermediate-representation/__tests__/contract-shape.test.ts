@@ -1,9 +1,10 @@
 // The IR is the custom-generator contract: every field below is public API that
 // ejected and custom generators read. If this snapshot changes, decide whether the
-// change is ADDITIVE (update the snapshot, contract number stays) or BREAKING
-// (removed/renamed field, changed semantics — bump GENERATOR_CONTRACT in
-// generators/contract.ts so mismatched generators fail with the fix path instead
-// of misbehaving).
+// change is ADDITIVE (update the snapshot and ship it in any release) or BREAKING
+// (a removed/renamed field, or changed semantics), which needs a major release —
+// the minor while the package is 0.x. A generator's `requiresGenerator` range is
+// resolved against that version, so a breaking change stops incompatible
+// generators with the fix path instead of letting them misbehave.
 
 import type { Oas3Definition } from '@redocly/openapi-core';
 

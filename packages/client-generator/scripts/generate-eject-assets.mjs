@@ -13,15 +13,6 @@ import { ejectedSkill } from './ejected-skill.mjs';
 // these into the user's repo verbatim.
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { version } = JSON.parse(readFileSync(join(pkgRoot, 'package.json'), 'utf-8'));
-// The contract number lives in ONE place (src/generators/contract.ts); this script
-// runs at prepare time (before tsc), so it reads the constant out of the source.
-const contractSource = readFileSync(join(pkgRoot, 'src', 'generators', 'contract.ts'), 'utf-8');
-const contractMatch = contractSource.match(/GENERATOR_CONTRACT = (\d+)/);
-if (contractMatch === null) {
-  process.stderr.write('Could not read GENERATOR_CONTRACT from src/generators/contract.ts\n');
-  process.exit(1);
-}
-const contract = Number(contractMatch[1]);
 const outDir = join(pkgRoot, 'eject-assets', 'generators');
 const skillsDir = join(pkgRoot, 'eject-assets', 'skills');
 mkdirSync(outDir, { recursive: true });
@@ -69,7 +60,9 @@ for (const { name, run, sample } of EJECTABLE) {
     '// `redocly eject-generator ' + name + ' --update`.',
     '',
   ].join('\n');
-  const footer = `\nexport default {\n  name: '${name}',\n  run: ${run},\n  sample: ${sample},\n  contract: ${contract},\n};\n`;
+  // The caret range the ejected copy was written against: this version's model and
+  // helpers, plus every compatible release after it.
+  const footer = `\nexport default {\n  name: '${name}',\n  run: ${run},\n  sample: ${sample},\n  requiresGenerator: '^${version}',\n};\n`;
   const outFile = join(outDir, `${name}.mjs`);
   writeFileSync(outFile, header + stripped + footer);
   const check = spawnSync(process.execPath, ['--check', outFile], { encoding: 'utf-8' });
