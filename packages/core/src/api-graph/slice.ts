@@ -1,3 +1,4 @@
+import { getLineColLocation } from '../format/codeframes.js';
 import { isRef } from '../ref-utils.js';
 import type { Document } from '../resolve.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -15,6 +16,8 @@ export type ApiNodeRef = {
   resolved: boolean;
   file?: string;
   pointer?: string;
+  start_line?: number;
+  end_line?: number;
 };
 
 export type ApiNodeEnvelope = {
@@ -37,6 +40,42 @@ export type LocatedIndexNode = ApiIndexNode & {
 
 export function hasIndexLocation(node: ApiIndexNode): node is LocatedIndexNode {
   return node.file !== undefined && node.start_line !== undefined && node.end_line !== undefined;
+}
+
+export function collectNodeRefs(options: {
+  file: string;
+  pointer?: string;
+  analysis: ApiAnalysis;
+  cwd: string;
+}): ApiNodeRef[] {
+  const { file, pointer, analysis, cwd } = options;
+  const document = documentsByFile(analysis, cwd).get(file);
+  if (!document) {
+    throw new Error(`Source document for "${file}" is not resolved.`);
+  }
+  const subtree = pointer === undefined ? undefined : getNodeAtPointer(document.parsed, pointer);
+  return [...collectRefStrings(subtree)].sort().map((ref): ApiNodeRef => {
+    // Key format mirrors core's internal makeRefId: `${absoluteRef}::${$ref}`.
+    const resolvedRef = analysis.resolvedRefMap.get(`${document.source.absoluteRef}::${ref}`);
+    if (!resolvedRef?.resolved || resolvedRef.node === undefined) return { ref, resolved: false };
+    const targetPointer = resolvedRef.nodePointer.startsWith('#')
+      ? resolvedRef.nodePointer
+      : `#${resolvedRef.nodePointer}`;
+    const lineCol = getLineColLocation({
+      source: resolvedRef.document.source,
+      pointer: targetPointer,
+      reportOnKey: false,
+    });
+    return {
+      ref,
+      resolved: true,
+      file: toRelativePath(resolvedRef.document.source.absoluteRef, cwd),
+      pointer: targetPointer,
+      start_line: lineCol.start.line,
+      // getLineColLocation always computes `end` for a string pointer.
+      end_line: lineCol.end!.line,
+    };
+  });
 }
 
 export function findIndexNode(
@@ -73,22 +112,11 @@ export function buildNodeEnvelope(options: {
   const lines = document.source.body.split('\n');
   const content = lines.slice(indexNode.start_line - 1, indexNode.end_line).join('\n');
 
-  const subtree =
-    indexNode.pointer === undefined
-      ? undefined
-      : getNodeAtPointer(document.parsed, indexNode.pointer);
-  const refs = [...collectRefStrings(subtree)].sort().map((ref): ApiNodeRef => {
-    // Key format mirrors core's internal makeRefId: `${absoluteRef}::${$ref}`.
-    const resolvedRef = analysis.resolvedRefMap.get(`${document.source.absoluteRef}::${ref}`);
-    if (!resolvedRef?.resolved || resolvedRef.node === undefined) return { ref, resolved: false };
-    return {
-      ref,
-      resolved: true,
-      file: toRelativePath(resolvedRef.document.source.absoluteRef, cwd),
-      pointer: resolvedRef.nodePointer.startsWith('#')
-        ? resolvedRef.nodePointer
-        : `#${resolvedRef.nodePointer}`,
-    };
+  const refs = collectNodeRefs({
+    file: indexNode.file,
+    pointer: indexNode.pointer,
+    analysis,
+    cwd,
   });
 
   return {

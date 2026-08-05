@@ -7,7 +7,13 @@ import { BaseResolver, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
 import { analyzeApi, type ApiAnalysis } from '../build-graph.js';
 import { buildApiIndex, type ApiIndex } from '../build-index.js';
-import { appendDepsClosure, buildNodeEnvelope, findIndexNode, hasIndexLocation } from '../slice.js';
+import {
+  appendDepsClosure,
+  buildNodeEnvelope,
+  collectNodeRefs,
+  findIndexNode,
+  hasIndexLocation,
+} from '../slice.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = join(__dirname, 'fixtures', 'split');
@@ -66,6 +72,8 @@ describe('buildNodeEnvelope', () => {
         resolved: true,
         file: 'components/schemas/Ticket.yaml',
         pointer: '#/',
+        start_line: 1,
+        end_line: 4,
       },
     ]);
   });
@@ -175,5 +183,21 @@ describe('appendDepsClosure', () => {
 
     expect(withDeps.deps).toEqual([]);
     expect(withDeps.truncated).toBeUndefined();
+  });
+});
+
+describe('collectNodeRefs', () => {
+  it('collects refs with resolved target line ranges', async () => {
+    const { analysis } = await analyzed();
+    const refs = collectNodeRefs({
+      file: 'paths/tickets.yaml',
+      pointer: '#/post',
+      analysis,
+      cwd: FIXTURE_ROOT,
+    });
+    const ticketRef = refs.find((ref) => ref.file === 'components/schemas/Ticket.yaml');
+    expect(ticketRef?.resolved).toBe(true);
+    expect(ticketRef?.start_line).toBeGreaterThanOrEqual(1);
+    expect(ticketRef?.end_line).toBeGreaterThanOrEqual(ticketRef!.start_line!);
   });
 });

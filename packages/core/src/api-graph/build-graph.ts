@@ -502,3 +502,43 @@ export function collectConnectedIds(
   }
   return seen;
 }
+
+/**
+ * BFS over reversed edges from `targetId`. For every node that (transitively) references the
+ * target, returns the shortest reference chain ordered target-first:
+ * `[targetId, …, referrerId]`.
+ */
+export function collectReversePathsTo(targetId: string, edges: GraphEdge[]): Map<string, string[]> {
+  const referrersOf = new Map<string, string[]>();
+  for (const edge of edges) {
+    const referrers = referrersOf.get(edge.to) ?? [];
+    referrers.push(edge.from);
+    referrersOf.set(edge.to, referrers);
+  }
+
+  const parentTowardTarget = new Map<string, string>();
+  const seen = new Set([targetId]);
+  const queue = [targetId];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const referrer of referrersOf.get(current) ?? []) {
+      if (seen.has(referrer)) continue;
+      seen.add(referrer);
+      parentTowardTarget.set(referrer, current);
+      queue.push(referrer);
+    }
+  }
+
+  const chains = new Map<string, string[]>();
+  for (const nodeId of seen) {
+    if (nodeId === targetId) continue;
+    const chain = [nodeId];
+    let cursor = nodeId;
+    while (parentTowardTarget.has(cursor)) {
+      cursor = parentTowardTarget.get(cursor)!;
+      chain.push(cursor);
+    }
+    chains.set(nodeId, chain.reverse());
+  }
+  return chains;
+}

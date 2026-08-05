@@ -5,8 +5,8 @@ import { detectSpec } from '../../detect-spec.js';
 import { getTypes } from '../../oas-types.js';
 import { BaseResolver, makeDocumentFromString, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
-import { analyzeApi } from '../build-graph.js';
-import type { DependencyGraph } from '../types.js';
+import { analyzeApi, collectReversePathsTo } from '../build-graph.js';
+import type { DependencyGraph, GraphEdge } from '../types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CWD = '/project';
@@ -142,5 +142,26 @@ describe('analyzeApi structure graph', () => {
     // A ref inside a callback subtree attributes to the OUTER spine operation,
     // never to a callback-owned node or the path-item file.
     expect(graph.edges.some((edge) => edge.from === 'paths/tickets.yaml')).toBe(false);
+  });
+});
+
+describe('collectReversePathsTo', () => {
+  it('returns shortest target-first chains for every transitive referrer', () => {
+    const edges: GraphEdge[] = [
+      { from: 'POST /tickets', to: 'schemas/Ticket', refs: [] },
+      { from: 'schemas/Ticket', to: 'schemas/Money', refs: [] },
+      { from: 'schemas/Order', to: 'schemas/Money', refs: [] },
+      { from: 'GET /orders', to: 'schemas/Order', refs: [] },
+    ];
+    const chains = collectReversePathsTo('schemas/Money', edges);
+
+    expect(chains.get('schemas/Ticket')).toEqual(['schemas/Money', 'schemas/Ticket']);
+    expect(chains.get('POST /tickets')).toEqual([
+      'schemas/Money',
+      'schemas/Ticket',
+      'POST /tickets',
+    ]);
+    expect(chains.get('GET /orders')).toEqual(['schemas/Money', 'schemas/Order', 'GET /orders']);
+    expect(chains.has('schemas/Money')).toBe(false);
   });
 });
