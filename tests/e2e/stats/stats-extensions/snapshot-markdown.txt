@@ -1,0 +1,27 @@
+| Feature  | Count  |
+| --- | --- |
+| 🚗 References | 1 |
+| 📦 External Documents | 0 |
+| 📈 Schemas | 0 |
+| 👉 Parameters | 1 |
+| 🔗 Links | 0 |
+| 🔀 Path Items | 2 |
+| 🎣 Webhooks | 0 |
+| 👷 Operations | 2 |
+| 🔖 Tags | 0 |
+| 🧩 Vendor Extensions | 5 |
+
+#### 🧩 Vendor Extensions
+| Extension | Count |
+| --- | --- |
+| x-badges | 1 |
+| x-codeSamples | 2 |
+| x-hideReplay | 1 |
+| x-internal | 2 |
+| x-metadata | 1 |
+
+Document: openapi.yaml stats:
+
+
+openapi.yaml: stats processed in <test>ms
+

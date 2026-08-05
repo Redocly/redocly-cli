@@ -50,4 +50,27 @@ describe('stats', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
+
+  test('stats should report vendor extension counts (JSON format)', async () => {
+    const testPath = join(folderPath, 'stats-extensions');
+    const args = getParams(indexEntryPoint, ['stats', 'openapi.yaml', '--format=json']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-json.txt'));
+  });
+
+  test('stats should report vendor extension counts (stylish format)', async () => {
+    const testPath = join(folderPath, 'stats-extensions');
+    const args = getParams(indexEntryPoint, ['stats', 'openapi.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-stylish.txt'));
+  });
+
+  test('stats should report vendor extension counts (Markdown format)', async () => {
+    const testPath = join(folderPath, 'stats-extensions');
+    const args = getParams(indexEntryPoint, ['stats', 'openapi.yaml', '--format=markdown']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-markdown.txt')
+    );
+  });
 });

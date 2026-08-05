@@ -1,0 +1,46 @@
+openapi: 3.1.0
+info:
+  title: Vendor extensions fixture
+  version: '1.0'
+  x-metadata:
+    department: Platform
+    team: Docs
+paths:
+  /a:
+    get:
+      operationId: a
+      x-codeSamples:
+        - lang: curl
+          source: curl https://example.com/a
+      x-badges:
+        - name: Beta
+          color: purple
+        - name: New
+          color: green
+          position: before
+      x-internal: true
+      parameters:
+        - $ref: '#/components/parameters/Shared'
+      responses:
+        '200':
+          description: ok
+  /b:
+    get:
+      operationId: b
+      x-internal: true
+      x-codeSamples:
+        - lang: python
+          source: print("hi")
+      parameters:
+        - $ref: '#/components/parameters/Shared'
+      responses:
+        '200':
+          description: ok
+components:
+  parameters:
+    Shared:
+      name: p
+      in: query
+      x-hideReplay: true
+      schema:
+        type: string
