@@ -30,6 +30,9 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   and `decode()` routes through it — `isinstance` narrowing works on decoded members.
   Undiscriminated unions decode by trying each member in order (the first that
   hydrates wins — see `_decode.py`). **allOf** is flattened via `flattenAllOf`.
+- **Auth keys match the other languages.** `auth={"apiKey": {...}}` is the documented key —
+  the same spelling TypeScript and PHP use, and the same as the scheme kind — with
+  `api_key` accepted as an alias so a snake_case config keeps working.
 - **Errors:** `errorMode` maps to raising `ApiError` (default) or returning a `Result`
   dataclass — the only generator with both modes outside TypeScript.
 - **Dates:** `dateType: Date` annotates `format: date-time` as `datetime` and `date` as

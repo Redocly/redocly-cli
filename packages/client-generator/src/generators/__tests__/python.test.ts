@@ -346,6 +346,37 @@ function generate(errorMode: 'throw' | 'result' = 'throw'): string {
   return files[0].content;
 }
 
+describe('python auth keys', () => {
+  it('accepts apiKey (the documented, cross-language key) and api_key alike', () => {
+    if (!hasHttpx) return;
+    const out = pythonGenerator({
+      model: CAFE,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    const dir = mkdtempSync(join(tmpdir(), 'py-auth-'));
+    try {
+      writeFileSync(join(dir, 'client.py'), out);
+      const run = spawnSync(
+        'python3',
+        [
+          '-c',
+          'import client;' +
+            ' spec = [[{"kind": "apiKey", "scheme": "K", "name": "X-Key", "in": "header"}]];' +
+            ' print(client.resolve_auth(spec, {"apiKey": {"K": "v"}})[0]);' +
+            ' print(client.resolve_auth(spec, {"api_key": {"K": "v"}})[0])',
+        ],
+        { cwd: dir, encoding: 'utf-8' }
+      );
+      expect(run.status, run.stderr).toBe(0);
+      expect(run.stdout.trim().split('\n')).toEqual(["{'X-Key': 'v'}", "{'X-Key': 'v'}"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('python output path', () => {
   const pathFor = (outputPath: string) =>
     pythonGenerator({ model: CAFE, outputPath, outputMode: 'single', emit: {} })[0].path;

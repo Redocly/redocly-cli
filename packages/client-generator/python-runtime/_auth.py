@@ -11,6 +11,12 @@ from urllib.parse import quote
 TokenProvider = Union[str, Callable[[], str]]
 
 
+def _api_keys(auth: Dict[str, Any]) -> Dict[str, Any]:
+    """The apiKey credentials. `apiKey` is the documented key (it matches the scheme
+    kind and the other language SDKs); `api_key` is accepted too, so a snake_case
+    config keeps working."""
+    return {**(auth.get("api_key") or {}), **(auth.get("apiKey") or {})}
+
 def _resolve_token(provider: TokenProvider) -> str:
     return provider() if callable(provider) else provider
 
@@ -18,7 +24,7 @@ def _resolve_token(provider: TokenProvider) -> str:
 def _is_configured(scheme: Dict[str, Any], auth: Dict[str, Any]) -> bool:
     kind = scheme["kind"]
     if kind == "apiKey":
-        return scheme["scheme"] in (auth.get("api_key") or {})
+        return scheme["scheme"] in _api_keys(auth)
     if kind == "bearer":
         return auth.get("bearer") is not None
     return auth.get("basic") is not None
@@ -41,7 +47,7 @@ def resolve_auth(
     for scheme in alternative:
         kind = scheme["kind"]
         if kind == "apiKey":
-            provider = (auth.get("api_key") or {}).get(scheme["scheme"])
+            provider = _api_keys(auth).get(scheme["scheme"])
             if provider is None:
                 continue
             value = _resolve_token(provider)
