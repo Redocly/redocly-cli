@@ -284,11 +284,19 @@ export type ZodViolation = { path: string; message: string; received: string };
 
 /** A request or response payload failed validation. Requests throw it; response handling is configurable. */
 export class ZodValidationError extends Error {
+    // Declared and assigned in the body, NOT as constructor parameter properties: those
+    // need a transform, so they break \`node --experimental-strip-types\` for anything
+    // importing this module (the generated CLI runs that way).
+    readonly operationId: string;
+    readonly direction: "request" | "response";
+    readonly issues: z.ZodError["issues"];
+    readonly violations: ZodViolation[];
+
     constructor(
-        readonly operationId: string,
-        readonly direction: "request" | "response",
-        readonly issues: z.ZodError["issues"],
-        readonly violations: ZodViolation[]
+        operationId: string,
+        direction: "request" | "response",
+        issues: z.ZodError["issues"],
+        violations: ZodViolation[]
     ) {
         const detail = violations
             .slice(0, 5)
@@ -296,6 +304,10 @@ export class ZodValidationError extends Error {
             .join("; ");
         const more = violations.length > 5 ? \`; …and \${violations.length - 5} more\` : "";
         super(\`\${direction === "request" ? "Request" : "Response"} validation failed for operation "\${operationId}": \${detail}\${more}\`);
+        this.operationId = operationId;
+        this.direction = direction;
+        this.issues = issues;
+        this.violations = violations;
         this.name = "ZodValidationError";
     }
 }

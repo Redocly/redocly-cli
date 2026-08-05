@@ -219,6 +219,9 @@ Keep the default `js` when the client goes through `tsc` or a bundler — plain 
 Loaders such as `tsx` remap `.js` to `.ts` themselves, so they work with the default.
 See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/node-native).
 
+**Every generated TypeScript file is erasable TypeScript**, so type stripping alone is enough — the client, the zod module, and the generated CLI all run under plain `node` with no build step.
+Nothing emitted needs a transform to become JavaScript: no `enum`, no `namespace`, and no constructor parameter properties (`constructor(readonly id: string)`), which strip-only mode rejects because it would have to generate assignments.
+
 ## Authentication
 
 Credentials are **per instance**: they live in the client's config (`ClientConfig.auth`), and each operation automatically sends the credentials its `security` requires.

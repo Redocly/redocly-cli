@@ -9,6 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cli.yaml');
 const consumerDir = join(__dirname, 'cli-consumer');
 const clientDir = join(consumerDir, 'client');
+const stripDir = join(consumerDir, 'client-strip');
 
 const SERVER_PORT = 3108;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
@@ -47,6 +48,18 @@ describe('generate-client cli generator (end-to-end)', () => {
       'cli',
     ]);
     writeFileSync(join(clientDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
+    // A second copy with `.ts` specifiers: what a zero-build `node` runner needs.
+    generate(fixture, join(stripDir, 'client.ts'), [
+      '--generator',
+      'sdk',
+      '--generator',
+      'zod',
+      '--generator',
+      'cli',
+      '--import-ext',
+      'ts',
+    ]);
+    writeFileSync(join(stripDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     serverProcess = await startServer(
       join(consumerDir, 'server.ts'),
       consumerDir,
@@ -59,6 +72,7 @@ describe('generate-client cli generator (end-to-end)', () => {
   afterAll(async () => {
     if (serverProcess) await killServer(serverProcess);
     rmSync(clientDir, { recursive: true, force: true });
+    rmSync(stripDir, { recursive: true, force: true });
   });
 
   it('generates client.cli.ts and strict tsc (types: node) accepts it', () => {
@@ -165,6 +179,18 @@ describe('generate-client cli generator (end-to-end)', () => {
     const help = runCliBin(['--help']);
     expect(help.code).toBe(0);
     expect(help.stdout).toContain('orders');
+  });
+
+  it('runs under node type stripping with no build step, zod included', () => {
+    // Erasable TypeScript only: a constructor parameter property anywhere in the import
+    // graph (it was in the zod module's error class) breaks strip-only mode.
+    const result = spawnSync(
+      process.execPath,
+      ['--experimental-strip-types', join(stripDir, 'client.cli.ts'), '--help'],
+      { encoding: 'utf-8', cwd: consumerDir }
+    );
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
+    expect(result.stdout).toContain('Usage:');
   });
 
   it('void results print nothing and exit 0', () => {

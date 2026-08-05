@@ -20,6 +20,10 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
 - **Co-selection aware:** with `zod` selected, requests validate before the network
   (exit 3); without it, the CLI still works.
 - Throw-mode only — the exit-code mapping reads thrown `ApiError`s.
+- **Runs under `node --experimental-strip-types` with no build step**, including the
+  modules it imports (the sdk and the zod module). Anything emitted must be erasable
+  TypeScript; a parameter property anywhere in that import graph breaks the zero-build
+  runner.
 
 ## Emitters that implement it
 

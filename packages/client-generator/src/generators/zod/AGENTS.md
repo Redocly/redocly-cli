@@ -16,6 +16,12 @@ A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schem
 - **Emits nothing** when the model has neither named schemas nor JSON operation bodies —
   an empty file is worse than no file.
 - Validation is opt-in at runtime (`use(zodValidation())`), never automatic.
+- **Only ERASABLE TypeScript.** The module must run under `node --experimental-strip-types`
+  with no build step, so nothing that needs a transform is emitted: no `enum`, no
+  `namespace`, and no constructor parameter properties. `ZodValidationError` therefore
+  declares its fields and assigns them in the constructor body — `constructor(readonly
+operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
+  imported this module.
 
 ## Emitters that implement it
 
