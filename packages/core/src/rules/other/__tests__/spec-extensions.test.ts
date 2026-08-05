@@ -263,6 +263,7 @@ describe('StatsSpecExtensions', () => {
           x-auth-token: benign-but-key-is-sensitive
           x-gateway:
             apiKey: abc123
+            authorization: Basic abc
             url: https://internal.corp/api
             contact: jane.doe@corp.com
             traceId: 4bf92f3577b34da6a3ce929d0e0e4736
@@ -271,6 +272,7 @@ describe('StatsSpecExtensions', () => {
 
       expect(props(acc, 'x-auth-token', '$value')).toEqual(['<masked>']);
       expect(props(acc, 'x-gateway', 'apiKey')).toEqual(['<masked>']);
+      expect(props(acc, 'x-gateway', 'authorization')).toEqual(['<masked>']);
       expect(props(acc, 'x-gateway', 'url')).toEqual(['<masked>']);
       expect(props(acc, 'x-gateway', 'contact')).toEqual(['<masked>']);
       expect(props(acc, 'x-gateway', 'traceId')).toEqual(['<masked>']);

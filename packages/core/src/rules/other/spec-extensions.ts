@@ -18,7 +18,7 @@ const TRUNCATED = '<truncated>';
 const MASKED = '<masked>';
 
 // Keys that suggest a credential or personal data — their values are never sampled.
-const SENSITIVE_KEY_REGEX = /key|token|secret|password|credential|session|bearer|email|auth\b/i;
+const SENSITIVE_KEY_REGEX = /key|token|secret|password|credential|session|bearer|email|auth/i;
 // Value shapes masked regardless of the key: opaque token-like blobs, emails, URLs with a scheme.
 const TOKEN_LIKE_REGEX = /^(?=.*\d)[A-Za-z0-9+/=_-]{16,}$/;
 const EMAIL_REGEX = /\S@\S+\.\S/;
