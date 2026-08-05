@@ -3,7 +3,13 @@
 export default {
   name: 'route-map',
   requires: ['sdk'],
-  run({ model, outputPath }) {
+  // Declared options: the config block is validated against this before `run`.
+  options: {
+    type: 'object',
+    properties: { exportName: { type: 'string', default: 'routes' } },
+    additionalProperties: false,
+  },
+  run({ model, outputPath, options }) {
     const routes = model.services
       .flatMap((s) => s.operations)
       .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`)
@@ -11,7 +17,7 @@ export default {
     return [
       {
         path: outputPath.replace(/\.ts$/, '.routes.ts'),
-        content: `export const routes = {\n${routes}\n} as const;\n`,
+        content: `export const ${options.exportName} = {\n${routes}\n} as const;\n`,
       },
     ];
   },

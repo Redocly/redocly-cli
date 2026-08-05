@@ -32,6 +32,26 @@ export type GeneratorName =
   | 'go'
   | 'php';
 
+/**
+ * One option a generator accepts: a scalar, a closed set of values, or a list of scalars.
+ * Config values are scalars and lists of scalars, so the schema vocabulary stops there —
+ * nothing a `redocly.yaml` block can express is missing.
+ */
+export type GeneratorOptionSchema = { default?: unknown; description?: string } & (
+  | { type: 'string' | 'number' | 'boolean' }
+  | { type: 'array'; items: { type: 'string' | 'number' | 'boolean' } }
+  | { enum: Array<string | number | boolean> }
+);
+
+/** The options a generator declares, as the JSON Schema subset the config layer validates. */
+export type GeneratorOptionsSchema = {
+  type: 'object';
+  properties: Record<string, GeneratorOptionSchema>;
+  required?: string[];
+  /** Unknown keys are rejected unless this is `true` — a typo'd option is a config bug. */
+  additionalProperties?: boolean;
+};
+
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {
   model: ApiModel;
@@ -43,6 +63,12 @@ export type GeneratorInput = {
   emit: EmitOptions;
   /** Every generator name in the run — lets a generator adapt to co-selection (cli wires zod validation when `zod` is selected). */
   selected?: string[];
+  /**
+   * This generator's own options from `client.options.<name>`, already validated against
+   * the schema it declares with defaults applied — a generator reads them without re-checking.
+   * Empty when the generator declares no options.
+   */
+  options?: Record<string, unknown>;
 };
 
 /**
@@ -72,6 +98,8 @@ export type SampleContext = { model: ApiModel; emit: EmitOptions };
  */
 export type GeneratorDescriptor = {
   run: Generator;
+  /** The options this generator accepts, validated before `run` (see `GeneratorOptionsSchema`). */
+  options?: GeneratorOptionsSchema;
   /** Optional: one idiomatic call snippet per operation for docs (`x-codeSamples`);
    * collected into an overlay when `codeSamples` is enabled. Return undefined to skip. */
   sample?: (operation: OperationModel, ctx: SampleContext) => CodeSample | undefined;

@@ -111,6 +111,17 @@ client:
       groupBy: path
 ```
 
+The schema covers what configuration needs, not all of JSON Schema:
+a top-level `type: 'object'` with `properties`, `required`, and `additionalProperties`,
+where each property is a scalar (`string`, `number`, `boolean`), an `enum`, or an array of scalars (`{ type: 'array', items: { type: 'string' } }`).
+Each property may carry a `default` and a `description`.
+
+Validation runs once per generator before any file is written:
+an unknown key, a value of the wrong type, a value outside an `enum`, or a missing `required` key fails generation with the generator's name and the offending key.
+Unknown keys are rejected unless the schema sets `additionalProperties: true`.
+`run` receives `options` with defaults applied, so a generator reads its options without re-checking them.
+Setting `options` for a selected generator that declares no schema warns — the entry would otherwise be silently ignored.
+
 ### Language-neutral helpers
 
 The package root exports pure helpers over the API model that cover the cross-language variance points, so a generator in any output language never re-implements schema semantics:

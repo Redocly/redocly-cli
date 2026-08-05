@@ -13,6 +13,7 @@ import { dirname, resolve, sep } from 'node:path';
 import type { EmitOptions } from './emitters/emit-options.js';
 import { NotSupportedError } from './errors.js';
 import { validateSelection } from './generators/meta.js';
+import { resolveGeneratorOptions } from './generators/options.js';
 import { resolveGenerators } from './generators/resolve.js';
 import type {
   CodeSample,
@@ -39,6 +40,8 @@ export function runGenerators(
     emit: EmitOptions;
     generators: string[];
     registry: Map<string, GeneratorDescriptor>;
+    /** Per-generator options, already validated (see `resolveGeneratorOptions`). */
+    generatorOptions?: Map<string, Record<string, unknown>>;
   }
 ): GeneratedFile[] {
   const files: GeneratedFile[] = [];
@@ -56,6 +59,7 @@ export function runGenerators(
         outputMode: options.outputMode,
         emit: options.emit,
         selected: options.generators,
+        options: options.generatorOptions?.get(name) ?? {},
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -194,11 +198,13 @@ export async function generateClient(
   // error-mode/date-type/runtime) before producing any file, and warn about options a
   // selected generator can't apply.
   validateSelection(selected, emit, registry, options.outputMode);
+  const generatorOptions = resolveGeneratorOptions(selected, registry, options.options);
   const files = runGenerators(model, {
     outputPath,
     outputMode: options.outputMode ?? 'single',
     emit,
     generators: selected,
+    generatorOptions,
     registry,
   });
 

@@ -73,6 +73,38 @@ describe('generate-client custom generator (plugin) API', () => {
     rmSync(configDir, { recursive: true, force: true });
   }, 60_000);
 
+  it("validates the generator's declared options from the config block and passes them to run", () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-options-'));
+    cpSync(plugin, join(dir, 'route-map-plugin.mjs'));
+    const config = join(dir, 'redocly.yaml');
+    const writeConfig = (options: string) =>
+      writeFileSync(
+        config,
+        `extends: []\nclient:\n  generators: [sdk, ./route-map-plugin.mjs]\n  options:\n    route-map:\n${options}`
+      );
+
+    writeConfig('      exportName: paths\n');
+    const ok = spawnSync(
+      'node',
+      [cliEntry, 'generate-client', cafe, '--output', join(dir, 'client.ts'), '--config', config],
+      { encoding: 'utf-8', cwd: dir }
+    );
+    expect(ok.status, `${ok.stdout}\n${ok.stderr}`).toBe(0);
+    expect(readFileSync(join(dir, 'client.routes.ts'), 'utf-8')).toContain(
+      'export const paths = {'
+    );
+
+    writeConfig('      exportname: paths\n');
+    const typo = spawnSync(
+      'node',
+      [cliEntry, 'generate-client', cafe, '--output', join(dir, 'client.ts'), '--config', config],
+      { encoding: 'utf-8', cwd: dir }
+    );
+    expect(typo.status).not.toBe(0);
+    expect(`${typo.stdout}\n${typo.stderr}`).toMatch(/unknown option "exportname".*exportName/s);
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
   it('fails fast with an actionable message when a specifier cannot be loaded', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-'));
     const { status, out } = run([

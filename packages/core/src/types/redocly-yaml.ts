@@ -383,8 +383,16 @@ const Client: NodeType = {
     queryKeyPrefix: { type: 'string' },
     codeSamples: { type: 'boolean' },
     setup: { type: 'string' },
+    options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
+};
+
+// Options a generator declares itself, so the vocabulary is the generator's, not ours;
+// `generate-client` validates each block against the schema its generator declares.
+const ClientGeneratorOptions: NodeType = {
+  properties: {},
+  additionalProperties: {},
 };
 const ClientPaginationRule: NodeType = {
   properties: {
@@ -803,6 +811,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigGovernance,
   ConfigHTTP,
   Client,
+  ClientGeneratorOptions,
   ClientPagination,
   ClientPaginationRule,
   Where,

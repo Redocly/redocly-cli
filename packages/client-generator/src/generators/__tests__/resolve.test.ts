@@ -17,6 +17,16 @@ describe('resolveGenerators', () => {
     expect(registry.has('zod')).toBe(true);
   });
 
+  it("keeps a registered generator's declared options schema", async () => {
+    const custom: CustomGenerator = {
+      name: 'route-map',
+      run: noopRun,
+      options: { type: 'object', properties: { exportName: { type: 'string' } } },
+    };
+    const { registry } = await resolveGenerators(['route-map'], { customGenerators: [custom] });
+    expect(registry.get('route-map')?.options).toEqual(custom.options);
+  });
+
   it('registers an inline custom generator and selects it by name', async () => {
     const custom: CustomGenerator = { name: 'route-map', run: noopRun };
     const { selected, registry } = await resolveGenerators(['sdk', 'route-map'], {

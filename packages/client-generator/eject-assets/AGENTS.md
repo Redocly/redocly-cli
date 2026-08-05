@@ -26,6 +26,43 @@ export default {
 };
 ```
 
+## Declaring options
+
+A generator that needs configuration declares it as a schema; `run` then receives
+`options` already validated, with defaults applied:
+
+```js
+export default {
+  name: 'permissions-matrix',
+  options: {
+    type: 'object',
+    properties: { groupBy: { enum: ['tag', 'path'], default: 'tag' } },
+    additionalProperties: false,
+  },
+  run({ model, outputPath, options }) {
+    return [
+      { path: outputPath.replace(/\.ts$/, '.permissions.md'), content: render(options.groupBy) },
+    ];
+  },
+};
+```
+
+Users set them per generator name:
+
+```yaml
+client:
+  generators: [sdk, ./generators/permissions-matrix.mjs]
+  options:
+    permissions-matrix:
+      groupBy: path
+```
+
+The supported subset is a top-level `type: 'object'` with `properties`, `required`, and
+`additionalProperties`; each property is a scalar (`string`/`number`/`boolean`), an
+`enum`, or an array of scalars, and may carry a `default` and a `description`. Don't
+validate options inside `run` — an unknown key, a wrong type, a value outside an `enum`,
+or a missing `required` key already fails generation before `run` is called.
+
 Rules: output is deterministic (same description → same bytes); never add
 dependencies to the generated client; **never hand-edit generated output** —
 edit this generator and regenerate. Emitted file paths must stay inside the
@@ -59,7 +96,6 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                                             |
 | `schemaAtPointer(schema, pointer, model)`             | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
 | `paginationRuleFor(op, config)`                       | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
-| `NotSupportedError`                                   | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
 | `NotSupportedError`                                   | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
 | `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                                           |
 

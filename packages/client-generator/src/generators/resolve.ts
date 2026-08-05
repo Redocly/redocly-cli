@@ -129,6 +129,7 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
   registry.set(custom.name, {
     run: custom.run,
     sample: custom.sample,
+    options: custom.options,
     requires: custom.requires,
     errorModes: custom.errorModes,
     dateTypes: custom.dateTypes,
