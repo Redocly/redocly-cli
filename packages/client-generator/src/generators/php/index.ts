@@ -19,6 +19,7 @@ import {
   schemaAtPointer,
   unwrapNullable,
   type NeutralPaginationRule,
+  type DateType,
 } from '../../authoring/index.js';
 import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
 import type {
@@ -79,13 +80,22 @@ function classify(name: string, model: ApiModel): 'class' | 'enum' | 'other' {
 }
 
 /** The PHP type declaration for a schema (arrays and unions widen to array/mixed). */
-export function phpType(schema: SchemaModel, model: ApiModel): string {
+export function phpType(
+  schema: SchemaModel,
+  model: ApiModel,
+  dateType: DateType = 'string'
+): string {
   if (isNullable(schema)) {
-    const inner = phpType(unwrapNullable(schema), model);
+    const inner = phpType(unwrapNullable(schema), model, dateType);
     return inner === 'mixed' || inner.startsWith('?') ? inner : `?${inner}`;
   }
   switch (schema.kind) {
     case 'scalar':
+      // Under `dateType: Date`, date and date-time become DateTimeImmutable — PHP's
+      // immutable date object parses and formats both wire shapes.
+      if (dateType === 'Date' && schema.scalar === 'string' && isDateFormat(schema)) {
+        return '\\DateTimeImmutable';
+      }
       return { string: 'string', integer: 'int', number: 'float', boolean: 'bool' }[schema.scalar];
     case 'array':
     case 'record':
@@ -94,7 +104,7 @@ export function phpType(schema: SchemaModel, model: ApiModel): string {
       const kind = classify(schema.name, model);
       if (kind === 'class' || kind === 'enum') return className(schema.name);
       const target = deref(schema, model);
-      return target === undefined ? 'mixed' : phpType(target, model);
+      return target === undefined ? 'mixed' : phpType(target, model, dateType);
     }
     case 'enum':
       // Anonymous (inline) enums keep the wire scalar; only NAMED enums get types.
@@ -123,25 +133,40 @@ function isDiscriminatedUnion(name: string, model: ApiModel): boolean {
   return named !== undefined && discriminatorCases(named.schema, model) !== undefined;
 }
 
+/** `date` or `date-time` — the two formats `dateType: Date` turns into objects. */
+function isDateFormat(schema: SchemaModel): boolean {
+  const format = schema.metadata?.format;
+  return format === 'date' || format === 'date-time';
+}
+
 /** Wire value → typed value expression, or undefined when the raw value is already right. */
-function hydration(schema: SchemaModel, expr: string, model: ApiModel): string | undefined {
+function hydration(
+  schema: SchemaModel,
+  expr: string,
+  model: ApiModel,
+  dateType: DateType = 'string'
+): string | undefined {
   const bare = unwrapNullable(schema);
-  if (bare.kind === 'omit') return hydration({ kind: 'ref', name: bare.base }, expr, model);
+  if (dateType === 'Date' && bare.kind === 'scalar' && bare.scalar === 'string') {
+    if (isDateFormat(bare)) return `new \\DateTimeImmutable(${expr})`;
+  }
+  if (bare.kind === 'omit')
+    return hydration({ kind: 'ref', name: bare.base }, expr, model, dateType);
   if (bare.kind === 'ref') {
     const kind = classify(bare.name, model);
     if (kind === 'class') return `${className(bare.name)}::fromArray(${expr})`;
     if (kind === 'enum') return `${className(bare.name)}::from(${expr})`;
     if (isDiscriminatedUnion(bare.name, model)) return `unmarshal${className(bare.name)}(${expr})`;
     const target = deref(bare, model);
-    return target === undefined ? undefined : hydration(target, expr, model);
+    return target === undefined ? undefined : hydration(target, expr, model, dateType);
   }
   if (bare.kind === 'array') {
-    const item = hydration(bare.items, '$item', model);
+    const item = hydration(bare.items, '$item', model, dateType);
     if (item === undefined) return undefined;
     return `array_map(static fn ($item) => ${item}, ${expr})`;
   }
   if (bare.kind === 'record') {
-    const item = hydration(bare.value, '$item', model);
+    const item = hydration(bare.value, '$item', model, dateType);
     if (item === undefined) return undefined;
     return `array_map(static fn ($item) => ${item}, ${expr})`;
   }
@@ -149,9 +174,23 @@ function hydration(schema: SchemaModel, expr: string, model: ApiModel): string |
 }
 
 /** Typed value → wire value expression, or undefined when it serializes as-is. */
-function serialization(schema: SchemaModel, expr: string, model: ApiModel): string | undefined {
+function serialization(
+  schema: SchemaModel,
+  expr: string,
+  model: ApiModel,
+  dateType: DateType = 'string'
+): string | undefined {
   const bare = unwrapNullable(schema);
-  if (bare.kind === 'omit') return serialization({ kind: 'ref', name: bare.base }, expr, model);
+  if (dateType === 'Date' && bare.kind === 'scalar' && bare.scalar === 'string') {
+    // A date-only value must not gain a time component on the way out.
+    if (bare.metadata?.format === 'date') return `${expr}->format('Y-m-d')`;
+    if (bare.metadata?.format === 'date-time') {
+      return `${expr}->format(\\DateTimeInterface::ATOM)`;
+    }
+  }
+  if (bare.kind === 'omit') {
+    return serialization({ kind: 'ref', name: bare.base }, expr, model, dateType);
+  }
   if (bare.kind === 'ref') {
     const kind = classify(bare.name, model);
     if (kind === 'class') return `${expr}->toArray()`;
@@ -161,11 +200,11 @@ function serialization(schema: SchemaModel, expr: string, model: ApiModel): stri
       return `is_object(${expr}) ? ${expr}->toArray() : ${expr}`;
     }
     const target = deref(bare, model);
-    return target === undefined ? undefined : serialization(target, expr, model);
+    return target === undefined ? undefined : serialization(target, expr, model, dateType);
   }
   if (bare.kind === 'array' || bare.kind === 'record') {
     const inner = bare.kind === 'array' ? bare.items : bare.value;
-    const item = serialization(inner, '$item', model);
+    const item = serialization(inner, '$item', model, dateType);
     if (item === undefined) return undefined;
     return `array_map(static fn ($item) => ${item}, ${expr})`;
   }
@@ -183,6 +222,7 @@ function writeClass(
   name: string,
   properties: PropertyModel[],
   model: ApiModel,
+  dateType: DateType,
   description?: string
 ): void {
   // PHP requires defaulted parameters after required ones.
@@ -199,7 +239,7 @@ function writeClass(
         'public function __construct(',
         () => {
           for (const property of ordered) {
-            const type = phpType(property.schema, model);
+            const type = phpType(property.schema, model, dateType);
             if (property.required) {
               printer.line(`public ${type} ${'$'}${propertyName(property.name)},`);
             } else {
@@ -222,7 +262,7 @@ function writeClass(
             () => {
               for (const property of ordered) {
                 const raw = `$data[${phpString(property.name)}]`;
-                const typed = hydration(property.schema, raw, model);
+                const typed = hydration(property.schema, raw, model, dateType);
                 const php = propertyName(property.name);
                 if (property.required) {
                   printer.line(`${php}: ${typed ?? raw},`);
@@ -247,7 +287,7 @@ function writeClass(
           printer.line('$data = [];');
           for (const property of ordered) {
             const value = `$this->${propertyName(property.name)}`;
-            const wire = serialization(property.schema, value, model) ?? value;
+            const wire = serialization(property.schema, value, model, dateType) ?? value;
             if (property.required) {
               printer.line(`$data[${phpString(property.name)}] = ${wire};`);
             } else {
@@ -271,7 +311,7 @@ function writeClass(
 }
 
 /** Render every named schema: classes (allOf flattened), native enums, union dispatchers. */
-export function renderPhpModels(model: ApiModel): string {
+export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'): string {
   const printer = new Printer('    ');
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
@@ -296,7 +336,14 @@ export function renderPhpModels(model: ApiModel): string {
     if (schema.kind === 'object' || schema.kind === 'intersection') {
       const flat = flattenAllOf(schema, model);
       if (flat !== undefined) {
-        writeClass(printer, name, flat.properties, model, flat.description ?? schema.description);
+        writeClass(
+          printer,
+          name,
+          flat.properties,
+          model,
+          dateType,
+          flat.description ?? schema.description
+        );
         continue;
       }
     }
@@ -404,25 +451,37 @@ function phpPaginationLiteral(rule: NeutralPaginationRule): string {
 
 type MethodArgs = {
   pathArgs: Array<{ php: string; wire: string; type: string }>;
-  queryArgs: Array<{ php: string; wire: string; type: string }>;
+  /** `value` is the expression to send: a date object formats itself, everything else is the variable. */
+  queryArgs: Array<{ php: string; wire: string; type: string; value: string }>;
   signature: string[];
 };
 
-function methodArgs(op: OperationModel, model: ApiModel, includeBody: boolean): MethodArgs {
+function methodArgs(
+  op: OperationModel,
+  model: ApiModel,
+  includeBody: boolean,
+  dateType: DateType
+): MethodArgs {
   const pathArgs = op.pathParams.map((param) => ({
     php: propertyName(param.name),
     wire: param.name,
-    type: phpType(param.schema, model),
+    type: phpType(param.schema, model, dateType),
   }));
-  const queryArgs = op.queryParams.map((param) => ({
-    php: propertyName(param.name),
-    wire: param.name,
-    type: phpType(param.schema, model),
-  }));
+  const queryArgs = op.queryParams.map((param) => {
+    const php = propertyName(param.name);
+    return {
+      php,
+      wire: param.name,
+      type: phpType(param.schema, model, dateType),
+      value: serialization(param.schema, `${'$'}${php}`, model, dateType) ?? `${'$'}${php}`,
+    };
+  });
   const signature = [
     ...pathArgs.map(({ php, type }) => `${type} ${'$'}${php}`),
     ...(includeBody && op.requestBody
-      ? [`${isMultipart(op) ? 'array' : phpType(op.requestBody.schema, model)} ${'$'}body`]
+      ? [
+          `${isMultipart(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
+        ]
       : []),
     ...queryArgs.map(({ php, type }) => {
       const nullable = type === 'mixed' || type.startsWith('?') ? type : `?${type}`;
@@ -442,11 +501,11 @@ function writeRequestSetup(printer: Printer, op: OperationModel, args: MethodArg
   printer.line(
     "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
   );
-  for (const { php, wire } of args.queryArgs) {
+  for (const { php, wire, value } of args.queryArgs) {
     printer.block(
       `if (${'$'}${php} !== null) {`,
       () => {
-        printer.line(`$query[${phpString(wire)}] = ${'$'}${php};`);
+        printer.line(`$query[${phpString(wire)}] = ${value};`);
       },
       '}'
     );
@@ -484,9 +543,10 @@ function writePhpMethod(
   printer: Printer,
   op: OperationModel,
   model: ApiModel,
+  dateType: DateType,
   envelope = false
 ): void {
-  const args = methodArgs(op, model, true);
+  const args = methodArgs(op, model, true, dateType);
   const sse = sseResponse(op);
   const success = successSchema(op);
   // Non-JSON success bodies (PDFs, images, octet streams) return the raw body string.
@@ -499,7 +559,7 @@ function writePhpMethod(
     : sse !== undefined
       ? '\\Generator'
       : success !== undefined
-        ? phpType(success, model)
+        ? phpType(success, model, dateType)
         : rawBody
           ? 'string'
           : 'void';
@@ -554,7 +614,7 @@ function writePhpMethod(
         printer.line('[$contentType, $encoded] = toMultipart($body);');
         request.push(`'body' => $encoded`, `'contentType' => $contentType`);
       } else if (op.requestBody) {
-        const wire = serialization(op.requestBody.schema, '$body', model) ?? '$body';
+        const wire = serialization(op.requestBody.schema, '$body', model, dateType) ?? '$body';
         printer.line(`$payload = json_encode(${wire});`);
         request.push(
           `'body' => $payload`,
@@ -604,21 +664,22 @@ function writePhpPaginationWrappers(
   printer: Printer,
   op: OperationModel,
   model: ApiModel,
+  dateType: DateType,
   pageHydration: string | undefined,
   itemHydration: string | undefined,
   itemsPointer: string | undefined
 ): void {
-  const args = methodArgs(op, model, false);
+  const args = methodArgs(op, model, false, dateType);
   const name = methodName(op);
 
   const writeCall = () => {
     printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
     printer.line('$base = [];');
-    for (const { php, wire } of args.queryArgs) {
+    for (const { php, wire, value } of args.queryArgs) {
       printer.block(
         `if (${'$'}${php} !== null) {`,
         () => {
-          printer.line(`$base[${phpString(wire)}] = ${'$'}${php};`);
+          printer.line(`$base[${phpString(wire)}] = ${value};`);
         },
         '}'
       );
@@ -789,6 +850,7 @@ function stripPhpHeader(source: string): string {
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
 export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
   const printer = new Printer('    ');
+  const dateType = emit.dateType ?? 'string';
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
   printer.line('<?php');
   printer.blank();
@@ -803,7 +865,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
   printer.blank();
   printer.line(`namespace ${namespace};`);
   printer.blank();
-  printer.line(renderPhpModels(model));
+  printer.line(renderPhpModels(model, dateType));
   writeServers(printer, model);
   printer.line('// ─── Embedded runtime (@redocly/client-generator php runtime) ───');
   printer.line(stripPhpHeader(PHP_RUNTIME_SOURCE));
@@ -862,15 +924,15 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
       printer.blank();
 
       for (const op of operations) {
-        writePhpMethod(printer, op, model);
+        writePhpMethod(printer, op, model, dateType);
         if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
-          writePhpMethod(printer, op, model, true);
+          writePhpMethod(printer, op, model, dateType, true);
         }
         const rule = paginationRules.get(op.name);
         if (rule === undefined) continue;
         const success = successSchema(op);
         const pageHydration =
-          success === undefined ? undefined : hydration(success, '$page', model);
+          success === undefined ? undefined : hydration(success, '$page', model, dateType);
         // Resolve the items ARRAY, then take its raw element, so a `ref` element
         // keeps its class name (a deref'd result would hydrate as plain data).
         const itemsArray =
@@ -879,8 +941,16 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
             : undefined;
         const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
         const itemHydration =
-          element === undefined ? undefined : hydration(element, '$item', model);
-        writePhpPaginationWrappers(printer, op, model, pageHydration, itemHydration, rule.items);
+          element === undefined ? undefined : hydration(element, '$item', model, dateType);
+        writePhpPaginationWrappers(
+          printer,
+          op,
+          model,
+          dateType,
+          pageHydration,
+          itemHydration,
+          rule.items
+        );
       }
     },
     '}'

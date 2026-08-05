@@ -18,6 +18,7 @@ import {
   RESERVED_WORDS,
   schemaAtPointer,
   unwrapNullable,
+  type DateType,
   type NeutralPaginationRule,
 } from '../../authoring/index.js';
 import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
@@ -41,20 +42,26 @@ function exported(name: string): string {
 }
 
 /** The Go type for a schema; `required=false` optionals become pointers at the field site. */
-export function goType(schema: SchemaModel): string {
+export function goType(schema: SchemaModel, dateType: DateType = 'string'): string {
   if (isNullable(schema)) {
-    const inner = goType(unwrapNullable(schema));
+    const inner = goType(unwrapNullable(schema), dateType);
     return inner.startsWith('*') || inner === 'any' ? inner : `*${inner}`;
   }
   switch (schema.kind) {
     case 'scalar':
+      // Under `dateType: Date`, a date-time is a time.Time (encoding/json handles
+      // RFC 3339 natively) and a bare date is the runtime's `Date` wrapper.
+      if (dateType === 'Date' && schema.scalar === 'string') {
+        if (schema.metadata?.format === 'date-time') return 'time.Time';
+        if (schema.metadata?.format === 'date') return 'Date';
+      }
       return { string: 'string', integer: 'int64', number: 'float64', boolean: 'bool' }[
         schema.scalar
       ];
     case 'array':
-      return `[]${goType(schema.items)}`;
+      return `[]${goType(schema.items, dateType)}`;
     case 'record':
-      return `map[string]${goType(schema.value)}`;
+      return `map[string]${goType(schema.value, dateType)}`;
     case 'ref':
       return exported(schema.name);
     case 'literal':
@@ -92,6 +99,7 @@ function writeStruct(
   printer: Printer,
   name: string,
   properties: PropertyModel[],
+  dateType: DateType,
   description?: string
 ): void {
   writeDocComment(printer, exported(name), description);
@@ -100,7 +108,7 @@ function writeStruct(
     () => {
       for (const property of properties) {
         const field = exported(property.name);
-        let fieldType = goType(property.schema);
+        let fieldType = goType(property.schema, dateType);
         let tag = `\`json:"${property.name}"\``;
         if (!property.required) {
           if (
@@ -122,7 +130,7 @@ function writeStruct(
 }
 
 /** Render every named schema: typed-const enums, structs (allOf flattened), union dispatchers. */
-export function renderGoModels(model: ApiModel): string {
+export function renderGoModels(model: ApiModel, dateType: DateType = 'string'): string {
   const printer = new Printer('\t');
   printer.line('package client');
   printer.blank();
@@ -133,6 +141,20 @@ export function renderGoModels(model: ApiModel): string {
     printer.line('import "encoding/json"');
     printer.blank();
   }
+  // The models section also compiles standalone (see the unit bars), so it declares
+  // its own `time` import when a field is a date.
+  const body = renderGoModelBodies(model, dateType);
+  if (dateType === 'Date' && body.includes('time.Time')) {
+    printer.line('import "time"');
+    printer.blank();
+  }
+  printer.line(body);
+  return printer.toString();
+}
+
+/** The struct/enum/union declarations themselves — the header is renderGoModels' job. */
+function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
+  const printer = new Printer('\t');
 
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
@@ -157,7 +179,13 @@ export function renderGoModels(model: ApiModel): string {
     if (schema.kind === 'object' || schema.kind === 'intersection') {
       const flat = flattenAllOf(schema, model);
       if (flat !== undefined) {
-        writeStruct(printer, name, flat.properties, flat.description ?? schema.description);
+        writeStruct(
+          printer,
+          name,
+          flat.properties,
+          dateType,
+          flat.description ?? schema.description
+        );
         continue;
       }
     }
@@ -214,7 +242,7 @@ export function renderGoModels(model: ApiModel): string {
     }
     // Everything else (plain unions, scalar aliases, records) becomes a type alias.
     writeDocComment(printer, exported(name), schema.description);
-    printer.line(`type ${exported(name)} = ${goType(schema)}`);
+    printer.line(`type ${exported(name)} = ${goType(schema, dateType)}`);
     printer.blank();
   }
   return printer.toString();
@@ -276,6 +304,11 @@ function goOperationIdents(model: ApiModel): Array<{ op: OperationModel; ident: 
 /** A query-value expression formatted to string for url.Values. */
 function goQueryFormat(expr: string, type: string): string {
   if (type === 'string') return expr;
+  // Dates serialize in their wire layout, not Go's default String(). A dereferenced
+  // pointer needs parentheses: `*p.Format(…)` would deref Format's result.
+  const receiver = expr.startsWith('*') ? `(${expr})` : expr;
+  if (type === 'time.Time') return `${receiver}.Format(time.RFC3339)`;
+  if (type === 'Date') return `${receiver}.Format("2006-01-02")`;
   if (type === 'int64') return `strconv.FormatInt(${expr}, 10)`;
   if (type === 'float64') return `strconv.FormatFloat(${expr}, 'f', -1, 64)`;
   if (type === 'bool') return `strconv.FormatBool(${expr})`;
@@ -354,17 +387,18 @@ function writeGoMethod(
   printer: Printer,
   op: OperationModel,
   ident: string,
+  dateType: DateType,
   model?: ApiModel,
   envelope = false
 ): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
     go: identifierFor(param.name, { style: 'camel', reserved: GO }),
-    type: goType(param.schema),
+    type: goType(param.schema, dateType),
   }));
   const hasParams = op.queryParams.length > 0;
   const success = successSchema(op);
-  const returnType = success === undefined ? undefined : goType(success);
+  const returnType = success === undefined ? undefined : goType(success, dateType);
   const headerPlan = envelope ? envelopeHeaderPlan(op, model!) : [];
   if (envelope) {
     printer.line(
@@ -382,7 +416,7 @@ function writeGoMethod(
   const args = [
     'ctx context.Context',
     ...pathArgs.map(({ go, type }) => `${go} ${type}`),
-    ...(op.requestBody ? [`body ${goType(op.requestBody.schema)}`] : []),
+    ...(op.requestBody ? [`body ${goType(op.requestBody.schema, dateType)}`] : []),
     ...(hasParams ? [`params *${ident}Params`] : []),
   ];
   const sse = sseResponse(op);
@@ -426,7 +460,7 @@ function writeGoMethod(
                 `if params.${field} != nil {`,
                 () => {
                   printer.line(
-                    `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema))})`
+                    `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
                   );
                 },
                 '}'
@@ -554,13 +588,14 @@ function writeGoPaginationWrappers(
   printer: Printer,
   op: OperationModel,
   ident: string,
+  dateType: DateType,
   pageType: string,
   itemType: string
 ): void {
   const pathArgs = op.pathParams.map((param) => ({
     param,
     go: identifierFor(param.name, { style: 'camel', reserved: GO }),
-    type: goType(param.schema),
+    type: goType(param.schema, dateType),
   }));
   const hasParams = op.queryParams.length > 0;
   const args = [
@@ -582,7 +617,7 @@ function writeGoPaginationWrappers(
               `if params.${field} != nil {`,
               () => {
                 printer.line(
-                  `base.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema))})`
+                  `base.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
                 );
               },
               '}'
@@ -793,6 +828,7 @@ function writeGoServers(printer: Printer, model: ApiModel): void {
 /** The whole generated file: models + embedded runtime + operations table + Client. */
 export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   const printer = new Printer('\t');
+  const dateType = emit.dateType ?? 'string';
   const paginationRules = new Map<string, NeutralPaginationRule>();
   for (const { op, ident } of goOperationIdents(model)) {
     const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);
@@ -833,7 +869,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   );
   printer.blank();
 
-  printer.line(stripHeader(renderGoModels(model)));
+  printer.line(stripHeader(renderGoModels(model, dateType)));
   printer.blank();
   writeGoServers(printer, model);
   printer.line('// ─── Embedded runtime (@redocly/client-generator go runtime) ───');
@@ -880,7 +916,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
       `type ${ident}Params struct {`,
       () => {
         for (const param of op.queryParams) {
-          const fieldType = goType(param.schema);
+          const fieldType = goType(param.schema, dateType);
           printer.line(
             `${exported(param.name)} ${fieldType.startsWith('*') ? fieldType : `*${fieldType}`}`
           );
@@ -919,14 +955,14 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   printer.blank();
 
   for (const { op, ident } of goOperationIdents(model)) {
-    writeGoMethod(printer, op, ident);
+    writeGoMethod(printer, op, ident, dateType);
     if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
-      writeGoMethod(printer, op, ident, model, true);
+      writeGoMethod(printer, op, ident, dateType, model, true);
     }
     const rule = paginationRules.get(ident);
     if (rule === undefined) continue;
     const success = successSchema(op);
-    const pageType = success === undefined ? 'any' : goType(success);
+    const pageType = success === undefined ? 'any' : goType(success, dateType);
     // Resolve the items ARRAY, then take its raw element, so a `ref` element
     // keeps its name (a deref'd result would type as `any`).
     const itemsArray =
@@ -938,8 +974,9 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
       printer,
       op,
       ident,
+      dateType,
       pageType,
-      element === undefined ? 'any' : goType(element)
+      element === undefined ? 'any' : goType(element, dateType)
     );
   }
 
@@ -947,14 +984,15 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
 };
 
 /** One idiomatic Go call per operation — feeds `x-codeSamples` for docs. */
-export function goSample(op: OperationModel, _ctx: SampleContext): CodeSample {
+export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
+  const dateType = ctx.emit.dateType ?? 'string';
   const ident = exported(op.name);
   const args = [
     'ctx',
     ...op.pathParams.map(
       (param) => `"<${identifierFor(param.name, { style: 'camel', reserved: GO })}>"`
     ),
-    ...(op.requestBody ? [`${goType(op.requestBody.schema)}{ /* … */ }`] : []),
+    ...(op.requestBody ? [`${goType(op.requestBody.schema, dateType)}{ /* … */ }`] : []),
     ...(op.queryParams.length > 0 ? ['nil'] : []),
   ];
   return {

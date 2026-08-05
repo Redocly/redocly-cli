@@ -26,6 +26,9 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   hydrates wins — see `_decode.py`). **allOf** is flattened via `flattenAllOf`.
 - **Errors:** `errorMode` maps to raising `ApiError` (default) or returning a `Result`
   dataclass — the only generator with both modes outside TypeScript.
+- **Dates:** `dateType: Date` annotates `format: date-time` as `datetime` and `date` as
+  `date`; `_decode.py` parses ISO strings into them and `encode()` writes `isoformat()`
+  back. The default (`string`) keeps the wire shape.
 - **Response headers:** an operation that DECLARES success-response headers gains a
   `<op>_with_headers()` variant (sync and async) returning `Envelope[T]` — `data`,
   `headers` (coerced to int/bool/str with snake_case keys; absent/unparsable values

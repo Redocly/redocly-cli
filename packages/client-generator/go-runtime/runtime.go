@@ -84,6 +84,37 @@ type Middleware struct {
 	OnResponse func(resp *http.Response)
 }
 
+// Date is an RFC 3339 full-date — a calendar date with no time component. Fields
+// typed `date` under `dateType: Date` use it because encoding/json speaks only
+// RFC 3339 date-time for time.Time, which a bare "2006-01-02" fails to satisfy.
+type Date struct {
+	time.Time
+}
+
+const dateLayout = "2006-01-02"
+
+// UnmarshalJSON parses a "2006-01-02" string; an empty string leaves the zero value.
+func (d *Date) UnmarshalJSON(data []byte) error {
+	var raw string
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	if raw == "" {
+		return nil
+	}
+	parsed, err := time.Parse(dateLayout, raw)
+	if err != nil {
+		return err
+	}
+	d.Time = parsed
+	return nil
+}
+
+// MarshalJSON writes the date back without a time component.
+func (d Date) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Format(dateLayout))
+}
+
 // Config is the per-client configuration shared by every operation method.
 type Config struct {
 	ServerURL      string

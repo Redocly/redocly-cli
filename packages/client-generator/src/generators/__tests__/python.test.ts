@@ -422,6 +422,124 @@ describe('pythonGenerator parity features', () => {
     expectCompiles(out);
   });
 
+  it('maps date/date-time to datetime objects under dateType: Date, and round-trips them', () => {
+    const dated: ApiModel = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      services: [
+        {
+          name: 'Orders',
+          operations: [
+            {
+              name: 'listOrders',
+              specName: 'listOrders',
+              method: 'get',
+              path: '/orders',
+              tags: ['Orders'],
+              pathParams: [],
+              queryParams: [
+                {
+                  name: 'since',
+                  in: 'query',
+                  required: false,
+                  schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                },
+              ],
+              headerParams: [],
+              cookieParams: [],
+              security: [],
+              successResponses: [
+                {
+                  status: '200',
+                  contentType: 'application/json',
+                  schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
+                },
+              ],
+              errorResponses: [],
+            },
+          ],
+        },
+      ],
+      schemas: [
+        {
+          name: 'Order',
+          schema: {
+            kind: 'object',
+            properties: [
+              {
+                name: 'placedAt',
+                schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                required: true,
+              },
+              {
+                name: 'dueDate',
+                schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date' } },
+                required: false,
+              },
+              {
+                name: 'reminders',
+                schema: {
+                  kind: 'array',
+                  items: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                },
+                required: false,
+              },
+            ],
+          },
+        },
+      ],
+      securitySchemes: [],
+    } as unknown as ApiModel;
+
+    const out = pythonGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { dateType: 'Date' },
+    })[0].content;
+
+    expect(out).toContain('from datetime import date, datetime');
+    expect(out).toContain('placed_at: datetime');
+    expect(out).toContain('due_date: Optional[date] = None');
+    // Nested positions must convert too, not just top-level fields.
+    expect(out).toContain('reminders: Optional[List[datetime]] = None');
+    expect(out).toContain('since: Optional[datetime] = None');
+    // dateType: string (the default) keeps the wire representation.
+    const asString = pythonGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(asString).toContain('placed_at: str');
+    expect(asString).not.toContain('placed_at: datetime');
+    expectCompiles(out);
+
+    // Behavioral: the runtime decodes ISO strings into objects and encodes them back.
+    if (!hasHttpx) return;
+    const dir = mkdtempSync(join(tmpdir(), 'py-dates-'));
+    try {
+      writeFileSync(join(dir, 'client.py'), out);
+      const run = spawnSync(
+        'python3',
+        [
+          '-c',
+          'import client;' +
+            ' o = client.decode(client.Order, {"placedAt": "2026-08-05T10:00:00+00:00", "dueDate": "2026-08-06", "reminders": ["2026-08-07T12:00:00+00:00"]});' +
+            ' print(type(o.placed_at).__name__, type(o.due_date).__name__, type(o.reminders[0]).__name__);' +
+            ' print(client.encode(o))',
+        ],
+        { cwd: dir, encoding: 'utf-8' }
+      );
+      expect(run.status, run.stderr).toBe(0);
+      expect(run.stdout).toContain('datetime date datetime');
+      expect(run.stdout).toContain('2026-08-06');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('bakes the serverUrl option, not just the description server', () => {
     const files = pythonGenerator({
       model: CAFE,

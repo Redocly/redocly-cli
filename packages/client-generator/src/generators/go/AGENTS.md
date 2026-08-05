@@ -22,7 +22,11 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   **discriminated unions** are `type X = any` plus a generated `UnmarshalX([]byte)`
   dispatcher; **allOf** is flattened.
 - **Errors:** `(T, error)` returns ARE the error mode — `errorMode` does not change the
-  output. Non-2xx → `*APIError`; timeouts → `*TimeoutError`.
+  output (the generator declares `errorModes: ['throw']`, so `result` fails fast).
+  Non-2xx → `*APIError`; timeouts → `*TimeoutError`.
+- **Dates:** `dateType: Date` maps `format: date-time` to `time.Time` (encoding/json
+  handles RFC 3339 natively) and `date` to the runtime's `Date` wrapper, which
+  marshals as `2006-01-02`. Query values format explicitly, never via `String()`.
 - **Response headers:** an operation that DECLARES success-response headers gains a
   `<Op>WithHeaders(ctx, …) (T, <Op>Headers, error)` variant; `<Op>Headers` is a
   generated struct with pointer fields (nil when absent or unparsable), coerced to

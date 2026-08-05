@@ -454,6 +454,89 @@ describe('phpGenerator (full client assembly)', () => {
     expectPhpRuns(out);
   });
 
+  it('maps date/date-time to DateTimeImmutable under dateType: Date, hydrating both ways', () => {
+    const DATE_TIME: SchemaModel = {
+      kind: 'scalar',
+      scalar: 'string',
+      metadata: { format: 'date-time' },
+    };
+    const DATE: SchemaModel = { kind: 'scalar', scalar: 'string', metadata: { format: 'date' } };
+    const dated: ApiModel = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      services: [
+        {
+          name: 'Orders',
+          operations: [
+            {
+              name: 'listOrders',
+              specName: 'listOrders',
+              method: 'get',
+              path: '/orders',
+              tags: ['Orders'],
+              pathParams: [],
+              queryParams: [{ name: 'since', in: 'query', required: false, schema: DATE_TIME }],
+              headerParams: [],
+              cookieParams: [],
+              security: [],
+              successResponses: [
+                {
+                  status: '200',
+                  contentType: 'application/json',
+                  schema: { kind: 'ref', name: 'Order' },
+                },
+              ],
+              errorResponses: [],
+            },
+          ],
+        },
+      ],
+      schemas: [
+        {
+          name: 'Order',
+          schema: {
+            kind: 'object',
+            properties: [
+              { name: 'placedAt', schema: DATE_TIME, required: true },
+              { name: 'dueDate', schema: DATE, required: false },
+              { name: 'reminders', schema: { kind: 'array', items: DATE_TIME }, required: false },
+            ],
+          },
+        },
+      ],
+      securitySchemes: [],
+    } as unknown as ApiModel;
+
+    const out = phpGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { dateType: 'Date' },
+    })[0].content;
+
+    expect(out).toContain('public \\DateTimeImmutable $placedAt');
+    expect(out).toContain('public ?\\DateTimeImmutable $dueDate = null');
+    // Hydration and serialization both convert, including inside arrays.
+    expect(out).toContain("new \\DateTimeImmutable($data['placedAt'])");
+    expect(out).toContain(
+      "array_map(static fn ($item) => new \\DateTimeImmutable($item), $data['reminders'])"
+    );
+    expect(out).toContain('$this->placedAt->format(\\DateTimeInterface::ATOM)');
+    expect(out).toContain("$this->dueDate->format('Y-m-d')");
+    expect(out).toContain('?\\DateTimeImmutable $since = null');
+    expectPhpRuns(out);
+
+    // The default keeps the wire representation.
+    const asString = phpGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(asString).toContain('public string $placedAt');
+  });
+
   it('bakes the serverUrl option, not just the description server', () => {
     const files = phpGenerator({
       model: CAFE,

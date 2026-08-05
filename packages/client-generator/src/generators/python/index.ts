@@ -16,6 +16,7 @@ import {
   isNullable,
   RESERVED_WORDS,
   unwrapNullable,
+  type DateType,
 } from '../../authoring/index.js';
 import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
 import type {
@@ -41,17 +42,23 @@ function fieldName(name: string): { python: string; renamed: boolean } {
 }
 
 /** The Python type annotation for a schema (anonymous complex shapes collapse to Any-ish). */
-export function pythonType(schema: SchemaModel): string {
+export function pythonType(schema: SchemaModel, dateType: DateType = 'string'): string {
   if (isNullable(schema)) {
-    return `Optional[${pythonType(unwrapNullable(schema))}]`;
+    return `Optional[${pythonType(unwrapNullable(schema), dateType)}]`;
   }
   switch (schema.kind) {
     case 'scalar':
+      // `dateType: Date` annotates date/date-time as stdlib objects; `_decode.py`
+      // converts them from and to ISO strings on the wire.
+      if (dateType === 'Date' && schema.scalar === 'string') {
+        if (schema.metadata?.format === 'date-time') return 'datetime';
+        if (schema.metadata?.format === 'date') return 'date';
+      }
       return { string: 'str', integer: 'int', number: 'float', boolean: 'bool' }[schema.scalar];
     case 'array':
-      return `List[${pythonType(schema.items)}]`;
+      return `List[${pythonType(schema.items, dateType)}]`;
     case 'record':
-      return `Dict[str, ${pythonType(schema.value)}]`;
+      return `Dict[str, ${pythonType(schema.value, dateType)}]`;
     case 'ref':
       return className(schema.name);
     case 'literal':
@@ -60,7 +67,7 @@ export function pythonType(schema: SchemaModel): string {
       // Anonymous (inline) enums keep the wire scalar; only NAMED enums get classes.
       return { string: 'str', integer: 'int', number: 'float', boolean: 'bool' }[schema.scalar];
     case 'union':
-      return `Union[${schema.members.map(pythonType).join(', ')}]`;
+      return `Union[${schema.members.map((member) => pythonType(member, dateType)).join(', ')}]`;
     case 'null':
       return 'None';
     case 'omit':
@@ -90,6 +97,7 @@ function writeDataclass(
   printer: Printer,
   name: string,
   properties: PropertyModel[],
+  dateType: DateType,
   description?: string
 ): void {
   printer.line('@dataclass');
@@ -105,7 +113,7 @@ function writeDataclass(
     for (const property of ordered) {
       const { python, renamed } = fieldName(property.name);
       if (renamed) fieldMap.push([python, property.name]);
-      const baseType = pythonType(property.schema);
+      const baseType = pythonType(property.schema, dateType);
       if (property.required) {
         printer.line(`${python}: ${baseType}`);
       } else {
@@ -125,7 +133,7 @@ function writeDataclass(
 }
 
 /** Render every named schema: Enum classes, dataclasses (allOf flattened), union aliases. */
-export function renderPythonModels(model: ApiModel): string {
+export function renderPythonModels(model: ApiModel, dateType: DateType = 'string'): string {
   const printer = new Printer('    ');
   printer.line('from __future__ import annotations');
   printer.blank();
@@ -134,6 +142,8 @@ export function renderPythonModels(model: ApiModel): string {
   printer.line(
     'from typing import Any, AsyncIterator, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple, Union'
   );
+  // Only under `dateType: Date` — an unused import in every other client would be noise.
+  if (dateType === 'Date') printer.line('from datetime import date, datetime');
   printer.blank();
   printer.blank();
 
@@ -155,7 +165,13 @@ export function renderPythonModels(model: ApiModel): string {
     if (schema.kind === 'object' || schema.kind === 'intersection') {
       const flat = flattenAllOf(schema, model);
       if (flat !== undefined) {
-        writeDataclass(printer, name, flat.properties, flat.description ?? schema.description);
+        writeDataclass(
+          printer,
+          name,
+          flat.properties,
+          dateType,
+          flat.description ?? schema.description
+        );
         continue;
       }
     }
@@ -169,7 +185,7 @@ export function renderPythonModels(model: ApiModel): string {
           .join(', ');
         printer.line(`# Discriminated by "${cases.property}": ${table}`);
       }
-      printer.line(`${className(name)} = ${pythonType(schema)}`);
+      printer.line(`${className(name)} = ${pythonType(schema, dateType)}`);
       printer.blank();
     });
   }
@@ -354,6 +370,7 @@ function writeMethod(
   ident: string,
   errorMode: 'throw' | 'result',
   isAsync: boolean,
+  dateType: DateType,
   model?: ApiModel,
   envelope = false
 ): void {
@@ -365,11 +382,13 @@ function writeMethod(
     param,
     python: identifierFor(param.name, { style: 'snake', reserved: PY }),
   }));
-  const positional = pathArgs.map(({ param, python }) => `${python}: ${pythonType(param.schema)}`);
-  const bodyArg = op.requestBody ? [`body: ${pythonType(op.requestBody.schema)}`] : [];
+  const positional = pathArgs.map(
+    ({ param, python }) => `${python}: ${pythonType(param.schema, dateType)}`
+  );
+  const bodyArg = op.requestBody ? [`body: ${pythonType(op.requestBody.schema, dateType)}`] : [];
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
-      const annotation = pythonType(param.schema);
+      const annotation = pythonType(param.schema, dateType);
       const optional = annotation.startsWith('Optional[') ? annotation : `Optional[${annotation}]`;
       return `${python}: ${optional} = None`;
     }),
@@ -381,14 +400,14 @@ function writeMethod(
   const success = successSchema(op);
   const sse = sseResponse(op);
   const returns = envelope
-    ? `Envelope[${success === undefined ? 'None' : pythonType(success)}]`
+    ? `Envelope[${success === undefined ? 'None' : pythonType(success, dateType)}]`
     : sse !== undefined
       ? `${isAsync ? 'AsyncIterator' : 'Iterator'}[ServerSentEvent]`
       : errorMode === 'result'
         ? 'Result'
         : success === undefined
           ? 'None'
-          : pythonType(success);
+          : pythonType(success, dateType);
   // Streaming methods are plain defs returning an (async) iterator — an `async def`
   // would force awaiting the call before iterating it.
   const prefix = isAsync && sse === undefined ? 'async def' : 'def';
@@ -438,7 +457,9 @@ function writeMethod(
         'timeout=timeout, retry=retry, idempotency_key=idempotency_key)'
     );
     const decoded =
-      success === undefined ? 'None' : `decode(${pythonType(success)}, _safe_json(response))`;
+      success === undefined
+        ? 'None'
+        : `decode(${pythonType(success, dateType)}, _safe_json(response))`;
     if (envelope) {
       printer.block('if not response.is_success:', () => {
         printer.line(
@@ -471,10 +492,11 @@ function writePaginationWrappers(
   op: OperationModel,
   ident: string,
   isAsync: boolean,
-  itemType: string
+  itemType: string,
+  dateType: DateType
 ): void {
   const success = successSchema(op);
-  const pageType = success === undefined ? 'Any' : pythonType(success);
+  const pageType = success === undefined ? 'Any' : pythonType(success, dateType);
   const queryArgs = op.queryParams.map((param) => ({
     param,
     python: identifierFor(param.name, { style: 'snake', reserved: PY }),
@@ -567,7 +589,8 @@ function writeClientClass(
   errorMode: 'throw' | 'result',
   isAsync: boolean,
   paginationSpecs: Map<string, Record<string, unknown> | undefined>,
-  serverUrl: string
+  serverUrl: string,
+  dateType: DateType
 ): void {
   const name = isAsync ? 'AsyncClient' : 'Client';
   const httpType = isAsync ? 'httpx.AsyncClient' : 'httpx.Client';
@@ -599,9 +622,9 @@ function writeClientClass(
     );
     printer.blank();
     for (const { op, ident } of operationIdents(model)) {
-      writeMethod(printer, op, ident, errorMode, isAsync);
+      writeMethod(printer, op, ident, errorMode, isAsync, dateType);
       if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
-        writeMethod(printer, op, ident, errorMode, isAsync, model, true);
+        writeMethod(printer, op, ident, errorMode, isAsync, dateType, model, true);
       }
       const spec = paginationSpecs.get(ident);
       if (spec !== undefined) {
@@ -618,7 +641,8 @@ function writeClientClass(
           op,
           ident,
           isAsync,
-          element === undefined ? 'Any' : pythonType(element)
+          element === undefined ? 'Any' : pythonType(element, dateType),
+          dateType
         );
       }
     }
@@ -629,6 +653,7 @@ function writeClientClass(
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
 export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   const errorMode = emit.errorMode ?? 'throw';
+  const dateType = emit.dateType ?? 'string';
   const printer = new Printer('    ');
   printer.line(
     `# Generated by @redocly/client-generator (python) from "${model.title}" ${model.version}.`
@@ -638,7 +663,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   printer.blank();
 
   // Models (with the shared imports header).
-  printer.line(renderPythonModels(model).trimEnd());
+  printer.line(renderPythonModels(model, dateType).trimEnd());
   printer.blank();
   printer.blank();
   writePythonServers(printer, model);
@@ -702,8 +727,8 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
 
   // The `serverUrl` option overrides the description's server, like the TS sdk.
   const serverUrl = emit.serverUrl ?? model.serverUrl ?? '';
-  writeClientClass(printer, model, errorMode, false, paginationSpecs, serverUrl);
-  writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl);
+  writeClientClass(printer, model, errorMode, false, paginationSpecs, serverUrl, dateType);
+  writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl, dateType);
 
   return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: printer.toString() }];
 };

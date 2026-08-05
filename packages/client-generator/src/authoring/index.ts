@@ -3,6 +3,7 @@
 // from the package ROOT: a custom generator importing only these stays TS-free.
 
 export { Printer } from './printer.js';
+export type { DateType } from './options.js';
 export { casing, identifierFor, RESERVED_WORDS } from './naming.js';
 export { paginationRuleFor, type NeutralPaginationRule } from './pagination.js';
 export {

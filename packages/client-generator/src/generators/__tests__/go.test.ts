@@ -410,6 +410,106 @@ describe('goGenerator parity features', () => {
     expectGoCompiles(out);
   });
 
+  it('maps date/date-time to time.Time and Date under dateType: Date', () => {
+    const DATE_TIME: SchemaModel = {
+      kind: 'scalar',
+      scalar: 'string',
+      metadata: { format: 'date-time' },
+    };
+    const DATE: SchemaModel = { kind: 'scalar', scalar: 'string', metadata: { format: 'date' } };
+    const dated: ApiModel = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      services: [
+        {
+          name: 'Orders',
+          operations: [
+            {
+              name: 'listOrders',
+              specName: 'listOrders',
+              method: 'get',
+              path: '/orders',
+              tags: ['Orders'],
+              pathParams: [],
+              queryParams: [{ name: 'since', in: 'query', required: false, schema: DATE_TIME }],
+              headerParams: [],
+              cookieParams: [],
+              security: [],
+              successResponses: [
+                {
+                  status: '200',
+                  contentType: 'application/json',
+                  schema: { kind: 'ref', name: 'Order' },
+                },
+              ],
+              errorResponses: [],
+            },
+          ],
+        },
+      ],
+      schemas: [
+        {
+          name: 'Order',
+          schema: {
+            kind: 'object',
+            properties: [
+              { name: 'placedAt', schema: DATE_TIME, required: true },
+              { name: 'dueDate', schema: DATE, required: false },
+              { name: 'reminders', schema: { kind: 'array', items: DATE_TIME }, required: false },
+            ],
+          },
+        },
+      ],
+      securitySchemes: [],
+    } as unknown as ApiModel;
+
+    const out = goGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { dateType: 'Date' },
+    })[0].content;
+
+    expect(out).toContain('PlacedAt time.Time `json:"placedAt"`');
+    // A calendar date needs its own type: encoding/json only speaks RFC 3339 for time.Time.
+    expect(out).toContain('DueDate *Date `json:"dueDate,omitempty"`');
+    expect(out).toContain('Reminders []time.Time `json:"reminders,omitempty"`');
+    expect(out).toContain('Since *time.Time');
+    expect(out).toContain('query.Set("since", (*params.Since).Format(time.RFC3339))');
+    expectGoCompiles(out);
+
+    // The default keeps the wire representation.
+    const asString = goGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(asString).toContain('PlacedAt string `json:"placedAt"`');
+  });
+
+  it('models referencing dates compile standalone (the models section imports time)', () => {
+    const out = renderGoModels(
+      model({
+        Order: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'placedAt',
+              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+              required: true,
+            },
+          ],
+        },
+      }),
+      'Date'
+    );
+    expect(out).toContain('import "time"');
+    expect(out).toContain('PlacedAt time.Time');
+    expectGoCompiles(out);
+  });
+
   it('bakes the serverUrl option, not just the description server', () => {
     const files = goGenerator({
       model: CAFE,

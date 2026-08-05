@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import dataclasses
 import typing
+from datetime import date, datetime
 from enum import Enum
 from typing import Any, Dict, Tuple, get_args, get_origin, get_type_hints
 
@@ -51,6 +52,20 @@ def decode(type_: Any, data: Any):
         return data
     if isinstance(type_, type) and issubclass(type_, Enum):
         return type_(data)
+    # `dateType: Date` annotates date/date-time fields as datetime objects; a value that
+    # doesn't parse passes through unchanged (the server is the source of truth).
+    if type_ is datetime or type_ is date:
+        if not isinstance(data, str):
+            return data
+        try:
+            # `datetime` accepts a bare date too; `date` rejects a timestamp, so trim it.
+            return (
+                datetime.fromisoformat(data)
+                if type_ is datetime
+                else date.fromisoformat(data[:10])
+            )
+        except ValueError:
+            return data
     if dataclasses.is_dataclass(type_):
         hints = get_type_hints(type_)
         field_map = getattr(type_, "_field_map", {})
@@ -76,6 +91,11 @@ def encode(value: Any):
         return out
     if isinstance(value, Enum):
         return value.value
+    # A date-only value must not gain a time component on the way out.
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
     if isinstance(value, list):
         return [encode(item) for item in value]
     if isinstance(value, dict):

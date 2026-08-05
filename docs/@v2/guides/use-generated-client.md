@@ -60,7 +60,7 @@ To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at
 
 The `python` generator emits a self-contained `<stem>.py` next to the configured output — a full Python SDK over [httpx](https://www.python-httpx.org/) (`pip install httpx`, Python ≥ 3.9):
 typed dataclass models (allOf flattened, enums, discriminated unions decoded by their discriminator), a `Client` and an `AsyncClient` with one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware hooks, pagination iterators (`<op>_pages()` / `<op>_items()`, `async for` variants), SSE streaming, multipart bodies, `<op>_with_headers()` envelope variants for operations that declare response headers, and a `Servers` class for templated server URLs.
-`errorMode` maps to raising `ApiError` (default) or returning a `Result` dataclass.
+`errorMode` maps to raising `ApiError` (default) or returning a `Result` dataclass, and `dateType: Date` yields `datetime`/`date` objects.
 No TypeScript is involved: generating with only `python` selected does not require the `typescript` package.
 
 ```python

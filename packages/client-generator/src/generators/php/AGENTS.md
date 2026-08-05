@@ -30,7 +30,12 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers;
   **allOf** is flattened.
 - **Errors:** exceptions ARE the error mode (`ApiError`/`TimeoutError` extend
-  `\RuntimeException`); `errorMode` does not change the output.
+  `\RuntimeException`); `errorMode` does not change the output (the generator declares
+  `errorModes: ['throw']`, so `result` fails fast).
+- **Dates:** `dateType: Date` types `format: date`/`date-time` as
+  `\DateTimeImmutable`; hydration is `new \DateTimeImmutable(...)` and serialization
+  formats with `\DateTimeInterface::ATOM` (date-time) or `'Y-m-d'` (date), including
+  for query parameters.
 - **Method arguments:** required path params positional, JSON body next, optional query
   params as nullable NAMED arguments, then `?array $headers`, and `?string
 $idempotencyKey` on mutating methods.
