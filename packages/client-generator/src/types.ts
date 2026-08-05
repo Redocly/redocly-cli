@@ -107,7 +107,7 @@ export type GenerateClientOptions = {
   /**
    * Auto-pagination rules: a convention rule (applied to every operation it
    * structurally fits), per-operation overrides, and `exclude`d operationIds —
-   * resolved together with each operation's `x-redocly-pagination` extension (per-op config >
+   * resolved together with each operation's `x-redoclyPagination` extension (per-op config >
    * extension > convention). Paginated operations gain typed `.pages()`/`.items()`
    * iterators. Verified statically: an explicit rule that doesn't fit its operation
    * fails generation.

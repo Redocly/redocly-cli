@@ -12,7 +12,7 @@ paths:
       operationId: listOrders
       summary: List orders, one cursor page at a time.
       tags: [orders]
-      x-redocly-pagination:
+      x-redoclyPagination:
         style: cursor
         cursorParam: cursor
         nextCursor: /nextCursor

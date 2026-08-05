@@ -223,7 +223,7 @@ export type OperationModel = {
    */
   security: string[][];
   /**
-   * The operation's `x-redocly-pagination` extension value, captured VERBATIM (spec
+   * The operation's `x-redoclyPagination` extension value, captured VERBATIM (spec
    * extensions are untyped). Validated by the pagination emitter, not the IR.
    */
   paginationExtension?: unknown;

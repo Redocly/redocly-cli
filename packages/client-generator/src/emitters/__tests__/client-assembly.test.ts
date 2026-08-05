@@ -477,7 +477,7 @@ describe('emitClientSingleFile — pagination', () => {
     );
   });
 
-  it('resolves the x-redocly-pagination extension without any config', () => {
+  it('resolves the x-redoclyPagination extension without any config', () => {
     const model = modelWith([{ ...listOrders, paginationExtension: CURSOR_RULE }, getOrder], {
       schemas: [...SCHEMAS, ORDER_PAGE],
     });
@@ -534,9 +534,9 @@ describe('emitClientSingleFile — pagination', () => {
     );
     expect(() => emitClientSingleFile(model)).toThrow(
       'Invalid pagination configuration:\n' +
-        '  - Pagination for operation "listOrders" (x-redocly-pagination): ' +
+        '  - Pagination for operation "listOrders" (x-redoclyPagination): ' +
         'query parameter "after" is not declared on the operation (declared: cursor, limit)\n' +
-        '  - Pagination for operation "listRefunds" (x-redocly-pagination): ' +
+        '  - Pagination for operation "listRefunds" (x-redoclyPagination): ' +
         'the "items" pointer "/refunds" does not resolve in the success response schema'
     );
   });

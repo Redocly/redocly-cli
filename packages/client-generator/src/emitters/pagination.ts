@@ -1,4 +1,4 @@
-// Auto-pagination resolution: turns config rules and `x-redocly-pagination` extensions into the
+// Auto-pagination resolution: turns config rules and `x-redoclyPagination` extensions into the
 // normalized descriptor `PaginationSpec`, statically VERIFYING each rule fits its
 // operation (the advance param is a declared query param whose schema fits the style —
 // string-ish for `cursor`, a numeric scalar for `offset`/`page`; the JSON pointers
@@ -22,7 +22,7 @@ import { isSseOp } from './sse.js';
 export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
 
 /**
- * One user-facing pagination rule — the shared shape of the `x-redocly-pagination` operation
+ * One user-facing pagination rule — the shared shape of the `x-redoclyPagination` operation
  * extension and every `pagination` config rule. `nextCursor` and `items` are RFC 6901
  * JSON pointers (starting with `/`) into the operation's success response.
  */
@@ -52,12 +52,12 @@ export type PaginationRule = {
  * The `pagination` config block: an optional convention rule (the top-level rule
  * fields, applied to every operation it structurally fits when `style` is set), plus
  * per-operation overrides and exclusions. Precedence per operation:
- * `operations[id]` > the spec's `x-redocly-pagination` extension > the convention rule.
+ * `operations[id]` > the spec's `x-redoclyPagination` extension > the convention rule.
  */
 export type PaginationConfig = Partial<PaginationRule> & {
   /** operationIds no source may paginate. */
   exclude?: string[];
-  /** Per-operation rules, keyed by operationId (beat `x-redocly-pagination` and the convention). */
+  /** Per-operation rules, keyed by operationId (beat `x-redoclyPagination` and the convention). */
   operations?: Record<string, PaginationRule>;
 };
 
@@ -73,7 +73,7 @@ export type ModelPagination = Map<string, { spec: PaginationSpec; itemSchema: Sc
 
 /**
  * Resolve one operation's pagination across the three sources (per-op config >
- * `x-redocly-pagination` > convention); `config.exclude` kills all of them. Returns the
+ * `x-redoclyPagination` > convention); `config.exclude` kills all of them. Returns the
  * normalized spec + the item element schema, `{}` when the operation doesn't paginate
  * (no source, or a convention that doesn't fit), or an `error` for a malformed rule
  * (any source) and for an explicit rule that doesn't fit the operation.
@@ -90,7 +90,7 @@ export function resolveOperationPagination(
     return applyRule(op, model, perOp, `pagination.operations["${configName}"]`, true);
   }
   if (op.paginationExtension !== undefined) {
-    return applyRule(op, model, op.paginationExtension, 'x-redocly-pagination', true);
+    return applyRule(op, model, op.paginationExtension, 'x-redoclyPagination', true);
   }
   if (config?.style !== undefined) {
     const { exclude: _exclude, operations: _operations, ...convention } = config;

@@ -10,7 +10,7 @@ paths:
       operationId: listOrders
       summary: List orders, one cursor page at a time.
       # The extension arm: the pagination rule travels with the spec — no config needed.
-      x-redocly-pagination:
+      x-redoclyPagination:
         style: cursor
         cursorParam: cursor
         nextCursor: /nextCursor

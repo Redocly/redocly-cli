@@ -541,7 +541,7 @@ function buildOperation(
 
   // Extensions aren't in the @redocly operation type — read loosely, like `deprecated`.
   const paginationExtension = (operation as unknown as Record<string, unknown>)[
-    'x-redocly-pagination'
+    'x-redoclyPagination'
   ];
 
   return {

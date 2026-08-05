@@ -1,5 +1,5 @@
 // Language-neutral pagination-rule resolution: which rule applies to an operation
-// (per-op config > the `x-redocly-pagination` extension > a fitting convention) and
+// (per-op config > the `x-redoclyPagination` extension > a fitting convention) and
 // its normalized shape. Declaration-based — the TS toolkit's static fit VERIFICATION
 // (schema-level advance-param/pointer checks) remains generation-side; this helper is
 // what every language generator shares.

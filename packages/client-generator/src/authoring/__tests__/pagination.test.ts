@@ -24,7 +24,7 @@ function op(extra: Partial<OperationModel> = {}): OperationModel {
 const CURSOR = { style: 'cursor', cursorParam: 'after', nextCursor: '/next', items: '/items' };
 
 describe('paginationRuleFor', () => {
-  it('per-operation config beats the x-redocly-pagination extension', () => {
+  it('per-operation config beats the x-redoclyPagination extension', () => {
     const operation = op({ paginationExtension: { ...CURSOR, items: '/fromExtension' } });
     const rule = paginationRuleFor(operation, { operations: { listOrders: CURSOR } })!;
     expect(rule).toEqual({

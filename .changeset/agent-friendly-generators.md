@@ -10,3 +10,5 @@ Selecting a generator now pulls in the generators it depends on: `--generator cl
 Added `goPackage` (`--go-package`) to set the package clause of the `go` generator's output, and `--bin-name` as the flag form of `binName`.
 
 A custom generator can now declare its own options as a schema; publishers set them under `client.options.<generator>` and the values are validated — unknown key, wrong type, value outside an `enum`, missing required option — before anything is written, with defaults applied when `run` receives them.
+
+**Note:** the per-operation pagination extension is now `x-redoclyPagination`, matching the camelCase of every other Redocly extension. Rename it in descriptions that declared `x-redocly-pagination`; the old spelling is no longer read.
