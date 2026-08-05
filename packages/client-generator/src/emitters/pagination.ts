@@ -146,7 +146,13 @@ function applyRule(
     const param = valid.style === 'cursor' ? valid.cursorParam! : valid.offsetParam!;
     const advance = op.queryParams.find((p) => p.name === param);
     if (!advance) {
-      return misfit(`query parameter "${param}" is not declared on the operation`);
+      // Name what IS declared: the fix is almost always a different spelling
+      // (`after` vs `cursor`), and the message should make that obvious.
+      const declared = op.queryParams.map((p) => p.name).join(', ');
+      return misfit(
+        `query parameter "${param}" is not declared on the operation` +
+          (declared === '' ? '' : ` (declared: ${declared})`)
+      );
     }
     // The advance param must accept what the runtime sends: the response's cursor
     // (string-ish, same predicate as nextCursor) or the incremented number.

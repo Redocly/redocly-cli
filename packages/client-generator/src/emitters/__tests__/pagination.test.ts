@@ -469,7 +469,7 @@ describe('resolveOperationPagination — fit verification', () => {
     [
       'an advance param missing from the query params',
       { ...CURSOR_RULE, cursorParam: 'after' },
-      'query parameter "after" is not declared on the operation',
+      'query parameter "after" is not declared on the operation (declared: cursor, offset, page, limit)',
     ],
     [
       'an unresolvable items pointer',
@@ -744,7 +744,7 @@ describe('resolveModelPagination', () => {
     expect(() => resolveModelPagination(modelWith([bad1, bad2]), undefined)).toThrow(
       'Invalid pagination configuration:\n' +
         '  - Pagination for operation "listOrders" (x-redocly-pagination): ' +
-        'query parameter "after" is not declared on the operation\n' +
+        'query parameter "after" is not declared on the operation (declared: cursor, offset, page, limit)\n' +
         '  - Pagination for operation "listRefunds" (x-redocly-pagination): ' +
         '"style" must be one of "cursor" | "offset" | "page" | "link" (got "nope")'
     );

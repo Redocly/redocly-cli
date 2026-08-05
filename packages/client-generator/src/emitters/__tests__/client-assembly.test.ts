@@ -535,7 +535,7 @@ describe('emitClientSingleFile — pagination', () => {
     expect(() => emitClientSingleFile(model)).toThrow(
       'Invalid pagination configuration:\n' +
         '  - Pagination for operation "listOrders" (x-redocly-pagination): ' +
-        'query parameter "after" is not declared on the operation\n' +
+        'query parameter "after" is not declared on the operation (declared: cursor, limit)\n' +
         '  - Pagination for operation "listRefunds" (x-redocly-pagination): ' +
         'the "items" pointer "/refunds" does not resolve in the success response schema'
     );
