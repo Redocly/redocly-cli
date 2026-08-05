@@ -1,5 +1,3 @@
-import type { Referenced } from './openapi.js';
-
 export interface Async2Definition {
   asyncapi: string;
   info?: Async2Info;
@@ -96,7 +94,7 @@ export interface Async2Operation {
   tags?: unknown[];
   externalDocs?: unknown;
   bindings?: unknown;
-  traits?: Array<Referenced<Async2OperationTrait>>;
+  traits?: Array<Async2OperationTrait>;
   message?: unknown;
   security?: Async2SecurityRequirement[];
 }

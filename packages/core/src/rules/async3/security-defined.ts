@@ -77,7 +77,7 @@ export const SecurityDefined: Async3Rule = () => {
       enter(root, { location, resolve }: UserContext) {
         const serversNode = root?.servers;
         if (isRef(serversNode)) {
-          const resolvedServers = resolve<Record<string, Referenced<Async3Server>>>(serversNode);
+          const resolvedServers = resolve<Record<string, Async3Server>>(serversNode);
           rootServers = resolvedServers.node ?? undefined;
           rootServersFrom = resolvedServers.location?.source.absoluteRef;
         } else {
