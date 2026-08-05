@@ -23,7 +23,24 @@ if (contractMatch === null) {
 }
 const contract = Number(contractMatch[1]);
 const outDir = join(pkgRoot, 'eject-assets', 'generators');
+const skillsDir = join(pkgRoot, 'eject-assets', 'skills');
 mkdirSync(outDir, { recursive: true });
+
+// The shared authoring skill ships as a skill too, so an agent in the user's repo loads
+// it without being told to read a file.
+mkdirSync(join(skillsDir, 'client-generators'), { recursive: true });
+writeFileSync(
+  join(skillsDir, 'client-generators', 'SKILL.md'),
+  [
+    '---',
+    'name: client-generators',
+    'description: Write or change a Redocly client generator — the API model, the language-neutral helper toolkit, and the edit → regenerate → diff loop.',
+    '---',
+    '',
+    readFileSync(join(pkgRoot, 'eject-assets', 'AGENTS.md'), 'utf-8').trim(),
+    '',
+  ].join('\n')
+);
 
 const EJECTABLE = [
   { name: 'python', run: 'pythonGenerator', sample: 'pythonSample' },
@@ -60,10 +77,10 @@ for (const { name, run, sample } of EJECTABLE) {
     process.stderr.write(`eject asset ${name}.mjs failed node --check:\n${check.stderr}`);
     process.exit(1);
   }
-  // The generator's OWN skill ships beside its code: eject drops it as
-  // `generators/<name>.AGENTS.md` so the agent that edits the ejected file
-  // starts from the generator's design, not from reverse-engineering it.
-  // The intro and modify loop are rewritten for the user's repo on the way.
+  // The generator's OWN design ships as `.claude/skills/<name>-generator/SKILL.md`, so the
+  // agent that edits the ejected file starts from the design instead of reverse-engineering
+  // it. The intro and modify loop are rewritten for the user's repo on the way.
   const skill = readFileSync(join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'), 'utf-8');
-  writeFileSync(join(outDir, `${name}.AGENTS.md`), ejectedSkill(skill, name));
+  mkdirSync(join(skillsDir, `${name}-generator`), { recursive: true });
+  writeFileSync(join(skillsDir, `${name}-generator`, 'SKILL.md'), ejectedSkill(skill, name));
 }

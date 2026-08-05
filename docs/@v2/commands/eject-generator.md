@@ -33,7 +33,9 @@ Ejecting writes two things:
 - `.claude/skills/<name>-generator/SKILL.md` — the generator's design as an agent skill: the decisions its code implements, and the loop to follow when changing it (state the change in the skill, then make the code match).
   Coding agents load skills automatically, so your agent starts from the design instead of reverse-engineering the code.
 
-A first eject also drops `.claude/skills/client-generator-authoring/SKILL.md` — the shared authoring guide (the generator contract, the API model, the helper library). That file is refreshed on later ejects; anything you add outside its markers survives.
+A first eject also drops `.claude/skills/client-generators/SKILL.md` — the shared authoring guide (the generator contract, the API model, the helper library).
+Both skills are ours: they are rewritten on every eject and `--update`, so keep your own notes elsewhere.
+Beside the code, `<dir>/AGENTS.md` gets a short pointer to the skills, so the directory explains itself to a reader who opens it cold; anything you add outside its markers survives.
 
 Eject wires itself up: it adds `@redocly/client-generator` to your `devDependencies` if it isn't there and points your config at the file, where a path entry takes over the built-in name.
 

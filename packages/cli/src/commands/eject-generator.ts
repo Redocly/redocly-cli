@@ -1,7 +1,7 @@
 import { HandledError, logger } from '@redocly/openapi-core';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
@@ -39,10 +39,38 @@ export function ejectAssetsDir(): string {
   return fileURLToPath(new URL('./eject-assets/', import.meta.url));
 }
 
-/** Drop or refresh `<dir>/AGENTS.md`: managed content between markers, user additions preserved. */
-function dropAgentsSkill(dir: string, assetsDir: string): void {
-  const template = readFileSync(join(assetsDir, 'AGENTS.md'), 'utf-8').trim();
-  const managed = `${AGENTS_BEGIN}\n\n${template}\n\n${AGENTS_END}\n`;
+/** Copy a shipped skill into the repo's `.claude/skills/<skill>/SKILL.md`, overwriting ours. */
+function dropSkill(skill: string, assetsDir: string): string {
+  const target = join(process.cwd(), '.claude', 'skills', skill, 'SKILL.md');
+  mkdirSync(dirname(target), { recursive: true });
+  writeFileSync(
+    target,
+    readFileSync(join(assetsDir, 'skills', skill, 'SKILL.md'), 'utf-8'),
+    'utf-8'
+  );
+  return relative(process.cwd(), target);
+}
+
+/**
+ * Drop or refresh the pointer at `<dir>/AGENTS.md`: it says what these files are and
+ * where their design lives, so the directory explains itself to an agent that opens it
+ * without the skills loaded. Managed between markers; anything the user adds is kept.
+ */
+function dropPointer(dir: string, ejected: string[]): void {
+  const lines = [
+    '# Ejected client generators',
+    '',
+    'These files are Redocly client generators you own; `redocly generate-client` runs them.',
+    'Their design and the authoring toolkit are agent skills — edit the skill first, then make',
+    'the code match, and never hand-edit generated client output:',
+    '',
+    '- `.claude/skills/client-generators/SKILL.md` — the API model, the helpers, the loop.',
+    ...ejected.map(
+      (name) =>
+        `- \`.claude/skills/${name}-generator/SKILL.md\` — the \`${name}\` generator's design.`
+    ),
+  ];
+  const managed = `${AGENTS_BEGIN}\n\n${lines.join('\n')}\n\n${AGENTS_END}\n`;
   const target = join(dir, 'AGENTS.md');
   if (!existsSync(target)) {
     writeFileSync(target, managed, 'utf-8');
@@ -60,16 +88,6 @@ function dropAgentsSkill(dir: string, assetsDir: string): void {
   writeFileSync(
     target,
     current.slice(0, begin) + managed.trimEnd() + current.slice(end + AGENTS_END.length),
-    'utf-8'
-  );
-}
-
-/** The generator's OWN design skill, refreshed on every eject/update (it documents OUR
- * generator; user notes belong outside it). Dropped as `generators/<name>.AGENTS.md`. */
-function dropGeneratorSkill(dir: string, assetsDir: string, name: string): void {
-  writeFileSync(
-    join(dir, `${name}.AGENTS.md`),
-    readFileSync(join(assetsDir, 'generators', `${name}.AGENTS.md`), 'utf-8'),
     'utf-8'
   );
 }
@@ -115,6 +133,11 @@ function threeWayMerge(
     );
   }
   return { merged: result.stdout, conflicts: result.status };
+}
+
+/** The built-in generators already ejected into `dir`, so the pointer lists every one of them. */
+function ejectedIn(dir: string): string[] {
+  return [...EJECTABLE].filter((name) => existsSync(join(dir, `${name}.mjs`)));
 }
 
 export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorCommandArgv>) => {
@@ -166,8 +189,9 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
     );
     writeFileSync(target, merged, 'utf-8');
     writeFileSync(pristine, asset, 'utf-8');
-    dropAgentsSkill(dir, assetsDir);
-    dropGeneratorSkill(dir, assetsDir, name);
+    dropSkill('client-generators', assetsDir);
+    dropSkill(`${name}-generator`, assetsDir);
+    dropPointer(dir, ejectedIn(dir));
     ejectGeneratorTelemetry.eject_generator_outcome = conflicts > 0 ? 'conflicts' : 'success';
     if (conflicts > 0) {
       ejectGeneratorTelemetry.eject_generator_conflicts = conflicts;
@@ -189,8 +213,9 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
   mkdirSync(pristineDir, { recursive: true });
   writeFileSync(target, asset, 'utf-8');
   writeFileSync(pristine, asset, 'utf-8');
-  dropAgentsSkill(dir, assetsDir);
-  dropGeneratorSkill(dir, assetsDir, name);
+  const authoringSkill = dropSkill('client-generators', assetsDir);
+  const designSkill = dropSkill(`${name}-generator`, assetsDir);
+  dropPointer(dir, ejectedIn(dir));
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configPath = `./${relative(process.cwd(), target).split('\\').join('/')}`;
   logger.info(
@@ -199,6 +224,6 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
       `  npm install --save-dev @redocly/client-generator\n\n` +
       `Point your config at the file — the path entry takes over the built-in name:\n\n` +
       `  client:\n    generators:\n      - ${configPath}\n\n` +
-      `The authoring guide for your agent is in ${relative(process.cwd(), join(dir, 'AGENTS.md'))}.\n`
+      `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n`
   );
 };

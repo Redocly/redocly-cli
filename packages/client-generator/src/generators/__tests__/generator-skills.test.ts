@@ -38,13 +38,15 @@ describe.each(EJECTABLE)('%s generator skill ships to users', (name) => {
     expect(readFileSync(skillPath, 'utf-8')).toContain(`${name}-runtime/`);
   });
 
-  it('is what eject ships — the prepared asset is the user-repo transform of the source', () => {
+  it('is what eject ships — the prepared skill is the user-repo transform of the source', () => {
     // `prepare` rewrites the skill for the user's repo (their file is generators/<name>.mjs,
     // their loop is regenerate + diff — not this repo's index.ts/prepare/vitest loop);
     // commit-time formatting of the source AFTER a prepare run would ship a stale copy.
-    const asset = join(generatorsDir, '../../eject-assets/generators', `${name}.AGENTS.md`);
+    const asset = join(generatorsDir, '../../eject-assets/skills', `${name}-generator`, 'SKILL.md');
     const shipped = readFileSync(asset, 'utf-8');
     expect(shipped).toBe(ejectedSkill(readFileSync(skillPath, 'utf-8'), name));
+    // Eject drops it as an agent skill, so it carries the frontmatter a skill needs.
+    expect(shipped.startsWith(`---\nname: ${name}-generator\ndescription: `)).toBe(true);
     expect(shipped).toContain(`generators/${name}.mjs`);
     expect(shipped).not.toContain('index.ts');
     expect(shipped).not.toContain('npm run prepare');

@@ -45,19 +45,28 @@ describe('eject-generator (end-to-end)', () => {
     rmSync(project, { recursive: true, force: true });
   }, 60_000);
 
-  it('ejects php: file + pristine snapshot + AGENTS.md, and re-eject without --force errors', () => {
+  it('ejects php: the generator, both skills, a pointer beside the code; re-eject needs --force', () => {
     const eject = run(project, ['eject-generator', 'php']);
     expect(eject.status, eject.stderr).toBe(0);
     expect(existsSync(join(project, 'generators/php.mjs'))).toBe(true);
     expect(existsSync(join(project, 'generators/.pristine/php.mjs'))).toBe(true);
-    expect(readFileSync(join(project, 'generators/AGENTS.md'), 'utf-8')).toContain(
-      'redocly-generators:begin'
+
+    // The design ships where an agent auto-loads it, with skill frontmatter.
+    const design = readFileSync(join(project, '.claude/skills/php-generator/SKILL.md'), 'utf-8');
+    expect(design).toContain('name: php-generator');
+    expect(design).toContain('edit this skill first');
+    // …together with the shared authoring skill (the toolkit and the model).
+    const authoring = readFileSync(
+      join(project, '.claude/skills/client-generators/SKILL.md'),
+      'utf-8'
     );
-    // The generator's OWN design skill ships alongside — the file an agent reads
-    // before editing the ejected generator.
-    expect(readFileSync(join(project, 'generators/php.AGENTS.md'), 'utf-8')).toContain(
-      'edit this skill first'
-    );
+    expect(authoring).toContain('name: client-generators');
+    expect(authoring).toContain('flattenAllOf');
+    // And a short pointer next to the code, so the directory explains itself.
+    const pointer = readFileSync(join(project, 'generators/AGENTS.md'), 'utf-8');
+    expect(pointer).toContain('redocly-generators:begin');
+    expect(pointer).toContain('.claude/skills/php-generator/SKILL.md');
+
     expect(run(project, ['eject-generator', 'php']).status).not.toBe(0);
     expect(run(project, ['eject-generator', 'php', '--force']).status).toBe(0);
   }, 60_000);

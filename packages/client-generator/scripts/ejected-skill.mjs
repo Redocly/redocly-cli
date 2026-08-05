@@ -1,4 +1,5 @@
-// The source skill speaks to development inside this repo — its intro and modify
+// The prepare-time transform from a generator's in-repo skill to the SKILL.md eject drops
+// into the user's `.claude/skills/`. The source skill speaks to development inside this repo — its intro and modify
 // loop reference index.ts, the prepare script, and our vitest suites, none of which
 // exist in a user's repo. The ejected copy keeps the design sections verbatim but
 // rewrites those two parts for the user's world: their file is generators/<name>.mjs
@@ -6,6 +7,13 @@
 // unchanged, and both anchors are structural (the first `## ` heading and the final
 // `## The modify loop` section), so skills can grow without touching this transform.
 export function ejectedSkill(source, name) {
+  const frontmatter = [
+    '---',
+    `name: ${name}-generator`,
+    `description: Design of the ejected Redocly \`${name}\` client generator. Read it, and update it, before changing generators/${name}.mjs.`,
+    '---',
+    '',
+  ].join('\n');
   const titleEnd = source.indexOf('\n\n');
   const firstHeading = source.indexOf('\n## ');
   const loopHeading = source.indexOf('\n## The modify loop');
@@ -29,5 +37,5 @@ export function ejectedSkill(source, name) {
     '',
   ].join('\n');
   const designSections = source.slice(firstHeading, loopHeading);
-  return `${source.slice(0, titleEnd)}\n\n${intro}\n${designSections}\n${modifyLoop}`;
+  return `${frontmatter}\n${source.slice(0, titleEnd)}\n\n${intro}\n${designSections}\n${modifyLoop}`;
 }

@@ -84,20 +84,33 @@ describe('examples generate with the current generator', () => {
   }
 });
 
-describe('generator-authoring examples carry the current AGENTS.md', () => {
-  // The ejected example commits the AGENTS.md drop so browsers see the full
-  // story; this pins them byte-for-byte to the shipped template (markers included).
-  const template = readFileSync(
-    join(repoRoot, 'packages/client-generator/eject-assets/AGENTS.md'),
-    'utf-8'
-  ).trim();
-  const expected = `<!-- redocly-generators:begin — managed by \`redocly eject-generator\`; content between markers is refreshed on eject -->\n\n${template}\n\n<!-- redocly-generators:end -->\n`;
-
-  it('ejected-generator/generators/AGENTS.md matches the shipped template', () => {
-    const dropped = readFileSync(
-      join(examplesDir, 'ejected-generator', 'generators/AGENTS.md'),
+describe('the ejected example carries the current skills', () => {
+  // The example commits what `redocly eject-generator` drops, so a browser sees the
+  // whole story; these pin the committed copies to the shipped assets.
+  const shippedSkill = (skill: string) =>
+    readFileSync(
+      join(repoRoot, 'packages/client-generator/eject-assets/skills', skill, 'SKILL.md'),
       'utf-8'
     );
-    expect(dropped, 'stale — re-run `redocly eject-generator` in the example').toBe(expected);
+  const exampleDir = join(examplesDir, 'ejected-generator');
+
+  it.each(['client-generators', 'php-generator'])(
+    '%s/SKILL.md matches the shipped skill',
+    (skill) => {
+      const committed = readFileSync(
+        join(exampleDir, '.claude/skills', skill, 'SKILL.md'),
+        'utf-8'
+      );
+      expect(committed, 'stale — re-run `redocly eject-generator` in the example').toBe(
+        shippedSkill(skill)
+      );
+    }
+  );
+
+  it('generators/AGENTS.md points at both skills', () => {
+    const pointer = readFileSync(join(exampleDir, 'generators/AGENTS.md'), 'utf-8');
+    expect(pointer).toContain('redocly-generators:begin');
+    expect(pointer).toContain('.claude/skills/client-generators/SKILL.md');
+    expect(pointer).toContain('.claude/skills/php-generator/SKILL.md');
   });
 });
