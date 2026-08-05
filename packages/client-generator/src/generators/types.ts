@@ -82,6 +82,13 @@ export type GeneratorDescriptor = {
   dateTypes?: DateType[];
   /** Runtime modes this generator supports; absent = compatible with both. */
   runtimes?: ('inline' | 'package')[];
+  /**
+   * Options this generator does not apply, mapped to the reason it doesn't. Setting
+   * one explicitly warns instead of being silently dropped — a global option
+   * (`outputMode`, `runtime`, …) may be meaningful for one selected generator and
+   * meaningless for another, so this informs rather than rejects.
+   */
+  notApplicable?: Partial<Record<keyof EmitOptions | 'outputMode', string>>;
 };
 
 /**

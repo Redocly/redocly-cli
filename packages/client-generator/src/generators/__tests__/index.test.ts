@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import { NotSupportedError } from '../../errors.js';
 import { builtinGenerators, validateGenerators } from '../index.js';
 import { sdkGenerator } from '../sdk.js';
@@ -53,6 +55,42 @@ describe('validateGenerators', () => {
     expect(() => validateGenerators(['sdk', generator], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result".*throw/
     );
+  });
+
+  it('rejects --error-mode result for the go and php SDKs (their idiom IS the error mode)', () => {
+    for (const language of ['go', 'php']) {
+      expect(() => validateGenerators([language], { errorMode: 'result' })).toThrow(
+        /does not support --error-mode "result"/
+      );
+      // Throw mode — what they actually emit — stays valid.
+      expect(() => validateGenerators([language], { errorMode: 'throw' })).not.toThrow();
+    }
+    // python implements both modes.
+    expect(() => validateGenerators(['python'], { errorMode: 'result' })).not.toThrow();
+  });
+
+  it('warns (never silently drops) when a language SDK ignores an option the user set', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    try {
+      // `outputMode` travels beside `emit`, hence the trailing argument.
+      validateGenerators(['php'], { runtime: 'package', argsStyle: 'grouped' }, undefined, 'split');
+      const messages = warn.mock.calls.map(([message]) => message).join('');
+      expect(messages).toContain('the "php" generator ignores outputMode');
+      expect(messages).toContain('the "php" generator ignores runtime');
+      expect(messages).toContain('the "php" generator ignores argsStyle');
+
+      // Defaults must stay quiet: only an EXPLICIT option warns.
+      warn.mockClear();
+      validateGenerators(['php'], {});
+      expect(warn).not.toHaveBeenCalled();
+
+      // The TypeScript sdk applies all of them — no warning.
+      warn.mockClear();
+      validateGenerators(['sdk'], { runtime: 'package', argsStyle: 'grouped' }, undefined, 'split');
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('throws NotSupportedError for an unknown generator name', () => {

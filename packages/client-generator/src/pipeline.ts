@@ -189,8 +189,9 @@ export async function generateClient(
     pagination: options.pagination,
   };
   // Fail fast on an incompatible selection (missing prerequisite, unsupported
-  // error-mode/date-type/runtime) before producing any file.
-  validateSelection(selected, emit, registry);
+  // error-mode/date-type/runtime) before producing any file, and warn about options a
+  // selected generator can't apply.
+  validateSelection(selected, emit, registry, options.outputMode);
   const files = runGenerators(model, {
     outputPath,
     outputMode: options.outputMode ?? 'single',

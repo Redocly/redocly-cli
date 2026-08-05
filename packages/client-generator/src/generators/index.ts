@@ -9,7 +9,7 @@ import { sdkGenerator, sdkSample } from './sdk.js';
 import { swrGenerator } from './swr.js';
 import { tanstackQueryGenerator } from './tanstack-query.js';
 import { transformersGenerator } from './transformers.js';
-import type { GeneratorDescriptor, GeneratorName } from './types.js';
+import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 import { zodGenerator } from './zod.js';
 
 export type {
@@ -62,7 +62,8 @@ export function builtinGenerators(): Map<string, GeneratorDescriptor> {
 export function validateGenerators(
   names: string[],
   emit: EmitOptions,
-  registry: Map<string, GeneratorDescriptor> = builtinGenerators()
+  registry: Map<string, GeneratorDescriptor> = builtinGenerators(),
+  outputMode?: OutputMode
 ): void {
-  validateSelection(names, emit, registry);
+  validateSelection(names, emit, registry, outputMode);
 }

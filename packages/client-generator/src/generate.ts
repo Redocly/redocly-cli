@@ -45,7 +45,7 @@ export function collectGeneratedFiles(
   const registry = options.registry ?? builtinGenerators();
   // Fail fast on an incompatible selection (missing prerequisite, unsupported
   // error-mode/date-type/runtime) before producing any file.
-  validateGenerators(options.generators, options.emit, registry);
+  validateGenerators(options.generators, options.emit, registry, options.outputMode);
   return runGenerators(model, { ...options, registry });
 }
 

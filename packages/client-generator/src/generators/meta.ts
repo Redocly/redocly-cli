@@ -3,9 +3,11 @@
 // table and dynamic-imports only the generators actually selected; the sync
 // `/generate` registry in index.ts derives from it, so the metadata has one home.
 
+import { logger } from '@redocly/openapi-core';
+
 import type { EmitOptions } from '../emitters/emit-options.js';
 import { NotSupportedError } from '../errors.js';
-import type { GeneratorDescriptor, GeneratorName } from './types.js';
+import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 
 export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample'> & {
   load: () => Promise<Pick<GeneratorDescriptor, 'run' | 'sample'>>;
@@ -19,6 +21,18 @@ function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): Builtin
       import('./tanstack-query.js').then((m) => ({ run: m.tanstackQueryGenerator(framework) })),
   };
 }
+
+/**
+ * The TypeScript-only knobs a standalone language SDK cannot apply: it always emits
+ * one self-contained file with the runtime embedded, and each language passes inputs
+ * its own idiomatic way (keyword arguments, named arguments, a params struct).
+ */
+const LANGUAGE_SDK_NOT_APPLICABLE: BuiltinMeta['notApplicable'] = {
+  outputMode: 'it always emits one self-contained file',
+  runtime: 'the runtime is always embedded in the generated file',
+  argsStyle: "inputs follow the target language's own idiom",
+  importExt: 'the generated file has no relative imports',
+};
 
 export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   // sdk is the base client; zod emits a standalone schema module importing nothing from it.
@@ -61,15 +75,22 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   // python emits a standalone full Python SDK (httpx) — no TypeScript involved,
   // so a python-only selection never loads the `typescript` package.
   python: {
+    notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
     load: () =>
       import('./python/index.js').then((m) => ({ run: m.pythonGenerator, sample: m.pythonSample })),
   },
   // go emits a standalone full Go SDK (stdlib-only) — no TypeScript involved.
+  // `(T, error)` returns ARE its error mode, so `result` has no Go rendering.
   go: {
+    errorModes: ['throw'],
+    notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
     load: () => import('./go/index.js').then((m) => ({ run: m.goGenerator, sample: m.goSample })),
   },
   // php emits a standalone full PHP SDK (curl extension) — no TypeScript involved.
+  // Exceptions ARE its error mode, so `result` has no PHP rendering.
   php: {
+    errorModes: ['throw'],
+    notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
     load: () =>
       import('./php/index.js').then((m) => ({ run: m.phpGenerator, sample: m.phpSample })),
   },
@@ -84,7 +105,10 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
 export function validateSelection(
   names: string[],
   emit: EmitOptions,
-  registry: Map<string, Omit<GeneratorDescriptor, 'run'> | GeneratorDescriptor>
+  registry: Map<string, Omit<GeneratorDescriptor, 'run'> | GeneratorDescriptor>,
+  // `outputMode` travels beside `emit` in the generator input, so the caller passes it
+  // in for the not-applicable check; absent means the caller left it at the default.
+  outputMode?: OutputMode
 ): void {
   const selected = new Set(names);
   const errorMode = emit.errorMode ?? 'throw';
@@ -117,6 +141,14 @@ export function validateSelection(
       throw new NotSupportedError(
         `The "${name}" generator does not support runtime "${runtime}" (supported: ${descriptor.runtimes.join(', ')}).`
       );
+    }
+    // An option this generator can't apply is announced, not silently dropped. Only an
+    // EXPLICIT value warns — defaults would nag every run.
+    const chosen: Record<string, unknown> = { ...emit, outputMode };
+    for (const [option, reason] of Object.entries(descriptor.notApplicable ?? {})) {
+      if (chosen[option] !== undefined) {
+        logger.warn(`generate-client: the "${name}" generator ignores ${option} — ${reason}.\n`);
+      }
     }
   }
 }
