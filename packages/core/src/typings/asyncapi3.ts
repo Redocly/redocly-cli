@@ -1,8 +1,6 @@
-import type { Referenced } from './openapi.js';
-
 export type Async3Definition = {
   asyncapi: string;
-  servers?: Record<string, Referenced<Async3Server>>;
+  servers?: Record<string, Async3Server>;
   info: Async3Info;
   channels?: Record<string, Channel>;
   components?: Record<string, any>;
@@ -53,7 +51,7 @@ export interface Async3Server {
   pathname?: string;
   description?: string;
   variables?: Record<string, unknown>;
-  security?: Array<Referenced<Async3SecurityScheme>>;
+  security?: Array<Async3SecurityScheme>;
   bindings?: unknown;
 }
 
@@ -63,7 +61,7 @@ export interface Async3Channel {
   title?: string;
   summary?: string;
   description?: string;
-  servers?: Array<Referenced<Async3Server>>;
+  servers?: Array<Async3Server>;
   parameters?: Record<string, unknown>;
   tags?: Tag[];
   externalDocs?: ExternalDocumentation;
@@ -82,21 +80,21 @@ export interface Async3OperationTrait {
   tags?: Tag[];
   externalDocs?: ExternalDoc;
   bindings?: unknown;
-  security?: Array<Referenced<Async3SecurityScheme>>;
+  security?: Array<Async3SecurityScheme>;
 }
 
 export interface Async3Operation {
   action?: 'send' | 'receive';
-  channel?: Referenced<Async3Channel>;
+  channel?: Async3Channel;
   title?: string;
   summary?: string;
   description?: string;
   tags?: Tag[];
   externalDocs?: ExternalDoc;
   operationId?: string;
-  security?: Array<Referenced<Async3SecurityScheme>>;
+  security?: Array<Async3SecurityScheme>;
   bindings?: unknown;
-  traits?: Array<Referenced<Async3OperationTrait>>;
+  traits?: Array<Async3OperationTrait>;
   reply?: unknown;
 
   'x-send-operations'?: string[]; // internal type
