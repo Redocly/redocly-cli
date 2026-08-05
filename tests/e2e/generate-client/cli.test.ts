@@ -13,6 +13,10 @@ const clientDir = join(consumerDir, 'client');
 const SERVER_PORT = 3108;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
+// Every case below spawns the generated CLI through `tsx` (often several times), and
+// TypeScript startup alone can approach the 5s default on a loaded machine.
+vi.setConfig({ testTimeout: 120_000 });
+
 /** Run the generated CLI with tsx; returns exit code + parsed streams. */
 function runCliBin(args: string[], env: Record<string, string> = {}) {
   const result = spawnSync(tsxBin, [join(clientDir, 'client.cli.ts'), ...args], {
