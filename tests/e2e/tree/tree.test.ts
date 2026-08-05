@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,95 +10,159 @@ const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 describe('tree', () => {
   const folderPath = __dirname;
   const samplePath = join(folderPath, 'sample-split');
+  const indexFixturePath = join(folderPath, 'index-fixture');
   const multiApiPath = join(folderPath, 'multi-api');
   const snapshot = (name: string) => join(folderPath, name, 'snapshot.txt');
 
-  test('tree prints the document structure', async () => {
+  test('tree prints the overview for a single-file API', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-stylish'));
+  });
+
+  test('tree prints the overview as JSON', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-json'));
+  });
+
+  test('tree prints the overview for a split multi-file API', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml']);
     const result = getCommandOutput(args, { testPath: samplePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-stylish'));
   });
 
-  test('tree prints the structure as JSON', async () => {
+  test('tree prints the split multi-file overview as JSON', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json']);
     const result = getCommandOutput(args, { testPath: samplePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-json'));
   });
 
-  test('tree prints the structure as a mermaid diagram', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=mermaid']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-mermaid'));
+  test('tree --tag lists the operations of one tag', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--tag=Tickets']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-listing'));
   });
 
-  test('tree prints the structure as a Graphviz dot graph', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=dot']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-dot'));
-  });
-
-  test('tree limits the displayed depth with --level', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--level', '1']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-level'));
-  });
-
-  test('tree shows only the API surface with --operations', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--operations']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-operations'));
-  });
-
-  test('tree expands a --uses wildcard against node ids', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--uses', 'schemas/Order*']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      snapshot('tree-structure-uses-wildcard')
-    );
-  });
-
-  test('tree shows what a component pointer is used by', async () => {
+  test('tree --operations lists every operation as JSON', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
-      '--uses',
-      '#/components/schemas/Order',
+      '--operations',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-operations-listing'));
+  });
+
+  test('tree --paths lists every path with its methods', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--paths']);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-paths-listing'));
+  });
+
+  test('tree --component lists the components of one section', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--component=schemas']);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-component-listing'));
+  });
+
+  test('tree --path --operation prints an operation card as JSON', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--path=/tickets',
+      '--operation=post',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-operation-card'));
+  });
+
+  test('tree --path --operation --with-deps appends the dependency closure', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--path=/tickets',
+      '--operation=post',
+      '--with-deps',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-operation-card-with-deps')
+    );
+  });
+
+  test('tree --operation selects an operation by operationId', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--operation=createOrder',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-operation-by-id'));
+  });
+
+  test('tree --component --name prints a component card as JSON', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--component=schema',
+      '--name=Ticket',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-component-card'));
+  });
+
+  test('tree --component --name --used-by prints the used-by report as JSON', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--component=schemas',
+      '--name=Ticket',
+      '--used-by',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-used-by-json'));
+  });
+
+  test('tree --used-by shows the human-impact tree for a component', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--component=schemas',
+      '--name=Order',
+      '--used-by',
     ]);
     const result = getCommandOutput(args, { testPath: samplePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-structure-used-by'));
   });
 
-  test('tree warns for an unknown used-by input', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--uses', 'schemas/Unknown']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      snapshot('tree-structure-used-by-unknown')
-    );
-  });
-
-  test('tree shows what a component file is used by in the default view', async () => {
+  test('tree --webhook --operation prints a webhook card as JSON', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
-      'openapi.yaml',
-      '--uses',
-      'components/schemas/Order.yaml',
-    ]);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      snapshot('tree-structure-used-by-file')
-    );
-  });
-
-  test('tree --uses filters the JSON index and keeps split components by file', async () => {
-    const args = getParams(indexEntryPoint, [
-      'tree',
-      'openapi.yaml',
-      '--uses',
-      'components/schemas/Order.yaml',
+      'webhooks.yaml',
+      '--webhook=newTicket',
+      '--operation=post',
       '--format=json',
     ]);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('uses-json'));
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'tree-webhook-card') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-webhook-card'));
+  });
+
+  test('tree reports an unknown tag with a suggestion and exits with an error', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--tag=Ticket']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-selector-error'));
+
+    // getCommandOutput only exposes combined stdout/stderr text; spawn once more to confirm
+    // the process actually exits non-zero, since the snapshot alone can't show the exit code.
+    const exitCode = spawnSync('node', args, { cwd: indexFixturePath, encoding: 'utf-8' }).status;
+    expect(exitCode).toBe(1);
   });
 
   test('tree --files prints the file-level graph', async () => {
@@ -112,32 +177,6 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-json'));
   });
 
-  test('tree --files shows what a file is used by', async () => {
-    const args = getParams(indexEntryPoint, [
-      'tree',
-      'openapi.yaml',
-      '--files',
-      '--uses',
-      'components/schemas/Order.yaml',
-    ]);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-used-by'));
-  });
-
-  test('tree --files resolves --uses relative to the API root, regardless of cwd', async () => {
-    const args = getParams(indexEntryPoint, [
-      'tree',
-      'sample-split/openapi.yaml',
-      '--files',
-      '--uses',
-      'components/schemas/Order.yaml',
-    ]);
-    // Run from the parent directory so cwd is not the API's directory; the path
-    // is still resolved relative to the API root, so it matches the same files.
-    const result = getCommandOutput(args, { testPath: folderPath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-used-by'));
-  });
-
   test('tree rejects multiple APIs in the default view', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'a.yaml', 'b.yaml']);
     const result = getCommandOutput(args, { testPath: multiApiPath });
@@ -150,73 +189,49 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-multi-api'));
   });
 
-  test('tree prints the agent index as JSON', async () => {
+  // Three-step agent loop against one split fixture: get the overview, drill into a tag,
+  // then pull one operation card with its dependency closure. Each step is its own case
+  // dir because the harness snapshots one command per test; step 1's dir holds the shared
+  // fixture and steps 2-3 point their testPath at it.
+  test('tree agent loop step 1: overview as JSON', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json']);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('index-json'));
+    const result = getCommandOutput(args, {
+      testPath: join(folderPath, 'tree-split-agent-loop-1-overview'),
+    });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-split-agent-loop-1-overview')
+    );
   });
 
-  test('tree groups the index by paths', async () => {
+  test('tree agent loop step 2: --tag lists the tag found in the overview', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
+      '--tag=Orders',
       '--format=json',
-      '--group-by=paths',
     ]);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('index-json-by-paths'));
+    const result = getCommandOutput(args, {
+      testPath: join(folderPath, 'tree-split-agent-loop-1-overview'),
+    });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-split-agent-loop-2-tag')
+    );
   });
 
-  test('tree --node on a branch returns its sub-index', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--node', 'Tickets']);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-branch'));
-  });
-
-  test('tree --node on a leaf returns its source and refs', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--node', 'GET /orders']);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-leaf'));
-  });
-
-  test('tree --node accepts a file#pointer selector', async () => {
+  test('tree agent loop step 3: --path --operation --with-deps pulls one operation card', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
-      '--node',
-      'paths/orders.yaml#/get',
-    ]);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-leaf-pointer'));
-  });
-
-  test('tree --node --with-deps appends the dependency closure', async () => {
-    const args = getParams(indexEntryPoint, [
-      'tree',
-      'openapi.yaml',
-      '--node',
-      'GET /orders',
+      '--path=/orders',
+      '--operation=post',
       '--with-deps',
-    ]);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-with-deps'));
-  });
-
-  test('tree --node reports an unknown selector', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--node', 'GET /nowhere']);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'sample-split') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('node-unknown'));
-  });
-
-  test('tree --uses with --format json warns that webhooks are omitted', async () => {
-    const args = getParams(indexEntryPoint, [
-      'tree',
-      'openapi.yaml',
-      '--uses',
-      'schemas/Ticket',
       '--format=json',
     ]);
-    const result = getCommandOutput(args, { testPath: join(folderPath, 'index-fixture') });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('uses-json-webhooks-warning'));
+    const result = getCommandOutput(args, {
+      testPath: join(folderPath, 'tree-split-agent-loop-1-overview'),
+    });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-split-agent-loop-3-card')
+    );
   });
 });

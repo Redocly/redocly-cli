@@ -1,19 +1,6 @@
-openapi.yaml
-├── /orders
-│   ├── GET
-│   │   └── schemas/OrderList
-│   │       └── schemas/Order
-│   │           ├── schemas/MenuItem
-│   │           └── schemas/OrderStatus
-│   └── POST
-│       └── schemas/Order
-│           ├── schemas/MenuItem
-│           └── schemas/OrderStatus
-└── /orders/{orderId}
-    ├── DELETE
-    │   └── schemas/Error
-    └── GET
-        └── schemas/Order
-            ├── schemas/MenuItem
-            └── schemas/OrderStatus
+Sample Cafe API  (oas3_2)
+Operations: 4 across 1 tags
+  untagged (4)
+Webhooks: 0
+Components: schemas 5
 

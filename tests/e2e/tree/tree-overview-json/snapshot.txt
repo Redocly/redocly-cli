@@ -1,0 +1,44 @@
+{
+  "docName": "openapi.yaml",
+  "spec": "oas3_1",
+  "docDescription": "Museum API — Imaginary, but delightful Museum API for interview practice.",
+  "overview": {
+    "pointer": "#/info",
+    "file": "openapi.yaml",
+    "start_line": 3,
+    "end_line": 5,
+    "summary": "Imaginary, but delightful Museum API for interview practice."
+  },
+  "servers": {
+    "pointer": "#/servers",
+    "file": "openapi.yaml",
+    "start_line": 7,
+    "end_line": 7,
+    "urls": [
+      "https://api.fake-museum-example.com/v1.1"
+    ]
+  },
+  "tags": [
+    {
+      "name": "Tickets",
+      "summary": "Buy tickets and manage reservations.",
+      "operations": 2
+    },
+    {
+      "name": "untagged",
+      "operations": 1
+    }
+  ],
+  "webhooks": 1,
+  "components": [
+    {
+      "section": "schemas",
+      "count": 1
+    },
+    {
+      "section": "securitySchemes",
+      "count": 1
+    }
+  ]
+}
+

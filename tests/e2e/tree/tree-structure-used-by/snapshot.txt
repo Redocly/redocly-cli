@@ -9,5 +9,5 @@ openapi.yaml
     └── GET
         └── schemas/Order
 
-3 of 4 operations affected · affected paths: /orders, /orders/{orderId}
+3 of 4 operations affected
 

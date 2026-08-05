@@ -1,3 +1,0 @@
-
-No index node matches "GET /nowhere". Run `redocly tree --format=json` to list node ids.
-

@@ -1,0 +1,39 @@
+{
+  "method": "post",
+  "path": "/tickets",
+  "operationId": "buyMuseumTickets",
+  "summary": "Buy museum tickets",
+  "tags": [
+    "Tickets"
+  ],
+  "pointer": "#/paths/~1tickets/post",
+  "file": "openapi.yaml",
+  "start_line": 22,
+  "end_line": 31,
+  "refs": [
+    {
+      "ref": "#/components/schemas/Ticket",
+      "resolved": true,
+      "file": "openapi.yaml",
+      "pointer": "#/components/schemas/Ticket",
+      "start_line": 50,
+      "end_line": 54,
+      "component": "schemas",
+      "name": "Ticket"
+    }
+  ],
+  "usedBy": [],
+  "content": "      summary: Buy museum tickets\n      operationId: buyMuseumTickets\n      tags: [Tickets]\n      responses:\n        '201':\n          description: Created.\n          content:\n            application/json:\n              schema:\n                $ref: '#/components/schemas/Ticket'",
+  "deps": [
+    {
+      "id": "schemas/Ticket",
+      "pointer": "#/components/schemas/Ticket",
+      "file": "openapi.yaml",
+      "start_line": 50,
+      "end_line": 54,
+      "content": "      description: A ticket for museum entry or special event.\n      type: object\n      properties:\n        ticketId:\n          type: string",
+      "refs": []
+    }
+  ]
+}
+
