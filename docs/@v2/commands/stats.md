@@ -21,6 +21,7 @@ The metrics reported depend on the type of API description:
 - Webhooks
 - Operations
 - Tags
+- Vendor Extensions
 
 **AsyncAPI 2.x and AsyncAPI 3.x**
 
@@ -31,6 +32,9 @@ The metrics reported depend on the type of API description:
 - Channels
 - Operations
 - Tags
+- Vendor Extensions
+
+For **Vendor Extensions**, the count is the number of distinct `x-` extensions used, and each extension is listed with how many times it occurs.
 
 If you're interested in the technical details, the statistics are calculated using the counting logic from the `StatsVisitor` module.
 
