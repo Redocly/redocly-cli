@@ -205,12 +205,15 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
+    // a composed $ref can be reached twice: as a chain hop and at its own place in the tree;
+    // ref visitors and sibling keys are processed only on the first visit
+    const composedRefAlreadyWalked =
+      isRefWithSiblings(node) && walkedComposedRefs.has(composedRefWalkId(type, location));
     if (isRefWithSiblings(node)) {
-      // remember it, so the same node is not walked again as a chain hop
       walkedComposedRefs.add(composedRefWalkId(type, location));
     }
 
-    if (nodeIsRef) {
+    if (nodeIsRef && !composedRefAlreadyWalked) {
       const refEnterVisitors = normalizedVisitors.ref.enter;
       for (const { visit: visitor, ruleId, severity, message, context } of refEnterVisitors) {
         enteredContexts.add(context);
@@ -240,9 +243,6 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
-      // the isRef check narrows `node` to OasRef, but sibling keys are read from it too
-      const rawNode = node as Record<string, unknown>;
-
       const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
         let propType = getOwn(type.properties, propName);
         if (propType === undefined) propType = type.additionalProperties;
@@ -391,19 +391,18 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
 
       if (nodeIsRef && resolvedChain?.length) {
-        // walk the composed $ref the resolution passed through; the rest of the chain
-        // is walked recursively the same way
+        // walk the composed $ref the resolution passed through; the rest of the chain follows
         const chainHop = resolvedChain[0];
         if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
           walkNode(chainHop.node, type, chainHop.location, undefined, key);
         }
       }
 
-      if (nodeIsRef) {
+      if (isRefWithSiblings(node) && !composedRefAlreadyWalked) {
         // walk the keys written next to $ref; they resolve against the ref's own location
         for (const propName of Object.keys(node)) {
-          if (propName !== '$ref' && rawNode[propName] !== resolvedNode?.[propName]) {
-            walkProp(propName, rawNode[propName], location, node);
+          if (propName !== '$ref' && node[propName] !== resolvedNode?.[propName]) {
+            walkProp(propName, node[propName], location, node);
           }
         }
       }
@@ -437,7 +436,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     currentLocation = location;
 
-    if (nodeIsRef) {
+    if (nodeIsRef && !composedRefAlreadyWalked) {
       const refLeaveVisitors = normalizedVisitors.ref.leave;
       for (const { visit: visitor, ruleId, severity, context, message } of refLeaveVisitors) {
         if (enteredContexts.has(context)) {

@@ -140,8 +140,7 @@ export function makeBundleVisitor({
   let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
 
-  // a composed $ref (with sibling keys) in the chain is the effective target,
-  // so the composition survives in the bundled output
+  // a composed $ref in the chain is the effective target, so the composition survives bundling
   const effectiveTarget = (resolved: ResolveResult<NonUndefined>): ComponentTarget =>
     resolved.chain?.[0] ?? { node: resolved.node, location: resolved.location! };
 
@@ -274,8 +273,7 @@ export function makeBundleVisitor({
     };
   }
 
-  // Makes the rewritten ref resolvable: registers the rewritten pointer in the map
-  // with the same resolution (chain-end node plus composed hops) the original ref had.
+  // Registers the rewritten pointer in the map with the same resolution the original ref had.
   function resolveBundledComponent(
     node: OasRef,
     resolved: ResolveResult<NonUndefined>,

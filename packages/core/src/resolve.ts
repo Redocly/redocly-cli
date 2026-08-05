@@ -183,10 +183,7 @@ export class BaseResolver {
   }
 }
 
-// A $ref target that is itself a $ref with sibling keys (a JSON Schema 2020-12 composition).
-// Resolution chases through it to the chain end, but the hop is recorded so consumers
-// that care about the composition (the bundler, chain-aware rules) can access it.
-// The document is kept alongside the location so hop subtrees can be resolved too.
+// A $ref with sibling keys the resolution chased through on the way to the chain end.
 export type ResolvedRefChainHop = {
   node: unknown;
   document: Document;
@@ -502,8 +499,7 @@ export async function resolveDocument(opts: {
       resolvedRef.document = targetDoc;
       const refId = makeRefId(document.source.absoluteRef, ref.$ref);
       if (resolvedRef.document && isRef(target)) {
-        // A $ref with sibling keys is a composition (JSON Schema 2020-12), not a transparent
-        // alias — record it as a chain hop so the composition survives for consumers that need it.
+        // a $ref with sibling keys is a composition, not an alias — record it as a chain hop
         const chainHop: ResolvedRefChainHop | undefined = isRefWithSiblings(target)
           ? {
               node: target,
@@ -513,8 +509,7 @@ export async function resolveDocument(opts: {
           : undefined;
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
         if (chainHop && resolvedRef.resolved) {
-          // rebuilt rather than mutated: the returned chain array is shared with the
-          // map entry the inner recursion has just written
+          // rebuilt, not mutated: the chain array is shared with the inner recursion's map entry
           resolvedRef = { ...resolvedRef, chain: [chainHop, ...(resolvedRef.chain ?? [])] };
         }
       }
