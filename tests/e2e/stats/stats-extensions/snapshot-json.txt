@@ -37,13 +37,14 @@
   },
   "xExtensions": {
     "metric": "🧩 Vendor Extensions",
-    "total": 5,
+    "total": 6,
     "counts": {
       "x-badges": 1,
       "x-codeSamples": 2,
       "x-hideReplay": 1,
       "x-internal": 2,
-      "x-metadata": 1
+      "x-metadata": 1,
+      "x-paths-ext": 1
     }
   }
 }

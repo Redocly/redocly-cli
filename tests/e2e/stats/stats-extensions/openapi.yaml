@@ -6,6 +6,7 @@ info:
     department: Platform
     team: Docs
 paths:
+  x-paths-ext: true
   /a:
     get:
       operationId: a

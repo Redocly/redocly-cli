@@ -7,12 +7,13 @@
 🎣 Webhooks: 0 
 👷 Operations: 2 
 🔖 Tags: 0 
-🧩 Vendor Extensions: 5 
+🧩 Vendor Extensions: 6 
   - x-badges: 1 
   - x-codeSamples: 2 
   - x-hideReplay: 1 
   - x-internal: 2 
   - x-metadata: 1 
+  - x-paths-ext: 1 
 
 Document: openapi.yaml stats:
 

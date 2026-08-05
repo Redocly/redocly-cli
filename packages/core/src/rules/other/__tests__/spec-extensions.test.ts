@@ -140,6 +140,25 @@ describe('StatsSpecExtensions', () => {
     expect(props(acc, 'x-outer', 'x-inner')).toEqual(['1']);
   });
 
+  it('should count an extension on a map-typed node (Paths)', async () => {
+    const acc = await collect(outdent`
+      openapi: 3.1.0
+      info:
+        title: t
+        version: '1'
+      paths:
+        x-paths-ext: true
+        /a:
+          get:
+            operationId: a
+            responses:
+              '200':
+                description: ok
+    `);
+
+    expect(acc['x-paths-ext']?.count).toBe(1);
+  });
+
   it('should not count map keys (schema/component names) that start with x-', async () => {
     const acc = await collect(outdent`
       openapi: 3.1.0

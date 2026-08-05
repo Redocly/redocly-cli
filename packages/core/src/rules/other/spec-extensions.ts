@@ -1,5 +1,7 @@
 import { isRef } from '../../ref-utils.js';
+import { isNamedType, SpecExtension, type NormalizedNodeType } from '../../types/index.js';
 import type { StatsRow, SpecVendorExtensionsAccumulator } from '../../typings/common.js';
+import { getOwn } from '../../utils/get-own.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { UserContext } from '../../walk.js';
 
@@ -18,22 +20,37 @@ export const StatsSpecExtensions = (accumulator: SpecVendorExtensionsAccumulator
   return {
     any: {
       enter(node: unknown, ctx: UserContext) {
-        if (Object.keys(ctx.type.properties).length === 0) return;
+        if (ctx.type === SpecExtension) return;
 
-        recordExtensions(accumulator, node);
+        recordExtensions(accumulator, node, ctx.type);
         // Extensions written next to a $ref sit on the raw node, not the resolved target.
-        if (isRef(ctx.rawNode)) recordExtensions(accumulator, ctx.rawNode);
+        if (isRef(ctx.rawNode)) recordExtensions(accumulator, ctx.rawNode, ctx.type);
       },
     },
   };
 };
 
-function recordExtensions(accumulator: SpecVendorExtensionsAccumulator, node: unknown) {
+function recordExtensions(
+  accumulator: SpecVendorExtensionsAccumulator,
+  node: unknown,
+  type: NormalizedNodeType
+) {
   if (!isPlainObject(node)) return;
   for (const [key, value] of Object.entries(node)) {
     if (!key.startsWith(EXTENSION_PREFIX)) continue;
+    if (isMapEntryKey(type, key, value)) continue;
     recordExtension(accumulator, key, value);
   }
+}
+
+// An x- key is not an extension when the type resolves it to a named map entry (a schema name, a channel address).
+function isMapEntryKey(type: NormalizedNodeType, key: string, value: unknown): boolean {
+  if (getOwn(type.properties, key) !== undefined) return false;
+  const entryType =
+    typeof type.additionalProperties === 'function'
+      ? type.additionalProperties(value, key)
+      : type.additionalProperties;
+  return isNamedType(entryType);
 }
 
 function recordExtension(
