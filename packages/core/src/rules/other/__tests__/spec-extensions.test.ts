@@ -140,6 +140,62 @@ describe('StatsSpecExtensions', () => {
     expect(props(acc, 'x-outer', 'x-inner')).toEqual(['1']);
   });
 
+  it('should not count map keys (schema/component names) that start with x-', async () => {
+    const acc = await collect(outdent`
+      openapi: 3.1.0
+      info:
+        title: t
+        version: '1'
+      paths:
+        /a:
+          get:
+            operationId: a
+            responses:
+              '200':
+                description: ok
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Pet'
+      components:
+        schemas:
+          x-MySchema:
+            type: string
+          Pet:
+            type: object
+            properties:
+              x-trace-id:
+                type: string
+    `);
+
+    // `x-MySchema` (component name) and `x-trace-id` (property name) are map keys, not extensions
+    expect(acc['x-MySchema']).toBeUndefined();
+    expect(acc['x-trace-id']).toBeUndefined();
+  });
+
+  it('should count an extension written next to a $ref', async () => {
+    const acc = await collect(outdent`
+      openapi: 3.1.0
+      info:
+        title: t
+        version: '1'
+      paths:
+        /a:
+          get:
+            operationId: a
+            responses:
+              '200':
+                $ref: '#/components/responses/Shared'
+                x-sibling-ext: true
+      components:
+        responses:
+          Shared:
+            description: ok
+    `);
+
+    expect(acc['x-sibling-ext']?.count).toBe(1);
+  });
+
   describe('value collection (describe)', () => {
     it('should keep short scalars but replace long strings with a length marker', async () => {
       const long = 'x'.repeat(80);

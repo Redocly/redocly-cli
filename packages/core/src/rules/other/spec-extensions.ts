@@ -1,3 +1,4 @@
+import { isRef } from '../../ref-utils.js';
 import type { StatsRow, SpecVendorExtensionsAccumulator } from '../../typings/common.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { UserContext } from '../../walk.js';
@@ -17,17 +18,23 @@ export const StatsSpecExtensions = (accumulator: SpecVendorExtensionsAccumulator
   return {
     any: {
       enter(node: unknown, ctx: UserContext) {
-        if (ctx.type.name === 'SpecExtension') return;
-        if (!isPlainObject(node)) return;
+        if (Object.keys(ctx.type.properties).length === 0) return;
 
-        for (const [key, value] of Object.entries(node)) {
-          if (!key.startsWith(EXTENSION_PREFIX)) continue;
-          recordExtension(accumulator, key, value);
-        }
+        recordExtensions(accumulator, node);
+        // Extensions written next to a $ref sit on the raw node, not the resolved target.
+        if (isRef(ctx.rawNode)) recordExtensions(accumulator, ctx.rawNode);
       },
     },
   };
 };
+
+function recordExtensions(accumulator: SpecVendorExtensionsAccumulator, node: unknown) {
+  if (!isPlainObject(node)) return;
+  for (const [key, value] of Object.entries(node)) {
+    if (!key.startsWith(EXTENSION_PREFIX)) continue;
+    recordExtension(accumulator, key, value);
+  }
+}
 
 function recordExtension(
   accumulator: SpecVendorExtensionsAccumulator,
