@@ -92,7 +92,8 @@ function writeDocComment(printer: Printer, name: string, description?: string): 
   const lines = docText(description);
   if (lines.length === 0) return;
   printer.line(`// ${name} — ${lines[0]}`);
-  for (const line of lines.slice(1)) printer.line(`// ${line}`);
+  // A blank line inside a description is `//`, never `// ` — gofmt strips the space.
+  for (const line of lines.slice(1)) printer.line(line === '' ? '//' : `// ${line}`);
 }
 
 function writeStruct(
@@ -149,7 +150,7 @@ export function renderGoModels(model: ApiModel, dateType: DateType = 'string'): 
     printer.blank();
   }
   printer.line(body);
-  return printer.toString();
+  return alignGoColumns(printer.toString());
 }
 
 /** The struct/enum/union declarations themselves — the header is renderGoModels' job. */
@@ -218,19 +219,17 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
             },
             '}'
           );
-          printer.block(
-            'switch probe.Discriminant {',
-            () => {
-              for (const entry of cases.cases) {
-                printer.block(`case ${JSON.stringify(entry.value)}:`, () => {
-                  printer.line(`var value ${exported(entry.schemaName)}`);
-                  printer.line('err := json.Unmarshal(data, &value)');
-                  printer.line('return value, err');
-                });
-              }
-            },
-            '}'
-          );
+          // gofmt keeps `case` at the switch's own indent, so the switch body is NOT
+          // indented as a block — only each case's statements are.
+          printer.line('switch probe.Discriminant {');
+          for (const entry of cases.cases) {
+            printer.block(`case ${JSON.stringify(entry.value)}:`, () => {
+              printer.line(`var value ${exported(entry.schemaName)}`);
+              printer.line('err := json.Unmarshal(data, &value)');
+              printer.line('return value, err');
+            });
+          }
+          printer.line('}');
           printer.line('var fallback any');
           printer.line('err := json.Unmarshal(data, &fallback)');
           printer.line('return fallback, err');
@@ -313,6 +312,84 @@ function goQueryFormat(expr: string, type: string): string {
   if (type === 'float64') return `strconv.FormatFloat(${expr}, 'f', -1, 64)`;
   if (type === 'bool') return `strconv.FormatBool(${expr})`;
   return `fmt.Sprint(${expr})`;
+}
+
+/**
+ * Align columns the way gofmt does, so the emitted file is already idiomatic and a
+ * `gofmt` run is a no-op. gofmt pads with spaces inside a contiguous run of similar
+ * lines: struct fields align their type and tag columns, `const`/`var` entries align
+ * their type and `=`. A line that doesn't fit the shape (a comment, a blank line, a
+ * type containing spaces) ends the run, exactly like gofmt's tabwriter.
+ */
+function alignGoColumns(source: string): string {
+  const lines = source.split('\n');
+  const out = [...lines];
+  // `\tName Type` optionally followed by a `json:"…"` tag, `\tName Type = value`, or a
+  // quoted map key. A statement starting with a Go keyword (`case "x":`, `return y`) is
+  // NOT a declaration and must never be padded.
+  const FIELD = /^(\t+)([A-Za-z_]\w*) (\S+)( `[^`]*`)?$/;
+  const CONST = /^(\t+)([A-Za-z_]\w*) (\S+) = (.+)$/;
+  const ENTRY = /^(\t+)("(?:[^"\\]|\\.)*":) (.+)$/;
+
+  const flush = (run: Array<{ index: number; parts: string[]; indent: string }>): void => {
+    if (run.length < 2) return;
+    const widths: number[] = [];
+    for (const { parts } of run) {
+      parts.forEach((part, column) => {
+        // The last column never needs padding.
+        if (column < parts.length - 1) widths[column] = Math.max(widths[column] ?? 0, part.length);
+      });
+    }
+    for (const { index, parts, indent } of run) {
+      const padded = parts.map((part, column) =>
+        column < parts.length - 1 ? part.padEnd(widths[column] ?? 0) : part
+      );
+      out[index] = indent + padded.join(' ').trimEnd();
+    }
+  };
+
+  let run: Array<{ index: number; parts: string[]; indent: string }> = [];
+  let runKind: 'field' | 'const' | 'entry' | undefined;
+  lines.forEach((line, index) => {
+    const entryMatch = ENTRY.exec(line);
+    const constMatch = entryMatch === null ? CONST.exec(line) : null;
+    const fieldCandidate = entryMatch === null && constMatch === null ? FIELD.exec(line) : null;
+    // `case`, `return`, `var`, … start statements, not declarations.
+    const fieldMatch =
+      fieldCandidate !== null && !GO.has(fieldCandidate[2]) ? fieldCandidate : null;
+    const kind =
+      entryMatch !== null
+        ? 'entry'
+        : constMatch !== null
+          ? 'const'
+          : fieldMatch !== null
+            ? 'field'
+            : undefined;
+    if (kind === undefined || kind !== runKind) {
+      flush(run);
+      run = [];
+      runKind = kind;
+    }
+    if (entryMatch !== null) {
+      run.push({ index, indent: entryMatch[1], parts: [entryMatch[2], entryMatch[3]] });
+      return;
+    }
+    if (constMatch !== null) {
+      run.push({
+        index,
+        indent: constMatch[1],
+        parts: [constMatch[2], constMatch[3], '=', constMatch[4]],
+      });
+      return;
+    }
+    if (fieldMatch !== null) {
+      const parts = [fieldMatch[2], fieldMatch[3]];
+      if (fieldMatch[4] !== undefined) parts.push(fieldMatch[4].trimStart());
+      run.push({ index, indent: fieldMatch[1], parts });
+    }
+  });
+  flush(run);
+  return out.join('\n');
 }
 
 /** Strip the package clause and import lines/blocks so a section stitches into one file. */
@@ -980,7 +1057,14 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
     );
   }
 
-  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.go'), content: printer.toString() }];
+  return [
+    {
+      path: outputPath.replace(/\.[^.\\/]+$/, '.go'),
+      // Sections are stitched with their own trailing blanks; gofmt allows at most one
+      // between declarations and none at the end of the file.
+      content: `${alignGoColumns(printer.toString().replace(/\n{3,}/g, '\n\n')).trimEnd()}\n`,
+    },
+  ];
 };
 
 /** One idiomatic Go call per operation — feeds `x-codeSamples` for docs. */

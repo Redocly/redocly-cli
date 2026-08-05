@@ -12,6 +12,25 @@ const hasGo = spawnSync('go', ['version']).status === 0;
 // CI cache compiles the stdlib and takes well over the 5s default.
 vi.setConfig({ testTimeout: 180_000 });
 
+/** Assert `gofmt` would not change the source — the output must ship idiomatic. */
+function expectGofmtClean(source: string): void {
+  if (!hasGo) return;
+  const dir = mkdtempSync(join(tmpdir(), 'go-fmt-'));
+  try {
+    const file = join(dir, 'client.go');
+    writeFileSync(file, source);
+    const listed = spawnSync('gofmt', ['-l', file], { encoding: 'utf-8' });
+    expect(listed.status, listed.stderr).toBe(0);
+    const diff =
+      listed.stdout.trim() === ''
+        ? ''
+        : spawnSync('gofmt', ['-d', file], { encoding: 'utf-8' }).stdout;
+    expect(listed.stdout.trim(), `gofmt would reformat the output:\n${diff}`).toBe('');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 /** Assert the rendered source is compilable Go (skipped without the toolchain). */
 function expectGoCompiles(source: string): void {
   if (!hasGo) return;
@@ -56,9 +75,9 @@ describe('renderGoModels', () => {
     );
     expect(out).toContain('// Order — One placed order.');
     expect(out).toContain('type Order struct {');
-    expect(out).toContain('Id string `json:"id"`');
-    expect(out).toContain('Quantity int64 `json:"quantity"`');
-    expect(out).toContain('Note *string `json:"note,omitempty"`');
+    expect(out).toMatch(/Id\s+string\s+`json:"id"`/);
+    expect(out).toMatch(/Quantity\s+int64\s+`json:"quantity"`/);
+    expect(out).toMatch(/Note\s+\*string\s+`json:"note,omitempty"`/);
     expectGoCompiles(out);
   });
 
@@ -82,7 +101,7 @@ describe('renderGoModels', () => {
       })
     );
     expect(out).toContain('type Page struct {');
-    expect(out).toContain('Items []string `json:"items"`');
+    expect(out).toMatch(/Items\s+\[\]string\s+`json:"items"`/);
     // The exported field name is always usable; the tag keeps the exact wire name.
     expect(out).toContain('`json:"go"`');
     expectGoCompiles(out);
@@ -127,7 +146,7 @@ describe('renderGoModels', () => {
         },
       })
     );
-    expect(out).toContain('N3ds *string `json:"3ds,omitempty"`');
+    expect(out).toMatch(/N3ds\s+\*string\s+`json:"3ds,omitempty"`/);
     expectGoCompiles(out);
   });
 
@@ -143,8 +162,8 @@ describe('renderGoModels', () => {
         },
       })
     );
-    expect(out).toContain('Plus1 int64 `json:"+1"`');
-    expect(out).toContain('Minus1 int64 `json:"-1"`');
+    expect(out).toMatch(/Plus1\s+int64\s+`json:"\+1"`/);
+    expect(out).toMatch(/Minus1\s+int64\s+`json:"-1"`/);
     expectGoCompiles(out);
   });
 
@@ -164,8 +183,8 @@ describe('renderGoModels', () => {
         },
       })
     );
-    expect(out).toContain('Tag *string `json:"tag"`');
-    expect(out).toContain('Meta map[string]string `json:"meta"`');
+    expect(out).toMatch(/Tag\s+\*string\s+`json:"tag"`/);
+    expect(out).toMatch(/Meta\s+map\[string\]string\s+`json:"meta"`/);
     expectGoCompiles(out);
   });
 });
@@ -365,7 +384,7 @@ describe('goGenerator (full client assembly)', () => {
   it('assembles one compilable file: models + embedded runtime + operations table', () => {
     const out = generateGo();
     expect(out).toContain('var operations = map[string]operationMeta{');
-    expect(out).toContain('"listOrders": {');
+    expect(out).toMatch(/"listOrders":\s+\{/);
     expect(out).toContain('func send(ctx context.Context'); // embedded runtime
     expect((out.match(/^package client$/gm) ?? []).length).toBe(1);
     expectGoCompiles(out);
@@ -395,11 +414,18 @@ describe('goGenerator parity features', () => {
     expectGoCompiles(out);
   });
 
+  it('emits gofmt-clean output — aligned struct fields and const blocks', () => {
+    const out = generateGo();
+    // The alignment gofmt would apply, applied by us.
+    expect(out).toMatch(/Id\s+string\s+`json:"id"`/);
+    expectGofmtClean(out);
+  });
+
   it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
     const out = generateGo();
     expect(out).toContain('type ListOrdersHeaders struct {');
-    expect(out).toContain('PaginationTotal *int64');
-    expect(out).toContain('Link *string');
+    expect(out).toMatch(/PaginationTotal\s+\*int64/);
+    expect(out).toMatch(/Link\s+\*string/);
     expect(out).toContain(
       'func (c *Client) ListOrdersWithHeaders(ctx context.Context, params *ListOrdersParams) (OrderPage, ListOrdersHeaders, error) {'
     );
@@ -471,10 +497,10 @@ describe('goGenerator parity features', () => {
       emit: { dateType: 'Date' },
     })[0].content;
 
-    expect(out).toContain('PlacedAt time.Time `json:"placedAt"`');
+    expect(out).toMatch(/PlacedAt\s+time\.Time\s+`json:"placedAt"`/);
     // A calendar date needs its own type: encoding/json only speaks RFC 3339 for time.Time.
-    expect(out).toContain('DueDate *Date `json:"dueDate,omitempty"`');
-    expect(out).toContain('Reminders []time.Time `json:"reminders,omitempty"`');
+    expect(out).toMatch(/DueDate\s+\*Date\s+`json:"dueDate,omitempty"`/);
+    expect(out).toMatch(/Reminders\s+\[\]time\.Time\s+`json:"reminders,omitempty"`/);
     expect(out).toContain('Since *time.Time');
     expect(out).toContain('query.Set("since", (*params.Since).Format(time.RFC3339))');
     expectGoCompiles(out);
@@ -486,7 +512,7 @@ describe('goGenerator parity features', () => {
       outputMode: 'single',
       emit: {},
     })[0].content;
-    expect(asString).toContain('PlacedAt string `json:"placedAt"`');
+    expect(asString).toMatch(/PlacedAt\s+string\s+`json:"placedAt"`/);
   });
 
   it('models referencing dates compile standalone (the models section imports time)', () => {

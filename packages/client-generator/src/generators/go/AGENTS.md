@@ -41,6 +41,19 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   `context.WithTimeout`, idempotency keys, middleware, pagination (`<Op>Pages`/`<Op>Items`
   as `func(yield func(T, error) bool)` — `range`-over-func needs Go ≥ 1.23; 1.21 calls
   them with a callback), SSE, multipart.
+- **The EMITTED FILE is gofmt-clean, not just the runtime.** `gofmt -l` on generated
+  output must print nothing, so the download is idiomatic as-is. The emitter earns that
+  deterministically, without shelling out to `gofmt`:
+  - `alignGoColumns` pads columns the way gofmt's tabwriter does — struct field types and
+    tags, `const`/`var` types and `=`, and map-literal values — within each contiguous run.
+    A line starting with a Go KEYWORD is a statement, never a declaration, and must never
+    be padded (`case "x":` is not a field).
+  - `case` sits at its `switch`'s own indent, so the switch body is not emitted as an
+    indented block.
+  - At most one blank line between declarations, none at end of file, and a blank line
+    inside a doc comment is `//` — never `// ` with a trailing space.
+    A change here is verified by the `gofmt -l` bar in the unit suite, at cafe AND
+    large-description scale.
 - The runtime is hand-written in `go-runtime/runtime.go` (gofmt-clean, `go vet`-clean)
   and embedded at prepare time.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
