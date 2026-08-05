@@ -29,6 +29,13 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 - **Enums** are native backed enums (string/int); other scalars stay aliases.
   **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers;
   **allOf** is flattened.
+- **Unions keep their types where PHP 8.1 can express them.** A union of scalars, enums,
+  classes, or arrays becomes a native union type (`int|string`, `PromotionType|array`)
+  rather than collapsing to `mixed` — rich list filters are the common case and losing
+  their types loses the point of a typed SDK. It falls back to `mixed` only when a member
+  has no PHP type of its own (an inline object, an intersection, `unknown`), because
+  `mixed` cannot appear inside a union. Nullability is expressed as `|null` in a union
+  (PHP forbids mixing `?` with `|`) and `?T` for a single type.
 - **Errors:** exceptions ARE the error mode (`ApiError`/`TimeoutError` extend
   `\RuntimeException`); `errorMode` does not change the output (the generator declares
   `errorModes: ['throw']`, so `result` fails fast).

@@ -87,7 +87,7 @@ export function phpType(
 ): string {
   if (isNullable(schema)) {
     const inner = phpType(unwrapNullable(schema), model, dateType);
-    return inner === 'mixed' || inner.startsWith('?') ? inner : `?${inner}`;
+    return phpNullable(inner);
   }
   switch (schema.kind) {
     case 'scalar':
@@ -119,6 +119,7 @@ export function phpType(
       // PHP has no Omit; the base class is the honest annotation.
       return className(schema.base);
     case 'union':
+      return phpUnionType(schema.members, model, dateType);
     case 'null':
     case 'object':
     case 'intersection':
@@ -137,6 +138,38 @@ function isDiscriminatedUnion(name: string, model: ApiModel): boolean {
 function isDateFormat(schema: SchemaModel): boolean {
   const format = schema.metadata?.format;
   return format === 'date' || format === 'date-time';
+}
+
+/**
+ * The nullable form of a PHP type. `?T` for a single type, `A|B|null` for a union — PHP
+ * forbids mixing `?` with `|`, and `mixed` already includes null.
+ */
+function phpNullable(type: string): string {
+  if (type === 'mixed' || type.startsWith('?') || type.endsWith('|null')) return type;
+  return type.includes('|') ? `${type}|null` : `?${type}`;
+}
+
+/**
+ * A union as a native PHP 8.1 union type (`int|string`, `PromotionType|array`). Rich list
+ * filters are usually unions, and collapsing them to `mixed` throws away the typing that
+ * makes the SDK worth generating. `mixed` cannot be a union member, so a member without a
+ * PHP type of its own (inline object, intersection, unknown) forces the whole union to
+ * `mixed`. Members that map to the same PHP type collapse to one.
+ */
+function phpUnionType(members: SchemaModel[], model: ApiModel, dateType: DateType): string {
+  const rendered: string[] = [];
+  for (const member of members) {
+    // `null` is handled by the caller's nullability check, never as a member here.
+    if (member.kind === 'null') continue;
+    const type = phpType(member, model, dateType);
+    if (type === 'mixed') return 'mixed';
+    // A nullable member inside a union contributes its bare type plus null.
+    const bare = type.startsWith('?') ? type.slice(1) : type;
+    if (!rendered.includes(bare)) rendered.push(bare);
+    if (type.startsWith('?') && !rendered.includes('null')) rendered.push('null');
+  }
+  if (rendered.length === 0) return 'mixed';
+  return rendered.join('|');
 }
 
 /** Wire value → typed value expression, or undefined when the raw value is already right. */
@@ -281,7 +314,7 @@ function writeClass(
             if (property.required) {
               printer.line(`public ${type} ${'$'}${propertyName(property.name)},`);
             } else {
-              const nullable = type === 'mixed' || type.startsWith('?') ? type : `?${type}`;
+              const nullable = phpNullable(type);
               printer.line(`public ${nullable} ${'$'}${propertyName(property.name)} = null,`);
             }
           }
@@ -522,7 +555,7 @@ function methodArgs(
         ]
       : []),
     ...queryArgs.map(({ php, type }) => {
-      const nullable = type === 'mixed' || type.startsWith('?') ? type : `?${type}`;
+      const nullable = phpNullable(type);
       return `${nullable} ${'$'}${php} = null`;
     }),
     '?array $headers = null',

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { phpGenerator, renderPhpModels } from '../php/index.js';
+import { phpGenerator, phpType, renderPhpModels } from '../php/index.js';
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
 
@@ -44,6 +44,84 @@ function model(schemas: Record<string, SchemaModel>): ApiModel {
     securitySchemes: [],
   } as unknown as ApiModel;
 }
+
+describe('phpType — unions', () => {
+  const ENUM: SchemaModel = { kind: 'enum', values: ['a', 'b'], scalar: 'string' };
+  const base = model({
+    Kind: ENUM,
+    Order: { kind: 'object', properties: [] },
+  });
+
+  it('renders a union of expressible members as a native PHP 8.1 union', () => {
+    expect(phpType({ kind: 'union', members: [STRING, INT] }, base)).toBe('string|int');
+    expect(
+      phpType(
+        {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'Kind' },
+            { kind: 'array', items: STRING },
+          ],
+        },
+        base
+      )
+    ).toBe('Kind|array');
+    // A class member keeps its class name.
+    expect(
+      phpType({ kind: 'union', members: [{ kind: 'ref', name: 'Order' }, STRING] }, base)
+    ).toBe('Order|string');
+  });
+
+  it('expresses nullability as |null inside a union — PHP forbids mixing ? with |', () => {
+    const type = phpType({ kind: 'union', members: [STRING, INT, { kind: 'null' }] }, base);
+    expect(type).toBe('string|int|null');
+    expect(type.startsWith('?')).toBe(false);
+    // A single nullable type keeps the shorthand.
+    expect(phpType({ kind: 'union', members: [STRING, { kind: 'null' }] }, base)).toBe('?string');
+  });
+
+  it('makes an OPTIONAL union nullable with |null, never a leading ?', () => {
+    const out = renderPhpModels(
+      model({
+        Cash: { kind: 'object', properties: [] },
+        Card: { kind: 'object', properties: [] },
+        Customer: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'instrument',
+              schema: {
+                kind: 'union',
+                members: [
+                  { kind: 'ref', name: 'Cash' },
+                  { kind: 'ref', name: 'Card' },
+                ],
+              },
+              required: false,
+            },
+          ],
+        },
+      })
+    );
+    expect(out).toContain('public Cash|Card|null $instrument = null');
+    // `?Cash|Card` is a parse error.
+    expect(out).not.toContain('?Cash|Card');
+    expectModelsRun(out);
+  });
+
+  it('falls back to mixed when a member has no PHP type — mixed cannot be a union member', () => {
+    const withInlineObject: SchemaModel = {
+      kind: 'union',
+      members: [STRING, { kind: 'object', properties: [] }],
+    };
+    expect(phpType(withInlineObject, base)).toBe('mixed');
+    expect(phpType({ kind: 'union', members: [STRING, { kind: 'unknown' }] }, base)).toBe('mixed');
+  });
+
+  it('deduplicates members that map to the same PHP type', () => {
+    expect(phpType({ kind: 'union', members: [STRING, ENUM] }, base)).toBe('string');
+  });
+});
 
 describe('renderPhpModels', () => {
   it('renders classes — required first, optionals nullable with defaults, wire maps preserved', () => {
