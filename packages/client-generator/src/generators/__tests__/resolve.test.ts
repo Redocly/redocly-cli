@@ -26,6 +26,19 @@ describe('resolveGenerators', () => {
     expect(registry.get('route-map')?.run).toBe(noopRun);
   });
 
+  it('pulls in a generator prerequisite instead of failing on it', async () => {
+    // `--generator cli` alone should produce a working, validating CLI.
+    const { selected } = await resolveGenerators(['cli']);
+    expect(selected).toContain('cli');
+    expect(selected).toContain('sdk');
+    expect(selected).toContain('zod');
+    // A prerequisite runs BEFORE the generator that needs it.
+    expect(selected.indexOf('sdk')).toBeLessThan(selected.indexOf('cli'));
+    // An explicit selection is not duplicated or reordered away.
+    const explicit = await resolveGenerators(['sdk', 'zod', 'cli']);
+    expect(explicit.selected).toEqual(['sdk', 'zod', 'cli']);
+  });
+
   it('accepts a generator declaring the current contract; rejects any other with the fix path', async () => {
     const current: CustomGenerator = { name: 'ok', run: noopRun, contract: GENERATOR_CONTRACT };
     await expect(resolveGenerators(['ok'], { customGenerators: [current] })).resolves.toBeTruthy();

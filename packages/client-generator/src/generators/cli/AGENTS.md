@@ -31,8 +31,10 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
 - **Credentials come from the environment** (a stem-derived prefix, e.g.
   `CLIENT_TOKEN`) or explicit flags; `--dry-run` prints the prepared request with
   credentials REDACTED.
-- **Co-selection aware:** with `zod` selected, requests validate before the network
-  (exit 3); without it, the CLI still works.
+- **Validation is on by default.** The generator declares `requires: ['sdk', 'zod']` and
+  the pipeline pulls prerequisites in automatically, so `--generator cli` alone produces a
+  validating CLI — a user shouldn't have to know which other generator provides it. The
+  consequence is a zod peer dependency at run time, which the docs state.
 - Throw-mode only — the exit-code mapping reads thrown `ApiError`s.
 - **Runs under `node --experimental-strip-types` with no build step**, including the
   modules it imports (the sdk and the zod module). Anything emitted must be erasable

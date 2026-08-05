@@ -31,7 +31,8 @@ See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/gener
 
 The `cli` generator emits `<stem>.cli.ts` — a zero-dependency, bin-ready command-line interface over the generated client.
 Path params are positional, query params become typed `--kebab-name` flags (enums list their choices in `--help`, array params repeat the flag), and JSON request bodies arrive via `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
-Requests are validated before they are sent — the `cli` generator brings the validation it needs, so no extra generator has to be selected.
+Requests are validated before they are sent — selecting `cli` pulls in the generators it needs (`sdk` and `zod`), so nothing extra has to be listed.
+That means the CLI's validation uses [zod](https://zod.dev/) at runtime: install it alongside the generated CLI (`npm i zod`).
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator cli

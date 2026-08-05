@@ -67,13 +67,15 @@ describe('cliGenerator', () => {
     expect(withZod[0].content).toContain('use(zodValidation());');
   });
 
-  it('requires sdk and rejects result mode', () => {
+  it('declares its prerequisites and rejects result mode', () => {
+    // `sdk` + `zod` are pulled in by the resolver (see resolve.test.ts); validation
+    // still refuses a selection whose prerequisites are genuinely absent.
+    expect(builtinGenerators().get('cli')?.requires).toEqual(['sdk', 'zod']);
     expect(() => validateGenerators(['cli'], {})).toThrow(/requires the "sdk" generator/);
-    expect(() => validateGenerators(['sdk', 'cli'], { errorMode: 'result' })).toThrow(
+    expect(() => validateGenerators(['sdk', 'zod', 'cli'], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result"/
     );
-    expect(() => validateGenerators(['sdk', 'cli'], {})).not.toThrow();
-    expect(builtinGenerators().has('cli')).toBe(true);
+    expect(() => validateGenerators(['sdk', 'zod', 'cli'], {})).not.toThrow();
   });
 
   it('renders a shell x-codeSamples snippet per operation', () => {

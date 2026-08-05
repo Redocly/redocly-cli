@@ -23,7 +23,7 @@ function run(args: string[]): { status: number | null; out: string } {
 }
 
 describe('generate-client generator compatibility contract', () => {
-  it('rejects tanstack-query without sdk, naming the fix', () => {
+  it('pulls in the sdk a wrapper generator needs instead of failing', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
     const { status, out } = run([
       cafe,
@@ -32,9 +32,10 @@ describe('generate-client generator compatibility contract', () => {
       '--generator',
       'tanstack-query',
     ]);
-    expect(status).not.toBe(0);
-    expect(out).toMatch(/requires the "sdk" generator/);
-    expect(out).toMatch(/--generator sdk --generator tanstack-query/);
+    expect(status, out).toBe(0);
+    // The wrapper wraps the sdk's functions, so the sdk file has to exist.
+    expect(existsSync(join(dir, 'c.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'c.tanstack.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

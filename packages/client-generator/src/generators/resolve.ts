@@ -42,7 +42,10 @@ export async function resolveGenerators(
   for (const custom of options.customGenerators ?? []) register(registry, custom);
 
   const selected: string[] = [];
-  for (const entry of entries) {
+  // A prerequisite is pulled in rather than demanded: selecting `cli` should give a
+  // working CLI without the user knowing which other generators provide its parts.
+  const entriesWithPrerequisites = expandPrerequisites(entries, options.customGenerators);
+  for (const entry of entriesWithPrerequisites) {
     if (registry.has(entry)) {
       selected.push(entry);
       continue;
@@ -59,6 +62,34 @@ export async function resolveGenerators(
     selected.push(custom.name);
   }
   return { selected, registry };
+}
+
+/**
+ * The selection with every declared prerequisite included, each before the generator that
+ * needs it. Only BUILT-IN prerequisites are added: a custom generator's `requires` may
+ * name anything, and inventing a resolution for it would be guesswork.
+ */
+function expandPrerequisites(entries: string[], customs: CustomGenerator[] = []): string[] {
+  const requirementsOf = (name: string): string[] => {
+    const meta = (BUILTIN_META as Record<string, BuiltinMeta>)[name];
+    if (meta !== undefined) return meta.requires ?? [];
+    return customs.find((custom) => custom.name === name)?.requires ?? [];
+  };
+  const out: string[] = [];
+  const visiting = new Set<string>();
+  const add = (name: string): void => {
+    if (out.includes(name) || visiting.has(name)) return;
+    visiting.add(name);
+    for (const required of requirementsOf(name)) {
+      // Only auto-add a prerequisite we know how to load; anything else stays the
+      // user's problem and is reported by `validateSelection`.
+      if (required in BUILTIN_META) add(required);
+    }
+    visiting.delete(name);
+    if (!out.includes(name)) out.push(name);
+  };
+  for (const entry of entries) add(entry);
+  return out;
 }
 
 /** Validate a custom generator and add it under its name, rejecting collisions. */

@@ -70,8 +70,10 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   },
   // cli dispatches through the sdk's instance client and relies on thrown ApiError
   // for its exit-code mapping, so it is sdk-bound and throw-only.
+  // Validation is part of the CLI's contract (exit code 3), so it requires `zod` —
+  // the pipeline pulls prerequisites in, so `--generator cli` alone is enough.
   cli: {
-    requires: ['sdk'],
+    requires: ['sdk', 'zod'],
     errorModes: ['throw'],
     load: () =>
       import('./cli/index.js').then((m) => ({ run: m.cliGenerator, sample: m.cliSample })),
