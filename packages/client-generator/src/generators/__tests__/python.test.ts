@@ -346,6 +346,21 @@ function generate(errorMode: 'throw' | 'result' = 'throw'): string {
   return files[0].content;
 }
 
+describe('python output path', () => {
+  const pathFor = (outputPath: string) =>
+    pythonGenerator({ model: CAFE, outputPath, outputMode: 'single', emit: {} })[0].path;
+
+  it('emits an importable module name — the TypeScript stem is not one', () => {
+    // `openapi.client.py` and `rebilly-core.client.py` cannot be imported by name.
+    expect(pathFor('/out/openapi.client.ts')).toBe('/out/openapi_client.py');
+    expect(pathFor('/out/rebilly-core.client.ts')).toBe('/out/rebilly_core_client.py');
+    // A stem that is already importable is left alone.
+    expect(pathFor('/out/client.ts')).toBe('/out/client.py');
+    // A leading digit would be a syntax error in an import.
+    expect(pathFor('/out/3rd-party.client.ts')).toBe('/out/_3rd_party_client.py');
+  });
+});
+
 describe('pythonGenerator (full client assembly)', () => {
   it('renders typed sync methods — kwargs for query params, positional path params, hydrated returns', () => {
     const out = generate();

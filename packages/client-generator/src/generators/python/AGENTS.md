@@ -13,6 +13,12 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 
 ## Design decisions that must hold
 
+- **The file name is an importable module name.** The `--output` stem follows the TypeScript
+  convention (`openapi.client.ts`), and `openapi.client.py` cannot be imported by name — nor
+  can hyphens or a leading digit. The stem is converted with
+  `identifierFor(stem, snake)`, so `rebilly-core.client.ts` emits
+  `rebilly_core_client.py` and `import rebilly_core_client` just works.
+
 - **Models are dataclasses**, required fields first (a dataclass constraint), optionals
   `Optional[T] = None`. Wire names live in a `_field_map: ClassVar[Dict[str, str]]`;
   decode/encode is reflective (`_decode.py`, `get_type_hints`) — no per-model codecs.

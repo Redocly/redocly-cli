@@ -650,6 +650,20 @@ function writeClientClass(
   printer.blank();
 }
 
+/**
+ * The output path with an IMPORTABLE module name. The `--output` stem follows the
+ * TypeScript convention (`openapi.client.ts`), and `openapi.client.py` cannot be
+ * imported by name — nor can a hyphen or a leading digit — so the stem is converted
+ * to a legal module identifier (`openapi_client.py`). The directory is untouched.
+ */
+function pythonModulePath(outputPath: string): string {
+  const separator = outputPath.lastIndexOf('/') >= 0 ? '/' : '\\';
+  const cut = outputPath.lastIndexOf(separator);
+  const dir = cut >= 0 ? outputPath.slice(0, cut + 1) : '';
+  const stem = (cut >= 0 ? outputPath.slice(cut + 1) : outputPath).replace(/\.[^.]+$/, '');
+  return `${dir}${identifierFor(stem, { style: 'snake', reserved: PY })}.py`;
+}
+
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
 export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   const errorMode = emit.errorMode ?? 'throw';
@@ -730,7 +744,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
   writeClientClass(printer, model, errorMode, false, paginationSpecs, serverUrl, dateType);
   writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl, dateType);
 
-  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.py'), content: printer.toString() }];
+  return [{ path: pythonModulePath(outputPath), content: printer.toString() }];
 };
 
 /** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */
