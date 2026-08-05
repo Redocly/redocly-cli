@@ -12,3 +12,5 @@ Added `goPackage` (`--go-package`) to set the package clause of the `go` generat
 A custom generator can now declare its own options as a schema; publishers set them under `client.options.<generator>` and the values are validated — unknown key, wrong type, value outside an `enum`, missing required option — before anything is written, with defaults applied when `run` receives them.
 
 **Note:** the per-operation pagination extension is now `x-redoclyPagination`, matching the camelCase of every other Redocly extension. Rename it in descriptions that declared `x-redocly-pagination`; the old spelling is no longer read.
+
+`eject-generator` now wires itself up: it records `@redocly/client-generator` in your `devDependencies` and adds the ejected file to `client.generators`, printing the snippet to add by hand only when the configuration file has a shape it won't edit blind.

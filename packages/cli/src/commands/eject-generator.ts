@@ -5,6 +5,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
+import { version } from '../utils/package.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type EjectGeneratorCommandArgv = {
@@ -29,6 +30,9 @@ const TS_BUILTINS = new Set([
   'mock',
   'cli',
 ]);
+
+/** The package an ejected generator imports its toolkit from; recorded as a devDependency. */
+const TOOLKIT_PACKAGE = '@redocly/client-generator';
 
 const AGENTS_BEGIN =
   '<!-- redocly-generators:begin — managed by `redocly eject-generator`; content between markers is refreshed on eject -->';
@@ -140,7 +144,79 @@ function ejectedIn(dir: string): string[] {
   return [...EJECTABLE].filter((name) => existsSync(join(dir, `${name}.mjs`)));
 }
 
-export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorCommandArgv>) => {
+/**
+ * Record `@redocly/client-generator` in the project's devDependencies — the ejected file
+ * imports the authoring toolkit from it. Installing stays the user's call; this only makes
+ * the requirement part of the project so a fresh clone or CI gets it. Returns what happened.
+ */
+function wireDependency(): 'added' | 'present' | 'no-package-json' {
+  const manifestPath = join(process.cwd(), 'package.json');
+  if (!existsSync(manifestPath)) return 'no-package-json';
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  };
+  if (
+    manifest.dependencies?.[TOOLKIT_PACKAGE] !== undefined ||
+    manifest.devDependencies?.[TOOLKIT_PACKAGE] !== undefined
+  ) {
+    return 'present';
+  }
+  const devDependencies = { ...manifest.devDependencies, [TOOLKIT_PACKAGE]: `^${version}` };
+  manifest.devDependencies = Object.fromEntries(
+    Object.entries(devDependencies).sort(([left], [right]) => left.localeCompare(right))
+  );
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
+  return 'added';
+}
+
+/**
+ * Add the ejected file to `client.generators` in the configuration file, editing the text
+ * so comments and formatting survive. Only the two shapes we can extend without guessing
+ * are handled — a block sequence and a flow sequence under a top-level `client:` — and
+ * anything else returns false, so the caller prints the snippet instead of reshaping
+ * someone's config.
+ */
+function wireConfig(configPath: string | undefined, entry: string): boolean {
+  if (configPath === undefined || !existsSync(configPath)) return false;
+  const source = readFileSync(configPath, 'utf-8');
+  const lines = source.split('\n');
+  const clientLine = lines.findIndex((line) => /^client:\s*$/.test(line));
+  if (clientLine === -1) return false;
+  const generatorsLine = lines.findIndex(
+    (line, index) => index > clientLine && /^\s+generators:/.test(line)
+  );
+  if (generatorsLine === -1) return false;
+  // Between `client:` and `generators:` there must be nothing dedented — otherwise the
+  // `generators:` we found belongs to another block.
+  if (lines.slice(clientLine + 1, generatorsLine).some((line) => /^\S/.test(line))) return false;
+  if (source.includes(entry)) return true;
+
+  const flow = lines[generatorsLine].match(/^(\s+generators:\s*\[)(.*)\]\s*$/);
+  if (flow !== null) {
+    const existing = flow[2].trim();
+    lines[generatorsLine] = `${flow[1]}${existing === '' ? '' : `${existing}, `}${entry}]`;
+    writeFileSync(configPath, lines.join('\n'), 'utf-8');
+    return true;
+  }
+  if (!/^\s+generators:\s*$/.test(lines[generatorsLine])) return false;
+  let lastItem = generatorsLine;
+  let itemIndent = `${lines[generatorsLine].match(/^\s+/)![0]}  `;
+  for (let index = generatorsLine + 1; index < lines.length; index++) {
+    const item = lines[index].match(/^(\s+)- /);
+    if (item === null) break;
+    lastItem = index;
+    itemIndent = item[1];
+  }
+  lines.splice(lastItem + 1, 0, `${itemIndent}- ${entry}`);
+  writeFileSync(configPath, lines.join('\n'), 'utf-8');
+  return true;
+}
+
+export const handleEjectGenerator = async ({
+  argv,
+  config,
+}: CommandArgs<EjectGeneratorCommandArgv>) => {
   const name = argv.generator ?? '';
   // Coarse usage telemetry: our command action, an ALLOWLISTED built-in name, and the
   // outcome category — never user paths, file contents, or user-chosen names.
@@ -217,13 +293,20 @@ export const handleEjectGenerator = async ({ argv }: CommandArgs<EjectGeneratorC
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';
-  const configPath = `./${relative(process.cwd(), target).split('\\').join('/')}`;
+  const configEntry = `./${relative(process.cwd(), target).split('\\').join('/')}`;
+  const dependency = wireDependency();
+  const wired = wireConfig(config.configPath, configEntry);
   logger.info(
     `Ejected the "${name}" generator to ${printedTarget} (pristine snapshot committed alongside).\n` +
-      `It imports the authoring toolkit from @redocly/client-generator — install it once:\n\n` +
-      `  npm install --save-dev @redocly/client-generator\n\n` +
-      `Point your config at the file — the path entry takes over the built-in name:\n\n` +
-      `  client:\n    generators:\n      - ${configPath}\n\n` +
+      (dependency === 'added'
+        ? `Added ${TOOLKIT_PACKAGE} to devDependencies (the ejected file imports its toolkit) — run your installer.\n`
+        : dependency === 'no-package-json'
+          ? `The ejected file imports its toolkit from ${TOOLKIT_PACKAGE} — install it: npm install --save-dev ${TOOLKIT_PACKAGE}\n`
+          : '') +
+      (wired
+        ? `Added it to client.generators in ${relative(process.cwd(), config.configPath!)} — the path entry takes over the built-in name.\n`
+        : `Point your config at the file — the path entry takes over the built-in name:\n\n` +
+          `  client:\n    generators:\n      - ${configEntry}\n\n`) +
       `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n`
   );
 };

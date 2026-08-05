@@ -71,6 +71,44 @@ describe('eject-generator (end-to-end)', () => {
     expect(run(project, ['eject-generator', 'php', '--force']).status).toBe(0);
   }, 60_000);
 
+  it('wires itself up: devDependency recorded and the config entry added, once', () => {
+    const wired = mkdtempSync(join(tmpdir(), 'eject-wire-'));
+    try {
+      writeFileSync(join(wired, 'package.json'), JSON.stringify({ name: 'demo' }), 'utf-8');
+      writeFileSync(
+        join(wired, 'redocly.yaml'),
+        'extends: []\nclient:\n  generators:\n    - sdk\n',
+        'utf-8'
+      );
+      const eject = run(wired, ['eject-generator', 'go']);
+      expect(eject.status, eject.stderr).toBe(0);
+
+      const pkg = JSON.parse(readFileSync(join(wired, 'package.json'), 'utf-8'));
+      expect(pkg.devDependencies['@redocly/client-generator']).toMatch(/^\^\d+\./);
+      expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8')).toBe(
+        'extends: []\nclient:\n  generators:\n    - sdk\n    - ./generators/go.mjs\n'
+      );
+
+      // Re-ejecting must not add the entry twice.
+      expect(run(wired, ['eject-generator', 'go', '--force']).status).toBe(0);
+      expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8').match(/go\.mjs/g)).toHaveLength(1);
+    } finally {
+      rmSync(wired, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it('prints the config snippet when it cannot safely edit the config', () => {
+    const manual = mkdtempSync(join(tmpdir(), 'eject-manual-'));
+    try {
+      const eject = run(manual, ['eject-generator', 'go']);
+      expect(eject.status, eject.stderr).toBe(0);
+      expect(eject.stderr + eject.stdout).toContain('generators:');
+      expect(eject.stderr + eject.stdout).toContain('./generators/go.mjs');
+    } finally {
+      rmSync(manual, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   it('THE headline: an ejected-unmodified generator produces byte-identical output', () => {
     const builtin = run(project, [
       'generate-client',
