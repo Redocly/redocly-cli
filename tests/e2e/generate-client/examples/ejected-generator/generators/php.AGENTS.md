@@ -40,6 +40,10 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 $idempotencyKey` on mutating methods.
 - **Non-JSON success bodies** (PDFs, images, octet streams) return the raw body as
   `string` — a binary download must never degrade to `void`.
+- **PHPDoc carries what the signature cannot.** PHP's `array` and `\Generator` erase their
+  element type, so a docblock states it: `@return Customer[]` for collection returns and
+  `@return \Generator<int, Customer>` on `<op>Pages()`/`<op>Items()`. Static analysis and
+  readers go by these; a hydrated return with no annotation looks untyped.
 - **Response headers:** an operation that DECLARES success-response headers gains a
   `<op>WithHeaders()` variant returning an `Envelope` (`data`, `headers` — coerced to
   int/bool/string with camelCase keys, absent/unparsable values omitted — and `status`).

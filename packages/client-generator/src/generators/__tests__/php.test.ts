@@ -442,6 +442,63 @@ describe('phpGenerator (full client assembly)', () => {
     expect(out).toContain("return $response['body'];");
   });
 
+  it('documents element types PHP cannot express in the signature', () => {
+    // A bare-array collection: `array` in the signature, element type in the docblock.
+    const collection: ApiModel = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      services: [
+        {
+          name: 'Orders',
+          operations: [
+            {
+              name: 'listOrders',
+              specName: 'listOrders',
+              method: 'get',
+              path: '/orders',
+              tags: ['Orders'],
+              pathParams: [],
+              queryParams: [{ name: 'cursor', in: 'query', required: false, schema: STRING }],
+              headerParams: [],
+              cookieParams: [],
+              security: [],
+              paginationExtension: { style: 'cursor', cursorParam: 'cursor', items: '' },
+              successResponses: [
+                {
+                  status: '200',
+                  contentType: 'application/json',
+                  schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
+                },
+              ],
+              errorResponses: [],
+            },
+          ],
+        },
+      ],
+      schemas: [
+        {
+          name: 'Order',
+          schema: { kind: 'object', properties: [{ name: 'id', schema: STRING, required: true }] },
+        },
+      ],
+      securitySchemes: [],
+    } as unknown as ApiModel;
+
+    const out = phpGenerator({
+      model: collection,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+
+    expect(out).toContain('@return Order[]');
+    // Iterators say what they yield, so static analysis can follow them.
+    expect(out).toContain('@return \\Generator<int, array>');
+    expect(out).toContain('@return \\Generator<int, Order>');
+    expectPhpRuns(out);
+  });
+
   it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
     const out = generatePhp();
     expect(out).toContain('public function listOrdersWithHeaders(');

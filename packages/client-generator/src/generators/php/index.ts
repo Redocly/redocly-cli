@@ -211,10 +211,48 @@ function serialization(
   return undefined;
 }
 
-function writeDocComment(printer: Printer, name: string, description?: string): void {
+function writeDocComment(
+  printer: Printer,
+  name: string,
+  description?: string,
+  tags: string[] = []
+): void {
   const lines = docText(description);
-  if (lines.length === 0) return;
-  printer.line(`/** ${name} — ${lines.join(' ')} */`);
+  if (lines.length === 0 && tags.length === 0) return;
+  const summary = lines.length === 0 ? name : `${name} — ${lines.join(' ')}`;
+  if (tags.length === 0) {
+    printer.line(`/** ${summary} */`);
+    return;
+  }
+  printer.line('/**');
+  printer.line(` * ${summary}`);
+  printer.line(' *');
+  for (const tag of tags) printer.line(` * ${tag}`);
+  printer.line(' */');
+}
+
+/**
+ * The element type behind a PHP type that erases it. `array` and `\Generator` are as
+ * specific as PHP's syntax gets, so the docblock carries what they hold — that is what
+ * static analysis and readers actually go by.
+ */
+function phpElementType(
+  schema: SchemaModel | undefined,
+  model: ApiModel,
+  dateType: DateType
+): string | undefined {
+  if (schema === undefined) return undefined;
+  const bare = unwrapNullable(schema);
+  if (bare.kind === 'ref') {
+    const target = deref(bare, model);
+    // A named schema that IS an array (a collection alias) keeps its element type.
+    return classify(bare.name, model) === 'other'
+      ? phpElementType(target, model, dateType)
+      : undefined;
+  }
+  if (bare.kind !== 'array') return undefined;
+  const element = phpType(bare.items, model, dateType);
+  return element === 'mixed' ? undefined : element;
 }
 
 function writeClass(
@@ -564,12 +602,14 @@ function writePhpMethod(
           ? 'string'
           : 'void';
   const name = envelope ? `${methodName(op)}WithHeaders` : methodName(op);
+  const element = envelope ? undefined : phpElementType(success, model, dateType);
   writeDocComment(
     printer,
     name,
     envelope
       ? `Like ${methodName(op)}(), returning an Envelope with the declared response headers.`
-      : (op.summary ?? `${op.method.toUpperCase()} ${op.path}`)
+      : (op.summary ?? `${op.method.toUpperCase()} ${op.path}`),
+    element === undefined ? [] : [`@return ${element}[]`]
   );
   printer.line(`public function ${name}(${args.signature.join(', ')}): ${returnType}`);
   printer.block(
@@ -663,7 +703,8 @@ function writePhpPaginationWrappers(
   dateType: DateType,
   pageHydration: string | undefined,
   itemHydration: string | undefined,
-  itemsPointer: string | undefined
+  itemsPointer: string | undefined,
+  itemYield: string
 ): void {
   const args = methodArgs(op, model, false, dateType);
   const name = methodName(op);
@@ -714,7 +755,13 @@ function writePhpPaginationWrappers(
     );
   };
 
-  printer.line(`/** ${name} response pages, following the pagination rule automatically. */`);
+  const pageType = phpType(successSchema(op) ?? { kind: 'unknown' }, model, dateType);
+  const pageYield = pageType === 'mixed' ? 'mixed' : pageType;
+  printer.line('/**');
+  printer.line(` * ${name} response pages, following the pagination rule automatically.`);
+  printer.line(' *');
+  printer.line(` * @return \\Generator<int, ${pageYield}>`);
+  printer.line(' */');
   printer.line(`public function ${name}Pages(${args.signature.join(', ')}): \\Generator`);
   printer.block(
     '{',
@@ -732,7 +779,11 @@ function writePhpPaginationWrappers(
   );
   printer.blank();
 
-  printer.line(`/** The items of every ${name} page. */`);
+  printer.line('/**');
+  printer.line(` * The items of every ${name} page.`);
+  printer.line(' *');
+  printer.line(` * @return \\Generator<int, ${itemYield}>`);
+  printer.line(' */');
   printer.line(`public function ${name}Items(${args.signature.join(', ')}): \\Generator`);
   printer.block(
     '{',
@@ -937,7 +988,8 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
           dateType,
           pageHydration,
           itemHydration,
-          rule.items
+          rule.items,
+          element === undefined ? 'mixed' : phpType(element, model, dateType)
         );
       }
     },
