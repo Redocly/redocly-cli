@@ -126,7 +126,7 @@ export function toRelativePath(absoluteRef: string, cwd: string): string {
     : path.relative(cwd, absoluteRef).split(path.sep).join('/');
 }
 
-function toFileRange(location: Location, cwd: string) {
+export function toFileRange(location: Location, cwd: string) {
   const lineCol = getLineColLocation({
     source: location.source,
     pointer: location.pointer,
@@ -141,7 +141,7 @@ function toFileRange(location: Location, cwd: string) {
   };
 }
 
-function truncateSummary(text: string | undefined): string | undefined {
+export function truncateSummary(text: string | undefined): string | undefined {
   if (!text) return undefined;
   const normalized = text.replace(/\s+/g, ' ').trim();
   if (!normalized) return undefined;
