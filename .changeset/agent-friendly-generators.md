@@ -16,3 +16,5 @@ A custom generator can now declare its own options as a schema; publishers set t
 `eject-generator` now wires itself up: it records `@redocly/client-generator` in your `devDependencies` and adds the ejected file to `client.generators`, printing the snippet to add by hand only when the configuration file has a shape it won't edit blind.
 
 Generator compatibility is the package version under semver instead of a separate contract number: a generator declares the range it was written against with `requiresGenerator` (`^1.2.0`, `~1.2.0`, `>=1.2.0`, or an exact version), and a CLI outside that range says which version it ships and how to fix it. `GENERATOR_CONTRACT` is gone; ejected generators record the range for you.
+
+`eject-generator --update` no longer needs a committed `.pristine/` snapshot: the merge base is the version recorded in the ejected file's own header, fetched from the registry when it differs from the installed one. An existing `.pristine/` copy is still used as the base and can then be deleted.

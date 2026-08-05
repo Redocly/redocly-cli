@@ -1,11 +1,19 @@
 import { HandledError, logger } from '@redocly/openapi-core';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
-import { version } from '../utils/package.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type EjectGeneratorCommandArgv = {
@@ -99,19 +107,18 @@ function dropPointer(dir: string, ejected: string[]): void {
 /** 3-way merge via `git merge-file`; returns the merged text and the conflict count. */
 function threeWayMerge(
   customized: string,
-  pristineBase: string,
-  pristineNew: string,
-  dir: string
+  base: string,
+  updated: string
 ): { merged: string; conflicts: number } {
-  const scratch = join(dir, '.pristine');
+  const scratch = mkdtempSync(join(tmpdir(), 'redocly-eject-merge-'));
   const paths = {
     ours: join(scratch, '.merge-ours'),
     base: join(scratch, '.merge-base'),
     theirs: join(scratch, '.merge-theirs'),
   };
   writeFileSync(paths.ours, customized, 'utf-8');
-  writeFileSync(paths.base, pristineBase, 'utf-8');
-  writeFileSync(paths.theirs, pristineNew, 'utf-8');
+  writeFileSync(paths.base, base, 'utf-8');
+  writeFileSync(paths.theirs, updated, 'utf-8');
   const result = spawnSync(
     'git',
     [
@@ -129,7 +136,7 @@ function threeWayMerge(
     ],
     { encoding: 'utf-8' }
   );
-  for (const file of Object.values(paths)) rmSync(file, { force: true });
+  rmSync(scratch, { recursive: true, force: true });
   if (result.error || result.status === null || result.status < 0) {
     ejectGeneratorTelemetry.eject_generator_outcome = 'merge-tool-missing';
     throw new HandledError(
@@ -137,6 +144,38 @@ function threeWayMerge(
     );
   }
   return { merged: result.stdout, conflicts: result.status };
+}
+
+/** The toolkit version an ejected file records in its provenance header. */
+function recordedVersion(ejected: string): string | undefined {
+  return /Ejected from @redocly\/client-generator@(\S+)/.exec(ejected)?.[1];
+}
+
+/**
+ * The asset as a past version shipped it, taken from that version's package on the
+ * registry — the header records which version to ask for, so the merge base needs
+ * nothing committed. `spec` is anything npm can pack (a version spec; a directory in
+ * tests). Returns undefined when the fetch or the extraction fails, so the caller can
+ * fall back instead of merging against the wrong base.
+ */
+export function packedAsset(spec: string, name: string): string | undefined {
+  const scratch = mkdtempSync(join(tmpdir(), 'redocly-eject-base-'));
+  try {
+    const packed = spawnSync('npm', ['pack', spec, '--pack-destination', scratch], {
+      encoding: 'utf-8',
+    });
+    if (packed.status !== 0) return undefined;
+    const tarball = readdirSync(scratch).find((file) => file.endsWith('.tgz'));
+    if (tarball === undefined) return undefined;
+    const member = `package/eject-assets/generators/${name}.mjs`;
+    const extracted = spawnSync('tar', ['-xzf', join(scratch, tarball), '-C', scratch, member], {
+      encoding: 'utf-8',
+    });
+    if (extracted.status !== 0) return undefined;
+    return readFileSync(join(scratch, member), 'utf-8');
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 }
 
 /** The built-in generators already ejected into `dir`, so the pointer lists every one of them. */
@@ -149,7 +188,7 @@ function ejectedIn(dir: string): string[] {
  * imports the authoring toolkit from it. Installing stays the user's call; this only makes
  * the requirement part of the project so a fresh clone or CI gets it. Returns what happened.
  */
-function wireDependency(): 'added' | 'present' | 'no-package-json' {
+function wireDependency(toolkitVersion: string): 'added' | 'present' | 'no-package-json' {
   const manifestPath = join(process.cwd(), 'package.json');
   if (!existsSync(manifestPath)) return 'no-package-json';
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
@@ -162,7 +201,10 @@ function wireDependency(): 'added' | 'present' | 'no-package-json' {
   ) {
     return 'present';
   }
-  const devDependencies = { ...manifest.devDependencies, [TOOLKIT_PACKAGE]: `^${version}` };
+  const devDependencies = {
+    ...manifest.devDependencies,
+    [TOOLKIT_PACKAGE]: `^${toolkitVersion}`,
+  };
   manifest.devDependencies = Object.fromEntries(
     Object.entries(devDependencies).sort(([left], [right]) => left.localeCompare(right))
   );
@@ -244,27 +286,48 @@ export const handleEjectGenerator = async ({
 
   const assetsDir = ejectAssetsDir();
   const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
+  // The version that matters is the TOOLKIT's (what the ejected file records and imports),
+  // not the CLI's — they version independently.
+  const { GENERATOR_VERSION: toolkitVersion } = await import('@redocly/client-generator');
   const dir = resolve(argv.dir ?? './generators');
-  const pristineDir = join(dir, '.pristine');
   const target = join(dir, `${name}.mjs`);
-  const pristine = join(pristineDir, `${name}.mjs`);
+  // Ejects before the base moved to the registry left a snapshot behind; it still works
+  // as the base, which keeps `--update` offline for anyone mid-migration.
+  const legacyBase = join(dir, '.pristine', `${name}.mjs`);
   const printedTarget = relative(process.cwd(), target) || target;
 
   if (argv.update) {
-    if (!existsSync(target) || !existsSync(pristine)) {
-      ejectGeneratorTelemetry.eject_generator_outcome = 'missing-pristine';
+    if (!existsSync(target)) {
+      ejectGeneratorTelemetry.eject_generator_outcome = 'missing-target';
       throw new HandledError(
-        `\n❌  Nothing to update: ${printedTarget} (and its pristine snapshot) must exist. Eject first.\n`
+        `\n❌  Nothing to update: ${printedTarget} does not exist. Eject first.\n`
       );
     }
-    const { merged, conflicts } = threeWayMerge(
-      readFileSync(target, 'utf-8'),
-      readFileSync(pristine, 'utf-8'),
-      asset,
-      dir
-    );
+    const customized = readFileSync(target, 'utf-8');
+    const from = recordedVersion(customized);
+    const base = existsSync(legacyBase)
+      ? readFileSync(legacyBase, 'utf-8')
+      : from === toolkitVersion
+        ? asset
+        : from === undefined
+          ? undefined
+          : packedAsset(`${TOOLKIT_PACKAGE}@${from}`, name);
+    if (base === undefined) {
+      ejectGeneratorTelemetry.eject_generator_outcome = 'missing-base';
+      const sideBySide = `${target}.new`;
+      writeFileSync(sideBySide, asset, 'utf-8');
+      throw new HandledError(
+        `\n❌  Could not read the version this file was ejected from (${from ?? 'not recorded in its header'}), so there is no merge base.\n` +
+          `   The current generator is written to ${relative(process.cwd(), sideBySide)} — diff it against your copy and merge by hand.\n`
+      );
+    }
+    const { merged, conflicts } = threeWayMerge(customized, base, asset);
     writeFileSync(target, merged, 'utf-8');
-    writeFileSync(pristine, asset, 'utf-8');
+    if (existsSync(legacyBase)) {
+      logger.info(
+        `Used ${relative(process.cwd(), legacyBase)} as the merge base. Later updates read the version from the file's header, so you can delete that .pristine directory.\n`
+      );
+    }
     dropSkill('client-generators', assetsDir);
     dropSkill(`${name}-generator`, assetsDir);
     dropPointer(dir, ejectedIn(dir));
@@ -275,7 +338,7 @@ export const handleEjectGenerator = async ({
         `Updated ${printedTarget} with ${conflicts} conflict(s) — resolve the <<<<<<< markers, then regenerate.\n`
       );
     } else {
-      logger.info(`Updated ${printedTarget} cleanly; pristine snapshot refreshed.\n`);
+      logger.info(`Updated ${printedTarget} cleanly.\n`);
     }
     return;
   }
@@ -286,18 +349,17 @@ export const handleEjectGenerator = async ({
       `\n❌  ${printedTarget} already exists. Use --update to merge the newer version in, or --force to overwrite.\n`
     );
   }
-  mkdirSync(pristineDir, { recursive: true });
+  mkdirSync(dir, { recursive: true });
   writeFileSync(target, asset, 'utf-8');
-  writeFileSync(pristine, asset, 'utf-8');
   const authoringSkill = dropSkill('client-generators', assetsDir);
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configEntry = `./${relative(process.cwd(), target).split('\\').join('/')}`;
-  const dependency = wireDependency();
+  const dependency = wireDependency(toolkitVersion);
   const wired = wireConfig(config.configPath, configEntry);
   logger.info(
-    `Ejected the "${name}" generator to ${printedTarget} (pristine snapshot committed alongside).\n` +
+    `Ejected the "${name}" generator to ${printedTarget}.\n` +
       (dependency === 'added'
         ? `Added ${TOOLKIT_PACKAGE} to devDependencies (the ejected file imports its toolkit) — run your installer.\n`
         : dependency === 'no-package-json'

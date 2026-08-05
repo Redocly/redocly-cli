@@ -49,7 +49,8 @@ describe('eject-generator (end-to-end)', () => {
     const eject = run(project, ['eject-generator', 'php']);
     expect(eject.status, eject.stderr).toBe(0);
     expect(existsSync(join(project, 'generators/php.mjs'))).toBe(true);
-    expect(existsSync(join(project, 'generators/.pristine/php.mjs'))).toBe(true);
+    // Nothing extra is committed: the merge base comes from the version in the header.
+    expect(existsSync(join(project, 'generators/.pristine'))).toBe(false);
 
     // The design ships where an agent auto-loads it, with skill frontmatter.
     const design = readFileSync(join(project, '.claude/skills/php-generator/SKILL.md'), 'utf-8');
@@ -84,7 +85,11 @@ describe('eject-generator (end-to-end)', () => {
       expect(eject.status, eject.stderr).toBe(0);
 
       const pkg = JSON.parse(readFileSync(join(wired, 'package.json'), 'utf-8'));
-      expect(pkg.devDependencies['@redocly/client-generator']).toMatch(/^\^\d+\./);
+      // The recorded range is the TOOLKIT's version — the package the ejected file imports.
+      const toolkitVersion = JSON.parse(
+        readFileSync(join(repoRoot, 'packages/client-generator/package.json'), 'utf-8')
+      ).version;
+      expect(pkg.devDependencies['@redocly/client-generator']).toBe(`^${toolkitVersion}`);
       expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8')).toBe(
         'extends: []\nclient:\n  generators:\n    - sdk\n    - ./generators/go.mjs\n'
       );
@@ -150,19 +155,21 @@ describe('eject-generator (end-to-end)', () => {
       '// my local customization'
     );
 
-    // Diverge the same first line in the pristine base and the user copy: a true conflict.
-    for (const [file, line] of [
-      ['generators/.pristine/php.mjs', '// OLD pristine line'],
-      ['generators/php.mjs', '// USER edited line'],
-    ] as const) {
-      const path = join(project, file);
-      const lines = readFileSync(path, 'utf-8').split('\n');
-      lines[0] = line;
-      writeFileSync(path, lines.join('\n'), 'utf-8');
-    }
+    // A `.pristine/` copy from an older CLI still works as the base, and says it can go.
+    const legacy = join(project, 'generators/.pristine');
+    mkdirSync(legacy, { recursive: true });
+    const ejected = join(project, 'generators/php.mjs');
+    const base = readFileSync(ejected, 'utf-8').split('\n');
+    const mine = [...base];
+    base[0] = '// OLD base line';
+    mine[0] = '// USER edited line';
+    writeFileSync(join(legacy, 'php.mjs'), base.join('\n'), 'utf-8');
+    writeFileSync(ejected, mine.join('\n'), 'utf-8');
     const conflicted = run(project, ['eject-generator', 'php', '--update']);
     expect(conflicted.status, conflicted.stderr).toBe(0);
-    expect(conflicted.stderr + conflicted.stdout).toContain('conflict');
-    expect(readFileSync(join(project, 'generators/php.mjs'), 'utf-8')).toContain('<<<<<<<');
+    const output = conflicted.stderr + conflicted.stdout;
+    expect(output).toContain('conflict');
+    expect(output).toContain('.pristine');
+    expect(readFileSync(ejected, 'utf-8')).toContain('<<<<<<<');
   }, 60_000);
 });

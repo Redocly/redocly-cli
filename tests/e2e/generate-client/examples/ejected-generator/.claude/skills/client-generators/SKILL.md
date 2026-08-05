@@ -72,10 +72,11 @@ Rules: output is deterministic (same description → same bytes); never add
 dependencies to the generated client; **never hand-edit generated output** —
 edit this generator and regenerate. Emitted file paths must stay inside the
 `--output` directory (subdirectories are fine) — escapes are rejected.
-Optionally declare `contract` (the `GENERATOR_CONTRACT` number exported by
-`@redocly/client-generator`): a CLI whose contract differs then fails with the
-fix path instead of feeding your generator an unexpected model shape. Ejected
-generators carry it automatically.
+Optionally declare `requiresGenerator` — the `@redocly/client-generator` version
+range you wrote this against (`'^1.2.0'`, `'~1.2.0'`, `'>=1.2.0'`, or an exact
+version). A CLI outside the range then fails with the fix path instead of feeding
+your generator an unexpected model shape. Ejected generators carry it
+automatically; hand-written ones without it are taken as current.
 
 ## The model (IR)
 
