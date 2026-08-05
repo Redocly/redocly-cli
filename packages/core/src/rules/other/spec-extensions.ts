@@ -15,6 +15,14 @@ const MAX_PROPS_PER_EXTENSION = 20;
 
 const VALUE_KEY = '$value'; // holds a scalar extension's own value, e.g. `x-hideReplay: true`
 const TRUNCATED = '<truncated>';
+const MASKED = '<masked>';
+
+// Keys that suggest a credential or personal data — their values are never sampled.
+const SENSITIVE_KEY_REGEX = /key|token|secret|password|credential|session|bearer|email|auth\b/i;
+// Value shapes masked regardless of the key: opaque token-like blobs, emails, URLs with a scheme.
+const TOKEN_LIKE_REGEX = /^(?=.*\d)[A-Za-z0-9+/=_-]{16,}$/;
+const EMAIL_REGEX = /\S@\S+\.\S/;
+const URL_SCHEME_REGEX = /:\/\//;
 
 export const StatsSpecExtensions = (accumulator: SpecVendorExtensionsAccumulator) => {
   return {
@@ -61,7 +69,11 @@ function recordExtension(
   const entry = (accumulator[key] ??= { count: 0, props: {} });
   entry.count++;
   for (const [prop, propValue] of getExtensionProps(value)) {
-    addSample(entry.props, prop, describe(propValue));
+    const sample =
+      SENSITIVE_KEY_REGEX.test(key) || SENSITIVE_KEY_REGEX.test(prop)
+        ? MASKED
+        : describe(propValue);
+    addSample(entry.props, prop, sample);
   }
 }
 
@@ -77,6 +89,9 @@ function describe(value: unknown): string {
   if (value === null) return '<null>';
   if (typeof value === 'boolean' || typeof value === 'number') return String(value);
   if (typeof value === 'string') {
+    if (TOKEN_LIKE_REGEX.test(value) || EMAIL_REGEX.test(value) || URL_SCHEME_REGEX.test(value)) {
+      return MASKED;
+    }
     return value.length <= MAX_VALUE_LENGTH ? value : `<string:${value.length}>`;
   }
   if (Array.isArray(value)) return `<array:${value.length}>`;

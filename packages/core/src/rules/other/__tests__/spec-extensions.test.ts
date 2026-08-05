@@ -254,6 +254,29 @@ describe('StatsSpecExtensions', () => {
       expect(props(acc, 'x-codeSamples', 'lang')).toEqual(['curl']);
     });
 
+    it('should mask sensitive values by key and by value shape, keeping benign ones', async () => {
+      const acc = await collect(outdent`
+        openapi: 3.1.0
+        info:
+          title: t
+          version: '1'
+          x-auth-token: benign-but-key-is-sensitive
+          x-gateway:
+            apiKey: abc123
+            url: https://internal.corp/api
+            contact: jane.doe@corp.com
+            traceId: 4bf92f3577b34da6a3ce929d0e0e4736
+            color: purple
+      `);
+
+      expect(props(acc, 'x-auth-token', '$value')).toEqual(['<masked>']);
+      expect(props(acc, 'x-gateway', 'apiKey')).toEqual(['<masked>']);
+      expect(props(acc, 'x-gateway', 'url')).toEqual(['<masked>']);
+      expect(props(acc, 'x-gateway', 'contact')).toEqual(['<masked>']);
+      expect(props(acc, 'x-gateway', 'traceId')).toEqual(['<masked>']);
+      expect(props(acc, 'x-gateway', 'color')).toEqual(['purple']);
+    });
+
     it('should collect the extension value under $value when it has no own props', async () => {
       const acc = await collect(outdent`
         openapi: 3.1.0
