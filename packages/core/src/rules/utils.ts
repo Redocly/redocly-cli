@@ -10,30 +10,80 @@ import type {
   Oas3Tag,
   Oas3_2Tag,
   Oas3_1Schema,
+  OasRef,
   Referenced,
 } from '../typings/openapi.js';
-import type { Oas2Tag } from '../typings/swagger.js';
+import type { Oas2Schema, Oas2Tag } from '../typings/swagger.js';
+import { getOwn } from '../utils/get-own.js';
 import { isDefined } from '../utils/is-defined.js';
+import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
-import type { AjvValidator } from './ajv.js';
+import { type AjvValidator } from './ajv.js';
+
+export type AnySchema =
+  | Oas3Schema
+  | Oas3_1Schema
+  | (Oas2Schema & { anyOf?: undefined; oneOf?: undefined });
 
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
   ctx: UserContext,
-  resolveFrom?: string
+  location?: Location
 ): {
-  schema: T | undefined;
-  location: string | undefined;
+  schema?: T;
+  location?: Location;
 } => {
   if (isRef(schemaOrRef)) {
-    const resolved = ctx.resolve<T>(schemaOrRef, resolveFrom);
+    const resolved = ctx.resolve<T>(schemaOrRef, location?.source.absoluteRef);
     return resolved
-      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
-      : { schema: undefined, location: resolveFrom };
+      ? { schema: resolved.node, location: resolved.location }
+      : { schema: undefined, location };
   }
 
-  return { schema: schemaOrRef, location: resolveFrom };
+  return { schema: schemaOrRef, location };
+};
+
+export const schemaHasProperty = (
+  schemaOrRef: Referenced<AnySchema> | undefined,
+  propertyName: string,
+  ctx: UserContext,
+  visited: Set<AnySchema | OasRef> = new Set(),
+  resolveLocation?: Location
+): boolean => {
+  const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveLocation);
+  if (!schema || visited.has(schema)) return false;
+  visited.add(schema);
+
+  if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
+    return true;
+  }
+
+  if (
+    schema.allOf?.some((branch) => schemaHasProperty(branch, propertyName, ctx, visited, location))
+  ) {
+    return true;
+  }
+
+  if (
+    isNotEmptyArray<AnySchema>(schema.anyOf) &&
+    schema.anyOf.every((branch) =>
+      schemaHasProperty(branch, propertyName, ctx, new Set(visited), location)
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    isNotEmptyArray<AnySchema>(schema.oneOf) &&
+    schema.oneOf.every((branch) =>
+      schemaHasProperty(branch, propertyName, ctx, new Set(visited), location)
+    )
+  ) {
+    return true;
+  }
+
+  return false;
 };
 
 export function oasTypeOf(value: unknown) {

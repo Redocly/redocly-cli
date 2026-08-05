@@ -1,5 +1,21 @@
 # @redocly/client-generator
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.1.
+
+## 0.3.0
+
+### Minor Changes
+
+- Added an opt-in success envelope to throw-mode calls.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.0.
+
 ## 0.2.1
 
 ### Patch Changes

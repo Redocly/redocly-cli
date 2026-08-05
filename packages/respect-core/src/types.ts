@@ -1,6 +1,6 @@
 import type {
   Config,
-  CollectFn,
+  CollectSpecData,
   RuleSeverity,
   LoggerInterface,
   BaseResolver,
@@ -101,7 +101,7 @@ export type CommandArgs<T> = {
   argv: T;
   config: Config;
   version: string;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
 };
 
 export interface RequestContext {

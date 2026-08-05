@@ -43,6 +43,9 @@ export async function sendTelemetry({
   respect_x_security_auth_types,
   respect_source_description_types,
   respect_criterion_object_types,
+  lint_rules_with_errors,
+  lint_rules_with_warnings,
+  lint_rules_with_ignored_problems,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -54,6 +57,9 @@ export async function sendTelemetry({
   respect_x_security_auth_types: string[] | undefined;
   respect_source_description_types: string[] | undefined;
   respect_criterion_object_types: string[] | undefined;
+  lint_rules_with_errors: string[] | undefined;
+  lint_rules_with_warnings: string[] | undefined;
+  lint_rules_with_ignored_problems: string[] | undefined;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -113,6 +119,15 @@ export async function sendTelemetry({
           majorSpecVersion === 'arazzo1' && respect_criterion_object_types?.length
             ? JSON.stringify(respect_criterion_object_types)
             : undefined,
+        lint_rules_with_errors: lint_rules_with_errors?.length
+          ? JSON.stringify(lint_rules_with_errors)
+          : undefined,
+        lint_rules_with_warnings: lint_rules_with_warnings?.length
+          ? JSON.stringify(lint_rules_with_warnings)
+          : undefined,
+        lint_rules_with_ignored_problems: lint_rules_with_ignored_problems?.length
+          ? JSON.stringify(lint_rules_with_ignored_problems)
+          : undefined,
       },
     ];
 
