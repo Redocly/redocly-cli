@@ -30,10 +30,9 @@ describe('embedded runtimes match their source files', () => {
     const dir = join(pkgRoot, 'python-runtime');
     const onDisk = readdirSync(dir).filter((name) => name.endsWith('.py'));
     expect(Object.keys(PYTHON_RUNTIME_SOURCES).sort(), STALE).toEqual(onDisk.sort());
+    const embedded: Record<string, string> = PYTHON_RUNTIME_SOURCES;
     for (const name of onDisk) {
-      expect(PYTHON_RUNTIME_SOURCES[name], `${name}: ${STALE}`).toBe(
-        readFileSync(join(dir, name), 'utf-8')
-      );
+      expect(embedded[name], `${name}: ${STALE}`).toBe(readFileSync(join(dir, name), 'utf-8'));
     }
   });
 });

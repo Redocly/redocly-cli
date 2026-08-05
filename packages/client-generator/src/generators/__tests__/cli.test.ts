@@ -1,5 +1,5 @@
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { cliGenerator, cliSample } from '../cli.js';
+import { cliGenerator, cliSample } from '../cli/index.js';
 import { builtinGenerators, validateGenerators } from '../index.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };

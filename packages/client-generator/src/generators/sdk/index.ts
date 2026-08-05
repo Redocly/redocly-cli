@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 
-import { emitClientSingleFile, emitClientSplit } from '../emitters/client-assembly.js';
-import { packageIdents } from '../emitters/descriptor.js';
-import type { OperationModel } from '../intermediate-representation/model.js';
-import { anchor } from './anchor.js';
-import type { CodeSample, Generator, SampleContext } from './types.js';
+import { emitClientSingleFile, emitClientSplit } from '../../emitters/client-assembly.js';
+import { packageIdents } from '../../emitters/descriptor.js';
+import type { OperationModel } from '../../intermediate-representation/model.js';
+import { anchor } from '../anchor.js';
+import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 /**
  * The default generator: the full typed client (model types + runtime + endpoints).

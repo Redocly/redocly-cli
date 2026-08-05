@@ -1,16 +1,16 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
-import { cliGenerator, cliSample } from './cli.js';
+import { cliGenerator, cliSample } from './cli/index.js';
 import { goGenerator, goSample } from './go/index.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
-import { mockGenerator } from './mock.js';
+import { mockGenerator } from './mock/index.js';
 import { phpGenerator, phpSample } from './php/index.js';
 import { pythonGenerator, pythonSample } from './python/index.js';
-import { sdkGenerator, sdkSample } from './sdk.js';
-import { swrGenerator } from './swr.js';
-import { tanstackQueryGenerator } from './tanstack-query.js';
-import { transformersGenerator } from './transformers.js';
+import { sdkGenerator, sdkSample } from './sdk/index.js';
+import { swrGenerator } from './swr/index.js';
+import { tanstackQueryGenerator } from './tanstack-query/index.js';
+import { transformersGenerator } from './transformers/index.js';
 import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
-import { zodGenerator } from './zod.js';
+import { zodGenerator } from './zod/index.js';
 
 export type {
   CustomGenerator,

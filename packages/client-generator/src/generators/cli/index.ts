@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 
-import { commandData, renderCliModule } from '../emitters/cli.js';
-import type { OperationModel } from '../intermediate-representation/model.js';
-import { anchor } from './anchor.js';
-import type { CodeSample, Generator, SampleContext } from './types.js';
+import { commandData, renderCliModule } from '../../emitters/cli.js';
+import type { OperationModel } from '../../intermediate-representation/model.js';
+import { anchor } from '../anchor.js';
+import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 /**
  * The cli generator: a bin-ready `<stem>.cli.ts` — a zero-dependency, typed

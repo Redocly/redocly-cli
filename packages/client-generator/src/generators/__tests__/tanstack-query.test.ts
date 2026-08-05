@@ -1,6 +1,6 @@
 import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { tanstackQueryGenerator } from '../tanstack-query.js';
+import { tanstackQueryGenerator } from '../tanstack-query/index.js';
 
 const SERVICES = [
   {

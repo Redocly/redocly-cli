@@ -55,8 +55,9 @@ A Writer is an implementation detail of the `sdk` **Generator**.
 _Avoid_: formatter, builder.
 
 **Generator**:
-A deep module that turns the IR into a set of files for one concern, selected by name through `getGenerator(name)` (mirrors the `getWriter(outputMode)` seam).
-Lives in `generators/`.
+A deep module that turns the IR into a set of files for one concern, selected by name through the registry seam.
+Each one lives in its OWN FOLDER under `generators/` — `index.ts` plus an `AGENTS.md` design skill that the code must match (change the skill first).
+The `python`, `go`, and `php` generators are self-contained single files, which is what makes them ejectable; the TypeScript-emitting ones are thin entries over the shared emitters.
 The `sdk` generator is the typed client (it delegates to the output-mode **Writer**).
 The `zod` generator emits a standalone `<stem>.zod.ts` **schema module** (one `export const <Name>Schema` per IR named schema) beside the client.
 The `tanstack-query` generator emits a TanStack Query v5 (React) module (`<stem>.tanstack.ts`) wrapping the sdk — per query op a `<op>QueryKey`/`<op>Options` (`queryOptions`) factory + query key, per mutation a `<op>Mutation` (`mutationKey`/`mutationFn`) factory (requires the `sdk` generator; the consumer installs `@tanstack/react-query`).

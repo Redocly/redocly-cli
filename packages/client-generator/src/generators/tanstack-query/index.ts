@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 
-import { HEADER } from '../emitters/emit-options.js';
-import { renderTanstackModule } from '../emitters/tanstack-query.js';
-import { anchor } from './anchor.js';
-import type { Generator } from './types.js';
+import { HEADER } from '../../emitters/emit-options.js';
+import { renderTanstackModule } from '../../emitters/tanstack-query.js';
+import { anchor } from '../anchor.js';
+import type { Generator } from '../types.js';
 
 /**
  * The tanstack-query generator: a standalone `<stem>.tanstack.ts` module of

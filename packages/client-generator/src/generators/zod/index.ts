@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 
-import { HEADER } from '../emitters/emit-options.js';
-import { renderZodModule } from '../emitters/zod.js';
-import { anchor } from './anchor.js';
-import type { Generator } from './types.js';
+import { HEADER } from '../../emitters/emit-options.js';
+import { renderZodModule } from '../../emitters/zod.js';
+import { anchor } from '../anchor.js';
+import type { Generator } from '../types.js';
 
 /**
  * The zod generator: a standalone `<stem>.zod.ts` module of Zod schemas (one

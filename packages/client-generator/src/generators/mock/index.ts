@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 
-import { HEADER } from '../emitters/emit-options.js';
-import { renderMockModule } from '../emitters/mock.js';
-import { anchor } from './anchor.js';
-import type { Generator } from './types.js';
+import { HEADER } from '../../emitters/emit-options.js';
+import { renderMockModule } from '../../emitters/mock.js';
+import { anchor } from '../anchor.js';
+import type { Generator } from '../types.js';
 
 /**
  * The mock generator: a standalone `<stem>.mocks.ts` module of MSW handlers and

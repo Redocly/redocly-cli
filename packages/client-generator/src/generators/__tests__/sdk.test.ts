@@ -1,6 +1,6 @@
 import { HEADER } from '../../emitters/emit-options.js';
 import type { ApiModel } from '../../intermediate-representation/model.js';
-import { sdkGenerator } from '../sdk.js';
+import { sdkGenerator } from '../sdk/index.js';
 
 function apiModel(): ApiModel {
   return {

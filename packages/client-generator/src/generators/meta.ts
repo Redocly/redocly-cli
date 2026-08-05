@@ -18,7 +18,9 @@ function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): Builtin
     requires: ['sdk'],
     errorModes: ['throw'],
     load: () =>
-      import('./tanstack-query.js').then((m) => ({ run: m.tanstackQueryGenerator(framework) })),
+      import('./tanstack-query/index.js').then((m) => ({
+        run: m.tanstackQueryGenerator(framework),
+      })),
   };
 }
 
@@ -37,15 +39,16 @@ const LANGUAGE_SDK_NOT_APPLICABLE: BuiltinMeta['notApplicable'] = {
 export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   // sdk is the base client; zod emits a standalone schema module importing nothing from it.
   sdk: {
-    load: () => import('./sdk.js').then((m) => ({ run: m.sdkGenerator, sample: m.sdkSample })),
+    load: () =>
+      import('./sdk/index.js').then((m) => ({ run: m.sdkGenerator, sample: m.sdkSample })),
   },
-  zod: { load: () => import('./zod.js').then((m) => ({ run: m.zodGenerator })) },
+  zod: { load: () => import('./zod/index.js').then((m) => ({ run: m.zodGenerator })) },
   // transformers import the schema *types* from the sdk entry module (so sdk must run) and
   // assign `Date` values to those fields, which only type-checks when the sdk types dates as `Date`.
   transformers: {
     requires: ['sdk'],
     dateTypes: ['Date'],
-    load: () => import('./transformers.js').then((m) => ({ run: m.transformersGenerator })),
+    load: () => import('./transformers/index.js').then((m) => ({ run: m.transformersGenerator })),
   },
   // tanstack-query wraps the sdk's exported, throw-mode operation functions — present in
   // both runtime distributions, so no runtime restriction. The framework variants differ
@@ -58,19 +61,20 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   swr: {
     requires: ['sdk'],
     errorModes: ['throw'],
-    load: () => import('./swr.js').then((m) => ({ run: m.swrGenerator })),
+    load: () => import('./swr/index.js').then((m) => ({ run: m.swrGenerator })),
   },
   // mock emits a standalone MSW handlers/factories module referencing the sdk's types.
   mock: {
     requires: ['sdk'],
-    load: () => import('./mock.js').then((m) => ({ run: m.mockGenerator })),
+    load: () => import('./mock/index.js').then((m) => ({ run: m.mockGenerator })),
   },
   // cli dispatches through the sdk's instance client and relies on thrown ApiError
   // for its exit-code mapping, so it is sdk-bound and throw-only.
   cli: {
     requires: ['sdk'],
     errorModes: ['throw'],
-    load: () => import('./cli.js').then((m) => ({ run: m.cliGenerator, sample: m.cliSample })),
+    load: () =>
+      import('./cli/index.js').then((m) => ({ run: m.cliGenerator, sample: m.cliSample })),
   },
   // python emits a standalone full Python SDK (httpx) — no TypeScript involved,
   // so a python-only selection never loads the `typescript` package.

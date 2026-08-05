@@ -2,8 +2,8 @@ import { logger } from '@redocly/openapi-core';
 
 import { NotSupportedError } from '../../errors.js';
 import { builtinGenerators, validateGenerators } from '../index.js';
-import { sdkGenerator } from '../sdk.js';
-import { zodGenerator } from '../zod.js';
+import { sdkGenerator } from '../sdk/index.js';
+import { zodGenerator } from '../zod/index.js';
 
 describe('builtinGenerators', () => {
   it('registers the sdk generator descriptor', () => {

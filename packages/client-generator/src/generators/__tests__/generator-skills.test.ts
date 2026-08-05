@@ -6,24 +6,36 @@ import { fileURLToPath } from 'node:url';
 // into their user-repo equivalents (plain .mjs, importable straight from scripts/).
 import { ejectedSkill } from '../../../scripts/ejected-skill.mjs';
 
-// Skill-first development: every language generator lives in a folder with its own
-// AGENTS.md — the design the code must match (and the file eject ships to users).
-// A generator folder without a skill, or a skill missing its modify-loop anchors,
-// fails here.
+// Skill-first development: EVERY generator lives in a folder with its own AGENTS.md —
+// the design the code must match. A generator folder without a skill, or a skill
+// missing its modify-loop anchors, fails here.
 const generatorsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-describe.each(['python', 'go', 'php'])('%s generator skill', (name) => {
+/** Generators whose whole implementation is one file, so eject ships them. */
+const EJECTABLE = ['python', 'go', 'php'];
+/** TypeScript-emitting generators: thin entries over the shared emitters. */
+const TYPESCRIPT = ['sdk', 'zod', 'mock', 'cli', 'swr', 'tanstack-query', 'transformers'];
+
+describe.each([...EJECTABLE, ...TYPESCRIPT])('%s generator skill', (name) => {
   const skillPath = join(generatorsDir, name, 'AGENTS.md');
 
   it('exists next to the generator', () => {
     expect(existsSync(skillPath)).toBe(true);
   });
 
-  it('names its runtime, the skill-first rule, and the verify loop', () => {
+  it('states the skill-first rule and how to verify a change', () => {
     const skill = readFileSync(skillPath, 'utf-8');
-    expect(skill).toContain(`${name}-runtime/`);
     expect(skill).toContain('edit this skill first');
+    expect(skill).toContain('## The modify loop');
     expect(skill).toContain('large-descriptions.test.ts');
+  });
+});
+
+describe.each(EJECTABLE)('%s generator skill ships to users', (name) => {
+  const skillPath = join(generatorsDir, name, 'AGENTS.md');
+
+  it('names its runtime', () => {
+    expect(readFileSync(skillPath, 'utf-8')).toContain(`${name}-runtime/`);
   });
 
   it('is what eject ships — the prepared asset is the user-repo transform of the source', () => {
@@ -37,5 +49,13 @@ describe.each(['python', 'go', 'php'])('%s generator skill', (name) => {
     expect(shipped).not.toContain('index.ts');
     expect(shipped).not.toContain('npm run prepare');
     expect(shipped).not.toContain('vitest');
+  });
+});
+
+describe.each(TYPESCRIPT)('%s generator skill (not ejectable)', (name) => {
+  it('points at the emitters that implement it and at the customization path', () => {
+    const skill = readFileSync(join(generatorsDir, name, 'AGENTS.md'), 'utf-8');
+    expect(skill).toContain('## Emitters that implement it');
+    expect(skill).toContain('Not ejectable');
   });
 });
