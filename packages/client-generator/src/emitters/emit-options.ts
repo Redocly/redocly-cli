@@ -65,6 +65,12 @@ export type EmitOptions = {
    */
   binName?: string;
   /**
+   * Package clause of the `go` generator's output. Defaults to `client` — a generated
+   * file usually lands in a package the consumer already owns, so the name is theirs
+   * to choose. An invalid Go package name fails generation.
+   */
+  goPackage?: string;
+  /**
    * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
    * resolved together with each operation's `x-redocly-pagination` extension. Verified
    * statically: an explicit rule that doesn't fit its operation fails generation.

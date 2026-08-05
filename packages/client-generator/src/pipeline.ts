@@ -187,6 +187,7 @@ export async function generateClient(
     runtime: options.runtime,
     importExt: options.importExt,
     binName: options.binName,
+    goPackage: options.goPackage,
     pagination: options.pagination,
   };
   // Fail fast on an incompatible selection (missing prerequisite, unsupported

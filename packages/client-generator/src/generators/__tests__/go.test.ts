@@ -546,6 +546,27 @@ describe('goGenerator parity features', () => {
     expect(files[0].content).toContain('config.ServerURL = "https://override.example"');
   });
 
+  it('honors goPackage for the package clause and rejects a name Go would not accept', () => {
+    const out = goGenerator({
+      model: CAFE,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { goPackage: 'rebilly' },
+    })[0].content;
+    expect(out).toContain('package rebilly');
+    expect(out).not.toContain('package client');
+    expectGoCompiles(out);
+
+    expect(() =>
+      goGenerator({
+        model: CAFE,
+        outputPath: '/out/client.ts',
+        outputMode: 'single',
+        emit: { goPackage: 'rebilly-core' },
+      })
+    ).toThrow(/goPackage "rebilly-core" is not a valid Go package name/);
+  });
+
   it('emits one URL function per declared server with variables as parameters', () => {
     const out = generateGo();
     expect(out).toContain('func LiveServerURL(organizationId string) string {');

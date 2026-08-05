@@ -375,6 +375,7 @@ const Client: NodeType = {
     runtime: { enum: ['inline', 'package'] },
     importExt: { enum: ['js', 'ts'] },
     binName: { type: 'string' },
+    goPackage: { type: 'string' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },

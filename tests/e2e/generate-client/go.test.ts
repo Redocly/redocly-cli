@@ -1,5 +1,5 @@
 import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,11 +19,18 @@ describe('generate-client go generator (end-to-end)', () => {
   afterAll(() => {
     rmSync(join(consumerDir, 'client'), { recursive: true, force: true });
     rmSync(join(consumerDir, 'smoke'), { force: true });
+    rmSync(join(consumerDir, 'renamed-package'), { recursive: true, force: true });
   });
 
   it('generates a self-contained client.go from the CLI', () => {
     generate(fixture, join(consumerDir, 'client/client.ts'), ['--generator', 'go']);
     expect(existsSync(generatedFile)).toBe(true);
+  });
+
+  it('--go-package sets the package clause', () => {
+    const target = join(consumerDir, 'renamed-package');
+    generate(fixture, join(target, 'client.ts'), ['--generator', 'go', '--go-package', 'rebilly']);
+    expect(readFileSync(join(target, 'client.go'), 'utf-8')).toContain('\npackage rebilly\n');
   });
 
   it.skipIf(!hasGo)(

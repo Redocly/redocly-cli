@@ -112,6 +112,7 @@ Only where the language leaves no choice:
 | Auth credentials     | string or provider function        | string or callable                          | string or callable                      | provider function only (no union types)      |
 | Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name preserved | trailing `_`, wire name preserved       | trailing `_` (`Type_`), `json` tag preserved |
 | File layout          | `single` or `split` (`outputMode`) | one file                                    | one file                                | one file                                     |
+| Namespacing          | ES module — the file path          | module name from the output stem            | namespace from the API title            | `package client`, or `goPackage`             |
 | Runtime location     | embedded or package (`runtime`)    | embedded                                    | embedded                                | embedded                                     |
 
 `argsStyle` shapes TypeScript call sites; each language SDK follows its own idiom instead (keyword arguments, named arguments, a params struct).

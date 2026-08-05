@@ -23,6 +23,7 @@ export type GenerateClientCommandArgv = {
   runtime?: 'inline' | 'package';
   'import-ext'?: 'js' | 'ts';
   'bin-name'?: string;
+  'go-package'?: string;
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
@@ -79,6 +80,7 @@ export async function handleGenerateClient({
     runtime: argv.runtime,
     importExt: argv['import-ext'],
     binName: argv['bin-name'],
+    goPackage: argv['go-package'],
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
     dateType: argv['date-type'],

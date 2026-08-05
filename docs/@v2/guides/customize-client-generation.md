@@ -126,6 +126,7 @@ The package root exports pure helpers over the API model that cover the cross-la
 | `docText(description)`                          | Description text as trimmed lines for any comment syntax.                                                                               |
 | `schemaAtPointer(schema, pointer, model)`       | Resolve an RFC 6901 JSON pointer over a schema, through refs and `allOf` — e.g. a pagination `items` pointer to its element type.       |
 | `paginationRuleFor(op, config)`                 | The pagination rule applying to an operation (per-op config > `x-redoclyPagination` > fitting convention), normalized.                  |
+| `NotSupportedError`                             | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                       |
 
 These helpers plus `Printer` are the ONE way to author a generator, in any output language.
 Nothing in the authoring path depends on the `typescript` package, so a generator also runs in the browser or any other embedded host.

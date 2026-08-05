@@ -59,6 +59,8 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                                             |
 | `schemaAtPointer(schema, pointer, model)`             | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
 | `paginationRuleFor(op, config)`                       | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
+| `NotSupportedError`                                   | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
+| `NotSupportedError`                                   | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
 | `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                                           |
 
 Worked example: the built-in `python` generator

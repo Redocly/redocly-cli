@@ -14,6 +14,7 @@ import {
   headerCoerceType,
   identifierFor,
   isNullable,
+  NotSupportedError,
   paginationRuleFor,
   RESERVED_WORDS,
   schemaAtPointer,
@@ -32,6 +33,20 @@ import type {
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 const GO = RESERVED_WORDS.go;
+
+/**
+ * The package clause the output declares. Rewriting an invalid name would hide the
+ * publisher's typo behind a package their imports don't mention, so this rejects it.
+ */
+function goPackageName(configured: string | undefined): string {
+  if (configured === undefined) return 'client';
+  if (!/^[a-z_][a-z0-9_]*$/.test(configured) || GO.has(configured)) {
+    throw new NotSupportedError(
+      `goPackage "${configured}" is not a valid Go package name: use lowercase letters, digits, and underscores, don't start with a digit, and avoid Go keywords.`
+    );
+  }
+  return configured;
+}
 
 /** An exported Go identifier (PascalCase; keywords can't collide since these start uppercase). */
 function exported(name: string): string {
@@ -906,6 +921,7 @@ function writeGoServers(printer: Printer, model: ApiModel): void {
 export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   const printer = new Printer('\t');
   const dateType = emit.dateType ?? 'string';
+  const packageName = goPackageName(emit.goPackage);
   const paginationRules = new Map<string, NeutralPaginationRule>();
   for (const { op, ident } of goOperationIdents(model)) {
     const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);
@@ -917,7 +933,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
   printer.line(
     '// Regenerate with `redocly generate-client`. Standard library only — zero dependencies.'
   );
-  printer.line('package client');
+  printer.line(`package ${packageName}`);
   printer.blank();
   // One merged import block: the runtime uses every entry; generated code uses a subset.
   printer.block(

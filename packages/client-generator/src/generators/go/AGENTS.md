@@ -15,6 +15,11 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 
 - **Models are structs**: required fields by value, optionals as pointers with
   `,omitempty`; the `json` tag always carries the exact wire name.
+- **Package clause:** `package client` by default, `goPackage` to override — a generated
+  file usually lands in a package the consumer already owns. The value is checked against
+  Go's own rule (lowercase letters, digits, `_`, no leading digit, not a keyword) and an
+  invalid one fails generation: silently rewriting a publisher's package name would be
+  worse than saying no.
 - **Naming:** exported PascalCase via `identifierFor` + an `N` prefix for digit-leading
   names (`3ds` → `N3ds` — an `_`-prefixed field is unexported and invisible to
   `encoding/json`); `+1`/`-1` become `Plus1`/`Minus1`.

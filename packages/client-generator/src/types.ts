@@ -90,6 +90,8 @@ export type GenerateClientOptions = {
   importExt?: 'js' | 'ts';
   /** Command name for the `cli` generator; defaults to the output stem, sanitized. */
   binName?: string;
+  /** Package clause of the `go` generator's output. Defaults to `client`. */
+  goPackage?: string;
   /**
    * Emit `<output stem>.code-samples.yaml` — an OpenAPI Overlay adding per-operation
    * `x-codeSamples` collected from every selected generator that implements `sample()`.

@@ -905,6 +905,12 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
+          'go-package': {
+            description:
+              "Package clause of the `go` generator's output (a valid Go package name). Defaults to `client`.",
+            type: 'string',
+            requiresArg: true,
+          },
           'import-ext': {
             describe:
               "Extension in generated relative imports: 'js' (default) suits tsc and bundlers; 'ts' suits runtimes that resolve specifiers literally, like Node's built-in type stripping (node client.ts).",
