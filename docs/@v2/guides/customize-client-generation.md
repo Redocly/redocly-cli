@@ -64,10 +64,12 @@ See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main
 ## Eject
 
 The fastest path to a customized generator is
-[`redocly eject-generator <name>`](../commands/eject-generator.md): it vendors a built-in language generator (`python`, `go`, `php`) into `./generators/` as an editable file, with a pristine snapshot for [three-way updates](../commands/eject-generator.md#how-it-works) and the `AGENTS.md` authoring guide for your coding agent.
+[`redocly eject-generator <name>`](../commands/eject-generator.md): it vendors any built-in generator into `./generators/` as an editable file you own.
 An ejected-unmodified generator produces byte-identical output, and the path entry takes over the built-in name — regeneration survives every customization.
+[`--update`](../commands/eject-generator.md#updating-an-ejected-generator) merges later built-in versions into your copy.
 
-Eject drops two guides next to the generator: the shared `AGENTS.md` authoring guide (the model shape, the helper library, and the verify loop — edit the generator → `redocly generate-client` → review the client diff; generated files are never hand-edited) and the generator's own `<name>.AGENTS.md` design doc, which your agent treats as the source of truth: state the change there first, then make the code match.
+Eject also writes the generator's design as an agent skill (`.claude/skills/<name>-generator/SKILL.md`) plus the shared authoring skill.
+Your agent treats the design as the source of truth: state the change there first, then make the code match — and never hand-edit generated output, only the generator.
 
 ## Custom generators
 
@@ -76,10 +78,38 @@ For anything else derived from the same description (validators in another libra
 A generator adds artifacts _next to_ the client — it doesn't change the generated client's behavior; for that, use [publisher defaults](#publisher-defaults) or let the consumer compose [middleware](./use-generated-client.md#middleware).
 
 A generator is `{ name, run }` (plus optional compatibility metadata); author it with `defineGenerator` from the package root.
+The output is text, so a generator can emit **any language** — Python models, a Go client, a permissions matrix.
 Emitted file paths must stay inside the `--output` directory — subdirectories are fine, escapes are rejected.
-A generator may declare `contract` (the `GENERATOR_CONTRACT` number exported by `@redocly/client-generator`); when a future CLI changes the model shape incompatibly, the mismatch then fails upfront with the fix path instead of producing wrong output.
-Ejected generators declare it automatically.
-The output is text, so a generator can emit **any language** — Python models, a Go client, a permissions matrix — not just TypeScript.
+
+**Compatibility follows the `@redocly/client-generator` version.**
+The API model and the helper library are the generator contract, and it changes under semver: a breaking change bumps the major version (the minor, while the package is `0.x`).
+Declare the version you authored against with `requiresGenerator: '^1.2.0'`, and an incompatible CLI fails upfront — naming the version it has, the version you need, and the upgrade — instead of feeding your generator a model shape it doesn't expect.
+Ejected generators record it for you.
+
+**A generator can declare its own options** with a JSON Schema, so publishers configure it the way they configure the built-ins:
+
+```js
+export default defineGenerator({
+  name: 'permissions-matrix',
+  options: {
+    type: 'object',
+    properties: { groupBy: { enum: ['tag', 'path'], default: 'tag' } },
+    additionalProperties: false,
+  },
+  run({ model, outputPath, options }) {
+    // `options` is validated against the schema before `run` is called.
+  },
+});
+```
+
+```yaml
+client:
+  generators:
+    - ./tools/permissions-matrix.mjs
+  options:
+    permissions-matrix:
+      groupBy: path
+```
 
 ### Language-neutral helpers
 
@@ -95,18 +125,20 @@ The package root exports pure helpers over the API model that cover the cross-la
 | `Printer`                                       | Indentation-aware text builder — no manual whitespace bookkeeping.                                                                      |
 | `docText(description)`                          | Description text as trimmed lines for any comment syntax.                                                                               |
 | `schemaAtPointer(schema, pointer, model)`       | Resolve an RFC 6901 JSON pointer over a schema, through refs and `allOf` — e.g. a pagination `items` pointer to its element type.       |
-| `paginationRuleFor(op, config)`                 | The pagination rule applying to an operation (per-op config > `x-redocly-pagination` > fitting convention), normalized.                 |
+| `paginationRuleFor(op, config)`                 | The pagination rule applying to an operation (per-op config > `x-redoclyPagination` > fitting convention), normalized.                  |
 
-A generator that imports only these helpers (and not the TypeScript toolkit below) runs without the `typescript` package installed.
+These helpers plus `Printer` are the ONE way to author a generator, in any output language.
+Nothing in the authoring path depends on the `typescript` package, so a generator also runs in the browser or any other embedded host.
 
-For a repo-local, agent-readable version of this guidance, copy the [`AGENTS.md` template](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/eject-assets/AGENTS.md) into your generators directory — it gives any coding agent the contract, the model reference, and this helper table.
+`redocly eject-generator <name>` writes this guidance into your repo as an agent skill, so your coding agent has the contract, the model reference, and this helper table without being told.
 
 ### TypeScript artifacts
 
-For TypeScript output, render types with the text toolkit from `@redocly/client-generator/generate` — `tsType` is the same schema→type renderer the built-in sdk uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
+TypeScript is just another output language: the same package root exports the TypeScript-specific renderers beside the neutral helpers.
+`tsType` is the schema→type renderer the built-in sdk itself uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
 
 ```js
-import { tsType } from '@redocly/client-generator/generate';
+import { tsType } from '@redocly/client-generator';
 
 export default {
   name: 'response-map',
@@ -128,8 +160,8 @@ export default {
 };
 ```
 
-The toolkit exports `tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, and more; the package root exports the model (IR) types and the language-neutral helpers.
-For a trivial artifact, returning a plain string as `content` works too — no toolkit required.
+The package root exports `tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, and `pascalCase` alongside the model (IR) types and the neutral helpers — one import path for everything.
+For a trivial artifact, returning a plain string as `content` works too.
 
 Select a generator in `redocly.yaml` by path or package name:
 

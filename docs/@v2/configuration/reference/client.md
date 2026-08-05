@@ -15,7 +15,7 @@ The input and output are not part of the `client` block:
 
 Each scalar option mirrors the matching CLI flag and shares its default — see the [command options](../../commands/generate-client.md#options) for the full description of each value.
 The `pagination` option is config-only — a structured, durable contract that belongs in versioned configuration rather than a shell string.
-For runs without a configuration file, declare pagination per operation with the `x-redocly-pagination` extension in the description, or pass `pagination` to the programmatic `generateClient(...)`.
+For runs without a configuration file, declare pagination per operation with the `x-redoclyPagination` extension in the description, or pass `pagination` to the programmatic `generateClient(...)`.
 
 | Option           | Type                                    | Description                                                                                                                                                                                                                                         |
 | ---------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -31,6 +31,9 @@ For runs without a configuration file, declare pagination per operation with the
 | `queryKeyPrefix` | string                                  | Leading element for every `tanstack-query` query/mutation key — namespaces the cache when several generated APIs share one QueryClient. Config-only, no flag.                                                                                       |
 | `codeSamples`    | boolean                                 | Emit `<output stem>.code-samples.yaml` — an OpenAPI Overlay adding per-operation `x-codeSamples` collected from every selected generator that implements `sample()`. Config-only, no flag.                                                          |
 | `serverUrl`      | string                                  | Server URL included in the client as its default; falls back to `servers[0].url`.                                                                                                                                                                   |
+| `goPackage`      | string                                  | Package clause for the `go` generator's output. Default `client`.                                                                                                                                                                                   |
+| `binName`        | string                                  | Command name the `cli` generator uses in help output and to derive its credential environment variables. Defaults to the output stem, sanitized.                                                                                                    |
+| `options`        | object                                  | Per-generator options, keyed by generator name — validated against the schema a generator declares. See [Custom generators](../../guides/customize-client-generation.md#custom-generators).                                                         |
 | `setup`          | string                                  | Path to a publisher setup module that gets included in the client — pre-configures defaults such as the server URL, retries, headers, and middleware. See [Publisher defaults](../../guides/customize-client-generation.md#publisher-defaults).     |
 | `pagination`     | [Pagination object](#pagination-object) | Declares how the API paginates, so paginated operations gain typed `.pages()`/`.items()` async iterators.                                                                                                                                           |
 
@@ -49,12 +52,12 @@ See [Pagination in the usage guide](../../guides/use-generated-client.md#paginat
 | `limitParam`  | string                    | Optional page-size query parameter for any style; recorded for tooling — the iterator never sets it.                                                                                                                                                                                                                                     |
 | `items`       | string                    | **REQUIRED**. JSON pointer to the page's item array in the response; use `''` when the response body is the item array itself.                                                                                                                                                                                                           |
 | `exclude`     | [string]                  | operationIds that no source may paginate; wins over overrides, extensions, and the convention.                                                                                                                                                                                                                                           |
-| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the description's `x-redocly-pagination` and the convention.                                                                                                                                                                                              |
+| `operations`  | map of operationId → rule | Per-operation rules taking the same fields as the convention; each entry beats the description's `x-redoclyPagination` and the convention.                                                                                                                                                                                               |
 
 The rules are verified at generate time: the advance parameter must be a declared query parameter of the right type (string for `cursor`, numeric for `offset` and `page`), and the JSON pointers must resolve in the operation's JSON success-response schema, with `items` landing on an array and `hasMore` on a boolean.
 A convention that doesn't fit an operation skips it; an explicit rule that doesn't fit fails generation.
-The `x-redocly-pagination` operation extension in the API description takes the same rule fields.
-Per operation, precedence is `operations[id]`, then `x-redocly-pagination`, then the convention.
+The `x-redoclyPagination` operation extension in the API description takes the same rule fields.
+Per operation, precedence is `operations[id]`, then `x-redoclyPagination`, then the convention.
 
 ## Examples
 

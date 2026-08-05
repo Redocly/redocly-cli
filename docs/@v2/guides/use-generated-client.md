@@ -31,7 +31,7 @@ See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/gener
 
 The `cli` generator emits `<stem>.cli.ts` — a zero-dependency, bin-ready command-line interface over the generated client.
 Path params are positional, query params become typed `--kebab-name` flags (enums list their choices in `--help`, array params repeat the flag), and JSON request bodies arrive via `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
-When `zod` is co-selected, requests are validated before they are sent.
+Requests are validated before they are sent — the `cli` generator brings the validation it needs, so no extra generator has to be selected.
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator cli
@@ -56,32 +56,27 @@ Exit codes are a documented contract, and errors print one JSON object to stderr
 
 To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
 
-### Python SDK
+The CLI can also emit its own reference documentation as Markdown (every command, flag, and exit code) — planned next, and then for the language SDKs too.
 
-The `python` generator emits a self-contained `<stem>.py` next to the configured output — a full Python SDK over [httpx](https://www.python-httpx.org/) (`pip install httpx`, Python ≥ 3.9):
-typed dataclass models (allOf flattened, enums, discriminated unions decoded by their discriminator), a `Client` and an `AsyncClient` with one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware hooks, pagination iterators (`<op>_pages()` / `<op>_items()`, `async for` variants), SSE streaming, multipart bodies, `<op>_with_headers()` envelope variants for operations that declare response headers, and a `Servers` class for templated server URLs.
-`errorMode` maps to raising `ApiError` (default) or returning a `Result` dataclass, and `dateType: Date` yields `datetime`/`date` objects.
-No TypeScript is involved: generating with only `python` selected does not require the `typescript` package.
+### Language SDKs
+
+`python`, `go`, and `php` emit a full SDK for that language — one self-contained file, no dependencies beyond the language's own HTTP support (`httpx` for Python; the standard library for Go; the curl extension for PHP).
+
+**They are the TypeScript client in another language.** Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, pagination iterators, SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
+Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
 
 ```python
-from client import Client
+from openapi_client import Client
 
 client = Client(auth={"bearer": "TOKEN"})
 for order in client.list_orders_items(limit=50):
     print(order)
 ```
 
-### PHP SDK
-
-The `php` generator emits a self-contained `<stem>.php` — a full PHP SDK over the curl extension (zero Composer dependencies, PHP ≥ 8.1):
-promoted-constructor classes with `fromArray`/`toArray` hydration (allOf flattened, native backed enums, `match`-based discriminated-union dispatchers), a `Client` with one typed method per operation (optional query params as nullable named arguments), auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware callables, pagination generators (`<op>Pages()` / `<op>Items()`), SSE streaming, multipart bodies, binary downloads (non-JSON success bodies return the raw `string`), `<op>WithHeaders()` envelope variants for operations that declare response headers, and a `Servers` class for templated server URLs.
-Exceptions are the error mode (`ApiError` / `TimeoutError`); `errorMode` does not change the output.
-The namespace derives from the API title (for example `CafeOrdersApi`).
-
 ```php
 require 'client.php';
 
-use CafeOrdersApi\{Client, Config};
+use CafeOrders\{Client, Config};
 
 $client = new Client(new Config(auth: ['bearer' => 'TOKEN']));
 foreach ($client->listOrdersItems(limit: 50) as $order) {
@@ -89,16 +84,8 @@ foreach ($client->listOrdersItems(limit: 50) as $order) {
 }
 ```
 
-### Go SDK
-
-The `go` generator emits a self-contained `<stem>.go` — a full Go SDK over the standard library (zero dependencies, Go ≥ 1.21):
-structs with `json` tags (allOf flattened, typed-const enums, discriminated-union unmarshal dispatchers), a `Client` with one `(T, error)` method per operation taking a `context.Context`, auth, retries with `Retry-After` and jittered backoff, per-attempt timeouts, idempotency keys, middleware hooks, pagination iterators (`<Op>Pages` / `<Op>Items`, `range`-over-func style), SSE streaming, multipart bodies, `<Op>WithHeaders` envelope variants (a typed headers struct) for operations that declare response headers, and `<Name>URL` helpers for templated server URLs.
-Go's `(T, error)` returns are the error mode; `errorMode` does not change the output.
-The iterators are `func(yield func(T, error) bool)` values: `for … range` over them needs Go ≥ 1.23; on 1.21–1.22 call them with a callback instead.
-
 ```go
 api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return "TOKEN" }}})
-order, err := api.GetOrder(ctx, "ord_123")
 
 for order, err := range api.ListOrdersItems(ctx, nil) {
     if err != nil {
@@ -107,6 +94,85 @@ for order, err := range api.ListOrdersItems(ctx, nil) {
     fmt.Println(order.Id)
 }
 ```
+
+#### Where the languages genuinely differ
+
+Only where the language leaves no choice:
+
+| Topic                | TypeScript                         | Python                                      | PHP                                     | Go                                           |
+| -------------------- | ---------------------------------- | ------------------------------------------- | --------------------------------------- | -------------------------------------------- |
+| Error handling       | `throw` or `result` (`errorMode`)  | `throw` or `result` (`errorMode`)           | exceptions — the language's error idiom | `(T, error)` — the language's error idiom    |
+| Dates (`Date` mode)  | `Date`                             | `datetime` / `date`                         | `\DateTimeImmutable`                    | `time.Time` / `Date`                         |
+| Response headers     | `{ envelope: true }` per call      | `<op>_with_headers()`                       | `<op>WithHeaders()`                     | `<Op>WithHeaders`                            |
+| Auth credentials     | string or provider function        | string or callable                          | string or callable                      | provider function only (no union types)      |
+| Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name preserved | trailing `_`, wire name preserved       | trailing `_` (`Type_`), `json` tag preserved |
+| File layout          | `single` or `split` (`outputMode`) | one file                                    | one file                                | one file                                     |
+| Runtime location     | embedded or package (`runtime`)    | embedded                                    | embedded                                | embedded                                     |
+
+`argsStyle` shapes TypeScript call sites; each language SDK follows its own idiom instead (keyword arguments, named arguments, a params struct).
+Setting an option a language can't apply prints a warning naming the option and the reason, so it never disappears silently.
+
+#### Auth, middleware, and reserved names by language
+
+Auth accepts a static credential or a provider resolved per request:
+
+```python
+client = Client(auth={"bearer": "TOKEN"})
+client = Client(auth={"bearer": lambda: fresh_token()})
+client = Client(auth={"apiKey": {"SecretApiKey": "KEY"}})   # "api_key" also accepted
+```
+
+```php
+$client = new Client(new Config(auth: ['bearer' => 'TOKEN']));
+$client = new Client(new Config(auth: ['bearer' => fn () => freshToken()]));
+$client = new Client(new Config(auth: ['apiKey' => ['SecretApiKey' => 'KEY']]));
+```
+
+```go
+// Go has no union types, so a credential is always a function — even a static one.
+api := client.New(client.Config{Auth: client.Auth{
+    Bearer: func() string { return "TOKEN" },
+    APIKey: map[string]func() string{"SecretApiKey": func() string { return "KEY" }},
+}})
+```
+
+Middleware is the language's natural shape, and is **not** PSR-15/PSR-18 or an HTTPX event hook — it is this contract:
+
+```php
+// PHP: an onion. Each callable receives the request array and the next link.
+// Request keys: operationId, method, url, headers, query, and optionally body,
+// contentType, idempotencyKey. The response array carries status, headers, body,
+// url, timedOut.
+$log = function (array $request, callable $next) use ($logger): array {
+    $logger->info('request', ['op' => $request['operationId'], 'url' => $request['url']]);
+    $response = $next($request);
+    $logger->info('response', ['status' => $response['status']]);
+    return $response;
+};
+$client = new Client(new Config(middleware: [$log]));
+```
+
+```python
+# Python: hooks. on_request sees the request context; on_response may return a
+# replacement response.
+import logging
+
+def log_request(context):
+    logging.info("%s %s", context["method"], context["url"])
+
+client = Client(middleware=[{"on_request": log_request}])
+```
+
+```go
+// Go: hooks on the real *http.Request / *http.Response.
+api := client.New(client.Config{Middleware: []client.Middleware{{
+    OnRequest:  func(r *http.Request) { log.Println(r.Method, r.URL) },
+    OnResponse: func(r *http.Response) { log.Println(r.Status) },
+}}})
+```
+
+A property or parameter whose name is a reserved word gets a trailing underscore, while the wire name is preserved — `tag.type_` in Python, `$tag->type_` in PHP, `tag.Type_` in Go, all serializing as `type`.
+The same applies to method arguments: `list_tags(type_=...)`, `ListTagsParams{Type_: ...}`.
 
 ## Package runtime
 
@@ -467,8 +533,8 @@ SSE always throws `ApiError` on a non-2xx initial response, regardless of `--err
 
 ## Pagination
 
-Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-redocly-pagination` extension in the description.
-The rule fields, the generate-time verification, and the precedence between the convention, `x-redocly-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
+Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-redoclyPagination` extension in the description.
+The rule fields, the generate-time verification, and the precedence between the convention, `x-redoclyPagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
 Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
 
 Four styles are supported:
