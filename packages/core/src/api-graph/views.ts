@@ -1,6 +1,11 @@
 import type { SpecVersion } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
-import type { ApiAnalysis, CollectedComponent, CollectedOperation } from './build-graph.js';
+import {
+  collectReversePathsTo,
+  type ApiAnalysis,
+  type CollectedComponent,
+  type CollectedOperation,
+} from './build-graph.js';
 import {
   COMPONENT_SECTIONS,
   buildApiIndex,
@@ -338,4 +343,34 @@ export function buildComponentCard(
     analysis,
     options
   );
+}
+
+export type UsedByReport = {
+  target: UsedByEntry;
+  affectedOperations: (UsedByEntry & { via: string[] })[];
+  affectedComponents: (UsedByEntry & { via: string[] })[];
+};
+
+export function buildUsedByReport(
+  analysis: ApiAnalysis,
+  targetId: string,
+  cwd: string
+): UsedByReport {
+  const chains = collectReversePathsTo(targetId, analysis.graph.edges);
+  const affectedOperations: (UsedByEntry & { via: string[] })[] = [];
+  const affectedComponents: (UsedByEntry & { via: string[] })[] = [];
+
+  for (const [nodeId, via] of chains) {
+    const entry = { ...toUsedByEntry(analysis, nodeId, cwd), via };
+    if (entry.method !== undefined) {
+      affectedOperations.push(entry);
+    } else if (entry.component !== undefined) {
+      affectedComponents.push(entry);
+    }
+    // Path spine, file, and root nodes are structural — the report lists actionable nodes only.
+  }
+
+  affectedOperations.sort((left, right) => left.id.localeCompare(right.id));
+  affectedComponents.sort((left, right) => left.id.localeCompare(right.id));
+  return { target: toUsedByEntry(analysis, targetId, cwd), affectedOperations, affectedComponents };
 }

@@ -98,6 +98,23 @@ describe('views: overview and listings', () => {
   });
 });
 
+describe('views: used-by report', () => {
+  it('lists affected operations with target-first via chains', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+    const { buildUsedByReport } = await import('../views.js');
+    const report = buildUsedByReport(analysis, 'schemas/Ticket', cwd);
+
+    expect(report.target.id).toBe('schemas/Ticket');
+    const post = report.affectedOperations.find((entry) => entry.id === 'POST /tickets');
+    expect(post).toBeDefined();
+    expect(post!.via[0]).toBe('schemas/Ticket');
+    expect(post!.via[post!.via.length - 1]).toBe('POST /tickets');
+    for (const entry of report.affectedComponents) {
+      expect(entry.component).toBeDefined();
+    }
+  });
+});
+
 describe('views: cards', () => {
   it('builds an operation card with typed refs and no content by default', async () => {
     const { analysis, specVersion, cwd } = await analysisOfFixture(

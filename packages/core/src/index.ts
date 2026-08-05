@@ -140,6 +140,7 @@ export type { DependencyGraph, GraphEdge, GraphNode, NodeKind } from './api-grap
 export {
   analyzeApi,
   collectConnectedIds,
+  collectReversePathsTo,
   type ApiAnalysis,
   type ApiIndexMeta,
   type CollectedComponent,
@@ -163,6 +164,39 @@ export {
   type ApiNodeRef,
   type LocatedIndexNode,
 } from './api-graph/slice.js';
+export {
+  findComponent,
+  findOperationByOperationId,
+  findOperationByPathMethod,
+  findWebhookOperation,
+  HTTP_METHODS,
+  listOperations,
+  normalizeComponentSection,
+  suggestNames,
+} from './api-graph/select.js';
+export {
+  buildComponentCard,
+  buildComponentListing,
+  buildOperationCard,
+  buildOperationListing,
+  buildOverview,
+  buildPathListing,
+  buildUsedBy,
+  buildUsedByReport,
+  toOperationListItem,
+} from './api-graph/views.js';
+export type {
+  ApiOverview,
+  ComponentCard,
+  ComponentListItem,
+  FileRange,
+  OperationCard,
+  OperationListItem,
+  PathListItem,
+  TypedRef,
+  UsedByEntry,
+  UsedByReport,
+} from './api-graph/views.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
