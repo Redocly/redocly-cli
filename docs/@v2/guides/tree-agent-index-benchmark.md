@@ -39,35 +39,41 @@ Searching the file by text instead is unreliable: it does not reveal the structu
 ## Why the index has to be hierarchical
 
 The command surface has no command that dumps the whole structure — tags, operations, and components — in one call.
-The closest thing is `--operations`, the flattest listing available, which returns every operation in the description at once:
+The closest thing is `--operations`, the flattest listing available, which returns every operation in the description at once; each entry is card-shaped — coordinates plus its typed one-hop `refs` and `usedBy` — not just a coordinate line, so this costs far more than the operation count alone suggests:
 
 | Input                                                         |      Tokens | Operations |
 | ------------------------------------------------------------- | ----------: | ---------: |
-| `redocly tree api.github.com.yaml --operations --format=json` | **151,397** |      1,216 |
+| `redocly tree api.github.com.yaml --operations --format=json` | **771,279** |      1,216 |
 
-That fits inside a 200,000-token window, but only barely — three-quarters of it — and it still leaves the agent with 1,216 operations to read through, plus none of the description's 1,766 components: there is no flat listing for those at all, since `--component` always scopes to one section, and `--with-deps` resolves one component's closure at a time.
-Walking the hierarchy instead — one tag, then one operation — costs 46,301 tokens end to end (+85 instruction, measured below), less than a third of the flat listing, and leaves nearly all of the window free for the rest of the task.
-The selector flags (`--tag`, `--path`, `--operation`, `--component`) are what make that possible: the agent never asks for more than one branch at a time, so the hierarchy — enforced by the commands themselves, not by a size warning — is what keeps every step bounded.
+That no longer fits inside a 200,000-token window at all — it needs four of them — and it still leaves the agent with 1,216 operations to read through, plus none of the description's 1,766 components: there is no flat listing for those at all, since `--component` always scopes to one section, and `--with-deps` resolves one component's closure at a time.
+The largest single section makes the same point on its own — `--component=schemas --format=json` returns the description's 967 schemas, card-shaped the same way, for **625,136** tokens, over three windows by itself:
+
+| Input                                                                |      Tokens | Components |
+| -------------------------------------------------------------------- | ----------: | ---------: |
+| `redocly tree api.github.com.yaml --component=schemas --format=json` | **625,136** |        967 |
+
+Walking the hierarchy instead — the map, one tag, then one operation — costs 149,667 tokens end to end (+85 instruction, measured below): under a fifth of the flat operations listing, under a quarter of the schemas listing, and still leaves a quarter of the window free for the rest of the task.
+The selector flags (`--tag`, `--path`, `--operation`, `--component`) are what make that possible: the agent never asks for more than one branch at a time, so the hierarchy — enforced by the commands themselves, not by a size warning — is what keeps every step bounded, even though each step now carries more than bare coordinates.
 
 ## With the index
 
 The agent walks the hierarchy in bounded steps, paying only for the path it chooses:
 
-| Step                                             | Command                                                                                          | Output size |     Tokens |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ----------: | ---------: |
-| 1. Map the spec — 47 tags                        | `redocly tree api.github.com.yaml --format=json`                                                 |      6.9 KB |      1,782 |
-| 2. Open the branch it picked — 203 operations    | `redocly tree api.github.com.yaml --tag=repos --format=json`                                     |     79.3 KB |     24,964 |
-| 3. Fetch the target with its full `$ref` closure | `redocly tree api.github.com.yaml --path=/user/repos --operation=post --with-deps --format=json` |     83.3 KB |     19,555 |
-| **Total**                                        |                                                                                                  |             | **46,301** |
+| Step                                             | Command                                                                                          | Output size |      Tokens |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ----------: | ----------: |
+| 1. Map the spec — 47 tags                        | `redocly tree api.github.com.yaml --format=json`                                                 |      6.7 KB |       1,777 |
+| 2. Open the branch it picked — 203 operations    | `redocly tree api.github.com.yaml --tag=repos --format=json`                                     |    484.6 KB |     128,288 |
+| 3. Fetch the target with its full `$ref` closure | `redocly tree api.github.com.yaml --path=/user/repos --operation=post --with-deps --format=json` |     82.9 KB |      19,517 |
+| **Total**                                        |                                                                                                  |             | **149,582** |
 
 Step 3 returns a _self-contained_ slice: the operation's raw source (8.1 KB) plus the 14 components it transitively references — the `full-repository` schema, six documented error responses, the response example, and the schemas underneath them — in dependency order, filling 62.9 KB of the 64 KB closure cap.
 One more schema (`schemas/nullable-simple-user`, reached through `full-repository`) would have pushed the closure past the cap, so the envelope comes back with `truncated: true`: that schema stays one selector call away.
 
-The most expensive step is not the largest file, it is the largest branch: `repos` is GitHub's biggest tag, and listing its 203 operations costs more tokens than fetching the target operation and its entire dependency closure combined.
+The most expensive step is not the largest file, it is the largest branch: `repos` is GitHub's biggest tag, and listing its 203 operations costs over six times more tokens than fetching the target operation and its entire dependency closure combined — because every one of those 203 entries now carries its own one-hop `refs` and `usedBy`, not just a coordinate line.
 
 ## What the agent actually sees
 
-Step 1 is small enough to show nearly in full — this is most of the map of a 10.0 MB API in 1,782 tokens (some of the 47 tags are dropped here for length, marked below; none of the shown values are edited):
+Step 1 is small enough to show nearly in full — this is most of the map of a 10.0 MB API in 1,777 tokens (some of the 47 tags are dropped here for length, marked below; none of the shown values are edited):
 
 ```json
 {
@@ -109,7 +115,7 @@ Step 1 is small enough to show nearly in full — this is most of the map of a 1
     { "name": "search", "summary": "Search for specific items on GitHub.", "operations": 7 }
   ],
   "operations": 1216,
-  "webhooks": 0,
+  "webhooks": [],
   "components": [
     { "section": "schemas", "count": 967 },
     { "section": "responses", "count": 49 },
@@ -120,8 +126,9 @@ Step 1 is small enough to show nearly in full — this is most of the map of a 1
 }
 ```
 
-Step 2 opens the `repos` branch and returns its operations as a flat list, one entry per operation, each with the summary the agent reasons over and the exact lines it can read directly.
-The real output has 203 such entries; this is the one the agent needs next:
+Step 2 opens the `repos` branch and returns its operations as a flat list, one entry per operation.
+Each entry is card-shaped: the summary, description, and exact lines the agent could read directly, plus its own typed one-hop `refs` and `usedBy` — the same fields a single operation card carries, so the agent often has what it needs without a third call.
+That per-entry `refs`/`usedBy` is also why this step now costs what it does: the real output has 203 such entries; this is the one the agent needs next:
 
 ```json
 {
@@ -133,9 +140,36 @@ The real output has 203 such entries; this is the one the agent needs next:
   "pointer": "#/paths/~1user~1repos/post",
   "file": "api.github.com.yaml",
   "start_line": 62540,
-  "end_line": 62746
+  "end_line": 62746,
+  "description": "Creates a new repository for the authenticated user. OAuth app tokens and personal access tokens (classic) need the `public_repo` or `repo` scope to create a…",
+  "refs": [
+    {
+      "ref": "#/components/examples/full-repository",
+      "resolved": true,
+      "file": "api.github.com.yaml",
+      "pointer": "#/components/examples/full-repository",
+      "start_line": 239500,
+      "end_line": 239995,
+      "component": "examples",
+      "name": "full-repository"
+    },
+    {
+      "ref": "#/components/responses/bad_request",
+      "resolved": true,
+      "file": "api.github.com.yaml",
+      "pointer": "#/components/responses/bad_request",
+      "start_line": 260773,
+      "end_line": 260780,
+      "component": "responses",
+      "name": "bad_request"
+    },
+    "… 6 more one-hop refs …"
+  ],
+  "usedBy": []
 }
 ```
+
+This entry's `refs` are the same eight one-hop references step 3 resolves into a full closure below; a listing entry stops at one hop and coordinates, a card (or `--with-deps`) goes deeper.
 
 Step 3 returns the operation card: raw source lines, the `$ref`s found inside them resolved to real locations, and the transitive closure under `deps`:
 
@@ -231,7 +265,7 @@ Step 3 returns the operation card: raw source lines, the `$ref`s found inside th
 The `content` values above are elided (`…`); the real output carries the actual raw source lines for the operation and for every dependency.
 The 14 ids returned in the closure: `examples/full-repository`, `responses/bad_request`, `responses/forbidden`, `responses/not_found`, `responses/not_modified`, `responses/requires_authentication`, `responses/validation_failed`, `schemas/full-repository`, `schemas/basic-error`, `schemas/scim-error`, `schemas/validation-error`, `schemas/code-of-conduct-simple`, `schemas/nullable-license-simple`, and `schemas/nullable-repository`.
 
-`--format=stylish` (the default) doesn't render `--with-deps` content at all — use `--format=json` to retrieve the source and the dependency closure.
+`--format=stylish` (the default) renders the same content and dependency closure as a tree instead of raw JSON — an agent working from `--format=json` still wants the machine shape shown above, since that is what its own instruction and reasoning loop expect.
 
 ## The same task on a split (multi-file) layout
 
@@ -239,12 +273,12 @@ The same description was run through [`redocly split`](../commands/split.md), pr
 
 | Step                                                 | Single file | Split (2,842 files) |
 | ---------------------------------------------------- | ----------: | ------------------: |
-| 1. `--format=json`                                   |       1,782 |               1,687 |
-| 2. `--tag=repos`                                     |      24,964 |              21,658 |
-| 3. `--path=/user/repos --operation=post --with-deps` |      19,555 |              19,146 |
-| **Chain total**                                      |  **46,301** |          **42,491** |
+| 1. `--format=json`                                   |       1,777 |               1,685 |
+| 2. `--tag=repos`                                     |     128,288 |             119,045 |
+| 3. `--path=/user/repos --operation=post --with-deps` |      19,517 |              19,146 |
+| **Chain total**                                      | **149,582** |         **139,876** |
 
-The split chain is cheaper, because pointers inside small files are short.
+The split chain is still cheaper, because pointers inside small files are short — but the gap is proportionally smaller than it used to be: the dominant cost in step 2 is now each entry's `refs`/`usedBy`, and those don't shrink with pointer length the way the old coordinate-only entries did.
 Both layouts list the same 203 operations under `repos`, and operation ids are identical (`POST /user/repos`), so the same agent instructions work unchanged.
 The selector also resolves the same way in both layouts: `--path=/user/repos --operation=post` and the operationId form `--operation=repos/create-for-authenticated-user` return byte-identical cards on the split description, with no fallback needed — operation addressing does not depend on a root registry.
 
@@ -256,19 +290,19 @@ Either way the closure is retrieved by one command: here it pulled 15 components
 
 ## The difference
 
-|                                 |                   Tokens |                                                                          vs. whole file |
-| ------------------------------- | -----------------------: | --------------------------------------------------------------------------------------: |
-| Whole file                      |                1,946,549 |                                                                        — (does not fit) |
-| Flat `--operations` listing     |                  151,397 | **~13× less** (fits, barely — three-quarters of a 200k window, and still no components) |
-| Index chain                     | 46,301 (+85 instruction) |                                                                           **~42× less** |
-| Index chain on the split layout | 42,491 (+85 instruction) |                                                                           **~46× less** |
+|                                 |                    Tokens |                                                                                  vs. whole file |
+| ------------------------------- | ------------------------: | ----------------------------------------------------------------------------------------------: |
+| Whole file                      |                 1,946,549 |                                                                                — (does not fit) |
+| Flat `--operations` listing     |                   771,279 | **~2.5× less** (doesn't fit a 200k window either — needs four of them, and still no components) |
+| Index chain                     | 149,582 (+85 instruction) |                                                                                   **~13× less** |
+| Index chain on the split layout | 139,876 (+85 instruction) |                                                                                   **~14× less** |
 
 The ratio matters less than the shape of the curve.
-The chain's cost is bounded by the _largest branch_ and the _deepest single closure_, not by the size of the description: on a 1.3 MB description the same three steps cost 12,000 to 25,000 tokens, and on this 10.0 MB one they cost about 46,000.
-The description is 7.6 times larger; the chain cost roughly doubled.
+The chain's cost is bounded by the _largest branch_ and the _deepest single closure_, not by the size of the description, or even by how it's stored: the whole-file and split layouts above describe the exact same API, one as a single 10.0 MB file and the other as 2,842 small ones, and their chains land within 7% of each other (149,667 vs 139,961 tokens including the instruction) — because both walk the same `repos` branch and resolve the same closure, just from files of different shapes.
 
 For descriptions that fit the context window, the index saves tokens.
-Past the window size, it is the difference between an impossible task and a routine one — here the agent solves a task against a two-million-token API while using less than a quarter of a 200,000-token window, with the rest left for the work itself.
+Past the window size, it is the difference between an impossible task and a routine one — here the agent solves a task against a two-million-token API while using about three-quarters of a 200,000-token window, with a quarter left for the work itself.
+That is a smaller margin than the index used to leave: card-shaped listings buy the agent one-hop `refs`/`usedBy` on every entry without a second call, at the cost of a bigger single step whenever the branch it opens is a large one.
 
 ## Methodology notes
 
@@ -279,5 +313,6 @@ Past the window size, it is the difference between an impossible task and a rout
   The version field is unchanged since the previous measurement of this guide, but the file itself grew by 182,579 bytes (1.9%) over the same window, since `main` moves independently of the version field.
 - The agent chooses which nodes to open; the command syntax comes from the 85-token instruction counted separately above.
 - Each command invocation analyzes the description again.
-  The overview and tag steps took 2-4 seconds each for this 10.0 MB file; the `--operations` listing took about 8 seconds; a `--with-deps` card, which walks the full `$ref` graph to build the dependency closure regardless of how small the output is, took about 47 seconds.
+  The overview step took about 3 seconds for this 10.0 MB file; a `--with-deps` card, which walks the full `$ref` graph to build the dependency closure regardless of how small the output is, took about 47 seconds.
+  The `--tag=repos` step now took about 37 seconds, not the few seconds a coordinate-only listing used to take, because building every entry's `refs`/`usedBy` re-walks the graph 203 times over; the full `--operations` listing (1,216 entries) took about 3.5 minutes, and `--component=schemas` (967 entries) about 1.5 minutes, for the same reason.
   A long-running process that keeps the analysis in memory would pay that cost once per session instead of once per step.
