@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.44.2 (2026-08-05)
+
+### Patch Changes
+
+- Changed the severity of the `security-defined` rule for AsyncAPI 2.x and 3.x in the `recommended` ruleset from `error` to `warn`.
+  AsyncAPI descriptions with undefined or unresolved security no longer fail linting by default.
+- Updated @redocly/openapi-core to v2.44.2.
+
 ## 2.44.1 (2026-08-04)
 
 ### Patch Changes

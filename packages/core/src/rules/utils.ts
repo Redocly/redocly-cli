@@ -3,7 +3,7 @@ import { default as levenshtein } from 'js-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
 import type { ResolvedRefChainHop } from '../resolve.js';
-import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi.js';
+import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi2.js';
 import type { Async3Operation, Async3OperationTrait } from '../typings/asyncapi3.js';
 import type {
   Oas3Example,
