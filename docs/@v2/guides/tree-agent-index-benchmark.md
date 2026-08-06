@@ -42,25 +42,25 @@ At this size, a flat index does not solve the problem either:
 | `redocly tree api.github.com.yaml --format=json` | **306,494** | 3,038 |
 
 The complete index of every tag, operation, and component is itself larger than the context window.
-This is what the `--level` and `--node` options are for: the agent never asks for the whole index, only for one level or one branch at a time.
+This is what the selector flags (`--tag`, `--path`, `--operation`, `--component`) are for: the agent never asks for the whole index, only for one tag, path, or component at a time.
 On this description the hierarchy is not an optimization — it is the only way an agent can work with the file at all.
 
 ## With the index
 
 The agent walks the hierarchy in bounded steps, paying only for the path it chooses:
 
-| Step                                             | Command                                                                  | Output size |     Tokens |
-| ------------------------------------------------ | ------------------------------------------------------------------------ | ----------: | ---------: |
-| 1. Map the spec — 4 sections, 47 tags            | `redocly tree api.github.com.yaml --format=json --level 2`               |     14.6 KB |      3,647 |
-| 2. Open the branch it picked — 203 operations    | `redocly tree api.github.com.yaml --node repos`                          |    101.0 KB |     27,017 |
-| 3. Fetch the target with its full `$ref` closure | `redocly tree api.github.com.yaml --node 'POST /user/repos' --with-deps` |     80.4 KB |     18,946 |
-| **Total**                                        |                                                                          |             | **49,610** |
+| Step                                             | Command                                                                            | Output size |     Tokens |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------- | ----------: | ---------: |
+| 1. Map the spec — 4 sections, 47 tags            | `redocly tree api.github.com.yaml --format=json`                                   |     14.6 KB |      3,647 |
+| 2. Open the branch it picked — 203 operations    | `redocly tree api.github.com.yaml --tag=repos`                                     |    101.0 KB |     27,017 |
+| 3. Fetch the target with its full `$ref` closure | `redocly tree api.github.com.yaml --path=/user/repos --operation=post --with-deps` |     80.4 KB |     18,946 |
+| **Total**                                        |                                                                                    |             | **49,610** |
 
 Step 3 returns a _self-contained_ slice: the operation's raw source lines (8.3 KB) plus the 14 components it transitively references — the `full-repository` schema and everything under it, the seven shared error responses, the response example — in dependency order.
-That fills 63.6 KB of the 64 KB closure cap, so the response stays bounded no matter how deep the schema graph goes; anything beyond the cap stays one `--node` call away.
+That fills 63.6 KB of the 64 KB closure cap, so the response stays bounded no matter how deep the schema graph goes; anything beyond the cap stays one selector call away.
 
 The most expensive step is not the largest file, it is the largest branch: `repos` is GitHub's biggest tag, and listing its 203 operations costs more than the operation and all its schemas combined.
-An agent that already knows the tag can start from `--level 1` (286 tokens) and skip straight to it.
+An agent that already knows the tag can start from the top-level sections alone (286 tokens) and skip straight to it.
 
 ## What the agent actually sees
 
@@ -172,12 +172,12 @@ The 14 ids returned in the closure: `schemas/full-repository`, `schemas/nullable
 
 The same description was run through [`redocly split`](../commands/split.md), producing **2,842 files**, and the identical chain was repeated against `openapi.yaml` in that directory:
 
-| Step                                       | Single file | Split (2,842 files) |
-| ------------------------------------------ | ----------: | ------------------: |
-| 1. `--format=json --level 2`               |       3,647 |               3,436 |
-| 2. `--node repos`                          |      27,017 |              23,709 |
-| 3. `--node 'POST /user/repos' --with-deps` |      18,946 |              18,807 |
-| **Chain total**                            |  **49,610** |          **45,952** |
+| Step                                                 | Single file | Split (2,842 files) |
+| ---------------------------------------------------- | ----------: | ------------------: |
+| 1. `--format=json`                                   |       3,647 |               3,436 |
+| 2. `--tag=repos`                                     |      27,017 |              23,709 |
+| 3. `--path=/user/repos --operation=post --with-deps` |      18,946 |              18,807 |
+| **Chain total**                                      |  **49,610** |          **45,952** |
 
 The split chain is slightly cheaper, because pointers inside small files are short.
 Both layouts list the same 203 operations under `repos`, and operation ids are identical (`POST /user/repos`), so the same agent instructions work unchanged.
