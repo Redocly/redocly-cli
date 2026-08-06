@@ -52,7 +52,7 @@ client:
 An ejected-unmodified generator produces byte-identical output to the built-in.
 To roll back, delete the file and the config line.
 
-## Updating an ejected generator
+## Update an ejected generator
 
 `redocly eject-generator <name> --update` merges the version shipped by your installed `@redocly/client-generator` into your copy.
 The three-way merge uses the version recorded in the ejected file's header as the common ancestor, so nothing extra needs to be committed and there is no snapshot to keep in sync.
