@@ -140,12 +140,22 @@ yargs(hideBin(process.argv))
             type: 'string' as const,
             requiresArg: true,
           },
+          file: {
+            description:
+              'Show everything one file defines. Combine with --used-by, or with --files to filter the file graph.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
           paths: {
             description: 'List every path with its methods.',
             type: 'boolean' as const,
           },
           operations: {
             description: 'List every operation.',
+            type: 'boolean' as const,
+          },
+          webhooks: {
+            description: 'List every webhook operation.',
             type: 'boolean' as const,
           },
           'used-by': {
@@ -170,6 +180,7 @@ yargs(hideBin(process.argv))
         })
         .conflicts('paths', [
           'operations',
+          'webhooks',
           'tag',
           'path',
           'webhook',
@@ -179,15 +190,36 @@ yargs(hideBin(process.argv))
           'used-by',
           'with-deps',
         ])
-        .conflicts('operations', ['tag', 'path', 'webhook', 'operation', 'component', 'name'])
+        .conflicts('operations', [
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'component',
+          'name',
+          'webhooks',
+        ])
         .conflicts('component', ['tag', 'path', 'webhook', 'operation'])
-        .conflicts('webhook', ['path', 'tag'])
+        .conflicts('webhook', ['path', 'tag', 'webhooks'])
+        .conflicts('webhooks', ['tag', 'path', 'operation', 'component', 'name'])
         .conflicts('path', ['tag'])
         .conflicts('tag', ['operation'])
         .conflicts('used-by', ['with-deps'])
+        .conflicts('file', [
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'component',
+          'name',
+          'paths',
+          'operations',
+          'webhooks',
+        ])
         .conflicts('files', [
           'paths',
           'operations',
+          'webhooks',
           'tag',
           'path',
           'webhook',

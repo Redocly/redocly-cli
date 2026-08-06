@@ -17,6 +17,10 @@ const FIXTURE_WEBHOOKS = join(
   __dirname,
   '../../../../../core/src/api-graph/__tests__/fixtures/webhooks'
 );
+const FIXTURE_MULTI_WEBHOOKS = join(
+  __dirname,
+  '../../../../../core/src/api-graph/__tests__/fixtures/multi-webhooks'
+);
 
 async function analysisOfFixture(fixtureRoot: string) {
   const resolver = new BaseResolver();
@@ -57,6 +61,55 @@ describe('resolveTreeView', () => {
     });
     expect(route({ component: 'schema', name: 'Ticket' }).kind).toBe('component-card');
     expect(route({ component: 'schemas', name: 'Ticket', 'used-by': true }).kind).toBe('used-by');
+    expect(route({ file: 'components/schemas/Ticket.yaml' })).toMatchObject({
+      kind: 'file-card',
+      card: { file: 'components/schemas/Ticket.yaml' },
+    });
+    expect(route({ file: 'components/schemas/Ticket.yaml', 'used-by': true }).kind).toBe('used-by');
+  });
+
+  it('lists every webhook operation with --webhooks, same shape as --operations', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_MULTI_WEBHOOKS);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ webhooks: true })).toMatchObject({
+      kind: 'operations',
+      items: [
+        { method: 'post', webhook: 'zLast' },
+        { method: 'get', webhook: 'aFirst' },
+        { method: 'post', webhook: 'aFirst' },
+      ],
+    });
+  });
+
+  it('resolves --file to a file card listing everything the file defines', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ file: 'paths/tickets.yaml' })).toMatchObject({
+      kind: 'file-card',
+      card: {
+        file: 'paths/tickets.yaml',
+        defines: [
+          { method: 'get', path: '/tickets' },
+          { method: 'post', path: '/tickets' },
+        ],
+      },
+    });
+  });
+
+  it('resolves --file relative to the API root dir first, falling back to cwd-relative', async () => {
+    const { analysis, specVersion } = await analysisOfFixture(FIXTURE);
+    // FIXTURE's own directory is the API root; its parent is a cwd the file also happens to be
+    // reachable from, but only via a cwd-relative path (prefixed with the fixture's own dir name).
+    const parentCwd = dirname(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, parentCwd);
+
+    expect(route({ file: 'components/schemas/Ticket.yaml' }).kind).toBe('file-card');
+    expect(route({ file: 'split/components/schemas/Ticket.yaml' }).kind).toBe('file-card');
   });
 
   it('rejects bad selections with actionable messages', async () => {
@@ -79,6 +132,17 @@ describe('resolveTreeView', () => {
     ).toThrow(/--used-by and --with-deps cannot be combined/);
     expect(route({ tag: 'Tickets', operation: 'buyTickets' })).toThrow(
       /combining it with --tag is ambiguous/
+    );
+    expect(route({ file: 'components/schemas/Ticket.yaml', 'with-deps': true })).toThrow(
+      /--with-deps requires an operation or component selection/
+    );
+    expect(route({ file: 'components/schemas/Ticket' })).toThrow(
+      /No file "components\/schemas\/Ticket"/
+    );
+    expect(route({ file: 'components/schemas/Ticket' })).toThrow(/Did you mean.*Ticket\.yaml/);
+    expect(route({ webhooks: true, tag: 'Tickets' })).toThrow(/--webhooks .*cannot be combined/);
+    expect(route({ webhooks: true, component: 'schemas' })).toThrow(
+      /--webhooks .*cannot be combined/
     );
   });
 

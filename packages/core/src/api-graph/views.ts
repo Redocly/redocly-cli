@@ -312,7 +312,7 @@ export function buildComponentListCard(
 
 export function buildOperationListing(
   analysis: ApiAnalysis,
-  options: { cwd: string; tag?: string; path?: string; webhook?: string }
+  options: { cwd: string; tag?: string; path?: string; webhook?: string; allWebhooks?: boolean }
 ): OperationListCard[] {
   const { cwd, ...scope } = options;
   return listOperations(analysis.meta, scope).map((operation) =>

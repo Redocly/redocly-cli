@@ -66,6 +66,16 @@ describe('select', () => {
     expect(listOperations(meta, { tag: 'nope' })).toEqual([]);
   });
 
+  it('scopes operation listings to every webhook operation with allWebhooks', async () => {
+    const meta = await metaOfFixture(join(__dirname, 'fixtures', 'multi-webhooks'));
+    expect(listOperations(meta, { allWebhooks: true }).map((operation) => operation.id)).toEqual([
+      'POST zLast',
+      'GET aFirst',
+      'POST aFirst',
+    ]);
+    expect(listOperations(meta, {}).map((operation) => operation.id)).toEqual([]);
+  });
+
   it('finds components and normalizes section aliases', async () => {
     const meta = await metaOfFixture(join(__dirname, 'fixtures', 'split'));
     expect(findComponent(meta, 'schemas', 'Ticket')?.name).toBe('Ticket');

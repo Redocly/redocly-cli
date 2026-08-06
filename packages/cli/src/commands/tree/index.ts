@@ -3,6 +3,8 @@ import {
   BaseResolver,
   buildComponentCard,
   buildComponentListing,
+  buildFileCard,
+  buildFileUsedByReport,
   buildOperationCard,
   buildOperationListing,
   buildOverview,
@@ -23,17 +25,17 @@ import {
   normalizeTypes,
   resolveDocument,
   suggestNames,
-  toOperationListItem,
   type ApiAnalysis,
   type ApiOverview,
   type CollectFn,
   type CollectedOperation,
   type ComponentCard,
-  type ComponentListItem,
+  type ComponentListCard,
   type Document,
+  type FileCard,
   type NormalizedNodeType,
   type OperationCard,
-  type OperationListItem,
+  type OperationListCard,
   type PathListItem,
   type ResolvedRefMap,
   type SpecVersion,
@@ -47,7 +49,7 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
-import { commonDir } from './node-id.js';
+import { commonDir, toNodeId } from './node-id.js';
 import { renderJson } from './print/json.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
 import { renderView } from './print/views.js';
@@ -60,23 +62,26 @@ export type TreeArgv = {
   files?: boolean;
   paths?: boolean;
   operations?: boolean;
+  webhooks?: boolean;
   tag?: string;
   path?: string;
   webhook?: string;
   operation?: string;
   component?: string;
   name?: string;
+  file?: string;
   'used-by'?: boolean;
   'with-deps'?: boolean;
 } & VerifyConfigOptions;
 
 export type TreeView =
   | { kind: 'overview'; overview: ApiOverview }
-  | { kind: 'operations'; items: OperationListItem[]; scope?: string }
+  | { kind: 'operations'; items: OperationListCard[]; scope?: string }
   | { kind: 'paths'; items: PathListItem[] }
-  | { kind: 'components'; section: string; items: ComponentListItem[] }
+  | { kind: 'components'; section: string; items: ComponentListCard[] }
   | { kind: 'operation-card'; card: OperationCard }
   | { kind: 'component-card'; card: ComponentCard }
+  | { kind: 'file-card'; card: FileCard }
   | { kind: 'used-by'; report: UsedByReport };
 
 export class TreeSelectorError extends Error {}
@@ -92,6 +97,45 @@ function selectorHint(
   throw new TreeSelectorError(
     `No ${kind} "${input}".${didYouMean} Run \`${listCommand}\` to list ${kind}s.`
   );
+}
+
+/**
+ * A `--file` value is normalized like a node id: relative to one of `rootDirs` (an API's own
+ * directory, where a multi-file description's sibling files are naturally addressed from) first,
+ * falling back to plain cwd-relative. Both candidates collapse to the same id when `cwd` is
+ * already the API's directory, the common case.
+ */
+function fileArgCandidates(
+  input: string,
+  rootDirs: string[],
+  cwd: string,
+  idBase: string
+): string[] {
+  const bases = [...new Set([...rootDirs, cwd])];
+  return [...new Set(bases.map((base) => toNodeId(path.resolve(base, input), idBase)))];
+}
+
+function resolveFileSelector(
+  input: string,
+  analysis: ApiAnalysis,
+  cwd: string
+): { filePath: string; card: FileCard } | undefined {
+  const rootDir = path.dirname(analysis.rootDocument.source.absoluteRef);
+  for (const candidate of fileArgCandidates(input, [rootDir], cwd, cwd)) {
+    const card = buildFileCard(analysis, candidate, { cwd });
+    if (card) return { filePath: candidate, card };
+  }
+  return undefined;
+}
+
+function knownFileIds(analysis: ApiAnalysis): string[] {
+  return [
+    ...new Set(
+      analysis.graph.nodes
+        .map((node) => node.file)
+        .filter((file): file is string => file !== undefined)
+    ),
+  ];
 }
 
 export function resolveTreeView(
@@ -110,6 +154,19 @@ export function resolveTreeView(
     );
   }
 
+  if (
+    argv.webhooks === true &&
+    (argv.tag !== undefined ||
+      argv.path !== undefined ||
+      argv.operation !== undefined ||
+      argv.component !== undefined ||
+      argv.name !== undefined)
+  ) {
+    throw new TreeSelectorError(
+      '--webhooks lists every webhook operation and cannot be combined with other selectors.'
+    );
+  }
+
   const finishOperation = (operation: CollectedOperation): TreeView =>
     usedBy
       ? { kind: 'used-by', report: buildUsedByReport(analysis, operation.id, cwd) }
@@ -117,6 +174,20 @@ export function resolveTreeView(
           kind: 'operation-card',
           card: buildOperationCard(analysis, operation, { specVersion, cwd, withDeps }),
         };
+
+  if (argv.file !== undefined) {
+    if (withDeps) {
+      throw new TreeSelectorError('--with-deps requires an operation or component selection.');
+    }
+    const found = resolveFileSelector(argv.file, analysis, cwd);
+    if (!found) {
+      selectorHint('file', argv.file, knownFileIds(analysis), 'redocly tree <api> --files');
+    }
+    if (usedBy) {
+      return { kind: 'used-by', report: buildFileUsedByReport(analysis, found.filePath, cwd) };
+    }
+    return { kind: 'file-card', card: found.card };
+  }
 
   if (argv.component !== undefined) {
     const section = normalizeComponentSection(argv.component);
@@ -161,10 +232,8 @@ export function resolveTreeView(
   if (argv.name !== undefined) throw new TreeSelectorError('--name requires --component.');
 
   if (argv.path !== undefined || argv.webhook !== undefined) {
-    const scopeOperations =
-      argv.webhook !== undefined
-        ? listOperations(meta, { webhook: argv.webhook })
-        : listOperations(meta, { path: argv.path });
+    const scope = argv.webhook !== undefined ? { webhook: argv.webhook } : { path: argv.path };
+    const scopeOperations = listOperations(meta, scope);
     if (scopeOperations.length === 0) {
       if (argv.webhook !== undefined) {
         const knownWebhookKeys = [
@@ -212,7 +281,7 @@ export function resolveTreeView(
     return {
       kind: 'operations',
       scope: argv.webhook ?? argv.path,
-      items: scopeOperations.map((operation) => toOperationListItem(operation, cwd)),
+      items: buildOperationListing(analysis, { cwd, ...scope }),
     };
   }
 
@@ -264,6 +333,11 @@ export function resolveTreeView(
   if (usedBy)
     throw new TreeSelectorError('--used-by requires an operation or component selection.');
 
+  if (argv.webhooks)
+    return {
+      kind: 'operations',
+      items: buildOperationListing(analysis, { cwd, allWebhooks: true }),
+    };
   if (argv.operations)
     return { kind: 'operations', items: buildOperationListing(analysis, { cwd }) };
   if (argv.paths) return { kind: 'paths', items: buildPathListing(analysis, { cwd }) };
@@ -335,6 +409,7 @@ async function handleFilesMode({
   config,
   collectSpecData,
   externalRefResolver,
+  cwd,
 }: TreeModeContext & { apis: Entrypoint[] }): Promise<void> {
   const resolutions: Array<{ rootDocument: Document; refMap: ResolvedRefMap }> = [];
   for (const { path: apiPath } of apis) {
@@ -352,16 +427,43 @@ async function handleFilesMode({
     resolutions.push({ rootDocument, refMap });
   }
 
-  const base = commonDir(
-    resolutions.map(({ rootDocument }) => path.dirname(rootDocument.source.absoluteRef))
+  const rootDirs = resolutions.map(({ rootDocument }) =>
+    path.dirname(rootDocument.source.absoluteRef)
   );
+  const base = commonDir(rootDirs);
 
   const graph = buildGraph(resolutions, {
     base,
     resolveRef: (refBase, uri) => externalRefResolver.resolveExternalRef(refBase, uri),
   });
 
-  renderOutput(graph, argv, {});
+  if (argv.file === undefined) {
+    renderOutput(graph, argv, {});
+    return;
+  }
+
+  const knownIds = new Set(graph.nodes.map((node) => node.id));
+  const fileId = fileArgCandidates(argv.file, rootDirs, cwd, base).find((candidate) =>
+    knownIds.has(candidate)
+  );
+  if (fileId === undefined) {
+    const suggestions = suggestNames(argv.file, [...knownIds]);
+    const didYouMean = suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
+    return exitWithError(
+      `No file "${argv.file}".${didYouMean} Run \`redocly tree <apis...> --files\` to list files.`
+    );
+  }
+
+  const connectedIds = new Set([
+    ...collectConnectedIds([fileId], graph.edges),
+    ...collectConnectedIds([fileId], graph.edges, { reverse: true }),
+  ]);
+  const filteredGraph: DependencyGraph = {
+    roots: graph.roots.filter((root) => connectedIds.has(root)),
+    nodes: graph.nodes.filter((node) => connectedIds.has(node.id)),
+    edges: graph.edges.filter((edge) => connectedIds.has(edge.from) && connectedIds.has(edge.to)),
+  };
+  renderOutput(filteredGraph, argv, {});
 }
 
 async function handleStructureMode({
@@ -403,8 +505,10 @@ async function handleStructureMode({
     argv.operation !== undefined ||
     argv.component !== undefined ||
     argv.name !== undefined ||
+    argv.file !== undefined ||
     argv.paths === true ||
     argv.operations === true ||
+    argv.webhooks === true ||
     argv['used-by'] === true ||
     argv['with-deps'] === true;
 
@@ -413,7 +517,7 @@ async function handleStructureMode({
     // renders for any spec type, in both stylish and json.
     if (usesSelectors) {
       return exitWithError(
-        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --paths, --operations, --used-by, --with-deps) support OpenAPI descriptions only for now.'
+        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --paths, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
       );
     }
     renderOutput(graph, argv, {});
@@ -428,7 +532,16 @@ async function handleStructureMode({
     throw error;
   }
 
-  if (view.kind === 'used-by' && argv.format === 'stylish') {
+  const target = view.kind === 'used-by' ? view.report.target : undefined;
+  // A single operation/component target is one real graph node, so its reverse closure can be
+  // seeded straight from `target.id` and rendered as the full dependency tree. A --file target
+  // has no graph node of its own (buildFileUsedByReport seeds from every node the file defines,
+  // see there) and always renders through the report-shaped view below instead.
+  const isSingleNodeTarget =
+    target !== undefined &&
+    (target.method !== undefined || target.component !== undefined || target.webhook !== undefined);
+
+  if (view.kind === 'used-by' && argv.format === 'stylish' && isSingleNodeTarget) {
     // Human impact view: the target's reverse closure — everything that transitively
     // references it, not what it references — rendered with the stylish tree.
     const affectedIds = collectConnectedIds([view.report.target.id], graph.edges, {

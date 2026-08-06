@@ -65,9 +65,12 @@ export function findComponent(
 
 export function listOperations(
   meta: ApiIndexMeta,
-  scope: { tag?: string; path?: string; webhook?: string } = {}
+  scope: { tag?: string; path?: string; webhook?: string; allWebhooks?: boolean } = {}
 ): CollectedOperation[] {
   return meta.operations.filter((operation) => {
+    // `allWebhooks` lists every webhook operation regardless of name, the webhook counterpart of
+    // the default (no scope) case below, which lists every non-webhook operation.
+    if (scope.allWebhooks) return operation.isWebhook;
     if (scope.webhook !== undefined) {
       return operation.isWebhook && operation.containerKey === scope.webhook;
     }
