@@ -30,8 +30,9 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     ref: {
-      enter(ref: OasRef) {
+      enter(ref: OasRef, ctx: UserContext) {
         statsAccumulator.refs.items!.add(ref['$ref']);
+        collectSpecExtensions(extensions, ref, ctx);
       },
     },
     Tag: {
@@ -112,8 +113,9 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     ref: {
-      enter(ref: OasRef) {
+      enter(ref: OasRef, ctx: UserContext) {
         statsAccumulator.refs.items!.add(ref['$ref']);
+        collectSpecExtensions(extensions, ref, ctx);
       },
     },
     Tag: {
@@ -178,8 +180,9 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     ref: {
-      enter(ref: OasRef) {
+      enter(ref: OasRef, ctx: UserContext) {
         statsAccumulator.refs.items!.add(ref['$ref']);
+        collectSpecExtensions(extensions, ref, ctx);
       },
     },
     Tag: {

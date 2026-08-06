@@ -1,4 +1,3 @@
-import { isRef } from '../ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from '../types/index.js';
 import type { StatsRow, SpecVendorExtensionsAccumulator } from '../typings/common.js';
 import type { UserContext } from '../walk.js';
@@ -24,17 +23,15 @@ const TOKEN_LIKE_REGEX = /^(?=.*\d)[A-Za-z0-9+/=_-]{16,}$/;
 const EMAIL_REGEX = /\S@\S+\.\S/;
 const URL_SCHEME_REGEX = /:\/\//;
 
-// Spec-agnostic collector the stats rules call from their `any` hook.
+// Spec-agnostic collector the stats rules call from their `any` and `ref` hooks.
 export function collectSpecExtensions(
   accumulator: SpecVendorExtensionsAccumulator,
   node: unknown,
   ctx: UserContext
 ) {
-  if (ctx.type === SpecExtension) return;
+  if (ctx.type === SpecExtension || ctx.type.name === 'scalar') return;
 
   recordExtensions(accumulator, node, ctx.type);
-  // Extensions written next to a $ref sit on the raw node, not the resolved target.
-  if (isRef(ctx.rawNode)) recordExtensions(accumulator, ctx.rawNode, ctx.type);
 }
 
 function recordExtensions(

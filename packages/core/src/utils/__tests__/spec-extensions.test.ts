@@ -172,6 +172,35 @@ describe('stats vendor extensions collection', () => {
     expect(acc['x-hideReplay']?.count).toBe(1);
   });
 
+  it('should count a sibling extension on a later $ref to an already-visited target', async () => {
+    const acc = await collect(outdent`
+      openapi: 3.1.0
+      info:
+        title: t
+        version: '1'
+      paths:
+        /a:
+          get:
+            operationId: a
+            responses:
+              '200':
+                $ref: '#/components/responses/Shared'
+        /b:
+          get:
+            operationId: b
+            responses:
+              '200':
+                $ref: '#/components/responses/Shared'
+                x-second-ref-ext: true
+      components:
+        responses:
+          Shared:
+            description: ok
+    `);
+
+    expect(acc['x-second-ref-ext']?.count).toBe(1);
+  });
+
   it('should not descend into an extension value (no props-of-props)', async () => {
     const acc = await collect(outdent`
       openapi: 3.1.0
