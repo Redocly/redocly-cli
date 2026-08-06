@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed resolving remote `$ref`s with query parameters in the URL.
+Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
