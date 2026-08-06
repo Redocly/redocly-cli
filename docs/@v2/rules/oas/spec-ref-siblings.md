@@ -40,9 +40,9 @@ A Path Item Object is the exception: every OpenAPI version lists `$ref` among it
 
 To configure the rule, add it to the `rules` object in your configuration file, and set the desired [severity](../../rules.md#severity-settings).
 
-| Option   | Type   | Description                                                                              |
-| -------- | ------ | ---------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 An example configuration:
 
