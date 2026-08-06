@@ -6,7 +6,7 @@
 // CI spreads it across shards like any other suite.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,10 +57,17 @@ function typescriptBar(description: string): void {
   strictTypecheck(dir);
 }
 
-/** CLI bar: the generated `<stem>.cli.ts` passes a strict, Node-typed `tsc --noEmit`. */
+/**
+ * CLI bar: the generated `<stem>.cli.ts` passes a strict, Node-typed `tsc --noEmit`.
+ * Selecting `cli` also emits the zod module it validates with, so the resolver needs a
+ * path to `zod` — taken from the repo, like `@types/node` below.
+ */
 function cliBar(description: string): void {
   const dir = generateWith(['sdk', 'cli'], description);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
+  // The temp dir sits outside the repo, so node resolution finds nothing: borrow the
+  // repo's node_modules for `zod` (the CLI's validation) and `@types/node`.
+  symlinkSync(join(repoRoot, 'node_modules'), join(dir, 'node_modules'), 'dir');
   writeFileSync(
     join(dir, 'tsconfig.json'),
     JSON.stringify({
@@ -73,7 +80,6 @@ function cliBar(description: string): void {
         noEmit: true,
         skipLibCheck: true,
         types: ['node'],
-        // The temp dir has no node_modules; resolve @types/node from the repo.
         typeRoots: [join(repoRoot, 'node_modules/@types')],
       },
       include: ['**/*.ts'],
