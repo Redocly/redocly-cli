@@ -35,6 +35,7 @@ export class Source {
 
   #ast: YAMLNode | undefined;
   #lines: string[] | undefined;
+  #lineOffsets: number[] | undefined;
 
   // pass safeLoad as argument to separate it from browser bundle
   getAst(safeLoad: (input: string, options?: LoadOptions | undefined) => YAMLNode) {
@@ -60,6 +61,36 @@ export class Source {
       this.#lines = this.body.split(/\r\n|[\n\r]/g);
     }
     return this.#lines;
+  }
+
+  /**
+   * The 0-based character offset where each line starts, indexed by (line number - 1).
+   * Lets `positionsToLoc` binary-search from a character offset to its line/col instead of
+   * rescanning `body` from the start on every call.
+   */
+  getLineOffsets(): number[] {
+    if (this.#lineOffsets === undefined) {
+      const offsets = [0];
+      const body = this.body;
+      for (let i = 0; i < body.length; i++) {
+        if (body[i] === '\n') {
+          let nextLineStart = i + 1;
+          // Mirrors positionsToLoc's historical (untested) treatment of a `\r` right after
+          // a `\n`: it's swallowed into the same line break rather than starting a new line.
+          // An offset pointing AT that swallowed `\r` now maps to the preceding line's end
+          // instead of the old scan's next-line start — unreachable in practice, since
+          // yaml-ast-parser node boundaries never land inside line-break trivia and `\n\r`
+          // is not a real file line ending.
+          if (body[i + 1] === '\r') {
+            nextLineStart = i + 2;
+            i++;
+          }
+          offsets.push(nextLineStart);
+        }
+      }
+      this.#lineOffsets = offsets;
+    }
+    return this.#lineOffsets;
   }
 }
 

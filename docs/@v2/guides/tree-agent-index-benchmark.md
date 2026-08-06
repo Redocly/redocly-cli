@@ -313,6 +313,8 @@ That is a smaller margin than the index used to leave: card-shaped listings buy 
   The version field is unchanged since the previous measurement of this guide, but the file itself grew by 182,579 bytes (1.9%) over the same window, since `main` moves independently of the version field.
 - The agent chooses which nodes to open; the command syntax comes from the 85-token instruction counted separately above.
 - Each command invocation analyzes the description again.
-  The overview step took about 3 seconds for this 10.0 MB file; a `--with-deps` card, which walks the full `$ref` graph to build the dependency closure regardless of how small the output is, took about 47 seconds.
-  The `--tag=repos` step now took about 37 seconds, not the few seconds a coordinate-only listing used to take, because building every entry's `refs`/`usedBy` re-walks the graph 203 times over; the full `--operations` listing (1,216 entries) took about 3.5 minutes, and `--component=schemas` (967 entries) about 1.5 minutes, for the same reason.
-  A long-running process that keeps the analysis in memory would pay that cost once per session instead of once per step.
+  Building every entry's `refs`/`usedBy` now looks up a per-analysis index instead of re-scanning the graph, and turning a character offset into a line/column now binary-searches a per-analysis line-offset table instead of rescanning the source from character 0; both were previously redone on every single call.
+  The overview step took about 2.7 seconds for this 10.0 MB file; a `--with-deps` card, which still walks the full `$ref` graph to build the dependency closure regardless of how small the output is, took about 3 seconds, down from about 47.
+  The `--tag=repos` step (203 entries) took about 2.6 seconds, down from about 38; the full `--operations` listing (1,216 entries) took about 2.7 seconds, down from about 3.5 minutes; and `--component=schemas` (967 entries) took about 2.7 seconds, down from about 1.5 minutes.
+  Every one of these now costs close to the same amount — the one-time cost of analyzing the 10.0 MB file — instead of growing with how many entries or dependencies the step touches.
+  A long-running process that keeps the analysis in memory would pay even that remaining per-invocation cost once per session instead of once per step.

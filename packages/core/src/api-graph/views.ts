@@ -22,6 +22,7 @@ import {
   type ApiNodeRef,
   type LocatedIndexNode,
 } from './slice.js';
+import type { GraphEdge, GraphNode } from './types.js';
 
 export type FileRange = { pointer: string; file: string; start_line: number; end_line: number };
 
@@ -218,17 +219,82 @@ function classifyRef(ref: ApiNodeRef): TypedRef {
   return { ...ref, component: 'unknown' };
 }
 
-export function buildUsedBy(analysis: ApiAnalysis, nodeId: string, cwd: string): UsedByEntry[] {
-  const entries: UsedByEntry[] = [];
+/**
+ * Per-analysis lookup indexes for the reverse-reference scans below. Card-shaped listings call
+ * `buildUsedBy`/`toUsedByEntry` once per operation or component (hundreds of times for a large
+ * spec), so each index is built once per `analysis` — via the WeakMap — instead of the naive
+ * per-call linear scan over `graph.edges`/`meta.operations`/`meta.components` it replaces.
+ */
+type ViewsIndex = {
+  /** Edges with at least one ref, keyed by `to`: the exact set `buildUsedBy` iterates. */
+  reverseEdges: Map<string, GraphEdge[]>;
+  operationsById: Map<string, CollectedOperation>;
+  /** Keyed by `${section}/${name}`, which is exactly a component node's id. */
+  componentsById: Map<string, CollectedComponent>;
+  nodesById: Map<string, GraphNode>;
+  webhookOperationsByContainerKey: Map<string, CollectedOperation[]>;
+};
+
+const viewsIndexCache = new WeakMap<ApiAnalysis, ViewsIndex>();
+
+function getViewsIndex(analysis: ApiAnalysis): ViewsIndex {
+  const cached = viewsIndexCache.get(analysis);
+  if (cached) return cached;
+
+  const reverseEdges = new Map<string, GraphEdge[]>();
   for (const edge of analysis.graph.edges) {
-    if (edge.to !== nodeId || edge.refs.length === 0) continue;
-    entries.push(toUsedByEntry(analysis, edge.from, cwd));
+    if (edge.refs.length === 0) continue;
+    const incoming = reverseEdges.get(edge.to);
+    if (incoming) incoming.push(edge);
+    else reverseEdges.set(edge.to, [edge]);
   }
+
+  // `.find`/`.filter` keep the first match on a duplicate id; mirror that with has()-guarded
+  // sets so a hypothetical duplicate can't silently flip which entry wins.
+  const operationsById = new Map<string, CollectedOperation>();
+  const webhookOperationsByContainerKey = new Map<string, CollectedOperation[]>();
+  for (const operation of analysis.meta.operations) {
+    if (!operationsById.has(operation.id)) operationsById.set(operation.id, operation);
+    if (operation.isWebhook) {
+      const group = webhookOperationsByContainerKey.get(operation.containerKey);
+      if (group) group.push(operation);
+      else webhookOperationsByContainerKey.set(operation.containerKey, [operation]);
+    }
+  }
+
+  const componentsById = new Map<string, CollectedComponent>();
+  for (const component of analysis.meta.components) {
+    const id = `${component.section}/${component.name}`;
+    if (!componentsById.has(id)) componentsById.set(id, component);
+  }
+
+  const nodesById = new Map<string, GraphNode>();
+  for (const node of analysis.graph.nodes) {
+    nodesById.set(node.id, node);
+  }
+
+  const index: ViewsIndex = {
+    reverseEdges,
+    operationsById,
+    componentsById,
+    nodesById,
+    webhookOperationsByContainerKey,
+  };
+  viewsIndexCache.set(analysis, index);
+  return index;
+}
+
+export function buildUsedBy(analysis: ApiAnalysis, nodeId: string, cwd: string): UsedByEntry[] {
+  const { reverseEdges } = getViewsIndex(analysis);
+  const entries = (reverseEdges.get(nodeId) ?? []).map((edge) =>
+    toUsedByEntry(analysis, edge.from, cwd)
+  );
   return entries.sort((left, right) => left.id.localeCompare(right.id));
 }
 
 function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): UsedByEntry {
-  const operation = analysis.meta.operations.find((candidate) => candidate.id === nodeId);
+  const index = getViewsIndex(analysis);
+  const operation = index.operationsById.get(nodeId);
   if (operation) {
     return {
       id: nodeId,
@@ -245,9 +311,7 @@ function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): Used
     // Every method under a webhook shares one container node (see mapRootPointer), so a ref
     // made from any of its operations is attributed to the container, not to one operation.
     // Any matching operation's pathItemLocation is the same location; the first is enough here.
-    const containerOperation = analysis.meta.operations.find(
-      (candidate) => candidate.isWebhook && candidate.containerKey === webhookName
-    );
+    const containerOperation = index.webhookOperationsByContainerKey.get(webhookName)?.[0];
     if (containerOperation) {
       return {
         id: nodeId,
@@ -260,14 +324,12 @@ function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): Used
   if (slashIndex > 0) {
     const section = nodeId.slice(0, slashIndex);
     const name = nodeId.slice(slashIndex + 1);
-    const component = analysis.meta.components.find(
-      (candidate) => candidate.section === section && candidate.name === name
-    );
+    const component = index.componentsById.get(nodeId);
     if (component) {
       return { id: nodeId, component: section, name, ...toFileRange(component.location, cwd) };
     }
   }
-  const graphNode = analysis.graph.nodes.find((candidate) => candidate.id === nodeId);
+  const graphNode = index.nodesById.get(nodeId);
   return { id: nodeId, ...(graphNode?.file ? { file: graphNode.file } : {}) };
 }
 
@@ -423,6 +485,7 @@ export function buildUsedByReportFromChains(
 ): UsedByReport {
   const affectedOperations: (UsedByEntry & { via: string[] })[] = [];
   const affectedComponents: (UsedByEntry & { via: string[] })[] = [];
+  const { webhookOperationsByContainerKey } = getViewsIndex(analysis);
 
   for (const [nodeId, via] of chains) {
     if (excludeIds.has(nodeId)) continue;
@@ -432,9 +495,7 @@ export function buildUsedByReportFromChains(
     } else if (entry.webhook !== undefined) {
       // The container entry above covers every method under the webhook; expand it into one
       // entry per operation actually defined there, each with its own method.
-      const webhookOperations = analysis.meta.operations.filter(
-        (candidate) => candidate.isWebhook && candidate.containerKey === entry.webhook
-      );
+      const webhookOperations = webhookOperationsByContainerKey.get(entry.webhook) ?? [];
       for (const webhookOperation of webhookOperations) {
         affectedOperations.push({
           ...entry,
