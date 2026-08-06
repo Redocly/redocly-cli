@@ -5,7 +5,7 @@ import type {
   Async2SecurityRequirement,
   Async2SecurityScheme,
   Async2Server,
-} from '../../typings/asyncapi.js';
+} from '../../typings/asyncapi2.js';
 import type { Async2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { hasSecurityRequirements, isAsyncOperationSecured } from '../utils.js';

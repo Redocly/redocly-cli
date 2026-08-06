@@ -190,6 +190,14 @@ describe('bundle with option: dereferenced', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
   });
+
+  it('should compose sibling keywords of a root-level $ref', async () => {
+    const testPath = join(__dirname, `sibling-refs-root-in-file`);
+    const args = getParams(indexEntryPoint, ['bundle', 'openapi.yaml', '--dereferenced']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
+  });
 });
 
 describe('bundle with long description', () => {

@@ -826,4 +826,34 @@ describe('AsyncAPI bindings struct', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should not report $ref on a referenced schema with sibling keywords', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Composed:
+              $ref: '#/components/schemas/Base'
+              title: Composed
+            Base:
+              type: object
+            Usage:
+              $ref: '#/components/schemas/Composed'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
