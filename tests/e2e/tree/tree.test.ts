@@ -67,6 +67,17 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-component-listing'));
   });
 
+  test('tree --webhooks lists every webhook operation as JSON', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'webhooks.yaml',
+      '--webhooks',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: join(folderPath, 'tree-webhooks-listing') });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-webhooks-listing'));
+  });
+
   test('tree --path --operation prints an operation card as JSON', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
@@ -154,6 +165,29 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-webhook-card'));
   });
 
+  test('tree --file prints everything one file defines as a card, as JSON', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--file=components/schemas/Order.yaml',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-file-card'));
+  });
+
+  test('tree --file --used-by prints the file-seeded used-by report as JSON', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--file=components/schemas/Order.yaml',
+      '--used-by',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-file-used-by'));
+  });
+
   test('tree reports an unknown tag with a suggestion and exits with an error', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--tag=Ticket']);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
@@ -161,6 +195,23 @@ describe('tree', () => {
 
     // getCommandOutput only exposes combined stdout/stderr text; spawn once more to confirm
     // the process actually exits non-zero, since the snapshot alone can't show the exit code.
+    const exitCode = spawnSync('node', args, { cwd: indexFixturePath, encoding: 'utf-8' }).status;
+    expect(exitCode).toBe(1);
+  });
+
+  test('tree rejects --webhooks combined with a selector and exits with an error', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--tag=Tickets',
+      '--webhooks',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-webhooks-conflict-error')
+    );
+
+    // Same reasoning as the unknown-tag case above: confirm the non-zero exit separately.
     const exitCode = spawnSync('node', args, { cwd: indexFixturePath, encoding: 'utf-8' }).status;
     expect(exitCode).toBe(1);
   });
@@ -175,6 +226,17 @@ describe('tree', () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--files', '--format=json']);
     const result = getCommandOutput(args, { testPath: samplePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-json'));
+  });
+
+  test('tree --files --file filters the graph to the files connected to one file', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--files',
+      '--file=paths/orders_{orderId}.yaml',
+    ]);
+    const result = getCommandOutput(args, { testPath: samplePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-files-file-filter'));
   });
 
   test('tree rejects multiple APIs in the default view', async () => {

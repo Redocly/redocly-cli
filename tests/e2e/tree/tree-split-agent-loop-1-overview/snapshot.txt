@@ -29,7 +29,7 @@
     }
   ],
   "operations": 4,
-  "webhooks": 0,
+  "webhooks": [],
   "components": [
     {
       "section": "schemas",

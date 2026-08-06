@@ -30,7 +30,12 @@
     }
   ],
   "operations": 3,
-  "webhooks": 1,
+  "webhooks": [
+    {
+      "name": "publicationOfNewEvent",
+      "operations": 1
+    }
+  ],
   "components": [
     {
       "section": "schemas",

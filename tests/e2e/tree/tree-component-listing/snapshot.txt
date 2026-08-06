@@ -1,7 +1,7 @@
-schemas:
-  Order components/schemas/Order.yaml:1..10
-  OrderStatus components/schemas/OrderStatus.yaml:1..5
-  MenuItem components/schemas/MenuItem.yaml:1..8
-  OrderList components/schemas/OrderList.yaml:1..6
-  Error components/schemas/Error.yaml:1..6
+schemas (5)
+├── Order components/schemas/Order.yaml:1..10
+├── OrderStatus components/schemas/OrderStatus.yaml:1..5
+├── MenuItem components/schemas/MenuItem.yaml:1..8
+├── OrderList components/schemas/OrderList.yaml:1..6
+└── Error components/schemas/Error.yaml:1..6
 

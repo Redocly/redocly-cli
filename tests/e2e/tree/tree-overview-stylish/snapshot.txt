@@ -1,8 +1,12 @@
-Museum API — Imaginary, but delightful Museum API for interview practice.  (oas3_1)
-Servers: https://api.fake-museum-example.com/v1.1
-Operations: 3 across 2 tags
-  Tickets (2) — Buy tickets and manage reservations.
-  untagged (1)
-Webhooks: 1
-Components: schemas 1 · securitySchemes 1
+openapi.yaml — Museum API — Imaginary, but delightful Museum API for interview practice.  (oas3_1)
+├── Servers
+│   └── https://api.fake-museum-example.com/v1.1
+├── Operations (3)
+│   ├── Tickets (2) — Buy tickets and manage reservations.
+│   └── untagged (1)
+├── Webhooks (1)
+│   └── publicationOfNewEvent
+└── Components (2)
+    ├── schemas (1)
+    └── securitySchemes (1)
 

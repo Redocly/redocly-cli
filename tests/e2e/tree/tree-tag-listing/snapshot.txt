@@ -1,5 +1,6 @@
-/tickets
-  POST "Buy museum tickets" 22..31 [Tickets]
-/legacy-tickets
-  POST "Buy tickets the old way" 34..39 [Tickets]
+/tickets (1)
+└── POST "Buy museum tickets" 22..31 [Tickets]
+
+/legacy-tickets (1)
+└── POST "Buy tickets the old way" 34..39 [Tickets]
 
