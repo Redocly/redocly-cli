@@ -100,13 +100,7 @@ Validates real API responses against OpenAPI/Arazzo specs.
 
 ### `packages/client-generator` (@redocly/client-generator)
 
-Generates typed, zero-dependency TypeScript clients (fetch, auth, retries, middleware, SSE) from OpenAPI descriptions.
-Versioned independently from the other three packages.
-
-- `src/generate.ts` — Generation entry point.
-- `src/intermediate-representation/` — Converts the OpenAPI description into an IR consumed by the generators.
-- `src/generators/` and `src/emitters/` — Produce the client code from the IR.
-- `src/runtime/` — Runtime code shipped inside generated clients.
+Experimental package for generating TypeScript clients from OpenAPI specs.
 
 ## Build System
 
