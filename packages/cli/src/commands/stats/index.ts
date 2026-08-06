@@ -7,11 +7,8 @@ import {
   normalizeVisitors,
   walkDocument,
   bundle,
-  StatsSpecExtensions,
-  applySpecExtensionsStats,
   type WalkContext,
   type OutputFormat,
-  type SpecVendorExtensionsAccumulator,
 } from '@redocly/openapi-core';
 import { performance } from 'perf_hooks';
 
@@ -50,14 +47,12 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     externalRefResolver,
   });
 
-  const extensionsAccumulator: SpecVendorExtensionsAccumulator = {};
-
   const normalizedStatsVisitor = normalizeVisitors(
     [
       {
         severity: 'warn',
         ruleId: 'stats',
-        visitor: { ...statsVisitor, ...StatsSpecExtensions(extensionsAccumulator) },
+        visitor: statsVisitor,
       },
     ],
     types
@@ -70,8 +65,6 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     resolvedRefMap,
     ctx,
   });
-
-  applySpecExtensionsStats(extensionsAccumulator, statsAccumulator.xExtensions);
 
   printStats(statsAccumulator, path, startedAt, argv.format);
 }

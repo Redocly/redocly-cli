@@ -1,9 +1,9 @@
-import { isRef } from '../../ref-utils.js';
-import { isNamedType, SpecExtension, type NormalizedNodeType } from '../../types/index.js';
-import type { StatsRow, SpecVendorExtensionsAccumulator } from '../../typings/common.js';
-import { getOwn } from '../../utils/get-own.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
-import type { UserContext } from '../../walk.js';
+import { isRef } from '../ref-utils.js';
+import { isNamedType, SpecExtension, type NormalizedNodeType } from '../types/index.js';
+import type { StatsRow, SpecVendorExtensionsAccumulator } from '../typings/common.js';
+import type { UserContext } from '../walk.js';
+import { getOwn } from './get-own.js';
+import { isPlainObject } from './is-plain-object.js';
 
 const EXTENSION_PREFIX = 'x-';
 
@@ -24,19 +24,18 @@ const TOKEN_LIKE_REGEX = /^(?=.*\d)[A-Za-z0-9+/=_-]{16,}$/;
 const EMAIL_REGEX = /\S@\S+\.\S/;
 const URL_SCHEME_REGEX = /:\/\//;
 
-export const StatsSpecExtensions = (accumulator: SpecVendorExtensionsAccumulator) => {
-  return {
-    any: {
-      enter(node: unknown, ctx: UserContext) {
-        if (ctx.type === SpecExtension) return;
+// Spec-agnostic collector the stats rules call from their `any` hook.
+export function collectSpecExtensions(
+  accumulator: SpecVendorExtensionsAccumulator,
+  node: unknown,
+  ctx: UserContext
+) {
+  if (ctx.type === SpecExtension) return;
 
-        recordExtensions(accumulator, node, ctx.type);
-        // Extensions written next to a $ref sit on the raw node, not the resolved target.
-        if (isRef(ctx.rawNode)) recordExtensions(accumulator, ctx.rawNode, ctx.type);
-      },
-    },
-  };
-};
+  recordExtensions(accumulator, node, ctx.type);
+  // Extensions written next to a $ref sit on the raw node, not the resolved target.
+  if (isRef(ctx.rawNode)) recordExtensions(accumulator, ctx.rawNode, ctx.type);
+}
 
 function recordExtensions(
   accumulator: SpecVendorExtensionsAccumulator,
@@ -119,4 +118,5 @@ export function applySpecExtensionsStats(
   const names = Object.keys(accumulator).sort();
   statsRow.total = names.length;
   statsRow.counts = Object.fromEntries(names.map((name) => [name, accumulator[name].count]));
+  statsRow.details = accumulator;
 }

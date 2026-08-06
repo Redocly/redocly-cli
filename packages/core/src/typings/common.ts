@@ -4,6 +4,7 @@ export interface StatsRow {
   color: 'red' | 'yellow' | 'green' | 'white' | 'magenta' | 'cyan';
   items?: Set<string>;
   counts?: Record<string, number>;
+  details?: SpecVendorExtensionsAccumulator;
 }
 
 export type OASStatsName =

@@ -1,4 +1,8 @@
-import type { OASStatsAccumulator, AsyncAPIStatsAccumulator } from '../../typings/common.js';
+import type {
+  OASStatsAccumulator,
+  AsyncAPIStatsAccumulator,
+  SpecVendorExtensionsAccumulator,
+} from '../../typings/common.js';
 import type {
   Oas3Link,
   Oas3Operation,
@@ -8,9 +12,18 @@ import type {
   OasRef,
 } from '../../typings/openapi.js';
 import type { Oas2Parameter } from '../../typings/swagger.js';
+import { applySpecExtensionsStats, collectSpecExtensions } from '../../utils/spec-extensions.js';
+import type { UserContext } from '../../walk.js';
 
 export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
+  const extensions: SpecVendorExtensionsAccumulator = {};
+
   return {
+    any: {
+      enter(node: unknown, ctx: UserContext) {
+        collectSpecExtensions(extensions, node, ctx);
+      },
+    },
     ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
@@ -78,13 +91,21 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
         statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
         statsAccumulator.links.total = statsAccumulator.links.items!.size;
         statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        applySpecExtensionsStats(extensions, statsAccumulator.xExtensions);
       },
     },
   };
 };
 
 export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
+  const extensions: SpecVendorExtensionsAccumulator = {};
+
   return {
+    any: {
+      enter(node: unknown, ctx: UserContext) {
+        collectSpecExtensions(extensions, node, ctx);
+      },
+    },
     ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
@@ -136,13 +157,21 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
         statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
         statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
         statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        applySpecExtensionsStats(extensions, statsAccumulator.xExtensions);
       },
     },
   };
 };
 
 export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
+  const extensions: SpecVendorExtensionsAccumulator = {};
+
   return {
+    any: {
+      enter(node: unknown, ctx: UserContext) {
+        collectSpecExtensions(extensions, node, ctx);
+      },
+    },
     ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
@@ -196,6 +225,7 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
         statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
         statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
         statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        applySpecExtensionsStats(extensions, statsAccumulator.xExtensions);
       },
     },
   };

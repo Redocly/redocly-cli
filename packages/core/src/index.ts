@@ -26,7 +26,6 @@ export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export { createEntityTypes } from './types/entity.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
 export { StatsOAS, StatsAsync2, StatsAsync3 } from './rules/other/stats.js';
-export { StatsSpecExtensions, applySpecExtensionsStats } from './rules/other/spec-extensions.js';
 export {
   loadConfig,
   loadIgnoreConfig,

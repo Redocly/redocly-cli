@@ -1,23 +1,69 @@
 import { outdent } from 'outdent';
 
-import { parseYamlToDocument } from '../../../../__tests__/utils.js';
-import { detectSpec } from '../../../detect-spec.js';
-import { getTypes } from '../../../oas-types.js';
-import { BaseResolver, resolveDocument } from '../../../resolve.js';
-import { normalizeTypes } from '../../../types/index.js';
-import type { SpecVendorExtensionsAccumulator, StatsRow } from '../../../typings/common.js';
-import { normalizeVisitors } from '../../../visitors.js';
-import { walkDocument } from '../../../walk.js';
-import { StatsSpecExtensions, applySpecExtensionsStats } from '../spec-extensions.js';
+import { parseYamlToDocument } from '../../../__tests__/utils.js';
+import { detectSpec } from '../../detect-spec.js';
+import { getTypes } from '../../oas-types.js';
+import { BaseResolver, resolveDocument } from '../../resolve.js';
+import { StatsAsync2, StatsAsync3, StatsOAS } from '../../rules/other/stats.js';
+import { normalizeTypes } from '../../types/index.js';
+import type {
+  AsyncAPIStatsAccumulator,
+  OASStatsAccumulator,
+  SpecVendorExtensionsAccumulator,
+  StatsRow,
+} from '../../typings/common.js';
+import { normalizeVisitors } from '../../visitors.js';
+import { walkDocument } from '../../walk.js';
+import { applySpecExtensionsStats } from '../spec-extensions.js';
+
+function createOasStatsAccumulator(): OASStatsAccumulator {
+  return {
+    refs: { metric: 'References', total: 0, color: 'red', items: new Set() },
+    externalDocs: { metric: 'External Documents', total: 0, color: 'magenta' },
+    schemas: { metric: 'Schemas', total: 0, color: 'white' },
+    parameters: { metric: 'Parameters', total: 0, color: 'yellow', items: new Set() },
+    links: { metric: 'Links', total: 0, color: 'cyan', items: new Set() },
+    pathItems: { metric: 'Path Items', total: 0, color: 'green' },
+    webhooks: { metric: 'Webhooks', total: 0, color: 'green' },
+    operations: { metric: 'Operations', total: 0, color: 'yellow' },
+    tags: { metric: 'Tags', total: 0, color: 'white', items: new Set() },
+    xExtensions: { metric: 'Vendor Extensions', total: 0, color: 'cyan' },
+  };
+}
+
+function createAsyncStatsAccumulator(): AsyncAPIStatsAccumulator {
+  return {
+    refs: { metric: 'References', total: 0, color: 'red', items: new Set() },
+    externalDocs: { metric: 'External Documents', total: 0, color: 'magenta' },
+    schemas: { metric: 'Schemas', total: 0, color: 'white' },
+    parameters: { metric: 'Parameters', total: 0, color: 'yellow', items: new Set() },
+    channels: { metric: 'Channels', total: 0, color: 'green' },
+    operations: { metric: 'Operations', total: 0, color: 'yellow' },
+    tags: { metric: 'Tags', total: 0, color: 'white', items: new Set() },
+    xExtensions: { metric: 'Vendor Extensions', total: 0, color: 'cyan' },
+  };
+}
 
 async function collect(yaml: string): Promise<SpecVendorExtensionsAccumulator> {
   const document = parseYamlToDocument(yaml, '');
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(getTypes(specVersion));
-  const accumulator: SpecVendorExtensionsAccumulator = {};
+
+  let statsVisitor;
+  let xExtensionsRow: StatsRow;
+  if (specVersion === 'async2' || specVersion === 'async3') {
+    const statsAccumulator = createAsyncStatsAccumulator();
+    statsVisitor =
+      specVersion === 'async2' ? StatsAsync2(statsAccumulator) : StatsAsync3(statsAccumulator);
+    xExtensionsRow = statsAccumulator.xExtensions;
+  } else {
+    const statsAccumulator = createOasStatsAccumulator();
+    statsVisitor = StatsOAS(statsAccumulator);
+    xExtensionsRow = statsAccumulator.xExtensions;
+  }
 
   const visitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'test', visitor: StatsSpecExtensions(accumulator) }],
+    [{ severity: 'warn', ruleId: 'test', visitor: statsVisitor }],
     types
   );
   const resolvedRefMap = await resolveDocument({
@@ -32,13 +78,13 @@ async function collect(yaml: string): Promise<SpecVendorExtensionsAccumulator> {
     document,
     ctx: { problems: [], specVersion, visitorsData: {} },
   });
-  return accumulator;
+  return xExtensionsRow.details ?? {};
 }
 
 const props = (acc: SpecVendorExtensionsAccumulator, name: string, prop: string) =>
   [...(acc[name]?.props[prop] ?? [])].sort();
 
-describe('StatsSpecExtensions', () => {
+describe('stats vendor extensions collection', () => {
   it('should count every x- key, including extensions that have a declared type in core', async () => {
     const acc = await collect(outdent`
       openapi: 3.1.0
