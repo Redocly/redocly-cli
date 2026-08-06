@@ -18,11 +18,11 @@ const FIXTURE_WEBHOOKS = join(
   '../../../../../core/src/api-graph/__tests__/fixtures/webhooks'
 );
 
-async function analysisOfSplit() {
+async function analysisOfFixture(fixtureRoot: string) {
   const resolver = new BaseResolver();
   const rootDocument = (await resolver.resolveDocument(
     null,
-    join(FIXTURE, 'openapi.yaml'),
+    join(fixtureRoot, 'openapi.yaml'),
     true
   )) as Document;
   const specVersion = detectSpec(rootDocument.parsed);
@@ -32,35 +32,15 @@ async function analysisOfSplit() {
     specVersion,
     types,
     externalRefResolver: resolver,
-    cwd: FIXTURE,
+    cwd: fixtureRoot,
     resolveRef: (base, uri) => join(dirname(base), uri),
   });
-  return { analysis, specVersion, cwd: FIXTURE };
-}
-
-async function analysisOfWebhooks() {
-  const resolver = new BaseResolver();
-  const rootDocument = (await resolver.resolveDocument(
-    null,
-    join(FIXTURE_WEBHOOKS, 'openapi.yaml'),
-    true
-  )) as Document;
-  const specVersion = detectSpec(rootDocument.parsed);
-  const types = normalizeTypes(getTypes(specVersion), {});
-  const analysis = await analyzeApi({
-    rootDocument,
-    specVersion,
-    types,
-    externalRefResolver: resolver,
-    cwd: FIXTURE_WEBHOOKS,
-    resolveRef: (base, uri) => join(dirname(base), uri),
-  });
-  return { analysis, specVersion, cwd: FIXTURE_WEBHOOKS };
+  return { analysis, specVersion, cwd: fixtureRoot };
 }
 
 describe('resolveTreeView', () => {
   it('routes bare invocation to the overview and selectors to their views', async () => {
-    const { analysis, specVersion, cwd } = await analysisOfSplit();
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
     const route = (argv: Record<string, unknown>) =>
       resolveTreeView(argv as never, analysis, specVersion, cwd);
 
@@ -80,7 +60,7 @@ describe('resolveTreeView', () => {
   });
 
   it('rejects bad selections with actionable messages', async () => {
-    const { analysis, specVersion, cwd } = await analysisOfSplit();
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
     const route = (argv: Record<string, unknown>) => () =>
       resolveTreeView(argv as never, analysis, specVersion, cwd);
 
@@ -103,7 +83,7 @@ describe('resolveTreeView', () => {
   });
 
   it('rejects an unknown --webhook selection', async () => {
-    const { analysis, specVersion, cwd } = await analysisOfWebhooks();
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_WEBHOOKS);
     const route = (argv: Record<string, unknown>) => () =>
       resolveTreeView(argv as never, analysis, specVersion, cwd);
 

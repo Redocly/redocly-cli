@@ -32,6 +32,7 @@ export type ApiOverview = {
   overview?: Partial<FileRange> & { summary?: string };
   servers?: Partial<FileRange> & { urls: string[] };
   tags: { name: string; summary?: string; operations: number }[];
+  operations: number;
   webhooks: number;
   components: { section: string; count: number }[];
 };
@@ -109,6 +110,9 @@ export function buildOverview(
       const summary = truncateSummary(declared?.description);
       return { name, ...(summary ? { summary } : {}), operations: tagCounts.get(name)! };
     }),
+    // The true operation count: an operation with more than one tag is counted once here,
+    // unlike the per-tag counts above, which each count it under every tag it has.
+    operations: meta.operations.filter((operation) => !operation.isWebhook).length,
     webhooks: meta.operations.filter((operation) => operation.isWebhook).length,
     components: orderedSections.map((section) => ({
       section,
@@ -246,6 +250,22 @@ function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): Used
       ...toFileRange(operation.location, cwd),
     };
   }
+  if (nodeId.startsWith('webhooks/')) {
+    const webhookName = nodeId.slice('webhooks/'.length);
+    // Every method under a webhook shares one container node (see mapRootPointer), so a ref
+    // made from any of its operations is attributed to the container, not to one operation.
+    // Any matching operation's pathItemLocation is the same location; the first is enough here.
+    const containerOperation = analysis.meta.operations.find(
+      (candidate) => candidate.isWebhook && candidate.containerKey === webhookName
+    );
+    if (containerOperation) {
+      return {
+        id: nodeId,
+        webhook: webhookName,
+        ...toFileRange(containerOperation.pathItemLocation, cwd),
+      };
+    }
+  }
   const slashIndex = nodeId.indexOf('/');
   if (slashIndex > 0) {
     const section = nodeId.slice(0, slashIndex);
@@ -309,9 +329,13 @@ export function buildOperationCard(
     usedBy: buildUsedBy(analysis, operation.id, cwd),
   };
   if (!options.withDeps) return card;
+  // A webhook operation has no graph node of its own: every method under a webhook shares one
+  // container node (`webhooks/<name>`, see mapRootPointer) that actually holds the $ref edges.
+  // Seed the closure from that container while keeping the operation's own range for `content`.
+  const depsSeedId = operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id;
   return appendRetrieval(
     card,
-    locatedNodeFor(operation.id, operation.location, cwd),
+    locatedNodeFor(depsSeedId, operation.location, cwd),
     analysis,
     options
   );
@@ -361,11 +385,26 @@ export function buildUsedByReport(
   const affectedComponents: (UsedByEntry & { via: string[] })[] = [];
 
   for (const [nodeId, via] of chains) {
-    const entry = { ...toUsedByEntry(analysis, nodeId, cwd), via };
+    const entry = toUsedByEntry(analysis, nodeId, cwd);
     if (entry.method !== undefined) {
-      affectedOperations.push(entry);
+      affectedOperations.push({ ...entry, via });
+    } else if (entry.webhook !== undefined) {
+      // The container entry above covers every method under the webhook; expand it into one
+      // entry per operation actually defined there, each with its own method.
+      const webhookOperations = analysis.meta.operations.filter(
+        (candidate) => candidate.isWebhook && candidate.containerKey === entry.webhook
+      );
+      for (const webhookOperation of webhookOperations) {
+        affectedOperations.push({
+          ...entry,
+          id: webhookOperation.id,
+          method: webhookOperation.method.toLowerCase(),
+          ...(webhookOperation.operationId ? { operationId: webhookOperation.operationId } : {}),
+          via,
+        });
+      }
     } else if (entry.component !== undefined) {
-      affectedComponents.push(entry);
+      affectedComponents.push({ ...entry, via });
     }
     // Path spine, file, and root nodes are structural — the report lists actionable nodes only.
   }

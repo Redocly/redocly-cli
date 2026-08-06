@@ -8,6 +8,7 @@ import {
   buildOverview,
   buildPathListing,
   buildUsedByReport,
+  collectConnectedIds,
   COMPONENT_SECTIONS,
   detectSpec,
   findComponent,
@@ -46,7 +47,6 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
-import { filterAffected } from './filter-affected.js';
 import { commonDir } from './node-id.js';
 import { renderJson } from './print/json.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
@@ -429,8 +429,16 @@ async function handleStructureMode({
   }
 
   if (view.kind === 'used-by' && argv.format === 'stylish') {
-    // Human impact view: reuse the graph filter + stylish tree.
-    const printedGraph = filterAffected(graph, [view.report.target.id]);
+    // Human impact view: the target's reverse closure — everything that transitively
+    // references it, not what it references — rendered with the stylish tree.
+    const affectedIds = collectConnectedIds([view.report.target.id], graph.edges, {
+      reverse: true,
+    });
+    const printedGraph: DependencyGraph = {
+      roots: graph.roots.filter((root) => affectedIds.has(root)),
+      nodes: graph.nodes.filter((node) => affectedIds.has(node.id)),
+      edges: graph.edges.filter((edge) => affectedIds.has(edge.from) && affectedIds.has(edge.to)),
+    };
     const totalOperations = graph.nodes.filter((node) => node.kind === 'operation').length;
     const affectedOperations = printedGraph.nodes.filter(
       (node) => node.kind === 'operation'

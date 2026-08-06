@@ -123,6 +123,7 @@ redocly tree cafe.yaml --format=json
     { "name": "Orders", "summary": "Order management operations.", "operations": 6 },
     { "name": "Statistics", "summary": "Statistics operations.", "operations": 1 }
   ],
+  "operations": 12,
   "webhooks": 1,
   "components": [
     { "section": "schemas", "count": 15 },
@@ -961,7 +962,7 @@ redocly tree openapi.yaml
 Could not resolve https://example.com/error.yaml — shown as unresolved (❌).
 Could not resolve schemas/Item.yaml — shown as unresolved (❌).
 Test API  (oas3_2)
-Operations: 1 across 1 tags
+Operations: 1 across 1 tag
   untagged (1)
 Webhooks: 0
 ```

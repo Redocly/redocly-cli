@@ -29,6 +29,7 @@
       "operations": 1
     }
   ],
+  "operations": 3,
   "webhooks": 1,
   "components": [
     {

@@ -7,6 +7,18 @@ webhooks:
   newTicket:
     post:
       summary: New ticket alert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketAlert'
       responses:
         '200':
           description: ok
+components:
+  schemas:
+    TicketAlert:
+      type: object
+      properties:
+        ticketId:
+          type: string

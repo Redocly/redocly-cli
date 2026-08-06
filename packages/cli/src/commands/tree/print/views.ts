@@ -52,7 +52,7 @@ export function renderViewStylish(view: TreeView): string {
       return renderComponentCard(view.card);
     case 'used-by':
       // Never reached from the real CLI: handleStructureMode renders stylish used-by through the
-      // graph tree (filterAffected + renderStylish) before renderView is called. JSON stays the
+      // reverse-closure graph tree (renderStylish) before renderView is called. JSON stays the
       // only format for this kind here.
       return JSON.stringify(view.report, null, 2);
   }
@@ -66,8 +66,8 @@ function renderOverview(overview: ApiOverview): string {
   }
 
   if (overview.tags.length > 0) {
-    const totalOperations = overview.tags.reduce((total, tag) => total + tag.operations, 0);
-    lines.push(`Operations: ${totalOperations} across ${overview.tags.length} tags`);
+    const tagWord = overview.tags.length === 1 ? 'tag' : 'tags';
+    lines.push(`Operations: ${overview.operations} across ${overview.tags.length} ${tagWord}`);
     for (const tag of overview.tags) {
       const summary = tag.summary ? ` — ${tag.summary}` : '';
       lines.push(`  ${tag.name} (${tag.operations})${summary}`);
@@ -95,12 +95,18 @@ function renderOperationsListing(items: OperationListItem[]): string {
     groups.set(key, group);
   }
 
-  const blocks = [...groups.entries()].map(([path, groupItems]) => {
+  // A multi-file layout scatters operations across files, so the range alone no longer says
+  // where a line actually lives; a single-file listing keeps the plain range unchanged.
+  const showFile = new Set(items.map((item) => item.file)).size > 1;
+  const blocks = [...groups.entries()].map(([groupKey, groupItems]) => {
     const operationLines = groupItems.map((item) => {
       const summary = item.summary ? ` "${item.summary}"` : '';
-      return `  ${item.method.toUpperCase()}${summary} ${item.start_line}..${item.end_line} [${item.tags.join(', ')}]`;
+      const range = showFile
+        ? `${item.file}:${item.start_line}..${item.end_line}`
+        : `${item.start_line}..${item.end_line}`;
+      return `  ${item.method.toUpperCase()}${summary} ${range} [${item.tags.join(', ')}]`;
     });
-    return [path, ...operationLines].join('\n');
+    return [groupKey, ...operationLines].join('\n');
   });
 
   return blocks.join('\n');
@@ -116,9 +122,14 @@ function renderPathsListing(items: PathListItem[]): string {
 
 function renderComponentsListing(section: string, items: ComponentListItem[]): string {
   const lines = [`${section}:`];
+  // Same rule as the operations listing: only call out the file once more than one is in play.
+  const showFile = new Set(items.map((item) => item.file)).size > 1;
   for (const item of items) {
     const summary = item.summary ? ` "${item.summary}"` : '';
-    lines.push(`  ${item.name}${summary} ${item.start_line}..${item.end_line}`);
+    const range = showFile
+      ? `${item.file}:${item.start_line}..${item.end_line}`
+      : `${item.start_line}..${item.end_line}`;
+    lines.push(`  ${item.name}${summary} ${range}`);
   }
   return lines.join('\n');
 }

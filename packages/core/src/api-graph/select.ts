@@ -1,16 +1,8 @@
 import type { ApiIndexMeta, CollectedComponent, CollectedOperation } from './build-graph.js';
 import { COMPONENT_SECTIONS } from './build-index.js';
+import { OPERATION_METHODS } from './node-id.js';
 
-export const HTTP_METHODS: ReadonlySet<string> = new Set([
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]);
+export const HTTP_METHODS: ReadonlySet<string> = new Set(OPERATION_METHODS);
 
 const SECTION_ALIASES = new Map<string, string>([
   ...COMPONENT_SECTIONS.map((section): [string, string] => [section.toLowerCase(), section]),

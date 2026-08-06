@@ -1,5 +1,5 @@
 Sample Cafe API  (oas3_2)
-Operations: 4 across 1 tags
+Operations: 4 across 1 tag
   untagged (4)
 Webhooks: 0
 Components: schemas 5

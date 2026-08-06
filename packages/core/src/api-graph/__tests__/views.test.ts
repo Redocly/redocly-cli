@@ -6,7 +6,7 @@ import { getTypes, type SpecVersion } from '../../oas-types.js';
 import { BaseResolver, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
 import { analyzeApi, type ApiAnalysis } from '../build-graph.js';
-import { findComponent, findOperationByPathMethod } from '../select.js';
+import { findComponent, findOperationByPathMethod, findWebhookOperation } from '../select.js';
 import {
   buildComponentListing,
   buildComponentCard,
@@ -14,11 +14,12 @@ import {
   buildOperationListing,
   buildOverview,
   buildPathListing,
+  buildUsedByReport,
 } from '../views.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export async function analysisOfFixture(
+async function analysisOfFixture(
   fixtureRoot: string
 ): Promise<{ analysis: ApiAnalysis; specVersion: SpecVersion; cwd: string }> {
   const resolver = new BaseResolver();
@@ -53,6 +54,7 @@ describe('views: overview and listings', () => {
     expect(overview.tags).toEqual([
       { name: 'Tickets', summary: 'Buy tickets and manage reservations.', operations: 2 },
     ]);
+    expect(overview.operations).toBe(2);
     expect(overview.webhooks).toBe(0);
     expect(overview.components.find((entry) => entry.section === 'schemas')?.count).toBeGreaterThan(
       0
@@ -101,7 +103,6 @@ describe('views: overview and listings', () => {
 describe('views: used-by report', () => {
   it('lists affected operations with target-first via chains', async () => {
     const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
-    const { buildUsedByReport } = await import('../views.js');
     const report = buildUsedByReport(analysis, 'schemas/Ticket', cwd);
 
     expect(report.target.id).toBe('schemas/Ticket');
@@ -112,6 +113,18 @@ describe('views: used-by report', () => {
     for (const entry of report.affectedComponents) {
       expect(entry.component).toBeDefined();
     }
+  });
+
+  it('surfaces a webhook operation that references a component', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'webhooks'));
+    const report = buildUsedByReport(analysis, 'schemas/TicketAlert', cwd);
+
+    const webhookEntry = report.affectedOperations.find((entry) => entry.id === 'POST newTicket');
+    expect(webhookEntry).toMatchObject({ method: 'post', webhook: 'newTicket' });
+    // `via` holds graph node ids, and every method under a webhook shares one container node
+    // (see toUsedByEntry), so the chain ends at the container id, not at the operation id.
+    expect(webhookEntry!.via[0]).toBe('schemas/TicketAlert');
+    expect(webhookEntry!.via[webhookEntry!.via.length - 1]).toBe('webhooks/newTicket');
   });
 });
 
@@ -152,5 +165,19 @@ describe('views: cards', () => {
 
     expect(card.content).toContain('operationId: buyTickets');
     expect(card.deps!.map((dep) => dep.id)).toContain('schemas/Ticket');
+  });
+
+  it('seeds the deps closure of a webhook operation from its container', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'webhooks')
+    );
+    const operation = findWebhookOperation(analysis.meta, 'newTicket')!;
+    const card = buildOperationCard(analysis, operation, { specVersion, cwd, withDeps: true });
+
+    // Every method under a webhook shares one container node, so this closure is scoped to the
+    // container rather than to this one operation; the fixture defines only one method, so here
+    // they're the same set.
+    expect(card.content).toContain('New ticket alert');
+    expect(card.deps!.map((dep) => dep.id)).toContain('schemas/TicketAlert');
   });
 });
