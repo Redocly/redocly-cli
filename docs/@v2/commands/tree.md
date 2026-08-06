@@ -1163,7 +1163,7 @@ Large API descriptions do not fit in an LLM's context window.
 Instead of feeding the whole file to a model, let the agent navigate the selector surface above in bounded steps.
 Every result is generated deterministically from the document structure — no AI calls or API keys are needed.
 It is available for OpenAPI descriptions; the typed selectors, `--used-by`, and `--with-deps` report an error for other specification types.
-For a measured comparison of how much context this saves — on GitHub's 9.8 MB REST API description, where the whole file is 1.9 million tokens — see [Agent context savings with tree](../guides/tree-agent-index-benchmark.md).
+For a measured comparison of how much context this saves — on GitHub's 10.0 MB REST API description, where the whole file is 1.9 million tokens — see [Agent context savings with tree](../guides/tree-agent-index-benchmark.md).
 
 1. Get the map: `redocly tree openapi.yaml --format=json` prints the tags, webhooks, and component sections with their counts — a few kilobytes for any spec size.
 2. Drill into a branch the agent picked: `redocly tree openapi.yaml --tag=Tickets` returns that tag's operations with summaries, files, and line ranges.
