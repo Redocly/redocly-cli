@@ -11,12 +11,13 @@ import { ejectedSkill } from '../../../scripts/ejected-skill.mjs';
 // missing its modify-loop anchors, fails here.
 const generatorsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** Generators whose whole implementation is one file, so eject ships them. */
-const EJECTABLE = ['python', 'go', 'php'];
-/** TypeScript-emitting generators: thin entries over the shared emitters. */
+/** Language generators: one self-contained file, ejected as its own source. */
+const LANGUAGE = ['python', 'go', 'php'];
+/** TypeScript generators: thin entries over shared emitters, ejected bundled with them. */
 const TYPESCRIPT = ['sdk', 'zod', 'mock', 'cli', 'swr', 'tanstack-query', 'transformers'];
+const EJECTABLE = [...LANGUAGE, ...TYPESCRIPT];
 
-describe.each([...EJECTABLE, ...TYPESCRIPT])('%s generator skill', (name) => {
+describe.each(EJECTABLE)('%s generator skill', (name) => {
   const skillPath = join(generatorsDir, name, 'AGENTS.md');
 
   it('exists next to the generator', () => {
@@ -31,7 +32,7 @@ describe.each([...EJECTABLE, ...TYPESCRIPT])('%s generator skill', (name) => {
   });
 });
 
-describe.each(EJECTABLE)('%s generator skill ships to users', (name) => {
+describe.each(LANGUAGE)('%s generator skill ships to users', (name) => {
   const skillPath = join(generatorsDir, name, 'AGENTS.md');
 
   it('names its runtime', () => {
@@ -54,10 +55,30 @@ describe.each(EJECTABLE)('%s generator skill ships to users', (name) => {
   });
 });
 
-describe.each(TYPESCRIPT)('%s generator skill (not ejectable)', (name) => {
-  it('points at the emitters that implement it and at the customization path', () => {
+describe.each(TYPESCRIPT)('%s generator skill (bundled on eject)', (name) => {
+  it('points at the emitters that implement it and says what ejecting ships', () => {
     const skill = readFileSync(join(generatorsDir, name, 'AGENTS.md'), 'utf-8');
     expect(skill).toContain('## Emitters that implement it');
-    expect(skill).toContain('Not ejectable');
+    expect(skill).toContain('## Ejecting it');
+    // The two packages a bundled generator imports — the user installs both.
+    expect(skill).toContain('@redocly/openapi-core');
+  });
+});
+
+describe.each(EJECTABLE)('%s ships an eject asset', (name) => {
+  const assetsDir = join(generatorsDir, '../../eject-assets');
+
+  it('has a generator asset and a skill beside it', () => {
+    expect(existsSync(join(assetsDir, 'generators', `${name}.mjs`))).toBe(true);
+    const skill = readFileSync(join(assetsDir, 'skills', `${name}-generator`, 'SKILL.md'), 'utf-8');
+    expect(skill.startsWith(`---\nname: ${name}-generator\n`)).toBe(true);
+  });
+
+  it('declares the default export the resolver loads, with a version range', () => {
+    // The bundled assets go through esbuild, which normalizes quotes — match either.
+    const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
+    expect(asset).toMatch(new RegExp(`name: ['"]${name}['"]`));
+    expect(asset).toMatch(/requiresGenerator: ['"]\^\d+\.\d+\.\d+['"]/);
+    expect(asset).toContain('Ejected from @redocly/client-generator@');
   });
 });

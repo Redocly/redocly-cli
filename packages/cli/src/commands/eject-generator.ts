@@ -24,23 +24,34 @@ export type EjectGeneratorCommandArgv = {
   update?: boolean;
 };
 
-/** The neutral-toolkit generators shipped as vendorable assets. */
-const EJECTABLE = new Set(['python', 'go', 'php']);
-const TS_BUILTINS = new Set([
+/** Every built-in generator ships as a vendorable asset. */
+const EJECTABLE = new Set([
+  'python',
+  'go',
+  'php',
   'sdk',
   'zod',
-  'tanstack-query',
-  'tanstack-query-vue',
-  'tanstack-query-svelte',
-  'tanstack-query-solid',
-  'swr',
-  'transformers',
   'mock',
+  'swr',
+  'tanstack-query',
+  'transformers',
   'cli',
 ]);
 
-/** The package an ejected generator imports its toolkit from; recorded as a devDependency. */
+/**
+ * The tanstack-query framework variants share one implementation — the framework is a
+ * single argument in the ejected file — so they point at the base generator instead of
+ * shipping four near-identical bundles.
+ */
+const FRAMEWORK_VARIANTS = new Map([
+  ['tanstack-query-vue', 'vue'],
+  ['tanstack-query-svelte', 'svelte'],
+  ['tanstack-query-solid', 'solid'],
+]);
+
+/** The packages an ejected generator imports; recorded as devDependencies. */
 const TOOLKIT_PACKAGE = '@redocly/client-generator';
+const CORE_PACKAGE = '@redocly/openapi-core';
 
 const AGENTS_BEGIN =
   '<!-- redocly-generators:begin — managed by `redocly eject-generator`; content between markers is refreshed on eject -->';
@@ -188,23 +199,19 @@ function ejectedIn(dir: string): string[] {
  * imports the authoring toolkit from it. Installing stays the user's call; this only makes
  * the requirement part of the project so a fresh clone or CI gets it. Returns what happened.
  */
-function wireDependency(toolkitVersion: string): 'added' | 'present' | 'no-package-json' {
+function wireDependency(packages: Record<string, string>): 'added' | 'present' | 'no-package-json' {
   const manifestPath = join(process.cwd(), 'package.json');
   if (!existsSync(manifestPath)) return 'no-package-json';
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   };
-  if (
-    manifest.dependencies?.[TOOLKIT_PACKAGE] !== undefined ||
-    manifest.devDependencies?.[TOOLKIT_PACKAGE] !== undefined
-  ) {
-    return 'present';
-  }
-  const devDependencies = {
-    ...manifest.devDependencies,
-    [TOOLKIT_PACKAGE]: `^${toolkitVersion}`,
-  };
+  const missing = Object.entries(packages).filter(
+    ([name]) =>
+      manifest.dependencies?.[name] === undefined && manifest.devDependencies?.[name] === undefined
+  );
+  if (missing.length === 0) return 'present';
+  const devDependencies = { ...manifest.devDependencies, ...Object.fromEntries(missing) };
   manifest.devDependencies = Object.fromEntries(
     Object.entries(devDependencies).sort(([left], [right]) => left.localeCompare(right))
   );
@@ -263,17 +270,18 @@ export const handleEjectGenerator = async ({
   // Coarse usage telemetry: our command action, an ALLOWLISTED built-in name, and the
   // outcome category — never user paths, file contents, or user-chosen names.
   ejectGeneratorTelemetry.eject_generator_action = argv.update ? 'update' : 'eject';
-  if (EJECTABLE.has(name) || TS_BUILTINS.has(name)) {
+  if (EJECTABLE.has(name) || FRAMEWORK_VARIANTS.has(name)) {
     ejectGeneratorTelemetry.eject_generator_name = name;
   }
-  if (TS_BUILTINS.has(name)) {
+  const framework = FRAMEWORK_VARIANTS.get(name);
+  if (framework !== undefined) {
     ejectGeneratorTelemetry.eject_generator_action = 'guidance';
     ejectGeneratorTelemetry.eject_generator_outcome = 'success';
     logger.info(
-      `\nThe "${name}" generator is not ejectable — it is TypeScript-toolkit based.\n` +
-        `Customize its output instead: publisher defaults via \`client.setup\`, behavior via middleware,\n` +
-        `and options in \`redocly.yaml\` (see the "Customize client generation" guide).\n` +
-        `Ejectable generators: ${[...EJECTABLE].join(', ')}.\n`
+      `\nThe "${name}" generator is the "tanstack-query" generator with one argument changed.\n` +
+        `Eject that one and set the framework in your copy's default export:\n\n` +
+        `  redocly eject-generator tanstack-query\n` +
+        `  # then in generators/tanstack-query.mjs: run: tanstackQueryGenerator('${framework}')\n`
     );
     return;
   }
@@ -356,7 +364,10 @@ export const handleEjectGenerator = async ({
   dropPointer(dir, ejectedIn(dir));
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configEntry = `./${relative(process.cwd(), target).split('\\').join('/')}`;
-  const dependency = wireDependency(toolkitVersion);
+  const dependency = wireDependency({ [TOOLKIT_PACKAGE]: `^${toolkitVersion}` });
+  // A bundled TypeScript generator also imports `logger`/`isPlainObject` from core, which
+  // the toolkit depends on — worth saying out loud for a package manager that doesn't hoist.
+  const needsCore = asset.includes(`from "${CORE_PACKAGE}"`);
   const wired = wireConfig(config.configPath, configEntry);
   logger.info(
     `Ejected the "${name}" generator to ${printedTarget}.\n` +
@@ -365,6 +376,9 @@ export const handleEjectGenerator = async ({
         : dependency === 'no-package-json'
           ? `The ejected file imports its toolkit from ${TOOLKIT_PACKAGE} — install it: npm install --save-dev ${TOOLKIT_PACKAGE}\n`
           : '') +
+      (needsCore
+        ? `It also imports ${CORE_PACKAGE} (a dependency of the toolkit) — add it explicitly if your package manager does not hoist.\n`
+        : '') +
       (wired
         ? `Added it to client.generators in ${relative(process.cwd(), config.configPath!)} — the path entry takes over the built-in name.\n`
         : `Point your config at the file — the path entry takes over the built-in name:\n\n` +

@@ -1,7 +1,13 @@
+---
+name: transformers-generator
+description: Design of the ejected Redocly `transformers` client generator. Read it, and update it, before changing generators/transformers.mjs.
+---
+
 # The `transformers` generator — its skill
 
-This file is the generator's DESIGN and governs our own changes: **to change the
-generator, edit this skill first, then make the code match it.**
+This file is the DESIGN of your ejected `transformers` generator (`generators/transformers.mjs`):
+**to change the generator, edit this skill first, then make the code match it** — a diff
+to `generators/transformers.mjs` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -30,8 +36,8 @@ uses — one small `.mjs` you own, importing `@redocly/client-generator` and
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change the emitter modules named above (the entry is plumbing — it rarely moves).
-3. Verify: `npm run compile`, the emitter unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/emitters`), the e2e
-   suites for this generator, and the large-description bars
-   (`tests/e2e/generate-client/large-descriptions.test.ts`).
+2. Make `generators/transformers.mjs` match it.
+3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
+   generated files are never hand-edited.
+
+Newer built-in versions merge in with `redocly eject-generator transformers --update`.

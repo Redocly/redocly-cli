@@ -139,11 +139,42 @@ describe('eject-generator (end-to-end)', () => {
     );
   }, 60_000);
 
-  it('sdk prints guidance instead of ejecting; unknown names error', () => {
-    const sdk = run(project, ['eject-generator', 'sdk']);
-    expect(sdk.status).toBe(0);
-    expect(sdk.stderr + sdk.stdout).toContain('not ejectable');
-    expect(existsSync(join(project, 'generators/sdk.mjs'))).toBe(false);
+  it('THE headline holds for a bundled TypeScript generator too', () => {
+    const eject = run(project, ['eject-generator', 'zod']);
+    expect(eject.status, eject.stderr).toBe(0);
+
+    const builtin = run(project, [
+      'generate-client',
+      'openapi.yaml',
+      '--output',
+      'zod-builtin/client.ts',
+      '--generator',
+      'sdk',
+      '--generator',
+      'zod',
+    ]);
+    expect(builtin.status, builtin.stderr).toBe(0);
+    const ejected = run(project, [
+      'generate-client',
+      'openapi.yaml',
+      '--output',
+      'zod-ejected/client.ts',
+      '--generator',
+      'sdk',
+      '--generator',
+      './generators/zod.mjs',
+    ]);
+    expect(ejected.status, ejected.stderr).toBe(0);
+    expect(readFileSync(join(project, 'zod-ejected/client.zod.ts'), 'utf-8')).toBe(
+      readFileSync(join(project, 'zod-builtin/client.zod.ts'), 'utf-8')
+    );
+  }, 60_000);
+
+  it('a framework variant points at the generator it is an argument of; unknown names error', () => {
+    const variant = run(project, ['eject-generator', 'tanstack-query-vue']);
+    expect(variant.status).toBe(0);
+    expect(variant.stderr + variant.stdout).toContain("tanstackQueryGenerator('vue')");
+    expect(existsSync(join(project, 'generators/tanstack-query-vue.mjs'))).toBe(false);
     expect(run(project, ['eject-generator', 'nowhere']).status).not.toBe(0);
   }, 60_000);
 

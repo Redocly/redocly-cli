@@ -6,6 +6,7 @@ The `eject-generator` command vendors a built-in client generator into your repo
 Your agent (or you) edits the generator, `redocly generate-client` rebuilds the client, and next week's spec change regenerates with the customization intact.
 
 Every built-in generator can be ejected: the language SDKs (`python`, `go`, `php`), the TypeScript `sdk`, and the satellites (`zod`, `mock`, `cli`, `swr`, `tanstack-query`, `transformers`).
+The `tanstack-query-vue`, `-svelte`, and `-solid` variants are the same generator with one argument changed, so eject `tanstack-query` and set the framework in your copy.
 
 ## Usage
 
@@ -29,7 +30,10 @@ redocly eject-generator php --force
 
 Ejecting writes two things:
 
-- `<dir>/<name>.mjs` — the generator itself, as plain ESM you own. It imports the authoring toolkit from `@redocly/client-generator` and contains everything else it needs, so it runs standalone.
+- `<dir>/<name>.mjs` — the generator itself, as plain ESM you own, containing everything it needs to run standalone.
+  A language generator (`python`, `go`, `php`) is one self-contained file, so you get its source as we wrote it.
+  A TypeScript generator is a thin entry over shared emitters, so you get it bundled with those emitters: unminified, with a comment marking each source module.
+  Either way it imports the authoring toolkit from `@redocly/client-generator`, and a bundled one also imports `logger` and `isPlainObject` from `@redocly/openapi-core` — a dependency of the toolkit, worth adding explicitly if your package manager doesn't hoist.
 - `.claude/skills/<name>-generator/SKILL.md` — the generator's design as an agent skill: the decisions its code implements, and the loop to follow when changing it (state the change in the skill, then make the code match).
   Coding agents load skills automatically, so your agent starts from the design instead of reverse-engineering the code.
 

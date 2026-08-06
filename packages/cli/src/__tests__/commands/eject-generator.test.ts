@@ -16,11 +16,16 @@ function reset() {
 describe('eject telemetry (coarse categories only)', () => {
   beforeEach(reset);
 
-  it('sdk guidance records the allowlisted name and a guidance action', async () => {
-    await handleEjectGenerator({ ...baseArgs, argv: { generator: 'sdk' } } as CommandArgs<never>);
+  it('a framework variant records the allowlisted name and a guidance action', async () => {
+    // Every generator ejects now; only the tanstack-query framework variants are guidance,
+    // since they are that generator with one argument changed.
+    await handleEjectGenerator({
+      ...baseArgs,
+      argv: { generator: 'tanstack-query-vue' },
+    } as CommandArgs<never>);
     expect(ejectGeneratorTelemetry).toEqual({
       eject_generator_action: 'guidance',
-      eject_generator_name: 'sdk',
+      eject_generator_name: 'tanstack-query-vue',
       eject_generator_outcome: 'success',
     });
   });

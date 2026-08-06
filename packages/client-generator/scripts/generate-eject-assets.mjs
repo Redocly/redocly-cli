@@ -1,16 +1,26 @@
+import { build } from 'esbuild';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
 import { ejectedSkill } from './ejected-skill.mjs';
 
-// Build the ejectable generator assets: the neutral-toolkit language generators,
-// type-stripped to plain ESM (comments preserved) with imports rewritten to the
-// public entries, plus a provenance header and the `defineGenerator`-shaped
-// default export the resolver loads. `redocly eject-generator <name>` copies
-// these into the user's repo verbatim.
+// Build the ejectable generator assets — one `.mjs` per built-in generator, which
+// `redocly eject-generator <name>` copies into the user's repo verbatim. Two shapes,
+// because the generators have two shapes:
+//
+// - A language generator is ONE self-contained file, so it ships as its own source,
+//   type-stripped with comments preserved and its imports rewritten to the public
+//   entries. The user reads their own generator, exactly as we wrote it.
+// - A TypeScript generator is a thin entry over shared emitters, so it ships BUNDLED
+//   with the emitters it uses (esbuild, unminified, one module comment per source file).
+//   `@redocly/client-generator` and `@redocly/openapi-core` stay external — those are
+//   the two packages an ejected generator imports.
+//
+// Both get a provenance header and the `defineGenerator`-shaped default export the
+// resolver loads.
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { version } = JSON.parse(readFileSync(join(pkgRoot, 'package.json'), 'utf-8'));
 const outDir = join(pkgRoot, 'eject-assets', 'generators');
@@ -33,13 +43,106 @@ writeFileSync(
   ].join('\n')
 );
 
-const EJECTABLE = [
+/** The provenance header every ejected file carries; `--update` reads the version from it. */
+function provenanceHeader(name) {
+  return (
+    [
+      `// Ejected from @redocly/client-generator@${version} — the built-in "${name}" generator.`,
+      '// This file is yours: edit freely; the generated client stays machine-owned and is',
+      '// rebuilt by `redocly generate-client`. Newer generator versions merge in with',
+      `// \`redocly eject-generator ${name} --update\`.`,
+    ].join('\n') + '\n'
+  );
+}
+
+/** The default export the resolver loads, appended to every asset. */
+function defaultExport(name, run, sample) {
+  return (
+    `\nexport default {\n  name: '${name}',\n  run: ${run},\n` +
+    (sample === undefined ? '' : `  sample: ${sample},\n`) +
+    // The caret range the ejected copy was written against: this version's model and
+    // helpers, plus every compatible release after it.
+    `  requiresGenerator: '^${version}',\n};\n`
+  );
+}
+
+/** Fail the build loudly — a broken asset would only surface in a user's repo. */
+function checkSyntax(outFile, name) {
+  const check = spawnSync(process.execPath, ['--check', outFile], { encoding: 'utf-8' });
+  if (check.status !== 0) {
+    process.stderr.write(`eject asset ${name}.mjs failed node --check:\n${check.stderr}`);
+    process.exit(1);
+  }
+}
+
+/** The generator's design, rewritten for the user's repo and shipped as an agent skill. */
+function writeSkill(name) {
+  const skill = readFileSync(join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'), 'utf-8');
+  mkdirSync(join(skillsDir, `${name}-generator`), { recursive: true });
+  writeFileSync(join(skillsDir, `${name}-generator`, 'SKILL.md'), ejectedSkill(skill, name));
+}
+
+const LANGUAGE = [
   { name: 'python', run: 'pythonGenerator', sample: 'pythonSample' },
   { name: 'go', run: 'goGenerator', sample: 'goSample' },
   { name: 'php', run: 'phpGenerator', sample: 'phpSample' },
 ];
 
-for (const { name, run, sample } of EJECTABLE) {
+/**
+ * The TypeScript generators, with the expression that produces each one's `run`. The
+ * tanstack-query variants share this bundle: the framework is one argument, so the
+ * ejected copy is the place to change it rather than four near-identical files.
+ */
+const TYPESCRIPT = [
+  { name: 'sdk', imports: ['sdkGenerator', 'sdkSample'], run: 'sdkGenerator', sample: 'sdkSample' },
+  { name: 'zod', imports: ['zodGenerator'], run: 'zodGenerator' },
+  { name: 'mock', imports: ['mockGenerator'], run: 'mockGenerator' },
+  { name: 'swr', imports: ['swrGenerator'], run: 'swrGenerator' },
+  { name: 'transformers', imports: ['transformersGenerator'], run: 'transformersGenerator' },
+  { name: 'cli', imports: ['cliGenerator', 'cliSample'], run: 'cliGenerator', sample: 'cliSample' },
+  {
+    name: 'tanstack-query',
+    imports: ['tanstackQueryGenerator'],
+    run: "tanstackQueryGenerator('react')",
+  },
+];
+
+for (const { name, imports, run, sample } of TYPESCRIPT) {
+  // Bundling starts from a generated entry so the default export survives esbuild's
+  // renaming: appending it to the bundle would reference a symbol esbuild may have
+  // renamed, while an entry module's own export is resolved before that happens.
+  const entry = join(pkgRoot, 'eject-assets', `.entry-${name}.mjs`);
+  writeFileSync(
+    entry,
+    `import { ${imports.join(', ')} } from ${JSON.stringify(
+      join(pkgRoot, 'src', 'generators', name, 'index.ts')
+    )};\n` + defaultExport(name, run, sample)
+  );
+  const outFile = join(outDir, `${name}.mjs`);
+  try {
+    await build({
+      entryPoints: [entry],
+      outfile: outFile,
+      bundle: true,
+      format: 'esm',
+      platform: 'node',
+      target: 'node20',
+      keepNames: true,
+      // Readable output: a user owns this file, so no minification and one comment
+      // per source module.
+      minify: false,
+      external: ['@redocly/client-generator', '@redocly/openapi-core'],
+      banner: { js: provenanceHeader(name) },
+      logLevel: 'warning',
+    });
+  } finally {
+    rmSync(entry, { force: true });
+  }
+  checkSyntax(outFile, name);
+  writeSkill(name);
+}
+
+for (const { name, run, sample } of LANGUAGE) {
   const source = readFileSync(join(pkgRoot, 'src', 'generators', name, 'index.ts'), 'utf-8')
     .replaceAll("'../../authoring/index.js'", "'@redocly/client-generator'")
     .replaceAll(
@@ -53,27 +156,8 @@ for (const { name, run, sample } of EJECTABLE) {
       removeComments: false,
     },
   }).outputText;
-  const header = [
-    `// Ejected from @redocly/client-generator@${version} — the built-in "${name}" generator.`,
-    '// This file is yours: edit freely; the generated client stays machine-owned and is',
-    '// rebuilt by `redocly generate-client`. Newer generator versions merge in with',
-    '// `redocly eject-generator ' + name + ' --update`.',
-    '',
-  ].join('\n');
-  // The caret range the ejected copy was written against: this version's model and
-  // helpers, plus every compatible release after it.
-  const footer = `\nexport default {\n  name: '${name}',\n  run: ${run},\n  sample: ${sample},\n  requiresGenerator: '^${version}',\n};\n`;
   const outFile = join(outDir, `${name}.mjs`);
-  writeFileSync(outFile, header + stripped + footer);
-  const check = spawnSync(process.execPath, ['--check', outFile], { encoding: 'utf-8' });
-  if (check.status !== 0) {
-    process.stderr.write(`eject asset ${name}.mjs failed node --check:\n${check.stderr}`);
-    process.exit(1);
-  }
-  // The generator's OWN design ships as `.claude/skills/<name>-generator/SKILL.md`, so the
-  // agent that edits the ejected file starts from the design instead of reverse-engineering
-  // it. The intro and modify loop are rewritten for the user's repo on the way.
-  const skill = readFileSync(join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'), 'utf-8');
-  mkdirSync(join(skillsDir, `${name}-generator`), { recursive: true });
-  writeFileSync(join(skillsDir, `${name}-generator`, 'SKILL.md'), ejectedSkill(skill, name));
+  writeFileSync(outFile, provenanceHeader(name) + stripped + defaultExport(name, run, sample));
+  checkSyntax(outFile, name);
+  writeSkill(name);
 }
