@@ -116,13 +116,22 @@ export type CliModuleOptions = {
   pagination?: PaginationConfig;
 };
 
-/** The whole `<stem>.cli.ts` file. */
-export function renderCliModule(model: ApiModel, options: CliModuleOptions): string {
-  const commands = commandData(model, { pagination: options.pagination });
-  const schemes: CliAuthScheme[] = model.securitySchemes.map((scheme) => ({
+/**
+ * The auth schemes as the CLI sees them: every apiKey placement is one `apiKey` kind,
+ * since the credential is read from the same env variable either way. Exported so the
+ * docs generator names the same variables the runtime reads.
+ */
+export function cliAuthSchemes(model: ApiModel): CliAuthScheme[] {
+  return model.securitySchemes.map((scheme) => ({
     key: scheme.key,
     kind: scheme.kind === 'bearer' || scheme.kind === 'basic' ? scheme.kind : 'apiKey',
   }));
+}
+
+/** The whole `<stem>.cli.ts` file. */
+export function renderCliModule(model: ApiModel, options: CliModuleOptions): string {
+  const commands = commandData(model, { pagination: options.pagination });
+  const schemes = cliAuthSchemes(model);
   const clientModule = `./${options.stem}.${options.importExt}`;
   const clientImports = ['client', 'configure', ...(options.zodSelected ? ['use'] : [])];
 

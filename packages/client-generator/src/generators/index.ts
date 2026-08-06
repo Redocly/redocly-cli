@@ -1,4 +1,5 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
+import { cliDocsGenerator } from './cli-docs/index.js';
 import { cliGenerator, cliSample } from './cli/index.js';
 import { goGenerator, goSample } from './go/index.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
@@ -35,6 +36,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   swr: { run: swrGenerator },
   mock: { run: mockGenerator },
   cli: { run: cliGenerator, sample: cliSample },
+  'cli-docs': { run: cliDocsGenerator },
   python: { run: pythonGenerator, sample: pythonSample },
   go: { run: goGenerator, sample: goSample },
   php: { run: phpGenerator, sample: phpSample },

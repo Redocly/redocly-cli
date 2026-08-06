@@ -28,6 +28,7 @@ export type GeneratorName =
   | 'transformers'
   | 'mock'
   | 'cli'
+  | 'cli-docs'
   | 'python'
   | 'go'
   | 'php';

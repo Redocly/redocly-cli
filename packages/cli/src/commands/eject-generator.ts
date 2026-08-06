@@ -36,6 +36,7 @@ const EJECTABLE = new Set([
   'tanstack-query',
   'transformers',
   'cli',
+  'cli-docs',
 ]);
 
 /**

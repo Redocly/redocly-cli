@@ -78,6 +78,22 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
     load: () =>
       import('./cli/index.js').then((m) => ({ run: m.cliGenerator, sample: m.cliSample })),
   },
+  // cli-docs renders the Markdown reference for the CLI from the same command table the
+  // CLI dispatches on, so it requires the generator it documents.
+  'cli-docs': {
+    requires: ['cli'],
+    errorModes: ['throw'],
+    notApplicable: {
+      outputMode: 'it emits one Markdown page',
+      importExt: 'a Markdown page has no imports',
+      runtime: 'a Markdown page embeds no runtime',
+    },
+    load: () =>
+      import('./cli-docs/index.js').then((m) => ({
+        run: m.cliDocsGenerator,
+        options: m.cliDocsOptions,
+      })),
+  },
   // python emits a standalone full Python SDK (httpx) — no TypeScript involved,
   // so a python-only selection never loads the `typescript` package.
   python: {

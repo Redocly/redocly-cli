@@ -91,7 +91,7 @@ const GLOBAL_FLAGS: Record<string, { key: keyof CliGlobals; boolean?: boolean }>
  * multi-word tag"), which only resolves if the user quotes it. Commands are addressed by
  * this slug; help still shows the original tag.
  */
-function groupSlug(group: string): string {
+export function groupSlug(group: string): string {
   return group
     .trim()
     .replace(/[^A-Za-z0-9]+/g, '-')
@@ -238,7 +238,7 @@ export function parseInvocation(commands: CliCommand[], argv: string[]): CliInvo
 }
 
 /** Credential env-var prefix: bin name constant-cased (`cafe-api` → `CAFE_API`). */
-function envPrefix(binName: string): string {
+export function envPrefix(binName: string): string {
   return binName
     .replace(/[^A-Za-z0-9]+/g, '_')
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')

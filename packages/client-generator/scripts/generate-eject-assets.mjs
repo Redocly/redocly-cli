@@ -100,6 +100,7 @@ const TYPESCRIPT = [
   { name: 'swr', imports: ['swrGenerator'], run: 'swrGenerator' },
   { name: 'transformers', imports: ['transformersGenerator'], run: 'transformersGenerator' },
   { name: 'cli', imports: ['cliGenerator', 'cliSample'], run: 'cliGenerator', sample: 'cliSample' },
+  { name: 'cli-docs', imports: ['cliDocsGenerator'], run: 'cliDocsGenerator' },
   {
     name: 'tanstack-query',
     imports: ['tanstackQueryGenerator'],
