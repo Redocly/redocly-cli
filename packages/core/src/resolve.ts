@@ -143,8 +143,12 @@ export class BaseResolver {
       return { source, parsed: source.body };
     }
 
+    const filename = isAbsoluteUrl(source.absoluteRef)
+      ? new URL(source.absoluteRef).pathname
+      : source.absoluteRef;
+
     if (
-      !isSupportedExtension(source.absoluteRef) &&
+      !isSupportedExtension(filename) &&
       !source.mimeType?.match(/(json|yaml|openapi)/) &&
       !isRoot // always parse root
     ) {
