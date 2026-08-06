@@ -19,6 +19,7 @@ Incompatible selections fail fast with an explanation.
 | `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                                                                                                         | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
 | `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                       | none                                                     |
 | `cli`            | `<output>.cli.ts` — a bin-ready [command-line interface](#generated-cli) over the client: typed flags, `--json` bodies, env auth, `--page-all`.                                                                                                                 | none                                                     |
+| `cli-docs`       | `<output>.cli.md` — a Markdown [reference for the generated CLI](#cli-reference-docs): every command, flag, exit code, and credential variable.                                                                                                                 | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
@@ -61,7 +62,25 @@ Exit codes are a documented contract, and errors print one JSON object to stderr
 
 To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
 
-The CLI can also emit its own reference documentation as Markdown (every command, flag, and exit code) — planned next, and then for the language SDKs too.
+#### CLI reference docs
+
+The `cli-docs` generator writes `<stem>.cli.md`: a Markdown reference with the usage line, the global flags, the credential environment variables, the exit-code table, and one section per command listing its positionals and flags with types, defaults, and descriptions.
+It renders from the same command table the CLI dispatches on, so the page cannot drift from the tool it documents — regenerate and the docs follow.
+Selecting it pulls in the CLI it describes, so `--generator cli-docs` is enough.
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts --generator cli-docs
+```
+
+Two options shape the page, under `client.options.cli-docs`:
+
+| Option        | Type    | Description                                                                                         |
+| ------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `title`       | string  | Page heading. Defaults to `<API title> CLI`.                                                        |
+| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. Default `false`. |
+
+For a different structure or wording, [eject the generator](../commands/eject-generator.md) — the renderer is the template, so `redocly eject-generator cli-docs` hands you the page layout as code you own, with no template syntax to learn.
+The same reference for the language SDKs is next.
 
 ### Language SDKs
 
