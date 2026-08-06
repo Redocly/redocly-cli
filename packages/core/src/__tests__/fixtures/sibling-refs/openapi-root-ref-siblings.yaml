@@ -1,0 +1,24 @@
+openapi: 3.1.0
+info:
+  title: Root-level $ref with sibling keywords
+  version: 1.0.0
+paths:
+  /demo:
+    get:
+      responses:
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/BadRequest.yaml
+components:
+  schemas:
+    BadRequest:
+      $ref: ./schemas/BadRequest.yaml
+    ProblemAlias:
+      $ref: ./schemas/BaseProblem.yaml
+      title: Problem alias
+    Problem:
+      $ref: '#/components/schemas/ProblemAlias'
+      description: Composed problem

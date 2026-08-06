@@ -976,6 +976,129 @@ describe('sibling $ref resolution by spec', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should keep sibling keywords when an external schema file has a root-level $ref', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-root-ref-siblings.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle refs inside $ref siblings that collide with resolved schema keys', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-sibling-collision.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schema = (res.parsed as any).paths['/demo'].get.responses['200'].content[
+      'application/json'
+    ].schema;
+    expect(schema).toEqual({
+      $ref: '#/components/schemas/Test',
+      properties: {
+        second: { $ref: '#/components/schemas/BaseProblem' },
+      },
+    });
+    expect((res.parsed as any).components.schemas.BaseProblem).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+      },
+    });
+  });
+
+  it('should not crash when a $ref with siblings resolves to null', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Nullish:
+              $ref: '#/components/schemas/Target'
+              description: composed over null
+            Target: null
+      `,
+      ''
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).components.schemas.Nullish).toEqual({
+      $ref: '#/components/schemas/Target',
+      description: 'composed over null',
+    });
+  });
+
+  it('should bundle discriminator mappings that point to composed schemas', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-discriminator-mapping.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as any).components.schemas;
+    expect(schemas.Pet.discriminator.mapping.cat).toEqual('#/components/schemas/Cat');
+    expect(schemas.Cat).toEqual({
+      title: 'Cat',
+      $ref: '#/components/schemas/BaseProblem',
+      properties: {
+        toy: { $ref: '#/components/schemas/Toy' },
+      },
+    });
+    expect(schemas.Toy).toEqual({ type: 'string' });
+  });
+
+  it('should keep referenced composed schemas when removing unused components', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-root-ref-siblings.yaml'),
+      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(Object.keys((res.parsed as any).components.schemas).sort()).toEqual([
+      'BadRequest',
+      'BaseProblem',
+    ]);
+  });
+
+  it('should keep sibling keywords when a referenced component has a root-level $ref', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-root-ref-siblings.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as any).components.schemas;
+    expect(schemas.Problem).toEqual({
+      $ref: '#/components/schemas/ProblemAlias',
+      description: 'Composed problem',
+    });
+    expect(schemas.ProblemAlias).toEqual({
+      $ref: '#/components/schemas/BaseProblem',
+      title: 'Problem alias',
+    });
+    expect(schemas.BaseProblem).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+      },
+    });
+  });
 });
 
 describe('bundle with --component-names-strategy title', () => {

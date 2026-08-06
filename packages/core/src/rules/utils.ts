@@ -2,6 +2,7 @@ import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import { default as levenshtein } from 'js-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
+import type { ResolvedRefChainHop } from '../resolve.js';
 import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi2.js';
 import type { Async3Operation, Async3OperationTrait } from '../typings/asyncapi3.js';
 import type {
@@ -33,28 +34,25 @@ export const resolveSchema = <T extends NonUndefined>(
 ): {
   schema?: T;
   location?: Location;
+  chain?: ResolvedRefChainHop[];
 } => {
   if (isRef(schemaOrRef)) {
     const resolved = ctx.resolve<T>(schemaOrRef, location?.source.absoluteRef);
     return resolved
-      ? { schema: resolved.node, location: resolved.location }
+      ? { schema: resolved.node, location: resolved.location, chain: resolved.chain }
       : { schema: undefined, location };
   }
 
   return { schema: schemaOrRef, location };
 };
 
-export const schemaHasProperty = (
-  schemaOrRef: Referenced<AnySchema> | undefined,
+const schemaDefinesProperty = (
+  schema: AnySchema,
   propertyName: string,
   ctx: UserContext,
-  visited: Set<AnySchema | OasRef> = new Set(),
-  resolveLocation?: Location
+  visited: Set<AnySchema | OasRef>,
+  location?: Location
 ): boolean => {
-  const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveLocation);
-  if (!schema || visited.has(schema)) return false;
-  visited.add(schema);
-
   if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
     return true;
   }
@@ -81,6 +79,54 @@ export const schemaHasProperty = (
     )
   ) {
     return true;
+  }
+
+  return false;
+};
+
+export const schemaHasProperty = (
+  schemaOrRef: Referenced<AnySchema> | undefined,
+  propertyName: string,
+  ctx: UserContext,
+  visited: Set<AnySchema | OasRef> = new Set(),
+  resolveLocation?: Location
+): boolean => {
+  // a $ref can carry sibling keywords that compose the target, so check them first
+  if (
+    isRef(schemaOrRef) &&
+    schemaDefinesProperty(schemaOrRef as AnySchema, propertyName, ctx, visited, resolveLocation)
+  ) {
+    return true;
+  }
+
+  const { schema, location, chain } = resolveSchema(schemaOrRef, ctx, resolveLocation);
+  if (!schema) return false;
+
+  if (!visited.has(schema)) {
+    visited.add(schema);
+    if (schemaDefinesProperty(schema, propertyName, ctx, visited, location)) {
+      return true;
+    }
+  }
+
+  // composed $refs the resolution chased through contribute their sibling keywords too,
+  // even when the chain end was already visited through another branch
+  for (const chainHop of chain ?? []) {
+    if (!isPlainObject(chainHop.node) || visited.has(chainHop.node as AnySchema)) {
+      continue;
+    }
+    visited.add(chainHop.node as AnySchema);
+    if (
+      schemaDefinesProperty(
+        chainHop.node as AnySchema,
+        propertyName,
+        ctx,
+        visited,
+        chainHop.location
+      )
+    ) {
+      return true;
+    }
   }
 
   return false;

@@ -448,4 +448,41 @@ describe('Oas3 no-unused-components', () => {
       ]
     `);
   });
+
+  it('should not report a referenced schema composing another schema with a root-level $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths:
+          /demo:
+            get:
+              responses:
+                '400':
+                  description: Bad request
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Composed'
+        components:
+          schemas:
+            Composed:
+              $ref: '#/components/schemas/Base'
+              title: Composed
+            Base:
+              type: object
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });

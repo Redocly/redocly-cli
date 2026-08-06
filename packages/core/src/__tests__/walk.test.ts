@@ -73,6 +73,68 @@ describe('walk order', () => {
     }
   });
 
+  it('should fire ref visitors once per composed $ref regardless of key order', async () => {
+    const countComposedRefVisits = async (documentYaml: string) => {
+      const visits: string[] = [];
+      const testRuleSet: Oas3RuleSet = {
+        test: () => ({
+          ref(node: any, ctx: any) {
+            if (Object.keys(node).length > 1) {
+              visits.push(ctx.location.pointer);
+            }
+          },
+        }),
+      };
+
+      await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document: parseYamlToDocument(documentYaml, ''),
+        config: await createConfig({
+          plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+          rules: { 'test/test': 'error' },
+        }),
+      });
+
+      return visits;
+    };
+
+    const usageFirst = outdent`
+      openapi: 3.1.0
+      info:
+        title: Test
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Usage:
+            $ref: '#/components/schemas/Composed'
+          Composed:
+            $ref: '#/components/schemas/Base'
+            title: Composed
+          Base:
+            type: object
+    `;
+    const composedFirst = outdent`
+      openapi: 3.1.0
+      info:
+        title: Test
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Composed:
+            $ref: '#/components/schemas/Base'
+            title: Composed
+          Base:
+            type: object
+          Usage:
+            $ref: '#/components/schemas/Composed'
+    `;
+
+    expect(await countComposedRefVisits(usageFirst)).toEqual(['#/components/schemas/Composed']);
+    expect(await countComposedRefVisits(composedFirst)).toEqual(['#/components/schemas/Composed']);
+  });
+
   it('should run legacy visitors', async () => {
     const visitors = {
       DefinitionRoot: {
