@@ -1,5 +1,5 @@
 {
-  "name": "@redocly-examples/ast-toolkit-generator",
+  "name": "@redocly-examples/typescript-types-generator",
   "private": true,
   "version": "0.0.0",
   "type": "module",

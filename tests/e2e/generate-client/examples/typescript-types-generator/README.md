@@ -1,9 +1,9 @@
-# AST toolkit generator example
+# TypeScript types generator example
 
-A custom generator that builds its output as a real TypeScript AST with the
-`@redocly/client-generator/generate` entry — the same type-rendering toolkit the built-in
-generators use — instead of concatenating strings
-(compare with the string-building [`custom-generator`](../custom-generator) example).
+A custom generator that renders real TypeScript types with the
+`@redocly/client-generator/generate` entry — the same type renderer the built-in generators
+use, so the mapping matches the generated client exactly, instead of guessing at type text
+(compare with the plain string-building [`custom-generator`](../custom-generator) example).
 
 - [`response-map-generator.mjs`](./response-map-generator.mjs) — the generator.
   For every operation with a JSON success response it derives the response body's TypeScript type

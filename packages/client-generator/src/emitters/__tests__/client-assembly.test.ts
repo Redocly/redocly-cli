@@ -1,7 +1,8 @@
+import ts from 'typescript';
+
 import type { ApiModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 import type { EmitOptions } from '../emit-options.js';
-import { ts } from '../ts.js';
 import { modelWith, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 
 /** The package arm of the shared emitter. */

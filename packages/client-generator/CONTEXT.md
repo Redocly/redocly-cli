@@ -39,10 +39,10 @@ _Avoid_: streamSchema, eventSchema (in code identifiers — `itemSchema` mirrors
 ### Emission
 
 **Emitter**:
-Builds a TypeScript **AST** (`ts.factory` nodes) from the IR.
+Renders TypeScript source TEXT from the IR, through `Printer`.
 Lives in `emitters/`.
-Each emitter is deep — one narrow entry point over hidden node-building bulk — and owns a single concern: `types.ts` (`typesStatements`/`schemaToTypeNode`), `type-guards.ts` (`typeGuardStatements`), `descriptor.ts` (the `OPERATIONS` descriptor map + the `Ops` type), `operation-aliases.ts`/`operation-types.ts` (the `<Op>*` aliases and their type builders), `sse.ts` (the **SSE** detection seam: `isSseOp`/`partitionOps`/`sseEventType`/`sseDataKind`), and `inline-runtime.ts` (the **inline assembler**).
-The foundation module `ts.ts` owns the shared printer and ergonomics: `printNodes` (nodes → source), `parseStatements` (parse hand-authored source into nodes), and `jsdoc` (attach a block comment).
+Each emitter is deep — one narrow entry point over hidden rendering bulk — and owns a single concern: `types.ts`, `type-guards.ts`, `descriptor.ts` (the `OPERATIONS` descriptor map + the `Ops` type), `operation-aliases.ts`/`operation-types.ts` (the `<Op>*` aliases), `ts-type.ts` (`tsType`, the schema→type renderer), `sse.ts` (the **SSE** detection seam: `isSseOp`/`partitionOps`/`sseEventType`/`sseDataKind`), and `inline-runtime.ts` (the **inline assembler**).
+`setup-bake.ts` is the only module that parses TypeScript (a publisher `--setup` module), which is why `typescript` is an optional peer dependency loaded lazily.
 `package-client.ts` is the shared _wiring_ emitter: it assembles each file's content — identical for both runtimes except the runtime block (import vs embed) — and prints **once**, exposing `emitClientSingleFile` / `emitClientSplit`.
 Low-level text helpers (`pascalCase`, `splitLines`, `joinSections`) stay private in `support.ts`, and the JSDoc-body builder in `jsdoc.ts` — consumed only by the deep emitters, never by writers.
 _Avoid_: renderer, codegen.

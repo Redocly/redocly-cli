@@ -143,6 +143,7 @@ The package root exports pure helpers over the API model that cover the cross-la
 
 These helpers plus `Printer` are the ONE way to author a generator, in any output language.
 Nothing in the authoring path depends on the `typescript` package, so a generator also runs in the browser or any other embedded host.
+The only part of `generate-client` that parses TypeScript is baking a `--setup` module, which is why `typescript` is an optional peer dependency: install it if you use that flag, and skip it otherwise.
 
 `redocly eject-generator <name>` writes this guidance into your repo as an agent skill, so your coding agent has the contract, the model reference, and this helper table without being told.
 
@@ -212,7 +213,7 @@ With `codeSamples: true` in the `client` block, generation collects every select
 The built-in `sdk` generator ships the TypeScript reference implementation, so enabling the flag alone gives your Redoc docs per-operation TypeScript examples that never drift from the SDK.
 
 Import-specifier generators execute at generation time — they carry the same trust level as any installed dependency you run.
-See the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator) for the runnable `tsType`-based plugin (including type-importing referenced schemas), the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building one, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the description's tags.
+See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator) for the runnable `tsType`-based plugin (including type-importing referenced schemas), the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal string-building one, and the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic one that derives an `api.<resource>.<operation>` facade from the description's tags.
 
 ## Resources
 

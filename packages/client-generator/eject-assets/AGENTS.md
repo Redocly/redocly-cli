@@ -106,8 +106,10 @@ authored with exactly this toolkit and nothing else — models via `flattenAllOf
 `enumValues`/`discriminatorCases`, all code through `Printer`, every name through
 `identifierFor(..., RESERVED_WORDS.python)`.
 
-TypeScript-emitting generators may additionally use the TS toolkit from
-`@redocly/client-generator/generate` (`ts`, `printStatements`, `schemaToTypeNode`, …).
+A generator that emits TypeScript may additionally use the source-text renderers from
+`@redocly/client-generator/generate` — `tsType` (schema → type), `tsJsdoc`, `codeLiteral`,
+`operationSignature`, `pascalCase`, `safeIdent`. There is no AST toolkit and no
+`typescript` dependency: every generator prints text through `Printer`.
 
 ## The loop
 

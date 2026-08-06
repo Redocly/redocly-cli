@@ -2,7 +2,7 @@
 # The client is generated for the api that declares a `client` block
 # (run `redocly generate-client` with no args to build every such api).
 apis:
-  ast-toolkit-generator:
+  typescript-types-generator:
     root: ../_shared/cafe.yaml
     clientOutput: ./src/api/client.ts
     client:
