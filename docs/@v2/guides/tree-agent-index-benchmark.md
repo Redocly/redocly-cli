@@ -320,6 +320,25 @@ What it did, unprompted:
 Two honest caveats: this is a single run with a single model, and the instruction itself names the three commands — the agent's job was to pick targets and interpret results, not to invent the protocol.
 But that is exactly the deployment model this guide prices: the chain total above is an upper bound on what a compliant agent consumes, and a real one lands under it.
 
+### Multi-operation workflows
+
+Real agent tasks usually chain several calls, so the live experiment was repeated with workflow tasks — same rules, same 85-token instruction, the agent picks every command itself.
+
+**Against this 10.0 MB description** — task: "create a repository, open an issue in it, comment on that issue; state which response field feeds each next request."
+The agent ran six commands (overview, the `repos` and `issues` branches, three operation cards), produced the correct three-call sequence, and wired the data flow correctly on the first try: `owner.login`/`name` from the create-repository response feed the `{owner}`/`{repo}` path parameters, and the issue response's `number` feeds `{issue_number}`.
+
+| Task size    | Commands | Full outputs (tokens) | vs. whole file | Live session actually consumed |
+| ------------ | -------: | --------------------: | -------------: | -----------------------------: |
+| 1 operation  |        3 |               151,054 |      ~13× less |                         91,463 |
+| 3 operations |        6 |               224,324 |     ~8.7× less |                         99,848 |
+
+Tripling the task grew the chain by half, not by three: the overview is paid once, tag branches are reused across operations that share them, and each extra operation adds one card (~8-20k) plus at most one new branch.
+
+**Against a small description** (the 41 KB, 9,042-token demo API) — task: "find a coffee product, order it, fetch the order's result."
+The agent again composed the correct end-to-end sequence — `GET /menu` → `POST /orders` (menu item `id` → `orderItems[].menuItemId`) → `GET /orders/{orderId}` (order `id` → path parameter) — and, unprompted, also resolved the auth story: the menu is public, ordering needs an OAuth2 bearer with `orders:write`, and client credentials come from `POST /oauth2/register`.
+The honest number: its eight commands' full outputs total 22,508 tokens — two and a half times the whole 9,042-token file.
+On descriptions that fit the window comfortably, the index buys navigation and structure, not token savings; the savings argument starts where the file stops fitting.
+
 ## Methodology notes
 
 - Every output above comes from a real command run against the real file; sizes are the byte counts of captured `stdout`.
