@@ -219,7 +219,6 @@ const Message: NodeType = {
     examples: 'MessageExampleList',
     traits: 'MessageTraitList',
   },
-  additionalProperties: {},
   description: 'Describes a message received on a given channel and operation.',
 };
 
@@ -291,7 +290,6 @@ const MessageTrait: NodeType = {
     bindings: 'MessageBindings',
     examples: 'MessageExampleList',
   },
-  additionalProperties: {},
   description:
     'Describes a trait that MAY be applied to a Message Object. This object MAY contain any property from the Message Object, except payload and traits.',
 };

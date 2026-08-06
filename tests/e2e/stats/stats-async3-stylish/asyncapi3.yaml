@@ -3,11 +3,11 @@ info:
   title: AsyncAPI 3.x Example
   version: 1.0.0
   description: Minimal AsyncAPI 3.x example for stats testing
-tags:
-  - name: test-tag
-externalDocs:
-  description: External docs
-  url: https://example.com
+  tags:
+    - name: test-tag
+  externalDocs:
+    description: External docs
+    url: https://example.com
 
 channels:
   userSignedup:
@@ -23,7 +23,7 @@ operations:
   sendUserSignedup:
     action: send
     tags:
-      - test-tag
+      - name: test-tag
     channel:
       $ref: '#/channels/userSignedup'
     messages:
