@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.45.0
+
+### Minor Changes
+
+- Fixed the `bundle` command losing schema keywords (such as `title`, `properties`, or `required`) written next to a `$ref` when the referenced schemas started with their own `$ref`.
+
 ## 2.44.2
 
 ### Patch Changes
