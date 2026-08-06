@@ -62,7 +62,7 @@ describe('renderViewStylish', () => {
         servers: { urls: ['https://api.example.com/v1'] },
         tags: [{ name: 'Tickets', summary: 'Buy tickets.', operations: 2 }],
         operations: 2,
-        webhooks: 0,
+        webhooks: [],
         components: [{ section: 'schemas', count: 3 }],
       },
     });

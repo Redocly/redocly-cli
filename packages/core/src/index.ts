@@ -188,15 +188,18 @@ export {
 export type {
   ApiOverview,
   ComponentCard,
+  ComponentListCard,
   ComponentListItem,
   FileRange,
   OperationCard,
+  OperationListCard,
   OperationListItem,
   PathListItem,
   TypedRef,
   UsedByEntry,
   UsedByReport,
 } from './api-graph/views.js';
+export { buildFileCard, buildFileUsedByReport, type FileCard } from './api-graph/file-view.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';

@@ -55,13 +55,13 @@ describe('views: overview and listings', () => {
       { name: 'Tickets', summary: 'Buy tickets and manage reservations.', operations: 2 },
     ]);
     expect(overview.operations).toBe(2);
-    expect(overview.webhooks).toBe(0);
+    expect(overview.webhooks).toEqual([]);
     expect(overview.components.find((entry) => entry.section === 'schemas')?.count).toBeGreaterThan(
       0
     );
   });
 
-  it('lists operations flat and scoped, with coordinates and tags', async () => {
+  it('lists operations flat and scoped, as cards with refs and usedBy', async () => {
     const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
 
     const allOperations = buildOperationListing(analysis, { cwd });
@@ -76,27 +76,51 @@ describe('views: overview and listings', () => {
       file: 'paths/tickets.yaml',
     });
     expect(scoped[1].start_line).toBeGreaterThanOrEqual(1);
+    expect(scoped[1].refs.map((ref) => ref.name)).toContain('Ticket');
+    expect(scoped[1].usedBy).toEqual([]);
+    expect(scoped[1]).not.toHaveProperty('content');
+    expect(scoped[1]).not.toHaveProperty('deps');
   });
 
-  it('lists paths with their methods and components with coordinates', async () => {
+  it('lists paths with their methods and components as cards with refs and usedBy', async () => {
     const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
 
     const paths = buildPathListing(analysis, { cwd });
     expect(paths.find((item) => item.path === '/tickets')?.methods).toEqual(['get', 'post']);
 
     const schemas = buildComponentListing(analysis, { cwd, section: 'schemas' });
-    expect(schemas.find((item) => item.name === 'Ticket')).toMatchObject({
+    const ticket = schemas.find((item) => item.name === 'Ticket');
+    expect(ticket).toMatchObject({
       file: 'components/schemas/Ticket.yaml',
       start_line: 1,
     });
+    expect(ticket!.refs).toHaveLength(1);
+    expect(ticket!.refs[0]).toMatchObject({
+      resolved: true,
+      file: 'components/schemas/TicketId.yaml',
+    });
+    expect(ticket!.usedBy.map((entry) => entry.id)).toContain('POST /tickets');
+    expect(ticket).not.toHaveProperty('content');
+    expect(ticket).not.toHaveProperty('deps');
   });
 
-  it('counts webhook operations in the overview', async () => {
+  it('names webhooks with their operation counts in the overview', async () => {
     const { analysis, specVersion, cwd } = await analysisOfFixture(
       join(__dirname, 'fixtures', 'webhooks')
     );
     const overview = buildOverview(analysis, { specVersion, cwd });
-    expect(overview.webhooks).toBe(1);
+    expect(overview.webhooks).toEqual([{ name: 'newTicket', operations: 1 }]);
+  });
+
+  it('orders webhooks by first appearance, not alphabetically', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'multi-webhooks')
+    );
+    const overview = buildOverview(analysis, { specVersion, cwd });
+    expect(overview.webhooks).toEqual([
+      { name: 'zLast', operations: 1 },
+      { name: 'aFirst', operations: 2 },
+    ]);
   });
 });
 

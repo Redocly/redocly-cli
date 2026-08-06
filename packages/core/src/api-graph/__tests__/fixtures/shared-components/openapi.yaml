@@ -1,0 +1,7 @@
+openapi: 3.0.3
+info:
+  title: Shared Components API
+  version: 1.0.0
+paths:
+  /widgets:
+    $ref: './widgets.yaml'

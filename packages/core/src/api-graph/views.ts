@@ -33,7 +33,7 @@ export type ApiOverview = {
   servers?: Partial<FileRange> & { urls: string[] };
   tags: { name: string; summary?: string; operations: number }[];
   operations: number;
-  webhooks: number;
+  webhooks: { name: string; operations: number }[];
   components: { section: string; count: number }[];
 };
 
@@ -84,6 +84,16 @@ export function buildOverview(
     (left, right) => COMPONENT_SECTIONS.indexOf(left) - COMPONENT_SECTIONS.indexOf(right)
   );
 
+  // Ordered by first appearance, like tags and components above: the order operations were
+  // encountered while walking the document, not alphabetical.
+  const webhookCounts = new Map<string, number>();
+  const webhookOrder: string[] = [];
+  for (const operation of meta.operations) {
+    if (!operation.isWebhook) continue;
+    if (!webhookCounts.has(operation.containerKey)) webhookOrder.push(operation.containerKey);
+    webhookCounts.set(operation.containerKey, (webhookCounts.get(operation.containerKey) ?? 0) + 1);
+  }
+
   const docDescription = meta.info
     ? truncateSummary([meta.info.title, meta.info.description].filter(Boolean).join(' — '))
     : undefined;
@@ -113,7 +123,7 @@ export function buildOverview(
     // The true operation count: an operation with more than one tag is counted once here,
     // unlike the per-tag counts above, which each count it under every tag it has.
     operations: meta.operations.filter((operation) => !operation.isWebhook).length,
-    webhooks: meta.operations.filter((operation) => operation.isWebhook).length,
+    webhooks: webhookOrder.map((name) => ({ name, operations: webhookCounts.get(name)! })),
     components: orderedSections.map((section) => ({
       section,
       count: componentCounts.get(section)!,
@@ -136,16 +146,6 @@ export function toOperationListItem(operation: CollectedOperation, cwd: string):
   };
 }
 
-export function buildOperationListing(
-  analysis: ApiAnalysis,
-  options: { cwd: string; tag?: string; path?: string; webhook?: string }
-): OperationListItem[] {
-  const { cwd, ...scope } = options;
-  return listOperations(analysis.meta, scope).map((operation) =>
-    toOperationListItem(operation, cwd)
-  );
-}
-
 export function buildPathListing(analysis: ApiAnalysis, options: { cwd: string }): PathListItem[] {
   const groups = new Map<string, CollectedOperation[]>();
   for (const operation of analysis.meta.operations) {
@@ -159,22 +159,6 @@ export function buildPathListing(analysis: ApiAnalysis, options: { cwd: string }
     methods: operations.map((operation) => operation.method.toLowerCase()),
     ...toFileRange(operations[0].pathItemLocation, options.cwd),
   }));
-}
-
-export function buildComponentListing(
-  analysis: ApiAnalysis,
-  options: { cwd: string; section: string }
-): ComponentListItem[] {
-  return analysis.meta.components
-    .filter((component) => component.section === options.section)
-    .map((component) => {
-      const summary = truncateSummary(component.description);
-      return {
-        name: component.name,
-        ...(summary ? { summary } : {}),
-        ...toFileRange(component.location, options.cwd),
-      };
-    });
 }
 
 export type TypedRef = ApiNodeRef & { component?: string; name?: string };
@@ -208,6 +192,12 @@ export type ComponentCard = {
   deps?: ApiNodeEnvelope[];
   truncated?: boolean;
 } & FileRange;
+
+/** Card-shaped listing entry: everything a card carries except its retrieval-only fields. */
+export type OperationListCard = Omit<OperationCard, 'content' | 'deps' | 'truncated'>;
+
+/** Card-shaped listing entry: everything a card carries except its retrieval-only fields. */
+export type ComponentListCard = Omit<ComponentCard, 'content' | 'deps' | 'truncated'>;
 
 const COMPONENT_POINTER_PATTERN = /^#\/components\/([^/]+)\/([^/]+)$/;
 
@@ -281,6 +271,64 @@ function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): Used
   return { id: nodeId, ...(graphNode?.file ? { file: graphNode.file } : {}) };
 }
 
+/** The card fields shared by a full card and its list-card counterpart, with no retrieval. */
+export function buildOperationListCard(
+  analysis: ApiAnalysis,
+  operation: CollectedOperation,
+  cwd: string
+): OperationListCard {
+  const range = toFileRange(operation.location, cwd);
+  const description = truncateSummary(operation.description);
+  return {
+    ...toOperationListItem(operation, cwd),
+    ...(description ? { description } : {}),
+    refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
+      classifyRef
+    ),
+    usedBy: buildUsedBy(analysis, operation.id, cwd),
+  };
+}
+
+/** The card fields shared by a full card and its list-card counterpart, with no retrieval. */
+export function buildComponentListCard(
+  analysis: ApiAnalysis,
+  component: CollectedComponent,
+  cwd: string
+): ComponentListCard {
+  const componentId = `${component.section}/${component.name}`;
+  const range = toFileRange(component.location, cwd);
+  const summary = truncateSummary(component.description);
+  return {
+    component: component.section,
+    name: component.name,
+    ...(summary ? { summary } : {}),
+    ...range,
+    refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
+      classifyRef
+    ),
+    usedBy: buildUsedBy(analysis, componentId, cwd),
+  };
+}
+
+export function buildOperationListing(
+  analysis: ApiAnalysis,
+  options: { cwd: string; tag?: string; path?: string; webhook?: string }
+): OperationListCard[] {
+  const { cwd, ...scope } = options;
+  return listOperations(analysis.meta, scope).map((operation) =>
+    buildOperationListCard(analysis, operation, cwd)
+  );
+}
+
+export function buildComponentListing(
+  analysis: ApiAnalysis,
+  options: { cwd: string; section: string }
+): ComponentListCard[] {
+  return analysis.meta.components
+    .filter((component) => component.section === options.section)
+    .map((component) => buildComponentListCard(analysis, component, options.cwd));
+}
+
 function locatedNodeFor(id: string, location: Location, cwd: string): LocatedIndexNode {
   return { id, title: id, ...toFileRange(location, cwd) };
 }
@@ -318,22 +366,17 @@ export function buildOperationCard(
   options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean }
 ): OperationCard {
   const { cwd } = options;
-  const range = toFileRange(operation.location, cwd);
-  const description = truncateSummary(operation.description);
-  const card: OperationCard = {
-    ...toOperationListItem(operation, cwd),
-    ...(description ? { description } : {}),
-    refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
-      classifyRef
-    ),
-    usedBy: buildUsedBy(analysis, operation.id, cwd),
-  };
+  const card = buildOperationListCard(analysis, operation, cwd);
   if (!options.withDeps) return card;
   // A webhook operation has no graph node of its own: every method under a webhook shares one
   // container node (`webhooks/<name>`, see mapRootPointer) that actually holds the $ref edges.
   // Seed the closure from that container while keeping the operation's own range for `content`.
   const depsSeedId = operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id;
-  return appendRetrieval(
+  // The explicit type argument steers inference to OperationCard: `card` is typed as the
+  // narrower OperationListCard (it has no content/deps/truncated keys at all), and those three
+  // keys being optional on both sides trips TS's "no properties in common" weak-type check
+  // if inference is left to pick OperationListCard instead.
+  return appendRetrieval<OperationCard>(
     card,
     locatedNodeFor(depsSeedId, operation.location, cwd),
     analysis,
@@ -347,21 +390,11 @@ export function buildComponentCard(
   options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean }
 ): ComponentCard {
   const { cwd } = options;
-  const componentId = `${component.section}/${component.name}`;
-  const range = toFileRange(component.location, cwd);
-  const summary = truncateSummary(component.description);
-  const card: ComponentCard = {
-    component: component.section,
-    name: component.name,
-    ...(summary ? { summary } : {}),
-    ...range,
-    refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
-      classifyRef
-    ),
-    usedBy: buildUsedBy(analysis, componentId, cwd),
-  };
+  const card = buildComponentListCard(analysis, component, cwd);
   if (!options.withDeps) return card;
-  return appendRetrieval(
+  const componentId = `${component.section}/${component.name}`;
+  // Same reasoning as buildOperationCard: steer inference to ComponentCard explicitly.
+  return appendRetrieval<ComponentCard>(
     card,
     locatedNodeFor(componentId, component.location, cwd),
     analysis,
@@ -375,16 +408,24 @@ export type UsedByReport = {
   affectedComponents: (UsedByEntry & { via: string[] })[];
 };
 
-export function buildUsedByReport(
+/**
+ * Classifies each reverse-reference chain into an affected operation or component and assembles
+ * the report. Shared by `buildUsedByReport` (single-node target) and `buildFileUsedByReport`
+ * (file target, seeded from several nodes and pre-merged), which pass different chain sources
+ * and, for the file case, exclude referrers that live in the target file itself.
+ */
+export function buildUsedByReportFromChains(
   analysis: ApiAnalysis,
-  targetId: string,
-  cwd: string
+  target: UsedByEntry,
+  chains: Map<string, string[]>,
+  cwd: string,
+  excludeIds: ReadonlySet<string> = new Set()
 ): UsedByReport {
-  const chains = collectReversePathsTo(targetId, analysis.graph.edges);
   const affectedOperations: (UsedByEntry & { via: string[] })[] = [];
   const affectedComponents: (UsedByEntry & { via: string[] })[] = [];
 
   for (const [nodeId, via] of chains) {
+    if (excludeIds.has(nodeId)) continue;
     const entry = toUsedByEntry(analysis, nodeId, cwd);
     if (entry.method !== undefined) {
       affectedOperations.push({ ...entry, via });
@@ -411,5 +452,14 @@ export function buildUsedByReport(
 
   affectedOperations.sort((left, right) => left.id.localeCompare(right.id));
   affectedComponents.sort((left, right) => left.id.localeCompare(right.id));
-  return { target: toUsedByEntry(analysis, targetId, cwd), affectedOperations, affectedComponents };
+  return { target, affectedOperations, affectedComponents };
+}
+
+export function buildUsedByReport(
+  analysis: ApiAnalysis,
+  targetId: string,
+  cwd: string
+): UsedByReport {
+  const chains = collectReversePathsTo(targetId, analysis.graph.edges);
+  return buildUsedByReportFromChains(analysis, toUsedByEntry(analysis, targetId, cwd), chains, cwd);
 }
