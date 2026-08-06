@@ -86,6 +86,9 @@ function writeCommand(printer: Printer, command: CliCommand, options: CliDocsOpt
     command.body === undefined
       ? ''
       : `Takes a JSON body${command.body.required ? ' (required)' : ''}: \`--json '<json>'\`, \`--json @file.json\`, or \`--json @-\` for stdin.`,
+    command.unsupportedBody === undefined
+      ? ''
+      : `Takes a \`${command.unsupportedBody}\` body, which the CLI cannot build — call this operation through the generated client instead.`,
     command.paginated === true
       ? 'Paginated: `--page-all` follows every page, printing one JSON page per line.'
       : '',

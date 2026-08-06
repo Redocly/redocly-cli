@@ -81,6 +81,9 @@ export function commandData(
         })),
         flags: op.queryParams.map(flagFor),
         ...(jsonBody ? { body: { required: jsonBody.required } } : {}),
+        ...(jsonBody === undefined && op.requestBody !== undefined
+          ? { unsupportedBody: op.requestBody.contentType }
+          : {}),
         ...(resolveOperationPagination(op, model, emit.pagination).spec !== undefined
           ? { paginated: true }
           : {}),
@@ -152,7 +155,14 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
       ? ['// ─── Embedded cli engine (@redocly/client-generator) ───\n' + embedCliRuntime()]
       : []),
     `const COMMANDS: CliCommand[] = ${codeJson(commands, 2)};`,
-    ...(options.zodSelected ? ['use(zodValidation());'] : []),
+    ...(options.zodSelected
+      ? [
+          // A dry run never sends the request, so its "response" is the stub the dry-run
+          // fetch returns — validating that reports drift that does not exist. Request
+          // validation still runs, which is what makes `--dry-run` a useful preflight.
+          `use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));`,
+        ]
+      : []),
     `process.exit(
   await runCli(COMMANDS, {
     binName: ${codeJson(options.binName)},

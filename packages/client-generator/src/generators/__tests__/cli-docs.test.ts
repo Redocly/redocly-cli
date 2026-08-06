@@ -38,6 +38,17 @@ const CAFE = modelWith(
       },
       successResponses: [response({ status: 201, schema: { kind: 'ref', name: 'Order' } })],
     }),
+    operation({
+      name: 'uploadPhoto',
+      method: 'post',
+      path: '/menu/{id}/photo',
+      tags: ['Coffee Orders'],
+      requestBody: {
+        contentType: 'multipart/form-data',
+        required: true,
+        schema: { kind: 'unknown' },
+      },
+    }),
     operation({ name: 'ping', method: 'get', path: '/ping' }),
   ],
   {
@@ -89,6 +100,15 @@ describe('cliDocsGenerator', () => {
     expect(page).toContain('CAFE_CLIENT_TOKEN');
     expect(page).toContain('| 3 |');
     expect(page).toContain('validation error');
+  });
+
+  it('says when a body is one the CLI cannot build, instead of implying the command runs', () => {
+    const page = render();
+    expect(page).toContain('### `coffee-orders uploadPhoto`');
+    expect(page).toContain('`multipart/form-data` body, which the CLI cannot build');
+    // And it does not advertise --json for that command.
+    const section = page.slice(page.indexOf('### `coffee-orders uploadPhoto`'));
+    expect(section.slice(0, section.indexOf('###', 3))).not.toContain('--json');
   });
 
   it('keeps a description safe inside a table cell', () => {

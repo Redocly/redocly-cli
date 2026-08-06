@@ -240,6 +240,8 @@ describe('renderCliModule', () => {
     expect(out).toContain('import { runCli, type CliCommand } from "@redocly/client-generator";');
     expect(out).not.toContain('function parseInvocation');
     expect(out).toContain('import { zodValidation } from "./client.zod.js";');
-    expect(out).toContain('use(zodValidation());');
+    expect(out).toContain(
+      'use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));'
+    );
   });
 });

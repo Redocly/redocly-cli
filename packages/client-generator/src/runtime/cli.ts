@@ -30,6 +30,12 @@ export type CliCommand = {
   flags: CliFlag[];
   /** Present when the operation takes a JSON request body. */
   body?: { required: boolean };
+  /**
+   * The content type of a request body that is NOT JSON (multipart, url-encoded, binary).
+   * `--json` cannot build one, so the command is reported as library-only rather than
+   * offered as if it were runnable.
+   */
+  unsupportedBody?: string;
   paginated?: boolean;
   sse?: boolean;
   blob?: boolean;
@@ -287,6 +293,12 @@ function renderHelp(
     ].join(' ');
     const lines = [`Usage: ${usage}`];
     if (command.summary) lines.push('', command.summary);
+    if (command.unsupportedBody !== undefined) {
+      lines.push(
+        '',
+        `This operation takes a ${command.unsupportedBody} body, which the CLI cannot build — call it through the generated client instead.`
+      );
+    }
     if (command.flags.length > 0) {
       lines.push('', 'Flags:');
       for (const flag of command.flags) {

@@ -64,7 +64,11 @@ describe('cliGenerator', () => {
       emit: {},
       selected: ['sdk', 'zod', 'cli'],
     });
-    expect(withZod[0].content).toContain('use(zodValidation());');
+    // Request validation always; response validation off for a dry run, whose response is
+    // the dry-run stub rather than the server's.
+    expect(withZod[0].content).toContain(
+      'use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));'
+    );
   });
 
   it('declares its prerequisites and rejects result mode', () => {
