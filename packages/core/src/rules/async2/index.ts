@@ -13,6 +13,7 @@ import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { NoUnsafeMarkdown } from '../common/no-unsafe-markdown.js';
 import { OperationOperationId } from '../common/operation-operationId.js';
 import { SecurityScopesDefined } from '../common/security-scopes-defined.js';
+import { SpecRefSiblings } from '../common/spec-ref-siblings.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
@@ -40,6 +41,7 @@ export const rules: Async2RuleSet<'built-in'> = {
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Async2Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Async2Rule,
   'security-scopes-defined': SecurityScopesDefined as Async2Rule,
+  'spec-ref-siblings': SpecRefSiblings as Async2Rule,
 };
 
 export const preprocessors = {};

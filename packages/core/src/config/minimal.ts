@@ -48,6 +48,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'scalar-property-missing-example': 'off',
     'security-defined': 'warn',
     'security-scopes-defined': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -112,6 +113,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-scopes-defined': 'off',
     'spec-components-invalid-map-name': 'warn',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -173,6 +175,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-scopes-defined': 'off',
     'spec-components-invalid-map-name': 'warn',
     'spec-example-values': 'off',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -237,6 +240,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-no-invalid-encoding-combinations': 'warn',
     'spec-no-invalid-tag-parents': 'warn',
     'spec-querystring-parameters': 'error',
+    'spec-ref-siblings': 'off',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -258,6 +262,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-scopes-defined': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
@@ -276,6 +281,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-scopes-defined': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'spec-ref-siblings': 'off',
   },
   arazzo1Rules: {
     'criteria-unique': 'off',
@@ -342,6 +348,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'off',
     'spec-no-duplicated-method-params': 'error',
     'spec-no-required-params-after-optional': 'error',
+    'spec-ref-siblings': 'off',
   },
 };
 
