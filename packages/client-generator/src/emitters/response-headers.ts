@@ -1,4 +1,4 @@
-// Success-response header helpers: descriptor parse hints + Ops / alias type shapes
+// Success-response header helpers: descriptor parse hints + Ops / alias type text
 // for throw-mode `{ envelope: true }`.
 
 import type {
@@ -9,9 +9,8 @@ import type {
 import type { ResponseHeaderSpec } from '../runtime/types.js';
 import { uniqueIdent } from './identifier.js';
 import { headerPropertyKey } from './support.js';
-import { ts } from './ts.js';
 
-const { factory } = ts;
+const INDENT = '    ';
 
 type PlannedResponseHeader = ResponseHeaderModel & {
   key: string;
@@ -79,21 +78,17 @@ export function responseHeaderSpecs(
   }));
 }
 
-/** Type literal for Ops.`headers` / `<Op>ResponseHeaders`. */
-export function responseHeadersTypeLiteral(
+/** Type-literal text for Ops.`headers` / `<Op>ResponseHeaders`, rendered at `indent`. */
+export function responseHeadersTypeText(
   headers: ResponseHeaderModel[],
-  schemas: readonly NamedSchemaModel[] = []
-): ts.TypeNode {
-  return factory.createTypeLiteralNode(
-    planResponseHeaders(headers, schemas).map((header) => {
-      return factory.createPropertySignature(
-        undefined,
-        factory.createIdentifier(header.key),
-        header.required === true ? undefined : factory.createToken(ts.SyntaxKind.QuestionToken),
-        headerTypeNode(header.type)
-      );
-    })
+  schemas: readonly NamedSchemaModel[] = [],
+  indent = ''
+): string {
+  const inner = indent + INDENT;
+  const lines = planResponseHeaders(headers, schemas).map(
+    (header) => `${inner}${header.key}${header.required === true ? '' : '?'}: ${header.type};`
   );
+  return lines.length === 0 ? '{}' : `{\n${lines.join('\n')}\n${indent}}`;
 }
 
 function planResponseHeaders(
@@ -106,10 +101,4 @@ function planResponseHeaders(
     key: uniqueIdent(headerPropertyKey(header.name), used),
     type: headerParseType(header.schema, schemas),
   }));
-}
-
-function headerTypeNode(type: ResponseHeaderSpec['type']): ts.TypeNode {
-  if (type === 'number') return factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
-  if (type === 'boolean') return factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
-  return factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
 }

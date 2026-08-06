@@ -56,9 +56,10 @@ function queryBlocks(op: OperationModel, opts: SwrOptions): string[] {
   const key = `export const ${op.name}Key = (${keyParams}) => ${keyElements} as const;`;
   const keyCall = `${op.name}Key(${inputs ? 'vars' : ''})`;
   const useSwr = `useSWR(${keyCall}, () => ${sdkCallText(op, opts.argsStyle, 'vars', true)})`;
+  // The throw-only `envelope` option is excluded — cached data must stay the plain body.
   const params = inputs
-    ? `vars: ${variablesName(op)}, init?: RequestOptions`
-    : 'init?: RequestOptions';
+    ? `vars: ${variablesName(op)}, init?: Omit<RequestOptions, "envelope">`
+    : 'init?: Omit<RequestOptions, "envelope">';
   return [key, hookBlock(op, params, useSwr)];
 }
 

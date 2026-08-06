@@ -1,3 +1,4 @@
+import type { NamedSchemaModel } from '../intermediate-representation/model.js';
 import type { ModelPagination } from './pagination.js';
 import type { DateType } from './types.js';
 
@@ -27,6 +28,8 @@ export type EmitContext = {
   dateType: DateType;
   /** Names of every exported schema, used for `<Op>*` alias collision suppression. */
   schemaNames: Set<string>;
+  /** Named schemas — used to resolve `$ref` / `allOf` wrappers on response-header types. */
+  schemas?: readonly NamedSchemaModel[];
   /** Resolved auto-pagination per operation name (absent ⇒ nothing paginates). */
   pagination?: ModelPagination;
 };

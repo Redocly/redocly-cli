@@ -67,9 +67,11 @@ export function variablesName(op: OperationModel): string {
 
 /** The forwarding-call ARGUMENT LIST to the sdk operation function, as text. Argument
  * order comes from the shared `operationSignature`, so it lines up with the sdk's
- * parameter list by construction. `grouped` passes the source object (when inputs);
+ * parameter list by construction. `grouped` passes the source object — `{}` for a
+ * no-input op with an init, which must not land in the `(args?, init?)` args slot;
  * `flat` spreads `<source>.<pathIdent>` (URL-template order), then the slots the op
- * has. `init` is appended last when `withInit`. */
+ * has. `withInit` appends `{ ...init, envelope: undefined }` — a runtime strip, since
+ * the wrappers cache the fetched body and their `Omit`-typed init is type-only. */
 export function sdkCallText(
   op: OperationModel,
   argsStyle: 'flat' | 'grouped',
@@ -80,6 +82,7 @@ export function sdkCallText(
   const args: string[] = [];
   if (argsStyle === 'grouped') {
     if (sig.hasInputs) args.push(source);
+    else if (withInit) args.push('{}');
   } else {
     for (const { ident } of sig.pathParams) args.push(`${source}.${ident}`);
     if (sig.hasQuery) args.push(`${source}.params`);
@@ -87,7 +90,7 @@ export function sdkCallText(
     if (sig.hasHeaders) args.push(`${source}.headers`);
     if (sig.hasCookies) args.push(`${source}.cookies`);
   }
-  if (withInit) args.push('init');
+  if (withInit) args.push('{ ...init, envelope: undefined }');
   return `${op.name}(${args.join(', ')})`;
 }
 

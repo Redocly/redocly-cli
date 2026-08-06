@@ -6,6 +6,7 @@
 import {
   allOperations,
   type ApiModel,
+  type NamedSchemaModel,
   type OperationModel,
   type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
@@ -16,6 +17,7 @@ import { isTypedMultipart } from './operation-types.js';
 import type { ModelPagination } from './pagination.js';
 import { responseText } from './render-client.js';
 import { WIRING_NAMES } from './reserved-names.js';
+import { responseHeaderSpecs } from './response-headers.js';
 import { isSseOp, sseDataKind } from './sse.js';
 import { codeLiteral } from './ts-literal.js';
 import { tsJsdoc } from './ts-type.js';
@@ -39,7 +41,8 @@ function descriptorValue(
   op: OperationModel,
   schemes: SecuritySchemeModel[],
   dateType: DateType,
-  pagination?: ModelPagination
+  pagination?: ModelPagination,
+  schemas: readonly NamedSchemaModel[] = []
 ) {
   const params = [...op.pathParams, ...op.queryParams, ...op.headerParams, ...op.cookieParams].map(
     (p) => ({
@@ -67,6 +70,7 @@ function descriptorValue(
     .filter((alternative) => alternative.length > 0);
   const sse = isSseOp(op);
   const responseKind = sse ? 'sse' : responseText(op.successResponses, dateType).kind;
+  const responseHeaders = responseHeaderSpecs(op.successResponseHeaders, schemas);
   return {
     // The spec's operationId, NOT the (possibly renamed) map key: `id` drives middleware
     // targeting (`ctx.operation.id`) and must match inline mode's `operationMetaExpr`.
@@ -88,6 +92,7 @@ function descriptorValue(
     ...(responseKind !== 'json' ? { responseKind } : {}),
     ...(sse ? { sseDataKind: sseDataKind(op) } : {}),
     ...(security.length > 0 ? { security } : {}),
+    ...(responseHeaders === undefined ? {} : { responseHeaders }),
     // The resolved spec is already normalized with stable key order (see pagination.ts).
     ...(pagination?.has(op.name) ? { pagination: pagination.get(op.name)!.spec } : {}),
   };
@@ -103,7 +108,9 @@ export function renderDescriptors(
   const ops = allOperations(model.services);
   if (ops.length === 0) return '';
   const entryLines = ops.map((op, index) => {
-    const value = codeLiteral(descriptorValue(op, model.securitySchemes, dateType, pagination));
+    const value = codeLiteral(
+      descriptorValue(op, model.securitySchemes, dateType, pagination, model.schemas)
+    );
     return `    ${idents.get(op.name)!}: ${value}${index === ops.length - 1 ? '' : ','}`;
   });
   const blocks = [

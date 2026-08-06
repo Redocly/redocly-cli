@@ -342,6 +342,78 @@ describe('renderDescriptors', () => {
     // Non-paginated entries carry no pagination field.
     expect(out).toContain('ping: { id: "ping", method: "GET", path: "/ping" }');
   });
+
+  it('emits responseHeaders coerce specs from declared success-response headers', () => {
+    const out = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          path: '/customers',
+          successResponses: [JSON_OK],
+          successResponseHeaders: [
+            {
+              name: 'pagination-total',
+              schema: { kind: 'scalar', scalar: 'integer' },
+              required: true,
+            },
+            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
+        }),
+      ])
+    );
+    expect(out).toContain(
+      'responseHeaders: [{ name: "pagination-total", key: "paginationTotal", type: "number" }, { name: "link", key: "link", type: "string" }]'
+    );
+  });
+
+  it('emits safe unique response-header descriptor keys', () => {
+    const out = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          successResponses: [JSON_OK],
+          successResponseHeaders: [
+            { name: '3d-secure', schema: { kind: 'scalar', scalar: 'boolean' } },
+            { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
+            { name: 'x_foo', schema: { kind: 'scalar', scalar: 'string' } },
+          ],
+        }),
+      ])
+    );
+    expect(out).toContain(
+      'responseHeaders: [{ name: "3d-secure", key: "_3dSecure", type: "boolean" }, { name: "x-foo", key: "xFoo", type: "number" }, { name: "x_foo", key: "xFoo_2", type: "string" }]'
+    );
+  });
+
+  it('unwraps nullable header schemas to the inner coerce type', () => {
+    const out = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'listCustomers',
+          successResponses: [JSON_OK],
+          successResponseHeaders: [
+            {
+              name: 'x-flag',
+              schema: {
+                kind: 'union',
+                members: [{ kind: 'scalar', scalar: 'boolean' }, { kind: 'null' }],
+              },
+            },
+            {
+              name: 'x-count',
+              schema: {
+                kind: 'union',
+                members: [{ kind: 'scalar', scalar: 'integer' }, { kind: 'null' }],
+              },
+            },
+          ],
+        }),
+      ])
+    );
+    expect(out).toContain(
+      'responseHeaders: [{ name: "x-flag", key: "xFlag", type: "boolean" }, { name: "x-count", key: "xCount", type: "number" }]'
+    );
+  });
 });
 
 describe('renderOpsType', () => {
@@ -567,7 +639,7 @@ describe('renderOpsType', () => {
     // Result mode: `result` is the envelope, so `page` carries the raw page for `.pages()`.
     const out = emitOps(modelWith([listOrders]), { pagination, errorMode: 'result' });
     expect(out).toMatch(
-      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
+      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}mode: "result";\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
     );
     // Throw mode emits no page member — `result` already IS the raw page.
     expect(emitOps(modelWith([listOrders]), { pagination })).not.toContain('page:');

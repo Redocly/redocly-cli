@@ -15,6 +15,7 @@ import { isIdentifier, safeIdent } from './identifier.js';
 import { operationSignature } from './operation-signature.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
+import { responseHeadersTypeText } from './response-headers.js';
 import { eventSchema, isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
 import { tsJsdoc, tsType } from './ts-type.js';
@@ -234,6 +235,15 @@ export function renderOpsType(
         ? `Result<${rawResultText(op, ctx, inner)}, ${errorArgText(op, ctx, inner)}>`
         : rawResultText(op, ctx, inner);
     const lines = [`${inner}args: ${args};`, `${inner}result: ${result};`];
+    // Result-mode entries mark themselves so the runtime's mapped methods skip the
+    // throw-only envelope typing; declared headers type the `{ envelope: true }` bag.
+    if (ctx.errorMode === 'result' && !sse) lines.push(`${inner}mode: "result";`);
+    const responseHeaders = op.successResponseHeaders;
+    if (responseHeaders && responseHeaders.length > 0) {
+      lines.push(
+        `${inner}headers: ${responseHeadersTypeText(responseHeaders, ctx.schemas, inner)};`
+      );
+    }
     const paginated = ctx.pagination?.get(op.name);
     if (paginated) {
       lines.push(`${inner}item: ${tsType(paginated.itemSchema, ctx.dateType, inner)};`);
@@ -293,6 +303,13 @@ export function renderAliases(
   if (op.headerParams.length > 0 && !schemaNames.has(`${name}Headers`)) {
     blocks.push(`export type ${name}Headers = ${paramsTypeText(op.headerParams, dateType)};`);
   }
+  // Response headers (envelope) — distinct from request `<Op>Headers`.
+  const responseHeaders = op.successResponseHeaders;
+  if (responseHeaders && responseHeaders.length > 0 && !schemaNames.has(`${name}ResponseHeaders`)) {
+    blocks.push(
+      `export type ${name}ResponseHeaders = ${responseHeadersTypeText(responseHeaders, ctx.schemas)};`
+    );
+  }
   if (op.cookieParams.length > 0 && !schemaNames.has(`${name}Cookies`)) {
     blocks.push(`export type ${name}Cookies = ${paramsTypeText(op.cookieParams, dateType)};`);
   }
@@ -315,7 +332,8 @@ function argListText(
   op: OperationModel,
   orderedPathParams: ParamModel[],
   pathParamIdent: Map<string, string>,
-  ctx: EmitContext
+  ctx: EmitContext,
+  initParam: string
 ): string {
   const { dateType } = ctx;
   const args: string[] = orderedPathParams.map(
@@ -331,18 +349,31 @@ function argListText(
   }
   if (op.headerParams.length > 0) args.push(slot('headers', op.headerParams));
   if (op.cookieParams.length > 0) args.push(slot('cookies', op.cookieParams));
-  args.push(`init: ${isSseOp(op) ? 'SseOptions' : 'RequestOptions'} = {}`);
+  args.push(initParam);
   return args.join(', ');
+}
+
+/** The envelope headers type argument: alias, inline literal on collision, or the empty bag. */
+function flatHeadersText(op: OperationModel, ctx: EmitContext): string {
+  const headers = op.successResponseHeaders;
+  if (!headers || headers.length === 0) return 'Record<string, never>';
+  const alias = `${pascalCase(op.name)}ResponseHeaders`;
+  return ctx.schemaNames.has(alias) ? responseHeadersTypeText(headers, ctx.schemas) : alias;
 }
 
 /** One flat one-liner: the positional signature forwarding to the grouped client method. */
 export function renderFlatSugar(op: OperationModel, ident: string, ctx: EmitContext): string {
+  const sse = isSseOp(op);
+  // Throw-mode (non-SSE) sugar is generic over `init` so `{ envelope: true }` narrows
+  // the return type to `Envelope<…>` (plain `RequestOptions` would collapse it).
+  const envelopeAware = !sse && ctx.errorMode !== 'result';
   const { pathParams } = operationSignature(op);
   const params = argListText(
     op,
     pathParams.map((p) => p.param),
     new Map(pathParams.map((p) => [p.param.name, p.ident])),
-    ctx
+    ctx,
+    envelopeAware ? 'init?: I' : `init: ${sse ? 'SseOptions' : 'RequestOptions'} = {}`
   );
   const props: string[] = pathParams.map(({ param, ident: paramIdent }) =>
     param.name === paramIdent
@@ -354,7 +385,12 @@ export function renderFlatSugar(op: OperationModel, ident: string, ctx: EmitCont
   if (op.headerParams.length > 0) props.push('headers');
   if (op.cookieParams.length > 0) props.push('cookies');
   const args = props.length === 0 ? '{}' : `{ ${props.join(', ')} }`;
-  const fn = `(${params}) => client.${ident}(${args}, init)`;
+  const fn = envelopeAware
+    ? (() => {
+        const promise = `Promise<EnvelopeResult<${rawResultText(op, ctx, '')}, ${flatHeadersText(op, ctx)}, I>>`;
+        return `<I extends RequestOptions | undefined = undefined>(${params}): ${promise} => client.${ident}(${args}, init) as ${promise}`;
+      })()
+    : `(${params}) => client.${ident}(${args}, init)`;
   if (!ctx.pagination?.has(op.name)) return `export const ${ident} = ${fn};`;
   return `export const ${ident} = Object.assign(${fn}, { pages: client.${ident}.pages, items: client.${ident}.items });`;
 }

@@ -72,6 +72,7 @@ function emitClient(
     errorMode: options.errorMode ?? 'throw',
     dateType: options.dateType ?? 'string',
     schemaNames: new Set(model.schemas.map((s) => s.name)),
+    schemas: model.schemas,
     pagination,
   };
   const flat = ctx.argsStyle === 'flat';
@@ -185,6 +186,8 @@ function importLine(
     'OperationDescriptor',
     // Flat sugar signatures reference the per-call option types.
     ...(refs.hasFlatRegular ? ['RequestOptions'] : []),
+    // Flat throw-mode sugar return types vary with the inferred request-option type.
+    ...(refs.hasFlatRegular && ctx.errorMode !== 'result' ? ['EnvelopeResult'] : []),
     // `Ops` wraps results in `Result` in result mode — but only NON-SSE members
     // (an SSE-only spec would otherwise import it unused and fail noUnusedLocals).
     ...(ctx.errorMode === 'result' && refs.hasRegular ? ['Result'] : []),
@@ -273,6 +276,7 @@ function sugarSection(
 function reexportLines(ctx: EmitContext, hasSse: boolean): string {
   const types = [
     'ClientConfig',
+    'Envelope',
     'Middleware',
     'RequestOptions',
     ...(ctx.errorMode === 'result' ? ['Result'] : []),
