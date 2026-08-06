@@ -304,6 +304,22 @@ For descriptions that fit the context window, the index saves tokens.
 Past the window size, it is the difference between an impossible task and a routine one — here the agent solves a task against a two-million-token API while using about three-quarters of a 200,000-token window, with a quarter left for the work itself.
 That is a smaller margin than the index used to leave: card-shaped listings buy the agent one-hop `refs`/`usedBy` on every entry without a second call, at the cost of a bigger single step whenever the branch it opens is a large one.
 
+## A live agent run
+
+Everything above is measured by hand: the chain a well-instructed agent _would_ run, priced step by step.
+To check that against reality, the same experiment was run live: a Claude Sonnet agent received ONLY the 85-token instruction from the setup section, the task ("determine how to create a repository for the authenticated user: method, path, required body fields, success status code"), and the file path — no strategy hints, no command sequence, and a hard rule that the YAML itself may not be opened.
+
+What it did, unprompted:
+
+1. It chose exactly the documented three-step chain — `--format=json`, then `--tag=repos --format=json`, then `--path=/user/repos --operation=post --with-deps --format=json` — in that order, with no extra or wasted calls.
+2. It answered correctly: `POST /user/repos` (`repos/create-for-authenticated-user`), one required body field (`name`, string), success `201` returning `full-repository`.
+3. The full outputs of the commands it chose re-measured within ~1% of the table above: 1,780 + 129,719 + 19,555 = **151,054 tokens** (vs. the table's 149,582 — run-to-run capture drift, same commands).
+4. It did NOT swallow those outputs whole: on its own initiative it piped the two large steps through `head`, reading roughly 5,000 tokens of the 129,719-token `repos` listing and still finding its target.
+   The whole live session — prompt, reasoning, and every tool output it actually read — cost **91,463 tokens**, under half the hand-computed chain.
+
+Two honest caveats: this is a single run with a single model, and the instruction itself names the three commands — the agent's job was to pick targets and interpret results, not to invent the protocol.
+But that is exactly the deployment model this guide prices: the chain total above is an upper bound on what a compliant agent consumes, and a real one lands under it.
+
 ## Methodology notes
 
 - Every output above comes from a real command run against the real file; sizes are the byte counts of captured `stdout`.
