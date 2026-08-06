@@ -797,7 +797,7 @@ toc:
 
 ### Patch Changes
 
-- Fixed an issue where credentials reated by Redocly CLI `login` command were deleted by Redocly VS Code extension when opening VS Code.
+- Fixed an issue where credentials created by Redocly CLI `login` command were deleted by Redocly VS Code extension when opening VS Code.
 - Updated @redocly/openapi-core to v2.12.2.
 
 ## 2.12.1 (2025-11-28)
