@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { killServer, repoRoot, startServer } from './helpers.js';
+import { killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 // Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
 // (cursor style — three pages, resume, abort) generated with NO config, the
@@ -39,9 +39,8 @@ async function resetLog(): Promise<void> {
   expect(response.ok).toBe(true);
 }
 
-async function fetchLog(): Promise<Array<{ method: string; url: string }>> {
-  const response = await fetch(`${SERVER_BASE}/__test__/log`);
-  return (await response.json()) as Array<{ method: string; url: string }>;
+function fetchLog(): Promise<Array<{ method: string; url: string }>> {
+  return serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
 }
 
 function runConsumer(script: string): { stdout: string } {

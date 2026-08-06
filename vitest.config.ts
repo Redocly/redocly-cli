@@ -32,6 +32,22 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   e2e: defineConfig({
     test: {
       include: ['tests/e2e/**/*.test.ts'],
+      // Client generation has its own suite and its own CI job (see `generators` below):
+      // its bars compile real Python/Go/PHP/TypeScript output, so a growing set of them
+      // must not slow the job everything else shares.
+      exclude: ['tests/e2e/generate-client/**'],
+    },
+  }),
+  // Everything about client generation in one command: the package's unit tests plus the
+  // end-to-end bars. The unit tests also run under `unit`, which keeps the coverage report
+  // whole — they are seconds, and being able to run the whole generator surface at once is
+  // worth that.
+  generators: defineConfig({
+    test: {
+      include: [
+        'packages/client-generator/src/**/*.test.ts',
+        'tests/e2e/generate-client/**/*.test.ts',
+      ],
     },
   }),
   'smoke-rebilly': defineConfig({

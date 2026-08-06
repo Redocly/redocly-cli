@@ -3,7 +3,13 @@ import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, startServer, tsxBin } from './helpers.js';
+import {
+  generate,
+  killServer,
+  serverLog as readServerLog,
+  startServer,
+  tsxBin,
+} from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cli.yaml');
@@ -28,11 +34,10 @@ function runCliBin(args: string[], env: Record<string, string> = {}) {
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-async function serverLog(): Promise<
+function serverLog(): Promise<
   Array<{ method: string; url: string; authorization?: string; body?: string }>
 > {
-  const response = await fetch(`${SERVER_BASE}/__test__/log`);
-  return response.json();
+  return readServerLog(SERVER_BASE);
 }
 
 describe('generate-client cli generator (end-to-end)', () => {
