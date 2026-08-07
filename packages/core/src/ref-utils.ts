@@ -15,6 +15,10 @@ export function isRef(node: unknown): node is OasRef {
   return isPlainObject(node) && typeof node.$ref === 'string';
 }
 
+export function isRefWithSiblings(node: unknown): node is OasRef & Record<string, unknown> {
+  return isRef(node) && Object.keys(node).length > 1;
+}
+
 export function isExternalValue(node: unknown): node is Oas3Example & { externalValue: string } {
   return isPlainObject(node) && typeof node.externalValue === 'string';
 }
@@ -129,13 +133,14 @@ export function isAnchor(ref: string) {
 }
 
 export function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-  if (!isPlainObject(resolved.node)) {
+  if (!isPlainObject(resolved.node) && ctx.parent) {
     ctx.parent[ctx.key] = resolved.node;
-  } else {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete ref.$ref;
-    const obj = Object.assign({}, resolved.node, ref);
-    Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
+    return;
+  }
+
+  delete (ref as Partial<OasRef>).$ref;
+
+  if (isPlainObject(resolved.node)) {
+    Object.assign(ref, { ...resolved.node, ...ref }); // ref fields take precedence
   }
 }

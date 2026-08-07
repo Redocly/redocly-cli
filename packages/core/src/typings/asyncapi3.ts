@@ -1,8 +1,6 @@
-import type { Referenced } from './openapi.js';
-
 export type Async3Definition = {
   asyncapi: string;
-  servers?: Record<string, Referenced<Async3Server>>;
+  servers?: Record<string, Async3Server>;
   info: Async3Info;
   channels?: Record<string, Channel>;
   components?: Record<string, any>;
@@ -53,17 +51,17 @@ export interface Async3Server {
   pathname?: string;
   description?: string;
   variables?: Record<string, unknown>;
-  security?: Array<Referenced<Async3SecurityScheme>>;
+  security?: Array<Async3SecurityScheme>;
   bindings?: unknown;
 }
 
 export interface Async3Channel {
   address?: string | null;
-  messages?: Record<string, unknown>;
+  messages?: Record<string, any>;
   title?: string;
   summary?: string;
   description?: string;
-  servers?: Array<Referenced<Async3Server>>;
+  servers?: Array<Async3Server>;
   parameters?: Record<string, unknown>;
   tags?: Tag[];
   externalDocs?: ExternalDocumentation;
@@ -81,23 +79,24 @@ export interface Async3OperationTrait {
   description?: string;
   tags?: Tag[];
   externalDocs?: ExternalDoc;
-  bindings?: unknown;
-  security?: Array<Referenced<Async3SecurityScheme>>;
+  bindings?: OperationBindings;
+  security?: Array<Async3SecurityScheme>;
 }
 
 export interface Async3Operation {
-  action?: 'send' | 'receive';
-  channel?: Referenced<Async3Channel>;
+  action: 'send' | 'receive';
+  channel: Async3Channel;
   title?: string;
   summary?: string;
   description?: string;
   tags?: Tag[];
   externalDocs?: ExternalDoc;
   operationId?: string;
-  security?: Array<Referenced<Async3SecurityScheme>>;
-  bindings?: unknown;
-  traits?: Array<Referenced<Async3OperationTrait>>;
-  reply?: unknown;
+  security?: Array<Async3SecurityScheme>;
+  bindings?: OperationBindings;
+  traits?: Array<Async3OperationTrait>;
+  messages?: Array<Record<string, any>>;
+  reply?: Record<string, any>;
 
   'x-send-operations'?: string[]; // internal type
 }
@@ -110,6 +109,24 @@ export interface ExternalDocumentation {
 export type ChannelBindings = {
   amqp?: AmqpChannelBinding;
 } & Record<string, Record<string, any> | undefined>;
+
+export type OperationBindings = {
+  amqp?: AmqpOperationBinding;
+} & Record<string, Record<string, any> | undefined>;
+
+export type AmqpOperationBinding = {
+  expiration?: number;
+  userId?: string;
+  cc?: string[];
+  priority?: number;
+  deliveryMode?: number;
+  mandatory?: boolean;
+  bcc?: string[];
+  replyTo?: string;
+  timestamp?: boolean;
+  ack?: boolean;
+  bindingVersion?: string;
+};
 
 export type AmqpChannelBinding = {
   is?: 'queue' | 'routingKey';

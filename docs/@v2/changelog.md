@@ -7,6 +7,44 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.46.0 (2026-08-07)
+
+### Minor Changes
+
+- Added the `spec-ref-siblings` rule that reports properties placed next to a `$ref` which the specification does not allow.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.0.
+
+## 2.45.1 (2026-08-06)
+
+### Patch Changes
+
+- Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.
+- Reduced CLI startup time on Node 22.8 and later reusing Node's on-disk compile cache.
+  Set `NODE_DISABLE_COMPILE_CACHE=1` to turn it off.
+- Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
+- Updated @redocly/openapi-core to v2.45.1.
+
+## 2.45.0 (2026-08-06)
+
+### Minor Changes
+
+- Fixed the `bundle` command losing schema keywords (such as `title`, `properties`, or `required`) written next to a `$ref` when the referenced schemas started with their own `$ref`.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.45.0.
+
+## 2.44.2 (2026-08-05)
+
+### Patch Changes
+
+- Changed the severity of the `security-defined` rule for AsyncAPI 2.x and 3.x in the `recommended` ruleset from `error` to `warn`.
+  AsyncAPI descriptions with undefined or unresolved security no longer fail linting by default.
+- Updated @redocly/openapi-core to v2.44.2.
+
 ## 2.44.1 (2026-08-04)
 
 ### Patch Changes
@@ -779,7 +817,7 @@ toc:
 
 ### Patch Changes
 
-- Fixed an issue where credentials reated by Redocly CLI `login` command were deleted by Redocly VS Code extension when opening VS Code.
+- Fixed an issue where credentials created by Redocly CLI `login` command were deleted by Redocly VS Code extension when opening VS Code.
 - Updated @redocly/openapi-core to v2.12.2.
 
 ## 2.12.1 (2025-11-28)

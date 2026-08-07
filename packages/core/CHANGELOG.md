@@ -1,5 +1,31 @@
 # @redocly/openapi-core
 
+## 2.46.0
+
+### Minor Changes
+
+- Added the `spec-ref-siblings` rule that reports properties placed next to a `$ref` which the specification does not allow.
+
+## 2.45.1
+
+### Patch Changes
+
+- Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.
+- Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
+
+## 2.45.0
+
+### Minor Changes
+
+- Fixed the `bundle` command losing schema keywords (such as `title`, `properties`, or `required`) written next to a `$ref` when the referenced schemas started with their own `$ref`.
+
+## 2.44.2
+
+### Patch Changes
+
+- Changed the severity of the `security-defined` rule for AsyncAPI 2.x and 3.x in the `recommended` ruleset from `error` to `warn`.
+  AsyncAPI descriptions with undefined or unresolved security no longer fail linting by default.
+
 ## 2.44.1
 
 ### Patch Changes
