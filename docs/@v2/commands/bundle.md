@@ -205,3 +205,6 @@ All other characters, including non-ASCII letters such as `é` or `я`, are repl
 Schemas without `title` can't be named using the `--component-names-strategy=title` strategy.
 The bundling process reports an error for such schemas.
 {% /admonition %}
+
+To catch name collisions before bundling, set the matching `strategy` option on the
+[`component-name-unique`](../rules/oas/component-name-unique.md) rule.
