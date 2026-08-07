@@ -1,0 +1,8 @@
+::error title=property-removed-from-response,file=base.yaml,line=33,col=11,endLine=33,endColumn=23::Schema property was removed.
+::error title=operation-removed,file=base.yaml,line=21,col=7,endLine=23,endColumn=31::Operation was removed.
+::error title=parameter-became-required,file=revision.yaml,line=11,col=21,endLine=11,endColumn=25::Parameter became required.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 3 breaking changes.
