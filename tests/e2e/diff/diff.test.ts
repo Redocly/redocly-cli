@@ -27,6 +27,29 @@ describe('diff', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'json-snapshot.txt'));
   });
 
+  test('github-actions output annotates breaking changes only', async () => {
+    const args = getParams(indexEntryPoint, [
+      'diff',
+      'base.yaml',
+      'revision.yaml',
+      '--format=github-actions',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'github-actions-snapshot.txt')
+    );
+  });
+
+  test('rejects --output for formats that only print to stdout', () => {
+    const result = spawnSync(
+      'node',
+      [indexEntryPoint, 'diff', 'base.yaml', 'revision.yaml', '--format=summary', '-o', 'out.txt'],
+      { encoding: 'utf-8', cwd: testPath, env: { ...process.env, NO_COLOR: 'TRUE' } }
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('cannot be written with --output');
+  });
+
   test('exits 1 on breaking changes with default fail-on', () => {
     const result = spawnSync('node', [indexEntryPoint, 'diff', 'base.yaml', 'revision.yaml'], {
       encoding: 'utf-8',

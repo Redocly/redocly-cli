@@ -2,7 +2,8 @@ import { unescapePointerFragment } from '@redocly/openapi-core';
 import { blue, bold, gray, green, red } from 'colorette';
 import * as path from 'node:path';
 
-import type { Change, ChangeSide, Compat, DiffResult } from '../engine/types.js';
+import type { Change, Compat, DiffResult } from '../engine/types.js';
+import { displaySide } from './change-side.js';
 
 const SEVERITY_ORDER: Compat[] = ['breaking', 'non-breaking'];
 
@@ -22,14 +23,6 @@ const HTTP_METHODS = new Set([
   'trace',
   'query',
 ]);
-
-// The side shown to the user: what was removed lives in the base document,
-// everything else is best inspected in the revision.
-function displaySide(change: Change): ChangeSide | undefined {
-  return change.kind === 'removed'
-    ? (change.base ?? change.revision)
-    : (change.revision ?? change.base);
-}
 
 // Identity keys escape '/' (node-identity.ts), so plain splitting is safe.
 function segmentsOf(pointer: string): string[] {

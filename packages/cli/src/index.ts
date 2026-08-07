@@ -105,7 +105,18 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'markdown', 'html'] as ReadonlyArray<DiffOutputFormat>,
+            choices: [
+              'stylish',
+              'json',
+              'markdown',
+              'html',
+              'codeframe',
+              'checkstyle',
+              'codeclimate',
+              'summary',
+              'github-actions',
+              'junit',
+            ] as ReadonlyArray<DiffOutputFormat>,
             default: 'stylish' as const,
           },
           output: {
