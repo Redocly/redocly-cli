@@ -1,7 +1,5 @@
 import { isNamedType, SpecExtension, type NormalizedNodeType } from '../types/index.js';
-import type { StatsRow, SpecVendorExtensionsAccumulator } from '../typings/common.js';
-import type { UserContext } from '../walk.js';
-import { getOwn } from './get-own.js';
+import type { SpecVendorExtensionsAccumulator } from '../typings/common.js';
 import { isPlainObject } from './is-plain-object.js';
 
 const EXTENSION_PREFIX = 'x-';
@@ -23,41 +21,29 @@ const TOKEN_LIKE_REGEX = /^(?=.*\d)[A-Za-z0-9+/=_-]{16,}$/;
 const EMAIL_REGEX = /\S@\S+\.\S/;
 const URL_SCHEME_REGEX = /:\/\//;
 
-// Spec-agnostic collector the stats rules call from their `any` and `ref` hooks.
-export function collectSpecExtensions(
-  accumulator: SpecVendorExtensionsAccumulator,
-  node: unknown,
-  ctx: UserContext
-) {
-  if (ctx.type === SpecExtension || ctx.type.name === 'scalar') return;
+// Kept typed so other metrics still traverse their subtrees; the stats visitors count them explicitly.
+const STRUCTURAL_EXTENSIONS = new Set(['x-webhooks', 'x-query']);
 
-  recordExtensions(accumulator, node, ctx.type);
-}
-
-function recordExtensions(
-  accumulator: SpecVendorExtensionsAccumulator,
-  node: unknown,
-  type: NormalizedNodeType
-) {
-  if (!isPlainObject(node)) return;
-  for (const [key, value] of Object.entries(node)) {
-    if (!key.startsWith(EXTENSION_PREFIX)) continue;
-    if (isMapEntryKey(type, key, value)) continue;
-    recordExtension(accumulator, key, value);
+// Makes the walker dispatch every x- key as SpecExtension, including natively-typed ones (x-codeSamples and others).
+export function ensureSpecExtensionDispatch(types: Record<string, NormalizedNodeType>) {
+  for (const type of Object.values(types)) {
+    if (type === SpecExtension) continue;
+    type.extensionsPrefix ??= EXTENSION_PREFIX;
+    for (const propName of Object.keys(type.properties)) {
+      if (propName.startsWith(EXTENSION_PREFIX) && !STRUCTURAL_EXTENSIONS.has(propName)) {
+        delete type.properties[propName];
+      }
+    }
+    const entryType = type.additionalProperties;
+    // An untyped catch-all (`additionalProperties: {}`) swallows x- keys before the extensions fallback.
+    if (isPlainObject(entryType) && !isNamedType(entryType) && entryType.type === undefined) {
+      type.additionalProperties = (_value, key: string) =>
+        key.startsWith(EXTENSION_PREFIX) ? SpecExtension : entryType;
+    }
   }
 }
 
-// An x- key is not an extension when the type resolves it to a named map entry (a schema name, a channel address).
-function isMapEntryKey(type: NormalizedNodeType, key: string, value: unknown): boolean {
-  if (getOwn(type.properties, key) !== undefined) return false;
-  const entryType =
-    typeof type.additionalProperties === 'function'
-      ? type.additionalProperties(value, key)
-      : type.additionalProperties;
-  return isNamedType(entryType) || typeof entryType?.type === 'string';
-}
-
-function recordExtension(
+export function collectSpecExtension(
   accumulator: SpecVendorExtensionsAccumulator,
   key: string,
   value: unknown
@@ -106,13 +92,4 @@ function addSample(props: Record<string, Set<string>>, prop: string, value: stri
 function addBounded(set: Set<string>, value: string) {
   if (set.has(value) || set.has(TRUNCATED)) return;
   set.add(set.size >= MAX_VALUES_PER_PROP ? TRUNCATED : value);
-}
-
-export function applySpecExtensionsStats(
-  collectedExtensions: SpecVendorExtensionsAccumulator,
-  statsRow: StatsRow
-) {
-  const names = Object.keys(collectedExtensions).sort();
-  statsRow.total = names.length;
-  statsRow.details = Object.fromEntries(names.map((name) => [name, collectedExtensions[name]]));
 }

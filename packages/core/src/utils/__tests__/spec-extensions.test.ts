@@ -10,11 +10,10 @@ import type {
   AsyncAPIStatsAccumulator,
   OASStatsAccumulator,
   SpecVendorExtensionsAccumulator,
-  StatsRow,
 } from '../../typings/common.js';
 import { normalizeVisitors } from '../../visitors.js';
 import { walkDocument } from '../../walk.js';
-import { applySpecExtensionsStats } from '../spec-extensions.js';
+import { ensureSpecExtensionDispatch } from '../spec-extensions.js';
 
 function createOasStatsAccumulator(): OASStatsAccumulator {
   return {
@@ -44,22 +43,23 @@ function createAsyncStatsAccumulator(): AsyncAPIStatsAccumulator {
   };
 }
 
-async function collect(yaml: string): Promise<SpecVendorExtensionsAccumulator> {
+async function walkStats(yaml: string): Promise<OASStatsAccumulator | AsyncAPIStatsAccumulator> {
   const document = parseYamlToDocument(yaml, '');
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(getTypes(specVersion));
+  ensureSpecExtensionDispatch(types);
 
   let statsVisitor;
-  let xExtensionsRow: StatsRow;
+  let statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator;
   if (specVersion === 'async2' || specVersion === 'async3') {
-    const statsAccumulator = createAsyncStatsAccumulator();
+    const asyncAccumulator = createAsyncStatsAccumulator();
     statsVisitor =
-      specVersion === 'async2' ? StatsAsync2(statsAccumulator) : StatsAsync3(statsAccumulator);
-    xExtensionsRow = statsAccumulator.xExtensions;
+      specVersion === 'async2' ? StatsAsync2(asyncAccumulator) : StatsAsync3(asyncAccumulator);
+    statsAccumulator = asyncAccumulator;
   } else {
-    const statsAccumulator = createOasStatsAccumulator();
-    statsVisitor = StatsOAS(statsAccumulator);
-    xExtensionsRow = statsAccumulator.xExtensions;
+    const oasAccumulator = createOasStatsAccumulator();
+    statsVisitor = StatsOAS(oasAccumulator);
+    statsAccumulator = oasAccumulator;
   }
 
   const visitors = normalizeVisitors(
@@ -78,7 +78,11 @@ async function collect(yaml: string): Promise<SpecVendorExtensionsAccumulator> {
     document,
     ctx: { problems: [], specVersion, visitorsData: {} },
   });
-  return xExtensionsRow.details ?? {};
+  return statsAccumulator;
+}
+
+async function collect(yaml: string): Promise<SpecVendorExtensionsAccumulator> {
+  return (await walkStats(yaml)).xExtensions.details ?? {};
 }
 
 const props = (acc: SpecVendorExtensionsAccumulator, name: string, prop: string) =>
@@ -106,6 +110,7 @@ describe('stats vendor extensions collection', () => {
                 description: ok
     `);
 
+    expect(Object.keys(acc)).toEqual(['x-badges', 'x-codeSamples']);
     expect(acc['x-codeSamples']?.count).toBe(1);
     expect(acc['x-badges']?.count).toBe(1);
   });
@@ -232,6 +237,56 @@ describe('stats vendor extensions collection', () => {
     `);
 
     expect(acc['x-paths-ext']?.count).toBe(1);
+  });
+
+  it('should keep webhook and tag metrics while counting legacy x-webhooks', async () => {
+    const stats = (await walkStats(outdent`
+      openapi: 3.0.0
+      info:
+        title: t
+        version: '1'
+      paths: {}
+      x-webhooks:
+        newPet:
+          post:
+            tags:
+              - pets
+            responses:
+              '200':
+                description: ok
+    `)) as OASStatsAccumulator;
+
+    expect(stats.webhooks.total).toBe(1);
+    expect(stats.tags.total).toBe(1);
+    expect(stats.xExtensions.total).toBe(1);
+    expect(stats.xExtensions.details?.['x-webhooks']?.count).toBe(1);
+  });
+
+  it('should keep operation and tag metrics while counting x-query', async () => {
+    const stats = (await walkStats(outdent`
+      openapi: 3.1.0
+      info:
+        title: t
+        version: '1'
+      paths:
+        /a:
+          get:
+            operationId: a
+            responses:
+              '200':
+                description: ok
+          x-query:
+            operationId: q
+            tags:
+              - queries
+            responses:
+              '200':
+                description: ok
+    `)) as OASStatsAccumulator;
+
+    expect(stats.operations.total).toBe(2);
+    expect(stats.tags.total).toBe(1);
+    expect(stats.xExtensions.details?.['x-query']?.count).toBe(1);
   });
 
   it('should not count map keys (schema/component names) that start with x-', async () => {
@@ -462,33 +517,6 @@ describe('stats vendor extensions collection', () => {
       const propNames = Object.keys(acc['x-metadata'].props);
       expect(propNames).toHaveLength(21);
       expect(propNames).toContain('<truncated>');
-    });
-  });
-
-  describe('applySpecExtensionsStats', () => {
-    it('should set total to the distinct extension count and counts per extension', () => {
-      const acc: SpecVendorExtensionsAccumulator = {
-        'x-badges': { count: 3, props: {} },
-        'x-internal': { count: 5, props: {} },
-      };
-      const row: StatsRow = { metric: 'Vendor Extensions', total: 0, color: 'cyan' };
-
-      applySpecExtensionsStats(acc, row);
-
-      expect(row.total).toBe(2);
-      expect(row.counts).toEqual({ 'x-badges': 3, 'x-internal': 5 });
-    });
-
-    it('should sort extension names for a stable output', () => {
-      const acc: SpecVendorExtensionsAccumulator = {
-        'x-zeta': { count: 1, props: {} },
-        'x-alpha': { count: 1, props: {} },
-      };
-      const row: StatsRow = { metric: 'Vendor Extensions', total: 0, color: 'cyan' };
-
-      applySpecExtensionsStats(acc, row);
-
-      expect(Object.keys(row.counts!)).toEqual(['x-alpha', 'x-zeta']);
     });
   });
 });
