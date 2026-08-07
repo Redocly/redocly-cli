@@ -1,10 +1,20 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Vendor extensions fixture
   version: '1.0'
   x-metadata:
     department: Platform
     team: Docs
+  x-outer:
+    x-inner: 1
+x-webhooks:
+  newPet:
+    post:
+      tags:
+        - webhook-tag
+      responses:
+        '200':
+          description: ok
 paths:
   x-paths-ext: true
   /a:
@@ -24,6 +34,13 @@ paths:
         - $ref: '#/components/parameters/Shared'
       responses:
         '200':
+          $ref: '#/components/responses/SharedResponse'
+    x-query:
+      operationId: queryA
+      tags:
+        - query-tag
+      responses:
+        '200':
           description: ok
   /b:
     get:
@@ -36,7 +53,8 @@ paths:
         - $ref: '#/components/parameters/Shared'
       responses:
         '200':
-          description: ok
+          $ref: '#/components/responses/SharedResponse'
+          x-sibling-ext: true
 components:
   parameters:
     Shared:
@@ -45,3 +63,14 @@ components:
       x-hideReplay: true
       schema:
         type: string
+  responses:
+    SharedResponse:
+      description: ok
+  schemas:
+    x-MySchema:
+      type: string
+    Pet:
+      type: object
+      properties:
+        x-trace-id:
+          type: string

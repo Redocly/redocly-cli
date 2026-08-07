@@ -1,15 +1,15 @@
 | Feature  | Count  |
 | --- | --- |
-| 🚗 References | 1 |
+| 🚗 References | 2 |
 | 📦 External Documents | 0 |
-| 📈 Schemas | 0 |
+| 📈 Schemas | 2 |
 | 👉 Parameters | 1 |
 | 🔗 Links | 0 |
 | 🔀 Path Items | 2 |
-| 🎣 Webhooks | 0 |
-| 👷 Operations | 2 |
-| 🔖 Tags | 0 |
-| 🧩 Vendor Extensions | 6 |
+| 🎣 Webhooks | 1 |
+| 👷 Operations | 3 |
+| 🔖 Tags | 2 |
+| 🧩 Vendor Extensions | 10 |
 
 #### 🧩 Vendor Extensions
 | Extension | Count |
@@ -19,7 +19,11 @@
 | x-hideReplay | 1 |
 | x-internal | 2 |
 | x-metadata | 1 |
+| x-outer | 1 |
 | x-paths-ext | 1 |
+| x-query | 1 |
+| x-sibling-ext | 1 |
+| x-webhooks | 1 |
 
 Document: openapi.yaml stats:
 

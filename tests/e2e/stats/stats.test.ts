@@ -74,6 +74,15 @@ describe('stats', () => {
     );
   });
 
+  test('stats should report vendor extension counts for AsyncAPI 3 (stylish format)', async () => {
+    const testPath = join(folderPath, 'stats-extensions');
+    const args = getParams(indexEntryPoint, ['stats', 'asyncapi3.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-asyncapi3-stylish.txt')
+    );
+  });
+
   test('stats should report vendor extension counts (Markdown format)', async () => {
     const testPath = join(folderPath, 'stats-extensions');
     const args = getParams(indexEntryPoint, ['stats', 'openapi.yaml', '--format=markdown']);
