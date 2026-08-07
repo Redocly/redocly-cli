@@ -17,9 +17,13 @@ export type CliDocsOptions = {
   schemes: Array<{ key: string; kind: 'bearer' | 'basic' | 'apiKey' }>;
 };
 
-/** Table-cell-safe text: one line, and pipes escaped so they don't open a column. */
+/** Table-cell-safe text: one line, and pipes/backslashes escaped so they don't alter columns/escaping. */
 function cell(text: string | undefined): string {
-  return (text ?? '').replace(/\s+/g, ' ').trim().replace(/\|/g, '\\|');
+  return (text ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|');
 }
 
 /** How a command is typed at the prompt: `<group-slug> <name>`, or just `<name>`. */
