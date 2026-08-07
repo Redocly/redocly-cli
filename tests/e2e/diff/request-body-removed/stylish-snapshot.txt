@@ -1,0 +1,11 @@
+POST /pets
+  ✖ breaking      removed  requestBody
+      The request body was removed. (request-body-removed)
+      at base.yaml:9:9
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

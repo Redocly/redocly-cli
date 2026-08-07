@@ -1,0 +1,15 @@
+document
+  ✔ non-breaking  changed  openapi
+      at revision.yaml:1:10
+
+POST /pets
+  ✔ non-breaking  changed  requestBody/content/application~1json/schema/properties/name · nullable
+      at revision.yaml:15:19
+  ✔ non-breaking  changed  requestBody/content/application~1json/schema/properties/name · type
+      at revision.yaml:16:21
+
+0 breaking, 3 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+

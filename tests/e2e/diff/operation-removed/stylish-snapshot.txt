@@ -1,0 +1,11 @@
+DELETE /pets
+  ✖ breaking      removed  paths · /pets · delete
+      Operation was removed. (operation-removed)
+      at base.yaml:12:7
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

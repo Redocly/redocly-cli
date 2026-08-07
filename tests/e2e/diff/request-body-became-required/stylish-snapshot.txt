@@ -1,0 +1,11 @@
+POST /pets
+  ✖ breaking      changed  requestBody · required
+      The request body became required. (request-body-became-required)
+      at revision.yaml:9:19
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.
