@@ -38,7 +38,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const { bundle: baseDocument } = await bundle({ config, ref: basePath });
   const { bundle: revisionDocument } = await bundle({ config, ref: revisionPath });
-  collectSpecData?.(revisionDocument.parsed);
+  collectSpecData?.(revisionDocument);
 
   let result: DiffResult;
   try {
