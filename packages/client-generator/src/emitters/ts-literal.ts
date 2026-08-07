@@ -4,24 +4,22 @@
 
 import { isIdentifier } from './identifier.js';
 
-const UNSAFE_STRING_CHARS = /[<>\/\\\b\f\n\r\t\0\u2028\u2029]/g;
-const UNSAFE_STRING_CHAR_MAP: Record<string, string> = {
+// `JSON.stringify` already produces a valid TypeScript string literal: it escapes quotes,
+// backslashes, and every control character. What it leaves literal is what can still break
+// out of a CODE context — `<` and `>` (a `</script>` sequence when the output is embedded
+// in an inline script) and U+2028/U+2029, which are line terminators in JS source but not
+// in JSON. Only those are escaped here, and only on the stringified text, which contains
+// no raw backslashes to double.
+const CODE_UNSAFE: Record<string, string> = {
   '<': '\\u003C',
   '>': '\\u003E',
-  '/': '\\u002F',
-  '\\': '\\\\',
-  '\b': '\\b',
-  '\f': '\\f',
-  '\n': '\\n',
-  '\r': '\\r',
-  '\t': '\\t',
-  '\0': '\\0',
   '\u2028': '\\u2028',
   '\u2029': '\\u2029',
 };
 
+/** A string as a TypeScript literal that cannot escape the code context it lands in. */
 export function sanitizeCodeString(value: string): string {
-  return JSON.stringify(value).replace(UNSAFE_STRING_CHARS, (char) => UNSAFE_STRING_CHAR_MAP[char] ?? char);
+  return JSON.stringify(value).replace(/[<>\u2028\u2029]/g, (char) => CODE_UNSAFE[char]);
 }
 
 /** A JSON-ish value as TypeScript source text. */

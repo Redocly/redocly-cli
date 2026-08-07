@@ -1,4 +1,4 @@
-import { codeLiteral } from '../ts-literal.js';
+import { codeLiteral, sanitizeCodeString } from '../ts-literal.js';
 
 // Literal expectations for the data-literal renderer (single-line, printer-style).
 const CASES: Array<[string, unknown]> = [
@@ -33,5 +33,29 @@ const CASES: Array<[string, unknown]> = [
 describe('codeLiteral', () => {
   it.each(CASES)('%s', (_label, value) => {
     expect(codeLiteral(value)).toMatchSnapshot();
+  });
+});
+
+describe('sanitizeCodeString', () => {
+  // The literal must survive being read back: a sanitizer that escapes what
+  // `JSON.stringify` already escaped doubles the backslashes and, for a quote, ends the
+  // string early — emitting TypeScript that does not parse.
+  it.each([
+    ['a newline', 'a\nb'],
+    ['a quote', 'quote " here'],
+    ['a backslash', 'C:\\path'],
+    ['a tab', 'tab\there'],
+    ['a line separator', 'a\u2028b'],
+    ['everything at once', 'a\n"b"\\c\u2029<d>'],
+  ])('round-trips %s', (_label, value) => {
+    expect(JSON.parse(sanitizeCodeString(value))).toBe(value);
+    expect(JSON.parse(codeLiteral(value) as string)).toBe(value);
+  });
+
+  it('escapes the characters that break out of a code context', () => {
+    // `</script>` must not survive intact into an inline script.
+    expect(sanitizeCodeString('</script>')).not.toContain('</script>');
+    expect(sanitizeCodeString('</script>')).toContain('\\u003C');
+    expect(sanitizeCodeString('a\u2028b')).toContain('\\u2028');
   });
 });
