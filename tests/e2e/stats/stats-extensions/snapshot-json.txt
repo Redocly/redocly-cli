@@ -25,7 +25,7 @@
   },
   "webhooks": {
     "metric": "🎣 Webhooks",
-    "total": 1
+    "total": 2
   },
   "operations": {
     "metric": "👷 Operations",
@@ -46,7 +46,7 @@
       "x-metadata": 1,
       "x-outer": 1,
       "x-paths-ext": 1,
-      "x-query": 1,
+      "x-query": 2,
       "x-sibling-ext": 1,
       "x-webhooks": 1
     }

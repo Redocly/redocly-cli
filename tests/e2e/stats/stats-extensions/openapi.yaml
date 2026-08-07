@@ -15,6 +15,11 @@ x-webhooks:
       responses:
         '200':
           description: ok
+    x-query:
+      operationId: webhookQuery
+      responses:
+        '200':
+          description: ok
 paths:
   x-paths-ext: true
   /a:

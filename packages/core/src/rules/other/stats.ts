@@ -78,17 +78,19 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
         },
       },
     },
+    Operation: {
+      enter(operation: Oas3Operation, ctx: UserContext) {
+        if (ctx.key === 'x-query') {
+          collectSpecExtension(extensions, 'x-query', operation);
+        }
+      },
+    },
     Paths: {
       PathItem: {
         leave() {
           statsAccumulator.pathItems.total++;
         },
         Operation: {
-          enter(operation: Oas3Operation, ctx: UserContext) {
-            if (ctx.key === 'x-query') {
-              collectSpecExtension(extensions, 'x-query', operation);
-            }
-          },
           leave(operation: Oas3Operation) {
             statsAccumulator.operations.total++;
             if (operation.tags) {
