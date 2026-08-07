@@ -1,0 +1,28 @@
+digraph tree {
+  "/orders";
+  "/orders/{orderId}";
+  "DELETE /orders/{orderId}";
+  "GET /orders";
+  "GET /orders/{orderId}";
+  "POST /orders";
+  "openapi.yaml" [shape=box, style=bold];
+  "schemas/Error";
+  "schemas/MenuItem";
+  "schemas/Order";
+  "schemas/OrderList";
+  "schemas/OrderStatus";
+  "/orders" -> "GET /orders";
+  "/orders" -> "POST /orders";
+  "/orders/{orderId}" -> "DELETE /orders/{orderId}";
+  "/orders/{orderId}" -> "GET /orders/{orderId}";
+  "DELETE /orders/{orderId}" -> "schemas/Error";
+  "GET /orders" -> "schemas/OrderList";
+  "GET /orders/{orderId}" -> "schemas/Order";
+  "POST /orders" -> "schemas/Order";
+  "openapi.yaml" -> "/orders";
+  "openapi.yaml" -> "/orders/{orderId}";
+  "schemas/Order" -> "schemas/MenuItem";
+  "schemas/Order" -> "schemas/OrderStatus";
+  "schemas/OrderList" -> "schemas/Order";
+}
+
