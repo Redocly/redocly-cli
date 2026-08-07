@@ -353,6 +353,20 @@ The hybrid-instructed agent ran four commands — overview, the `repos` branch, 
 None of that is guessable; all of it came out of two `--with-deps` cards.
 This is the case that separates an index-driven answer from a plausible-sounding one.
 
+### Dumping the whole description into context, head to head
+
+The most direct alternative of all: paste the description into the model and ask.
+That comparison can only be run where the file fits, so it ran on the 41 KB demo API (9,042 tokens), same model, same three-call order-a-coffee task as the workflow section below: one agent read the whole file in a single call and answered; the other used only `tree` commands.
+
+|                               | Whole file in context |                              `tree` agent |
+| ----------------------------- | --------------------: | ----------------------------------------: |
+| Correct sequence + data links |                    ✅ | ✅ (also surfaced the auth flow, unasked) |
+| Whole session, all-in         |     **66,493 tokens** |                             95,963 tokens |
+
+On a description this size, dumping wins — it is simpler and ~30% cheaper, and this guide says so plainly.
+The pattern that decides which approach to use is in the session totals across this guide's live runs: a dump-based session grows linearly with the file (9k-token file → 66k session; a 267,739-token file no longer fits a 200k window at all; this guide's 1,946,549-token file needs ten windows), while a tree-based session stays roughly flat regardless of description size — 95,963 tokens on the 9k-token demo API, 79,731–99,848 on the 1.9M-token GitHub description.
+Dump when the file fits comfortably; past a few hundred kilobytes of YAML the dump curve crosses the flat line, and at the window boundary it stops being a choice.
+
 ### Tree versus raw file access, head to head
 
 The fairest comparison is not "the index versus reading the whole file" (impossible) but "the index versus what an agent would actually do without it": `grep` and windowed reads over the raw YAML.
