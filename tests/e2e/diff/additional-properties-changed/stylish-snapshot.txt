@@ -1,0 +1,11 @@
+POST /pets
+  ✖ breaking      changed  requestBody/content/application~1json/schema · additionalProperties
+      `additionalProperties` changed from 'true' to 'false'. (additional-properties-changed)
+      at revision.yaml:13:37
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

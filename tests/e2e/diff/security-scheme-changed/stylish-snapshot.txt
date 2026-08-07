@@ -1,0 +1,17 @@
+components
+  ✖ breaking      changed  components/securitySchemes/apiKey · type
+      Security scheme `type` changed from 'apiKey' to 'http'. (security-scheme-changed)
+      at revision.yaml:16:13
+  ✔ non-breaking  changed  components/securitySchemes/apiKey · in
+      at revision.yaml:16:7
+  ✔ non-breaking  changed  components/securitySchemes/apiKey · name
+      at revision.yaml:16:7
+  ✔ non-breaking  changed  components/securitySchemes/apiKey · scheme
+      at revision.yaml:17:15
+
+1 breaking, 3 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.
