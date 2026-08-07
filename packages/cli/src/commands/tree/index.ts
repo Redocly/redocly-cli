@@ -75,7 +75,13 @@ export type TreeArgv = {
 } & VerifyConfigOptions;
 
 export type TreeView =
-  | { kind: 'overview'; overview: ApiOverview }
+  | {
+      kind: 'overview';
+      overview: ApiOverview;
+      /** Populated only for the stylish render, which expands the tree down to operations. */
+      operations?: OperationListCard[];
+      webhookOperations?: OperationListCard[];
+    }
   | { kind: 'operations'; items: OperationListCard[]; scope?: string }
   | { kind: 'paths'; items: PathListItem[] }
   | { kind: 'components'; section: string; items: ComponentListCard[] }
@@ -342,7 +348,18 @@ export function resolveTreeView(
     return { kind: 'operations', items: buildOperationListing(analysis, { cwd }) };
   if (argv.paths) return { kind: 'paths', items: buildPathListing(analysis, { cwd }) };
 
-  return { kind: 'overview', overview: buildOverview(analysis, { specVersion, cwd }) };
+  const overview = buildOverview(analysis, { specVersion, cwd });
+  if (argv.format !== 'stylish') return { kind: 'overview', overview };
+  // The overview itself carries no per-operation detail; the stylish tree renders down to
+  // operations (see renderOverview), so build the same listings --operations/--webhooks return
+  // and hand them to the view alongside it. json is unaffected: viewPayload only ever serializes
+  // `view.overview` for this view kind, so these extra fields never reach that output.
+  return {
+    kind: 'overview',
+    overview,
+    operations: buildOperationListing(analysis, { cwd }),
+    webhookOperations: buildOperationListing(analysis, { cwd, allWebhooks: true }),
+  };
 }
 
 type TreeModeContext = {

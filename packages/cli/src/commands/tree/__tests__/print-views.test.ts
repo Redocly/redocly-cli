@@ -98,7 +98,7 @@ describe('renderViewStylish', () => {
     );
   });
 
-  it('renders the overview as a top-level tree, cut at the branch level', () => {
+  it('renders the overview as a top-level tree, expanded down to operations', () => {
     const rendered = renderViewStylish({
       kind: 'overview',
       overview: {
@@ -111,6 +111,33 @@ describe('renderViewStylish', () => {
         webhooks: [],
         components: [{ section: 'schemas', count: 3 }],
       },
+      operations: [
+        {
+          method: 'post',
+          path: '/tickets',
+          operationId: 'buyTickets',
+          summary: 'Buy museum tickets',
+          tags: ['Tickets'],
+          pointer: '#/post',
+          file: 'paths/tickets.yaml',
+          start_line: 10,
+          end_line: 40,
+          refs: [],
+          usedBy: [],
+        },
+        {
+          method: 'get',
+          path: '/tickets',
+          summary: 'List tickets',
+          tags: ['Tickets'],
+          pointer: '#/get',
+          file: 'paths/tickets.yaml',
+          start_line: 1,
+          end_line: 9,
+          refs: [],
+          usedBy: [],
+        },
+      ],
     });
     expect(rendered).toBe(
       [
@@ -119,13 +146,56 @@ describe('renderViewStylish', () => {
         '│   └── https://api.example.com/v1',
         '├── Operations (2)',
         '│   └── Tickets (2) — Buy tickets.',
+        '│       ├── POST /tickets — Buy museum tickets (buyTickets)  [10..40]',
+        '│       └── GET /tickets — List tickets  [1..9]',
         '└── Components (3)',
         '    └── schemas (3)',
       ].join('\n')
     );
   });
 
-  it('adds a Webhooks branch by name and omits empty sections', () => {
+  it('lists a multi-tag operation under each of its tags in the overview tree', () => {
+    const rendered = renderViewStylish({
+      kind: 'overview',
+      overview: {
+        docName: 'openapi.yaml',
+        spec: 'oas3_0',
+        tags: [
+          { name: 'Tickets', operations: 1 },
+          { name: 'Orders', operations: 1 },
+        ],
+        operations: 1,
+        webhooks: [],
+        components: [],
+      },
+      operations: [
+        {
+          method: 'post',
+          path: '/tickets',
+          summary: 'Buy museum tickets',
+          tags: ['Tickets', 'Orders'],
+          pointer: '#/post',
+          file: 'openapi.yaml',
+          start_line: 10,
+          end_line: 40,
+          refs: [],
+          usedBy: [],
+        },
+      ],
+    });
+    expect(rendered).toBe(
+      [
+        'openapi.yaml  (oas3_0)',
+        '└── Operations (1)',
+        '    ├── Tickets (1)',
+        '    │   └── POST /tickets — Buy museum tickets  [10..40]',
+        '    └── Orders (1)',
+        '        └── POST /tickets — Buy museum tickets  [10..40]',
+      ].join('\n')
+    );
+  });
+
+  it('adds a Webhooks branch by name, expanded to its operations, and omits empty sections', () => {
     const rendered = renderViewStylish({
       kind: 'overview',
       overview: {
@@ -136,11 +206,32 @@ describe('renderViewStylish', () => {
         webhooks: [{ name: 'newTicket', operations: 1 }],
         components: [],
       },
+      webhookOperations: [
+        {
+          method: 'post',
+          webhook: 'newTicket',
+          summary: 'New ticket alert',
+          tags: [],
+          pointer: '#/post',
+          file: 'webhooks.yaml',
+          start_line: 8,
+          end_line: 12,
+          refs: [],
+          usedBy: [],
+        },
+      ],
     });
-    expect(rendered).toBe('webhooks.yaml  (oas3_1)\n└── Webhooks (1)\n    └── newTicket');
+    expect(rendered).toBe(
+      [
+        'webhooks.yaml  (oas3_1)',
+        '└── Webhooks (1)',
+        '    └── newTicket',
+        '        └── POST — New ticket alert  [8..12]',
+      ].join('\n')
+    );
   });
 
-  it('renders an operation card with refs and usedBy as tree branches', () => {
+  it('renders an operation card as a pure glyph tree, with refs and usedBy as branches', () => {
     const rendered = renderViewStylish({
       kind: 'operation-card',
       card: {
@@ -180,19 +271,81 @@ describe('renderViewStylish', () => {
     });
     expect(rendered).toBe(
       [
-        'POST /tickets (buyTickets)',
-        'file: paths/tickets.yaml#/post',
-        'lines: 10..40',
-        'summary: Buy museum tickets',
-        'refs:',
-        '└── schemas/Ticket  #/components/schemas/Ticket  1..5',
-        'usedBy:',
-        '└── schemas/Order  #/components/schemas/Order  50..60',
+        'POST /tickets — Buy museum tickets (buyTickets)',
+        '├── source: paths/tickets.yaml#/post  [10..40]',
+        '├── refs (1)',
+        '│   └── schemas/Ticket → openapi.yaml#/components/schemas/Ticket  [1..5]',
+        '└── usedBy (1)',
+        '    └── schemas/Order → openapi.yaml  [50..60]',
       ].join('\n')
     );
   });
 
-  it('renders the --with-deps closure after the card block: raw content, then a deps tree', () => {
+  it('renders a webhook operation card header with the webhook name in place of a path', () => {
+    const rendered = renderViewStylish({
+      kind: 'operation-card',
+      card: {
+        method: 'post',
+        webhook: 'newTicket',
+        operationId: 'newTicketAlert',
+        summary: 'New ticket alert',
+        tags: [],
+        pointer: '#/post',
+        file: 'webhooks.yaml',
+        start_line: 8,
+        end_line: 12,
+        refs: [],
+        usedBy: [],
+      },
+    });
+    expect(rendered).toBe(
+      [
+        'POST newTicket — New ticket alert (newTicketAlert)',
+        '├── source: webhooks.yaml#/post  [8..12]',
+        '└── usedBy (none)',
+      ].join('\n')
+    );
+  });
+
+  it('renders unresolved and non-component refs in the refs branch', () => {
+    const rendered = renderViewStylish({
+      kind: 'operation-card',
+      card: {
+        method: 'get',
+        path: '/items',
+        tags: [],
+        pointer: '#/get',
+        file: 'openapi.yaml',
+        start_line: 1,
+        end_line: 5,
+        refs: [
+          { ref: './schemas/Item.yaml', resolved: false, component: 'unknown' },
+          {
+            ref: '../paths/legacy.yaml',
+            resolved: true,
+            component: 'unknown',
+            file: 'paths/legacy.yaml',
+            pointer: '#/',
+            start_line: 1,
+            end_line: 3,
+          },
+        ],
+        usedBy: [],
+      },
+    });
+    expect(rendered).toBe(
+      [
+        'GET /items',
+        '├── source: openapi.yaml#/get  [1..5]',
+        '├── refs (2)',
+        '│   ├── ./schemas/Item.yaml (unresolved)',
+        '│   └── ../paths/legacy.yaml → paths/legacy.yaml  [1..3]',
+        '└── usedBy (none)',
+      ].join('\n')
+    );
+  });
+
+  it('renders a with-deps closure as a deps branch, sized against the cap', () => {
     const rendered = renderViewStylish({
       kind: 'component-card',
       card: {
@@ -211,7 +364,7 @@ describe('renderViewStylish', () => {
             file: 'openapi.yaml',
             start_line: 6,
             end_line: 7,
-            content: 'TicketId:\n  type: string',
+            content: 'x'.repeat(2048),
             refs: [],
           },
         ],
@@ -220,16 +373,10 @@ describe('renderViewStylish', () => {
     expect(rendered).toBe(
       [
         'schemas/Ticket',
-        'file: openapi.yaml#/components/schemas/Ticket',
-        'lines: 1..5',
-        'usedBy: (none)',
-        '',
-        'content:',
-        '  Ticket:',
-        '    type: object',
-        '',
-        'deps:',
-        '└── schemas/TicketId  openapi.yaml:6..7',
+        '├── source: openapi.yaml#/components/schemas/Ticket  [1..5]',
+        '├── usedBy (none)',
+        '└── deps (1, 2.0 KB of 64 KB cap)',
+        '    └── schemas/TicketId → openapi.yaml  [6..7]',
       ].join('\n')
     );
   });
@@ -252,7 +399,7 @@ describe('renderViewStylish', () => {
         truncated: true,
       },
     });
-    expect(rendered).toContain('deps: (truncated)');
+    expect(rendered).toContain('deps (0, 0.0 KB of 64 KB cap) (truncated)');
   });
 
   it('renders a file card with its defines as tree branches', () => {
@@ -290,8 +437,8 @@ describe('renderViewStylish', () => {
     expect(rendered).toBe(
       [
         'paths/tickets.yaml',
-        '├── GET /tickets "List tickets" 1..9 [Tickets]',
-        '└── schemas/Ticket 11..15',
+        '├── GET /tickets — List tickets (listTickets)  [1..9]',
+        '└── schemas/Ticket  [11..15]',
       ].join('\n')
     );
   });

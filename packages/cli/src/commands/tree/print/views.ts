@@ -1,15 +1,16 @@
-import type {
-  ApiNodeEnvelope,
-  ApiOverview,
-  ComponentCard,
-  ComponentListCard,
-  FileCard,
-  OperationCard,
-  OperationListCard,
-  PathListItem,
-  TypedRef,
-  UsedByEntry,
-  UsedByReport,
+import {
+  DEPS_CONTENT_CAP_BYTES,
+  type ApiNodeEnvelope,
+  type ApiOverview,
+  type ComponentCard,
+  type ComponentListCard,
+  type FileCard,
+  type OperationCard,
+  type OperationListCard,
+  type PathListItem,
+  type TypedRef,
+  type UsedByEntry,
+  type UsedByReport,
 } from '@redocly/openapi-core';
 
 import type { TreeView } from '../index.js';
@@ -44,7 +45,7 @@ function viewPayload(view: TreeView): unknown {
 export function renderViewStylish(view: TreeView): string {
   switch (view.kind) {
     case 'overview':
-      return renderOverview(view.overview);
+      return renderOverview(view.overview, view.operations ?? [], view.webhookOperations ?? []);
     case 'operations':
       return renderOperationsListing(view.items);
     case 'paths':
@@ -77,7 +78,28 @@ function renderBranches(branches: Branch[], prefix = ''): string[] {
   return lines;
 }
 
-function renderOverview(overview: ApiOverview): string {
+/**
+ * `METHOD /path — summary (operationId)` shared by the overview tree's operation leaves and the
+ * card headline: omit whichever of path/summary/operationId is absent. `range` appends the
+ * two-space-bracket line range used for a tree leaf; the card headline omits it (the card's
+ * `source:` branch already carries the range).
+ */
+function operationLine(
+  item: { method: string; path?: string; webhook?: string; summary?: string; operationId?: string },
+  options: { includePath?: boolean; range?: { start_line: number; end_line: number } } = {}
+): string {
+  const path = options.includePath === false ? '' : ` ${item.path ?? item.webhook}`;
+  const summary = item.summary ? ` — ${item.summary}` : '';
+  const operationId = item.operationId ? ` (${item.operationId})` : '';
+  const range = options.range ? `  [${options.range.start_line}..${options.range.end_line}]` : '';
+  return `${item.method.toUpperCase()}${path}${summary}${operationId}${range}`;
+}
+
+function renderOverview(
+  overview: ApiOverview,
+  operations: OperationListCard[],
+  webhookOperations: OperationListCard[]
+): string {
   const description = overview.docDescription ? ` — ${overview.docDescription}` : '';
   const rootLabel = `${overview.docName}${description}  (${overview.spec})`;
 
@@ -91,18 +113,47 @@ function renderOverview(overview: ApiOverview): string {
   }
 
   if (overview.tags.length > 0) {
+    const operationsByTag = new Map<string, OperationListCard[]>();
+    for (const operation of operations) {
+      const tagNames = operation.tags.length > 0 ? operation.tags : ['untagged'];
+      for (const tagName of tagNames) {
+        const group = operationsByTag.get(tagName) ?? [];
+        group.push(operation);
+        operationsByTag.set(tagName, group);
+      }
+    }
     branches.push({
       label: `Operations (${overview.operations})`,
       children: overview.tags.map((tag) => ({
         label: `${tag.name} (${tag.operations})${tag.summary ? ` — ${tag.summary}` : ''}`,
+        children: (operationsByTag.get(tag.name) ?? []).map((operation) => ({
+          label: operationLine(operation, {
+            range: { start_line: operation.start_line, end_line: operation.end_line },
+          }),
+        })),
       })),
     });
   }
 
   if (overview.webhooks.length > 0) {
+    const operationsByWebhook = new Map<string, OperationListCard[]>();
+    for (const operation of webhookOperations) {
+      const key = operation.webhook ?? '';
+      const group = operationsByWebhook.get(key) ?? [];
+      group.push(operation);
+      operationsByWebhook.set(key, group);
+    }
     branches.push({
       label: `Webhooks (${overview.webhooks.length})`,
-      children: overview.webhooks.map((webhook) => ({ label: webhook.name })),
+      children: overview.webhooks.map((webhook) => ({
+        label: webhook.name,
+        children: (operationsByWebhook.get(webhook.name) ?? []).map((operation) => ({
+          label: operationLine(operation, {
+            includePath: false,
+            range: { start_line: operation.start_line, end_line: operation.end_line },
+          }),
+        })),
+      })),
     });
   }
 
@@ -178,10 +229,15 @@ function renderComponentsListing(section: string, items: ComponentListCard[]): s
 function fileDefineLabel(entry: OperationListCard | ComponentListCard): string {
   // Every entry a file card lists is defined in that same file, already named at the tree root,
   // so entry lines never need their own file prefix. Unlike the grouped listings above, there is
-  // no shared path or section header here, so each entry stays fully qualified on its own line.
-  if ('method' in entry) return operationEntryLabel(entry, { showPath: true });
-  const summary = entry.summary ? ` "${entry.summary}"` : '';
-  return `${entry.component}/${entry.name}${summary} ${entry.start_line}..${entry.end_line}`;
+  // no shared path or section header here, so each entry stays fully qualified on its own line,
+  // using the same operation/component line conventions as the rest of this revision.
+  if ('method' in entry) {
+    return operationLine(entry, {
+      range: { start_line: entry.start_line, end_line: entry.end_line },
+    });
+  }
+  const summary = entry.summary ? ` — ${entry.summary}` : '';
+  return `${entry.component}/${entry.name}${summary}  [${entry.start_line}..${entry.end_line}]`;
 }
 
 function renderFileCard(card: FileCard): string {
@@ -189,73 +245,66 @@ function renderFileCard(card: FileCard): string {
   return [card.file, ...renderBranches(branches)].join('\n');
 }
 
+/** deps' size cap, in KB, as displayed in a card's `deps (N, X KB of Y KB cap)` branch. */
+const DEPS_CAP_KB = DEPS_CONTENT_CAP_BYTES / 1024;
+
 function renderOperationCard(card: OperationCard): string {
-  const operationId = card.operationId ? ` (${card.operationId})` : '';
-  const header = `${card.method.toUpperCase()} ${card.path ?? card.webhook}${operationId}`;
-  return [header, ...renderCardBody(card), ...renderCardRetrieval(card)].join('\n');
+  return [operationLine(card), ...renderBranches(cardBranches(card))].join('\n');
 }
 
 function renderComponentCard(card: ComponentCard): string {
-  const header = `${card.component}/${card.name}`;
-  return [header, ...renderCardBody(card), ...renderCardRetrieval(card)].join('\n');
+  const summary = card.summary ? ` — ${card.summary}` : '';
+  const header = `${card.component}/${card.name}${summary}`;
+  return [header, ...renderBranches(cardBranches(card))].join('\n');
 }
 
-function renderCardBody(card: {
+/**
+ * A card renders as a pure glyph tree: no raw source or content anywhere in stylish, only
+ * coordinates and typed edges — `source:` always, `refs`/`usedBy` one hop, and `deps` (the
+ * transitive closure) when `--with-deps` populated it. Raw source stays JSON-only.
+ */
+function cardBranches(card: {
   file: string;
   pointer: string;
   start_line: number;
   end_line: number;
-  summary?: string;
   refs: TypedRef[];
   usedBy: UsedByEntry[];
-}): string[] {
-  const lines = [
-    `file: ${card.file}${card.pointer}`,
-    `lines: ${card.start_line}..${card.end_line}`,
-  ];
-
-  if (card.summary) lines.push(`summary: ${card.summary}`);
-
-  if (card.refs.length > 0) {
-    lines.push('refs:');
-    lines.push(...renderBranches(card.refs.map((ref) => ({ label: renderRef(ref) }))));
-  }
-
-  if (card.usedBy.length > 0) {
-    lines.push('usedBy:');
-    lines.push(
-      ...renderBranches(card.usedBy.map((entry) => ({ label: renderUsedByEntry(entry) })))
-    );
-  } else {
-    lines.push('usedBy: (none)');
-  }
-
-  return lines;
-}
-
-/** `--with-deps` retrieval fields, appended after the card block: raw source, then a deps tree. */
-function renderCardRetrieval(card: {
-  content?: string;
   deps?: ApiNodeEnvelope[];
   truncated?: boolean;
-}): string[] {
-  if (card.content === undefined) return [];
+}): Branch[] {
+  const branches: Branch[] = [
+    { label: `source: ${card.file}${card.pointer}  [${card.start_line}..${card.end_line}]` },
+  ];
 
-  const deps = card.deps ?? [];
-  const depsSuffix = card.truncated ? ' (truncated)' : deps.length === 0 ? ' (none)' : '';
-  const lines = ['', 'content:', ...card.content.split('\n').map((line) => `  ${line}`)];
-  lines.push('', `deps:${depsSuffix}`);
-  if (deps.length > 0) {
-    lines.push(
-      ...renderBranches(
-        deps.map((dep) => ({
-          label: `${dep.id}  ${dep.file}:${dep.start_line}..${dep.end_line}`,
-        }))
-      )
-    );
+  if (card.refs.length > 0) {
+    branches.push({
+      label: `refs (${card.refs.length})`,
+      children: card.refs.map((ref) => ({ label: renderRef(ref) })),
+    });
   }
 
-  return lines;
+  branches.push(
+    card.usedBy.length > 0
+      ? {
+          label: `usedBy (${card.usedBy.length})`,
+          children: card.usedBy.map((entry) => ({ label: renderUsedByRef(entry) })),
+        }
+      : { label: 'usedBy (none)' }
+  );
+
+  if (card.deps !== undefined) {
+    const totalKB = (card.deps.reduce((sum, dep) => sum + dep.content.length, 0) / 1024).toFixed(1);
+    const truncated = card.truncated ? ' (truncated)' : '';
+    branches.push({
+      label: `deps (${card.deps.length}, ${totalKB} KB of ${DEPS_CAP_KB} KB cap)${truncated}`,
+      children: card.deps.map((dep) => ({
+        label: `${dep.id} → ${dep.file}  [${dep.start_line}..${dep.end_line}]`,
+      })),
+    });
+  }
+
+  return branches;
 }
 
 function renderUsedByReport(report: UsedByReport): string {
@@ -280,12 +329,26 @@ function renderUsedByReport(report: UsedByReport): string {
   return [rootLabel, ...renderBranches(branches)].join('\n');
 }
 
+/** A card's one-hop `refs` branch: `component/name → file#pointer  [lines]`, arrow-style. */
 function renderRef(ref: TypedRef): string {
   if (!ref.resolved) return `${ref.ref} (unresolved)`;
-  const label = ref.component !== 'unknown' ? `${ref.component}/${ref.name}` : ref.ref;
-  return `${label}  ${ref.pointer}  ${ref.start_line}..${ref.end_line}`;
+  if (ref.component === 'unknown') {
+    return `${ref.ref} → ${ref.file}  [${ref.start_line}..${ref.end_line}]`;
+  }
+  return `${ref.component}/${ref.name} → ${ref.file}${ref.pointer}  [${ref.start_line}..${ref.end_line}]`;
 }
 
+/** A card's one-hop `usedBy` branch: same arrow style as `refs`, keyed by the referrer's id. */
+function renderUsedByRef(entry: UsedByEntry): string {
+  if (entry.file === undefined) return entry.id;
+  const range =
+    entry.start_line !== undefined && entry.end_line !== undefined
+      ? `  [${entry.start_line}..${entry.end_line}]`
+      : '';
+  return `${entry.id} → ${entry.file}${range}`;
+}
+
+/** Used by the `--used-by` report tree only — unrelated to a card's own `usedBy` branch above. */
 function renderUsedByEntry(entry: UsedByEntry): string {
   const label =
     entry.method !== undefined

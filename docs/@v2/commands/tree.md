@@ -78,7 +78,7 @@ See [Selector errors](#selector-errors) for the full set of these checks.
 
 ### Get an overview of an API description
 
-With no selector, `tree` prints a bounded overview as a tree: the document name and info summary at the root, then branches for servers, tags with their operation counts, webhook names, and component sections with their counts.
+With no selector, `tree` prints a bounded overview as a tree: the document name and info summary at the root, then branches for servers, tags with their operations, webhook names with their operations, and component sections with their counts.
 
 ```bash
 redocly tree cafe.yaml
@@ -90,11 +90,24 @@ cafe.yaml — Redocly Cafe — Demo API for cafe operators (not customers) to ma
 │   └── https://api.cafe.redocly.com
 ├── Operations (12)
 │   ├── Authorization (1) — Create a client to demo the API.
+│   │   └── POST /oauth2/register — Create OAuth2 client (registerOAuth2Client)  [604..661]
 │   ├── Products (4) — Operations related to products.
+│   │   ├── GET /menu — List all menu items (listMenuItems)  [32..111]
+│   │   ├── POST /menu — Create menu item (createMenuItem)  [113..173]
+│   │   ├── DELETE /menu/{menuItemId} — Delete a menu item (deleteMenuItem)  [178..198]
+│   │   └── GET /menu-item-images/{menuItemId} — Retrieve a menu item photo (getMenuItemPhoto)  [203..226]
 │   ├── Orders (6) — Order management operations.
+│   │   ├── GET /orders — List all orders (listOrders)  [229..314]
+│   │   ├── POST /orders — Create order (createOrder)  [316..372]
+│   │   ├── GET /orders/{orderId} — Retrieve an order (getOrderById)  [375..416]
+│   │   ├── DELETE /orders/{orderId} — Delete an order (deleteOrder)  [478..502]
+│   │   ├── PATCH /orders/{orderId} — Partially update an order (updateOrder)  [418..476]
+│   │   └── GET /order-items — List all order items with menu item details (listOrderItems)  [505..546]
 │   └── Statistics (1) — Statistics operations.
+│       └── GET /revenue — Get revenue statistics (getRevenue)  [549..601]
 ├── Webhooks (1)
 │   └── order-notification
+│       └── POST — Order notification webhook (orderNotificationWebhook)  [665..683]
 └── Components (32)
     ├── schemas (15)
     ├── responses (6)
@@ -102,6 +115,8 @@ cafe.yaml — Redocly Cafe — Demo API for cafe operators (not customers) to ma
     └── securitySchemes (2)
 ```
 
+Each operation line follows `METHOD /path — summary (operationId)  [start..end]`, omitting the summary or operationId when the operation has none; a webhook's operation lines drop the path since the webhook name above them already names it.
+An operation with more than one tag appears once under each of its tags.
 Each branch is omitted when it's empty — a description with no servers, webhooks, or components skips those lines entirely.
 
 `--format=json` prints the same overview as data — a few kilobytes for any spec size, since it never lists individual operations or components:
@@ -269,7 +284,29 @@ The JSON shape is the same card-shaped list of operation entries shown under `--
 
 ### Get one operation
 
-Add `--operation` with an HTTP method to select a single operation on that path:
+Add `--operation` with an HTTP method to select a single operation on that path.
+`--format=stylish` (the default) renders a card as a pure tree: the operation on the root line, then a `source:` branch with its exact coordinates, one branch per typed edge — `refs` (outgoing, one hop) and `usedBy` (incoming, one hop) — and nothing else; there's no raw source in stylish, only coordinates and edges.
+
+```bash
+redocly tree cafe.yaml --path=/orders --operation=post
+```
+
+```
+POST /orders — Create order (createOrder)
+├── source: cafe.yaml#/paths/~1orders/post  [316..372]
+├── refs (5)
+│   ├── responses/BadRequest → cafe.yaml#/components/responses/BadRequest  [1327..1331]
+│   ├── responses/Forbidden → cafe.yaml#/components/responses/Forbidden  [1345..1349]
+│   ├── responses/InternalServerError → cafe.yaml#/components/responses/InternalServerError  [1333..1337]
+│   ├── responses/Unauthorized → cafe.yaml#/components/responses/Unauthorized  [1339..1343]
+│   └── schemas/Order → cafe.yaml#/components/schemas/Order  [1033..1107]
+└── usedBy (none)
+```
+
+Each `refs` entry is `component/name → file#pointer  [start..end]`; an unresolved ref shows `<raw ref> (unresolved)`, and a resolved ref to something that isn't a named component (a path-item file, a code sample) shows `<raw ref> → file  [start..end]`.
+`usedBy` follows the same arrow shape, keyed by the referrer's id, and renders as a `usedBy (none)` leaf when nothing references the selection — the usual case for an operation.
+
+`--format=json` returns the same coordinates and edges as data, plus a `description`:
 
 ```bash
 redocly tree cafe.yaml --path=/orders --operation=post --format=json
@@ -480,15 +517,14 @@ redocly tree cafe.yaml --component=schemas --name=Order
 
 ```
 schemas/Order
-file: cafe.yaml#/components/schemas/Order
-lines: 1033..1107
-refs:
-└── schemas/OrderStatus  #/components/schemas/OrderStatus  1025..1032
-usedBy:
-├── GET /orders/{orderId}  #/paths/~1orders~1{orderId}/get  375..416
-├── PATCH /orders/{orderId}  #/paths/~1orders~1{orderId}/patch  418..476
-├── POST /orders  #/paths/~1orders/post  316..372
-└── schemas/OrderList  #/components/schemas/OrderList  1108..1124
+├── source: cafe.yaml#/components/schemas/Order  [1033..1107]
+├── refs (1)
+│   └── schemas/OrderStatus → cafe.yaml#/components/schemas/OrderStatus  [1025..1032]
+└── usedBy (4)
+    ├── GET /orders/{orderId} → cafe.yaml  [375..416]
+    ├── PATCH /orders/{orderId} → cafe.yaml  [418..476]
+    ├── POST /orders → cafe.yaml  [316..372]
+    └── schemas/OrderList → cafe.yaml  [1108..1124]
 ```
 
 `usedBy` here shows every operation and component with a direct reference to `Order` — one hop only; for the transitive version see `--used-by` below.
@@ -520,8 +556,8 @@ redocly tree cafe-split/cafe.yaml --file=paths/orders.yaml
 
 ```
 cafe-split/paths/orders.yaml
-├── GET /orders "List all orders" 2..62 [Orders]
-└── POST /orders "Create order" 64..118 [Orders]
+├── GET /orders — List all orders (listOrders)  [2..62]
+└── POST /orders — Create order (createOrder)  [64..118]
 ```
 
 `--format=json` wraps the same card-shaped entries used by the listings above in `{ file, defines }`:
@@ -991,43 +1027,35 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
 The `content` values above are elided (`…`); the real output carries the actual raw source lines for the operation and for every dependency.
 `--with-deps` also works on a component selection (`--component` + `--name`), and is mutually exclusive with `--used-by`.
 
-`--format=stylish` (the default) renders the closure too: the card as usual, then a `content:` block with the raw source, then a `deps:` tree — one line per dependency, in the same dependency order as the JSON `deps` array:
+`--format=stylish` (the default) never prints raw source — that stays JSON-only — but it does render the dependency closure as a fourth branch, `deps (N, X KB of 64 KB cap)`, one line per dependency in the same order as the JSON `deps` array:
 
 ```bash
 redocly tree cafe.yaml --path=/orders --operation=post --with-deps
 ```
 
 ```
-POST /orders (createOrder)
-file: cafe.yaml#/paths/~1orders/post
-lines: 316..372
-summary: Create order
-refs:
-├── responses/BadRequest  #/components/responses/BadRequest  1327..1331
-├── responses/Forbidden  #/components/responses/Forbidden  1345..1349
-├── responses/InternalServerError  #/components/responses/InternalServerError  1333..1337
-├── responses/Unauthorized  #/components/responses/Unauthorized  1339..1343
-└── schemas/Order  #/components/schemas/Order  1033..1107
-usedBy: (none)
-
-content:
-        tags:
-          - Orders
-        summary: Create order
-        … (54 more raw source lines)
-
-deps:
-├── responses/BadRequest  cafe.yaml:1327..1331
-├── responses/Forbidden  cafe.yaml:1345..1349
-├── responses/InternalServerError  cafe.yaml:1333..1337
-├── responses/Unauthorized  cafe.yaml:1339..1343
-├── schemas/Order  cafe.yaml:1033..1107
-├── schemas/Error  cafe.yaml:988..1024
-└── schemas/OrderStatus  cafe.yaml:1025..1032
+POST /orders — Create order (createOrder)
+├── source: cafe.yaml#/paths/~1orders/post  [316..372]
+├── refs (5)
+│   ├── responses/BadRequest → cafe.yaml#/components/responses/BadRequest  [1327..1331]
+│   ├── responses/Forbidden → cafe.yaml#/components/responses/Forbidden  [1345..1349]
+│   ├── responses/InternalServerError → cafe.yaml#/components/responses/InternalServerError  [1333..1337]
+│   ├── responses/Unauthorized → cafe.yaml#/components/responses/Unauthorized  [1339..1343]
+│   └── schemas/Order → cafe.yaml#/components/schemas/Order  [1033..1107]
+├── usedBy (none)
+└── deps (7, 4.2 KB of 64 KB cap)
+    ├── responses/BadRequest → cafe.yaml  [1327..1331]
+    ├── responses/Forbidden → cafe.yaml  [1345..1349]
+    ├── responses/InternalServerError → cafe.yaml  [1333..1337]
+    ├── responses/Unauthorized → cafe.yaml  [1339..1343]
+    ├── schemas/Order → cafe.yaml  [1033..1107]
+    ├── schemas/Error → cafe.yaml  [988..1024]
+    └── schemas/OrderStatus → cafe.yaml  [1025..1032]
 ```
 
-`content` is truncated above for readability (`… (54 more raw source lines)`); the real output prints the operation's raw source lines verbatim, 2-space indented, in full.
-`deps` lists only coordinates in stylish — each dependency's own raw source is available the same way, one selector at a time, or in full through `--format=json`.
+Each `deps` entry is `id → file  [start..end]`, the same arrow shape as `refs`, without the pointer (a dependency's own `refs` are one selector away, or in the JSON `deps[].refs`).
+When the closure hits the cap, the label gains a ` (truncated)` suffix: `deps (12, 64.0 KB of 64 KB cap) (truncated)`.
+Each dependency's own raw source is available the same way, one selector at a time, or in full through `--format=json`.
 
 ### Find what depends on a selection: `--used-by`
 
@@ -1245,12 +1273,13 @@ Could not resolve schemas/Item.yaml — shown as unresolved (❌).
 openapi.yaml — Test API  (oas3_2)
 └── Operations (1)
     └── untagged (1)
+        └── GET /items (listItems)  [8..21]
 ```
 
 {% /tab  %}
 {% /tabs  %}
 
-The bounded overview's tree stops at tags and component sections; it has no per-operation or per-schema node to put a ❌ marker on, so the stderr warning is the only signal there.
+The overview's operation line has no ❌ marker of its own — it's the stderr warning above that flags the unresolved ref, and the card (`--path`/`--operation`) below shows exactly which one.
 A card shows the same unresolved refs as data, keeping the declaration site's coordinates and no target location:
 
 ```bash

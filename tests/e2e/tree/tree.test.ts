@@ -105,6 +105,33 @@ describe('tree', () => {
     );
   });
 
+  test('tree --path --operation prints an operation card as a pure stylish tree', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--path=/tickets',
+      '--operation=post',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-operation-card-stylish')
+    );
+  });
+
+  test('tree --path --operation --with-deps renders the closure as a stylish deps branch', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--path=/tickets',
+      '--operation=post',
+      '--with-deps',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-operation-card-with-deps-stylish')
+    );
+  });
+
   test('tree --operation selects an operation by operationId', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
