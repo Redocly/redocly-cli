@@ -1,0 +1,11 @@
+POST /pets
+  ✖ breaking      changed  requestBody/content/application~1json/schema/properties/name · maxLength
+      `maxLength` changed from '100' to '10'. (string-length-changed)
+      at revision.yaml:16:30
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

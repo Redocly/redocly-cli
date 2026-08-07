@@ -1,0 +1,11 @@
+POST /pets
+  ✖ breaking      changed  requestBody/content/application~1json/schema/properties/age · minimum
+      `minimum` changed from '0' to '10'. (numeric-range-changed)
+      at revision.yaml:16:28
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.
