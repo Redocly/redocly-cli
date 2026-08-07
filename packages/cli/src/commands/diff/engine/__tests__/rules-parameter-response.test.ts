@@ -7,7 +7,13 @@ import { mediaTypeRemoved, responseRemoved } from '../classify/rules/response-ru
 import type { RawChange, RuleContext } from '../types.js';
 
 function ctx(polarity: RuleContext['polarity']): RuleContext {
-  return { polarity, specVersion: 'oas3_1', base: () => undefined, revision: () => undefined };
+  return {
+    polarity,
+    specVersion: 'oas3_1',
+    base: () => undefined,
+    revision: () => undefined,
+    nodeAt: () => undefined,
+  };
 }
 
 describe('parameter rules', () => {

@@ -32,17 +32,89 @@ export function becameTrue(before: unknown, after: unknown): boolean {
   return before !== true && after === true;
 }
 
-// integer → number is the only widening pair among JSON Schema primitive types.
-const WIDENING_PAIRS: Record<string, string[]> = { integer: ['number'] };
+// `integer` accepts a subset of what `number` does, so it is the one implicit
+// widening among the JSON Schema primitive types.
+const WIDER_TYPE: Record<string, string> = { integer: 'number' };
 
-export function isTypeNarrowed(before: unknown, after: unknown): boolean {
-  if (before === after) return false;
-  if (typeof before !== 'string' || typeof after !== 'string') return true; // conservative
-  return !(WIDENING_PAIRS[before] ?? []).includes(after);
+/**
+ * The set of types a schema accepts, folding OpenAPI 3.0's `nullable: true` into
+ * the 3.1 spelling (`type: [..., 'null']`) so the two compare as equal.
+ */
+export function effectiveTypes(type: unknown, nullable?: unknown): Set<string> {
+  const declared = Array.isArray(type) ? type : type === undefined ? [] : [type];
+  const types = new Set(declared.filter((value): value is string => typeof value === 'string'));
+  if (nullable === true) types.add('null');
+  return types;
 }
 
-export function isTypeWidened(before: unknown, after: unknown): boolean {
-  if (before === after) return false;
-  if (typeof before !== 'string' || typeof after !== 'string') return true; // conservative
-  return !(WIDENING_PAIRS[after] ?? []).includes(before);
+function accepts(types: Set<string>, type: string): boolean {
+  const wider = WIDER_TYPE[type];
+  return types.has(type) || (wider !== undefined && types.has(wider));
+}
+
+/** Some type the base accepted is no longer accepted. */
+export function isTypeSetNarrowed(before: Set<string>, after: Set<string>): boolean {
+  if (!before.size || !after.size) return false; // an absent `type` accepts anything
+  return [...before].some((type) => !accepts(after, type));
+}
+
+/** The revision accepts some type the base did not. */
+export function isTypeSetWidened(before: Set<string>, after: Set<string>): boolean {
+  if (!before.size || !after.size) return false;
+  return [...after].some((type) => !accepts(before, type));
+}
+
+/**
+ * Which way a constraint moved. `tighter` means the schema now accepts less,
+ * which breaks a request; `looser` means it accepts more, which breaks a response.
+ */
+export type ConstraintDirection = 'tighter' | 'looser' | 'same';
+
+const TIGHTER_WHEN_RAISED = new Set([
+  'minimum',
+  'exclusiveMinimum',
+  'minLength',
+  'minItems',
+  'minProperties',
+]);
+const TIGHTER_WHEN_LOWERED = new Set([
+  'maximum',
+  'exclusiveMaximum',
+  'maxLength',
+  'maxItems',
+  'maxProperties',
+]);
+// Equivalence of these cannot be decided by comparing values, so any change to
+// one is treated as a tightening rather than guessed at.
+const OPAQUE = new Set(['pattern', 'format', 'multipleOf']);
+
+export function constraintDirection(
+  property: string,
+  before: unknown,
+  after: unknown
+): ConstraintDirection {
+  if (before === after) return 'same';
+  if (before === undefined) return 'tighter'; // a new constraint
+  if (after === undefined) return 'looser'; // one dropped
+
+  if (property === 'additionalProperties') {
+    if (before === true && after === false) return 'tighter';
+    if (before === false && after === true) return 'looser';
+    return 'tighter'; // swapped for a schema: narrower than an open object
+  }
+
+  if (OPAQUE.has(property)) return 'tighter';
+
+  if (typeof before === 'number' && typeof after === 'number') {
+    const raised = after > before;
+    if (TIGHTER_WHEN_RAISED.has(property)) return raised ? 'tighter' : 'looser';
+    if (TIGHTER_WHEN_LOWERED.has(property)) return raised ? 'looser' : 'tighter';
+  }
+
+  // `exclusiveMinimum`/`exclusiveMaximum` are booleans in OpenAPI 3.0.
+  if (typeof before === 'boolean' && typeof after === 'boolean') {
+    return after ? 'tighter' : 'looser';
+  }
+
+  return 'tighter';
 }
