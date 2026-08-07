@@ -57,8 +57,11 @@ function provenanceHeader(name) {
 
 /**
  * The built-in compatibility table, read from its own source so an ejected file cannot
- * declare a different contract from the built-in it came from. `load` is never called,
- * so the generator modules it dynamic-imports are left unresolved.
+ * declare a different contract from the built-in it came from. Only the metadata is
+ * wanted, so everything the table reaches for at call time is cut away: the generator
+ * modules behind `load`, and `@redocly/openapi-core`, which `meta.ts` uses only inside
+ * functions we never call. Nothing here may resolve into a package's `lib/` — this runs
+ * on `prepare`, before anything is compiled.
  */
 async function loadBuiltinMeta() {
   const bundle = join(pkgRoot, 'eject-assets', '.meta.mjs');
@@ -69,15 +72,22 @@ async function loadBuiltinMeta() {
     format: 'esm',
     platform: 'node',
     target: 'node20',
-    external: ['@redocly/openapi-core'],
     plugins: [
       {
-        name: 'skip-generator-modules',
-        setup: (pluginBuild) =>
+        name: 'cut-call-time-imports',
+        setup(pluginBuild) {
           pluginBuild.onResolve({ filter: /\/index\.js$/ }, (args) => ({
             path: args.path,
             external: true,
-          })),
+          }));
+          pluginBuild.onResolve({ filter: /^@redocly\/openapi-core$/ }, () => ({
+            path: 'openapi-core',
+            namespace: 'unused-at-build-time',
+          }));
+          pluginBuild.onLoad({ filter: /.*/, namespace: 'unused-at-build-time' }, () => ({
+            contents: 'export const logger = {};',
+          }));
+        },
       },
     ],
     logLevel: 'warning',
