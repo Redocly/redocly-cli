@@ -296,6 +296,7 @@ Either way the closure is retrieved by one command: here it pulled 15 components
 | Flat `--operations` listing     |                   771,279 | **~2.5× less** (doesn't fit a 200k window either — needs four of them, and still no components) |
 | Index chain                     | 149,582 (+85 instruction) |                                                                                   **~13× less** |
 | Index chain on the split layout | 139,876 (+85 instruction) |                                                                                   **~14× less** |
+| Hybrid chain (stylish tag step) |  27,133 (+99 instruction) |                                         **~71× less** (see the live-run section for the method) |
 
 The ratio matters less than the shape of the curve.
 The chain's cost is bounded by the _largest branch_ and the _deepest single closure_, not by the size of the description, or even by how it's stored: the whole-file and split layouts above describe the exact same API, one as a single 10.0 MB file and the other as 2,842 small ones, and their chains land within 7% of each other (149,667 vs 139,961 tokens including the instruction) — because both walk the same `repos` branch and resolve the same closure, just from files of different shapes.
@@ -319,6 +320,23 @@ What it did, unprompted:
 
 Two honest caveats: this is a single run with a single model, and the instruction itself names the three commands — the agent's job was to pick targets and interpret results, not to invent the protocol.
 But that is exactly the deployment model this guide prices: the chain total above is an upper bound on what a compliant agent consumes, and a real one lands under it.
+
+### The hybrid chain: stylish for navigation, JSON for retrieval
+
+The stylish format is not just for humans: its listings are one line per operation, which makes it the cheapest navigation surface the command has.
+Re-measuring the chain with stylish for the middle step — the up-front instruction (99 tokens, measured) tells the agent to use the DEFAULT output for the tag listing and JSON everywhere else:
+
+| Step                                                 | Command                                                         |     Tokens |
+| ---------------------------------------------------- | --------------------------------------------------------------- | ---------: |
+| 1. Map the spec (JSON overview)                      | `--format=json`                                                 |      1,780 |
+| 2. Open the branch (stylish, one line per operation) | `--tag=repos`                                                   |      5,798 |
+| 3. Fetch the target with its closure (JSON)          | `--path=/user/repos --operation=post --with-deps --format=json` |     19,555 |
+| **Total**                                            |                                                                 | **27,133** |
+
+That is **~71× less than the whole file** — the stylish tag listing costs 5,798 tokens where the card-shaped JSON listing costs 128,288, because it prints coordinates and summaries, not per-entry `refs`/`usedBy`.
+The trade is explicit: choose JSON listings when the structure matters to tooling, stylish listings when the agent only needs to find its next target.
+
+Run live with the same rules as above, the hybrid-instructed agent chose exactly these three commands, answered correctly (with the full optional-field list this time), reported that mixing the two formats "caused no difficulty", and its whole session came to **79,731 tokens** — the cheapest live run recorded in this guide.
 
 ### Multi-operation workflows
 
