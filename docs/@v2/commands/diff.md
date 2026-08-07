@@ -40,6 +40,7 @@ redocly diff main@v1 main@v2 --fail-on=breaking
 - Changes to shared components are reported once, at the component location; whether a component change is breaking is derived from where the component is used (requests, responses, or both).
 - Changes the tool detects but cannot judge automatically (for example, a `$ref` that now points to a different target) are conservatively reported as `breaking`.
 - Structural comparison works for all supported specification types; breaking-change classification applies to OpenAPI 3.x.
+- Under `callbacks` and `webhooks` the direction is flipped, because the API sends those: their request body is judged the way a response is, and their responses the way a request is.
 
 {% admonition type="info" name="Limitations" %}
 The `diff` command detects common breaking changes using a documented rule catalog; it is not an exhaustive detector.
@@ -49,7 +50,6 @@ Reordering subschemas inside `allOf`, `oneOf`, or `anyOf` (and other lists witho
 `readOnly` and `writeOnly` do not refine request/response polarity; a component used on both sides is judged under both, and the stricter verdict wins.
 Reordering items that do have an identity (for example, `servers`, matched by URL) is not reported, even though `servers` order can be semantically meaningful.
 Comparing across minor versions (OpenAPI 3.0 vs 3.1) can surface syntactic-only differences (for example, `nullable: true` vs `type: [..., "null"]`).
-Changes under `callbacks` and `webhooks` receive structural diffing only, with no breaking-change classification, because their request/response direction is inverted.
 {% /admonition %}
 
 ## Breaking change rules
@@ -87,7 +87,7 @@ Each change reports the source file, line, and column of the affected node on bo
 
 ### Path parameter renaming
 
-Renaming a path parameter (for example, `/pets/{id}` → `/pets/{petId}`) is treated as the same endpoint, not a removal plus an addition. The rename is reported as a non-breaking change of the path template, alongside a non-breaking change of the parameter's `name`. If the match is ambiguous (several paths differing only in parameter names), the paths are compared by their literal keys instead. If a renamed path's operations define `callbacks` whose own path items declare a parameter with the same name as the renamed one, that callback parameter may be reported as removed and added; this is a cosmetic structural change, never a breaking verdict, because callbacks are not classified as request or response.
+Renaming a path parameter (for example, `/pets/{id}` → `/pets/{petId}`) is treated as the same endpoint, not a removal plus an addition. The rename is reported as a non-breaking change of the path template, alongside a non-breaking change of the parameter's `name`. If the match is ambiguous (several paths differing only in parameter names), the paths are compared by their literal keys instead. If a renamed path's operations define `callbacks` whose own path items declare a parameter with the same name as the renamed one, that callback parameter may be reported as removed and added; this is a cosmetic structural change rather than a real one.
 
 ## Examples
 
