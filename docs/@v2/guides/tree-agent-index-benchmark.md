@@ -370,18 +370,19 @@ Dump when the file fits comfortably; past a few hundred kilobytes of YAML the du
 ### Tree versus raw file access, head to head
 
 The fairest comparison is not "the index versus reading the whole file" (impossible) but "the index versus what an agent would actually do without it": `grep` and windowed reads over the raw YAML.
-Two agents, same model, same three-call task (publish a release, upload a binary asset, delete the asset — the host-override trap included): one restricted to `tree` commands, one restricted to `grep`/`sed`/partial reads, both required to base every claim on what they read and to log every command.
+Three agents, same model, same three-call task (publish a release, upload a binary asset, delete the asset — the host-override trap included): one restricted to `tree` commands; one restricted to `grep`/`sed`/partial reads; one given NO method at all — just the file, the task, ordinary file tools, and no mention that `tree` exists.
+All three had to base every claim on what they actually read and to log every inspection action.
 
-|                                |  `tree` agent |   raw-file agent |
-| ------------------------------ | ------------: | ---------------: |
-| Inspection commands            |             5 |               24 |
-| Command output consumed (full) | 18,984 tokens | (windowed reads) |
-| Whole session, all-in          | 88,927 tokens |    72,372 tokens |
-| Correct calls + hosts + links  |  ✅ all three |     ✅ all three |
+|                                |  `tree` agent | raw, tools prescribed | raw, free method |
+| ------------------------------ | ------------: | --------------------: | ---------------: |
+| Inspection actions             |             5 |                    24 |               18 |
+| Command output consumed (full) | 18,984 tokens |      (windowed reads) | (windowed reads) |
+| Whole session, all-in          | 88,927 tokens |         72,372 tokens |    81,646 tokens |
+| Correct calls + hosts + links  |  ✅ all three |          ✅ all three |     ✅ all three |
 
-Both got everything right, including the `uploads.github.com` override — and the raw-file agent's session was even slightly cheaper.
-The honest difference is in the command log: the raw agent's **second** command was `grep -n "uploads.github.com"` — it searched for the answer it already knew, because this is one of the most famous APIs in the world, and every anchor it grepped for (`'/repos/{owner}/{repo}/releases`, schema names, the upload host) came from that prior knowledge, later verified against the file.
-The tree agent needed no anchors: overview → branch → cards is the same three-command protocol for an API it has never seen.
+All three got everything right, including the `uploads.github.com` override, and the sessions land in the same 72–92k band — at this scale the total is dominated by the model's own reasoning, not by which retrieval method fed it.
+The honest difference is in the command logs: BOTH raw agents' **second** action was `grep -n "uploads.github.com"` — each searched for the answer it already knew, because this is one of the most famous APIs in the world, and every anchor they grepped for (`'/repos/{owner}/{repo}/releases`, schema names, the upload host) came from prior knowledge, later verified against the file.
+The tree agent needed no anchors: overview → branch → cards is the same protocol for an API it has never seen, in 5 bounded round-trips against 18–24 speculative ones.
 
 So the head-to-head result is conditional, and worth stating plainly:
 
