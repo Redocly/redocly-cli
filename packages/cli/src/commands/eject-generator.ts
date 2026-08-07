@@ -274,6 +274,9 @@ export const handleEjectGenerator = async ({
   if (EJECTABLE.has(name) || FRAMEWORK_VARIANTS.has(name)) {
     ejectGeneratorTelemetry.eject_generator_name = name;
   }
+  // Every path that finishes overwrites this, so it survives only when something we did
+  // not account for throws — an unreadable asset, a failed write, a missing directory.
+  ejectGeneratorTelemetry.eject_generator_outcome = 'unexpected-error';
   const framework = FRAMEWORK_VARIANTS.get(name);
   if (framework !== undefined) {
     ejectGeneratorTelemetry.eject_generator_action = 'guidance';
@@ -363,7 +366,6 @@ export const handleEjectGenerator = async ({
   const authoringSkill = dropSkill('client-generators', assetsDir);
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
-  ejectGeneratorTelemetry.eject_generator_outcome = 'success';
   const configEntry = `./${relative(process.cwd(), target).split('\\').join('/')}`;
   const dependency = wireDependency({ [TOOLKIT_PACKAGE]: `^${toolkitVersion}` });
   // A bundled TypeScript generator also imports `logger`/`isPlainObject` from core, which
@@ -386,4 +388,6 @@ export const handleEjectGenerator = async ({
           `  client:\n    generators:\n      - ${configEntry}\n\n`) +
       `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n`
   );
+  // Last, so wiring the dependency or the config entry failing is not reported as success.
+  ejectGeneratorTelemetry.eject_generator_outcome = 'success';
 };

@@ -30,6 +30,22 @@ describe('eject telemetry (coarse categories only)', () => {
     });
   });
 
+  it('a failure we did not account for still records an outcome', async () => {
+    // The shipped assets sit next to the BUILT module, so reading one from source fails
+    // the same way a broken install would — an error no branch sets an outcome for.
+    await expect(
+      handleEjectGenerator({
+        ...baseArgs,
+        argv: { generator: 'php', update: true },
+      } as CommandArgs<never>)
+    ).rejects.toThrow();
+    expect(ejectGeneratorTelemetry).toEqual({
+      eject_generator_action: 'update',
+      eject_generator_name: 'php',
+      eject_generator_outcome: 'unexpected-error',
+    });
+  });
+
   it('an unknown generator records the outcome but never the user-supplied name', async () => {
     await expect(
       handleEjectGenerator({
