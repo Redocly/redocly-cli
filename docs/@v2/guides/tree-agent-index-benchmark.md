@@ -338,6 +338,21 @@ The trade is explicit: choose JSON listings when the structure matters to toolin
 
 Run live with the same rules as above, the hybrid-instructed agent chose exactly these three commands, answered correctly (with the full optional-field list this time), reported that mixing the two formats "caused no difficulty", and its whole session came to **79,731 tokens** — the cheapest live run recorded in this guide.
 
+### A task that cannot be guessed
+
+"Create a repository" is deliberately simple — it demonstrates the mechanics, but a well-trained model might answer it from memory without ever opening the description.
+So the experiment was repeated with a task whose correct answer is buried in the source: _"publish a release with an attached binary asset — every call, in order, and the exact HOST each request goes to."_
+The trap: the asset-upload operation carries an operation-level `servers` override to `https://uploads.github.com` — every other operation in the document inherits the global `https://api.github.com`, so an agent that guesses instead of reading gets the host wrong.
+
+The hybrid-instructed agent ran four commands — overview, the `repos` branch, then the create-release and upload-asset cards — for **17,754 tokens** of command output (1,780 + 5,798 + 6,638 + 3,538), and its answer held nothing back:
+
+- both calls with the right hosts, including the override, which it explicitly attributed to the operation-level `servers` block;
+- the data links (`id` → `{release_id}`, and the `upload_url` hypermedia template as the intended alternative to hand-building the host);
+- the details that only exist in the source: the raw `application/octet-stream` binary body, asset metadata as query parameters on a POST, the `Content-Type`-must-be-real-media-type requirement stated only in prose, the documented `502` partial-failure mode that strands an asset in a `starter` state, and the SNI client caveat.
+
+None of that is guessable; all of it came out of two `--with-deps` cards.
+This is the case that separates an index-driven answer from a plausible-sounding one.
+
 ### Multi-operation workflows
 
 Real agent tasks usually chain several calls, so the live experiment was repeated with workflow tasks — same rules, same 85-token instruction, the agent picks every command itself.
