@@ -1,3 +1,4 @@
+import { EJECTABLE, FRAMEWORK_VARIANTS } from '../commands/eject-generator.js';
 import {
   BUILTIN_GENERATOR_NAMES,
   categorizeGenerateClientError,
@@ -47,10 +48,12 @@ describe('categorizeGenerateClientError', () => {
 });
 
 describe('BUILTIN_GENERATOR_NAMES', () => {
-  it('covers every current built-in — a missing name silently degrades the usage event', () => {
-    for (const name of ['sdk', 'zod', 'mock', 'cli', 'python', 'go', 'php']) {
-      expect(BUILTIN_GENERATOR_NAMES.has(name), name).toBe(true);
-    }
+  // Every built-in ships as a vendorable asset, so EJECTABLE plus the framework variants
+  // is the full set. A built-in missing here is counted as a custom generator and its
+  // ejected provenance header is ignored.
+  it('covers every built-in', () => {
+    const builtins = [...EJECTABLE, ...FRAMEWORK_VARIANTS.keys()].sort();
+    expect([...BUILTIN_GENERATOR_NAMES].sort()).toEqual(builtins);
   });
 });
 

@@ -25,7 +25,7 @@ export type EjectGeneratorCommandArgv = {
 };
 
 /** Every built-in generator ships as a vendorable asset. */
-const EJECTABLE = new Set([
+export const EJECTABLE = new Set([
   'python',
   'go',
   'php',
@@ -44,7 +44,7 @@ const EJECTABLE = new Set([
  * single argument in the ejected file — so they point at the base generator instead of
  * shipping four near-identical bundles.
  */
-const FRAMEWORK_VARIANTS = new Map([
+export const FRAMEWORK_VARIANTS = new Map([
   ['tanstack-query-vue', 'vue'],
   ['tanstack-query-svelte', 'svelte'],
   ['tanstack-query-solid', 'solid'],
