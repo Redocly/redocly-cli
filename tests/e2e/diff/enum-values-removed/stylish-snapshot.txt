@@ -1,0 +1,11 @@
+GET /pets
+  ✖ breaking      changed  parameters/{query:sort}/schema · enum
+      Enum values removed: desc. (enum-values-removed)
+      at revision.yaml:14:15
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.
