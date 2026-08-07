@@ -1,47 +1,13 @@
-import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { cleanupOutput, getCommandOutput, getParams } from '../helpers.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
-const rulesPath = join(__dirname, 'rules');
 
-interface DiffChange {
-  pointer: string;
-  property?: string;
-  kind: string;
-  compat: 'breaking' | 'non-breaking';
-  verdicts?: { ruleId: string; message: string; compat: string }[];
-}
-
-interface DiffJson {
-  summary: { breaking: number; nonBreaking: number };
-  changes: DiffChange[];
-}
-
-// The command prints the report on stdout and everything else on stderr,
-// so stdout parses as JSON on its own.
-function runDiff(fixture: string): DiffJson {
-  const result = spawnSync(
-    'node',
-    [indexEntryPoint, 'diff', 'base.yaml', 'revision.yaml', '--format=json', '--fail-on=none'],
-    { encoding: 'utf-8', cwd: join(rulesPath, fixture), env: { ...process.env, NO_COLOR: 'TRUE' } }
-  );
-  if (result.status !== 0) {
-    throw new Error(`diff failed for ${fixture}:\n${result.stderr}`);
-  }
-  return JSON.parse(result.stdout);
-}
-
-function firedRuleIds(diff: DiffJson): string[] {
-  return [
-    ...new Set(diff.changes.flatMap((change) => change.verdicts?.map((v) => v.ruleId) ?? [])),
-  ];
-}
-
-/** A change the command must report as breaking, attributed to `ruleId`. */
+/** One fixture per rule, each a base/revision pair differing only in what it exercises. */
 const BREAKING: { fixture: string; ruleId: string; describes: string }[] = [
-  // ── already covered
   {
     fixture: 'operation-removed',
     ruleId: 'operation-removed',
@@ -53,9 +19,20 @@ const BREAKING: { fixture: string; ruleId: string; describes: string }[] = [
     describes: 'an optional query parameter becomes required',
   },
   {
+    fixture: 'parameter-serialization-changed',
+    ruleId: 'parameter-serialization-changed',
+    describes: 'an array parameter changes its serialization style',
+  },
+  {
     fixture: 'property-removed-from-response',
     ruleId: 'property-removed-from-response',
     describes: 'a response property disappears',
+  },
+  {
+    fixture: 'webhook-payload-property-removed',
+    // A webhook body travels to the consumer, so it is judged as a response.
+    ruleId: 'property-removed-from-response',
+    describes: 'a webhook payload drops a property',
   },
   {
     fixture: 'enum-values-removed',
@@ -68,8 +45,6 @@ const BREAKING: { fixture: string; ruleId: string; describes: string }[] = [
     ruleId: 'schema-type-changed',
     describes: 'a request property stops accepting null',
   },
-
-  // ── not implemented yet
   {
     fixture: 'request-body-became-required',
     ruleId: 'request-body-became-required',
@@ -91,6 +66,11 @@ const BREAKING: { fixture: string; ruleId: string; describes: string }[] = [
     describes: 'minimum rises on a request property',
   },
   {
+    fixture: 'schema-format-changed',
+    ruleId: 'schema-format-changed',
+    describes: 'a request property gains a format constraint',
+  },
+  {
     fixture: 'additional-properties-changed',
     ruleId: 'additional-properties-changed',
     describes: 'a request object stops accepting extra properties',
@@ -101,9 +81,9 @@ const BREAKING: { fixture: string; ruleId: string; describes: string }[] = [
     describes: 'a request oneOf drops an accepted subschema',
   },
   {
-    fixture: 'schema-format-changed',
-    ruleId: 'schema-format-changed',
-    describes: 'a request property gains a format constraint',
+    fixture: 'response-header-removed',
+    ruleId: 'response-header-removed',
+    describes: 'a response header disappears',
   },
   {
     fixture: 'security-requirement-added',
@@ -115,19 +95,9 @@ const BREAKING: { fixture: string; ruleId: string; describes: string }[] = [
     ruleId: 'security-scheme-changed',
     describes: 'a security scheme switches from apiKey to bearer',
   },
-  {
-    fixture: 'response-header-removed',
-    ruleId: 'response-header-removed',
-    describes: 'a response header disappears',
-  },
-  {
-    fixture: 'parameter-serialization-changed',
-    ruleId: 'parameter-serialization-changed',
-    describes: 'an array parameter changes its serialization style',
-  },
 ];
 
-/** A change the command must NOT report as breaking. */
+/** Changes that must not be reported as breaking. */
 const SAFE: { fixture: string; describes: string }[] = [
   {
     fixture: 'schema-type-widened-in-request',
@@ -139,35 +109,26 @@ const SAFE: { fixture: string; describes: string }[] = [
   },
 ];
 
+function runDiff(fixture: string): string {
+  const args = getParams(indexEntryPoint, ['diff', 'base.yaml', 'revision.yaml']);
+  return cleanupOutput(getCommandOutput(args, { testPath: join(__dirname, fixture) }));
+}
+
 describe('diff rules', () => {
   for (const { fixture, ruleId, describes } of BREAKING) {
-    test(`${ruleId}: reports breaking when ${describes}`, () => {
-      const diff = runDiff(fixture);
-      const change = diff.changes.find(
-        (candidate) =>
-          candidate.compat === 'breaking' &&
-          candidate.verdicts?.some((verdict) => verdict.ruleId === ruleId)
-      );
-
-      expect(
-        change,
-        `expected a breaking change from '${ruleId}', got ${
-          firedRuleIds(diff).join(', ') || 'no rule verdicts'
-        } (breaking: ${diff.summary.breaking}, non-breaking: ${diff.summary.nonBreaking})`
-      ).toBeDefined();
+    test(`${ruleId}: ${describes}`, async () => {
+      const output = runDiff(fixture);
+      // Named explicitly so a regenerated snapshot cannot quietly stop exercising the rule.
+      expect(output).toContain(ruleId);
+      await expect(output).toMatchFileSnapshot(join(__dirname, fixture, 'stylish-snapshot.txt'));
     });
   }
 
   for (const { fixture, describes } of SAFE) {
-    test(`reports no breaking change when ${describes}`, () => {
-      const diff = runDiff(fixture);
-
-      expect(
-        diff.summary.breaking,
-        `expected no breaking changes, got ${diff.summary.breaking} from ${
-          firedRuleIds(diff).join(', ') || 'no rule verdicts'
-        }`
-      ).toBe(0);
+    test(`no breaking change when ${describes}`, async () => {
+      const output = runDiff(fixture);
+      expect(output).toContain('0 breaking');
+      await expect(output).toMatchFileSnapshot(join(__dirname, fixture, 'stylish-snapshot.txt'));
     });
   }
 });
