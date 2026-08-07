@@ -39,6 +39,7 @@ import { ResponseContainsHeader } from '../common/response-contains-header.js';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example.js';
 import { SecurityDefined } from '../common/security-defined.js';
 import { SecurityScopesDefined } from '../common/security-scopes-defined.js';
+import { SpecRefSiblings } from '../common/spec-ref-siblings.js';
 import { SpecStrictRefs } from '../common/spec-strict-refs.js';
 import { Struct } from '../common/struct.js';
 import { TagDescription } from '../common/tag-description.js';
@@ -92,6 +93,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'scalar-property-missing-example': ScalarPropertyMissingExample as Oas2Rule,
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength as Oas2Rule,
   'spec-strict-refs': SpecStrictRefs as Oas2Rule,
+  'spec-ref-siblings': SpecRefSiblings as Oas2Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas2Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas2Rule,
   'no-duplicated-enum-values': NoDuplicatedEnumValues as Oas2Rule,

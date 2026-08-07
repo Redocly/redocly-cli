@@ -219,6 +219,7 @@ rules:
   spec-example-values: error
   spec-no-invalid-encoding-combinations: error
   spec-no-invalid-tag-parents: error
+  spec-ref-siblings: warn
   struct: error
   tag-description: warn
 ```
@@ -264,6 +265,7 @@ rules:
   security-defined: error
   security-scopes-defined: warn
   spec-components-invalid-map-name: error
+  spec-ref-siblings: warn
   struct: error
   tag-description: warn
 ```
@@ -309,6 +311,7 @@ rules:
   security-defined: error
   security-scopes-defined: warn
   spec-components-invalid-map-name: error
+  spec-ref-siblings: warn
   struct: error
   tag-description: warn
 ```
@@ -344,6 +347,7 @@ rules:
   path-params-defined: error
   security-defined: error
   security-scopes-defined: warn
+  spec-ref-siblings: warn
   struct: error
   tag-description: warn
 ```
@@ -363,6 +367,7 @@ rules:
   operation-operationId: warn
   security-defined: error
   security-scopes-defined: warn
+  spec-ref-siblings: warn
   struct: error
   tag-description: warn
 ```
