@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info:
+  title: string-length-changed
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 10
+      responses:
+        '200':
+          description: OK

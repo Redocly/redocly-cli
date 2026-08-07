@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: schema-combinator-changed
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: string
+      responses:
+        '200':
+          description: OK
