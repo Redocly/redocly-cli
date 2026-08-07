@@ -41,55 +41,55 @@ export async function resolveGenerators(
   const registry = new Map<string, GeneratorDescriptor>();
   for (const custom of options.customGenerators ?? []) register(registry, custom);
 
-  const selected: string[] = [];
+  // Load every selected entry first: an import specifier's declared name and `requires`
+  // are only known once it is imported, and an ejected generator carries the same
+  // `requires` as the built-in it replaces.
+  const names: string[] = [];
+  for (const entry of entries) {
+    names.push(await loadEntry(entry, registry, options.configDir));
+  }
+
   // A prerequisite is pulled in rather than demanded: selecting `cli` should give a
   // working CLI without the user knowing which other generators provide its parts.
-  const entriesWithPrerequisites = expandPrerequisites(entries, options.customGenerators);
-  for (const entry of entriesWithPrerequisites) {
-    if (registry.has(entry)) {
-      selected.push(entry);
-      continue;
+  const selected: string[] = [];
+  const visiting = new Set<string>();
+  const add = async (name: string): Promise<void> => {
+    if (selected.includes(name) || visiting.has(name)) return;
+    visiting.add(name);
+    for (const required of registry.get(name)!.requires ?? []) {
+      // Only pull in a prerequisite we know how to load — an already-registered
+      // generator or a built-in. Anything else stays the user's problem and is
+      // reported by `validateSelection`.
+      if (registry.has(required) || required in BUILTIN_META) {
+        await add(await loadEntry(required, registry, options.configDir));
+      }
     }
-    const meta = (BUILTIN_META as Record<string, BuiltinMeta>)[entry];
-    if (meta !== undefined) {
-      const { load, ...compatibility } = meta;
-      registry.set(entry, { ...compatibility, ...(await load()) });
-      selected.push(entry);
-      continue;
-    }
-    const custom = await importGenerator(entry, options.configDir ?? process.cwd());
-    register(registry, custom);
-    selected.push(custom.name);
-  }
+    visiting.delete(name);
+    selected.push(name);
+  };
+  for (const name of names) await add(name);
   return { selected, registry };
 }
 
 /**
- * The selection with every declared prerequisite included, each before the generator that
- * needs it. Only BUILT-IN prerequisites are added: a custom generator's `requires` may
- * name anything, and inventing a resolution for it would be guesswork.
+ * Load one entry — an already-registered name, a built-in name, or an import specifier —
+ * into the registry, and return the name it is registered under.
  */
-function expandPrerequisites(entries: string[], customs: CustomGenerator[] = []): string[] {
-  const requirementsOf = (name: string): string[] => {
-    const meta = (BUILTIN_META as Record<string, BuiltinMeta>)[name];
-    if (meta !== undefined) return meta.requires ?? [];
-    return customs.find((custom) => custom.name === name)?.requires ?? [];
-  };
-  const out: string[] = [];
-  const visiting = new Set<string>();
-  const add = (name: string): void => {
-    if (out.includes(name) || visiting.has(name)) return;
-    visiting.add(name);
-    for (const required of requirementsOf(name)) {
-      // Only auto-add a prerequisite we know how to load; anything else stays the
-      // user's problem and is reported by `validateSelection`.
-      if (required in BUILTIN_META) add(required);
-    }
-    visiting.delete(name);
-    if (!out.includes(name)) out.push(name);
-  };
-  for (const entry of entries) add(entry);
-  return out;
+async function loadEntry(
+  entry: string,
+  registry: Map<string, GeneratorDescriptor>,
+  configDir?: string
+): Promise<string> {
+  if (registry.has(entry)) return entry;
+  const meta = (BUILTIN_META as Record<string, BuiltinMeta>)[entry];
+  if (meta !== undefined) {
+    const { load, ...compatibility } = meta;
+    registry.set(entry, { ...compatibility, ...(await load()) });
+    return entry;
+  }
+  const custom = await importGenerator(entry, configDir ?? process.cwd());
+  register(registry, custom);
+  return custom.name;
 }
 
 /** Validate a custom generator and add it under its name, rejecting collisions. */

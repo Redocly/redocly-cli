@@ -130,6 +130,15 @@ describe('resolveGenerators', () => {
     expect(registry.has('route-map')).toBe(true);
   });
 
+  it('pulls in the prerequisite a path-loaded generator declares', async () => {
+    // The specifier has to be imported before its `requires` is known, so an ejected
+    // generator gets its prerequisites the same way the built-in name does.
+    const { selected } = await resolveGenerators(['./route-map-plugin.ts'], {
+      configDir: fixtures,
+    });
+    expect(selected).toEqual(['sdk', 'route-map']);
+  });
+
   it('rejects URL specifiers — remote generator modules are not supported', async () => {
     // Mirrors core's plugin loading; a `data:` URL would otherwise reach `import()`
     // and execute inline code straight from the config.

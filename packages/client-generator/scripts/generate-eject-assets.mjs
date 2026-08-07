@@ -2,7 +2,7 @@ import { build } from 'esbuild';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 import { ejectedSkill } from './ejected-skill.mjs';
@@ -55,15 +55,64 @@ function provenanceHeader(name) {
   );
 }
 
-/** The default export the resolver loads, appended to every asset. */
-function defaultExport(name, run, sample) {
-  return (
-    `\nexport default {\n  name: '${name}',\n  run: ${run},\n` +
-    (sample === undefined ? '' : `  sample: ${sample},\n`) +
-    // The caret range the ejected copy was written against: this version's model and
-    // helpers, plus every compatible release after it.
-    `  requiresGenerator: '^${version}',\n};\n`
-  );
+/**
+ * The built-in compatibility table, read from its own source so an ejected file cannot
+ * declare a different contract from the built-in it came from. `load` is never called,
+ * so the generator modules it dynamic-imports are left unresolved.
+ */
+async function loadBuiltinMeta() {
+  const bundle = join(pkgRoot, 'eject-assets', '.meta.mjs');
+  await build({
+    entryPoints: [join(pkgRoot, 'src', 'generators', 'meta.ts')],
+    outfile: bundle,
+    bundle: true,
+    format: 'esm',
+    platform: 'node',
+    target: 'node20',
+    external: ['@redocly/openapi-core'],
+    plugins: [
+      {
+        name: 'skip-generator-modules',
+        setup: (pluginBuild) =>
+          pluginBuild.onResolve({ filter: /\/index\.js$/ }, (args) => ({
+            path: args.path,
+            external: true,
+          })),
+      },
+    ],
+    logLevel: 'warning',
+  });
+  try {
+    return (await import(pathToFileURL(bundle).href)).BUILTIN_META;
+  } finally {
+    rmSync(bundle, { force: true });
+  }
+}
+
+const BUILTIN_META = await loadBuiltinMeta();
+
+/**
+ * The default export the resolver loads, appended to every asset. It carries the same
+ * contract the built-in declares — `requires`, `errorModes`, `dateTypes`, `runtimes`,
+ * `notApplicable` — so an ejected generator still pulls its prerequisites in and is
+ * validated exactly like the built-in it replaces.
+ */
+function defaultExport(name, run, sample, options) {
+  const { load: _load, ...contract } = BUILTIN_META[name];
+  const fields = [`  name: '${name}',`, `  run: ${run},`];
+  if (sample !== undefined) fields.push(`  sample: ${sample},`);
+  if (options !== undefined) fields.push(`  options: ${options},`);
+  for (const [key, value] of Object.entries(contract)) {
+    // Wrapped only when it would run long — the user owns and edits this file.
+    const inline = JSON.stringify(value);
+    const text =
+      inline.length <= 80 ? inline : JSON.stringify(value, null, 2).replaceAll('\n', '\n  ');
+    fields.push(`  ${key}: ${text},`);
+  }
+  // The caret range the ejected copy was written against: this version's model and
+  // helpers, plus every compatible release after it.
+  fields.push(`  requiresGenerator: '^${version}',`);
+  return `\nexport default {\n${fields.join('\n')}\n};\n`;
 }
 
 /** Fail the build loudly — a broken asset would only surface in a user's repo. */
@@ -100,7 +149,12 @@ const TYPESCRIPT = [
   { name: 'swr', imports: ['swrGenerator'], run: 'swrGenerator' },
   { name: 'transformers', imports: ['transformersGenerator'], run: 'transformersGenerator' },
   { name: 'cli', imports: ['cliGenerator', 'cliSample'], run: 'cliGenerator', sample: 'cliSample' },
-  { name: 'cli-docs', imports: ['cliDocsGenerator'], run: 'cliDocsGenerator' },
+  {
+    name: 'cli-docs',
+    imports: ['cliDocsGenerator', 'cliDocsOptions'],
+    run: 'cliDocsGenerator',
+    options: 'cliDocsOptions',
+  },
   {
     name: 'tanstack-query',
     imports: ['tanstackQueryGenerator'],
@@ -108,7 +162,7 @@ const TYPESCRIPT = [
   },
 ];
 
-for (const { name, imports, run, sample } of TYPESCRIPT) {
+for (const { name, imports, run, sample, options } of TYPESCRIPT) {
   // Bundling starts from a generated entry so the default export survives esbuild's
   // renaming: appending it to the bundle would reference a symbol esbuild may have
   // renamed, while an entry module's own export is resolved before that happens.
@@ -117,7 +171,7 @@ for (const { name, imports, run, sample } of TYPESCRIPT) {
     entry,
     `import { ${imports.join(', ')} } from ${JSON.stringify(
       join(pkgRoot, 'src', 'generators', name, 'index.ts')
-    )};\n` + defaultExport(name, run, sample)
+    )};\n` + defaultExport(name, run, sample, options)
   );
   const outFile = join(outDir, `${name}.mjs`);
   try {
