@@ -273,7 +273,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       };
 
       currentLocation = resolvedLocation;
-      const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
+      const seenKey = type === SpecExtension ? location.absolutePointer : resolvedNode;
+      const isNodeSeen = seenNodesPerType[type.name]?.has?.(seenKey);
       let visitedBySome = false;
 
       const currentEnterVisitors =
@@ -345,7 +346,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       if (visitedBySome || !isNodeSeen) {
         seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-        seenNodesPerType[type.name].add(resolvedNode);
+        seenNodesPerType[type.name].add(seenKey);
 
         if (Array.isArray(resolvedNode)) {
           const itemsType = type.items;
@@ -375,8 +376,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
           } else if (type.extensionsPrefix) {
             props.push(
-              ...Object.keys(resolvedNode).filter((k) =>
-                k.startsWith(type.extensionsPrefix as string)
+              ...Object.keys(resolvedNode).filter(
+                (k) => k.startsWith(type.extensionsPrefix as string) && !props.includes(k)
               )
             );
           }

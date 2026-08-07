@@ -1,7 +1,7 @@
 {
   "refs": {
     "metric": "🚗 References",
-    "total": 43
+    "total": 2
   },
   "externalDocs": {
     "metric": "📦 External Documents",
@@ -9,11 +9,11 @@
   },
   "schemas": {
     "metric": "📈 Schemas",
-    "total": 23
+    "total": 2
   },
   "parameters": {
     "metric": "👉 Parameters",
-    "total": 6
+    "total": 1
   },
   "links": {
     "metric": "🔗 Links",
@@ -21,28 +21,39 @@
   },
   "pathItems": {
     "metric": "🔀 Path Items",
-    "total": 5
+    "total": 2
   },
   "webhooks": {
     "metric": "🎣 Webhooks",
-    "total": 0
+    "total": 2
   },
   "operations": {
     "metric": "👷 Operations",
-    "total": 8
+    "total": 3
   },
   "tags": {
     "metric": "🔖 Tags",
-    "total": 3
+    "total": 2
   },
   "xExtensions": {
     "metric": "🧩 Vendor Extensions",
-    "total": 0,
-    "counts": {}
+    "total": 10,
+    "counts": {
+      "x-badges": 1,
+      "x-codeSamples": 2,
+      "x-hideReplay": 1,
+      "x-internal": 2,
+      "x-metadata": 1,
+      "x-outer": 1,
+      "x-paths-ext": 1,
+      "x-query": 2,
+      "x-sibling-ext": 1,
+      "x-webhooks": 1
+    }
   }
 }
-Document: museum.yaml stats:
+Document: openapi.yaml stats:
 
 
-museum.yaml: stats processed in <test>ms
+openapi.yaml: stats processed in <test>ms
 

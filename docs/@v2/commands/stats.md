@@ -21,6 +21,7 @@ The metrics reported depend on the type of API description:
 - Webhooks
 - Operations
 - Tags
+- Vendor Extensions
 
 **AsyncAPI 2.x and AsyncAPI 3.x**
 
@@ -31,6 +32,9 @@ The metrics reported depend on the type of API description:
 - Channels
 - Operations
 - Tags
+- Vendor Extensions
+
+For **Vendor Extensions**, the count is the number of distinct `x-` extensions used, and each extension is listed with how many times it occurs.
 
 If you're interested in the technical details, the statistics are calculated using the counting logic from the `StatsVisitor` module.
 
@@ -123,6 +127,11 @@ Document: museum.yaml stats:
 🎣 Webhooks: 0
 👷 Operations: 8
 🔖 Tags: 3
+🧩 Vendor Extensions: 4
+  - x-badges: 1
+  - x-codeSamples: 2
+  - x-internal: 2
+  - x-metadata: 1
 
 museum.yaml: stats processed in 4ms
 </pre>
@@ -139,6 +148,9 @@ Document: asyncapi.yaml stats:
 📡 Channels: 1
 👷 Operations: 1
 🔖 Tags: 2
+🧩 Vendor Extensions: 2
+  - x-internal: 1
+  - x-metadata: 1
 
 asyncapi.yaml: stats processed in 4ms
 </pre>
@@ -187,6 +199,16 @@ The following is an example JSON output for an OpenAPI description:
   "tags": {
     "metric": "🔖 Tags",
     "total": 3
+  },
+  "xExtensions": {
+    "metric": "🧩 Vendor Extensions",
+    "total": 4,
+    "counts": {
+      "x-badges": 1,
+      "x-codeSamples": 2,
+      "x-internal": 2,
+      "x-metadata": 1
+    }
   }
 }
 </pre>
@@ -214,6 +236,15 @@ The following is an example source output for an OpenAPI description:
 | 🎣 Webhooks | 0 |
 | 👷 Operations | 8 |
 | 🔖 Tags | 3 |
+| 🧩 Vendor Extensions | 4 |
+
+#### 🧩 Vendor Extensions
+| Extension | Count |
+| --- | --- |
+| x-badges | 1 |
+| x-codeSamples | 2 |
+| x-internal | 2 |
+| x-metadata | 1 |
 
 </pre>
 
@@ -230,6 +261,16 @@ Here's the rendered example source output:
 | 🎣 Webhooks           | 0     |
 | 👷 Operations         | 8     |
 | 🔖 Tags               | 3     |
+| 🧩 Vendor Extensions  | 4     |
+
+**🧩 Vendor Extensions**
+
+| Extension     | Count |
+| ------------- | ----- |
+| x-badges      | 1     |
+| x-codeSamples | 2     |
+| x-internal    | 2     |
+| x-metadata    | 1     |
 
 For AsyncAPI descriptions, the table includes a `📡 Channels` row instead of the `🔗 Links`, `🔀 Path Items`, and `🎣 Webhooks` rows.
 

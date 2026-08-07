@@ -26,6 +26,11 @@
   "tags": {
     "metric": "🔖 Tags",
     "total": 2
+  },
+  "xExtensions": {
+    "metric": "🧩 Vendor Extensions",
+    "total": 0,
+    "counts": {}
   }
 }
 Document: async.yaml stats:

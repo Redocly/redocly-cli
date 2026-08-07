@@ -5,6 +5,7 @@
 📡 Channels: 1 
 👷 Operations: 1 
 🔖 Tags: 2 
+🧩 Vendor Extensions: 0 
 
 Document: asyncapi3.yaml stats:
 
