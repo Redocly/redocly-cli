@@ -34,7 +34,7 @@ The agent's only option is to read the description:
 
 At 1,946,549 tokens the file is roughly ten times a 200,000-token window, and still twice a 1,000,000-token one.
 No amount of "read a bit more" helps here.
-Searching the file by text instead is unreliable: it does not reveal the structure, does not follow `$ref` chains, and gives no bound on how much context the agent ends up reading.
+Searching the file by text is the real alternative — and it is measured head-to-head against the index in the live-run section below; the short version is that it can work, but only when the model already knows what words to search for.
 
 ## Why the index has to be hierarchical
 
@@ -352,6 +352,27 @@ The hybrid-instructed agent ran four commands — overview, the `repos` branch, 
 
 None of that is guessable; all of it came out of two `--with-deps` cards.
 This is the case that separates an index-driven answer from a plausible-sounding one.
+
+### Tree versus raw file access, head to head
+
+The fairest comparison is not "the index versus reading the whole file" (impossible) but "the index versus what an agent would actually do without it": `grep` and windowed reads over the raw YAML.
+Two agents, same model, same three-call task (publish a release, upload a binary asset, delete the asset — the host-override trap included): one restricted to `tree` commands, one restricted to `grep`/`sed`/partial reads, both required to base every claim on what they read and to log every command.
+
+|                                |  `tree` agent |   raw-file agent |
+| ------------------------------ | ------------: | ---------------: |
+| Inspection commands            |             5 |               24 |
+| Command output consumed (full) | 18,984 tokens | (windowed reads) |
+| Whole session, all-in          | 88,927 tokens |    72,372 tokens |
+| Correct calls + hosts + links  |  ✅ all three |     ✅ all three |
+
+Both got everything right, including the `uploads.github.com` override — and the raw-file agent's session was even slightly cheaper.
+The honest difference is in the command log: the raw agent's **second** command was `grep -n "uploads.github.com"` — it searched for the answer it already knew, because this is one of the most famous APIs in the world, and every anchor it grepped for (`'/repos/{owner}/{repo}/releases`, schema names, the upload host) came from that prior knowledge, later verified against the file.
+The tree agent needed no anchors: overview → branch → cards is the same three-command protocol for an API it has never seen.
+
+So the head-to-head result is conditional, and worth stating plainly:
+
+- On a **famous API**, a capable model can grep its way to a correct, verified answer at comparable cost — the index's advantage is determinism (5 bounded commands vs. 24 guesses that happened to land) rather than tokens.
+- On a **private or unfamiliar API** — the case API tooling exists for — there is nothing to grep for until you have the structure, and structure is exactly what the index returns first. The raw-file strategy also collapses on multi-file layouts (2,842 files here), where a text match says nothing about which `$ref` chain it belongs to; the index's answers are identical for both layouts.
 
 ### Multi-operation workflows
 
