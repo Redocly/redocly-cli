@@ -84,8 +84,10 @@ describe('collectDocumentMap', () => {
     expect(entries.get('#/components/schemas/Pet/properties/name')).toBeDefined();
 
     // usage edge recorded
+    // The site is the media type node that holds the `$ref`, since the reference
+    // itself is not a node and could not be looked up later.
     expect(usageEdges).toContainEqual({
-      site: '#/paths/~1pets/get/responses/200/content/application~1json/schema',
+      site: '#/paths/~1pets/get/responses/200/content/application~1json',
       target: '#/components/schemas/Pet',
     });
   });
