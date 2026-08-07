@@ -1,11 +1,12 @@
 import { classifyChanges } from '../classify/index.js';
 import { UsageIndex } from '../classify/usage.js';
 import type { NodeEntry, RawChange } from '../types.js';
+import { treeOf } from './tree.js';
 
 const emptyMaps = {
   base: new Map<string, NodeEntry>(),
   revision: new Map<string, NodeEntry>(),
-  usage: new UsageIndex([]),
+  usage: new UsageIndex([], () => undefined),
 };
 
 describe('classifyChanges', () => {
@@ -84,16 +85,39 @@ describe('classifyChanges', () => {
   });
 
   it('keeps every verdict when multiple rules fire, worst-first', () => {
-    const usage = new UsageIndex([
-      {
-        site: '#/paths/~1x/get/parameters/{query:q}/schema',
-        target: '#/components/schemas/S',
-      },
-      {
-        site: '#/paths/~1x/get/responses/200/content/application~1json/schema',
-        target: '#/components/schemas/S',
-      },
-    ]);
+    // The component is referenced from a request and from a response, so it is
+    // judged under both polarities; that needs real node types on the way down.
+    const entries = treeOf(`
+      #/ Root
+      #/paths PathsMap
+      #/paths/~1x PathItem
+      #/paths/~1x/get Operation
+      #/paths/~1x/get/parameters ParameterList
+      #/paths/~1x/get/parameters/{query:q} Parameter
+      #/paths/~1x/get/parameters/{query:q}/schema Schema
+      #/paths/~1x/get/responses Responses
+      #/paths/~1x/get/responses/200 Response
+      #/paths/~1x/get/responses/200/content MediaTypesMap
+      #/paths/~1x/get/responses/200/content/application~1json MediaType
+      #/paths/~1x/get/responses/200/content/application~1json/schema Schema
+      #/components Components
+      #/components/schemas NamedSchemas
+      #/components/schemas/S Schema
+    `);
+    const tree = (pointer: string) => entries.get(pointer);
+    const usage = new UsageIndex(
+      [
+        {
+          site: '#/paths/~1x/get/parameters/{query:q}/schema',
+          target: '#/components/schemas/S',
+        },
+        {
+          site: '#/paths/~1x/get/responses/200/content/application~1json/schema',
+          target: '#/components/schemas/S',
+        },
+      ],
+      tree
+    );
     const changes: RawChange[] = [
       {
         pointer: '#/components/schemas/S',
@@ -107,8 +131,8 @@ describe('classifyChanges', () => {
     const [change] = classifyChanges({
       changes,
       specVersion: 'oas3_1',
-      base: new Map(),
-      revision: new Map(),
+      base: entries,
+      revision: entries,
       usage,
     });
     expect(change.compat).toBe('breaking');

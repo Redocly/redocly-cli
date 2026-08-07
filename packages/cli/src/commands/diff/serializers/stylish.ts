@@ -52,6 +52,8 @@ function labelOf(change: Change): string {
   // full pointer — but unescape each segment first so JSON-pointer escapes
   // like `~1` never leak into the rendered label.
   const label = rest.length ? rest.join('/') : segments.map(unescapePointerFragment).join(' · ');
+  // A change on the document root has nothing left to name but the property itself.
+  if (!label) return change.property ?? change.pointer;
   return change.property ? `${label} · ${change.property}` : label;
 }
 
