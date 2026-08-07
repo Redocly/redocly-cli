@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info:
+  title: schema-format-changed
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: OK
