@@ -8,6 +8,7 @@ export interface NodeEntry {
   pointer: string; // stable matching key, e.g. '#/paths/~1pets/get/parameters/{query:limit}'
   realPointer: string; // actual JSON Pointer in THIS document, e.g. '#/paths/~1pets/get/parameters/1'
   parentPointer: string | null; // stable pointer of the parent node
+  keyInParent: string | number; // the walker's own key, e.g. 'oneOf' for a combinator list
   typeName: string; // from this side's type tree
   scalars: Record<string, unknown>; // shallow primitives and arrays of primitives (enum, required, ...)
   refs: Record<string, string>; // $ref-valued properties, recorded as attributes (not followed)
@@ -64,6 +65,8 @@ export interface RuleContext {
   specVersion: SpecVersion;
   base: (pointer: string) => NodeEntry | undefined;
   revision: (pointer: string) => NodeEntry | undefined;
+  /** Either side, revision first — for reading a node's own type or its ancestors. */
+  nodeAt: (pointer: string) => NodeEntry | undefined;
 }
 
 export interface DiffRule {

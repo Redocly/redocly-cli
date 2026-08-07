@@ -2,7 +2,16 @@ import { alignRenamedPaths } from '../align-paths.js';
 import type { NodeEntry } from '../types.js';
 
 function entry(pointer: string, typeName: string, parentPointer: string | null): NodeEntry {
-  return { pointer, realPointer: pointer, parentPointer, typeName, scalars: {}, refs: {}, raw: {} };
+  return {
+    pointer,
+    realPointer: pointer,
+    parentPointer,
+    keyInParent: '',
+    typeName,
+    scalars: {},
+    refs: {},
+    raw: {},
+  };
 }
 
 function side(template: string, paramName: string): Map<string, NodeEntry> {

@@ -67,9 +67,14 @@ export function diffDocuments(opts: {
     ...renames.map(toRenameChange),
     ...compareMaps(baseCollected.entries, alignedRevision),
   ];
-  // usage edges are NOT rewritten: polarity only inspects 'parameters'/'responses'
-  // segments and component roots, which a path rename never alters
-  const usage = new UsageIndex([...baseCollected.usageEdges, ...revisionCollected.usageEdges]);
+  // usage edges are NOT rewritten: polarity reads node types along the ancestor
+  // chain and component roots, neither of which a path rename alters
+  const nodeAt = (pointer: string) =>
+    alignedRevision.get(pointer) ?? baseCollected.entries.get(pointer);
+  const usage = new UsageIndex(
+    [...baseCollected.usageEdges, ...revisionCollected.usageEdges],
+    nodeAt
+  );
 
   const changes = locateChanges(
     classifyChanges({

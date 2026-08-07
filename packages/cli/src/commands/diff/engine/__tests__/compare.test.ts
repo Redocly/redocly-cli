@@ -5,6 +5,7 @@ function entry(partial: Partial<NodeEntry> & { pointer: string }): NodeEntry {
   return {
     realPointer: partial.pointer,
     parentPointer: null,
+    keyInParent: '',
     typeName: 'Schema',
     scalars: {},
     refs: {},

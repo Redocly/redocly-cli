@@ -69,7 +69,9 @@ export function collectDocumentMap(opts: {
           for (const [prop, value] of Object.entries(node)) {
             if (isRef(value)) {
               refs[prop] = value.$ref;
-              usageEdges.push({ site: `${pointer}/${prop}`, target: value.$ref });
+              // The site is the node holding the reference, not the reference's own
+              // path: a `$ref` is not a node, so only the owner can be looked up later.
+              usageEdges.push({ site: pointer, target: value.$ref });
             } else if (isScalar(value) || isScalarArray(value)) {
               scalars[prop] = value;
             }
@@ -80,6 +82,7 @@ export function collectDocumentMap(opts: {
           pointer,
           realPointer,
           parentPointer: stableParent,
+          keyInParent: ctx.key,
           typeName: ctx.type.name,
           scalars,
           refs,

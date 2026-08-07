@@ -9,6 +9,7 @@ import {
   type Polarity,
   type RawChange,
 } from '../types.js';
+import type { NodeLookup } from './chain.js';
 import { oas3Rules } from './oas3.js';
 import { oas3_1Rules } from './oas3_1.js';
 import { getPolarity } from './polarity.js';
@@ -33,17 +34,20 @@ export function classifyChanges(opts: {
 }): Change[] {
   const { changes, specVersion, base, revision, usage } = opts;
   const registry = REGISTRIES[specVersion] ?? {};
+  // A removed node only exists in the base, an added one only in the revision.
+  const nodeAt: NodeLookup = (pointer) => revision.get(pointer) ?? base.get(pointer);
 
   return changes.map((change) => {
     const rules = registry[change.typeName] ?? [];
     const verdicts: ChangeVerdict[] = [];
 
-    for (const polarity of expandPolarity(getPolarity(change.pointer, usage))) {
+    for (const polarity of expandPolarity(getPolarity(change.pointer, usage, nodeAt))) {
       const ctx = {
         polarity,
         specVersion,
         base: (pointer: string) => base.get(pointer),
         revision: (pointer: string) => revision.get(pointer),
+        nodeAt,
       };
       for (const rule of rules) {
         const verdict = rule.visit(change, ctx);

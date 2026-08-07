@@ -8,6 +8,7 @@ import {
   schemaTypeChanged,
 } from '../classify/rules/schema-rules.js';
 import type { NodeEntry, RawChange, RuleContext } from '../types.js';
+import { treeOf } from './tree.js';
 
 function ctx(
   polarity: RuleContext['polarity'],
@@ -18,6 +19,7 @@ function ctx(
     specVersion: 'oas3_1',
     base: (p) => maps.base?.get(p),
     revision: (p) => maps.revision?.get(p),
+    nodeAt: (p) => maps.revision?.get(p) ?? maps.base?.get(p),
   };
 }
 
@@ -64,22 +66,39 @@ describe('schema rules', () => {
   });
 
   it('property-removed-from-response fires only for schema-property nodes in response', () => {
+    // The rule tells a property from a subschema by its parent's node type,
+    // so the removed nodes need their real place in the tree.
+    const base = treeOf(`
+      #/components Components
+      #/components/schemas NamedSchemas
+      #/components/schemas/Pet Schema
+      #/components/schemas/Pet/properties SchemaProperties
+      #/components/schemas/Pet/properties/name Schema
+      #/components/schemas/Pet/oneOf SchemaList
+      #/components/schemas/Pet/oneOf/0 Schema
+    `);
+
     const change: RawChange = {
       pointer: '#/components/schemas/Pet/properties/name',
       kind: 'removed',
       typeName: 'Schema',
       base: { pointer: '#/components/schemas/Pet/properties/name', value: { type: 'string' } },
     };
-    expect(propertyRemovedFromResponse.visit(change, ctx('response'))?.compat).toBe('breaking');
-    expect(propertyRemovedFromResponse.visit(change, ctx('request'))).toBeUndefined();
+    expect(propertyRemovedFromResponse.visit(change, ctx('response', { base }))?.compat).toBe(
+      'breaking'
+    );
+    expect(propertyRemovedFromResponse.visit(change, ctx('request', { base }))).toBeUndefined();
 
+    // A member of `oneOf` is a subschema, not a property, so the rule stays quiet.
     const notAProperty: RawChange = {
       pointer: '#/components/schemas/Pet/oneOf/0',
       kind: 'removed',
       typeName: 'Schema',
       base: { pointer: '#/components/schemas/Pet/oneOf/0', value: {} },
     };
-    expect(propertyRemovedFromResponse.visit(notAProperty, ctx('response'))).toBeUndefined();
+    expect(
+      propertyRemovedFromResponse.visit(notAProperty, ctx('response', { base }))
+    ).toBeUndefined();
   });
 });
 
@@ -93,6 +112,7 @@ describe('ref-target-changed', () => {
           pointer,
           realPointer: pointer,
           parentPointer: null,
+          keyInParent: '',
           typeName: 'MediaType',
           scalars: {},
           refs: { schema: '#/components/schemas/Pet' },
