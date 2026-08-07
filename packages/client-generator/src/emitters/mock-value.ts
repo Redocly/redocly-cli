@@ -3,6 +3,7 @@
 // where indentation is threaded. Deliberately tiny.
 
 import { safeIdent } from './identifier.js';
+import { sanitizeCodeString } from './ts-literal.js';
 
 export type MockEntry = { key: string; value: MockValue } | { spread: string };
 
@@ -50,7 +51,7 @@ export function renderMockValue(value: MockValue, indent: string): string {
       const lines = value.entries.map((entry, index) => {
         const comma = index === value.entries.length - 1 ? '' : ',';
         if ('spread' in entry) return `${inner}...${entry.spread}${comma}`;
-        const key = safeIdent(entry.key) === entry.key ? entry.key : JSON.stringify(entry.key);
+        const key = safeIdent(entry.key) === entry.key ? entry.key : sanitizeCodeString(entry.key);
         return `${inner}${key}: ${renderMockValue(entry.value, inner)}${comma}`;
       });
       return `{\n${lines.join('\n')}\n${indent}}`;
