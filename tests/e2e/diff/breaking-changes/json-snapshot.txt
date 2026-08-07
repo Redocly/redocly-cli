@@ -6,7 +6,6 @@
   },
   "summary": {
     "breaking": 3,
-    "warning": 0,
     "nonBreaking": 1
   },
   "changes": [
@@ -18,13 +17,19 @@
         "pointer": "#/components/schemas/Pet/properties/tag",
         "value": {
           "type": "string"
-        }
+        },
+        "file": "./tests/e2e/diff/breaking-changes/base.yaml",
+        "line": 33,
+        "col": 11
       },
       "compat": "breaking",
-      "ruleIds": [
-        "property-removed-from-response"
-      ],
-      "message": "Schema property was removed."
+      "verdicts": [
+        {
+          "ruleId": "property-removed-from-response",
+          "compat": "breaking",
+          "message": "Schema property was removed."
+        }
+      ]
     },
     {
       "pointer": "#/info",
@@ -33,11 +38,17 @@
       "typeName": "Info",
       "base": {
         "pointer": "#/info/version",
-        "value": "1.0"
+        "value": "1.0",
+        "file": "./tests/e2e/diff/breaking-changes/base.yaml",
+        "line": 4,
+        "col": 12
       },
       "revision": {
         "pointer": "#/info/version",
-        "value": "2.0"
+        "value": "2.0",
+        "file": "./tests/e2e/diff/breaking-changes/revision.yaml",
+        "line": 4,
+        "col": 12
       },
       "compat": "non-breaking"
     },
@@ -53,13 +64,19 @@
               "description": "Deleted"
             }
           }
-        }
+        },
+        "file": "./tests/e2e/diff/breaking-changes/base.yaml",
+        "line": 21,
+        "col": 7
       },
       "compat": "breaking",
-      "ruleIds": [
-        "operation-removed"
-      ],
-      "message": "Operation was removed."
+      "verdicts": [
+        {
+          "ruleId": "operation-removed",
+          "compat": "breaking",
+          "message": "Operation was removed."
+        }
+      ]
     },
     {
       "pointer": "#/paths/~1pets/get/parameters/{query:limit}",
@@ -67,18 +84,31 @@
       "kind": "changed",
       "typeName": "Parameter",
       "base": {
-        "pointer": "#/paths/~1pets/get/parameters/0/required"
+        "pointer": "#/paths/~1pets/get/parameters/0/required",
+        "file": "./tests/e2e/diff/breaking-changes/base.yaml",
+        "line": 9,
+        "col": 11
       },
       "revision": {
         "pointer": "#/paths/~1pets/get/parameters/0/required",
-        "value": true
+        "value": true,
+        "file": "./tests/e2e/diff/breaking-changes/revision.yaml",
+        "line": 11,
+        "col": 21
       },
       "compat": "breaking",
-      "ruleIds": [
-        "parameter-became-required"
-      ],
-      "message": "Parameter became required."
+      "verdicts": [
+        {
+          "ruleId": "parameter-became-required",
+          "compat": "breaking",
+          "message": "Parameter became required."
+        }
+      ]
     }
   ]
 }
 
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 3 breaking changes.
