@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: security-scheme-changed
+  version: '1.0'
+security:
+  - apiKey: []
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer

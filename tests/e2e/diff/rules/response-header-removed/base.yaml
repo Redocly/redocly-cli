@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: response-header-removed
+  version: '1.0'
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Rate-Limit:
+              schema:
+                type: integer
