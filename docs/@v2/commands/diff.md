@@ -21,17 +21,17 @@ redocly diff main@v1 main@v2 --fail-on=breaking
 
 ## Options
 
-| Option        | Type    | Description                                                                                                                           |
-| ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| base          | string  | **REQUIRED.** Path, URL, or config alias of the base (older) API description.                                                         |
-| revision      | string  | **REQUIRED.** Path, URL, or config alias of the revision (newer) API description.                                                     |
-| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                  |
-| --fail-on     | string  | Exit with code `1` when changes at this level are found. <br /> **Possible values:** `breaking`, `none`. Default value is `breaking`. |
-| --format      | string  | Format for the output. <br /> **Possible values:** `stylish`, `json`, `markdown`, `html`. Default value is `stylish`.                 |
-| --help        | boolean | Show help.                                                                                                                            |
-| --lint-config | string  | Specify the severity level for the configuration file. <br /> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.   |
-| --output, -o  | string  | Write the report to a file instead of stdout.                                                                                         |
-| --version     | boolean | Show version number.                                                                                                                  |
+| Option        | Type    | Description                                                                                                                                                                                           |
+| ------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| base          | string  | **REQUIRED.** Path, URL, or config alias of the base (older) API description.                                                                                                                         |
+| revision      | string  | **REQUIRED.** Path, URL, or config alias of the revision (newer) API description.                                                                                                                     |
+| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                  |
+| --fail-on     | string  | Exit with code `1` when changes at this level are found. <br /> **Possible values:** `breaking`, `none`. Default value is `breaking`.                                                                 |
+| --format      | string  | Format for the output. <br /> **Possible values:** `stylish`, `json`, `markdown`, `html`, `codeframe`, `checkstyle`, `codeclimate`, `summary`, `github-actions`, `junit`. Default value is `stylish`. |
+| --help        | boolean | Show help.                                                                                                                                                                                            |
+| --lint-config | string  | Specify the severity level for the configuration file. <br /> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                   |
+| --output, -o  | string  | Write the report to a file instead of stdout. Supported by the `stylish`, `json`, `markdown`, and `html` formats.                                                                                     |
+| --version     | boolean | Show version number.                                                                                                                                                                                  |
 
 ## How it works
 
@@ -107,3 +107,16 @@ Use `--format=html` together with `--output` to write a shareable HTML report in
 ```bash
 redocly diff v1.yaml v2.yaml --format=html -o diff-report.html
 ```
+
+### Annotate a pull request
+
+The `codeframe`, `checkstyle`, `codeclimate`, `summary`, `github-actions`, and `junit` formats are shared with the `lint` command, so existing CI integrations accept the diff report as-is.
+With `github-actions`, every breaking change becomes an inline annotation on the pull request:
+
+```bash
+redocly diff main-openapi.yaml pr-openapi.yaml --format=github-actions
+```
+
+These formats describe **breaking changes only**, because each entry carries a severity.
+Use `json` when you need the complete list of changes, including the non-breaking ones.
+They print to stdout and don't support `--output`, and the `junit` report names its test suite `redocly lint`.
