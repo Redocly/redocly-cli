@@ -367,6 +367,18 @@ On a description this size, dumping wins — it is simpler and ~30% cheaper, and
 The pattern that decides which approach to use is in the session totals across this guide's live runs: a dump-based session grows linearly with the file (9k-token file → 66k session; a 267,739-token file no longer fits a 200k window at all; this guide's 1,946,549-token file needs ten windows), while a tree-based session stays roughly flat regardless of description size — 95,963 tokens on the 9k-token demo API, 79,731–99,848 on the 1.9M-token GitHub description.
 Dump when the file fits comfortably; past a few hundred kilobytes of YAML the dump curve crosses the flat line, and at the window boundary it stops being a choice.
 
+### Automatic discovery: no instruction at all
+
+One more variant closes the loop: the same task and file, ordinary file tools available, and the Redocly CLI merely _installed_ — no protocol, no command list, just "`--help` works".
+The agent found `tree` on its own (two `--help` calls), preferred it — its stated reason: "jump directly to each operation and its resolved `$ref` chain instead of manually scanning the 261k-line file" — used it 9 times, and got everything right.
+
+But the session cost **111,435 tokens**, the highest of any run in this guide: it paid a discovery tax (its first move was the bare `redocly tree <file>`, whose human-oriented default tree lists all 1,216 operations — 55,432 tokens in one shot), and it re-verified the index's answers against the raw file with 11 additional reads.
+
+Two practical lessons, stated plainly:
+
+- Discoverability works — an agent picks the structured tool over scanning when both are available.
+- The savings come from the _protocol_, not the binary: the 99-token instruction from the hybrid section is what turns the same tool into the cheapest run recorded here (79,731). Ship that instruction wherever agents pick up the tool — an `AGENTS.md`, an `llms.txt`, an MCP tool description — it pays for itself a thousandfold on the first task.
+
 ### Tree versus raw file access, head to head
 
 The fairest comparison is not "the index versus reading the whole file" (impossible) but "the index versus what an agent would actually do without it": `grep` and windowed reads over the raw YAML.
