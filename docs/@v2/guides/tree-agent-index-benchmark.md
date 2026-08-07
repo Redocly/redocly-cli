@@ -372,7 +372,8 @@ Dump when the file fits comfortably; past a few hundred kilobytes of YAML the du
 One more variant closes the loop: the same task and file, ordinary file tools available, and the Redocly CLI merely _installed_ — no protocol, no command list, just "`--help` works".
 The agent found `tree` on its own (two `--help` calls), preferred it — its stated reason: "jump directly to each operation and its resolved `$ref` chain instead of manually scanning the 261k-line file" — used it 9 times, and got everything right.
 
-But the session cost **111,435 tokens**, the highest of any run in this guide: it paid a discovery tax (its first move was the bare `redocly tree <file>`, whose human-oriented default tree lists all 1,216 operations — 55,432 tokens in one shot), and it re-verified the index's answers against the raw file with 11 additional reads.
+But the session cost **111,435 tokens**, the highest of any run in this guide: it paid a discovery tax (its first move was the bare `redocly tree <file>`, whose default tree at the time expanded all 1,216 operations — 55,432 tokens in one shot), and it re-verified the index's answers against the raw file with 11 additional reads.
+That first trap is closed now: past 100 operations the default collapses to tag counts with a `--tag` hint — the same bare command on this file measures 1,028 tokens.
 
 Two practical lessons, stated plainly:
 

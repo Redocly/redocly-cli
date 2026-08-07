@@ -154,6 +154,34 @@ describe('renderViewStylish', () => {
     );
   });
 
+  it('collapses the overview to tag counts and hints at --tag when no operations are handed in', () => {
+    const rendered = renderViewStylish({
+      kind: 'overview',
+      overview: {
+        docName: 'openapi.yaml',
+        spec: 'oas3_0',
+        servers: { urls: ['https://api.example.com/v1'] },
+        tags: [{ name: 'Tickets', summary: 'Buy tickets.', operations: 150 }],
+        operations: 150,
+        webhooks: [],
+        components: [{ section: 'schemas', count: 3 }],
+      },
+    });
+    expect(rendered).toBe(
+      [
+        'openapi.yaml  (oas3_0)',
+        '├── Servers',
+        '│   └── https://api.example.com/v1',
+        '├── Operations (150)',
+        '│   └── Tickets (150) — Buy tickets.',
+        '└── Components (3)',
+        '    └── schemas (3)',
+        '',
+        '150 operations across 1 tags — expand one with `--tag=<name>`.',
+      ].join('\n')
+    );
+  });
+
   it('lists a multi-tag operation under each of its tags in the overview tree', () => {
     const rendered = renderViewStylish({
       kind: 'overview',

@@ -79,6 +79,7 @@ See [Selector errors](#selector-errors) for the full set of these checks.
 ### Get an overview of an API description
 
 With no selector, `tree` prints a bounded overview as a tree: the document name and info summary at the root, then branches for servers, tags with their operations, webhook names with their operations, and component sections with their counts.
+Past 100 operations the tree collapses to tag counts and points at `--tag` instead — a 1,216-operation description renders as 50 readable lines, not 1,270.
 
 ```bash
 redocly tree cafe.yaml

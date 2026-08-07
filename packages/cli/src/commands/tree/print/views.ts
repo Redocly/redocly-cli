@@ -168,7 +168,13 @@ function renderOverview(
   }
 
   if (branches.length === 0) return rootLabel;
-  return [rootLabel, ...renderBranches(branches)].join('\n');
+  const tree = [rootLabel, ...renderBranches(branches)].join('\n');
+  // Collapsed mode: the wiring skips building operation cards past its expand limit,
+  // so tag branches render without children and the reader needs the next step spelled out.
+  if (operations.length === 0 && overview.operations > 0) {
+    return `${tree}\n\n${overview.operations} operations across ${overview.tags.length} tags — expand one with \`--tag=<name>\`.`;
+  }
+  return tree;
 }
 
 function operationEntryLabel(
