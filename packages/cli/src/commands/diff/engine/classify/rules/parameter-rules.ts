@@ -36,3 +36,19 @@ export const parameterBecameRequired: DiffRule = {
     return undefined;
   },
 };
+
+// How a value is put on the wire is part of the contract: a client that encoded
+// the old way is not understood after the change.
+const SERIALIZATION = new Set(['style', 'explode', 'allowReserved', 'allowEmptyValue']);
+
+export const parameterSerializationChanged: DiffRule = {
+  id: 'parameter-serialization-changed',
+  description: 'Changing how a parameter is serialized breaks clients that encode it the old way.',
+  visit(change, ctx) {
+    if (!change.property || !SERIALIZATION.has(change.property)) return;
+    if (ctx.polarity !== 'request') return;
+    return breaking(
+      `Parameter \`${change.property}\` changed from '${change.base?.value}' to '${change.revision?.value}'.`
+    );
+  },
+};
