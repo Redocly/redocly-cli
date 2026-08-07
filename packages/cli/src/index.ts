@@ -15,6 +15,7 @@ import { hideBin } from 'yargs/helpers';
 import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
+import { handleDiff, type DiffArgv, type DiffOutputFormat } from './commands/diff/index.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -85,6 +86,52 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'diff <base> <revision>',
+    'Compare two API descriptions and detect breaking changes [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DIFF')
+        .positional('base', { type: 'string', demandOption: true })
+        .positional('revision', { type: 'string', demandOption: true })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: [
+              'stylish',
+              'json',
+              'markdown',
+              'html',
+              'codeframe',
+              'checkstyle',
+              'codeclimate',
+              'summary',
+              'github-actions',
+              'junit',
+            ] as ReadonlyArray<DiffOutputFormat>,
+            default: 'stylish' as const,
+          },
+          output: {
+            description: 'Write the diff report to a file.',
+            type: 'string',
+            alias: 'o',
+          },
+          'fail-on': {
+            description: 'Exit with a non-zero code when changes of this level are found.',
+            choices: ['breaking', 'none'] as ReadonlyArray<'breaking' | 'none'>,
+            default: 'breaking' as const,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleDiff)(argv as Arguments<DiffArgv>);
     }
   )
   .command(

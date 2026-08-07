@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: nullable-equivalence-across-versions
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: OK

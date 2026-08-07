@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: schema-type-widened-in-request
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: OK
