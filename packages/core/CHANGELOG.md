@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.45.1
+
+### Patch Changes
+
+- Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.
+- Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
+
 ## 2.45.0
 
 ### Minor Changes
