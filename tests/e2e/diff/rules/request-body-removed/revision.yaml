@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+  title: request-body-removed
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      responses:
+        '200':
+          description: OK

@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: security-requirement-added
+  version: '1.0'
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Key

@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info:
+  title: request-body-became-required
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: OK
