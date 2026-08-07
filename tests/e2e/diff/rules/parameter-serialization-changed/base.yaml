@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: parameter-serialization-changed
+  version: '1.0'
+paths:
+  /pets:
+    get:
+      parameters:
+        - name: tags
+          in: query
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
