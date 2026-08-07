@@ -3,7 +3,6 @@ export interface StatsRow {
   total: number;
   color: 'red' | 'yellow' | 'green' | 'white' | 'magenta' | 'cyan';
   items?: Set<string>;
-  counts?: Record<string, number>;
   details?: SpecVendorExtensionsAccumulator;
 }
 

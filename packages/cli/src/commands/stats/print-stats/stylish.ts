@@ -10,10 +10,10 @@ export function printStatsStylish(
 ) {
   for (const node in statsAccumulator) {
     const stat = statsAccumulator[node as keyof typeof statsAccumulator];
-    const { metric, total, color, counts } = stat;
+    const { metric, total, color, details } = stat;
     const colorFn = colors[color as keyof typeof colors] as (text: string) => string;
     logger.output(colorFn(`${metric}: ${total} \n`));
-    for (const [name, count] of Object.entries(counts || {})) {
+    for (const [name, { count }] of Object.entries(details || {})) {
       logger.output(colorFn(`  - ${name}: ${count} \n`));
     }
   }

@@ -12,11 +12,11 @@ export function printStatsMarkdown(
   for (const key of Object.keys(statsAccumulator)) {
     const stat = statsAccumulator[key as keyof typeof statsAccumulator];
     output += '| ' + stat.metric + ' | ' + stat.total + ' |\n';
-    const counts = Object.entries(stat.counts || {});
-    if (counts.length) {
+    const details = Object.entries(stat.details || {});
+    if (details.length) {
       breakdowns.push(
         `\n#### ${stat.metric}\n| Extension | Count |\n| --- | --- |\n` +
-          counts.map(([name, count]) => `| ${name} | ${count} |`).join('\n') +
+          details.map(([name, { count }]) => `| ${name} | ${count} |`).join('\n') +
           '\n'
       );
     }

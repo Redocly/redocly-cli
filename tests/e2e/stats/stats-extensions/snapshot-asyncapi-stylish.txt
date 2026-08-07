@@ -1,0 +1,17 @@
+🚗 References: 0 
+📦 External Documents: 0 
+📈 Schemas: 0 
+👉 Parameters: 0 
+📡 Channels: 1 
+👷 Operations: 1 
+🔖 Tags: 0 
+🧩 Vendor Extensions: 3 
+  - x-channel-ext: 1 
+  - x-internal: 2 
+  - x-metadata: 1 
+
+Document: asyncapi.yaml stats:
+
+
+asyncapi.yaml: stats processed in <test>ms
+

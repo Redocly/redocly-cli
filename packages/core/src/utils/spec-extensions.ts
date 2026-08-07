@@ -54,7 +54,7 @@ function isMapEntryKey(type: NormalizedNodeType, key: string, value: unknown): b
     typeof type.additionalProperties === 'function'
       ? type.additionalProperties(value, key)
       : type.additionalProperties;
-  return isNamedType(entryType);
+  return isNamedType(entryType) || typeof entryType?.type === 'string';
 }
 
 function recordExtension(
@@ -109,11 +109,10 @@ function addBounded(set: Set<string>, value: string) {
 }
 
 export function applySpecExtensionsStats(
-  accumulator: SpecVendorExtensionsAccumulator,
+  collectedExtensions: SpecVendorExtensionsAccumulator,
   statsRow: StatsRow
 ) {
-  const names = Object.keys(accumulator).sort();
+  const names = Object.keys(collectedExtensions).sort();
   statsRow.total = names.length;
-  statsRow.counts = Object.fromEntries(names.map((name) => [name, accumulator[name].count]));
-  statsRow.details = accumulator;
+  statsRow.details = Object.fromEntries(names.map((name) => [name, collectedExtensions[name]]));
 }
