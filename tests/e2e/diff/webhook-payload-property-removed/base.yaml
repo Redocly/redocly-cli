@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: webhook-payload-property-removed
+  version: '1.0'
+paths: {}
+webhooks:
+  newPet:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                tag:
+                  type: string
+      responses:
+        '200':
+          description: Acknowledged

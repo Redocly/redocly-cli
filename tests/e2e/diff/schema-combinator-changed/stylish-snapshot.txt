@@ -1,0 +1,11 @@
+POST /pets
+  ✖ breaking      removed  requestBody/content/application~1json/schema/oneOf/1
+      A `oneOf` subschema was removed. (schema-combinator-changed)
+      at base.yaml:14:19
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.
