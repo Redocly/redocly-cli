@@ -414,6 +414,24 @@ describe('goGenerator parity features', () => {
     expectGoCompiles(out);
   });
 
+  it('collapses consecutive blank lines in a doc comment, as gofmt would', () => {
+    const out = renderGoModels(
+      model({
+        Documented: {
+          kind: 'object',
+          description: 'First paragraph.\n\nSecond paragraph.\n\n\nThird after two blanks.',
+          properties: [{ name: 'id', schema: STRING, required: true }],
+        },
+      })
+    );
+    expect(out).toContain('// Documented — First paragraph.');
+    expect(out).toContain('// Third after two blanks.');
+    // Two empty comment lines in a row is exactly what gofmt rewrites.
+    expect(out).not.toContain('//\n//\n');
+    expectGofmtClean(out);
+    expectGoCompiles(out);
+  });
+
   it('emits gofmt-clean output — aligned struct fields and const blocks', () => {
     const out = generateGo();
     // The alignment gofmt would apply, applied by us.

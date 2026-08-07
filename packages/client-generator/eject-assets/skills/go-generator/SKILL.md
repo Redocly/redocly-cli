@@ -24,6 +24,10 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   Go's own rule (lowercase letters, digits, `_`, no leading digit, not a keyword) and an
   invalid one fails generation: silently rewriting a publisher's package name would be
   worse than saying no.
+- **Doc comments are gofmt's shape**, not the description's: a blank line prints as `//`
+  (never `// `, which gofmt strips), and CONSECUTIVE blank lines collapse to one — gofmt
+  rewrites `//\n//` to a single `//`, so emitting both means our output is not
+  gofmt-clean. Descriptions with a double blank line are common in real specs.
 - **Naming:** exported PascalCase via `identifierFor` + an `N` prefix for digit-leading
   names (`3ds` → `N3ds` — an `_`-prefixed field is unexported and invisible to
   `encoding/json`); `+1`/`-1` become `Plus1`/`Minus1`.

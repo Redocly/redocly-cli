@@ -45,6 +45,11 @@ npx tsx src/client.cli.ts schema createOrder             # request/response sche
 
 `--help` lists the commands, and for tagged APIs those are grouped: run `<bin> <group> <command> --help` for one command's flags.
 An operationId also works on its own (`<bin> listOrders`) when it is unambiguous, so you don't have to know its group.
+
+Group and command names are cased differently, deliberately.
+A group comes from an OpenAPI tag, which is prose — `Coffee Orders` is not typable without quoting — so it is slugged to `coffee-orders`.
+A command name is the operationId, which is already an identifier, so it is used verbatim: `listOrders`, not `list-orders`.
+That keeps one name for the operation across everything you generate — the CLI command, the TypeScript function, the Python method — so `listOrders` is searchable in your API description, your SDK, and your shell history alike.
 Every global flag appears under `Global flags:` in the top-level help — `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, `--json` — together with the environment variables the CLI reads.
 
 Credentials come from environment variables derived from the file stem (constant-cased): bearer → `<PREFIX>_TOKEN` (or `--token`), basic → `<PREFIX>_USERNAME`/`<PREFIX>_PASSWORD`, apiKey → `<PREFIX>_API_KEY_<SCHEME>`.

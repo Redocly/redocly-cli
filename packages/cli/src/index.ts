@@ -955,7 +955,7 @@ yargs(hideBin(process.argv))
           },
           generator: {
             describe:
-              'Generator to run; repeat the flag to run several (default: sdk). A built-in generator name, or a path/package specifier for a custom one. The built-in list lives in the "Use the generated client" guide, so it stays in one place. Example: --generator sdk --generator zod',
+              'Generator to run; repeat the flag to run several (default: sdk). Built-in: sdk, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, cli-docs, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator sdk --generator zod',
             type: 'string',
             array: true,
             requiresArg: true,

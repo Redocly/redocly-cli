@@ -107,8 +107,18 @@ function writeDocComment(printer: Printer, name: string, description?: string): 
   const lines = docText(description);
   if (lines.length === 0) return;
   printer.line(`// ${name} — ${lines[0]}`);
-  // A blank line inside a description is `//`, never `// ` — gofmt strips the space.
-  for (const line of lines.slice(1)) printer.line(line === '' ? '//' : `// ${line}`);
+  // A blank line inside a description is `//`, never `// ` — gofmt strips the space — and
+  // CONSECUTIVE blank lines collapse to one, because gofmt rewrites `//\n//` that way.
+  let previousWasBlank = false;
+  for (const line of lines.slice(1)) {
+    if (line === '') {
+      if (!previousWasBlank) printer.line('//');
+      previousWasBlank = true;
+      continue;
+    }
+    printer.line(`// ${line}`);
+    previousWasBlank = false;
+  }
 }
 
 function writeStruct(
@@ -145,6 +155,15 @@ function writeStruct(
   printer.blank();
 }
 
+/**
+ * The whitespace shape gofmt produces: never more than one blank line, and exactly one
+ * trailing newline. Both entry points below run through it, so the models view is as
+ * gofmt-clean as the full client.
+ */
+function gofmtShape(source: string): string {
+  return `${source.replace(/\n{3,}/g, '\n\n').trimEnd()}\n`;
+}
+
 /** Render every named schema: typed-const enums, structs (allOf flattened), union dispatchers. */
 export function renderGoModels(model: ApiModel, dateType: DateType = 'string'): string {
   const printer = new Printer('\t');
@@ -165,7 +184,7 @@ export function renderGoModels(model: ApiModel, dateType: DateType = 'string'): 
     printer.blank();
   }
   printer.line(body);
-  return alignGoColumns(printer.toString());
+  return gofmtShape(alignGoColumns(printer.toString()));
 }
 
 /** The struct/enum/union declarations themselves — the header is renderGoModels' job. */
@@ -1078,7 +1097,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
       path: outputPath.replace(/\.[^.\\/]+$/, '.go'),
       // Sections are stitched with their own trailing blanks; gofmt allows at most one
       // between declarations and none at the end of the file.
-      content: `${alignGoColumns(printer.toString().replace(/\n{3,}/g, '\n\n')).trimEnd()}\n`,
+      content: gofmtShape(alignGoColumns(printer.toString())),
     },
   ];
 };
