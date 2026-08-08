@@ -985,6 +985,17 @@ function scalarForEnumValues(values: unknown[], location: string): ScalarKind {
   return 'string';
 }
 
+/**
+ * Whether keywords beside a `$ref` apply. OpenAPI 3.1 is JSON Schema 2020-12, where
+ * `$ref` is an ordinary keyword and its siblings take effect; 3.0 and 2.0 predate that
+ * and a `$ref` replaces the whole schema object, so siblings mean nothing (the
+ * `spec-ref-siblings` lint rule reports them). Swagger 2 arrives here normalized to
+ * `3.0.3`, so it takes the 3.0 path.
+ */
+function refSiblingsApply(doc: Oas3Definition): boolean {
+  return !(doc.openapi ?? '').startsWith('3.0');
+}
+
 function buildProperties(
   schema: Oas3Schema,
   location: string,
@@ -992,8 +1003,18 @@ function buildProperties(
 ): PropertyModel[] {
   const props = schema.properties ?? {};
   const required = new Set(schema.required ?? []);
+  const siblingsApply = refSiblingsApply(doc);
   return Object.entries(props).map(([name, sub]) => {
-    const readOnly = !isRef(sub) && (sub as { readOnly?: boolean }).readOnly === true;
+    const declared = (sub as { readOnly?: boolean }).readOnly === true;
+    // A `readOnly` sibling on a 3.0 `$ref` is a no-op the author almost certainly did
+    // not intend — it leaves a server-computed property in every request body — so it
+    // is reported rather than dropped in silence.
+    if (declared && isRef(sub) && !siblingsApply) {
+      logger.warn(
+        `generate-client: "${name}" declares readOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in request bodies. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.\n`
+      );
+    }
+    const readOnly = declared && (siblingsApply || !isRef(sub));
     return {
       name,
       schema: schemaFromSlot(sub, `${location}.${name}`, doc),

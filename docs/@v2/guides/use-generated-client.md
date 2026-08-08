@@ -65,6 +65,7 @@ Exit codes are a documented contract, and errors print one JSON object to stderr
 | 3    | validation error (zod co-selected)                  |
 | 4    | usage error (unknown command or flag, bad `--json`) |
 
+The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"` — otherwise `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, which doesn't point at the fix.
 To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
 
 #### CLI reference docs
@@ -314,6 +315,21 @@ await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
 
 An unknown top-level key in the grouped object (for example a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`) fails the call with a `TypeError` naming the key.
 TypeScript catches this at compile time; the runtime check covers transpilers that skip type-checking, so a mis-shaped call never silently drops data.
+
+## Read-only properties
+
+A property marked `readOnly: true` is server-managed, so the generated request body type leaves it out: a body that references a named schema becomes `Omit<Order, 'id' | 'createdAt'>`, and an inline object simply drops those properties.
+Response types keep them.
+The zod schemas and the mock factories read the same flag, so the type, the runtime validation, and the fixtures agree.
+
+Where `readOnly` sits matters, and it follows the specification version:
+
+- **OpenAPI 3.1** uses JSON Schema 2020-12, where `$ref` is an ordinary keyword.
+  Keywords beside a `$ref` take effect, so `{ $ref: './Entitlements.yaml', readOnly: true }` marks the property read-only.
+- **OpenAPI 3.0 and 2.0** predate that: a `$ref` replaces the whole schema object, so a sibling `readOnly` has no meaning and is ignored.
+  Generation warns when it finds one, naming the property, because the intent is usually clear and silence would leave the property in every request body.
+  The [`spec-ref-siblings`](../rules/oas/spec-ref-siblings.md) rule flags the same thing when you lint.
+  To mark a referenced property read-only in 3.0, inline the schema or wrap the `$ref` in an `allOf`.
 
 ## Error handling
 
