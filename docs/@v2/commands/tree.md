@@ -897,7 +897,7 @@ redocly tree cafe.yaml --tag=Orders --format=brief
 ```
 
 The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, carries `refs` and `usedBy` on each of its six entries; `--format=brief` above keeps the same six entries with none of that, on one line.
-On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos` listing costs 129,719 tokens in `--format=json`; `--format=brief` brings it down to 9,227 — a 93% reduction.
+On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos` listing costs 129,719 tokens in `--format=json`; `--format=brief` brings it down to 9,430 — a 93% reduction.
 
 A view with no listing to project — the overview, a card, a `--used-by` report — has nothing for `--format=brief` to shrink, so it only drops the indentation:
 
