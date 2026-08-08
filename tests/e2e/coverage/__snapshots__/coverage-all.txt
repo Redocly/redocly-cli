@@ -1,0 +1,39 @@
+2/3 operations exercised (67%)
+2/3 documented parameters sent (67%)
+2/4 documented responses returned (50%)
+7/11 documented properties observed (64%) over 3 of 3 exchange(s)
+6/11 observed on an exchange the API accepted (55%)
+
+  Badge  0/1
+    name
+✓ Circle  1/1
+  Health  0/1
+    status
+✓ Identified  1/1
+  Shape  0/0
+    (root)  oneOf branch 1 never matched
+  Square  0/1
+    side
+✓ UpdateUserRequest  2/2
+  User  3/4
+    neverSent
+    badge  oneOf branch 1 never matched
+
+Operations nothing reached — 1
+    GET /health  getHealth
+
+Parameters nothing sent — 1
+    GET /users/{userId}  query.neverSentParam
+
+Parameter values nothing used — 1
+    GET /users/{userId}  query.include=shape
+
+Responses nothing returned — 2
+    GET /health  200
+    GET /users/{userId}  404
+
+Schemas nothing reached — 3
+    Badge
+    Health
+    Square
+

@@ -2,7 +2,9 @@
 .idea
 node_modules/
 nodejs/
-coverage/
+# Root-scoped: vitest writes its report here, but `coverage/` unanchored also
+# swallows the `coverage` command's source directory.
+/coverage/
 .vscode/
 yarn.lock
 lib/

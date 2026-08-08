@@ -1,0 +1,21 @@
+2/3 operations exercised (67%)
+2/3 documented parameters sent (67%)
+2/4 documented responses returned (50%)
+3/4 documented properties observed (75%) over 3 of 3 exchange(s)
+
+  User  3/4
+    neverSent
+    badge  oneOf branch 1 never matched
+
+Operations nothing reached — 1
+    pass --all to list them
+
+Parameters nothing sent — 1
+    pass --all to list them
+
+Parameter values nothing used — 1
+    pass --all to list them
+
+Responses nothing returned — 2
+    pass --all to list them
+
