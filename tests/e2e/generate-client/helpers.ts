@@ -114,6 +114,25 @@ export async function waitForServerReady(
   );
 }
 
+/**
+ * Read a test server's request log. The fetch itself retries: a loaded machine (the
+ * generator suite compiles Go, PHP, and TypeScript in parallel) occasionally resets a
+ * connection to the local server, which says nothing about the client under test.
+ */
+export async function serverLog<T = Array<Record<string, unknown>>>(baseUrl: string): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(`${baseUrl}/__test__/log`);
+      return (await response.json()) as T;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolveFn) => setTimeout(resolveFn, 100));
+    }
+  }
+  throw lastError;
+}
+
 export function killServer(server: ChildProcess): Promise<void> {
   return new Promise((resolveFn) => {
     if (!server.pid || server.exitCode !== null) {

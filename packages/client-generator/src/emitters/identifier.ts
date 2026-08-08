@@ -43,6 +43,16 @@ const TS_RESERVED = new Set([
   'while',
   'with',
   'yield',
+  // Strict-mode reserved words — generated files are ES modules, always strict.
+  'await',
+  'implements',
+  'interface',
+  'let',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'static',
 ]);
 
 /** True when `name` matches the JS identifier grammar (reserved words still pass). */

@@ -2,7 +2,7 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
 import type { ErrorMode } from '../emitters/operations.js';
 import type { DateType } from '../emitters/types.js';
-import type { ApiModel } from '../intermediate-representation/model.js';
+import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
 /**
  * How the generated client is partitioned across files.
@@ -26,7 +26,32 @@ export type GeneratorName =
   | 'tanstack-query-solid'
   | 'swr'
   | 'transformers'
-  | 'mock';
+  | 'mock'
+  | 'cli'
+  | 'cli-docs'
+  | 'python'
+  | 'go'
+  | 'php';
+
+/**
+ * One option a generator accepts: a scalar, a closed set of values, or a list of scalars.
+ * Config values are scalars and lists of scalars, so the schema vocabulary stops there —
+ * nothing a `redocly.yaml` block can express is missing.
+ */
+export type GeneratorOptionSchema = { default?: unknown; description?: string } & (
+  | { type: 'string' | 'number' | 'boolean' }
+  | { type: 'array'; items: { type: 'string' | 'number' | 'boolean' } }
+  | { enum: Array<string | number | boolean> }
+);
+
+/** The options a generator declares, as the JSON Schema subset the config layer validates. */
+export type GeneratorOptionsSchema = {
+  type: 'object';
+  properties: Record<string, GeneratorOptionSchema>;
+  required?: string[];
+  /** Unknown keys are rejected unless this is `true` — a typo'd option is a config bug. */
+  additionalProperties?: boolean;
+};
 
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {
@@ -37,6 +62,14 @@ export type GeneratorInput = {
   outputMode: OutputMode;
   /** Emit options — serverUrl, runtime, and the generator knobs (dateType, mockData, …); see `EmitOptions`. */
   emit: EmitOptions;
+  /** Every generator name in the run — lets a generator adapt to co-selection (cli wires zod validation when `zod` is selected). */
+  selected?: string[];
+  /**
+   * This generator's own options from `client.options.<name>`, already validated against
+   * the schema it declares with defaults applied — a generator reads them without re-checking.
+   * Empty when the generator declares no options.
+   */
+  options?: Record<string, unknown>;
 };
 
 /**
@@ -45,6 +78,12 @@ export type GeneratorInput = {
  * through the plugin API (see `CustomGenerator`).
  */
 export type Generator = (input: GeneratorInput) => GeneratedFile[];
+
+/** One idiomatic call snippet for an operation, rendered for docs (`x-codeSamples`). */
+export type CodeSample = { lang: string; label?: string; source: string };
+
+/** What a `sample` hook receives besides the operation. */
+export type SampleContext = { model: ApiModel; emit: EmitOptions };
 
 /**
  * A generator plus its declared compatibility contract. `validateGenerators`
@@ -60,6 +99,11 @@ export type Generator = (input: GeneratorInput) => GeneratedFile[];
  */
 export type GeneratorDescriptor = {
   run: Generator;
+  /** The options this generator accepts, validated before `run` (see `GeneratorOptionsSchema`). */
+  options?: GeneratorOptionsSchema;
+  /** Optional: one idiomatic call snippet per operation for docs (`x-codeSamples`);
+   * collected into an overlay when `codeSamples` is enabled. Return undefined to skip. */
+  sample?: (operation: OperationModel, ctx: SampleContext) => CodeSample | undefined;
   // `string[]` (not `GeneratorName[]`) so a custom generator may require a built-in or another
   // custom generator by name; built-in descriptors still type-check (their names are strings).
   requires?: string[];
@@ -67,6 +111,13 @@ export type GeneratorDescriptor = {
   dateTypes?: DateType[];
   /** Runtime modes this generator supports; absent = compatible with both. */
   runtimes?: ('inline' | 'package')[];
+  /**
+   * Options this generator does not apply, mapped to the reason it doesn't. Setting
+   * one explicitly warns instead of being silently dropped — a global option
+   * (`outputMode`, `runtime`, …) may be meaningful for one selected generator and
+   * meaningless for another, so this informs rather than rejects.
+   */
+  notApplicable?: Partial<Record<keyof EmitOptions | 'outputMode', string>>;
 };
 
 /**
@@ -78,4 +129,11 @@ export type GeneratorDescriptor = {
 export type CustomGenerator = GeneratorDescriptor & {
   /** Unique name, used in `generators` selection, `requires`, and collision detection. */
   name: string;
+  /**
+   * The `@redocly/client-generator` version range this module was written against —
+   * `^1.2.0`, `~1.2.0`, `>=1.2.0`, or an exact version. A CLI outside the range is
+   * rejected at resolve time with the fix path; omitting it accepts the generator as
+   * current (friction-free hand authoring). Ejected generators carry it automatically.
+   */
+  requiresGenerator?: string;
 };

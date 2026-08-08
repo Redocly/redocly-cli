@@ -254,24 +254,24 @@ describe('buildOperation — tags', () => {
   });
 });
 
-describe('buildOperation — x-redocly-pagination extension', () => {
-  it('captures the x-redocly-pagination value verbatim, without validation', () => {
+describe('buildOperation — x-redoclyPagination extension', () => {
+  it('captures the x-redoclyPagination value verbatim, without validation', () => {
     const extension = { style: 'cursor', cursorParam: 'cursor', bogus: 42 };
     const op = buildOpOnly({
       paths: {
         '/orders': {
-          get: { operationId: 'listOrders', 'x-redocly-pagination': extension, responses: {} },
+          get: { operationId: 'listOrders', 'x-redoclyPagination': extension, responses: {} },
         } as never,
       },
     });
     expect(op.paginationExtension).toBe(extension);
   });
 
-  it('captures a non-object x-redocly-pagination value too (validated by the emitter, not the IR)', () => {
+  it('captures a non-object x-redoclyPagination value too (validated by the emitter, not the IR)', () => {
     const op = buildOpOnly({
       paths: {
         '/orders': {
-          get: { operationId: 'listOrders', 'x-redocly-pagination': 'nonsense', responses: {} },
+          get: { operationId: 'listOrders', 'x-redoclyPagination': 'nonsense', responses: {} },
         } as never,
       },
     });
@@ -1843,6 +1843,75 @@ describe('buildApiModel — request body readOnly stripping', () => {
       base: 'Pet',
       keys: ['id', 'createdAt'],
     });
+  });
+
+  // OpenAPI 3.1 is JSON Schema 2020-12: `$ref` is an ordinary keyword, so keywords
+  // beside it take effect (this repo's own `spec-ref-siblings` rule says as much).
+  // Dropping them left server-computed properties in every request body.
+  it('applies a readOnly sibling of a $ref in OpenAPI 3.1', () => {
+    const op = buildOpOnly({
+      openapi: '3.1.0',
+      components: {
+        schemas: {
+          Computed: { type: 'object', properties: { tier: { type: 'string' } } },
+          Widget: {
+            type: 'object',
+            required: ['name', 'refComputed'],
+            properties: {
+              name: { type: 'string' },
+              refComputed: { $ref: '#/components/schemas/Computed', readOnly: true },
+            },
+          },
+        },
+      } as never,
+      paths: {
+        '/widgets': {
+          post: {
+            operationId: 'createWidget',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/Widget' } },
+              },
+            },
+            responses: { '201': { description: 'ok' } },
+          },
+        },
+      },
+    } as Partial<Oas3Definition>);
+    expect(op.requestBody?.schema).toEqual({
+      kind: 'omit',
+      base: 'Widget',
+      keys: ['refComputed'],
+    });
+  });
+
+  it('ignores a readOnly sibling in OpenAPI 3.0, where a $ref replaces the schema, and says so', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    try {
+      const op = postBody(
+        {
+          Computed: { type: 'object', properties: { tier: { type: 'string' } } },
+          Widget: {
+            type: 'object',
+            required: ['name', 'refComputed'],
+            properties: {
+              name: { type: 'string' },
+              refComputed: { $ref: '#/components/schemas/Computed', readOnly: true },
+            },
+          },
+        },
+        { $ref: '#/components/schemas/Widget' }
+      );
+      // 3.0 semantics: the sibling has no meaning, so the property stays sendable…
+      expect(op.requestBody?.schema).toEqual({ kind: 'ref', name: 'Widget' });
+      // …but the intent is obvious enough that silence would be the wrong answer.
+      const messages = warn.mock.calls.map(([message]) => message).join('');
+      expect(messages).toContain('refComputed');
+      expect(messages).toContain('readOnly');
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('collects readOnly keys through allOf members (deduped)', () => {

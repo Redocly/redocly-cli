@@ -18,6 +18,10 @@ import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
+import {
+  handleEjectGenerator,
+  type EjectGeneratorCommandArgv,
+} from './commands/eject-generator.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
@@ -895,6 +899,18 @@ yargs(hideBin(process.argv))
             choices: ['inline', 'package'] as const,
             requiresArg: true,
           },
+          'bin-name': {
+            description:
+              "Command name for the `cli` generator's help output and credential env vars. Defaults to the output stem.",
+            type: 'string',
+            requiresArg: true,
+          },
+          'go-package': {
+            description:
+              "Package clause of the `go` generator's output (a valid Go package name). Defaults to `client`.",
+            type: 'string',
+            requiresArg: true,
+          },
           'import-ext': {
             describe:
               "Extension in generated relative imports: 'js' (default) suits tsc and bundlers; 'ts' suits runtimes that resolve specifiers literally, like Node's built-in type stripping (node client.ts).",
@@ -939,7 +955,7 @@ yargs(hideBin(process.argv))
           },
           generator: {
             describe:
-              'Generator to run; repeat the flag to run several (default: sdk). A built-in name (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generator sdk --generator zod',
+              'Generator to run; repeat the flag to run several (default: sdk). Built-in: sdk, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, cli-docs, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator sdk --generator zod',
             type: 'string',
             array: true,
             requiresArg: true,
@@ -953,6 +969,38 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
+    }
+  )
+  .command(
+    'eject-generator [generator]',
+    'Vendor a built-in client generator into your repo as an editable file [experimental].',
+    (yargs) =>
+      yargs
+        .positional('generator', {
+          describe: 'Built-in generator to eject (python, go, php).',
+          type: 'string',
+        })
+        .options({
+          dir: {
+            describe: 'Directory to eject into.',
+            type: 'string',
+            default: './generators',
+            requiresArg: true,
+          },
+          force: {
+            describe: 'Overwrite an existing ejected file (discards local edits).',
+            type: 'boolean',
+            default: false,
+          },
+          update: {
+            describe:
+              'Three-way merge a newer generator version into your customized copy (pristine × new × yours).',
+            type: 'boolean',
+            default: false,
+          },
+        }),
+    async (argv) => {
+      commandWrapper(handleEjectGenerator)(argv as Arguments<EjectGeneratorCommandArgv>);
     }
   )
   .command(

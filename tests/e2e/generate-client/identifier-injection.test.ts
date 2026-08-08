@@ -64,7 +64,7 @@ describe('generate-client identifier / comment injection', () => {
     );
     expect(res.status, res.stderr).toBe(0);
     // The unsafe operationId is reported and rewritten, not silently accepted.
-    expect(res.stderr).toMatch(/is not a valid TypeScript identifier/);
+    expect(res.stderr).toMatch(/is not a usable identifier/);
 
     const src = readFileSync(entry, 'utf-8');
     // No live comment-breakout: the payload's `*/` is neutralized to `*\/`.

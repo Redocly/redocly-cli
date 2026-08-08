@@ -18,13 +18,204 @@ Incompatible selections fail fast with an explanation.
 | `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                                                                                                                                                                                        | `swr` `^2`                                               |
 | `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                                                                                                         | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
 | `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                       | none                                                     |
+| `cli`            | `<output>.cli.ts` — a bin-ready [command-line interface](#generated-cli) over the client: typed flags, `--json` bodies, env auth, `--page-all`.                                                                                                                 | none                                                     |
+| `cli-docs`       | `<output>.cli.md` — a Markdown [reference for the generated CLI](#cli-reference-docs): every command, flag, exit code, and credential variable.                                                                                                                 | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
 ```
 
-`tanstack-query` and `swr` wrap the throw-mode `sdk` functions, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
+`tanstack-query`, `swr`, and `cli` wrap the throw-mode `sdk` client, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
 See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+
+### Generated CLI
+
+The `cli` generator emits `<stem>.cli.ts` — a zero-dependency, bin-ready command-line interface over the generated client.
+Path params are positional, query params become typed `--kebab-name` flags (enums list their choices in `--help`, array params repeat the flag), and JSON request bodies arrive via `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
+Requests are validated before they are sent — selecting `cli` pulls in the generators it needs (`sdk` and `zod`), so nothing extra has to be listed.
+That means the CLI's validation uses [zod](https://zod.dev/) at runtime: install it alongside the generated CLI (`npm i zod`).
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator cli
+npx tsx src/client.cli.ts orders listOrders --status open --limit 10
+npx tsx src/client.cli.ts orders createOrder --json @order.json
+npx tsx src/client.cli.ts orders listOrders --page-all   # one JSON page per line
+npx tsx src/client.cli.ts schema createOrder             # the operation's full contract
+```
+
+`--help` lists the commands, and for tagged APIs those are grouped: run `<bin> <group> <command> --help` for one command's flags.
+An operationId also works on its own (`<bin> listOrders`) when it is unambiguous, so you don't have to know its group.
+
+Group and command names are cased differently, deliberately.
+A group comes from an OpenAPI tag, which is prose — `Coffee Orders` is not typable without quoting — so it is slugged to `coffee-orders`.
+A command name is the operationId, which is already an identifier, so it is used verbatim: `listOrders`, not `list-orders`.
+That keeps one name for the operation across everything you generate — the CLI command, the TypeScript function, the Python method — so `listOrders` is searchable in your API description, your SDK, and your shell history alike.
+Every global flag appears under `Global flags:` in the top-level help — `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, `--json` — together with the environment variables the CLI reads.
+
+Credentials come from environment variables derived from the file stem (constant-cased): bearer → `<PREFIX>_TOKEN` (or `--token`), basic → `<PREFIX>_USERNAME`/`<PREFIX>_PASSWORD`, apiKey → `<PREFIX>_API_KEY_<SCHEME>`.
+The help lists only what the description declares — an API with no bearer scheme shows no `--token` — and passing `--token` to such an API is a usage error (exit 4) naming the schemes it does accept, rather than a credential dropped in silence.
+`--server-url` overrides the baked server; `--dry-run` prints the prepared request (credentials redacted) without sending it; blob responses require `--output <path>`; SSE operations stream events as one JSON object per line.
+
+Exit codes are a documented contract, and errors print one JSON object to stderr so stdout stays clean for piping:
+
+| Code | Meaning                                             |
+| ---- | --------------------------------------------------- |
+| 0    | success                                             |
+| 1    | API error (status other than 401/403)               |
+| 2    | auth error (401/403)                                |
+| 3    | validation error (zod co-selected)                  |
+| 4    | usage error (unknown command or flag, bad `--json`) |
+
+`schema <command>` prints one operation's complete contract as JSON — method and path, the path and query parameters with their types and descriptions, whether a JSON body is accepted, the request and response schemas, and the flags that change how a call behaves (`paginated`, `sse`, `blob`).
+It is the CLI's machine-readable surface: a script, a test harness, or an agent can discover the tool with `--help`, then read one `schema` call per command instead of parsing help text written for humans.
+
+The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"` — otherwise `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, which doesn't point at the fix.
+To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
+
+#### CLI reference docs
+
+The `cli-docs` generator writes `<stem>.cli.md`: a Markdown reference with the usage line, the global flags, the credential environment variables, the exit-code table, and one section per command listing its positionals and flags with types, defaults, and descriptions.
+It renders from the same command table the CLI dispatches on, so the page cannot drift from the tool it documents — regenerate and the docs follow.
+Selecting it pulls in the CLI it describes, so `--generator cli-docs` is enough.
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts --generator cli-docs
+```
+
+Two options shape the page, under `client.options.cli-docs`:
+
+| Option        | Type    | Description                                                                                         |
+| ------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `title`       | string  | Page heading. Defaults to `<API title> CLI`.                                                        |
+| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. Default `false`. |
+
+For a different structure or wording, [eject the generator](../commands/eject-generator.md) — the renderer is the template, so `redocly eject-generator cli-docs` hands you the page layout as code you own, with no template syntax to learn.
+The same reference for the language SDKs is next.
+
+### Language SDKs
+
+`python`, `go`, and `php` emit a full SDK for that language — one self-contained file, no dependencies beyond the language's own HTTP support (`httpx` for Python; the standard library for Go; the curl extension for PHP).
+
+One file is the deliverable, not a limitation we haven't gotten to: it can be downloaded from a docs page, committed, and read end to end, and it has no package to publish or import graph to wire up.
+A description the size of a large public API produces a file of a few megabytes, which every one of these languages loads without trouble.
+If you want a different layout, [eject the generator](../commands/eject-generator.md) — `run` returns the list of files, so splitting the output is a change to your own copy.
+
+**They are the TypeScript client in another language.** Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, pagination iterators, SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
+Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
+
+```python
+from openapi_client import Client
+
+client = Client(auth={"bearer": "TOKEN"})
+for order in client.list_orders_items(limit=50):
+    print(order)
+```
+
+```php
+require 'client.php';
+
+use CafeOrders\{Client, Config};
+
+$client = new Client(new Config(auth: ['bearer' => 'TOKEN']));
+foreach ($client->listOrdersItems(limit: 50) as $order) {
+    echo $order->id, PHP_EOL;
+}
+```
+
+```go
+api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return "TOKEN" }}})
+
+for order, err := range api.ListOrdersItems(ctx, nil) {
+    if err != nil {
+        break
+    }
+    fmt.Println(order.Id)
+}
+```
+
+#### Where the languages genuinely differ
+
+Only where the language leaves no choice:
+
+| Topic                | TypeScript                         | Python                                      | PHP                                     | Go                                           |
+| -------------------- | ---------------------------------- | ------------------------------------------- | --------------------------------------- | -------------------------------------------- |
+| Error handling       | `throw` or `result` (`errorMode`)  | `throw` or `result` (`errorMode`)           | exceptions — the language's error idiom | `(T, error)` — the language's error idiom    |
+| Dates (`Date` mode)  | `Date`                             | `datetime` / `date`                         | `\DateTimeImmutable`                    | `time.Time` / `Date`                         |
+| Response headers     | `{ envelope: true }` per call      | `<op>_with_headers()`                       | `<op>WithHeaders()`                     | `<Op>WithHeaders`                            |
+| Auth credentials     | string or provider function        | string or callable                          | string or callable                      | provider function only (no union types)      |
+| Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name preserved | trailing `_`, wire name preserved       | trailing `_` (`Type_`), `json` tag preserved |
+| File layout          | `single` or `split` (`outputMode`) | one file                                    | one file                                | one file                                     |
+| Namespacing          | ES module — the file path          | module name from the output stem            | namespace from the API title            | `package client`, or `goPackage`             |
+| Runtime location     | embedded or package (`runtime`)    | embedded                                    | embedded                                | embedded                                     |
+
+`argsStyle` shapes TypeScript call sites; each language SDK follows its own idiom instead (keyword arguments, named arguments, a params struct).
+Setting an option a language can't apply prints a warning naming the option and the reason, so it never disappears silently.
+
+#### Auth, middleware, and reserved names by language
+
+Auth accepts a static credential or a provider resolved per request:
+
+```python
+client = Client(auth={"bearer": "TOKEN"})
+client = Client(auth={"bearer": lambda: fresh_token()})
+client = Client(auth={"apiKey": {"SecretApiKey": "KEY"}})   # "api_key" also accepted
+```
+
+```php
+$client = new Client(new Config(auth: ['bearer' => 'TOKEN']));
+$client = new Client(new Config(auth: ['bearer' => fn () => freshToken()]));
+$client = new Client(new Config(auth: ['apiKey' => ['SecretApiKey' => 'KEY']]));
+```
+
+```go
+// Go has no union types, so a credential is always a function — even a static one.
+api := client.New(client.Config{Auth: client.Auth{
+    Bearer: func() string { return "TOKEN" },
+    APIKey: map[string]func() string{"SecretApiKey": func() string { return "KEY" }},
+}})
+```
+
+Middleware is the language's natural shape, and is **not** PSR-15/PSR-18 or an HTTPX event hook — it is this contract:
+
+```php
+// PHP: an onion. Each callable receives the request array and the next link.
+// Request keys: operationId, method, url, headers, query, and optionally body,
+// contentType, idempotencyKey. The response array carries status, headers, body,
+// url, timedOut.
+$log = function (array $request, callable $next) use ($logger): array {
+    $logger->info('request', ['op' => $request['operationId'], 'url' => $request['url']]);
+    $response = $next($request);
+    $logger->info('response', ['status' => $response['status']]);
+    return $response;
+};
+$client = new Client(new Config(middleware: [$log]));
+```
+
+```python
+# Python: hooks. on_request sees the request context; on_response may return a
+# replacement response.
+import logging
+
+def log_request(context):
+    logging.info("%s %s", context["method"], context["url"])
+
+client = Client(middleware=[{"on_request": log_request}])
+```
+
+```go
+// Go: hooks on the real *http.Request / *http.Response.
+api := client.New(client.Config{Middleware: []client.Middleware{{
+    OnRequest:  func(r *http.Request) { log.Println(r.Method, r.URL) },
+    OnResponse: func(r *http.Response) { log.Println(r.Status) },
+}}})
+```
+
+A property or parameter whose name is a reserved word gets a trailing underscore, while the wire name is preserved — `tag.type_` in Python, `$tag->type_` in PHP, `tag.Type_` in Go, all serializing as `type`.
+The same applies to method arguments: `list_tags(type_=...)`, `ListTagsParams{Type_: ...}`.
+
+Type and method **names** are resolved once, in the shared model, against a reserved set that is the union across the supported languages.
+A schema therefore keeps the same name in every SDK you generate from the description — `Error` becomes `Error_2` in the Python SDK too, even though Python would accept `Error`, so an API's TypeScript, Python, PHP, and Go clients stay talkable-about with one vocabulary.
+Every rename is reported with its cause, so a publisher who wants a different name renames the schema or operation in the description.
 
 ## Package runtime
 
@@ -70,6 +261,9 @@ node src/main.ts
 Keep the default `js` when the client goes through `tsc` or a bundler — plain `tsc` rejects `.ts` specifiers unless the project enables `allowImportingTsExtensions`.
 Loaders such as `tsx` remap `.js` to `.ts` themselves, so they work with the default.
 See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/node-native).
+
+**Every generated TypeScript file is erasable TypeScript**, so type stripping alone is enough — the client, the zod module, and the generated CLI all run under plain `node` with no build step.
+Nothing emitted needs a transform to become JavaScript: no `enum`, no `namespace`, and no constructor parameter properties (`constructor(readonly id: string)`), which strip-only mode rejects because it would have to generate assignments.
 
 ## Authentication
 
@@ -125,6 +319,21 @@ await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
 
 An unknown top-level key in the grouped object (for example a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`) fails the call with a `TypeError` naming the key.
 TypeScript catches this at compile time; the runtime check covers transpilers that skip type-checking, so a mis-shaped call never silently drops data.
+
+## Read-only properties
+
+A property marked `readOnly: true` is server-managed, so the generated request body type leaves it out: a body that references a named schema becomes `Omit<Order, 'id' | 'createdAt'>`, and an inline object simply drops those properties.
+Response types keep them.
+The zod schemas and the mock factories read the same flag, so the type, the runtime validation, and the fixtures agree.
+
+Where `readOnly` sits matters, and it follows the specification version:
+
+- **OpenAPI 3.1** uses JSON Schema 2020-12, where `$ref` is an ordinary keyword.
+  Keywords beside a `$ref` take effect, so `{ $ref: './Entitlements.yaml', readOnly: true }` marks the property read-only.
+- **OpenAPI 3.0 and 2.0** predate that: a `$ref` replaces the whole schema object, so a sibling `readOnly` has no meaning and is ignored.
+  Generation warns when it finds one, naming the property, because the intent is usually clear and silence would leave the property in every request body.
+  The [`spec-ref-siblings`](../rules/oas/spec-ref-siblings.md) rule flags the same thing when you lint.
+  To mark a referenced property read-only in 3.0, inline the schema or wrap the `$ref` in an `allOf`.
 
 ## Error handling
 
@@ -313,6 +522,7 @@ const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope
 - The TanStack Query and SWR wrappers don't accept `envelope`.
   It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
   Call the sdk function directly when you need headers.
+- The Python, PHP, and Go SDKs expose the same information as separate variants — `<op>_with_headers()`, `<op>WithHeaders()`, and `<Op>WithHeaders` — emitted only for operations that declare success-response headers (those languages cannot vary a return type on a flag).
 
 ## Runtime validation
 
@@ -384,8 +594,8 @@ SSE always throws `ApiError` on a non-2xx initial response, regardless of `--err
 
 ## Pagination
 
-Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-redocly-pagination` extension in the description.
-The rule fields, the generate-time verification, and the precedence between the convention, `x-redocly-pagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
+Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-redoclyPagination` extension in the description.
+The rule fields, the generate-time verification, and the precedence between the convention, `x-redoclyPagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
 Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
 
 Four styles are supported:

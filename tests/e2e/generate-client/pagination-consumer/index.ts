@@ -1,6 +1,6 @@
 import { listOrders } from './api.js';
 
-// The extension arm: `x-redocly-pagination` in the spec (no config) drives `listOrders`.
+// The extension arm: `x-redoclyPagination` in the spec (no config) drives `listOrders`.
 // Exercises `.items()` across three cursor pages, `.pages()` page-level access, and
 // resume from a caller-provided cursor — while the caller's args are never mutated.
 async function main(): Promise<void> {

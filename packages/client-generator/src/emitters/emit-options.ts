@@ -1,8 +1,8 @@
 import type { ApiModel } from '../intermediate-representation/model.js';
+import { escapeJsDoc } from './jsdoc.js';
 import type { ArgsStyle } from './operations.js';
 import type { PaginationConfig } from './pagination.js';
 import { splitLines } from './support.js';
-import { escapeJsDoc } from './ts.js';
 import type { DateType } from './types.js';
 
 // The public option vocabulary is re-exported from this module, so generators
@@ -58,8 +58,21 @@ export type EmitOptions = {
    */
   importExt?: 'js' | 'ts';
   /**
+   * Command name the `cli` generator uses in help output and to derive its credential
+   * environment variables. Defaults to the output stem with non-word characters folded
+   * to `-` — the stem follows the TypeScript file convention, and `openapi.client` reads
+   * as a filename in a usage line.
+   */
+  binName?: string;
+  /**
+   * Package clause of the `go` generator's output. Defaults to `client` — a generated
+   * file usually lands in a package the consumer already owns, so the name is theirs
+   * to choose. An invalid Go package name fails generation.
+   */
+  goPackage?: string;
+  /**
    * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
-   * resolved together with each operation's `x-redocly-pagination` extension. Verified
+   * resolved together with each operation's `x-redoclyPagination` extension. Verified
    * statically: an explicit rule that doesn't fit its operation fails generation.
    */
   pagination?: PaginationConfig;

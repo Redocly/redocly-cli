@@ -1,5 +1,6 @@
+import ts from 'typescript';
+
 import { assembleInlineRuntime } from '../inline-runtime.js';
-import { ts } from '../ts.js';
 
 const NONE = { multipart: false, auth: false, sse: false, setup: false, paginate: false };
 const ALL = { multipart: true, auth: true, sse: true, setup: true, paginate: true };

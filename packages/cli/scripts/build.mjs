@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -91,6 +91,12 @@ const sections = [...licenseGroups.entries()]
 writeFileSync(
   path.join(packageDir, 'THIRD_PARTY_NOTICES'),
   `Third-party software bundled in @redocly/cli\n\n${sections.join('\n\n')}\n`
+);
+
+cpSync(
+  path.join(packageDir, '..', 'client-generator', 'eject-assets'),
+  path.join(packageDir, 'lib', 'eject-assets'),
+  { recursive: true }
 );
 
 function findLicenseText(pkgRoot) {

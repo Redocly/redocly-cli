@@ -18,6 +18,8 @@
           page: commands/drift.md
         - label: eject
           page: commands/eject.md
+        - label: eject-generator
+          page: commands/eject-generator.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
         - label: generate-client

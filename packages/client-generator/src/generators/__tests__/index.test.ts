@@ -1,7 +1,9 @@
+import { logger } from '@redocly/openapi-core';
+
 import { NotSupportedError } from '../../errors.js';
 import { builtinGenerators, validateGenerators } from '../index.js';
-import { sdkGenerator } from '../sdk.js';
-import { zodGenerator } from '../zod.js';
+import { sdkGenerator } from '../sdk/index.js';
+import { zodGenerator } from '../zod/index.js';
 
 describe('builtinGenerators', () => {
   it('registers the sdk generator descriptor', () => {
@@ -53,6 +55,62 @@ describe('validateGenerators', () => {
     expect(() => validateGenerators(['sdk', generator], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result".*throw/
     );
+  });
+
+  it('rejects --error-mode result for the go and php SDKs (their idiom IS the error mode)', () => {
+    for (const language of ['go', 'php']) {
+      expect(() => validateGenerators([language], { errorMode: 'result' })).toThrow(
+        /does not support --error-mode "result"/
+      );
+      // Throw mode — what they actually emit — stays valid.
+      expect(() => validateGenerators([language], { errorMode: 'throw' })).not.toThrow();
+    }
+    // python implements both modes.
+    expect(() => validateGenerators(['python'], { errorMode: 'result' })).not.toThrow();
+  });
+
+  it('warns (never silently drops) when a language SDK ignores an option the user set', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    try {
+      // `outputMode` travels beside `emit`, hence the trailing argument.
+      validateGenerators(['php'], { runtime: 'package', argsStyle: 'grouped' }, undefined, 'split');
+      const messages = warn.mock.calls.map(([message]) => message).join('');
+      expect(messages).toContain('the "php" generator ignores outputMode');
+      expect(messages).toContain('the "php" generator ignores runtime');
+      expect(messages).toContain('the "php" generator ignores argsStyle');
+
+      // Defaults must stay quiet: only an EXPLICIT option warns.
+      warn.mockClear();
+      validateGenerators(['php'], {});
+      expect(warn).not.toHaveBeenCalled();
+
+      // The TypeScript sdk applies all of them — no warning.
+      warn.mockClear();
+      validateGenerators(['sdk'], { runtime: 'package', argsStyle: 'grouped' }, undefined, 'split');
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('warns when a single-generator option is set without its generator', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    try {
+      validateGenerators(['python'], { goPackage: 'mypkg' });
+      validateGenerators(['go'], { binName: 'cafe-api' });
+      const messages = warn.mock.calls.map(([message]) => message).join('');
+      expect(messages).toContain('goPackage is ignored');
+      expect(messages).toContain('binName is ignored');
+
+      // The generator that reads it is selected, so nothing to say — even alongside
+      // generators that don't read it.
+      warn.mockClear();
+      validateGenerators(['sdk', 'zod', 'cli'], { binName: 'cafe-api' });
+      validateGenerators(['go'], { goPackage: 'mypkg' });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('throws NotSupportedError for an unknown generator name', () => {

@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, repoRoot, startServer } from './helpers.js';
+import { generate, killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -110,8 +110,7 @@ describe('generate-client base consumer (single-file output)', () => {
     // Bucket C round-trip: createPet ran with a body that omits the readOnly `id`.
     expect(typeof parsed.created.name).toBe('string');
 
-    const logResponse = await fetch(`${SERVER_BASE}/__test__/log`);
-    const log = (await logResponse.json()) as Array<{ method: string; url: string }>;
+    const log = await serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
     expect(log).toContainEqual({ method: 'GET', url: '/pets/1' });
     expect(log).toContainEqual({ method: 'POST', url: '/pets' });
     expect(

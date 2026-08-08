@@ -3,9 +3,9 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { killServer, repoRoot, startServer } from './helpers.js';
+import { killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
-// Auto-pagination end to end, over a live server: the `x-redocly-pagination` extension arm
+// Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
 // (cursor style — three pages, resume, abort) generated with NO config, the
 // config-convention arm (offset style, applied only where it structurally fits), and a
 // package-mode arm proving `.pages()`/`.items()` ship from the installed runtime.
@@ -39,9 +39,8 @@ async function resetLog(): Promise<void> {
   expect(response.ok).toBe(true);
 }
 
-async function fetchLog(): Promise<Array<{ method: string; url: string }>> {
-  const response = await fetch(`${SERVER_BASE}/__test__/log`);
-  return (await response.json()) as Array<{ method: string; url: string }>;
+function fetchLog(): Promise<Array<{ method: string; url: string }>> {
+  return serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
 }
 
 function runConsumer(script: string): { stdout: string } {
@@ -79,7 +78,7 @@ describe('generate-client pagination consumer', () => {
 
   test('generate all three arms and assert the emitted pagination surface', async () => {
     const generateClient = await loadGenerateClient();
-    // Extension arm: NO pagination config — `x-redocly-pagination` alone drives `listOrders`.
+    // Extension arm: NO pagination config — `x-redoclyPagination` alone drives `listOrders`.
     await generateClient({ api: fixture, output: apiFile });
     // Convention arm: an offset rule applied to every operation it structurally fits.
     await generateClient({

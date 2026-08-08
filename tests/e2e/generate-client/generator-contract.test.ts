@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import { cliEntry, repoRoot, tscBin } from './helpers.js';
@@ -22,8 +22,26 @@ function run(args: string[]): { status: number | null; out: string } {
   return { status: res.status, out: `${res.stdout}\n${res.stderr}` };
 }
 
+// Every built-in must be discoverable from `--help`: an inline list that goes stale is
+// what made four separate reports say the languages "aren't supported".
+describe('generate-client --help', () => {
+  it('names every built-in generator', async () => {
+    // The metadata table is the registry the pipeline resolves against — the one list
+    // `--help` must not fall behind.
+    const { BUILTIN_META } = await import(
+      pathToFileURL(join(repoRoot, 'packages/client-generator/lib/generators/meta.js')).href
+    );
+    // yargs wraps help text mid-token (`tanstack-query-v\nue`), so compare with the
+    // whitespace removed — a generator name never contains any.
+    const help = run(['--help']).out.replace(/\s+/g, '');
+    for (const name of Object.keys(BUILTIN_META as Record<string, unknown>)) {
+      expect(help, `--help does not mention the "${name}" generator`).toContain(name);
+    }
+  }, 60_000);
+});
+
 describe('generate-client generator compatibility contract', () => {
-  it('rejects tanstack-query without sdk, naming the fix', () => {
+  it('pulls in the sdk a wrapper generator needs instead of failing', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
     const { status, out } = run([
       cafe,
@@ -32,9 +50,10 @@ describe('generate-client generator compatibility contract', () => {
       '--generator',
       'tanstack-query',
     ]);
-    expect(status).not.toBe(0);
-    expect(out).toMatch(/requires the "sdk" generator/);
-    expect(out).toMatch(/--generator sdk --generator tanstack-query/);
+    expect(status, out).toBe(0);
+    // The wrapper wraps the sdk's functions, so the sdk file has to exist.
+    expect(existsSync(join(dir, 'c.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'c.tanstack.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

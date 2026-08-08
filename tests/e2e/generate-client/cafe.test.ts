@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, killServer, repoRoot, startServer } from './helpers.js';
+import { cliEntry, killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
@@ -106,8 +106,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
     results = JSON.parse(run.stdout.trim()) as StepResult[];
 
-    const logResponse = await fetch(`${SERVER_BASE}/__test__/log`);
-    log = (await logResponse.json()) as LogEntry[];
+    log = await serverLog<LogEntry[]>(SERVER_BASE);
   }, 120_000);
 
   afterAll(async () => {

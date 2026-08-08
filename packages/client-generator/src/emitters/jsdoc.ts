@@ -1,6 +1,10 @@
 import type { SchemaMetadata } from '../intermediate-representation/model.js';
 import { splitLines } from './support.js';
-import { escapeJsDoc } from './ts.js';
+
+/** Backslash-escape any comment-closing star-slash so it cannot terminate a block comment. */
+export function escapeJsDoc(text: string): string {
+  return text.replace(/\*\//g, '*\\/');
+}
 
 /**
  * The JSDoc body for a description + metadata as a single `\n`-joined string,

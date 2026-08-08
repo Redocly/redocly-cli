@@ -88,10 +88,26 @@ export type GenerateClientOptions = {
    * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
    * type stripping (`node client.ts`). */
   importExt?: 'js' | 'ts';
+  /** Command name for the `cli` generator; defaults to the output stem, sanitized. */
+  binName?: string;
+  /** Package clause of the `go` generator's output. Defaults to `client`. */
+  goPackage?: string;
+  /**
+   * Per-generator options, keyed by generator name — validated against the schema the
+   * generator declares (`GeneratorOptionsSchema`) before it runs. Config-only, like
+   * `pagination`: a generator's option set is its own vocabulary, not a CLI flag.
+   */
+  options?: Record<string, Record<string, unknown>>;
+  /**
+   * Emit `<output stem>.code-samples.yaml` — an OpenAPI Overlay adding per-operation
+   * `x-codeSamples` collected from every selected generator that implements `sample()`.
+   * Config-only (`client.codeSamples`), like `pagination`.
+   */
+  codeSamples?: boolean;
   /**
    * Auto-pagination rules: a convention rule (applied to every operation it
    * structurally fits), per-operation overrides, and `exclude`d operationIds —
-   * resolved together with each operation's `x-redocly-pagination` extension (per-op config >
+   * resolved together with each operation's `x-redoclyPagination` extension (per-op config >
    * extension > convention). Paginated operations gain typed `.pages()`/`.items()`
    * iterators. Verified statically: an explicit rule that doesn't fit its operation
    * fails generation.

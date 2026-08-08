@@ -15,7 +15,7 @@ async function main(): Promise<void> {
     pageSizes.push(page.items.length);
   }
 
-  // Precedence, pinned at compile time: the spec's `x-redocly-pagination` (cursor) beats the
+  // Precedence, pinned at compile time: the spec's `x-redoclyPagination` (cursor) beats the
   // offset convention on `listOrders` — its descriptor keeps the extension's rule.
   const listOrdersStyle: 'cursor' = OPERATIONS.listOrders.pagination.style;
 

@@ -1,6 +1,6 @@
 import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { swrGenerator } from '../swr.js';
+import { swrGenerator } from '../swr/index.js';
 
 const SERVICES = [
   {

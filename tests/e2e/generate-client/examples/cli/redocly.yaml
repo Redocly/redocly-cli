@@ -1,0 +1,14 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+apis:
+  cli:
+    root: ../_shared/cafe.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - sdk
+        - zod
+        - cli
+        - cli-docs
+      options:
+        cli-docs:
+          title: Cafe CLI

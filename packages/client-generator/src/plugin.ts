@@ -13,8 +13,8 @@
 //
 //   // my-generator.ts
 //   import { defineGenerator } from '@redocly/client-generator';
-//   // AST toolkit, when string-building isn't enough:
-//   // import { ts, printStatements } from '@redocly/client-generator/generate';
+//   // TypeScript renderers, when a real type is needed rather than guessed text:
+//   // import { tsType } from '@redocly/client-generator/generate';
 //   export default defineGenerator({
 //     name: 'route-map',
 //     requires: ['sdk'],
@@ -27,6 +27,8 @@
 //   });
 
 import type { CustomGenerator } from './generators/types.js';
+
+export { GENERATOR_VERSION } from './generators/compatibility.js';
 
 /**
  * Identity helper for authoring a custom generator with full type inference and one validation
@@ -65,6 +67,6 @@ export type {
   ServiceModel,
 } from './intermediate-representation/model.js';
 
-// The TypeScript-emitting toolkit (`ts`, `printStatements`, `operationSignature`, …) is
-// exported from `@redocly/client-generator/generate` — it loads `typescript`, which the
-// runtime-only package root must not reach statically.
+// The TypeScript-emitting renderers (`tsType`, `operationSignature`, …) are exported from
+// `@redocly/client-generator/generate`, which also carries the generation entry point —
+// the runtime-only package root stays free of it.

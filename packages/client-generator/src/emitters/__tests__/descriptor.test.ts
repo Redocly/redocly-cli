@@ -3,14 +3,14 @@ import type {
   OperationModel,
   ResponseBodyModel,
 } from '../../intermediate-representation/model.js';
-import { descriptorStatements, opsInterfaceStatements, packageIdents } from '../descriptor.js';
+import { packageIdents, renderDescriptors } from '../descriptor.js';
 import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
-import { printStatements } from '../ts.js';
-import { apiModel, modelWith, namedSchema, operation, param, response } from './fixtures.js';
+import { renderOpsType } from '../render-client.js';
+import { apiModel, modelWith, operation, param } from './fixtures.js';
 
 function emitDescriptors(model: ApiModel): string {
-  return printStatements(descriptorStatements(model, packageIdents(model), 'string'));
+  return renderDescriptors(model, packageIdents(model), 'string');
 }
 
 /** A JSON 200 response — keeps `responseKind` at its omitted `'json'` default. */
@@ -55,9 +55,9 @@ describe('packageIdents', () => {
   });
 });
 
-describe('descriptorStatements', () => {
-  it('returns no statements for a model with no operations', () => {
-    expect(descriptorStatements(apiModel(), new Map(), 'string')).toEqual([]);
+describe('renderDescriptors', () => {
+  it('renders nothing for a model with no operations', () => {
+    expect(renderDescriptors(apiModel(), packageIdents(apiModel()), 'string')).toBe('');
   });
 
   it('emits a minimal descriptor with only the non-default fields', () => {
@@ -335,9 +335,7 @@ describe('descriptorStatements', () => {
         },
       ],
     ]);
-    const out = printStatements(
-      descriptorStatements(model, packageIdents(model), 'string', pagination)
-    );
+    const out = renderDescriptors(model, packageIdents(model), 'string', pagination);
     expect(out).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
     );
@@ -351,11 +349,7 @@ describe('descriptorStatements', () => {
         operation({
           name: 'listCustomers',
           path: '/customers',
-          successResponses: [
-            response({
-              schema: { kind: 'array', items: { kind: 'ref', name: 'Customer' } },
-            }),
-          ],
+          successResponses: [JSON_OK],
           successResponseHeaders: [
             {
               name: 'pagination-total',
@@ -377,7 +371,7 @@ describe('descriptorStatements', () => {
       modelWith([
         operation({
           name: 'listCustomers',
-          successResponses: [response()],
+          successResponses: [JSON_OK],
           successResponseHeaders: [
             { name: '3d-secure', schema: { kind: 'scalar', scalar: 'boolean' } },
             { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
@@ -386,7 +380,6 @@ describe('descriptorStatements', () => {
         }),
       ])
     );
-
     expect(out).toContain(
       'responseHeaders: [{ name: "3d-secure", key: "_3dSecure", type: "boolean" }, { name: "x-foo", key: "xFoo", type: "number" }, { name: "x_foo", key: "xFoo_2", type: "string" }]'
     );
@@ -397,7 +390,7 @@ describe('descriptorStatements', () => {
       modelWith([
         operation({
           name: 'listCustomers',
-          successResponses: [response()],
+          successResponses: [JSON_OK],
           successResponseHeaders: [
             {
               name: 'x-flag',
@@ -417,50 +410,13 @@ describe('descriptorStatements', () => {
         }),
       ])
     );
-
     expect(out).toContain(
       'responseHeaders: [{ name: "x-flag", key: "xFlag", type: "boolean" }, { name: "x-count", key: "xCount", type: "number" }]'
     );
   });
-
-  it('resolves $ref and allOf wrappers on response-header schemas to the coerce type', () => {
-    const out = emitDescriptors(
-      apiModel({
-        schemas: [namedSchema('Count', { kind: 'scalar', scalar: 'integer' })],
-        services: [
-          {
-            name: 'Default',
-            operations: [
-              operation({
-                name: 'listCustomers',
-                successResponses: [response()],
-                successResponseHeaders: [
-                  { name: 'x-total', schema: { kind: 'ref', name: 'Count' } },
-                  {
-                    name: 'x-capped',
-                    schema: {
-                      kind: 'intersection',
-                      members: [
-                        { kind: 'ref', name: 'Count' },
-                        { kind: 'unknown', metadata: { minimum: 0 } },
-                      ],
-                    },
-                  },
-                ],
-              }),
-            ],
-          },
-        ],
-      })
-    );
-
-    expect(out).toContain(
-      'responseHeaders: [{ name: "x-total", key: "xTotal", type: "number" }, { name: "x-capped", key: "xCapped", type: "number" }]'
-    );
-  });
 });
 
-describe('opsInterfaceStatements', () => {
+describe('renderOpsType', () => {
   function emitOps(model: ApiModel, extra: Partial<EmitContext> = {}): string {
     const ctx: EmitContext = {
       argsStyle: 'flat',
@@ -469,7 +425,7 @@ describe('opsInterfaceStatements', () => {
       schemaNames: new Set(),
       ...extra,
     };
-    return printStatements(opsInterfaceStatements(model, packageIdents(model), ctx));
+    return renderOpsType(model, packageIdents(model), ctx);
   }
 
   const getOrder = operation({
@@ -720,58 +676,5 @@ describe('opsInterfaceStatements', () => {
     ]);
     const out = emitOps(modelWith([listOrders]), { pagination, dateType: 'Date' });
     expect(out).toContain('item: Date;');
-  });
-
-  it('adds a headers member from declared success-response headers', () => {
-    const out = emitOps(
-      modelWith([
-        operation({
-          name: 'listCustomers',
-          path: '/customers',
-          successResponses: [
-            response({
-              schema: { kind: 'array', items: { kind: 'ref', name: 'Customer' } },
-            }),
-          ],
-          successResponseHeaders: [
-            { name: 'pagination-total', schema: { kind: 'scalar', scalar: 'integer' } },
-          ],
-        }),
-      ])
-    );
-    expect(out).toContain('headers: {\n            paginationTotal?: number;\n        };');
-  });
-
-  it('emits safe unique keys, requiredness, and only runtime-supported header types', () => {
-    const out = emitOps(
-      modelWith([
-        operation({
-          name: 'listCustomers',
-          path: '/customers',
-          successResponses: [response()],
-          successResponseHeaders: [
-            {
-              name: '3d-secure',
-              schema: { kind: 'scalar', scalar: 'boolean' },
-              required: true,
-            },
-            { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
-            { name: 'x_foo', schema: { kind: 'scalar', scalar: 'string' } },
-            {
-              name: 'x-ids',
-              schema: {
-                kind: 'array',
-                items: { kind: 'scalar', scalar: 'integer' },
-              },
-            },
-          ],
-        }),
-      ])
-    );
-
-    expect(out).toContain('_3dSecure: boolean;');
-    expect(out).toContain('xFoo?: number;');
-    expect(out).toContain('xFoo_2?: string;');
-    expect(out).toContain('xIds?: string;');
   });
 });

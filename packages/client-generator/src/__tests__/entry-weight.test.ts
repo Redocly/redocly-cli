@@ -46,3 +46,14 @@ describe('package root entry (lib/index.js)', () => {
     expect(dts).toMatch(/\bEnvelopeResult\b/);
   });
 });
+
+describe('runtime-sources entry (lib/runtime-sources.js)', () => {
+  it('statically loads only the generated source-string modules — ejected generators stay TS-free', () => {
+    const { files, externals } = staticGraph(join(libDir, 'runtime-sources.js'));
+    expect([...externals]).toEqual([]);
+    const outsideSources = [...files].filter(
+      (file) => !file.endsWith('runtime-sources.js') && !file.endsWith('-runtime-sources.js')
+    );
+    expect(outsideSources).toEqual([]);
+  });
+});

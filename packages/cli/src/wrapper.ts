@@ -16,6 +16,10 @@ import type { Arguments } from 'yargs';
 
 import type { CommandArgv } from './types.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
+import {
+  ejectGeneratorTelemetry,
+  generateClientTelemetry,
+} from './utils/generate-client-telemetry.js';
 import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
@@ -146,6 +150,8 @@ export function commandWrapper<T extends CommandArgv>(
           lint_rules_with_errors: [...lintRulesWithErrors],
           lint_rules_with_warnings: [...lintRulesWithWarnings],
           lint_rules_with_ignored_problems: [...lintRulesWithIgnoredProblems],
+          generate_client: generateClientTelemetry,
+          eject_generator: ejectGeneratorTelemetry,
         });
       }
       process.once('beforeExit', () => {

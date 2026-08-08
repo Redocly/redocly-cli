@@ -15,6 +15,7 @@ API management commands:
 
 - [`bundle`](bundle.md) Bundle API description.
 - [`generate-client`](generate-client.md) Generate a typed TypeScript client from an OpenAPI description [experimental feature].
+- [`eject-generator`](eject-generator.md) Vendor a built-in client generator into your repo as an editable file [experimental feature].
 - [`join`](join.md) Join API descriptions [experimental feature].
 - [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
 - [`split`](split.md) Split API description into a multi-file structure.

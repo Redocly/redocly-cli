@@ -107,6 +107,53 @@ describe('collectGeneratedFiles', () => {
     ).toThrow(/already emitted/);
   });
 
+  it('rejects a generated file path that escapes the output directory', () => {
+    const escapes = [
+      { name: 'traversal', path: '../../outside.txt' },
+      { name: 'absolute', path: '/etc/outside.txt' },
+    ];
+    for (const attempt of escapes) {
+      const registry = new Map([['rogue', { run: () => [{ path: attempt.path, content: 'x' }] }]]);
+      expect(() =>
+        collectGeneratedFiles(model(), {
+          outputPath: '/out/api.ts',
+          outputMode: 'single',
+          emit: {},
+          generators: ['rogue'],
+          registry,
+        })
+      ).toThrow(/Generator "rogue" failed: .*escapes the output directory/);
+    }
+    // Subdirectories under the output directory stay legal (mock fixtures, split files).
+    const registry = new Map([
+      ['nested', { run: () => [{ path: '/out/fixtures/data.json', content: '{}' }] }],
+    ]);
+    expect(
+      collectGeneratedFiles(model(), {
+        outputPath: '/out/api.ts',
+        outputMode: 'single',
+        emit: {},
+        generators: ['nested'],
+        registry,
+      })
+    ).toHaveLength(1);
+  });
+
+  it('rejects a run() result that is not an array of { path, content } files', () => {
+    for (const bad of [undefined, 'files', [{ path: '', content: 'x' }], [{ path: '/out/a' }]]) {
+      const registry = new Map([['broken', { run: () => bad as never }]]);
+      expect(() =>
+        collectGeneratedFiles(model(), {
+          outputPath: '/out/api.ts',
+          outputMode: 'single',
+          emit: {},
+          generators: ['broken'],
+          registry,
+        })
+      ).toThrow(/Generator "broken" failed: run\(\) must return/);
+    }
+  });
+
   it('supports runtime: package with outputMode: split (the shared emitter serves both)', () => {
     const files = collectGeneratedFiles(model(), {
       outputPath: '/out/api.ts',

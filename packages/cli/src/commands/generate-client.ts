@@ -1,8 +1,16 @@
 import { type GenerateClientConfig } from '@redocly/client-generator';
 import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
+import { readFileSync } from 'node:fs';
 import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
 
+import {
+  BUILTIN_GENERATOR_NAMES,
+  categorizeGenerateClientError,
+  collectToolkitImports,
+  generateClientTelemetry,
+  parseEjectedProvenance,
+} from '../utils/generate-client-telemetry.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 
@@ -14,6 +22,8 @@ export type GenerateClientCommandArgv = {
   'output-mode'?: 'single' | 'split';
   runtime?: 'inline' | 'package';
   'import-ext'?: 'js' | 'ts';
+  'bin-name'?: string;
+  'go-package'?: string;
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
@@ -44,8 +54,6 @@ function fileNameFor(name: string): string {
   return `${name.replace(/[\\/]/g, '_')}.client.ts`;
 }
 
-// Accepts an absolute http(s) URL or a root-relative path; rejects bare hostnames,
-// protocol-relative `//host`, and non-http(s) schemes.
 function isValidServerUrl(value: string): boolean {
   if (value.startsWith('//')) return false;
   if (value.startsWith('/')) return true;
@@ -61,7 +69,8 @@ export async function handleGenerateClient({
   argv,
   config,
 }: CommandArgs<GenerateClientCommandArgv>) {
-  const { generateClient, mergeConfig } = await import('@redocly/client-generator');
+  const { AUTHORING_HELPER_NAMES, generateClient, mergeConfig } =
+    await import('@redocly/client-generator');
 
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
@@ -70,14 +79,13 @@ export async function handleGenerateClient({
     outputMode: argv['output-mode'],
     runtime: argv.runtime,
     importExt: argv['import-ext'],
+    binName: argv['bin-name'],
+    goPackage: argv['go-package'],
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
     dateType: argv['date-type'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
-    // Like `setup` below: flag paths resolve against the cwd, while config-file entries
-    // resolve against the config dir (in `resolveGenerators`). Package specifiers and
-    // built-in names pass through.
     generators: argv.generator?.map((specifier) =>
       specifier.startsWith('.') ? resolvePath(specifier) : specifier
     ),
@@ -112,8 +120,6 @@ export async function handleGenerateClient({
 
   for (const { path, alias } of entrypoints) {
     const name = alias ?? basename(path, extname(path));
-    // `forAlias` layers the api's entry over the root config, so `client` is the
-    // per-api block when the api declares one and the top-level block otherwise.
     const aliasConfig = config.forAlias(alias);
     const { client, clientOutput } = aliasConfig.resolvedConfig;
     const clientBlock = resolveSetup(
@@ -121,6 +127,7 @@ export async function handleGenerateClient({
       configDir
     );
     const clientConfig = mergeConfig(clientBlock, cliFlags);
+    collectGeneratorUsage(clientConfig.generators ?? [], AUTHORING_HELPER_NAMES);
 
     const outputPath =
       argv.output !== undefined
@@ -147,7 +154,7 @@ export async function handleGenerateClient({
     }
 
     try {
-      logger.info(gray(`\n  Generating TypeScript client for ${name}... \n`));
+      logger.info(gray(`\n  Generating client for ${name}... \n`));
       const result = await generateClient({
         ...clientConfig,
         api: path,
@@ -156,15 +163,47 @@ export async function handleGenerateClient({
         configDir,
       });
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
-      const summary = `TypeScript client successfully generated: ${fileCount} (${
+      const summary = `Client successfully generated: ${fileCount} (${
         result.bytes
       } bytes) at ${yellow(result.outputPath)}.`;
       logger.info('\n' + blue(summary) + '\n');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new HandledError(
-        `\n❌  Failed to generate TypeScript client for ${name}.\n   ${message}\n`
-      );
+      generateClientTelemetry.generate_client_error_category =
+        categorizeGenerateClientError(message);
+      throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
     }
   }
+}
+
+/** Telemetry: allowlisted built-in names, custom count, and OUR helper names a
+ * path generator imports — never user code, paths, or names. */
+function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[]): void {
+  const builtins = new Set(generateClientTelemetry.generate_client_builtin_generators ?? []);
+  const toolkitImports = new Set(generateClientTelemetry.generate_client_toolkit_imports ?? []);
+  const ejected = new Set(generateClientTelemetry.generate_client_ejected_generators ?? []);
+  let customCount = generateClientTelemetry.generate_client_custom_generators_count ?? 0;
+  for (const entry of entries) {
+    if (BUILTIN_GENERATOR_NAMES.has(entry)) {
+      builtins.add(entry);
+      continue;
+    }
+    customCount++;
+    if (entry.startsWith('.') || isAbsolute(entry)) {
+      try {
+        const source = readFileSync(entry, 'utf-8');
+        for (const helper of collectToolkitImports(source, knownHelpers)) {
+          toolkitImports.add(helper);
+        }
+        const provenance = parseEjectedProvenance(source);
+        if (provenance) ejected.add(`${provenance.name}@${provenance.version}`);
+      } catch {
+        // Unreadable path: generation fails later with its own error; nothing to record.
+      }
+    }
+  }
+  generateClientTelemetry.generate_client_builtin_generators = [...builtins];
+  generateClientTelemetry.generate_client_custom_generators_count = customCount;
+  generateClientTelemetry.generate_client_toolkit_imports = [...toolkitImports];
+  generateClientTelemetry.generate_client_ejected_generators = [...ejected];
 }
