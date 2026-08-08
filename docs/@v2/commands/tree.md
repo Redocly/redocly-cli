@@ -57,6 +57,8 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                              |
 | --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                            |
 | --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                             |
+| --brief       | boolean  | Print JSON listing entries as `{ method, path, summary, lines }` instead of the full card, with no `refs` or `usedBy`. No effect with `--format=stylish`. Mutually exclusive with `--used-by` and `--with-deps`.                                          |
+| --compact     | boolean  | Serialize `--format=json` output without indentation, for any view. Combines with `--brief`.                                                                                                                                                              |
 | --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood. |
 | --format      | string   | Output format: `stylish` (default, human-readable) or `json` (machine-readable, the same selection as data).                                                                                                                                              |
 | --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                           |
@@ -837,6 +839,114 @@ redocly tree cafe.yaml --webhooks --format=json
 
 `cafe.yaml` only declares the one webhook shown above; with more than one, `--webhooks` groups them the same way `--operations` groups by path — one tree root per webhook name.
 `--paths`, `--operations`, and `--webhooks` are each mutually exclusive with every selector — they're already "give me everything," so a narrower selector alongside them makes no sense.
+
+### Trim JSON listings: `--brief`
+
+Every listing above returns full card-shaped entries in `--format=json`: coordinates, a one-hop `refs` array, and `usedBy`.
+An agent picking which branch to open next often doesn't need any of that — `--brief` drops it and prints just `{ method, path, summary, lines }` per entry (`{ name, summary, lines }` for a component listing), adding `file` only once the listing spans more than one file, the same rule the stylish listings use.
+
+```bash
+redocly tree cafe.yaml --tag=Orders --brief --format=json
+```
+
+```json
+[
+  {
+    "method": "get",
+    "path": "/orders",
+    "operationId": "listOrders",
+    "summary": "List all orders",
+    "lines": [229, 314]
+  },
+  {
+    "method": "post",
+    "path": "/orders",
+    "operationId": "createOrder",
+    "summary": "Create order",
+    "lines": [316, 372]
+  },
+  {
+    "method": "get",
+    "path": "/orders/{orderId}",
+    "operationId": "getOrderById",
+    "summary": "Retrieve an order",
+    "lines": [375, 416]
+  },
+  {
+    "method": "delete",
+    "path": "/orders/{orderId}",
+    "operationId": "deleteOrder",
+    "summary": "Delete an order",
+    "lines": [478, 502]
+  },
+  {
+    "method": "patch",
+    "path": "/orders/{orderId}",
+    "operationId": "updateOrder",
+    "summary": "Partially update an order",
+    "lines": [418, 476]
+  },
+  {
+    "method": "get",
+    "path": "/order-items",
+    "operationId": "listOrderItems",
+    "summary": "List all order items with menu item details",
+    "lines": [505, 546]
+  }
+]
+```
+
+The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, was trimmed to its first two entries for space; all six fit here in full.
+On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos --format=json` listing costs 129,719 tokens; `--brief` brings it down to 9,227 — a 93% reduction.
+`--brief` only reshapes the listing views (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`) — every other view is unaffected, and it's a no-op with `--format=stylish`, which is already this compact.
+It's mutually exclusive with `--used-by` and `--with-deps`: both add exactly the detail `--brief` removes.
+
+### Compact JSON output: `--compact`
+
+`--compact` serializes any `--format=json` output without indentation — the overview, a listing, a card, or a `--used-by` report all get the same treatment.
+
+```bash
+redocly tree cafe.yaml --format=json --compact
+```
+
+```json
+{
+  "docName": "cafe.yaml",
+  "spec": "oas3_2",
+  "docDescription": "Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…",
+  "overview": {
+    "pointer": "#/info",
+    "file": "cafe.yaml",
+    "start_line": 3,
+    "end_line": 16,
+    "summary": "Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic OpenAPI workflow."
+  },
+  "servers": {
+    "pointer": "#/servers",
+    "file": "cafe.yaml",
+    "start_line": 18,
+    "end_line": 19,
+    "urls": ["https://api.cafe.redocly.com"]
+  },
+  "tags": [
+    { "name": "Authorization", "summary": "Create a client to demo the API.", "operations": 1 },
+    { "name": "Products", "summary": "Operations related to products.", "operations": 4 },
+    { "name": "Orders", "summary": "Order management operations.", "operations": 6 },
+    { "name": "Statistics", "summary": "Statistics operations.", "operations": 1 }
+  ],
+  "operations": 12,
+  "webhooks": [{ "name": "order-notification", "operations": 1 }],
+  "components": [
+    { "section": "schemas", "count": 15 },
+    { "section": "responses", "count": 6 },
+    { "section": "parameters", "count": 9 },
+    { "section": "securitySchemes", "count": 2 }
+  ]
+}
+```
+
+This is the same overview shown under [Get an overview of an API description](#get-an-overview-of-an-api-description) above, just without the newlines and indentation: measured across tree's JSON views, `--compact` cuts about 32% of the output.
+It combines with `--brief`: `--brief` shrinks each entry and `--compact` removes the whitespace between them, so the two stack.
 
 ### Fetch everything a selection needs: `--with-deps`
 

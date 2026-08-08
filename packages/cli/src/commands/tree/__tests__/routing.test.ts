@@ -130,6 +130,12 @@ describe('resolveTreeView', () => {
     expect(
       route({ 'used-by': true, 'with-deps': true, component: 'schemas', name: 'Ticket' })
     ).toThrow(/--used-by and --with-deps cannot be combined/);
+    expect(route({ brief: true, 'with-deps': true, component: 'schemas', name: 'Ticket' })).toThrow(
+      /--brief cannot be combined with --used-by or --with-deps/
+    );
+    expect(route({ brief: true, 'used-by': true, component: 'schemas', name: 'Ticket' })).toThrow(
+      TreeSelectorError
+    );
     expect(route({ tag: 'Tickets', operation: 'buyTickets' })).toThrow(
       /combining it with --tag is ambiguous/
     );

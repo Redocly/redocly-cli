@@ -15,28 +15,45 @@ import {
 
 import type { TreeView } from '../index.js';
 import type { TreeFormat } from '../types.js';
+import { briefComponents, briefDefines, briefOperations } from './brief.js';
 
-export function renderView(view: TreeView, format: TreeFormat): string {
-  const payload = viewPayload(view);
-  if (format === 'json') return JSON.stringify(payload, null, 2);
-  return renderViewStylish(view);
+export type RenderOptions = {
+  /** JSON-only: project listing views to a compact per-item shape (no refs/usedBy). */
+  brief?: boolean;
+  /** JSON-only: serialize without indentation. */
+  compact?: boolean;
+};
+
+export function renderView(
+  view: TreeView,
+  format: TreeFormat,
+  options: RenderOptions = {}
+): string {
+  if (format !== 'json') return renderViewStylish(view);
+  const payload = viewPayload(view, options);
+  return JSON.stringify(payload, null, options.compact ? undefined : 2);
 }
 
-function viewPayload(view: TreeView): unknown {
+function viewPayload(view: TreeView, options: RenderOptions): unknown {
   switch (view.kind) {
     case 'overview':
       return view.overview;
     case 'operations':
-      return view.items;
+      return options.brief ? briefOperations(view.items) : view.items;
     case 'paths':
       return view.items;
     case 'components':
-      return { section: view.section, items: view.items };
+      return {
+        section: view.section,
+        items: options.brief ? briefComponents(view.items) : view.items,
+      };
     case 'operation-card':
     case 'component-card':
       return view.card;
     case 'file-card':
-      return view.card;
+      return options.brief
+        ? { file: view.card.file, defines: briefDefines(view.card.defines) }
+        : view.card;
     case 'used-by':
       return view.report;
   }

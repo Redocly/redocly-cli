@@ -31,6 +31,10 @@ Options:
                      ansitively references it.                         [boolean]
       --with-deps    With an operation or component selection: append its raw so
                      urce and transitive $ref closure.                 [boolean]
+      --brief        Trim JSON listings to one compact entry per item — method,
+                     path, summary, line range.                        [boolean]
+      --compact      Emit JSON without indentation (about a third fewer tokens f
+                     or agents).                                       [boolean]
   -o, --output       Write the output to a file instead of stdout.      [string]
       --files        Show the file-level graph instead of the API structure.
                                                                        [boolean]

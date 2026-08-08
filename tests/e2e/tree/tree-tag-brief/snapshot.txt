@@ -1,0 +1,22 @@
+[
+  {
+    "method": "post",
+    "path": "/tickets",
+    "operationId": "buyMuseumTickets",
+    "summary": "Buy museum tickets",
+    "lines": [
+      22,
+      31
+    ]
+  },
+  {
+    "method": "post",
+    "path": "/legacy-tickets",
+    "summary": "Buy tickets the old way",
+    "lines": [
+      34,
+      39
+    ]
+  }
+]
+

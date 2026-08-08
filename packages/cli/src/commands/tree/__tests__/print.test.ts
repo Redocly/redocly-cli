@@ -196,4 +196,10 @@ describe('renderJson', () => {
     expect(json).not.toHaveProperty('roots');
     expect(json).not.toHaveProperty('edges');
   });
+
+  it('serializes without indentation when compact is set', () => {
+    const json = renderJson(graph, { compact: true });
+    expect(json).not.toContain('\n');
+    expect(JSON.parse(json).nodes).toEqual(graph.nodes);
+  });
 });

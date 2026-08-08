@@ -559,3 +559,99 @@ describe('renderView (json)', () => {
     });
   });
 });
+
+describe('renderView (json, brief)', () => {
+  it('projects a listing to compact entries, adding file only once the listing spans more than one file', () => {
+    const json = renderView(
+      {
+        kind: 'operations',
+        items: [
+          {
+            method: 'post',
+            path: '/tickets',
+            operationId: 'buyTickets',
+            summary: 'Buy museum tickets',
+            tags: ['Tickets'],
+            pointer: '#/post',
+            file: 'paths/tickets.yaml',
+            start_line: 10,
+            end_line: 40,
+            refs: [
+              {
+                ref: '#/components/schemas/Ticket',
+                resolved: true,
+                component: 'schemas',
+                name: 'Ticket',
+                file: 'openapi.yaml',
+                pointer: '#/components/schemas/Ticket',
+                start_line: 1,
+                end_line: 5,
+              },
+            ],
+            usedBy: [],
+          },
+          {
+            method: 'get',
+            path: '/orders',
+            summary: 'List orders',
+            tags: ['Orders'],
+            pointer: '#/get',
+            file: 'paths/orders.yaml',
+            start_line: 1,
+            end_line: 9,
+            refs: [],
+            usedBy: [],
+          },
+        ],
+      },
+      'json',
+      { brief: true }
+    );
+    expect(JSON.parse(json)).toEqual([
+      {
+        method: 'post',
+        path: '/tickets',
+        operationId: 'buyTickets',
+        summary: 'Buy museum tickets',
+        lines: [10, 40],
+        file: 'paths/tickets.yaml',
+      },
+      {
+        method: 'get',
+        path: '/orders',
+        summary: 'List orders',
+        lines: [1, 9],
+        file: 'paths/orders.yaml',
+      },
+    ]);
+  });
+});
+
+describe('renderView (json, compact)', () => {
+  it('serializes without indentation when compact is set', () => {
+    const json = renderView(
+      {
+        kind: 'overview',
+        overview: {
+          docName: 'openapi.yaml',
+          spec: 'oas3_0',
+          tags: [],
+          operations: 0,
+          webhooks: [],
+          components: [],
+        },
+      },
+      'json',
+      { compact: true }
+    );
+    expect(json).not.toContain('\n');
+    expect(JSON.parse(json)).toEqual({
+      docName: 'openapi.yaml',
+      spec: 'oas3_0',
+      tags: [],
+      operations: 0,
+      webhooks: [],
+      components: [],
+    });
+  });
+});

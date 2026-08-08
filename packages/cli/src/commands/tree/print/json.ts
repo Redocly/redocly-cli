@@ -1,9 +1,9 @@
 import type { DependencyGraph } from '../types.js';
 
-export function renderJson(graph: DependencyGraph): string {
+export function renderJson(graph: DependencyGraph, options: { compact?: boolean } = {}): string {
   const data = {
     nodes: graph.nodes,
     links: graph.edges.map(({ from, to, refs }) => ({ source: from, target: to, refs })),
   };
-  return JSON.stringify(data, null, 2);
+  return JSON.stringify(data, null, options.compact ? undefined : 2);
 }
