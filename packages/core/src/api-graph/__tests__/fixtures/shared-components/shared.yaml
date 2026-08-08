@@ -1,0 +1,11 @@
+components:
+  schemas:
+    WidgetA:
+      type: object
+    WidgetB:
+      type: object
+    WidgetRequest:
+      type: object
+      properties:
+        widget:
+          $ref: '#/components/schemas/WidgetB'

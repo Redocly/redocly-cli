@@ -126,6 +126,80 @@ export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js'
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
+export {
+  commonDir,
+  compareStrings,
+  mapForeignLocation,
+  mapRootPointer,
+  OPERATION_METHODS,
+  parsePointerSegments,
+  toNodeId,
+  type MappedNode,
+} from './api-graph/node-id.js';
+export type { DependencyGraph, GraphEdge, GraphNode, NodeKind } from './api-graph/types.js';
+export {
+  analyzeApi,
+  collectConnectedIds,
+  collectReversePathsTo,
+  type ApiAnalysis,
+  type ApiIndexMeta,
+  type CollectedComponent,
+  type CollectedOperation,
+} from './api-graph/build-graph.js';
+export {
+  buildApiIndex,
+  COMPONENT_SECTIONS,
+  SUMMARY_LIMIT,
+  type ApiIndex,
+  type ApiIndexNode,
+  type IndexGroupBy,
+} from './api-graph/build-index.js';
+export {
+  appendDepsClosure,
+  buildNodeEnvelope,
+  DEPS_CONTENT_CAP_BYTES,
+  findIndexNode,
+  hasIndexLocation,
+  type ApiNodeEnvelope,
+  type ApiNodeRef,
+  type LocatedIndexNode,
+} from './api-graph/slice.js';
+export {
+  findComponent,
+  findOperationByOperationId,
+  findOperationByPathMethod,
+  findWebhookOperation,
+  HTTP_METHODS,
+  listOperations,
+  normalizeComponentSection,
+  suggestNames,
+} from './api-graph/select.js';
+export {
+  buildComponentCard,
+  buildComponentListing,
+  buildOperationCard,
+  buildOperationListing,
+  buildOverview,
+  buildPathListing,
+  buildUsedBy,
+  buildUsedByReport,
+  toOperationListItem,
+} from './api-graph/views.js';
+export type {
+  ApiOverview,
+  ComponentCard,
+  ComponentListCard,
+  ComponentListItem,
+  FileRange,
+  OperationCard,
+  OperationListCard,
+  OperationListItem,
+  PathListItem,
+  TypedRef,
+  UsedByEntry,
+  UsedByReport,
+} from './api-graph/views.js';
+export { buildFileCard, buildFileUsedByReport, type FileCard } from './api-graph/file-view.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';

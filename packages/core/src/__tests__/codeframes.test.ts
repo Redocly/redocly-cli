@@ -127,6 +127,39 @@ describe('Location', () => {
     expect(preciseLocation.start).toEqual({ line: 1, col: 1 });
     expect(preciseLocation.end).toEqual({ line: 1, col: 1 });
   });
+
+  it('should correctly calculate location for the very first character (offset 0)', () => {
+    const loc = {
+      reportOnKey: true,
+      pointer: '#/a',
+      source: new Source('foobar.yaml', 'a: 1\nb: 2'),
+    };
+    const preciseLocation = getLineColLocation(loc);
+    expect(preciseLocation.start).toEqual({ line: 1, col: 1 });
+    expect(preciseLocation.end).toEqual({ line: 1, col: 2 });
+  });
+
+  it('should correctly calculate location for a key right after a newline', () => {
+    const loc = {
+      reportOnKey: true,
+      pointer: '#/b',
+      source: new Source('foobar.yaml', 'a: 1\nb: 2'),
+    };
+    const preciseLocation = getLineColLocation(loc);
+    expect(preciseLocation.start).toEqual({ line: 2, col: 1 });
+    expect(preciseLocation.end).toEqual({ line: 2, col: 2 });
+  });
+
+  it('should correctly calculate location for the last character with no trailing newline', () => {
+    const loc = {
+      reportOnKey: false,
+      pointer: '#/b',
+      source: new Source('foobar.yaml', 'a: 1\nb: 2'),
+    };
+    const preciseLocation = getLineColLocation(loc);
+    expect(preciseLocation.start).toEqual({ line: 2, col: 4 });
+    expect(preciseLocation.end).toEqual({ line: 2, col: 5 });
+  });
 });
 
 describe('codeframes', () => {

@@ -1,0 +1,27 @@
+{
+  "method": "post",
+  "path": "/tickets",
+  "operationId": "buyMuseumTickets",
+  "summary": "Buy museum tickets",
+  "tags": [
+    "Tickets"
+  ],
+  "pointer": "#/paths/~1tickets/post",
+  "file": "openapi.yaml",
+  "start_line": 22,
+  "end_line": 31,
+  "refs": [
+    {
+      "ref": "#/components/schemas/Ticket",
+      "resolved": true,
+      "file": "openapi.yaml",
+      "pointer": "#/components/schemas/Ticket",
+      "start_line": 50,
+      "end_line": 54,
+      "component": "schemas",
+      "name": "Ticket"
+    }
+  ],
+  "usedBy": []
+}
+

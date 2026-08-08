@@ -1,0 +1,58 @@
+openapi: 3.1.0
+info:
+  title: Museum API
+  version: 1.1.0
+  description: Imaginary, but delightful Museum API for interview practice.
+servers:
+  - url: https://api.fake-museum-example.com/v1.1
+tags:
+  - name: Tickets
+    description: Buy tickets and manage reservations.
+paths:
+  /museum-hours:
+    get:
+      summary: Get museum hours
+      description: Get upcoming museum operating hours.
+      operationId: getMuseumHours
+      responses:
+        '200':
+          description: Success.
+  /tickets:
+    post:
+      summary: Buy museum tickets
+      operationId: buyMuseumTickets
+      tags: [Tickets]
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+  /legacy-tickets:
+    post:
+      summary: Buy tickets the old way
+      deprecated: true
+      tags: [Tickets]
+      responses:
+        '201':
+          description: Created.
+webhooks:
+  publicationOfNewEvent:
+    post:
+      summary: New event added
+      responses:
+        '200':
+          description: Acknowledged.
+components:
+  schemas:
+    Ticket:
+      description: A ticket for museum entry or special event.
+      type: object
+      properties:
+        ticketId:
+          type: string
+  securitySchemes:
+    MuseumPlaceholderAuth:
+      type: http
+      scheme: basic

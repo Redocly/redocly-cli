@@ -1,0 +1,16 @@
+openapi.yaml — Museum API — Imaginary, but delightful Museum API for interview practice.  (oas3_1)
+├── Servers
+│   └── https://api.fake-museum-example.com/v1.1
+├── Operations (3)
+│   ├── Tickets (2) — Buy tickets and manage reservations.
+│   │   ├── POST /tickets — Buy museum tickets (buyMuseumTickets)  [22..31]
+│   │   └── POST /legacy-tickets — Buy tickets the old way  [34..39]
+│   └── untagged (1)
+│       └── GET /museum-hours — Get museum hours (getMuseumHours)  [14..19]
+├── Webhooks (1)
+│   └── publicationOfNewEvent
+│       └── POST — New event added  [43..46]
+└── Components (2)
+    ├── schemas (1)
+    └── securitySchemes (1)
+

@@ -1,0 +1,29 @@
+{
+  "target": {
+    "id": "schemas/Ticket",
+    "component": "schemas",
+    "name": "Ticket",
+    "pointer": "#/components/schemas/Ticket",
+    "file": "openapi.yaml",
+    "start_line": 50,
+    "end_line": 54
+  },
+  "affectedOperations": [
+    {
+      "id": "POST /tickets",
+      "method": "post",
+      "path": "/tickets",
+      "operationId": "buyMuseumTickets",
+      "pointer": "#/paths/~1tickets/post",
+      "file": "openapi.yaml",
+      "start_line": 22,
+      "end_line": 31,
+      "via": [
+        "schemas/Ticket",
+        "POST /tickets"
+      ]
+    }
+  ],
+  "affectedComponents": []
+}
+

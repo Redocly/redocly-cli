@@ -1,0 +1,15 @@
+openapi: 3.1.0
+info:
+  title: Server overrides API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /uploads:
+    post:
+      summary: Upload a file
+      servers:
+        - url: https://uploads.example.com
+      responses:
+        '200':
+          description: ok

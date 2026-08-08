@@ -1,0 +1,99 @@
+[
+  {
+    "method": "get",
+    "path": "/orders",
+    "operationId": "listOrders",
+    "summary": "List orders",
+    "tags": [],
+    "pointer": "#/get",
+    "file": "paths/orders.yaml",
+    "start_line": 2,
+    "end_line": 10,
+    "refs": [
+      {
+        "ref": "../components/schemas/OrderList.yaml",
+        "resolved": true,
+        "file": "components/schemas/OrderList.yaml",
+        "pointer": "#/",
+        "start_line": 1,
+        "end_line": 6,
+        "component": "schemas",
+        "name": "OrderList"
+      }
+    ],
+    "usedBy": []
+  },
+  {
+    "method": "post",
+    "path": "/orders",
+    "operationId": "createOrder",
+    "summary": "Create an order",
+    "tags": [],
+    "pointer": "#/post",
+    "file": "paths/orders.yaml",
+    "start_line": 12,
+    "end_line": 26,
+    "refs": [
+      {
+        "ref": "../components/schemas/Order.yaml",
+        "resolved": true,
+        "file": "components/schemas/Order.yaml",
+        "pointer": "#/",
+        "start_line": 1,
+        "end_line": 10,
+        "component": "schemas",
+        "name": "Order"
+      }
+    ],
+    "usedBy": []
+  },
+  {
+    "method": "get",
+    "path": "/orders/{orderId}",
+    "operationId": "getOrder",
+    "summary": "Get an order by id",
+    "tags": [],
+    "pointer": "#/get",
+    "file": "paths/orders_{orderId}.yaml",
+    "start_line": 2,
+    "end_line": 16,
+    "refs": [
+      {
+        "ref": "../components/schemas/Order.yaml",
+        "resolved": true,
+        "file": "components/schemas/Order.yaml",
+        "pointer": "#/",
+        "start_line": 1,
+        "end_line": 10,
+        "component": "schemas",
+        "name": "Order"
+      }
+    ],
+    "usedBy": []
+  },
+  {
+    "method": "delete",
+    "path": "/orders/{orderId}",
+    "operationId": "cancelOrder",
+    "summary": "Cancel an order by id",
+    "tags": [],
+    "pointer": "#/delete",
+    "file": "paths/orders_{orderId}.yaml",
+    "start_line": 18,
+    "end_line": 32,
+    "refs": [
+      {
+        "ref": "../components/schemas/Error.yaml",
+        "resolved": true,
+        "file": "components/schemas/Error.yaml",
+        "pointer": "#/",
+        "start_line": 1,
+        "end_line": 6,
+        "component": "schemas",
+        "name": "Error"
+      }
+    ],
+    "usedBy": []
+  }
+]
+

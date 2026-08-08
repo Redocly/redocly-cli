@@ -1,0 +1,36 @@
+get:
+  summary: List tickets
+  tags: [Tickets]
+  operationId: listTickets
+  responses:
+    '200':
+      description: Success.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../components/schemas/Ticket.yaml'
+post:
+  summary: Buy museum tickets
+  tags: [Tickets]
+  operationId: buyTickets
+  responses:
+    '201':
+      description: Created.
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Ticket.yaml'
+  callbacks:
+    onEvent:
+      '{$request.body#/callbackUrl}':
+        post:
+          operationId: handleEvent
+          responses:
+            '200':
+              description: ok
+              content:
+                application/json:
+                  schema:
+                    $ref: '../components/schemas/Ticket.yaml'

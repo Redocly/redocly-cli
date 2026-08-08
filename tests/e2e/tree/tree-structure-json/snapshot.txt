@@ -1,0 +1,26 @@
+{
+  "docName": "openapi.yaml",
+  "spec": "oas3_2",
+  "docDescription": "Sample Cafe API",
+  "overview": {
+    "pointer": "#/info",
+    "file": "openapi.yaml",
+    "start_line": 3,
+    "end_line": 4
+  },
+  "tags": [
+    {
+      "name": "untagged",
+      "operations": 4
+    }
+  ],
+  "operations": 4,
+  "webhooks": [],
+  "components": [
+    {
+      "section": "schemas",
+      "count": 5
+    }
+  ]
+}
+
