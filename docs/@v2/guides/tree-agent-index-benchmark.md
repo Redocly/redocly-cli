@@ -400,7 +400,25 @@ The tree agent needed no anchors: overview → branch → cards is the same prot
 So the head-to-head result is conditional, and worth stating plainly:
 
 - On a **famous API**, a capable model can grep its way to a correct, verified answer at comparable cost — the index's advantage is determinism (5 bounded commands vs. 24 guesses that happened to land) rather than tokens.
-- On a **private or unfamiliar API** — the case API tooling exists for — there is nothing to grep for until you have the structure, and structure is exactly what the index returns first. The raw-file strategy also collapses on multi-file layouts (2,842 files here), where a text match says nothing about which `$ref` chain it belongs to; the index's answers are identical for both layouts.
+- On a **private or unfamiliar API**, an earlier draft of this guide claimed there would be "nothing to grep for" — the private-spec test below refuted that, and the claim is withdrawn: the OpenAPI format itself and the task's own vocabulary are always search anchors. What actually survives every run in this guide is narrower and more defensible: the index gives the same bounded protocol on every spec, machine-readable shapes a pipeline can build on, transitive `$ref` answers (`--used-by`, `--with-deps`) that text search cannot emit as data, and identical behavior on multi-file layouts (2,842 files here), where a text match says nothing about which `$ref` chain it belongs to.
+
+### The private-spec test
+
+Every run above used an API the model has memorized, so the "private API" question stayed open.
+Renaming the GitHub description (hosts, resources, operations — consistently) did not close it: both agents recognized the skeleton anyway, from path shapes, description prose, and untouched `octocat/Hello-World` examples — famous APIs are memorized structurally, and cannot be anonymized by renaming.
+
+So the final experiment used a **fully synthetic description**: a generated 1.3 MB "Meridian Freight API" (606 operations, 40 tags, 268,081 tokens — over a context window) in a logistics vocabulary with no lineage from any real API, carrying the same class of planted traps: a per-operation `servers` override to an ingest host, a counter-intuitive single required body field, an `integer|string` `oneOf`, a prose-only `Content-Type` contract, and a `502`-orphan cleanup path.
+This description did not exist until an hour before the runs; it is in no model's training data.
+
+|                                                                        |  `tree` agent | raw-file agent |
+| ---------------------------------------------------------------------- | ------------: | -------------: |
+| Inspection actions                                                     |            18 |             13 |
+| Whole session, all-in                                                  | 81,259 tokens |  69,626 tokens |
+| All traps found (host override, required field, oneOf, prose contract) |            ✅ |             ✅ |
+
+The honest result: **memory was not the load-bearing ingredient** — a strong model navigates even a never-seen spec by generic anchors (the OpenAPI keywords, and the task's own words, which necessarily appear in the spec), at the same cost band as everywhere else in this guide.
+Both agents also independently flagged generator artifacts (an unmodeled idempotency header, an absurd generated path) — agent answers are grounded in what they read, with or without the index.
+What the index is for, on the evidence of all twelve runs, is not making the impossible possible for a chat agent — it is making the process **uniform, bounded, and machine-consumable**: the property a product, a CI check, or an MCP server needs, and improvised text search cannot provide.
 
 ### Multi-operation workflows
 
