@@ -105,7 +105,7 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json'] as ReadonlyArray<TreeFormat>,
+            choices: ['stylish', 'json', 'brief'] as ReadonlyArray<TreeFormat>,
             default: 'stylish' as TreeFormat,
           },
           tag: {
@@ -168,15 +168,6 @@ yargs(hideBin(process.argv))
               'With an operation or component selection: append its raw source and transitive $ref closure.',
             type: 'boolean' as const,
           },
-          brief: {
-            description:
-              'Trim JSON listings to one compact entry per item — method, path, summary, line range.',
-            type: 'boolean' as const,
-          },
-          compact: {
-            description: 'Emit JSON without indentation (about a third fewer tokens for agents).',
-            type: 'boolean' as const,
-          },
           output: {
             alias: 'o',
             description: 'Write the output to a file instead of stdout.',
@@ -214,7 +205,6 @@ yargs(hideBin(process.argv))
         .conflicts('path', ['tag'])
         .conflicts('tag', ['operation'])
         .conflicts('used-by', ['with-deps'])
-        .conflicts('brief', ['with-deps', 'used-by'])
         .conflicts('file', [
           'tag',
           'path',

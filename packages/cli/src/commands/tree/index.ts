@@ -72,8 +72,6 @@ export type TreeArgv = {
   file?: string;
   'used-by'?: boolean;
   'with-deps'?: boolean;
-  brief?: boolean;
-  compact?: boolean;
 } & VerifyConfigOptions;
 
 export type TreeView =
@@ -158,17 +156,10 @@ export function resolveTreeView(
   const meta = analysis.meta;
   const usedBy = argv['used-by'] === true;
   const withDeps = argv['with-deps'] === true;
-  const brief = argv.brief === true;
 
   if (usedBy && withDeps) {
     throw new TreeSelectorError(
       '--used-by and --with-deps cannot be combined: --used-by returns the operations and components that reference the selection, --with-deps returns the selection with its dependency closure.'
-    );
-  }
-
-  if (brief && (usedBy || withDeps)) {
-    throw new TreeSelectorError(
-      '--brief cannot be combined with --used-by or --with-deps: --brief produces a compact listing projection with no refs, usedBy, or deps.'
     );
   }
 
@@ -596,7 +587,7 @@ async function handleStructureMode({
     return;
   }
 
-  emitRendered(renderView(view, argv.format, { brief: argv.brief, compact: argv.compact }), argv);
+  emitRendered(renderView(view, argv.format), argv);
 }
 
 function renderOutput(
@@ -604,7 +595,7 @@ function renderOutput(
   argv: TreeArgv,
   stylishOptions: StylishOptions
 ): void {
-  const rendered = renderGraph(graph, argv.format, stylishOptions, argv.compact);
+  const rendered = renderGraph(graph, argv.format, stylishOptions);
   emitRendered(rendered, argv);
 }
 
@@ -620,8 +611,9 @@ function emitRendered(rendered: string, argv: TreeArgv): void {
 function renderGraph(
   graph: DependencyGraph,
   format: TreeFormat,
-  stylishOptions: StylishOptions,
-  compact?: boolean
+  stylishOptions: StylishOptions
 ): string {
-  return format === 'json' ? renderJson(graph, { compact }) : renderStylish(graph, stylishOptions);
+  return format === 'stylish'
+    ? renderStylish(graph, stylishOptions)
+    : renderJson(graph, { compact: format === 'brief' });
 }

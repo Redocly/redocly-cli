@@ -560,8 +560,8 @@ describe('renderView (json)', () => {
   });
 });
 
-describe('renderView (json, brief)', () => {
-  it('projects a listing to compact entries, adding file only once the listing spans more than one file', () => {
+describe('renderView (brief)', () => {
+  it('projects a listing to compact entries, adding file only once the listing spans more than one file, and serializes without indentation', () => {
     const json = renderView(
       {
         kind: 'operations',
@@ -604,9 +604,9 @@ describe('renderView (json, brief)', () => {
           },
         ],
       },
-      'json',
-      { brief: true }
+      'brief'
     );
+    expect(json).not.toContain('\n');
     expect(JSON.parse(json)).toEqual([
       {
         method: 'post',
@@ -625,10 +625,8 @@ describe('renderView (json, brief)', () => {
       },
     ]);
   });
-});
 
-describe('renderView (json, compact)', () => {
-  it('serializes without indentation when compact is set', () => {
+  it('serializes without indentation but leaves a view with no brief projection full (e.g. overview)', () => {
     const json = renderView(
       {
         kind: 'overview',
@@ -641,8 +639,7 @@ describe('renderView (json, compact)', () => {
           components: [],
         },
       },
-      'json',
-      { compact: true }
+      'brief'
     );
     expect(json).not.toContain('\n');
     expect(JSON.parse(json)).toEqual({

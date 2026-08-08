@@ -26,10 +26,10 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-json'));
   });
 
-  test('tree --compact prints the overview as JSON without indentation', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=json', '--compact']);
+  test('tree --format=brief prints the overview as minified JSON, unprojected', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=brief']);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-compact'));
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-brief'));
   });
 
   test('tree prints the overview for a split multi-file API', async () => {
@@ -50,13 +50,12 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-listing'));
   });
 
-  test('tree --tag --brief lists the operations of one tag as compact JSON entries', async () => {
+  test('tree --tag --format=brief lists the operations of one tag as compact, minified JSON entries', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
       '--tag=Tickets',
-      '--brief',
-      '--format=json',
+      '--format=brief',
     ]);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-brief'));

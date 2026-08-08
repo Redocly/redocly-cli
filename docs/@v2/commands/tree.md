@@ -33,7 +33,7 @@ redocly tree <api> --component=<section> --name=<name> [--used-by | --with-deps]
 redocly tree <api> --paths
 redocly tree <api> --operations
 redocly tree <api> --webhooks
-redocly tree <api> [--format=stylish|json] [--output=<file>] [--config=<path>]
+redocly tree <api> [--format=stylish|json|brief] [--output=<file>] [--config=<path>]
 redocly tree --files [apis...] [--file=<path>]
 ```
 
@@ -42,30 +42,28 @@ The default view shows one API's overview at a time; pass a single API, or use `
 
 ## Options
 
-| Option        | Type     | Description                                                                                                                                                                                                                                               |
-| ------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                        |
-| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                           |
-| --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                    |
-| --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                      |
-| --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                   |
-| --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                        |
-| --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                   |
-| --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                       |
-| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                         |
-| --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                          |
-| --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                              |
-| --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                            |
-| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                             |
-| --brief       | boolean  | Print JSON listing entries as `{ method, path, summary, lines }` instead of the full card, with no `refs` or `usedBy`. No effect with `--format=stylish`. Mutually exclusive with `--used-by` and `--with-deps`.                                          |
-| --compact     | boolean  | Serialize `--format=json` output without indentation, for any view. Combines with `--brief`.                                                                                                                                                              |
-| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood. |
-| --format      | string   | Output format: `stylish` (default, human-readable) or `json` (machine-readable, the same selection as data).                                                                                                                                              |
-| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                           |
-| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                          |
-| --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                              |
-| --help        | boolean  | Display help.                                                                                                                                                                                                                                             |
-| --version     | boolean  | Display version number.                                                                                                                                                                                                                                   |
+| Option        | Type     | Description                                                                                                                                                                                                                                                                                    |
+| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                                                             |
+| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                                                                |
+| --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                                                         |
+| --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                                                           |
+| --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                                                        |
+| --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                                                             |
+| --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                        |
+| --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                            |
+| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                              |
+| --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                               |
+| --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                   |
+| --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                 |
+| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                  |
+| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                      |
+| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `brief` — machine-readable for agents: listings project to compact entries with no `refs`/`usedBy` (measured 93% smaller on a large listing), and every view serializes without indentation. |
+| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                |
+| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                               |
+| --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                   |
+| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                                  |
+| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                                        |
 
 Selectors combine only in the shapes shown under _Usage_ above; other combinations are a usage error.
 For example, `--tag` and `--component` each select a different, unrelated scope, so combining them fails fast:
@@ -840,13 +838,15 @@ redocly tree cafe.yaml --webhooks --format=json
 `cafe.yaml` only declares the one webhook shown above; with more than one, `--webhooks` groups them the same way `--operations` groups by path — one tree root per webhook name.
 `--paths`, `--operations`, and `--webhooks` are each mutually exclusive with every selector — they're already "give me everything," so a narrower selector alongside them makes no sense.
 
-### Trim JSON listings: `--brief`
+### Compact JSON for agents: `--format=brief`
 
-Every listing above returns full card-shaped entries in `--format=json`: coordinates, a one-hop `refs` array, and `usedBy`.
-An agent picking which branch to open next often doesn't need any of that — `--brief` drops it and prints just `{ method, path, summary, lines }` per entry (`{ name, summary, lines }` for a component listing), adding `file` only once the listing spans more than one file, the same rule the stylish listings use.
+`--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
+`--format=brief` is the agent format.
+On a listing view (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`), it drops the `refs`/`usedBy` detail an agent picking its next branch rarely needs, printing just `{ method, path, summary, lines }` per entry (`{ name, summary, lines }` for a component listing), adding `file` only once the listing spans more than one file, the same rule the stylish listings use.
+Every view — listings included — also serializes without indentation.
 
 ```bash
-redocly tree cafe.yaml --tag=Orders --brief --format=json
+redocly tree cafe.yaml --tag=Orders --format=brief
 ```
 
 ```json
@@ -896,17 +896,13 @@ redocly tree cafe.yaml --tag=Orders --brief --format=json
 ]
 ```
 
-The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, was trimmed to its first two entries for space; all six fit here in full.
-On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos --format=json` listing costs 129,719 tokens; `--brief` brings it down to 9,227 — a 93% reduction.
-`--brief` only reshapes the listing views (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`) — every other view is unaffected, and it's a no-op with `--format=stylish`, which is already this compact.
-It's mutually exclusive with `--used-by` and `--with-deps`: both add exactly the detail `--brief` removes.
+The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, carries `refs` and `usedBy` on each of its six entries; `--format=brief` above keeps the same six entries with none of that, on one line.
+On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos` listing costs 129,719 tokens in `--format=json`; `--format=brief` brings it down to 9,227 — a 93% reduction.
 
-### Compact JSON output: `--compact`
-
-`--compact` serializes any `--format=json` output without indentation — the overview, a listing, a card, or a `--used-by` report all get the same treatment.
+A view with no listing to project — the overview, a card, a `--used-by` report — has nothing for `--format=brief` to shrink, so it only drops the indentation:
 
 ```bash
-redocly tree cafe.yaml --format=json --compact
+redocly tree cafe.yaml --format=brief
 ```
 
 ```json
@@ -945,8 +941,8 @@ redocly tree cafe.yaml --format=json --compact
 }
 ```
 
-This is the same overview shown under [Get an overview of an API description](#get-an-overview-of-an-api-description) above, just without the newlines and indentation: measured across tree's JSON views, `--compact` cuts about 32% of the output.
-It combines with `--brief`: `--brief` shrinks each entry and `--compact` removes the whitespace between them, so the two stack.
+This is the same overview shown under [Get an overview of an API description](#get-an-overview-of-an-api-description) above, just without the newlines and indentation: measured across tree's JSON views, dropping indentation alone cuts about 32% of the output — a listing combines that with the projection above for the full 93%.
+`--format=brief` also works with `--used-by` and `--with-deps`: neither has a brief projection defined, so both just come back minified.
 
 ### Fetch everything a selection needs: `--with-deps`
 

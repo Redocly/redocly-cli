@@ -13,7 +13,7 @@ Options:
       --lint-config  Severity level for config file linting.
                              [choices: "warn", "error", "off"] [default: "warn"]
       --format       Use a specific output format.
-                               [choices: "stylish", "json"] [default: "stylish"]
+                      [choices: "stylish", "json", "brief"] [default: "stylish"]
       --tag          Show the operations of one tag.                    [string]
       --path         Show the operations of one path.                   [string]
       --webhook      Show the operations of one webhook.                [string]
@@ -31,10 +31,6 @@ Options:
                      ansitively references it.                         [boolean]
       --with-deps    With an operation or component selection: append its raw so
                      urce and transitive $ref closure.                 [boolean]
-      --brief        Trim JSON listings to one compact entry per item — method,
-                     path, summary, line range.                        [boolean]
-      --compact      Emit JSON without indentation (about a third fewer tokens f
-                     or agents).                                       [boolean]
   -o, --output       Write the output to a file instead of stdout.      [string]
       --files        Show the file-level graph instead of the API structure.
                                                                        [boolean]

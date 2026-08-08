@@ -143,8 +143,14 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     return;
   }
 
-  if (argv.format === 'json' || argv.format === 'junit' || argv.format === 'checkstyle') {
-    // these are single-document formats, so a separate config-lint document would break the output
+  if (
+    argv.format === 'json' ||
+    argv.format === 'junit' ||
+    argv.format === 'checkstyle' ||
+    argv.format === 'brief'
+  ) {
+    // these are single-document formats, so a separate config-lint document would break the
+    // output; 'brief' is the tree command's minified JSON format, same reasoning applies
     return;
   }
 
