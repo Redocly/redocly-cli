@@ -65,6 +65,12 @@ npm run format
 npm run cli -- lint openapi.yaml
 ```
 
+## Architecture
+
+Where each package sits, and the key directories inside it, are in
+[`.claude/rules/architecture.md`](./.claude/rules/architecture.md) — read it before a change lands
+in the wrong package.
+
 ## Build System
 
 `packages/core` and `packages/respect-core` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
@@ -109,7 +115,7 @@ Naming and reuse:
 - Run the full suite (`npm test`) when you touch core linting logic.
 - Run `npm run generators` when you touch client generation — it is the whole generator suite in one command.
 
-The full testing and QA rules are in
+The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).
 
 ## Code quality — no AI slop
