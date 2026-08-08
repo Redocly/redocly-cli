@@ -77,6 +77,7 @@ export function commandData(
         path: op.path,
         positionals: op.pathParams.map((param) => ({
           name: param.name,
+          type: flagFor(param).type,
           ...(param.description !== undefined ? { description: param.description } : {}),
         })),
         flags: op.queryParams.map(flagFor),

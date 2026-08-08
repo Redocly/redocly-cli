@@ -40,7 +40,7 @@ redocly generate-client openapi.yaml --output src/client.ts --generator sdk --ge
 npx tsx src/client.cli.ts orders listOrders --status open --limit 10
 npx tsx src/client.cli.ts orders createOrder --json @order.json
 npx tsx src/client.cli.ts orders listOrders --page-all   # one JSON page per line
-npx tsx src/client.cli.ts schema createOrder             # request/response schemas
+npx tsx src/client.cli.ts schema createOrder             # the operation's full contract
 ```
 
 `--help` lists the commands, and for tagged APIs those are grouped: run `<bin> <group> <command> --help` for one command's flags.
@@ -65,6 +65,9 @@ Exit codes are a documented contract, and errors print one JSON object to stderr
 | 2    | auth error (401/403)                                |
 | 3    | validation error (zod co-selected)                  |
 | 4    | usage error (unknown command or flag, bad `--json`) |
+
+`schema <command>` prints one operation's complete contract as JSON — method and path, the path and query parameters with their types and descriptions, whether a JSON body is accepted, the request and response schemas, and the flags that change how a call behaves (`paginated`, `sse`, `blob`).
+It is the CLI's machine-readable surface: a script, a test harness, or an agent can discover the tool with `--help`, then read one `schema` call per command instead of parsing help text written for humans.
 
 The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"` — otherwise `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, which doesn't point at the fix.
 To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.

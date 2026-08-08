@@ -19,7 +19,7 @@ const GET: CliCommand = {
   name: 'getOrder',
   method: 'GET',
   path: '/orders/{orderId}',
-  positionals: [{ name: 'orderId' }],
+  positionals: [{ name: 'orderId', type: 'string' }],
   flags: [],
 };
 const CREATE: CliCommand = {
@@ -156,6 +156,42 @@ function fakeWiring(overrides: Partial<CliWiring> & { results?: Record<string, u
   };
   return { wiring, calls, configured, out, err };
 }
+
+describe('schema is the complete contract for one command', () => {
+  it('reports parameters, body, schemas, and the behavior flags', async () => {
+    const { wiring, out } = fakeWiring();
+    const code = await runCli(COMMANDS, wiring, ['schema', 'listOrders']);
+    expect(code).toBe(0);
+    const contract = JSON.parse(out.join('\n'));
+
+    // An agent reading only this must be able to construct a valid invocation, so the
+    // parameters have to be here — 'GET' operations have nothing else.
+    expect(contract.operationId).toBe('listOrders');
+    expect(contract.method).toBe('GET');
+    expect(contract.path).toBe('/orders');
+    expect(contract.parameters.query).toContainEqual(
+      expect.objectContaining({ name: 'status', param: 'status', type: 'string', required: false })
+    );
+    expect(contract.paginated).toBe(true);
+  });
+
+  it('reports a path parameter with its type, which the usage line already knows', async () => {
+    const { wiring, out } = fakeWiring();
+    await runCli(COMMANDS, wiring, ['schema', 'getOrder']);
+    const contract = JSON.parse(out.join('\n'));
+    expect(contract.parameters.path).toEqual([
+      expect.objectContaining({ name: 'orderId', type: 'string', required: true }),
+    ]);
+  });
+
+  it('keeps the request and response schemas it already reported', async () => {
+    const { wiring, out } = fakeWiring();
+    await runCli(COMMANDS, wiring, ['schema', 'createOrder']);
+    const contract = JSON.parse(out.join('\n'));
+    expect(contract.request).toBeDefined();
+    expect(contract.body).toEqual({ required: true });
+  });
+});
 
 describe('credential flags follow the declared schemes', () => {
   const noBearer = [
@@ -354,11 +390,12 @@ describe('runCli', () => {
     expect(JSON.parse(out.join('\n'))).toEqual({ saved: 'report.bin', bytes: 3 });
   });
 
-  it('schema prints the stored request/response schemas', async () => {
+  it('schema prints the stored request/response schemas inside the contract', async () => {
     const { wiring, out } = fakeWiring();
     const code = await runCli(COMMANDS, wiring, ['schema', 'createOrder']);
     expect(code).toBe(0);
-    expect(JSON.parse(out.join('\n'))).toEqual({ request: { kind: 'object' } });
+    // The schemas keep their own keys; the contract adds the rest around them.
+    expect(JSON.parse(out.join('\n'))).toMatchObject({ request: { kind: 'object' } });
   });
 
   it('help renders groups at the root, commands per group, and flags per command', async () => {

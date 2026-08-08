@@ -25,8 +25,12 @@ export type CliCommand = {
   summary?: string;
   method: string;
   path: string;
-  /** Path params, in path-template order. */
-  positionals: Array<{ name: string; description?: string }>;
+  /** Path params, in path-template order. Always required — that is what a path is. */
+  positionals: Array<{
+    name: string;
+    type?: CliFlag['type'];
+    description?: string;
+  }>;
   flags: CliFlag[];
   /** Present when the operation takes a JSON request body. */
   body?: { required: boolean };
@@ -276,6 +280,47 @@ function resolveAuth(wiring: CliWiring, token: string | undefined): Record<strin
   return auth;
 }
 
+/**
+ * One command's complete contract as plain data — what `schema <command>` prints. It has
+ * to carry the parameters: 'GET' operations have no body, so without them the output says
+ * nothing a caller could act on, and the only alternative is scraping `--help`, which is
+ * prose written for humans.
+ */
+function commandContract(command: CliCommand): Record<string, unknown> {
+  return {
+    operationId: command.name,
+    ...(command.group === undefined ? {} : { group: groupSlug(command.group) }),
+    ...(command.summary === undefined ? {} : { summary: oneLine(command.summary) }),
+    method: command.method,
+    path: command.path,
+    parameters: {
+      path: command.positionals.map((positional) => ({
+        name: positional.name,
+        type: positional.type ?? 'string',
+        required: true,
+        ...(positional.description === undefined
+          ? {}
+          : { description: oneLine(positional.description) }),
+      })),
+      // `name` is what you type (`--max-total`); `param` is the wire name it becomes.
+      query: command.flags.map((flag) => ({
+        name: flag.name,
+        param: flag.param,
+        type: flag.type,
+        required: flag.required,
+        ...(flag.enum === undefined ? {} : { enum: flag.enum }),
+        ...(flag.description === undefined ? {} : { description: oneLine(flag.description) }),
+      })),
+    },
+    ...(command.body === undefined ? {} : { body: command.body }),
+    ...(command.unsupportedBody === undefined ? {} : { unsupportedBody: command.unsupportedBody }),
+    ...(command.paginated === true ? { paginated: true } : {}),
+    ...(command.sse === true ? { sse: true } : {}),
+    ...(command.blob === true ? { blob: true } : {}),
+    ...(command.schemas ?? {}),
+  };
+}
+
 function renderHelp(
   commands: CliCommand[],
   binName: string,
@@ -408,7 +453,7 @@ export async function runCli(
     return 0;
   }
   if (invocation.kind === 'schema') {
-    stdout(JSON.stringify(invocation.command.schemas ?? {}, null, 2));
+    stdout(JSON.stringify(commandContract(invocation.command), null, 2));
     return 0;
   }
 
