@@ -53,6 +53,7 @@ That keeps one name for the operation across everything you generate — the CLI
 Every global flag appears under `Global flags:` in the top-level help — `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, `--json` — together with the environment variables the CLI reads.
 
 Credentials come from environment variables derived from the file stem (constant-cased): bearer → `<PREFIX>_TOKEN` (or `--token`), basic → `<PREFIX>_USERNAME`/`<PREFIX>_PASSWORD`, apiKey → `<PREFIX>_API_KEY_<SCHEME>`.
+The help lists only what the description declares — an API with no bearer scheme shows no `--token` — and passing `--token` to such an API is a usage error (exit 4) naming the schemes it does accept, rather than a credential dropped in silence.
 `--server-url` overrides the baked server; `--dry-run` prints the prepared request (credentials redacted) without sending it; blob responses require `--output <path>`; SSE operations stream events as one JSON object per line.
 
 Exit codes are a documented contract, and errors print one JSON object to stderr so stdout stays clean for piping:

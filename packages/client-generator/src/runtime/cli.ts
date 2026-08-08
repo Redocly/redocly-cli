@@ -279,6 +279,7 @@ function resolveAuth(wiring: CliWiring, token: string | undefined): Record<strin
 function renderHelp(
   commands: CliCommand[],
   binName: string,
+  schemes: CliAuthScheme[],
   topic?: CliCommand | string
 ): string[] {
   if (topic !== undefined && typeof topic !== 'string') {
@@ -338,8 +339,17 @@ function renderHelp(
     );
   }
   // Flags that apply to every command, and the env vars credentials come from: a flag
-  // absent from --help may as well not exist.
+  // absent from --help may as well not exist — and one this API cannot use should not be
+  // listed at all, since the operator would spend the debugging session on their token.
   const prefix = envPrefix(binName);
+  const kinds = new Set(schemes.map((scheme) => scheme.kind));
+  const credentials = [
+    ...(kinds.has('bearer') ? [`${prefix}_TOKEN`] : []),
+    ...(kinds.has('basic') ? [`${prefix}_USERNAME`, `${prefix}_PASSWORD`] : []),
+    ...schemes
+      .filter((scheme) => scheme.kind === 'apiKey')
+      .map((scheme) => `${prefix}_API_KEY_${envPrefix(scheme.key)}`),
+  ];
   lines.push(
     '',
     'Global flags:',
@@ -348,11 +358,9 @@ function renderHelp(
     '  --dry-run               Print the prepared request without sending it',
     '  --page-all              Follow pagination, one JSON page per line',
     '  --output <path>         Write the response body to a file (required for binary)',
-    '  --token <token>         Bearer token',
+    ...(kinds.has('bearer') ? ['  --token <token>         Bearer token'] : []),
     `  --json <json|@file|@->  Request body`,
-    '',
-    'Environment:',
-    `  ${prefix}_TOKEN, ${prefix}_USERNAME/${prefix}_PASSWORD, ${prefix}_API_KEY_<SCHEME>`,
+    ...(credentials.length > 0 ? ['', 'Environment:', `  ${credentials.join(', ')}`] : []),
     '',
     `Run ${binName} ${grouped ? '<group> <command>' : '<command>'} --help for command details; ${binName} schema <command> prints its schemas.`
   );
@@ -395,7 +403,8 @@ export async function runCli(
   const invocation = parseInvocation(commands, argv);
   if (invocation.kind === 'usage-error') return fail(4, { message: invocation.message });
   if (invocation.kind === 'help') {
-    for (const line of renderHelp(commands, wiring.binName, invocation.topic)) stdout(line);
+    for (const line of renderHelp(commands, wiring.binName, wiring.schemes ?? [], invocation.topic))
+      stdout(line);
     return 0;
   }
   if (invocation.kind === 'schema') {
@@ -404,6 +413,18 @@ export async function runCli(
   }
 
   const { command, positionals, params, globals } = invocation;
+  // A credential the user passed explicitly must never be dropped in silence: without a
+  // bearer scheme the request would go out unauthenticated and come back 401, which reads
+  // as "my token is wrong" rather than "that flag does nothing here".
+  const schemes = wiring.schemes ?? [];
+  if (globals.token !== undefined && !schemes.some((scheme) => scheme.kind === 'bearer')) {
+    const declared = schemes.map((scheme) => `${scheme.key} (${scheme.kind})`).join(', ');
+    return fail(4, {
+      message:
+        `--token is a bearer credential, and this API declares no bearer scheme. ` +
+        (declared === '' ? 'It declares no security schemes at all.' : `It accepts: ${declared}.`),
+    });
+  }
   if (command.blob && globals.output === undefined) {
     return fail(4, {
       message: `${command.name} downloads a file: pass --output <path>`,

@@ -157,6 +157,50 @@ function fakeWiring(overrides: Partial<CliWiring> & { results?: Record<string, u
   return { wiring, calls, configured, out, err };
 }
 
+describe('credential flags follow the declared schemes', () => {
+  const noBearer = [
+    { key: 'BasicAuth', kind: 'basic' as const },
+    { key: 'InternalToken', kind: 'apiKey' as const },
+  ];
+
+  it('omits --token from help when the description declares no bearer scheme', async () => {
+    const { wiring, out } = fakeWiring({ schemes: noBearer });
+    await runCli(COMMANDS, wiring, ['--help']);
+    const help = out.join('\n');
+    expect(help).not.toContain('--token');
+    // The environment block follows the same rule: only what this API can use. (The
+    // apiKey variable is named after its scheme, so match the bearer one exactly.)
+    expect(help).not.toContain('CAFE_TOKEN');
+    expect(help).toContain('CAFE_USERNAME');
+    expect(help).toContain('CAFE_API_KEY_INTERNAL_TOKEN');
+  });
+
+  it('keeps --token when a bearer scheme is declared', async () => {
+    const { wiring, out } = fakeWiring();
+    await runCli(COMMANDS, wiring, ['--help']);
+    expect(out.join('\n')).toContain('--token <token>');
+  });
+
+  it('rejects --token instead of silently discarding it, naming what the API accepts', async () => {
+    const { wiring, err } = fakeWiring({ schemes: noBearer });
+    const code = await runCli(COMMANDS, wiring, [
+      'orders',
+      'getOrder',
+      'ord_1',
+      '--token',
+      'secret',
+    ]);
+    // Exit 4 is the usage-error contract; a dropped credential reads as "my token is
+    // wrong" and costs a debugging session.
+    expect(code).toBe(4);
+    const message = JSON.parse(err.join('')).error.message;
+    expect(message).toContain('--token');
+    expect(message).toContain('BasicAuth');
+    expect(message).toContain('InternalToken');
+    expect(message).not.toContain('secret');
+  });
+});
+
 describe('runCli', () => {
   it('dispatches grouped args and pretty-prints the JSON result', async () => {
     const { wiring, calls, out } = fakeWiring({ results: { getOrder: { id: 'ord_1' } } });
