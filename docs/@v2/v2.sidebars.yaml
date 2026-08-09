@@ -68,7 +68,7 @@
           page: guides/use-generated-client.md
         - label: Customize client generation
           page: guides/customize-client-generation.md
-        - label: Agent context savings with tree
+        - label: Agent context costs with tree
           page: guides/tree-agent-index-benchmark.md
         - label: Hide internal APIs
           page: guides/hide-apis.md

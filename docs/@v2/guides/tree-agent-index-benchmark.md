@@ -1,7 +1,7 @@
-# How much context the `tree` index saves an agent
+# What the `tree` index costs an agent, measured
 
 The [`tree`](../commands/tree.md) command's JSON index lets an AI agent work with an API description that does not fit in its context window.
-This guide measures that on the largest well-known public API description: GitHub's official REST API description, 10.0 MB of OpenAPI.
+This guide measures what that costs — against reading the description, and against the alternative an agent reaches for on its own — on the largest well-known public API description: GitHub's official REST API description, 10.0 MB of OpenAPI.
 For the command reference, see [`tree`](../commands/tree.md).
 
 Every number below comes from a real command run against that file, tokenized with a BPE tokenizer (`gpt-tokenizer`, o200k family; other model families tokenize slightly differently, with the same order of magnitude).
@@ -10,6 +10,32 @@ The description is public, so the whole experiment is reproducible:
 ```bash
 curl -O https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.yaml
 ```
+
+## How to read the numbers
+
+This guide reports two kinds of measurement, and they answer different questions.
+Read the ratios with that in mind — the headline figures are not a claim that an agent using `tree` spends fewer tokens than one using `grep`.
+
+| Measurement                 | What it compares                                                     | Typical result here         |
+| --------------------------- | -------------------------------------------------------------------- | --------------------------- |
+| **Ratios** (`~13×`, `~66×`) | the chain's command output against the size of the whole description | 29,130 vs. 1,946,549 tokens |
+| **Live-run sessions**       | one agent's whole session against another agent's, same task         | 67,734 vs. 68,952 tokens    |
+
+The ratios measure how small a targeted slice is next to the document it came from.
+That baseline — reading the description whole — is real for small files and impossible for this one, so past the context window the ratio describes compactness, not a saving over some alternative an agent could otherwise have taken.
+
+The live runs measure the alternative agents actually take: searching the raw file with `grep` and windowed reads.
+Against that baseline the result is parity, and the reasons are measurable rather than mysterious.
+Text search is itself a retrieval method with small output, so both agents end up pulling roughly 1–2% of the file; a session's total is dominated by the model's own reasoning, prompt, and answer (roughly 40,000 tokens in both runs above), which dilutes the retrieval difference; and a `--with-deps` slice is deliberately self-contained — it carries the operation's full transitive closure whether or not the agent needs all of it, where a targeted `grep` reads only the lines it wants right now.
+
+What the index does buy, on the evidence of the runs below:
+
+- Against feeding the description into the model, the win is absolute — 1.9M tokens is ten context windows, and even a 268k-token synthetic description does not fit one.
+- Bounded round-trips: 3–6 commands where text search took 18–28 speculative probes for the same answers.
+- Answers as data: `--used-by` emits the dependency graph as JSON with a `via` chain per entry; the `grep` agent reached the same conclusion in prose after rebuilding that graph by hand, which a CI check or an MCP server cannot consume.
+- The same protocol on every description, single-file or split across thousands of files.
+
+And one result that runs the other way, kept here because it is true: on a 41 KB description, pasting the whole file into the model beat the index chain by about 30%.
 
 ## The setup
 
