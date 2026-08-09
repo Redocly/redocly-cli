@@ -69,6 +69,56 @@ Exit codes are a documented contract, and errors print one JSON object to stderr
 `schema <command>` prints one operation's complete contract as JSON — method and path, the path and query parameters with their types and descriptions, whether a JSON body is accepted, the request and response schemas, and the flags that change how a call behaves (`paginated`, `sse`, `blob`).
 It is the CLI's machine-readable surface: a script, a test harness, or an agent can discover the tool with `--help`, then read one `schema` call per command instead of parsing help text written for humans.
 
+#### Compose and extend the CLI
+
+The generated module is a library as well as a binary: it exports `COMMANDS`, `wiring`, and `run`, and self-executes only when it is the process entry.
+That makes two things possible without touching generated files.
+
+**One binary over several APIs.**
+Set a top-level `client.cliOutput` and `redocly generate-client` (no api argument) emits a composed entry over every api that selects `cli` — each behind its alias from `apis:` as the namespace, reading credentials under `<BINNAME>_<ALIAS>_*`:
+
+```yaml
+client:
+  binName: cafe
+  cliOutput: ./src/cafe.ts
+  generators: [sdk, cli]
+apis:
+  shop: { root: ./shop/openapi.yaml, clientOutput: ./src/shop.ts }
+  kitchen: { root: ./kitchen/openapi.yaml, clientOutput: ./src/kitchen.ts }
+```
+
+```sh
+cafe shop listOrders --limit 3      # CAFE_SHOP_TOKEN
+cafe kitchen createOrder --json @o.json   # CAFE_KITCHEN_TOKEN
+```
+
+Colliding operationIds across descriptions are simply different commands, and each api keeps its own server URL, schemes, and credentials.
+
+**Commands the description doesn't have.**
+A custom command is the same data shape plus a `handler`, so it inherits help, parsing, `schema`, and the exit codes.
+This is how behavior that isn't in any description — a `login`, a doctor command — joins the binary, in a file you own:
+
+```ts
+import { runCli, type CustomCommand } from '@redocly/client-generator';
+import { SOURCES } from './src/cafe.ts'; // the composed entry exports its sources
+
+const login: CustomCommand = {
+  name: 'login',
+  summary: 'Fetch and store a token.',
+  handler: async ({ wiring }) => {
+    const token = await deviceFlow(); // yours: any flow the API offers
+    saveCredentials({ CAFE_SHOP_TOKEN: token }); // yours: file, keychain, anything
+    wiring.stdout('Logged in.');
+    return 0;
+  },
+};
+
+process.exit(await runCli([{ commands: [login] }, ...SOURCES], process.argv.slice(2)));
+```
+
+Credentials resolve from `wiring.env`, so a wrapper that reads a credentials file merges it there (`env: { ...process.env, ...stored }`) and a stored token is indistinguishable from one set in the shell.
+The generator itself ships no credential store and no login — every API's flow differs, so those stay yours, and this section is the recipe.
+
 The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"` — otherwise `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, which doesn't point at the fix.
 To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
 

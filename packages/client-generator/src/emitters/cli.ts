@@ -104,6 +104,23 @@ export function commandData(
   return commands;
 }
 
+/**
+ * The self-execution guard both generated entries share. Realpath on both sides: some
+ * runners resolve symlinks in `import.meta.url` but not in `argv[1]` (macOS temp dirs,
+ * installed bin symlinks); the catch covers an entry that is not a file (REPL, node -e).
+ */
+const ENTRY_GUARD = `function isProcessEntry(): boolean {
+  if (process.argv[1] === undefined) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return false;
+  }
+}
+if (isProcessEntry()) {
+  process.exit(await run());
+}`;
+
 /** JSON as a TS expression: U+2028/U+2029 are line terminators in code contexts. */
 function codeJson(value: unknown, indent?: number): string {
   return JSON.stringify(value, null, indent)
@@ -181,22 +198,68 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
 export const run = (argv: string[] = process.argv.slice(2)): Promise<number> =>
   runCli(COMMANDS, wiring, argv);
 
+// Re-exported so a composed entry can run these commands without its own runtime copy.
+export { runCli };
+
 // Self-execute only as the process entry, so importing this module is side-effect-safe:
 // composed binaries and login-style wrappers import COMMANDS/wiring/run instead of
-// editing this generated file. Both sides are realpath-resolved — some runners resolve
-// symlinks in import.meta.url but not argv[1] (macOS temp dirs, installed bins); the
-// catch covers an entry that is not a file at all (REPL, node -e).
-function isProcessEntry(): boolean {
-  if (process.argv[1] === undefined) return false;
-  try {
-    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
-  } catch {
-    return false;
-  }
-}
-if (isProcessEntry()) {
-  process.exit(await run());
-}`,
+// editing this generated file.
+${ENTRY_GUARD}`,
   ];
   return parts.join('\n\n') + '\n';
+}
+
+export type ComposedCliSource = {
+  /** The api alias from `apis:` — it becomes the namespace the shell types. */
+  alias: string;
+  /** Relative specifier of that api's generated cli module, extension included. */
+  modulePath: string;
+};
+
+/**
+ * The composed entry `client.cliOutput` produces: one binary over every api that selected
+ * `cli`, each behind its alias as the namespace, with `<BINNAME>_<ALIAS>` credential
+ * prefixes. It imports `runCli` from the first source's module — generated code, so the
+ * inline runtime's zero-dependency promise holds — and exports `SOURCES` so an adopter
+ * layers custom commands (a `login`) around it without editing a generated file.
+ */
+export function renderComposedCliEntry(sources: ComposedCliSource[], binName: string): string {
+  const prefix = binName.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
+  const identFor = (alias: string): string => alias.replace(/[^A-Za-z0-9]/g, '_');
+  const imports = sources.map(({ alias, modulePath }, index) => {
+    const ident = identFor(alias);
+    const runtime = index === 0 ? ', runCli' : '';
+    return `import { COMMANDS as ${ident}Commands, wiring as ${ident}Wiring${runtime} } from ${JSON.stringify(modulePath)};`;
+  });
+  const entries = sources.map(({ alias }) => {
+    const ident = identFor(alias);
+    const namespace = kebab(alias);
+    const aliasPrefix = `${prefix}_${alias.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase()}`;
+    return `  {
+    namespace: ${JSON.stringify(namespace)},
+    commands: ${ident}Commands,
+    wiring: { ...${ident}Wiring, binName: ${JSON.stringify(binName)}, envPrefix: ${JSON.stringify(aliasPrefix)} },
+  },`;
+  });
+  return (
+    [
+      '#!/usr/bin/env node',
+      HEADER,
+      [
+        'import { realpathSync } from "node:fs";',
+        'import { fileURLToPath } from "node:url";',
+        ...imports,
+      ].join('\n'),
+      `/** The composed sources — import SOURCES to layer custom commands around this binary. */
+export const SOURCES = [
+${entries.join('\n')}
+];
+
+/** Run the composed CLI programmatically; defaults to the process argv. */
+export const run = (argv: string[] = process.argv.slice(2)): Promise<number> =>
+  runCli(SOURCES, argv);
+
+${ENTRY_GUARD}`,
+    ].join('\n\n') + '\n'
+  );
 }

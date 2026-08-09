@@ -2,7 +2,15 @@ import { type GenerateClientConfig } from '@redocly/client-generator';
 import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { readFileSync } from 'node:fs';
-import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
+import { writeFile } from 'node:fs/promises';
+import {
+  basename,
+  dirname,
+  extname,
+  isAbsolute,
+  relative,
+  resolve as resolvePath,
+} from 'node:path';
 
 import {
   BUILTIN_GENERATOR_NAMES,
@@ -117,6 +125,8 @@ export async function handleGenerateClient({
   );
 
   const seenOutputs = new Set<string>();
+  // Every api that emits a cli module, gathered for the composed entry (client.cliOutput).
+  const composable: Array<{ alias: string; cliPath: string; importExt: string }> = [];
 
   for (const { path, alias } of entrypoints) {
     const name = alias ?? basename(path, extname(path));
@@ -162,6 +172,14 @@ export async function handleGenerateClient({
         config: aliasConfig,
         configDir,
       });
+      if (clientConfig.generators?.includes('cli')) {
+        const importExt = clientConfig.importExt ?? 'js';
+        composable.push({
+          alias: name,
+          cliPath: outputPath.replace(/\.ts$/, `.cli.${importExt === 'ts' ? 'ts' : 'js'}`),
+          importExt,
+        });
+      }
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
       const summary = `Client successfully generated: ${fileCount} (${
         result.bytes
@@ -173,6 +191,39 @@ export async function handleGenerateClient({
         categorizeGenerateClientError(message);
       throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
     }
+  }
+
+  // The composed entry: one binary over every api that selected `cli`, each behind its
+  // alias as a namespace. Top-level `client.cliOutput` only — a per-api block composes
+  // nothing — and only for the run-everything form, where all the modules exist.
+  const topLevelClient = (
+    isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
+  ) as GenerateClientConfig;
+  if (topLevelClient.cliOutput !== undefined && argv.api === undefined && composable.length > 0) {
+    const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
+    const entryPath = resolvePath(configDir, topLevelClient.cliOutput);
+    const binName =
+      topLevelClient.binName ??
+      basename(entryPath, extname(entryPath))
+        .replace(/[^A-Za-z0-9]+/g, '-')
+        .toLowerCase();
+    const content = renderComposedCliEntry(
+      composable.map(({ alias, cliPath }) => ({
+        alias,
+        modulePath: `./${relative(dirname(entryPath), cliPath).split('\\').join('/')}`,
+      })),
+      binName
+    );
+    await writeFile(entryPath, content, 'utf-8');
+    logger.info(
+      '\n' +
+        blue(
+          `Composed CLI written to ${yellow(relative(process.cwd(), entryPath))} — ${composable
+            .map(({ alias }) => alias)
+            .join(', ')} behind one \`${binName}\` binary.`
+        ) +
+        '\n'
+    );
   }
 }
 

@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, repoRoot, tsxBin } from './helpers.js';
+import { cliEntry, generate, repoRoot, tsxBin } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -129,5 +129,66 @@ describe('composed CLI (end-to-end)', () => {
     });
     expect(standalone.status, standalone.stderr).toBe(0);
     expect(standalone.stdout).toContain('Usage:');
+  });
+});
+
+describe('config-driven composition (client.cliOutput)', () => {
+  let project: string;
+
+  beforeAll(() => {
+    project = mkdtempSync(join(tmpdir(), 'cli-output-'));
+    writeFileSync(join(project, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
+    symlinkSync(join(repoRoot, 'node_modules'), join(project, 'node_modules'), 'dir');
+    const fixture = join(__dirname, 'fixtures/cli.yaml');
+    writeFileSync(
+      join(project, 'redocly.yaml'),
+      [
+        'extends: []',
+        'client:',
+        '  binName: cafe',
+        '  cliOutput: ./src/cafe.ts',
+        '  importExt: ts',
+        '  generators: [sdk, zod, cli]',
+        'apis:',
+        `  shop: { root: ${fixture}, clientOutput: ./src/shop.ts }`,
+        `  kitchen: { root: ${fixture}, clientOutput: ./src/kitchen.ts }`,
+        '',
+      ].join('\n'),
+      'utf-8'
+    );
+    const generated = spawnSync(
+      'node',
+      [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
+      { cwd: project, encoding: 'utf-8' }
+    );
+    expect(generated.status, generated.stderr).toBe(0);
+  });
+
+  afterAll(() => {
+    rmSync(project, { recursive: true, force: true });
+  });
+
+  it('one generate run emits the composed entry over every api that selected cli', () => {
+    const help = spawnSync(tsxBin, [join(project, 'src/cafe.ts'), '--help'], {
+      cwd: project,
+      encoding: 'utf-8',
+    });
+    expect(help.status, help.stderr).toBe(0);
+    expect(help.stdout).toContain('Usage: cafe <api> <command>');
+    expect(help.stdout).toContain('shop');
+    expect(help.stdout).toContain('kitchen');
+  });
+
+  it('routes a namespace and reads the alias-scoped credential', () => {
+    const dry = spawnSync(
+      tsxBin,
+      [join(project, 'src/cafe.ts'), 'kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
+      { cwd: project, encoding: 'utf-8', env: { ...process.env, CAFE_KITCHEN_TOKEN: 'k-secret' } }
+    );
+    expect(dry.status, dry.stderr).toBe(0);
+    const captured = JSON.parse(dry.stdout);
+    expect(captured.url).toContain('/orders/ord_7');
+    expect(captured.headers.Authorization).toBe('***');
+    expect(JSON.stringify(captured)).not.toContain('k-secret');
   });
 });

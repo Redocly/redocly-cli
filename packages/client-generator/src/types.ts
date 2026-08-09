@@ -93,6 +93,12 @@ export type GenerateClientOptions = {
   /** Package clause of the `go` generator's output. Defaults to `client`. */
   goPackage?: string;
   /**
+   * Path of a COMPOSED cli entry spanning every api that selects the `cli` generator —
+   * one binary, each api behind its alias as a namespace. Read by the `redocly` CLI
+   * across apis (top-level `client` block only); `generateClient(...)` itself ignores it.
+   */
+  cliOutput?: string;
+  /**
    * Per-generator options, keyed by generator name — validated against the schema the
    * generator declares (`GeneratorOptionsSchema`) before it runs. Config-only, like
    * `pagination`: a generator's option set is its own vocabulary, not a CLI flag.

@@ -222,6 +222,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "binName": {
         "type": "string",
       },
+      "cliOutput": {
+        "type": "string",
+      },
       "codeSamples": {
         "type": "boolean",
       },
