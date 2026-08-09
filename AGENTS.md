@@ -106,6 +106,22 @@ The root `npm run compile` runs both steps: tsc for core/respect-core, then the 
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
 
+## Explore an API description with `tree`
+
+API descriptions are often too large to read directly — the OpenAPI descriptions used in this repository's benchmarks run to millions of tokens.
+Use [`tree`](./docs/@v2/commands/tree.md) to walk one in bounded steps instead of reading or grepping the file:
+
+```bash
+redocly tree <file> --format=brief                                                  # overview: tags, webhooks, component sections
+redocly tree <file> --tag=<tag> --format=brief                                      # one tag's operations
+redocly tree <file> --path=<path> --operation=<method> --with-deps --format=brief   # one operation with its full $ref closure
+redocly tree <file> --component=<section> --name=<Name> --used-by --format=brief    # what breaks if this component changes
+```
+
+`--format=brief` is the agent format: projected listings, no indentation.
+`--used-by` returns the complete transitive dependency graph with a `via` chain per entry, so walking `$ref`s by hand is unnecessary.
+Every result carries the defining `file` and `start_line`/`end_line`, so any answer can be checked against the source it came from.
+
 ## Respect the architecture: Walker, Visitors, Nodes
 
 Linting in `packages/core` rests on three concepts: the **Walker** traverses the parsed API description and resolves `$ref`s, **Visitors** are objects keyed by **Node** type, and the Walker calls each visitor's `enter` / `leave` / `skip` hooks as it reaches a node.
