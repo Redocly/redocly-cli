@@ -446,6 +446,22 @@ The instruction's other two sentences were measured live on an impact task again
 Same tool, same model, same answer — the difference is the protocol: telling the agent that impact questions are one `--used-by` call and that the output IS the dependency graph removes both the exploratory probing and the re-verification tax.
 That is where the day-to-day advantage actually lives: the manual route rebuilt the reverse graph in 28 improvised probes that a pipeline could never rely on; `--used-by` emits the same answer as one bounded call of structured data.
 
+### Where the instruction lives changes the result
+
+Every live run above pasted the protocol into the agent's prompt as a quoted repository rule.
+Strong models check that claim: three separate runs opened `AGENTS.md`, found the quoted text was not there, reported the discrepancy, and — in the most expensive case — explicitly refused the "output is authoritative" line and re-verified the tool's answers with `grep` on top of the `tree` calls (99,464 tokens, the priciest run in this guide, against 68,952 for a plain grep agent on the same task).
+
+So the protocol was moved into the repository's real `AGENTS.md`, and the same task was run again with no quoted instruction in the prompt at all — the agent simply read the repository's own rules:
+
+| Run (same 3-call task, same 10.0 MB description)  |    Session | Actions |
+| ------------------------------------------------- | ---------: | ------: |
+| grep, no tree                                     |     68,952 |      18 |
+| tree, protocol pasted as a fake `AGENTS.md` quote |     99,464 |      19 |
+| tree, protocol actually in `AGENTS.md`            | **67,734** |      18 |
+
+Same tool, same model, same correct answer with the host override; the only variable is whether the instruction was a claim in the prompt or a fact in the repository.
+Two things follow, and both are cheap to act on: ship the protocol where agents already look (`AGENTS.md`, `llms.txt`, an MCP tool description) rather than in each prompt, and state what the data _is_ ("`--used-by` returns the complete transitive graph") instead of instructing the model not to check — the models that verify anyway are the ones worth having.
+
 ### Multi-operation workflows
 
 Real agent tasks usually chain several calls, so the live experiment was repeated with workflow tasks — same rules, same 85-token instruction, the agent picks every command itself.
