@@ -34,9 +34,11 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
   dots and other non-word characters folded to `-` (`openapi.client` → `openapi-client`),
   because the stem follows the TypeScript file convention and a usage line reading
   `openapi.client orders …` looks like a path. `client.binName` overrides it.
-- **Credentials come from the environment** (a stem-derived prefix, e.g.
-  `CLIENT_TOKEN`) or explicit flags; `--dry-run` prints the prepared request with
-  credentials REDACTED.
+- **Credentials come from the environment** — a prefix derived from the bin name
+  (`CLIENT_TOKEN`), overridable via `wiring.envPrefix` — or explicit flags; `--dry-run`
+  prints the prepared request with credentials REDACTED. Help lists only the credentials
+  the description declares, and an unusable `--token` is a usage error, never silently
+  dropped.
 - **Validation is on by default.** The generator declares `requires: ['sdk', 'zod']` and
   the pipeline pulls prerequisites in automatically, so `--generator cli` alone produces a
   validating CLI — a user shouldn't have to know which other generator provides it. The
@@ -46,6 +48,33 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
   modules it imports (the sdk and the zod module). Anything emitted must be erasable
   TypeScript; a parameter property anywhere in that import graph breaks the zero-build
   runner.
+- **The generated module is a library as well as a binary.** It exports `COMMANDS`,
+  `wiring`, and `run`, and self-executes only when it is the process entry — a REALPATH
+  comparison of `import.meta.url` against `argv[1]`, because some runners resolve
+  symlinks in one but not the other (macOS temp dirs, installed bin symlinks), and a
+  plain URL comparison silently runs nothing. `import.meta.main` would be cleaner but is
+  absent from our Node floors. Importing the module must be side-effect-safe:
+  module-level wiring (zod validation) touches only the module's OWN client, never a
+  global.
+- **Behavior that is not in the description is composed, never generated.** A custom
+  command (`login`, anything) is the operation-command data shape plus a `handler`, so it
+  inherits help, parsing, `schema`, and the exit-code contract; `runCli` dispatches it
+  instead of the client. The generator itself never learns what such a command does —
+  credentials files, login flows, and profiles are user land (or a future satellite),
+  by design.
+- **One binary can span several descriptions.** `runCli` also accepts sources — each a
+  command list plus its OWN wiring (own base URL, schemes, credentials) behind a
+  namespace, so colliding operationIds across descriptions are simply different commands
+  (`cafe shop createOrder`, `cafe kitchen createOrder`). A namespace-less source puts
+  commands at the root (`cafe login`); a root command whose name matches a namespace is
+  rejected at startup, never shadowed.
+- **The composed entry is generated, not hand-rolled.** A top-level `client.cliOutput`
+  makes `redocly generate-client` (no api argument) emit one entry over every api that
+  selected `cli`: the namespace is the api ALIAS from `apis:`, and the credential prefix
+  defaults to `<BINNAME>_<ALIAS>` (`CAFE_SHOP_TOKEN`) via `wiring.envPrefix` — which
+  exists precisely so the display name and the credential prefix can differ. The composed
+  entry exports its `SOURCES` so an adopter layers custom commands around it without
+  editing a generated file. Without `cliOutput`, nothing changes.
 
 ## Emitters that implement it
 

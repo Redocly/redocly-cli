@@ -1,4 +1,11 @@
-import { parseInvocation, runCli, type CliCommand, type CliWiring } from '../cli.js';
+import {
+  parseInvocation,
+  runCli,
+  type CliCommand,
+  type CliWiring,
+  type CommandContext,
+  type CustomCommand,
+} from '../cli.js';
 
 const LIST: CliCommand = {
   group: 'orders',
@@ -156,6 +163,154 @@ function fakeWiring(overrides: Partial<CliWiring> & { results?: Record<string, u
   };
   return { wiring, calls, configured, out, err };
 }
+
+describe('custom commands (composition)', () => {
+  const whoami = (received: CommandContext[]): CustomCommand => ({
+    name: 'whoami',
+    summary: 'Print the current identity.',
+    flags: [{ name: 'verbose', param: 'verbose', type: 'boolean', required: false }],
+    handler: (context) => {
+      received.push(context);
+      context.wiring.stdout('me');
+      return 0;
+    },
+  });
+
+  it('dispatches a handler with parsed inputs and the wiring, and uses its exit code', async () => {
+    const received: CommandContext[] = [];
+    const { wiring, out } = fakeWiring();
+    const code = await runCli([...COMMANDS, whoami(received)], wiring, ['whoami', '--verbose']);
+    expect(code).toBe(0);
+    expect(out).toEqual(['me']);
+    expect(received[0].params).toEqual({ verbose: true });
+    expect(received[0].wiring.binName).toBe('cafe');
+  });
+
+  it('lists a custom command in help and its declared contract in schema', async () => {
+    const { wiring, out } = fakeWiring();
+    await runCli([...COMMANDS, whoami([])], wiring, ['--help']);
+    expect(out.join('\n')).toContain('whoami  Print the current identity.');
+
+    const schema = fakeWiring();
+    await runCli([...COMMANDS, whoami([])], schema.wiring, ['schema', 'whoami']);
+    const contract = JSON.parse(schema.out.join('\n'));
+    expect(contract.operationId).toBe('whoami');
+    expect(contract.parameters.query).toEqual([
+      expect.objectContaining({ name: 'verbose', type: 'boolean' }),
+    ]);
+    expect(contract.request).toBeUndefined();
+  });
+
+  it('a thrown handler exits 1 with the standard error JSON', async () => {
+    const boom: CustomCommand = {
+      name: 'boom',
+      handler: () => {
+        throw new Error('handler exploded');
+      },
+    };
+    const { wiring, err } = fakeWiring();
+    const code = await runCli([...COMMANDS, boom], wiring, ['boom']);
+    expect(code).toBe(1);
+    expect(JSON.parse(err.join('')).error.message).toContain('handler exploded');
+  });
+
+  it('rejects a custom command whose name collides with a generated one', async () => {
+    const shadow: CustomCommand = { name: 'ping', handler: () => 0 };
+    const { wiring, err } = fakeWiring();
+    const code = await runCli([...COMMANDS, shadow], wiring, ['ping']);
+    // Silently shadowing an operation is how an operator debugs the wrong thing.
+    expect(code).toBe(4);
+    expect(JSON.parse(err.join('')).error.message).toContain('ping');
+  });
+});
+
+describe('multi-source runCli (one binary, several APIs)', () => {
+  function sources(overrides: { rootCommands?: CustomCommand[] } = {}) {
+    const main = fakeWiring();
+    const syncer = fakeWiring({ envPrefix: 'REUNITE_SYNCER' });
+    const root = fakeWiring();
+    return {
+      main,
+      syncer,
+      root,
+      list: [
+        ...(overrides.rootCommands
+          ? [{ commands: overrides.rootCommands, wiring: root.wiring }]
+          : []),
+        { namespace: 'main', commands: COMMANDS, wiring: main.wiring },
+        // The same operationIds again: collisions across descriptions are the normal case.
+        { namespace: 'syncer', commands: COMMANDS, wiring: syncer.wiring },
+      ],
+    };
+  }
+
+  it('routes the first token to its source, so colliding operationIds are different commands', async () => {
+    const context = sources();
+    const code = await runCli(context.list, ['syncer', 'orders', 'getOrder', 'ord_9']);
+    expect(code).toBe(0);
+    expect(context.syncer.calls).toEqual([{ name: 'getOrder', variables: { orderId: 'ord_9' } }]);
+    expect(context.main.calls).toEqual([]);
+  });
+
+  it('a namespace-less source puts its commands at the root', async () => {
+    const login: CustomCommand = {
+      name: 'login',
+      handler: (context) => {
+        context.wiring.stdout('logged in');
+        return 0;
+      },
+    };
+    const context = sources({ rootCommands: [login] });
+    const code = await runCli(context.list, ['login']);
+    expect(code).toBe(0);
+    expect(context.root.out).toEqual(['logged in']);
+  });
+
+  it('top-level help lists the namespaces; namespace help lists that API alone', async () => {
+    const context = sources();
+    await runCli(context.list, ['--help']);
+    const help = context.main.out.join('\n');
+    expect(help).toContain('main');
+    expect(help).toContain('syncer');
+
+    const scoped = sources();
+    await runCli(scoped.list, ['syncer', '--help']);
+    expect(scoped.syncer.out.join('\n')).toContain('orders');
+  });
+
+  it('an unknown first token is a usage error naming the namespaces', async () => {
+    const context = sources();
+    const code = await runCli(context.list, ['nowhere', 'getOrder']);
+    expect(code).toBe(4);
+    const message = JSON.parse(context.main.err.join('')).error.message;
+    expect(message).toContain('main');
+    expect(message).toContain('syncer');
+  });
+});
+
+describe('wiring.envPrefix', () => {
+  it('overrides the credential prefix without changing the displayed name', async () => {
+    const { wiring, out } = fakeWiring({ envPrefix: 'REUNITE_MAIN' });
+    await runCli(COMMANDS, wiring, ['--help']);
+    const help = out.join('\n');
+    expect(help).toContain('Usage: cafe');
+    expect(help).toContain('REUNITE_MAIN_TOKEN');
+    expect(help).not.toContain('CAFE_TOKEN');
+  });
+
+  it('reads credentials under the override', async () => {
+    const { wiring, calls, configured } = fakeWiring({
+      envPrefix: 'REUNITE_MAIN',
+      env: { REUNITE_MAIN_TOKEN: 'tok' },
+      results: { getOrder: {} },
+    });
+    await runCli(COMMANDS, wiring, ['orders', 'getOrder', 'ord_1']);
+    expect(calls).toHaveLength(1);
+    expect(
+      configured.some((config) => (config.auth as { bearer?: string })?.bearer === 'tok')
+    ).toBe(true);
+  });
+});
 
 describe('schema is the complete contract for one command', () => {
   it('reports parameters, body, schemas, and the behavior flags', async () => {

@@ -231,13 +231,22 @@ describe('renderCliModule', () => {
     expect(out).toContain('function parseInvocation'); // embedded runtime
     expect(out).toContain('import { client, configure } from "./client.js";');
     expect(out).toContain('schemes: [{"key":"BearerAuth","kind":"bearer"}]');
-    expect(out).toContain('await runCli(COMMANDS');
+    // A library as well as a binary: the exports composition imports, and an entry
+    // guard so importing the module never executes the CLI.
+    expect(out).toContain('export const COMMANDS: CliCommand[]');
+    expect(out).toContain('export const wiring: CliWiring');
+    expect(out).toContain('export const run =');
+    expect(out).toContain(
+      'realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])'
+    );
     expect(out).not.toContain('from "@redocly/client-generator"');
   });
 
   it('package mode imports runCli from the package; zod co-selection wires validation', () => {
     const out = renderCliModule(MODEL, { ...options, runtime: 'package', zodSelected: true });
-    expect(out).toContain('import { runCli, type CliCommand } from "@redocly/client-generator";');
+    expect(out).toContain(
+      'import { runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";'
+    );
     expect(out).not.toContain('function parseInvocation');
     expect(out).toContain('import { zodValidation } from "./client.zod.js";');
     expect(out).toContain(

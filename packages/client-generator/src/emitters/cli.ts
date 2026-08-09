@@ -142,10 +142,10 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
   const parts = [
     '#!/usr/bin/env node',
     HEADER,
-    'import { readFileSync, writeFileSync } from "node:fs";',
+    'import { readFileSync, realpathSync, writeFileSync } from "node:fs";\nimport { fileURLToPath } from "node:url";',
     [
       ...(options.runtime === 'package'
-        ? ['import { runCli, type CliCommand } from "@redocly/client-generator";']
+        ? ['import { runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";']
         : []),
       `import { ${clientImports.join(', ')} } from "${clientModule}";`,
       ...(options.zodSelected
@@ -155,7 +155,7 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
     ...(options.runtime === 'inline'
       ? ['// ─── Embedded cli engine (@redocly/client-generator) ───\n' + embedCliRuntime()]
       : []),
-    `const COMMANDS: CliCommand[] = ${codeJson(commands, 2)};`,
+    `export const COMMANDS: CliCommand[] = ${codeJson(commands, 2)};`,
     ...(options.zodSelected
       ? [
           // A dry run never sends the request, so its "response" is the stub the dry-run
@@ -164,20 +164,39 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
           `use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));`,
         ]
       : []),
-    `process.exit(
-  await runCli(COMMANDS, {
-    binName: ${codeJson(options.binName)},
-    client,
-    configure,
-    schemes: ${codeJson(schemes)},
-    env: process.env,
-    stdin: () => readFileSync(0, "utf-8"),
-    readFile: (path: string) => readFileSync(path, "utf-8"),
-    writeFile: (path: string, data: Uint8Array) => writeFileSync(path, data),
-    stdout: (line: string) => console.log(line),
-    stderr: (line: string) => console.error(line),
-  }, process.argv.slice(2))
-);`,
+    `export const wiring: CliWiring = {
+  binName: ${codeJson(options.binName)},
+  client,
+  configure,
+  schemes: ${codeJson(schemes)},
+  env: process.env,
+  stdin: () => readFileSync(0, "utf-8"),
+  readFile: (path: string) => readFileSync(path, "utf-8"),
+  writeFile: (path: string, data: Uint8Array) => writeFileSync(path, data),
+  stdout: (line: string) => console.log(line),
+  stderr: (line: string) => console.error(line),
+};
+
+/** Run this CLI programmatically; defaults to the process argv. */
+export const run = (argv: string[] = process.argv.slice(2)): Promise<number> =>
+  runCli(COMMANDS, wiring, argv);
+
+// Self-execute only as the process entry, so importing this module is side-effect-safe:
+// composed binaries and login-style wrappers import COMMANDS/wiring/run instead of
+// editing this generated file. Both sides are realpath-resolved — some runners resolve
+// symlinks in import.meta.url but not argv[1] (macOS temp dirs, installed bins); the
+// catch covers an entry that is not a file at all (REPL, node -e).
+function isProcessEntry(): boolean {
+  if (process.argv[1] === undefined) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return false;
+  }
+}
+if (isProcessEntry()) {
+  process.exit(await run());
+}`,
   ];
   return parts.join('\n\n') + '\n';
 }

@@ -51,6 +51,9 @@ export type CliAuthScheme = { key: string; kind: 'bearer' | 'basic' | 'apiKey' }
 
 export type CliWiring = {
   binName: string;
+  /** Credential variable prefix. Defaults to `binName`, constant-cased — set it when the
+   * displayed name and the credential family must differ (a composed multi-API binary). */
+  envPrefix?: string;
   /** The generated instance client (grouped-args methods). */
   client: Record<string, unknown>;
   configure: (config: Record<string, unknown>) => void;
@@ -64,7 +67,7 @@ export type CliWiring = {
   stderr: (line: string) => void;
 };
 
-type CliGlobals = {
+export type CliGlobals = {
   serverUrl?: string;
   format?: 'json' | 'ndjson';
   dryRun?: boolean;
@@ -85,6 +88,66 @@ export type CliInvocation =
       globals: CliGlobals;
     }
   | { kind: 'usage-error'; message: string };
+
+/**
+ * A hand-written command composed NEXT TO the generated ones: the same data shape plus a
+ * `handler`, so it inherits help, parsing, `schema`, and the exit-code contract. This is
+ * how behavior that is not in the description (a `login`, a doctor command) joins the
+ * binary without the generator ever learning what it does.
+ */
+export type CustomCommand = {
+  name: string;
+  group?: string;
+  summary?: string;
+  positionals?: CliCommand['positionals'];
+  flags?: CliFlag[];
+  /** Returns the process exit code; throwing exits 1 with the standard error JSON. */
+  handler: (context: CommandContext) => number | Promise<number>;
+};
+
+export type CommandContext = {
+  positionals: Record<string, string>;
+  params: Record<string, unknown>;
+  globals: CliGlobals;
+  wiring: CliWiring;
+};
+
+/** One API's contribution to a composed binary: its commands behind a namespace, with its
+ * OWN wiring (base URL, schemes, credentials). A namespace-less source sits at the root. */
+export type CommandSource = {
+  namespace?: string;
+  commands: Array<CliCommand | CustomCommand>;
+  wiring: CliWiring;
+};
+
+type ResolvedCommand = CliCommand & { handler?: CustomCommand['handler'] };
+
+/** Custom commands as the command shape the parser reads; generated ones pass through. */
+function normalizeCommands(commands: Array<CliCommand | CustomCommand>): ResolvedCommand[] {
+  return commands.map((command) =>
+    'handler' in command
+      ? { method: '', path: '', positionals: [], flags: [], ...command }
+      : command
+  );
+}
+
+/**
+ * The name of a custom command that shadows another command. Rejected at startup: an
+ * operator typing an operationId must never silently run something else.
+ */
+function shadowedCommandName(commands: ResolvedCommand[]): string | undefined {
+  const seen = new Map<string, ResolvedCommand[]>();
+  for (const command of commands) {
+    const key = `${command.group ?? ''}\u0000${command.name}`;
+    seen.set(key, [...(seen.get(key) ?? []), command]);
+  }
+  for (const clashing of seen.values()) {
+    if (clashing.length > 1 && clashing.some((command) => command.handler !== undefined)) {
+      return clashing[0].name;
+    }
+  }
+  return undefined;
+}
 
 const GLOBAL_FLAGS: Record<string, { key: keyof CliGlobals; boolean?: boolean }> = {
   'server-url': { key: 'serverUrl' },
@@ -257,7 +320,7 @@ export function envPrefix(binName: string): string {
 
 function resolveAuth(wiring: CliWiring, token: string | undefined): Record<string, unknown> {
   const env = wiring.env ?? {};
-  const prefix = envPrefix(wiring.binName);
+  const prefix = wiring.envPrefix ?? envPrefix(wiring.binName);
   const auth: Record<string, unknown> = {};
   for (const scheme of wiring.schemes ?? []) {
     if (scheme.kind === 'bearer') {
@@ -291,8 +354,8 @@ function commandContract(command: CliCommand): Record<string, unknown> {
     operationId: command.name,
     ...(command.group === undefined ? {} : { group: groupSlug(command.group) }),
     ...(command.summary === undefined ? {} : { summary: oneLine(command.summary) }),
-    method: command.method,
-    path: command.path,
+    ...(command.method === '' ? {} : { method: command.method }),
+    ...(command.path === '' ? {} : { path: command.path }),
     parameters: {
       path: command.positionals.map((positional) => ({
         name: positional.name,
@@ -325,6 +388,7 @@ function renderHelp(
   commands: CliCommand[],
   binName: string,
   schemes: CliAuthScheme[],
+  prefix: string,
   topic?: CliCommand | string
 ): string[] {
   if (topic !== undefined && typeof topic !== 'string') {
@@ -386,7 +450,6 @@ function renderHelp(
   // Flags that apply to every command, and the env vars credentials come from: a flag
   // absent from --help may as well not exist — and one this API cannot use should not be
   // listed at all, since the operator would spend the debugging session on their token.
-  const prefix = envPrefix(binName);
   const kinds = new Set(schemes.map((scheme) => scheme.kind));
   const credentials = [
     ...(kinds.has('bearer') ? [`${prefix}_TOKEN`] : []),
@@ -435,11 +498,111 @@ function redactHeaders(headers: Record<string, string>, secrets: string[]): Reco
 
 /** Parse argv, resolve env auth, dispatch through the client, print, return the exit code. */
 export async function runCli(
-  commands: CliCommand[],
+  commands: Array<CliCommand | CustomCommand>,
+  wiring: CliWiring,
+  argv: string[]
+): Promise<number>;
+/** The composed form: one binary over several sources, each namespaced with its own wiring. */
+export async function runCli(sources: CommandSource[], argv: string[]): Promise<number>;
+export async function runCli(
+  commandsOrSources: Array<CliCommand | CustomCommand> | CommandSource[],
+  wiringOrArgv: CliWiring | string[],
+  argv?: string[]
+): Promise<number> {
+  if (Array.isArray(wiringOrArgv)) {
+    return runSources(commandsOrSources as CommandSource[], wiringOrArgv);
+  }
+  return runSingle(
+    commandsOrSources as Array<CliCommand | CustomCommand>,
+    wiringOrArgv,
+    argv ?? []
+  );
+}
+
+/** Route the first token to its source; the namespace-less source owns the root. */
+async function runSources(sources: CommandSource[], argv: string[]): Promise<number> {
+  // Top-level output goes through the first source: with a root source that is the one
+  // carrying the shared commands, otherwise the first API listed.
+  const top = sources[0].wiring;
+  const fail = (code: number, message: string): number => {
+    top.stderr(JSON.stringify({ error: { code, message } }));
+    return code;
+  };
+  const namespaced = sources.filter(
+    (source): source is CommandSource & { namespace: string } => source.namespace !== undefined
+  );
+  const root = sources.find((source) => source.namespace === undefined);
+  if (root !== undefined) {
+    const clash = root.commands.find((command) =>
+      namespaced.some((source) => source.namespace === command.name)
+    );
+    if (clash !== undefined) {
+      return fail(
+        4,
+        `Root command "${clash.name}" collides with the "${clash.name}" namespace — rename one of them.`
+      );
+    }
+  }
+  if (argv.length === 0 || argv[0] === '--help') {
+    for (const line of renderComposedHelp(sources, top.binName)) top.stdout(line);
+    return 0;
+  }
+  const source = namespaced.find((candidate) => candidate.namespace === argv[0]);
+  if (source !== undefined) return runSingle(source.commands, source.wiring, argv.slice(1));
+  const rootTakes =
+    root !== undefined &&
+    (argv[0] === 'schema' ||
+      root.commands.some(
+        (command) =>
+          command.name === argv[0] ||
+          (command.group !== undefined && groupSlug(command.group) === argv[0])
+      ));
+  if (rootTakes)
+    return runSingle((root as CommandSource).commands, (root as CommandSource).wiring, argv);
+  return fail(
+    4,
+    `Unknown command: ${argv[0]} — expected an API namespace (${namespaced
+      .map((candidate) => candidate.namespace)
+      .join(', ')})${root !== undefined ? ' or a root command' : ''}`
+  );
+}
+
+/** The composed top-level help: namespaces, root commands, and how to descend. */
+function renderComposedHelp(sources: CommandSource[], binName: string): string[] {
+  const lines = [`Usage: ${binName} <api> <command> …`, '', 'APIs:'];
+  for (const source of sources) {
+    if (source.namespace !== undefined) lines.push(`  ${source.namespace}`);
+  }
+  const root = sources.find((source) => source.namespace === undefined);
+  if (root !== undefined && root.commands.length > 0) {
+    lines.push('', 'Commands:');
+    for (const command of root.commands) {
+      lines.push(`  ${command.name}  ${oneLine(command.summary ?? '')}`.trimEnd());
+    }
+  }
+  lines.push('', `Run ${binName} <api> --help for that API's commands.`);
+  return lines;
+}
+
+async function runSingle(
+  rawCommands: Array<CliCommand | CustomCommand>,
   wiring: CliWiring,
   argv: string[]
 ): Promise<number> {
   const { stdout, stderr } = wiring;
+  const commands = normalizeCommands(rawCommands);
+  const shadowed = shadowedCommandName(commands);
+  if (shadowed !== undefined) {
+    stderr(
+      JSON.stringify({
+        error: {
+          code: 4,
+          message: `Custom command "${shadowed}" collides with another command of the same name — rename it.`,
+        },
+      })
+    );
+    return 4;
+  }
   const fail = (code: number, error: Record<string, unknown>): number => {
     stderr(JSON.stringify({ error: { code, ...error } }));
     return code;
@@ -448,7 +611,14 @@ export async function runCli(
   const invocation = parseInvocation(commands, argv);
   if (invocation.kind === 'usage-error') return fail(4, { message: invocation.message });
   if (invocation.kind === 'help') {
-    for (const line of renderHelp(commands, wiring.binName, wiring.schemes ?? [], invocation.topic))
+    const prefix = wiring.envPrefix ?? envPrefix(wiring.binName);
+    for (const line of renderHelp(
+      commands,
+      wiring.binName,
+      wiring.schemes ?? [],
+      prefix,
+      invocation.topic
+    ))
       stdout(line);
     return 0;
   }
@@ -524,6 +694,10 @@ export async function runCli(
   // by name", so one localized widening here keeps the emitted wiring cast-free.
   const methods = wiring.client as Record<string, unknown>;
   try {
+    const resolved = command as ResolvedCommand;
+    if (resolved.handler !== undefined) {
+      return await resolved.handler({ positionals, params, globals, wiring });
+    }
     if (globals.pageAll && !globals.dryRun) {
       const paginated = methods[command.name] as {
         pages: (variables?: unknown) => AsyncIterable<unknown>;
