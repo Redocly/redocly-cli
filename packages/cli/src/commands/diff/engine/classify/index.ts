@@ -9,16 +9,24 @@ import {
   type Polarity,
   type RawChange,
 } from '../types.js';
+import { async3Rules } from './async3.js';
 import type { NodeLookup } from './chain.js';
 import { oas3Rules } from './oas3.js';
-import { oas3_1Rules } from './oas3_1.js';
-import { getPolarity } from './polarity.js';
+import { getAsync3Polarity, getOas3Polarity, type PolarityResolver } from './polarity.js';
 import type { UsageIndex } from './usage.js';
 
-const REGISTRIES: Partial<Record<SpecVersion, DiffRuleRegistry>> = {
-  oas3_0: oas3Rules,
-  oas3_1: oas3_1Rules,
-  oas3_2: oas3_1Rules,
+/**
+ * What a specification family brings to classification: the rules to run, and the way
+ * that family states which direction the data in a node travels.
+ */
+const SPECS: Partial<
+  Record<SpecVersion, { rules: DiffRuleRegistry; polarityOf: PolarityResolver }>
+> = {
+  oas3_0: { rules: oas3Rules, polarityOf: getOas3Polarity },
+  oas3_1: { rules: oas3Rules, polarityOf: getOas3Polarity },
+  // A version gets its own entry once it needs a rule the others must not run.
+  oas3_2: { rules: oas3Rules, polarityOf: getOas3Polarity },
+  async3: { rules: async3Rules, polarityOf: getAsync3Polarity },
 };
 
 function expandPolarity(polarity: Polarity): Polarity[] {
@@ -33,15 +41,21 @@ export function classifyChanges(opts: {
   usage: UsageIndex;
 }): Change[] {
   const { changes, specVersion, base, revision, usage } = opts;
-  const registry = REGISTRIES[specVersion] ?? {};
+  const spec = SPECS[specVersion];
+  if (!spec) {
+    // Structural comparison works for every specification; only these families are
+    // judged, so elsewhere no rule runs and nothing is called breaking.
+    return changes.map((change) => ({ ...change, compat: 'non-breaking' as const }));
+  }
+
   // A removed node only exists in the base, an added one only in the revision.
   const nodeAt: NodeLookup = (pointer) => revision.get(pointer) ?? base.get(pointer);
 
   return changes.map((change) => {
-    const rules = registry[change.typeName] ?? [];
+    const rules = spec.rules[change.typeName] ?? [];
     const verdicts: ChangeVerdict[] = [];
 
-    for (const polarity of expandPolarity(getPolarity(change.pointer, usage, nodeAt))) {
+    for (const polarity of expandPolarity(spec.polarityOf(change.pointer, usage, nodeAt))) {
       const ctx = {
         polarity,
         specVersion,
