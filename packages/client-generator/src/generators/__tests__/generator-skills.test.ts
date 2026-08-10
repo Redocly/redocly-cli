@@ -48,15 +48,9 @@ describe.each(LANGUAGE)('%s generator skill ships to users', (name) => {
     expect(readFileSync(skillPath, 'utf-8')).toContain(`${name}-runtime/`);
   });
 
-  it('is what eject ships — the prepared skill is the user-repo transform of the source', () => {
-    // `prepare` rewrites the skill for the user's repo (their file is generators/<name>.mjs,
-    // their loop is regenerate + diff — not this repo's index.ts/prepare/vitest loop);
-    // commit-time formatting of the source AFTER a prepare run would ship a stale copy.
+  it('ships without repo-only references — the user has no index.ts, prepare, or vitest', () => {
     const asset = join(generatorsDir, '../../eject-assets/skills', `${name}-generator`, 'SKILL.md');
     const shipped = readFileSync(asset, 'utf-8');
-    expect(shipped).toBe(ejectedSkill(readFileSync(skillPath, 'utf-8'), name));
-    // Eject drops it as an agent skill, so it carries the frontmatter a skill needs.
-    expect(shipped.startsWith(`---\nname: ${name}-generator\ndescription: `)).toBe(true);
     expect(shipped).toContain(`generators/${name}.mjs`);
     expect(shipped).not.toContain('index.ts');
     expect(shipped).not.toContain('npm run prepare');
@@ -80,7 +74,18 @@ describe.each(EJECTABLE)('%s ships an eject asset', (name) => {
   it('has a generator asset and a skill beside it', () => {
     expect(existsSync(join(assetsDir, 'generators', `${name}.mjs`))).toBe(true);
     const skill = readFileSync(join(assetsDir, 'skills', `${name}-generator`, 'SKILL.md'), 'utf-8');
-    expect(skill.startsWith(`---\nname: ${name}-generator\n`)).toBe(true);
+    expect(skill.startsWith(`---\nname: ${name}-generator\ndescription: `)).toBe(true);
+  });
+
+  it('ships the skill fresh — the committed copy is the transform of the source', () => {
+    // `prepare` rewrites the skill for the user's repo; a hand edit to the shipped copy,
+    // or a source edit without a prepare run, would ship (and commit) a stale skill.
+    const shipped = readFileSync(
+      join(assetsDir, 'skills', `${name}-generator`, 'SKILL.md'),
+      'utf-8'
+    );
+    const source = readFileSync(join(generatorsDir, name, 'AGENTS.md'), 'utf-8');
+    expect(shipped).toBe(ejectedSkill(source, name));
   });
 
   it('declares the default export the resolver loads, with a version range', () => {
