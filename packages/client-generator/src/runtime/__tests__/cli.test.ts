@@ -530,6 +530,30 @@ describe('runCli', () => {
     expect(out.map((line) => JSON.parse(line))).toEqual(events);
   });
 
+  it('--dry-run on an sse command drains the lazy stream so the request is captured', async () => {
+    const sseCommands = [{ ...PING, name: 'streamEvents', sse: true }];
+    const { wiring, configured, out } = fakeWiring();
+    let injectedFetch: ((url: string, init: RequestInit) => Promise<Response>) | undefined;
+    wiring.configure = (config) => {
+      configured.push(config as Record<string, unknown>);
+      const candidate = (config as { fetch?: typeof injectedFetch }).fetch;
+      if (candidate) injectedFetch = candidate;
+    };
+    // Like the real runtime, the stream is lazy: nothing happens until the first pull,
+    // and the stubbed dry-run response carries no events to yield.
+    (wiring.client as Record<string, unknown>).streamEvents = async function* () {
+      const stubbed = await injectedFetch?.('http://api/events', { method: 'GET', headers: {} });
+      if (stubbed === undefined) yield { event: 'tick', data: 1 };
+    };
+    const code = await runCli(sseCommands, wiring, ['streamEvents', '--dry-run']);
+    expect(code).toBe(0);
+    expect(JSON.parse(out.join('\n'))).toEqual({
+      url: 'http://api/events',
+      method: 'GET',
+      headers: {},
+    });
+  });
+
   it('blob results require --output and print a byte receipt', async () => {
     const blobCommands = [{ ...PING, name: 'downloadReport', blob: true }];
     const writes: Array<{ path: string; bytes: number }> = [];

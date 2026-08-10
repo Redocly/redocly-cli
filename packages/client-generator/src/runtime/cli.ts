@@ -708,6 +708,9 @@ async function runSingle(
     const method = methods[command.name] as (variables?: unknown) => Promise<unknown>;
     const result = await method(argument);
     if (globals.dryRun) {
+      // An SSE method returns a lazy stream — drain the stubbed response so its fetch
+      // actually runs and captures the request.
+      if (command.sse) for await (const _event of result as AsyncIterable<unknown>);
       stdout(JSON.stringify(captured, null, 2));
       return 0;
     }
