@@ -284,6 +284,24 @@ describe('buildOperation — x-redoclyPagination extension', () => {
     });
     expect('paginationExtension' in op).toBe(false);
   });
+
+  it('still reads the released x-redocly-pagination name, with a rename warning', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    try {
+      const extension = { style: 'cursor', cursorParam: 'cursor' };
+      const op = buildOpOnly({
+        paths: {
+          '/orders': {
+            get: { operationId: 'listOrders', 'x-redocly-pagination': extension, responses: {} },
+          } as never,
+        },
+      });
+      expect(op.paginationExtension).toBe(extension);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('x-redoclyPagination'));
+    } finally {
+      warn.mockRestore();
+    }
+  });
 });
 
 describe('buildOperation — param paths', () => {

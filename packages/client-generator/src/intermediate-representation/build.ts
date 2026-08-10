@@ -540,9 +540,15 @@ function buildOperation(
   const security = resolveOperationSecurity(operation, doc, injectable);
 
   // Extensions aren't in the @redocly operation type — read loosely, like `deprecated`.
-  const paginationExtension = (operation as unknown as Record<string, unknown>)[
-    'x-redoclyPagination'
-  ];
+  const extensions = operation as unknown as Record<string, unknown>;
+  let paginationExtension = extensions['x-redoclyPagination'];
+  // The 0.3.x releases documented `x-redocly-pagination`; keep it working, renamed aside.
+  if (paginationExtension === undefined && extensions['x-redocly-pagination'] !== undefined) {
+    paginationExtension = extensions['x-redocly-pagination'];
+    logger.warn(
+      `generate-client: \`x-redocly-pagination\` on ${method.toUpperCase()} ${path} was renamed — use \`x-redoclyPagination\`.\n`
+    );
+  }
 
   return {
     name,
