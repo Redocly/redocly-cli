@@ -147,10 +147,10 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     argv.format === 'json' ||
     argv.format === 'junit' ||
     argv.format === 'checkstyle' ||
-    argv.format === 'brief'
+    argv.format === 'ai'
   ) {
     // these are single-document formats, so a separate config-lint document would break the
-    // output; 'brief' is the tree command's minified JSON format, same reasoning applies
+    // output; 'ai' is the tree command's minified JSON format, same reasoning applies
     return;
   }
 

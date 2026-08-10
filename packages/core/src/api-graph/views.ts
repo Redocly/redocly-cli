@@ -202,7 +202,12 @@ export type ComponentListCard = Omit<ComponentCard, 'content' | 'deps' | 'trunca
 
 const COMPONENT_POINTER_PATTERN = /^#\/components\/([^/]+)\/([^/]+)$/;
 
-function classifyRef(ref: ApiNodeRef): TypedRef {
+/**
+ * Resolves a ref to the component section/name it targets, when it targets a named component at
+ * all. Exported for the CLI's `ai` tree format, which needs the same classification to name a
+ * `$ref` inside a dependency's own signature and to bucket the dependency closure by BFS depth.
+ */
+export function classifyRef(ref: ApiNodeRef): TypedRef {
   if (!ref.resolved || ref.pointer === undefined) return { ...ref, component: 'unknown' };
   const componentMatch = ref.pointer.match(COMPONENT_POINTER_PATTERN);
   if (componentMatch && COMPONENT_SECTIONS.includes(componentMatch[1])) {

@@ -26,10 +26,10 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-json'));
   });
 
-  test('tree --format=brief prints the overview as minified JSON, unprojected', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=brief']);
+  test('tree --format=ai prints the overview as minified JSON, unprojected', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=ai']);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-brief'));
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-ai'));
   });
 
   test('tree prints the overview for a split multi-file API', async () => {
@@ -50,15 +50,15 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-listing'));
   });
 
-  test('tree --tag --format=brief lists the operations of one tag as compact, minified JSON entries', async () => {
+  test('tree --tag --format=ai lists the operations of one tag as compact, minified JSON entries', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
       '--tag=Tickets',
-      '--format=brief',
+      '--format=ai',
     ]);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-brief'));
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-ai'));
   });
 
   test('tree --operations lists every operation as JSON', async () => {
@@ -119,6 +119,23 @@ describe('tree', () => {
     const result = getCommandOutput(args, { testPath: indexFixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       snapshot('tree-operation-card-with-deps')
+    );
+  });
+
+  test('tree --path --operation --with-deps --format=ai emits schema signatures for the dependency closure', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--path=/plans',
+      '--operation=post',
+      '--with-deps',
+      '--format=ai',
+    ]);
+    const result = getCommandOutput(args, {
+      testPath: join(folderPath, 'tree-operation-card-with-deps-ai'),
+    });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-operation-card-with-deps-ai')
     );
   });
 

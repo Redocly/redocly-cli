@@ -1,7 +1,7 @@
 import type { ComponentListCard, OperationListCard } from '@redocly/openapi-core';
 
-/** `--brief` shape for an operation listing entry: coordinates and identity, no refs/usedBy. */
-export type BriefOperationEntry = {
+/** `ai` listing shape for an operation entry: coordinates and identity, no refs/usedBy. */
+export type AiOperationEntry = {
   method: string;
   path?: string;
   webhook?: string;
@@ -11,8 +11,8 @@ export type BriefOperationEntry = {
   file?: string;
 };
 
-/** `--brief` shape for a component listing entry: coordinates and identity, no refs/usedBy. */
-export type BriefComponentEntry = {
+/** `ai` listing shape for a component entry: coordinates and identity, no refs/usedBy. */
+export type AiComponentEntry = {
   name: string;
   summary?: string;
   lines: [number, number];
@@ -24,7 +24,7 @@ function spansMultipleFiles(items: { file: string }[]): boolean {
   return new Set(items.map((item) => item.file)).size > 1;
 }
 
-function toBriefOperation(item: OperationListCard, showFile: boolean): BriefOperationEntry {
+function toAiOperationEntry(item: OperationListCard, showFile: boolean): AiOperationEntry {
   return {
     method: item.method,
     ...(item.path !== undefined ? { path: item.path } : {}),
@@ -36,7 +36,7 @@ function toBriefOperation(item: OperationListCard, showFile: boolean): BriefOper
   };
 }
 
-function toBriefComponent(item: ComponentListCard, showFile: boolean): BriefComponentEntry {
+function toAiComponentEntry(item: ComponentListCard, showFile: boolean): AiComponentEntry {
   return {
     name: item.name,
     ...(item.summary ? { summary: item.summary } : {}),
@@ -45,22 +45,22 @@ function toBriefComponent(item: ComponentListCard, showFile: boolean): BriefComp
   };
 }
 
-export function briefOperations(items: OperationListCard[]): BriefOperationEntry[] {
+export function aiOperations(items: OperationListCard[]): AiOperationEntry[] {
   const showFile = spansMultipleFiles(items);
-  return items.map((item) => toBriefOperation(item, showFile));
+  return items.map((item) => toAiOperationEntry(item, showFile));
 }
 
-export function briefComponents(items: ComponentListCard[]): BriefComponentEntry[] {
+export function aiComponents(items: ComponentListCard[]): AiComponentEntry[] {
   const showFile = spansMultipleFiles(items);
-  return items.map((item) => toBriefComponent(item, showFile));
+  return items.map((item) => toAiComponentEntry(item, showFile));
 }
 
 /** A `--file` card's `defines` array mixes operation and component entries; project each by kind. */
-export function briefDefines(
+export function aiDefines(
   items: (OperationListCard | ComponentListCard)[]
-): (BriefOperationEntry | BriefComponentEntry)[] {
+): (AiOperationEntry | AiComponentEntry)[] {
   const showFile = spansMultipleFiles(items);
   return items.map((item) =>
-    'method' in item ? toBriefOperation(item, showFile) : toBriefComponent(item, showFile)
+    'method' in item ? toAiOperationEntry(item, showFile) : toAiComponentEntry(item, showFile)
   );
 }

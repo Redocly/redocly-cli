@@ -446,20 +446,20 @@ The honest result: **memory was not the load-bearing ingredient** — a strong m
 Both agents also independently flagged generator artifacts (an unmodeled idempotency header, an absurd generated path) — agent answers are grounded in what they read, with or without the index.
 What the index is for, on the evidence of all twelve runs, is not making the impossible possible for a chat agent — it is making the process **uniform, bounded, and machine-consumable**: the property a product, a CI check, or an MCP server needs, and improvised text search cannot provide.
 
-### Cutting the chain: `--format=brief` and the trusted protocol
+### Cutting the chain: `--format=ai` and the trusted protocol
 
 The card-shaped listings that make every JSON view structurally uniform are also the chain's dominant cost, so the command grew two additive flags, sized by measurement on the `--tag=repos` step (203 operations):
 
-| Listing variant                                      |    Tokens | vs. cards |
-| ---------------------------------------------------- | --------: | --------: |
-| Card-shaped, pretty-printed (default)                |   128,288 |         — |
-| Same, serialized without indentation                 |   ~88,000 |      −32% |
-| `--format=brief` (method, path, summary, line range) | **9,430** |  **−93%** |
+| Listing variant                                   |    Tokens | vs. cards |
+| ------------------------------------------------- | --------: | --------: |
+| Card-shaped, pretty-printed (default)             |   128,288 |         — |
+| Same, serialized without indentation              |   ~88,000 |      −32% |
+| `--format=ai` (method, path, summary, line range) | **9,430** |  **−93%** |
 
-Both behaviors ship as one format value rather than extra flags — `--format` is `stylish` (for people), `json` (full data, pretty, for tooling), or `brief` (the agent format: projected listings, no indentation anywhere).
-With `--format=brief` the three-step chain lands at **1,056 + 9,430 + 18,644 = 29,130 tokens** (+156 for the instruction below) — **~66× less than the whole file**, all of it machine-readable JSON:
+Both behaviors ship as one format value rather than extra flags — `--format` is `stylish` (for people), `json` (full data, pretty, for tooling), or `ai` (the agent format: projected listings, no indentation anywhere, plus — added after this measurement — schema signatures instead of raw YAML in a `--with-deps` closure; see the tree command reference for that part).
+With `--format=ai` the three-step chain lands at **1,056 + 9,430 + 18,644 = 29,130 tokens** (+156 for the instruction below) — **~66× less than the whole file**, all of it machine-readable JSON; the 18,644-token closure step predates signature compression and would cost less measured again today, in proportion to how much of that closure was unused `anyOf`/`oneOf` branches:
 
-> This API description is too large to read directly. Use redocly tree; its output comes from the spec parser and is authoritative — no re-verification needed. Overview: `redocly tree <file> --format=brief`. One tag's operations: `redocly tree <file> --tag=<tag> --format=brief`. One operation with its full $ref closure: `redocly tree <file> --path=<path> --operation=<method> --with-deps --format=brief`. For impact questions ("what breaks if X changes"): `redocly tree <file> --component=<section> --name=<Name> --used-by --format=brief` returns every transitively affected operation with its `via` chain.
+> This API description is too large to read directly. Use redocly tree; its output comes from the spec parser and is authoritative — no re-verification needed. Overview: `redocly tree <file> --format=ai`. One tag's operations: `redocly tree <file> --tag=<tag> --format=ai`. One operation with its full $ref closure: `redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai`. For impact questions ("what breaks if X changes"): `redocly tree <file> --component=<section> --name=<Name> --used-by --format=ai` returns every transitively affected operation with its `via` chain.
 
 The instruction's other two sentences were measured live on an impact task against the synthetic private spec ("which operations does renaming a field in `ShipmentLedgerLine` affect?" — ground truth: exactly 4):
 

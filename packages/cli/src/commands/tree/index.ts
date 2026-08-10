@@ -615,5 +615,5 @@ function renderGraph(
 ): string {
   return format === 'stylish'
     ? renderStylish(graph, stylishOptions)
-    : renderJson(graph, { compact: format === 'brief' });
+    : renderJson(graph, { compact: format === 'ai' });
 }

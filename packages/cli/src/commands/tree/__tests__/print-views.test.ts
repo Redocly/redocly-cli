@@ -560,7 +560,7 @@ describe('renderView (json)', () => {
   });
 });
 
-describe('renderView (brief)', () => {
+describe('renderView (ai)', () => {
   it('projects a listing to compact entries, adding file only once the listing spans more than one file, and serializes without indentation', () => {
     const json = renderView(
       {
@@ -604,7 +604,7 @@ describe('renderView (brief)', () => {
           },
         ],
       },
-      'brief'
+      'ai'
     );
     expect(json).not.toContain('\n');
     expect(JSON.parse(json)).toEqual([
@@ -626,7 +626,7 @@ describe('renderView (brief)', () => {
     ]);
   });
 
-  it('serializes without indentation but leaves a view with no brief projection full (e.g. overview)', () => {
+  it('serializes without indentation but leaves a view with no ai projection full (e.g. overview)', () => {
     const json = renderView(
       {
         kind: 'overview',
@@ -639,7 +639,7 @@ describe('renderView (brief)', () => {
           components: [],
         },
       },
-      'brief'
+      'ai'
     );
     expect(json).not.toContain('\n');
     expect(JSON.parse(json)).toEqual({
@@ -650,5 +650,128 @@ describe('renderView (brief)', () => {
       webhooks: [],
       components: [],
     });
+  });
+
+  it('replaces a with-deps closure with signatures at depth 1-2 and bare ids beyond that', () => {
+    const json = renderView(
+      {
+        kind: 'component-card',
+        card: {
+          component: 'schemas',
+          name: 'Plan',
+          pointer: '#/components/schemas/Plan',
+          file: 'openapi.yaml',
+          start_line: 1,
+          end_line: 5,
+          refs: [
+            {
+              ref: '#/components/schemas/OneTimeSalePlan',
+              resolved: true,
+              component: 'schemas',
+              name: 'OneTimeSalePlan',
+              file: 'openapi.yaml',
+              pointer: '#/components/schemas/OneTimeSalePlan',
+              start_line: 6,
+              end_line: 10,
+            },
+          ],
+          usedBy: [],
+          content: 'allOf: []',
+          deps: [
+            {
+              id: 'schemas/OneTimeSalePlan',
+              pointer: '#/components/schemas/OneTimeSalePlan',
+              file: 'openapi.yaml',
+              start_line: 6,
+              end_line: 10,
+              content: [
+                '  type: object',
+                '  required:',
+                '    - name',
+                '  properties:',
+                '    name:',
+                '      type: string',
+                "    currency: { $ref: '#/components/schemas/CurrencyCode' }",
+              ].join('\n'),
+              refs: [
+                {
+                  ref: '#/components/schemas/CurrencyCode',
+                  resolved: true,
+                  file: 'openapi.yaml',
+                  pointer: '#/components/schemas/CurrencyCode',
+                  start_line: 20,
+                  end_line: 21,
+                },
+              ],
+            },
+            {
+              id: 'schemas/CurrencyCode',
+              pointer: '#/components/schemas/CurrencyCode',
+              file: 'openapi.yaml',
+              start_line: 20,
+              end_line: 21,
+              content: '  type: string',
+              refs: [],
+            },
+            {
+              id: 'schemas/NeverReferenced',
+              pointer: '#/components/schemas/NeverReferenced',
+              file: 'openapi.yaml',
+              start_line: 30,
+              end_line: 31,
+              content: '  type: string',
+              refs: [],
+            },
+          ],
+        },
+      },
+      'ai'
+    );
+
+    const payload = JSON.parse(json);
+    expect(payload.content).toBe('allOf: []');
+    expect(payload.deps).toEqual([
+      {
+        id: 'schemas/OneTimeSalePlan',
+        pointer: '#/components/schemas/OneTimeSalePlan',
+        file: 'openapi.yaml',
+        start_line: 6,
+        end_line: 10,
+        signature: 'name*:string, currency→CurrencyCode',
+      },
+      {
+        id: 'schemas/CurrencyCode',
+        pointer: '#/components/schemas/CurrencyCode',
+        file: 'openapi.yaml',
+        start_line: 20,
+        end_line: 21,
+        signature: 'string',
+      },
+    ]);
+    expect(payload.deeper).toEqual(['schemas/NeverReferenced']);
+    expect(payload.hint).toBe('redocly tree <file> --component=schemas --name=<Name> --format=ai');
+  });
+
+  it('passes a card through unchanged when --with-deps was not used', () => {
+    const json = renderView(
+      {
+        kind: 'operation-card',
+        card: {
+          method: 'get',
+          path: '/tickets',
+          tags: [],
+          pointer: '#/get',
+          file: 'openapi.yaml',
+          start_line: 1,
+          end_line: 5,
+          refs: [],
+          usedBy: [],
+        },
+      },
+      'ai'
+    );
+
+    expect(JSON.parse(json)).not.toHaveProperty('deps');
+    expect(JSON.parse(json)).not.toHaveProperty('deeper');
   });
 });

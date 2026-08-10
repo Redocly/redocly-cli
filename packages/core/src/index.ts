@@ -150,6 +150,7 @@ export {
   buildApiIndex,
   COMPONENT_SECTIONS,
   SUMMARY_LIMIT,
+  truncateSummary,
   type ApiIndex,
   type ApiIndexNode,
   type IndexGroupBy,
@@ -183,6 +184,7 @@ export {
   buildPathListing,
   buildUsedBy,
   buildUsedByReport,
+  classifyRef,
   toOperationListItem,
 } from './api-graph/views.js';
 export type {

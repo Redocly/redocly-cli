@@ -33,7 +33,7 @@ redocly tree <api> --component=<section> --name=<name> [--used-by | --with-deps]
 redocly tree <api> --paths
 redocly tree <api> --operations
 redocly tree <api> --webhooks
-redocly tree <api> [--format=stylish|json|brief] [--output=<file>] [--config=<path>]
+redocly tree <api> [--format=stylish|json|ai] [--output=<file>] [--config=<path>]
 redocly tree --files [apis...] [--file=<path>]
 ```
 
@@ -42,28 +42,28 @@ The default view shows one API's overview at a time; pass a single API, or use `
 
 ## Options
 
-| Option        | Type     | Description                                                                                                                                                                                                                                                                                    |
-| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                                                             |
-| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                                                                |
-| --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                                                         |
-| --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                                                           |
-| --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                                                        |
-| --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                                                             |
-| --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                        |
-| --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                            |
-| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                              |
-| --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                               |
-| --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                   |
-| --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                 |
-| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                  |
-| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                      |
-| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `brief` — machine-readable for agents: listings project to compact entries with no `refs`/`usedBy` (measured 93% smaller on a large listing), and every view serializes without indentation. |
-| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                |
-| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                               |
-| --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                   |
-| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                                  |
-| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                                        |
+| Option        | Type     | Description                                                                                                                                                                                                                                                                                                                                                      |
+| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                                                                                                                               |
+| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                                                                                                                                  |
+| --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                                                                                                                           |
+| --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                                                                                                                             |
+| --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                                                                                                                          |
+| --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                                                                                                                               |
+| --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                                          |
+| --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                                              |
+| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                                                                                                |
+| --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                                 |
+| --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                                     |
+| --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                                   |
+| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                                                                                    |
+| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                                        |
+| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — machine-readable for agents: listings project to compact entries with no `refs`/`usedBy` (measured 93% smaller on a large listing), every view serializes without indentation, and a `--with-deps` closure emits schema signatures instead of raw YAML. |
+| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                                                                  |
+| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                                                                 |
+| --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                                                                                     |
+| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                    |
+| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                                                                                                          |
 
 Selectors combine only in the shapes shown under _Usage_ above; other combinations are a usage error.
 For example, `--tag` and `--component` each select a different, unrelated scope, so combining them fails fast:
@@ -838,15 +838,16 @@ redocly tree cafe.yaml --webhooks --format=json
 `cafe.yaml` only declares the one webhook shown above; with more than one, `--webhooks` groups them the same way `--operations` groups by path — one tree root per webhook name.
 `--paths`, `--operations`, and `--webhooks` are each mutually exclusive with every selector — they're already "give me everything," so a narrower selector alongside them makes no sense.
 
-### Compact JSON for agents: `--format=brief`
+### Compact JSON for agents: `--format=ai`
 
 `--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
-`--format=brief` is the agent format.
+`--format=ai` is the agent format, and does three things: it projects listings to compact entries, it serializes every view without indentation, and it turns a `--with-deps` closure into schema signatures instead of raw YAML.
+
 On a listing view (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`), it drops the `refs`/`usedBy` detail an agent picking its next branch rarely needs, printing just `{ method, path, summary, lines }` per entry (`{ name, summary, lines }` for a component listing), adding `file` only once the listing spans more than one file, the same rule the stylish listings use.
 Every view — listings included — also serializes without indentation.
 
 ```bash
-redocly tree cafe.yaml --tag=Orders --format=brief
+redocly tree cafe.yaml --tag=Orders --format=ai
 ```
 
 ```json
@@ -896,13 +897,13 @@ redocly tree cafe.yaml --tag=Orders --format=brief
 ]
 ```
 
-The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, carries `refs` and `usedBy` on each of its six entries; `--format=brief` above keeps the same six entries with none of that, on one line.
-On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos` listing costs 129,719 tokens in `--format=json`; `--format=brief` brings it down to 9,430 — a 93% reduction.
+The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, carries `refs` and `usedBy` on each of its six entries; `--format=ai` above keeps the same six entries with none of that, on one line.
+On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos` listing costs 129,719 tokens in `--format=json`; the same listing projection brings it down to 9,430 — a 93% reduction.
 
-A view with no listing to project — the overview, a card, a `--used-by` report — has nothing for `--format=brief` to shrink, so it only drops the indentation:
+A view with no listing to project — the overview, a `--used-by` report — has nothing to shrink beyond indentation:
 
 ```bash
-redocly tree cafe.yaml --format=brief
+redocly tree cafe.yaml --format=ai
 ```
 
 ```json
@@ -942,7 +943,8 @@ redocly tree cafe.yaml --format=brief
 ```
 
 This is the same overview shown under [Get an overview of an API description](#get-an-overview-of-an-api-description) above, just without the newlines and indentation: measured across tree's JSON views, dropping indentation alone cuts about 32% of the output — a listing combines that with the projection above for the full 93%.
-`--format=brief` also works with `--used-by` and `--with-deps`: neither has a brief projection defined, so both just come back minified.
+`--used-by` gets the same minify-only treatment: it already carries no bodies, only coordinates and `via` chains, so there's nothing left to compress.
+`--with-deps` is where `ai` does the most — schema signatures instead of raw YAML — covered in its own section right after `--with-deps` below.
 
 ### Fetch everything a selection needs: `--with-deps`
 
@@ -1163,6 +1165,150 @@ POST /orders — Create order (createOrder)
 Each `deps` entry is `id → file  [start..end]`, the same arrow shape as `refs`, without the pointer (a dependency's own `refs` are one selector away, or in the JSON `deps[].refs`).
 When the closure hits the cap, the label gains a ` (truncated)` suffix: `deps (12, 64.0 KB of 64 KB cap) (truncated)`.
 Each dependency's own raw source is available the same way, one selector at a time, or in full through `--format=json`.
+
+### Schema signatures instead of raw YAML: `--with-deps --format=ai`
+
+A `--with-deps` closure is where `--format=ai` does the most, because raw YAML is where most of a closure's bytes go — and much of it is branches the caller doesn't end up using: a schema's `anyOf`/`oneOf` hands over every alternative it could be, not the one the caller picked.
+For each dependency within two `$ref` hops of the selection, `ai` renders a compact signature instead: `field*` for a required property, `field:type` (a type array renders `integer|null`), up to six enum values as `field:type=a|b|c`, and `field→Target` for a `$ref` — with a schema's composition named in a header, `[anyOf: A, B, C]`/`[oneOf: …]`/`[allOf: …]`/`[discriminator: propertyName]`, and an `allOf`-wrapped schema's members merged into one property list first, so it still shows its fields.
+A non-schema dependency (a response, parameter, example, or header) has no property list, just a one-line summary or its `$ref` target.
+Anything more than two hops from the selection is listed as a bare id under `deeper`, with a `hint` for fetching it directly — the format hands over a map of what exists and lets the caller decide what's worth a second call, instead of inlining every branch up front.
+
+```bash
+redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
+```
+
+```json
+{
+  "method": "post",
+  "path": "/orders",
+  "operationId": "createOrder",
+  "summary": "Create order",
+  "tags": ["Orders"],
+  "pointer": "#/paths/~1orders/post",
+  "file": "cafe.yaml",
+  "start_line": 316,
+  "end_line": 372,
+  "description": "Create a new order. Order items cannot be changed - if they need to be updated, cancel the order and place a new one.",
+  "refs": [
+    {
+      "ref": "#/components/responses/BadRequest",
+      "resolved": true,
+      "file": "cafe.yaml",
+      "pointer": "#/components/responses/BadRequest",
+      "start_line": 1327,
+      "end_line": 1331,
+      "component": "responses",
+      "name": "BadRequest"
+    },
+    {
+      "ref": "#/components/responses/Forbidden",
+      "resolved": true,
+      "file": "cafe.yaml",
+      "pointer": "#/components/responses/Forbidden",
+      "start_line": 1345,
+      "end_line": 1349,
+      "component": "responses",
+      "name": "Forbidden"
+    },
+    {
+      "ref": "#/components/responses/InternalServerError",
+      "resolved": true,
+      "file": "cafe.yaml",
+      "pointer": "#/components/responses/InternalServerError",
+      "start_line": 1333,
+      "end_line": 1337,
+      "component": "responses",
+      "name": "InternalServerError"
+    },
+    {
+      "ref": "#/components/responses/Unauthorized",
+      "resolved": true,
+      "file": "cafe.yaml",
+      "pointer": "#/components/responses/Unauthorized",
+      "start_line": 1339,
+      "end_line": 1343,
+      "component": "responses",
+      "name": "Unauthorized"
+    },
+    {
+      "ref": "#/components/schemas/Order",
+      "resolved": true,
+      "file": "cafe.yaml",
+      "pointer": "#/components/schemas/Order",
+      "start_line": 1033,
+      "end_line": 1107,
+      "component": "schemas",
+      "name": "Order"
+    }
+  ],
+  "usedBy": [],
+  "content": "…",
+  "deps": [
+    {
+      "id": "responses/BadRequest",
+      "pointer": "#/components/responses/BadRequest",
+      "file": "cafe.yaml",
+      "start_line": 1327,
+      "end_line": 1331,
+      "signature": "Bad request - invalid input parameters."
+    },
+    {
+      "id": "responses/Forbidden",
+      "pointer": "#/components/responses/Forbidden",
+      "file": "cafe.yaml",
+      "start_line": 1345,
+      "end_line": 1349,
+      "signature": "Forbidden - insufficient permissions."
+    },
+    {
+      "id": "responses/InternalServerError",
+      "pointer": "#/components/responses/InternalServerError",
+      "file": "cafe.yaml",
+      "start_line": 1333,
+      "end_line": 1337,
+      "signature": "Internal server error."
+    },
+    {
+      "id": "responses/Unauthorized",
+      "pointer": "#/components/responses/Unauthorized",
+      "file": "cafe.yaml",
+      "start_line": 1339,
+      "end_line": 1343,
+      "signature": "Unauthorized - authorization required."
+    },
+    {
+      "id": "schemas/Order",
+      "pointer": "#/components/schemas/Order",
+      "file": "cafe.yaml",
+      "start_line": 1033,
+      "end_line": 1107,
+      "signature": "id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array"
+    },
+    {
+      "id": "schemas/Error",
+      "pointer": "#/components/schemas/Error",
+      "file": "cafe.yaml",
+      "start_line": 988,
+      "end_line": 1024,
+      "signature": "type*:string, title*:string, status*:integer, instance:string, details:object"
+    },
+    {
+      "id": "schemas/OrderStatus",
+      "pointer": "#/components/schemas/OrderStatus",
+      "file": "cafe.yaml",
+      "start_line": 1025,
+      "end_line": 1032,
+      "signature": "string=placed|preparing|completed|canceled"
+    }
+  ],
+  "deeper": []
+}
+```
+
+(`content` is elided above; the real output carries the operation's actual raw source lines — that part of the card is never converted to a signature.)
+`Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) rather than a `field→Target` line; `deeper` comes back empty because nothing in this closure sits past two hops.
+Against the same command's `--format=json` output shown just above, this closure's five dependencies shrink from 10,965 bytes of raw YAML to 4,722 as signatures.
+The effect grows with the schema graph: on a schema-heavy description where a closure pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, the same `POST /plans`-shaped closure on Rebilly's API description (32 dependencies, mostly alternative pricing-formula schemas) drops from 65,506 bytes as `--format=json` to 8,515 as `--format=ai` — an 87% reduction, with every dropped byte still reachable one call away through `--component`/`--name`.
 
 ### Find what depends on a selection: `--used-by`
 

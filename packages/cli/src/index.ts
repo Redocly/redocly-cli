@@ -105,7 +105,7 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'brief'] as ReadonlyArray<TreeFormat>,
+            choices: ['stylish', 'json', 'ai'] as ReadonlyArray<TreeFormat>,
             default: 'stylish' as TreeFormat,
           },
           tag: {

@@ -13,7 +13,7 @@ Options:
       --lint-config  Severity level for config file linting.
                              [choices: "warn", "error", "off"] [default: "warn"]
       --format       Use a specific output format.
-                      [choices: "stylish", "json", "brief"] [default: "stylish"]
+                         [choices: "stylish", "json", "ai"] [default: "stylish"]
       --tag          Show the operations of one tag.                    [string]
       --path         Show the operations of one path.                   [string]
       --webhook      Show the operations of one webhook.                [string]

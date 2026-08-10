@@ -15,36 +15,48 @@ import {
 
 import type { TreeView } from '../index.js';
 import type { TreeFormat } from '../types.js';
-import { briefComponents, briefDefines, briefOperations } from './brief.js';
+import { aiComponents, aiDefines, aiOperations } from './ai.js';
+import { buildAiDepsClosure } from './signature.js';
 
 export function renderView(view: TreeView, format: TreeFormat): string {
   if (format === 'stylish') return renderViewStylish(view);
   const payload = viewPayload(view, format);
-  return JSON.stringify(payload, null, format === 'brief' ? undefined : 2);
+  return JSON.stringify(payload, null, format === 'ai' ? undefined : 2);
 }
 
 function viewPayload(view: TreeView, format: TreeFormat): unknown {
-  const brief = format === 'brief';
+  const ai = format === 'ai';
   switch (view.kind) {
     case 'overview':
       return view.overview;
     case 'operations':
-      return brief ? briefOperations(view.items) : view.items;
+      return ai ? aiOperations(view.items) : view.items;
     case 'paths':
       return view.items;
     case 'components':
       return {
         section: view.section,
-        items: brief ? briefComponents(view.items) : view.items,
+        items: ai ? aiComponents(view.items) : view.items,
       };
     case 'operation-card':
     case 'component-card':
-      return view.card;
+      return ai ? withAiDepsClosure(view.card) : view.card;
     case 'file-card':
-      return brief ? { file: view.card.file, defines: briefDefines(view.card.defines) } : view.card;
+      return ai ? { file: view.card.file, defines: aiDefines(view.card.defines) } : view.card;
     case 'used-by':
       return view.report;
   }
+}
+
+/**
+ * Replaces a card's raw `deps` closure with the `ai` projection — signatures at BFS depth 1-2,
+ * bare ids under `deeper` beyond that (see `buildAiDepsClosure`) — when `--with-deps` populated
+ * one. A card with no closure (no `--with-deps`) passes through unchanged.
+ */
+function withAiDepsClosure(card: OperationCard | ComponentCard): unknown {
+  if (card.deps === undefined) return card;
+  const { deps, ...rest } = card;
+  return { ...rest, ...buildAiDepsClosure(deps, card.refs) };
 }
 
 export function renderViewStylish(view: TreeView): string {

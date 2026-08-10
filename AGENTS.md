@@ -112,13 +112,13 @@ API descriptions are often too large to read directly — the OpenAPI descriptio
 Use [`tree`](./docs/@v2/commands/tree.md) to walk one in bounded steps instead of reading or grepping the file:
 
 ```bash
-redocly tree <file> --format=brief                                                  # overview: tags, webhooks, component sections
-redocly tree <file> --tag=<tag> --format=brief                                      # one tag's operations
-redocly tree <file> --path=<path> --operation=<method> --with-deps --format=brief   # one operation with its full $ref closure
-redocly tree <file> --component=<section> --name=<Name> --used-by --format=brief    # what breaks if this component changes
+redocly tree <file> --format=ai                                                  # overview: tags, webhooks, component sections
+redocly tree <file> --tag=<tag> --format=ai                                      # one tag's operations
+redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai   # one operation with its full $ref closure, as schema signatures
+redocly tree <file> --component=<section> --name=<Name> --used-by --format=ai    # what breaks if this component changes
 ```
 
-`--format=brief` is the agent format: projected listings, no indentation.
+`--format=ai` is the agent format: projected listings, no indentation, and schema signatures instead of raw YAML in a `--with-deps` closure.
 `--used-by` returns the complete transitive dependency graph with a `via` chain per entry, so walking `$ref`s by hand is unnecessary.
 Every result carries the defining `file` and `start_line`/`end_line`, so any answer can be checked against the source it came from.
 
