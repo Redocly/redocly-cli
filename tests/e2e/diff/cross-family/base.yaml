@@ -1,0 +1,5 @@
+swagger: '2.0'
+info:
+  title: cross-family
+  version: '1.0'
+paths: {}

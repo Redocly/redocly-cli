@@ -1,0 +1,9 @@
+GET /pets
+  ✔ non-breaking  added  parameters
+      at revision.yaml:9:9
+
+0 breaking, 1 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+

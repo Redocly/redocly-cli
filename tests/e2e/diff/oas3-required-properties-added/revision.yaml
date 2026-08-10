@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: required-properties-added
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name]
+              properties:
+                id: { type: string }
+                name: { type: string }
+      responses:
+        '200': { description: OK }
