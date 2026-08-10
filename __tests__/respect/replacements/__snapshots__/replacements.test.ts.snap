@@ -53,12 +53,15 @@ exports[`should replace values in the request body 1`] = `
       }
 
 
-    Response status code: 400
+    Response status code: 201
     Response time: <test> ms
     Response Body:
       {
-        "type": "object",
-        "title": "Error validating body. data must have required property 'ticketType', data must have required property 'ticketDate', data must have required property 'email', data/eventId must match format \\"uuid\\""
+        "message": "Museum general entry ticket purchased",
+        "ticketId": "382c0820-0530-4f4b-99af-13811ad0f17a",
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "confirmationCode": "ticket-general-e5e5c6-dce78"
       }
 
     ✓ status code check - $statusCode in [201, 400, 404]
