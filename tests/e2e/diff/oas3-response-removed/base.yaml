@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+  title: response-removed
+  version: '1.0'
+paths:
+  /pets:
+    get:
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }

@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: path-parameter-renamed
+  version: '1.0'
+paths:
+  /pets/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }

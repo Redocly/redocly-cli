@@ -12,7 +12,11 @@ export interface PathRename {
   revisionRealPointer: string;
 }
 
+/** A path template parameter: the `id` in `/pets/{id}`. */
 const TEMPLATE_PARAM = /\{([^}]+)\}/g;
+
+/** A parameter segment of a stable pointer, as node-identity writes it: `{path:id}`. */
+const PATH_PARAM_SEGMENT = /^\{path:(.+)\}$/;
 
 function normalizeTemplate(template: string): string {
   let index = 0;
@@ -20,7 +24,7 @@ function normalizeTemplate(template: string): string {
 }
 
 function paramNames(template: string): string[] {
-  return [...template.matchAll(TEMPLATE_PARAM)].map((m) => m[1]);
+  return [...template.matchAll(TEMPLATE_PARAM)].map((match) => match[1]);
 }
 
 // raw path template → stable PathItem pointer
@@ -54,10 +58,10 @@ export function alignRenamedPaths(
   const revisionTemplates = pathTemplates(revision);
 
   const baseGroups = groupByNormalized(
-    [...baseTemplates.keys()].filter((t) => !revisionTemplates.has(t))
+    [...baseTemplates.keys()].filter((template) => !revisionTemplates.has(template))
   );
   const revisionGroups = groupByNormalized(
-    [...revisionTemplates.keys()].filter((t) => !baseTemplates.has(t))
+    [...revisionTemplates.keys()].filter((template) => !baseTemplates.has(template))
   );
 
   const renames: PathRename[] = [];
@@ -80,18 +84,21 @@ export function alignRenamedPaths(
 
   if (!renames.length) return { revision, renames };
 
-  const rewrites = renames.map((rename) => ({
-    fromPrefix: rename.revisionPointer,
-    toPrefix: rename.basePointer,
-    // positional mapping of revision param names to base param names,
-    // pre-escaped the way node-identity builds '{path:<name>}' segments
-    paramMap: new Map(
-      paramNames(rename.revisionTemplate).map((name, i) => [
-        escapeIdentityKeyPart(name),
-        escapeIdentityKeyPart(paramNames(rename.baseTemplate)[i]),
-      ])
-    ),
-  }));
+  const rewrites = renames.map((rename) => {
+    const baseParams = paramNames(rename.baseTemplate);
+    return {
+      fromPrefix: rename.revisionPointer,
+      toPrefix: rename.basePointer,
+      // positional mapping of revision param names to base param names,
+      // pre-escaped the way node-identity builds '{path:<name>}' segments
+      paramMap: new Map(
+        paramNames(rename.revisionTemplate).map((name, position) => [
+          escapeIdentityKeyPart(name),
+          escapeIdentityKeyPart(baseParams[position]),
+        ])
+      ),
+    };
+  });
 
   const rewriteKey = (key: string): string => {
     for (const { fromPrefix, toPrefix, paramMap } of rewrites) {
@@ -100,7 +107,7 @@ export function alignRenamedPaths(
         .slice(fromPrefix.length)
         .split('/')
         .map((segment) => {
-          const match = segment.match(/^\{path:(.+)\}$/);
+          const match = segment.match(PATH_PARAM_SEGMENT);
           const mapped = match && paramMap.get(match[1]);
           return mapped ? `{path:${mapped}}` : segment;
         })

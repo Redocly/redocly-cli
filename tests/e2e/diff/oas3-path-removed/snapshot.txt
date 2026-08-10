@@ -1,0 +1,11 @@
+/pets/{petId}
+  ✖ breaking      removed  paths · /pets/{petId}
+      Path was removed. (path-removed)
+      at base.yaml:11:5
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.
