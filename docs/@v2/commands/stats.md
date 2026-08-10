@@ -128,10 +128,10 @@ Document: museum.yaml stats:
 👷 Operations: 8
 🔖 Tags: 3
 🧩 Vendor Extensions: 4
-  - x-badges: 1
-  - x-codeSamples: 2
-  - x-internal: 2
-  - x-metadata: 1
+   - x-badges: 1
+   - x-codeSamples: 2
+   - x-internal: 2
+   - x-metadata: 1
 
 museum.yaml: stats processed in 4ms
 </pre>
@@ -149,8 +149,8 @@ Document: asyncapi.yaml stats:
 👷 Operations: 1
 🔖 Tags: 2
 🧩 Vendor Extensions: 2
-  - x-internal: 1
-  - x-metadata: 1
+   - x-internal: 1
+   - x-metadata: 1
 
 asyncapi.yaml: stats processed in 4ms
 </pre>

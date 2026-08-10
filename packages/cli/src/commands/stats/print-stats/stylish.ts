@@ -14,7 +14,7 @@ export function printStatsStylish(
     const colorFn = colors[color as keyof typeof colors] as (text: string) => string;
     logger.output(colorFn(`${metric}: ${total} \n`));
     for (const [name, { count }] of Object.entries(details || {})) {
-      logger.output(colorFn(`  - ${name}: ${count} \n`));
+      logger.output(colorFn(`   - ${name}: ${count} \n`));
     }
   }
 }

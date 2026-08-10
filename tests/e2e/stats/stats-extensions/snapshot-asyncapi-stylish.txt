@@ -6,9 +6,9 @@
 👷 Operations: 1 
 🔖 Tags: 0 
 🧩 Vendor Extensions: 3 
-  - x-channel-ext: 1 
-  - x-internal: 2 
-  - x-metadata: 1 
+   - x-channel-ext: 1 
+   - x-internal: 2 
+   - x-metadata: 1 
 
 Document: asyncapi.yaml stats:
 

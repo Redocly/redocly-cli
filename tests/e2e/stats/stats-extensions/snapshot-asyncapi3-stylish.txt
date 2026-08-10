@@ -6,9 +6,9 @@
 👷 Operations: 1 
 🔖 Tags: 0 
 🧩 Vendor Extensions: 3 
-  - x-channel-ext: 1 
-  - x-msg-ext: 1 
-  - x-op-ext: 1 
+   - x-channel-ext: 1 
+   - x-msg-ext: 1 
+   - x-op-ext: 1 
 
 Document: asyncapi3.yaml stats:
 
