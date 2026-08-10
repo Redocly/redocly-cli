@@ -1,0 +1,9 @@
+POST /pets
+  ✔ non-breaking  changed  requestBody/content/application~1json/schema · enum
+      at revision.yaml:13:21
+
+0 breaking, 1 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+

@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: security-requirement-added-to-empty-list
+  version: '1.0'
+paths:
+  /pets:
+    get:
+      security: []
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Key

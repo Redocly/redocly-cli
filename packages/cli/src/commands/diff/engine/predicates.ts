@@ -7,15 +7,10 @@ export function isScalar(value: unknown): boolean {
   );
 }
 
+// An empty array carries no scalars to compare and is walked as a node in its own
+// right, so treating it as a scalar too would report the same change twice.
 export function isScalarArray(value: unknown): boolean {
-  return Array.isArray(value) && value.every(isScalar);
-}
-
-export function scalarEquals(a: unknown, b: unknown): boolean {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return a.length === b.length && a.every((item, i) => scalarEquals(item, b[i]));
-  }
-  return a === b;
+  return Array.isArray(value) && value.length > 0 && value.every(isScalar);
 }
 
 export function missingItems(before: unknown, after: unknown): unknown[] {

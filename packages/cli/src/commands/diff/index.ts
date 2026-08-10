@@ -20,8 +20,11 @@ import { markdownDiff } from './serializers/markdown.js';
 import { breakingChangesToProblems } from './serializers/problems.js';
 import { stylishDiff } from './serializers/stylish.js';
 
-/** Formats rendered by this command from the full DiffResult. */
-export type DiffOwnFormat = Extract<OutputFormat, 'stylish' | 'json' | 'markdown' | 'html'>;
+/**
+ * Formats rendered by this command from the full DiffResult. `html` is ours alone,
+ * so this union is spelled out rather than extracted from core's lint formats.
+ */
+export type DiffOwnFormat = 'stylish' | 'json' | 'markdown' | 'html';
 
 /**
  * Formats delegated to core's lint formatters. They describe breaking changes
@@ -55,6 +58,12 @@ function isOwnFormat(format: DiffOutputFormat): format is DiffOwnFormat {
 }
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
+  if (argv.output && !isOwnFormat(argv.format)) {
+    return exitWithError(
+      `The ${argv.format} format prints to stdout only. To write a report to a file, use one of these formats: ${Object.keys(SERIALIZERS).join(', ')}.`
+    );
+  }
+
   const startedAt = performance.now();
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
   const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
@@ -82,11 +91,6 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
       logger.output(output + '\n');
     }
   } else {
-    if (argv.output) {
-      return exitWithError(
-        `The ${argv.format} format prints to stdout and cannot be written with --output. Use one of: ${Object.keys(SERIALIZERS).join(', ')}.`
-      );
-    }
     const problems = breakingChangesToProblems(
       result,
       baseDocument.source,

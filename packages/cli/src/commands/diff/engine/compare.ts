@@ -1,5 +1,24 @@
-import { scalarEquals } from './predicates.js';
+import { dequal } from '@redocly/openapi-core';
+
 import type { NodeEntry, RawChange } from './types.js';
+
+function removalOf(pointer: string, entry: NodeEntry): RawChange {
+  return {
+    pointer,
+    kind: 'removed',
+    typeName: entry.typeName,
+    base: { pointer: entry.realPointer, value: entry.raw },
+  };
+}
+
+function additionOf(pointer: string, entry: NodeEntry): RawChange {
+  return {
+    pointer,
+    kind: 'added',
+    typeName: entry.typeName,
+    revision: { pointer: entry.realPointer, value: entry.raw },
+  };
+}
 
 export function compareMaps(
   base: Map<string, NodeEntry>,
@@ -11,9 +30,9 @@ export function compareMaps(
   // Pass 1: boundary nodes — added roots, removed roots, replaced (typeName differs).
   const boundaries = new Set<string>();
   for (const key of keys) {
-    const a = base.get(key);
-    const b = revision.get(key);
-    if (!a || !b || a.typeName !== b.typeName) {
+    const baseEntry = base.get(key);
+    const revisionEntry = revision.get(key);
+    if (!baseEntry || !revisionEntry || baseEntry.typeName !== revisionEntry.typeName) {
       boundaries.add(key);
     }
   }
@@ -32,55 +51,38 @@ export function compareMaps(
   // Pass 2: emission, in deterministic pointer order.
   for (const key of [...keys].sort()) {
     if (hasBoundaryAncestor(key)) continue; // implied by a reported ancestor
-    const a = base.get(key);
-    const b = revision.get(key);
+    const baseEntry = base.get(key);
+    const revisionEntry = revision.get(key);
 
-    if (a && !b) {
-      changes.push({
-        pointer: key,
-        kind: 'removed',
-        typeName: a.typeName,
-        base: { pointer: a.realPointer, value: a.raw },
-      });
-    } else if (!a && b) {
-      changes.push({
-        pointer: key,
-        kind: 'added',
-        typeName: b.typeName,
-        revision: { pointer: b.realPointer, value: b.raw },
-      });
-    } else if (a && b && a.typeName !== b.typeName) {
+    if (!baseEntry || !revisionEntry) {
+      // Present on one side only, so the whole node was added or removed.
+      if (baseEntry) changes.push(removalOf(key, baseEntry));
+      if (revisionEntry) changes.push(additionOf(key, revisionEntry));
+    } else if (baseEntry.typeName !== revisionEntry.typeName) {
       // replaced → a removed+added pair at the same pointer
-      changes.push({
-        pointer: key,
-        kind: 'removed',
-        typeName: a.typeName,
-        base: { pointer: a.realPointer, value: a.raw },
-      });
-      changes.push({
-        pointer: key,
-        kind: 'added',
-        typeName: b.typeName,
-        revision: { pointer: b.realPointer, value: b.raw },
-      });
-    } else if (a && b) {
-      const props = new Set([
-        ...Object.keys(a.scalars),
-        ...Object.keys(a.refs),
-        ...Object.keys(b.scalars),
-        ...Object.keys(b.refs),
+      changes.push(removalOf(key, baseEntry), additionOf(key, revisionEntry));
+    } else {
+      const properties = new Set([
+        ...Object.keys(baseEntry.scalars),
+        ...Object.keys(baseEntry.refs),
+        ...Object.keys(revisionEntry.scalars),
+        ...Object.keys(revisionEntry.refs),
       ]);
-      for (const property of [...props].sort()) {
-        const before = property in a.refs ? a.refs[property] : a.scalars[property];
-        const after = property in b.refs ? b.refs[property] : b.scalars[property];
-        if (!scalarEquals(before, after)) {
+      for (const property of [...properties].sort()) {
+        const before =
+          property in baseEntry.refs ? baseEntry.refs[property] : baseEntry.scalars[property];
+        const after =
+          property in revisionEntry.refs
+            ? revisionEntry.refs[property]
+            : revisionEntry.scalars[property];
+        if (!dequal(before, after)) {
           changes.push({
             pointer: key,
             property,
             kind: 'changed',
-            typeName: a.typeName,
-            base: { pointer: `${a.realPointer}/${property}`, value: before },
-            revision: { pointer: `${b.realPointer}/${property}`, value: after },
+            typeName: baseEntry.typeName,
+            base: { pointer: `${baseEntry.realPointer}/${property}`, value: before },
+            revision: { pointer: `${revisionEntry.realPointer}/${property}`, value: after },
           });
         }
       }

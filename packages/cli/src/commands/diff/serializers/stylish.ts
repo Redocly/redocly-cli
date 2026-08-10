@@ -1,11 +1,9 @@
-import { unescapePointerFragment } from '@redocly/openapi-core';
+import { isAbsoluteUrl, unescapePointerFragment } from '@redocly/openapi-core';
 import { blue, bold, gray, green, red } from 'colorette';
 import * as path from 'node:path';
 
-import type { Change, Compat, DiffResult } from '../engine/types.js';
+import { compatRank, type Change, type Compat, type DiffResult } from '../engine/types.js';
 import { displaySide } from './change-side.js';
-
-const SEVERITY_ORDER: Compat[] = ['breaking', 'non-breaking'];
 
 const ICONS: Record<Compat, string> = {
   breaking: red('✖ breaking    '),
@@ -39,20 +37,22 @@ function groupOf(change: Change): string {
   return segments[0] || 'document';
 }
 
+// The group heading already says which operation this is, so the label starts after
+// `paths/<path>/<method>`.
+function labelSegments(segments: string[]): string[] {
+  if (segments[0] !== 'paths') return segments;
+  const underOperation = segments.length > 2 && HTTP_METHODS.has(segments[2]);
+  return segments.slice(underOperation ? 3 : 2);
+}
+
 function labelOf(change: Change): string {
   const segments = segmentsOf(change.pointer);
-  const rest =
-    segments[0] === 'paths'
-      ? segments.length > 2 && HTTP_METHODS.has(segments[2])
-        ? segments.slice(3)
-        : segments.slice(2)
-      : segments;
-  // When there's nothing left after stripping the path/method prefix (e.g. a
-  // removed operation, or the synthetic path-rename change), fall back to the
-  // full pointer — but unescape each segment first so JSON-pointer escapes
-  // like `~1` never leak into the rendered label.
-  const label = rest.length ? rest.join('/') : segments.map(unescapePointerFragment).join(' · ');
-  // A change on the document root has nothing left to name but the property itself.
+  const named = labelSegments(segments);
+  // A change on the operation itself leaves nothing after the prefix, so the whole
+  // pointer is shown instead — there each segment is unescaped, so `~1pets` reads as
+  // the path `/pets` rather than as one more separator.
+  const label = named.length ? named.join('/') : segments.map(unescapePointerFragment).join(' · ');
+
   if (!label) return change.property ?? change.pointer;
   return change.property ? `${label} · ${change.property}` : label;
 }
@@ -60,7 +60,7 @@ function labelOf(change: Change): string {
 function locationOf(change: Change, cwd: string): string | undefined {
   const side = displaySide(change);
   if (!side?.file) return undefined;
-  const file = /^https?:\/\//.test(side.file) ? side.file : path.relative(cwd, side.file);
+  const file = isAbsoluteUrl(side.file) ? side.file : path.relative(cwd, side.file);
   return `${file}:${side.line}:${side.col}`;
 }
 
@@ -78,9 +78,7 @@ export function stylishDiff(result: DiffResult): string {
   for (const [key, changes] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     lines.push(bold(blue(key)));
     const sorted = [...changes].sort(
-      (a, b) =>
-        SEVERITY_ORDER.indexOf(a.compat) - SEVERITY_ORDER.indexOf(b.compat) ||
-        a.pointer.localeCompare(b.pointer)
+      (a, b) => compatRank(b.compat) - compatRank(a.compat) || a.pointer.localeCompare(b.pointer)
     );
     for (const change of sorted) {
       lines.push(`  ${ICONS[change.compat]}  ${bold(change.kind)}  ${labelOf(change)}`);
