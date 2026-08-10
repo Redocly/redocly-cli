@@ -180,11 +180,15 @@ describe('eject-generator (end-to-end)', () => {
 
   it('--update merges cleanly around local edits and marks real conflicts', () => {
     appendFileSync(join(project, 'generators/php.mjs'), '// my local customization\n');
+    // The skill is edit-first too — an update must merge around a design note, not drop it.
+    const skillPath = join(project, '.claude/skills/php-generator/SKILL.md');
+    appendFileSync(skillPath, '\n## Our fork\n\nWe keep the legacy auth header.\n');
     const clean = run(project, ['eject-generator', 'php', '--update']);
     expect(clean.status, clean.stderr).toBe(0);
     expect(readFileSync(join(project, 'generators/php.mjs'), 'utf-8')).toContain(
       '// my local customization'
     );
+    expect(readFileSync(skillPath, 'utf-8')).toContain('We keep the legacy auth header.');
 
     // A `.pristine/` copy from an older CLI still works as the base, and says it can go.
     const legacy = join(project, 'generators/.pristine');

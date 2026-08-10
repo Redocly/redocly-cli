@@ -38,7 +38,7 @@ Ejecting writes two things:
   Coding agents load skills automatically, so your agent starts from the design instead of reverse-engineering the code.
 
 A first eject also drops `.claude/skills/client-generators/SKILL.md` — the shared authoring guide (the generator contract, the API model, the helper library).
-Both skills are ours: they are rewritten on every eject and `--update`, so keep your own notes elsewhere.
+The skills are yours to edit, like the generator: `--update` three-way merges your skill edits with the newer version, while a fresh eject or `--force` writes them as we ship them.
 Beside the code, `<dir>/AGENTS.md` gets a short pointer to the skills, so the directory explains itself to a reader who opens it cold; anything you add outside its markers survives.
 
 Eject wires itself up: it adds `@redocly/client-generator` to your `devDependencies` if it isn't there and points your config at the file, where a path entry takes over the built-in name.
@@ -56,6 +56,7 @@ To roll back, delete the file and the config line.
 
 `redocly eject-generator <name> --update` merges the version shipped by your installed `@redocly/client-generator` into your copy.
 The three-way merge uses the version recorded in the ejected file's header as the common ancestor, so nothing extra needs to be committed and there is no snapshot to keep in sync.
+The two skills merge the same way, so design notes you added to them survive an update.
 Conflicts arrive as standard `<<<<<<<` markers for you to resolve.
 
 Ejected generators keep working across CLI upgrades as long as the authoring contract they were written against is compatible.

@@ -173,30 +173,65 @@ function recordedVersion(ejected: string): string | undefined {
 }
 
 /**
- * The asset as a past version shipped it, taken from that version's package on the
+ * Assets as a past version shipped them, taken from that version's package on the
  * registry — the header records which version to ask for, so the merge base needs
  * nothing committed. `spec` is anything npm can pack (a version spec; a directory in
- * tests). Returns undefined when the fetch or the extraction fails, so the caller can
- * fall back instead of merging against the wrong base.
+ * tests). Members that cannot be read are simply absent from the result, so the caller
+ * falls back per file instead of merging against the wrong base.
  */
-export function packedAsset(spec: string, name: string): string | undefined {
+export function packedAssets(spec: string, members: string[]): Map<string, string> {
   const scratch = mkdtempSync(join(tmpdir(), 'redocly-eject-base-'));
+  const extracted = new Map<string, string>();
   try {
     const packed = spawnSync('npm', ['pack', spec, '--pack-destination', scratch], {
       encoding: 'utf-8',
     });
-    if (packed.status !== 0) return undefined;
+    if (packed.status !== 0) return extracted;
     const tarball = readdirSync(scratch).find((file) => file.endsWith('.tgz'));
-    if (tarball === undefined) return undefined;
-    const member = `package/eject-assets/generators/${name}.mjs`;
-    const extracted = spawnSync('tar', ['-xzf', join(scratch, tarball), '-C', scratch, member], {
-      encoding: 'utf-8',
-    });
-    if (extracted.status !== 0) return undefined;
-    return readFileSync(join(scratch, member), 'utf-8');
+    if (tarball === undefined) return extracted;
+    for (const member of members) {
+      const extraction = spawnSync('tar', ['-xzf', join(scratch, tarball), '-C', scratch, member], {
+        encoding: 'utf-8',
+      });
+      if (extraction.status === 0)
+        extracted.set(member, readFileSync(join(scratch, member), 'utf-8'));
+    }
+    return extracted;
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
+}
+
+const generatorMember = (name: string) => `package/eject-assets/generators/${name}.mjs`;
+const skillMember = (skill: string) => `package/eject-assets/skills/${skill}/SKILL.md`;
+
+/**
+ * Refresh one skill during `--update`. The skill tells its owner to edit it first, so it
+ * gets the same three-way merge as the generator: ours is the user's copy, the base is
+ * the skill the recorded version shipped, theirs is the current one. Without a base (a
+ * legacy `.pristine` eject, a failed fetch), an edited copy is kept and the new skill
+ * lands beside it as `SKILL.md.new`. Returns the conflict count.
+ */
+function updateSkill(skill: string, assetsDir: string, baseSkill: string | undefined): number {
+  const target = join(process.cwd(), '.claude', 'skills', skill, 'SKILL.md');
+  const updated = readFileSync(join(assetsDir, 'skills', skill, 'SKILL.md'), 'utf-8');
+  if (!existsSync(target)) {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, updated, 'utf-8');
+    return 0;
+  }
+  const current = readFileSync(target, 'utf-8');
+  if (current === updated) return 0;
+  if (baseSkill === undefined) {
+    writeFileSync(`${target}.new`, updated, 'utf-8');
+    logger.warn(
+      `${relative(process.cwd(), target)} was edited and has no merge base — the new skill is beside it as SKILL.md.new.\n`
+    );
+    return 0;
+  }
+  const { merged, conflicts } = threeWayMerge(current, baseSkill, updated);
+  writeFileSync(target, merged, 'utf-8');
+  return conflicts;
 }
 
 /** The built-in generators already ejected into `dir`, so the pointer lists every one of them. */
@@ -339,13 +374,20 @@ export const handleEjectGenerator = async ({
     }
     const customized = readFileSync(target, 'utf-8');
     const from = recordedVersion(customized);
+    // One pack fetches every merge base: the generator plus both skills it shipped with.
+    const packed =
+      existsSync(legacyBase) || from === toolkitVersion || from === undefined
+        ? new Map<string, string>()
+        : packedAssets(`${TOOLKIT_PACKAGE}@${from}`, [
+            generatorMember(name),
+            skillMember('client-generators'),
+            skillMember(`${name}-generator`),
+          ]);
     const base = existsSync(legacyBase)
       ? readFileSync(legacyBase, 'utf-8')
       : from === toolkitVersion
         ? asset
-        : from === undefined
-          ? undefined
-          : packedAsset(`${TOOLKIT_PACKAGE}@${from}`, name);
+        : packed.get(generatorMember(name));
     if (base === undefined) {
       ejectGeneratorTelemetry.eject_generator_outcome = 'missing-base';
       const sideBySide = `${target}.new`;
@@ -362,14 +404,23 @@ export const handleEjectGenerator = async ({
         `Used ${relative(process.cwd(), legacyBase)} as the merge base. Later updates read the version from the file's header, so you can delete that .pristine directory.\n`
       );
     }
-    dropSkill('client-generators', assetsDir);
-    dropSkill(`${name}-generator`, assetsDir);
+    // The skills are edit-first files too, so they merge the same way the generator did.
+    const skillBase = (skill: string): string | undefined =>
+      from === toolkitVersion
+        ? readFileSync(join(assetsDir, 'skills', skill, 'SKILL.md'), 'utf-8')
+        : packed.get(skillMember(skill));
+    const skillConflicts =
+      updateSkill('client-generators', assetsDir, skillBase('client-generators')) +
+      updateSkill(`${name}-generator`, assetsDir, skillBase(`${name}-generator`));
     dropPointer(dir, ejectedIn(dir));
-    ejectGeneratorTelemetry.eject_generator_outcome = conflicts > 0 ? 'conflicts' : 'success';
-    if (conflicts > 0) {
-      ejectGeneratorTelemetry.eject_generator_conflicts = conflicts;
+    const totalConflicts = conflicts + skillConflicts;
+    ejectGeneratorTelemetry.eject_generator_outcome = totalConflicts > 0 ? 'conflicts' : 'success';
+    if (totalConflicts > 0) {
+      ejectGeneratorTelemetry.eject_generator_conflicts = totalConflicts;
       logger.warn(
-        `Updated ${printedTarget} with ${conflicts} conflict(s) — resolve the <<<<<<< markers, then regenerate.\n`
+        `Updated ${printedTarget} with ${totalConflicts} conflict(s)${
+          skillConflicts > 0 ? ' (some in .claude/skills)' : ''
+        } — resolve the <<<<<<< markers, then regenerate.\n`
       );
     } else {
       logger.info(`Updated ${printedTarget} cleanly.\n`);
