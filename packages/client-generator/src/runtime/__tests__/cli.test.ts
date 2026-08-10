@@ -252,6 +252,25 @@ describe('multi-source runCli (one binary, several APIs)', () => {
     expect(context.main.calls).toEqual([]);
   });
 
+  it('a source without wiring inherits the first wired source, as the docs example relies on', async () => {
+    const seen: string[] = [];
+    const login: CustomCommand = {
+      name: 'login',
+      handler: (context) => {
+        seen.push(context.wiring.binName);
+        context.wiring.stdout('ok');
+        return 0;
+      },
+    };
+    const context = sources();
+    // The documented shape: `{ commands: [login] }` — no wiring at all.
+    const code = await runCli([{ commands: [login] }, ...context.list], ['login']);
+    expect(code).toBe(0);
+    // The handler ran with the first wired source's identity, and its stdout.
+    expect(seen).toEqual(['cafe']);
+    expect(context.main.out).toEqual(['ok']);
+  });
+
   it('a namespace-less source puts its commands at the root', async () => {
     const login: CustomCommand = {
       name: 'login',
@@ -309,6 +328,38 @@ describe('wiring.envPrefix', () => {
     expect(
       configured.some((config) => (config.auth as { bearer?: string })?.bearer === 'tok')
     ).toBe(true);
+  });
+});
+
+describe('dry-run redaction covers every credential form', () => {
+  it('redacts a basic Authorization header, which carries the base64 form of the secret', async () => {
+    // Substring-matching the RAW password against header values misses the header the
+    // client actually sends (`Basic ${base64(user:pass)}`) — printing decodable
+    // credentials in the output support engineers paste into tickets.
+    const { wiring, out } = fakeWiring({
+      schemes: [{ key: 'BasicAuth', kind: 'basic' }],
+      env: { CAFE_USERNAME: 'sam', CAFE_PASSWORD: 'hunter2' },
+      configure: () => undefined,
+    });
+    // The dry-run stub fetch is installed via configure; emulate the client sending the
+    // encoded header by calling the captured fetch ourselves.
+    const configured: Record<string, unknown>[] = [];
+    wiring.configure = (config) => configured.push(config);
+    wiring.client = {
+      ping: async () => {
+        const stub = configured.find((config) => typeof config.fetch === 'function');
+        const fetchStub = stub?.fetch as (url: string, init: unknown) => Promise<unknown>;
+        return fetchStub('/ping', {
+          method: 'GET',
+          headers: { Authorization: `Basic ${btoa('sam:hunter2')}` },
+        });
+      },
+    };
+    const code = await runCli(COMMANDS, wiring, ['ping', '--dry-run']);
+    expect(code).toBe(0);
+    const captured = out.join('\n');
+    expect(captured).not.toContain(btoa('sam:hunter2'));
+    expect(captured).toContain('***');
   });
 });
 

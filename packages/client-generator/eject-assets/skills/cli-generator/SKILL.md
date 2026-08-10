@@ -63,11 +63,13 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
   credentials files, login flows, and profiles are user land (or a future satellite),
   by design.
 - **One binary can span several descriptions.** `runCli` also accepts sources — each a
-  command list plus its OWN wiring (own base URL, schemes, credentials) behind a
-  namespace, so colliding operationIds across descriptions are simply different commands
-  (`cafe shop createOrder`, `cafe kitchen createOrder`). A namespace-less source puts
-  commands at the root (`cafe login`); a root command whose name matches a namespace is
-  rejected at startup, never shadowed.
+  command list plus, optionally, its OWN wiring (own base URL, schemes, credentials)
+  behind a namespace, so colliding operationIds across descriptions are simply different
+  commands (`cafe shop createOrder`, `cafe kitchen createOrder`). A namespace-less source
+  puts commands at the root (`cafe login`); a root command whose name matches a namespace
+  is rejected at startup, never shadowed. A source WITHOUT wiring inherits the first
+  wired source's — a root `login` shares the composed binary's identity, which is the
+  whole point of composing it there.
 - **The composed entry is generated, not hand-rolled.** A top-level `client.cliOutput`
   makes `redocly generate-client` (no api argument) emit one entry over every api that
   selected `cli`: the namespace is the api ALIAS from `apis:`, and the credential prefix

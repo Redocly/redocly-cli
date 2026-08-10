@@ -117,7 +117,8 @@ export type CommandContext = {
 export type CommandSource = {
   namespace?: string;
   commands: Array<CliCommand | CustomCommand>;
-  wiring: CliWiring;
+  /** Absent = inherit the first wired source's — a root `login` shares the binary's identity. */
+  wiring?: CliWiring;
 };
 
 type ResolvedCommand = CliCommand & { handler?: CustomCommand['handler'] };
@@ -521,9 +522,13 @@ export async function runCli(
 
 /** Route the first token to its source; the namespace-less source owns the root. */
 async function runSources(sources: CommandSource[], argv: string[]): Promise<number> {
+  // A source without wiring inherits the first wired one, so the documented root-source
+  // shape `{ commands: [login] }` works: the login shares the composed binary's identity.
+  const inherited = sources.find((source) => source.wiring !== undefined)?.wiring;
+  const wiringOf = (source: CommandSource): CliWiring => source.wiring ?? (inherited as CliWiring);
   // Top-level output goes through the first source: with a root source that is the one
   // carrying the shared commands, otherwise the first API listed.
-  const top = sources[0].wiring;
+  const top = wiringOf(sources[0]);
   const fail = (code: number, message: string): number => {
     top.stderr(JSON.stringify({ error: { code, message } }));
     return code;
@@ -548,7 +553,7 @@ async function runSources(sources: CommandSource[], argv: string[]): Promise<num
     return 0;
   }
   const source = namespaced.find((candidate) => candidate.namespace === argv[0]);
-  if (source !== undefined) return runSingle(source.commands, source.wiring, argv.slice(1));
+  if (source !== undefined) return runSingle(source.commands, wiringOf(source), argv.slice(1));
   const rootTakes =
     root !== undefined &&
     (argv[0] === 'schema' ||
@@ -558,7 +563,7 @@ async function runSources(sources: CommandSource[], argv: string[]): Promise<num
           (command.group !== undefined && groupSlug(command.group) === argv[0])
       ));
   if (rootTakes)
-    return runSingle((root as CommandSource).commands, (root as CommandSource).wiring, argv);
+    return runSingle((root as CommandSource).commands, wiringOf(root as CommandSource), argv);
   return fail(
     4,
     `Unknown command: ${argv[0]} — expected an API namespace (${namespaced
@@ -662,9 +667,13 @@ async function runSingle(
   if (Object.keys(auth).length > 0) wiring.configure({ auth });
   if (globals.serverUrl !== undefined) wiring.configure({ serverUrl: globals.serverUrl });
 
+  // Redaction matches these against header VALUES — so basic auth must contribute the
+  // form the wire actually carries (`Basic ${base64(user:pass)}`), not just the raw
+  // password, which never appears in the encoded header.
+  const basic = auth.basic as { username: string; password: string } | undefined;
   const secrets = [
     ...(typeof auth.bearer === 'string' ? [auth.bearer] : []),
-    ...(auth.basic ? [(auth.basic as { password: string }).password] : []),
+    ...(basic ? [basic.password, btoa(`${basic.username}:${basic.password}`)] : []),
     ...Object.values((auth.apiKey as Record<string, string> | undefined) ?? {}),
   ];
   let captured: Record<string, unknown> | undefined;
