@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.46.0
+
+### Minor Changes
+
+- Added the `spec-ref-siblings` rule that reports properties placed next to a `$ref` which the specification does not allow.
+
 ## 2.45.1
 
 ### Patch Changes
