@@ -1,7 +1,7 @@
 🚗 References: 4 
 📦 External Documents: 0 
 📈 Schemas: 1 
-👉 Parameters: 0 
+👉 Parameters: 2 
 📡 Channels: 1 
 👷 Operations: 1 
 🔖 Tags: 2 

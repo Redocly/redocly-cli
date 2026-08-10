@@ -162,10 +162,8 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
           },
         },
         Parameter: {
-          leave(parameter: any) {
-            if (parameter.name) {
-              statsAccumulator.parameters.items!.add(parameter.name);
-            }
+          leave(_: unknown, { key }: UserContext) {
+            statsAccumulator.parameters.items!.add(key.toString());
           },
         },
       },
@@ -215,10 +213,8 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
           statsAccumulator.channels.total++;
         },
         Parameter: {
-          leave(parameter: any) {
-            if (parameter.name) {
-              statsAccumulator.parameters.items!.add(parameter.name);
-            }
+          leave(_: unknown, { key }: UserContext) {
+            statsAccumulator.parameters.items!.add(key.toString());
           },
         },
       },
