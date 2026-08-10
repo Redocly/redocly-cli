@@ -2,7 +2,7 @@ import { type GenerateClientConfig } from '@redocly/client-generator';
 import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { readFileSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import {
   basename,
   dirname,
@@ -126,7 +126,7 @@ export async function handleGenerateClient({
 
   const seenOutputs = new Set<string>();
   // Every api that emits a cli module, gathered for the composed entry (client.cliOutput).
-  const composable: Array<{ alias: string; cliPath: string; importExt: string }> = [];
+  const composable: Array<{ alias: string; cliPath: string }> = [];
 
   for (const { path, alias } of entrypoints) {
     const name = alias ?? basename(path, extname(path));
@@ -172,12 +172,14 @@ export async function handleGenerateClient({
         config: aliasConfig,
         configDir,
       });
-      if (clientConfig.generators?.includes('cli')) {
+      // The emitted module, not the config string, decides what composes: `cli` also
+      // arrives as an ejected path entry or as another generator's prerequisite.
+      const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
+      if (cliModule !== undefined) {
         const importExt = clientConfig.importExt ?? 'js';
         composable.push({
           alias: name,
-          cliPath: outputPath.replace(/\.ts$/, `.cli.${importExt === 'ts' ? 'ts' : 'js'}`),
-          importExt,
+          cliPath: cliModule.path.replace(/\.ts$/, importExt === 'ts' ? '.ts' : '.js'),
         });
       }
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
@@ -193,8 +195,8 @@ export async function handleGenerateClient({
     }
   }
 
-  // The composed entry: one binary over every api that selected `cli`, each behind its
-  // alias as a namespace. Top-level `client.cliOutput` only — a per-api block composes
+  // The composed entry: one binary over every api that emitted a cli module, each behind
+  // its alias as a namespace. Top-level `client.cliOutput` only — a per-api block composes
   // nothing — and only for the run-everything form, where all the modules exist.
   const topLevelClient = (
     isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
@@ -214,6 +216,7 @@ export async function handleGenerateClient({
       })),
       binName
     );
+    await mkdir(dirname(entryPath), { recursive: true });
     await writeFile(entryPath, content, 'utf-8');
     logger.info(
       '\n' +

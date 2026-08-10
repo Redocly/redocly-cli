@@ -2,7 +2,7 @@
 // two descriptions compose behind namespaces with their own credentials, and a custom
 // command with a handler joins them at the root — the login story, built in user land.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -146,7 +146,8 @@ describe('config-driven composition (client.cliOutput)', () => {
         'extends: []',
         'client:',
         '  binName: cafe',
-        '  cliOutput: ./src/cafe.ts',
+        // A directory nothing else creates — the composed entry makes its own.
+        '  cliOutput: ./bin/cafe.ts',
         '  importExt: ts',
         '  generators: [sdk, zod, cli]',
         'apis:',
@@ -155,6 +156,17 @@ describe('config-driven composition (client.cliOutput)', () => {
         '',
       ].join('\n'),
       'utf-8'
+    );
+    // Eject the cli generator first: composition keys off the emitted module, so a
+    // `./generators/cli.mjs` path entry must compose exactly like the built-in name.
+    const ejected = spawnSync(
+      'node',
+      [cliEntry, 'eject-generator', 'cli', '--config', join(project, 'redocly.yaml')],
+      { cwd: project, encoding: 'utf-8' }
+    );
+    expect(ejected.status, ejected.stderr).toBe(0);
+    expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
+      'generators: [sdk, zod, ./generators/cli.mjs]'
     );
     const generated = spawnSync(
       'node',
@@ -169,7 +181,7 @@ describe('config-driven composition (client.cliOutput)', () => {
   });
 
   it('one generate run emits the composed entry over every api that selected cli', () => {
-    const help = spawnSync(tsxBin, [join(project, 'src/cafe.ts'), '--help'], {
+    const help = spawnSync(tsxBin, [join(project, 'bin/cafe.ts'), '--help'], {
       cwd: project,
       encoding: 'utf-8',
     });
@@ -182,7 +194,7 @@ describe('config-driven composition (client.cliOutput)', () => {
   it('routes a namespace and reads the alias-scoped credential', () => {
     const dry = spawnSync(
       tsxBin,
-      [join(project, 'src/cafe.ts'), 'kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
+      [join(project, 'bin/cafe.ts'), 'kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
       { cwd: project, encoding: 'utf-8', env: { ...process.env, CAFE_KITCHEN_TOKEN: 'k-secret' } }
     );
     expect(dry.status, dry.stderr).toBe(0);
