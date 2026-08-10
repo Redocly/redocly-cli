@@ -84,7 +84,7 @@ export type EjectGeneratorTelemetry = {
   eject_generator_action?: string;
   /** Allowlisted built-in name only; unknown names stay unnamed. */
   eject_generator_name?: string;
-  /** Coarse outcome: success | conflicts | already-exists | missing-pristine | merge-tool-missing | unknown-generator. */
+  /** Coarse outcome: success | conflicts | already-exists | missing-target | missing-base | merge-tool-missing | merge-failed | unknown-generator | unexpected-error. */
   eject_generator_outcome?: string;
   eject_generator_conflicts?: number;
 };

@@ -1,7 +1,7 @@
 # The `go` generator — its skill
 
 This file is the generator's DESIGN. It ships to users on `redocly eject-generator go`
-(as `generators/go.AGENTS.md`) and governs our own changes: **to change the generator,
+(as the `.claude/skills/go-generator/SKILL.md` agent skill) and governs our own changes: **to change the generator,
 edit this skill first, then make the code match it** — a diff to `index.ts` that has no
 covering sentence here is incomplete.
 

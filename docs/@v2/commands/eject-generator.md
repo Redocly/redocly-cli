@@ -5,7 +5,7 @@
 The `eject-generator` command vendors a built-in client generator into your repo as an editable file — the generator becomes yours to customize, while the _generated_ client stays machine-owned and reproducible.
 Your agent (or you) edits the generator, `redocly generate-client` rebuilds the client, and next week's spec change regenerates with the customization intact.
 
-Every built-in generator can be ejected: the language SDKs (`python`, `go`, `php`), the TypeScript `sdk`, and the satellites (`zod`, `mock`, `cli`, `swr`, `tanstack-query`, `transformers`).
+Every built-in generator can be ejected: the language SDKs (`python`, `go`, `php`), the TypeScript `sdk`, and the satellites (`zod`, `mock`, `cli`, `cli-docs`, `swr`, `tanstack-query`, `transformers`).
 The `tanstack-query-vue`, `-svelte`, and `-solid` variants are the same generator with one argument changed, so eject `tanstack-query` and set the framework in your copy.
 
 ## Usage
@@ -22,6 +22,7 @@ redocly eject-generator php --force
 | Option     | Type    | Description                                                                                             |
 | ---------- | ------- | ------------------------------------------------------------------------------------------------------- |
 | generator  | string  | Built-in generator to eject.                                                                            |
+| `--config` | string  | Path to the config file.                                                                                |
 | `--dir`    | string  | Directory to eject into. Default `./generators`.                                                        |
 | `--update` | boolean | Three-way merge the current built-in version into your customized copy; conflicts get standard markers. |
 | `--force`  | boolean | Overwrite an existing ejected file, discarding local edits.                                             |

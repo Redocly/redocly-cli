@@ -66,7 +66,7 @@ See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main
 The fastest path to a customized generator is
 [`redocly eject-generator <name>`](../commands/eject-generator.md): it vendors any built-in generator into `./generators/` as an editable file you own.
 An ejected-unmodified generator produces byte-identical output, and the path entry takes over the built-in name — regeneration survives every customization.
-[`--update`](../commands/eject-generator.md#updating-an-ejected-generator) merges later built-in versions into your copy.
+[`--update`](../commands/eject-generator.md#update-an-ejected-generator) merges later built-in versions into your copy.
 
 Eject also writes the generator's design as an agent skill (`.claude/skills/<name>-generator/SKILL.md`) plus the shared authoring skill.
 Your agent treats the design as the source of truth: state the change there first, then make the code match — and never hand-edit generated output, only the generator.

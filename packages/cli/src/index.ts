@@ -19,6 +19,7 @@ import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
 import {
+  EJECTABLE,
   handleEjectGenerator,
   type EjectGeneratorCommandArgv,
 } from './commands/eject-generator.js';
@@ -977,7 +978,7 @@ yargs(hideBin(process.argv))
     (yargs) =>
       yargs
         .positional('generator', {
-          describe: 'Built-in generator to eject (python, go, php).',
+          describe: `Built-in generator to eject (${[...EJECTABLE].join(', ')}).`,
           type: 'string',
         })
         .options({

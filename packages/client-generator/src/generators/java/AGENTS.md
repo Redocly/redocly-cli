@@ -1,8 +1,8 @@
 # The `java` generator — its skill (DRAFT, design under review — no code exists yet)
 
 This file is the generator's DESIGN, written before any implementation (skill-first).
-Once approved it ships to users on `redocly eject-generator java` (as
-`generators/java.AGENTS.md`) and governs all changes: **edit this skill first, then
+Once approved it ships to users on `redocly eject-generator java` (as the
+`.claude/skills/java-generator/SKILL.md` agent skill) and governs all changes: **edit this skill first, then
 make the code match it.**
 
 ## What it emits

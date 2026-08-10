@@ -75,7 +75,7 @@ The generated module is a library as well as a binary: it exports `COMMANDS`, `w
 That makes two things possible without touching generated files.
 
 **One binary over several APIs.**
-Set a top-level `client.cliOutput` and `redocly generate-client` (no api argument) emits a composed entry over every api that selects `cli` — each behind its alias from `apis:` as the namespace, reading credentials under `<BINNAME>_<ALIAS>_*`:
+Set a top-level `client.cliOutput` and `redocly generate-client` (no api argument) emits a composed entry over every api that emits a cli module — each behind its alias from `apis:` as the namespace, reading credentials under `<BINNAME>_<ALIAS>_*`:
 
 ```yaml
 client:

@@ -106,7 +106,7 @@ function dropPointer(dir: string, ejected: string[]): void {
   const end = current.indexOf(AGENTS_END);
   if (begin === -1 || end === -1) {
     logger.warn(
-      `generate-client: ${target} exists without the managed markers — leaving it untouched.\n`
+      `eject-generator: ${target} exists without the managed markers — leaving it untouched.\n`
     );
     return;
   }
