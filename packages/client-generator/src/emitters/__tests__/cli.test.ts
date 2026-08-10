@@ -1,5 +1,5 @@
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { commandData, renderCliModule } from '../cli.js';
+import { commandData, renderCliModule, renderComposedCliEntry } from '../cli.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
@@ -252,5 +252,22 @@ describe('renderCliModule', () => {
     expect(out).toContain(
       'use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));'
     );
+  });
+});
+
+describe('renderComposedCliEntry', () => {
+  it('keeps import bindings legal for digit-leading aliases and unique for colliding ones', () => {
+    const out = renderComposedCliEntry(
+      [
+        { alias: '2fa-api', modulePath: './2fa.cli.js' },
+        { alias: 'my-api', modulePath: './my-api.cli.js' },
+        { alias: 'my.api', modulePath: './my-api-2.cli.js' },
+      ],
+      'cafe'
+    );
+    expect(out).toContain('import { COMMANDS as _2fa_apiCommands');
+    expect(out).toContain('COMMANDS as my_apiCommands');
+    expect(out).toContain('COMMANDS as my_api_2Commands');
+    expect(out).toContain('namespace: "2fa-api"');
   });
 });

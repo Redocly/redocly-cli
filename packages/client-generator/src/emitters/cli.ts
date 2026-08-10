@@ -225,7 +225,15 @@ export type ComposedCliSource = {
  */
 export function renderComposedCliEntry(sources: ComposedCliSource[], binName: string): string {
   const prefix = binName.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
-  const identFor = (alias: string): string => alias.replace(/[^A-Za-z0-9]/g, '_');
+  // An identifier can't start with a digit, and two aliases can sanitize identically —
+  // the underscore and the index keep every import binding legal and unique.
+  const idents = new Map<string, string>();
+  sources.forEach(({ alias }, index) => {
+    const sanitized = alias.replace(/[^A-Za-z0-9]/g, '_');
+    const legal = /^[A-Za-z_]/.test(sanitized) ? sanitized : `_${sanitized}`;
+    idents.set(alias, [...idents.values()].includes(legal) ? `${legal}_${index}` : legal);
+  });
+  const identFor = (alias: string): string => idents.get(alias)!;
   const imports = sources.map(({ alias, modulePath }, index) => {
     const ident = identFor(alias);
     const runtime = index === 0 ? ', runCli' : '';
