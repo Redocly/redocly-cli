@@ -137,7 +137,7 @@ export async function handleGenerateClient({
       configDir
     );
     const clientConfig = mergeConfig(clientBlock, cliFlags);
-    collectGeneratorUsage(clientConfig.generators ?? [], AUTHORING_HELPER_NAMES);
+    collectGeneratorUsage(clientConfig.generators ?? [], AUTHORING_HELPER_NAMES, configDir);
 
     const outputPath =
       argv.output !== undefined
@@ -230,9 +230,16 @@ export async function handleGenerateClient({
   }
 }
 
+/** A custom generator shared by several apis counts once, like the built-in names. */
+const seenCustomEntries = new Set<string>();
+
 /** Telemetry: allowlisted built-in names, custom count, and OUR helper names a
  * path generator imports — never user code, paths, or names. */
-function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[]): void {
+export function collectGeneratorUsage(
+  entries: string[],
+  knownHelpers: readonly string[],
+  configDir: string
+): void {
   const builtins = new Set(generateClientTelemetry.generate_client_builtin_generators ?? []);
   const toolkitImports = new Set(generateClientTelemetry.generate_client_toolkit_imports ?? []);
   const ejected = new Set(generateClientTelemetry.generate_client_ejected_generators ?? []);
@@ -242,10 +249,13 @@ function collectGeneratorUsage(entries: string[], knownHelpers: readonly string[
       builtins.add(entry);
       continue;
     }
+    if (seenCustomEntries.has(entry)) continue;
+    seenCustomEntries.add(entry);
     customCount++;
     if (entry.startsWith('.') || isAbsolute(entry)) {
       try {
-        const source = readFileSync(entry, 'utf-8');
+        // Relative entries resolve against the config's directory, like the pipeline does.
+        const source = readFileSync(resolvePath(configDir, entry), 'utf-8');
         for (const helper of collectToolkitImports(source, knownHelpers)) {
           toolkitImports.add(helper);
         }

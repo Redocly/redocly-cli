@@ -1,8 +1,14 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { EJECTABLE, FRAMEWORK_VARIANTS } from '../commands/eject-generator.js';
+import { collectGeneratorUsage } from '../commands/generate-client.js';
 import {
   BUILTIN_GENERATOR_NAMES,
   categorizeGenerateClientError,
   collectToolkitImports,
+  generateClientTelemetry,
   parseEjectedProvenance,
 } from '../utils/generate-client-telemetry.js';
 
@@ -54,6 +60,35 @@ describe('BUILTIN_GENERATOR_NAMES', () => {
   it('covers every built-in', () => {
     const builtins = [...EJECTABLE, ...FRAMEWORK_VARIANTS.keys()].sort();
     expect([...BUILTIN_GENERATOR_NAMES].sort()).toEqual(builtins);
+  });
+});
+
+describe('collectGeneratorUsage', () => {
+  it('resolves config-relative paths against the config dir and counts a shared custom once', () => {
+    for (const key of Object.keys(generateClientTelemetry)) {
+      delete generateClientTelemetry[key as keyof typeof generateClientTelemetry];
+    }
+    const configDir = mkdtempSync(join(tmpdir(), 'generate-client-telemetry-'));
+    try {
+      mkdirSync(join(configDir, 'generators'));
+      writeFileSync(
+        join(configDir, 'generators/php.mjs'),
+        '// Ejected from @redocly/client-generator@0.3.0 — the built-in "php" generator.\n' +
+          "import { Printer } from '@redocly/client-generator';\n",
+        'utf-8'
+      );
+      // Two apis, the same entries — the cwd is elsewhere, only configDir resolves them.
+      collectGeneratorUsage(['sdk', './generators/php.mjs'], ['Printer'], configDir);
+      collectGeneratorUsage(['sdk', './generators/php.mjs'], ['Printer'], configDir);
+      expect(generateClientTelemetry).toEqual({
+        generate_client_builtin_generators: ['sdk'],
+        generate_client_custom_generators_count: 1,
+        generate_client_toolkit_imports: ['Printer'],
+        generate_client_ejected_generators: ['php@0.3.0'],
+      });
+    } finally {
+      rmSync(configDir, { recursive: true, force: true });
+    }
   });
 });
 
