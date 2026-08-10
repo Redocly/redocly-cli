@@ -59,7 +59,6 @@ The rules are verified at generate time: the advance parameter must be a declare
 A convention that doesn't fit an operation skips it; an explicit rule that doesn't fit fails generation.
 The `x-redoclyPagination` operation extension in the API description takes the same rule fields.
 Per operation, precedence is `operations[id]`, then `x-redoclyPagination`, then the convention.
-The extension's former name, `x-redocly-pagination`, still works and prints a rename warning.
 
 ## Examples
 
