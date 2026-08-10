@@ -59,7 +59,10 @@ const AGENTS_BEGIN =
   '<!-- redocly-generators:begin — managed by `redocly eject-generator`; content between markers is refreshed on eject -->';
 const AGENTS_END = '<!-- redocly-generators:end -->';
 
-/** The assets directory, resolved relative to the bundled module (repo and published alike). */
+/**
+ * The assets directory beside the bundled module — the CLI build copies it into `lib/`.
+ * Absent when running straight from `src`; build the CLI first.
+ */
 export function ejectAssetsDir(): string {
   return fileURLToPath(new URL('./eject-assets/', import.meta.url));
 }
@@ -254,7 +257,8 @@ function wireDependency(
 ): 'added' | 'updated' | 'present' | 'no-package-json' {
   const manifestPath = join(process.cwd(), 'package.json');
   if (!existsSync(manifestPath)) return 'no-package-json';
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+  const manifestSource = readFileSync(manifestPath, 'utf-8');
+  const manifest = JSON.parse(manifestSource) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   };
@@ -285,7 +289,8 @@ function wireDependency(
       Object.entries(devDependencies).sort(([left], [right]) => left.localeCompare(right))
     );
   }
-  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
+  const indent = /^([ \t]+)"/m.exec(manifestSource)?.[1] ?? '  ';
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, indent)}\n`, 'utf-8');
   return outcome;
 }
 
@@ -312,6 +317,8 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
   // `generators:` we found belongs to another block.
   if (lines.slice(clientLine + 1, generatorsLine).some((line) => /^\S/.test(line))) return false;
   if (source.includes(entry)) return true;
+  const isNameEntry = (item: string) =>
+    item === name || item === `'${name}'` || item === `"${name}"`;
 
   const flow = lines[generatorsLine].match(/^(\s+generators:\s*\[)(.*)\]\s*$/);
   if (flow !== null) {
@@ -319,7 +326,7 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
       .split(',')
       .map((item) => item.trim())
       .filter((item) => item !== '');
-    const nameEntry = items.indexOf(name);
+    const nameEntry = items.findIndex(isNameEntry);
     if (nameEntry === -1) items.push(entry);
     else items[nameEntry] = entry;
     lines[generatorsLine] = `${flow[1]}${items.join(', ')}]`;
@@ -332,7 +339,7 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
   for (let index = generatorsLine + 1; index < lines.length; index++) {
     const item = lines[index].match(/^(\s+)- (.*?)\s*$/);
     if (item === null) break;
-    if (item[2] === name) {
+    if (isNameEntry(item[2])) {
       lines[index] = `${item[1]}- ${entry}`;
       writeFileSync(configPath, lines.join('\n'), 'utf-8');
       return true;
@@ -471,7 +478,14 @@ export const handleEjectGenerator = async ({
   const authoringSkill = dropSkill('client-generators', assetsDir);
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
-  const configEntry = `./${relative(process.cwd(), target).split('\\').join('/')}`;
+  // Config-file generator entries resolve against the config's directory, so the wired
+  // path is relative to it — the cwd anchors only the snippet for a config yet to exist.
+  const configEntry = `./${relative(
+    config.configPath === undefined ? process.cwd() : dirname(config.configPath),
+    target
+  )
+    .split('\\')
+    .join('/')}`;
   const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion });
   // A bundled TypeScript generator also imports `logger`/`isPlainObject` from core, which
   // the toolkit depends on — worth saying out loud for a package manager that doesn't hoist.
