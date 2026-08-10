@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { BUILTIN_META } from '../../../client-generator/src/generators/meta.js';
 import { EJECTABLE, FRAMEWORK_VARIANTS } from '../commands/eject-generator.js';
 import { collectGeneratorUsage } from '../commands/generate-client.js';
 import {
@@ -60,6 +61,10 @@ describe('BUILTIN_GENERATOR_NAMES', () => {
   it('covers every built-in', () => {
     const builtins = [...EJECTABLE, ...FRAMEWORK_VARIANTS.keys()].sort();
     expect([...BUILTIN_GENERATOR_NAMES].sort()).toEqual(builtins);
+  });
+
+  it('matches the generator registry, so a new built-in cannot skip eject or telemetry', () => {
+    expect([...BUILTIN_GENERATOR_NAMES].sort()).toEqual(Object.keys(BUILTIN_META).sort());
   });
 });
 

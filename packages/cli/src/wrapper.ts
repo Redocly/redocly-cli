@@ -95,18 +95,14 @@ export function commandWrapper<T extends CommandArgv>(
     const lintRulesWithWarnings = new Set<string>();
     const lintRulesWithIgnoredProblems = new Set<string>();
     const collectResults: CollectResults = (results) => {
-      try {
-        for (const problem of results) {
-          if (problem.ignored) {
-            lintRulesWithIgnoredProblems.add(problem.ruleId);
-          } else if (problem.severity === 'error') {
-            lintRulesWithErrors.add(problem.ruleId);
-          } else if (problem.severity === 'warn') {
-            lintRulesWithWarnings.add(problem.ruleId);
-          }
+      for (const problem of results) {
+        if (problem.ignored) {
+          lintRulesWithIgnoredProblems.add(problem.ruleId);
+        } else if (problem.severity === 'error') {
+          lintRulesWithErrors.add(problem.ruleId);
+        } else if (problem.severity === 'warn') {
+          lintRulesWithWarnings.add(problem.ruleId);
         }
-      } catch (err) {
-        // Do nothing.
       }
     };
 
