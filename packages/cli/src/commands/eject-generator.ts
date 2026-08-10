@@ -231,12 +231,14 @@ function wireDependency(packages: Record<string, string>): 'added' | 'present' |
 
 /**
  * Add the ejected file to `client.generators` in the configuration file, editing the text
- * so comments and formatting survive. Only the two shapes we can extend without guessing
+ * so comments and formatting survive. A bare `<name>` entry is replaced rather than kept —
+ * leaving both would make the next run fail on a name collision, since the ejected file
+ * declares the name it takes over. Only the two shapes we can extend without guessing
  * are handled — a block sequence and a flow sequence under a top-level `client:` — and
  * anything else returns false, so the caller prints the snippet instead of reshaping
  * someone's config.
  */
-function wireConfig(configPath: string | undefined, entry: string): boolean {
+export function wireConfig(configPath: string | undefined, name: string, entry: string): boolean {
   if (configPath === undefined || !existsSync(configPath)) return false;
   const source = readFileSync(configPath, 'utf-8');
   const lines = source.split('\n');
@@ -253,8 +255,14 @@ function wireConfig(configPath: string | undefined, entry: string): boolean {
 
   const flow = lines[generatorsLine].match(/^(\s+generators:\s*\[)(.*)\]\s*$/);
   if (flow !== null) {
-    const existing = flow[2].trim();
-    lines[generatorsLine] = `${flow[1]}${existing === '' ? '' : `${existing}, `}${entry}]`;
+    const items = flow[2]
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item !== '');
+    const nameEntry = items.indexOf(name);
+    if (nameEntry === -1) items.push(entry);
+    else items[nameEntry] = entry;
+    lines[generatorsLine] = `${flow[1]}${items.join(', ')}]`;
     writeFileSync(configPath, lines.join('\n'), 'utf-8');
     return true;
   }
@@ -262,8 +270,13 @@ function wireConfig(configPath: string | undefined, entry: string): boolean {
   let lastItem = generatorsLine;
   let itemIndent = `${lines[generatorsLine].match(/^\s+/)![0]}  `;
   for (let index = generatorsLine + 1; index < lines.length; index++) {
-    const item = lines[index].match(/^(\s+)- /);
+    const item = lines[index].match(/^(\s+)- (.*?)\s*$/);
     if (item === null) break;
+    if (item[2] === name) {
+      lines[index] = `${item[1]}- ${entry}`;
+      writeFileSync(configPath, lines.join('\n'), 'utf-8');
+      return true;
+    }
     lastItem = index;
     itemIndent = item[1];
   }
@@ -380,7 +393,7 @@ export const handleEjectGenerator = async ({
   // A bundled TypeScript generator also imports `logger`/`isPlainObject` from core, which
   // the toolkit depends on — worth saying out loud for a package manager that doesn't hoist.
   const needsCore = asset.includes(`from "${CORE_PACKAGE}"`);
-  const wired = wireConfig(config.configPath, configEntry);
+  const wired = wireConfig(config.configPath, name, configEntry);
   logger.info(
     `Ejected the "${name}" generator to ${printedTarget}.\n` +
       (dependency === 'added'

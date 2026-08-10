@@ -1,4 +1,9 @@
-import { handleEjectGenerator, threeWayMerge } from '../../commands/eject-generator.js';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { outdent } from 'outdent';
+
+import { handleEjectGenerator, threeWayMerge, wireConfig } from '../../commands/eject-generator.js';
 import { ejectGeneratorTelemetry } from '../../utils/generate-client-telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
 
@@ -12,6 +17,54 @@ function reset() {
     delete ejectGeneratorTelemetry[key as keyof typeof ejectGeneratorTelemetry];
   }
 }
+
+describe('wireConfig', () => {
+  const wire = (source: string): string => {
+    const dir = mkdtempSync(join(tmpdir(), 'redocly-wire-config-'));
+    const configPath = join(dir, 'redocly.yaml');
+    writeFileSync(configPath, source, 'utf-8');
+    try {
+      expect(wireConfig(configPath, 'php', './generators/php.mjs')).toBe(true);
+      return readFileSync(configPath, 'utf-8');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
+
+  it('replaces a bare built-in name so the next run has no name collision', () => {
+    expect(
+      wire(outdent`
+        client:
+          generators:
+            - php
+            - sdk
+      `)
+    ).toBe(outdent`
+      client:
+        generators:
+          - ./generators/php.mjs
+          - sdk
+    `);
+    expect(wire('client:\n  generators: [php, sdk]\n')).toBe(
+      'client:\n  generators: [./generators/php.mjs, sdk]\n'
+    );
+  });
+
+  it('appends when the built-in name is not listed', () => {
+    expect(
+      wire(outdent`
+        client:
+          generators:
+            - sdk
+      `)
+    ).toBe(outdent`
+      client:
+        generators:
+          - sdk
+          - ./generators/php.mjs
+    `);
+  });
+});
 
 describe('threeWayMerge', () => {
   beforeEach(reset);
