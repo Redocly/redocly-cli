@@ -154,11 +154,11 @@ The only part of `generate-client` that parses TypeScript is baking a `--setup` 
 
 ### TypeScript artifacts
 
-TypeScript is just another output language: the same package root exports the TypeScript-specific renderers beside the neutral helpers.
+TypeScript is just another output language: the `@redocly/client-generator/generate` entry exports the TypeScript-specific renderers, kept off the package root so a `runtime: 'package'` client's import graph never carries the generation toolkit.
 `tsType` is the schema→type renderer the built-in sdk itself uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
 
 ```js
-import { tsType } from '@redocly/client-generator';
+import { tsType } from '@redocly/client-generator/generate';
 
 export default {
   name: 'response-map',

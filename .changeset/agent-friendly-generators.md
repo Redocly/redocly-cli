@@ -7,3 +7,5 @@ Added agent-friendly client generation: `python`, `go`, `php`, `cli`, and `cli-d
 
 **Note**: the pagination operation extension was renamed from `x-redocly-pagination` to `x-redoclyPagination`.
 The old name still works and prints a rename warning.
+
+**Note:** the per-operation pagination extension is now `x-redoclyPagination`; rename it in descriptions that used `x-redocly-pagination`, which is no longer read.
