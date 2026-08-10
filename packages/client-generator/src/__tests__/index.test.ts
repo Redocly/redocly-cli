@@ -124,6 +124,20 @@ describe('collectGeneratedFiles', () => {
         })
       ).toThrow(/Generator "rogue" failed: .*escapes the output directory/);
     }
+    // A relative path resolves against the output directory — the same base the guard
+    // checked — never against the cwd at write time.
+    const relativeRegistry = new Map([
+      ['relative', { run: () => [{ path: 'fixtures/data.json', content: '{}' }] }],
+    ]);
+    expect(
+      collectGeneratedFiles(model(), {
+        outputPath: '/out/api.ts',
+        outputMode: 'single',
+        emit: {},
+        generators: ['relative'],
+        registry: relativeRegistry,
+      })[0].path
+    ).toBe('/out/fixtures/data.json');
     // Subdirectories under the output directory stay legal (mock fixtures, split files).
     const registry = new Map([
       ['nested', { run: () => [{ path: '/out/fixtures/data.json', content: '{}' }] }],

@@ -83,11 +83,13 @@ export function runGenerators(
           `Generator "${name}" failed: file path escapes the output directory: ${file.path}`
         );
       }
-      if (seen.has(file.path)) {
+      if (seen.has(resolved)) {
         throw new Error(`Generator conflict: ${file.path} already emitted by an earlier generator`);
       }
-      seen.add(file.path);
-      files.push(file);
+      seen.add(resolved);
+      // Carry the resolved path forward so the write goes where the guard looked —
+      // a relative `file.path` would otherwise resolve against the cwd at write time.
+      files.push({ path: resolved, content: file.content });
     }
   }
   return files;
