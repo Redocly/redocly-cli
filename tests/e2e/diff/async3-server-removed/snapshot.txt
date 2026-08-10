@@ -1,0 +1,11 @@
+servers
+  ✖ breaking      removed  servers/staging
+      The server was removed. (server-removed)
+      at base.yaml:10:5
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

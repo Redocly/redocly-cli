@@ -1,0 +1,11 @@
+channels
+  ✖ breaking      changed  channels/userSignedUp/messages/signup/payload · required
+      Properties became required: plan. (required-properties-added)
+      at revision.yaml:14:13
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

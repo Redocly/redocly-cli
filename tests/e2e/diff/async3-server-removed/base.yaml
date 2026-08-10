@@ -1,0 +1,33 @@
+asyncapi: 3.0.0
+info:
+  title: asyncapi3-server-removed
+  version: '1.0'
+servers:
+  production:
+    host: broker.example.com
+    protocol: kafka
+  staging:
+    host: staging.example.com
+    protocol: kafka
+channels:
+  userSignedUp:
+    address: user/signedup
+    messages:
+      signup:
+        contentType: application/json
+        payload:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+            plan:
+              type: string
+operations:
+  onUserSignedUp:
+    action: receive
+    channel:
+      $ref: '#/channels/userSignedUp'
+    messages:
+      - $ref: '#/channels/userSignedUp/messages/signup'

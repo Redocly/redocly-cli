@@ -49,17 +49,15 @@ export function collectDocumentMap(opts: {
           if (identity !== undefined) stableSegment = identity;
         }
 
-        let pointer =
-          stableParent === null
-            ? realPointer
-            : stableParent === '#/'
-              ? `#/${stableSegment}`
-              : `${stableParent}/${stableSegment}`;
+        // The root's own pointer already ends in a slash, so a child of the root
+        // must not add a second one.
+        const stablePrefix = stableParent === '#/' ? '#' : stableParent;
+        let pointer = stablePrefix === null ? realPointer : `${stablePrefix}/${stableSegment}`;
 
         if (entries.has(pointer)) {
-          const next = (collisionCounts.get(pointer) ?? 1) + 1;
-          collisionCounts.set(pointer, next);
-          pointer = `${pointer}#${next}`;
+          const occurrence = (collisionCounts.get(pointer) ?? 1) + 1;
+          collisionCounts.set(pointer, occurrence);
+          pointer = `${pointer}#${occurrence}`;
         }
         stableByReal.set(realPointer, pointer);
 
@@ -115,7 +113,7 @@ function splitPointer(pointer: string): { parentReal: string | null; segment: st
   if (pointer === '#/' || pointer === '#') {
     return { parentReal: null, segment: pointer };
   }
-  const idx = pointer.lastIndexOf('/');
-  const parentReal = idx <= 1 ? '#/' : pointer.slice(0, idx);
-  return { parentReal, segment: pointer.slice(idx + 1) };
+  const lastSlash = pointer.lastIndexOf('/');
+  const parentReal = lastSlash <= 1 ? '#/' : pointer.slice(0, lastSlash);
+  return { parentReal, segment: pointer.slice(lastSlash + 1) };
 }
