@@ -97,6 +97,17 @@ describe('eject-generator (end-to-end)', () => {
       // Re-ejecting must not add the entry twice.
       expect(run(wired, ['eject-generator', 'go', '--force']).status).toBe(0);
       expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8').match(/go\.mjs/g)).toHaveLength(1);
+
+      // `--update` re-wires a recorded range the new toolkit no longer satisfies.
+      const pinned = JSON.parse(readFileSync(join(wired, 'package.json'), 'utf-8'));
+      pinned.devDependencies['@redocly/client-generator'] = '^0.0.1';
+      writeFileSync(join(wired, 'package.json'), JSON.stringify(pinned, null, 2), 'utf-8');
+      expect(run(wired, ['eject-generator', 'go', '--update']).status).toBe(0);
+      expect(
+        JSON.parse(readFileSync(join(wired, 'package.json'), 'utf-8')).devDependencies[
+          '@redocly/client-generator'
+        ]
+      ).toBe(`^${toolkitVersion}`);
     } finally {
       rmSync(wired, { recursive: true, force: true });
     }

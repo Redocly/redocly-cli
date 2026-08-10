@@ -12,6 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as semver from 'semver';
 
 import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -242,26 +243,50 @@ function ejectedIn(dir: string): string[] {
 /**
  * Record `@redocly/client-generator` in the project's devDependencies — the ejected file
  * imports the authoring toolkit from it. Installing stays the user's call; this only makes
- * the requirement part of the project so a fresh clone or CI gets it. Returns what happened.
+ * the requirement part of the project so a fresh clone or CI gets it. With `refresh` (the
+ * `--update` path), a recorded range that no longer covers `version` is moved to
+ * `^version` wherever the project keeps it — the merged file targets the new toolkit.
+ * Returns what happened.
  */
-function wireDependency(packages: Record<string, string>): 'added' | 'present' | 'no-package-json' {
+function wireDependency(
+  packages: Record<string, string>,
+  refresh = false
+): 'added' | 'updated' | 'present' | 'no-package-json' {
   const manifestPath = join(process.cwd(), 'package.json');
   if (!existsSync(manifestPath)) return 'no-package-json';
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   };
-  const missing = Object.entries(packages).filter(
-    ([name]) =>
-      manifest.dependencies?.[name] === undefined && manifest.devDependencies?.[name] === undefined
-  );
-  if (missing.length === 0) return 'present';
-  const devDependencies = { ...manifest.devDependencies, ...Object.fromEntries(missing) };
-  manifest.devDependencies = Object.fromEntries(
-    Object.entries(devDependencies).sort(([left], [right]) => left.localeCompare(right))
-  );
+  let outcome: 'added' | 'updated' | 'present' = 'present';
+  const missing: Record<string, string> = {};
+  for (const [name, version] of Object.entries(packages)) {
+    const section =
+      manifest.devDependencies?.[name] !== undefined
+        ? manifest.devDependencies
+        : manifest.dependencies?.[name] !== undefined
+          ? manifest.dependencies
+          : undefined;
+    if (section === undefined) {
+      missing[name] = `^${version}`;
+      outcome = 'added';
+    } else if (
+      refresh &&
+      !(semver.validRange(section[name]) !== null && semver.satisfies(version, section[name]))
+    ) {
+      section[name] = `^${version}`;
+      if (outcome === 'present') outcome = 'updated';
+    }
+  }
+  if (outcome === 'present') return 'present';
+  if (Object.keys(missing).length > 0) {
+    const devDependencies = { ...manifest.devDependencies, ...missing };
+    manifest.devDependencies = Object.fromEntries(
+      Object.entries(devDependencies).sort(([left], [right]) => left.localeCompare(right))
+    );
+  }
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
-  return 'added';
+  return outcome;
 }
 
 /**
@@ -413,6 +438,13 @@ export const handleEjectGenerator = async ({
       updateSkill('client-generators', assetsDir, skillBase('client-generators')) +
       updateSkill(`${name}-generator`, assetsDir, skillBase(`${name}-generator`));
     dropPointer(dir, ejectedIn(dir));
+    // The merged file targets the new toolkit; a range recorded at eject time may not.
+    const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion }, true);
+    if (dependency === 'updated' || dependency === 'added') {
+      logger.info(
+        `Set ${TOOLKIT_PACKAGE} to ^${toolkitVersion} in package.json — run your installer.\n`
+      );
+    }
     const totalConflicts = conflicts + skillConflicts;
     ejectGeneratorTelemetry.eject_generator_outcome = totalConflicts > 0 ? 'conflicts' : 'success';
     if (totalConflicts > 0) {
@@ -440,7 +472,7 @@ export const handleEjectGenerator = async ({
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
   const configEntry = `./${relative(process.cwd(), target).split('\\').join('/')}`;
-  const dependency = wireDependency({ [TOOLKIT_PACKAGE]: `^${toolkitVersion}` });
+  const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion });
   // A bundled TypeScript generator also imports `logger`/`isPlainObject` from core, which
   // the toolkit depends on — worth saying out loud for a package manager that doesn't hoist.
   const needsCore = asset.includes(`from "${CORE_PACKAGE}"`);
