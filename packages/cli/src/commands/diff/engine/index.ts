@@ -42,7 +42,7 @@ export function diffDocuments(opts: {
   const revisionVersion = detectSpec(revision.parsed);
   if (getMajorSpecVersion(baseVersion) !== getMajorSpecVersion(revisionVersion)) {
     throw new DiffError(
-      `Cannot compare different specification families: '${baseVersion}' vs '${revisionVersion}'.`
+      `The base and the revision use different specification families: '${baseVersion}' and '${revisionVersion}'. The diff command compares documents of one family only.`
     );
   }
 

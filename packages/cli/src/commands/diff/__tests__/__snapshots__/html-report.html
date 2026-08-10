@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>API diff</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 2rem auto; max-width: 60rem; padding: 0 1rem; color: #1f2933; }
+  h1 { font-size: 1.4rem; }
+  .summary span { margin-right: 1rem; font-weight: 600; }
+  .change { border: 1px solid #e0e4e8; border-radius: 6px; margin: .5rem 0; padding: .25rem .75rem; }
+  .change summary { cursor: pointer; display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; }
+  .badge { border-radius: 4px; padding: 0 .5rem; font-size: .8rem; color: #fff; }
+  .breaking .badge { background: #c0392b; }
+  .ok .badge { background: #1e8449; }
+  .msg { color: #52606d; }
+  .rules { color: #9aa5b1; font-size: .85rem; }
+  pre { background: #f5f7fa; padding: .75rem; border-radius: 6px; overflow-x: auto; }
+  code.loc { word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>API diff</h1>
+<p class="summary">
+  <span style="color:#c0392b">3 breaking</span>
+  <span style="color:#1e8449">2 non-breaking</span>
+  <span style="color:#9aa5b1">oas3_1 → oas3_1</span>
+</p>
+
+    <details class="change breaking">
+      <summary>
+        <span class="badge">breaking</span>
+        <code>removed</code>
+        <code class="loc">#/paths/~1pets/delete</code>
+        <span class="msg">Operation was removed.</span> <span class="rules">operation-removed</span>
+      </summary>
+      <pre>{
+  &quot;base&quot;: {
+    &quot;pointer&quot;: &quot;#/paths/~1pets/delete&quot;,
+    &quot;file&quot;: &quot;base.yaml&quot;,
+    &quot;line&quot;: 30,
+    &quot;col&quot;: 3,
+    &quot;value&quot;: {
+      &quot;summary&quot;: &quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;
+    }
+  }
+}</pre>
+    </details>
+
+    <details class="change breaking">
+      <summary>
+        <span class="badge">breaking</span>
+        <code>changed</code>
+        <code class="loc">#/paths/~1pets/get/parameters/{query:limit} · required</code>
+        <span class="msg">Parameter became required.</span> <span class="rules">parameter-became-required</span>
+      </summary>
+      <pre>{
+  &quot;base&quot;: {
+    &quot;pointer&quot;: &quot;#/paths/~1pets/get/parameters/0/required&quot;,
+    &quot;file&quot;: &quot;base.yaml&quot;,
+    &quot;line&quot;: 9,
+    &quot;col&quot;: 21
+  },
+  &quot;revision&quot;: {
+    &quot;pointer&quot;: &quot;#/paths/~1pets/get/parameters/1/required&quot;,
+    &quot;file&quot;: &quot;revision.yaml&quot;,
+    &quot;line&quot;: 11,
+    &quot;col&quot;: 21,
+    &quot;value&quot;: true
+  }
+}</pre>
+    </details>
+
+    <details class="change breaking">
+      <summary>
+        <span class="badge">breaking</span>
+        <code>changed</code>
+        <code class="loc">#/paths/~1pets/post/requestBody/content/application~1json/schema · pattern</code>
+        <span class="msg">`pattern` changed from 'a' to 'a|b'.</span> <span class="rules">string-length-changed</span>
+      </summary>
+      <pre>{
+  &quot;revision&quot;: {
+    &quot;pointer&quot;: &quot;#/paths/~1pets/post/requestBody/content/application~1json/schema/pattern&quot;,
+    &quot;file&quot;: &quot;revision.yaml&quot;,
+    &quot;line&quot;: 18,
+    &quot;col&quot;: 22,
+    &quot;value&quot;: &quot;a|b&quot;
+  }
+}</pre>
+    </details>
+
+    <details class="change ok">
+      <summary>
+        <span class="badge">non-breaking</span>
+        <code>added</code>
+        <code class="loc">#/components/schemas/Pet</code>
+        
+      </summary>
+      <pre>{
+  &quot;revision&quot;: {
+    &quot;pointer&quot;: &quot;#/components/schemas/Pet&quot;,
+    &quot;file&quot;: &quot;revision.yaml&quot;,
+    &quot;line&quot;: 20,
+    &quot;col&quot;: 5,
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;object&quot;
+    }
+  }
+}</pre>
+    </details>
+
+    <details class="change ok">
+      <summary>
+        <span class="badge">non-breaking</span>
+        <code>changed</code>
+        <code class="loc">#/paths/~1pet~1{id} · path</code>
+        
+      </summary>
+      <pre>{
+  &quot;base&quot;: {
+    &quot;pointer&quot;: &quot;#/paths/~1pet~1{id}&quot;,
+    &quot;file&quot;: &quot;base.yaml&quot;,
+    &quot;line&quot;: 4,
+    &quot;col&quot;: 3,
+    &quot;value&quot;: &quot;/pet/{id}&quot;
+  },
+  &quot;revision&quot;: {
+    &quot;pointer&quot;: &quot;#/paths/~1pet~1{petId}&quot;,
+    &quot;file&quot;: &quot;revision.yaml&quot;,
+    &quot;line&quot;: 4,
+    &quot;col&quot;: 3,
+    &quot;value&quot;: &quot;/pet/{petId}&quot;
+  }
+}</pre>
+    </details>
+</body>
+</html>

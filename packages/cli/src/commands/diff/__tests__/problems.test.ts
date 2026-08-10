@@ -50,34 +50,37 @@ const result: DiffResult = {
 };
 
 describe('breakingChangesToProblems', () => {
-  const problems = breakingChangesToProblems(result, baseSource, revisionSource);
+  it('describes each breaking change the way a lint problem is described', () => {
+    const problems = breakingChangesToProblems(result, baseSource, revisionSource);
 
-  it('keeps only breaking changes', () => {
-    expect(problems).toHaveLength(2);
-    expect(problems.every((problem) => problem.severity === 'error')).toBe(true);
-  });
-
-  it('takes message and ruleId from the worst verdict', () => {
-    expect(problems[0]).toMatchObject({
-      message: 'Operation was removed.',
-      ruleId: 'operation-removed',
-    });
-  });
-
-  it('points a removal at the base document and a change at the revision', () => {
-    expect(problems[0].location[0]).toMatchObject({
-      source: baseSource,
-      pointer: '#/paths/~1pets/delete',
-    });
-    expect(problems[1].location[0]).toMatchObject({
-      source: revisionSource,
-      pointer: '#/paths/~1pets/get/parameters/0/required',
-    });
-  });
-
-  it('adds the counterpart side as `from` when the change has both sides', () => {
-    expect(problems[1].from).toMatchObject({ source: baseSource });
-    // A removal is already shown at its base location, so it needs no `from`.
-    expect(problems[0].from).toBeUndefined();
+    // Only the breaking changes map onto a lint problem, because a problem always
+    // carries a severity. A removal is shown in the base document, everything else in
+    // the revision, with the other side attached as `from` so both are reachable.
+    expect(
+      problems.map((problem) => ({
+        severity: problem.severity,
+        ruleId: problem.ruleId,
+        message: problem.message,
+        at: `${problem.location[0].source.absoluteRef}${problem.location[0].pointer}`,
+        from: problem.from && `${problem.from.source.absoluteRef}${problem.from.pointer}`,
+      }))
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "at": "base.yaml#/paths/~1pets/delete",
+          "from": undefined,
+          "message": "Operation was removed.",
+          "ruleId": "operation-removed",
+          "severity": "error",
+        },
+        {
+          "at": "revision.yaml#/paths/~1pets/get/parameters/0/required",
+          "from": "base.yaml#/paths/~1pets/get/parameters/0/required",
+          "message": "Parameter became required.",
+          "ruleId": "parameter-became-required",
+          "severity": "error",
+        },
+      ]
+    `);
   });
 });
