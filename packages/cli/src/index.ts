@@ -981,6 +981,7 @@ yargs(hideBin(process.argv))
           type: 'string',
         })
         .options({
+          config: { description: 'Path to the config file.', type: 'string' },
           dir: {
             describe: 'Directory to eject into.',
             type: 'string',
