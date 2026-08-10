@@ -1,4 +1,4 @@
-import { handleEjectGenerator } from '../../commands/eject-generator.js';
+import { handleEjectGenerator, threeWayMerge } from '../../commands/eject-generator.js';
 import { ejectGeneratorTelemetry } from '../../utils/generate-client-telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
 
@@ -12,6 +12,30 @@ function reset() {
     delete ejectGeneratorTelemetry[key as keyof typeof ejectGeneratorTelemetry];
   }
 }
+
+describe('threeWayMerge', () => {
+  beforeEach(reset);
+
+  it('merges cleanly and counts conflicts', () => {
+    const base = 'a\nb\nc\nd\ne\n';
+    expect(threeWayMerge('A\nb\nc\nd\ne\n', base, 'a\nb\nc\nd\nE\n')).toEqual({
+      merged: 'A\nb\nc\nd\nE\n',
+      conflicts: 0,
+    });
+    const conflicted = threeWayMerge('a\nyours\nc\nd\ne\n', base, 'a\ntheirs\nc\nd\ne\n');
+    expect(conflicted.conflicts).toBe(1);
+    expect(conflicted.merged).toContain('<<<<<<<');
+  });
+
+  it("keeps the user's copy when git merge-file errors instead of counting conflicts", () => {
+    // Binary (NUL-byte) content makes `git merge-file` exit 255 with empty stdout —
+    // that must surface as an error, never as "255 conflicts" written over the file.
+    expect(() => threeWayMerge('customized\0', 'base\0', 'updated\0')).toThrow(
+      /could not merge the update/
+    );
+    expect(ejectGeneratorTelemetry.eject_generator_outcome).toBe('merge-failed');
+  });
+});
 
 describe('eject telemetry (coarse categories only)', () => {
   beforeEach(reset);

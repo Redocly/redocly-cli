@@ -117,7 +117,7 @@ function dropPointer(dir: string, ejected: string[]): void {
 }
 
 /** 3-way merge via `git merge-file`; returns the merged text and the conflict count. */
-function threeWayMerge(
+export function threeWayMerge(
   customized: string,
   base: string,
   updated: string
@@ -149,10 +149,19 @@ function threeWayMerge(
     { encoding: 'utf-8' }
   );
   rmSync(scratch, { recursive: true, force: true });
-  if (result.error || result.status === null || result.status < 0) {
+  if (result.error || result.status === null) {
     ejectGeneratorTelemetry.eject_generator_outcome = 'merge-tool-missing';
     throw new HandledError(
       '\n❌  `--update` needs `git` on PATH for the three-way merge. Alternative: eject to a temporary directory and diff by hand.\n'
+    );
+  }
+  // `git merge-file` exits with the conflict count truncated to 127; anything above
+  // that is its negative error exit, where stdout is empty — writing it would destroy
+  // the user's copy.
+  if (result.status > 127) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'merge-failed';
+    throw new HandledError(
+      `\n❌  \`git merge-file\` could not merge the update (your copy is untouched): ${result.stderr.trim()}\n`
     );
   }
   return { merged: result.stdout, conflicts: result.status };
