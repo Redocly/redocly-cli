@@ -20,7 +20,7 @@ Options:
       --operation    Show one operation: an HTTP method (with --path or --webhoo
                      k) or an operationId.                              [string]
       --find         Search operations and components by words in their path, id
-                     , name, summary, or description.                   [string]
+                     , name, summary, description, or tags.             [string]
       --component    Show a component section (schemas, responses, …) or, with -
                      -name, one component.                              [string]
       --name         Component name; requires --component.              [string]

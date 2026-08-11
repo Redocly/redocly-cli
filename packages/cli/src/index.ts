@@ -131,7 +131,7 @@ yargs(hideBin(process.argv))
           },
           find: {
             description:
-              'Search operations and components by words in their path, id, name, summary, or description.',
+              'Search operations and components by words in their path, id, name, summary, description, or tags.',
             type: 'string' as const,
             requiresArg: true,
           },
