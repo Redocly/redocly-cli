@@ -218,6 +218,7 @@ export async function handleGenerateClient({
     );
     await mkdir(dirname(entryPath), { recursive: true });
     await writeFile(entryPath, content, 'utf-8');
+    generateClientTelemetry.generate_client_composed_apis_count = composable.length;
     logger.info(
       '\n' +
         blue(

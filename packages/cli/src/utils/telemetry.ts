@@ -152,12 +152,15 @@ export async function sendTelemetry({
           ?.length
           ? JSON.stringify(generate_client.generate_client_ejected_generators)
           : undefined,
+        generate_client_composed_apis_count: generate_client?.generate_client_composed_apis_count,
         // eject-generator usage (action, allowlisted name, coarse outcome — never
         // user paths or user-chosen names).
         eject_generator_action: eject_generator?.eject_generator_action,
         eject_generator_name: eject_generator?.eject_generator_name,
         eject_generator_outcome: eject_generator?.eject_generator_outcome,
         eject_generator_conflicts: eject_generator?.eject_generator_conflicts,
+        eject_generator_from_version: eject_generator?.eject_generator_from_version,
+        eject_generator_to_version: eject_generator?.eject_generator_to_version,
       },
     ];
 

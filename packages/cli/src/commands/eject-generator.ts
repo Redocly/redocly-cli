@@ -406,6 +406,12 @@ export const handleEjectGenerator = async ({
     }
     const customized = readFileSync(target, 'utf-8');
     const from = recordedVersion(customized);
+    // Version distance behind the conflict count — both OUR versions. The header is
+    // user-editable text, so it's recorded only when it parses as a semver version.
+    if (from !== undefined && semver.valid(from) !== null) {
+      ejectGeneratorTelemetry.eject_generator_from_version = from;
+    }
+    ejectGeneratorTelemetry.eject_generator_to_version = toolkitVersion;
     // One pack fetches every merge base: the generator plus both skills it shipped with.
     const packed =
       existsSync(legacyBase) || from === toolkitVersion || from === undefined

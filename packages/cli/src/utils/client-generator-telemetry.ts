@@ -10,6 +10,8 @@ export type GenerateClientTelemetry = {
   generate_client_error_category?: string;
   /** Ejected built-ins in the run, as `<name>@<ejected-from-version>` (from OUR provenance header). */
   generate_client_ejected_generators?: string[];
+  /** How many apis the composed CLI entry (`client.cliOutput`) spanned, when one was written. */
+  generate_client_composed_apis_count?: number;
 };
 
 /** Populated by handleGenerateClient; spread into the telemetry payload by the wrapper. */
@@ -92,6 +94,10 @@ export type EjectGeneratorTelemetry = {
   /** Coarse outcome: success | conflicts | already-exists | missing-target | missing-base | merge-tool-missing | merge-failed | unknown-generator | unexpected-error. */
   eject_generator_outcome?: string;
   eject_generator_conflicts?: number;
+  /** `--update` only: the toolkit version the file was ejected from — OUR version string, semver-checked. */
+  eject_generator_from_version?: string;
+  /** `--update` only: the installed toolkit version the merge targets. */
+  eject_generator_to_version?: string;
 };
 
 /** Populated by the eject-generator handler; spread into the telemetry payload by the wrapper. */
