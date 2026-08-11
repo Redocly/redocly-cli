@@ -457,6 +457,7 @@ The card-shaped listings that make every JSON view structurally uniform are also
 | `--format=ai` (method, path, summary, line range) | **9,430** |  **−93%** |
 
 Both behaviors ship as one format value rather than extra flags — `--format` is `stylish` (for people), `json` (full data, pretty, for tooling), or `ai` (the agent format: projected listings, no indentation anywhere, plus — added after this measurement — schema signatures instead of raw YAML in a `--with-deps` closure; see the tree command reference for that part).
+The `ai` format was later rebuilt as plain text with a `--find` search step; the re-measured chain and isolated re-runs are in the final section below, and they supersede this table's `ai` numbers.
 With `--format=ai` the three-step chain lands at **1,056 + 9,430 + 18,644 = 29,130 tokens** (+156 for the instruction below) — **~66× less than the whole file**, all of it machine-readable JSON; the 18,644-token closure step predates signature compression and would cost less measured again today, in proportion to how much of that closure was unused `anyOf`/`oneOf` branches:
 
 > This API description is too large to read directly. Use redocly tree; its output comes from the spec parser and is authoritative — no re-verification needed. Overview: `redocly tree <file> --format=ai`. One tag's operations: `redocly tree <file> --tag=<tag> --format=ai`. One operation with its full $ref closure: `redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai`. For impact questions ("what breaks if X changes"): `redocly tree <file> --component=<section> --name=<Name> --used-by --format=ai` returns every transitively affected operation with its `via` chain.
@@ -507,6 +508,55 @@ The agent again composed the correct end-to-end sequence — `GET /menu` → `PO
 The honest number: its eight commands' full outputs total 22,508 tokens — two and a half times the whole 9,042-token file.
 On descriptions that fit the window comfortably, the index buys navigation and structure, not token savings; the savings argument starts where the file stops fitting.
 
+### The format re-measured: plain text and `--find`
+
+The multi-operation runs above still lost to a no-tool agent on final session size everywhere except the smallest description.
+A byte audit of the losing run's transcripts found where its 101,998 B of tree output went, and none of it was the data the agent asked for:
+the overview carried 6.3 KB of tag descriptions and all 98 webhook names (11,866 B total);
+a component card answered "what fields does `CurrencyCode` have" with 8,216 B of `usedBy` entries and no schema body;
+every deps entry repeated a `pointer` that duplicates its id and a `file` that never changes;
+and JSON keys alone were 36% of every listing.
+The structural conclusion was worse than the byte counts: discovery was the wrong protocol step — the agent loaded a 203-operation tag listing (37,424 B) to eyeball one operation.
+
+The format was rebuilt around those four findings: `ai` output became plain text end to end,
+deps entries shrank to `id L595-599: signature`, `usedBy` collapsed to a count with a `--used-by` hint,
+component cards gained their own signature line plus raw source,
+the overview dropped tag descriptions and webhook name lists,
+and a new standalone `--find=<terms>` selector searches paths, operationIds, names, summaries, descriptions, and tags, returning up to 20 ranked one-line matches.
+
+The per-call price list, measured on the same descriptions (`| wc -c` on stdout):
+
+| Call                                          | Before (B) | After (B) |
+| --------------------------------------------- | ---------: | --------: |
+| Overview, 1.3 MB billing API                  |     11,866 |     1,217 |
+| Component card `CurrencyCode`                 |      7,871 |       312 |
+| Operation card `POST /subscriptions` + deps   |     12,559 |     9,242 |
+| Tag listing `repos` (203 operations, 10.0 MB) |     37,424 |    26,281 |
+| Discovery of "upload release asset" (10.0 MB) |     37,424 |       344 |
+
+The last row is the protocol change, not a compression: `--find "upload release asset"` replaces the tag listing entirely.
+Two honest misses against the design targets: the operation card is 9% over (its `x-codeSamples` blocks are 4,172 B — 45% of the card — and content ships whole by design),
+and the tag listing is 9.5% over (203 operationIds each repeat the `repos/` prefix, which cannot be trimmed because the operationId is the selector key).
+
+The isolated head-to-heads were then re-run — same tasks, same model, fresh sessions, the no-tool controls reused unchanged from the first round since nothing about their conditions changed:
+
+| Run (3-call workflow task)              |    Session | Output tokens | Actions |
+| --------------------------------------- | ---------: | ------------: | ------: |
+| 1.3 MB billing API — no tool            |     92,648 |        31,052 |      42 |
+| 1.3 MB billing API — `ai`, first round  |    121,543 |        22,659 |      22 |
+| 1.3 MB billing API — `ai` v2 + `--find` | **88,915** |    **22,554** |      26 |
+| 10.0 MB GitHub API — no tool            |     66,246 |        19,789 |      20 |
+| 10.0 MB GitHub API — `ai`, first round  |     95,754 |        19,885 |      18 |
+| 10.0 MB GitHub API — `ai` v2 + `--find` |     66,862 |    **16,952** |      19 |
+
+All six answers were correct, including the `uploads.github.com` server override and the billing API's `anyOf`-without-discriminator plan choice.
+On the billing API the indexed agent finished below the no-tool control for the first time — on session size, output tokens, and wall clock (415 s against 437 s) at once.
+On the GitHub API it reached parity on session size (+0.9%) with the lowest output tokens of the whole series.
+
+What the v2 agents actually called is the protocol working as designed.
+The GitHub run: overview (1,125 B) → `--find "release"` → `--find "upload asset"` (344 B) → three operation cards with deps → component spot-checks; it never listed a tag at all.
+The billing run: overview → `--find "subscription"` → three small tag listings (3-5 KB each) → four cards → component checks — and where the first round's agent could not confirm `PlanFormulaFlatRate`'s fields because the component card carried no body, the v2 agent confirmed them from the card's signature line in one call.
+
 ## Methodology notes
 
 - Every output above comes from a real command run against the real file; sizes are the byte counts of captured `stdout`.
@@ -515,6 +565,11 @@ On descriptions that fit the window comfortably, the index buys navigation and s
 - The description is `api.github.com.yaml` from the `main` branch of `github/rest-api-description`, version 1.1.4, fetched 2026-08-06, used unmodified.
   The version field is unchanged since the previous measurement of this guide, but the file itself grew by 182,579 bytes (1.9%) over the same window, since `main` moves independently of the version field.
 - The agent chooses which nodes to open; the command syntax comes from the 85-token instruction counted separately above.
+- The re-measured round's runs are isolated: the descriptions live in a directory outside this repository, and the no-tool controls are explicitly barred from running OpenAPI tooling or reading repository instructions.
+  That bar exists because the first isolation attempt failed — two of three control agents discovered `tree` on their own through the repository's `AGENTS.md` and used it; those contaminated controls were discarded and re-run.
+- A session number is the agent's final context size, not the billed total: every turn re-sends the context, so the billed cache reads on the billing-API runs were 4.1–4.4 M tokens.
+  The Actions column is therefore not decorative — fewer turns means fewer full context passes.
+- The re-measured round's CLI build also carried a then-pending fix for a one-line overshoot in raw-content slicing; it affects `--- yaml` blocks only and none of the sizes in the price list above.
 - Each command invocation analyzes the description again.
   Building every entry's `refs`/`usedBy` now looks up a per-analysis index instead of re-scanning the graph, and turning a character offset into a line/column now binary-searches a per-analysis line-offset table instead of rescanning the source from character 0; both were previously redone on every single call.
   The overview step took about 2.7 seconds for this 10.0 MB file; a `--with-deps` card, which still walks the full `$ref` graph to build the dependency closure regardless of how small the output is, took about 3 seconds, down from about 47.
