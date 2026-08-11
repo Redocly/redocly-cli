@@ -129,6 +129,12 @@ yargs(hideBin(process.argv))
             type: 'string' as const,
             requiresArg: true,
           },
+          find: {
+            description:
+              'Search operations and components by words in their path, id, name, summary, or description.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
           component: {
             description:
               'Show a component section (schemas, responses, …) or, with --name, one component.',

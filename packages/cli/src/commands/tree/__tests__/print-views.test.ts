@@ -1,3 +1,4 @@
+import type { TreeView } from '../index.js';
 import { renderView, renderViewStylish } from '../print/views.js';
 
 describe('renderViewStylish', () => {
@@ -518,6 +519,56 @@ describe('renderViewStylish', () => {
       },
     });
     expect(rendered).toBe('paths/orphan.yaml\nNothing references it.');
+  });
+
+  it('renders a find view in stylish', () => {
+    const view: TreeView = {
+      kind: 'find',
+      report: {
+        terms: ['pet'],
+        operations: [
+          {
+            method: 'post',
+            path: '/tickets',
+            operationId: 'buyTickets',
+            summary: 'Buy museum tickets',
+            tags: ['Tickets'],
+            pointer: '#/post',
+            file: 'paths/tickets.yaml',
+            start_line: 10,
+            end_line: 40,
+            refs: [],
+            usedBy: [],
+          },
+        ],
+        components: [
+          {
+            component: 'schemas',
+            name: 'Ticket',
+            summary: 'A museum ticket.',
+            pointer: '#/components/schemas/Ticket',
+            file: 'openapi.yaml',
+            start_line: 12,
+            end_line: 20,
+            refs: [],
+            usedBy: [],
+          },
+        ],
+        totalOperations: 25, // > FIND_LIMIT would show the overflow line; use what you assert
+        totalComponents: 1,
+      },
+    };
+    expect(renderViewStylish(view)).toMatchInlineSnapshot(`
+      "find "pet" · 25 operations · 1 components
+
+      /tickets (1)
+      └── POST "Buy museum tickets" 10..40 [Tickets]
+
+      components (1)
+      └── schemas/Ticket "A museum ticket." 12..20
+
+      … 24 more operations — narrow the terms."
+    `);
   });
 });
 

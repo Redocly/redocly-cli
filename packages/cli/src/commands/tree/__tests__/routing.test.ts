@@ -153,4 +153,31 @@ describe('resolveTreeView', () => {
 
     expect(route({ webhook: 'nope' })).toThrow(/No webhook "nope"/);
   });
+
+  it('routes --find to a find view with lowercased whitespace-split terms', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    const view = route({ find: 'Release  ASSET' });
+    expect(view.kind).toBe('find');
+    if (view.kind === 'find') expect(view.report.terms).toEqual(['release', 'asset']);
+  });
+
+  it('rejects --find combined with any other selector', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ find: 'pet', tag: 'pets' })).toThrow(TreeSelectorError);
+    expect(route({ find: 'pet', 'with-deps': true })).toThrow(TreeSelectorError);
+  });
+
+  it('rejects an effectively empty --find', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ find: '   ' })).toThrow(TreeSelectorError);
+  });
 });

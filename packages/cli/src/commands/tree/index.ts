@@ -14,6 +14,7 @@ import {
   COMPONENT_SECTIONS,
   detectSpec,
   findComponent,
+  findMatches,
   findOperationByOperationId,
   findOperationByPathMethod,
   findWebhookOperation,
@@ -33,6 +34,7 @@ import {
   type ComponentListCard,
   type Document,
   type FileCard,
+  type FindReport,
   type NormalizedNodeType,
   type OperationCard,
   type OperationListCard,
@@ -67,6 +69,7 @@ export type TreeArgv = {
   path?: string;
   webhook?: string;
   operation?: string;
+  find?: string;
   component?: string;
   name?: string;
   file?: string;
@@ -88,7 +91,8 @@ export type TreeView =
   | { kind: 'operation-card'; card: OperationCard }
   | { kind: 'component-card'; card: ComponentCard }
   | { kind: 'file-card'; card: FileCard }
-  | { kind: 'used-by'; report: UsedByReport };
+  | { kind: 'used-by'; report: UsedByReport }
+  | { kind: 'find'; report: FindReport };
 
 export class TreeSelectorError extends Error {}
 
@@ -161,6 +165,32 @@ export function resolveTreeView(
     throw new TreeSelectorError(
       '--used-by and --with-deps cannot be combined: --used-by returns the operations and components that reference the selection, --with-deps returns the selection with its dependency closure.'
     );
+  }
+
+  if (argv.find !== undefined) {
+    const otherSelector =
+      argv.tag !== undefined ||
+      argv.path !== undefined ||
+      argv.webhook !== undefined ||
+      argv.operation !== undefined ||
+      argv.component !== undefined ||
+      argv.name !== undefined ||
+      argv.file !== undefined ||
+      argv.paths === true ||
+      argv.operations === true ||
+      argv.webhooks === true ||
+      usedBy ||
+      withDeps;
+    if (otherSelector) {
+      throw new TreeSelectorError(
+        '--find is a standalone search and cannot be combined with other selectors.'
+      );
+    }
+    const terms = argv.find.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) {
+      throw new TreeSelectorError('--find needs at least one word to search for.');
+    }
+    return { kind: 'find', report: findMatches(analysis, terms, { cwd }) };
   }
 
   if (
@@ -530,6 +560,7 @@ async function handleStructureMode({
     argv.component !== undefined ||
     argv.name !== undefined ||
     argv.file !== undefined ||
+    argv.find !== undefined ||
     argv.paths === true ||
     argv.operations === true ||
     argv.webhooks === true ||
@@ -541,7 +572,7 @@ async function handleStructureMode({
     // renders for any spec type, in both stylish and json.
     if (usesSelectors) {
       return exitWithError(
-        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --paths, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
+        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --paths, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
       );
     }
     renderOutput(graph, argv, {});

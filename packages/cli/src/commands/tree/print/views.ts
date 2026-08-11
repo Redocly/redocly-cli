@@ -5,6 +5,7 @@ import {
   type ComponentCard,
   type ComponentListCard,
   type FileCard,
+  type FindReport,
   type OperationCard,
   type OperationListCard,
   type PathListItem,
@@ -45,6 +46,8 @@ function viewPayload(view: TreeView, format: TreeFormat): unknown {
       return ai ? { file: view.card.file, defines: aiDefines(view.card.defines) } : view.card;
     case 'used-by':
       return view.report;
+    case 'find':
+      return view.report;
   }
 }
 
@@ -77,6 +80,8 @@ export function renderViewStylish(view: TreeView): string {
       return renderFileCard(view.card);
     case 'used-by':
       return renderUsedByReport(view.report);
+    case 'find':
+      return renderFindReport(view.report);
   }
 }
 
@@ -247,6 +252,52 @@ function renderComponentsListing(section: string, items: ComponentListCard[]): s
   const showFile = new Set(items.map((item) => item.file)).size > 1;
   const branches = items.map((item) => ({ label: componentEntryLabel(item, showFile) }));
   return [`${section} (${items.length})`, ...renderBranches(branches)].join('\n');
+}
+
+/**
+ * Same shape as `renderComponentsListing`, but for a listing that spans every component section
+ * at once (find results): `componentEntryLabel` only prints the name because a single-section
+ * listing already names the section in its header, so a spanning listing needs the section
+ * prefixed on each entry instead of losing it.
+ */
+function renderFindComponentsListing(items: ComponentListCard[]): string {
+  const showFile = new Set(items.map((item) => item.file)).size > 1;
+  const branches = items.map((item) => ({ label: findComponentEntryLabel(item, showFile) }));
+  return [`components (${items.length})`, ...renderBranches(branches)].join('\n');
+}
+
+function findComponentEntryLabel(item: ComponentListCard, showFile: boolean): string {
+  const summary = item.summary ? ` "${item.summary}"` : '';
+  const range = showFile
+    ? `${item.file}:${item.start_line}..${item.end_line}`
+    : `${item.start_line}..${item.end_line}`;
+  return `${item.component}/${item.name}${summary} ${range}`;
+}
+
+function renderFindReport(report: FindReport): string {
+  const blocks: string[] = [
+    `find "${report.terms.join(' ')}" · ${report.totalOperations} operations · ${report.totalComponents} components`,
+  ];
+  if (report.operations.length > 0) blocks.push(renderOperationsListing(report.operations));
+  if (report.components.length > 0) {
+    blocks.push(renderFindComponentsListing(report.components));
+  }
+  const moreOperations = report.totalOperations - report.operations.length;
+  const moreComponents = report.totalComponents - report.components.length;
+  if (moreOperations > 0 || moreComponents > 0) {
+    blocks.push(
+      `… ${[
+        moreOperations > 0 ? `${moreOperations} more operations` : '',
+        moreComponents > 0 ? `${moreComponents} more components` : '',
+      ]
+        .filter(Boolean)
+        .join(', ')} — narrow the terms.`
+    );
+  }
+  if (report.totalOperations === 0 && report.totalComponents === 0) {
+    blocks.push('Nothing matched.');
+  }
+  return blocks.join('\n\n');
 }
 
 function fileDefineLabel(entry: OperationListCard | ComponentListCard): string {
