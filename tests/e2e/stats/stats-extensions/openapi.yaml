@@ -7,6 +7,14 @@ info:
     team: Docs
   x-outer:
     x-inner: 1
+x-tagGroups:
+  - name: Core
+    tags:
+      - group-tag-name
+x-ignoredHeaderParameters:
+  - X-Trace-Id
+x-servers:
+  - url: https://legacy.example.com
 x-webhooks:
   newPet:
     post:
