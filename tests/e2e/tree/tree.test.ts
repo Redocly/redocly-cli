@@ -26,7 +26,7 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-json'));
   });
 
-  test('tree --format=ai prints the overview as minified JSON, unprojected', async () => {
+  test('tree --format=ai prints the overview as plain text', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--format=ai']);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-overview-ai'));
@@ -50,7 +50,7 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-listing'));
   });
 
-  test('tree --tag --format=ai lists the operations of one tag as compact, minified JSON entries', async () => {
+  test('tree --tag --format=ai lists the operations of one tag as text lines', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
       'openapi.yaml',
@@ -59,6 +59,23 @@ describe('tree', () => {
     ]);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-tag-ai'));
+  });
+
+  test('tree --find lists ranked matches in stylish', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--find=event']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-find-stylish'));
+  });
+
+  test('tree --find --format=ai lists ranked matches as text lines', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--find=event',
+      '--format=ai',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-find-ai'));
   });
 
   test('tree --operations lists every operation as JSON', async () => {
@@ -189,6 +206,18 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-component-card'));
   });
 
+  test('tree --component --name --format=ai shows the signature and raw source', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--component=schemas',
+      '--name=Ticket',
+      '--format=ai',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-component-card-ai'));
+  });
+
   test('tree --component --name --used-by prints the used-by report as JSON', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
@@ -200,6 +229,19 @@ describe('tree', () => {
     ]);
     const result = getCommandOutput(args, { testPath: indexFixturePath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-used-by-json'));
+  });
+
+  test('tree --used-by --format=ai prints via lines', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--component=schemas',
+      '--name=Ticket',
+      '--used-by',
+      '--format=ai',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-used-by-ai'));
   });
 
   test('tree --used-by shows the human-impact tree for a component', async () => {
@@ -275,6 +317,12 @@ describe('tree', () => {
     // Same reasoning as the unknown-tag case above: confirm the non-zero exit separately.
     const exitCode = spawnSync('node', args, { cwd: indexFixturePath, encoding: 'utf-8' }).status;
     expect(exitCode).toBe(1);
+  });
+
+  test('tree --find rejects other selectors', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--find=pet', '--tag=pets']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-find-conflict'));
   });
 
   test('tree --files prints the file-level graph', async () => {

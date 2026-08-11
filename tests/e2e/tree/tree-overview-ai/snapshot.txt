@@ -1,2 +1,13 @@
-{"docName":"openapi.yaml","spec":"oas3_1","docDescription":"Museum API — Imaginary, but delightful Museum API for interview practice.","overview":{"pointer":"#/info","file":"openapi.yaml","start_line":3,"end_line":5,"summary":"Imaginary, but delightful Museum API for interview practice."},"servers":{"pointer":"#/servers","file":"openapi.yaml","start_line":7,"end_line":7,"urls":["https://api.fake-museum-example.com/v1.1"]},"tags":[{"name":"Tickets","summary":"Buy tickets and manage reservations.","operations":2},{"name":"untagged","operations":1}],"operations":3,"webhooks":[{"name":"publicationOfNewEvent","operations":1}],"components":[{"section":"schemas","count":1},{"section":"securitySchemes","count":1}]}
+openapi.yaml · oas3_1 — Museum API — Imaginary, but delightful Museum API for interview practice.
+servers: https://api.fake-museum-example.com/v1.1
+3 operations · 2 tags · 1 webhook operations
+components: schemas 1 · securitySchemes 1
+tag Tickets (2):
+post /tickets · buyMuseumTickets · L22 — Buy museum tickets
+post /legacy-tickets · L34 · deprecated — Buy tickets the old way
+tag untagged (1):
+get /museum-hours · getMuseumHours · L14 — Get museum hours
+webhooks (1):
+post webhook publicationOfNewEvent · L43 — New event added
+next: --find=<terms> · --tag=<name> · --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<n>
 
