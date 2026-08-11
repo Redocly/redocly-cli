@@ -430,11 +430,19 @@ function appendRetrieval<
 export function buildOperationCard(
   analysis: ApiAnalysis,
   operation: CollectedOperation,
-  options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean }
+  options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean; withContent?: boolean }
 ): OperationCard {
   const { cwd } = options;
   const card = buildOperationListCard(analysis, operation, cwd);
-  if (!options.withDeps) return card;
+  if (!options.withDeps) {
+    if (!options.withContent) return card;
+    const envelope = buildNodeEnvelope({
+      indexNode: locatedNodeFor(operation.id, operation.location, cwd),
+      analysis,
+      cwd,
+    });
+    return { ...card, content: envelope.content };
+  }
   // A webhook operation has no graph node of its own: every method under a webhook shares one
   // container node (`webhooks/<name>`, see mapRootPointer) that actually holds the $ref edges.
   // Seed the closure from that container while keeping the operation's own range for `content`.
@@ -454,11 +462,20 @@ export function buildOperationCard(
 export function buildComponentCard(
   analysis: ApiAnalysis,
   component: CollectedComponent,
-  options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean }
+  options: { specVersion: SpecVersion; cwd: string; withDeps?: boolean; withContent?: boolean }
 ): ComponentCard {
   const { cwd } = options;
   const card = buildComponentListCard(analysis, component, cwd);
-  if (!options.withDeps) return card;
+  if (!options.withDeps) {
+    if (!options.withContent) return card;
+    const componentId = `${component.section}/${component.name}`;
+    const envelope = buildNodeEnvelope({
+      indexNode: locatedNodeFor(componentId, component.location, cwd),
+      analysis,
+      cwd,
+    });
+    return { ...card, content: envelope.content };
+  }
   const componentId = `${component.section}/${component.name}`;
   // Same reasoning as buildOperationCard: steer inference to ComponentCard explicitly.
   return appendRetrieval<ComponentCard>(

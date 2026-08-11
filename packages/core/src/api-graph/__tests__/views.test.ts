@@ -204,4 +204,26 @@ describe('views: cards', () => {
     expect(card.content).toContain('New ticket alert');
     expect(card.deps!.map((dep) => dep.id)).toContain('schemas/TicketAlert');
   });
+
+  it('buildComponentCard with withContent returns raw source without a deps closure', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'split')
+    );
+    const component = analysis.meta.components.find((candidate) => candidate.name === 'Ticket')!;
+    const card = buildComponentCard(analysis, component, { specVersion, cwd, withContent: true });
+
+    expect(card.content).toContain('type: object');
+    expect(card.deps).toBeUndefined();
+  });
+
+  it('buildOperationCard with withContent returns raw source without a deps closure', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'split')
+    );
+    const operation = analysis.meta.operations[0];
+    const card = buildOperationCard(analysis, operation, { specVersion, cwd, withContent: true });
+
+    expect(card.content).toBeDefined();
+    expect(card.deps).toBeUndefined();
+  });
 });
