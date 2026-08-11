@@ -38,9 +38,6 @@ jobs:
 
   e2e:
     # Everything under tests/e2e EXCEPT generate-client, which has its own job below.
-    # Unsharded: the mid-run cancellations that forced sharding were traced to the
-    # generate-client compile bars, which now run in their own job — if this job ever gets
-    # cancelled mid-run again, reintroduce the shard matrix.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
