@@ -240,12 +240,12 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 
 ### Generator tests
 
-Client generation has its own suite: `npm run generators` runs the `@redocly/client-generator` unit tests together with the `tests/e2e/generate-client` end-to-end tests, so one command covers everything about generation.
+Client generation has its own suite: `npm run client-generators` runs the `@redocly/client-generator` unit tests together with the `tests/e2e/generate-client` end-to-end tests, so one command covers everything about generation.
 
 ```bash
-npm run generators                                   # every generator test
-npm run generators -- tests/e2e/generate-client/go.test.ts   # one file
-npm run generators -- -t 'gofmt'                     # by test name
+npm run client-generators                                   # every generator test
+npm run client-generators -- tests/e2e/generate-client/go.test.ts   # one file
+npm run client-generators -- -t 'gofmt'                     # by test name
 ```
 
 Those e2e tests compile their output with real toolchains, so what is available decides what runs:

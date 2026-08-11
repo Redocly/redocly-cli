@@ -14,7 +14,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as semver from 'semver';
 
-import { ejectGeneratorTelemetry } from '../utils/generate-client-telemetry.js';
+import { ejectGeneratorTelemetry } from '../utils/client-generator-telemetry.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type EjectGeneratorCommandArgv = {

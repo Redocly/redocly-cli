@@ -36,7 +36,12 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
 const IMPORT_RE =
   /import\s*(?:type\s*)?\{([^}]*)\}\s*from\s*['"]@redocly\/client-generator(?:\/generate)?['"]/g;
 
-/** Names of OUR exports found in an import from '@redocly/client-generator[/generate]'. */
+/**
+ * Names of OUR exports found in an import from '@redocly/client-generator[/generate]'.
+ * Approximate by design: a regex over source text can match a commented-out import, and
+ * that's fine — this feeds a usage histogram of allowlisted helper names, never anything
+ * that gates generation. Parsing properly would put `typescript` back into the CLI path.
+ */
 export function collectToolkitImports(source: string, knownHelpers: readonly string[]): string[] {
   const known = new Set(knownHelpers);
   const found = new Set<string>();

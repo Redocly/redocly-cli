@@ -42,7 +42,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   // end-to-end bars. The unit tests also run under `unit`, which keeps the coverage report
   // whole — they are seconds, and being able to run the whole generator surface at once is
   // worth that.
-  generators: defineConfig({
+  'client-generators': defineConfig({
     test: {
       include: [
         'packages/client-generator/src/**/*.test.ts',

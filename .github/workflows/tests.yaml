@@ -38,14 +38,10 @@ jobs:
 
   e2e:
     # Everything under tests/e2e EXCEPT generate-client, which has its own job below.
-    # Split across shards so no single runner carries the whole set: running all suites in
-    # one step was cancelled mid-run by the Actions service once the suite count grew past
-    # ~28 (a healthy runner, no resource exhaustion), and each shard stays well under that.
+    # Unsharded: the mid-run cancellations that forced sharding were traced to the
+    # generate-client compile bars, which now run in their own job — if this job ever gets
+    # cancelled mid-run again, reintroduce the shard matrix.
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -54,14 +50,14 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: E2E Tests (shard ${{ matrix.shard }}/3)
-        run: npm run e2e -- --shard=${{ matrix.shard }}/3
+      - name: E2E Tests
+        run: npm run e2e
 
-  generators:
-    # Client generation has its own job: its bars compile real Python, Go, PHP, and
-    # TypeScript output from generated clients (including big real-world descriptions), so
-    # they are the slowest tests we have and they need toolchains nothing else does.
-    # Keeping them here means adding another language bar cannot slow the shared e2e job.
+  client-generators:
+    # Client generation has its own job: the client-generator unit tests plus the
+    # generate-client e2e bars, which compile real Python, Go, PHP, and TypeScript output
+    # (including big real-world descriptions) — the slowest tests we have, needing
+    # toolchains nothing else does. Adding a language bar here cannot slow the shared e2e job.
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -87,8 +83,8 @@ jobs:
           key: large-descriptions-${{ hashFiles('tests/e2e/generate-client/large-descriptions.test.ts') }}
       - name: Install dependencies
         run: npm ci
-      - name: Generator Tests (shard ${{ matrix.shard }}/2)
-        run: npm run generators -- --shard=${{ matrix.shard }}/2
+      - name: Client generator tests (shard ${{ matrix.shard }}/2)
+        run: npm run client-generators -- --shard=${{ matrix.shard }}/2
 
   examples:
     # The examples gitignore their generated clients (only zero-install-quickstart commits

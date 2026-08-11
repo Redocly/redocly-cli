@@ -21,11 +21,11 @@ import type { Arguments } from 'yargs';
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
-import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
 import type {
   EjectGeneratorTelemetry,
   GenerateClientTelemetry,
-} from './generate-client-telemetry.js';
+} from './client-generator-telemetry.js';
+import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
 import type { ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';

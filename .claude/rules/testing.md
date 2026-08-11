@@ -41,7 +41,7 @@
    Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
 
 1. Run the full suite (`npm test`) when you touch core linting logic, and make sure all tests pass in CI.
-1. Client generation has its own suite: `npm run generators` runs the client-generator unit tests plus the `tests/e2e/generate-client` bars (which compile real Python/Go/PHP/TypeScript output).
-   Run it for any generation change; `npm run e2e` no longer includes those tests.
+1. Client generation has its own suite: `npm run client-generators` runs the client-generator unit tests plus the `tests/e2e/generate-client` bars (which compile real Python/Go/PHP/TypeScript output).
+   Run it for any generation change; `npm run e2e` does not include those tests.
 1. Coverage thresholds (`vitest.config.ts`) are a guide, not a number to game.
    If a feature or fix is already covered by e2e tests, propose lowering the threshold rather than padding the suite with unit tests that only chase coverage.

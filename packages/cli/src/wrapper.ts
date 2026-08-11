@@ -15,11 +15,11 @@ import {
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv } from './types.js';
-import { AbortFlowError, exitWithError } from './utils/error.js';
 import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
-} from './utils/generate-client-telemetry.js';
+} from './utils/client-generator-telemetry.js';
+import { AbortFlowError, exitWithError } from './utils/error.js';
 import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {

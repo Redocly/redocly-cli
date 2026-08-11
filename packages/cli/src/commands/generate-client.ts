@@ -18,7 +18,7 @@ import {
   collectToolkitImports,
   generateClientTelemetry,
   parseEjectedProvenance,
-} from '../utils/generate-client-telemetry.js';
+} from '../utils/client-generator-telemetry.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 

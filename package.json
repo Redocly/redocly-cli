@@ -13,7 +13,7 @@
     "test": "npm run compile && npm run typecheck && npm run unit && npm run e2e",
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
-    "generators": "VITEST_SUITE=generators vitest run",
+    "client-generators": "VITEST_SUITE=client-generators vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",

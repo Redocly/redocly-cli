@@ -11,7 +11,7 @@ import {
   collectToolkitImports,
   generateClientTelemetry,
   parseEjectedProvenance,
-} from '../utils/generate-client-telemetry.js';
+} from '../utils/client-generator-telemetry.js';
 
 describe('collectToolkitImports', () => {
   it('returns only OUR helper names from client-generator imports — never user identifiers', () => {

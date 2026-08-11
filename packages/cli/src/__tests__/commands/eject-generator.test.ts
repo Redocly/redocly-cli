@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { outdent } from 'outdent';
 
 import { handleEjectGenerator, threeWayMerge, wireConfig } from '../../commands/eject-generator.js';
-import { ejectGeneratorTelemetry } from '../../utils/generate-client-telemetry.js';
+import { ejectGeneratorTelemetry } from '../../utils/client-generator-telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
 
 const baseArgs = { version: '0.0.0', config: undefined } as unknown as Omit<

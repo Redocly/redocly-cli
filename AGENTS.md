@@ -50,7 +50,7 @@ npm run unit -- -u
 npm run e2e
 
 # Run every generator test (client-generator unit + generate-client e2e)
-npm run generators
+npm run client-generators
 
 # Run the full test suite (compile + typecheck + unit + e2e)
 npm test
@@ -113,7 +113,7 @@ Naming and reuse:
 - A `redocly.yaml` in the repository root affects unit tests in the CLI package.
   Remove it before running them.
 - Run the full suite (`npm test`) when you touch core linting logic.
-- Run `npm run generators` when you touch client generation — it is the whole generator suite in one command.
+- Run `npm run client-generators` when you touch client generation — it is the whole generator suite in one command.
 
 The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).
