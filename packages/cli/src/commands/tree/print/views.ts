@@ -51,7 +51,7 @@ export function renderViewStylish(view: TreeView): string {
     case 'overview':
       return renderOverview(view.overview, view.operations ?? [], view.webhookOperations ?? []);
     case 'operations':
-      return renderOperationsListing(view.items);
+      return renderOperationsListing(view.items, spansMultipleFiles(view.items));
     case 'paths':
       return renderPathsListing(view.items);
     case 'components':
@@ -195,7 +195,15 @@ function operationEntryLabel(
   return `${item.method.toUpperCase()}${pathPrefix}${summary} ${range} [${item.tags.join(', ')}]`;
 }
 
-function renderOperationsListing(items: OperationListCard[]): string {
+/**
+ * A multi-file layout scatters operations or components across files, so the range alone no
+ * longer says where a line actually lives — name the file only when more than one is in play.
+ */
+function spansMultipleFiles(items: { file: string }[]): boolean {
+  return new Set(items.map((item) => item.file)).size > 1;
+}
+
+function renderOperationsListing(items: OperationListCard[], showFile: boolean): string {
   const groups = new Map<string, OperationListCard[]>();
   for (const item of items) {
     const key = item.path ?? item.webhook ?? '';
@@ -204,9 +212,6 @@ function renderOperationsListing(items: OperationListCard[]): string {
     groups.set(key, group);
   }
 
-  // A multi-file layout scatters operations across files, so the range alone no longer says
-  // where a line actually lives; a single-file listing keeps the plain range unchanged.
-  const showFile = new Set(items.map((item) => item.file)).size > 1;
   const blocks = [...groups.entries()].map(([groupKey, groupItems]) => {
     const branches = groupItems.map((item) => ({ label: operationEntryLabel(item, { showFile }) }));
     return [`${groupKey} (${groupItems.length})`, ...renderBranches(branches)].join('\n');
@@ -223,48 +228,48 @@ function renderPathsListing(items: PathListItem[]): string {
     .join('\n');
 }
 
-function componentEntryLabel(item: ComponentListCard, showFile: boolean): string {
+/**
+ * `qualified` prefixes the component section (`schemas/Name`) instead of just the name — a
+ * spanning listing (find results) needs it because, unlike a single-section listing, the header
+ * doesn't already name the section for every entry.
+ */
+function componentEntryLabel(
+  item: ComponentListCard,
+  options: { showFile: boolean; qualified?: boolean }
+): string {
   const summary = item.summary ? ` "${item.summary}"` : '';
-  const range = showFile
+  const range = options.showFile
     ? `${item.file}:${item.start_line}..${item.end_line}`
     : `${item.start_line}..${item.end_line}`;
-  return `${item.name}${summary} ${range}`;
+  const name = options.qualified ? `${item.component}/${item.name}` : item.name;
+  return `${name}${summary} ${range}`;
 }
 
 function renderComponentsListing(section: string, items: ComponentListCard[]): string {
   // Same rule as the operations listing: only call out the file once more than one is in play.
   const showFile = new Set(items.map((item) => item.file)).size > 1;
-  const branches = items.map((item) => ({ label: componentEntryLabel(item, showFile) }));
+  const branches = items.map((item) => ({ label: componentEntryLabel(item, { showFile }) }));
   return [`${section} (${items.length})`, ...renderBranches(branches)].join('\n');
 }
 
-/**
- * Same shape as `renderComponentsListing`, but for a listing that spans every component section
- * at once (find results): `componentEntryLabel` only prints the name because a single-section
- * listing already names the section in its header, so a spanning listing needs the section
- * prefixed on each entry instead of losing it.
- */
-function renderFindComponentsListing(items: ComponentListCard[]): string {
-  const showFile = new Set(items.map((item) => item.file)).size > 1;
-  const branches = items.map((item) => ({ label: findComponentEntryLabel(item, showFile) }));
+/** Same shape as `renderComponentsListing`, but for a listing that spans every component section at once (find results). */
+function renderFindComponentsListing(items: ComponentListCard[], showFile: boolean): string {
+  const branches = items.map((item) => ({
+    label: componentEntryLabel(item, { showFile, qualified: true }),
+  }));
   return [`components (${items.length})`, ...renderBranches(branches)].join('\n');
-}
-
-function findComponentEntryLabel(item: ComponentListCard, showFile: boolean): string {
-  const summary = item.summary ? ` "${item.summary}"` : '';
-  const range = showFile
-    ? `${item.file}:${item.start_line}..${item.end_line}`
-    : `${item.start_line}..${item.end_line}`;
-  return `${item.component}/${item.name}${summary} ${range}`;
 }
 
 function renderFindReport(report: FindReport): string {
   const blocks: string[] = [
     `find "${report.terms.join(' ')}" · ${report.totalOperations} operations · ${report.totalComponents} components`,
   ];
-  if (report.operations.length > 0) blocks.push(renderOperationsListing(report.operations));
+  const showFile = spansMultipleFiles([...report.operations, ...report.components]);
+  if (report.operations.length > 0) {
+    blocks.push(renderOperationsListing(report.operations, showFile));
+  }
   if (report.components.length > 0) {
-    blocks.push(renderFindComponentsListing(report.components));
+    blocks.push(renderFindComponentsListing(report.components, showFile));
   }
   const moreOperations = report.totalOperations - report.operations.length;
   const moreComponents = report.totalComponents - report.components.length;
@@ -319,7 +324,8 @@ function renderComponentCard(card: ComponentCard): string {
 /**
  * A card renders as a pure glyph tree: no raw source or content anywhere in stylish, only
  * coordinates and typed edges — `source:` always, `refs`/`usedBy` one hop, and `deps` (the
- * transitive closure) when `--with-deps` populated it. Raw source stays JSON-only.
+ * transitive closure) when `--with-deps` populated it. Raw source ships in the json and ai
+ * cards instead.
  */
 function cardBranches(card: {
   file: string;

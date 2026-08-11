@@ -81,7 +81,7 @@ export type TreeView =
   | {
       kind: 'overview';
       overview: ApiOverview;
-      /** Populated only for the stylish render, which expands the tree down to operations. */
+      /** Populated only for the stylish and ai renders, which expand the tree down to operations. */
       operations?: OperationListCard[];
       webhookOperations?: OperationListCard[];
     }
@@ -186,7 +186,7 @@ export function resolveTreeView(
         '--find is a standalone search and cannot be combined with other selectors.'
       );
     }
-    const terms = argv.find.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const terms = argv.find.trim().split(/\s+/).filter(Boolean);
     if (terms.length === 0) {
       throw new TreeSelectorError('--find needs at least one word to search for.');
     }

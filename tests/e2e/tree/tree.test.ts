@@ -325,6 +325,12 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-find-conflict'));
   });
 
+  test('tree --files rejects --find', async () => {
+    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--files', '--find=pet']);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-find-files-conflict'));
+  });
+
   test('tree --files prints the file-level graph', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--files']);
     const result = getCommandOutput(args, { testPath: samplePath });

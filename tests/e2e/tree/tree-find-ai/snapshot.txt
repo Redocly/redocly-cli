@@ -1,4 +1,4 @@
-find "event" · 1 operations · 1 components
+find "event" · 1 operation · 1 component
 post webhook publicationOfNewEvent · L43 — New event added
 schemas/Ticket · L50 — A ticket for museum entry or special event.
 

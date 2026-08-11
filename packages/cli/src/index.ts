@@ -230,6 +230,7 @@ yargs(hideBin(process.argv))
           'path',
           'webhook',
           'operation',
+          'find',
           'component',
           'name',
           'used-by',

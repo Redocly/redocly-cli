@@ -28,6 +28,11 @@ function spansMultipleFiles(items: { file: string }[]): boolean {
   return new Set(items.map((item) => item.file)).size > 1;
 }
 
+/** Pluralizes a unit noun for a count: `count(1, 'operation')` → `1 operation`, `count(3, 'operation')` → `3 operations`. */
+function count(total: number, unit: string): string {
+  return `${total} ${unit}${total === 1 ? '' : 's'}`;
+}
+
 export function renderAiView(view: TreeView): string {
   switch (view.kind) {
     case 'overview':
@@ -51,7 +56,7 @@ export function renderAiView(view: TreeView): string {
   }
 }
 
-export function aiOperationLine(item: OperationListCard, showFile: boolean): string {
+function aiOperationLine(item: OperationListCard, showFile: boolean): string {
   const target = item.path ?? `webhook ${item.webhook}`;
   const operationId = item.operationId ? ` · ${item.operationId}` : '';
   const deprecated = item.deprecated ? ' · deprecated' : '';
@@ -60,7 +65,7 @@ export function aiOperationLine(item: OperationListCard, showFile: boolean): str
   return `${item.method} ${target}${operationId} · L${item.start_line}${deprecated}${file}${summary}`;
 }
 
-export function aiComponentLine(item: ComponentListCard, showFile: boolean): string {
+function aiComponentLine(item: ComponentListCard, showFile: boolean): string {
   const file = showFile ? ` · f:${item.file}` : '';
   const summary = item.summary ? ` — ${item.summary}` : '';
   return `${item.component}/${item.name} · L${item.start_line}${file}${summary}`;
@@ -82,8 +87,8 @@ function renderAiOverview(
     0
   );
   lines.push(
-    `${overview.operations} operations · ${overview.tags.length} tags` +
-      (webhookOperationCount > 0 ? ` · ${webhookOperationCount} webhook operations` : '')
+    `${count(overview.operations, 'operation')} · ${count(overview.tags.length, 'tag')}` +
+      (webhookOperationCount > 0 ? ` · ${count(webhookOperationCount, 'webhook operation')}` : '')
   );
   if (overview.components.length > 0) {
     lines.push(
@@ -137,7 +142,7 @@ function renderAiOverview(
 
 function renderAiOperations(scope: string | undefined, items: OperationListCard[]): string {
   const showFile = spansMultipleFiles(items);
-  const header = `${scope ?? 'operations'} · ${items.length} operations`;
+  const header = `${scope ?? 'operations'} · ${count(items.length, 'operation')}`;
   return [header, ...items.map((item) => aiOperationLine(item, showFile))].join('\n');
 }
 
@@ -153,22 +158,21 @@ function renderAiPaths(items: PathListItem[]): string {
 function renderAiComponents(section: string, items: ComponentListCard[]): string {
   const showFile = spansMultipleFiles(items);
   return [
-    `${section} · ${items.length} components`,
+    `${section} · ${count(items.length, 'component')}`,
     ...items.map((item) => aiComponentLine(item, showFile)),
   ].join('\n');
 }
 
 function renderAiFind(report: FindReport): string {
   const lines: string[] = [
-    `find "${report.terms.join(' ')}" · ${report.totalOperations} operations · ${report.totalComponents} components`,
+    `find "${report.terms.join(' ')}" · ${count(report.totalOperations, 'operation')} · ${count(report.totalComponents, 'component')}`,
   ];
-  const showOperationFile = spansMultipleFiles(report.operations);
+  const showFile = spansMultipleFiles([...report.operations, ...report.components]);
   for (const operation of report.operations) {
-    lines.push(aiOperationLine(operation, showOperationFile));
+    lines.push(aiOperationLine(operation, showFile));
   }
-  const showComponentFile = spansMultipleFiles(report.components);
   for (const component of report.components) {
-    lines.push(aiComponentLine(component, showComponentFile));
+    lines.push(aiComponentLine(component, showFile));
   }
   const moreOperations = report.totalOperations - report.operations.length;
   const moreComponents = report.totalComponents - report.components.length;

@@ -574,12 +574,78 @@ describe('renderViewStylish', () => {
       "find "pet" · 25 operations · 1 components
 
       /tickets (1)
-      └── POST "Buy museum tickets" 10..40 [Tickets]
+      └── POST "Buy museum tickets" paths/tickets.yaml:10..40 [Tickets]
 
       components (1)
-      └── schemas/Ticket "A museum ticket." 12..20
+      └── schemas/Ticket "A museum ticket." openapi.yaml:12..20
 
       … 24 more operations — narrow the terms."
+    `);
+  });
+
+  it('renders a find view in stylish with no matches', () => {
+    const view: TreeView = {
+      kind: 'find',
+      report: {
+        terms: ['zzz'],
+        operations: [],
+        components: [],
+        totalOperations: 0,
+        totalComponents: 0,
+      },
+    };
+    expect(renderViewStylish(view)).toMatchInlineSnapshot(`
+      "find "zzz" · 0 operations · 0 components
+
+      Nothing matched."
+    `);
+  });
+
+  it('renders a find view in stylish with overflow on both operations and components', () => {
+    const view: TreeView = {
+      kind: 'find',
+      report: {
+        terms: ['pet'],
+        operations: [
+          {
+            method: 'get',
+            path: '/pets',
+            summary: 'List pets',
+            tags: ['Pets'],
+            pointer: '#/get',
+            file: 'openapi.yaml',
+            start_line: 1,
+            end_line: 9,
+            refs: [],
+            usedBy: [],
+          },
+        ],
+        components: [
+          {
+            component: 'schemas',
+            name: 'Pet',
+            pointer: '#/components/schemas/Pet',
+            file: 'openapi.yaml',
+            start_line: 12,
+            end_line: 20,
+            refs: [],
+            usedBy: [],
+          },
+        ],
+        totalOperations: 4,
+        totalComponents: 3,
+      },
+    };
+    expect(renderViewStylish(view)).toMatchInlineSnapshot(`
+      "find "pet" · 4 operations · 3 components
+
+      /pets (1)
+      └── GET "List pets" 1..9 [Pets]
+
+      components (1)
+      └── schemas/Pet 12..20
+
+      … 3 more operations, 2 more components — narrow the terms."
     `);
   });
 });
@@ -700,7 +766,7 @@ describe('renderView (ai)', () => {
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
       "openapi.yaml · oas3_0 — Museum ticket API.
       servers: https://api.example.com/v1
-      3 operations · 2 tags · 1 webhook operations
+      3 operations · 2 tags · 1 webhook operation
       components: schemas 4
       tags: Tickets 2 · Orders 1
       webhooks: 1 (list: --webhooks)
@@ -718,7 +784,7 @@ describe('renderView (ai)', () => {
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
       "openapi.yaml · oas3_0 — Museum ticket API.
       servers: https://api.example.com/v1
-      3 operations · 2 tags · 1 webhook operations
+      3 operations · 2 tags · 1 webhook operation
       components: schemas 4
       tag Tickets (1):
       post /tickets · buyTickets · L10 — Buy museum tickets
@@ -736,7 +802,7 @@ describe('renderView (ai)', () => {
       items: [operationListCardFixture],
     };
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
-      "pets · 1 operations
+      "pets · 1 operation
       post /tickets · buyTickets · L10 — Buy museum tickets"
     `);
   });
@@ -762,7 +828,7 @@ describe('renderView (ai)', () => {
       items: [componentListCardFixture],
     };
     expect(renderView(componentsView, 'ai')).toMatchInlineSnapshot(`
-      "schemas · 1 components
+      "schemas · 1 component
       schemas/Ticket · L12 — A museum ticket."
     `);
 
@@ -776,9 +842,9 @@ describe('renderView (ai)', () => {
   it('renders an ai find report with the overflow line', () => {
     const view: TreeView = { kind: 'find', report: findReportFixture };
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
-      "find "pet" · 25 operations · 1 components
-      post /tickets · buyTickets · L10 — Buy museum tickets
-      schemas/Ticket · L12 — A museum ticket.
+      "find "pet" · 25 operations · 1 component
+      post /tickets · buyTickets · L10 · f:paths/tickets.yaml — Buy museum tickets
+      schemas/Ticket · L12 · f:openapi.yaml — A museum ticket.
       … 24 more operations — narrow the terms."
     `);
   });

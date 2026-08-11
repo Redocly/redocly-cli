@@ -28,6 +28,16 @@ export function findMatches(
   options: { cwd: string }
 ): FindReport {
   const normalized = terms.map((term) => term.toLowerCase());
+  // scoreAll treats an empty terms array as "every entry matches" (no term fails), so bail out early.
+  if (normalized.length === 0) {
+    return {
+      terms: normalized,
+      operations: [],
+      components: [],
+      totalOperations: 0,
+      totalComponents: 0,
+    };
+  }
 
   const operationMatches = scoreAll(analysis.meta.operations, normalized, scoreOperation);
   const componentMatches = scoreAll(analysis.meta.components, normalized, scoreComponent);

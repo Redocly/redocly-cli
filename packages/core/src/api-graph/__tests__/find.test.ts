@@ -117,6 +117,16 @@ describe('findMatches', () => {
     expect(report.totalComponents).toBe(0);
   });
 
+  it('returns empty lists for an empty terms array instead of matching everything', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+    const report = findMatches(analysis, [], { cwd });
+
+    expect(report.operations).toEqual([]);
+    expect(report.components).toEqual([]);
+    expect(report.totalOperations).toBe(0);
+    expect(report.totalComponents).toBe(0);
+  });
+
   it('caps each kind at FIND_LIMIT but still reports the full totals', async () => {
     const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
     const matchCount = FIND_LIMIT + 5;

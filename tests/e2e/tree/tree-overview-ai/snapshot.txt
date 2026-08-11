@@ -1,6 +1,6 @@
 openapi.yaml · oas3_1 — Museum API — Imaginary, but delightful Museum API for interview practice.
 servers: https://api.fake-museum-example.com/v1.1
-3 operations · 2 tags · 1 webhook operations
+3 operations · 2 tags · 1 webhook operation
 components: schemas 1 · securitySchemes 1
 tag Tickets (2):
 post /tickets · buyMuseumTickets · L22 — Buy museum tickets
