@@ -434,19 +434,19 @@ export function buildOperationCard(
 ): OperationCard {
   const { cwd } = options;
   const card = buildOperationListCard(analysis, operation, cwd);
+  // A webhook operation has no graph node of its own: every method under a webhook shares one
+  // container node (`webhooks/<name>`, see mapRootPointer) that actually holds the $ref edges.
+  // Seed the closure from that container while keeping the operation's own range for `content`.
+  const depsSeedId = operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id;
   if (!options.withDeps) {
     if (!options.withContent) return card;
     const envelope = buildNodeEnvelope({
-      indexNode: locatedNodeFor(operation.id, operation.location, cwd),
+      indexNode: locatedNodeFor(depsSeedId, operation.location, cwd),
       analysis,
       cwd,
     });
     return { ...card, content: envelope.content };
   }
-  // A webhook operation has no graph node of its own: every method under a webhook shares one
-  // container node (`webhooks/<name>`, see mapRootPointer) that actually holds the $ref edges.
-  // Seed the closure from that container while keeping the operation's own range for `content`.
-  const depsSeedId = operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id;
   // The explicit type argument steers inference to OperationCard: `card` is typed as the
   // narrower OperationListCard (it has no content/deps/truncated keys at all), and those three
   // keys being optional on both sides trips TS's "no properties in common" weak-type check
@@ -466,9 +466,9 @@ export function buildComponentCard(
 ): ComponentCard {
   const { cwd } = options;
   const card = buildComponentListCard(analysis, component, cwd);
+  const componentId = `${component.section}/${component.name}`;
   if (!options.withDeps) {
     if (!options.withContent) return card;
-    const componentId = `${component.section}/${component.name}`;
     const envelope = buildNodeEnvelope({
       indexNode: locatedNodeFor(componentId, component.location, cwd),
       analysis,
@@ -476,7 +476,6 @@ export function buildComponentCard(
     });
     return { ...card, content: envelope.content };
   }
-  const componentId = `${component.section}/${component.name}`;
   // Same reasoning as buildOperationCard: steer inference to ComponentCard explicitly.
   return appendRetrieval<ComponentCard>(
     card,
