@@ -272,6 +272,7 @@ export async function resolveDocument(opts: {
 
     walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer);
 
+    // oxlint-disable-next-line sonarjs/cognitive-complexity
     function walk(node: unknown, type: NormalizedNodeType, nodeAbsoluteRef: string) {
       if (!isPlainObject(node) && !Array.isArray(node)) {
         return;
