@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: Example OpenAPI 3.1 definition.
+  version: 1.0
+
+paths:
+  /sample:
+    get:
+      operationId: getSample
+      summary: example summary
+      responses:
+        '200':
+          description: example description
+      callbacks:
+        onEventA:
+          'https://callbacks.example.com/a':
+            $ref: '#/components/pathItems/notify'
+        onEventB:
+          'https://callbacks.example.com/b':
+            $ref: '#/components/pathItems/notify'
+
+components:
+  pathItems:
+    notify:
+      post:
+        operationId: notify
+        summary: example summary
+        parameters:
+          - in: header
+            name: x-signature
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: example description

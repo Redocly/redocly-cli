@@ -152,6 +152,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   const composedRefWalkId = (type: NormalizedNodeType, location: Location) =>
     `${type.name}::${location.absolutePointer}`;
   const ignoredNodes = new Set<string>();
+  const walkingNodeByType: Record<string, unknown> = {};
 
   // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
   const anyEnter = normalizedVisitors.any.enter as VisitorNode<any>[];
@@ -300,6 +301,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           if (
             (context.parent && // if nested
               context.parent.activatedOn &&
+              context.parent.activatedOn.value.node ===
+                walkingNodeByType[context.parent.type.name] &&
               context.activatedOn?.value.withParentNode !== context.parent.activatedOn.value.node &&
               // do not enter if visited by parent children (it works thanks because deeper visitors are sorted before)
               context.parent.activatedOn.value.nextLevelTypeActivated?.value !== type) ||
@@ -342,6 +345,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           }
         }
       }
+
+      const prevWalkingNode = walkingNodeByType[type.name];
+      walkingNodeByType[type.name] = resolvedNode;
 
       if (visitedBySome || !isNodeSeen) {
         seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
@@ -406,6 +412,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           }
         }
       }
+
+      walkingNodeByType[type.name] = prevWalkingNode;
 
       const currentLeaveVisitors =
         combinedLeave[type.name] || (normalizedVisitors[type.name]?.leave || []).concat(anyLeave);
