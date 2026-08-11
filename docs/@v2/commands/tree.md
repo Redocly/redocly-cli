@@ -28,6 +28,7 @@ redocly tree <api> --webhook=<name> [--operation=<method>]
 redocly tree <api> --operation=<operationId>
 redocly tree <api> --component=<section> [--name=<name>]
 redocly tree <api> --file=<path> [--used-by]
+redocly tree <api> --find=<terms>
 redocly tree <api> --path=<path> --operation=<method> [--with-deps]
 redocly tree <api> --component=<section> --name=<name> [--used-by | --with-deps]
 redocly tree <api> --paths
@@ -52,13 +53,14 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                                                                                                                               |
 | --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                                          |
 | --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                                              |
+| --find        | string   | Search operations and components by words in their path, id, name, summary, or description. Standalone; not combinable with other selectors.                                                                                                                                                                                                                     |
 | --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                                                                                                |
 | --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                                 |
 | --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                                     |
 | --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                                   |
 | --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                                                                                    |
 | --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                                        |
-| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — machine-readable for agents: listings project to compact entries with no `refs`/`usedBy` (measured 93% smaller on a large listing), every view serializes without indentation, and a `--with-deps` closure emits schema signatures instead of raw YAML. |
+| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — a plain-text format for agents: one line per listing entry with `L<start>` coordinates, operation and component cards carry their raw source, and a `--with-deps` closure emits schema signatures instead of raw YAML. No JSON syntax anywhere in `ai`. |
 | --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                                                                  |
 | --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                                                                 |
 | --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                                                                                     |
@@ -531,6 +533,37 @@ schemas/Order
 `usedBy` here shows every operation and component with a direct reference to `Order` — one hop only; for the transitive version see `--used-by` below.
 `--component` is mutually exclusive with `--tag`, `--path`, `--webhook`, `--file`, and `--operation`.
 
+`--format=ai` turns the same selection into a text card instead of a `refs`/`usedBy` tree: coordinates, a compact `signature:` line, and — without `--with-deps` — the component's own raw source, which answers "what fields does this have" directly instead of by way of a reverse-dependency dump:
+
+```bash
+redocly tree cafe.yaml --component=schemas --name=OrderNotification --format=ai
+```
+
+```
+schemas/OrderNotification · cafe.yaml L1310-1324
+signature: orderId*:string, orderStatus*→OrderStatus, timestamp*:string
+--- yaml
+      type: object
+      required:
+        - orderId
+        - orderStatus
+        - timestamp
+      properties:
+        orderId:
+          type: string
+          description: Unique order identifier.
+        orderStatus:
+          $ref: '#/components/schemas/OrderStatus'
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event occurred.
+refs: schemas/OrderStatus L1025
+usedBy: 1 (--used-by)
+```
+
+The `signature:` line uses the same compact grammar as a `--with-deps` closure entry below (`field*` for a required property, `field:type`, `field→Target` for a `$ref`); `refs` compresses to one line per reference since there's no `--with-deps` closure here to supersede it, and `usedBy` is a bare count plus the flag that expands it.
+
 Component addressing by `--component`/`--name` requires the root document to declare the component (`components: {schemas: {Order: {$ref: ./Order.yaml}}}` or inline).
 A fully split layout with no root registry — where operation files reference component files directly, as [`redocly split`](./split.md) produces — has nothing to list.
 The example below runs against a multi-file version of the same API (a directory produced by [split](./split.md)).
@@ -838,113 +871,162 @@ redocly tree cafe.yaml --webhooks --format=json
 `cafe.yaml` only declares the one webhook shown above; with more than one, `--webhooks` groups them the same way `--operations` groups by path — one tree root per webhook name.
 `--paths`, `--operations`, and `--webhooks` are each mutually exclusive with every selector — they're already "give me everything," so a narrower selector alongside them makes no sense.
 
-### Compact JSON for agents: `--format=ai`
+### Search with --find
+
+`--find=<terms>` searches the whole description at once — operations (including webhook operations) and components — instead of listing a whole tag, path, or section.
+Terms split on whitespace and match case-insensitively as substrings against the operation path, operationId, summary, description, and tag names, or the component name; every term must hit the same entry.
+Matches are ranked by how many fields they hit — a path, id, or name hit outranks a summary or description hit — and grouped operations before components.
+It's a standalone selector: it doesn't combine with `--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--file`, `--used-by`, or `--with-deps`.
+
+```bash
+redocly tree cafe.yaml --find "order status"
+```
+
+```
+find "order status" · 1 operations · 1 components
+
+/orders/{orderId} (1)
+└── PATCH "Partially update an order" 418..476 [Orders]
+
+components (1)
+└── schemas/OrderStatus "Order status." 1025..1032
+```
+
+`--format=ai` renders the same ranked matches as text lines, one per entry, in the same operation and component line shapes every other listing uses — covered in its own section right after this one:
+
+```bash
+redocly tree cafe.yaml --find "order status" --format=ai
+```
+
+```
+find "order status" · 1 operations · 1 components
+patch /orders/{orderId} · updateOrder · L418 — Partially update an order
+schemas/OrderStatus · L1025 — Order status.
+```
+
+`--format=json` returns the same result as data: `{ terms, operations, components, totalOperations, totalComponents }`, with each entry in the same card shape `--tag`/`--component` use above, including their `refs` and `usedBy`.
+Each kind is capped at 20 entries; past the cap, `--format=ai` adds a line like `… 5 more operations — narrow the terms.` instead of growing without bound, and a search with no matches at all prints `Nothing matched.`
+
+Combining `--find` with another selector is rejected the same way an incompatible pair of typed selectors is:
+
+```bash
+redocly tree cafe.yaml --find "order status" --tag=Orders
+```
+
+```
+--find is a standalone search and cannot be combined with other selectors.
+```
+
+### Plain text for agents: `--format=ai`
 
 `--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
-`--format=ai` is the agent format, and does three things: it projects listings to compact entries, it serializes every view without indentation, and it turns a `--with-deps` closure into schema signatures instead of raw YAML.
+`--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in any view, not even a minified JSON blob.
 
-On a listing view (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`), it drops the `refs`/`usedBy` detail an agent picking its next branch rarely needs, printing just `{ method, path, summary, lines }` per entry (`{ name, summary, lines }` for a component listing), adding `file` only once the listing spans more than one file, the same rule the stylish listings use.
-Every view — listings included — also serializes without indentation.
+Every `ai` view shares the same conventions:
+
+- The first line states what was selected, its counts, and, for a single-item card, its file.
+- `·` separates fields on a line; `—` precedes a summary or piece of prose.
+- `L<start>` marks a single line, `L<start>-<end>` a range — fetch a card, or read the file directly, for the text in between.
+- A listing entry adds a trailing `· f:<relative path>` only once the listing spans more than one file, the same rule the stylish listings use.
+
+On a listing view (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`; `--find`, shown in its own section above), each entry is one line instead of a card:
 
 ```bash
 redocly tree cafe.yaml --tag=Orders --format=ai
 ```
 
-```json
-[
-  {
-    "method": "get",
-    "path": "/orders",
-    "operationId": "listOrders",
-    "summary": "List all orders",
-    "lines": [229, 314]
-  },
-  {
-    "method": "post",
-    "path": "/orders",
-    "operationId": "createOrder",
-    "summary": "Create order",
-    "lines": [316, 372]
-  },
-  {
-    "method": "get",
-    "path": "/orders/{orderId}",
-    "operationId": "getOrderById",
-    "summary": "Retrieve an order",
-    "lines": [375, 416]
-  },
-  {
-    "method": "delete",
-    "path": "/orders/{orderId}",
-    "operationId": "deleteOrder",
-    "summary": "Delete an order",
-    "lines": [478, 502]
-  },
-  {
-    "method": "patch",
-    "path": "/orders/{orderId}",
-    "operationId": "updateOrder",
-    "summary": "Partially update an order",
-    "lines": [418, 476]
-  },
-  {
-    "method": "get",
-    "path": "/order-items",
-    "operationId": "listOrderItems",
-    "summary": "List all order items with menu item details",
-    "lines": [505, 546]
-  }
-]
+```
+Orders · 6 operations
+get /orders · listOrders · L229 — List all orders
+post /orders · createOrder · L316 — Create order
+get /orders/{orderId} · getOrderById · L375 — Retrieve an order
+delete /orders/{orderId} · deleteOrder · L478 — Delete an order
+patch /orders/{orderId} · updateOrder · L418 — Partially update an order
+get /order-items · listOrderItems · L505 — List all order items with menu item details
 ```
 
-The full card-shaped version of this same tag, shown under [List the operations of a tag](#list-the-operations-of-a-tag) above, carries `refs` and `usedBy` on each of its six entries; `--format=ai` above keeps the same six entries with none of that, on one line.
-On GitHub's 10.0 MB REST API description, the equivalent `--tag=repos` listing costs 129,719 tokens in `--format=json`; the same listing projection brings it down to 9,430 — a 93% reduction.
+An operation line is `method path · operationId · L<start> — summary`, dropping `operationId` when the operation has none — only the start line is given, since a card or a plain file read gets the range.
+A webhook line adds `webhook` before the name (`method webhook name · operationId · L<start> — summary`), and a component listing line drops the method and path entirely — `section/name · L<start>`, with `— summary` appended only when the component has one:
 
-A view with no listing to project — the overview, a `--used-by` report — has nothing to shrink beyond indentation:
+```bash
+redocly tree cafe.yaml --component=schemas --format=ai
+```
+
+```
+schemas · 15 components
+schemas/Page · L823
+schemas/MenuBaseItem · L868
+schemas/Beverage · L924
+schemas/Dessert · L944
+schemas/MenuItem · L960
+schemas/MenuItemList · L971
+schemas/Error · L988
+schemas/OrderStatus · L1025 — Order status.
+schemas/Order · L1033
+schemas/OrderList · L1108
+schemas/OrderItem · L1125
+schemas/RevenueStatistics · L1153 — Revenue statistics for a given date range.
+schemas/RegisterClientObject · L1207
+schemas/OAuth2Client · L1240 — OAuth2 client registration response. Per RFC 7591, includes the client identifier, secret, timestamps, and all registered client metadata.
+schemas/OrderNotification · L1310
+```
+
+On cafe.yaml, this same `--tag=Orders` selection is 15,645 bytes as `--format=json` and 434 bytes as `--format=ai` — a 97% reduction.
+Both formats start from the same six operations, so the whole difference is the JSON envelope: keys, quotes, braces, and each entry's `refs`/`usedBy` array.
+That envelope is a fixed cost per entry, so the gap widens with the listing — a tag or file with hundreds of operations saves proportionally more than one with six.
+
+The `f:` suffix shows up once a listing spans more than one file — the same tag, split across files by [`split`](./split.md), carries it on every line:
+
+```bash
+redocly tree cafe-split/cafe.yaml --tag=Orders --format=ai
+```
+
+```
+Orders · 6 operations
+get /orders · listOrders · L2 · f:cafe-split/paths/orders.yaml — List all orders
+post /orders · createOrder · L64 · f:cafe-split/paths/orders.yaml — Create order
+get /orders/{orderId} · getOrderById · L2 · f:cafe-split/paths/orders_{orderId}.yaml — Retrieve an order
+delete /orders/{orderId} · deleteOrder · L102 · f:cafe-split/paths/orders_{orderId}.yaml — Delete an order
+patch /orders/{orderId} · updateOrder · L45 · f:cafe-split/paths/orders_{orderId}.yaml — Partially update an order
+get /order-items · listOrderItems · L2 · f:cafe-split/paths/order-items.yaml — List all order items with menu item details
+```
+
+A view with no listing to project — the overview, a `--used-by` report — still switches to the same conventions, just with less to strip:
 
 ```bash
 redocly tree cafe.yaml --format=ai
 ```
 
-```json
-{
-  "docName": "cafe.yaml",
-  "spec": "oas3_2",
-  "docDescription": "Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…",
-  "overview": {
-    "pointer": "#/info",
-    "file": "cafe.yaml",
-    "start_line": 3,
-    "end_line": 16,
-    "summary": "Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic OpenAPI workflow."
-  },
-  "servers": {
-    "pointer": "#/servers",
-    "file": "cafe.yaml",
-    "start_line": 18,
-    "end_line": 19,
-    "urls": ["https://api.cafe.redocly.com"]
-  },
-  "tags": [
-    { "name": "Authorization", "summary": "Create a client to demo the API.", "operations": 1 },
-    { "name": "Products", "summary": "Operations related to products.", "operations": 4 },
-    { "name": "Orders", "summary": "Order management operations.", "operations": 6 },
-    { "name": "Statistics", "summary": "Statistics operations.", "operations": 1 }
-  ],
-  "operations": 12,
-  "webhooks": [{ "name": "order-notification", "operations": 1 }],
-  "components": [
-    { "section": "schemas", "count": 15 },
-    { "section": "responses", "count": 6 },
-    { "section": "parameters", "count": 9 },
-    { "section": "securitySchemes", "count": 2 }
-  ]
-}
+```
+cafe.yaml · oas3_2 — Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…
+servers: https://api.cafe.redocly.com
+12 operations · 4 tags · 1 webhook operations
+components: schemas 15 · responses 6 · parameters 9 · securitySchemes 2
+tag Authorization (1):
+post /oauth2/register · registerOAuth2Client · L604 — Create OAuth2 client
+tag Products (4):
+get /menu · listMenuItems · L32 — List all menu items
+post /menu · createMenuItem · L113 — Create menu item
+delete /menu/{menuItemId} · deleteMenuItem · L178 — Delete a menu item
+get /menu-item-images/{menuItemId} · getMenuItemPhoto · L203 — Retrieve a menu item photo
+tag Orders (6):
+get /orders · listOrders · L229 — List all orders
+post /orders · createOrder · L316 — Create order
+get /orders/{orderId} · getOrderById · L375 — Retrieve an order
+delete /orders/{orderId} · deleteOrder · L478 — Delete an order
+patch /orders/{orderId} · updateOrder · L418 — Partially update an order
+get /order-items · listOrderItems · L505 — List all order items with menu item details
+tag Statistics (1):
+get /revenue · getRevenue · L549 — Get revenue statistics
+webhooks (1):
+post webhook order-notification · orderNotificationWebhook · L665 — Order notification webhook
+next: --find=<terms> · --tag=<name> · --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<n>
 ```
 
-This is the same overview shown under [Get an overview of an API description](#get-an-overview-of-an-api-description) above, just without the newlines and indentation: measured across tree's JSON views, dropping indentation alone cuts about 32% of the output — a listing combines that with the projection above for the full 93%.
-`--used-by` gets the same minify-only treatment: it already carries no bodies, only coordinates and `via` chains, so there's nothing left to compress.
-`--with-deps` is where `ai` does the most — schema signatures instead of raw YAML — covered in its own section right after `--with-deps` below.
+This is the same overview shown under [Get an overview of an API description](#get-an-overview-of-an-api-description) above, expanded into per-tag operation lines the way listings render them — the default view does the same once a description is at or under 100 operations, which is why cafe.yaml's 12 expand here.
+Past that limit the overview falls back to tag names and counts only (`tags: Name N · Name N · …`) plus a webhook count, the same collapse the default view does; the closing `next:` line is always there, expanded or not, pointing at `--find` and the typed selectors.
+`--used-by` renders the same conventions as a report: a `used-by <target>` header with the target's own coordinates, then `operations (N):`/`components (N):` groups, one line per referrer (`method path · L<start> via <id> → <id>`, a file suffix only when it differs from the target's own file), or `Nothing references it.` when nothing does.
+`--with-deps` is where `ai` saves the most — schema signatures instead of raw YAML — covered in its own section right after `--with-deps` below.
 
 ### Fetch everything a selection needs: `--with-deps`
 
@@ -1177,138 +1259,81 @@ Anything more than two hops from the selection is listed as a bare id under `dee
 redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
 ```
 
-```json
-{
-  "method": "post",
-  "path": "/orders",
-  "operationId": "createOrder",
-  "summary": "Create order",
-  "tags": ["Orders"],
-  "pointer": "#/paths/~1orders/post",
-  "file": "cafe.yaml",
-  "start_line": 316,
-  "end_line": 372,
-  "description": "Create a new order. Order items cannot be changed - if they need to be updated, cancel the order and place a new one.",
-  "refs": [
-    {
-      "ref": "#/components/responses/BadRequest",
-      "resolved": true,
-      "file": "cafe.yaml",
-      "pointer": "#/components/responses/BadRequest",
-      "start_line": 1327,
-      "end_line": 1331,
-      "component": "responses",
-      "name": "BadRequest"
-    },
-    {
-      "ref": "#/components/responses/Forbidden",
-      "resolved": true,
-      "file": "cafe.yaml",
-      "pointer": "#/components/responses/Forbidden",
-      "start_line": 1345,
-      "end_line": 1349,
-      "component": "responses",
-      "name": "Forbidden"
-    },
-    {
-      "ref": "#/components/responses/InternalServerError",
-      "resolved": true,
-      "file": "cafe.yaml",
-      "pointer": "#/components/responses/InternalServerError",
-      "start_line": 1333,
-      "end_line": 1337,
-      "component": "responses",
-      "name": "InternalServerError"
-    },
-    {
-      "ref": "#/components/responses/Unauthorized",
-      "resolved": true,
-      "file": "cafe.yaml",
-      "pointer": "#/components/responses/Unauthorized",
-      "start_line": 1339,
-      "end_line": 1343,
-      "component": "responses",
-      "name": "Unauthorized"
-    },
-    {
-      "ref": "#/components/schemas/Order",
-      "resolved": true,
-      "file": "cafe.yaml",
-      "pointer": "#/components/schemas/Order",
-      "start_line": 1033,
-      "end_line": 1107,
-      "component": "schemas",
-      "name": "Order"
-    }
-  ],
-  "usedBy": [],
-  "content": "…",
-  "deps": [
-    {
-      "id": "responses/BadRequest",
-      "pointer": "#/components/responses/BadRequest",
-      "file": "cafe.yaml",
-      "start_line": 1327,
-      "end_line": 1331,
-      "signature": "Bad request - invalid input parameters."
-    },
-    {
-      "id": "responses/Forbidden",
-      "pointer": "#/components/responses/Forbidden",
-      "file": "cafe.yaml",
-      "start_line": 1345,
-      "end_line": 1349,
-      "signature": "Forbidden - insufficient permissions."
-    },
-    {
-      "id": "responses/InternalServerError",
-      "pointer": "#/components/responses/InternalServerError",
-      "file": "cafe.yaml",
-      "start_line": 1333,
-      "end_line": 1337,
-      "signature": "Internal server error."
-    },
-    {
-      "id": "responses/Unauthorized",
-      "pointer": "#/components/responses/Unauthorized",
-      "file": "cafe.yaml",
-      "start_line": 1339,
-      "end_line": 1343,
-      "signature": "Unauthorized - authorization required."
-    },
-    {
-      "id": "schemas/Order",
-      "pointer": "#/components/schemas/Order",
-      "file": "cafe.yaml",
-      "start_line": 1033,
-      "end_line": 1107,
-      "signature": "id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array"
-    },
-    {
-      "id": "schemas/Error",
-      "pointer": "#/components/schemas/Error",
-      "file": "cafe.yaml",
-      "start_line": 988,
-      "end_line": 1024,
-      "signature": "type*:string, title*:string, status*:integer, instance:string, details:object"
-    },
-    {
-      "id": "schemas/OrderStatus",
-      "pointer": "#/components/schemas/OrderStatus",
-      "file": "cafe.yaml",
-      "start_line": 1025,
-      "end_line": 1032,
-      "signature": "string=placed|preparing|completed|canceled"
-    }
-  ],
-  "deeper": []
-}
+```
+post /orders · createOrder · cafe.yaml L316-372 · tags: Orders — Create order
+--- yaml
+      tags:
+        - Orders
+      summary: Create order
+      description: >
+        Create a new order.
+
+        Order items cannot be changed - if they need to be updated, cancel the
+        order and place a new one.
+      operationId: createOrder
+      security:
+        - OAuth2:
+            - orders:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+            examples:
+              OrderRequest:
+                dataValue:
+                  customerName: Mary Ann
+                  orderItems:
+                    - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                      quantity: 2
+                      comment: No sugar!
+                      discount: 0
+      responses:
+        '201':
+          description: Order placed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                OrderResponse:
+                  dataValue:
+                    id: ord_01h1s5z6vf2mm1mz3hevnn9va7
+                    customerName: Mary Ann
+                    orderItems:
+                      - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                        quantity: 2
+                        comment: No sugar!
+                        discount: 0
+                    object: order
+                    status: placed
+                    totalPrice: 200
+                    createdAt: '2026-08-24T14:15:22Z'
+                    updatedAt: '2026-08-24T14:15:22Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+--- deps (7, signatures depth ≤2)
+responses/BadRequest L1327-1331: Bad request - invalid input parameters.
+responses/Forbidden L1345-1349: Forbidden - insufficient permissions.
+responses/InternalServerError L1333-1337: Internal server error.
+responses/Unauthorized L1339-1343: Unauthorized - authorization required.
+schemas/Order L1033-1107: id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array
+schemas/Error L988-1024: type*:string, title*:string, status*:integer, instance:string, details:object
+schemas/OrderStatus L1025-1032: string=placed|preparing|completed|canceled
 ```
 
-(`content` is elided above; the real output carries the operation's actual raw source lines — that part of the card is never converted to a signature.)
-`Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) rather than a `field→Target` line; `deeper` comes back empty because nothing in this closure sits past two hops.
-Against the same command's `--format=json` output shown just above, this closure's five dependencies shrink from 10,965 bytes of raw YAML to 4,722 as signatures.
-The effect grows with the schema graph: on a schema-heavy description where a closure pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, the same `POST /plans`-shaped closure on Rebilly's API description (32 dependencies, mostly alternative pricing-formula schemas) drops from 65,506 bytes as `--format=json` to 8,515 as `--format=ai` — an 87% reduction, with every dropped byte still reachable one call away through `--component`/`--name`.
+The card's own `content` (the `--- yaml` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
+Each `--- deps` line is `id L<start>-<end>: signature`, with a `· f:<path>` suffix only when a dependency lives in a different file than the card.
+`Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) instead of being cut off; a `deeper:` line with a ready-to-run `hint:` would list anything past that window, and both are absent here because nothing in this closure sits further out.
+On cafe.yaml, this same card is 10,965 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 2,626 bytes as `--format=ai` — a 76% reduction, entirely from the five dependencies above shrinking from raw YAML to one-line signatures.
+The effect grows with the schema graph: a closure that pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, or dependencies with many more properties than `Order`'s eight, saves more per entry than this example does.
 
 ### Find what depends on a selection: `--used-by`
 
@@ -1467,7 +1492,7 @@ redocly tree cafe.yaml --tag=Orders --component=schemas
 Arguments component and tag are mutually exclusive
 ```
 
-The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--paths`/`--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--paths`/`--operations` listings; `--paths` and `--operations` each exclude every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`.
+The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--paths`/`--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--paths`/`--operations` listings; `--paths` and `--operations` each exclude every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`; `--find` excludes every other selector, listing, and modifier.
 
 Selectors, listings, and `--used-by`/`--with-deps` are OpenAPI-only:
 

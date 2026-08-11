@@ -113,13 +113,13 @@ Use [`tree`](./docs/@v2/commands/tree.md) to walk one in bounded steps instead o
 
 ```bash
 redocly tree <file> --format=ai                                                  # overview: tags, webhooks, component sections
-redocly tree <file> --tag=<tag> --format=ai                                      # one tag's operations
+redocly tree <file> --find "<task words>" --format=ai                            # locate candidate operations/components
 redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai   # one operation with its full $ref closure, as schema signatures
-redocly tree <file> --component=<section> --name=<Name> --used-by --format=ai    # what breaks if this component changes
+redocly tree <file> --tag=<tag> --format=ai                                      # a whole area's operations, only when browsing is genuinely needed
 ```
 
-`--format=ai` is the agent format: projected listings, no indentation, and schema signatures instead of raw YAML in a `--with-deps` closure.
-`--used-by` returns the complete transitive dependency graph with a `via` chain per entry, so walking `$ref`s by hand is unnecessary.
+`--format=ai` is the agent format: plain text, one line per listing entry, and schema signatures instead of raw YAML in a `--with-deps` closure.
+`--find` ranks operations and components by how many search terms hit their path, id, name, summary, or description, so step 2 usually narrows a whole API down to a few candidates in one call; anything a card's closure lists under `deeper` is one `--component`/`--name` call away.
 Every result carries the defining `file` and `start_line`/`end_line`, so any answer can be checked against the source it came from.
 
 ## Respect the architecture: Walker, Visitors, Nodes
