@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.46.1 (2026-08-11)
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `^8.18.3`.
+- Updated @redocly/openapi-core to v2.46.1.
+- Updated @redocly/respect-core to v2.46.1.
+
 ## 2.46.0 (2026-08-07)
 
 ### Minor Changes
