@@ -1,3 +1,11 @@
+import type {
+  ApiOverview,
+  ComponentListCard,
+  FindReport,
+  OperationListCard,
+  PathListItem,
+} from '@redocly/openapi-core';
+
 import type { TreeView } from '../index.js';
 import { renderView, renderViewStylish } from '../print/views.js';
 
@@ -612,95 +620,133 @@ describe('renderView (json)', () => {
 });
 
 describe('renderView (ai)', () => {
-  it('projects a listing to compact entries, adding file only once the listing spans more than one file, and serializes without indentation', () => {
-    const json = renderView(
-      {
-        kind: 'operations',
-        items: [
-          {
-            method: 'post',
-            path: '/tickets',
-            operationId: 'buyTickets',
-            summary: 'Buy museum tickets',
-            tags: ['Tickets'],
-            pointer: '#/post',
-            file: 'paths/tickets.yaml',
-            start_line: 10,
-            end_line: 40,
-            refs: [
-              {
-                ref: '#/components/schemas/Ticket',
-                resolved: true,
-                component: 'schemas',
-                name: 'Ticket',
-                file: 'openapi.yaml',
-                pointer: '#/components/schemas/Ticket',
-                start_line: 1,
-                end_line: 5,
-              },
-            ],
-            usedBy: [],
-          },
-          {
-            method: 'get',
-            path: '/orders',
-            summary: 'List orders',
-            tags: ['Orders'],
-            pointer: '#/get',
-            file: 'paths/orders.yaml',
-            start_line: 1,
-            end_line: 9,
-            refs: [],
-            usedBy: [],
-          },
-        ],
-      },
-      'ai'
-    );
-    expect(json).not.toContain('\n');
-    expect(JSON.parse(json)).toEqual([
-      {
-        method: 'post',
-        path: '/tickets',
-        operationId: 'buyTickets',
-        summary: 'Buy museum tickets',
-        lines: [10, 40],
-        file: 'paths/tickets.yaml',
-      },
-      {
-        method: 'get',
-        path: '/orders',
-        summary: 'List orders',
-        lines: [1, 9],
-        file: 'paths/orders.yaml',
-      },
-    ]);
+  const overviewFixture: ApiOverview = {
+    docName: 'openapi.yaml',
+    spec: 'oas3_0',
+    docDescription: 'Museum ticket API.',
+    servers: { urls: ['https://api.example.com/v1'] },
+    tags: [
+      { name: 'Tickets', summary: 'Buy tickets.', operations: 2 },
+      { name: 'Orders', operations: 1 },
+    ],
+    operations: 3,
+    webhooks: [{ name: 'newTicket', operations: 1 }],
+    components: [{ section: 'schemas', count: 4 }],
+  };
+
+  const operationListCardFixture: OperationListCard = {
+    method: 'post',
+    path: '/tickets',
+    operationId: 'buyTickets',
+    summary: 'Buy museum tickets',
+    tags: ['Tickets'],
+    pointer: '#/post',
+    file: 'paths/tickets.yaml',
+    start_line: 10,
+    end_line: 40,
+    refs: [],
+    usedBy: [],
+  };
+
+  const componentListCardFixture: ComponentListCard = {
+    component: 'schemas',
+    name: 'Ticket',
+    summary: 'A museum ticket.',
+    pointer: '#/components/schemas/Ticket',
+    file: 'openapi.yaml',
+    start_line: 12,
+    end_line: 20,
+    refs: [],
+    usedBy: [],
+  };
+
+  const pathListItemFixture: PathListItem = {
+    path: '/tickets',
+    methods: ['get', 'post'],
+    pointer: '#/paths/~1tickets',
+    file: 'paths/tickets.yaml',
+    start_line: 1,
+    end_line: 40,
+  };
+
+  const findReportFixture: FindReport = {
+    terms: ['pet'],
+    operations: [operationListCardFixture],
+    components: [componentListCardFixture],
+    totalOperations: 25,
+    totalComponents: 1,
+  };
+
+  it('renders an ai overview collapsed to counts with tag and next lines', () => {
+    const view: TreeView = { kind: 'overview', overview: overviewFixture };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "openapi.yaml · oas3_0 — Museum ticket API.
+      servers: https://api.example.com/v1
+      3 operations · 2 tags · 1 webhook operations
+      components: schemas 4
+      tags: Tickets 2 · Orders 1
+      webhooks: 1 (list: --webhooks)
+      next: --find=<terms> · --tag=<name> · --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<n>"
+    `);
   });
 
-  it('serializes without indentation but leaves a view with no ai projection full (e.g. overview)', () => {
-    const json = renderView(
-      {
-        kind: 'overview',
-        overview: {
-          docName: 'openapi.yaml',
-          spec: 'oas3_0',
-          tags: [],
-          operations: 0,
-          webhooks: [],
-          components: [],
-        },
-      },
-      'ai'
-    );
-    expect(json).not.toContain('\n');
-    expect(JSON.parse(json)).toEqual({
-      docName: 'openapi.yaml',
-      spec: 'oas3_0',
-      tags: [],
-      operations: 0,
-      webhooks: [],
-      components: [],
-    });
+  it('renders an ai overview expanded to operation lines under tags', () => {
+    const view: TreeView = {
+      kind: 'overview',
+      overview: overviewFixture,
+      operations: [operationListCardFixture],
+      webhookOperations: [],
+    };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "openapi.yaml · oas3_0 — Museum ticket API.
+      servers: https://api.example.com/v1
+      3 operations · 2 tags · 1 webhook operations
+      components: schemas 4
+      tag Tickets (1):
+      post /tickets · buyTickets · L10 — Buy museum tickets
+      tag Orders (0):
+      next: --find=<terms> · --tag=<name> · --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<n>"
+    `);
+  });
+
+  it('renders an ai operations listing as one line per operation', () => {
+    const view: TreeView = {
+      kind: 'operations',
+      scope: 'pets',
+      items: [operationListCardFixture],
+    };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "pets · 1 operations
+      post /tickets · buyTickets · L10 — Buy museum tickets"
+    `);
+  });
+
+  it('renders an ai components listing and a paths listing', () => {
+    const componentsView: TreeView = {
+      kind: 'components',
+      section: 'schemas',
+      items: [componentListCardFixture],
+    };
+    expect(renderView(componentsView, 'ai')).toMatchInlineSnapshot(`
+      "schemas · 1 components
+      schemas/Ticket · L12 — A museum ticket."
+    `);
+
+    const pathsView: TreeView = { kind: 'paths', items: [pathListItemFixture] };
+    expect(renderView(pathsView, 'ai')).toMatchInlineSnapshot(`
+      "paths · 1
+      /tickets · get,post · L1"
+    `);
+  });
+
+  it('renders an ai find report with the overflow line', () => {
+    const view: TreeView = { kind: 'find', report: findReportFixture };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "find "pet" · 25 operations · 1 components
+      post /tickets · buyTickets · L10 — Buy museum tickets
+      schemas/Ticket · L12 — A museum ticket.
+      … 24 more operations — narrow the terms."
+    `);
   });
 
   it('replaces a with-deps closure with signatures at depth 1-2 and bare ids beyond that', () => {

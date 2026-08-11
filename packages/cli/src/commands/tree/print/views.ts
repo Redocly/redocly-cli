@@ -16,14 +16,24 @@ import {
 
 import type { TreeView } from '../index.js';
 import type { TreeFormat } from '../types.js';
-import { aiComponents, aiDefines, aiOperations } from './ai.js';
+import { renderAiView } from './ai.js';
 import { buildAiDepsClosure } from './signature.js';
 
 export function renderView(view: TreeView, format: TreeFormat): string {
   if (format === 'stylish') return renderViewStylish(view);
+  if (format === 'ai' && AI_TEXT_KINDS.has(view.kind)) return renderAiView(view);
   const payload = viewPayload(view, format);
   return JSON.stringify(payload, null, format === 'ai' ? undefined : 2);
 }
+
+/** Interim routing while cards/used-by land in the next task; then every kind goes to renderAiView. */
+const AI_TEXT_KINDS: ReadonlySet<TreeView['kind']> = new Set([
+  'overview',
+  'operations',
+  'paths',
+  'components',
+  'find',
+]);
 
 function viewPayload(view: TreeView, format: TreeFormat): unknown {
   const ai = format === 'ai';
@@ -31,19 +41,16 @@ function viewPayload(view: TreeView, format: TreeFormat): unknown {
     case 'overview':
       return view.overview;
     case 'operations':
-      return ai ? aiOperations(view.items) : view.items;
+      return view.items;
     case 'paths':
       return view.items;
     case 'components':
-      return {
-        section: view.section,
-        items: ai ? aiComponents(view.items) : view.items,
-      };
+      return { section: view.section, items: view.items };
     case 'operation-card':
     case 'component-card':
       return ai ? withAiDepsClosure(view.card) : view.card;
     case 'file-card':
-      return ai ? { file: view.card.file, defines: aiDefines(view.card.defines) } : view.card;
+      return view.card;
     case 'used-by':
       return view.report;
     case 'find':

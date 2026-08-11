@@ -382,15 +382,16 @@ export function resolveTreeView(
   if (argv.paths) return { kind: 'paths', items: buildPathListing(analysis, { cwd }) };
 
   const overview = buildOverview(analysis, { specVersion, cwd });
-  if (argv.format !== 'stylish') return { kind: 'overview', overview };
+  if (argv.format === 'json') return { kind: 'overview', overview };
   // Past this many operations the expanded default tree stops being readable (and building a
   // card per operation stops being cheap), so the overview collapses to tag counts and the
   // renderer appends a --tag hint instead.
   if (overview.operations > OVERVIEW_EXPAND_LIMIT) return { kind: 'overview', overview };
-  // The overview itself carries no per-operation detail; the stylish tree renders down to
-  // operations (see renderOverview), so build the same listings --operations/--webhooks return
-  // and hand them to the view alongside it. json is unaffected: viewPayload only ever serializes
-  // `view.overview` for this view kind, so these extra fields never reach that output.
+  // The overview itself carries no per-operation detail; the stylish and ai renderers both
+  // expand it down to operations (see renderOverview / renderAiOverview), so build the same
+  // listings --operations/--webhooks return and hand them to the view alongside it. json is
+  // unaffected: viewPayload only ever serializes `view.overview` for this view kind, so these
+  // extra fields never reach that output.
   return {
     kind: 'overview',
     overview,
