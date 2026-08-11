@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -485,10 +486,12 @@ export const handleEjectGenerator = async ({
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
   // Config-file generator entries resolve against the config's directory, so the wired
-  // path is relative to it — the cwd anchors only the snippet for a config yet to exist.
+  // path is relative to it — real paths on both sides, so a symlinked location (like
+  // macOS /var/folders) doesn't skew the walk. The cwd anchors only the snippet for a
+  // config yet to exist.
   const configEntry = `./${relative(
-    config.configPath === undefined ? process.cwd() : dirname(config.configPath),
-    target
+    config.configPath === undefined ? process.cwd() : realpathSync(dirname(config.configPath)),
+    realpathSync(target)
   )
     .split('\\')
     .join('/')}`;
