@@ -899,7 +899,7 @@ redocly tree cafe.yaml --find "order status" --format=ai
 ```
 
 ```
-find "order status" · 1 operations · 1 components
+find "order status" · 1 operation · 1 component
 patch /orders/{orderId} · updateOrder · L418 — Partially update an order
 schemas/OrderStatus · L1025 — Order status.
 ```
@@ -920,7 +920,7 @@ redocly tree cafe.yaml --find "order status" --tag=Orders
 ### Plain text for agents: `--format=ai`
 
 `--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
-`--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in any view, not even a minified JSON blob.
+`--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in any view, not even a minified JSON blob — except the file-level graph, which `--files` and a non-OpenAPI description still render as minified JSON.
 
 Every `ai` view shares the same conventions:
 
@@ -1000,7 +1000,7 @@ redocly tree cafe.yaml --format=ai
 ```
 cafe.yaml · oas3_2 — Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…
 servers: https://api.cafe.redocly.com
-12 operations · 4 tags · 1 webhook operations
+12 operations · 4 tags · 1 webhook operation
 components: schemas 15 · responses 6 · parameters 9 · securitySchemes 2
 tag Authorization (1):
 post /oauth2/register · registerOAuth2Client · L604 — Create OAuth2 client
