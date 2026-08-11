@@ -1,9 +1,13 @@
 import type {
   ApiOverview,
+  ComponentCard,
   ComponentListCard,
+  FileCard,
   FindReport,
+  OperationCard,
   OperationListCard,
   PathListItem,
+  UsedByReport,
 } from '@redocly/openapi-core';
 
 import type { TreeView } from '../index.js';
@@ -677,6 +681,20 @@ describe('renderView (ai)', () => {
     totalComponents: 1,
   };
 
+  const webhookOperationListCardFixture: OperationListCard = {
+    method: 'post',
+    webhook: 'newTicket',
+    operationId: 'newTicketAlert',
+    summary: 'New ticket alert',
+    tags: [],
+    pointer: '#/post',
+    file: 'webhooks.yaml',
+    start_line: 8,
+    end_line: 12,
+    refs: [],
+    usedBy: [],
+  };
+
   it('renders an ai overview collapsed to counts with tag and next lines', () => {
     const view: TreeView = { kind: 'overview', overview: overviewFixture };
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
@@ -690,12 +708,12 @@ describe('renderView (ai)', () => {
     `);
   });
 
-  it('renders an ai overview expanded to operation lines under tags', () => {
+  it('renders an ai overview expanded to operation lines under tags, and a webhooks block with content', () => {
     const view: TreeView = {
       kind: 'overview',
       overview: overviewFixture,
       operations: [operationListCardFixture],
-      webhookOperations: [],
+      webhookOperations: [webhookOperationListCardFixture],
     };
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
       "openapi.yaml · oas3_0 — Museum ticket API.
@@ -705,6 +723,8 @@ describe('renderView (ai)', () => {
       tag Tickets (1):
       post /tickets · buyTickets · L10 — Buy museum tickets
       tag Orders (0):
+      webhooks (1):
+      post webhook newTicket · newTicketAlert · L8 — New ticket alert
       next: --find=<terms> · --tag=<name> · --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<n>"
     `);
   });
@@ -719,6 +739,20 @@ describe('renderView (ai)', () => {
       "pets · 1 operations
       post /tickets · buyTickets · L10 — Buy museum tickets"
     `);
+  });
+
+  it('adds the `f:` file suffix once an ai operations listing spans multiple files', () => {
+    const view: TreeView = {
+      kind: 'operations',
+      scope: 'pets',
+      items: [
+        operationListCardFixture,
+        { ...operationListCardFixture, path: '/orders', file: 'paths/orders.yaml', start_line: 5 },
+      ],
+    };
+    const rendered = renderView(view, 'ai');
+    expect(rendered).toContain(' · f:paths/tickets.yaml');
+    expect(rendered).toContain(' · f:paths/orders.yaml');
   });
 
   it('renders an ai components listing and a paths listing', () => {
@@ -749,92 +783,66 @@ describe('renderView (ai)', () => {
     `);
   });
 
-  it('replaces a with-deps closure with signatures at depth 1-2 and bare ids beyond that', () => {
-    const json = renderView(
+  const operationCardWithDepsFixture: OperationCard = {
+    method: 'post',
+    path: '/tickets',
+    operationId: 'buyTickets',
+    summary: 'Buy museum tickets',
+    tags: ['Tickets'],
+    pointer: '#/post',
+    file: 'paths/tickets.yaml',
+    start_line: 10,
+    end_line: 40,
+    refs: [
       {
-        kind: 'component-card',
-        card: {
-          component: 'schemas',
-          name: 'Plan',
-          pointer: '#/components/schemas/Plan',
-          file: 'openapi.yaml',
-          start_line: 1,
-          end_line: 5,
-          refs: [
-            {
-              ref: '#/components/schemas/OneTimeSalePlan',
-              resolved: true,
-              component: 'schemas',
-              name: 'OneTimeSalePlan',
-              file: 'openapi.yaml',
-              pointer: '#/components/schemas/OneTimeSalePlan',
-              start_line: 6,
-              end_line: 10,
-            },
-          ],
-          usedBy: [],
-          content: 'allOf: []',
-          deps: [
-            {
-              id: 'schemas/OneTimeSalePlan',
-              pointer: '#/components/schemas/OneTimeSalePlan',
-              file: 'openapi.yaml',
-              start_line: 6,
-              end_line: 10,
-              content: [
-                '  type: object',
-                '  required:',
-                '    - name',
-                '  properties:',
-                '    name:',
-                '      type: string',
-                "    currency: { $ref: '#/components/schemas/CurrencyCode' }",
-              ].join('\n'),
-              refs: [
-                {
-                  ref: '#/components/schemas/CurrencyCode',
-                  resolved: true,
-                  file: 'openapi.yaml',
-                  pointer: '#/components/schemas/CurrencyCode',
-                  start_line: 20,
-                  end_line: 21,
-                },
-              ],
-            },
-            {
-              id: 'schemas/CurrencyCode',
-              pointer: '#/components/schemas/CurrencyCode',
-              file: 'openapi.yaml',
-              start_line: 20,
-              end_line: 21,
-              content: '  type: string',
-              refs: [],
-            },
-            {
-              id: 'schemas/NeverReferenced',
-              pointer: '#/components/schemas/NeverReferenced',
-              file: 'openapi.yaml',
-              start_line: 30,
-              end_line: 31,
-              content: '  type: string',
-              refs: [],
-            },
-          ],
-        },
-      },
-      'ai'
-    );
-
-    const payload = JSON.parse(json);
-    expect(payload.content).toBe('allOf: []');
-    expect(payload.deps).toEqual([
-      {
-        id: 'schemas/OneTimeSalePlan',
-        pointer: '#/components/schemas/OneTimeSalePlan',
+        ref: '#/components/schemas/Ticket',
+        resolved: true,
+        component: 'schemas',
+        name: 'Ticket',
         file: 'openapi.yaml',
-        start_line: 6,
-        end_line: 10,
-        signature: 'name*:string, currency→CurrencyCode',
+        pointer: '#/components/schemas/Ticket',
+        start_line: 1,
+        end_line: 5,
+      },
+    ],
+    usedBy: [
+      {
+        id: 'schemas/Order',
+        component: 'schemas',
+        name: 'Order',
+        pointer: '#/components/schemas/Order',
+        file: 'openapi.yaml',
+        start_line: 50,
+        end_line: 60,
+      },
+    ],
+    content: 'post:\n  summary: Buy museum tickets\n  operationId: buyTickets',
+    deps: [
+      {
+        id: 'schemas/Ticket',
+        pointer: '#/components/schemas/Ticket',
+        file: 'openapi.yaml',
+        start_line: 1,
+        end_line: 5,
+        content: [
+          '  type: object',
+          '  required:',
+          '    - id',
+          '  properties:',
+          '    id:',
+          '      type: string',
+          "    currency: { $ref: '#/components/schemas/CurrencyCode' }",
+        ].join('\n'),
+        refs: [
+          {
+            ref: '#/components/schemas/CurrencyCode',
+            resolved: true,
+            file: 'openapi.yaml',
+            pointer: '#/components/schemas/CurrencyCode',
+            start_line: 20,
+            end_line: 21,
+          },
+        ],
       },
       {
         id: 'schemas/CurrencyCode',
@@ -842,33 +850,221 @@ describe('renderView (ai)', () => {
         file: 'openapi.yaml',
         start_line: 20,
         end_line: 21,
-        signature: 'string',
+        content: '  type: string',
+        refs: [],
       },
-    ]);
-    expect(payload.deeper).toEqual(['schemas/NeverReferenced']);
-    expect(payload.hint).toBe('redocly tree <file> --component=schemas --name=<Name> --format=ai');
+      {
+        id: 'schemas/NeverReferenced',
+        pointer: '#/components/schemas/NeverReferenced',
+        file: 'openapi.yaml',
+        start_line: 30,
+        end_line: 31,
+        content: '  type: string',
+        refs: [],
+      },
+    ],
+  };
+
+  it('renders an ai operation card: header, yaml, deps signatures, deeper, usedBy count', () => {
+    const view: TreeView = { kind: 'operation-card', card: operationCardWithDepsFixture };
+    const rendered = renderView(view, 'ai');
+    expect(rendered).toContain('--- yaml');
+    expect(rendered).not.toContain('"pointer"');
+    expect(rendered).toMatchInlineSnapshot(`
+      "post /tickets · buyTickets · paths/tickets.yaml L10-40 · tags: Tickets — Buy museum tickets
+      --- yaml
+      post:
+        summary: Buy museum tickets
+        operationId: buyTickets
+      --- deps (2, signatures depth ≤2)
+      schemas/Ticket L1-5 · f:openapi.yaml: id*:string, currency→CurrencyCode
+      schemas/CurrencyCode L20-21 · f:openapi.yaml: string
+      deeper: schemas/NeverReferenced
+      hint: redocly tree <file> --component=schemas --name=<Name> --format=ai
+      usedBy: 1 (--used-by)"
+    `);
   });
 
-  it('passes a card through unchanged when --with-deps was not used', () => {
-    const json = renderView(
-      {
-        kind: 'operation-card',
-        card: {
-          method: 'get',
-          path: '/tickets',
-          tags: [],
-          pointer: '#/get',
+  it('renders an ai operation card without deps: compact refs line', () => {
+    const cardWithoutDeps: OperationCard = {
+      method: 'get',
+      path: '/tickets/{id}',
+      tags: [],
+      pointer: '#/get',
+      file: 'paths/tickets.yaml',
+      start_line: 42,
+      end_line: 50,
+      refs: [
+        {
+          ref: '#/components/schemas/Ticket',
+          resolved: true,
+          component: 'schemas',
+          name: 'Ticket',
           file: 'openapi.yaml',
+          pointer: '#/components/schemas/Ticket',
           start_line: 1,
           end_line: 5,
+        },
+        { ref: './schemas/Missing.yaml', resolved: false, component: 'unknown' },
+      ],
+      usedBy: [],
+      content: 'get:\n  summary: Get a ticket',
+    };
+    const view: TreeView = { kind: 'operation-card', card: cardWithoutDeps };
+    const rendered = renderView(view, 'ai');
+    expect(rendered).not.toContain('--- deps');
+    expect(rendered).toContain('refs: schemas/Ticket L1');
+    expect(rendered).toMatchInlineSnapshot(`
+      "get /tickets/{id} · paths/tickets.yaml L42-50
+      --- yaml
+      get:
+        summary: Get a ticket
+      refs: schemas/Ticket L1 · ./schemas/Missing.yaml (unresolved)"
+    `);
+  });
+
+  const componentCardWithContentFixture: ComponentCard = {
+    component: 'schemas',
+    name: 'Ticket',
+    summary: 'A museum ticket.',
+    pointer: '#/components/schemas/Ticket',
+    file: 'openapi.yaml',
+    start_line: 12,
+    end_line: 20,
+    refs: [],
+    usedBy: [
+      {
+        id: 'POST /tickets',
+        method: 'post',
+        path: '/tickets',
+        file: 'paths/tickets.yaml',
+        pointer: '#/post',
+        start_line: 10,
+        end_line: 40,
+      },
+    ],
+    content: [
+      '  type: object',
+      '  required:',
+      '    - id',
+      '  properties:',
+      '    id:',
+      '      type: string',
+    ].join('\n'),
+  };
+
+  it('renders an ai component card with its own signature line and content', () => {
+    const view: TreeView = { kind: 'component-card', card: componentCardWithContentFixture };
+    const rendered = renderView(view, 'ai');
+    expect(rendered).toContain('signature:');
+    expect(rendered).toContain('--- yaml');
+    expect(rendered).toMatchInlineSnapshot(`
+      "schemas/Ticket · openapi.yaml L12-20 — A museum ticket.
+      signature: id*:string
+      --- yaml
+        type: object
+        required:
+          - id
+        properties:
+          id:
+            type: string
+      usedBy: 1 (--used-by)"
+    `);
+  });
+
+  it('renders an ai used-by report as via lines', () => {
+    const report: UsedByReport = {
+      target: {
+        id: 'schemas/Ticket',
+        component: 'schemas',
+        name: 'Ticket',
+        file: 'openapi.yaml',
+        pointer: '#/components/schemas/Ticket',
+        start_line: 1,
+        end_line: 5,
+      },
+      affectedOperations: [
+        {
+          id: 'POST /tickets',
+          method: 'post',
+          path: '/tickets',
+          file: 'paths/tickets.yaml',
+          pointer: '#/post',
+          start_line: 10,
+          end_line: 40,
+          via: ['schemas/Ticket', 'POST /tickets'],
+        },
+      ],
+      affectedComponents: [
+        {
+          id: 'schemas/Order',
+          component: 'schemas',
+          name: 'Order',
+          file: 'openapi.yaml',
+          pointer: '#/components/schemas/Order',
+          start_line: 50,
+          end_line: 60,
+          via: ['schemas/Ticket', 'schemas/Order'],
+        },
+      ],
+    };
+    const rendered = renderView({ kind: 'used-by', report }, 'ai');
+    expect(rendered).toContain(' via schemas/Ticket → POST /tickets');
+    expect(rendered).toMatchInlineSnapshot(`
+      "used-by schemas/Ticket · openapi.yaml L1-5
+      operations (1):
+      post /tickets · L10 · f:paths/tickets.yaml via schemas/Ticket → POST /tickets
+      components (1):
+      schemas/Order · L50 via schemas/Ticket → schemas/Order"
+    `);
+  });
+
+  it('renders an ai used-by report with nothing referencing the target', () => {
+    const report: UsedByReport = {
+      target: { id: 'paths/orphan.yaml', file: 'paths/orphan.yaml' },
+      affectedOperations: [],
+      affectedComponents: [],
+    };
+    expect(renderView({ kind: 'used-by', report }, 'ai')).toMatchInlineSnapshot(`
+      "used-by paths/orphan.yaml
+      Nothing references it."
+    `);
+  });
+
+  it('renders an ai file card as define lines', () => {
+    const card: FileCard = {
+      file: 'paths/tickets.yaml',
+      defines: [
+        {
+          method: 'get',
+          path: '/tickets',
+          operationId: 'listTickets',
+          summary: 'List tickets',
+          tags: ['Tickets'],
+          pointer: '#/get',
+          file: 'paths/tickets.yaml',
+          start_line: 1,
+          end_line: 9,
           refs: [],
           usedBy: [],
         },
-      },
-      'ai'
-    );
-
-    expect(JSON.parse(json)).not.toHaveProperty('deps');
-    expect(JSON.parse(json)).not.toHaveProperty('deeper');
+        {
+          component: 'schemas',
+          name: 'Ticket',
+          summary: 'A museum ticket.',
+          pointer: '#/',
+          file: 'paths/tickets.yaml',
+          start_line: 11,
+          end_line: 15,
+          refs: [],
+          usedBy: [],
+        },
+      ],
+    };
+    expect(renderView({ kind: 'file-card', card }, 'ai')).toMatchInlineSnapshot(`
+      "file paths/tickets.yaml · defines 2
+      get /tickets · listTickets · L1 — List tickets
+      schemas/Ticket · L11 — A museum ticket."
+    `);
   });
 });

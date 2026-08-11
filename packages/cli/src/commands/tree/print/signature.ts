@@ -17,7 +17,6 @@ const MAX_ENUM_VALUES = 6;
 /** A dependency projected for `ai`: coordinates plus a compact signature instead of raw YAML. */
 export type AiDepEntry = {
   id: string;
-  pointer?: string;
   file: string;
   start_line: number;
   end_line: number;
@@ -55,11 +54,10 @@ export function buildAiDepsClosure(deps: ApiNodeEnvelope[], seedRefs: TypedRef[]
     }
     near.push({
       id: dep.id,
-      ...(dep.pointer !== undefined ? { pointer: dep.pointer } : {}),
       file: dep.file,
       start_line: dep.start_line,
       end_line: dep.end_line,
-      signature: buildSignature(dep),
+      signature: buildNodeSignature(dep.id.slice(0, dep.id.indexOf('/')), dep.content, dep.refs),
     });
   }
 
@@ -111,10 +109,10 @@ function depRefTargetIds(dep: ApiNodeEnvelope): string[] {
     .filter((id): id is string => id !== undefined);
 }
 
-function buildSignature(dep: ApiNodeEnvelope): string {
-  const parsed = parseDepContent(dep.content);
-  const refIndex = new Map(dep.refs.map((ref) => [ref.ref, ref]));
-  const section = dep.id.slice(0, dep.id.indexOf('/'));
+/** Builds the signature for one node's raw content: schema signatures for `schemas`, one-line summaries otherwise. */
+export function buildNodeSignature(section: string, content: string, refs: ApiNodeRef[]): string {
+  const parsed = parseDepContent(content);
+  const refIndex = new Map(refs.map((ref) => [ref.ref, ref]));
   return section === SCHEMA_SECTION
     ? buildSchemaSignature(parsed, refIndex)
     : buildSummarySignature(parsed, refIndex);

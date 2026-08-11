@@ -211,7 +211,12 @@ export function resolveTreeView(
       ? { kind: 'used-by', report: buildUsedByReport(analysis, operation.id, cwd) }
       : {
           kind: 'operation-card',
-          card: buildOperationCard(analysis, operation, { specVersion, cwd, withDeps }),
+          card: buildOperationCard(analysis, operation, {
+            specVersion,
+            cwd,
+            withDeps,
+            withContent: argv.format === 'ai',
+          }),
         };
 
   if (argv.file !== undefined) {
@@ -264,7 +269,12 @@ export function resolveTreeView(
     }
     return {
       kind: 'component-card',
-      card: buildComponentCard(analysis, component, { specVersion, cwd, withDeps }),
+      card: buildComponentCard(analysis, component, {
+        specVersion,
+        cwd,
+        withDeps,
+        withContent: argv.format === 'ai',
+      }),
     };
   }
 

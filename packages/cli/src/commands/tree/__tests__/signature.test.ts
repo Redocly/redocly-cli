@@ -1,6 +1,6 @@
 import type { ApiNodeEnvelope, ApiNodeRef, TypedRef } from '@redocly/openapi-core';
 
-import { buildAiDepsClosure, DEEPER_HINT } from '../print/signature.js';
+import { buildAiDepsClosure, buildNodeSignature, DEEPER_HINT } from '../print/signature.js';
 
 /** A depth-1 dependency's own signature: seeded from one ref so `dep` alone lands in `deps`. */
 function signatureOf(dep: ApiNodeEnvelope): string {
@@ -333,5 +333,39 @@ describe('buildAiDepsClosure: depth cut', () => {
       start_line: 1,
       end_line: 3,
     });
+  });
+
+  it('never emits a pointer field on a projected dep entry', () => {
+    const closure = buildAiDepsClosure([depA], [seedRefA]);
+
+    expect(closure.deps[0]).not.toHaveProperty('pointer');
+  });
+});
+
+describe('buildNodeSignature', () => {
+  it('builds a schema signature from raw content and refs', () => {
+    const schemaContentFixture = [
+      '      type: object',
+      '      required:',
+      '        - id',
+      '      properties:',
+      '        id:',
+      '          type: string',
+    ].join('\n');
+
+    const signature = buildNodeSignature('schemas', schemaContentFixture, []);
+
+    expect(signature).toContain('*'); // required marker from the fixture
+    expect(signature).toBe('id*:string');
+  });
+
+  it('builds a one-line summary for a non-schema section', () => {
+    const signature = buildNodeSignature(
+      'responses',
+      '      description: The resource was not found.',
+      []
+    );
+
+    expect(signature).toBe('The resource was not found.');
   });
 });
