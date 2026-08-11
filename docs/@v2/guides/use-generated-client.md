@@ -1,39 +1,50 @@
 # Use the generated client
 
-How to consume the TypeScript client produced by [`generate-client`](../commands/generate-client.md): authentication, argument styles, error handling, middleware, retries, and the optional add-on generators.
-For invoking the command itself (flags, output modes, config), see the [`generate-client` command reference](../commands/generate-client.md).
-To shape what gets generated — publisher defaults, custom generators — see [Customize client generation](./customize-client-generation.md).
+This guide tells you how to use the TypeScript client that [`generate-client`](../commands/generate-client.md) produces.
+It covers authentication, argument styles, error handling, middleware, retries, and the optional add-on generators.
+For the command itself (flags, output modes, config), see the [`generate-client` command reference](../commands/generate-client.md).
+To change what the command generates (publisher defaults, custom generators), see [Customize client generation](./customize-client-generation.md).
 
 ## Generators
 
-`--generator` selects what to emit (default `sdk`).
-Each non-`sdk` generator adds a standalone sibling module next to the client; the client itself never imports it, so an add-on never adds a dependency to the client.
-Incompatible selections fail fast with an explanation.
+The `--generator` option selects the output (default `sdk`).
+Each non-`sdk` generator adds a standalone module next to the client.
+The client never imports this module.
+Because of this, an add-on never adds a dependency to the client.
+Incompatible selections fail immediately with an explanation.
 
-| Generator        | Emits                                                                                                                                                                                                                                                           | App peer dependency                                      |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `sdk`            | The typed client (default).                                                                                                                                                                                                                                     | none                                                     |
-| `zod`            | `<output>.zod.ts` — [Zod](https://zod.dev) schemas + [validation middleware](#runtime-validation).                                                                                                                                                              | `zod` `^3.23 \|\| ^4`                                    |
-| `tanstack-query` | `<output>.tanstack.ts` — [TanStack Query](https://tanstack.com/query) v5 [factories](#tanstack-query-factories), including `<op>InfiniteOptions` for paginated operations. React by default; `tanstack-query-vue`/`-svelte`/`-solid` switch the adapter import. | `@tanstack/<framework>-query` `^5`                       |
-| `swr`            | `<output>.swr.ts` — [SWR](https://swr.vercel.app) hooks.                                                                                                                                                                                                        | `swr` `^2`                                               |
-| `mock`           | `<output>.mocks.ts` — [MSW](https://mswjs.io) v2 handlers + `create<Schema>` factories.                                                                                                                                                                         | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
-| `transformers`   | `<output>.transformers.ts` — `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                       | none                                                     |
-| `cli`            | `<output>.cli.ts` — a bin-ready [command-line interface](#generated-cli) over the client: typed flags, `--json` bodies, env auth, `--page-all`.                                                                                                                 | none                                                     |
-| `cli-docs`       | `<output>.cli.md` — a Markdown [reference for the generated CLI](#cli-reference-docs): every command, flag, exit code, and credential variable.                                                                                                                 | none                                                     |
+| Generator        | Emits                                                                                                                                                                                                                                                     | App peer dependency                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `sdk`            | The typed client (default).                                                                                                                                                                                                                               | none                                                     |
+| `zod`            | `<output>.zod.ts`: [Zod](https://zod.dev) schemas and [validation middleware](#runtime-validation).                                                                                                                                                       | `zod` `^3.23 \|\| ^4`                                    |
+| `tanstack-query` | `<output>.tanstack.ts`: [TanStack Query](https://tanstack.com/query) v5 [factories](#tanstack-query-factories), with `<op>InfiniteOptions` for paginated operations. React by default; `tanstack-query-vue`/`-svelte`/`-solid` change the adapter import. | `@tanstack/<framework>-query` `^5`                       |
+| `swr`            | `<output>.swr.ts`: [SWR](https://swr.vercel.app) hooks.                                                                                                                                                                                                   | `swr` `^2`                                               |
+| `mock`           | `<output>.mocks.ts`: [MSW](https://mswjs.io) v2 handlers and `create<Schema>` factories.                                                                                                                                                                  | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
+| `transformers`   | `<output>.transformers.ts`: `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                  | none                                                     |
+| `cli`            | `<output>.cli.ts`: a [command-line interface](#generated-cli) for the client, ready to use as a bin. It has typed flags, `--json` bodies, env auth, and `--page-all`.                                                                                     | none                                                     |
+| `cli-docs`       | `<output>.cli.md`: a Markdown [reference for the generated CLI](#cli-reference-docs). It lists every command, flag, exit code, and credential variable.                                                                                                   | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
 ```
 
-`tanstack-query`, `swr`, and `cli` wrap the throw-mode `sdk` client, so they require `--error-mode throw`; `transformers` requires `--date-type Date`.
+`tanstack-query`, `swr`, and `cli` wrap the throw-mode `sdk` client.
+Because of this, they require `--error-mode throw`.
+The `transformers` generator requires `--date-type Date`.
 See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
 
 ### Generated CLI
 
-The `cli` generator emits `<stem>.cli.ts` — a zero-dependency, bin-ready command-line interface over the generated client.
-Path params are positional, query params become typed `--kebab-name` flags (enums list their choices in `--help`, array params repeat the flag), and JSON request bodies arrive via `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
-Requests are validated before they are sent — selecting `cli` pulls in the generators it needs (`sdk` and `zod`), so nothing extra has to be listed.
-That means the CLI's validation uses [zod](https://zod.dev/) at runtime: install it alongside the generated CLI (`npm i zod`).
+The `cli` generator emits `<stem>.cli.ts`.
+This file is a zero-dependency command-line interface for the generated client, ready to use as a bin.
+Path parameters are positional.
+Query parameters become typed `--kebab-name` flags.
+Enum flags list their choices in `--help`, and array parameters repeat the flag.
+Supply a JSON request body with `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
+The CLI validates each request before it sends it.
+When you select `cli`, the command also selects the generators it needs (`sdk` and `zod`), so you do not have to list them.
+Because of this, the CLI validation uses [zod](https://zod.dev/) at runtime.
+Install zod next to the generated CLI (`npm i zod`).
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator cli
@@ -43,20 +54,37 @@ npx tsx src/client.cli.ts orders listOrders --page-all   # one JSON page per lin
 npx tsx src/client.cli.ts schema createOrder             # the operation's full contract
 ```
 
-`--help` lists the commands, and for tagged APIs those are grouped: run `<bin> <group> <command> --help` for one command's flags.
-An operationId also works on its own (`<bin> listOrders`) when it is unambiguous, so you don't have to know its group.
+`--help` lists the commands.
+For tagged APIs, the commands are grouped.
+Run `<bin> <group> <command> --help` to show the flags of one command.
+An operationId also works without its group (`<bin> listOrders`) when the operationId is unambiguous.
+Because of this, you do not have to know its group.
 
-Group and command names are cased differently, deliberately.
-A group comes from an OpenAPI tag, which is prose — `Coffee Orders` is not typable without quoting — so it is slugged to `coffee-orders`.
-A command name is the operationId, which is already an identifier, so it is used verbatim: `listOrders`, not `list-orders`.
-That keeps one name for the operation across everything you generate — the CLI command, the TypeScript function, the Python method — so `listOrders` is searchable in your API description, your SDK, and your shell history alike.
-Every global flag appears under `Global flags:` in the top-level help — `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, `--json` — together with the environment variables the CLI reads.
+Group names and command names use different cases, and this is deliberate.
+A group name comes from an OpenAPI tag, which is prose.
+You cannot type `Coffee Orders` without quotes, so the CLI converts the tag to a slug: `coffee-orders`.
+A command name is the operationId, which is already an identifier.
+Because of this, the CLI uses it unchanged: `listOrders`, not `list-orders`.
+As a result, the operation keeps one name in all generated output: the CLI command, the TypeScript function, and the Python method.
+You can search for `listOrders` in your API description, in your SDK, and in your shell history.
+The top-level help shows every global flag under `Global flags:`: `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, and `--json`.
+The same section shows the environment variables that the CLI reads.
 
-Credentials come from environment variables derived from the file stem (constant-cased): bearer → `<PREFIX>_TOKEN` (or `--token`), basic → `<PREFIX>_USERNAME`/`<PREFIX>_PASSWORD`, apiKey → `<PREFIX>_API_KEY_<SCHEME>`.
-The help lists only what the description declares — an API with no bearer scheme shows no `--token` — and passing `--token` to such an API is a usage error (exit 4) naming the schemes it does accept, rather than a credential dropped in silence.
-`--server-url` overrides the baked server; `--dry-run` prints the prepared request (credentials redacted) without sending it; blob responses require `--output <path>`; SSE operations stream events as one JSON object per line.
+The CLI reads credentials from environment variables, with a prefix derived from the file stem in constant case.
+For bearer auth, use `<PREFIX>_TOKEN` (or `--token`).
+For basic auth, use `<PREFIX>_USERNAME` and `<PREFIX>_PASSWORD`.
+For apiKey auth, use `<PREFIX>_API_KEY_<SCHEME>`.
+The help lists only the schemes that the description declares.
+An API with no bearer scheme shows no `--token` flag.
+If you pass `--token` to such an API, the CLI reports a usage error (exit 4) and names the schemes that the API accepts.
+The CLI does not drop the credential silently.
+`--server-url` overrides the built-in server URL.
+`--dry-run` prints the prepared request with the credentials redacted and does not send it.
+Blob responses require `--output <path>`.
+SSE operations stream events as one JSON object per line.
 
-Exit codes are a documented contract, and errors print one JSON object to stderr so stdout stays clean for piping:
+The exit codes are a documented contract.
+Errors print one JSON object to stderr, so stdout stays clean for pipes:
 
 | Code | Meaning                                             |
 | ---- | --------------------------------------------------- |
@@ -66,16 +94,23 @@ Exit codes are a documented contract, and errors print one JSON object to stderr
 | 3    | validation error (zod co-selected)                  |
 | 4    | usage error (unknown command or flag, bad `--json`) |
 
-`schema <command>` prints one operation's complete contract as JSON — method and path, the path and query parameters with their types and descriptions, whether a JSON body is accepted, the request and response schemas, and the flags that change how a call behaves (`paginated`, `sse`, `blob`).
-It is the CLI's machine-readable surface: a script, a test harness, or an agent can discover the tool with `--help`, then read one `schema` call per command instead of parsing help text written for humans.
+`schema <command>` prints the complete contract of one operation as JSON.
+The output includes the method and path, and the path and query parameters with their types and descriptions.
+It also shows if the operation accepts a JSON body, the request and response schemas, and the flags that change call behavior (`paginated`, `sse`, `blob`).
+This is the machine-readable surface of the CLI.
+A script, a test harness, or an agent can discover the tool with `--help`.
+It can then read one `schema` call for each command, and it does not have to parse help text written for humans.
 
 #### Compose and extend the CLI
 
-The generated module is a library as well as a binary: it exports `COMMANDS`, `wiring`, and `run`, and self-executes only when it is the process entry.
-That makes two things possible without touching generated files.
+The generated module is a library and also a binary.
+It exports `COMMANDS`, `wiring`, and `run`, and it executes itself only when it is the process entry.
+This makes two things possible without changes to the generated files.
 
-**One binary over several APIs.**
-Set a top-level `client.cliOutput` and `redocly generate-client` (no api argument) emits a composed entry over every api that emits a cli module — each behind its alias from `apis:` as the namespace, reading credentials under `<BINNAME>_<ALIAS>_*`:
+**One binary for several APIs.**
+Set a top-level `client.cliOutput`.
+Then `redocly generate-client` (no api argument) emits a composed entry for every api that emits a cli module.
+Each api uses its alias from `apis:` as its namespace, and it reads credentials under `<BINNAME>_<ALIAS>_*`:
 
 ```yaml
 client:
@@ -92,11 +127,14 @@ cafe shop listOrders --limit 3      # CAFE_SHOP_TOKEN
 cafe kitchen createOrder --json @o.json   # CAFE_KITCHEN_TOKEN
 ```
 
-Colliding operationIds across descriptions are simply different commands, and each api keeps its own server URL, schemes, and credentials.
+If two descriptions have the same operationId, the result is two different commands.
+Each api keeps its own server URL, schemes, and credentials.
 
 **Commands the description doesn't have.**
-A custom command is the same data shape plus a `handler`, so it inherits help, parsing, `schema`, and the exit codes.
-This is how behavior that isn't in any description — a `login`, a doctor command — joins the binary, in a file you own:
+A custom command is the same data shape plus a `handler`.
+Because of this, it inherits the help, the parsing, `schema`, and the exit codes.
+Use this to add behavior that is not in a description, for example a `login` or a doctor command.
+The custom command lives in a file that you own:
 
 ```ts
 import { runCli, type CustomCommand } from '@redocly/client-generator';
@@ -116,41 +154,63 @@ const login: CustomCommand = {
 process.exit(await runCli([{ commands: [login] }, ...SOURCES], process.argv.slice(2)));
 ```
 
-Credentials resolve from `wiring.env`, so a wrapper that reads a credentials file merges it there (`env: { ...process.env, ...stored }`) and a stored token is indistinguishable from one set in the shell.
-The generator itself ships no credential store and no login — every API's flow differs, so those stay yours, and this section is the recipe.
+The CLI resolves credentials from `wiring.env`.
+A wrapper that reads a credentials file merges the file into that env (`env: { ...process.env, ...stored }`).
+Then a stored token behaves the same as a token set in the shell.
+The generator itself supplies no credential store and no login command.
+The auth flow of each API is different, so you supply these parts.
+This section shows the procedure.
 
-The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"` — otherwise `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, which doesn't point at the fix.
-To ship it as a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
+The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"`.
+Without this setting, `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, and that message does not point to the fix.
+To ship the CLI as a real bin, compile it with `tsc`.
+Then point the `bin` field of `package.json` at the compiled file.
 
 #### CLI reference docs
 
-The `cli-docs` generator writes `<stem>.cli.md`: a Markdown reference with the usage line, the global flags, the credential environment variables, the exit-code table, and one section per command listing its positionals and flags with types, defaults, and descriptions.
-It renders from the same command table the CLI dispatches on, so the page cannot drift from the tool it documents — regenerate and the docs follow.
-Selecting it pulls in the CLI it describes, so `--generator cli-docs` is enough.
+The `cli-docs` generator writes `<stem>.cli.md`, a Markdown reference.
+The page contains the usage line, the global flags, the credential environment variables, and the exit-code table.
+It also contains one section for each command.
+Each section lists the positionals and flags of the command with their types, defaults, and descriptions.
+The page renders from the same command table that the CLI dispatches on.
+Because of this, the page always matches the tool that it documents.
+When you regenerate, the docs update with the tool.
+When you select `cli-docs`, the command also selects the CLI that the page describes, so `--generator cli-docs` is enough.
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator cli-docs
 ```
 
-Two options shape the page, under `client.options.cli-docs`:
+Two options control the page, under `client.options.cli-docs`:
 
-| Option        | Type    | Description                                                                                         |
-| ------------- | ------- | --------------------------------------------------------------------------------------------------- |
-| `title`       | string  | Page heading. Defaults to `<API title> CLI`.                                                        |
-| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. Default `false`. |
+| Option        | Type    | Description                                                                                                |
+| ------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `title`       | string  | The page heading. The default is `<API title> CLI`.                                                        |
+| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. The default is `false`. |
 
-For a different structure or wording, [eject the generator](../commands/eject-generator.md) — the renderer is the template, so `redocly eject-generator cli-docs` hands you the page layout as code you own, with no template syntax to learn.
+For a different structure or wording, [eject the generator](../commands/eject-generator.md).
+The renderer is the template.
+Because of this, `redocly eject-generator cli-docs` gives you the page layout as code that you own, with no template syntax to learn.
 The same reference for the language SDKs is next.
 
 ### Language SDKs
 
-`python`, `go`, and `php` emit a full SDK for that language — one self-contained file, no dependencies beyond the language's own HTTP support (`httpx` for Python; the standard library for Go; the curl extension for PHP).
+The `python`, `go`, and `php` generators each emit a full SDK for that language.
+The SDK is one self-contained file.
+It has no dependencies other than the HTTP support of the language: `httpx` for Python, the standard library for Go, and the curl extension for PHP.
 
-One file is the deliverable, not a limitation we haven't gotten to: it can be downloaded from a docs page, committed, and read end to end, and it has no package to publish or import graph to wire up.
-A description the size of a large public API produces a file of a few megabytes, which every one of these languages loads without trouble.
-If you want a different layout, [eject the generator](../commands/eject-generator.md) — `run` returns the list of files, so splitting the output is a change to your own copy.
+One file is the intended deliverable, not a limitation.
+Users can download the file from a docs page, commit it, and read it from start to end.
+There is no package to publish and no import graph to connect.
+A description the size of a large public API produces a file of a few megabytes.
+Each of these languages loads a file of that size without problems.
+If you want a different layout, [eject the generator](../commands/eject-generator.md).
+The `run` function returns the list of files, so you can split the output with a change to your own copy.
 
-**They are the TypeScript client in another language.** Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, one method per operation, auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, pagination iterators, SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
+**They are the TypeScript client in another language.**
+Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, and one method per operation.
+The SDKs also include auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, and pagination iterators.
+They also include SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
 Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
 
 ```python
@@ -185,25 +245,27 @@ for order, err := range api.ListOrdersItems(ctx, nil) {
 
 #### Where the languages genuinely differ
 
-Only where the language leaves no choice:
+The SDKs differ only where the language gives no choice:
 
-| Topic                | TypeScript                         | Python                                      | PHP                                     | Go                                           |
-| -------------------- | ---------------------------------- | ------------------------------------------- | --------------------------------------- | -------------------------------------------- |
-| Error handling       | `throw` or `result` (`errorMode`)  | `throw` or `result` (`errorMode`)           | exceptions — the language's error idiom | `(T, error)` — the language's error idiom    |
-| Dates (`Date` mode)  | `Date`                             | `datetime` / `date`                         | `\DateTimeImmutable`                    | `time.Time` / `Date`                         |
-| Response headers     | `{ envelope: true }` per call      | `<op>_with_headers()`                       | `<op>WithHeaders()`                     | `<Op>WithHeaders`                            |
-| Auth credentials     | string or provider function        | string or callable                          | string or callable                      | provider function only (no union types)      |
-| Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name preserved | trailing `_`, wire name preserved       | trailing `_` (`Type_`), `json` tag preserved |
-| File layout          | `single` or `split` (`outputMode`) | one file                                    | one file                                | one file                                     |
-| Namespacing          | ES module — the file path          | module name from the output stem            | namespace from the API title            | `package client`, or `goPackage`             |
-| Runtime location     | embedded or package (`runtime`)    | embedded                                    | embedded                                | embedded                                     |
+| Topic                | TypeScript                         | Python                                 | PHP                                          | Go                                             |
+| -------------------- | ---------------------------------- | -------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Error handling       | `throw` or `result` (`errorMode`)  | `throw` or `result` (`errorMode`)      | exceptions (the error idiom of the language) | `(T, error)` (the error idiom of the language) |
+| Dates (`Date` mode)  | `Date`                             | `datetime` / `date`                    | `\DateTimeImmutable`                         | `time.Time` / `Date`                           |
+| Response headers     | `{ envelope: true }` per call      | `<op>_with_headers()`                  | `<op>WithHeaders()`                          | `<Op>WithHeaders`                              |
+| Auth credentials     | string or provider function        | string or callable                     | string or callable                           | provider function only (no union types)        |
+| Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name kept | trailing `_`, wire name kept                 | trailing `_` (`Type_`), `json` tag kept        |
+| File layout          | `single` or `split` (`outputMode`) | one file                               | one file                                     | one file                                       |
+| Namespacing          | ES module (the file path)          | module name from the output stem       | namespace from the API title                 | `package client`, or `goPackage`               |
+| Runtime location     | embedded or package (`runtime`)    | embedded                               | embedded                                     | embedded                                       |
 
-`argsStyle` shapes TypeScript call sites; each language SDK follows its own idiom instead (keyword arguments, named arguments, a params struct).
-Setting an option a language can't apply prints a warning naming the option and the reason, so it never disappears silently.
+`argsStyle` applies only to TypeScript call sites.
+Each language SDK follows its own idiom: keyword arguments, named arguments, or a params struct.
+If you set an option that a language cannot apply, the generator prints a warning with the option name and the reason.
+The option never disappears silently.
 
 #### Auth, middleware, and reserved names by language
 
-Auth accepts a static credential or a provider resolved per request:
+Auth accepts a static credential, or a provider function that the client resolves for each request:
 
 ```python
 client = Client(auth={"bearer": "TOKEN"})
@@ -225,7 +287,9 @@ api := client.New(client.Config{Auth: client.Auth{
 }})
 ```
 
-Middleware is the language's natural shape, and is **not** PSR-15/PSR-18 or an HTTPX event hook — it is this contract:
+Middleware follows the natural shape of each language.
+It is **not** PSR-15/PSR-18 or an HTTPX event hook.
+It is this contract:
 
 ```php
 // PHP: an onion. Each callable receives the request array and the next link.
@@ -260,18 +324,26 @@ api := client.New(client.Config{Middleware: []client.Middleware{{
 }}})
 ```
 
-A property or parameter whose name is a reserved word gets a trailing underscore, while the wire name is preserved — `tag.type_` in Python, `$tag->type_` in PHP, `tag.Type_` in Go, all serializing as `type`.
+A property or parameter whose name is a reserved word gets a trailing underscore.
+The wire name does not change.
+For example, `tag.type_` in Python, `$tag->type_` in PHP, and `tag.Type_` in Go all serialize as `type`.
 The same applies to method arguments: `list_tags(type_=...)`, `ListTagsParams{Type_: ...}`.
 
-Type and method **names** are resolved once, in the shared model, against a reserved set that is the union across the supported languages.
-A schema therefore keeps the same name in every SDK you generate from the description — `Error` becomes `Error_2` in the Python SDK too, even though Python would accept `Error`, so an API's TypeScript, Python, PHP, and Go clients stay talkable-about with one vocabulary.
-Every rename is reported with its cause, so a publisher who wants a different name renames the schema or operation in the description.
+The generator resolves type and method **names** once, in the shared model.
+It checks them against a reserved set that is the union across the supported languages.
+Because of this, a schema keeps the same name in every SDK that you generate from the description.
+For example, `Error` becomes `Error_2` in the Python SDK too, although Python accepts `Error`.
+As a result, the TypeScript, Python, PHP, and Go clients of an API share one vocabulary.
+The generator reports each rename with its cause.
+A publisher who wants a different name can rename the schema or the operation in the description.
 
 ## Package runtime
 
-By default the runtime is embedded in the generated file, so the client is self-contained.
-With [`--runtime package`](../commands/generate-client.md#choose-a-runtime) the generated file instead imports the runtime from `@redocly/client-generator` — your application code is **identical in both modes** (same exports, same call shapes); only where the engine lives changes.
-Choose `package` when you want engine fixes and improvements via `npm update @redocly/client-generator`, with no regeneration.
+By default, the generator embeds the runtime in the generated file, so the client is self-contained.
+With [`--runtime package`](../commands/generate-client.md#choose-a-runtime), the generated file imports the runtime from `@redocly/client-generator` instead.
+Your application code is **identical in both modes**: the same exports and the same call shapes.
+Only the location of the engine changes.
+Select `package` to get engine fixes and improvements through `npm update @redocly/client-generator`, with no regeneration.
 
 Install the runtime as a regular dependency and set the mode in `redocly.yaml`:
 
@@ -284,14 +356,18 @@ client:
   runtime: package # default: inline (self-contained)
 ```
 
-An incompatible generated-file/runtime pair fails your `tsc` build (the descriptor `satisfies` check) rather than misbehaving at runtime.
+If the generated file and the runtime are incompatible, your `tsc` build fails on the descriptor `satisfies` check.
+The pair does not misbehave at runtime.
 Package mode works with both output modes and every generator.
 See the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
 
 ## Run with Node directly
 
-Node 22.7+ runs TypeScript natively (type stripping), so you can execute a script that uses the generated client with plain `node` — no `tsx`, no build step.
-Node resolves import specifiers literally — there is no `.js` → `.ts` remap — so generate with [`--import-ext ts`](../commands/generate-client.md#options) to get real on-disk `.ts` specifiers, and import the client with a `.ts` extension in your own code:
+Node 22.7+ runs TypeScript natively with type stripping.
+Because of this, you can run a script that uses the generated client with plain `node`, without `tsx` and without a build step.
+Node resolves import specifiers literally, with no `.js` to `.ts` remap.
+Because of this, generate with [`--import-ext ts`](../commands/generate-client.md#options) to get real on-disk `.ts` specifiers.
+Import the client with a `.ts` extension in your own code:
 
 ```bash
 redocly generate-client openapi.yaml -o src/api/client.ts --import-ext ts
@@ -308,17 +384,23 @@ const menu = await listMenuItems({ limit: 3 });
 node src/main.ts
 ```
 
-Keep the default `js` when the client goes through `tsc` or a bundler — plain `tsc` rejects `.ts` specifiers unless the project enables `allowImportingTsExtensions`.
+Keep the default `js` when the client goes through `tsc` or a bundler.
+Plain `tsc` rejects `.ts` specifiers unless the project enables `allowImportingTsExtensions`.
 Loaders such as `tsx` remap `.js` to `.ts` themselves, so they work with the default.
 See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/node-native).
 
-**Every generated TypeScript file is erasable TypeScript**, so type stripping alone is enough — the client, the zod module, and the generated CLI all run under plain `node` with no build step.
-Nothing emitted needs a transform to become JavaScript: no `enum`, no `namespace`, and no constructor parameter properties (`constructor(readonly id: string)`), which strip-only mode rejects because it would have to generate assignments.
+**Every generated TypeScript file is erasable TypeScript**, so type stripping alone is enough.
+The client, the zod module, and the generated CLI all run under plain `node` with no build step.
+No emitted code needs a transform to become JavaScript.
+The output contains no `enum`, no `namespace`, and no constructor parameter properties (`constructor(readonly id: string)`).
+Strip-only mode rejects these constructs, because it would have to generate assignments.
 
 ## Authentication
 
-Credentials are **per instance**: they live in the client's config (`ClientConfig.auth`), and each operation automatically sends the credentials its `security` requires.
-A setter is generated for each `securityScheme` the runtime can apply:
+Credentials are **per instance**.
+They live in the client config (`ClientConfig.auth`).
+Each operation automatically sends the credentials that its `security` requires.
+The generator emits a setter for each `securityScheme` that the runtime can apply:
 
 | Scheme                         | Setter                                    | Applied as                               |
 | ------------------------------ | ----------------------------------------- | ---------------------------------------- |
@@ -326,10 +408,14 @@ A setter is generated for each `securityScheme` the runtime can apply:
 | HTTP `basic`                   | `setBasicAuth(user, pass)`                | `Authorization: Basic <base64>`          |
 | `apiKey` (header/query/cookie) | `setApiKey(key)` / `setApiKey<Name>(key)` | the named header, query param, or cookie |
 
-`setApiKey` is unsuffixed for a single apiKey scheme; otherwise each gets `setApiKey<SchemeName>`.
-`mutualTLS` is not injectable.
-Cookie apiKey credentials travel in the `Cookie` request header, which browsers refuse to set — cookie auth works only in server-side clients (the generator warns when a spec declares one).
-Bearer and apiKey credentials accept a **`TokenProvider`** — a string or a (possibly async) function called per request, useful for refresh flows:
+For a single apiKey scheme, the setter is `setApiKey` without a suffix.
+For more than one scheme, each setter is `setApiKey<SchemeName>`.
+The runtime cannot inject `mutualTLS`.
+Cookie apiKey credentials travel in the `Cookie` request header, and browsers refuse to set this header.
+Because of this, cookie auth works only in server-side clients.
+The generator warns when a spec declares a cookie scheme.
+Bearer and apiKey credentials accept a **`TokenProvider`**: a string, or a function (possibly async) that the client calls for each request.
+This is useful for refresh flows:
 
 ```ts
 import { setBearer } from './client.ts';
@@ -337,10 +423,13 @@ import { setBearer } from './client.ts';
 setBearer(async () => await getFreshAccessToken());
 ```
 
-Each setter is shorthand for the exported `client` instance's `auth` member (`export const setBearer = client.auth.bearer;`), so it configures that instance.
-Equivalently, pass credentials up front with `configure({ auth: { … } })` or set them via `client.auth.bearer(…)` / `client.auth.basic(…)` / `client.auth.apiKey(scheme, …)`.
+Each setter is shorthand for the `auth` member of the exported `client` instance (`export const setBearer = client.auth.bearer;`).
+Because of this, the setter configures that instance.
+As an alternative, pass credentials up front with `configure({ auth: { … } })`.
+Or set them with `client.auth.bearer(…)`, `client.auth.basic(…)`, or `client.auth.apiKey(scheme, …)`.
 
-For **multiple independent instances** with different credentials, build extra clients over the same generated descriptors — the generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
+For **multiple independent instances** with different credentials, build extra clients from the same generated descriptors.
+The generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
 
 ```ts
 import { createClient } from '@redocly/client-generator';
@@ -355,9 +444,13 @@ const publicApi = createClient<Ops>(OPERATIONS, { serverUrl: 'https://api.exampl
 
 ## Argument style
 
-By default (`--args-style flat`) each operation takes positional arguments — path params in URL order, then `params` (query), `body`, `headers`, and `cookies` — with the per-call `init` last.
-Cookie parameters are serialized into the `Cookie` request header, which browsers refuse to set — like cookie apiKey auth, they work only in server-side clients.
-With `--args-style grouped`, every input is bundled into one `vars` object typed as the operation's `<Op>Variables`:
+By default (`--args-style flat`), each operation takes positional arguments.
+The order is: path parameters in URL order, then `params` (query), `body`, `headers`, and `cookies`.
+The per-call `init` comes last.
+The client serializes cookie parameters into the `Cookie` request header, and browsers refuse to set this header.
+Because of this, cookie parameters, like cookie apiKey auth, work only in server-side clients.
+With `--args-style grouped`, one `vars` object holds every input.
+Its type is the operation's `<Op>Variables`:
 
 ```ts
 // flat (default)
@@ -367,28 +460,40 @@ await updateOrder('ord_01khr…', { ...orderBody });
 await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
 ```
 
-An unknown top-level key in the grouped object (for example a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`) fails the call with a `TypeError` naming the key.
-TypeScript catches this at compile time; the runtime check covers transpilers that skip type-checking, so a mis-shaped call never silently drops data.
+An unknown top-level key in the grouped object fails the call with a `TypeError` that names the key.
+An example is a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`.
+TypeScript catches this at compile time.
+The runtime check covers transpilers that skip type checks.
+Because of this, a call with the wrong shape never drops data silently.
 
 ## Read-only properties
 
-A property marked `readOnly: true` is server-managed, so the generated request body type leaves it out: a body that references a named schema becomes `Omit<Order, 'id' | 'createdAt'>`, and an inline object simply drops those properties.
+The server manages a property marked `readOnly: true`.
+Because of this, the generated request body type leaves the property out.
+A body that references a named schema becomes `Omit<Order, 'id' | 'createdAt'>`.
+An inline object drops those properties.
 Response types keep them.
 The zod schemas and the mock factories read the same flag, so the type, the runtime validation, and the fixtures agree.
 
-Where `readOnly` sits matters, and it follows the specification version:
+The position of `readOnly` matters, and it follows the specification version:
 
 - **OpenAPI 3.1** uses JSON Schema 2020-12, where `$ref` is an ordinary keyword.
-  Keywords beside a `$ref` take effect, so `{ $ref: './Entitlements.yaml', readOnly: true }` marks the property read-only.
-- **OpenAPI 3.0 and 2.0** predate that: a `$ref` replaces the whole schema object, so a sibling `readOnly` has no meaning and is ignored.
-  Generation warns when it finds one, naming the property, because the intent is usually clear and silence would leave the property in every request body.
+  Keywords next to a `$ref` take effect.
+  Because of this, `{ $ref: './Entitlements.yaml', readOnly: true }` marks the property read-only.
+- **OpenAPI 3.0 and 2.0** are older than that model.
+  A `$ref` replaces the whole schema object, so a sibling `readOnly` has no meaning, and the generator ignores it.
+  Generation warns when it finds a sibling `readOnly` and names the property.
+  The intent is usually clear, and silence would keep the property in every request body.
   The [`spec-ref-siblings`](../rules/oas/spec-ref-siblings.md) rule flags the same thing when you lint.
   To mark a referenced property read-only in 3.0, inline the schema or wrap the `$ref` in an `allOf`.
 
 ## Error handling
 
-By default (`--error-mode throw`) an operation throws `ApiError` on any non-2xx response and returns the success body directly.
-With `--error-mode result` it never throws for HTTP errors, returning a discriminated `Result<TData, TError>` whose `error` is typed from the description's 4xx/5xx bodies:
+By default (`--error-mode throw`), an operation throws `ApiError` on a non-2xx response.
+It returns the success body directly.
+With `--error-mode result`, the operation never throws for HTTP errors.
+It returns a discriminated `Result<TData, TError>`.
+The `error` type comes from the 4xx/5xx bodies in the description:
 
 ```ts
 // throw (default)
@@ -409,8 +514,10 @@ The choice is fixed at generate time.
 
 ## Middleware
 
-Beyond the single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`, the client takes **composable middleware** for cross-cutting concerns (auth refresh, logging, tracing, request IDs).
-Register with `use()` (shorthand for `client.use()`); it accepts several at once:
+The client has single `onRequest`/`onResponse`/`onError` hooks on `ClientConfig`.
+It also takes **composable middleware** for concerns that apply to many calls: auth refresh, logs, traces, and request IDs.
+Register middleware with `use()`, a shorthand for `client.use()`.
+It accepts several middleware at once:
 
 ```ts
 import { use } from './client.ts';
@@ -425,29 +532,40 @@ use({
 });
 ```
 
-`onRequest` runs in registration order; `onResponse` runs in reverse order.
-`onRequest` may mutate `ctx` (`url`, `method`, `headers`, and `body` — body edits are serialized and sent); `onResponse` may return a replacement `Response`.
-`onError` (throw mode only) is threaded through each middleware.
-`ctx.operation`'s fields are typed as literal unions from the description (`OperationId`/`OperationPath`/`OperationTag`), so `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete, and a misspelled operation id fails compilation instead of silently never matching.
-A header for a single call instead goes in that operation's trailing `init` argument.
-Per-request headers merge lowest to highest — the caller always wins:
+`onRequest` hooks run in registration order.
+`onResponse` hooks run in reverse order.
+`onRequest` can change `ctx`: `url`, `method`, `headers`, and `body`.
+The client serializes and sends body edits.
+`onResponse` can return a replacement `Response`.
+The client threads `onError` (throw mode only) through each middleware.
+The fields of `ctx.operation` are typed as literal unions from the description (`OperationId`/`OperationPath`/`OperationTag`).
+Because of this, `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete.
+An operation id with a spelling error fails compilation, and it does not silently miss all matches.
+To set a header for a single call, use the trailing `init` argument of that operation.
+Per-request headers merge from the lowest to the highest priority, and the caller always wins:
 
 1. Injected auth credentials.
 2. Typed header parameters.
 3. The caller's `init.headers`.
 
-Outside browsers, the client also identifies itself to the API with an `X-Redocly-Client` header (useful for the API owner's telemetry).
-Override it with `configure({ clientHeader: 'my-service/2.0' })`, or disable it with `clientHeader: false`.
-Browsers never send it — a custom header would force a CORS preflight.
+Outside browsers, the client also identifies itself to the API with an `X-Redocly-Client` header.
+The API owner can use this header for telemetry.
+Override the header with `configure({ clientHeader: 'my-service/2.0' })`.
+Disable it with `clientHeader: false`.
+Browsers never send it, because a custom header would force a CORS preflight.
 
-`use()` appends to the middleware chain, composing with any already-registered or publisher pre-configured middleware.
-`configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher pre-configured](./customize-client-generation.md#publisher-defaults)) middleware.
+`use()` appends to the middleware chain.
+It composes with middleware that is already registered or that the publisher pre-configured.
+`configure({ middleware: [...] })` replaces the whole chain.
+Use it to reset the chain.
+But prefer `use()` to add to existing middleware, including [publisher pre-configured](./customize-client-generation.md#publisher-defaults) middleware.
 
 See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
 
 ## Retries
 
-Retry is **opt-in**, configured through `ClientConfig` with an optional per-call override:
+Retry is **opt-in**.
+Configure it through `ClientConfig`, with an optional per-call override:
 
 ```ts
 configure({ retry: { retries: 3 } }); // the module's client instance
@@ -455,24 +573,41 @@ const other = createClient<Ops>(OPERATIONS, { retry: { retries: 3 } }); // anoth
 await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 ```
 
-By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`).
-`POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe.
+By default, the client retries only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`).
+It retries them on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`).
+The client does not retry `POST`/`PATCH`, because a repeated send can duplicate side effects.
+Opt in with a custom `retryOn` when a retry is safe.
 
-A custom `retryOn` **replaces** the default policy entirely — a predicate like `({ response }) => (response?.status ?? 0) >= 500` silently stops retrying network errors and timeouts, which have no `response`.
+A custom `retryOn` **replaces** the whole default policy.
+A predicate like `({ response }) => (response?.status ?? 0) >= 500` silently stops retries for network errors and timeouts, because these have no `response`.
 Compose with the exported default instead: `retryOn: (ctx) => defaultRetryOn(ctx) || myRule(ctx)`.
 
-For APIs that support [idempotency keys](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), set `idempotencyKey: true` (or a key factory) on the instance: every `POST`/`PATCH` gets an `Idempotency-Key` header — one stable key per logical call, re-sent unchanged on every retry attempt — and the default retry policy then treats those requests as safe to retry.
-Per call, pass a literal key (`{ idempotencyKey: 'order-42-submit' }`) or `false` to skip; a caller-set `Idempotency-Key` header always wins.
-Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
+For APIs that support [idempotency keys](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), set `idempotencyKey: true` (or a key factory) on the instance.
+Then every `POST`/`PATCH` gets an `Idempotency-Key` header.
+The key is one stable value per logical call, and each retry attempt sends the same value.
+The default retry policy then treats those requests as safe to retry.
+Per call, pass a literal key (`{ idempotencyKey: 'order-42-submit' }`), or pass `false` to skip the header.
+An `Idempotency-Key` header set by the caller always wins.
+Backoff is exponential with full jitter.
+Set `retryStrategy: 'fixed'` for a constant delay.
+A `Retry-After` header takes precedence.
+An aborted `AbortSignal` stops retries immediately.
 
-A `timeout` (milliseconds) aborts an attempt that takes too long — including reading the body — and composes with your own `AbortSignal`.
-Each retry attempt gets a fresh budget; a timed-out attempt retries under the same policy as a network error.
-When retries are exhausted, the failure surfaces as a `TimeoutError` (exported next to `ApiError`) carrying `operationId`, the effective `timeout`, and the `attempt` number — everything a log line needs.
-Set it on the instance (`configure({ timeout: 10_000 })`) or per call (`{ timeout: 500 }`, where `0` disables the instance default).
-SSE streams are long-lived by design and never inherit the instance timeout.
+A `timeout` (milliseconds) aborts an attempt that takes too long, including the body read.
+The timeout composes with your own `AbortSignal`.
+Each retry attempt gets a fresh time budget.
+An attempt that times out retries under the same policy as a network error.
+When no retries remain, the failure surfaces as a `TimeoutError`, exported next to `ApiError`.
+The error carries the `operationId`, the effective `timeout`, and the `attempt` number.
+This is everything a log line needs.
+Set the timeout on the instance (`configure({ timeout: 10_000 })`) or per call (`{ timeout: 500 }`).
+A per-call value of `0` disables the instance default.
+SSE streams stay open by design and never inherit the instance timeout.
 
-A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts.
-To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
+A retry **resends the same request**.
+The `onRequest` chain, `config.headers()`, and body serialization run once, and all attempts reuse the result.
+To refresh a token, a signature, or a timestamp for each attempt, do it in `onResponse`/`onError` or in a custom `retryOn`.
+Do not expect `onRequest` to run again.
 
 | `RetryConfig` field | Type                                                 | Default                                            |
 | ------------------- | ---------------------------------------------------- | -------------------------------------------------- |
@@ -482,8 +617,9 @@ To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`
 | `jitter`            | `boolean`                                            | `true`                                             |
 | `retryOn`           | `(ctx: RetryContext) => boolean \| Promise<boolean>` | idempotent-only predicate                          |
 
-A custom `retryOn` receives the failed attempt's `RetryContext` (`attempt`, `request`, and exactly one of `response` / `error`) and **fully replaces** the default.
-To inspect a response body, read `ctx.response.clone()` — the body is a single-use stream:
+A custom `retryOn` receives the `RetryContext` of the failed attempt: `attempt`, `request`, and exactly one of `response` / `error`.
+It **fully replaces** the default.
+To examine a response body, read `ctx.response.clone()`, because the body is a single-use stream:
 
 ```ts
 await createOrder(body, {
@@ -509,13 +645,16 @@ The default (`form`, `explode: true`) repeats array values:
 | `spaceDelimited` | `false`   | `key=a%20b`              |
 | `pipeDelimited`  | `false`   | `key=a\|b`               |
 
-Delimiters are literal (values are still percent-encoded).
-`allowReserved: true` leaves the RFC-3986 reserved set un-encoded.
-Object-valued params serialize as `deepObject` brackets (`key[sub]=val`).
+Delimiters are literal.
+The client still percent-encodes the values.
+`allowReserved: true` keeps the RFC-3986 reserved set un-encoded.
+Parameters with object values serialize as `deepObject` brackets (`key[sub]=val`).
 
 ## Multipart uploads
 
-A `multipart/form-data` body whose schema is an **object** is generated as a typed object; pass a plain object and the client serializes it to `FormData` (after the `onRequest` chain, so middleware can mutate it).
+A `multipart/form-data` body whose schema is an **object** generates as a typed object.
+Pass a plain object, and the client serializes it to `FormData`.
+The serialization happens after the `onRequest` chain, so middleware can change the object.
 Binary fields (`format: binary`) are typed as `Blob`:
 
 ```ts
@@ -523,13 +662,15 @@ Binary fields (`format: binary`) are typed as `Blob`:
 await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 ```
 
-`Blob`/strings pass through, arrays append one field per item, nested objects are JSON-encoded, `undefined`/`null` are skipped.
-A multipart body whose schema isn't a concrete object keeps the raw `FormData` type.
+`Blob` values and strings pass through unchanged.
+Arrays append one field per item.
+The client JSON-encodes nested objects and skips `undefined`/`null`.
+A multipart body whose schema is not a concrete object keeps the raw `FormData` type.
 `format: byte` (base64) stays a `string`.
 
 ## Response decoding
 
-The client reads each response by negotiating from its `Content-Type` (JSON, then `text/*`, then `Blob`).
+The client selects a reader for each response from its `Content-Type`: JSON, then `text/*`, then `Blob`.
 Force a reader per call with `parseAs`:
 
 ```ts
@@ -540,13 +681,15 @@ const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 It changes the runtime reader only, not the static return type.
 
 An operation whose success response declares no content is typed `void`.
-However, if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data.
-Reach it with a cast while the description catches up.
+But if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns the body.
+It does not drop real data silently.
+Access the body with a cast until the description declares it.
 
 ## Response headers (envelope)
 
-By default throw mode returns only the parsed success body.
-When you need response headers (pagination totals, rate limits, `Location`, and so on) without switching to `--error-mode result`, pass `{ envelope: true }` on that call:
+By default, throw mode returns only the parsed success body.
+Sometimes you need response headers, for example pagination totals, rate limits, or `Location`.
+To get them without a switch to `--error-mode result`, pass `{ envelope: true }` on that call:
 
 ```ts
 // Flat args (default): query/body slots, then per-call init.
@@ -560,23 +703,31 @@ response.headers.get('X-Undocumented'); // anything not declared in OpenAPI
 const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope: true });
 ```
 
-- `headers` is a safe camelCase object of headers declared on the operation's success response.
-  String, number, and boolean schemas drive the TypeScript type and number/boolean coercion.
-  Complex header schemas remain strings because HTTP exposes header values as text.
-  Required response headers are required properties — the type trusts the API description, the same way response body types do.
-  Colliding normalized names get a deterministic numeric suffix.
-- `response` is the raw `Response` — use it for undocumented headers.
+- `headers` is a safe camelCase object of the headers declared on the operation's success response.
+  String, number, and boolean schemas drive the TypeScript type and the number/boolean coercion.
+  Complex header schemas stay strings, because HTTP exposes header values as text.
+  Required response headers are required properties.
+  The type trusts the API description, the same as the response body types do.
+  Normalized names that collide get a deterministic numeric suffix.
+- `response` is the raw `Response`.
+  Use it for undocumented headers.
 - Non-2xx responses still throw `ApiError`.
-- Default call sites stay body-only (non-breaking), including calls that pass other options (`headers`, `signal`, `parseAs`, a retry override).
-- In `--error-mode result` the flag is ignored; that mode already returns `response`.
-- The TanStack Query and SWR wrappers don't accept `envelope`.
-  It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
+- Default call sites continue to return only the body, so the flag is non-breaking.
+  This includes calls that pass other options (`headers`, `signal`, `parseAs`, a retry override).
+- In `--error-mode result`, the client ignores the flag.
+  That mode already returns `response`.
+- The TanStack Query and SWR wrappers do not accept `envelope`.
+  Their options exclude it, and the wrappers strip it from the forwarded call.
+  Because of this, cached data is always the plain body.
   Call the sdk function directly when you need headers.
-- The Python, PHP, and Go SDKs expose the same information as separate variants — `<op>_with_headers()`, `<op>WithHeaders()`, and `<Op>WithHeaders` — emitted only for operations that declare success-response headers (those languages cannot vary a return type on a flag).
+- The Python, PHP, and Go SDKs expose the same information as separate variants: `<op>_with_headers()`, `<op>WithHeaders()`, and `<Op>WithHeaders`.
+  The generator emits these variants only for operations that declare success-response headers.
+  Those languages cannot change a return type with a flag.
 
 ## Runtime validation
 
-The `zod` generator emits `operationSchemas` — request/response validators keyed by operationId — and the `zodValidation` middleware that wires them into the client:
+The `zod` generator emits `operationSchemas`, a set of request and response validators keyed by operationId.
+It also emits the `zodValidation` middleware that connects them to the client:
 
 ```ts
 import { use } from './api/client';
@@ -585,21 +736,36 @@ import { zodValidation } from './api/client.zod';
 use(zodValidation()); // validate request bodies and JSON responses
 ```
 
-The two directions default differently, because they catch different parties' bugs:
+The two directions have different defaults, because they catch bugs from different parties:
 
-- An invalid **request** body throws `ZodValidationError` before any network call — it is the caller's own bug, caught at the cheapest possible moment.
-- A successful JSON **response** that drifts from its schema **warns by default** (via `console.warn`, or a custom `onViolation` callback) and lets the call succeed — a server drifting from its description should not crash the consumer. Pass `response: 'throw'` for the strict behavior (it then throws even on result-mode clients), or `response: false` to skip.
+- An invalid **request** body throws `ZodValidationError` before a network call.
+  This is the caller's own bug, caught at the least expensive moment.
+- A successful JSON **response** that does not match its schema **warns by default** and lets the call succeed.
+  The warning goes to `console.warn` or to a custom `onViolation` callback.
+  A server that does not match its description must not crash the consumer.
+  Pass `response: 'throw'` for the strict behavior; it then throws even on result-mode clients.
+  Pass `response: false` to skip response validation.
 
-`ZodValidationError` carries `operationId`, `direction`, the raw zod `issues`, and flattened `violations` — each with the full nested path (union branches included) and a truncated preview of the offending value, so the failing field is identifiable without reproducing the payload.
-Note that previews can surface payload data; point `onViolation` at a scrubbed logger when responses may carry secrets.
+`ZodValidationError` carries the `operationId`, the `direction`, the raw zod `issues`, and the flattened `violations`.
+Each violation has the full nested path (union branches included) and a truncated preview of the bad value.
+Because of this, you can identify the failing field without a reproduction of the payload.
+Note that previews can show payload data.
+Point `onViolation` at a scrubbed logger when responses can carry secrets.
 
-For servers that reject undeclared properties, `stripRequestBodies: true` replaces the outgoing body with the parsed result, dropping any key the schema does not declare (a spread like `{ ...entity }` compiles past TypeScript's excess-property check but would otherwise reach the wire as-is).
-Operations without a JSON body pass through untouched, and payloads are never mutated unless `stripRequestBodies` is set.
-Pass `{ request: false }` to narrow the scope, or import a schema from `operationSchemas` for a one-off check.
+Some servers reject properties that the schema does not declare.
+For those servers, set `stripRequestBodies: true`.
+It replaces the outgoing body with the parsed result and drops each key that the schema does not declare.
+A spread like `{ ...entity }` compiles past TypeScript's excess-property check, but without this option it reaches the wire unchanged.
+Operations without a JSON body pass through unchanged.
+The middleware never changes a payload unless you set `stripRequestBodies`.
+Pass `{ request: false }` to narrow the scope.
+Or import a schema from `operationSchemas` for a single check.
 
 ## Operation metadata
 
-The client exports an `OPERATIONS` map keyed by operationId — the same **operation descriptors** the runtime routes requests by, holding each operation's `method`, `path` template, `tags`, and wire shape:
+The client exports an `OPERATIONS` map keyed by operationId.
+These are the same **operation descriptors** that the runtime uses to route requests.
+Each descriptor holds the operation's `method`, `path` template, `tags`, and wire shape:
 
 ```ts
 export const OPERATIONS = {
@@ -608,26 +774,35 @@ export const OPERATIONS = {
 } as const satisfies Record<string, OperationDescriptor>;
 ```
 
-Because keys and values are plain string literals, they survive bundling/minification — making `OPERATIONS` the stable handle for cache keys, span names, or log labels (rather than `fn.name`, which a minifier can rename).
-Every client method also carries its own identity as `client.getOrderById.operationId` — an explicit, minification-proof cache key for consumer wrappers (react-query keys and the like).
+The keys and values are plain string literals, so they survive bundlers and minifiers.
+Because of this, `OPERATIONS` is the stable handle for cache keys, span names, or log labels.
+Do not use `fn.name`, because a minifier can rename it.
+Every client method also carries its own identity as `client.getOrderById.operationId`.
+This is an explicit cache key for consumer wrappers (react-query keys and the like), and a minifier cannot break it.
 The same `OperationId` / `OperationPath` / `OperationTag` unions type `ctx.operation` in middleware.
 
 ## Discriminated unions
 
-A `oneOf` / `anyOf` with a usable discriminator gets an exported `is<Member>` type guard per member, taken from the description's `discriminator` or inferred when every member pins a shared property to a distinct string `const`:
+A `oneOf` / `anyOf` with a usable discriminator gets an exported `is<Member>` type guard for each member.
+The discriminator comes from the description's `discriminator`.
+The generator can also infer it when every member sets a shared property to a distinct string `const`:
 
 ```ts
 export type MenuItem = Beverage | Dessert;
 export function isBeverage(value: MenuItem): value is Beverage { … }
 ```
 
-Guards are also emitted for unions nested inside another schema (array items, property values) as long as every member is a named schema.
+The generator also emits guards for unions nested inside another schema (array items, property values), if every member is a named schema.
 A union without a usable discriminator gets no guard.
 
 ## Server-Sent Events
 
-An operation whose `2xx` response declares `text/event-stream` is generated as a typed **async-generator function** (a client method plus the matching free function) — no flag required.
-Each event's `data` is typed from the OpenAPI 3.2 `itemSchema` (falling back to the media `schema`, then `string`) and `JSON.parse`d when structured:
+An operation whose `2xx` response declares `text/event-stream` generates as a typed **async-generator function**.
+The output is a client method plus the matching free function.
+No flag is required.
+The `data` of each event is typed from the OpenAPI 3.2 `itemSchema`.
+If `itemSchema` is absent, the type falls back to the media `schema`, then to `string`.
+The client applies `JSON.parse` to structured data:
 
 ```ts
 import { streamMessages } from './client.ts';
@@ -637,24 +812,47 @@ for await (const ev of streamMessages()) {
 }
 ```
 
-The stream **auto-reconnects** on a dropped connection, resuming from the last event id via `Last-Event-ID` (backoff honors the server's `retry:`, then `reconnectDelay`, then 1s; capped at 30s).
+The stream **reconnects automatically** after a dropped connection.
+It resumes from the last event id with `Last-Event-ID`.
+The backoff uses the server's `retry:`, then `reconnectDelay`, then 1 second, with a cap of 30 seconds.
 Tune per call with `{ reconnect: false }` or `{ reconnectDelay: 500 }`.
-`break`ing the loop or aborting an `AbortSignal` ends it cleanly (no throw).
+A `break` from the loop, or an aborted `AbortSignal`, ends the stream cleanly with no throw.
 SSE always throws `ApiError` on a non-2xx initial response, regardless of `--error-mode`.
 
 ## Pagination
 
-Pagination is declared, never guessed: describe how your API paginates in `redocly.yaml` under `client.pagination`, or per operation with the `x-redoclyPagination` extension in the description.
-The rule fields, the generate-time verification, and the precedence between the convention, `x-redoclyPagination`, and per-operation overrides are documented in the [`client.pagination` reference](../configuration/reference/client.md#pagination-object); there is no CLI flag.
-Each paginated operation keeps its one-shot call and gains two async iterators — `.pages(args?, init?)` yielding full pages and `.items(args?, init?)` yielding individual items, typed statically from the response schema.
+Pagination is declared, never guessed.
+Describe how your API paginates in `redocly.yaml` under `client.pagination`.
+Or declare it per operation with the `x-redoclyPagination` extension in the description.
+The [`client.pagination` reference](../configuration/reference/client.md#pagination-object) documents the rule fields and the verification at generate time.
+It also documents the precedence between the convention, `x-redoclyPagination`, and per-operation overrides.
+There is no CLI flag.
+Each paginated operation keeps its one-shot call and gains two async iterators.
+`.pages(args?, init?)` yields full pages, and `.items(args?, init?)` yields individual items.
+Both are typed statically from the response schema.
 
-Four styles are supported:
-`cursor` sends the response's `nextCursor` back in `cursorParam`, stops when it's absent, `null`, or empty, and throws if the server returns the same cursor twice in a row.
-For connection-style APIs whose cursor stays non-null on the last page, add the optional `hasMore` pointer (for example `/pageInfo/hasNextPage`) — iteration stops as soon as it resolves to `false`, skipping the follow-up empty request.
-`offset` advances `offsetParam` by each page's item count, and `page` increments `offsetParam` by 1; both stop on an empty page.
-`link` follows the response's RFC 8288 `Link` header `rel="next"` target (the GitHub pattern) — no advance parameter at all: the runtime merges the target's query params into the next call, so every page goes through the same declared endpoint (auth and middleware apply unchanged, and credentials are never handed to a cross-origin URL); iteration stops when no `rel="next"` is present and throws if the target repeats.
-A `link` convention rule applies only to operations whose success response _documents_ a `Link` header; an explicit rule applies regardless but warns when the header is undocumented.
-`limitParam` is optional metadata for any style: the iterator never sets it, so pass your page size in `params` yourself.
+The client supports four styles.
+`cursor` sends the response's `nextCursor` back in `cursorParam`.
+It stops when the cursor is absent, `null`, or empty.
+It throws if the server returns the same cursor two times in a row.
+Some connection-style APIs keep a non-null cursor on the last page.
+For those, add the optional `hasMore` pointer (for example `/pageInfo/hasNextPage`).
+Iteration stops as soon as the pointer resolves to `false`, and the client skips the empty follow-up request.
+
+`offset` advances `offsetParam` by the item count of each page.
+`page` increments `offsetParam` by 1.
+Both stop on an empty page.
+
+`link` follows the `rel="next"` target in the response's RFC 8288 `Link` header (the GitHub pattern).
+There is no advance parameter.
+The runtime merges the target's query parameters into the next call.
+Because of this, every page goes through the same declared endpoint: auth and middleware apply unchanged, and the client never gives credentials to a cross-origin URL.
+Iteration stops when no `rel="next"` is present, and it throws if the target repeats.
+A `link` convention rule applies only to operations whose success response _documents_ a `Link` header.
+An explicit rule applies in all cases, but it warns when the header is undocumented.
+
+`limitParam` is optional metadata for any style.
+The iterator never sets it, so pass your page size in `params` yourself.
 
 ```ts
 import { client } from './client.ts';
@@ -669,10 +867,13 @@ for await (const page of client.listOrders.pages()) {
 ```
 
 The flat free functions keep both iterators.
-Note that the flat function itself takes positional arguments, but its `.pages`/`.items` always take the grouped shape — they are the client method's iterators.
+The flat function itself takes positional arguments.
+But its `.pages`/`.items` always take the grouped shape, because they are the client method's iterators.
 
-Resume by passing the advance param in the initial args — iteration starts from there instead of the beginning.
-Abort by passing an `AbortSignal`, forwarded to every page request:
+To resume, pass the advance parameter in the initial args.
+Iteration then starts from that point, not from the beginning.
+To abort, pass an `AbortSignal`.
+The client forwards it to every page request:
 
 ```ts
 const controller = new AbortController();
@@ -684,22 +885,38 @@ for await (const page of client.listOrders.pages(
 }
 ```
 
-A failed page always aborts iteration by throwing `ApiError`, even on an `--error-mode result` client.
-On a result-mode client, `.pages()` yields raw pages rather than `{ data, error, response }` envelopes — only the one-shot call keeps the envelope — and the throw-mode-only `onError` middleware hook is not invoked.
+A failed page always stops iteration with a thrown `ApiError`, even on an `--error-mode result` client.
+On a result-mode client, `.pages()` yields raw pages, not `{ data, error, response }` envelopes.
+Only the one-shot call keeps the envelope.
+The client also does not invoke the `onError` middleware hook, which is throw-mode only.
 
-For shapes the built-in styles don't cover — for example a cursor that travels in the request body or a header — page with a small hand-written helper over the generated call, which stays fully typed end to end (see the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination)).
+The built-in styles do not cover every shape, for example a cursor that travels in the request body or in a header.
+For those shapes, write a small helper over the generated call.
+The helper stays fully typed from end to end.
+See the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination).
 
 ## TanStack Query factories
 
-The `tanstack-query` generator emits typed TanStack Query v5 factories per operation:
+The `tanstack-query` generator emits typed TanStack Query v5 factories for each operation:
 
-- `<op>Options(vars, init?)` per query (GET/HEAD) — pass to `useQuery`/`prefetchQuery`. Its `queryFn` forwards TanStack's abort `signal` into the request, so an unmounted or superseded query cancels its network call.
-- `<op>InfiniteOptions(vars, init?)` per **paginated** query — pass to `useInfiniteQuery`/`fetchInfiniteQuery`. The `initialPageParam`/`getNextPageParam` pair is compiled from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, including the `hasMore` stop, so infinite queries need no hand-written `getNextPageParam`. (`link`-style operations are the exception — their next page lives in a response header a `queryFn` cannot see; use the sdk's `.pages()`/`.items()` iterators for those.)
-- `<op>QueryKey(vars?)` — with `vars`, the exact key the options use; **without arguments, the invalidation prefix** that matches every cached page and filter of the operation: `queryClient.invalidateQueries({ queryKey: listOrdersQueryKey() })`.
-- `<op>Mutation(init?)` per mutation — per-call `RequestOptions` (headers, a retry override) reach the mutation's requests.
+- `<op>Options(vars, init?)` for each query (GET/HEAD).
+  Pass it to `useQuery`/`prefetchQuery`.
+  Its `queryFn` forwards TanStack's abort `signal` into the request.
+  Because of this, an unmounted or superseded query cancels its network call.
+- `<op>InfiniteOptions(vars, init?)` for each **paginated** query.
+  Pass it to `useInfiniteQuery`/`fetchInfiniteQuery`.
+  The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
+  Because of this, infinite queries need no hand-written `getNextPageParam`.
+  `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
+  Use the sdk's `.pages()`/`.items()` iterators for those.
+- `<op>QueryKey(vars?)`.
+  With `vars`, it returns the exact key that the options use.
+  **Without arguments, it returns the invalidation prefix** that matches every cached page and filter of the operation: `queryClient.invalidateQueries({ queryKey: listOrdersQueryKey() })`.
+- `<op>Mutation(init?)` for each mutation.
+  Per-call `RequestOptions` (headers, a retry override) reach the mutation's requests.
 
 The module-level factories bind the sdk's default `client`.
-For an isolated instance (its own credentials, middleware, retry), build a bound set with `createQueryFactories`:
+For an isolated instance with its own credentials, middleware, and retry, build a bound set with `createQueryFactories`:
 
 ```ts
 import { createClient } from '@redocly/client-generator';
@@ -712,17 +929,23 @@ const internal = createQueryFactories(
 useQuery(internal.getOrderOptions({ orderId }));
 ```
 
-When several generated APIs share one `QueryClient`, their operationIds can collide (two APIs with a `check` operation would mix caches).
-Set `queryKeyPrefix` in the `client` block to namespace every key: `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
+When several generated APIs share one `QueryClient`, their operationIds can collide.
+For example, two APIs with a `check` operation would mix caches.
+Set `queryKeyPrefix` in the `client` block to add a namespace to every key.
+For example, `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
 
 ## Format and lint the generated files
 
-The generator prints one canonical style — the TypeScript compiler's printer (four-space indent, double quotes).
-If your project's formatter enforces a different style, its check fails on freshly generated files.
-Either run your formatter over the output right after generating (for example, as the next step in the same script), or add the generated paths to your formatter's ignore list — generated files are not hand-edited, so reformatting them is churn without review value.
+The generator prints one canonical style: the TypeScript compiler's printer, with a four-space indent and double quotes.
+If your project's formatter enforces a different style, its check fails on newly generated files.
+Run your formatter over the output immediately after generation, for example as the next step in the same script.
+Or add the generated paths to your formatter's ignore list.
+Generated files are not edited by hand, so a reformat is churn without review value.
 
-Linting is different: the generated code is expected to pass strict lint configurations as-is (no `any`, no non-null assertions, no unused imports).
-If your linter flags generated output, [report it](https://github.com/Redocly/redocly-cli/issues) — that is a generator bug, not a style choice.
+Linting is different.
+The generated code must pass strict lint configurations unchanged: no `any`, no non-null assertions, and no unused imports.
+If your linter flags generated output, [report it](https://github.com/Redocly/redocly-cli/issues).
+That is a generator bug, not a style choice.
 
 ## Resources
 
