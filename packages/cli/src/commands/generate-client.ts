@@ -172,8 +172,8 @@ export async function handleGenerateClient({
         config: aliasConfig,
         configDir,
       });
-      // The emitted module, not the config string, decides what composes: `cli` also
-      // arrives as an ejected path entry or as another generator's prerequisite.
+      // The emitted module decides what composes: `cli` reaches a run as a built-in
+      // name, an ejected path entry, or another generator's prerequisite.
       const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
       if (cliModule !== undefined) {
         const importExt = clientConfig.importExt ?? 'js';

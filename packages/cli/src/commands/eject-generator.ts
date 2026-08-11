@@ -388,8 +388,8 @@ export const handleEjectGenerator = async ({
 
   const assetsDir = ejectAssetsDir();
   const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
-  // The version that matters is the TOOLKIT's (what the ejected file records and imports),
-  // not the CLI's — they version independently.
+  // The ejected file records and imports the toolkit's version; the CLI versions
+  // independently of it.
   const { GENERATOR_VERSION: toolkitVersion } = await import('@redocly/client-generator');
   const dir = resolve(argv.dir ?? './generators');
   const target = join(dir, `${name}.mjs`);
