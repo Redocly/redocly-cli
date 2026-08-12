@@ -230,6 +230,7 @@ export class Config {
       : problem;
   }
 
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   extendTypes(types: Record<string, NodeType>, version: SpecVersion) {
     let extendedTypes = types;
     for (const plugin of this.plugins) {

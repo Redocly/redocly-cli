@@ -24,7 +24,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           lines: 77,
           functions: 81,
           statements: 77,
-          branches: 70,
+          branches: 71,
         },
       },
     },
