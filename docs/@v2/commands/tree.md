@@ -43,29 +43,29 @@ The default view shows one API's overview at a time; pass a single API, or use `
 
 ## Options
 
-| Option        | Type     | Description                                                                                                                                                                                                                                                                                                                                                      |
-| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                                                                                                                               |
-| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                                                                                                                                  |
-| --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                                                                                                                           |
-| --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                                                                                                                             |
-| --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                                                                                                                          |
-| --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                                                                                                                               |
-| --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                                          |
-| --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                                              |
-| --find        | string   | Search operations and components by words in their path, id, name, summary, description, or tags. Standalone; not combinable with other selectors.                                                                                                                                                                                                               |
-| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                                                                                                |
-| --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                                 |
-| --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                                     |
-| --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                                   |
-| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                                                                                    |
-| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                                        |
-| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — a plain-text format for agents: one line per listing entry with `L<start>` coordinates, operation and component cards carry their raw source, and a `--with-deps` closure emits schema signatures instead of raw YAML. No JSON syntax anywhere in `ai`. |
-| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                                                                  |
-| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                                                                 |
-| --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                                                                                     |
-| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                    |
-| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                                                                                                          |
+| Option        | Type     | Description                                                                                                                                                                                                                                                                                                                                      |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                                                                                                               |
+| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                                                                                                                  |
+| --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                                                                                                           |
+| --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                                                                                                             |
+| --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                                                                                                          |
+| --component   | string   | Show a component section (`schemas`, `responses`, `parameters`, `requestBodies`, `headers`, `securitySchemes`, `examples`, `links`, `callbacks`) or, with `--name`, one component.                                                                                                                                                               |
+| --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                          |
+| --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                              |
+| --find        | string   | Search operations and components by words in their path, id, name, summary, description, or tags. Standalone; not combinable with other selectors.                                                                                                                                                                                               |
+| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                                                                                |
+| --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                 |
+| --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                     |
+| --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                   |
+| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                                                                    |
+| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                        |
+| --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — a plain-text format for agents: one line per listing entry with `L<start>` coordinates, an operation or component card's body as one line of minified JSON, and a `--with-deps` closure emitting schema signatures instead of raw YAML. |
+| --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                                                  |
+| --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                                                 |
+| --lint-config | string   | Specify the severity level for the configuration file. **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                                                                     |
+| --help        | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                    |
+| --version     | boolean  | Display version number.                                                                                                                                                                                                                                                                                                                          |
 
 Selectors combine only in the shapes shown under _Usage_ above; other combinations are a usage error.
 For example, `--tag` and `--component` each select a different, unrelated scope, so combining them fails fast:
@@ -533,7 +533,7 @@ schemas/Order
 `usedBy` here shows every operation and component with a direct reference to `Order` — one hop only; for the transitive version see `--used-by` below.
 `--component` is mutually exclusive with `--tag`, `--path`, `--webhook`, `--file`, and `--operation`.
 
-`--format=ai` turns the same selection into a text card instead of a `refs`/`usedBy` tree: coordinates, a compact `signature:` line, and — without `--with-deps` — the component's own raw source, which answers "what fields does this have" directly instead of by way of a reverse-dependency dump:
+`--format=ai` turns the same selection into a text card instead of a `refs`/`usedBy` tree: coordinates, a compact `signature:` line, and — without `--with-deps` — the component's own body as one line of minified JSON, which answers "what fields does this have" directly instead of by way of a reverse-dependency dump:
 
 ```bash
 redocly tree cafe.yaml --component=schemas --name=OrderNotification --format=ai
@@ -542,22 +542,8 @@ redocly tree cafe.yaml --component=schemas --name=OrderNotification --format=ai
 ```
 schemas/OrderNotification · cafe.yaml L1310-1324
 signature: orderId*:string, orderStatus*→OrderStatus, timestamp*:string
---- yaml
-      type: object
-      required:
-        - orderId
-        - orderStatus
-        - timestamp
-      properties:
-        orderId:
-          type: string
-          description: Unique order identifier.
-        orderStatus:
-          $ref: '#/components/schemas/OrderStatus'
-        timestamp:
-          type: string
-          format: date-time
-          description: When the event occurred.
+--- json
+{"type":"object","required":["orderId","orderStatus","timestamp"],"properties":{"orderId":{"type":"string","description":"Unique order identifier."},"orderStatus":{"$ref":"#/components/schemas/OrderStatus"},"timestamp":{"type":"string","format":"date-time","description":"When the event occurred."}}}
 refs: schemas/OrderStatus L1025
 usedBy: 1 (--used-by)
 ```
@@ -920,7 +906,8 @@ redocly tree cafe.yaml --find "order status" --tag=Orders
 ### Plain text for agents: `--format=ai`
 
 `--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
-`--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in any view, not even a minified JSON blob — except the file-level graph, which `--files` and a non-OpenAPI description still render as minified JSON.
+`--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in a listing, an overview, or a find result.
+Two views break that rule: a card's own body ships as one line of minified JSON (below), and the file-level graph, which `--files` and a non-OpenAPI description still render as minified JSON.
 
 Every `ai` view shares the same conventions:
 
@@ -1261,78 +1248,25 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
 
 ```
 post /orders · createOrder · cafe.yaml L316-372 · tags: Orders — Create order
---- yaml
-      tags:
-        - Orders
-      summary: Create order
-      description: >
-        Create a new order.
-
-        Order items cannot be changed - if they need to be updated, cancel the
-        order and place a new one.
-      operationId: createOrder
-      security:
-        - OAuth2:
-            - orders:write
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-            examples:
-              OrderRequest:
-                dataValue:
-                  customerName: Mary Ann
-                  orderItems:
-                    - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
-                      quantity: 2
-                      comment: No sugar!
-                      discount: 0
-      responses:
-        '201':
-          description: Order placed successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-              examples:
-                OrderResponse:
-                  dataValue:
-                    id: ord_01h1s5z6vf2mm1mz3hevnn9va7
-                    customerName: Mary Ann
-                    orderItems:
-                      - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
-                        quantity: 2
-                        comment: No sugar!
-                        discount: 0
-                    object: order
-                    status: placed
-                    totalPrice: 200
-                    createdAt: '2026-08-24T14:15:22Z'
-                    updatedAt: '2026-08-24T14:15:22Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+--- json
+{"tags":["Orders"],"summary":"Create order","description":"Create a new order.\nOrder items cannot be changed - if they need to be updated, cancel the order and place a new one.\n","operationId":"createOrder","security":[{"OAuth2":["orders:write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Order"},"examples":{"OrderRequest":{"dataValue":{"customerName":"Mary Ann","orderItems":[{"menuItemId":"prd_01h1s5z6vf2mm1mz3hevnn9va7","quantity":2,"comment":"No sugar!","discount":0}]}}}}}},"responses":{"201":{"description":"Order placed successfully.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Order"},"examples":{"OrderResponse":{"dataValue":{"id":"ord_01h1s5z6vf2mm1mz3hevnn9va7","customerName":"Mary Ann","orderItems":[{"menuItemId":"prd_01h1s5z6vf2mm1mz3hevnn9va7","quantity":2,"comment":"No sugar!","discount":0}],"object":"order","status":"placed","totalPrice":200,"createdAt":"2026-08-24T14:15:22Z","updatedAt":"2026-08-24T14:15:22Z"}}}}}},"400":{"$ref":"#/components/responses/BadRequest"},"401":{"$ref":"#/components/responses/Unauthorized"},"403":{"$ref":"#/components/responses/Forbidden"},"500":{"$ref":"#/components/responses/InternalServerError"}}}
 --- deps (7, signatures depth ≤2)
 responses/BadRequest L1327-1331: Bad request - invalid input parameters.
 responses/Forbidden L1345-1349: Forbidden - insufficient permissions.
 responses/InternalServerError L1333-1337: Internal server error.
 responses/Unauthorized L1339-1343: Unauthorized - authorization required.
-schemas/Order L1033-1107: id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array
-schemas/Error L988-1024: type*:string, title*:string, status*:integer, instance:string, details:object
-schemas/OrderStatus L1025-1032: string=placed|preparing|completed|canceled
+schemas/Order L1033-1106: id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array
+schemas/Error L988-1023: type*:string, title*:string, status*:integer, instance:string, details:object
+schemas/OrderStatus L1025-1031: string=placed|preparing|completed|canceled
 ```
 
-The card's own `content` (the `--- yaml` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
+The card's own `content` (the `--- json` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
+It's the complete parsed body, serialized as one line of minified JSON instead of the indented source, so every value survives and only the YAML comments are lost.
+A top-level `x-*` vendor key — a code-samples block, most often — folds to an `"omitted (L<start>-<end>)"` marker with its own source coordinates instead, since those blocks can dwarf the rest of the card; fetch the range directly with `--format=json` or a plain file read when the samples themselves are what's needed.
+Content that fails to parse falls back to a `--- yaml` block with the raw source instead.
 Each `--- deps` line is `id L<start>-<end>: signature`, with a `· f:<path>` suffix only when a dependency lives in a different file than the card.
 `Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) instead of being cut off; a `deeper:` line with a ready-to-run `hint:` would list anything past that window, and both are absent here because nothing in this closure sits further out.
-On cafe.yaml, this same card is 10,965 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 2,626 bytes as `--format=ai` — a 76% reduction, entirely from the five dependencies above shrinking from raw YAML to one-line signatures.
+On cafe.yaml, this same card is 10,919 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 1,989 bytes as `--format=ai` — an 82% reduction: the five dependencies above shrink to one-line signatures, and the card's own body serializes as minified JSON instead of indented YAML.
 The effect grows with the schema graph: a closure that pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, or dependencies with many more properties than `Order`'s eight, saves more per entry than this example does.
 
 ### Find what depends on a selection: `--used-by`
