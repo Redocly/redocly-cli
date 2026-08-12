@@ -10,6 +10,7 @@ import {
 
 vi.mock('@redocly/respect-core', async () => {
   const actual =
+    // oxlint-disable-next-line typescript/consistent-type-imports
     await vi.importActual<typeof import('@redocly/respect-core')>('@redocly/respect-core');
   return {
     ...actual,

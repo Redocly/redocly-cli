@@ -1,5 +1,5 @@
 🚗 References: 4 
-📦 External Documents: 0 
+📦 External Documents: 1 
 📈 Schemas: 1 
 👉 Parameters: 2 
 📡 Channels: 1 

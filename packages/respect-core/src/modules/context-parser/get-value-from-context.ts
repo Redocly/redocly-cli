@@ -306,6 +306,7 @@ const resolveValue = (
   value: string | null,
   ctx: TestContext | RuntimeExpressionContext,
   logger: LoggerInterface
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
 ) => {
   if (!value) return value;
 

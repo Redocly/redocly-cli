@@ -79,6 +79,7 @@ export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[
   };
 }
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function formatProblems(
   problems: (NormalizedProblem & { ignored?: boolean })[],
   opts: {

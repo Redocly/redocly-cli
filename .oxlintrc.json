@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "import"],
-  "jsPlugins": ["./plugins/oxlint-redocly-plugin.js"],
+  "jsPlugins": ["./plugins/oxlint-redocly-plugin.js", "eslint-plugin-sonarjs"],
   "categories": {
     "correctness": "error"
   },
@@ -44,7 +44,7 @@
     "typescript/no-unnecessary-type-constraint": "error",
     "typescript/no-unsafe-function-type": "error",
     "typescript/consistent-type-imports": [
-      "warn",
+      "error",
       {
         "prefer": "type-imports",
         "fixStyle": "inline-type-imports"
@@ -58,8 +58,8 @@
         "preferInline": true
       }
     ],
-
-    "oxlint-redocly-plugin/no-typeof-object": "error"
+    "oxlint-redocly-plugin/no-typeof-object": "error",
+    "sonarjs/cognitive-complexity": ["error", 30]
   },
   "overrides": [
     {
@@ -84,6 +84,17 @@
       ],
       "rules": {
         "eslint/no-console": "allow"
+      }
+    },
+    {
+      "files": [
+        "packages/cli/src/commands/score/**",
+        "packages/cli/src/commands/generate-spec/**",
+        "packages/cli/src/commands/drift/**",
+        "packages/client-generator/**"
+      ],
+      "rules": {
+        "sonarjs/cognitive-complexity": ["error", 82]
       }
     }
   ]

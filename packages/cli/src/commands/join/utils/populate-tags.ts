@@ -7,6 +7,7 @@ import { addPrefix } from './add-prefix.js';
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function populateTags({
   joinedDef,
   withoutXTagGroups,

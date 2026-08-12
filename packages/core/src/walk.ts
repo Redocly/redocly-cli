@@ -166,6 +166,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   function walkNode(
     node: any,
     type: NormalizedNodeType,

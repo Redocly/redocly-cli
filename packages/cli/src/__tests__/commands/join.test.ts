@@ -53,6 +53,7 @@ describe('handleJoin', () => {
 
     vi.mock('@redocly/openapi-core', async () => {
       const actual =
+        // oxlint-disable-next-line typescript/consistent-type-imports
         await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
       return {
         ...actual,
