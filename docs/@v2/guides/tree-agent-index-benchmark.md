@@ -524,6 +524,27 @@ component cards gained their own signature line plus raw source,
 the overview dropped tag descriptions and webhook name lists,
 and a new standalone `--find=<terms>` selector searches paths, operationIds, names, summaries, descriptions, and tags, returning up to 20 ranked one-line matches.
 
+What the map costs now, verbatim — the whole overview of the 1.3 MB description is these nine lines (the `…` in the first line is the CLI's own summary truncation, not an edit):
+
+```
+rebilly.yaml · oas3_1 — Core APIs — # Introduction [comment]: <> (x-product-description-placeholder) The Rebilly API is built on HTTP and is RESTful. It has predictable resource URLs…
+servers: https://api-sandbox.rebilly.com/organizations/{organizationId}, https://api.rebilly.com/organizations/{organizationId}
+282 operations · 33 tags · 98 webhook operations
+components: schemas 302 · responses 7 · parameters 27 · requestBodies 39 · headers 4 · securitySchemes 5 · examples 6
+tags: Allowlists 4 · AML 7 · Blocklists 5 · Coupons 9 · Credit memos 6 · Credit memos timeline 4 · Custom fields 3 · Customer authentication 16 · Customers 12 · Customers timeline 11 · Deposits 13 · Disputes 4 · Fees 6 · Files 11 · Invoices 16 · Invoices timeline 4 · Journal 13 · KYC documents 17 · Orders 28 · Orders timeline 4 · Payment instruments 5 · Payment tokens 4 · Plans 5 · Products 5 · Quotes 10 · Quotes timeline 4 · Risk score 4 · Search 1 · Shipping rates 5 · Tags 22 · Transactions 15 · Transactions timeline 4 · Usage 5
+webhooks: 98 (list: --webhooks)
+next: --find=<terms> · --tag=<name> · --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<n>
+```
+
+And one `--find` call replaces the 37 KB tag listing the first-round agent had to page through — this is the complete output:
+
+```
+find "upload release asset" · 2 operations · 1 component
+post /repos/{owner}/{repo}/releases/{release_id}/assets · repos/upload-release-asset · L53880 — Upload a release asset
+get /repos/{owner}/{repo}/releases/{release_id} · repos/get-release · L53687 — Get a release
+examples/release-asset-response-for-successful-upload · L252601
+```
+
 The per-call price list, measured on the same descriptions (`| wc -c` on stdout):
 
 | Call                                          | Before (B) | After (B) |
@@ -545,6 +566,34 @@ So a card's body ships as minified JSON under a `--- json` marker, parsed by the
 with top-level `x-*` vendor blocks folded to `"omitted (L32720-32767)"` coordinate markers — on this card those blocks were 81% of the body.
 A verification run of the billing-API task on the JSON bodies landed at the same session size (89,387 against 88,915) with a strictly richer correct answer:
 the agent reinvested the cheaper cards into fourteen component spot-checks and additionally verified the auth scheme, a `readOnly` currency, and the prose-only defaults (`autopay`, the customer's default payment instrument) — the facts that live in descriptions survive the serialization change.
+
+The component card that answered a first-round agent with 7,871 B of `usedBy` entries and no schema body now answers with this, whole:
+
+```
+schemas/CurrencyCode · rebilly.yaml L1815-1821 — Currency code in ISO 4217 format.
+signature: string
+--- json
+{"type":"string","description":"Currency code in ISO 4217 format.","minLength":3,"maxLength":3,"example":"USD","x-label":"omitted (L1820-1820)","x-sortable":"omitted (L1821-1821)"}
+usedBy: 40 (--used-by)
+```
+
+And the operation card's shape — header line, one line of body JSON with the vendor blocks folded to coordinate markers, then the dependency signatures.
+Shortened here by eliding with `…`; nothing is rewritten:
+
+```
+post /subscriptions · PostSubscription · rebilly.yaml L32632-32781 · tags: Orders — Create an order
+--- json
+{"x-products":"omitted (L32632-32633)","tags":["Orders"],"summary":"Create an order","operationId":"PostSubscription","x-sdk-operation-name":"omitted (L32638-32638)","description":"Creates an order.\n\nTo create or update an order with a specified ID, use the [Upsert an order](../PutSubscription) operation.","parameters":[{"$ref":"#/components/parameters/subscriptionExpand"}],"requestBody":{"$ref":"#/components/requestBodies/Subscription"},"responses":{…},"x-codeSamples":"omitted (L32665-32781)"}
+--- deps (12, signatures depth ≤2, truncated at 64 KB)
+headers/Location L595-599: Location of the related resource.
+parameters/subscriptionExpand L448-474: Expand a response to receive a full related object in the `_embedded` path. To expand multiple objects, use a comma-separated list. Example:…
+requestBodies/Subscription L20471-20476: Order resource.
+responses/Forbidden L20113-20117: Access forbidden.
+schemas/SubscriptionOrOneTimeSale L16039-16048: [oneOf: Subscription, OneTimeSale, discriminator: orderType]
+…
+```
+
+The `x-codeSamples` marker in that body is 117 lines of PHP examples the first-round card shipped verbatim; the coordinates recover them with a `Read` or `--format=json` when they are actually wanted.
 
 The isolated head-to-heads were then re-run — same tasks, same model, fresh sessions, the no-tool controls reused unchanged from the first round since nothing about their conditions changed:
 
