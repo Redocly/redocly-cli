@@ -1,5 +1,7 @@
+import { getTypes } from '../../oas-types.js';
+import { normalizeTypes, SpecExtension } from '../../types/index.js';
 import type { SpecVendorExtensionsAccumulator } from '../../typings/common.js';
-import { collectSpecExtension } from '../spec-extensions.js';
+import { collectSpecExtension, ensureSpecExtensionDispatch } from '../spec-extensions.js';
 
 function collectFrom(extensions: Record<string, unknown>): SpecVendorExtensionsAccumulator {
   const collected: SpecVendorExtensionsAccumulator = {};
@@ -11,6 +13,32 @@ function collectFrom(extensions: Record<string, unknown>): SpecVendorExtensionsA
 
 const props = (acc: SpecVendorExtensionsAccumulator, name: string, prop: string) =>
   [...(acc[name]?.props[prop] ?? [])].sort();
+
+describe('ensureSpecExtensionDispatch', () => {
+  it('should free typed x- keys for dispatch while keeping structural ones typed', () => {
+    const types = normalizeTypes(getTypes('oas3_0'));
+
+    ensureSpecExtensionDispatch(types);
+
+    expect(types.Paths.extensionsPrefix).toBe('x-');
+    expect(types.Operation.properties['x-codeSamples']).toBeUndefined();
+    expect(types.Root.properties['x-webhooks']).toBeDefined();
+    expect(types.PathItem.properties['x-query']).toBeDefined();
+  });
+
+  it('should route x- keys past an untyped catch-all, leaving other keys to it', () => {
+    const types = normalizeTypes(getTypes('async2'));
+
+    ensureSpecExtensionDispatch(types);
+
+    const resolveEntry = types.Message.additionalProperties as (
+      value: unknown,
+      key: string
+    ) => unknown;
+    expect(resolveEntry({}, 'x-custom')).toBe(SpecExtension);
+    expect(resolveEntry({}, 'contentType')).not.toBe(SpecExtension);
+  });
+});
 
 describe('stats vendor extensions value sampling', () => {
   it('should keep short scalars but replace long strings with a length marker', () => {
