@@ -1,6 +1,11 @@
 import type { ApiNodeEnvelope, ApiNodeRef, TypedRef } from '@redocly/openapi-core';
 
-import { buildAiDepsClosure, buildNodeSignature, DEEPER_HINT } from '../print/signature.js';
+import {
+  buildAiDepsClosure,
+  buildNodeSignature,
+  DEEPER_HINT,
+  parseNodeContent,
+} from '../print/signature.js';
 
 /** A depth-1 dependency's own signature: seeded from one ref so `dep` alone lands in `deps`. */
 function signatureOf(dep: ApiNodeEnvelope): string {
@@ -367,5 +372,42 @@ describe('buildNodeSignature', () => {
     );
 
     expect(signature).toBe('The resource was not found.');
+  });
+});
+
+// Exported for the `ai` card body (see print/ai.ts), on top of its original dep-signature use —
+// same trimming rule either way, so these mirror the dep-signature cases above directly.
+describe('parseNodeContent', () => {
+  it('parses a content slice into a plain object', () => {
+    const content = [
+      '      type: object',
+      '      properties:',
+      '        id:',
+      '          type: string',
+    ].join('\n');
+
+    expect(parseNodeContent(content)).toEqual({
+      type: 'object',
+      properties: { id: { type: 'string' } },
+    });
+  });
+
+  it('drops a trailing line that dedents below the block’s own first line', () => {
+    const content = [
+      '      type: object',
+      '      properties:',
+      '        id:',
+      '          type: string',
+      '    NextSibling:',
+    ].join('\n');
+
+    expect(parseNodeContent(content)).toEqual({
+      type: 'object',
+      properties: { id: { type: 'string' } },
+    });
+  });
+
+  it('returns undefined for unparsable content', () => {
+    expect(parseNodeContent("      key: 'unterminated")).toBeUndefined();
   });
 });

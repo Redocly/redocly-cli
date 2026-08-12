@@ -1,10 +1,6 @@
 schemas/Ticket · openapi.yaml L50-54 — A ticket for museum entry or special event.
 signature: ticketId:string
---- yaml
-      description: A ticket for museum entry or special event.
-      type: object
-      properties:
-        ticketId:
-          type: string
+--- json
+{"description":"A ticket for museum entry or special event.","type":"object","properties":{"ticketId":{"type":"string"}}}
 usedBy: 1 (--used-by)
 

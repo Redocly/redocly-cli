@@ -111,7 +111,7 @@ function depRefTargetIds(dep: ApiNodeEnvelope): string[] {
 
 /** Builds the signature for one node's raw content: schema signatures for `schemas`, one-line summaries otherwise. */
 export function buildNodeSignature(section: string, content: string, refs: ApiNodeRef[]): string {
-  const parsed = parseDepContent(content);
+  const parsed = parseNodeContent(content);
   const refIndex = new Map(refs.map((ref) => [ref.ref, ref]));
   return section === SCHEMA_SECTION
     ? buildSchemaSignature(parsed, refIndex)
@@ -119,12 +119,13 @@ export function buildNodeSignature(section: string, content: string, refs: ApiNo
 }
 
 /**
- * A dependency's `content` is raw source sliced by line range, and that range's last line is
- * actually the start of the next sibling key (a quirk of how the range is computed) — so the
- * slice is one line short of being valid YAML on its own. Drop trailing lines that dedent below
- * the block's own first line before parsing, then give up cleanly if it's still unparsable.
+ * A node's `content` — a dependency's, for its signature, or a card's own, for its `ai` body — is
+ * raw source sliced by line range, and that range's last line is actually the start of the next
+ * sibling key (a quirk of how the range is computed) — so the slice is one line short of being
+ * valid YAML on its own. Drop trailing lines that dedent below the block's own first line before
+ * parsing, then give up cleanly if it's still unparsable.
  */
-function parseDepContent(content: string): Record<string, unknown> | undefined {
+export function parseNodeContent(content: string): Record<string, unknown> | undefined {
   const lines = content.split('\n');
   const firstContentLine = lines.find((line) => line.trim().length > 0);
   if (firstContentLine === undefined) return undefined;

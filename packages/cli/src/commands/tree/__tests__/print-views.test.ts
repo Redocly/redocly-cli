@@ -931,17 +931,15 @@ describe('renderView (ai)', () => {
     ],
   };
 
-  it('renders an ai operation card: header, yaml, deps signatures, deeper, usedBy count', () => {
+  it('renders an ai operation card: header, json body, deps signatures, deeper, usedBy count', () => {
     const view: TreeView = { kind: 'operation-card', card: operationCardWithDepsFixture };
     const rendered = renderView(view, 'ai');
-    expect(rendered).toContain('--- yaml');
+    expect(rendered).toContain('--- json');
     expect(rendered).not.toContain('"pointer"');
     expect(rendered).toMatchInlineSnapshot(`
       "post /tickets · buyTickets · paths/tickets.yaml L10-40 · tags: Tickets — Buy museum tickets
-      --- yaml
-      post:
-        summary: Buy museum tickets
-        operationId: buyTickets
+      --- json
+      {"post":{"summary":"Buy museum tickets","operationId":"buyTickets"}}
       --- deps (2, signatures depth ≤2)
       schemas/Ticket L1-5 · f:openapi.yaml: id*:string, currency→CurrencyCode
       schemas/CurrencyCode L20-21 · f:openapi.yaml: string
@@ -982,9 +980,8 @@ describe('renderView (ai)', () => {
     expect(rendered).toContain('refs: schemas/Ticket L1');
     expect(rendered).toMatchInlineSnapshot(`
       "get /tickets/{id} · paths/tickets.yaml L42-50
-      --- yaml
-      get:
-        summary: Get a ticket
+      --- json
+      {"get":{"summary":"Get a ticket"}}
       refs: schemas/Ticket L1 · ./schemas/Missing.yaml (unresolved)"
     `);
   });
@@ -1019,22 +1016,78 @@ describe('renderView (ai)', () => {
     ].join('\n'),
   };
 
-  it('renders an ai component card with its own signature line and content', () => {
+  it('renders an ai component card with its own signature line and a json body', () => {
     const view: TreeView = { kind: 'component-card', card: componentCardWithContentFixture };
     const rendered = renderView(view, 'ai');
     expect(rendered).toContain('signature:');
-    expect(rendered).toContain('--- yaml');
+    expect(rendered).toContain('--- json');
     expect(rendered).toMatchInlineSnapshot(`
       "schemas/Ticket · openapi.yaml L12-20 — A museum ticket.
       signature: id*:string
-      --- yaml
-        type: object
-        required:
-          - id
-        properties:
-          id:
-            type: string
+      --- json
+      {"type":"object","required":["id"],"properties":{"id":{"type":"string"}}}
       usedBy: 1 (--used-by)"
+    `);
+  });
+
+  it('folds a top-level x-* vendor key into an "omitted" marker with its own coordinates', () => {
+    const cardWithVendorKey: OperationCard = {
+      method: 'get',
+      path: '/widgets',
+      tags: [],
+      pointer: '#/get',
+      file: 'paths/widgets.yaml',
+      start_line: 100,
+      end_line: 109,
+      refs: [],
+      usedBy: [],
+      content: [
+        '      operationId: listWidgets',
+        '      summary: List widgets',
+        '      x-codeSamples:',
+        '        - lang: PHP',
+        '          source: |',
+        '            <?php',
+        '            echo "hi";',
+        '      responses:',
+        "        '200':",
+        '          description: OK',
+      ].join('\n'),
+    };
+    const view: TreeView = { kind: 'operation-card', card: cardWithVendorKey };
+    const rendered = renderView(view, 'ai');
+
+    expect(rendered).toContain('"x-codeSamples":"omitted (L102-106)"');
+    expect(rendered).not.toContain('PHP');
+    expect(rendered).not.toContain('echo');
+    expect(rendered).toMatchInlineSnapshot(`
+      "get /widgets · paths/widgets.yaml L100-109
+      --- json
+      {"operationId":"listWidgets","summary":"List widgets","x-codeSamples":"omitted (L102-106)","responses":{"200":{"description":"OK"}}}"
+    `);
+  });
+
+  it('falls back to the raw --- yaml block when the content is unparsable', () => {
+    const cardWithUnparsableContent: OperationCard = {
+      method: 'get',
+      path: '/broken',
+      tags: [],
+      pointer: '#/get',
+      file: 'paths/broken.yaml',
+      start_line: 5,
+      end_line: 6,
+      refs: [],
+      usedBy: [],
+      content: '{{{ not yaml',
+    };
+    const view: TreeView = { kind: 'operation-card', card: cardWithUnparsableContent };
+    const rendered = renderView(view, 'ai');
+
+    expect(rendered).not.toContain('--- json');
+    expect(rendered).toMatchInlineSnapshot(`
+      "get /broken · paths/broken.yaml L5-6
+      --- yaml
+      {{{ not yaml"
     `);
   });
 

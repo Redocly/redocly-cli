@@ -17,6 +17,7 @@ import {
   buildAiDepsClosure,
   buildNodeSignature,
   DEEPER_HINT,
+  parseNodeContent,
   type AiDepEntry,
 } from './signature.js';
 
@@ -212,9 +213,71 @@ function aiRefsLine(refs: TypedRef[]): string {
   return `refs: ${labels.join(' · ')}`;
 }
 
+/**
+ * Absolute source range of a top-level `x-*` key's block, found by scanning the RAW content lines
+ * (not the parsed object): from the key's own line up to, but excluding, the next non-blank line
+ * at or above the body's own indent — its next sibling, or, thanks to the known range quirk (see
+ * `parseNodeContent`), the following node's first line, which always lands at that same shallow
+ * indent.
+ */
+function vendorKeyRange(
+  key: string,
+  rawLines: string[],
+  baseIndent: number,
+  startLine: number
+): { start_line: number; end_line: number } | undefined {
+  const keyPattern = new RegExp(`^ {${baseIndent}}${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:`);
+  const startIndex = rawLines.findIndex((line) => keyPattern.test(line));
+  if (startIndex === -1) return undefined;
+
+  let endIndex = rawLines.length;
+  for (let index = startIndex + 1; index < rawLines.length; index++) {
+    if (rawLines[index].trim() === '') continue;
+    if (rawLines[index].match(/^ */)![0].length <= baseIndent) {
+      endIndex = index;
+      break;
+    }
+  }
+  return { start_line: startLine + startIndex, end_line: startLine + endIndex - 1 };
+}
+
+/**
+ * A card's body as minified JSON: the same parser dep signatures use, so every value survives —
+ * only YAML comments are lost. Top-level `x-*` vendor keys fold to an `"omitted (L<start>-<end>)"`
+ * marker instead of their full value (those blocks dominate a card's size — see the design doc);
+ * a vendor key the raw-line scan can't locate folds to plain `"omitted"`. Returns undefined when
+ * the content doesn't parse, so the caller falls back to the raw `--- yaml` block.
+ */
+function renderCardBodyJson(content: string, startLine: number): string | undefined {
+  const parsed = parseNodeContent(content);
+  if (parsed === undefined) return undefined;
+
+  const rawLines = content.split('\n');
+  // parseNodeContent already proved at least one non-blank line exists in this same content.
+  const baseIndent = rawLines.find((line) => line.trim().length > 0)!.match(/^ */)![0].length;
+
+  const folded: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(parsed)) {
+    if (!key.startsWith('x-')) {
+      folded[key] = value;
+      continue;
+    }
+    const range = vendorKeyRange(key, rawLines, baseIndent, startLine);
+    folded[key] = range ? `omitted (L${range.start_line}-${range.end_line})` : 'omitted';
+  }
+  return JSON.stringify(folded);
+}
+
 function aiCardBody(card: OperationCard | ComponentCard): string[] {
   const lines: string[] = [];
-  if (card.content !== undefined) lines.push('--- yaml', card.content.trimEnd());
+  if (card.content !== undefined) {
+    const json = renderCardBodyJson(card.content, card.start_line);
+    if (json !== undefined) {
+      lines.push('--- json', json);
+    } else {
+      lines.push('--- yaml', card.content.trimEnd());
+    }
+  }
   if (card.deps !== undefined) {
     const closure = buildAiDepsClosure(card.deps, card.refs);
     const truncated = card.truncated ? ', truncated at 64 KB' : '';

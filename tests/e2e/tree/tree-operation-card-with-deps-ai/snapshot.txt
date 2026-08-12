@@ -1,19 +1,9 @@
 post /plans · createPlan · openapi.yaml L8-18 — Create a plan
---- yaml
-      summary: Create a plan
-      operationId: createPlan
-      responses:
-        '201':
-          description: Created.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Plan'
-        '404':
-          $ref: '#/components/responses/NotFound'
+--- json
+{"summary":"Create a plan","operationId":"createPlan","responses":{"201":{"description":"Created.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}}}},"404":{"$ref":"#/components/responses/NotFound"}}}
 --- deps (4, signatures depth ≤2)
 responses/NotFound L52-52: Plan not found.
-schemas/Plan L22-30: [anyOf: VariantA, VariantB]: id:string
+schemas/Plan L22-29: [anyOf: VariantA, VariantB]: id:string
 schemas/VariantA L31-39: kind*:string=a, detail→Nested
 schemas/VariantB L41-44: note:string
 deeper: schemas/Nested
