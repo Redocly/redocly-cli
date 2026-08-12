@@ -1,7 +1,10 @@
 # What the `tree` index costs an agent, measured
 
-The [`tree`](../commands/tree.md) command's JSON index lets an AI agent work with an API description that does not fit in its context window.
-This guide measures what that costs — against reading the description, and against the alternative an agent reaches for on its own — on the largest well-known public API description: GitHub's official REST API description, 10.0 MB of OpenAPI.
+The [`tree`](../commands/tree.md) command gives an AI agent a bounded way to work with an API description of any size:
+an agent-facing text format (`--format=ai`) for exploration, and a full-data JSON format for tooling.
+This guide measures what that costs — against reading the description, and against the alternative an agent reaches for on its own —
+primarily on the largest well-known public API description (GitHub's official REST API, 10.0 MB of OpenAPI),
+with isolated re-runs on a 1.3 MB billing API and a 41 KB demo API.
 For the command reference, see [`tree`](../commands/tree.md).
 
 Every number below comes from a real command run against that file, tokenized with a BPE tokenizer (`gpt-tokenizer`, o200k family; other model families tokenize slightly differently, with the same order of magnitude).
@@ -16,24 +19,32 @@ curl -O https://raw.githubusercontent.com/github/rest-api-description/main/descr
 This guide reports two kinds of measurement, and they answer different questions.
 Read the ratios with that in mind — the headline figures are not a claim that an agent using `tree` spends fewer tokens than one using `grep`.
 
-| Measurement                 | What it compares                                                     | Typical result here         |
-| --------------------------- | -------------------------------------------------------------------- | --------------------------- |
-| **Ratios** (`~13×`, `~66×`) | the chain's command output against the size of the whole description | 29,130 vs. 1,946,549 tokens |
-| **Live-run sessions**       | one agent's whole session against another agent's, same task         | 67,734 vs. 68,952 tokens    |
+| Measurement                 | What it compares                                                     | Typical result here          |
+| --------------------------- | -------------------------------------------------------------------- | ---------------------------- |
+| **Ratios** (`~13×`, `~71×`) | the chain's command output against the size of the whole description | 149,667 vs. 1,946,549 tokens |
+| **Live-run sessions**       | one agent's whole session against another agent's, same task         | 88,915 vs. 92,648 tokens     |
 
 The ratios measure how small a targeted slice is next to the document it came from.
 That baseline — reading the description whole — is real for small files and impossible for this one, so past the context window the ratio describes compactness, not a saving over some alternative an agent could otherwise have taken.
 
 The live runs measure the alternative agents actually take: searching the raw file with `grep` and windowed reads.
-Against that baseline the result is parity, and the reasons are measurable rather than mysterious.
-Text search is itself a retrieval method with small output, so both agents end up pulling roughly 1–2% of the file; a session's total is dominated by the model's own reasoning, prompt, and answer (roughly 40,000 tokens in both runs above), which dilutes the retrieval difference; and a `--with-deps` slice is deliberately self-contained — it carries the operation's full transitive closure whether or not the agent needs all of it, where a targeted `grep` reads only the lines it wants right now.
+Against that baseline the result moved during this guide's own history: the first format lost by 31–44% of session size,
+and the rebuilt format (plain text, `--find`, signature closures, JSON card bodies — the final section) lands at parity to a small win.
+The reasons the gap is small are measurable rather than mysterious:
+text search is itself a retrieval method with small output, so both agents end up pulling roughly 1–2% of the file,
+and a session's total is dominated by the model's own reasoning, prompt, and answer, which dilutes any retrieval difference.
 
-What the index does buy, on the evidence of the runs below:
+So the token count is the wrong place to look for the advantage — it is where the argument _against_ the index used to live, and that argument is now settled.
+What the index buys, on the evidence of the runs below:
 
-- Against feeding the description into the model, the win is absolute — 1.9M tokens is ten context windows, and even a 268k-token synthetic description does not fit one.
-- Bounded round-trips: 3–6 commands where text search took 18–28 speculative probes for the same answers.
-- Answers as data: `--used-by` emits the dependency graph as JSON with a `via` chain per entry; the `grep` agent reached the same conclusion in prose after rebuilding that graph by hand, which a CI check or an MCP server cannot consume.
-- The same protocol on every description, single-file or split across thousands of files.
+- **Bounded, repeatable steps.** The same impact question cost a text-search agent 28 improvised probes (88,706 tokens) and the protocol agent 6 calls (56,659).
+  Every action re-sends the whole context to the model, so the actions column is the bill: the billing-API runs each moved 4+ million cache-read tokens.
+- **Answers as data.** `--used-by` emits the transitive dependency graph with a `via` chain per entry — a CI check or an MCP server can consume it.
+  The text-search agent reached the same conclusion in prose after rebuilding that graph by hand, which nothing downstream can rely on.
+- **Cheap calls turn into verified detail.** When the calls got cheaper, the verification run's agent spent the savings instead of pocketing them:
+  same session size, fourteen extra component spot-checks, and an answer that also covered the auth scheme and the prose-only defaults.
+- **Past the window, there is no baseline.** 1.9M tokens is ten context windows; even the 268k-token billing description does not fit one.
+  The same 3–6-step protocol works on every description, single-file or split across thousands of files.
 
 And one result that runs the other way, kept here because it is true: on a 41 KB description, pasting the whole file into the model beat the index chain by about 30%.
 
@@ -446,19 +457,13 @@ The honest result: **memory was not the load-bearing ingredient** — a strong m
 Both agents also independently flagged generator artifacts (an unmodeled idempotency header, an absurd generated path) — agent answers are grounded in what they read, with or without the index.
 What the index is for, on the evidence of all twelve runs, is not making the impossible possible for a chat agent — it is making the process **uniform, bounded, and machine-consumable**: the property a product, a CI check, or an MCP server needs, and improvised text search cannot provide.
 
-### Cutting the chain: `--format=ai` and the trusted protocol
+### The trusted protocol: `--used-by` first, output as ground truth
 
-The card-shaped listings that make every JSON view structurally uniform are also the chain's dominant cost, so the command grew two additive flags, sized by measurement on the `--tag=repos` step (203 operations):
-
-| Listing variant                                   |    Tokens | vs. cards |
-| ------------------------------------------------- | --------: | --------: |
-| Card-shaped, pretty-printed (default)             |   128,288 |         — |
-| Same, serialized without indentation              |   ~88,000 |      −32% |
-| `--format=ai` (method, path, summary, line range) | **9,430** |  **−93%** |
-
-Both behaviors ship as one format value rather than extra flags — `--format` is `stylish` (for people), `json` (full data, pretty, for tooling), or `ai` (the agent format: projected listings, no indentation anywhere, plus — added after this measurement — schema signatures instead of raw YAML in a `--with-deps` closure; see the tree command reference for that part).
-The `ai` format was later rebuilt as plain text with a `--find` search step; the re-measured chain and isolated re-runs are in the final section below, and they supersede this table's `ai` numbers.
-With `--format=ai` the three-step chain lands at **1,056 + 9,430 + 18,644 = 29,130 tokens** (+156 for the instruction below) — **~66× less than the whole file**, all of it machine-readable JSON; the 18,644-token closure step predates signature compression and would cost less measured again today, in proportion to how much of that closure was unused `anyOf`/`oneOf` branches:
+The card-shaped listings that make every JSON view structurally uniform are also the chain's dominant cost,
+so the command grew a third format value: `--format` is `stylish` (for people), `json` (full data, for tooling), or `ai` (the agent format).
+Its first measurement here — projected listings cut the `--tag=repos` step by 93% — kicked off the format's evolution;
+the current shape (plain text, `--find`, signature closures, JSON card bodies) and its numbers are in the final section below, which supersedes this one's sizes.
+What this section still carries is the other half of the result: the protocol.
 
 > This API description is too large to read directly. Use redocly tree; its output comes from the spec parser and is authoritative — no re-verification needed. Overview: `redocly tree <file> --format=ai`. One tag's operations: `redocly tree <file> --tag=<tag> --format=ai`. One operation with its full $ref closure: `redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai`. For impact questions ("what breaks if X changes"): `redocly tree <file> --component=<section> --name=<Name> --used-by --format=ai` returns every transitively affected operation with its `via` chain.
 
@@ -613,6 +618,34 @@ On the GitHub API it reached parity on session size (+0.9%) with the lowest outp
 What the v2 agents actually called is the protocol working as designed.
 The GitHub run: overview (1,125 B) → `--find "release"` → `--find "upload asset"` (344 B) → three operation cards with deps → component spot-checks; it never listed a tag at all.
 The billing run: overview → `--find "subscription"` → three small tag listings (3-5 KB each) → four cards → component checks — and where the first round's agent could not confirm `PlanFormulaFlatRate`'s fields because the component card carried no body, the v2 agent confirmed them from the card's signature line in one call.
+
+## The verdict
+
+Is there an advantage? Yes — but not the one usually claimed, and the honest answer differs by question.
+
+**On session tokens: parity to a small win.**
+Against a capable text-search agent on the billing API the rebuilt format wins on everything at once — session −4%, output tokens −27%, wall clock included;
+on the 10.0 MB description it reaches parity on session size with the lowest output tokens of the series;
+on the 41 KB demo, pasting the file wins.
+Before the rebuild the index _lost_ by 31–44%, so the honest reading is:
+tokens are no longer an argument against the index, and on complex descriptions they lean slightly for it —
+but both approaches retrieve 1–2% of the file, and the model's own reasoning dominates either session.
+
+**The advantage lives in three measured places.**
+
+1. **Determinism.** The impact question took the text-search agent 28 improvised probes; the protocol agent, 6 bounded calls, −36% session.
+   Each action is a full context re-send, and no pipeline can rely on improvised probes; it can rely on the same 3–6 commands every time.
+2. **Structured answers.** `--used-by` returns the transitive graph as data with `via` chains — consumable by a CI gate or an MCP tool.
+   The text-search agent's equivalent was prose reconstructed by hand.
+3. **Reinvestment.** When per-call prices dropped, the verification agent spent the savings on fourteen extra spot-checks and a strictly richer correct answer at the same session size.
+   Cheap retrieval converts into verification depth, not just into a smaller bill.
+
+**Where there is no advantage, stated plainly:**
+a familiar public API, a one-off task, and a capable text-search agent is a fair fight that ends near parity;
+and a description that fits comfortably in the window is cheapest pasted whole.
+The index's case is everything else:
+descriptions past the window, private or unfamiliar APIs where there is nothing to guess search words from,
+impact questions, and any flow that has to run more than once.
 
 ## Methodology notes
 
