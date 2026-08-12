@@ -530,13 +530,21 @@ The per-call price list, measured on the same descriptions (`| wc -c` on stdout)
 | --------------------------------------------- | ---------: | --------: |
 | Overview, 1.3 MB billing API                  |     11,866 |     1,217 |
 | Component card `CurrencyCode`                 |      7,871 |       312 |
-| Operation card `POST /subscriptions` + deps   |     12,559 |     9,242 |
+| Operation card `POST /subscriptions` + deps   |     12,559 |     4,929 |
 | Tag listing `repos` (203 operations, 10.0 MB) |     37,424 |    26,281 |
 | Discovery of "upload release asset" (10.0 MB) |     37,424 |       344 |
 
 The last row is the protocol change, not a compression: `--find "upload release asset"` replaces the tag listing entirely.
-Two honest misses against the design targets: the operation card is 9% over (its `x-codeSamples` blocks are 4,172 B — 45% of the card — and content ships whole by design),
-and the tag listing is 9.5% over (203 operationIds each repeat the `repos/` prefix, which cannot be trimmed because the operationId is the selector key).
+One honest miss remains against the design targets: the tag listing is 9.5% over
+(203 operationIds each repeat the `repos/` prefix, which cannot be trimmed because the operationId is the selector key).
+
+The operation-card row includes a follow-up serialization change, chosen by tokenizing the same body in candidate formats:
+minified JSON out-tokenizes both raw and dedented YAML (the structure-heavy operation body drops 1,001 → 173 tokens, the prose-heavy component body 426 → 373),
+while for the one-line listing entries the reverse holds — JSON costs 35% more than the plain lines, which already sit within 6% of a bare TSV.
+So a card's body ships as minified JSON under a `--- json` marker, parsed by the spec parser from the same source slice,
+with top-level `x-*` vendor blocks folded to `"omitted (L32720-32767)"` coordinate markers — on this card those blocks were 81% of the body.
+A verification run of the billing-API task on the JSON bodies landed at the same session size (89,387 against 88,915) with a strictly richer correct answer:
+the agent reinvested the cheaper cards into fourteen component spot-checks and additionally verified the auth scheme, a `readOnly` currency, and the prose-only defaults (`autopay`, the customer's default payment instrument) — the facts that live in descriptions survive the serialization change.
 
 The isolated head-to-heads were then re-run — same tasks, same model, fresh sessions, the no-tool controls reused unchanged from the first round since nothing about their conditions changed:
 
