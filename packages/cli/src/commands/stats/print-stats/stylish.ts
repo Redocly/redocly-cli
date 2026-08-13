@@ -8,12 +8,10 @@ import * as colors from 'colorette';
 export function printStatsStylish(
   statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator
 ) {
-  for (const node in statsAccumulator) {
-    const stat = statsAccumulator[node as keyof typeof statsAccumulator];
-    const { metric, total, color, details } = stat;
-    const colorFn = colors[color as keyof typeof colors] as (text: string) => string;
+  for (const { metric, total, color, counts } of Object.values(statsAccumulator)) {
+    const colorFn = colors[color];
     logger.output(colorFn(`${metric}: ${total} \n`));
-    for (const [name, { count }] of Object.entries(details || {})) {
+    for (const [name, count] of Object.entries(counts ?? {})) {
       logger.output(colorFn(`   - ${name}: ${count} \n`));
     }
   }

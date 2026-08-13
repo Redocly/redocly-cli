@@ -5,7 +5,7 @@ import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { createConfig } from '../config/index.js';
 import { lintDocument } from '../lint.js';
-import { type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
+import { type Async2RuleSet, type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
 import { BaseResolver, type Document } from '../resolve.js';
 import { listOf } from '../types/index.js';
 
@@ -1831,8 +1831,208 @@ describe('type extensions', () => {
       'leave ParameterList',
       'leave hook test',
       'leave XWebHooks',
+      'enter SpecExtension',
+      'leave SpecExtension',
       'leave Root',
     ]);
+  });
+});
+
+describe('spec extensions dispatch', () => {
+  it('should dispatch a typed extension to SpecExtension visitors and keep its typed walk', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+        },
+        XCodeSampleList: {
+          enter: () => calls.push('typed walk of x-codeSamples'),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples:
+                  - lang: curl
+                    source: echo
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['typed walk of x-codeSamples', 'extension x-codeSamples']);
+  });
+
+  it('should dispatch an x- key as SpecExtension even when additionalProperties matches it', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Async2RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          asyncapi: 2.6.0
+          info:
+            title: t
+            version: '1'
+          channels:
+            user/signedup:
+              subscribe:
+                message:
+                  x-msg-ext: hello
+                  payload:
+                    type: object
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { async2: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['extension x-msg-ext']);
+  });
+
+  it('should dispatch an x- key inside Swagger 2.0 scopes, leaving scope names to the map', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas2RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          swagger: '2.0'
+          info:
+            title: t
+            version: '1'
+          paths: {}
+          securityDefinitions:
+            oauth:
+              type: oauth2
+              flow: implicit
+              authorizationUrl: https://example.com/auth
+              scopes:
+                read: Read access
+                x-scopes-ext: internal note
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas2: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['extension x-scopes-ext']);
+  });
+
+  it('should dispatch an x- key on a callback, leaving expression keys to the map', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                callbacks:
+                  onEvent:
+                    x-callback-ext: true
+                    '{$request.body#/url}':
+                      post:
+                        responses:
+                          '200':
+                            description: ok
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['extension x-callback-ext']);
+  });
+
+  it('should visit every occurrence of extensions with equal scalar values', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(ctx.location.pointer),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-internal: true
+            /dog:
+              get:
+                operationId: getDog
+                x-internal: true
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['#/paths/~1pet/get/x-internal', '#/paths/~1dog/get/x-internal']);
   });
 });
 

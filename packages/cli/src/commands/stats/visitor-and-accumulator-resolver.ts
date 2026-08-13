@@ -20,7 +20,7 @@ export function resolveStatsVisitorAndAccumulator(specVersion: SpecVersion) {
     webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
     operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
     tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-    xExtensions: { metric: '🧩 Vendor Extensions', total: 0, color: 'cyan' },
+    xExtensions: { metric: '🧩 Vendor Extensions', total: 0, color: 'cyan', counts: {} },
   };
   const statsAccumulatorAsync: AsyncAPIStatsAccumulator = {
     refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -30,7 +30,7 @@ export function resolveStatsVisitorAndAccumulator(specVersion: SpecVersion) {
     channels: { metric: '📡 Channels', total: 0, color: 'green' },
     operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
     tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-    xExtensions: { metric: '🧩 Vendor Extensions', total: 0, color: 'cyan' },
+    xExtensions: { metric: '🧩 Vendor Extensions', total: 0, color: 'cyan', counts: {} },
   };
 
   let statsVisitor, statsAccumulator;

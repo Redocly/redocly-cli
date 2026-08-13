@@ -246,16 +246,14 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
       const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
         let propType = getOwn(type.properties, propName);
-        if (propType === undefined) propType = type.additionalProperties;
-        if (typeof propType === 'function') propType = propType(value, propName);
+        const isExtensionKey =
+          type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
+        const isDeclaredExtension = isExtensionKey && propType !== undefined;
 
-        if (
-          propType === undefined &&
-          type.extensionsPrefix &&
-          propName.startsWith(type.extensionsPrefix)
-        ) {
-          propType = SpecExtension;
+        if (propType === undefined) {
+          propType = isExtensionKey ? SpecExtension : type.additionalProperties;
         }
+        if (typeof propType === 'function') propType = propType(value, propName);
 
         if (!isNamedType(propType) && propType?.directResolveAs) {
           propType = propType.directResolveAs;
@@ -266,15 +264,21 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           propType = { name: 'scalar', properties: {} };
         }
 
-        if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
-          return;
+        if (isNamedType(propType) && !(propType.name === 'scalar' && !isRef(value))) {
+          walkNode(value, propType, loc.child([propName]), valueParent, propName);
         }
-
-        walkNode(value, propType, loc.child([propName]), valueParent, propName);
+        if (isDeclaredExtension && !isRef(value)) {
+          // a declared x- property keeps its typed walk above, but is an extension nonetheless
+          walkNode(value, SpecExtension, loc.child([propName]), valueParent, propName);
+        }
       };
 
       currentLocation = resolvedLocation;
-      const seenKey = type === SpecExtension ? location.absolutePointer : resolvedNode;
+      // primitives have no identity to dedupe by — use their location; objects dedupe by identity
+      const seenKey =
+        isPlainObject(resolvedNode) || Array.isArray(resolvedNode)
+          ? resolvedNode
+          : location.absolutePointer;
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(seenKey);
       let visitedBySome = false;
 

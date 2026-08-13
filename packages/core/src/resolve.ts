@@ -321,16 +321,14 @@ export async function resolveDocument(opts: {
       for (const propName of Object.keys(node)) {
         let propValue = node[propName];
         let propType = getOwn(type.properties, propName);
-        if (propType === undefined) propType = type.additionalProperties;
+        if (propType === undefined) {
+          propType =
+            type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)
+              ? SpecExtension
+              : type.additionalProperties;
+        }
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
-        if (
-          type.extensionsPrefix &&
-          propName.startsWith(type.extensionsPrefix) &&
-          propType === unknownType
-        ) {
-          propType = SpecExtension;
-        }
 
         if (!isNamedType(propType) && propType?.directResolveAs) {
           propType = propType.directResolveAs;

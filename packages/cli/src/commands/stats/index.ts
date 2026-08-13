@@ -7,7 +7,6 @@ import {
   normalizeVisitors,
   walkDocument,
   bundle,
-  ensureSpecExtensionDispatch,
   type WalkContext,
   type OutputFormat,
 } from '@redocly/openapi-core';
@@ -31,7 +30,6 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   collectSpecData?.(document);
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  ensureSpecExtensionDispatch(types);
 
   const { statsVisitor, statsAccumulator } = resolveStatsVisitorAndAccumulator(specVersion);
 

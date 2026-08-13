@@ -4,9 +4,11 @@
 👉 Parameters: 0 
 📡 Channels: 1 
 👷 Operations: 1 
-🔖 Tags: 0 
-🧩 Vendor Extensions: 3 
+🔖 Tags: 1 
+🧩 Vendor Extensions: 5 
    - x-channel-ext: 1 
+   - x-displayName: 1 
+   - x-enumDescriptions: 1 
    - x-internal: 2 
    - x-metadata: 1 
 

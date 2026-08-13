@@ -9,14 +9,13 @@ export function printStatsMarkdown(
 ) {
   let output = '| Feature  | Count  |\n| --- | --- |\n';
   const breakdowns: string[] = [];
-  for (const key of Object.keys(statsAccumulator)) {
-    const stat = statsAccumulator[key as keyof typeof statsAccumulator];
-    output += '| ' + stat.metric + ' | ' + stat.total + ' |\n';
-    const details = Object.entries(stat.details || {});
-    if (details.length) {
+  for (const { metric, total, counts } of Object.values(statsAccumulator)) {
+    output += `| ${metric} | ${total} |\n`;
+    const countEntries = Object.entries(counts ?? {});
+    if (countEntries.length) {
       breakdowns.push(
-        `\n#### ${stat.metric}\n| Extension | Count |\n| --- | --- |\n` +
-          details.map(([name, { count }]) => `| ${name} | ${count} |`).join('\n') +
+        `\n#### ${metric}\n| Extension | Count |\n| --- | --- |\n` +
+          countEntries.map(([name, count]) => `| ${name} | ${count} |`).join('\n') +
           '\n'
       );
     }

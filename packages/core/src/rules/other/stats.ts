@@ -1,8 +1,8 @@
 import type {
   OASStatsAccumulator,
   AsyncAPIStatsAccumulator,
-  SpecVendorExtensionsAccumulator,
   StatsAccumulator,
+  StatsRow,
 } from '../../typings/common.js';
 import type {
   Oas3Link,
@@ -13,32 +13,32 @@ import type {
   OasRef,
 } from '../../typings/openapi.js';
 import type { Oas2Parameter } from '../../typings/swagger.js';
-import { collectSpecExtension } from '../../utils/spec-extensions.js';
 import type { UserContext } from '../../walk.js';
 
-function finalizeStats(
-  statsAccumulator: StatsAccumulator,
-  extensions: SpecVendorExtensionsAccumulator
-) {
+function countExtension(row: StatsRow, ctx: UserContext) {
+  const counts = (row.counts ??= {});
+  const extensionName = ctx.key.toString();
+  counts[extensionName] = (counts[extensionName] ?? 0) + 1;
+}
+
+function finalizeStats(statsAccumulator: StatsAccumulator) {
   for (const row of Object.values(statsAccumulator)) {
     if (row.items) {
       row.total = row.items.size;
     }
   }
-  const extensionNames = Object.keys(extensions).sort();
-  statsAccumulator.xExtensions.total = extensionNames.length;
-  statsAccumulator.xExtensions.details = Object.fromEntries(
-    extensionNames.map((name) => [name, extensions[name]])
-  );
+  const { xExtensions } = statsAccumulator;
+  const counts = xExtensions.counts ?? {};
+  const extensionNames = Object.keys(counts).sort();
+  xExtensions.total = extensionNames.length;
+  xExtensions.counts = Object.fromEntries(extensionNames.map((name) => [name, counts[name]]));
 }
 
 export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
-  const extensions: SpecVendorExtensionsAccumulator = {};
-
   return {
     SpecExtension: {
-      enter(node: unknown, ctx: UserContext) {
-        collectSpecExtension(extensions, ctx.key.toString(), node);
+      enter(_: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
       },
     },
     ExternalDocs: {
@@ -62,11 +62,6 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     WebhooksMap: {
-      enter(node: unknown, ctx: UserContext) {
-        if (ctx.key === 'x-webhooks') {
-          collectSpecExtension(extensions, 'x-webhooks', node);
-        }
-      },
       Operation: {
         leave(operation: Oas3Operation) {
           statsAccumulator.webhooks.total++;
@@ -76,13 +71,6 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
             }
           }
         },
-      },
-    },
-    Operation: {
-      enter(operation: Oas3Operation, ctx: UserContext) {
-        if (ctx.key === 'x-query') {
-          collectSpecExtension(extensions, 'x-query', operation);
-        }
       },
     },
     Paths: {
@@ -116,19 +104,17 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     Root: {
       leave() {
-        finalizeStats(statsAccumulator, extensions);
+        finalizeStats(statsAccumulator);
       },
     },
   };
 };
 
 export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
-  const extensions: SpecVendorExtensionsAccumulator = {};
-
   return {
     SpecExtension: {
-      enter(node: unknown, ctx: UserContext) {
-        collectSpecExtension(extensions, ctx.key.toString(), node);
+      enter(_: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
       },
     },
     ExternalDocs: {
@@ -177,19 +163,17 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
     },
     Root: {
       leave() {
-        finalizeStats(statsAccumulator, extensions);
+        finalizeStats(statsAccumulator);
       },
     },
   };
 };
 
 export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
-  const extensions: SpecVendorExtensionsAccumulator = {};
-
   return {
     SpecExtension: {
-      enter(node: unknown, ctx: UserContext) {
-        collectSpecExtension(extensions, ctx.key.toString(), node);
+      enter(_: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
       },
     },
     ExternalDocs: {
@@ -240,7 +224,7 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
     },
     Root: {
       leave() {
-        finalizeStats(statsAccumulator, extensions);
+        finalizeStats(statsAccumulator);
       },
     },
   };
