@@ -4,7 +4,8 @@
 
 The `eject-generator` command copies a built-in client generator into your repository as an editable file.
 You own the ejected generator and can customize it.
-The _generated_ client stays generated and reproducible, so do not edit it manually.
+The generated client stays generated and reproducible.
+Do not edit it manually.
 You or your agent edit the generator, and the `redocly generate-client` command rebuilds the client.
 When the spec changes later, the command regenerates the client and keeps your customization.
 
@@ -27,7 +28,7 @@ redocly eject-generator php --force
 | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | generator  | string  | The built-in generator to eject.                                                                                                   |
 | `--config` | string  | The path to the config file.                                                                                                       |
-| `--dir`    | string  | The directory that receives the ejected files. Default `./generators`.                                                             |
+| `--dir`    | string  | The directory that receives the ejected files. Default: `./generators`.                                                             |
 | `--update` | boolean | Do a three-way merge of the current built-in version into your customized copy. The command marks conflicts with standard markers. |
 | `--force`  | boolean | Overwrite an existing ejected file and discard the local edits.                                                                    |
 
@@ -36,9 +37,9 @@ redocly eject-generator php --force
 The eject operation writes two files:
 
 - `<dir>/<name>.mjs` is the generator itself, as a plain ESM file that you own.
-  It contains everything that it needs to run standalone.
+  The file contains everything that it needs to run standalone.
   A language generator (`python`, `go`, `php`) is one self-contained file.
-  You get its source as we wrote it.
+  You get its source exactly as it was written.
   A TypeScript generator is a thin entry point that uses shared emitters, so you get it bundled together with those emitters.
   The bundle is not minified, and a comment marks each source module.
 
@@ -53,11 +54,11 @@ The eject operation writes two files:
 
 The first eject also writes `.claude/skills/client-generators/SKILL.md`, the shared authoring guide.
 The guide describes the generator contract, the API model, and the helper library.
-You can edit the skills, like the generator.
+You can edit the skills, in the same way as the generator.
 The `--update` option does a three-way merge of your skill edits with the newer version.
-A fresh eject or `--force` writes the skills as we ship them.
+A fresh eject or `--force` writes the skills as Redocly ships them.
 
-The command also writes a short pointer to the skills into `<dir>/AGENTS.md`, beside the code.
+In addition to the code, the command also writes a short pointer to the skills into `<dir>/AGENTS.md`.
 This pointer explains the directory to a reader who has no context.
 The command keeps everything that you add outside the markers in that file.
 
@@ -72,7 +73,7 @@ client:
     - ./generators/python.mjs
 ```
 
-If you do not modify the ejected generator, its output is byte-identical to the output of the built-in generator.
+If you leave the ejected generator unmodified, its output is byte-identical to the output of the built-in generator.
 To roll back, delete the file and the config line.
 
 ## Update an ejected generator
@@ -90,4 +91,4 @@ An ejected generator continues to operate across CLI upgrades if the authoring c
 The contract follows the `@redocly/client-generator` version.
 A breaking change increases the major version (the minor version, while the package is `0.x`).
 A generator ejected from an incompatible version fails before it runs.
-The error shows the version that the generator expects, the version that you have, and the `--update` command that aligns them.
+The error displays the version that the generator expects, the version that you have, and the `--update` command that aligns them.
