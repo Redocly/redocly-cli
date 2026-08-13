@@ -9,7 +9,7 @@ Added composable generated CLIs (custom commands, one binary over several APIs v
 
 Added language-neutral authoring toolkit with per-generator options.
 
-Added  an `eject-generator` command that vendors any built-in generator, with its design as an agent skill, into your repo.
+Added an `eject-generator` command that vendors any built-in generator, with its design as an agent skill, into your repo.
 
 Renamed pagination operation extension from `x-redocly-pagination` to `x-redoclyPagination`.
 The previous name is no longer read.

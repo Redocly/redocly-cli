@@ -10,7 +10,7 @@ The `python` generator emits `src/api/client.py`.
 - retries
 - pagination iterators (`<op>_pages()` / `<op>_items()`)
 - SSE streaming
-- multipart bodies 
+- multipart bodies
 
 No TypeScript is involved — a `python`-only selection never loads the `typescript` package.
 

@@ -284,5 +284,5 @@ They have the same trust level as any installed dependency that you run.
 - **[`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator)** - An example of minimal generator that builds strings
 - **[`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade)** - An example of a realistic generator that derives an `api.<resource>.<operation>` facade from the description's tags.
 - **[`generate-client` command](../commands/generate-client.md)** - flags, output modes, and invocation
-- **[`client` configuration](../configuration/reference/client.md)** - Learn about the the `generate-client` command's  flags, output modes, and invocation
+- **[`client` configuration](../configuration/reference/client.md)** - Learn about the the `generate-client` command's flags, output modes, and invocation
 - **[Use the generated client](./use-generated-client.md)** - Learn how to use the client produced by the `generate-client` command

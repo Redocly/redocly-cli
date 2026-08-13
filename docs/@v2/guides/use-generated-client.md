@@ -959,6 +959,6 @@ That is a generator bug, not a style choice.
 
 ## Resources
 
-- **[`generate-client` command](../commands/generate-client.md)** — Learn about the the `generate-client` command's  flags, output modes, and invocation
+- **[`generate-client` command](../commands/generate-client.md)** — Learn about the the `generate-client` command's flags, output modes, and invocation
 - **[`client` configuration](../configuration/reference/client.md)** — Explore the settings for the `generate-client` command
 - **[Customize client generation](./customize-client-generation.md)** — Learn how to control the output of the `generate-client`
