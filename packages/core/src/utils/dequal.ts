@@ -2,6 +2,7 @@
  * Checks if two objects are deeply equal.
  * Borrowed the source code from https://github.com/lukeed/dequal.
  */
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function dequal(foo: any, bar: any): boolean {
   let ctor, len;
   if (foo === bar) return true;

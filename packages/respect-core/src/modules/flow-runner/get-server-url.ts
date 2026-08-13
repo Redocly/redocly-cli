@@ -24,6 +24,7 @@ export type ServerObject = {
   >;
 };
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function getServerUrl({
   ctx,
   descriptionName,

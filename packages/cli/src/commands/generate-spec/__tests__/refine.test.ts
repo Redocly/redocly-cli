@@ -5,6 +5,7 @@ import { refineSpecWithAi } from '../ai/refine.js';
 import type { GeneratedDocument } from '../generator.js';
 
 vi.mock('../ai/providers.js', async (importOriginal) => ({
+  // oxlint-disable-next-line typescript/consistent-type-imports
   ...(await importOriginal<typeof import('../ai/providers.js')>()),
   runProvider: vi.fn(),
 }));

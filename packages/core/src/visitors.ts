@@ -611,6 +611,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
     return visitor[typeName];
   }
 
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   function normalizeVisitorLevel(
     ruleConf: RuleInstanceConfig,
     visitor: NestedVisitObject<unknown, T>,

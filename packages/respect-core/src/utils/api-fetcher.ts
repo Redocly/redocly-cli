@@ -134,6 +134,7 @@ export class ApiFetcher implements IFetcher {
     step: Step;
     requestData: RequestData;
     workflowId: string;
+    // oxlint-disable-next-line sonarjs/cognitive-complexity
   }): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {
