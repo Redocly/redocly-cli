@@ -278,9 +278,6 @@ These examples always agree with the SDK.
 Import-specifier generators execute at generation time.
 They have the same trust level as any installed dependency that you run.
 
-
-## Resources
-
 ## Resources
 
 - **[`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator)** - Learn how to use the runnable plugin based on `tsType` and how to type-import referenced schemas
