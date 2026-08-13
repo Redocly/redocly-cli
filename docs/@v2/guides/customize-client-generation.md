@@ -122,6 +122,7 @@ The CLI rejects other forms as unreadable and does not guess.
 
 If you omit `requiresGenerator`, the CLI assumes the current version.
 This is acceptable while you iterate.
+
 Set the version before the generator stays in use longer than the CLI it was written for.
 Examples are a shared repository, a published package, and output that CI regenerates.
 Without the version, a changed model shape causes incorrect output, not an error.
