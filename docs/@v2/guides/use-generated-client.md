@@ -858,7 +858,7 @@ There is no advance parameter.
 The runtime merges the target's query parameters into the next call.
 Because of this, every page goes through the same declared endpoint: auth and middleware apply unchanged, and the client never gives credentials to a cross-origin URL.
 Iteration stops when no `rel="next"` is present, and it throws if the target repeats.
-A `link` convention rule applies only to operations whose success response _documents_ a `Link` header.
+A `link` convention rule applies only to operations whose success response documents a `Link` header.
 An explicit rule applies in all cases, but it warns when the header is undocumented.
 
 `limitParam` is optional metadata for any style.
@@ -961,4 +961,6 @@ That is a generator bug, not a style choice.
 
 - [`generate-client` command](../commands/generate-client.md) — flags, output modes, and invocation.
 - [`client` configuration](../configuration/reference/client.md) — the `redocly.yaml` `client` block.
-- [Customize client generation](./customize-client-generation.md) — publisher defaults and custom generators.
+- **[`generate-client` command](../commands/generate-client.md)** — Learn about the the `generate-client` command's  flags, output modes, and invocation
+- **[`client` configuration](../configuration/reference/client.md)** — Explore the settings for the `generate-client` command
+- **[Customize client generation](./customize-client-generation.md)** — Learn how to control the output of the `generate-client`

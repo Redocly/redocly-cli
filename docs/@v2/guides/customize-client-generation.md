@@ -1,6 +1,6 @@
 # Customize client generation
 
-This page tells you how to control the output of [`generate-client`](../commands/generate-client.md).
+Learn how to control the output of [`generate-client`](../commands/generate-client.md).
 It covers pre-configured publisher defaults and custom generators.
 This page is for the person who **runs the generator**, for example an SDK publisher or a platform team.
 To use the generated client, see [Use the generated client](./use-generated-client.md).
@@ -126,7 +126,7 @@ Set the version before the generator stays in use longer than the CLI it was wri
 Examples are a shared repository, a published package, and output that CI regenerates.
 Without the version, a changed model shape causes incorrect output, not an error.
 
-**A generator can declare its own options** with a JSON Schema.
+A generator can declare its own options with a JSON Schema.
 Publishers then configure it in the same way as the built-in generators:
 
 ```js
@@ -163,11 +163,11 @@ Each property can have a `default` and a `description`.
 
 Validation runs one time per generator before the CLI writes any file.
 An unknown key, a value of an incorrect type, a value outside an `enum`, or a missing `required` key stops generation.
-The error shows the generator's name and the incorrect key.
+The error displays the generator's name and the incorrect key.
 The CLI rejects unknown keys unless the schema sets `additionalProperties: true`.
 `run` receives `options` with the defaults applied, so a generator reads its options without more checks.
 
-If you set `options` for a selected generator that declares no schema, the CLI shows a warning.
+If you set `options` for a selected generator that declares no schema, the CLI displays a warning.
 Without the warning, the CLI would ignore the entry with no message.
 
 ### Language-neutral helpers
