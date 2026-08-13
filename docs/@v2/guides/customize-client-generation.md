@@ -277,13 +277,14 @@ These examples always agree with the SDK.
 Import-specifier generators execute at generation time.
 They have the same trust level as any installed dependency that you run.
 
-See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator) for the runnable plugin based on `tsType`.
-It also shows how to type-import referenced schemas.
-See the [`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) for a minimal generator that builds strings.
-See the [`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) for a realistic generator that derives an `api.<resource>.<operation>` facade from the description's tags.
 
 ## Resources
 
-- [`generate-client` command](../commands/generate-client.md): flags, output modes, and invocation.
-- [`client` configuration](../configuration/reference/client.md): the `redocly.yaml` `client` block.
-- [Use the generated client](./use-generated-client.md): the guide for the consumer.
+## Resources
+
+- **[`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator)** - Learn how to use the runnable plugin based on `tsType` and how to type-import referenced schemas
+- **[`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator)** - An example of minimal generator that builds strings
+- **[`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade)** - An example of a realistic generator that derives an `api.<resource>.<operation>` facade from the description's tags.
+- **[`generate-client` command](../commands/generate-client.md)** - flags, output modes, and invocation
+- **[`client` configuration](../configuration/reference/client.md)** - Learn about the the `generate-client` command's  flags, output modes, and invocation
+- **[Use the generated client](./use-generated-client.md)** - Learn how to use the client produced by the `generate-client` command

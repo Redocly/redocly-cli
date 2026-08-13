@@ -128,6 +128,5 @@ With this API, you can also register [custom generators](../../guides/customize-
 
 ## Resources
 
-- [`generate-client` command](../../commands/generate-client.md): flags, output modes, and invocation.
 - **[`generate-client` command](../../commands/generate-client.md)** - Learn about the the `generate-client` command's  flags, output modes, and invocation
 - **[Use the generated client](../../guides/use-generated-client.md)** -  Learn how to use the client produced by the `generate-client` command
