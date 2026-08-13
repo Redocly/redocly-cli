@@ -28,7 +28,7 @@ redocly eject-generator php --force
 | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | generator  | string  | The built-in generator to eject.                                                                                                   |
 | `--config` | string  | The path to the config file.                                                                                                       |
-| `--dir`    | string  | The directory that receives the ejected files. Default: `./generators`.                                                             |
+| `--dir`    | string  | The directory that receives the ejected files. Default: `./generators`.                                                            |
 | `--update` | boolean | Do a three-way merge of the current built-in version into your customized copy. The command marks conflicts with standard markers. |
 | `--force`  | boolean | Overwrite an existing ejected file and discard the local edits.                                                                    |
 
