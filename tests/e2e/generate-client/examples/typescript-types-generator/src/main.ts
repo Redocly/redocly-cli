@@ -1,4 +1,4 @@
-// Consumes the sdk client alongside the custom generator's `ResponseShapes` map —
+// Consumes the typescript client alongside the custom generator's `ResponseShapes` map —
 // the annotation below only compiles because the map's entry IS the type
 // `listMenuItems()` resolves to, proving the AST-built output stays in sync with the client.
 import { configure, listMenuItems } from './api/client.js';

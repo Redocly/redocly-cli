@@ -19,7 +19,7 @@ export const generateClientTelemetry: GenerateClientTelemetry = {};
 
 /** Allowlist for the builtin-usage event — anything not here is counted, never named. */
 export const BUILTIN_GENERATOR_NAMES = new Set([
-  'sdk',
+  'typescript',
   'zod',
   'tanstack-query',
   'tanstack-query-vue',

@@ -127,7 +127,7 @@ function factoriesSource(
     '/**\n' +
     ' * Build the factories over a specific client instance — its config, middleware, and\n' +
     ' * retry apply to every call (`createQueryFactories(createClient(OPERATIONS, config))`).\n' +
-    " * The module-level exports below are these factories bound to the sdk's default `client`.\n" +
+    " * The module-level exports below are these factories bound to the generated module's default `client`.\n" +
     ' */\n' +
     'export const createQueryFactories = (instance: typeof client = client) => ({\n' +
     members.join(',\n') +

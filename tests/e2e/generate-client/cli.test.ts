@@ -46,7 +46,7 @@ describe('generate-client cli generator (end-to-end)', () => {
   beforeAll(async () => {
     generate(fixture, join(clientDir, 'client.ts'), [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'zod',
       '--generator',
@@ -56,7 +56,7 @@ describe('generate-client cli generator (end-to-end)', () => {
     // A second copy with `.ts` specifiers: what a zero-build `node` runner needs.
     generate(fixture, join(stripDir, 'client.ts'), [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'zod',
       '--generator',

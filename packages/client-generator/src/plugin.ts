@@ -7,7 +7,7 @@
 // A custom generator is `(GeneratorInput) => GeneratedFile[]` plus a `name`; select it in
 // `generators` by name (inline via `customGenerators`) or by import specifier (path/package). It
 // receives the same spec-agnostic IR (`model`) the built-in generators consume, and may use the same
-// TypeScript-emitting toolkit re-exported below, so a plugin is a first-class peer of `sdk`/`zod`/…
+// TypeScript-emitting toolkit re-exported below, so a plugin is a first-class peer of `typescript`/`zod`/…
 // The generated client stays dependency-free: a plugin's output is its own file(s), and its runtime
 // libraries are peers of the consumer's app, never of the client.
 //
@@ -17,7 +17,7 @@
 //   // import { tsType } from '@redocly/client-generator/generate';
 //   export default defineGenerator({
 //     name: 'route-map',
-//     requires: ['sdk'],
+//     requires: ['typescript'],
 //     run({ model, outputPath }) {
 //       const routes = model.services.flatMap((s) => s.operations)
 //         .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`).join('\n');

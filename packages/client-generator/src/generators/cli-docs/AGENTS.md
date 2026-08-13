@@ -17,7 +17,7 @@ per command with its positionals and flags (type, required, choices, description
   second model drifts from the tool the first time either side changes, so it never does
   that. A new CLI capability shows up here only when it is in the command table.
 - **Requires the `cli` generator** it documents: selecting `cli-docs` pulls in `cli` (and
-  through it `sdk` and `zod`), so `--generator cli-docs` is a complete, consistent set.
+  through it `typescript` and `zod`), so `--generator cli-docs` is a complete, consistent set.
 - **The renderer IS the template.** Publishers who need another structure eject this
   generator rather than learning a template syntax — one customization mechanism, no
   template engine, no new dependency. Light customization stays in declared options.

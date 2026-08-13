@@ -8,7 +8,7 @@ The _generated_ client stays generated and reproducible, so do not edit it manua
 You or your agent edit the generator, and the `redocly generate-client` command rebuilds the client.
 When the spec changes later, the command regenerates the client and keeps your customization.
 
-You can eject every built-in generator: the language SDKs (`python`, `go`, `php`), the TypeScript `sdk`, and the other generators (`zod`, `mock`, `cli`, `cli-docs`, `swr`, `tanstack-query`, `transformers`).
+You can eject every built-in generator: the SDKs (`typescript`, `python`, `go`, `php`) and the add-on generators (`zod`, `mock`, `cli`, `cli-docs`, `swr`, `tanstack-query`, `transformers`).
 The `tanstack-query-vue`, `-svelte`, and `-solid` variants are the same generator with one different argument.
 Eject `tanstack-query` and set the framework in your copy.
 
@@ -63,7 +63,8 @@ The command keeps everything that you add outside the markers in that file.
 
 The eject command also configures your project.
 It adds `@redocly/client-generator` to your `devDependencies` if the package is not there.
-It also points your config at the ejected file, where a path entry replaces the built-in name.
+It also points your config at the ejected file: in `client.generators`, the path to your copy replaces the built-in name.
+If the config has no `client.generators` list yet, the command adds one.
 
 ```yaml
 client:

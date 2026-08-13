@@ -15,7 +15,7 @@ export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample'> & {
 
 function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): BuiltinMeta {
   return {
-    requires: ['sdk'],
+    requires: ['typescript'],
     errorModes: ['throw'],
     load: () =>
       import('./tanstack-query/index.js').then((m) => ({
@@ -37,43 +37,47 @@ const LANGUAGE_SDK_NOT_APPLICABLE: BuiltinMeta['notApplicable'] = {
 };
 
 export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
-  // sdk is the base client; zod emits a standalone schema module importing nothing from it.
-  sdk: {
+  // typescript is the base client; zod emits a standalone schema module importing nothing from it.
+  typescript: {
     load: () =>
-      import('./sdk/index.js').then((m) => ({ run: m.sdkGenerator, sample: m.sdkSample })),
+      import('./typescript/index.js').then((m) => ({
+        run: m.typescriptGenerator,
+        sample: m.typescriptSample,
+      })),
   },
   zod: { load: () => import('./zod/index.js').then((m) => ({ run: m.zodGenerator })) },
-  // transformers import the schema *types* from the sdk entry module (so sdk must run) and
-  // assign `Date` values to those fields, which only type-checks when the sdk types dates as `Date`.
+  // transformers import the schema *types* from the client entry module (so typescript must
+  // run) and assign `Date` values to those fields, which only type-checks when the client
+  // types dates as `Date`.
   transformers: {
-    requires: ['sdk'],
+    requires: ['typescript'],
     dateTypes: ['Date'],
     load: () => import('./transformers/index.js').then((m) => ({ run: m.transformersGenerator })),
   },
-  // tanstack-query wraps the sdk's exported, throw-mode operation functions — present in
+  // tanstack-query wraps the client's exported, throw-mode operation functions — present in
   // both runtime distributions, so no runtime restriction. The framework variants differ
   // only in the `@tanstack/<framework>-query` import; the bare name means React.
   'tanstack-query': tanstackQuery('react'),
   'tanstack-query-vue': tanstackQuery('vue'),
   'tanstack-query-svelte': tanstackQuery('svelte'),
   'tanstack-query-solid': tanstackQuery('solid'),
-  // swr wraps the sdk's exported, throw-mode operation functions as SWR hooks.
+  // swr wraps the client's exported, throw-mode operation functions as SWR hooks.
   swr: {
-    requires: ['sdk'],
+    requires: ['typescript'],
     errorModes: ['throw'],
     load: () => import('./swr/index.js').then((m) => ({ run: m.swrGenerator })),
   },
-  // mock emits a standalone MSW handlers/factories module referencing the sdk's types.
+  // mock emits a standalone MSW handlers/factories module referencing the client's types.
   mock: {
-    requires: ['sdk'],
+    requires: ['typescript'],
     load: () => import('./mock/index.js').then((m) => ({ run: m.mockGenerator })),
   },
-  // cli dispatches through the sdk's instance client and relies on thrown ApiError
-  // for its exit-code mapping, so it is sdk-bound and throw-only.
+  // cli dispatches through the generated instance client and relies on thrown ApiError
+  // for its exit-code mapping, so it is bound to `typescript` and throw-only.
   // Validation is part of the CLI's contract (exit code 3), so it requires `zod` —
   // the pipeline pulls prerequisites in, so `--generator cli` alone is enough.
   cli: {
-    requires: ['sdk', 'zod'],
+    requires: ['typescript', 'zod'],
     errorModes: ['throw'],
     load: () =>
       import('./cli/index.js').then((m) => ({ run: m.cliGenerator, sample: m.cliSample })),
@@ -144,8 +148,8 @@ export function validateSelection(
 ): void {
   const selected = new Set(names);
   // Options only one generator reads. `notApplicable` can't express this: it fires per
-  // generator, so marking `binName` on `sdk` would warn on `--generator sdk --generator
-  // cli`, where `cli` does apply it. Setting one with none of its generators selected
+  // generator, so marking `binName` on `typescript` would warn on `--generator typescript
+  // --generator cli`, where `cli` does apply it. Setting one with none of its generators selected
   // does nothing at all, which is worth saying.
   for (const { option, generators, reason } of SINGLE_GENERATOR_OPTIONS) {
     if (emit[option] !== undefined && !generators.some((generator) => selected.has(generator))) {

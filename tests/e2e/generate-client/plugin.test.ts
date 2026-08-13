@@ -29,7 +29,7 @@ describe('generate-client custom generator (plugin) API', () => {
       '--output',
       output,
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       plugin,
     ]);
@@ -59,7 +59,7 @@ describe('generate-client custom generator (plugin) API', () => {
         '--output',
         join(dir, 'client.ts'),
         '--generator',
-        'sdk',
+        'typescript',
         '--generator',
         './route-map-plugin.mjs',
         '--config',
@@ -80,7 +80,7 @@ describe('generate-client custom generator (plugin) API', () => {
     const writeConfig = (options: string) =>
       writeFileSync(
         config,
-        `extends: []\nclient:\n  generators: [sdk, ./route-map-plugin.mjs]\n  options:\n    route-map:\n${options}`
+        `extends: []\nclient:\n  generators: [typescript, ./route-map-plugin.mjs]\n  options:\n    route-map:\n${options}`
       );
 
     writeConfig('      exportName: paths\n');
@@ -112,7 +112,7 @@ describe('generate-client custom generator (plugin) API', () => {
       '--output',
       join(dir, 'client.ts'),
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       join(dir, 'missing-plugin.mjs'),
     ]);

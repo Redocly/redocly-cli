@@ -78,7 +78,7 @@ describe('eject-generator (end-to-end)', () => {
       writeFileSync(join(wired, 'package.json'), JSON.stringify({ name: 'demo' }), 'utf-8');
       writeFileSync(
         join(wired, 'redocly.yaml'),
-        'extends: []\nclient:\n  generators:\n    - sdk\n',
+        'extends: []\nclient:\n  generators:\n    - typescript\n',
         'utf-8'
       );
       const eject = run(wired, ['eject-generator', 'go']);
@@ -91,7 +91,7 @@ describe('eject-generator (end-to-end)', () => {
       ).version;
       expect(pkg.devDependencies['@redocly/client-generator']).toBe(`^${toolkitVersion}`);
       expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8')).toBe(
-        'extends: []\nclient:\n  generators:\n    - sdk\n    - ./generators/go.mjs\n'
+        'extends: []\nclient:\n  generators:\n    - typescript\n    - ./generators/go.mjs\n'
       );
 
       // Re-ejecting must not add the entry twice.
@@ -160,7 +160,7 @@ describe('eject-generator (end-to-end)', () => {
       '--output',
       'zod-builtin/client.ts',
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'zod',
     ]);
@@ -171,7 +171,7 @@ describe('eject-generator (end-to-end)', () => {
       '--output',
       'zod-ejected/client.ts',
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       './generators/zod.mjs',
     ]);

@@ -18,7 +18,7 @@ query keys. One generator, four framework variants (`react` default, `-vue`,
 - **Infinite queries** derive `getNextPageParam` from the resolved pagination rule; a
   `link`-style rule reads the `Link` header the descriptor declares.
 - **`envelope` is excluded and stripped** — cached data is the plain body.
-- Requires `sdk`; throw-mode only (it wraps thrown errors into query errors).
+- Requires `typescript`; throw-mode only (it wraps thrown errors into query errors).
 
 ## Emitters that implement it
 

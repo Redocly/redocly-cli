@@ -52,7 +52,7 @@ function generateWith(generator: string | string[], description: string): string
 
 /** TS bar: the generated client passes a strict `tsc --noEmit`. */
 function typescriptBar(description: string): void {
-  const dir = generateWith('sdk', description);
+  const dir = generateWith('typescript', description);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   strictTypecheck(dir);
 }
@@ -63,7 +63,7 @@ function typescriptBar(description: string): void {
  * path to `zod` — taken from the repo, like `@types/node` below.
  */
 function cliBar(description: string): void {
-  const dir = generateWith(['sdk', 'cli'], description);
+  const dir = generateWith(['typescript', 'cli'], description);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   // The temp dir sits outside the repo, so node resolution finds nothing: borrow the
   // repo's node_modules for `zod` (the CLI's validation) and `@types/node`.

@@ -31,7 +31,7 @@ export const EJECTABLE = new Set([
   'python',
   'go',
   'php',
-  'sdk',
+  'typescript',
   'zod',
   'mock',
   'swr',
@@ -299,25 +299,44 @@ function wireDependency(
  * Add the ejected file to `client.generators` in the configuration file, editing the text
  * so comments and formatting survive. A bare `<name>` entry is replaced rather than kept —
  * leaving both would make the next run fail on a name collision, since the ejected file
- * declares the name it takes over. Only the two shapes we can extend without guessing
- * are handled — a block sequence and a flow sequence under a top-level `client:` — and
- * anything else returns false, so the caller prints the snippet instead of reshaping
- * someone's config.
+ * declares the name it takes over. A config without a `client:` block or a `generators:`
+ * list gets the missing keys appended — the common shape, since `typescript` is the
+ * default and nobody lists it. Only a list we can extend without guessing is edited in
+ * place — a block sequence or a flow sequence — and anything else returns false, so the
+ * caller prints the snippet instead of reshaping someone's config.
  */
 export function wireConfig(configPath: string | undefined, name: string, entry: string): boolean {
   if (configPath === undefined || !existsSync(configPath)) return false;
   const source = readFileSync(configPath, 'utf-8');
+  if (source.includes(entry)) return true;
   const lines = source.split('\n');
   const clientLine = lines.findIndex((line) => /^client:\s*$/.test(line));
-  if (clientLine === -1) return false;
-  const generatorsLine = lines.findIndex(
+  if (clientLine === -1) {
+    if (/^client:/m.test(source)) return false; // `client: {...}` or similar — not a shape we edit
+    const separator = source === '' || source.endsWith('\n') ? '' : '\n';
+    writeFileSync(
+      configPath,
+      `${source}${separator}client:\n  generators:\n    - ${entry}\n`,
+      'utf-8'
+    );
+    return true;
+  }
+  let generatorsLine = lines.findIndex(
     (line, index) => index > clientLine && /^\s+generators:/.test(line)
   );
-  if (generatorsLine === -1) return false;
-  // Between `client:` and `generators:` there must be nothing dedented — otherwise the
-  // `generators:` we found belongs to another block.
-  if (lines.slice(clientLine + 1, generatorsLine).some((line) => /^\S/.test(line))) return false;
-  if (source.includes(entry)) return true;
+  // A `generators:` beyond a dedented line belongs to another block — the `client:`
+  // block itself has none.
+  if (
+    generatorsLine !== -1 &&
+    lines.slice(clientLine + 1, generatorsLine).some((line) => /^\S/.test(line))
+  ) {
+    generatorsLine = -1;
+  }
+  if (generatorsLine === -1) {
+    lines.splice(clientLine + 1, 0, '  generators:', `    - ${entry}`);
+    writeFileSync(configPath, lines.join('\n'), 'utf-8');
+    return true;
+  }
   const isNameEntry = (item: string) =>
     item === name || item === `'${name}'` || item === `"${name}"`;
 
@@ -511,8 +530,8 @@ export const handleEjectGenerator = async ({
         ? `It also imports ${CORE_PACKAGE} (a dependency of the toolkit) — add it explicitly if your package manager does not hoist.\n`
         : '') +
       (wired
-        ? `Added it to client.generators in ${relative(process.cwd(), config.configPath!)} — the path entry takes over the built-in name.\n`
-        : `Point your config at the file — the path entry takes over the built-in name:\n\n` +
+        ? `Added it to client.generators in ${relative(process.cwd(), config.configPath!)} — the path to your copy replaces the built-in name.\n`
+        : `Point your config at the file — the path to your copy replaces the built-in name:\n\n` +
           `  client:\n    generators:\n      - ${configEntry}\n\n`) +
       `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n`
   );

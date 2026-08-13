@@ -153,7 +153,12 @@ const LANGUAGE = [
  * ejected copy is the place to change it rather than four near-identical files.
  */
 const TYPESCRIPT = [
-  { name: 'sdk', imports: ['sdkGenerator', 'sdkSample'], run: 'sdkGenerator', sample: 'sdkSample' },
+  {
+    name: 'typescript',
+    imports: ['typescriptGenerator', 'typescriptSample'],
+    run: 'typescriptGenerator',
+    sample: 'typescriptSample',
+  },
   { name: 'zod', imports: ['zodGenerator'], run: 'zodGenerator' },
   { name: 'mock', imports: ['mockGenerator'], run: 'mockGenerator' },
   { name: 'swr', imports: ['swrGenerator'], run: 'swrGenerator' },

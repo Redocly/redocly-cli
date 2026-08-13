@@ -64,7 +64,7 @@ describe('generate-client generator compatibility contract', () => {
       '--output',
       join(dir, 'c.ts'),
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
       '--error-mode',
@@ -82,7 +82,7 @@ describe('generate-client generator compatibility contract', () => {
       '--output',
       join(dir, 'c.ts'),
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'transformers',
     ]);
@@ -110,7 +110,7 @@ describe('generate-client generator compatibility contract', () => {
       '--output',
       join(dir, 'c.ts'),
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);
@@ -153,7 +153,7 @@ describe('generate-client generator compatibility contract', () => {
       '--output',
       join(dir, 'c.ts'),
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);

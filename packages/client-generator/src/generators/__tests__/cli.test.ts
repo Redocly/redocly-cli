@@ -51,7 +51,7 @@ describe('cliGenerator', () => {
       outputPath: '/out/client.ts',
       outputMode: 'single',
       emit: {},
-      selected: ['sdk', 'cli'],
+      selected: ['typescript', 'cli'],
     });
     expect(files).toHaveLength(1);
     expect(files[0].path).toBe('/out/client.cli.ts');
@@ -62,7 +62,7 @@ describe('cliGenerator', () => {
       outputPath: '/out/client.ts',
       outputMode: 'single',
       emit: {},
-      selected: ['sdk', 'zod', 'cli'],
+      selected: ['typescript', 'zod', 'cli'],
     });
     // Request validation always; response validation off for a dry run, whose response is
     // the dry-run stub rather than the server's.
@@ -72,21 +72,38 @@ describe('cliGenerator', () => {
   });
 
   it('declares its prerequisites and rejects result mode', () => {
-    // `sdk` + `zod` are pulled in by the resolver (see resolve.test.ts); validation
+    // `typescript` + `zod` are pulled in by the resolver (see resolve.test.ts); validation
     // still refuses a selection whose prerequisites are genuinely absent.
-    expect(builtinGenerators().get('cli')?.requires).toEqual(['sdk', 'zod']);
-    expect(() => validateGenerators(['cli'], {})).toThrow(/requires the "sdk" generator/);
-    expect(() => validateGenerators(['sdk', 'zod', 'cli'], { errorMode: 'result' })).toThrow(
+    expect(builtinGenerators().get('cli')?.requires).toEqual(['typescript', 'zod']);
+    expect(() => validateGenerators(['cli'], {})).toThrow(/requires the "typescript" generator/);
+    expect(() => validateGenerators(['typescript', 'zod', 'cli'], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result"/
     );
-    expect(() => validateGenerators(['sdk', 'zod', 'cli'], {})).not.toThrow();
+    expect(() => validateGenerators(['typescript', 'zod', 'cli'], {})).not.toThrow();
   });
 
-  it('renders a shell x-codeSamples snippet per operation', () => {
+  it('renders a shell x-codeSamples snippet per operation, addressed by the group slug', () => {
     const op = MODEL.services[0].operations[0];
     const sample = cliSample(op, { model: MODEL, emit: {} });
     expect(sample).toMatchObject({ lang: 'shell', label: 'CLI' });
-    expect(sample?.source).toContain('Orders getOrder <orderId>');
+    // The CLI dispatches on the slugged group, so the sample must use it — the raw
+    // tag ("Orders", or worse a multi-word one) would not resolve.
+    expect(sample?.source).toContain('orders getOrder <orderId>');
+    expect(sample?.source).not.toContain('Orders getOrder');
+  });
+
+  it('slugs a multi-word tag into the group the CLI accepts', () => {
+    const model = {
+      ...MODEL,
+      services: [
+        {
+          name: 'Orders',
+          operations: [{ ...MODEL.services[0].operations[0], tags: ['Coffee Orders'] }],
+        },
+      ],
+    } as ApiModel;
+    const sample = cliSample(model.services[0].operations[0], { model, emit: {} });
+    expect(sample?.source).toContain('coffee-orders getOrder <orderId>');
   });
 });
 

@@ -90,7 +90,7 @@ describe('collectGeneratedFiles', () => {
       outputPath: '/out/api.ts',
       outputMode: 'single',
       emit: {},
-      generators: ['sdk'],
+      generators: ['typescript'],
     });
     expect(files.length).toBe(1);
     expect(files[0].path).toBe('/out/api.ts');
@@ -102,7 +102,7 @@ describe('collectGeneratedFiles', () => {
         outputPath: '/out/api.ts',
         outputMode: 'single',
         emit: {},
-        generators: ['sdk', 'sdk'],
+        generators: ['typescript', 'typescript'],
       })
     ).toThrow(/already emitted/);
   });
@@ -173,7 +173,7 @@ describe('collectGeneratedFiles', () => {
       outputPath: '/out/api.ts',
       outputMode: 'split',
       emit: { runtime: 'package' },
-      generators: ['sdk'],
+      generators: ['typescript'],
     });
     // No schemas in the model → only the entry file.
     expect(files.map((f) => f.path)).toEqual(['/out/api.ts']);

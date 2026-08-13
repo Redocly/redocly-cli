@@ -2,7 +2,7 @@
 // compiled CLI can import it under bare `node`. Emits a `<output>.routes.ts` map of every operation.
 export default {
   name: 'route-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   // Declared options: the config block is validated against this before `run`.
   options: {
     type: 'object',

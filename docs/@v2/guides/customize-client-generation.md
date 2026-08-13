@@ -79,7 +79,7 @@ The quickest method to get a customized generator is
 [`redocly eject-generator <name>`](../commands/eject-generator.md).
 The command copies any built-in generator into `./generators/` as an editable file that you own.
 An ejected generator with no changes produces byte-identical output.
-The path entry replaces the built-in name, so regeneration continues to work after each customization.
+In `client.generators`, the path to your copy replaces the built-in name, so `redocly generate-client` keeps working and now runs your version.
 [`--update`](../commands/eject-generator.md#update-an-ejected-generator) merges later built-in versions into your copy.
 
 The eject command also writes the generator's design as an agent skill (`.claude/skills/<name>-generator/SKILL.md`).
@@ -203,7 +203,7 @@ Your coding agent then has the contract, the model reference, and this helper ta
 TypeScript is one more output language.
 The `@redocly/client-generator/generate` entry exports the TypeScript-specific renderers.
 These renderers are not on the package root, so the import graph of a `runtime: 'package'` client never includes the generation toolkit.
-`tsType` is the schema-to-type renderer that the built-in sdk itself uses.
+`tsType` is the schema-to-type renderer that the built-in `typescript` generator itself uses.
 Because of this, the mapping (refs, arrays, unions, formats, parenthesization) is exactly the same as in the generated client:
 
 ```js
@@ -211,7 +211,7 @@ import { tsType } from '@redocly/client-generator/generate';
 
 export default {
   name: 'response-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
     const members = model.services
       .flatMap((service) => service.operations)
@@ -242,7 +242,7 @@ apis:
     clientOutput: ./src/api/client.ts
     client:
       generators:
-        - sdk
+        - typescript
         - ./tools/response-map-generator.ts # local path (resolved against redocly.yaml)
         - '@acme/openapi-valibot' # published package
 ```
@@ -257,7 +257,7 @@ await generateClient({
   api: './openapi.yaml',
   output: './src/api/client.ts',
   customGenerators: [responseMap],
-  generators: ['sdk', 'response-map'],
+  generators: ['typescript', 'response-map'],
 });
 ```
 
@@ -265,11 +265,11 @@ await generateClient({
 
 A generator that can call an operation can also document the operation.
 Implement the optional `sample(operation, ctx)` hook to return one idiomatic snippet (`{ lang, label, source }`) for each operation.
-With `codeSamples: true` in the `client` block, generation collects the samples of every selected generator into `<output stem>.code-samples.yaml`.
+With `codeSamples: true` in the `client` block, generation collects the samples of every selected generator into `<output>.code-samples.yaml`.
 This file is an [OpenAPI Overlay](https://spec.openapis.org/overlay/latest.html) that adds `x-codeSamples` to each operation.
 Docs tooling can apply the file.
 
-The built-in `sdk` generator includes the TypeScript reference implementation.
+The built-in `typescript` generator is the reference implementation.
 If you only set the flag, your Redoc docs get a TypeScript example for each operation.
 These examples always agree with the SDK.
 

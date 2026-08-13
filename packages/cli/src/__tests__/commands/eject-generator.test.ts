@@ -37,16 +37,16 @@ describe('wireConfig', () => {
         client:
           generators:
             - php
-            - sdk
+            - typescript
       `)
     ).toBe(outdent`
       client:
         generators:
           - ./generators/php.mjs
-          - sdk
+          - typescript
     `);
-    expect(wire('client:\n  generators: [php, sdk]\n')).toBe(
-      'client:\n  generators: [./generators/php.mjs, sdk]\n'
+    expect(wire('client:\n  generators: [php, typescript]\n')).toBe(
+      'client:\n  generators: [./generators/php.mjs, typescript]\n'
     );
   });
 
@@ -55,14 +55,57 @@ describe('wireConfig', () => {
       wire(outdent`
         client:
           generators:
-            - sdk
+            - typescript
       `)
     ).toBe(outdent`
       client:
         generators:
-          - sdk
+          - typescript
           - ./generators/php.mjs
     `);
+  });
+
+  it('inserts the generators list when the client block has none', () => {
+    expect(
+      wire(outdent`
+        client:
+          binName: cafe
+        apis:
+          cafe:
+            root: ./openapi.yaml
+      `)
+    ).toBe(outdent`
+      client:
+        generators:
+          - ./generators/php.mjs
+        binName: cafe
+      apis:
+        cafe:
+          root: ./openapi.yaml
+    `);
+  });
+
+  it('appends a client block when the config has none', () => {
+    expect(
+      wire(
+        outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./src/client.ts
+      ` + '\n'
+      )
+    ).toBe(
+      outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./src/client.ts
+        client:
+          generators:
+            - ./generators/php.mjs
+      ` + '\n'
+    );
   });
 });
 

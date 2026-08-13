@@ -2,12 +2,12 @@ import { logger } from '@redocly/openapi-core';
 
 import { NotSupportedError } from '../../errors.js';
 import { builtinGenerators, validateGenerators } from '../index.js';
-import { sdkGenerator } from '../sdk/index.js';
+import { typescriptGenerator } from '../typescript/index.js';
 import { zodGenerator } from '../zod/index.js';
 
 describe('builtinGenerators', () => {
   it('registers the sdk generator descriptor', () => {
-    expect(builtinGenerators().get('sdk')?.run).toBe(sdkGenerator);
+    expect(builtinGenerators().get('typescript')?.run).toBe(typescriptGenerator);
   });
 
   it('registers the zod generator descriptor', () => {
@@ -21,7 +21,7 @@ describe('builtinGenerators', () => {
 
 describe('validateGenerators', () => {
   it('accepts sdk alone', () => {
-    expect(() => validateGenerators(['sdk'], {})).not.toThrow();
+    expect(() => validateGenerators(['typescript'], {})).not.toThrow();
   });
 
   it('accepts zod alone — it requires nothing', () => {
@@ -29,30 +29,34 @@ describe('validateGenerators', () => {
   });
 
   it('accepts sdk + tanstack-query with the default error-mode', () => {
-    expect(() => validateGenerators(['sdk', 'tanstack-query'], {})).not.toThrow();
+    expect(() => validateGenerators(['typescript', 'tanstack-query'], {})).not.toThrow();
   });
 
   it.each(['tanstack-query', 'transformers', 'swr', 'mock'] as const)(
-    'rejects %s without sdk, naming the fix',
+    'rejects %s without typescript, naming the fix',
     (generator) => {
       expect(() => validateGenerators([generator], {})).toThrow(
-        new RegExp(`requires the "sdk" generator.*--generator sdk --generator ${generator}`)
+        new RegExp(
+          `requires the "typescript" generator.*--generator typescript --generator ${generator}`
+        )
       );
     }
   );
 
   it('rejects transformers without --date-type Date (would assign Date to string fields)', () => {
-    expect(() => validateGenerators(['sdk', 'transformers'], {})).toThrow(
+    expect(() => validateGenerators(['typescript', 'transformers'], {})).toThrow(
       /requires --date-type Date .*got "string"/
     );
   });
 
   it('accepts sdk + transformers with --date-type Date', () => {
-    expect(() => validateGenerators(['sdk', 'transformers'], { dateType: 'Date' })).not.toThrow();
+    expect(() =>
+      validateGenerators(['typescript', 'transformers'], { dateType: 'Date' })
+    ).not.toThrow();
   });
 
   it.each(['tanstack-query', 'swr'] as const)('rejects %s with result error mode', (generator) => {
-    expect(() => validateGenerators(['sdk', generator], { errorMode: 'result' })).toThrow(
+    expect(() => validateGenerators(['typescript', generator], { errorMode: 'result' })).toThrow(
       /does not support --error-mode "result".*throw/
     );
   });
@@ -86,7 +90,12 @@ describe('validateGenerators', () => {
 
       // The TypeScript sdk applies all of them — no warning.
       warn.mockClear();
-      validateGenerators(['sdk'], { runtime: 'package', argsStyle: 'grouped' }, undefined, 'split');
+      validateGenerators(
+        ['typescript'],
+        { runtime: 'package', argsStyle: 'grouped' },
+        undefined,
+        'split'
+      );
       expect(warn).not.toHaveBeenCalled();
     } finally {
       warn.mockRestore();
@@ -105,7 +114,7 @@ describe('validateGenerators', () => {
       // The generator that reads it is selected, so nothing to say — even alongside
       // generators that don't read it.
       warn.mockClear();
-      validateGenerators(['sdk', 'zod', 'cli'], { binName: 'cafe-api' });
+      validateGenerators(['typescript', 'zod', 'cli'], { binName: 'cafe-api' });
       validateGenerators(['go'], { goPackage: 'mypkg' });
       expect(warn).not.toHaveBeenCalled();
     } finally {
@@ -119,14 +128,14 @@ describe('validateGenerators', () => {
 });
 
 describe('swr generator', () => {
-  it('is registered and requires sdk', () => {
+  it('is registered and requires typescript', () => {
     const descriptor = builtinGenerators().get('swr');
     expect(descriptor?.run).toBeDefined();
-    expect(descriptor?.requires).toContain('sdk');
+    expect(descriptor?.requires).toContain('typescript');
   });
 
   it('accepts sdk + swr with the default error-mode', () => {
-    expect(() => validateGenerators(['sdk', 'swr'], {})).not.toThrow();
+    expect(() => validateGenerators(['typescript', 'swr'], {})).not.toThrow();
   });
 });
 
@@ -154,7 +163,7 @@ describe('validateGenerators — runtime compatibility', () => {
   it('accepts the wrapper generators with runtime: package (no longer restricted)', () => {
     expect(() =>
       validateGenerators(
-        ['sdk', 'tanstack-query', 'swr'],
+        ['typescript', 'tanstack-query', 'swr'],
         { runtime: 'package' },
         builtinGenerators()
       )
@@ -163,11 +172,11 @@ describe('validateGenerators — runtime compatibility', () => {
 });
 
 describe('mock generator', () => {
-  it('is registered and requires sdk', () => {
-    expect(builtinGenerators().get('mock')?.requires).toContain('sdk');
+  it('is registered and requires typescript', () => {
+    expect(builtinGenerators().get('mock')?.requires).toContain('typescript');
   });
 
   it('validateGenerators accepts sdk + mock', () => {
-    expect(() => validateGenerators(['sdk', 'mock'], {})).not.toThrow();
+    expect(() => validateGenerators(['typescript', 'mock'], {})).not.toThrow();
   });
 });

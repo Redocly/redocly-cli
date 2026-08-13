@@ -3,7 +3,7 @@ import { type CustomGenerator, defineGenerator } from '../plugin.js';
 
 describe('plugin entry', () => {
   it('defineGenerator returns its argument unchanged', () => {
-    const gen: CustomGenerator = { name: 'route-map', requires: ['sdk'], run: () => [] };
+    const gen: CustomGenerator = { name: 'route-map', requires: ['typescript'], run: () => [] };
     expect(defineGenerator(gen)).toBe(gen);
   });
 

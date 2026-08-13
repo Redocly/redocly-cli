@@ -77,7 +77,7 @@ describe('tanstackQueryGenerator', () => {
       'tanstack-query-solid',
     ]) {
       const descriptor = registry.get(name);
-      expect(descriptor?.requires, name).toEqual(['sdk']);
+      expect(descriptor?.requires, name).toEqual(['typescript']);
       expect(descriptor?.errorModes, name).toEqual(['throw']);
     }
   });

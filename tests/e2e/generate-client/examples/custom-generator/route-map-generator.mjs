@@ -1,5 +1,5 @@
 // A custom generator (the experimental plugin API). Loaded by the `generators:` list in
-// redocly.yaml as a path specifier, it runs alongside the built-in `sdk` and emits a
+// redocly.yaml as a path specifier, it runs alongside the built-in `typescript` and emits a
 // `<output>.routes.ts` map of every operation — `<operationId>: 'METHOD /path'`.
 //
 // The output is a source-text template — the same authoring model every built-in
@@ -7,12 +7,12 @@
 // TypeScript you would write:
 //
 //   import { defineGenerator } from '@redocly/client-generator';
-//   export default defineGenerator({ name: 'route-map', requires: ['sdk'], run({ model, outputPath }) { … } });
+//   export default defineGenerator({ name: 'route-map', requires: ['typescript'], run({ model, outputPath }) { … } });
 //
 // `defineGenerator` is just an identity helper for types, so a plain object works too:
 export default {
   name: 'route-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
     const entries = model.services
       .flatMap((service) => service.operations)

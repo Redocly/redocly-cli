@@ -11,9 +11,9 @@ const noopRun = () => [];
 
 describe('resolveGenerators', () => {
   it('passes built-in names through unchanged', async () => {
-    const { selected, registry } = await resolveGenerators(['sdk', 'zod']);
-    expect(selected).toEqual(['sdk', 'zod']);
-    expect(registry.has('sdk')).toBe(true);
+    const { selected, registry } = await resolveGenerators(['typescript', 'zod']);
+    expect(selected).toEqual(['typescript', 'zod']);
+    expect(registry.has('typescript')).toBe(true);
     expect(registry.has('zod')).toBe(true);
   });
 
@@ -29,10 +29,10 @@ describe('resolveGenerators', () => {
 
   it('registers an inline custom generator and selects it by name', async () => {
     const custom: CustomGenerator = { name: 'route-map', run: noopRun };
-    const { selected, registry } = await resolveGenerators(['sdk', 'route-map'], {
+    const { selected, registry } = await resolveGenerators(['typescript', 'route-map'], {
       customGenerators: [custom],
     });
-    expect(selected).toEqual(['sdk', 'route-map']);
+    expect(selected).toEqual(['typescript', 'route-map']);
     expect(registry.get('route-map')?.run).toBe(noopRun);
   });
 
@@ -40,13 +40,13 @@ describe('resolveGenerators', () => {
     // `--generator cli` alone should produce a working, validating CLI.
     const { selected } = await resolveGenerators(['cli']);
     expect(selected).toContain('cli');
-    expect(selected).toContain('sdk');
+    expect(selected).toContain('typescript');
     expect(selected).toContain('zod');
     // A prerequisite runs BEFORE the generator that needs it.
-    expect(selected.indexOf('sdk')).toBeLessThan(selected.indexOf('cli'));
+    expect(selected.indexOf('typescript')).toBeLessThan(selected.indexOf('cli'));
     // An explicit selection is not duplicated or reordered away.
-    const explicit = await resolveGenerators(['sdk', 'zod', 'cli']);
-    expect(explicit.selected).toEqual(['sdk', 'zod', 'cli']);
+    const explicit = await resolveGenerators(['typescript', 'zod', 'cli']);
+    expect(explicit.selected).toEqual(['typescript', 'zod', 'cli']);
   });
 
   it('accepts a generator whose requiresGenerator range covers the running version', async () => {
@@ -92,8 +92,10 @@ describe('resolveGenerators', () => {
 
   it('registers an inline custom that is available (for requires) but not selected', async () => {
     const custom: CustomGenerator = { name: 'extra', run: noopRun };
-    const { selected, registry } = await resolveGenerators(['sdk'], { customGenerators: [custom] });
-    expect(selected).toEqual(['sdk']);
+    const { selected, registry } = await resolveGenerators(['typescript'], {
+      customGenerators: [custom],
+    });
+    expect(selected).toEqual(['typescript']);
     expect(registry.has('extra')).toBe(true);
   });
 
@@ -123,10 +125,13 @@ describe('resolveGenerators', () => {
   });
 
   it('loads a generator from a relative path specifier and selects its declared name', async () => {
-    const { selected, registry } = await resolveGenerators(['sdk', './route-map-plugin.ts'], {
-      configDir: fixtures,
-    });
-    expect(selected).toEqual(['sdk', 'route-map']);
+    const { selected, registry } = await resolveGenerators(
+      ['typescript', './route-map-plugin.ts'],
+      {
+        configDir: fixtures,
+      }
+    );
+    expect(selected).toEqual(['typescript', 'route-map']);
     expect(registry.has('route-map')).toBe(true);
   });
 
@@ -136,7 +141,7 @@ describe('resolveGenerators', () => {
     const { selected } = await resolveGenerators(['./route-map-plugin.ts'], {
       configDir: fixtures,
     });
-    expect(selected).toEqual(['sdk', 'route-map']);
+    expect(selected).toEqual(['typescript', 'route-map']);
   });
 
   it('rejects URL specifiers — remote generator modules are not supported', async () => {

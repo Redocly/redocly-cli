@@ -75,14 +75,14 @@ describe('generate-client redocly.yaml config', () => {
     const dir = project(
       [
         'client:', // shared defaults, inherited by apis without their own block
-        '  generators: [sdk]',
+        '  generators: [typescript]',
         '  serverUrl: https://shared.example.com',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
         '    clientOutput: ./src/cafe.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '  outputOnly:', // `clientOutput` alone also opts in
         '    root: ./openapi.yaml',
         '    clientOutput: ./src/output-only.ts',
@@ -111,7 +111,7 @@ describe('generate-client redocly.yaml config', () => {
         '  cafe:',
         '    root: ./openapi.yaml',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
       ].join('\n') + '\n'
     );
     const res = run(dir);
@@ -128,7 +128,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      serverUrl: https://per-api.example.com',
       ].join('\n') + '\n'
     );
@@ -144,7 +144,7 @@ describe('generate-client redocly.yaml config', () => {
     const dir = project(
       [
         'client:',
-        '  generators: [sdk]',
+        '  generators: [typescript]',
         '  serverUrl: https://top-level.example.com',
         'apis:',
         '  cafe:',
@@ -169,7 +169,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      codeSamples: true',
       ].join('\n') + '\n'
     );
@@ -187,7 +187,7 @@ describe('generate-client redocly.yaml config', () => {
     const dir = project(
       [
         'client:',
-        '  generators: [sdk, zod]',
+        '  generators: [typescript, zod]',
         '  errorMode: result',
         'apis:',
         '  cafe:',
@@ -213,13 +213,13 @@ describe('generate-client redocly.yaml config', () => {
     const dir = project(
       [
         'client:',
-        '  generators: [sdk]',
+        '  generators: [typescript]',
         '  serverUrl: https://top-level.example.com',
         'apis:',
         '  cafe:',
         '    root: ./openapi.yaml',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      serverUrl: https://per-api.example.com',
       ].join('\n') + '\n'
     );
@@ -246,7 +246,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      serverUrl: https://per-api.example.com',
       ].join('\n') + '\n'
     );
@@ -266,7 +266,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      facade: service-class', // removed option -> property-not-expected warning
       ].join('\n') + '\n'
     );
@@ -286,7 +286,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      pagination:',
         '        style: cursor',
         '        cursorParam: after',
@@ -315,7 +315,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      pagination:',
         '        operations:',
         '          getRevenue:', // has no `after` query param -> explicit misfit = error
@@ -342,7 +342,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      pagination:',
         '        style: cursor',
         '        cursor_param: after', // unknown key -> property-not-expected warning
@@ -366,7 +366,7 @@ describe('generate-client redocly.yaml config', () => {
         '  cafe:',
         '    root: ./openapi.yaml',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
       ].join('\n') + '\n'
     );
     const res = run(dir, ['--output', './out.ts']);
@@ -390,16 +390,16 @@ describe('generate-client redocly.yaml config', () => {
         '  a:',
         '    root: ./openapi.yaml',
         '    clientOutput: ./dupe.ts',
-        '    client: { generators: [sdk] }',
+        '    client: { generators: [typescript] }',
         '  b:',
         '    root: ./openapi.yaml',
         '    clientOutput: ./dupe.ts',
-        '    client: { generators: [sdk] }',
+        '    client: { generators: [typescript] }',
       ].join('\n') + '\n'
     );
     const res = run(dir);
     expect(res.status).not.toBe(0);
-    expect(res.stderr).toContain('resolve to the same output path');
+    expect(res.stderr).toContain('Two APIs write to the same path');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
@@ -412,7 +412,7 @@ describe('generate-client redocly.yaml config', () => {
           '    root: ./openapi.yaml',
           '    clientOutput: ./out.ts',
           '    client:',
-          '      generators: [sdk]',
+          '      generators: [typescript]',
           `      serverUrl: ${serverUrl}`,
         ].join('\n') + '\n'
       );
@@ -448,7 +448,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      setup: https://cdn.example.com/setup.ts',
       ].join('\n') + '\n'
     );
@@ -466,7 +466,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
         '      runtime: package',
       ].join('\n') + '\n'
     );
@@ -486,7 +486,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out/client.ts',
         '    client:',
-        '      generators: [sdk, zod]',
+        '      generators: [typescript, zod]',
         '      outputMode: split',
         '      runtime: package',
       ].join('\n') + '\n'
@@ -510,7 +510,7 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out/client.ts',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
       ].join('\n') + '\n'
     );
     // Run from the repo root, pointing at the config elsewhere via --config.
@@ -552,7 +552,7 @@ describe('generate-client redocly.yaml config', () => {
         '    decorators:',
         '      remove-x-internal: on',
         '    client:',
-        '      generators: [sdk]',
+        '      generators: [typescript]',
       ].join('\n') + '\n',
       'utf-8'
     );

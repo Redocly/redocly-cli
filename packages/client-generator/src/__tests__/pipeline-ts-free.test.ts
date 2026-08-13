@@ -59,9 +59,9 @@ describe('pipeline (lib/pipeline.js)', () => {
   });
 });
 
-describe('the sdk generator itself (lib/generators/sdk/index.js)', () => {
+describe('the sdk generator itself (lib/generators/typescript/index.js)', () => {
   it('loads no typescript — the whole emit path is text templates (setup baking stays lazy)', () => {
-    const { externals } = staticGraph(join(libDir, 'generators/sdk/index.js'));
+    const { externals } = staticGraph(join(libDir, 'generators/typescript/index.js'));
     expect(externals.has('typescript')).toBe(false);
   });
 });

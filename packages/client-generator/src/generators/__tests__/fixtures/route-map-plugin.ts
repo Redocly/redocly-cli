@@ -3,7 +3,7 @@ import type { CustomGenerator } from '../../types.js';
 
 const generator: CustomGenerator = {
   name: 'route-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
     const routes = model.services
       .flatMap((s) => s.operations)

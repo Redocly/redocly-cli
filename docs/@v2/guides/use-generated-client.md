@@ -7,15 +7,15 @@ To change what the command generates (publisher defaults, custom generators), se
 
 ## Generators
 
-The `--generator` option selects the output (default `sdk`).
-Each non-`sdk` generator adds a standalone module next to the client.
+The `--generator` option selects the output (default `typescript`).
+Each non-`typescript` generator adds a standalone module next to the client.
 The client never imports this module.
 Because of this, an add-on never adds a dependency to the client.
 Incompatible selections fail immediately with an explanation.
 
 | Generator        | Emits                                                                                                                                                                                                                                                     | App peer dependency                                      |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `sdk`            | The typed client (default).                                                                                                                                                                                                                               | none                                                     |
+| `typescript`     | The typed client (default).                                                                                                                                                                                                                               | none                                                     |
 | `zod`            | `<output>.zod.ts`: [Zod](https://zod.dev) schemas and [validation middleware](#runtime-validation).                                                                                                                                                       | `zod` `^3.23 \|\| ^4`                                    |
 | `tanstack-query` | `<output>.tanstack.ts`: [TanStack Query](https://tanstack.com/query) v5 [factories](#tanstack-query-factories), with `<op>InfiniteOptions` for paginated operations. React by default; `tanstack-query-vue`/`-svelte`/`-solid` change the adapter import. | `@tanstack/<framework>-query` `^5`                       |
 | `swr`            | `<output>.swr.ts`: [SWR](https://swr.vercel.app) hooks.                                                                                                                                                                                                   | `swr` `^2`                                               |
@@ -25,29 +25,29 @@ Incompatible selections fail immediately with an explanation.
 | `cli-docs`       | `<output>.cli.md`: a Markdown [reference for the generated CLI](#cli-reference-docs). It lists every command, flag, exit code, and credential variable.                                                                                                   | none                                                     |
 
 ```sh
-redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator zod --generator mock
+redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator zod --generator mock
 ```
 
-`tanstack-query`, `swr`, and `cli` wrap the throw-mode `sdk` client.
+`tanstack-query`, `swr`, and `cli` wrap the throw-mode `typescript` client.
 Because of this, they require `--error-mode throw`.
 The `transformers` generator requires `--date-type Date`.
 See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
 
 ### Generated CLI
 
-The `cli` generator emits `<stem>.cli.ts`.
+The `cli` generator emits `<output>.cli.ts`, the CLI module next to the client (`client.cli.ts` for `client.ts`).
 This file is a zero-dependency command-line interface for the generated client, ready to use as a bin.
 Path parameters are positional.
 Query parameters become typed `--kebab-name` flags.
 Enum flags list their choices in `--help`, and array parameters repeat the flag.
 Supply a JSON request body with `--json '<json>'`, `--json @file.json`, or `--json @-` (stdin).
 The CLI validates each request before it sends it.
-When you select `cli`, the command also selects the generators it needs (`sdk` and `zod`), so you do not have to list them.
+When you select `cli`, the command also selects the generators it needs (`typescript` and `zod`), so you do not have to list them.
 Because of this, the CLI validation uses [zod](https://zod.dev/) at runtime.
 Install zod next to the generated CLI (`npm i zod`).
 
 ```sh
-redocly generate-client openapi.yaml --output src/client.ts --generator sdk --generator cli
+redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator cli
 npx tsx src/client.cli.ts orders listOrders --status open --limit 10
 npx tsx src/client.cli.ts orders createOrder --json @order.json
 npx tsx src/client.cli.ts orders listOrders --page-all   # one JSON page per line
@@ -70,7 +70,7 @@ You can search for `listOrders` in your API description, in your SDK, and in you
 The top-level help shows every global flag under `Global flags:`: `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, and `--json`.
 The same section shows the environment variables that the CLI reads.
 
-The CLI reads credentials from environment variables, with a prefix derived from the file stem in constant case.
+The CLI reads credentials from environment variables, with a prefix derived from the output file name in constant case (`MY_API_*` for `my-api.ts`; `binName` overrides it).
 For bearer auth, use `<PREFIX>_TOKEN` (or `--token`).
 For basic auth, use `<PREFIX>_USERNAME` and `<PREFIX>_PASSWORD`.
 For apiKey auth, use `<PREFIX>_API_KEY_<SCHEME>`.
@@ -110,24 +110,26 @@ This makes two things possible without changes to the generated files.
 **One binary for several APIs.**
 Set a top-level `client.cliOutput`.
 Then `redocly generate-client` (no api argument) emits a composed entry for every api that emits a cli module.
-Each api uses its alias from `apis:` as its namespace, and it reads credentials under `<BINNAME>_<ALIAS>_*`:
+Each api's alias from `apis:` (`shop` and `kitchen` below) becomes its command namespace, and its credentials are read under `<BINNAME>_<ALIAS>_*`:
 
 ```yaml
 client:
   binName: cafe
   cliOutput: ./src/cafe.ts
-  generators: [sdk, cli]
+  generators: [typescript, cli]
 apis:
   shop: { root: ./shop/openapi.yaml, clientOutput: ./src/shop.ts }
   kitchen: { root: ./kitchen/openapi.yaml, clientOutput: ./src/kitchen.ts }
 ```
 
 ```sh
-cafe shop listOrders --limit 3      # CAFE_SHOP_TOKEN
-cafe kitchen createOrder --json @o.json   # CAFE_KITCHEN_TOKEN
+npx tsx src/cafe.ts shop listOrders --limit 3          # CAFE_SHOP_TOKEN
+npx tsx src/cafe.ts kitchen createOrder --json @o.json # CAFE_KITCHEN_TOKEN
 ```
 
-If two descriptions have the same operationId, the result is two different commands.
+`binName` is the name the help output prints and the prefix of the credential variables — it does not install a `cafe` executable.
+To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of `package.json` at it, as described at the end of this section.
+The alias namespace exists because operationIds are only unique within one description: if two descriptions declare the same operationId, the result is two different commands.
 Each api keeps its own server URL, schemes, and credentials.
 
 **Commands the description doesn't have.**
@@ -168,7 +170,7 @@ Then point the `bin` field of `package.json` at the compiled file.
 
 #### CLI reference docs
 
-The `cli-docs` generator writes `<stem>.cli.md`, a Markdown reference.
+The `cli-docs` generator writes `<output>.cli.md`, a Markdown reference.
 The page contains the usage line, the global flags, the credential environment variables, and the exit-code table.
 It also contains one section for each command.
 Each section lists the positionals and flags of the command with their types, defaults, and descriptions.
@@ -209,7 +211,7 @@ The `run` function returns the list of files, so you can split the output with a
 
 **They are the TypeScript client in another language.**
 Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, and one method per operation.
-The SDKs also include auth, retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, and pagination iterators.
+The SDKs also include [auth](#authentication), retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, and pagination iterators.
 They also include SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
 Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
 
@@ -255,7 +257,7 @@ The SDKs differ only where the language gives no choice:
 | Auth credentials     | string or provider function        | string or callable                     | string or callable                           | provider function only (no union types)        |
 | Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name kept | trailing `_`, wire name kept                 | trailing `_` (`Type_`), `json` tag kept        |
 | File layout          | `single` or `split` (`outputMode`) | one file                               | one file                                     | one file                                       |
-| Namespacing          | ES module (the file path)          | module name from the output stem       | namespace from the API title                 | `package client`, or `goPackage`               |
+| Namespacing          | ES module (the file path)          | module name from the output file name  | namespace from the API title                 | `package client`, or `goPackage`               |
 | Runtime location     | embedded or package (`runtime`)    | embedded                               | embedded                                     | embedded                                       |
 
 `argsStyle` applies only to TypeScript call sites.
@@ -400,6 +402,7 @@ Strip-only mode rejects these constructs, because it would have to generate assi
 Credentials are **per instance**.
 They live in the client config (`ClientConfig.auth`).
 Each operation automatically sends the credentials that its `security` requires.
+A description that declares no `securitySchemes` produces a client with no auth code at all.
 The generator emits a setter for each `securityScheme` that the runtime can apply:
 
 | Scheme                         | Setter                                    | Applied as                               |
@@ -719,7 +722,7 @@ const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope
 - The TanStack Query and SWR wrappers do not accept `envelope`.
   Their options exclude it, and the wrappers strip it from the forwarded call.
   Because of this, cached data is always the plain body.
-  Call the sdk function directly when you need headers.
+  Call the client's operation function directly when you need headers.
 - The Python, PHP, and Go SDKs expose the same information as separate variants: `<op>_with_headers()`, `<op>WithHeaders()`, and `<Op>WithHeaders`.
   The generator emits these variants only for operations that declare success-response headers.
   Those languages cannot change a return type with a flag.
@@ -908,14 +911,14 @@ The `tanstack-query` generator emits typed TanStack Query v5 factories for each 
   The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
   Because of this, infinite queries need no hand-written `getNextPageParam`.
   `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
-  Use the sdk's `.pages()`/`.items()` iterators for those.
+  Use the client's `.pages()`/`.items()` iterators for those.
 - `<op>QueryKey(vars?)`.
   With `vars`, it returns the exact key that the options use.
   **Without arguments, it returns the invalidation prefix** that matches every cached page and filter of the operation: `queryClient.invalidateQueries({ queryKey: listOrdersQueryKey() })`.
 - `<op>Mutation(init?)` for each mutation.
   Per-call `RequestOptions` (headers, a retry override) reach the mutation's requests.
 
-The module-level factories bind the sdk's default `client`.
+The module-level factories bind the generated module's default `client`.
 For an isolated instance with its own credentials, middleware, and retry, build a bound set with `createQueryFactories`:
 
 ```ts

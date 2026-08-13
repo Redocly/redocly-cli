@@ -6,11 +6,11 @@ import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock/index.js';
 import { phpGenerator, phpSample } from './php/index.js';
 import { pythonGenerator, pythonSample } from './python/index.js';
-import { sdkGenerator, sdkSample } from './sdk/index.js';
 import { swrGenerator } from './swr/index.js';
 import { tanstackQueryGenerator } from './tanstack-query/index.js';
 import { transformersGenerator } from './transformers/index.js';
 import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
+import { typescriptGenerator, typescriptSample } from './typescript/index.js';
 import { zodGenerator } from './zod/index.js';
 
 export type {
@@ -26,7 +26,7 @@ export type {
 // only the eagerly imported `run` functions live here. The pipeline entry never
 // touches this module: it loads built-ins lazily through the meta table.
 const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> = {
-  sdk: { run: sdkGenerator, sample: sdkSample },
+  typescript: { run: typescriptGenerator, sample: typescriptSample },
   zod: { run: zodGenerator },
   transformers: { run: transformersGenerator },
   'tanstack-query': { run: tanstackQueryGenerator('react') },

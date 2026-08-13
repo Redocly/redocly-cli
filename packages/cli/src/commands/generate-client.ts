@@ -153,7 +153,7 @@ export async function handleGenerateClient({
     }
     if (seenOutputs.has(outputPath)) {
       throw new HandledError(
-        `\n❌  Two APIs resolve to the same output path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+        `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
       );
     }
     seenOutputs.add(outputPath);
@@ -173,7 +173,7 @@ export async function handleGenerateClient({
         configDir,
       });
       // The emitted module decides what composes: `cli` reaches a run as a built-in
-      // name, an ejected path entry, or another generator's prerequisite.
+      // name, a path to an ejected copy, or another generator's prerequisite.
       const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
       if (cliModule !== undefined) {
         const importExt = clientConfig.importExt ?? 'js';
@@ -181,6 +181,11 @@ export async function handleGenerateClient({
           alias: name,
           cliPath: cliModule.path.replace(/\.ts$/, importExt === 'ts' ? '.ts' : '.js'),
         });
+      }
+      // Sibling modules (`.cli.ts`, `.zod.ts`, …) count too: the composed entry is
+      // written after this loop and must not land on any of them.
+      for (const file of result.files) {
+        seenOutputs.add(file.path);
       }
       const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
       const summary = `Client successfully generated: ${fileCount} (${
@@ -204,6 +209,16 @@ export async function handleGenerateClient({
   if (topLevelClient.cliOutput !== undefined && argv.api === undefined && composable.length > 0) {
     const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
     const entryPath = resolvePath(configDir, topLevelClient.cliOutput);
+    if (!entryPath.endsWith('.ts')) {
+      throw new HandledError(
+        `\n❌  client.cliOutput must point at a TypeScript file (ending in .ts).\n   Got: ${entryPath}\n`
+      );
+    }
+    if (seenOutputs.has(entryPath)) {
+      throw new HandledError(
+        `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
+      );
+    }
     const binName =
       topLevelClient.binName ??
       basename(entryPath, extname(entryPath))

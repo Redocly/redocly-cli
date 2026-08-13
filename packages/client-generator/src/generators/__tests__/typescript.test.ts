@@ -1,6 +1,6 @@
 import { HEADER } from '../../emitters/emit-options.js';
 import type { ApiModel } from '../../intermediate-representation/model.js';
-import { sdkGenerator } from '../sdk/index.js';
+import { typescriptGenerator } from '../typescript/index.js';
 
 function apiModel(): ApiModel {
   return {
@@ -32,9 +32,9 @@ function apiModel(): ApiModel {
   };
 }
 
-describe('sdkGenerator', () => {
+describe('typescriptGenerator', () => {
   it('writes the whole client to the output path in single mode', () => {
-    const files = sdkGenerator({
+    const files = typescriptGenerator({
       model: apiModel(),
       outputPath: '/out/api.ts',
       outputMode: 'single',
@@ -48,7 +48,7 @@ describe('sdkGenerator', () => {
   it('honors the output mode (split carves the schemas into a sibling file)', () => {
     const model = apiModel();
     model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];
-    const files = sdkGenerator({
+    const files = typescriptGenerator({
       model,
       outputPath: '/out/api.ts',
       outputMode: 'split',
@@ -69,7 +69,7 @@ describe('sdkGenerator', () => {
     model.services[0].operations[0].successResponses = [
       { contentType: 'application/json', schema: { kind: 'ref', name: 'Pet' }, status: 200 },
     ];
-    const files = sdkGenerator({
+    const files = typescriptGenerator({
       model,
       outputPath: '/out/api.ts',
       outputMode: 'split',
@@ -84,7 +84,7 @@ describe('sdkGenerator', () => {
   it('emits .ts import extensions when importExt is ts (Node native TS execution)', () => {
     const model = apiModel();
     model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];
-    const files = sdkGenerator({
+    const files = typescriptGenerator({
       model,
       outputPath: '/out/api.ts',
       outputMode: 'split',

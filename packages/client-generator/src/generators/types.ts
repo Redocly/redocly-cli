@@ -18,7 +18,7 @@ export type GeneratedFile = { path: string; content: string };
 
 /** The first-party generators the registry knows. */
 export type GeneratorName =
-  | 'sdk'
+  | 'typescript'
   | 'zod'
   | 'tanstack-query'
   | 'tanstack-query-vue'
@@ -91,10 +91,10 @@ export type SampleContext = { model: ApiModel; emit: EmitOptions };
  * fast with an actionable message instead of producing a client that won't compile.
  *
  * - `requires`: other generators that must also be selected (e.g. `tanstack-query`
- *   imports the sdk's operation functions, so it requires `sdk`).
+ *   imports the client's operation functions, so it requires `typescript`).
  * - `errorModes` / `dateTypes` / `runtimes`: the subset this generator supports;
  *   `undefined` means "all". (`tanstack-query` wraps throw-mode functions, so it
- *   supports only `throw` mode; `transformers` only type-checks when the sdk types
+ *   supports only `throw` mode; `transformers` only type-checks when the client types
  *   date fields as `Date`, so it supports only `dateType: 'Date'`.)
  */
 export type GeneratorDescriptor = {

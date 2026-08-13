@@ -149,7 +149,7 @@ describe('config-driven composition (client.cliOutput)', () => {
         // A directory nothing else creates — the composed entry makes its own.
         '  cliOutput: ./bin/cafe.ts',
         '  importExt: ts',
-        '  generators: [sdk, zod, cli]',
+        '  generators: [typescript, zod, cli]',
         'apis:',
         `  shop: { root: ${fixture}, clientOutput: ./src/shop.ts }`,
         `  kitchen: { root: ${fixture}, clientOutput: ./src/kitchen.ts }`,
@@ -166,7 +166,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     );
     expect(ejected.status, ejected.stderr).toBe(0);
     expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
-      'generators: [sdk, zod, ./generators/cli.mjs]'
+      'generators: [typescript, zod, ./generators/cli.mjs]'
     );
     const generated = spawnSync(
       'node',
@@ -202,5 +202,44 @@ describe('config-driven composition (client.cliOutput)', () => {
     expect(captured.url).toContain('/orders/ord_7');
     expect(captured.headers.Authorization).toBe('***');
     expect(JSON.stringify(captured)).not.toContain('k-secret');
+  });
+});
+
+describe('client.cliOutput validation', () => {
+  const generateWith = (cliOutput: string) => {
+    const project = mkdtempSync(join(tmpdir(), 'cli-output-invalid-'));
+    const fixture = join(__dirname, 'fixtures/cli.yaml');
+    writeFileSync(
+      join(project, 'redocly.yaml'),
+      [
+        'extends: []',
+        'client:',
+        `  cliOutput: ${cliOutput}`,
+        '  generators: [typescript, zod, cli]',
+        'apis:',
+        `  shop: { root: ${fixture}, clientOutput: ./src/shop.ts }`,
+        '',
+      ].join('\n'),
+      'utf-8'
+    );
+    const result = spawnSync(
+      'node',
+      [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
+      { cwd: project, encoding: 'utf-8' }
+    );
+    rmSync(project, { recursive: true, force: true });
+    return result;
+  };
+
+  it('rejects a non-.ts entry instead of writing TypeScript into it', () => {
+    const result = generateWith('./bin/cafe.js');
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('client.cliOutput must point at a TypeScript file');
+  });
+
+  it('rejects an entry that lands on a file the run generated', () => {
+    const result = generateWith('./src/shop.cli.ts');
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('client.cliOutput resolves to a file this run generated');
   });
 });

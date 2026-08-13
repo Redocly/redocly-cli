@@ -1,6 +1,6 @@
 // A custom generator that renders real TypeScript TYPES with the
 // `@redocly/client-generator/generate` text toolkit — `tsType` is the same
-// schema→type renderer the built-in sdk uses (refs, arrays, unions, formats,
+// schema→type renderer the built-in typescript generator uses (refs, arrays, unions, formats,
 // parenthesization), so the output matches the generated client's types exactly.
 // It emits `<output>.responses.ts`: a `ResponseShapes` type mapping every
 // operation to the TypeScript type of its primary JSON success body.
@@ -9,12 +9,12 @@
 //
 //   import { defineGenerator } from '@redocly/client-generator';
 //   import { tsType } from '@redocly/client-generator/generate';
-//   export default defineGenerator({ name: 'response-map', requires: ['sdk'], run({ model, outputPath }) { … } });
+//   export default defineGenerator({ name: 'response-map', requires: ['typescript'], run({ model, outputPath }) { … } });
 import { tsType } from '@redocly/client-generator/generate';
 
 export default {
   name: 'response-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
     // Every operation with a JSON success body — a 204 or an image download has no entry.
     const withJsonBody = model.services

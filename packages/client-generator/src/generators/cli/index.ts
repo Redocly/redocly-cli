@@ -2,14 +2,15 @@ import { join } from 'node:path';
 
 import { commandData, renderCliModule } from '../../emitters/cli.js';
 import type { OperationModel } from '../../intermediate-representation/model.js';
+import { groupSlug } from '../../runtime/cli.js';
 import { anchor } from '../anchor.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 /**
  * The cli generator: a bin-ready `<stem>.cli.ts` — a zero-dependency, typed
- * command-line interface over the sibling sdk client (typed flags, `--json`
+ * command-line interface over the sibling client (typed flags, `--json`
  * bodies, env auth, `--page-all`, SSE/blob output, a documented exit-code
- * contract). Requires `sdk` (throw mode); wires zod validation when co-selected.
+ * contract). Requires `typescript` (throw mode); wires zod validation when co-selected.
  */
 /** The stem as a command name: dots and other non-word characters fold to `-`. */
 function commandName(stem: string): string {
@@ -42,7 +43,7 @@ export function cliSample(op: OperationModel, ctx: SampleContext): CodeSample | 
   if (command === undefined) return undefined;
   const words = [
     'client',
-    ...(command.group ? [command.group] : []),
+    ...(command.group ? [groupSlug(command.group)] : []),
     command.name,
     ...command.positionals.map((positional) => `<${positional.name}>`),
     ...command.flags.filter((flag) => flag.required).map((flag) => `--${flag.name} <${flag.type}>`),

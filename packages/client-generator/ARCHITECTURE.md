@@ -65,7 +65,7 @@ builder and the emitters ([ADR-0003](./docs/adr/0003-spec-agnostic-ir.md)).
 Places where behavior varies without editing in place:
 
 - **The `getGenerator` seam** — a generator is `(input) => GeneratedFile[]` (`generators/types.ts`).
-  `generateClient` resolves the configured selection (default `['sdk']`) via `resolveGenerators` (`generators/resolve.ts`) into a name→descriptor registry, then runs them through `collectGeneratedFiles` and merges their files (duplicate output paths throw).
+  `generateClient` resolves the configured selection (default `['typescript']`) via `resolveGenerators` (`generators/resolve.ts`) into a name→descriptor registry, then runs them through `collectGeneratedFiles` and merges their files (duplicate output paths throw).
   A selection entry is a built-in name, the `name` of an inline `customGenerators` entry, or a **plugin import specifier** (path or package, dynamically imported and validated).
   This is the public, **experimental** extension point — authored with `defineGenerator` from `@redocly/client-generator`, which also re-exports the IR types and the codegen toolkit.
   Where new capabilities (zod, framework hooks) plug in.
@@ -104,7 +104,7 @@ Three orthogonal knobs combine freely:
 Plus **error mode** (`--error-mode`: `throw` · `result`), **date type** (`--date-type`: `string` · `Date`), and the `--server-url` / `--setup` modifiers.
 Every client exports **both call styles** — the instance and the free functions; args style only shapes the free-function sugar.
 
-Orthogonally, **`--generator`** selects which generators run (default `sdk`; plus `zod`, `tanstack-query` (React; `-vue`/`-svelte`/`-solid` variants), `swr`, `transformers`, `mock`, and custom plugins), with per-generator knobs: `--mock-data` (`static` · `faker`) / `--mock-seed` (for `mock`).
+Orthogonally, **`--generator`** selects which generators run (default `typescript`; plus `zod`, `tanstack-query` (React; `-vue`/`-svelte`/`-solid` variants), `swr`, `transformers`, `mock`, and custom plugins), with per-generator knobs: `--mock-data` (`static` · `faker`) / `--mock-seed` (for `mock`).
 
 ## Test architeture
 

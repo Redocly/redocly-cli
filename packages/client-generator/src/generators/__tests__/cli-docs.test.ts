@@ -64,7 +64,7 @@ function render(options: Record<string, unknown> = {}): string {
     outputPath: '/out/cafe.client.ts',
     outputMode: 'single',
     emit: {},
-    selected: ['sdk', 'zod', 'cli', 'cli-docs'],
+    selected: ['typescript', 'zod', 'cli', 'cli-docs'],
     options,
   });
   expect(files).toHaveLength(1);
@@ -100,6 +100,23 @@ describe('cliDocsGenerator', () => {
     expect(page).toContain('CAFE_CLIENT_TOKEN');
     expect(page).toContain('| 3 |');
     expect(page).toContain('validation error');
+  });
+
+  it('lists --token only when the description declares a bearer scheme, like the CLI itself', () => {
+    expect(render()).toContain('--token');
+    const noBearer = modelWith([operation({ name: 'ping', method: 'get', path: '/ping' })], {
+      title: 'Cafe API',
+      securitySchemes: [{ kind: 'apiKeyHeader', key: 'ApiKeyAuth', headerName: 'X-Api-Key' }],
+    });
+    const files = cliDocsGenerator({
+      model: noBearer,
+      outputPath: '/out/cafe.client.ts',
+      outputMode: 'single',
+      emit: {},
+      selected: ['typescript', 'zod', 'cli', 'cli-docs'],
+      options: {},
+    });
+    expect(files[0].content).not.toContain('--token');
   });
 
   it('says when a body is one the CLI cannot build, instead of implying the command runs', () => {

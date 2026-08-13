@@ -23,7 +23,7 @@ describe('generate-client tanstack-query generator', () => {
 
     generate(join(__dirname, 'fixtures', 'base.yaml'), out, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);
@@ -104,7 +104,7 @@ describe('generate-client tanstack-query generator', () => {
       '--runtime',
       'package',
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);
@@ -177,7 +177,7 @@ describe('generate-client tanstack-query generator', () => {
 
     generate(join(__dirname, 'fixtures', 'base.yaml'), out, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query-vue',
     ]);

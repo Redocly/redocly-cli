@@ -10,7 +10,7 @@ React SWR hooks over the sdk's exported operation functions: `use<Op>()` with a
 
 ## Design decisions that must hold
 
-- **Wraps the sdk's functions** — it never re-implements requests, so it requires `sdk`
+- **Wraps the sdk's functions** — it never re-implements requests, so it requires `typescript`
   and is throw-mode only.
 - **Keys are exported factories** so consumers can invalidate precisely.
 - **`envelope` is excluded** from hook options (`Omit<RequestOptions, "envelope">`) and

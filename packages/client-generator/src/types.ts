@@ -59,8 +59,8 @@ export type GenerateClientOptions = {
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
   /**
-   * Generators to run, in order. Defaults to `['sdk']`. Each entry is a built-in name
-   * (`sdk`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline
+   * Generators to run, in order. Defaults to `['typescript']`. Each entry is a built-in name
+   * (`typescript`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline
    * `customGenerators` entry, or an import specifier (a path or package) for a custom generator.
    */
   generators?: string[];

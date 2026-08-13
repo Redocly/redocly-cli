@@ -27,7 +27,7 @@ import { generateClient } from '@redocly/client-generator';
 const result = await generateClient({
   api: './openapi.yaml', // file path or URL; OpenAPI 3.0/3.1/3.2 or Swagger 2.0
   output: './src/api/client.ts',
-  generators: ['sdk', 'zod'],
+  generators: ['typescript', 'zod'],
 });
 
 console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes.`);
@@ -64,7 +64,7 @@ import { tsType } from '@redocly/client-generator/generate';
 
 export default defineGenerator({
   name: 'response-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
     const printer = new Printer();
     // One `ResponseShapes` entry per operation with a JSON success body.

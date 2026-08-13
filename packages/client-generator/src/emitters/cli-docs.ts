@@ -129,13 +129,16 @@ export function renderCliDocs(commands: CliCommand[], options: CliDocsOptions): 
   printer.blank();
   printer.line('| Flag | Description |');
   printer.line('| ---- | ----------- |');
+  // `--token` mirrors the CLI itself: without a bearer scheme the tool rejects the flag,
+  // so the reference must not list it.
+  const hasBearer = options.schemes.some((scheme) => scheme.kind === 'bearer');
   for (const [flag, description] of [
     ['--server-url <url>', 'Override the server URL included in the client.'],
     ['--format <json\\|ndjson>', 'Output format.'],
     ['--dry-run', 'Print the prepared request, credentials redacted, without sending it.'],
     ['--page-all', 'Follow pagination, printing one JSON page per line.'],
     ['--output <path>', 'Write the response body to a file. Required for binary responses.'],
-    ['--token <token>', 'Bearer token, overriding the environment.'],
+    ...(hasBearer ? [['--token <token>', 'Bearer token, overriding the environment.']] : []),
     ['--json <json\\|@file\\|@->', 'Request body, inline or from a file or stdin.'],
   ] as const) {
     printer.line(`| \`${flag}\` | ${description} |`);

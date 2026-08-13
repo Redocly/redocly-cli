@@ -15,7 +15,7 @@ import type { CodeSample, Generator, SampleContext } from '../types.js';
  * const-objects, type guards; skipped when the document declares no schemas) and
  * `<stem>.ts` (everything else, which `export *`s the schemas module).
  */
-export const sdkGenerator: Generator = ({ model, outputPath, outputMode, emit }) => {
+export const typescriptGenerator: Generator = ({ model, outputPath, outputMode, emit }) => {
   if (outputMode === 'split') {
     const { dir, stem } = anchor(outputPath);
     const { entry, schemas } = emitClientSplit(model, emit, stem);
@@ -30,7 +30,7 @@ export const sdkGenerator: Generator = ({ model, outputPath, outputMode, emit })
 };
 
 /** One idiomatic TS call per operation — the `x-codeSamples` reference implementation. */
-export function sdkSample(op: OperationModel, ctx: SampleContext): CodeSample {
+export function typescriptSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const ident = packageIdents(ctx.model).get(op.name) ?? op.name;
   const requiredQuery = op.queryParams.filter((param) => param.required);
   const slots: string[] = [];

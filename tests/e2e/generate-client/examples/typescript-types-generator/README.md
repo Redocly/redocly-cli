@@ -20,7 +20,7 @@ use, so the mapping matches the generated client exactly, instead of guessing at
   };
   ```
 
-- [`redocly.yaml`](./redocly.yaml) — `generators: [sdk, ./response-map-generator.mjs]`.
+- [`redocly.yaml`](./redocly.yaml) — `generators: [typescript, ./response-map-generator.mjs]`.
 - [`src/main.ts`](./src/main.ts) — proves the map matches the client:
   `ResponseShapes['listMenuItems']` is exactly what `listMenuItems()` resolves to.
 

@@ -15,7 +15,7 @@ const generatorsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const LANGUAGE = ['python', 'go', 'php'];
 /** TypeScript generators: thin entries over shared emitters, ejected bundled with them. */
 const TYPESCRIPT = [
-  'sdk',
+  'typescript',
   'zod',
   'mock',
   'cli',

@@ -39,7 +39,7 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
   prints the prepared request with credentials REDACTED. Help lists only the credentials
   the description declares, and an unusable `--token` is a usage error, never silently
   dropped.
-- **Validation is on by default.** The generator declares `requires: ['sdk', 'zod']` and
+- **Validation is on by default.** The generator declares `requires: ['typescript', 'zod']` and
   the pipeline pulls prerequisites in automatically, so `--generator cli` alone produces a
   validating CLI — a user shouldn't have to know which other generator provides it. The
   consequence is a zod peer dependency at run time, which the docs state.

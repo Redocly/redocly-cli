@@ -157,7 +157,7 @@ describe('generate-client package-runtime consumer', () => {
         api: fixture,
         output: tanstackEntry,
         runtime: 'package',
-        generators: ['sdk', 'tanstack-query'],
+        generators: ['typescript', 'tanstack-query'],
       });
       expect(existsSync(tanstackEntry)).toBe(true);
       expect(readFileSync(tanstackEntry, 'utf-8')).toContain("from '@redocly/client-generator'");
@@ -185,7 +185,7 @@ describe('generate-client package-runtime consumer', () => {
         output,
         runtime: 'package',
         argsStyle: 'grouped',
-        generators: ['sdk', 'tanstack-query'],
+        generators: ['typescript', 'tanstack-query'],
       });
       writeFileSync(
         join(dir, 'tsconfig.json'),

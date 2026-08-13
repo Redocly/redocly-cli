@@ -1,7 +1,7 @@
 # tanstack-query example
 
 Generated TypeScript client plus **TanStack Query** (React) factories
-(`generators: ['sdk', 'tanstack-query']`). The app uses `useQuery(<op>Options())` under a
+(`generators: ['typescript', 'tanstack-query']`). The app uses `useQuery(<op>Options())` under a
 `QueryClientProvider`.
 
 ## Run

@@ -11,7 +11,7 @@ in the same pass as the built-ins; select it by path in `redocly.yaml`:
 
 ```yaml
 client:
-  generators: [sdk, ./generators/my-generator.mjs]
+  generators: [typescript, ./generators/my-generator.mjs]
 ```
 
 ## The contract
@@ -56,7 +56,7 @@ Users set them per generator name:
 
 ```yaml
 client:
-  generators: [sdk, ./generators/permissions-matrix.mjs]
+  generators: [typescript, ./generators/permissions-matrix.mjs]
   options:
     permissions-matrix:
       groupBy: path

@@ -19,7 +19,7 @@ values and back — the bridge for `dateType: Date` clients.
 - **Requires `dateType: Date`** (declared as `dateTypes: ['Date']`, so a mismatched
   selection fails fast): the converters assign `Date` objects to fields the sdk types as
   `Date`, which only type-checks in that mode.
-- **Imports the sdk's schema TYPES** (so `sdk` is required) and nothing else.
+- **Imports the sdk's schema TYPES** (so `typescript` is required) and nothing else.
 - Converters are pure and total: every named schema gets a pair, nested structures
   recurse, and a missing optional stays missing.
 

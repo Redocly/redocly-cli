@@ -173,9 +173,9 @@ export async function generateClient(
   // Resolve the selection into a registry: built-in names load lazily, inline
   // `customGenerators` register, and any other entry is imported as a plugin
   // specifier (path/package). An empty list (e.g. `generators: []` in config, or
-  // no `--generator` flags) means "unspecified" — fall back to the default sdk
-  // client rather than emitting nothing.
-  const requested = options.generators?.length ? options.generators : ['sdk'];
+  // no `--generator` flags) means "unspecified" — fall back to the default
+  // typescript client rather than emitting nothing.
+  const requested = options.generators?.length ? options.generators : ['typescript'];
   const { selected, registry } = await resolveGenerators(requested, {
     customGenerators: options.customGenerators,
     configDir: options.configDir,

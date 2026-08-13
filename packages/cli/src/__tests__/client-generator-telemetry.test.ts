@@ -83,10 +83,10 @@ describe('collectGeneratorUsage', () => {
         'utf-8'
       );
       // Two apis, the same entries — the cwd is elsewhere, only configDir resolves them.
-      collectGeneratorUsage(['sdk', './generators/php.mjs'], ['Printer'], configDir);
-      collectGeneratorUsage(['sdk', './generators/php.mjs'], ['Printer'], configDir);
+      collectGeneratorUsage(['typescript', './generators/php.mjs'], ['Printer'], configDir);
+      collectGeneratorUsage(['typescript', './generators/php.mjs'], ['Printer'], configDir);
       expect(generateClientTelemetry).toEqual({
-        generate_client_builtin_generators: ['sdk'],
+        generate_client_builtin_generators: ['typescript'],
         generate_client_custom_generators_count: 1,
         generate_client_toolkit_imports: ['Printer'],
         generate_client_ejected_generators: ['php@0.3.0'],
