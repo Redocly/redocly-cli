@@ -130,10 +130,7 @@ See [Package runtime](../guides/use-generated-client.md#package-runtime) in the 
 
 ## Resources
 
-- [Use the generated client](../guides/use-generated-client.md): the runtime API and the add-on generators.
-- [`client` configuration](../configuration/reference/client.md): the `redocly.yaml` `client` block.
-- [Lint command](./lint.md): validate your API description before you generate a client.
 - **[Use the generated client](../guides/use-generated-client.md)** - Learn how to use the client produced by the `generate-client` command
-- **[`client` configuration](../configuration/reference/client.md)** - explore the settings for the `generate-client` command
-- **[Lint command](./lint.md)** - validate your API description before you generate a client
-- **[Bundle command](./bundle.md)** - combine a multi-file description into one input file
+- **[`client` configuration](../configuration/reference/client.md)** - Explore the settings for the `generate-client` command
+- **[Lint command](./lint.md)** - Validate your API description before you generate a client
+- **[Bundle command](./bundle.md)** - Combine a multi-file description into one input file
