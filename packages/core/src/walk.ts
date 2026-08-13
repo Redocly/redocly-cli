@@ -172,7 +172,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     type: NormalizedNodeType,
     location: Location,
     parent: any,
-    key: string | number
+    key: string | number,
+    isDeclaredExtension: boolean = false
   ) {
     const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
       if (!isRef(ref)) return { location, node: ref };
@@ -254,6 +255,10 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           propType = isExtensionKey ? SpecExtension : type.additionalProperties;
         }
         if (typeof propType === 'function') propType = propType(value, propName);
+        if (isDeclaredExtension && !isNamedType(propType)) {
+          // a declared extension with a plain schema gets no typed walk — visit it as SpecExtension
+          propType = SpecExtension;
+        }
 
         if (!isNamedType(propType) && propType?.directResolveAs) {
           propType = propType.directResolveAs;
@@ -264,13 +269,18 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           propType = { name: 'scalar', properties: {} };
         }
 
-        if (isNamedType(propType) && !(propType.name === 'scalar' && !isRef(value))) {
-          walkNode(value, propType, loc.child([propName]), valueParent, propName);
+        if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
+          return;
         }
-        if (isDeclaredExtension && !isRef(value)) {
-          // a declared x- property keeps its typed walk above, but is an extension nonetheless
-          walkNode(value, SpecExtension, loc.child([propName]), valueParent, propName);
-        }
+
+        walkNode(
+          value,
+          propType,
+          loc.child([propName]),
+          valueParent,
+          propName,
+          isDeclaredExtension && propType !== SpecExtension
+        );
       };
 
       currentLocation = resolvedLocation;
@@ -282,8 +292,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(seenKey);
       let visitedBySome = false;
 
-      const currentEnterVisitors =
+      let currentEnterVisitors =
         combinedEnter[type.name] || anyEnter.concat(normalizedVisitors[type.name]?.enter || []);
+      if (isDeclaredExtension) {
+        currentEnterVisitors = currentEnterVisitors.concat(
+          normalizedVisitors.SpecExtension?.enter || []
+        );
+      }
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
       const ignoreKey = `${currentLocation.absolutePointer}${currentLocation.pointer}`;

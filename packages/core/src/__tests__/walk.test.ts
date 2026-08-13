@@ -1831,8 +1831,6 @@ describe('type extensions', () => {
       'leave ParameterList',
       'leave hook test',
       'leave XWebHooks',
-      'enter SpecExtension',
-      'leave SpecExtension',
       'leave Root',
     ]);
   });
@@ -1996,6 +1994,93 @@ describe('spec extensions dispatch', () => {
     });
 
     expect(calls).toEqual(['extension x-callback-ext']);
+  });
+
+  it('should dispatch a declared extension whose value is a $ref, visiting the ref once', async () => {
+    const extensionCalls: string[] = [];
+    const refCalls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => extensionCalls.push(`extension ${ctx.key}`),
+        },
+        ref: {
+          enter: (node: any) => refCalls.push(node.$ref),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+          x-webhooks:
+            $ref: '#/components/x-hooks-source'
+          components:
+            x-hooks-source:
+              newPet:
+                post:
+                  responses:
+                    '200':
+                      description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(extensionCalls).toContain('extension x-webhooks');
+    expect(refCalls.filter((ref) => ref === '#/components/x-hooks-source')).toHaveLength(1);
+  });
+
+  it('should not re-visit $refs inside a declared extension subtree', async () => {
+    const refCalls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        ref: {
+          enter: (node: any) => refCalls.push(node.$ref),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+          x-webhooks:
+            newPet:
+              $ref: '#/components/x-hook-item'
+          components:
+            x-hook-item:
+              post:
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(refCalls.filter((ref) => ref === '#/components/x-hook-item')).toHaveLength(1);
   });
 
   it('should visit every occurrence of extensions with equal scalar values', async () => {
