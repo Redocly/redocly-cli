@@ -250,7 +250,6 @@ function ejectedIn(dir: string): string[] {
  * the requirement part of the project so a fresh clone or CI gets it. With `refresh` (the
  * `--update` path), a recorded range that no longer covers `version` is moved to
  * `^version` wherever the project keeps it — the merged file targets the new toolkit.
- * Returns what happened.
  */
 function wireDependency(
   packages: Record<string, string>,
@@ -296,22 +295,9 @@ function wireDependency(
 }
 
 /**
- * Add the ejected file to `client.generators` in the configuration file, editing the text
- * so comments and formatting survive. A bare `<name>` entry is replaced rather than kept —
- * leaving both would make the next run fail on a name collision, since the ejected file
- * declares the name it takes over. A config without a `client:` block or a `generators:`
- * list gets the missing keys appended — the common shape, since `typescript` is the
- * default and nobody lists it — unless an api carries its own `client` block, which
- * replaces the top-level one. Only a list we can extend without guessing is edited in
- * place — a block sequence or a flow sequence — and anything else returns false, so the
- * caller prints the snippet instead of reshaping someone's config.
- */
-/**
- * The config has no top-level `generators:` list — add one where generation will read
- * it, or decline. Inserting the missing keys only helps when the top-level `client`
- * block is the one generation reads: an api's own `client` block replaces it wholesale
- * (`forAlias`), so with one present the caller prints the snippet and the user picks
- * the block.
+ * The config has no top-level `generators:` list — add one, unless an api's own `client`
+ * block would replace it wholesale (`forAlias`); then the caller prints the snippet and
+ * the user picks the block.
  */
 function insertGeneratorsList(
   configPath: string,
@@ -340,6 +326,12 @@ function insertGeneratorsList(
   return true;
 }
 
+/**
+ * Point `client.generators` at the ejected file, editing the text so comments and
+ * formatting survive. A bare `<name>` entry is replaced — keeping both would collide on
+ * the name the ejected file takes over. A shape this can't extend without guessing
+ * returns false, and the caller prints the snippet instead of reshaping someone's config.
+ */
 export function wireConfig(configPath: string | undefined, name: string, entry: string): boolean {
   if (configPath === undefined || !existsSync(configPath)) return false;
   const source = readFileSync(configPath, 'utf-8');
@@ -353,8 +345,7 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
     clientLine === -1
       ? -1
       : lines.findIndex((line, index) => index > clientLine && /^\s+generators:/.test(line));
-  // A `generators:` beyond a dedented line belongs to another block — the `client:`
-  // block itself has none.
+  // A `generators:` beyond a dedented line belongs to another block.
   if (
     generatorsLine !== -1 &&
     lines.slice(clientLine + 1, generatorsLine).some((line) => /^\S/.test(line))
@@ -383,11 +374,9 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
   let lastItem = generatorsLine;
   let itemIndent = `${lines[generatorsLine].match(/^\s+/)![0]}  `;
   for (let index = generatorsLine + 1; index < lines.length; index++) {
-    // Blank and comment lines are legal inside a block sequence — the list continues.
     if (/^\s*(#|$)/.test(lines[index])) continue;
     const item = lines[index].match(/^(\s+)- (.*?)\s*$/);
     if (item === null) break;
-    // A trailing comment is not part of the value (`- php # ours`), and it survives a replace.
     const comment = item[2].match(/\s+#.*$/)?.[0] ?? '';
     const value = comment === '' ? item[2] : item[2].slice(0, -comment.length);
     if (isPathEntry(value)) return true;
@@ -431,13 +420,11 @@ function updateEjectedGenerator({
       `\n❌  Nothing to update: ${printedTarget} does not exist. Eject first.\n`
     );
   }
-  // Ejects before the base moved to the registry left a snapshot behind; it still works
-  // as the base, which keeps `--update` offline for anyone mid-migration.
+  // Legacy ejects left a `.pristine` snapshot behind; it still works as the merge base.
   const legacyBase = join(dir, '.pristine', `${name}.mjs`);
   const customized = readFileSync(target, 'utf-8');
   const from = recordedVersion(customized);
-  // Version distance behind the conflict count — both OUR versions. The header is
-  // user-editable text, so it's recorded only when it parses as a semver version.
+  // The header is user-editable text, so the version is recorded only when it parses.
   if (from !== undefined && semver.valid(from) !== null) {
     ejectGeneratorTelemetry.eject_generator_from_version = from;
   }
@@ -513,8 +500,7 @@ export const handleEjectGenerator = async ({
   if (EJECTABLE.has(name) || FRAMEWORK_VARIANTS.has(name)) {
     ejectGeneratorTelemetry.eject_generator_name = name;
   }
-  // Every path that finishes overwrites this, so it survives only when something we did
-  // not account for throws — an unreadable asset, a failed write, a missing directory.
+  // Every path that finishes overwrites this, so it survives only an unaccounted throw.
   ejectGeneratorTelemetry.eject_generator_outcome = 'unexpected-error';
   const framework = FRAMEWORK_VARIANTS.get(name);
   if (framework !== undefined) {
@@ -560,10 +546,8 @@ export const handleEjectGenerator = async ({
   const authoringSkill = dropSkill('client-generators', assetsDir);
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
-  // Config-file generator entries resolve against the config's directory, so the wired
-  // path is relative to it — real paths on both sides, so a symlinked location (like
-  // macOS /var/folders) doesn't skew the walk. The cwd anchors only the snippet for a
-  // config yet to exist.
+  // Config-file entries resolve against the config's directory, so the wired path is
+  // relative to it — real paths on both sides, so a symlink doesn't skew the walk.
   const configEntry = `./${relative(
     config.configPath === undefined ? process.cwd() : realpathSync(dirname(config.configPath)),
     realpathSync(target)
@@ -571,8 +555,7 @@ export const handleEjectGenerator = async ({
     .split('\\')
     .join('/')}`;
   const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion });
-  // A bundled TypeScript generator also imports `logger`/`isPlainObject` from core, which
-  // the toolkit depends on — worth saying out loud for a package manager that doesn't hoist.
+  // A bundled TypeScript generator also imports from core; without hoisting it must be explicit.
   const needsCore = asset.includes(`from "${CORE_PACKAGE}"`);
   const wired = wireConfig(config.configPath, name, configEntry);
   logger.info(
