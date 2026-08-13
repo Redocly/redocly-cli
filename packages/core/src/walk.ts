@@ -428,8 +428,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         }
       }
 
-      const currentLeaveVisitors =
+      let currentLeaveVisitors =
         combinedLeave[type.name] || (normalizedVisitors[type.name]?.leave || []).concat(anyLeave);
+      if (isDeclaredExtension) {
+        currentLeaveVisitors = (normalizedVisitors.SpecExtension?.leave || []).concat(
+          currentLeaveVisitors
+        );
+      }
 
       for (const context of activatedContexts.reverse()) {
         if (context.isSkippedLevel) {

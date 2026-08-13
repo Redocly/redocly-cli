@@ -1843,7 +1843,8 @@ describe('spec extensions dispatch', () => {
     const testRuleSet: Oas3RuleSet = {
       test: () => ({
         SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+          enter: (_node: any, ctx: any) => calls.push(`enter extension ${ctx.key}`),
+          leave: (_node: any, ctx: any) => calls.push(`leave extension ${ctx.key}`),
         },
         XCodeSampleList: {
           enter: () => calls.push('typed walk of x-codeSamples'),
@@ -1872,7 +1873,188 @@ describe('spec extensions dispatch', () => {
       }),
     });
 
-    expect(calls).toEqual(['typed walk of x-codeSamples', 'extension x-codeSamples']);
+    expect(calls).toEqual([
+      'typed walk of x-codeSamples',
+      'enter extension x-codeSamples',
+      'leave extension x-codeSamples',
+    ]);
+  });
+
+  it('should give a full SpecExtension lifecycle to a declared extension with a plain schema', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`enter ${ctx.key}`),
+          leave: (_node: any, ctx: any) => calls.push(`leave ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-hideTryItPanel: true
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['enter x-hideTryItPanel', 'leave x-hideTryItPanel']);
+  });
+
+  it('should activate nested SpecExtension visitors for every extension kind', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        Operation: {
+          SpecExtension: {
+            enter: (_node: any, ctx: any, parents: any) =>
+              calls.push(`${parents.Operation.operationId} > ${ctx.key}`),
+          },
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples:
+                  - lang: curl
+                    source: echo
+                x-hideTryItPanel: true
+                x-unknown-ext: true
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['get > x-codeSamples', 'get > x-hideTryItPanel', 'get > x-unknown-ext']);
+  });
+
+  it('should honor the skip hook of SpecExtension visitors for declared extensions', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          skip: (_node: any, key: any) => key === 'x-codeSamples',
+          enter: (_node: any, ctx: any) => calls.push(`enter ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples:
+                  - lang: curl
+                    source: echo
+                x-hideTryItPanel: true
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['enter x-hideTryItPanel']);
+  });
+
+  it('should visit a declared extension node once, not once per visitor kind', async () => {
+    const anyVisits: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        any: {
+          enter: (_node: any, ctx: any) => anyVisits.push(ctx.location.pointer),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples:
+                  - lang: curl
+                    source: echo
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    const extensionVisits = anyVisits.filter(
+      (pointer) => pointer === '#/paths/~1pet/get/x-codeSamples'
+    );
+    expect(extensionVisits).toHaveLength(1);
+  });
+
+  it('should keep struct validation for a typed extension with an invalid shape', async () => {
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          info:
+            title: t
+            version: '1'
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples: just a string
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(results.map((problem) => problem.message)).toContain(
+      'Expected type `XCodeSampleList` (array) but got `string`'
+    );
   });
 
   it('should dispatch an x- key as SpecExtension even when additionalProperties matches it', async () => {
