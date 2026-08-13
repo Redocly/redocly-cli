@@ -62,6 +62,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitest/coverage-istanbul": "^4.1.8",
+    "eslint-plugin-sonarjs": "^4.2.0",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",

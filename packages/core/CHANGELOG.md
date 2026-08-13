@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.46.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `^8.18.3`.
+
 ## 2.46.0
 
 ### Minor Changes

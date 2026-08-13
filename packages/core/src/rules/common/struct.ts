@@ -25,6 +25,7 @@ export const Struct:
   | Overlay1Rule
   | OpenRpc1Rule = () => {
   return {
+    // oxlint-disable-next-line sonarjs/cognitive-complexity
     any(
       node: any,
       { report, type, location, rawLocation, key, resolve, ignoreNextVisitorsOnNode }

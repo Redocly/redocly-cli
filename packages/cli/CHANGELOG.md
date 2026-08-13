@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 2.46.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `^8.18.3`.
+- Updated @redocly/openapi-core to v2.46.1.
+- Updated @redocly/respect-core to v2.46.1.
+
 ## 2.46.0
 
 ### Minor Changes

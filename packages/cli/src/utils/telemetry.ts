@@ -250,6 +250,7 @@ function getCriterionObjectType(criterionObject: CriterionObject) {
     : type?.type || (criterionObject.condition ? 'simple' : undefined);
 }
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function collectXSecurityAuthTypes(
   document: Partial<ArazzoDefinition>,
   respectXSecurityAuthTypesAndSchemeName: Set<string>
