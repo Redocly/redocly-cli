@@ -110,6 +110,33 @@ describe('wireConfig', () => {
     expect(wire(wired)).toBe(wired);
   });
 
+  it('reads through comments in the list: inline ones survive a replace, entries below comment lines count', () => {
+    expect(
+      wire(outdent`
+        client:
+          generators:
+            # our copies:
+            - php # ours
+            - typescript
+      `)
+    ).toBe(outdent`
+      client:
+        generators:
+          # our copies:
+          - ./generators/php.mjs # ours
+          - typescript
+    `);
+    // An already-wired entry behind a comment line is found, not duplicated.
+    const wired = outdent`
+      client:
+        generators:
+          - typescript
+          # ejected:
+          - ./generators/php.mjs
+    `;
+    expect(wire(wired)).toBe(wired);
+  });
+
   it('prints the snippet instead when an api has its own client block', () => {
     // `forAlias` replaces the top-level `client` with the api's block wholesale, so
     // inserting top-level keys would report "wired" while generation ignores them.

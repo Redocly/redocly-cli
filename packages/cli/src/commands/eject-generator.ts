@@ -306,6 +306,40 @@ function wireDependency(
  * place — a block sequence or a flow sequence — and anything else returns false, so the
  * caller prints the snippet instead of reshaping someone's config.
  */
+/**
+ * The config has no top-level `generators:` list — add one where generation will read
+ * it, or decline. Inserting the missing keys only helps when the top-level `client`
+ * block is the one generation reads: an api's own `client` block replaces it wholesale
+ * (`forAlias`), so with one present the caller prints the snippet and the user picks
+ * the block.
+ */
+function insertGeneratorsList(
+  configPath: string,
+  source: string,
+  lines: string[],
+  clientLine: number,
+  entry: string
+): boolean {
+  const parsed = parseYaml(source);
+  const apis = isPlainObject(parsed) && isPlainObject(parsed.apis) ? parsed.apis : {};
+  if (Object.values(apis).some((api) => isPlainObject(api) && isPlainObject(api.client))) {
+    return false;
+  }
+  if (clientLine === -1) {
+    if (/^client:/m.test(source)) return false; // `client: {...}` or similar — not a shape we edit
+    const separator = source === '' || source.endsWith('\n') ? '' : '\n';
+    writeFileSync(
+      configPath,
+      `${source}${separator}client:\n  generators:\n    - ${entry}\n`,
+      'utf-8'
+    );
+    return true;
+  }
+  lines.splice(clientLine + 1, 0, '  generators:', `    - ${entry}`);
+  writeFileSync(configPath, lines.join('\n'), 'utf-8');
+  return true;
+}
+
 export function wireConfig(configPath: string | undefined, name: string, entry: string): boolean {
   if (configPath === undefined || !existsSync(configPath)) return false;
   const source = readFileSync(configPath, 'utf-8');
@@ -328,27 +362,7 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
     generatorsLine = -1;
   }
   if (generatorsLine === -1) {
-    // Inserting the missing keys only helps when the top-level `client` block is the one
-    // generation reads. An api's own `client` block replaces it wholesale (`forAlias`),
-    // so with one present the caller prints the snippet and the user picks the block.
-    const parsed = parseYaml(source);
-    const apis = isPlainObject(parsed) && isPlainObject(parsed.apis) ? parsed.apis : {};
-    if (Object.values(apis).some((api) => isPlainObject(api) && isPlainObject(api.client))) {
-      return false;
-    }
-    if (clientLine === -1) {
-      if (/^client:/m.test(source)) return false; // `client: {...}` or similar — not a shape we edit
-      const separator = source === '' || source.endsWith('\n') ? '' : '\n';
-      writeFileSync(
-        configPath,
-        `${source}${separator}client:\n  generators:\n    - ${entry}\n`,
-        'utf-8'
-      );
-      return true;
-    }
-    lines.splice(clientLine + 1, 0, '  generators:', `    - ${entry}`);
-    writeFileSync(configPath, lines.join('\n'), 'utf-8');
-    return true;
+    return insertGeneratorsList(configPath, source, lines, clientLine, entry);
   }
 
   const flow = lines[generatorsLine].match(/^(\s+generators:\s*\[)(.*)\]\s*$/);
@@ -369,11 +383,16 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
   let lastItem = generatorsLine;
   let itemIndent = `${lines[generatorsLine].match(/^\s+/)![0]}  `;
   for (let index = generatorsLine + 1; index < lines.length; index++) {
+    // Blank and comment lines are legal inside a block sequence — the list continues.
+    if (/^\s*(#|$)/.test(lines[index])) continue;
     const item = lines[index].match(/^(\s+)- (.*?)\s*$/);
     if (item === null) break;
-    if (isPathEntry(item[2])) return true;
-    if (isNameEntry(item[2])) {
-      lines[index] = `${item[1]}- ${entry}`;
+    // A trailing comment is not part of the value (`- php # ours`), and it survives a replace.
+    const comment = item[2].match(/\s+#.*$/)?.[0] ?? '';
+    const value = comment === '' ? item[2] : item[2].slice(0, -comment.length);
+    if (isPathEntry(value)) return true;
+    if (isNameEntry(value)) {
+      lines[index] = `${item[1]}- ${entry}${comment}`;
       writeFileSync(configPath, lines.join('\n'), 'utf-8');
       return true;
     }
