@@ -70,7 +70,9 @@ You can search for `listOrders` in your API description, in your SDK, and in you
 The top-level help shows every global flag under `Global flags:`: `--server-url`, `--format json|ndjson`, `--dry-run`, `--page-all`, `--output`, `--token`, and `--json`.
 The same section shows the environment variables that the CLI reads.
 
-The CLI reads credentials from environment variables, with a prefix derived from the output file name in constant case (`MY_API_*` for `my-api.ts`; `binName` overrides it).
+The CLI reads credentials from environment variables.
+The prefix is the output file name in constant case: `MY_API_*` for `my-api.ts`.
+The `binName` option overrides the prefix.
 For bearer auth, use `<PREFIX>_TOKEN` (or `--token`).
 For basic auth, use `<PREFIX>_USERNAME` and `<PREFIX>_PASSWORD`.
 For apiKey auth, use `<PREFIX>_API_KEY_<SCHEME>`.
@@ -110,7 +112,8 @@ This makes two things possible without changes to the generated files.
 **One binary for several APIs.**
 Set a top-level `client.cliOutput`.
 Then `redocly generate-client` (no api argument) emits a composed entry for every api that emits a cli module.
-Each api's alias from `apis:` (`shop` and `kitchen` below) becomes its command namespace, and its credentials are read under `<BINNAME>_<ALIAS>_*`:
+Each api's alias from `apis:` becomes its command namespace (`shop` and `kitchen` below).
+The CLI reads each api's credentials under `<BINNAME>_<ALIAS>_*`:
 
 ```yaml
 client:
@@ -127,9 +130,13 @@ npx tsx src/cafe.ts shop listOrders --limit 3          # CAFE_SHOP_TOKEN
 npx tsx src/cafe.ts kitchen createOrder --json @o.json # CAFE_KITCHEN_TOKEN
 ```
 
-`binName` is the name the help output prints and the prefix of the credential variables — it does not install a `cafe` executable.
-To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of `package.json` at it, as described at the end of this section.
-The alias namespace exists because operationIds are only unique within one description: if two descriptions declare the same operationId, the result is two different commands.
+`binName` sets the name in the help output and the prefix of the credential variables.
+It does not install a `cafe` executable.
+To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of `package.json` at the compiled file.
+The end of this section shows this step.
+An operationId is unique only within one description.
+Because of this, each command carries its api's alias as a namespace.
+If two descriptions declare the same operationId, the result is two different commands.
 Each api keeps its own server URL, schemes, and credentials.
 
 **Commands the description doesn't have.**
@@ -402,7 +409,7 @@ Strip-only mode rejects these constructs, because it would have to generate assi
 Credentials are **per instance**.
 They live in the client config (`ClientConfig.auth`).
 Each operation automatically sends the credentials that its `security` requires.
-A description that declares no `securitySchemes` produces a client with no auth code at all.
+A description that declares no `securitySchemes` produces a client with no auth code.
 The generator emits a setter for each `securityScheme` that the runtime can apply:
 
 | Scheme                         | Setter                                    | Applied as                               |

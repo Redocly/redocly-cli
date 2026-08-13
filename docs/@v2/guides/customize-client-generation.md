@@ -79,7 +79,8 @@ The quickest method to get a customized generator is
 [`redocly eject-generator <name>`](../commands/eject-generator.md).
 The command copies any built-in generator into `./generators/` as an editable file that you own.
 An ejected generator with no changes produces byte-identical output.
-In `client.generators`, the path to your copy replaces the built-in name, so `redocly generate-client` keeps working and now runs your version.
+In `client.generators`, the path to your copy replaces the built-in name.
+Because of this, `redocly generate-client` now runs your version.
 [`--update`](../commands/eject-generator.md#update-an-ejected-generator) merges later built-in versions into your copy.
 
 The eject command also writes the generator's design as an agent skill (`.claude/skills/<name>-generator/SKILL.md`).
