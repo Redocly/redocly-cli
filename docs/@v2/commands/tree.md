@@ -31,7 +31,6 @@ redocly tree <api> --file=<path> [--used-by]
 redocly tree <api> --find=<terms>
 redocly tree <api> --path=<path> --operation=<method> [--with-deps]
 redocly tree <api> --component=<section> --name=<name> [--used-by | --with-deps]
-redocly tree <api> --paths
 redocly tree <api> --operations
 redocly tree <api> --webhooks
 redocly tree <api> [--format=stylish|json|ai] [--output=<file>] [--config=<path>]
@@ -54,12 +53,11 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                          |
 | --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                              |
 | --find        | string   | Search operations and components by words in their path, id, name, summary, description, or tags. Standalone; not combinable with other selectors.                                                                                                                                                                                               |
-| --paths       | boolean  | List every path with its methods.                                                                                                                                                                                                                                                                                                                |
 | --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                 |
 | --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                     |
 | --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                   |
 | --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                                                                    |
-| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--paths`, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                        |
+| --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                                   |
 | --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — a plain-text format for agents: one line per listing entry with `L<start>` coordinates, an operation or component card's body as one line of minified JSON, and a `--with-deps` closure emitting schema signatures instead of raw YAML. |
 | --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                                                  |
 | --config      | string   | Specify the path to the [Redocly configuration file](../configuration/index.md).                                                                                                                                                                                                                                                                 |
@@ -737,30 +735,13 @@ redocly tree cafe-split/cafe.yaml --file=components/schemas/Order.yaml --used-by
 This is the same report shape as the plain `--used-by` analysis further below, just seeded from a whole file instead of one operation or component — notice it works here even though `components/schemas/Order.yaml` is the exact file that had nothing to list under plain `--component=schemas` two examples up: `--used-by` walks the real `$ref` graph, which doesn't care whether the root document registers the component under `components:`.
 
 `--file` also combines with `--files` to filter the file-level graph down to one file's neighborhood — see the file-level graph section below.
-It's mutually exclusive with every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and with `--paths`, `--operations`, `--webhooks`; combining it with `--with-deps` is rejected the same way an incomplete selector is:
+It's mutually exclusive with every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and with `--operations`, `--webhooks`; combining it with `--with-deps` is rejected the same way an incomplete selector is:
 
 ```
 --with-deps requires an operation or component selection.
 ```
 
-### List every path, operation, or webhook
-
-`--paths` lists every path with its methods, across the whole description:
-
-```bash
-redocly tree cafe.yaml --paths
-```
-
-```
-/menu  [get, post]  31..173
-/menu/{menuItemId}  [delete]  175..198
-/menu-item-images/{menuItemId}  [get]  200..226
-/orders  [get, post]  228..372
-/orders/{orderId}  [get, delete, patch]  374..502
-/order-items  [get]  504..546
-/revenue  [get]  548..601
-/oauth2/register  [post]  603..661
-```
+### List every operation or webhook
 
 `--operations` lists every operation the same way `--tag` does, but for the whole description; JSON entries are the same card shape shown under `--tag` above:
 
@@ -855,7 +836,7 @@ redocly tree cafe.yaml --webhooks --format=json
 ```
 
 `cafe.yaml` only declares the one webhook shown above; with more than one, `--webhooks` groups them the same way `--operations` groups by path — one tree root per webhook name.
-`--paths`, `--operations`, and `--webhooks` are each mutually exclusive with every selector — they're already "give me everything," so a narrower selector alongside them makes no sense.
+`--operations` and `--webhooks` are each mutually exclusive with every selector — they're already "give me everything," so a narrower selector alongside them makes no sense.
 
 ### Search with --find
 
@@ -1411,7 +1392,7 @@ No tag "Order". Did you mean: Orders? Run `redocly tree <api>` to list tags.
 Path, webhook, and operationId lookups report the same way:
 
 ```
-No path "/order". Did you mean: /order-items, /orders, /orders/{orderId}? Run `redocly tree <api> --paths` to list paths.
+No path "/order". Did you mean: /order-items, /orders, /orders/{orderId}? Run `redocly tree <api> --operations` to list operations.
 No operation "createOrde". Did you mean: createOrder? Run `redocly tree <api> --operations` to list operations.
 No webhook "order-notificatio". Did you mean: order-notification?
 ```
@@ -1426,7 +1407,7 @@ redocly tree cafe.yaml --tag=Orders --component=schemas
 Arguments component and tag are mutually exclusive
 ```
 
-The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--paths`/`--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--paths`/`--operations` listings; `--paths` and `--operations` each exclude every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`; `--find` excludes every other selector, listing, and modifier.
+The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--operations` listing; `--operations` excludes every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`; `--find` excludes every other selector, listing, and modifier.
 
 Selectors, listings, and `--used-by`/`--with-deps` are OpenAPI-only:
 
@@ -1435,7 +1416,7 @@ redocly tree async.yaml --tag=foo
 ```
 
 ```
-The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --paths, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.
+The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.
 ```
 
 The default view and `--files` still work on AsyncAPI and Arazzo descriptions — see [Markers legend](#markers-legend) below.
@@ -1590,7 +1571,7 @@ openapi.yaml
 ### File-level graph: `--files`
 
 `--files` shows how a description is split across files instead of its paths, operations, and components; a single bundled file has no file-level `$ref`s, so its `--files` graph is just the root.
-It doesn't accept the typed selectors, `--paths`/`--operations`/`--webhooks`, `--used-by`, or `--with-deps` — `--file` is the one exception, and filters the graph instead of selecting from it (see below).
+It doesn't accept the typed selectors, `--operations`/`--webhooks`, `--used-by`, or `--with-deps` — `--file` is the one exception, and filters the graph instead of selecting from it (see below).
 
 The example below runs against a multi-file version of the same API (a directory produced by [split](./split.md)).
 
