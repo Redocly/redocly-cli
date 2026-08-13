@@ -1,4 +1,8 @@
-import { type GenerateClientConfig } from '@redocly/client-generator';
+import type {
+  GenerateClientConfig,
+  generateClient as generateClientFunction,
+  mergeConfig as mergeConfigFunction,
+} from '@redocly/client-generator';
 import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { readFileSync } from 'node:fs';
@@ -73,6 +77,24 @@ function isValidServerUrl(value: string): boolean {
   }
 }
 
+type ClientGeneratorToolkit = {
+  generateClient: typeof generateClientFunction;
+  mergeConfig: typeof mergeConfigFunction;
+  helperNames: readonly string[];
+};
+
+type GenerationRun = {
+  config: CommandArgs<GenerateClientCommandArgv>['config'];
+  configDir: string;
+  cliFlags: GenerateClientConfig;
+  outputFlag: string | undefined;
+  toolkit: ClientGeneratorToolkit;
+  /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
+  seenOutputs: Set<string>;
+  /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
+  composable: Array<{ alias: string; cliPath: string }>;
+};
+
 export async function handleGenerateClient({
   argv,
   config,
@@ -124,126 +146,152 @@ export async function handleGenerateClient({
     config
   );
 
-  const seenOutputs = new Set<string>();
-  // Every api that emits a cli module, gathered for the composed entry (client.cliOutput).
-  const composable: Array<{ alias: string; cliPath: string }> = [];
+  const run: GenerationRun = {
+    config,
+    configDir,
+    cliFlags,
+    outputFlag: argv.output,
+    toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
+    seenOutputs: new Set<string>(),
+    composable: [],
+  };
 
-  for (const { path, alias } of entrypoints) {
-    const name = alias ?? basename(path, extname(path));
-    const aliasConfig = config.forAlias(alias);
-    const { client, clientOutput } = aliasConfig.resolvedConfig;
-    const clientBlock = resolveSetup(
-      (isPlainObject(client) ? client : {}) as GenerateClientConfig,
-      configDir
-    );
-    const clientConfig = mergeConfig(clientBlock, cliFlags);
-    collectGeneratorUsage(clientConfig.generators ?? [], AUTHORING_HELPER_NAMES, configDir);
-
-    const outputPath =
-      argv.output !== undefined
-        ? resolvePath(argv.output)
-        : clientOutput !== undefined
-          ? resolvePath(configDir, clientOutput)
-          : resolvePath(configDir, fileNameFor(name));
-
-    if (!outputPath.endsWith('.ts')) {
-      throw new HandledError(
-        `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
-      );
-    }
-    if (seenOutputs.has(outputPath)) {
-      throw new HandledError(
-        `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
-      );
-    }
-    seenOutputs.add(outputPath);
-    if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
-      throw new HandledError(
-        `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
-      );
-    }
-
-    try {
-      logger.info(gray(`\n  Generating client for ${name}... \n`));
-      const result = await generateClient({
-        ...clientConfig,
-        api: path,
-        output: outputPath,
-        config: aliasConfig,
-        configDir,
-      });
-      // The emitted module decides what composes: `cli` reaches a run as a built-in
-      // name, a path to an ejected copy, or another generator's prerequisite.
-      const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
-      if (cliModule !== undefined) {
-        const importExt = clientConfig.importExt ?? 'js';
-        composable.push({
-          alias: name,
-          cliPath: cliModule.path.replace(/\.ts$/, importExt === 'ts' ? '.ts' : '.js'),
-        });
-      }
-      // Sibling modules (`.cli.ts`, `.zod.ts`, …) count too: the composed entry is
-      // written after this loop and must not land on any of them.
-      for (const file of result.files) {
-        seenOutputs.add(file.path);
-      }
-      const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
-      const summary = `Client successfully generated: ${fileCount} (${
-        result.bytes
-      } bytes) at ${yellow(result.outputPath)}.`;
-      logger.info('\n' + blue(summary) + '\n');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      generateClientTelemetry.generate_client_error_category =
-        categorizeGenerateClientError(message);
-      throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
-    }
+  for (const entry of entrypoints) {
+    await generateApiClient(entry, run);
   }
 
-  // The composed entry: one binary over every api that emitted a cli module, each behind
-  // its alias as a namespace. Top-level `client.cliOutput` only — a per-api block composes
-  // nothing — and only for the run-everything form, where all the modules exist.
+  // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
+  // the run-everything form, where all the modules exist.
   const topLevelClient = (
     isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
   ) as GenerateClientConfig;
-  if (topLevelClient.cliOutput !== undefined && argv.api === undefined && composable.length > 0) {
-    const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
-    const entryPath = resolvePath(configDir, topLevelClient.cliOutput);
-    if (!entryPath.endsWith('.ts')) {
-      throw new HandledError(
-        `\n❌  client.cliOutput must point at a TypeScript file (ending in .ts).\n   Got: ${entryPath}\n`
-      );
-    }
-    if (seenOutputs.has(entryPath)) {
-      throw new HandledError(
-        `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
-      );
-    }
-    const binName =
-      topLevelClient.binName ??
-      basename(entryPath, extname(entryPath))
-        .replace(/[^A-Za-z0-9]+/g, '-')
-        .toLowerCase();
-    const content = renderComposedCliEntry(
-      composable.map(({ alias, cliPath }) => ({
-        alias,
-        modulePath: `./${relative(dirname(entryPath), cliPath).split('\\').join('/')}`,
-      })),
-      binName
-    );
-    await mkdir(dirname(entryPath), { recursive: true });
-    await writeFile(entryPath, content, 'utf-8');
-    generateClientTelemetry.generate_client_composed_apis_count = composable.length;
-    logger.info(
-      '\n' +
-        blue(
-          `Composed CLI written to ${yellow(relative(process.cwd(), entryPath))} — ${composable
-            .map(({ alias }) => alias)
-            .join(', ')} behind one \`${binName}\` binary.`
-        ) +
-        '\n'
+  if (
+    topLevelClient.cliOutput !== undefined &&
+    argv.api === undefined &&
+    run.composable.length > 0
+  ) {
+    await writeComposedCliEntry(topLevelClient.cliOutput, topLevelClient.binName, run);
+  }
+}
+
+async function generateApiClient(
+  entry: { path: string; alias?: string },
+  { config, configDir, cliFlags, outputFlag, toolkit, seenOutputs, composable }: GenerationRun
+): Promise<void> {
+  const { path, alias } = entry;
+  const name = alias ?? basename(path, extname(path));
+  const aliasConfig = config.forAlias(alias);
+  const { client, clientOutput } = aliasConfig.resolvedConfig;
+  const clientBlock = resolveSetup(
+    (isPlainObject(client) ? client : {}) as GenerateClientConfig,
+    configDir
+  );
+  const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
+  collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
+
+  const outputPath =
+    outputFlag !== undefined
+      ? resolvePath(outputFlag)
+      : clientOutput !== undefined
+        ? resolvePath(configDir, clientOutput)
+        : resolvePath(configDir, fileNameFor(name));
+
+  if (!outputPath.endsWith('.ts')) {
+    throw new HandledError(
+      `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
     );
   }
+  if (seenOutputs.has(outputPath)) {
+    throw new HandledError(
+      `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+    );
+  }
+  seenOutputs.add(outputPath);
+  if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
+    throw new HandledError(
+      `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
+    );
+  }
+
+  try {
+    logger.info(gray(`\n  Generating client for ${name}... \n`));
+    const result = await toolkit.generateClient({
+      ...clientConfig,
+      api: path,
+      output: outputPath,
+      config: aliasConfig,
+      configDir,
+    });
+    // The emitted module decides what composes: `cli` reaches a run as a built-in
+    // name, a path to an ejected copy, or another generator's prerequisite.
+    const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
+    if (cliModule !== undefined) {
+      const importExt = clientConfig.importExt ?? 'js';
+      composable.push({
+        alias: name,
+        cliPath: cliModule.path.replace(/\.ts$/, importExt === 'ts' ? '.ts' : '.js'),
+      });
+    }
+    // Sibling modules (`.cli.ts`, `.zod.ts`, …) count too: the composed entry is
+    // written after the per-api runs and must not land on any of them.
+    for (const file of result.files) {
+      seenOutputs.add(file.path);
+    }
+    const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
+    const summary = `Client successfully generated: ${fileCount} (${
+      result.bytes
+    } bytes) at ${yellow(result.outputPath)}.`;
+    logger.info('\n' + blue(summary) + '\n');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
+    throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
+  }
+}
+
+/** The composed entry: one binary over every api that emitted a cli module, each behind
+ * its alias as a namespace. */
+async function writeComposedCliEntry(
+  cliOutput: string,
+  configuredBinName: string | undefined,
+  { configDir, seenOutputs, composable }: GenerationRun
+): Promise<void> {
+  const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
+  const entryPath = resolvePath(configDir, cliOutput);
+  if (!entryPath.endsWith('.ts')) {
+    throw new HandledError(
+      `\n❌  client.cliOutput must point at a TypeScript file (ending in .ts).\n   Got: ${entryPath}\n`
+    );
+  }
+  if (seenOutputs.has(entryPath)) {
+    throw new HandledError(
+      `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
+    );
+  }
+  const binName =
+    configuredBinName ??
+    basename(entryPath, extname(entryPath))
+      .replace(/[^A-Za-z0-9]+/g, '-')
+      .toLowerCase();
+  const content = renderComposedCliEntry(
+    composable.map(({ alias, cliPath }) => ({
+      alias,
+      modulePath: `./${relative(dirname(entryPath), cliPath).split('\\').join('/')}`,
+    })),
+    binName
+  );
+  await mkdir(dirname(entryPath), { recursive: true });
+  await writeFile(entryPath, content, 'utf-8');
+  generateClientTelemetry.generate_client_composed_apis_count = composable.length;
+  logger.info(
+    '\n' +
+      blue(
+        `Composed CLI written to ${yellow(relative(process.cwd(), entryPath))} — ${composable
+          .map(({ alias }) => alias)
+          .join(', ')} behind one \`${binName}\` binary.`
+      ) +
+      '\n'
+  );
 }
 
 /** A custom generator shared by several apis counts once, like the built-in names. */

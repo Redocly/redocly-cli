@@ -16,9 +16,10 @@ import type { CodeSample, Generator, SampleContext } from '../types.js';
 function commandName(stem: string): string {
   return (
     stem
-      .replace(/[^A-Za-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .toLowerCase() || 'client'
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean)
+      .join('-') || 'client'
   );
 }
 

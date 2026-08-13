@@ -372,6 +372,104 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
   return true;
 }
 
+/**
+ * The `--update` flow: three-way-merge the newer built-in version into the user's copy,
+ * merging the two skills the same way, and report the conflict count.
+ */
+function updateEjectedGenerator({
+  name,
+  asset,
+  toolkitVersion,
+  assetsDir,
+  dir,
+  target,
+  printedTarget,
+}: {
+  name: string;
+  asset: string;
+  toolkitVersion: string;
+  assetsDir: string;
+  dir: string;
+  target: string;
+  printedTarget: string;
+}): void {
+  if (!existsSync(target)) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'missing-target';
+    throw new HandledError(
+      `\n❌  Nothing to update: ${printedTarget} does not exist. Eject first.\n`
+    );
+  }
+  // Ejects before the base moved to the registry left a snapshot behind; it still works
+  // as the base, which keeps `--update` offline for anyone mid-migration.
+  const legacyBase = join(dir, '.pristine', `${name}.mjs`);
+  const customized = readFileSync(target, 'utf-8');
+  const from = recordedVersion(customized);
+  // Version distance behind the conflict count — both OUR versions. The header is
+  // user-editable text, so it's recorded only when it parses as a semver version.
+  if (from !== undefined && semver.valid(from) !== null) {
+    ejectGeneratorTelemetry.eject_generator_from_version = from;
+  }
+  ejectGeneratorTelemetry.eject_generator_to_version = toolkitVersion;
+  // One pack fetches every merge base: the generator plus both skills it shipped with.
+  const packed =
+    existsSync(legacyBase) || from === toolkitVersion || from === undefined
+      ? new Map<string, string>()
+      : packedAssets(`${TOOLKIT_PACKAGE}@${from}`, [
+          generatorMember(name),
+          skillMember('client-generators'),
+          skillMember(`${name}-generator`),
+        ]);
+  const base = existsSync(legacyBase)
+    ? readFileSync(legacyBase, 'utf-8')
+    : from === toolkitVersion
+      ? asset
+      : packed.get(generatorMember(name));
+  if (base === undefined) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'missing-base';
+    const sideBySide = `${target}.new`;
+    writeFileSync(sideBySide, asset, 'utf-8');
+    throw new HandledError(
+      `\n❌  Could not read the version this file was ejected from (${from ?? 'not recorded in its header'}), so there is no merge base.\n` +
+        `   The current generator is written to ${relative(process.cwd(), sideBySide)} — diff it against your copy and merge by hand.\n`
+    );
+  }
+  const { merged, conflicts } = threeWayMerge(customized, base, asset);
+  writeFileSync(target, merged, 'utf-8');
+  if (existsSync(legacyBase)) {
+    logger.info(
+      `Used ${relative(process.cwd(), legacyBase)} as the merge base. Later updates read the version from the file's header, so you can delete that .pristine directory.\n`
+    );
+  }
+  // The skills are edit-first files too, so they merge the same way the generator did.
+  const skillBase = (skill: string): string | undefined =>
+    from === toolkitVersion
+      ? readFileSync(join(assetsDir, 'skills', skill, 'SKILL.md'), 'utf-8')
+      : packed.get(skillMember(skill));
+  const skillConflicts =
+    updateSkill('client-generators', assetsDir, skillBase('client-generators')) +
+    updateSkill(`${name}-generator`, assetsDir, skillBase(`${name}-generator`));
+  dropPointer(dir, ejectedIn(dir));
+  // The merged file targets the new toolkit; a range recorded at eject time may not.
+  const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion }, true);
+  if (dependency === 'updated' || dependency === 'added') {
+    logger.info(
+      `Set ${TOOLKIT_PACKAGE} to ^${toolkitVersion} in package.json — run your installer.\n`
+    );
+  }
+  const totalConflicts = conflicts + skillConflicts;
+  ejectGeneratorTelemetry.eject_generator_outcome = totalConflicts > 0 ? 'conflicts' : 'success';
+  if (totalConflicts > 0) {
+    ejectGeneratorTelemetry.eject_generator_conflicts = totalConflicts;
+    logger.warn(
+      `Updated ${printedTarget} with ${totalConflicts} conflict(s)${
+        skillConflicts > 0 ? ' (some in .claude/skills)' : ''
+      } — resolve the <<<<<<< markers, then regenerate.\n`
+    );
+  } else {
+    logger.info(`Updated ${printedTarget} cleanly.\n`);
+  }
+}
+
 export const handleEjectGenerator = async ({
   argv,
   config,
@@ -412,84 +510,10 @@ export const handleEjectGenerator = async ({
   const { GENERATOR_VERSION: toolkitVersion } = await import('@redocly/client-generator');
   const dir = resolve(argv.dir ?? './generators');
   const target = join(dir, `${name}.mjs`);
-  // Ejects before the base moved to the registry left a snapshot behind; it still works
-  // as the base, which keeps `--update` offline for anyone mid-migration.
-  const legacyBase = join(dir, '.pristine', `${name}.mjs`);
   const printedTarget = relative(process.cwd(), target) || target;
 
   if (argv.update) {
-    if (!existsSync(target)) {
-      ejectGeneratorTelemetry.eject_generator_outcome = 'missing-target';
-      throw new HandledError(
-        `\n❌  Nothing to update: ${printedTarget} does not exist. Eject first.\n`
-      );
-    }
-    const customized = readFileSync(target, 'utf-8');
-    const from = recordedVersion(customized);
-    // Version distance behind the conflict count — both OUR versions. The header is
-    // user-editable text, so it's recorded only when it parses as a semver version.
-    if (from !== undefined && semver.valid(from) !== null) {
-      ejectGeneratorTelemetry.eject_generator_from_version = from;
-    }
-    ejectGeneratorTelemetry.eject_generator_to_version = toolkitVersion;
-    // One pack fetches every merge base: the generator plus both skills it shipped with.
-    const packed =
-      existsSync(legacyBase) || from === toolkitVersion || from === undefined
-        ? new Map<string, string>()
-        : packedAssets(`${TOOLKIT_PACKAGE}@${from}`, [
-            generatorMember(name),
-            skillMember('client-generators'),
-            skillMember(`${name}-generator`),
-          ]);
-    const base = existsSync(legacyBase)
-      ? readFileSync(legacyBase, 'utf-8')
-      : from === toolkitVersion
-        ? asset
-        : packed.get(generatorMember(name));
-    if (base === undefined) {
-      ejectGeneratorTelemetry.eject_generator_outcome = 'missing-base';
-      const sideBySide = `${target}.new`;
-      writeFileSync(sideBySide, asset, 'utf-8');
-      throw new HandledError(
-        `\n❌  Could not read the version this file was ejected from (${from ?? 'not recorded in its header'}), so there is no merge base.\n` +
-          `   The current generator is written to ${relative(process.cwd(), sideBySide)} — diff it against your copy and merge by hand.\n`
-      );
-    }
-    const { merged, conflicts } = threeWayMerge(customized, base, asset);
-    writeFileSync(target, merged, 'utf-8');
-    if (existsSync(legacyBase)) {
-      logger.info(
-        `Used ${relative(process.cwd(), legacyBase)} as the merge base. Later updates read the version from the file's header, so you can delete that .pristine directory.\n`
-      );
-    }
-    // The skills are edit-first files too, so they merge the same way the generator did.
-    const skillBase = (skill: string): string | undefined =>
-      from === toolkitVersion
-        ? readFileSync(join(assetsDir, 'skills', skill, 'SKILL.md'), 'utf-8')
-        : packed.get(skillMember(skill));
-    const skillConflicts =
-      updateSkill('client-generators', assetsDir, skillBase('client-generators')) +
-      updateSkill(`${name}-generator`, assetsDir, skillBase(`${name}-generator`));
-    dropPointer(dir, ejectedIn(dir));
-    // The merged file targets the new toolkit; a range recorded at eject time may not.
-    const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion }, true);
-    if (dependency === 'updated' || dependency === 'added') {
-      logger.info(
-        `Set ${TOOLKIT_PACKAGE} to ^${toolkitVersion} in package.json — run your installer.\n`
-      );
-    }
-    const totalConflicts = conflicts + skillConflicts;
-    ejectGeneratorTelemetry.eject_generator_outcome = totalConflicts > 0 ? 'conflicts' : 'success';
-    if (totalConflicts > 0) {
-      ejectGeneratorTelemetry.eject_generator_conflicts = totalConflicts;
-      logger.warn(
-        `Updated ${printedTarget} with ${totalConflicts} conflict(s)${
-          skillConflicts > 0 ? ' (some in .claude/skills)' : ''
-        } — resolve the <<<<<<< markers, then regenerate.\n`
-      );
-    } else {
-      logger.info(`Updated ${printedTarget} cleanly.\n`);
-    }
+    updateEjectedGenerator({ name, asset, toolkitVersion, assetsDir, dir, target, printedTarget });
     return;
   }
 

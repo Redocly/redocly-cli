@@ -167,10 +167,10 @@ const GLOBAL_FLAGS: Record<string, { key: keyof CliGlobals; boolean?: boolean }>
  */
 export function groupSlug(group: string): string {
   return group
-    .trim()
-    .replace(/[^A-Za-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .toLowerCase();
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .join('-');
 }
 
 /** A description on ONE line: newlines in an OpenAPI description wreck help alignment. */
