@@ -1,7 +1,14 @@
 # go-sdk
 
 The `go` generator emits `src/api/client.go` — a full Go SDK over the standard library (zero dependencies, Go ≥ 1.21):
-structs with `json` tags, typed-const enums, a context-aware `Client` with `(T, error)` methods, auth, retries, pagination iterators (`<Op>Pages` / `<Op>Items`), SSE streaming, and multipart bodies.
+- structs with `json` tags
+- typed-const enums
+- a context-aware `Client` with `(T, error)` methods
+- auth
+- retries
+- pagination iterators (`<Op>Pages` / `<Op>Items`)
+- SSE streaming
+- multipart bodies
 
 ```sh
 npm run generate

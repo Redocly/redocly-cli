@@ -139,7 +139,10 @@ Authors a custom generator (`{ name, run }` plus optional `requires`/`errorModes
 function defineGenerator(generator: CustomGenerator): CustomGenerator;
 ```
 
-The `@redocly/client-generator/generate` entry also exports the TypeScript renderers the built-ins use (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, `safeIdent`), and the package root exports the IR types plus the language-neutral toolkit, so a custom generator emits TypeScript exactly as the first-party ones do — see the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator).
+The `@redocly/client-generator/generate` entry also exports the TypeScript renderers the built-ins use (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, `safeIdent`).
+The package root exports the IR types plus the language-neutral toolkit.
+A custom generator emits TypeScript exactly as the first-party ones do.
+See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator).
 
 ### `defineClientSetup`
 

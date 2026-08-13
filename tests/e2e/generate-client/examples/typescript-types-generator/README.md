@@ -1,9 +1,9 @@
 # TypeScript types generator example
 
-A custom generator that renders real TypeScript types with the
-`@redocly/client-generator/generate` entry — the same type renderer the built-in generators
-use, so the mapping matches the generated client exactly, instead of guessing at type text
-(compare with the plain string-building [`custom-generator`](../custom-generator) example).
+A custom generator that renders real TypeScript types with the `@redocly/client-generator/generate` entry.
+This is the same type renderer the built-in generators use.
+The mapping matches the generated client exactly, instead of guessing at type text.
+Compare with the plain string-building [`custom-generator`](../custom-generator) example.
 
 - [`response-map-generator.mjs`](./response-map-generator.mjs) — the generator.
   For every operation with a JSON success response it derives the response body's TypeScript type
@@ -31,8 +31,7 @@ runtime-only.
 The `/generate` entry holds everything that runs at **generation time** — it loads the TypeScript
 compiler and `@redocly/openapi-core`, which an app must never pull in:
 
-- the text toolkit used here (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`,
-  `pascalCase`, …),
+- the text toolkit used here (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, …),
 - `generateClient` (also re-exported from the root behind a dynamic import) and
   `collectGeneratedFiles` for in-memory generation.
 
