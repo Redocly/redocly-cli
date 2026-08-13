@@ -48,8 +48,6 @@ export type OperationListItem = {
   tags: string[];
 } & FileRange;
 
-export type PathListItem = { path: string; methods: string[] } & FileRange;
-
 export type ComponentListItem = { name: string; summary?: string } & FileRange;
 
 const UNTAGGED = 'untagged';
@@ -145,21 +143,6 @@ export function toOperationListItem(operation: CollectedOperation, cwd: string):
     tags: operation.tags,
     ...toFileRange(operation.location, cwd),
   };
-}
-
-export function buildPathListing(analysis: ApiAnalysis, options: { cwd: string }): PathListItem[] {
-  const groups = new Map<string, CollectedOperation[]>();
-  for (const operation of analysis.meta.operations) {
-    if (operation.isWebhook) continue;
-    const group = groups.get(operation.containerKey) ?? [];
-    group.push(operation);
-    groups.set(operation.containerKey, group);
-  }
-  return [...groups.entries()].map(([pathKey, operations]) => ({
-    path: pathKey,
-    methods: operations.map((operation) => operation.method.toLowerCase()),
-    ...toFileRange(operations[0].pathItemLocation, options.cwd),
-  }));
 }
 
 export type TypedRef = ApiNodeRef & { component?: string; name?: string };

@@ -152,10 +152,6 @@ yargs(hideBin(process.argv))
             type: 'string' as const,
             requiresArg: true,
           },
-          paths: {
-            description: 'List every path with its methods.',
-            type: 'boolean' as const,
-          },
           operations: {
             description: 'List every operation.',
             type: 'boolean' as const,
@@ -184,18 +180,6 @@ yargs(hideBin(process.argv))
             type: 'boolean' as const,
           },
         })
-        .conflicts('paths', [
-          'operations',
-          'webhooks',
-          'tag',
-          'path',
-          'webhook',
-          'operation',
-          'component',
-          'name',
-          'used-by',
-          'with-deps',
-        ])
         .conflicts('operations', [
           'tag',
           'path',
@@ -218,12 +202,10 @@ yargs(hideBin(process.argv))
           'operation',
           'component',
           'name',
-          'paths',
           'operations',
           'webhooks',
         ])
         .conflicts('files', [
-          'paths',
           'operations',
           'webhooks',
           'tag',

@@ -8,7 +8,6 @@ import {
   buildOperationCard,
   buildOperationListing,
   buildOverview,
-  buildPathListing,
   buildUsedByReport,
   collectConnectedIds,
   COMPONENT_SECTIONS,
@@ -38,7 +37,6 @@ import {
   type NormalizedNodeType,
   type OperationCard,
   type OperationListCard,
-  type PathListItem,
   type ResolvedRefMap,
   type SpecVersion,
   type UsedByReport,
@@ -62,7 +60,6 @@ export type TreeArgv = {
   format: TreeFormat;
   output?: string;
   files?: boolean;
-  paths?: boolean;
   operations?: boolean;
   webhooks?: boolean;
   tag?: string;
@@ -86,7 +83,6 @@ export type TreeView =
       webhookOperations?: OperationListCard[];
     }
   | { kind: 'operations'; items: OperationListCard[]; scope?: string }
-  | { kind: 'paths'; items: PathListItem[] }
   | { kind: 'components'; section: string; items: ComponentListCard[] }
   | { kind: 'operation-card'; card: OperationCard }
   | { kind: 'component-card'; card: ComponentCard }
@@ -176,7 +172,6 @@ export function resolveTreeView(
       argv.component !== undefined ||
       argv.name !== undefined ||
       argv.file !== undefined ||
-      argv.paths === true ||
       argv.operations === true ||
       argv.webhooks === true ||
       usedBy ||
@@ -304,7 +299,11 @@ export function resolveTreeView(
             .map((operation) => operation.containerKey)
         ),
       ];
-      selectorHint('path', argv.path!, knownPaths, 'redocly tree <api> --paths');
+      const suggestions = suggestNames(argv.path!, knownPaths);
+      const didYouMean = suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
+      throw new TreeSelectorError(
+        `No path "${argv.path}".${didYouMean} Run \`redocly tree <api> --operations\` to list operations.`
+      );
     }
     if (argv.operation !== undefined) {
       const operation =
@@ -389,7 +388,6 @@ export function resolveTreeView(
     };
   if (argv.operations)
     return { kind: 'operations', items: buildOperationListing(analysis, { cwd }) };
-  if (argv.paths) return { kind: 'paths', items: buildPathListing(analysis, { cwd }) };
 
   const overview = buildOverview(analysis, { specVersion, cwd });
   if (argv.format === 'json') return { kind: 'overview', overview };
@@ -572,7 +570,6 @@ async function handleStructureMode({
     argv.name !== undefined ||
     argv.file !== undefined ||
     argv.find !== undefined ||
-    argv.paths === true ||
     argv.operations === true ||
     argv.webhooks === true ||
     argv['used-by'] === true ||
@@ -583,7 +580,7 @@ async function handleStructureMode({
     // renders for any spec type, in both stylish and json.
     if (usesSelectors) {
       return exitWithError(
-        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --paths, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
+        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
       );
     }
     renderOutput(graph, argv, {});

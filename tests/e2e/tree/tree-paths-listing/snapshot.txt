@@ -1,3 +1,0 @@
-/orders  [get, post]  7..7
-/orders/{orderId}  [get, delete]  9..9
-

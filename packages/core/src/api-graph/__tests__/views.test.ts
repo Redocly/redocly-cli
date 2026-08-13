@@ -13,7 +13,6 @@ import {
   buildOperationCard,
   buildOperationListing,
   buildOverview,
-  buildPathListing,
   buildUsedByReport,
 } from '../views.js';
 
@@ -82,11 +81,8 @@ describe('views: overview and listings', () => {
     expect(scoped[1]).not.toHaveProperty('deps');
   });
 
-  it('lists paths with their methods and components as cards with refs and usedBy', async () => {
+  it('lists components as cards with refs and usedBy', async () => {
     const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
-
-    const paths = buildPathListing(analysis, { cwd });
-    expect(paths.find((item) => item.path === '/tickets')?.methods).toEqual(['get', 'post']);
 
     const schemas = buildComponentListing(analysis, { cwd, section: 'schemas' });
     const ticket = schemas.find((item) => item.name === 'Ticket');

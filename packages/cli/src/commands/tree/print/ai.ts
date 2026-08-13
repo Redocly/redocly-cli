@@ -6,7 +6,6 @@ import type {
   FindReport,
   OperationCard,
   OperationListCard,
-  PathListItem,
   TypedRef,
   UsedByEntry,
   UsedByReport,
@@ -40,8 +39,6 @@ export function renderAiView(view: TreeView): string {
       return renderAiOverview(view.overview, view.operations, view.webhookOperations);
     case 'operations':
       return renderAiOperations(view.scope, view.items);
-    case 'paths':
-      return renderAiPaths(view.items);
     case 'components':
       return renderAiComponents(view.section, view.items);
     case 'find':
@@ -145,15 +142,6 @@ function renderAiOperations(scope: string | undefined, items: OperationListCard[
   const showFile = spansMultipleFiles(items);
   const header = `${scope ?? 'operations'} · ${count(items.length, 'operation')}`;
   return [header, ...items.map((item) => aiOperationLine(item, showFile))].join('\n');
-}
-
-function renderAiPaths(items: PathListItem[]): string {
-  const showFile = spansMultipleFiles(items);
-  const lines = items.map((item) => {
-    const file = showFile ? ` · f:${item.file}` : '';
-    return `${item.path} · ${item.methods.join(',')} · L${item.start_line}${file}`;
-  });
-  return [`paths · ${items.length}`, ...lines].join('\n');
 }
 
 function renderAiComponents(section: string, items: ComponentListCard[]): string {

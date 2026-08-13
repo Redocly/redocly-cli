@@ -6,7 +6,6 @@ import type {
   FindReport,
   OperationCard,
   OperationListCard,
-  PathListItem,
   UsedByReport,
 } from '@redocly/openapi-core';
 
@@ -730,15 +729,6 @@ describe('renderView (ai)', () => {
     usedBy: [],
   };
 
-  const pathListItemFixture: PathListItem = {
-    path: '/tickets',
-    methods: ['get', 'post'],
-    pointer: '#/paths/~1tickets',
-    file: 'paths/tickets.yaml',
-    start_line: 1,
-    end_line: 40,
-  };
-
   const findReportFixture: FindReport = {
     terms: ['pet'],
     operations: [operationListCardFixture],
@@ -821,7 +811,7 @@ describe('renderView (ai)', () => {
     expect(rendered).toContain(' · f:paths/orders.yaml');
   });
 
-  it('renders an ai components listing and a paths listing', () => {
+  it('renders an ai components listing', () => {
     const componentsView: TreeView = {
       kind: 'components',
       section: 'schemas',
@@ -830,12 +820,6 @@ describe('renderView (ai)', () => {
     expect(renderView(componentsView, 'ai')).toMatchInlineSnapshot(`
       "schemas · 1 component
       schemas/Ticket · L12 — A museum ticket."
-    `);
-
-    const pathsView: TreeView = { kind: 'paths', items: [pathListItemFixture] };
-    expect(renderView(pathsView, 'ai')).toMatchInlineSnapshot(`
-      "paths · 1
-      /tickets · get,post · L1"
     `);
   });
 

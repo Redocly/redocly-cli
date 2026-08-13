@@ -26,7 +26,6 @@ Options:
       --name         Component name; requires --component.              [string]
       --file         Show everything one file defines. Combine with --used-by, o
                      r with --files to filter the file graph.           [string]
-      --paths        List every path with its methods.                 [boolean]
       --operations   List every operation.                             [boolean]
       --webhooks     List every webhook operation.                     [boolean]
       --used-by      With a selector: show every operation and component that tr

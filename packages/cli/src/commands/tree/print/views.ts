@@ -8,7 +8,6 @@ import {
   type FindReport,
   type OperationCard,
   type OperationListCard,
-  type PathListItem,
   type TypedRef,
   type UsedByEntry,
   type UsedByReport,
@@ -30,8 +29,6 @@ function viewPayload(view: TreeView): unknown {
       return view.overview;
     case 'operations':
       return view.items;
-    case 'paths':
-      return view.items;
     case 'components':
       return { section: view.section, items: view.items };
     case 'operation-card':
@@ -52,8 +49,6 @@ export function renderViewStylish(view: TreeView): string {
       return renderOverview(view.overview, view.operations ?? [], view.webhookOperations ?? []);
     case 'operations':
       return renderOperationsListing(view.items, spansMultipleFiles(view.items));
-    case 'paths':
-      return renderPathsListing(view.items);
     case 'components':
       return renderComponentsListing(view.section, view.items);
     case 'operation-card':
@@ -218,14 +213,6 @@ function renderOperationsListing(items: OperationListCard[], showFile: boolean):
   });
 
   return blocks.join('\n\n');
-}
-
-function renderPathsListing(items: PathListItem[]): string {
-  return items
-    .map(
-      (item) => `${item.path}  [${item.methods.join(', ')}]  ${item.start_line}..${item.end_line}`
-    )
-    .join('\n');
 }
 
 /**

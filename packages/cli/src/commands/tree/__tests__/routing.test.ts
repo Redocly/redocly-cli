@@ -51,7 +51,6 @@ describe('resolveTreeView', () => {
     expect(route({}).kind).toBe('overview');
     expect(route({ tag: 'Tickets' })).toMatchObject({ kind: 'operations', scope: 'Tickets' });
     expect(route({ operations: true }).kind).toBe('operations');
-    expect(route({ paths: true }).kind).toBe('paths');
     expect(route({ path: '/tickets' }).kind).toBe('operations');
     expect(route({ path: '/tickets', operation: 'post' }).kind).toBe('operation-card');
     expect(route({ operation: 'buyTickets' }).kind).toBe('operation-card');
@@ -121,7 +120,7 @@ describe('resolveTreeView', () => {
     expect(route({ tag: 'Ticket' })).toThrow(/Did you mean.*Tickets/);
     expect(route({ operation: 'post' })).toThrow(/looks like an HTTP method.*--path/);
     expect(route({ operation: 'buyTickets', 'with-deps': false, path: '/nope' })).toThrow(
-      /No path "\/nope"/
+      /No path "\/nope".*Run `redocly tree <api> --operations` to list operations\./
     );
     expect(route({ component: 'bogus' })).toThrow(/Unknown component section/);
     expect(route({ name: 'Ticket' })).toThrow(/--name requires --component/);

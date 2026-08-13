@@ -89,12 +89,6 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-operations-listing'));
   });
 
-  test('tree --paths lists every path with its methods', async () => {
-    const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--paths']);
-    const result = getCommandOutput(args, { testPath: samplePath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-paths-listing'));
-  });
-
   test('tree --component lists the components of one section', async () => {
     const args = getParams(indexEntryPoint, ['tree', 'openapi.yaml', '--component=schemas']);
     const result = getCommandOutput(args, { testPath: samplePath });
