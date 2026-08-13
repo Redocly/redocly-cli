@@ -85,6 +85,54 @@ describe('wireConfig', () => {
     `);
   });
 
+  it('wires despite a comment that mentions the path, and is idempotent once listed', () => {
+    // A mention outside the list (a comment, a longer path) is not wiring.
+    expect(
+      wire(outdent`
+        # was: ./generators/php.mjs
+        client:
+          generators:
+            - typescript
+      `)
+    ).toBe(outdent`
+      # was: ./generators/php.mjs
+      client:
+        generators:
+          - typescript
+          - ./generators/php.mjs
+    `);
+    // A real list entry is — the file stays unchanged.
+    const wired = outdent`
+      client:
+        generators:
+          - ./generators/php.mjs
+    `;
+    expect(wire(wired)).toBe(wired);
+  });
+
+  it('prints the snippet instead when an api has its own client block', () => {
+    // `forAlias` replaces the top-level `client` with the api's block wholesale, so
+    // inserting top-level keys would report "wired" while generation ignores them.
+    const dir = mkdtempSync(join(tmpdir(), 'redocly-wire-config-'));
+    const configPath = join(dir, 'redocly.yaml');
+    writeFileSync(
+      configPath,
+      outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            client:
+              argsStyle: grouped
+      `,
+      'utf-8'
+    );
+    try {
+      expect(wireConfig(configPath, 'php', './generators/php.mjs')).toBe(false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('appends a client block when the config has none', () => {
     expect(
       wire(

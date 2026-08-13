@@ -1,4 +1,4 @@
-import { HandledError, logger } from '@redocly/openapi-core';
+import { HandledError, isPlainObject, logger, parseYaml } from '@redocly/openapi-core';
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
@@ -301,29 +301,24 @@ function wireDependency(
  * leaving both would make the next run fail on a name collision, since the ejected file
  * declares the name it takes over. A config without a `client:` block or a `generators:`
  * list gets the missing keys appended — the common shape, since `typescript` is the
- * default and nobody lists it. Only a list we can extend without guessing is edited in
+ * default and nobody lists it — unless an api carries its own `client` block, which
+ * replaces the top-level one. Only a list we can extend without guessing is edited in
  * place — a block sequence or a flow sequence — and anything else returns false, so the
  * caller prints the snippet instead of reshaping someone's config.
  */
 export function wireConfig(configPath: string | undefined, name: string, entry: string): boolean {
   if (configPath === undefined || !existsSync(configPath)) return false;
   const source = readFileSync(configPath, 'utf-8');
-  if (source.includes(entry)) return true;
+  const isItem = (value: string) => (item: string) =>
+    item === value || item === `'${value}'` || item === `"${value}"`;
+  const isNameEntry = isItem(name);
+  const isPathEntry = isItem(entry);
   const lines = source.split('\n');
   const clientLine = lines.findIndex((line) => /^client:\s*$/.test(line));
-  if (clientLine === -1) {
-    if (/^client:/m.test(source)) return false; // `client: {...}` or similar — not a shape we edit
-    const separator = source === '' || source.endsWith('\n') ? '' : '\n';
-    writeFileSync(
-      configPath,
-      `${source}${separator}client:\n  generators:\n    - ${entry}\n`,
-      'utf-8'
-    );
-    return true;
-  }
-  let generatorsLine = lines.findIndex(
-    (line, index) => index > clientLine && /^\s+generators:/.test(line)
-  );
+  let generatorsLine =
+    clientLine === -1
+      ? -1
+      : lines.findIndex((line, index) => index > clientLine && /^\s+generators:/.test(line));
   // A `generators:` beyond a dedented line belongs to another block — the `client:`
   // block itself has none.
   if (
@@ -333,12 +328,28 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
     generatorsLine = -1;
   }
   if (generatorsLine === -1) {
+    // Inserting the missing keys only helps when the top-level `client` block is the one
+    // generation reads. An api's own `client` block replaces it wholesale (`forAlias`),
+    // so with one present the caller prints the snippet and the user picks the block.
+    const parsed = parseYaml(source);
+    const apis = isPlainObject(parsed) && isPlainObject(parsed.apis) ? parsed.apis : {};
+    if (Object.values(apis).some((api) => isPlainObject(api) && isPlainObject(api.client))) {
+      return false;
+    }
+    if (clientLine === -1) {
+      if (/^client:/m.test(source)) return false; // `client: {...}` or similar — not a shape we edit
+      const separator = source === '' || source.endsWith('\n') ? '' : '\n';
+      writeFileSync(
+        configPath,
+        `${source}${separator}client:\n  generators:\n    - ${entry}\n`,
+        'utf-8'
+      );
+      return true;
+    }
     lines.splice(clientLine + 1, 0, '  generators:', `    - ${entry}`);
     writeFileSync(configPath, lines.join('\n'), 'utf-8');
     return true;
   }
-  const isNameEntry = (item: string) =>
-    item === name || item === `'${name}'` || item === `"${name}"`;
 
   const flow = lines[generatorsLine].match(/^(\s+generators:\s*\[)(.*)\]\s*$/);
   if (flow !== null) {
@@ -346,6 +357,7 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
       .split(',')
       .map((item) => item.trim())
       .filter((item) => item !== '');
+    if (items.some(isPathEntry)) return true;
     const nameEntry = items.findIndex(isNameEntry);
     if (nameEntry === -1) items.push(entry);
     else items[nameEntry] = entry;
@@ -359,6 +371,7 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
   for (let index = generatorsLine + 1; index < lines.length; index++) {
     const item = lines[index].match(/^(\s+)- (.*?)\s*$/);
     if (item === null) break;
+    if (isPathEntry(item[2])) return true;
     if (isNameEntry(item[2])) {
       lines[index] = `${item[1]}- ${entry}`;
       writeFileSync(configPath, lines.join('\n'), 'utf-8');

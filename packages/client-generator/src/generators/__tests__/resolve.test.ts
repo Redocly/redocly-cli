@@ -17,6 +17,12 @@ describe('resolveGenerators', () => {
     expect(registry.has('zod')).toBe(true);
   });
 
+  it('names the rename for the retired "sdk" entry instead of importing it as a package', async () => {
+    await expect(resolveGenerators(['sdk'])).rejects.toThrow(
+      'The "sdk" generator is now named "typescript"'
+    );
+  });
+
   it("keeps a registered generator's declared options schema", async () => {
     const custom: CustomGenerator = {
       name: 'route-map',

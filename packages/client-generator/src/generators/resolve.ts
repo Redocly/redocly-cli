@@ -87,6 +87,13 @@ async function loadEntry(
     registry.set(entry, { ...compatibility, ...(await load()) });
     return entry;
   }
+  // Without this, the old name falls through to `import('sdk')` and fails with a
+  // module-load error that hides the rename.
+  if (entry === 'sdk') {
+    throw new NotSupportedError(
+      'The "sdk" generator is now named "typescript". Update the `generators` list or the --generator flag.'
+    );
+  }
   const custom = await importGenerator(entry, configDir ?? process.cwd());
   register(registry, custom);
   return custom.name;
