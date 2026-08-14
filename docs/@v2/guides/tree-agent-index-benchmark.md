@@ -300,6 +300,8 @@ The first-round agent had to page a 37 KB tag listing through `head -c` instead;
 Both indexed agents and the control caught the host override.
 Result: parity with the control on session size (+0.9%) with the lowest output tokens of the series.
 
+**Bottom line — Sonnet 5, session tokens: 66,246 without the tool vs 66,862 with it; output 19,789 vs 16,952.**
+
 {% /tab %}
 {% tab label="Billing API · 1.3 MB" %}
 
@@ -317,6 +319,8 @@ Its chain: overview → `--find "subscription"` → three small tag listings (3�
 Where the first round's agent could not confirm `PlanFormulaFlatRate`'s fields — the old component card carried no body — the final-format agent confirmed them from the card's signature line in one call.
 A follow-up verification run on the JSON card bodies landed at the same session size (89,387) with a strictly richer answer: the auth scheme, a `readOnly` currency, and the prose-only defaults, verified through fourteen extra component spot-checks.
 
+**Bottom line — Sonnet 5, session tokens: 92,648 without the tool vs 88,915 with it; on Opus 69,971 vs 61,844, on Fable 5 63,546 vs 56,946 (the model-tier section below).**
+
 {% /tab %}
 {% tab label="Demo API · 41 KB" %}
 
@@ -333,6 +337,8 @@ On a 9,042-token description the control simply read the whole file in one call 
 The final-format agent cost more than either baseline and spent 23 calls (four of them `--find`) producing the most detailed answer of the series:
 the full OAuth2 register-then-token chain, the `search`/`filter` query parameters, id patterns, and an honest note that the token endpoint is not a documented operation.
 Below the context window, structure buys answer quality, not tokens — dump when the file fits.
+
+**Bottom line — Sonnet 5, session tokens: 71,430 without the tool vs 74,020 with it — pasting a file of this size wins.**
 
 {% /tab %}
 {% /tabs %}
