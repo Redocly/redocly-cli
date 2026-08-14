@@ -1,4 +1,4 @@
-import { getLineColLocation } from '../format/codeframes.js';
+import { getContentLineColLocation } from '../format/codeframes.js';
 import { isRef } from '../ref-utils.js';
 import type { Document } from '../resolve.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -61,7 +61,7 @@ export function collectNodeRefs(options: {
     const targetPointer = resolvedRef.nodePointer.startsWith('#')
       ? resolvedRef.nodePointer
       : `#${resolvedRef.nodePointer}`;
-    const lineCol = getLineColLocation({
+    const lineCol = getContentLineColLocation({
       source: resolvedRef.document.source,
       pointer: targetPointer,
       reportOnKey: false,
@@ -72,7 +72,7 @@ export function collectNodeRefs(options: {
       file: toRelativePath(resolvedRef.document.source.absoluteRef, cwd),
       pointer: targetPointer,
       start_line: lineCol.start.line,
-      // getLineColLocation always computes `end` for a string pointer.
+      // getContentLineColLocation always computes `end` for a string pointer.
       end_line: lineCol.end!.line,
     };
   });

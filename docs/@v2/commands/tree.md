@@ -219,7 +219,7 @@ redocly tree cafe.yaml --tag=Orders --format=json
         "file": "cafe.yaml",
         "pointer": "#/components/schemas/OrderList",
         "start_line": 1108,
-        "end_line": 1124,
+        "end_line": 1123,
         "component": "schemas",
         "name": "OrderList"
       }
@@ -254,7 +254,7 @@ redocly tree cafe.yaml --tag=Orders --format=json
         "file": "cafe.yaml",
         "pointer": "#/components/schemas/Order",
         "start_line": 1033,
-        "end_line": 1107,
+        "end_line": 1106,
         "component": "schemas",
         "name": "Order"
       }
@@ -300,7 +300,7 @@ POST /orders — Create order (createOrder)
 │   ├── responses/Forbidden → cafe.yaml#/components/responses/Forbidden  [1345..1349]
 │   ├── responses/InternalServerError → cafe.yaml#/components/responses/InternalServerError  [1333..1337]
 │   ├── responses/Unauthorized → cafe.yaml#/components/responses/Unauthorized  [1339..1343]
-│   └── schemas/Order → cafe.yaml#/components/schemas/Order  [1033..1107]
+│   └── schemas/Order → cafe.yaml#/components/schemas/Order  [1033..1106]
 └── usedBy (none)
 ```
 
@@ -372,7 +372,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --format=json
       "file": "cafe.yaml",
       "pointer": "#/components/schemas/Order",
       "start_line": 1033,
-      "end_line": 1107,
+      "end_line": 1106,
       "component": "schemas",
       "name": "Order"
     }
@@ -482,20 +482,20 @@ redocly tree cafe.yaml --component=schemas
 
 ```
 schemas (15)
-├── Page 823..867
-├── MenuBaseItem 868..923
-├── Beverage 924..943
-├── Dessert 944..959
-├── MenuItem 960..970
-├── MenuItemList 971..987
-├── Error 988..1024
-├── OrderStatus "Order status." 1025..1032
-├── Order 1033..1107
-├── OrderList 1108..1124
-├── OrderItem 1125..1152
-├── RevenueStatistics "Revenue statistics for a given date range." 1153..1206
-├── RegisterClientObject 1207..1239
-├── OAuth2Client "OAuth2 client registration response. Per RFC 7591, includes the client identifier, secret, timestamps, and all registered client metadata." 1240..1309
+├── Page 823..866
+├── MenuBaseItem 868..922
+├── Beverage 924..942
+├── Dessert 944..958
+├── MenuItem 960..969
+├── MenuItemList 971..986
+├── Error 988..1023
+├── OrderStatus "Order status." 1025..1031
+├── Order 1033..1106
+├── OrderList 1108..1123
+├── OrderItem 1125..1151
+├── RevenueStatistics "Revenue statistics for a given date range." 1153..1205
+├── RegisterClientObject 1207..1238
+├── OAuth2Client "OAuth2 client registration response. Per RFC 7591, includes the client identifier, secret, timestamps, and all registered client metadata." 1240..1308
 └── OrderNotification 1310..1324
 ```
 
@@ -518,14 +518,14 @@ redocly tree cafe.yaml --component=schemas --name=Order
 
 ```
 schemas/Order
-├── source: cafe.yaml#/components/schemas/Order  [1033..1107]
+├── source: cafe.yaml#/components/schemas/Order  [1033..1106]
 ├── refs (1)
-│   └── schemas/OrderStatus → cafe.yaml#/components/schemas/OrderStatus  [1025..1032]
+│   └── schemas/OrderStatus → cafe.yaml#/components/schemas/OrderStatus  [1025..1031]
 └── usedBy (4)
     ├── GET /orders/{orderId} → cafe.yaml  [375..416]
     ├── PATCH /orders/{orderId} → cafe.yaml  [418..476]
     ├── POST /orders → cafe.yaml  [316..372]
-    └── schemas/OrderList → cafe.yaml  [1108..1124]
+    └── schemas/OrderList → cafe.yaml  [1108..1123]
 ```
 
 `usedBy` here shows every operation and component with a direct reference to `Order` — one hop only; for the transitive version see `--used-by` below.
@@ -856,7 +856,7 @@ find "order status" · 1 operations · 1 components
 └── PATCH "Partially update an order" 418..476 [Orders]
 
 components (1)
-└── schemas/OrderStatus "Order status." 1025..1032
+└── schemas/OrderStatus "Order status." 1025..1031
 ```
 
 `--format=ai` renders the same ranked matches as text lines, one per entry, in the same operation and component line shapes every other listing uses — covered in its own section right after this one:
@@ -1063,7 +1063,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "pointer": "#/components/schemas/Order",
       "start_line": 1033,
-      "end_line": 1107,
+      "end_line": 1106,
       "component": "schemas",
       "name": "Order"
     }
@@ -1085,7 +1085,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
           "file": "cafe.yaml",
           "pointer": "#/components/schemas/Error",
           "start_line": 988,
-          "end_line": 1024
+          "end_line": 1023
         }
       ]
     },
@@ -1103,7 +1103,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
           "file": "cafe.yaml",
           "pointer": "#/components/schemas/Error",
           "start_line": 988,
-          "end_line": 1024
+          "end_line": 1023
         }
       ]
     },
@@ -1121,7 +1121,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
           "file": "cafe.yaml",
           "pointer": "#/components/schemas/Error",
           "start_line": 988,
-          "end_line": 1024
+          "end_line": 1023
         }
       ]
     },
@@ -1139,7 +1139,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
           "file": "cafe.yaml",
           "pointer": "#/components/schemas/Error",
           "start_line": 988,
-          "end_line": 1024
+          "end_line": 1023
         }
       ]
     },
@@ -1148,7 +1148,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "pointer": "#/components/schemas/Order",
       "file": "cafe.yaml",
       "start_line": 1033,
-      "end_line": 1107,
+      "end_line": 1106,
       "content": "…",
       "refs": [
         {
@@ -1157,7 +1157,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
           "file": "cafe.yaml",
           "pointer": "#/components/schemas/OrderStatus",
           "start_line": 1025,
-          "end_line": 1032
+          "end_line": 1031
         }
       ]
     },
@@ -1166,7 +1166,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "pointer": "#/components/schemas/Error",
       "file": "cafe.yaml",
       "start_line": 988,
-      "end_line": 1024,
+      "end_line": 1023,
       "content": "…",
       "refs": []
     },
@@ -1175,7 +1175,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "pointer": "#/components/schemas/OrderStatus",
       "file": "cafe.yaml",
       "start_line": 1025,
-      "end_line": 1032,
+      "end_line": 1031,
       "content": "…",
       "refs": []
     }
@@ -1200,16 +1200,16 @@ POST /orders — Create order (createOrder)
 │   ├── responses/Forbidden → cafe.yaml#/components/responses/Forbidden  [1345..1349]
 │   ├── responses/InternalServerError → cafe.yaml#/components/responses/InternalServerError  [1333..1337]
 │   ├── responses/Unauthorized → cafe.yaml#/components/responses/Unauthorized  [1339..1343]
-│   └── schemas/Order → cafe.yaml#/components/schemas/Order  [1033..1107]
+│   └── schemas/Order → cafe.yaml#/components/schemas/Order  [1033..1106]
 ├── usedBy (none)
 └── deps (7, 4.2 KB of 64 KB cap)
     ├── responses/BadRequest → cafe.yaml  [1327..1331]
     ├── responses/Forbidden → cafe.yaml  [1345..1349]
     ├── responses/InternalServerError → cafe.yaml  [1333..1337]
     ├── responses/Unauthorized → cafe.yaml  [1339..1343]
-    ├── schemas/Order → cafe.yaml  [1033..1107]
-    ├── schemas/Error → cafe.yaml  [988..1024]
-    └── schemas/OrderStatus → cafe.yaml  [1025..1032]
+    ├── schemas/Order → cafe.yaml  [1033..1106]
+    ├── schemas/Error → cafe.yaml  [988..1023]
+    └── schemas/OrderStatus → cafe.yaml  [1025..1031]
 ```
 
 Each `deps` entry is `id → file  [start..end]`, the same arrow shape as `refs`, without the pointer (a dependency's own `refs` are one selector away, or in the JSON `deps[].refs`).
@@ -1268,7 +1268,7 @@ redocly tree cafe.yaml --component=schemas --name=Order --used-by --format=json
     "pointer": "#/components/schemas/Order",
     "file": "cafe.yaml",
     "start_line": 1033,
-    "end_line": 1107
+    "end_line": 1106
   },
   "affectedOperations": [
     {
@@ -1324,7 +1324,7 @@ redocly tree cafe.yaml --component=schemas --name=Order --used-by --format=json
       "pointer": "#/components/schemas/OrderList",
       "file": "cafe.yaml",
       "start_line": 1108,
-      "end_line": 1124,
+      "end_line": 1123,
       "via": ["schemas/Order", "schemas/OrderList"]
     }
   ]

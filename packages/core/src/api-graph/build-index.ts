@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 
-import { getLineColLocation } from '../format/codeframes.js';
+import { getContentLineColLocation } from '../format/codeframes.js';
 import type { SpecVersion } from '../oas-types.js';
 import { isAbsoluteUrl, type Location } from '../ref-utils.js';
 import type {
@@ -127,7 +127,7 @@ export function toRelativePath(absoluteRef: string, cwd: string): string {
 }
 
 export function toFileRange(location: Location, cwd: string) {
-  const lineCol = getLineColLocation({
+  const lineCol = getContentLineColLocation({
     source: location.source,
     pointer: location.pointer,
     reportOnKey: false,
@@ -136,7 +136,7 @@ export function toFileRange(location: Location, cwd: string) {
     pointer: location.pointer,
     file: toRelativePath(location.source.absoluteRef, cwd),
     start_line: lineCol.start.line,
-    // getLineColLocation always computes `end` for a string pointer.
+    // getContentLineColLocation always computes `end` for a string pointer.
     end_line: lineCol.end!.line,
   };
 }

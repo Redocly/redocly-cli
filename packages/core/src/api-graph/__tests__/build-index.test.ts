@@ -92,4 +92,19 @@ describe('buildApiIndex', () => {
     expect(webhooks.nodes!.map((node) => node.id)).toEqual(['POST newTicket']);
     expect(webhooks.nodes![0].title).toBe('POST newTicket — New ticket alert');
   });
+
+  it('ends a node range on its own last line when the node ends with a block sequence', async () => {
+    const index = await indexOfFixture(join(__dirname, 'fixtures', 'block-sequence-end'));
+
+    const components = index.structure.find((section) => section.id === 'Components')!;
+    const schemas = components.nodes!.find((group) => group.id === 'components/schemas')!;
+
+    // `required:` is Order's last property; the parser stamps a block sequence's end
+    // past the next line's indentation, so the range must not spill onto `OrderList:`.
+    const order = schemas.nodes!.find((node) => node.id === 'schemas/Order')!;
+    expect([order.start_line, order.end_line]).toEqual([9, 14]);
+
+    const orderList = schemas.nodes!.find((node) => node.id === 'schemas/OrderList')!;
+    expect([orderList.start_line, orderList.end_line]).toEqual([16, 18]);
+  });
 });

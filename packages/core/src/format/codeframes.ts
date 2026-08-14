@@ -147,6 +147,54 @@ export function getLineColLocation(location: LocationObject): LineColLocationObj
 }
 
 /**
+ * Same as `getLineColLocation`, but `end` stops at the node's own last content character.
+ * Use it when the range is meant to slice source text rather than point at a problem.
+ */
+export function getContentLineColLocation(location: LocationObject): LineColLocationObject {
+  if (location.pointer === undefined) return location;
+
+  const { source, pointer, reportOnKey } = location;
+  const ast = source.getAst(yamlAst.safeLoad) as YAMLNode;
+  const astNode = getAstNodeByPointer(ast, pointer, !!reportOnKey);
+  return {
+    ...location,
+    pointer: undefined,
+    ...positionsToLoc(
+      source,
+      astNode?.startPosition ?? 1,
+      astNode ? contentEndPosition(astNode as YAMLNode, source.body) : 1
+    ),
+  };
+}
+
+/**
+ * The parser stamps a block sequence's `endPosition` only after its end-of-sequence lookahead,
+ * which has already skipped the line break and the next line's indentation — so the position
+ * lands on the next sibling's first character, and any container whose last nested value is a
+ * block sequence inherits that overshoot. Descending to the deepest last child yields the end
+ * of the node's own content. Flow collections stamp an exact end (right after their closing
+ * bracket), so they and scalars are trusted as is.
+ */
+function contentEndPosition(node: YAMLNode, body: string): number {
+  switch (node.kind) {
+    case yamlAst.Kind.MAP:
+    case yamlAst.Kind.SEQ: {
+      const lastChar = body[node.endPosition - 1];
+      if (lastChar === '}' || lastChar === ']') return node.endPosition;
+      const lastChild =
+        node.kind === yamlAst.Kind.MAP
+          ? node.mappings[node.mappings.length - 1]
+          : node.items[node.items.length - 1];
+      return lastChild ? contentEndPosition(lastChild as YAMLNode, body) : node.endPosition;
+    }
+    case yamlAst.Kind.MAPPING:
+      return node.value ? contentEndPosition(node.value as YAMLNode, body) : node.endPosition;
+    default:
+      return node.endPosition;
+  }
+}
+
+/**
  * Converts a `[startPos, endPos)` character-offset span into 1-based `{ start, end }` line/col
  * locations, via binary search over the source's cached line-offset table instead of rescanning
  * `body` from the start on every call.
