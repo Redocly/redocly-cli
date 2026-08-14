@@ -200,6 +200,7 @@ export type {
   UsedByReport,
 } from './api-graph/views.js';
 export { findMatches, FIND_LIMIT, type FindReport } from './api-graph/find.js';
+export { resolvePointerSelector, type PointerResolution } from './api-graph/pointer.js';
 export { buildFileCard, buildFileUsedByReport, type FileCard } from './api-graph/file-view.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
