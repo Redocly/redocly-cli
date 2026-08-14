@@ -120,6 +120,16 @@ describe('resolvePointerSelector: container pointers', () => {
     });
     expect(resolvePointerSelector(analysis, '#/paths/~1nope', { cwd }).kind).toBe('unresolved');
   });
+
+  it('routes #/webhooks/<name> to that webhook, only when it exists', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'webhooks'));
+
+    expect(resolvePointerSelector(analysis, '#/webhooks/newTicket', { cwd })).toEqual({
+      kind: 'webhook-operations',
+      webhook: 'newTicket',
+    });
+    expect(resolvePointerSelector(analysis, '#/webhooks/nope', { cwd }).kind).toBe('unresolved');
+  });
 });
 
 describe('resolvePointerSelector: deep pointers', () => {
@@ -175,5 +185,23 @@ describe('resolvePointerSelector: unresolved pointers', () => {
     const result = resolvePointerSelector(analysis, '#/info/constructor', { cwd });
 
     expect(result.kind).toBe('unresolved');
+  });
+
+  it('rejects non-index array segments, not resolving #/servers/length', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    const result = resolvePointerSelector(analysis, '#/servers/length', { cwd });
+
+    expect(result.kind).toBe('unresolved');
+    if (result.kind !== 'unresolved') throw new Error('expected an unresolved resolution');
+    expect(result.nearestResolvable).toBe('#/servers');
+  });
+
+  it('resolves valid array indices like #/servers/0', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    const result = resolvePointerSelector(analysis, '#/servers/0', { cwd });
+
+    expect(result.kind).toBe('deep');
   });
 });

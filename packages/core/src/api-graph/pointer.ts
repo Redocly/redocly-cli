@@ -53,6 +53,8 @@ export type PointerResolution =
   | { kind: 'component-section'; section: string }
   /** `#/paths/<path>` (the path exists): that path's operations, the same listing `--path` renders. */
   | { kind: 'path-operations'; path: string }
+  /** `#/webhooks/<name>` (the webhook exists): that webhook's operations, the same listing `--webhook` renders. */
+  | { kind: 'webhook-operations'; webhook: string }
   | {
       kind: 'deep';
       pointer: string;
@@ -75,7 +77,8 @@ type ContainerResolution = Extract<
       | 'all-webhooks'
       | 'components-root'
       | 'component-section'
-      | 'path-operations';
+      | 'path-operations'
+      | 'webhook-operations';
   }
 >;
 
@@ -180,6 +183,8 @@ function resolveNodeAtSegments(parsed: unknown, segments: string[]): unknown {
   let current = parsed;
   for (const segment of segments) {
     if (!isPlainObject(current) && !Array.isArray(current)) return undefined;
+    // Arrays own `length`, so `#/servers/length` would resolve. Reject it: require plain indices.
+    if (Array.isArray(current) && !/^\d+$/.test(segment)) return undefined;
     // An own property, not just a plain index: a bogus segment like `constructor` must not
     // resolve to whatever the prototype chain happens to expose at that key.
     if (!Object.hasOwn(current, segment)) return undefined;
@@ -256,7 +261,11 @@ function classifyOneLevelContainer(
   const pathExists =
     head === 'paths' &&
     meta.operations.some((operation) => !operation.isWebhook && operation.containerKey === second);
-  return pathExists ? { kind: 'path-operations', path: second } : undefined;
+  if (pathExists) return { kind: 'path-operations', path: second };
+  const webhookExists =
+    head === 'webhooks' &&
+    meta.operations.some((operation) => operation.isWebhook && operation.containerKey === second);
+  return webhookExists ? { kind: 'webhook-operations', webhook: second } : undefined;
 }
 
 /** Trims trailing segments off a deep pointer until a shorter prefix matches an indexed node. */

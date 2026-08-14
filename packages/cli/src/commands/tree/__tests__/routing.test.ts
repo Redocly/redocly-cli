@@ -292,6 +292,14 @@ describe('resolveTreeView', () => {
     expect(route({ pointer: '#/paths/~1tickets' })).toEqual(route({ path: '/tickets' }));
   });
 
+  it('routes --pointer=#/webhooks/<name> to the same listing --webhook renders', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_WEBHOOKS);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/webhooks/newTicket' })).toEqual(route({ webhook: 'newTicket' }));
+  });
+
   it('rejects --pointer=#/components, naming the sections one level deeper', async () => {
     const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
     const route = (argv: Record<string, unknown>) => () =>

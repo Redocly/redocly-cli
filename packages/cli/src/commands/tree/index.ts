@@ -450,6 +450,12 @@ function resolveContainerPointerView(
         scope: resolution.path,
         items: buildOperationListing(analysis, { cwd, path: resolution.path }),
       };
+    case 'webhook-operations':
+      return {
+        kind: 'operations',
+        scope: resolution.webhook,
+        items: buildOperationListing(analysis, { cwd, webhook: resolution.webhook }),
+      };
   }
 }
 
