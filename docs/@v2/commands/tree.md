@@ -29,6 +29,7 @@ redocly tree <api> --operation=<operationId>
 redocly tree <api> --component=<section> [--name=<name>]
 redocly tree <api> --file=<path> [--used-by]
 redocly tree <api> --find=<terms>
+redocly tree <api> --pointer=<pointer> [--used-by | --with-deps]
 redocly tree <api> --path=<path> --operation=<method> [--with-deps]
 redocly tree <api> --component=<section> --name=<name> [--used-by | --with-deps]
 redocly tree <api> --operations
@@ -53,6 +54,7 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                          |
 | --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                              |
 | --find        | string   | Search operations and components by words in their path, id, name, summary, description, or tags. Standalone; not combinable with other selectors.                                                                                                                                                                                               |
+| --pointer     | string   | Navigate by a raw JSON pointer from a `$ref` or lint output; shows the node's location and usage.                                                                                                                                                                                                                                                |
 | --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                 |
 | --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                     |
 | --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                   |
@@ -884,6 +886,59 @@ redocly tree cafe.yaml --find "order status" --tag=Orders
 --find is a standalone search and cannot be combined with other selectors.
 ```
 
+### Navigate by pointer
+
+`--pointer='<json-pointer>'` looks up a raw JSON pointer instead of a typed selector — the same pointer a lint problem's `location`, a `$ref` value, or a `--format=json` `pointer` field already gives you, so there's no translating it into `--tag`/`--path`/`--component` flags first.
+It accepts the pointer with or without the leading `#`, and reads `~0`/`~1` escapes the same way a `$ref` does (`~1` for `/`, `~0` for `~`).
+It's a standalone selector, the same rule as `--find`: it doesn't combine with `--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`, `--file`, `--find`, `--operations`, or `--webhooks`.
+
+A pointer that lands on a component or an operation (`#/components/<section>/<name>`, `#/paths/<path>/<method>`, `#/webhooks/<name>/<method>`) routes to the exact same card `--component`/`--path --operation` would produce, and `--used-by`/`--with-deps` combine with it exactly as they do with a typed selection:
+
+```bash
+redocly tree cafe.yaml --pointer='#/components/schemas/OrderStatus' --format=ai
+```
+
+```
+schemas/OrderStatus · cafe.yaml L1025-1031 — Order status.
+signature: string=placed|preparing|completed|canceled
+--- json
+{"type":"string","description":"Order status.","enum":["placed","preparing","completed","canceled"]}
+usedBy: 3 (--used-by)
+```
+
+A pointer that resolves anywhere else in the document — inside a schema's properties, for instance — returns a pointer card instead: the node's own coordinates and body, its own `refs`, and the nearest indexed ancestor with its `usedBy` count and a ready-to-paste `--pointer` hint, since the deep node itself has no reverse edges of its own to report:
+
+```bash
+redocly tree cafe.yaml --pointer='#/components/schemas/Order/properties/status' --format=ai
+```
+
+```
+pointer #/components/schemas/Order/properties/status · cafe.yaml L1059-1061
+--- json
+{"allOf":[{"$ref":"#/components/schemas/OrderStatus"}],"readOnly":true}
+refs: schemas/OrderStatus L1025
+ancestor: schemas/Order L1033-1106 · usedBy: 4 (--used-by --pointer='#/components/schemas/Order')
+```
+
+`--used-by`/`--with-deps` on that same deep pointer are rejected, naming the ancestor as the nearest node that supports them:
+
+```
+--used-by and --with-deps need an indexed node. Nearest: --pointer='#/components/schemas/Order'
+```
+
+A pointer that resolves nowhere in the document errors with the nearest pointer prefix that does resolve, so a typo or an over-deep path is easy to walk back:
+
+```bash
+redocly tree cafe.yaml --pointer='#/components/schemas/Order/properties/bogus'
+```
+
+```
+Nothing at "#/components/schemas/Order/properties/bogus". Nearest resolvable: #/components/schemas/Order/properties.
+```
+
+`--pointer` resolves against the root document only in this version.
+A pointer that only makes sense after following a `$ref` into another file — a deep path inside a component defined in a split-out file, for example — is out of scope for now; resolve the component or operation that owns it instead, or bundle the description first.
+
 ### Plain text for agents: `--format=ai`
 
 `--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
@@ -1407,7 +1462,7 @@ redocly tree cafe.yaml --tag=Orders --component=schemas
 Arguments component and tag are mutually exclusive
 ```
 
-The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--operations` listing; `--operations` excludes every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`; `--find` excludes every other selector, listing, and modifier.
+The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--operations` listing; `--operations` excludes every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`; `--find` excludes every other selector, listing, and modifier; `--pointer` excludes every other selector and listing the same way `--find` does, but combines with `--used-by`/`--with-deps` once it resolves to an indexed component or operation — a deep pointer rejects both with a hint naming its nearest indexed ancestor.
 
 Selectors, listings, and `--used-by`/`--with-deps` are OpenAPI-only:
 
@@ -1416,7 +1471,7 @@ redocly tree async.yaml --tag=foo
 ```
 
 ```
-The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.
+The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --pointer, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.
 ```
 
 The default view and `--files` still work on AsyncAPI and Arazzo descriptions — see [Markers legend](#markers-legend) below.

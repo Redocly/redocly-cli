@@ -118,6 +118,7 @@ Use [`tree`](./docs/@v2/commands/tree.md) to walk one in bounded steps instead o
 ```bash
 redocly tree <file> --format=ai                                                  # overview: tags, webhooks, component sections
 redocly tree <file> --find "<task words>" --format=ai                            # locate candidate operations/components
+redocly tree <file> --pointer='<ptr>' --format=ai                                # already hold a $ref/lint pointer: jump straight to its location and usage
 redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai   # one operation with its full $ref closure, as schema signatures
 redocly tree <file> --tag=<tag> --format=ai                                      # a whole area's operations, only when browsing is genuinely needed
 ```
