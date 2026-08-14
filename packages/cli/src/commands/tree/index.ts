@@ -147,13 +147,223 @@ function knownFileIds(analysis: ApiAnalysis): string[] {
   ];
 }
 
+/** The `--find` branch: a standalone search that cannot combine with any other selector. */
+function resolveFindView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): TreeView {
+  const otherSelector =
+    argv.tag !== undefined ||
+    argv.path !== undefined ||
+    argv.webhook !== undefined ||
+    argv.operation !== undefined ||
+    argv.component !== undefined ||
+    argv.name !== undefined ||
+    argv.file !== undefined ||
+    argv.operations === true ||
+    argv.webhooks === true ||
+    argv['used-by'] === true ||
+    argv['with-deps'] === true;
+  if (otherSelector) {
+    throw new TreeSelectorError(
+      '--find is a standalone search and cannot be combined with other selectors.'
+    );
+  }
+  const terms = argv.find!.trim().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) {
+    throw new TreeSelectorError('--find needs at least one word to search for.');
+  }
+  return { kind: 'find', report: findMatches(analysis, terms, { cwd }) };
+}
+
+/** The `--file` branch. */
+function resolveFileView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): TreeView {
+  if (argv['with-deps'] === true) {
+    throw new TreeSelectorError('--with-deps requires an operation or component selection.');
+  }
+  const found = resolveFileSelector(argv.file!, analysis, cwd);
+  if (!found) {
+    selectorHint('file', argv.file!, knownFileIds(analysis), 'redocly tree <api> --files');
+  }
+  if (argv['used-by'] === true) {
+    return { kind: 'used-by', report: buildFileUsedByReport(analysis, found.filePath, cwd) };
+  }
+  return { kind: 'file-card', card: found.card };
+}
+
+/** The `--component` (and `--name`) branch. */
+function resolveComponentView(
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  cwd: string,
+  specVersion: SpecVersion
+): TreeView {
+  const meta = analysis.meta;
+  const usedBy = argv['used-by'] === true;
+  const withDeps = argv['with-deps'] === true;
+  const section = normalizeComponentSection(argv.component!);
+  if (section === undefined) {
+    throw new TreeSelectorError(
+      `Unknown component section "${argv.component}". Sections: ${COMPONENT_SECTIONS.join(', ')}.`
+    );
+  }
+  if (argv.name === undefined) {
+    if (usedBy || withDeps) {
+      throw new TreeSelectorError('Add --name to use --used-by or --with-deps with --component.');
+    }
+    return {
+      kind: 'components',
+      section,
+      items: buildComponentListing(analysis, { cwd, section }),
+    };
+  }
+  const component = findComponent(meta, section, argv.name);
+  if (!component) {
+    selectorHint(
+      'component',
+      argv.name,
+      meta.components
+        .filter((candidate) => candidate.section === section)
+        .map((candidate) => candidate.name),
+      `redocly tree <api> --component=${section}`
+    );
+  }
+  if (usedBy) {
+    return {
+      kind: 'used-by',
+      report: buildUsedByReport(analysis, `${section}/${component.name}`, cwd),
+    };
+  }
+  return {
+    kind: 'component-card',
+    card: buildComponentCard(analysis, component, {
+      specVersion,
+      cwd,
+      withDeps,
+      withContent: argv.format === 'ai',
+    }),
+  };
+}
+
+/**
+ * The `--path`/`--webhook` branch, including its nested `--operation` sub-branch.
+ * `finishOperation` is the same closure `resolveTreeView` hands to `resolveOperationIdView`.
+ */
+function resolvePathScopeView(
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  cwd: string,
+  finishOperation: (operation: CollectedOperation) => TreeView
+): TreeView {
+  const meta = analysis.meta;
+  const scope = argv.webhook !== undefined ? { webhook: argv.webhook } : { path: argv.path };
+  const scopeOperations = listOperations(meta, scope);
+  if (scopeOperations.length === 0) {
+    if (argv.webhook !== undefined) {
+      const knownWebhookKeys = [
+        ...new Set(
+          meta.operations
+            .filter((operation) => operation.isWebhook)
+            .map((operation) => operation.containerKey)
+        ),
+      ];
+      const suggestions = suggestNames(argv.webhook, knownWebhookKeys);
+      const didYouMean = suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
+      throw new TreeSelectorError(`No webhook "${argv.webhook}".${didYouMean}`);
+    }
+    const knownPaths = [
+      ...new Set(
+        meta.operations
+          .filter((operation) => !operation.isWebhook)
+          .map((operation) => operation.containerKey)
+      ),
+    ];
+    const suggestions = suggestNames(argv.path!, knownPaths);
+    const didYouMean = suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
+    throw new TreeSelectorError(
+      `No path "${argv.path}".${didYouMean} Run \`redocly tree <api> --operations\` to list operations.`
+    );
+  }
+  if (argv.operation !== undefined) {
+    const operation =
+      argv.webhook !== undefined
+        ? findWebhookOperation(meta, argv.webhook, argv.operation)
+        : findOperationByPathMethod(meta, argv.path!, argv.operation);
+    if (!operation) {
+      throw new TreeSelectorError(
+        `No ${argv.operation.toUpperCase()} operation on "${argv.webhook ?? argv.path}". Available: ${scopeOperations
+          .map((candidate) => candidate.method)
+          .join(', ')}.`
+      );
+    }
+    return finishOperation(operation);
+  }
+  if (argv['with-deps'] === true) {
+    throw new TreeSelectorError('--with-deps requires --operation (or --component with --name).');
+  }
+  if (argv['used-by'] === true) {
+    // A path's used-by is the used-by of its path node; keep v1 simple: require an operation.
+    throw new TreeSelectorError('--used-by requires --operation, or --component with --name.');
+  }
+  return {
+    kind: 'operations',
+    scope: argv.webhook ?? argv.path,
+    items: buildOperationListing(analysis, { cwd, ...scope }),
+  };
+}
+
+/** The bare `--operation` (operationId) branch. */
+function resolveOperationIdView(
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  finishOperation: (operation: CollectedOperation) => TreeView
+): TreeView {
+  const meta = analysis.meta;
+  if (argv.tag !== undefined) {
+    throw new TreeSelectorError(
+      '--operation with an operationId selects one operation; combining it with --tag is ambiguous. Drop --tag, or use --tag alone to list its operations.'
+    );
+  }
+  if (HTTP_METHODS.has(argv.operation!.toLowerCase())) {
+    throw new TreeSelectorError(
+      `"${argv.operation}" looks like an HTTP method. Add --path (or --webhook) to select the operation, or pass an operationId.`
+    );
+  }
+  const operation = findOperationByOperationId(meta, argv.operation!);
+  if (!operation) {
+    selectorHint(
+      'operation',
+      argv.operation!,
+      meta.operations
+        .map((candidate) => candidate.operationId)
+        .filter((operationId): operationId is string => operationId !== undefined),
+      'redocly tree <api> --operations'
+    );
+  }
+  return finishOperation(operation);
+}
+
+/** The `--tag` branch. */
+function resolveTagView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): TreeView {
+  const meta = analysis.meta;
+  const items = buildOperationListing(analysis, { cwd, tag: argv.tag });
+  if (items.length === 0) {
+    selectorHint(
+      'tag',
+      argv.tag!,
+      [...new Set(meta.operations.flatMap((operation) => operation.tags))],
+      'redocly tree <api>'
+    );
+  }
+  if (argv['used-by'] === true || argv['with-deps'] === true) {
+    throw new TreeSelectorError('--used-by and --with-deps need a single operation or component.');
+  }
+  return { kind: 'operations', scope: argv.tag, items };
+}
+
 export function resolveTreeView(
   argv: TreeArgv,
   analysis: ApiAnalysis,
   specVersion: SpecVersion,
   cwd: string
 ): TreeView {
-  const meta = analysis.meta;
   const usedBy = argv['used-by'] === true;
   const withDeps = argv['with-deps'] === true;
 
@@ -164,28 +374,7 @@ export function resolveTreeView(
   }
 
   if (argv.find !== undefined) {
-    const otherSelector =
-      argv.tag !== undefined ||
-      argv.path !== undefined ||
-      argv.webhook !== undefined ||
-      argv.operation !== undefined ||
-      argv.component !== undefined ||
-      argv.name !== undefined ||
-      argv.file !== undefined ||
-      argv.operations === true ||
-      argv.webhooks === true ||
-      usedBy ||
-      withDeps;
-    if (otherSelector) {
-      throw new TreeSelectorError(
-        '--find is a standalone search and cannot be combined with other selectors.'
-      );
-    }
-    const terms = argv.find.trim().split(/\s+/).filter(Boolean);
-    if (terms.length === 0) {
-      throw new TreeSelectorError('--find needs at least one word to search for.');
-    }
-    return { kind: 'find', report: findMatches(analysis, terms, { cwd }) };
+    return resolveFindView(argv, analysis, cwd);
   }
 
   if (
@@ -215,165 +404,25 @@ export function resolveTreeView(
         };
 
   if (argv.file !== undefined) {
-    if (withDeps) {
-      throw new TreeSelectorError('--with-deps requires an operation or component selection.');
-    }
-    const found = resolveFileSelector(argv.file, analysis, cwd);
-    if (!found) {
-      selectorHint('file', argv.file, knownFileIds(analysis), 'redocly tree <api> --files');
-    }
-    if (usedBy) {
-      return { kind: 'used-by', report: buildFileUsedByReport(analysis, found.filePath, cwd) };
-    }
-    return { kind: 'file-card', card: found.card };
+    return resolveFileView(argv, analysis, cwd);
   }
 
   if (argv.component !== undefined) {
-    const section = normalizeComponentSection(argv.component);
-    if (section === undefined) {
-      throw new TreeSelectorError(
-        `Unknown component section "${argv.component}". Sections: ${COMPONENT_SECTIONS.join(', ')}.`
-      );
-    }
-    if (argv.name === undefined) {
-      if (usedBy || withDeps) {
-        throw new TreeSelectorError('Add --name to use --used-by or --with-deps with --component.');
-      }
-      return {
-        kind: 'components',
-        section,
-        items: buildComponentListing(analysis, { cwd, section }),
-      };
-    }
-    const component = findComponent(meta, section, argv.name);
-    if (!component) {
-      selectorHint(
-        'component',
-        argv.name,
-        meta.components
-          .filter((candidate) => candidate.section === section)
-          .map((candidate) => candidate.name),
-        `redocly tree <api> --component=${section}`
-      );
-    }
-    if (usedBy) {
-      return {
-        kind: 'used-by',
-        report: buildUsedByReport(analysis, `${section}/${component.name}`, cwd),
-      };
-    }
-    return {
-      kind: 'component-card',
-      card: buildComponentCard(analysis, component, {
-        specVersion,
-        cwd,
-        withDeps,
-        withContent: argv.format === 'ai',
-      }),
-    };
+    return resolveComponentView(argv, analysis, cwd, specVersion);
   }
 
   if (argv.name !== undefined) throw new TreeSelectorError('--name requires --component.');
 
   if (argv.path !== undefined || argv.webhook !== undefined) {
-    const scope = argv.webhook !== undefined ? { webhook: argv.webhook } : { path: argv.path };
-    const scopeOperations = listOperations(meta, scope);
-    if (scopeOperations.length === 0) {
-      if (argv.webhook !== undefined) {
-        const knownWebhookKeys = [
-          ...new Set(
-            meta.operations
-              .filter((operation) => operation.isWebhook)
-              .map((operation) => operation.containerKey)
-          ),
-        ];
-        const suggestions = suggestNames(argv.webhook, knownWebhookKeys);
-        const didYouMean =
-          suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
-        throw new TreeSelectorError(`No webhook "${argv.webhook}".${didYouMean}`);
-      }
-      const knownPaths = [
-        ...new Set(
-          meta.operations
-            .filter((operation) => !operation.isWebhook)
-            .map((operation) => operation.containerKey)
-        ),
-      ];
-      const suggestions = suggestNames(argv.path!, knownPaths);
-      const didYouMean = suggestions.length > 0 ? ` Did you mean: ${suggestions.join(', ')}?` : '';
-      throw new TreeSelectorError(
-        `No path "${argv.path}".${didYouMean} Run \`redocly tree <api> --operations\` to list operations.`
-      );
-    }
-    if (argv.operation !== undefined) {
-      const operation =
-        argv.webhook !== undefined
-          ? findWebhookOperation(meta, argv.webhook, argv.operation)
-          : findOperationByPathMethod(meta, argv.path!, argv.operation);
-      if (!operation) {
-        throw new TreeSelectorError(
-          `No ${argv.operation.toUpperCase()} operation on "${argv.webhook ?? argv.path}". Available: ${scopeOperations
-            .map((candidate) => candidate.method)
-            .join(', ')}.`
-        );
-      }
-      return finishOperation(operation);
-    }
-    if (withDeps) {
-      throw new TreeSelectorError('--with-deps requires --operation (or --component with --name).');
-    }
-    if (usedBy) {
-      // A path's used-by is the used-by of its path node; keep v1 simple: require an operation.
-      throw new TreeSelectorError('--used-by requires --operation, or --component with --name.');
-    }
-    return {
-      kind: 'operations',
-      scope: argv.webhook ?? argv.path,
-      items: buildOperationListing(analysis, { cwd, ...scope }),
-    };
+    return resolvePathScopeView(argv, analysis, cwd, finishOperation);
   }
 
   if (argv.operation !== undefined) {
-    if (argv.tag !== undefined) {
-      throw new TreeSelectorError(
-        '--operation with an operationId selects one operation; combining it with --tag is ambiguous. Drop --tag, or use --tag alone to list its operations.'
-      );
-    }
-    if (HTTP_METHODS.has(argv.operation.toLowerCase())) {
-      throw new TreeSelectorError(
-        `"${argv.operation}" looks like an HTTP method. Add --path (or --webhook) to select the operation, or pass an operationId.`
-      );
-    }
-    const operation = findOperationByOperationId(meta, argv.operation);
-    if (!operation) {
-      selectorHint(
-        'operation',
-        argv.operation,
-        meta.operations
-          .map((candidate) => candidate.operationId)
-          .filter((operationId): operationId is string => operationId !== undefined),
-        'redocly tree <api> --operations'
-      );
-    }
-    return finishOperation(operation);
+    return resolveOperationIdView(argv, analysis, finishOperation);
   }
 
   if (argv.tag !== undefined) {
-    const items = buildOperationListing(analysis, { cwd, tag: argv.tag });
-    if (items.length === 0) {
-      selectorHint(
-        'tag',
-        argv.tag,
-        [...new Set(meta.operations.flatMap((operation) => operation.tags))],
-        'redocly tree <api>'
-      );
-    }
-    if (usedBy || withDeps) {
-      throw new TreeSelectorError(
-        '--used-by and --with-deps need a single operation or component.'
-      );
-    }
-    return { kind: 'operations', scope: argv.tag, items };
+    return resolveTagView(argv, analysis, cwd);
   }
 
   if (withDeps)
