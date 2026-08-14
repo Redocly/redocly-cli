@@ -3,8 +3,10 @@
 The [`tree`](../commands/tree.md) command gives an AI agent a bounded way to work with an API description of any size:
 an agent-facing text format (`--format=ai`) for exploration, and a full-data JSON format for tooling.
 This guide measures what that costs — against reading the description, and against the alternative an agent reaches for on its own —
-primarily on the largest well-known public API description (GitHub's official REST API, 10.0 MB of OpenAPI),
-with isolated re-runs on a 1.3 MB billing API and a 41 KB demo API.
+on three descriptions with a real multi-step task each:
+publish a release, upload a binary asset, and delete it (GitHub's official REST API, 10.0 MB);
+create a product, a recurring plan, and a subscription (a 1.3 MB billing API);
+find a menu item, order it, and check the order (a 41 KB demo API).
 For the command reference, see [`tree`](../commands/tree.md).
 
 Every number below comes from a real command run against that file, tokenized with a BPE tokenizer (`gpt-tokenizer`, o200k family; other model families tokenize slightly differently, with the same order of magnitude).
@@ -16,23 +18,22 @@ curl -O https://raw.githubusercontent.com/github/rest-api-description/main/descr
 
 ## How to read the numbers
 
-This guide reports two kinds of measurement, and they answer different questions.
-Read the ratios with that in mind — the headline figures are not a claim that an agent using `tree` spends fewer tokens than one using `grep`.
+Two kinds of numbers appear below, and they answer different questions.
 
-| Measurement                 | What it compares                                                     | Typical result here          |
-| --------------------------- | -------------------------------------------------------------------- | ---------------------------- |
-| **Ratios** (`~13×`, `~71×`) | the chain's command output against the size of the whole description | 149,667 vs. 1,946,549 tokens |
-| **Live-run sessions**       | one agent's whole session against another agent's, same task         | 88,915 vs. 92,648 tokens     |
+**Output sizes** compare what a command printed against the 1,946,549-token description it came from.
+They measure compactness — how small a targeted slice is next to its source — not a saving over some other method:
+past the context window there is no "read the whole file" alternative to save against.
 
-The ratios measure how small a targeted slice is next to the document it came from.
-That baseline — reading the description whole — is real for small files and impossible for this one, so past the context window the ratio describes compactness, not a saving over some alternative an agent could otherwise have taken.
+**Live sessions** compare two real agents on the same task: one using `tree`, one searching the raw YAML with `grep` and windowed reads.
+A session number is the agent's final context — prompt, tool outputs, reasoning, and answer together —
+so it is the fairest available proxy for what the task actually cost.
+When this guide says the billing-API agent finished at 88,915 against the no-tool agent's 92,648, that is this measurement.
 
-The live runs measure the alternative agents actually take: searching the raw file with `grep` and windowed reads.
-Against that baseline the result moved during this guide's own history: the first format lost by 31–44% of session size,
-and the rebuilt format (plain text, `--find`, signature closures, JSON card bodies — the final section) lands at parity to a small win.
-The reasons the gap is small are measurable rather than mysterious:
-text search is itself a retrieval method with small output, so both agents end up pulling roughly 1–2% of the file,
-and a session's total is dominated by the model's own reasoning, prompt, and answer, which dilutes any retrieval difference.
+The honest headline from the live runs:
+the first version of the agent format lost to plain text search by 31–44% of session size;
+the rebuilt format (plain text, `--find`, signature closures, JSON card bodies — measured in the final sections) lands at parity to a small win.
+The gap is small for measurable reasons: text search is itself a retrieval method with small output,
+so both agents end up pulling roughly 1–2% of the file, and the model's own reasoning dominates either session.
 
 So the token count is the wrong place to look for the advantage — it is where the argument _against_ the index used to live, and that argument is now settled.
 What the index buys, on the evidence of the runs below:
@@ -44,22 +45,19 @@ What the index buys, on the evidence of the runs below:
 - **Cheap calls turn into verified detail.** When the calls got cheaper, the verification run's agent spent the savings instead of pocketing them:
   same session size, fourteen extra component spot-checks, and an answer that also covered the auth scheme and the prose-only defaults.
 - **Past the window, there is no baseline.** 1.9M tokens is ten context windows; even the 268k-token billing description does not fit one.
-  The same 3–6-step protocol works on every description, single-file or split across thousands of files.
+  The same protocol works on every description, single-file or split across thousands of files.
 
-And one result that runs the other way, kept here because it is true: on a 41 KB description, pasting the whole file into the model beat the index chain by about 30%.
+And one result that runs the other way, kept here because it is true: on the 41 KB description, pasting the whole file into the model beats every indexed approach.
 
 ## The setup
 
-- **Description:** `api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description) — 10.0 MB (9,984,314 bytes), OpenAPI 3.0.3, 47 tags, 1,216 operations, 0 webhooks, 1,766 components.
+- **Description:** `api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description) — 10.0 MB (9,984,314 bytes), OpenAPI 3.0.3, 47 tags, 1,216 operations, 1,766 components.
   This is the first-party description GitHub's own SDKs are generated from, not a conversion or a sample.
-- **Agent task:** _"Create a repository for the authenticated user."_
-- **Agent constraints:** a 200,000-token context window; the agent starts knowing nothing about the description.
-- **What the agent is told up front:** a short instruction naming the three commands (overview → tag → operation-with-deps) — **85 tokens**, measured:
-
-  > This API description is too large to read directly. Get an overview with `redocly tree <file> --format=json`. List one tag's operations with `redocly tree <file> --tag=<tag> --format=json`. Fetch one operation's source and full dependency closure with `redocly tree <file> --path=<path> --operation=<method> --with-deps --format=json`.
-
-  The agent decides _which_ tag and operation to open by reasoning over the names and summaries it sees in the responses.
-  That one-time cost is about 0.2% of the chain below and appears as a separate line in the totals.
+- **Agent task:** _"Publish a release in a repository, upload a zip asset to it, then delete that asset — every call in order, the exact host each request goes to, and which response field feeds each next request."_
+  Three chained operations, with a planted trap the description really contains:
+  the asset-upload operation carries an operation-level `servers` override to `https://uploads.github.com`, so an agent that guesses instead of reading gets the host wrong.
+- **Agent constraints:** a 200,000-token context window; the agent starts knowing nothing about the description and may not open the YAML directly.
+- **What the agent is told up front:** the four-sentence protocol from the trusted-protocol section below — overview, `--find`, cards with `--with-deps`, `--used-by` for impact questions.
 
 ## Without the index
 
@@ -88,40 +86,53 @@ The selector flags (`--tag`, `--path`, `--operation`, `--component`, `--find`) a
 
 ## With the index
 
-The original hand-priced chain, using the JSON tooling format:
+The whole task, priced call by call in the agent format — the map, two searches, and the three operation cards with their full `$ref` closures:
 
-| Step                                             | Command                                                                                          | Output size |      Tokens |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ----------: | ----------: |
-| 1. Map the spec — 47 tags                        | `redocly tree api.github.com.yaml --format=json`                                                 |      6.7 KB |       1,777 |
-| 2. Open the branch it picked — 203 operations    | `redocly tree api.github.com.yaml --tag=repos --format=json`                                     |    484.6 KB |     128,288 |
-| 3. Fetch the target with its full `$ref` closure | `redocly tree api.github.com.yaml --path=/user/repos --operation=post --with-deps --format=json` |     82.9 KB |      19,517 |
-| **Total**                                        |                                                                                                  |             | **149,582** |
+| Step                           | Command                                                                | Output |    Tokens |
+| ------------------------------ | ---------------------------------------------------------------------- | -----: | --------: |
+| 1. Map the description         | `redocly tree api.github.com.yaml --format=ai`                         | 1.1 KB |       334 |
+| 2. Find the release operations | `--find "create release" --format=ai`                                  | 0.5 KB |       137 |
+| 3. Find the asset operations   | `--find "upload release asset" --format=ai`                            | 0.3 KB |        88 |
+| 4. Create-release card + deps  | `--path='/repos/{owner}/{repo}/releases' --operation=post --with-deps` | 7.0 KB |     1,605 |
+| 5. Upload-asset card + deps    | `--path='…/releases/{release_id}/assets' --operation=post --with-deps` | 4.8 KB |     1,106 |
+| 6. Delete-asset card + deps    | `--path='…/releases/assets/{asset_id}' --operation=delete --with-deps` | 1.2 KB |       285 |
+| **Total**                      |                                                                        |        | **3,555** |
 
-Step 3 returns a _self-contained_ slice: the operation's raw source plus the 14 components it transitively references, in dependency order, filling 62.9 KB of the 64 KB closure cap (one more schema would cross it, so the envelope reports `truncated: true` and that schema stays one selector call away).
-The most expensive step is not the largest file but the largest branch: every entry in a JSON listing is card-shaped — coordinates plus typed one-hop `refs`/`usedBy` — which is what tooling wants and exactly what an agent does not need for navigation.
-That observation is what the agent format is built on; the agent-facing outputs are shown in the re-measured section below.
+Six bounded calls, 3,555 tokens, for a task whose source document is 1,946,549 —
+and the cards carry the trap: the upload card's body names the `https://uploads.github.com` server override explicitly.
+Each card is self-contained — the operation's complete body as minified JSON plus its dependency closure as one-line signatures —
+so the agent never hand-walks a `$ref`.
 
-The same chain on the same API split into **2,842 files** (via [`redocly split`](../commands/split.md)) lands within 7% — 139,876 vs. 149,582 tokens — with identical operation addressing (`--path=/user/repos --operation=post` returns byte-identical cards in both layouts).
-Component ids differ by layout: canonical `schemas/full-repository` when the root document declares the component, file-path ids (`components/schemas/full-repository.yaml`) when it does not — `redocly split` produces the latter.
+For tooling, the JSON format prices differently: its listings are card-shaped (coordinates plus typed one-hop `refs`/`usedBy` per entry),
+so the original single-operation JSON chain measured 149,582 tokens, dominated by the 203-entry tag listing (128,288) —
+the number that motivated both the `ai` format and `--find`.
+The same JSON chain on the same API split into **2,842 files** lands within 7% (139,876),
+with identical operation addressing in both layouts;
+component ids are canonical (`schemas/full-repository`) when the root document declares the component and file-path ids when it does not — `redocly split` produces the latter.
 
 ## The difference
 
-|                                 |                    Tokens |                                                   vs. whole file |
-| ------------------------------- | ------------------------: | ---------------------------------------------------------------: |
-| Whole file                      |                 1,946,549 |                                                 — (does not fit) |
-| Flat `--operations` listing     |                   771,279 | **~2.5× less** (still needs four windows, and has no components) |
-| Index chain (JSON)              | 149,582 (+85 instruction) |                                                    **~13× less** |
-| Index chain on the split layout | 139,876 (+85 instruction) |                                                    **~14× less** |
-| Hybrid chain (stylish tag step) |  27,133 (+99 instruction) |                                                    **~71× less** |
+|                                             |    Tokens |   vs. whole file |
+| ------------------------------------------- | --------: | ---------------: |
+| Whole file                                  | 1,946,549 | — (does not fit) |
+| Flat `--operations` listing (JSON)          |   771,279 |       ~2.5× less |
+| Single-operation chain, JSON tooling format |   149,582 |        ~13× less |
+| Same chain, stylish listing step            |    27,133 |        ~71× less |
+| **Three-operation task, agent format**      | **3,555** |   **~547× less** |
 
-The ratio matters less than the shape of the curve: the chain's cost is bounded by the largest branch and the deepest single closure, not by the description's size or storage layout.
+The rows are not one metric at five sizes — the JSON rows price a one-operation lookup in the tooling format, the last row prices the full three-operation headline task in the agent format.
+What they show together is the shape of the curve: the cost is bounded by what the agent selects, not by the description's size or storage layout,
+and the agent format keeps even a multi-operation task inside a few thousand tokens.
 For descriptions that fit the context window, the index saves tokens; past the window it is the difference between an impossible task and a routine one.
 
 ## Live agent runs
 
 Everything above is hand-priced.
-The same experiments were then run live — a Claude Sonnet agent, the instruction, the task, the file path, and a hard rule that the YAML itself may not be opened — more than twenty sessions across both measurement rounds.
-The first one validated the pricing: given only the 85-token instruction, the agent chose exactly the documented three-step chain, answered correctly (`POST /user/repos`, required `name`, `201` → `full-repository`), piped the big listing through `head` on its own initiative, and its whole session cost **91,463 tokens** — under half the hand-priced chain, because a real agent reads selectively.
+The same experiments were then run live — a Claude Sonnet agent, an instruction, a task, the file path, and a hard rule that the YAML itself may not be opened — more than twenty sessions across both measurement rounds.
+The early rounds used the JSON tooling format and a deliberately simple warm-up task ("create a repository": one operation, one required field);
+given only an 85-token instruction naming three commands, the agent chose exactly the documented chain, answered correctly, piped the big listing through `head` on its own initiative,
+and its whole session cost **91,463 tokens** — under half the hand-priced JSON chain, because a real agent reads selectively.
+Every later run uses a multi-step task like the ones in the tabs below.
 
 The rest of the series, one line each:
 
@@ -268,31 +279,63 @@ The `x-codeSamples` marker in that body is 117 lines of PHP examples the first-r
 
 ## Three descriptions, head to head
 
-The isolated head-to-heads — same multi-step task per description, same model, fresh sessions, the no-tool controls barred from OpenAPI tooling and repository instructions.
-Controls are shared across rounds since nothing about their conditions changed:
+The isolated head-to-heads — one multi-step task per description, same model, fresh sessions.
+The no-tool controls are barred from OpenAPI tooling and repository instructions, and are shared across rounds since nothing about their conditions changed.
+Every answer on every tab was correct.
 
-| Run (multi-step workflow task)          |    Session | Output tokens | Actions |
-| --------------------------------------- | ---------: | ------------: | ------: |
-| 41 KB demo API — no tool                |     71,430 |        12,821 |       3 |
-| 41 KB demo API — `ai`, first round      |     67,842 |        14,130 |      18 |
-| 41 KB demo API — `ai`, final format     |     74,020 |        35,364 |      23 |
-| 1.3 MB billing API — no tool            |     92,648 |        31,052 |      42 |
-| 1.3 MB billing API — `ai`, first round  |    121,543 |        22,659 |      22 |
-| 1.3 MB billing API — `ai`, final format | **88,915** |    **22,554** |      26 |
-| 10.0 MB GitHub API — no tool            |     66,246 |        19,789 |      20 |
-| 10.0 MB GitHub API — `ai`, first round  |     95,754 |        19,885 |      18 |
-| 10.0 MB GitHub API — `ai`, final format |     66,862 |    **16,952** |      19 |
+{% tabs %}
+{% tab label="GitHub REST · 10.0 MB" %}
 
-Every answer in the table was correct, including the `uploads.github.com` server override and the billing API's `anyOf`-without-discriminator plan choice.
-On the billing API the indexed agent finished below the no-tool control for the first time — on session size, output tokens, and wall clock (415 s against 437 s) at once.
-On the GitHub API it reached parity on session size (+0.9%) with the lowest output tokens of the whole series.
-On the 41 KB demo the final format cost more than either baseline — the agent spent 23 calls (four of them `--find`) producing the most detailed answer of the series
-(the full OAuth2 register-then-token chain, the `search`/`filter` query parameters, id patterns, and an honest note that the token endpoint is not a documented operation) —
-which is the small-file conclusion from the runs above restated: below the window, structure buys answer quality, not tokens.
+**Task:** publish a release, upload a zip asset to it, delete the asset — hosts, required fields, and the data link between each step.
+**The trap:** the upload operation overrides the server to `https://uploads.github.com` at the operation level; everything else lives on `api.github.com`.
 
-What the final-format agents actually called is the protocol working as designed.
-The GitHub run: overview (1,125 B) → `--find "release"` → `--find "upload asset"` (344 B) → three operation cards with deps → component spot-checks; it never listed a tag at all.
-The billing run: overview → `--find "subscription"` → three small tag listings (3-5 KB each) → four cards → component checks — and where the first round's agent could not confirm `PlanFormulaFlatRate`'s fields because the component card carried no body, the final-format agent confirmed them from the card's signature line in one call.
+| Run                | Session | Output tokens | Actions |
+| ------------------ | ------: | ------------: | ------: |
+| No tool            |  66,246 |        19,789 |      20 |
+| `ai`, first round  |  95,754 |        19,885 |      18 |
+| `ai`, final format |  66,862 |    **16,952** |      19 |
+
+The final-format agent never listed a tag: overview (1.1 KB) → `--find "release"` → `--find "upload asset"` (0.3 KB) → three operation cards with deps → component spot-checks.
+The first-round agent had to page a 37 KB tag listing through `head -c` instead; that step is what `--find` deleted.
+Both indexed agents and the control caught the host override.
+Result: parity with the control on session size (+0.9%) with the lowest output tokens of the series.
+
+{% /tab %}
+{% tab label="Billing API · 1.3 MB" %}
+
+**Task:** create a product, create a recurring-billing plan for it, then subscribe an existing customer — required fields with types, success codes, and what feeds each next request.
+**The traps:** `Plan` is an `anyOf` of three variants with no discriminator (the recurring one is `SubscriptionPlan`, distinguished only by its fields), and the subscription operation lives under the `Orders` tag with summary "Create an order".
+
+| Run                |    Session | Output tokens | Actions |
+| ------------------ | ---------: | ------------: | ------: |
+| No tool            |     92,648 |        31,052 |      42 |
+| `ai`, first round  |    121,543 |        22,659 |      22 |
+| `ai`, final format | **88,915** |    **22,554** |      26 |
+
+The final-format run is the first time the indexed agent finished below the no-tool control on session size, output tokens, and wall clock (415 s against 437 s) at once.
+Its chain: overview → `--find "subscription"` → three small tag listings (3–5 KB each) → four cards → component checks.
+Where the first round's agent could not confirm `PlanFormulaFlatRate`'s fields — the old component card carried no body — the final-format agent confirmed them from the card's signature line in one call.
+A follow-up verification run on the JSON card bodies landed at the same session size (89,387) with a strictly richer answer: the auth scheme, a `readOnly` currency, and the prose-only defaults, verified through fourteen extra component spot-checks.
+
+{% /tab %}
+{% tab label="Demo API · 41 KB" %}
+
+**Task:** find a coffee item on the menu, create an order for it, then check that order's status — including where the OAuth2 token comes from.
+**The wrinkle:** ordering requires an `orders:write` bearer token, but the menu is public (`security: []`), and the token endpoint is declared only inside the security scheme, not as a documented operation.
+
+| Run                |    Session | Output tokens | Actions |
+| ------------------ | ---------: | ------------: | ------: |
+| No tool            |     71,430 |    **12,821** |       3 |
+| `ai`, first round  | **67,842** |        14,130 |      18 |
+| `ai`, final format |     74,020 |        35,364 |      23 |
+
+On a 9,042-token description the control simply read the whole file in one call — the cheapest possible session.
+The final-format agent cost more than either baseline and spent 23 calls (four of them `--find`) producing the most detailed answer of the series:
+the full OAuth2 register-then-token chain, the `search`/`filter` query parameters, id patterns, and an honest note that the token endpoint is not a documented operation.
+Below the context window, structure buys answer quality, not tokens — dump when the file fits.
+
+{% /tab %}
+{% /tabs %}
 
 ## The verdict
 
