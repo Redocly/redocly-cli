@@ -157,6 +157,49 @@ describe('resolveTreeView', () => {
     expect(route({ webhook: 'nope' })).toThrow(/No webhook "nope"/);
   });
 
+  it('seeds a webhook operation --used-by report from the shared container node, not the display id', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_WEBHOOKS);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    const view = route({ webhook: 'newTicket', operation: 'post', 'used-by': true });
+    expect(view.kind).toBe('used-by');
+    if (view.kind !== 'used-by') throw new Error('expected a used-by view');
+
+    // The target must resolve against the container id (`webhooks/newTicket`); the operation's
+    // own display id ("POST newTicket") is never a graph node, so seeding from it silently
+    // produced an empty report even though this exact id has real referrers in the graph.
+    expect(view.report.target).toMatchObject({ id: 'webhooks/newTicket', webhook: 'newTicket' });
+
+    // This fixture's webhook container has no referrers of its own (only the schema it refs),
+    // so derive the expectation from the graph instead of hardcoding an empty list — the
+    // assertion stays meaningful (non-vacuous) even though it happens to equal zero here.
+    const expectedAffectedIds = analysis.graph.edges
+      .filter((edge) => edge.to === 'webhooks/newTicket' && edge.refs.length > 0)
+      .map((edge) => edge.from);
+    expect(
+      [...view.report.affectedOperations, ...view.report.affectedComponents].map(
+        (entry) => entry.id
+      )
+    ).toEqual(expectedAffectedIds);
+  });
+
+  it('routes a deep --pointer whose nearest ancestor is an operation, and --used-by at that ancestor pointer without throwing', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_WEBHOOKS);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    const view = route({ pointer: '#/webhooks/newTicket/post/responses/200' });
+    expect(view.kind).toBe('pointer-card');
+    if (view.kind !== 'pointer-card') throw new Error('expected a pointer-card view');
+    expect(view.card.ancestor).toBeDefined();
+    expect(view.card.ancestor!.pointer).toMatch(/^#\/(paths|webhooks)\/.+/);
+
+    // Routing --used-by at exactly that ancestor pointer must resolve and not throw, even
+    // though the ancestor here is an operation rather than a component.
+    expect(() => route({ pointer: view.card.ancestor!.pointer, 'used-by': true })).not.toThrow();
+  });
+
   it('routes --find to a find view with lowercased whitespace-split terms', async () => {
     const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
     const route = (argv: Record<string, unknown>) =>

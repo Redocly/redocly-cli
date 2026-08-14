@@ -538,7 +538,17 @@ export function resolveTreeView(
 
   const finishOperation = (operation: CollectedOperation): TreeView =>
     usedBy
-      ? { kind: 'used-by', report: buildUsedByReport(analysis, operation.id, cwd) }
+      ? {
+          kind: 'used-by',
+          // Every method under a webhook shares one container node (see depsSeedId in
+          // buildOperationCard and ancestorGraphId in pointer.ts); the operation's own id isn't
+          // a graph node, so reverse edges must be counted against the container instead.
+          report: buildUsedByReport(
+            analysis,
+            operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id,
+            cwd
+          ),
+        }
       : {
           kind: 'operation-card',
           card: buildOperationCard(analysis, operation, {
