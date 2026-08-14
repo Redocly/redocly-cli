@@ -337,6 +337,24 @@ Below the context window, structure buys answer quality, not tokens — dump whe
 {% /tab %}
 {% /tabs %}
 
+## The same task across model tiers
+
+The billing-API head-to-head was repeated on three model tiers — same prompts, same isolation, fresh sessions.
+Compare the two conditions within a row; across rows the models' own verbosity differs too much for the totals to be comparable:
+
+| Model (billing API task) | No tool: session / output / actions | `tree`: session / output / actions | Session delta |
+| ------------------------ | ----------------------------------- | ---------------------------------- | ------------: |
+| Sonnet 5                 | 92,648 / 31,052 / 42                | 88,915 / 22,554 / 26               |           −4% |
+| Opus                     | 69,971 / 16,964 / 30                | 61,844 / 11,762 / 18               |          −12% |
+| Fable 5                  | 63,546 / 9,443 / 25                 | 56,946 / 8,747 / 19                |          −10% |
+
+Three things hold on every tier:
+the indexed agent finishes cheaper on session, output, and actions at once;
+the actions cut is the steadiest effect (26 vs 42, 18 vs 30, 19 vs 25 — bounded selectors replace speculative probes regardless of who is probing);
+and every answer is correct, including the `anyOf`-without-discriminator plan choice.
+Stronger models also shrink the no-tool baseline dramatically — a Fable 5 text-search session costs less than a Sonnet 5 indexed one —
+so the index's relative value is largest where the model cannot compensate with sharper searching, and its determinism value is constant everywhere.
+
 ## The verdict
 
 Is there an advantage? Yes — but not the one usually claimed, and the honest answer differs by question.
