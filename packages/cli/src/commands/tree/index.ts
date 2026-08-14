@@ -27,7 +27,7 @@ import {
   suggestNames,
   type ApiAnalysis,
   type ApiOverview,
-  type CollectFn,
+  type CollectSpecData,
   type CollectedOperation,
   type ComponentCard,
   type ComponentListCard,
@@ -498,7 +498,7 @@ async function loadApi({
 }: {
   apiPath: string;
   config: CommandArgs<TreeArgv>['config'];
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
   externalRefResolver: BaseResolver;
 }): Promise<{
   rootDocument: Document;
