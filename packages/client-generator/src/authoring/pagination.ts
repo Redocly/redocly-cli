@@ -18,8 +18,9 @@ export type NeutralPaginationRule = {
 };
 
 /**
- * Pagination for one operation. The convention rule applies only when its advance
- * parameter exists on the operation (`link` needs none); `exclude` kills every source.
+ * Pagination for one operation. The convention rule applies only where it structurally
+ * fits — the advance parameter exists on the operation, or for `link` (which has no
+ * parameter) the success response documents a `Link` header; `exclude` kills every source.
  * Returns undefined when the operation does not paginate.
  */
 export function paginationRuleFor(
@@ -38,9 +39,14 @@ export function paginationRuleFor(
   if (rule === undefined && typeof configuration.style === 'string') {
     const { exclude: _exclude, operations: _operations, ...convention } = configuration;
     const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
+    // A convention needs a structural fit signal: the advance parameter for cursor/offset/
+    // page, and a documented `Link` response header for `link` (which has no parameter) —
+    // the same gate the TypeScript emitter applies. Without it, a link convention would
+    // attach page iterators to every operation in the description.
     const fits =
-      convention.style === 'link' ||
-      (typeof advance === 'string' && op.queryParams.some((param) => param.name === advance));
+      convention.style === 'link'
+        ? op.successResponseHeaders?.some((header) => header.name === 'link') === true
+        : typeof advance === 'string' && op.queryParams.some((param) => param.name === advance);
     if (fits) rule = convention as Record<string, unknown>;
   }
   if (rule === undefined || typeof rule.style !== 'string') return undefined;

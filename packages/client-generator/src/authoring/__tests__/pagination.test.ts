@@ -46,6 +46,27 @@ describe('paginationRuleFor', () => {
     expect(paginationRuleFor(op(), { ...CURSOR, cursorParam: 'ghost' })).toBeUndefined();
   });
 
+  it('applies a link convention only to operations that document a Link header', () => {
+    // The convention's structural fit signal for `link` is a documented `Link` response
+    // header — same rule the TypeScript emitter and the docs state. Without the gate,
+    // `client.pagination.style: link` would attach page iterators to EVERY operation.
+    const convention = { style: 'link', items: '/items' };
+    const plain = op();
+    expect(paginationRuleFor(plain, convention)).toBeUndefined();
+
+    const linked = op({
+      successResponseHeaders: [{ name: 'link', schema: { kind: 'scalar', scalar: 'string' } }],
+    } as unknown as Partial<OperationModel>);
+    expect(paginationRuleFor(linked, convention)).toEqual({ style: 'link', items: '/items' });
+
+    // An EXPLICIT rule (per-op or extension) is a declaration, not a convention — it
+    // still applies, mirroring the TypeScript emitter's explicit-rule path.
+    expect(paginationRuleFor(plain, { operations: { listOrders: convention } })).toEqual({
+      style: 'link',
+      items: '/items',
+    });
+  });
+
   it('honors exclude and returns undefined without any source', () => {
     expect(
       paginationRuleFor(op({ paginationExtension: CURSOR }), { exclude: ['listOrders'] })
