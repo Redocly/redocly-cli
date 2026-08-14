@@ -14,6 +14,8 @@ import {
   isAbsoluteUrl,
   isAnchor,
   isExternalValue,
+  isRefWithSiblings,
+  Location,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
@@ -172,8 +174,12 @@ export class BaseResolver {
       return { source, parsed: source.body };
     }
 
+    const filename = isAbsoluteUrl(source.absoluteRef)
+      ? new URL(source.absoluteRef).pathname
+      : source.absoluteRef;
+
     if (
-      !isSupportedExtension(source.absoluteRef) &&
+      !isSupportedExtension(filename) &&
       !source.mimeType?.match(/(json|yaml|openapi)/) &&
       !isRoot // always parse root
     ) {
@@ -212,6 +218,13 @@ export class BaseResolver {
   }
 }
 
+// A $ref with sibling keys the resolution chased through on the way to the chain end.
+export type ResolvedRefChainHop = {
+  node: unknown;
+  document: Document;
+  location: Location;
+};
+
 export type ResolvedRef =
   | {
       resolved: false;
@@ -221,6 +234,7 @@ export type ResolvedRef =
       source?: Source;
       error?: ResolveError | YamlParseError;
       node?: any;
+      chain?: undefined;
     }
   | {
       resolved: true;
@@ -229,6 +243,7 @@ export type ResolvedRef =
       nodePointer: string;
       isRemote: boolean;
       error?: undefined;
+      chain?: ResolvedRefChainHop[];
     };
 
 export type ResolvedRefMap = Map<string, ResolvedRef>;
@@ -288,6 +303,7 @@ export async function resolveDocument(opts: {
 
     walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer);
 
+    // oxlint-disable-next-line sonarjs/cognitive-complexity
     function walk(node: unknown, type: NormalizedNodeType, nodeAbsoluteRef: string) {
       if (!isPlainObject(node) && !Array.isArray(node)) {
         return;
@@ -375,6 +391,15 @@ export async function resolveDocument(opts: {
               resolvedRef.nodePointer!,
               type
             );
+            // chain hops carry sibling keys that can contain refs of their own
+            for (const chainHop of resolvedRef.chain ?? []) {
+              resolveRefsInParallel(
+                chainHop.node,
+                chainHop.document,
+                chainHop.location.pointer,
+                type
+              );
+            }
           }
         });
         resolvePromises.push(promise);
@@ -480,6 +505,8 @@ export async function resolveDocument(opts: {
           );
         } else if (isRef(target)) {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
+          // a chain collected while traversing into a ref does not belong to the outer ref
+          resolvedRef.chain = undefined;
           targetDoc = resolvedRef.document || targetDoc;
 
           if (isPlainObject(resolvedRef.node)) {
@@ -508,7 +535,19 @@ export async function resolveDocument(opts: {
       resolvedRef.document = targetDoc;
       const refId = makeRefId(document.source.absoluteRef, ref.$ref);
       if (resolvedRef.document && isRef(target)) {
+        // a $ref with sibling keys is a composition, not an alias — record it as a chain hop
+        const chainHop: ResolvedRefChainHop | undefined = isRefWithSiblings(target)
+          ? {
+              node: target,
+              document: resolvedRef.document,
+              location: new Location(resolvedRef.document.source, resolvedRef.nodePointer!),
+            }
+          : undefined;
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
+        if (chainHop && resolvedRef.resolved) {
+          // rebuilt, not mutated: the chain array is shared with the inner recursion's map entry
+          resolvedRef = { ...resolvedRef, chain: [chainHop, ...(resolvedRef.chain ?? [])] };
+        }
       }
       resolvedRefMap.set(refId, resolvedRef);
       return { ...resolvedRef };

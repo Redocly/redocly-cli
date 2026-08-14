@@ -62,6 +62,7 @@ function displayCheckInfo(check: Check, severity: RuleSeverity): string {
   }`;
 }
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 function displayVerboseLogs({
   logs,
   type = 'request',

@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info:
+  title: Sibling properties colliding with the referenced schema keys
+  version: 1.0.0
+paths:
+  /demo:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Test'
+                properties:
+                  second:
+                    $ref: ./schemas/BaseProblem.yaml
+components:
+  schemas:
+    Test:
+      type: object
+      title: Test schema
+      properties:
+        first:
+          type: integer

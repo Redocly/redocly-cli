@@ -24,6 +24,7 @@ function validateComponentsDifference(files: any) {
 
 let potentialConflictsTotal = 0;
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function iteratePotentialConflicts({
   potentialConflicts,
   withoutXTagGroups,

@@ -327,6 +327,7 @@ export async function resolvePlugins(
 
       return (
         await Promise.all(
+          // oxlint-disable-next-line sonarjs/cognitive-complexity
           pluginInstances.map(async (pluginInstance) => {
             if (!pluginInstance) return;
             const id = pluginInstance.id;

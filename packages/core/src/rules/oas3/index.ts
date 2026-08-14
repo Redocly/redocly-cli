@@ -5,6 +5,7 @@ import { InfoContact } from '../common/info-contact.js';
 import { InfoLicenseStrict } from '../common/info-license-strict.js';
 import { InfoLicense } from '../common/info-license.js';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths.js';
+import { NoDuplicatedEnumValues } from '../common/no-duplicated-enum-values.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths.js';
@@ -16,6 +17,7 @@ import { NoPathTrailingSlash } from '../common/no-path-trailing-slash.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
+import { NoUnsafeMarkdown } from '../common/no-unsafe-markdown.js';
 import { Operation2xxResponse } from '../common/operation-2xx-response.js';
 import { Operation4xxResponse } from '../common/operation-4xx-response.js';
 import { OperationDescription } from '../common/operation-description.js';
@@ -64,6 +66,7 @@ import { SpecExampleValues } from './spec-example-values.js';
 import { SpecNoInvalidEncodingCombinations } from './spec-no-invalid-encoding-combinations.js';
 import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
 import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
+import { SpecRefSiblings } from './spec-ref-siblings.js';
 
 export const rules: Oas3RuleSet<'built-in'> = {
   struct: Struct as Oas3Rule,
@@ -124,6 +127,8 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'array-parameter-serialization': ArrayParameterSerialization,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas3Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas3Rule,
+  'no-duplicated-enum-values': NoDuplicatedEnumValues as Oas3Rule,
+  'no-unsafe-markdown': NoUnsafeMarkdown as Oas3Rule,
   'no-duplicated-tag-names': NoDuplicatedTagNames as Oas3Rule,
   'nullable-type-sibling': NullableTypeSibling,
   'spec-no-invalid-tag-parents': SpecNoInvalidTagParents,
@@ -131,6 +136,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
   'spec-example-values': SpecExampleValues,
   'spec-querystring-parameters': SpecQuerystringParameters,
+  'spec-ref-siblings': SpecRefSiblings as Oas3Rule,
 };
 
 export const preprocessors = {};

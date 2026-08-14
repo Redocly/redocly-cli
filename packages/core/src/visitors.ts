@@ -25,7 +25,7 @@ import type {
   Async2SecurityRequirement,
   Async2SecurityScheme,
   Async2Server,
-} from './typings/asyncapi.js';
+} from './typings/asyncapi2.js';
 import type {
   Async3Channel,
   Async3Definition,
@@ -34,7 +34,6 @@ import type {
   Async3Server,
 } from './typings/asyncapi3.js';
 import type {
-  Referenced,
   Oas3Definition,
   Oas3_1Definition,
   Oas3_2Definition,
@@ -291,7 +290,7 @@ type Async3FlatVisitor = {
   Operation?: VisitFunctionOrObject<Async3Operation>;
   Server?: VisitFunctionOrObject<Async3Server>;
   SecurityScheme?: VisitFunctionOrObject<Async3SecurityScheme>;
-  SecuritySchemeList?: VisitFunctionOrObject<Array<Referenced<Async3SecurityScheme>>>;
+  SecuritySchemeList?: VisitFunctionOrObject<Array<Async3SecurityScheme>>;
   NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Async3SecurityScheme>>;
 };
 
@@ -612,6 +611,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
     return visitor[typeName];
   }
 
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   function normalizeVisitorLevel(
     ruleConf: RuleInstanceConfig,
     visitor: NestedVisitObject<unknown, T>,

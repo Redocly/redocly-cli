@@ -14,13 +14,15 @@
   },
   "_enhancedDependencies": {
     "cli-2.0.0": "npm:@redocly/cli@2.0.0",
-    "cli-2.11.1": "npm:@redocly/cli@2.11.1",
     "cli-2.13.0": "npm:@redocly/cli@2.13.0",
     "cli-2.14.2": "npm:@redocly/cli@2.14.2",
     "cli-2.27.0": "npm:@redocly/cli@2.27.0",
     "cli-2.30.2": "npm:@redocly/cli@2.30.2",
     "cli-2.31.0": "npm:@redocly/cli@2.31.0",
     "cli-2.32.1": "npm:@redocly/cli@2.32.1",
+    "cli-2.34.0": "npm:@redocly/cli@2.34.0",
+    "cli-2.45.0": "npm:@redocly/cli@2.45.0",
+    "cli-2.45.1": "npm:@redocly/cli@2.45.1",
     "cli-latest": "npm:@redocly/cli@latest",
     "cli-next": "file:../../redocly-cli.tgz"
   },

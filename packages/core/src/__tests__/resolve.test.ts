@@ -411,6 +411,99 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
   });
 
+  it('should record a $ref with sibling keys as a chain hop while following transitive refs', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          $ref: "#/aliased"
+        aliased:
+          $ref: '#/target'
+          description: alias with sibling
+        target:
+          contact: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const aliasedRef = resolvedRefs.get('foobar.yaml::#/aliased')!;
+    expect(aliasedRef.node).toEqual({ contact: {} });
+    expect(aliasedRef.chain).toHaveLength(1);
+    expect(aliasedRef.chain![0].node).toEqual({
+      $ref: '#/target',
+      description: 'alias with sibling',
+    });
+    expect(aliasedRef.chain![0].location.pointer).toEqual('#/aliased');
+    expect(resolvedRefs.get('foobar.yaml::#/target')!.node).toEqual({ contact: {} });
+  });
+
+  it('should resolve a pointer that traverses through a composed ref into an array item', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          $ref: '#/listAlias/0'
+        listAlias:
+          $ref: '#/list'
+          description: alias with sibling
+        list:
+          - contact: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const infoRef = resolvedRefs.get('foobar.yaml::#/listAlias/0')!;
+    expect(infoRef.node).toEqual({ contact: {} });
+    // a ref passed through mid-pointer is not a composition chain of the outer ref
+    expect(infoRef.chain).toBeUndefined();
+  });
+
+  it('should record each level of a multi-hop composed chain independently', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          $ref: "#/first"
+        first:
+          $ref: '#/second'
+          description: first hop
+        second:
+          $ref: '#/target'
+          description: second hop
+        target:
+          contact: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const outerRef = resolvedRefs.get('foobar.yaml::#/first')!;
+    expect(outerRef.node).toEqual({ contact: {} });
+    expect(outerRef.chain!.map((hop) => hop.location.pointer)).toEqual(['#/first', '#/second']);
+
+    // the inner resolution must not be polluted by outer hops
+    const innerRef = resolvedRefs.get('foobar.yaml::#/second')!;
+    expect(innerRef.node).toEqual({ contact: {} });
+    expect(innerRef.chain!.map((hop) => hop.location.pointer)).toEqual(['#/second']);
+  });
+
   it('should throw error if ref is folder', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const rootDocument = parseYamlToDocument(
@@ -518,5 +611,47 @@ describe('collect refs', () => {
         });
       }
     });
+  });
+});
+
+describe('remote refs with query strings', () => {
+  it('should resolve a pointer into a remote file with a query string', async () => {
+    const plainTextFetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        text: () =>
+          Promise.resolve(
+            outdent`
+              openapi: 3.1.0
+              paths:
+                /api/invoices:
+                  get:
+                    operationId: listInvoices
+            `
+          ),
+        headers: { get: () => 'text/plain; charset=utf-8' },
+      })
+    );
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /test:
+            $ref: 'https://localhost/test.yaml?ref=blah#/paths/~1api~1invoices'
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: plainTextFetch as any, headers: [] },
+      }),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const resolvedRef = Array.from(resolvedRefs.values())[0];
+    expect(resolvedRef.resolved).toBe(true);
+    expect(resolvedRef.node).toEqual({ get: { operationId: 'listInvoices' } });
   });
 });

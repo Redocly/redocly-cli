@@ -132,6 +132,13 @@ export type RequestBodyModel = {
   description?: string;
 };
 
+export type ResponseHeaderModel = {
+  /** Lowercased wire name (`Header.get` is case-insensitive; link pagination fits by this). */
+  name: string;
+  schema: SchemaModel;
+  required?: boolean;
+};
+
 export type ResponseBodyModel = {
   contentType: string;
   schema: SchemaModel;
@@ -146,8 +153,6 @@ export type ResponseBodyModel = {
    * 3.2 `itemSchema`, e.g. on `text/event-stream`). Absent for ordinary bodies.
    */
   itemSchema?: SchemaModel;
-  /** Declared response header names, lowercased (`link`-style pagination fits by them). */
-  headers?: string[];
 };
 
 /**
@@ -195,6 +200,8 @@ export type OperationModel = {
   cookieParams: ParamModel[];
   requestBody?: RequestBodyModel;
   successResponses: ResponseBodyModel[];
+  /** Headers declared by the selected success response, including bodyless responses. */
+  successResponseHeaders?: ResponseHeaderModel[];
   /**
    * The operation's declared error responses (4xx/5xx, plus `default` when a 2xx
    * success also exists). Empty when none are declared. Consumed only by

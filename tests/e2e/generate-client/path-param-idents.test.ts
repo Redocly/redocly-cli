@@ -97,14 +97,16 @@ describe('non-identifier path parameters', () => {
     const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
     // `widget-id` → safe `widget_id` argument, routed under the quoted wire key.
     expect(client).toContain(
-      'export const getWidget = (widget_id: string, init: RequestOptions = {}) => client.getWidget({ "widget-id": widget_id }, init);'
+      'export const getWidget = <I extends RequestOptions | undefined = undefined>(widget_id: string, init?: I)'
     );
+    expect(client).toContain('client.getWidget({ "widget-id": widget_id }, init)');
     // The descriptor keeps the WIRE name for URL substitution.
     expect(client).toContain('params: [{ name: "widget-id", in: "path" }]');
     // reserved word `new` → `_new` argument, routed under the `new` key.
     expect(client).toContain(
-      'export const getItem = (_new: string, init: RequestOptions = {}) => client.getItem({ new: _new }, init);'
+      'export const getItem = <I extends RequestOptions | undefined = undefined>(_new: string, init?: I)'
     );
+    expect(client).toContain('client.getItem({ new: _new }, init)');
   });
 
   test('the generated client type-checks under strict mode', () => {

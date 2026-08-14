@@ -32,6 +32,7 @@ The rules list is split into sections.
 ### Special rules
 
 - [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
+- [no-unsafe-markdown](./common/no-unsafe-markdown.md): No potentially executable content in `description` fields
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [nullable-type-sibling](./oas/nullable-type-sibling.md): `nullable` must be used with a `type`
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
@@ -39,6 +40,7 @@ The rules list is split into sections.
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
 - [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`
+- [spec-ref-siblings](./oas/spec-ref-siblings.md): Allows only specification-permitted properties next to a `$ref`
 - [spec-strict-refs](./oas/spec-strict-refs.md): Restricts the usage of the `$ref` keyword
 
 ### Info
@@ -82,6 +84,7 @@ The rules list is split into sections.
 ### Requests, Responses, and Schemas
 
 - [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unique naming of parameters, schemas, request bodies and responses
+- [no-duplicated-enum-values](./common/no-duplicated-enum-values.md): All values in an `enum` must be unique
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
@@ -124,6 +127,7 @@ Other rules, such as the `struct` and `info.*`, also apply to AsyncAPI.
 - [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
 - [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
 - [security-defined](./async/security-defined.md): Security scheme names referenced from operations or servers must be defined in `components.securitySchemes`
+- [spec-ref-siblings](./oas/spec-ref-siblings.md): Allows only specification-permitted properties next to a `$ref`
 
 ## Arazzo rules
 
@@ -173,6 +177,7 @@ Use the rules in this section for Open-RPC specific linting.
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [spec-no-duplicated-method-params](./openrpc/spec-no-duplicated-method-params.md): The list of parameters must not include duplicated parameters
 - [spec-no-required-params-after-optional](./openrpc/spec-no-required-params-after-optional.md): Required parameters must be positioned before optional parameters
+- [spec-ref-siblings](./oas/spec-ref-siblings.md): Allows only specification-permitted properties next to a `$ref`
 - [info-contact](./oas/info-contact.md): Contact section is defined under `info`
 - [info-license](./oas/info-license.md): License section is defined under `info`
 

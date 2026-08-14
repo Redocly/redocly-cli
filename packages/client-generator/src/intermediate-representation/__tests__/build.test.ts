@@ -669,23 +669,81 @@ describe('buildSuccessResponses', () => {
     expect(op.successResponses[0].status).toBe(201);
   });
 
-  it('collects declared response header names, lowercased (the link-pagination fit signal)', () => {
+  it('collects declared response headers with schemas (lowercased names for link-pagination fit)', () => {
     const op = buildOpOnly(
       opWithResponses({
         '200': {
-          headers: { Link: { schema: { type: 'string' } }, 'X-Total': {} },
+          headers: {
+            Link: { schema: { type: 'string' } },
+            'X-Total': {},
+            'Pagination-Total': { schema: { type: 'integer' }, required: true },
+          },
           content: { 'application/json': { schema: { type: 'string' } } },
         },
       })
     );
-    expect(op.successResponses[0].headers).toEqual(['link', 'x-total']);
+    expect(op.successResponseHeaders).toEqual([
+      { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
+      { name: 'x-total', schema: { kind: 'unknown' } },
+      {
+        name: 'pagination-total',
+        schema: { kind: 'scalar', scalar: 'integer' },
+        required: true,
+      },
+    ]);
     // No declared headers → the field stays absent, not an empty array.
     const bare = buildOpOnly(
       opWithResponses({
         '200': { content: { 'application/json': { schema: { type: 'string' } } } },
       })
     );
-    expect(bare.successResponses[0].headers).toBeUndefined();
+    expect(bare.successResponseHeaders).toBeUndefined();
+  });
+
+  it('collects declared headers from a bodyless success response', () => {
+    const op = buildOpOnly(
+      opWithResponses({
+        '201': {
+          headers: {
+            Location: { schema: { type: 'string' }, required: true },
+          },
+          description: 'created',
+        },
+      })
+    );
+
+    expect(op.successResponses).toEqual([]);
+    expect(op.successResponseHeaders).toEqual([
+      {
+        name: 'location',
+        schema: { kind: 'scalar', scalar: 'string' },
+        required: true,
+      },
+    ]);
+  });
+
+  it('resolves a referenced scalar response-header schema', () => {
+    const op = buildOpOnly({
+      ...opWithResponses({
+        '200': {
+          headers: {
+            'Pagination-Total': { schema: { $ref: '#/components/schemas/Count' } },
+          },
+          description: 'ok',
+          content: { 'application/json': { schema: { type: 'array', items: {} } } },
+        },
+      }),
+      components: {
+        schemas: {
+          Count: { type: 'integer' },
+        },
+      },
+    });
+
+    expect(op.successResponseHeaders?.[0].schema).toEqual({
+      kind: 'scalar',
+      scalar: 'integer',
+    });
   });
 
   it('accepts the 2XX range wildcard, with an explicit code taking precedence', () => {

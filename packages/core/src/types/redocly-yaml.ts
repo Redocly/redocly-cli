@@ -20,7 +20,9 @@ const builtInOAS2Rules = [
   'info-license-strict',
   'info-license',
   'no-ambiguous-paths',
+  'no-duplicated-enum-values',
   'no-enum-type-mismatch',
+  'no-unsafe-markdown',
   'no-http-verbs-in-paths',
   'no-identical-paths',
   'no-invalid-parameter-examples',
@@ -56,6 +58,7 @@ const builtInOAS2Rules = [
   'response-contains-property',
   'response-mime-type',
   'no-duplicated-tag-names',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInOAS2RuleId = (typeof builtInOAS2Rules)[number];
 
@@ -67,7 +70,9 @@ const builtInOAS3Rules = [
   'info-license-strict',
   'info-license',
   'no-ambiguous-paths',
+  'no-duplicated-enum-values',
   'no-enum-type-mismatch',
+  'no-unsafe-markdown',
   'no-http-verbs-in-paths',
   'no-identical-paths',
   'no-invalid-parameter-examples',
@@ -122,6 +127,7 @@ const builtInOAS3Rules = [
   'spec-discriminator-defaultMapping',
   'spec-example-values',
   'spec-querystring-parameters',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInOAS3RuleId = (typeof builtInOAS3Rules)[number];
 
@@ -136,9 +142,12 @@ const builtInAsync2Rules = [
   'no-channel-trailing-slash',
   'no-duplicated-tag-names',
   'no-required-schema-properties-undefined',
+  'no-duplicated-enum-values',
   'no-enum-type-mismatch',
+  'no-unsafe-markdown',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'spec-ref-siblings',
   'security-scopes-defined',
 ] as const;
 export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
@@ -154,9 +163,12 @@ const builtInAsync3Rules = [
   'no-channel-trailing-slash',
   'no-duplicated-tag-names',
   'no-required-schema-properties-undefined',
+  'no-duplicated-enum-values',
   'no-enum-type-mismatch',
+  'no-unsafe-markdown',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
+  'spec-ref-siblings',
   'security-scopes-defined',
 ] as const;
 export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
@@ -180,7 +192,9 @@ const builtInArazzo1Rules = [
   'x-security-scheme-required-values',
   'no-x-security-both-scheme-and-scheme-name',
   'no-required-schema-properties-undefined',
+  'no-duplicated-enum-values',
   'no-enum-type-mismatch',
+  'no-unsafe-markdown',
   'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
   'x-security-scheme-name-reference',
@@ -196,6 +210,7 @@ const builtInOpenRpc1Rules = [
   'no-unused-components',
   'spec-no-duplicated-method-params',
   'spec-no-required-params-after-optional',
+  'spec-ref-siblings',
 ] as const;
 export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 

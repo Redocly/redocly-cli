@@ -255,6 +255,7 @@ function statusColor(status: number): Colorize {
   return gray;
 }
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 function formatPretty(result: DriftRunResult, color: boolean, maxFindings: number): string {
   const colorize = (text: string, paint: Colorize) => (color ? paint(text) : text);
   const severityIcon = (severity: FindingPreview['severity']) =>

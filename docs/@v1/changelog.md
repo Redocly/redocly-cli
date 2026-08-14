@@ -7,6 +7,22 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.19 (2026-08-10)
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.3.1` version to resolve a denial-of-service vulnerability in YAML parsing.
+  Applied NPM audit fix to prevent potential security vulnerabilities.
+- Updated @redocly/respect-core to v1.34.19.
+
+## 1.34.18 (2026-07-29)
+
+### Patch Changes
+
+- Updated `js-yaml` to the `4.3.0` version to resolve a denial-of-service vulnerability in YAML parsing.
+  Applied NPM audit fix to prevent potential security vulnerabilities.
+- Updated @redocly/openapi-core to v1.34.18.
+
 ## 1.34.17 (2026-06-30)
 
 ### Patch Changes

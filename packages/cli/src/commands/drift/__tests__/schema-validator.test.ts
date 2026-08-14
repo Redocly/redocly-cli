@@ -1,4 +1,4 @@
-import { SchemaValidator } from '../../../commands/drift/engine/schema-validator.js';
+import { SchemaValidator } from '../engine/schema-validator.js';
 
 const idPattern = '^pay_[0-9a-f]{12}$';
 
