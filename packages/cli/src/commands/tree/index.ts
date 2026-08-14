@@ -8,18 +8,18 @@ import {
   buildOperationCard,
   buildOperationListing,
   buildOverview,
+  buildPointerCard,
   buildUsedByReport,
-  classifyRef,
   collectConnectedIds,
   COMPONENT_SECTIONS,
   detectSpec,
-  escapePointerFragment,
   findComponent,
   findMatches,
   findOperationByOperationId,
   findOperationByPathMethod,
   findWebhookOperation,
   getTypes,
+  graphNodeIdFor,
   HTTP_METHODS,
   listOperations,
   logger,
@@ -28,7 +28,6 @@ import {
   resolveDocument,
   resolvePointerSelector,
   suggestNames,
-  toOperationListItem,
   type ApiAnalysis,
   type ApiOverview,
   type CollectSpecData,
@@ -42,11 +41,10 @@ import {
   type NormalizedNodeType,
   type OperationCard,
   type OperationListCard,
-  type PointerAncestor,
+  type PointerCard,
   type PointerResolution,
   type ResolvedRefMap,
   type SpecVersion,
-  type TypedRef,
   type UsedByReport,
 } from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
@@ -83,28 +81,9 @@ export type TreeArgv = {
   'with-deps'?: boolean;
 } & VerifyConfigOptions;
 
-/**
- * A `--pointer` card for a "deep" node — anything past a component/operation, unreachable through
- * any typed selector. `ancestor.pointer` isn't part of the resolution core hands back (it only
- * carries the located `component`/`operation`); it's rebuilt here because both renderers need an
- * actual `--pointer=` value to point the reader at, not just the display id.
- */
-export type PointerCard = {
-  pointer: string;
-  file: string;
-  start_line: number;
-  end_line: number;
-  content: string;
-  refs: TypedRef[];
-  ancestor?: {
-    id: string;
-    pointer: string;
-    file: string;
-    start_line: number;
-    end_line: number;
-    usedByCount: number;
-  };
-};
+// PointerCard is a core type (see `buildPointerCard` in `@redocly/openapi-core`); re-exported here
+// so the renderers under `print/` can keep importing every view-payload type from this one module.
+export type { PointerCard };
 
 export type TreeView =
   | {
@@ -401,60 +380,85 @@ function resolveTagView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): Tre
   return { kind: 'operations', scope: argv.tag, items };
 }
 
-/** The JSON pointer a `PointerAncestor` was found at: rebuilt from its located component/operation, not from `id` (a display id, not pointer syntax — an operation's is `METHOD /path`). */
-function ancestorPointerHint(ancestor: PointerAncestor): string {
-  if (ancestor.component) {
-    return `#/components/${ancestor.component.section}/${escapePointerFragment(ancestor.component.name)}`;
-  }
-  // Exactly one of `component`/`operation` is set; `location.pointer` is already the operation's
-  // own `#/paths/...` (or `#/webhooks/...`) pointer, escaped by the walker that recorded it.
-  return ancestor.operation!.location.pointer;
-}
-
-function buildPointerAncestor(
-  ancestor: PointerAncestor,
+/**
+ * The overview view, shared by the bare invocation (bottom of `resolveTreeView`) and a `--pointer`
+ * that lands on the document root (`#/`): same expand-to-operations rule either way.
+ */
+function buildOverviewView(
+  argv: TreeArgv,
   analysis: ApiAnalysis,
   specVersion: SpecVersion,
   cwd: string
-): NonNullable<PointerCard['ancestor']> {
-  const range = ancestor.component
-    ? buildComponentCard(analysis, ancestor.component, { specVersion, cwd })
-    : toOperationListItem(ancestor.operation!, cwd);
+): TreeView {
+  const overview = buildOverview(analysis, { specVersion, cwd });
+  if (argv.format === 'json') return { kind: 'overview', overview };
+  // Past this many operations the expanded default tree stops being readable (and building a
+  // card per operation stops being cheap), so the overview collapses to tag counts and the
+  // renderer appends a --tag hint instead.
+  if (overview.operations > OVERVIEW_EXPAND_LIMIT) return { kind: 'overview', overview };
+  // The overview itself carries no per-operation detail; the stylish and ai renderers both
+  // expand it down to operations (see renderOverview / renderAiOverview), so build the same
+  // listings --operations/--webhooks return and hand them to the view alongside it. json is
+  // unaffected: viewPayload only ever serializes `view.overview` for this view kind, so these
+  // extra fields never reach that output.
   return {
-    id: ancestor.id,
-    pointer: ancestorPointerHint(ancestor),
-    file: range.file,
-    start_line: range.start_line,
-    end_line: range.end_line,
-    usedByCount: ancestor.usedByCount,
-  };
-}
-
-function buildPointerCard(
-  resolution: Extract<PointerResolution, { kind: 'deep' }>,
-  analysis: ApiAnalysis,
-  specVersion: SpecVersion,
-  cwd: string
-): PointerCard {
-  const { envelope } = resolution;
-  return {
-    pointer: resolution.pointer,
-    file: envelope.file,
-    start_line: envelope.start_line,
-    end_line: envelope.end_line,
-    content: envelope.content,
-    refs: envelope.refs.map(classifyRef),
-    ...(resolution.ancestor
-      ? { ancestor: buildPointerAncestor(resolution.ancestor, analysis, specVersion, cwd) }
-      : {}),
+    kind: 'overview',
+    overview,
+    operations: buildOperationListing(analysis, { cwd }),
+    webhookOperations: buildOperationListing(analysis, { cwd, allWebhooks: true }),
   };
 }
 
 /**
- * The `--pointer` branch: a standalone selector, same rule as `--find` (mirrors its guard list,
- * plus `find` itself, since both flags are standalone and either can be checked first). Unlike
- * `--find`, `--used-by`/`--with-deps` aren't in the conflict list here — they're valid modifiers
- * once the pointer resolves to an indexed node, and get their own error otherwise, below.
+ * A `--pointer` that lands exactly on a container boundary (the document root, `paths`,
+ * `webhooks`, `components`, one component section, or one path) routes to the same bounded view
+ * its typed selector equivalent already builds, instead of the pointer-card path below.
+ */
+function resolveContainerPointerView(
+  resolution: Exclude<
+    PointerResolution,
+    { kind: 'component' | 'operation' | 'deep' | 'unresolved' }
+  >,
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string
+): TreeView {
+  switch (resolution.kind) {
+    case 'overview':
+      return buildOverviewView(argv, analysis, specVersion, cwd);
+    case 'all-operations':
+      return { kind: 'operations', items: buildOperationListing(analysis, { cwd }) };
+    case 'all-webhooks':
+      return {
+        kind: 'operations',
+        items: buildOperationListing(analysis, { cwd, allWebhooks: true }),
+      };
+    case 'components-root':
+      throw new TreeSelectorError(
+        `Point one level deeper: --pointer='#/components/<section>'. Sections: ${COMPONENT_SECTIONS.join(', ')}.`
+      );
+    case 'component-section':
+      return {
+        kind: 'components',
+        section: resolution.section,
+        items: buildComponentListing(analysis, { cwd, section: resolution.section }),
+      };
+    case 'path-operations':
+      return {
+        kind: 'operations',
+        scope: resolution.path,
+        items: buildOperationListing(analysis, { cwd, path: resolution.path }),
+      };
+  }
+}
+
+/**
+ * The `--pointer` branch: a standalone selector, same rule as `--find` (mirrors its guard list —
+ * `--find` is checked first in `resolveTreeView` and returns early, so it can never still be set
+ * here). Unlike `--find`, `--used-by`/`--with-deps` aren't in the conflict list here — they're
+ * valid modifiers once the pointer resolves to an indexed node, and get their own error otherwise,
+ * below.
  */
 function resolvePointerView(
   argv: TreeArgv,
@@ -464,7 +468,6 @@ function resolvePointerView(
   finishOperation: (operation: CollectedOperation) => TreeView
 ): TreeView {
   const otherSelector =
-    argv.find !== undefined ||
     argv.tag !== undefined ||
     argv.path !== undefined ||
     argv.webhook !== undefined ||
@@ -495,13 +498,24 @@ function resolvePointerView(
     throw new TreeSelectorError(`Nothing at "${resolution.pointer}".${nearest}`);
   }
 
-  if (argv['used-by'] === true || argv['with-deps'] === true) {
-    const message = resolution.ancestor
-      ? `--used-by and --with-deps need an indexed node. Nearest: --pointer='${ancestorPointerHint(resolution.ancestor)}'`
-      : '--used-by and --with-deps need an indexed node. This pointer has no indexed ancestor.';
-    throw new TreeSelectorError(message);
+  if (resolution.kind === 'deep') {
+    if (argv['used-by'] === true || argv['with-deps'] === true) {
+      const message = resolution.ancestor
+        ? `--used-by and --with-deps need an indexed node. Nearest: --pointer='${resolution.ancestor.pointer}'`
+        : '--used-by and --with-deps need an indexed node. This pointer has no indexed ancestor.';
+      throw new TreeSelectorError(message);
+    }
+    return { kind: 'pointer-card', card: buildPointerCard(resolution) };
   }
-  return { kind: 'pointer-card', card: buildPointerCard(resolution, analysis, specVersion, cwd) };
+
+  // Every remaining kind is a bounded listing or the overview, not a single node — the same rule
+  // a listing selector applies (--operations, --webhooks, --component without --name).
+  if (argv['used-by'] === true || argv['with-deps'] === true) {
+    throw new TreeSelectorError(
+      '--used-by and --with-deps need an indexed component or operation, not a listing. Point --pointer at a specific path/method, webhook/method, or component name.'
+    );
+  }
+  return resolveContainerPointerView(resolution, argv, analysis, specVersion, cwd);
 }
 
 export function resolveTreeView(
@@ -540,14 +554,10 @@ export function resolveTreeView(
     usedBy
       ? {
           kind: 'used-by',
-          // Every method under a webhook shares one container node (see depsSeedId in
-          // buildOperationCard and ancestorGraphId in pointer.ts); the operation's own id isn't
-          // a graph node, so reverse edges must be counted against the container instead.
-          report: buildUsedByReport(
-            analysis,
-            operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id,
-            cwd
-          ),
+          // Every method under a webhook shares one container node (see graphNodeIdFor); the
+          // operation's own id isn't a graph node, so reverse edges must be counted against the
+          // container instead.
+          report: buildUsedByReport(analysis, graphNodeIdFor(operation), cwd),
         }
       : {
           kind: 'operation-card',
@@ -598,23 +608,7 @@ export function resolveTreeView(
   if (argv.operations)
     return { kind: 'operations', items: buildOperationListing(analysis, { cwd }) };
 
-  const overview = buildOverview(analysis, { specVersion, cwd });
-  if (argv.format === 'json') return { kind: 'overview', overview };
-  // Past this many operations the expanded default tree stops being readable (and building a
-  // card per operation stops being cheap), so the overview collapses to tag counts and the
-  // renderer appends a --tag hint instead.
-  if (overview.operations > OVERVIEW_EXPAND_LIMIT) return { kind: 'overview', overview };
-  // The overview itself carries no per-operation detail; the stylish and ai renderers both
-  // expand it down to operations (see renderOverview / renderAiOverview), so build the same
-  // listings --operations/--webhooks return and hand them to the view alongside it. json is
-  // unaffected: viewPayload only ever serializes `view.overview` for this view kind, so these
-  // extra fields never reach that output.
-  return {
-    kind: 'overview',
-    overview,
-    operations: buildOperationListing(analysis, { cwd }),
-    webhookOperations: buildOperationListing(analysis, { cwd, allWebhooks: true }),
-  };
+  return buildOverviewView(argv, analysis, specVersion, cwd);
 }
 
 type TreeModeContext = {

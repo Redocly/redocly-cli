@@ -141,6 +141,7 @@ export {
   analyzeApi,
   collectConnectedIds,
   collectReversePathsTo,
+  graphNodeIdFor,
   type ApiAnalysis,
   type ApiIndexMeta,
   type CollectedComponent,
@@ -201,8 +202,10 @@ export type {
 } from './api-graph/views.js';
 export { findMatches, FIND_LIMIT, type FindReport } from './api-graph/find.js';
 export {
+  buildPointerCard,
   resolvePointerSelector,
   type PointerAncestor,
+  type PointerCard,
   type PointerResolution,
 } from './api-graph/pointer.js';
 export { buildFileCard, buildFileUsedByReport, type FileCard } from './api-graph/file-view.js';

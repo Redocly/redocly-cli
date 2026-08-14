@@ -54,7 +54,7 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | --name        | string   | Component name; requires `--component`.                                                                                                                                                                                                                                                                                                          |
 | --file        | string   | Show everything one file defines. Combine with `--used-by` for that file's impact analysis, or with `--files` to filter the file graph to that file's neighborhood.                                                                                                                                                                              |
 | --find        | string   | Search operations and components by words in their path, id, name, summary, description, or tags. Standalone; not combinable with other selectors.                                                                                                                                                                                               |
-| --pointer     | string   | Navigate by a raw JSON pointer from a `$ref` or lint output; shows the node's location and usage.                                                                                                                                                                                                                                                |
+| --pointer     | string   | Navigate by a raw JSON pointer from a `$ref` or lint output; shows the node's location and usage. Standalone; combines only with --used-by/--with-deps on indexed nodes.                                                                                                                                                                         |
 | --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                 |
 | --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                     |
 | --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                   |
@@ -904,6 +904,38 @@ signature: string=placed|preparing|completed|canceled
 --- json
 {"type":"string","description":"Order status.","enum":["placed","preparing","completed","canceled"]}
 usedBy: 3 (--used-by)
+```
+
+A pointer that lands exactly on a container boundary — the document root (`#/`, and an empty pointer), `#/paths`, `#/webhooks`, one component section (`#/components/<section>`), or one path (`#/paths/<path>`) — routes to the same bounded view its typed selector equivalent already produces, instead of slicing that whole subtree:
+
+```bash
+redocly tree cafe.yaml --pointer='#/paths' --format=ai
+```
+
+```
+operations · 12 operations
+get /menu · listMenuItems · L32 — List all menu items
+post /menu · createMenuItem · L113 — Create menu item
+delete /menu/{menuItemId} · deleteMenuItem · L178 — Delete a menu item
+get /menu-item-images/{menuItemId} · getMenuItemPhoto · L203 — Retrieve a menu item photo
+get /orders · listOrders · L229 — List all orders
+post /orders · createOrder · L316 — Create order
+get /orders/{orderId} · getOrderById · L375 — Retrieve an order
+delete /orders/{orderId} · deleteOrder · L478 — Delete an order
+patch /orders/{orderId} · updateOrder · L418 — Partially update an order
+get /order-items · listOrderItems · L505 — List all order items with menu item details
+get /revenue · getRevenue · L549 — Get revenue statistics
+post /oauth2/register · registerOAuth2Client · L604 — Create OAuth2 client
+```
+
+`#/components` on its own isn't a bounded view — point one level deeper instead:
+
+```bash
+redocly tree cafe.yaml --pointer='#/components'
+```
+
+```
+Point one level deeper: --pointer='#/components/<section>'. Sections: schemas, responses, parameters, requestBodies, headers, securitySchemes, examples, links, callbacks.
 ```
 
 A pointer that resolves anywhere else in the document — inside a schema's properties, for instance — returns a pointer card instead: the node's own coordinates and body, its own `refs`, and the nearest indexed ancestor with its `usedBy` count and a ready-to-paste `--pointer` hint, since the deep node itself has no reverse edges of its own to report:

@@ -1284,4 +1284,22 @@ describe('renderView (ai)', () => {
       Museum API"
     `);
   });
+
+  it('renders an ai pointer card header with a truncated marker when the sliced content was capped', () => {
+    const card: PointerCard = {
+      pointer: '#/info/description',
+      file: 'openapi.yaml',
+      start_line: 2,
+      end_line: 2,
+      content: 'A very long description',
+      refs: [],
+      truncated: true,
+    };
+    const view: TreeView = { kind: 'pointer-card', card };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "pointer #/info/description · openapi.yaml L2-2 (truncated at 64 KB)
+      --- yaml
+      A very long description"
+    `);
+  });
 });

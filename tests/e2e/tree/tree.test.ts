@@ -284,6 +284,19 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-pointer-component-ai'));
   });
 
+  test('tree --pointer=#/paths routes to the same operations listing --operations produces', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--pointer=#/paths',
+      '--format=json',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-pointer-all-operations')
+    );
+  });
+
   test('tree --pointer to a deep node prints a pointer card with its nearest ancestor', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',

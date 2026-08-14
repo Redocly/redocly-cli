@@ -54,6 +54,11 @@ export type ApiIndexMeta = {
   componentsLocation?: Location;
 };
 
+/** A webhook operation has no graph node of its own; every method under a webhook shares one container node. */
+export function graphNodeIdFor(operation: CollectedOperation): string {
+  return operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id;
+}
+
 export type ApiAnalysis = {
   graph: DependencyGraph;
   meta: ApiIndexMeta;

@@ -5,14 +5,16 @@ import { detectSpec } from '../../detect-spec.js';
 import { getTypes, type SpecVersion } from '../../oas-types.js';
 import { BaseResolver, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
-import { analyzeApi, type ApiAnalysis } from '../build-graph.js';
+import { analyzeApi, graphNodeIdFor, type ApiAnalysis } from '../build-graph.js';
 import { findComponent, findOperationByPathMethod, findWebhookOperation } from '../select.js';
 import {
   buildComponentListing,
   buildComponentCard,
   buildOperationCard,
+  buildOperationListCard,
   buildOperationListing,
   buildOverview,
+  buildUsedBy,
   buildUsedByReport,
 } from '../views.js';
 
@@ -199,6 +201,28 @@ describe('views: cards', () => {
     // they're the same set.
     expect(card.content).toContain('New ticket alert');
     expect(card.deps!.map((dep) => dep.id)).toContain('schemas/TicketAlert');
+  });
+
+  it('counts a webhook operation list card usedBy against its shared container node, not its own display id', async () => {
+    // A real referrer INTO a webhook container is unusual in OpenAPI (nothing normally $refs
+    // `#/webhooks/...`), so this fixture's one operation deliberately does exactly that — the
+    // only way to make the assertion below non-vacuous instead of two empty arrays agreeing by
+    // accident.
+    const { analysis, cwd } = await analysisOfFixture(
+      join(__dirname, 'fixtures', 'webhook-used-by')
+    );
+    const operation = findWebhookOperation(analysis.meta, 'newTicket')!;
+    const card = buildOperationListCard(analysis, operation, cwd);
+
+    // A webhook operation has no graph node of its own (see graphNodeIdFor); every method under
+    // a webhook shares one container node instead. Before this fix, the card computed usedBy
+    // from the operation's own display id ("POST newTicket"), which is never a graph node — this
+    // referrer would have silently vanished. Assert the card agrees with a direct lookup against
+    // the real container id, so every call site (card, deps closure, --used-by seeding, pointer
+    // ancestor) provably counts the same thing.
+    const expectedUsedBy = buildUsedBy(analysis, graphNodeIdFor(operation), cwd);
+    expect(expectedUsedBy).not.toEqual([]);
+    expect(card.usedBy).toEqual(expectedUsedBy);
   });
 
   it('buildComponentCard with withContent returns raw source without a deps closure', async () => {

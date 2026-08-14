@@ -314,7 +314,10 @@ function renderAiFileCard(card: FileCard): string {
  * `--pointer=` hint, since a deep node has no `usedBy` of its own to fall back on.
  */
 function renderAiPointerCard(card: PointerCard): string {
-  const lines = [`pointer ${card.pointer} · ${card.file} L${card.start_line}-${card.end_line}`];
+  const truncated = card.truncated ? ' (truncated at 64 KB)' : '';
+  const lines = [
+    `pointer ${card.pointer} · ${card.file} L${card.start_line}-${card.end_line}${truncated}`,
+  ];
   const json = renderCardBodyJson(card.content, card.start_line);
   if (json !== undefined) {
     lines.push('--- json', json);

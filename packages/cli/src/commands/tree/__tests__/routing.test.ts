@@ -194,6 +194,9 @@ describe('resolveTreeView', () => {
     if (view.kind !== 'pointer-card') throw new Error('expected a pointer-card view');
     expect(view.card.ancestor).toBeDefined();
     expect(view.card.ancestor!.pointer).toMatch(/^#\/(paths|webhooks)\/.+/);
+    // The display id names the operation the way `ai` does elsewhere ("post webhook newTicket"),
+    // not the internal `webhooks/newTicket` container id the usedBy count is actually keyed on.
+    expect(view.card.ancestor!.id).toBe('post webhook newTicket');
 
     // Routing --used-by at exactly that ancestor pointer must resolve and not throw, even
     // though the ancestor here is an operation rather than a component.
@@ -246,6 +249,67 @@ describe('resolveTreeView', () => {
 
     const view = route({ pointer: '#/paths/~1tickets/post' });
     expect(view).toMatchObject({ kind: 'operation-card', card: { operationId: 'buyTickets' } });
+  });
+
+  it('routes --pointer=# (the document root) to the same overview view the bare invocation renders', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/' })).toEqual(route({}));
+    expect(route({ pointer: '' })).toEqual(route({}));
+  });
+
+  it('routes --pointer=#/paths to the same operations listing --operations renders', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/paths' })).toEqual(route({ operations: true }));
+  });
+
+  it('routes --pointer=#/webhooks to the same listing --webhooks renders', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_MULTI_WEBHOOKS);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/webhooks' })).toEqual(route({ webhooks: true }));
+  });
+
+  it('routes --pointer=#/components/<section> to the same listing --component renders', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/components/schemas' })).toEqual(route({ component: 'schemas' }));
+  });
+
+  it('routes --pointer=#/paths/<path> to the same listing --path renders', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/paths/~1tickets' })).toEqual(route({ path: '/tickets' }));
+  });
+
+  it('rejects --pointer=#/components, naming the sections one level deeper', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/components' })).toThrow(
+      /Point one level deeper: --pointer='#\/components\/<section>'\. Sections: schemas/
+    );
+  });
+
+  it('rejects --used-by/--with-deps on a container --pointer that resolves to a listing', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/paths', 'used-by': true })).toThrow(
+      /--used-by and --with-deps need an indexed component or operation, not a listing/
+    );
   });
 
   it('routes a deep --pointer to a pointer-card with its nearest indexed ancestor', async () => {

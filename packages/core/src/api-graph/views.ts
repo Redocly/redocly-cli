@@ -2,6 +2,7 @@ import type { SpecVersion } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
 import {
   collectReversePathsTo,
+  graphNodeIdFor,
   type ApiAnalysis,
   type CollectedComponent,
   type CollectedOperation,
@@ -335,7 +336,9 @@ export function buildOperationListCard(
     refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
       classifyRef
     ),
-    usedBy: buildUsedBy(analysis, operation.id, cwd),
+    // A webhook operation has no graph node of its own (see graphNodeIdFor); reverse edges are
+    // recorded against the shared container node instead of the operation's own display id.
+    usedBy: buildUsedBy(analysis, graphNodeIdFor(operation), cwd),
   };
 }
 
@@ -418,9 +421,9 @@ export function buildOperationCard(
   const { cwd } = options;
   const card = buildOperationListCard(analysis, operation, cwd);
   // A webhook operation has no graph node of its own: every method under a webhook shares one
-  // container node (`webhooks/<name>`, see mapRootPointer) that actually holds the $ref edges.
+  // container node (`webhooks/<name>`, see graphNodeIdFor) that actually holds the $ref edges.
   // Seed the closure from that container while keeping the operation's own range for `content`.
-  const depsSeedId = operation.isWebhook ? `webhooks/${operation.containerKey}` : operation.id;
+  const depsSeedId = graphNodeIdFor(operation);
   if (!options.withDeps) {
     if (!options.withContent) return card;
     const envelope = buildNodeEnvelope({

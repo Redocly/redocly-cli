@@ -7,6 +7,7 @@ import { BaseResolver, type Document } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
 import { analyzeApi, type ApiAnalysis } from '../build-graph.js';
 import { resolvePointerSelector } from '../pointer.js';
+import { DEPS_CONTENT_CAP_BYTES } from '../slice.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -66,6 +67,61 @@ describe('resolvePointerSelector: indexed nodes', () => {
   });
 });
 
+describe('resolvePointerSelector: container pointers', () => {
+  it('routes the document root (and an empty pointer) to the overview container kind', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    expect(resolvePointerSelector(analysis, '#/', { cwd })).toEqual({ kind: 'overview' });
+    expect(resolvePointerSelector(analysis, '', { cwd })).toEqual({ kind: 'overview' });
+  });
+
+  it('routes #/paths to the all-operations container kind', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    expect(resolvePointerSelector(analysis, '#/paths', { cwd })).toEqual({
+      kind: 'all-operations',
+    });
+  });
+
+  it('routes #/webhooks to the all-webhooks container kind', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'webhooks'));
+
+    expect(resolvePointerSelector(analysis, '#/webhooks', { cwd })).toEqual({
+      kind: 'all-webhooks',
+    });
+  });
+
+  it('routes #/components to the components-root container kind', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    expect(resolvePointerSelector(analysis, '#/components', { cwd })).toEqual({
+      kind: 'components-root',
+    });
+  });
+
+  it('routes #/components/<section> to that section, only when it names a real section', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    expect(resolvePointerSelector(analysis, '#/components/schemas', { cwd })).toEqual({
+      kind: 'component-section',
+      section: 'schemas',
+    });
+    // A bogus section isn't a container match — it falls through to the generic (here:
+    // unresolved) resolution below instead of being misreported as a component section.
+    expect(resolvePointerSelector(analysis, '#/components/bogus', { cwd }).kind).toBe('unresolved');
+  });
+
+  it('routes #/paths/<path> to that path, only when the path exists', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    expect(resolvePointerSelector(analysis, '#/paths/~1tickets', { cwd })).toEqual({
+      kind: 'path-operations',
+      path: '/tickets',
+    });
+    expect(resolvePointerSelector(analysis, '#/paths/~1nope', { cwd }).kind).toBe('unresolved');
+  });
+});
+
 describe('resolvePointerSelector: deep pointers', () => {
   it('resolves a pointer into a schema property with coordinates, content, and its ancestor', async () => {
     const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'webhooks'));
@@ -85,8 +141,19 @@ describe('resolvePointerSelector: deep pointers', () => {
     expect(result.envelope.content).toContain('type: string');
     expect(result.ancestor).toBeDefined();
     expect(result.ancestor!.id).toBe('schemas/TicketAlert');
-    expect(result.ancestor!.component?.name).toBe('TicketAlert');
+    expect(result.ancestor!.pointer).toBe('#/components/schemas/TicketAlert');
     expect(result.ancestor!.usedByCount).toBeGreaterThan(0);
+  });
+
+  it('truncates a deep node whose sliced content exceeds the deps-style cap', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'pointer-cap'));
+
+    const result = resolvePointerSelector(analysis, '#/info', { cwd });
+
+    expect(result.kind).toBe('deep');
+    if (result.kind !== 'deep') throw new Error('expected a deep resolution');
+    expect(result.envelope.truncated).toBe(true);
+    expect(result.envelope.content.length).toBe(DEPS_CONTENT_CAP_BYTES);
   });
 });
 
@@ -100,5 +167,13 @@ describe('resolvePointerSelector: unresolved pointers', () => {
     if (result.kind !== 'unresolved') throw new Error('expected an unresolved resolution');
     expect(result.pointer).toBe('#/components/schemas/Ticket/bogus');
     expect(result.nearestResolvable).toBe('#/components/schemas/Ticket');
+  });
+
+  it('does not resolve an inherited prototype property like constructor', async () => {
+    const { analysis, cwd } = await analysisOfFixture(join(__dirname, 'fixtures', 'split'));
+
+    const result = resolvePointerSelector(analysis, '#/info/constructor', { cwd });
+
+    expect(result.kind).toBe('unresolved');
   });
 });
