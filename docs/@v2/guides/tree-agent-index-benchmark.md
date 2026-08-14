@@ -277,6 +277,10 @@ schemas/SubscriptionOrOneTimeSale L16039-16048: [oneOf: Subscription, OneTimeSal
 
 The `x-codeSamples` marker in that body is 117 lines of PHP examples the first-round card shipped verbatim; the coordinates recover them with a `Read` or `--format=json` when they are actually wanted.
 
+Navigation by pointer closes the lint→tree loop the rest of this section is built around: a lint problem's `location`, a `$ref` value, or a `--format=json` `pointer` field is now a direct `--pointer` argument, with no manual translation into `--tag`/`--component` flags first.
+Measured on the same 1.3 MB billing description, an indexed pointer card (`--pointer='#/components/schemas/CurrencyCode'`) costs 317 B — identical to the `--component=schemas --name=CurrencyCode` card above, since it is the exact same card reached by a different route.
+A deep pointer one property below the nearest indexed node (`--pointer='#/components/schemas/SubscriptionPlan/properties/recurringInterval'`) costs 1,319 B: its own body plus the `ancestor: schemas/SubscriptionPlan L11889-12086 · usedBy: 2` line that keeps navigation anchored to a real graph node instead of stopping at a dead end.
+
 ## Three descriptions, head to head
 
 The isolated head-to-heads — one multi-step task per description, same model, fresh sessions.
