@@ -21,6 +21,10 @@ const FIXTURE_MULTI_WEBHOOKS = join(
   __dirname,
   '../../../../../core/src/api-graph/__tests__/fixtures/multi-webhooks'
 );
+const FIXTURE_POINTER_DEEP = join(
+  __dirname,
+  '../../../../../core/src/api-graph/__tests__/fixtures/webhooks'
+);
 
 async function analysisOfFixture(fixtureRoot: string) {
   const resolver = new BaseResolver();
@@ -178,5 +182,76 @@ describe('resolveTreeView', () => {
       resolveTreeView(argv as never, analysis, specVersion, cwd);
 
     expect(route({ find: '   ' })).toThrow(TreeSelectorError);
+  });
+
+  it('routes an indexed component --pointer to the same component-card view --component would produce', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    const view = route({ pointer: '#/components/schemas/Ticket' });
+    expect(view).toMatchObject({
+      kind: 'component-card',
+      card: { component: 'schemas', name: 'Ticket' },
+    });
+  });
+
+  it('routes an escaped operation --pointer to the operation-card view', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    const view = route({ pointer: '#/paths/~1tickets/post' });
+    expect(view).toMatchObject({ kind: 'operation-card', card: { operationId: 'buyTickets' } });
+  });
+
+  it('routes a deep --pointer to a pointer-card with its nearest indexed ancestor', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_POINTER_DEEP);
+    const route = (argv: Record<string, unknown>) =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    const view = route({ pointer: '#/components/schemas/TicketAlert/properties/ticketId' });
+    expect(view.kind).toBe('pointer-card');
+    if (view.kind !== 'pointer-card') throw new Error('expected a pointer-card view');
+    expect(view.card.pointer).toBe('#/components/schemas/TicketAlert/properties/ticketId');
+    expect(view.card.content).toContain('type: string');
+    expect(view.card.ancestor).toMatchObject({
+      id: 'schemas/TicketAlert',
+      pointer: '#/components/schemas/TicketAlert',
+    });
+    expect(view.card.ancestor!.usedByCount).toBeGreaterThan(0);
+  });
+
+  it('rejects --used-by/--with-deps on a deep --pointer, hinting the ancestor pointer', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE_POINTER_DEEP);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(
+      route({
+        pointer: '#/components/schemas/TicketAlert/properties/ticketId',
+        'with-deps': true,
+      })
+    ).toThrow(/Nearest: --pointer='#\/components\/schemas\/TicketAlert'/);
+  });
+
+  it('rejects an unresolved --pointer, naming the nearest resolvable ancestor', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/components/schemas/Ticket/bogus' })).toThrow(
+      /Nothing at "#\/components\/schemas\/Ticket\/bogus"\. Nearest resolvable: #\/components\/schemas\/Ticket\./
+    );
+  });
+
+  it('rejects --pointer combined with another selector', async () => {
+    const { analysis, specVersion, cwd } = await analysisOfFixture(FIXTURE);
+    const route = (argv: Record<string, unknown>) => () =>
+      resolveTreeView(argv as never, analysis, specVersion, cwd);
+
+    expect(route({ pointer: '#/components/schemas/Ticket', tag: 'Tickets' })).toThrow(
+      TreeSelectorError
+    );
   });
 });

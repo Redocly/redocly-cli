@@ -21,6 +21,8 @@ Options:
                      k) or an operationId.                              [string]
       --find         Search operations and components by words in their path, id
                      , name, summary, description, or tags.             [string]
+      --pointer      Navigate by a raw JSON pointer from a $ref or lint output;
+                     shows the node's location and usage.               [string]
       --component    Show a component section (schemas, responses, …) or, with -
                      -name, one component.                              [string]
       --name         Component name; requires --component.              [string]

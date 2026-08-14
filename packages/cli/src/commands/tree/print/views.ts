@@ -13,7 +13,7 @@ import {
   type UsedByReport,
 } from '@redocly/openapi-core';
 
-import type { TreeView } from '../index.js';
+import type { PointerCard, TreeView } from '../index.js';
 import type { TreeFormat } from '../types.js';
 import { renderAiView } from './ai.js';
 
@@ -36,6 +36,8 @@ function viewPayload(view: TreeView): unknown {
       return view.card;
     case 'file-card':
       return view.card;
+    case 'pointer-card':
+      return view.card;
     case 'used-by':
       return view.report;
     case 'find':
@@ -57,6 +59,8 @@ export function renderViewStylish(view: TreeView): string {
       return renderComponentCard(view.card);
     case 'file-card':
       return renderFileCard(view.card);
+    case 'pointer-card':
+      return renderPointerCard(view.card);
     case 'used-by':
       return renderUsedByReport(view.report);
     case 'find':
@@ -293,6 +297,29 @@ function fileDefineLabel(entry: OperationListCard | ComponentListCard): string {
 function renderFileCard(card: FileCard): string {
   const branches = card.defines.map((entry) => ({ label: fileDefineLabel(entry) }));
   return [card.file, ...renderBranches(branches)].join('\n');
+}
+
+/**
+ * A `--pointer` deep-node card: same glyph-tree shape as an operation/component card (no raw
+ * content in stylish, see `cardBranches`), but with an `ancestor` branch instead of `usedBy` —
+ * a deep node isn't itself an indexed graph node, so it has no reverse edges of its own to show.
+ */
+function renderPointerCard(card: PointerCard): string {
+  const branches: Branch[] = [
+    { label: `source: ${card.file}${card.pointer}  [${card.start_line}..${card.end_line}]` },
+  ];
+  if (card.refs.length > 0) {
+    branches.push({
+      label: `refs (${card.refs.length})`,
+      children: card.refs.map((ref) => ({ label: renderRef(ref) })),
+    });
+  }
+  if (card.ancestor) {
+    branches.push({
+      label: `ancestor: ${card.ancestor.id}  [${card.ancestor.start_line}..${card.ancestor.end_line}] · usedBy: ${card.ancestor.usedByCount}`,
+    });
+  }
+  return [`pointer ${card.pointer}`, ...renderBranches(branches)].join('\n');
 }
 
 /** deps' size cap, in KB, as displayed in a card's `deps (N, X KB of Y KB cap)` branch. */

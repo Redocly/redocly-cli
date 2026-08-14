@@ -9,9 +9,11 @@ import {
   buildOperationListing,
   buildOverview,
   buildUsedByReport,
+  classifyRef,
   collectConnectedIds,
   COMPONENT_SECTIONS,
   detectSpec,
+  escapePointerFragment,
   findComponent,
   findMatches,
   findOperationByOperationId,
@@ -24,10 +26,13 @@ import {
   normalizeComponentSection,
   normalizeTypes,
   resolveDocument,
+  resolvePointerSelector,
   suggestNames,
+  toOperationListItem,
   type ApiAnalysis,
   type ApiOverview,
   type CollectSpecData,
+  type CollectedComponent,
   type CollectedOperation,
   type ComponentCard,
   type ComponentListCard,
@@ -37,8 +42,11 @@ import {
   type NormalizedNodeType,
   type OperationCard,
   type OperationListCard,
+  type PointerAncestor,
+  type PointerResolution,
   type ResolvedRefMap,
   type SpecVersion,
+  type TypedRef,
   type UsedByReport,
 } from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
@@ -67,12 +75,36 @@ export type TreeArgv = {
   webhook?: string;
   operation?: string;
   find?: string;
+  pointer?: string;
   component?: string;
   name?: string;
   file?: string;
   'used-by'?: boolean;
   'with-deps'?: boolean;
 } & VerifyConfigOptions;
+
+/**
+ * A `--pointer` card for a "deep" node — anything past a component/operation, unreachable through
+ * any typed selector. `ancestor.pointer` isn't part of the resolution core hands back (it only
+ * carries the located `component`/`operation`); it's rebuilt here because both renderers need an
+ * actual `--pointer=` value to point the reader at, not just the display id.
+ */
+export type PointerCard = {
+  pointer: string;
+  file: string;
+  start_line: number;
+  end_line: number;
+  content: string;
+  refs: TypedRef[];
+  ancestor?: {
+    id: string;
+    pointer: string;
+    file: string;
+    start_line: number;
+    end_line: number;
+    usedByCount: number;
+  };
+};
 
 export type TreeView =
   | {
@@ -87,6 +119,7 @@ export type TreeView =
   | { kind: 'operation-card'; card: OperationCard }
   | { kind: 'component-card'; card: ComponentCard }
   | { kind: 'file-card'; card: FileCard }
+  | { kind: 'pointer-card'; card: PointerCard }
   | { kind: 'used-by'; report: UsedByReport }
   | { kind: 'find'; report: FindReport };
 
@@ -150,6 +183,7 @@ function knownFileIds(analysis: ApiAnalysis): string[] {
 /** The `--find` branch: a standalone search that cannot combine with any other selector. */
 function resolveFindView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): TreeView {
   const otherSelector =
+    argv.pointer !== undefined ||
     argv.tag !== undefined ||
     argv.path !== undefined ||
     argv.webhook !== undefined ||
@@ -188,6 +222,31 @@ function resolveFileView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): Tr
   return { kind: 'file-card', card: found.card };
 }
 
+/** The component card / used-by report split, shared by `--component --name` and an indexed `--pointer`. */
+function finishComponent(
+  component: CollectedComponent,
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string
+): TreeView {
+  if (argv['used-by'] === true) {
+    return {
+      kind: 'used-by',
+      report: buildUsedByReport(analysis, `${component.section}/${component.name}`, cwd),
+    };
+  }
+  return {
+    kind: 'component-card',
+    card: buildComponentCard(analysis, component, {
+      specVersion,
+      cwd,
+      withDeps: argv['with-deps'] === true,
+      withContent: argv.format === 'ai',
+    }),
+  };
+}
+
 /** The `--component` (and `--name`) branch. */
 function resolveComponentView(
   argv: TreeArgv,
@@ -196,8 +255,6 @@ function resolveComponentView(
   specVersion: SpecVersion
 ): TreeView {
   const meta = analysis.meta;
-  const usedBy = argv['used-by'] === true;
-  const withDeps = argv['with-deps'] === true;
   const section = normalizeComponentSection(argv.component!);
   if (section === undefined) {
     throw new TreeSelectorError(
@@ -205,7 +262,7 @@ function resolveComponentView(
     );
   }
   if (argv.name === undefined) {
-    if (usedBy || withDeps) {
+    if (argv['used-by'] === true || argv['with-deps'] === true) {
       throw new TreeSelectorError('Add --name to use --used-by or --with-deps with --component.');
     }
     return {
@@ -225,21 +282,7 @@ function resolveComponentView(
       `redocly tree <api> --component=${section}`
     );
   }
-  if (usedBy) {
-    return {
-      kind: 'used-by',
-      report: buildUsedByReport(analysis, `${section}/${component.name}`, cwd),
-    };
-  }
-  return {
-    kind: 'component-card',
-    card: buildComponentCard(analysis, component, {
-      specVersion,
-      cwd,
-      withDeps,
-      withContent: argv.format === 'ai',
-    }),
-  };
+  return finishComponent(component, argv, analysis, specVersion, cwd);
 }
 
 /**
@@ -358,6 +401,109 @@ function resolveTagView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): Tre
   return { kind: 'operations', scope: argv.tag, items };
 }
 
+/** The JSON pointer a `PointerAncestor` was found at: rebuilt from its located component/operation, not from `id` (a display id, not pointer syntax — an operation's is `METHOD /path`). */
+function ancestorPointerHint(ancestor: PointerAncestor): string {
+  if (ancestor.component) {
+    return `#/components/${ancestor.component.section}/${escapePointerFragment(ancestor.component.name)}`;
+  }
+  // Exactly one of `component`/`operation` is set; `location.pointer` is already the operation's
+  // own `#/paths/...` (or `#/webhooks/...`) pointer, escaped by the walker that recorded it.
+  return ancestor.operation!.location.pointer;
+}
+
+function buildPointerAncestor(
+  ancestor: PointerAncestor,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string
+): NonNullable<PointerCard['ancestor']> {
+  const range = ancestor.component
+    ? buildComponentCard(analysis, ancestor.component, { specVersion, cwd })
+    : toOperationListItem(ancestor.operation!, cwd);
+  return {
+    id: ancestor.id,
+    pointer: ancestorPointerHint(ancestor),
+    file: range.file,
+    start_line: range.start_line,
+    end_line: range.end_line,
+    usedByCount: ancestor.usedByCount,
+  };
+}
+
+function buildPointerCard(
+  resolution: Extract<PointerResolution, { kind: 'deep' }>,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string
+): PointerCard {
+  const { envelope } = resolution;
+  return {
+    pointer: resolution.pointer,
+    file: envelope.file,
+    start_line: envelope.start_line,
+    end_line: envelope.end_line,
+    content: envelope.content,
+    refs: envelope.refs.map(classifyRef),
+    ...(resolution.ancestor
+      ? { ancestor: buildPointerAncestor(resolution.ancestor, analysis, specVersion, cwd) }
+      : {}),
+  };
+}
+
+/**
+ * The `--pointer` branch: a standalone selector, same rule as `--find` (mirrors its guard list,
+ * plus `find` itself, since both flags are standalone and either can be checked first). Unlike
+ * `--find`, `--used-by`/`--with-deps` aren't in the conflict list here — they're valid modifiers
+ * once the pointer resolves to an indexed node, and get their own error otherwise, below.
+ */
+function resolvePointerView(
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string,
+  finishOperation: (operation: CollectedOperation) => TreeView
+): TreeView {
+  const otherSelector =
+    argv.find !== undefined ||
+    argv.tag !== undefined ||
+    argv.path !== undefined ||
+    argv.webhook !== undefined ||
+    argv.operation !== undefined ||
+    argv.component !== undefined ||
+    argv.name !== undefined ||
+    argv.file !== undefined ||
+    argv.operations === true ||
+    argv.webhooks === true;
+  if (otherSelector) {
+    throw new TreeSelectorError(
+      '--pointer is a standalone selector and cannot be combined with other selectors.'
+    );
+  }
+
+  const resolution = resolvePointerSelector(analysis, argv.pointer!, { cwd });
+
+  if (resolution.kind === 'component') {
+    return finishComponent(resolution.component, argv, analysis, specVersion, cwd);
+  }
+  if (resolution.kind === 'operation') {
+    return finishOperation(resolution.operation);
+  }
+  if (resolution.kind === 'unresolved') {
+    const nearest = resolution.nearestResolvable
+      ? ` Nearest resolvable: ${resolution.nearestResolvable}.`
+      : '';
+    throw new TreeSelectorError(`Nothing at "${resolution.pointer}".${nearest}`);
+  }
+
+  if (argv['used-by'] === true || argv['with-deps'] === true) {
+    const message = resolution.ancestor
+      ? `--used-by and --with-deps need an indexed node. Nearest: --pointer='${ancestorPointerHint(resolution.ancestor)}'`
+      : '--used-by and --with-deps need an indexed node. This pointer has no indexed ancestor.';
+    throw new TreeSelectorError(message);
+  }
+  return { kind: 'pointer-card', card: buildPointerCard(resolution, analysis, specVersion, cwd) };
+}
+
 export function resolveTreeView(
   argv: TreeArgv,
   analysis: ApiAnalysis,
@@ -402,6 +548,10 @@ export function resolveTreeView(
             withContent: argv.format === 'ai',
           }),
         };
+
+  if (argv.pointer !== undefined) {
+    return resolvePointerView(argv, analysis, specVersion, cwd, finishOperation);
+  }
 
   if (argv.file !== undefined) {
     return resolveFileView(argv, analysis, cwd);
@@ -619,6 +769,7 @@ async function handleStructureMode({
     argv.name !== undefined ||
     argv.file !== undefined ||
     argv.find !== undefined ||
+    argv.pointer !== undefined ||
     argv.operations === true ||
     argv.webhooks === true ||
     argv['used-by'] === true ||
@@ -629,7 +780,7 @@ async function handleStructureMode({
     // renders for any spec type, in both stylish and json.
     if (usesSelectors) {
       return exitWithError(
-        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
+        'The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --pointer, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.'
       );
     }
     renderOutput(graph, argv, {});

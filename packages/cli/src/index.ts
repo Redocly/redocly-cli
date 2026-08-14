@@ -135,6 +135,12 @@ yargs(hideBin(process.argv))
             type: 'string' as const,
             requiresArg: true,
           },
+          pointer: {
+            description:
+              "Navigate by a raw JSON pointer from a $ref or lint output; shows the node's location and usage.",
+            type: 'string' as const,
+            requiresArg: true,
+          },
           component: {
             description:
               'Show a component section (schemas, responses, …) or, with --name, one component.',
@@ -213,6 +219,7 @@ yargs(hideBin(process.argv))
           'webhook',
           'operation',
           'find',
+          'pointer',
           'component',
           'name',
           'used-by',

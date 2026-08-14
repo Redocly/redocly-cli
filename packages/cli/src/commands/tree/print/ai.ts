@@ -11,7 +11,7 @@ import type {
   UsedByReport,
 } from '@redocly/openapi-core';
 
-import type { TreeView } from '../index.js';
+import type { PointerCard, TreeView } from '../index.js';
 import {
   buildAiDepsClosure,
   buildNodeSignature,
@@ -49,6 +49,8 @@ export function renderAiView(view: TreeView): string {
       return renderAiComponentCard(view.card);
     case 'file-card':
       return renderAiFileCard(view.card);
+    case 'pointer-card':
+      return renderAiPointerCard(view.card);
     case 'used-by':
       return renderAiUsedBy(view.report);
   }
@@ -302,6 +304,29 @@ function renderAiFileCard(card: FileCard): string {
   const lines = [`file ${card.file} · defines ${card.defines.length}`];
   for (const entry of card.defines) {
     lines.push('method' in entry ? aiOperationLine(entry, false) : aiComponentLine(entry, false));
+  }
+  return lines.join('\n');
+}
+
+/**
+ * A `--pointer` deep-node card: header, then the same `--- json`/`--- yaml` body cards use, a
+ * compact `refs:` line, and — unlike other cards — an `ancestor:` line with a ready-to-paste
+ * `--pointer=` hint, since a deep node has no `usedBy` of its own to fall back on.
+ */
+function renderAiPointerCard(card: PointerCard): string {
+  const lines = [`pointer ${card.pointer} · ${card.file} L${card.start_line}-${card.end_line}`];
+  const json = renderCardBodyJson(card.content, card.start_line);
+  if (json !== undefined) {
+    lines.push('--- json', json);
+  } else {
+    lines.push('--- yaml', card.content.trimEnd());
+  }
+  if (card.refs.length > 0) lines.push(aiRefsLine(card.refs));
+  if (card.ancestor) {
+    const { ancestor } = card;
+    lines.push(
+      `ancestor: ${ancestor.id} L${ancestor.start_line}-${ancestor.end_line} · usedBy: ${ancestor.usedByCount} (--used-by --pointer='${ancestor.pointer}')`
+    );
   }
   return lines.join('\n');
 }

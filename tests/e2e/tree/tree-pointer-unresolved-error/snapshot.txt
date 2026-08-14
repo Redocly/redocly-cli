@@ -1,0 +1,3 @@
+
+Nothing at "#/components/schemas/Ticket/bogus". Nearest resolvable: #/components/schemas/Ticket.
+

@@ -9,7 +9,7 @@ import type {
   UsedByReport,
 } from '@redocly/openapi-core';
 
-import type { TreeView } from '../index.js';
+import type { PointerCard, TreeView } from '../index.js';
 import { renderView, renderViewStylish } from '../print/views.js';
 
 describe('renderViewStylish', () => {
@@ -480,6 +480,65 @@ describe('renderViewStylish', () => {
         '├── GET /tickets — List tickets (listTickets)  [1..9]',
         '└── schemas/Ticket  [11..15]',
       ].join('\n')
+    );
+  });
+
+  it('renders a pointer card as a glyph tree, with refs and an ancestor branch', () => {
+    const rendered = renderViewStylish({
+      kind: 'pointer-card',
+      card: {
+        pointer: '#/components/schemas/Ticket/properties/pricing',
+        file: 'openapi.yaml',
+        start_line: 40,
+        end_line: 42,
+        content: "  $ref: '#/components/schemas/Pricing'",
+        refs: [
+          {
+            ref: '#/components/schemas/Pricing',
+            resolved: true,
+            component: 'schemas',
+            name: 'Pricing',
+            file: 'openapi.yaml',
+            pointer: '#/components/schemas/Pricing',
+            start_line: 60,
+            end_line: 65,
+          },
+        ],
+        ancestor: {
+          id: 'schemas/Ticket',
+          pointer: '#/components/schemas/Ticket',
+          file: 'openapi.yaml',
+          start_line: 12,
+          end_line: 50,
+          usedByCount: 3,
+        },
+      },
+    });
+    expect(rendered).toBe(
+      [
+        'pointer #/components/schemas/Ticket/properties/pricing',
+        '├── source: openapi.yaml#/components/schemas/Ticket/properties/pricing  [40..42]',
+        '├── refs (1)',
+        '│   └── schemas/Pricing → openapi.yaml#/components/schemas/Pricing  [60..65]',
+        '└── ancestor: schemas/Ticket  [12..50] · usedBy: 3',
+      ].join('\n')
+    );
+  });
+
+  it('renders a pointer card with no refs and no ancestor', () => {
+    const rendered = renderViewStylish({
+      kind: 'pointer-card',
+      card: {
+        pointer: '#/info/title',
+        file: 'openapi.yaml',
+        start_line: 2,
+        end_line: 2,
+        content: 'title: Museum API',
+        refs: [],
+      },
+    });
+    expect(rendered).toBe(
+      ['pointer #/info/title', '└── source: openapi.yaml#/info/title  [2..2]'].join('\n')
     );
   });
 
@@ -1168,6 +1227,61 @@ describe('renderView (ai)', () => {
       "file paths/tickets.yaml · defines 2
       get /tickets · listTickets · L1 — List tickets
       schemas/Ticket · L11 — A museum ticket."
+    `);
+  });
+
+  it('renders an ai pointer card with a json body, refs, and an ancestor line with a --pointer hint', () => {
+    const card: PointerCard = {
+      pointer: '#/components/schemas/Ticket/properties/pricing',
+      file: 'openapi.yaml',
+      start_line: 42,
+      end_line: 42,
+      content: "      $ref: '#/components/schemas/Pricing'",
+      refs: [
+        {
+          ref: '#/components/schemas/Pricing',
+          resolved: true,
+          component: 'schemas',
+          name: 'Pricing',
+          file: 'openapi.yaml',
+          pointer: '#/components/schemas/Pricing',
+          start_line: 60,
+          end_line: 65,
+        },
+      ],
+      ancestor: {
+        id: 'schemas/Ticket',
+        pointer: '#/components/schemas/Ticket',
+        file: 'openapi.yaml',
+        start_line: 12,
+        end_line: 50,
+        usedByCount: 3,
+      },
+    };
+    const view: TreeView = { kind: 'pointer-card', card };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "pointer #/components/schemas/Ticket/properties/pricing · openapi.yaml L42-42
+      --- json
+      {"$ref":"#/components/schemas/Pricing"}
+      refs: schemas/Pricing L60
+      ancestor: schemas/Ticket L12-50 · usedBy: 3 (--used-by --pointer='#/components/schemas/Ticket')"
+    `);
+  });
+
+  it('renders an ai pointer card with no ancestor, falling back to raw yaml for unparsable (scalar) content', () => {
+    const card: PointerCard = {
+      pointer: '#/info/title',
+      file: 'openapi.yaml',
+      start_line: 2,
+      end_line: 2,
+      content: 'Museum API',
+      refs: [],
+    };
+    const view: TreeView = { kind: 'pointer-card', card };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "pointer #/info/title · openapi.yaml L2-2
+      --- yaml
+      Museum API"
     `);
   });
 });

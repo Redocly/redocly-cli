@@ -273,6 +273,42 @@ describe('tree', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-file-card'));
   });
 
+  test('tree --pointer to an indexed component routes to the same card as --component --name', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--pointer=#/components/schemas/Ticket',
+      '--format=ai',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-pointer-component-ai'));
+  });
+
+  test('tree --pointer to a deep node prints a pointer card with its nearest ancestor', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--pointer=#/components/schemas/Ticket/properties/ticketId',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(snapshot('tree-pointer-deep'));
+  });
+
+  test('tree --pointer to nowhere reports the nearest resolvable ancestor and exits with an error', async () => {
+    const args = getParams(indexEntryPoint, [
+      'tree',
+      'openapi.yaml',
+      '--pointer=#/components/schemas/Ticket/bogus',
+    ]);
+    const result = getCommandOutput(args, { testPath: indexFixturePath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      snapshot('tree-pointer-unresolved-error')
+    );
+
+    const exitCode = spawnSync('node', args, { cwd: indexFixturePath, encoding: 'utf-8' }).status;
+    expect(exitCode).toBe(1);
+  });
+
   test('tree --file --used-by prints the file-seeded used-by report as JSON', async () => {
     const args = getParams(indexEntryPoint, [
       'tree',
