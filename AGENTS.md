@@ -126,6 +126,7 @@ redocly tree <file> --tag=<tag> --format=ai                                     
 `--format=ai` is the agent format: plain text, one line per listing entry, and schema signatures instead of raw YAML in a `--with-deps` closure.
 `--find` ranks operations and components by how many search terms hit their path, id, name, summary, or description, so step 2 usually narrows a whole API down to a few candidates in one call; anything a card's closure lists under `deeper` is one `--component`/`--name` call away.
 Every result carries the defining `file` and `start_line`/`end_line`, so any answer can be checked against the source it came from.
+Each view also ends with a `next:` line naming the flags that continue from it, so these five commands are enough — reading the full [command reference](./docs/@v2/commands/tree.md) costs more tokens than the exploration it saves.
 
 ## Respect the architecture: Walker, Visitors, Nodes
 

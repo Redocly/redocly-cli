@@ -1,11 +1,6 @@
 import type { ApiNodeEnvelope, ApiNodeRef, TypedRef } from '@redocly/openapi-core';
 
-import {
-  buildAiDepsClosure,
-  buildNodeSignature,
-  DEEPER_HINT,
-  parseNodeContent,
-} from '../print/signature.js';
+import { buildAiDepsClosure, buildNodeSignature, parseNodeContent } from '../print/signature.js';
 
 /** A depth-1 dependency's own signature: seeded from one ref so `dep` alone lands in `deps`. */
 function signatureOf(dep: ApiNodeEnvelope): string {
@@ -311,22 +306,20 @@ describe('buildAiDepsClosure: depth cut', () => {
   };
   const seedRefA: TypedRef = { ref: '#/A', resolved: true, component: 'schemas', name: 'A' };
 
-  it('keeps depth 1 and depth 2 as signatures, and pushes depth 3 into deeper with a hint', () => {
+  it('keeps depth 1 and depth 2 as signatures, and pushes depth 3 into deeper', () => {
     const closure = buildAiDepsClosure([depA, depB, depC], [seedRefA]);
 
     expect(closure.deps.map((dep) => dep.id)).toEqual(['schemas/A', 'schemas/B']);
     expect(closure.deps[0].signature).toBe('b→B');
     expect(closure.deps[1].signature).toBe('c→C');
     expect(closure.deeper).toEqual(['schemas/C']);
-    expect(closure.hint).toBe(DEEPER_HINT);
   });
 
-  it('omits the hint when nothing falls past depth 2', () => {
+  it('leaves deeper empty when nothing falls past depth 2', () => {
     const closure = buildAiDepsClosure([depA, depB], [seedRefA]);
 
     expect(closure.deps.map((dep) => dep.id)).toEqual(['schemas/A', 'schemas/B']);
     expect(closure.deeper).toEqual([]);
-    expect(closure.hint).toBeUndefined();
   });
 
   it('keeps each near dependency’s own coordinates (file, pointer, lines)', () => {

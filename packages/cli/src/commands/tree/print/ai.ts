@@ -15,7 +15,6 @@ import type { PointerCard, TreeView } from '../index.js';
 import {
   buildAiDepsClosure,
   buildNodeSignature,
-  DEEPER_HINT,
   parseNodeContent,
   type AiDepEntry,
 } from './signature.js';
@@ -140,10 +139,16 @@ function renderAiOverview(
   return lines.join('\n');
 }
 
+const OPERATION_NEXT_HINT = 'next: --path=<p> --operation=<method> [--with-deps]';
+
 function renderAiOperations(scope: string | undefined, items: OperationListCard[]): string {
   const showFile = spansMultipleFiles(items);
   const header = `${scope ?? 'operations'} · ${count(items.length, 'operation')}`;
-  return [header, ...items.map((item) => aiOperationLine(item, showFile))].join('\n');
+  return [
+    header,
+    ...items.map((item) => aiOperationLine(item, showFile)),
+    OPERATION_NEXT_HINT,
+  ].join('\n');
 }
 
 function renderAiComponents(section: string, items: ComponentListCard[]): string {
@@ -151,6 +156,7 @@ function renderAiComponents(section: string, items: ComponentListCard[]): string
   return [
     `${section} · ${count(items.length, 'component')}`,
     ...items.map((item) => aiComponentLine(item, showFile)),
+    `next: --component=${section} --name=<Name> [--with-deps]`,
   ].join('\n');
 }
 
@@ -174,7 +180,11 @@ function renderAiFind(report: FindReport): string {
     ].filter(Boolean);
     lines.push(`… ${parts.join(', ')} — narrow the terms.`);
   }
-  if (report.totalOperations === 0 && report.totalComponents === 0) lines.push('Nothing matched.');
+  if (report.totalOperations === 0 && report.totalComponents === 0) {
+    lines.push('Nothing matched.', 'next: --find=<fewer or different terms> · --tag=<name>');
+  } else {
+    lines.push(`${OPERATION_NEXT_HINT} · --component=<section> --name=<Name>`);
+  }
   return lines.join('\n');
 }
 
@@ -273,14 +283,18 @@ function aiCardBody(card: OperationCard | ComponentCard): string[] {
     const truncated = card.truncated ? ', truncated at 64 KB' : '';
     lines.push(`--- deps (${closure.deps.length}, signatures depth ≤2${truncated})`);
     for (const dep of closure.deps) lines.push(aiDepLine(dep, card.file));
-    if (closure.deeper.length > 0) {
-      lines.push(`deeper: ${closure.deeper.join(' · ')}`);
-      lines.push(`hint: ${DEEPER_HINT}`);
-    }
+    if (closure.deeper.length > 0) lines.push(`deeper: ${closure.deeper.join(' · ')}`);
   } else if (card.refs.length > 0) {
     lines.push(aiRefsLine(card.refs));
   }
   if (card.usedBy.length > 0) lines.push(`usedBy: ${card.usedBy.length} (--used-by)`);
+  // Every id above is already a selector and every `$ref` in the body is a `--pointer` argument;
+  // without this line an agent that starts from a card reads the command reference to find its
+  // next call, which costs more than the whole run (see the benchmark guide).
+  const withDeps = card.deps !== undefined ? '' : '--with-deps · ';
+  lines.push(
+    `next: ${withDeps}--component=<section> --name=<Name> (any id above) · --pointer=<$ref>`
+  );
   return lines;
 }
 
@@ -305,6 +319,7 @@ function renderAiFileCard(card: FileCard): string {
   for (const entry of card.defines) {
     lines.push('method' in entry ? aiOperationLine(entry, false) : aiComponentLine(entry, false));
   }
+  lines.push(`${OPERATION_NEXT_HINT} · --component=<section> --name=<Name>`);
   return lines.join('\n');
 }
 

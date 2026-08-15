@@ -8,9 +8,6 @@ import {
   type TypedRef,
 } from '@redocly/openapi-core';
 
-/** Shown next to `deeper`, so an agent knows how to fetch one of those ids directly. */
-export const DEEPER_HINT = 'redocly tree <file> --component=schemas --name=<Name> --format=ai';
-
 const SCHEMA_SECTION = 'schemas';
 const MAX_ENUM_VALUES = 6;
 
@@ -26,7 +23,6 @@ export type AiDepEntry = {
 export type AiDepsClosure = {
   deps: AiDepEntry[];
   deeper: string[];
-  hint?: string;
 };
 
 /**
@@ -61,7 +57,7 @@ export function buildAiDepsClosure(deps: ApiNodeEnvelope[], seedRefs: TypedRef[]
     });
   }
 
-  return { deps: near, deeper, ...(deeper.length > 0 ? { hint: DEEPER_HINT } : {}) };
+  return { deps: near, deeper };
 }
 
 /**

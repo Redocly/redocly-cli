@@ -7,5 +7,5 @@ schemas/Plan L22-29: [anyOf: VariantA, VariantB]: id:string
 schemas/VariantA L31-39: kind*:string=a, detail→Nested
 schemas/VariantB L41-44: note:string
 deeper: schemas/Nested
-hint: redocly tree <file> --component=schemas --name=<Name> --format=ai
+next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 

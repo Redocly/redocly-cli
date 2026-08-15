@@ -1,4 +1,5 @@
 Tickets · 2 operations
 post /tickets · buyMuseumTickets · L22 — Buy museum tickets
 post /legacy-tickets · L34 · deprecated — Buy tickets the old way
+next: --path=<p> --operation=<method> [--with-deps]
 

@@ -852,7 +852,8 @@ describe('renderView (ai)', () => {
     };
     expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
       "pets · 1 operation
-      post /tickets · buyTickets · L10 — Buy museum tickets"
+      post /tickets · buyTickets · L10 — Buy museum tickets
+      next: --path=<p> --operation=<method> [--with-deps]"
     `);
   });
 
@@ -878,7 +879,8 @@ describe('renderView (ai)', () => {
     };
     expect(renderView(componentsView, 'ai')).toMatchInlineSnapshot(`
       "schemas · 1 component
-      schemas/Ticket · L12 — A museum ticket."
+      schemas/Ticket · L12 — A museum ticket.
+      next: --component=schemas --name=<Name> [--with-deps]"
     `);
   });
 
@@ -888,7 +890,8 @@ describe('renderView (ai)', () => {
       "find "pet" · 25 operations · 1 component
       post /tickets · buyTickets · L10 · f:paths/tickets.yaml — Buy museum tickets
       schemas/Ticket · L12 · f:openapi.yaml — A museum ticket.
-      … 24 more operations — narrow the terms."
+      … 24 more operations — narrow the terms.
+      next: --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<Name>"
     `);
   });
 
@@ -987,8 +990,8 @@ describe('renderView (ai)', () => {
       schemas/Ticket L1-5 · f:openapi.yaml: id*:string, currency→CurrencyCode
       schemas/CurrencyCode L20-21 · f:openapi.yaml: string
       deeper: schemas/NeverReferenced
-      hint: redocly tree <file> --component=schemas --name=<Name> --format=ai
-      usedBy: 1 (--used-by)"
+      usedBy: 1 (--used-by)
+      next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>"
     `);
   });
 
@@ -1025,7 +1028,8 @@ describe('renderView (ai)', () => {
       "get /tickets/{id} · paths/tickets.yaml L42-50
       --- json
       {"get":{"summary":"Get a ticket"}}
-      refs: schemas/Ticket L1 · ./schemas/Missing.yaml (unresolved)"
+      refs: schemas/Ticket L1 · ./schemas/Missing.yaml (unresolved)
+      next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>"
     `);
   });
 
@@ -1069,7 +1073,8 @@ describe('renderView (ai)', () => {
       signature: id*:string
       --- json
       {"type":"object","required":["id"],"properties":{"id":{"type":"string"}}}
-      usedBy: 1 (--used-by)"
+      usedBy: 1 (--used-by)
+      next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>"
     `);
   });
 
@@ -1106,7 +1111,8 @@ describe('renderView (ai)', () => {
     expect(rendered).toMatchInlineSnapshot(`
       "get /widgets · paths/widgets.yaml L100-109
       --- json
-      {"operationId":"listWidgets","summary":"List widgets","x-codeSamples":"omitted (L102-106)","responses":{"200":{"description":"OK"}}}"
+      {"operationId":"listWidgets","summary":"List widgets","x-codeSamples":"omitted (L102-106)","responses":{"200":{"description":"OK"}}}
+      next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>"
     `);
   });
 
@@ -1130,7 +1136,8 @@ describe('renderView (ai)', () => {
     expect(rendered).toMatchInlineSnapshot(`
       "get /broken · paths/broken.yaml L5-6
       --- yaml
-      {{{ not yaml"
+      {{{ not yaml
+      next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>"
     `);
   });
 
@@ -1226,7 +1233,8 @@ describe('renderView (ai)', () => {
     expect(renderView({ kind: 'file-card', card }, 'ai')).toMatchInlineSnapshot(`
       "file paths/tickets.yaml · defines 2
       get /tickets · listTickets · L1 — List tickets
-      schemas/Ticket · L11 — A museum ticket."
+      schemas/Ticket · L11 — A museum ticket.
+      next: --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<Name>"
     `);
   });
 

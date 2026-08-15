@@ -3,4 +3,5 @@ signature: ticketId:string
 --- json
 {"description":"A ticket for museum entry or special event.","type":"object","properties":{"ticketId":{"type":"string"}}}
 usedBy: 1 (--used-by)
+next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 

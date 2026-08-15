@@ -546,6 +546,7 @@ signature: orderId*:string, orderStatus*→OrderStatus, timestamp*:string
 {"type":"object","required":["orderId","orderStatus","timestamp"],"properties":{"orderId":{"type":"string","description":"Unique order identifier."},"orderStatus":{"$ref":"#/components/schemas/OrderStatus"},"timestamp":{"type":"string","format":"date-time","description":"When the event occurred."}}}
 refs: schemas/OrderStatus L1025
 usedBy: 1 (--used-by)
+next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 ```
 
 The `signature:` line uses the same compact grammar as a `--with-deps` closure entry below (`field*` for a required property, `field:type`, `field→Target` for a `$ref`); `refs` compresses to one line per reference since there's no `--with-deps` closure here to supersede it, and `usedBy` is a bare count plus the flag that expands it.
@@ -871,6 +872,7 @@ redocly tree cafe.yaml --find "order status" --format=ai
 find "order status" · 1 operation · 1 component
 patch /orders/{orderId} · updateOrder · L418 — Partially update an order
 schemas/OrderStatus · L1025 — Order status.
+next: --path=<p> --operation=<method> [--with-deps] · --component=<section> --name=<Name>
 ```
 
 `--format=json` returns the same result as data: `{ terms, operations, components, totalOperations, totalComponents }`, with each entry in the same card shape `--tag`/`--component` use above, including their `refs` and `usedBy`.
@@ -904,6 +906,7 @@ signature: string=placed|preparing|completed|canceled
 --- json
 {"type":"string","description":"Order status.","enum":["placed","preparing","completed","canceled"]}
 usedBy: 3 (--used-by)
+next: --with-deps · --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 ```
 
 A pointer that lands exactly on a container boundary — the document root (`#/`, and an empty pointer), `#/paths`, `#/webhooks`, one component section (`#/components/<section>`), or one path (`#/paths/<path>`) — routes to the same bounded view its typed selector equivalent already produces, instead of slicing that whole subtree:
@@ -926,6 +929,7 @@ patch /orders/{orderId} · updateOrder · L418 — Partially update an order
 get /order-items · listOrderItems · L505 — List all order items with menu item details
 get /revenue · getRevenue · L549 — Get revenue statistics
 post /oauth2/register · registerOAuth2Client · L604 — Create OAuth2 client
+next: --path=<p> --operation=<method> [--with-deps]
 ```
 
 `#/components` on its own isn't a bounded view — point one level deeper instead:
@@ -983,6 +987,8 @@ Every `ai` view shares the same conventions:
 - `·` separates fields on a line; `—` precedes a summary or piece of prose.
 - `L<start>` marks a single line, `L<start>-<end>` a range — fetch a card, or read the file directly, for the text in between.
 - A listing entry adds a trailing `· f:<relative path>` only once the listing spans more than one file, the same rule the stylish listings use.
+- The last line is `next:`, naming the flags that continue from this view.
+  Every id above it — `schemas/Order`, a `deeper:` entry — is already a selector, and every `$ref` inside a card body is a `--pointer` argument, so an agent can run the whole chain from the output alone without reading this page.
 
 On a listing view (`--tag`; `--path`/`--webhook` without `--operation`; `--operations`; `--webhooks`; `--component` without `--name`; a `--file` card's `defines`; `--find`, shown in its own section above), each entry is one line instead of a card:
 
@@ -998,6 +1004,7 @@ get /orders/{orderId} · getOrderById · L375 — Retrieve an order
 delete /orders/{orderId} · deleteOrder · L478 — Delete an order
 patch /orders/{orderId} · updateOrder · L418 — Partially update an order
 get /order-items · listOrderItems · L505 — List all order items with menu item details
+next: --path=<p> --operation=<method> [--with-deps]
 ```
 
 An operation line is `method path · operationId · L<start> — summary`, dropping `operationId` when the operation has none — only the start line is given, since a card or a plain file read gets the range.
@@ -1024,9 +1031,10 @@ schemas/RevenueStatistics · L1153 — Revenue statistics for a given date range
 schemas/RegisterClientObject · L1207
 schemas/OAuth2Client · L1240 — OAuth2 client registration response. Per RFC 7591, includes the client identifier, secret, timestamps, and all registered client metadata.
 schemas/OrderNotification · L1310
+next: --component=schemas --name=<Name> [--with-deps]
 ```
 
-On cafe.yaml, this same `--tag=Orders` selection is 15,645 bytes as `--format=json` and 434 bytes as `--format=ai` — a 97% reduction.
+On cafe.yaml, this same `--tag=Orders` selection is 15,645 bytes as `--format=json` and 486 bytes as `--format=ai` — a 97% reduction.
 Both formats start from the same six operations, so the whole difference is the JSON envelope: keys, quotes, braces, and each entry's `refs`/`usedBy` array.
 That envelope is a fixed cost per entry, so the gap widens with the listing — a tag or file with hundreds of operations saves proportionally more than one with six.
 
@@ -1044,6 +1052,7 @@ get /orders/{orderId} · getOrderById · L2 · f:cafe-split/paths/orders_{orderI
 delete /orders/{orderId} · deleteOrder · L102 · f:cafe-split/paths/orders_{orderId}.yaml — Delete an order
 patch /orders/{orderId} · updateOrder · L45 · f:cafe-split/paths/orders_{orderId}.yaml — Partially update an order
 get /order-items · listOrderItems · L2 · f:cafe-split/paths/order-items.yaml — List all order items with menu item details
+next: --path=<p> --operation=<method> [--with-deps]
 ```
 
 A view with no listing to project — the overview, a `--used-by` report — still switches to the same conventions, just with less to strip:
@@ -1326,6 +1335,7 @@ responses/Unauthorized L1339-1343: Unauthorized - authorization required.
 schemas/Order L1033-1106: id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array
 schemas/Error L988-1023: type*:string, title*:string, status*:integer, instance:string, details:object
 schemas/OrderStatus L1025-1031: string=placed|preparing|completed|canceled
+next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 ```
 
 The card's own `content` (the `--- json` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
@@ -1334,7 +1344,7 @@ A top-level `x-*` vendor key — a code-samples block, most often — folds to a
 Content that fails to parse falls back to a `--- yaml` block with the raw source instead.
 Each `--- deps` line is `id L<start>-<end>: signature`, with a `· f:<path>` suffix only when a dependency lives in a different file than the card.
 `Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) instead of being cut off; a `deeper:` line with a ready-to-run `hint:` would list anything past that window, and both are absent here because nothing in this closure sits further out.
-On cafe.yaml, this same card is 10,919 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 1,989 bytes as `--format=ai` — an 82% reduction: the five dependencies above shrink to one-line signatures, and the card's own body serializes as minified JSON instead of indented YAML.
+On cafe.yaml, this same card is 10,919 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 2,066 bytes as `--format=ai` — an 81% reduction: the five dependencies above shrink to one-line signatures, and the card's own body serializes as minified JSON instead of indented YAML.
 The effect grows with the schema graph: a closure that pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, or dependencies with many more properties than `Order`'s eight, saves more per entry than this example does.
 
 ### Find what depends on a selection: `--used-by`
@@ -1777,6 +1787,10 @@ Instead of feeding the whole file to a model, let the agent navigate the selecto
 Every result is generated deterministically from the document structure — no AI calls or API keys are needed.
 It is available for OpenAPI descriptions; the typed selectors, `--used-by`, and `--with-deps` report an error for other specification types.
 For measured costs — on GitHub's 10.0 MB REST API description, where the whole file is 1.9 million tokens — including live agent runs against a `grep`-only baseline, see [Agent context costs with tree](../guides/tree-agent-index-benchmark.md).
+
+When wiring this into an agent, hand it the run line with `--format=ai` and let the `next:` lines carry it from there.
+Pasting this page into a prompt, or pointing an agent at it, costs 6,000 to 21,000 tokens depending on the model — more than the exploration it saves.
+Leave `--format=ai` out and the saving goes with it: the stylish views are built for a terminal and carry no `next:` line, so an agent falls back to guessing flags and reading the file.
 
 1. Get the map: `redocly tree openapi.yaml --format=json` prints the tags, webhook names, and component sections with their counts — a few kilobytes for any spec size.
 2. Drill into a branch the agent picked: `redocly tree openapi.yaml --tag=Tickets` returns that tag's operations with summaries, files, and line ranges — each already carrying its own one-hop `refs` and `usedBy`, so the agent often has enough to decide the next step without a second call.
