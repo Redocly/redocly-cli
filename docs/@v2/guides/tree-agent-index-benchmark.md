@@ -1,9 +1,12 @@
 # What the `tree` index costs an agent, measured
 
-Same multi-step task, two fresh isolated sessions per description and model (Claude Sonnet 5, Opus, Fable 5; English prompts):
-one agent explores with `tree` and the `ai` format, the control reads the raw YAML directly and may not use OpenAPI tooling or repository instructions.
-The tree agent's prompt is the task plus a five-command protocol (overview → `--find "<words>"` → operation cards with `--with-deps` → component cards → tag listing only to browse an area);
-the control's prompt is the same task plus "work directly with the file".
+Same multi-step task, three fresh isolated sessions per description and model (Claude Sonnet 5, Opus, Fable 5; English prompts), 27 runs in total:
+
+- **control** — the task, the file, and general-purpose tooling (reads, grep, sed, yq, jq, scripts). Purpose-built OpenAPI CLIs are out of scope; neither `tree` nor Redocly is named, so the agent has no hint one exists.
+- **tree + protocol** — the same task, plus one line saying the `tree` command is available and pointing at the fifteen-line protocol section in `AGENTS.md`.
+- **tree + full reference** — the same, but the prompt also offers the 1,800-line command reference; the agent decides how much of it to read.
+
+No prompt lists the flags: every tree agent learns the surface from the documentation itself.
 All numbers are Claude's own usage counters:
 **session** = the run's final context, **output** = generated tokens, **actions** = tool calls.
 
@@ -18,11 +21,11 @@ a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
 **Task:** publish a release, upload a zip asset to it, delete the asset — hosts, required fields, what feeds each next request.
 Trap: the upload operation overrides its server to `https://uploads.github.com` at the operation level.
 
-| Model    | No tool: session / actions | `tree` with `ai`: session / actions |
-| -------- | -------------------------: | ----------------------------------: |
-| Sonnet 5 |                57,243 / 17 |                 **53,703** / **10** |
-| Opus     |                50,787 / 18 |                 **48,538** / **11** |
-| Fable 5  |                50,486 / 15 |                  **45,330** / **7** |
+| Model    |         control |     tree + protocol | tree + full reference |
+| -------- | --------------: | ------------------: | --------------------: |
+| Sonnet 5 | **57,012** / 15 |     57,554 / **10** |        78,538 / **9** |
+| Opus     |     56,239 / 21 | **50,792** / **12** |           68,649 / 18 |
+| Fable 5  |     49,078 / 13 | **46,969** / **10** |           48,701 / 11 |
 
 Commands the tree agent ran:
 
@@ -44,11 +47,11 @@ Both agents correct, including the host override. No tag listing was needed — 
 **Task:** create a product, a recurring-billing plan for it, then subscribe an existing customer.
 Traps: `Plan` is an `anyOf` without a discriminator (the recurring variant is `SubscriptionPlan`), and the subscription lives under the `Orders` tag.
 
-| Model    | No tool: session / actions | `tree` with `ai`: session / actions |
-| -------- | -------------------------: | ----------------------------------: |
-| Sonnet 5 |                71,199 / 37 |                 **68,538** / **20** |
-| Opus     |            **64,375** / 30 |                     68,880 / **25** |
-| Fable 5  |                63,926 / 21 |                 **54,927** / **17** |
+| Model    |         control |     tree + protocol | tree + full reference |
+| -------- | --------------: | ------------------: | --------------------: |
+| Sonnet 5 |     73,572 / 37 | **72,285** / **18** |           94,038 / 20 |
+| Opus     |     74,650 / 31 | **62,746** / **22** |           69,065 / 21 |
+| Fable 5  | **52,419** / 29 |     61,560 / **23** |           82,043 / 20 |
 
 Commands the tree agent ran:
 
@@ -79,11 +82,11 @@ Both agents correct, including the `anyOf` plan choice and the `Orders` tag.
 
 **Task:** find a coffee item on the menu, create an order for it, then check that order's status — including where the OAuth2 token comes from.
 
-| Model    | No tool: session / actions | `tree` with `ai`: session / actions |
-| -------- | -------------------------: | ----------------------------------: |
-| Sonnet 5 |                 59,421 / 2 |                     **57,112** / 14 |
-| Opus     |                54,569 / 15 |                 **50,783** / **12** |
-| Fable 5  |             52,444 / **7** |                     **48,069** / 11 |
+| Model    |         control | tree + protocol | tree + full reference |
+| -------- | --------------: | --------------: | --------------------: |
+| Sonnet 5 |  63,184 / **2** | **58,961** / 11 |        58,563 / **9** |
+| Opus     | 56,010 / **11** | **52,454** / 18 |           73,656 / 17 |
+| Fable 5  |  53,378 / **2** | **50,920** / 15 |           71,069 / 12 |
 
 Commands the tree agent ran:
 
@@ -107,17 +110,35 @@ The index still finishes a few percent cheaper on every model, but the margin is
 
 ## The grid in one view
 
-Session tokens, control → `tree` with `ai`, every description on every model:
+Session tokens, all 27 runs:
 
-| Description | Sonnet 5            | Opus                | Fable 5             |
-| ----------- | ------------------- | ------------------- | ------------------- |
-| GitHub REST | 57,243 → **53,703** | 50,787 → **48,538** | 50,486 → **45,330** |
-| Billing API | 71,199 → **68,538** | 64,375 → 68,880     | 63,926 → **54,927** |
-| Cafe API    | 59,421 → **57,112** | 54,569 → **50,783** | 52,444 → **48,069** |
+| Description | Model    |    control | tree + protocol | tree + full reference |
+| ----------- | -------- | ---------: | --------------: | --------------------: |
+| GitHub REST | Sonnet 5 | **57,012** |          57,554 |                78,538 |
+| GitHub REST | Opus     |     56,239 |      **50,792** |                68,649 |
+| GitHub REST | Fable 5  |     49,078 |      **46,969** |                48,701 |
+| Billing API | Sonnet 5 |     73,572 |      **72,285** |                94,038 |
+| Billing API | Opus     |     74,650 |      **62,746** |                69,065 |
+| Billing API | Fable 5  | **52,419** |          61,560 |                82,043 |
+| Cafe API    | Sonnet 5 |     63,184 |          58,961 |            **58,563** |
+| Cafe API    | Opus     |     56,010 |      **52,454** |                73,656 |
+| Cafe API    | Fable 5  |     53,378 |      **50,920** |                71,069 |
 
-Eight of nine pairs land cheaper with the index (−4% to −10%); the ninth — the billing task on Opus — inverted by 7%, inside the observed single-run spread.
-Actions drop in eight of nine as well, the exception being the Cafe API on Sonnet 5, where the control simply read the whole 41 KB file in two actions.
-All eighteen answers were correct, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
+Three findings, in order of how much they matter.
+
+**How the protocol is delivered dominates everything else.**
+`tree + protocol` beats `tree + full reference` in eight of nine cells, by 1,000 to 22,000 tokens.
+The gap is the cost of reading the 1,800-line command reference — roughly 21,000 tokens on Sonnet 5, 6,000 on Opus, 2,000–20,000 on Fable 5 depending on how much of it the agent chose to read.
+Given the choice, agents read it; not offering it is what keeps the run cheap.
+
+**With the protocol delivered cheaply, the index wins most pairs.**
+`tree + protocol` finishes below the control in seven of nine cells, by 2% to 10%.
+The two exceptions are the billing API on Fable 5 — where the control converted the YAML to JSON and queried it with `jq`, the cheapest control in the grid at 52,419 — and the GitHub task on Sonnet 5, a 1% tie.
+
+**Actions drop almost everywhere**, and that is the steadier effect: 18 against 37 on the billing task, 12 against 21 on GitHub with Opus.
+The exception is the Cafe API, where the control reads a 41 KB file in two actions and cannot be beaten on count.
+
+All 27 answers were correct, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 
 ## Other measured runs, one line each
 
