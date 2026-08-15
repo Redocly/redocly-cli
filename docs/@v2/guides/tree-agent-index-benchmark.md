@@ -3,7 +3,7 @@
 Same multi-step task, two fresh isolated sessions per description and model (Claude Sonnet 5, Opus, Fable 5; English prompts), 18 runs in total:
 
 - **control** — the task, the file, and general-purpose tooling (reads, grep, sed, yq, jq, scripts). Purpose-built OpenAPI CLIs are out of scope; neither `tree` nor Redocly is named, so the agent has no hint one exists.
-- **tree** — the same task plus the run line, and one sentence: every view ends with a `next:` line naming the flags that continue from it, follow those.
+- **tree** — the same task plus the run line (`npx -y @redocly/cli@<snapshot> tree <file> --format=ai`), and one sentence: every view ends with a `next:` line naming the flags that continue from it, follow those.
 
 Neither prompt lists the flags and the tree prompt links no documentation: the agent learns the surface from the output itself.
 All numbers are Claude's own usage counters:
@@ -22,22 +22,21 @@ Trap: the upload operation overrides its server to `https://uploads.github.com` 
 
 | Model    |     control |               tree |
 | -------- | ----------: | -----------------: |
-| Sonnet 5 | 57,012 / 15 | **52,120** / **6** |
-| Opus     | 56,239 / 21 | **40,432** / **6** |
-| Fable 5  | 49,078 / 13 | **39,299** / **7** |
+| Sonnet 5 | 57,012 / 15 | **52,784** / **6** |
+| Opus     | 56,239 / 21 | **41,531** / **7** |
+| Fable 5  | 49,078 / 13 | **39,374** / **5** |
 
 Commands the tree agent ran (Opus):
 
-```
-redocly tree github-api.yaml --format=ai
-redocly tree github-api.yaml --format=ai --find="release asset"
-redocly tree github-api.yaml --format=ai --find=release
-redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
-redocly tree github-api.yaml --format=ai --find=upload-release-asset
-redocly tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/{release_id}/assets' --operation=post --with-deps
-redocly tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/assets/{asset_id}' --operation=delete --with-deps
-redocly tree github-api.yaml --format=ai --component=parameters --name=release-id
-redocly tree github-api.yaml --format=ai --component=parameters --name=asset-id
+```bash
+npx -y @redocly/cli tree github-api.yaml --format=ai
+npx -y @redocly/cli tree github-api.yaml --format=ai --find="release asset"
+npx -y @redocly/cli tree github-api.yaml --format=ai --find=release
+npx -y @redocly/cli tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps
+npx -y @redocly/cli tree github-api.yaml --format=ai --find=upload
+npx -y @redocly/cli tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps
+npx -y @redocly/cli tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps
+npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=release-id
 ```
 
 Both agents correct, including the host override. No tag listing was needed — `--find` replaced it.
@@ -48,28 +47,28 @@ Both agents correct, including the host override. No tag listing was needed — 
 **Task:** create a product, a recurring-billing plan for it, then subscribe an existing customer.
 Traps: `Plan` is an `anyOf` without a discriminator (the recurring variant is `SubscriptionPlan`), and the subscription lives under the `Orders` tag.
 
-| Model    |     control |                tree |
-| -------- | ----------: | ------------------: |
-| Sonnet 5 | 73,572 / 37 | **60,904** / **11** |
-| Opus     | 74,650 / 31 |  **47,305** / **8** |
-| Fable 5  | 52,419 / 29 |  **46,173** / **9** |
+| Model    |         control |                tree |
+| -------- | --------------: | ------------------: |
+| Sonnet 5 |     73,572 / 37 | **63,296** / **15** |
+| Opus     |     74,650 / 31 | **50,979** / **12** |
+| Fable 5  | **52,419** / 29 |     54,981 / **17** |
 
 Commands the tree agent ran (Opus):
 
-```
-redocly tree rebilly.yaml --format=ai
-redocly tree rebilly.yaml --format=ai --tag=Products
-redocly tree rebilly.yaml --format=ai --tag=Plans
-redocly tree rebilly.yaml --format=ai --tag=Orders
-redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
-redocly tree rebilly.yaml --format=ai --pointer='#/components/schemas/Subscription/required'
-redocly tree rebilly.yaml --format=ai --pointer='#/components/schemas/Product/required'
-redocly tree rebilly.yaml --format=ai --component=schemas --name=CurrencyCode
+```bash
+npx -y @redocly/cli tree rebilly.yaml --format=ai
+npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Products
+npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Plans
+npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Orders
+npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps
+npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
+npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=CustomerId
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=securitySchemes
 ```
 
 Both agents correct, including the `anyOf` plan choice and the `Orders` tag. Two `--pointer` calls checked required-field lists straight from the `$ref`s the cards printed.
@@ -81,22 +80,22 @@ Both agents correct, including the `anyOf` plan choice and the `Orders` tag. Two
 
 | Model    |        control |            tree |
 | -------- | -------------: | --------------: |
-| Sonnet 5 | 63,184 / **2** |  **50,114** / 7 |
-| Opus     |    56,010 / 11 | **41,925** / 11 |
-| Fable 5  | 53,378 / **2** |  **40,710** / 8 |
+| Sonnet 5 | 63,184 / **2** |  **51,239** / 7 |
+| Opus     |    56,010 / 11 | **37,901** / 11 |
+| Fable 5  | 53,378 / **2** |  **42,007** / 8 |
 
 Commands the tree agent ran (Opus):
 
-```
-redocly tree cafe.yaml --format=ai
-redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --component=securitySchemes
-redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
-redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps
-redocly tree cafe.yaml --format=ai --component=parameters --name=OrderId
+```bash
+npx -y @redocly/cli tree cafe.yaml --format=ai
+npx -y @redocly/cli tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes
+npx -y @redocly/cli tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=parameters --name=OrderId
 ```
 
 On a file this small the control can simply read it whole — on Sonnet 5 that took two actions total, against the index's seven.
@@ -109,23 +108,26 @@ It still loses on tokens by a fifth: the whole file is 41 KB of context, while n
 
 Session tokens, all 18 runs:
 
-| Description | Model    | control |       tree | Difference |
-| ----------- | -------- | ------: | ---------: | ---------: |
-| GitHub REST | Sonnet 5 |  57,012 | **52,120** |        −9% |
-| GitHub REST | Opus     |  56,239 | **40,432** |       −28% |
-| GitHub REST | Fable 5  |  49,078 | **39,299** |       −20% |
-| Billing API | Sonnet 5 |  73,572 | **60,904** |       −17% |
-| Billing API | Opus     |  74,650 | **47,305** |       −37% |
-| Billing API | Fable 5  |  52,419 | **46,173** |       −12% |
-| Cafe API    | Sonnet 5 |  63,184 | **50,114** |       −21% |
-| Cafe API    | Opus     |  56,010 | **41,925** |       −25% |
-| Cafe API    | Fable 5  |  53,378 | **40,710** |       −24% |
+| Description | Model    |    control |       tree | Difference |
+| ----------- | -------- | ---------: | ---------: | ---------: |
+| GitHub REST | Sonnet 5 |     57,012 | **52,784** |        −7% |
+| GitHub REST | Opus     |     56,239 | **41,531** |       −26% |
+| GitHub REST | Fable 5  |     49,078 | **39,374** |       −20% |
+| Billing API | Sonnet 5 |     73,572 | **63,296** |       −14% |
+| Billing API | Opus     |     74,650 | **50,979** |       −32% |
+| Billing API | Fable 5  | **52,419** |     54,981 |        +5% |
+| Cafe API    | Sonnet 5 |     63,184 | **51,239** |       −19% |
+| Cafe API    | Opus     |     56,010 | **37,901** |       −32% |
+| Cafe API    | Fable 5  |     53,378 | **42,007** |       −21% |
 
-`tree` is cheaper in all nine pairs, by 9% to 37%, and the gap widens with the model's willingness to explore: Opus, which reads the most in the control, saves the most with the index.
-Every tree agent called nothing but `tree` (one added a single `grep`), and all 18 answers were correct — including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
+`tree` is cheaper in eight of nine pairs, by 7% to 32%, and the gap widens with the model's willingness to explore: Opus, which reads the most in the control, saves the most with the index.
+Every tree agent called nothing but `tree`, and all 18 answers were correct — including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 
-**Actions drop everywhere except the smallest file**: 6 tool calls against 21 on GitHub with Opus, 8 against 31 on the billing task.
-The Cafe API is the exception — the control reads 41 KB in two actions — and the index still wins on tokens by a fifth, because nine cards are a few kilobytes against the whole file.
+The exception is the billing API on Fable 5, and it is a trajectory, not a floor: that agent spent 17 calls where a repeat of the same cell finished the same task in 9 and landed at 46,173 (−12%).
+It is also the cell where the control is strongest — the agent converted the YAML to JSON once and queried it with `jq`.
+
+**Actions drop everywhere except the smallest file**: 7 tool calls against 21 on GitHub with Opus, 12 against 31 on the billing task.
+The Cafe API is the other way round — the control reads 41 KB in two actions — and the index still wins on tokens by a fifth, because nine cards are a few kilobytes against the whole file.
 
 **The prompt carries no documentation**, and that is deliberate.
 Every `ai` view ends with a `next:` line naming the flags that continue from it, and every id it prints is already a selector, so the agent learns the surface as it goes.
@@ -146,6 +148,7 @@ Pointing the same prompt at the 1,800-line command reference instead costs 6,000
 
 ## Notes
 
+- Runs use the published snapshot `@redocly/cli@0.0.0-snapshot.1786811652` through `npx -y`, so they reproduce anywhere; the same prompts against a locally built CLI landed within 4% on eight cells and 19% on the billing API with Fable 5.
 - Isolation: specs live outside any repository; every run is a fresh `claude -p` session started from an empty directory, and controls are explicitly barred from OpenAPI CLIs and repository instruction files — the first attempt without that bar was contaminated (controls found `tree` via `AGENTS.md`) and was discarded and re-run.
 - The tree runs were measured on the build where every `ai` view ends with a `next:` line; without those lines an agent that starts from a card has no in-band way to find its next call, and falls back to reading the reference.
 - Variance: repeat runs of the same pair differ by up to ±15% of session depending on the trajectory the agent picks; compare the pair inside one row, not absolutes across rows or models, and treat a single inverted pair as noise until repeated.
