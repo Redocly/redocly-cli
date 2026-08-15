@@ -1,39 +1,14 @@
 # What the `tree` index costs an agent, measured
 
-Same multi-step task, two agents, fresh isolated sessions, Claude Sonnet 5:
-one explores through `redocly tree --format=ai`, the control reads the raw YAML (grep and windowed reads) and is barred from OpenAPI tooling.
-All numbers are Claude's own usage counters:
+Same multi-step task, two fresh isolated sessions per description (Claude Sonnet 5):
+one agent explores with `tree` and the `ai` format, the control reads the raw YAML directly and may not use OpenAPI tooling or repository instructions.
+The tree agent's prompt is the task plus a five-command protocol (overview → `--find "<words>"` → operation cards with `--with-deps` → component cards → tag listing only to browse an area);
+the control's prompt is the same task plus "work directly with the file".
+Numbers are Claude's own usage counters:
 **session** = the run's final context, **output** = generated tokens, **actions** = tool calls.
-Command outputs are tokenized with `gpt-tokenizer` (o200k).
 
-Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — 1,946,549 tokens, ten 200k context windows),
-a billing API (Rebilly, 1.3 MB — 267,739 tokens), a demo cafe API (41 KB — 9,042 tokens).
-
-The tree agent's prompt is the task below plus this five-command protocol; the control's prompt is the same task plus "work directly with the file, no OpenAPI CLIs, no repository instructions":
-
-> 1. Overview: `redocly tree <file> --format=ai`
-> 2. Search by the task's words: `--find "<words>" --format=ai`
-> 3. One operation with its full `$ref` closure: `--path=<p> --operation=<m> --with-deps --format=ai`
-> 4. One component (signature + body): `--component=<section> --name=<Name> --format=ai`
-> 5. A whole tag's operations, only to browse an area: `--tag=<tag> --format=ai`
-
-## What one call costs
-
-| Call                                                  |  Bytes | Tokens |
-| ----------------------------------------------------- | -----: | -----: |
-| Overview, 10.0 MB description                         |  1,066 |    334 |
-| Overview, 1.3 MB description                          |  1,167 |    332 |
-| `--find "upload release asset"` (10.0 MB)             |    333 |     88 |
-| Operation card + deps (`POST …/releases`, 10.0 MB)    |  7,044 |  1,605 |
-| Operation card + deps (`POST /subscriptions`, 1.3 MB) |  4,862 |  1,165 |
-| Component card (`schemas/CurrencyCode`)               |    314 |     99 |
-| Deep pointer card (`--pointer='…/recurringInterval'`) |  1,317 |    317 |
-| Tag listing, 203 operations (`--tag=repos`)           | 26,281 |  6,296 |
-
-The whole GitHub task (publish a release, upload a zip asset, delete it), call by call:
-overview 334 + `--find "create release"` 137 + `--find "upload release asset"` 88 + three operation cards 1,605 + 1,106 + 285 = **3,555 tokens**, against a 1,946,549-token source file.
-For tooling, the JSON format prices differently: its card-shaped listings put the same single-operation lookup at 149,582 tokens, dominated by the 203-entry tag listing (128,288) — the number that motivated the `ai` format and `--find`.
-Flat dumps don't fit at all: `--operations --format=json` is 771,279 tokens, `--component=schemas --format=json` 625,136.
+Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — 1,946,549 tokens),
+a billing API (Rebilly, 1.3 MB — 267,739 tokens), the Cafe demo API (41 KB — 9,042 tokens).
 
 ## The head-to-heads
 
@@ -43,10 +18,10 @@ Flat dumps don't fit at all: `--operations --format=json` is 771,279 tokens, `--
 **Task:** publish a release, upload a zip asset to it, delete the asset — hosts, required fields, what feeds each next request.
 Trap: the upload operation overrides its server to `https://uploads.github.com` at the operation level.
 
-| Run                | Session |     Output | Actions |
-| ------------------ | ------: | ---------: | ------: |
-| No tool            |  66,246 |     19,789 |      20 |
-| `tree` (ai, final) |  66,862 | **16,952** |      19 |
+| Run              | Session |     Output | Actions |
+| ---------------- | ------: | ---------: | ------: |
+| No tool          |  66,246 |     19,789 |      20 |
+| `tree` with `ai` |  66,862 | **16,952** |      19 |
 
 Commands the tree agent ran:
 
@@ -73,10 +48,10 @@ Both agents correct, including the host override. No tag listing was ever needed
 **Task:** create a product, a recurring-billing plan for it, then subscribe an existing customer.
 Traps: `Plan` is an `anyOf` without a discriminator (the recurring variant is `SubscriptionPlan`), and the subscription lives under the `Orders` tag.
 
-| Run                |    Session |     Output | Actions |
-| ------------------ | ---------: | ---------: | ------: |
-| No tool            |     92,648 |     31,052 |      42 |
-| `tree` (ai, final) | **88,915** | **22,554** |      26 |
+| Run              |    Session |     Output | Actions |
+| ---------------- | ---------: | ---------: | ------: |
+| No tool          |     92,648 |     31,052 |      42 |
+| `tree` with `ai` | **88,915** | **22,554** |      26 |
 
 Commands the tree agent ran:
 
@@ -109,14 +84,14 @@ Both agents correct, including the `anyOf` plan choice and the `Orders` tag.
 Repeat runs of this pair: 88,915 / 89,387 / 77,455 — the cheapest repeat skipped the tag listings entirely.
 
 {% /tab %}
-{% tab label="Demo API · 41 KB" %}
+{% tab label="Cafe API · 41 KB" %}
 
 **Task:** find a coffee item on the menu, order it, check the order's status — including where the OAuth2 token comes from.
 
-| Run                |    Session |     Output | Actions |
-| ------------------ | ---------: | ---------: | ------: |
-| No tool            | **71,430** | **12,821** |       3 |
-| `tree` (ai, final) |     74,020 |     35,364 |      23 |
+| Run              |    Session |     Output | Actions |
+| ---------------- | ---------: | ---------: | ------: |
+| No tool          | **71,430** | **12,821** |       3 |
+| `tree` with `ai` |     74,020 |     35,364 |      23 |
 
 Commands the tree agent ran (abridged — 20 tree calls):
 
@@ -132,7 +107,8 @@ redocly tree cafe.yaml --component=securitySchemes --name=OAuth2 --format=ai
 ```
 
 The control read the whole 9,042-token file in one call — the cheapest possible session at this size.
-Both correct; the tree answer was more detailed, but on files that fit the window, pasting the file wins on tokens.
+Why so many tree calls: component cards this cheap (~100 tokens) invite over-verification — 13 of the 20 calls were spot-checks that a single file read had already covered.
+Both correct; on files that fit the window, pasting the file wins.
 
 {% /tab %}
 {% /tabs %}
