@@ -979,7 +979,15 @@ A pointer that only makes sense after following a `$ref` into another file — a
 
 `--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
 `--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in a listing, an overview, or a find result.
-Two views break that rule: a card's own body ships as one line of minified JSON (below), and the file-level graph, which `--files` and a non-OpenAPI description still render as minified JSON.
+Two views break that rule: a card's own body ships as one line of minified JSON (below), and the file-level graph, which `--files` and a non-OpenAPI description still render as minified JSON:
+
+```bash
+redocly tree asyncapi.yaml --format=ai
+```
+
+```
+{"nodes":[{"id":"asyncapi.yaml","resolved":true,"kind":"root","file":"asyncapi.yaml","root":true},{"id":"channels/userSignedup","resolved":true,"kind":"component","file":"asyncapi.yaml"},…],"links":[{"source":"channels/userSignedup","target":"messages/UserSignedUp","refs":["#/components/messages/UserSignedUp"]},…]}
+```
 
 Every `ai` view shares the same conventions:
 
@@ -1474,6 +1482,37 @@ redocly tree cafe.yaml --component=schemas --name=Order --used-by --with-deps
 Arguments used-by and with-deps are mutually exclusive
 ```
 
+### Empty and no-match results
+
+A selector that exists but holds nothing, and a search that matches nothing, are not errors: they exit `0` and say so.
+
+A search with no hits reports both counts as zero and suggests how to widen it:
+
+```bash
+redocly tree cafe.yaml --find "graphql subscription" --format=ai
+```
+
+```
+find "graphql subscription" · 0 operations · 0 components
+Nothing matched.
+next: --find=<fewer or different terms> · --tag=<name>
+```
+
+A component section the description doesn't use renders as an empty listing:
+
+```bash
+redocly tree cafe.yaml --component=links --format=ai
+```
+
+```
+links · 0 components
+next: --component=links --name=<Name> [--with-deps]
+```
+
+A file that defines nothing of its own — one that only groups others through `$ref` — still gets a card, with an empty `defines`.
+
+Only a name that doesn't exist at all is an error, and that is the next section.
+
 ### Selector errors
 
 An unknown tag, path, webhook, operationId, or component name exits with code `1` and lists close matches, so a typo is easy to spot and fix:
@@ -1792,11 +1831,14 @@ When wiring this into an agent, hand it the run line with `--format=ai` and let 
 Pasting this page into a prompt, or pointing an agent at it, costs 6,000 to 21,000 tokens depending on the model — more than the exploration it saves.
 Leave `--format=ai` out and the saving goes with it: the stylish views are built for a terminal and carry no `next:` line, so an agent falls back to guessing flags and reading the file.
 
-1. Get the map: `redocly tree openapi.yaml --format=json` prints the tags, webhook names, and component sections with their counts — a few kilobytes for any spec size.
-2. Drill into a branch the agent picked: `redocly tree openapi.yaml --tag=Tickets` returns that tag's operations with summaries, files, and line ranges — each already carrying its own one-hop `refs` and `usedBy`, so the agent often has enough to decide the next step without a second call.
-3. Fetch a leaf with everything it needs: `redocly tree openapi.yaml --path=/orders --operation=post --with-deps --format=json` returns the operation's raw source lines, its resolved `$ref`s, and the transitive dependency closure as `deps` — a self-contained slice for generating a client call, writing a contract test, or reviewing the endpoint.
+1. Get the map: `redocly tree openapi.yaml --format=ai` prints the servers, tag and webhook counts, and component sections — a couple of kilobytes for any file size. An API of 100 operations or fewer expands to its whole surface here, so small descriptions cost one call.
+2. Narrow to candidates: `redocly tree openapi.yaml --find "create subscription" --format=ai` ranks operations and components by how many terms hit their path, id, name, summary, or description. This replaces browsing a tag listing, which on a large API is thousands of lines.
+3. Fetch a leaf with everything it needs: `redocly tree openapi.yaml --path=/orders --operation=post --with-deps --format=ai` returns the operation's body plus its transitive `$ref` closure as one-line schema signatures — enough to generate a client call, write a contract test, or review the endpoint.
+4. Keep going from the output: every view's `next:` line names the flags that continue from it, every id it prints (`schemas/Order`) is a selector, and every `$ref` in a body is a `--pointer` argument.
 
-Every operation and component entry carries the file that defines it, its `start_line`/`end_line` range, and a `summary` taken from the description itself, so an agent can also read the exact lines directly with plain file tools instead of calling the CLI again:
+Use `--format=json` instead when a program, not a model, consumes the result: it returns the same selections as data, with raw source and exact coordinates.
+
+Every operation and component entry carries the file that defines it, its `start_line`/`end_line` range, and a `summary` taken from the description itself, so an agent can also read the exact lines directly with plain file tools instead of calling the CLI again — this is the `json` shape of one entry:
 
 ```json
 {
