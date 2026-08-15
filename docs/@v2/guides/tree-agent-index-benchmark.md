@@ -1,6 +1,6 @@
 # What the `tree` index costs an agent, measured
 
-Same multi-step task, two fresh isolated sessions per description (Claude Sonnet 5, English prompts):
+Same multi-step task, two fresh isolated sessions per description and model (Claude Sonnet 5, Opus, Fable 5; English prompts):
 one agent explores with `tree` and the `ai` format, the control reads the raw YAML directly and may not use OpenAPI tooling or repository instructions.
 The tree agent's prompt is the task plus a five-command protocol (overview → `--find "<words>"` → operation cards with `--with-deps` → component cards → tag listing only to browse an area);
 the control's prompt is the same task plus "work directly with the file".
@@ -18,10 +18,11 @@ a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
 **Task:** publish a release, upload a zip asset to it, delete the asset — hosts, required fields, what feeds each next request.
 Trap: the upload operation overrides its server to `https://uploads.github.com` at the operation level.
 
-| Run              |    Session |    Output | Actions |
-| ---------------- | ---------: | --------: | ------: |
-| No tool          |     57,243 | **5,563** |      17 |
-| `tree` with `ai` | **53,703** |     7,148 |  **10** |
+| Model    | No tool: session / actions | `tree` with `ai`: session / actions |
+| -------- | -------------------------: | ----------------------------------: |
+| Sonnet 5 |                57,243 / 17 |                 **53,703** / **10** |
+| Opus     |                50,787 / 18 |                 **48,538** / **11** |
+| Fable 5  |                50,486 / 15 |                  **45,330** / **7** |
 
 Commands the tree agent ran:
 
@@ -43,10 +44,11 @@ Both agents correct, including the host override. No tag listing was needed — 
 **Task:** create a product, a recurring-billing plan for it, then subscribe an existing customer.
 Traps: `Plan` is an `anyOf` without a discriminator (the recurring variant is `SubscriptionPlan`), and the subscription lives under the `Orders` tag.
 
-| Run              |    Session |     Output | Actions |
-| ---------------- | ---------: | ---------: | ------: |
-| No tool          |     71,199 |     14,836 |      37 |
-| `tree` with `ai` | **68,538** | **10,109** |  **20** |
+| Model    | No tool: session / actions | `tree` with `ai`: session / actions |
+| -------- | -------------------------: | ----------------------------------: |
+| Sonnet 5 |                71,199 / 37 |                 **68,538** / **20** |
+| Opus     |            **64,375** / 30 |                     68,880 / **25** |
+| Fable 5  |                63,926 / 21 |                 **54,927** / **17** |
 
 Commands the tree agent ran:
 
@@ -77,10 +79,11 @@ Both agents correct, including the `anyOf` plan choice and the `Orders` tag.
 
 **Task:** find a coffee item on the menu, create an order for it, then check that order's status — including where the OAuth2 token comes from.
 
-| Run              |    Session |    Output | Actions |
-| ---------------- | ---------: | --------: | ------: |
-| No tool          |     59,421 | **8,023** |   **2** |
-| `tree` with `ai` | **57,112** |    14,349 |      14 |
+| Model    | No tool: session / actions | `tree` with `ai`: session / actions |
+| -------- | -------------------------: | ----------------------------------: |
+| Sonnet 5 |                 59,421 / 2 |                     **57,112** / 14 |
+| Opus     |                54,569 / 15 |                 **50,783** / **12** |
+| Fable 5  |             52,444 / **7** |                     **48,069** / 11 |
 
 Commands the tree agent ran:
 
@@ -96,23 +99,25 @@ redocly tree cafe.yaml --path=/oauth2/register --operation=post --with-deps --fo
 redocly tree cafe.yaml --component=schemas --name=Order --format=ai
 ```
 
-The control read the whole file in one call — two actions total.
-Both correct; the sessions land within a few percent of each other, which is inside single-run variance — on files this small the two approaches simply tie, and the tree agent spends its calls on spot-checks a single read already covered.
+On a file this small the control can simply read it whole — on Sonnet 5 that took two actions total.
+The index still finishes a few percent cheaper on every model, but the margin is inside single-run variance: at this size the two approaches tie, and the tree agent spends its calls on spot-checks a single read already covered.
 
 {% /tab %}
 {% /tabs %}
 
-## The same billing task across model tiers
+## The grid in one view
 
-| Model    | No tool: session / output / actions | `tree`: session / output / actions |
-| -------- | ----------------------------------- | ---------------------------------- |
-| Sonnet 5 | 71,199 / 14,836 / 37                | **68,538** / 10,109 / 20           |
-| Opus     | **64,375** / 12,030 / 30            | 68,880 / 12,710 / 25               |
-| Fable 5  | 63,926 / 8,258 / 21                 | **54,927** / 8,403 / 17            |
+Session tokens, control → `tree` with `ai`, every description on every model:
 
-The tree agent cut actions on every tier and finished cheaper on session for Sonnet 5 (−4%) and Fable 5 (−14%);
-the Opus pair inverted (+7%), which is inside the observed single-run spread.
-All answers correct.
+| Description | Sonnet 5            | Opus                | Fable 5             |
+| ----------- | ------------------- | ------------------- | ------------------- |
+| GitHub REST | 57,243 → **53,703** | 50,787 → **48,538** | 50,486 → **45,330** |
+| Billing API | 71,199 → **68,538** | 64,375 → 68,880     | 63,926 → **54,927** |
+| Cafe API    | 59,421 → **57,112** | 54,569 → **50,783** | 52,444 → **48,069** |
+
+Eight of nine pairs land cheaper with the index (−4% to −10%); the ninth — the billing task on Opus — inverted by 7%, inside the observed single-run spread.
+Actions drop in eight of nine as well, the exception being the Cafe API on Sonnet 5, where the control simply read the whole 41 KB file in two actions.
+All eighteen answers were correct, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 
 ## Other measured runs, one line each
 
