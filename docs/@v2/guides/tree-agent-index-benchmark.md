@@ -17,7 +17,7 @@ A session starts with a fixed cost — the harness system prompt and the task pr
 | **actions** | tool calls — the number after the slash                                                |
 
 One shell call can chain several commands with `;`, so a run's command list is sometimes longer than its action count; the per-model tabs say when that happened.
-Repeats of the same cell differ by a few percent on the tree side and by up to 50% on the no-tree side, where the agent improvises its own search strategy each time.
+Repeats of the same cell differ by a few percent on the tree side and by up to 80% on the no-tree side, where the agent improvises its own search strategy each time; cells run more than once are reported as the median.
 
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
@@ -59,11 +59,11 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 {% /tab %}
 {% /tabs %}
 
-| Model    |    no tree |      tree |
-| -------- | ---------: | --------: |
-| Sonnet 5 | 12,154 / 8 | 8,677 / 6 |
-| Opus     |  8,688 / 9 | 9,120 / 8 |
-| Fable 5  |  8,185 / 6 | 7,878 / 7 |
+| Model    |     no tree |      tree |
+| -------- | ----------: | --------: |
+| Sonnet 5 |  12,154 / 8 | 8,677 / 6 |
+| Opus     | 10,352 / 13 | 9,255 / 8 |
+| Fable 5  |   8,185 / 6 | 7,878 / 7 |
 
 What the tree agent ran:
 
@@ -83,17 +83,21 @@ npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo
 {% tab label="Opus" %}
 
 ```bash
-npx -y @redocly/cli tree github-api.yaml --format=ai
-npx -y @redocly/cli tree github-api.yaml --format=ai --find="release asset"
-npx -y @redocly/cli tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post
-npx -y @redocly/cli tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post
-npx -y @redocly/cli tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=release-id
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=schemas --name=release
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=schemas --name=release-asset
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --find="release asset"
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --find="create release"
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=schemas --name=release
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=schemas --name=release-asset
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=release-id
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=asset-id
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=owner
+npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=repo
 ```
 
-8 tool calls, 9 invocations: this model bundled several commands into one shell call.
+8 tool calls, 12 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Fable 5" %}
@@ -116,7 +120,8 @@ npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --na
 
 Both agents correct, including the host override.
 No tag listing was needed: `--find` narrowed 1,000+ operations to a handful in one call, and every model started there.
-Sonnet 5 shows the widest gap here: eight `grep`/`sed` calls against six bounded ones.
+Sonnet 5 shows the widest gap: eight `grep`/`sed` calls against six bounded ones.
+Opus is the most volatile cell in the grid — three no-tree repeats cost 8,688, 10,352 and 15,884 depending on how well its first `grep` landed, against 9,120, 9,255 and 10,842 through the index. The table gives the median of each.
 
 {% /tab %}
 {% tab label="Billing API · 1.3 MB" %}
@@ -266,7 +271,7 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 | Model    |    no tree |        tree |
 | -------- | ---------: | ----------: |
 | Sonnet 5 | 16,897 / 1 |   7,169 / 7 |
-| Opus     | 16,762 / 1 | 12,500 / 14 |
+| Opus     | 16,917 / 2 | 10,671 / 12 |
 | Fable 5  | 16,818 / 1 |   8,429 / 7 |
 
 What the tree agent ran:
@@ -293,19 +298,14 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --path=/menu --operation=get --wi
 npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
 npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
 npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps
 npx -y @redocly/cli tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
 npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuItemList
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=RegisterClientObject
 npx -y @redocly/cli tree cafe.yaml --format=ai --component=parameters --name=OrderId
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=parameters --name=Search
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=parameters --name=Filter
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuItemList
 ```
-
-14 tool calls, 15 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Fable 5" %}
@@ -324,7 +324,7 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
 {% /tabs %}
 
 On a file this small the no-tree agent simply reads it whole — one action.
-That read is the whole cost: ~16,800 tokens of context on every model, against 7,200–12,500 through cards. Halving what the task costs is the most consistent result in the grid.
+That read is the whole cost: ~16,800 tokens of context on every model, against 7,200–10,700 through cards. Halving what the task costs is the most consistent result in the grid — the Opus cell was repeated three times and landed at 12,500, 10,180 and 10,671.
 
 {% /tab %}
 {% /tabs %}
@@ -336,26 +336,29 @@ Context the task added, and the tool calls it took:
 | Description | Model    |     no tree |        tree | Difference |
 | ----------- | -------- | ----------: | ----------: | ---------: |
 | GitHub REST | Sonnet 5 |  12,154 / 8 |   8,677 / 6 |       −29% |
-| GitHub REST | Opus     |   8,688 / 9 |   9,120 / 8 |        +5% |
+| GitHub REST | Opus     | 10,352 / 13 |   9,255 / 8 |       −11% |
 | GitHub REST | Fable 5  |   8,185 / 6 |   7,878 / 7 |        −4% |
 | Billing API | Sonnet 5 |   5,434 / 2 |  15,921 / 9 |          — |
 | Billing API | Opus     | 22,713 / 25 | 19,159 / 11 |       −16% |
 | Billing API | Fable 5  | 18,834 / 20 | 15,448 / 12 |       −18% |
 | Cafe API    | Sonnet 5 |  16,897 / 1 |   7,169 / 7 |       −58% |
-| Cafe API    | Opus     |  16,762 / 1 | 12,500 / 14 |       −25% |
+| Cafe API    | Opus     |  16,917 / 2 | 10,671 / 12 |       −37% |
 | Cafe API    | Fable 5  |  16,818 / 1 |   8,429 / 7 |       −50% |
 
+Cells measured more than once carry the median; the two GitHub and Cafe Opus cells were each run three times.
 The billing API on Sonnet 5 is the one cell that cannot be compared: that no-tree run spent two calls because it handed the task to a subagent, whose own context is not counted here, so 5,434 is a floor rather than a total.
 
 All 18 answers were correct, on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 That is the first result: an agent that never opens the file answers as well as one that reads it.
 
 **Where a no-tree agent has to ingest the description, the index halves the cost.**
-The Cafe API is 41 KB — small enough to read whole, and every no-tree run does exactly that in one action for about 16,800 tokens. The same answer through cards costs 7,200–12,500, on all three models.
+The Cafe API is 41 KB — small enough to read whole, and every no-tree run does exactly that in one or two actions for about 16,800 tokens. The same answer through cards costs 7,200–10,700, on all three models.
 
-**On the large descriptions the win is real but smaller**, 16–29% on five of six cells, and it comes from replacing an open-ended search with bounded ones: 11 calls against 25 on the billing API, 6 against 8 on GitHub.
+**On the large descriptions the win is 11–29%** on five of six cells, and it comes from replacing an open-ended search with bounded ones: 11 calls against 25 on the billing API, 8 against 13 on GitHub.
 
-**Two cells are a tie** — GitHub on Opus and on Fable 5, within a few percent either way. Both are cells where the model greps well: a targeted `grep` on a 10 MB file returns a handful of lines, which is exactly what a card returns.
+**The one tie is GitHub on Fable 5**, within 4%. It is the case the index competes hardest with: a targeted `grep` on a 10 MB file returns a handful of lines, which is what a card returns too.
+
+**The no-tree side is also the unstable one.** Three repeats of GitHub on Opus cost 8,688, 10,352 and 15,884 depending on how well the first `grep` guessed; the same cell through the index stayed inside 9,120–10,842. An index makes the cost predictable, not just lower.
 
 ## Other measured runs, one line each
 
