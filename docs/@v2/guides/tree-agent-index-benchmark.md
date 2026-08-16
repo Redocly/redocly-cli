@@ -379,7 +379,6 @@ The last three ran against earlier builds with a different measurement script; r
 - Pair a run with its transcript by the `session_id` in its own JSON result. Picking "the newest transcript" silently attaches the wrong file, and an earlier version of this page reported numbers gathered that way.
 - One assistant turn can be written to the transcript as several records — thinking, text, and the tool call — repeating the same usage block. Counting records instead of turns inflates output and turn counts.
 - Floors, not totals: a no-tree agent that delegates to a subagent reports only its own context, not the subagent's. It happened once here, on the billing API with Sonnet 5, and repeatedly across earlier passes — always on Sonnet 5, always on a large description.
-- Discard failed runs: one no-tree cell returned `is_error: true` with no answer yet still reported plausible token counts. Check `is_error` in the run's JSON before recording a number.
 - `npx -y @redocly/cli@<version>` printed the update-available banner to `stderr` on every call — 684 bytes of agent context per call. It is suppressed for `--format=ai` from snapshot `1786868116` on; on an older build, set `REDOCLY_SUPPRESS_UPDATE_NOTICE=true`.
 - The tree runs need the build where every `ai` view ends with a `next:` line. Without it an agent that starts from a card has no in-band way to find its next call.
 - Session is not the bill: every action re-sends the whole context, so billed cache reads on the billing-API runs were 4+ million tokens per run — fewer actions is the real saving.
