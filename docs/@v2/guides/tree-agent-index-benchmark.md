@@ -360,6 +360,25 @@ The Cafe API is 41 KB — small enough to read whole, and every no-tree run does
 
 **The no-tree side is also the unstable one.** Three repeats of GitHub on Opus cost 8,688, 10,352 and 15,884 depending on how well the first `grep` guessed; the same cell through the index stayed inside 9,120–10,842. An index makes the cost predictable, not just lower.
 
+## Every run behind the tables
+
+Cells measured more than once are reported as the median above; here is every sample, so the spread is visible rather than implied.
+
+| Description | Model    | no tree                     | tree                         |
+| ----------- | -------- | --------------------------- | ---------------------------- |
+| GitHub REST | Sonnet 5 | 12,154                      | 8,677                        |
+| GitHub REST | Opus     | 8,688 · **10,352** · 15,884 | 9,120 · **9,255** · 10,842   |
+| GitHub REST | Fable 5  | 8,185                       | 7,878                        |
+| Billing API | Sonnet 5 | 5,434 (subagent)            | 15,921                       |
+| Billing API | Opus     | 22,713                      | 19,159                       |
+| Billing API | Fable 5  | 18,834                      | 15,448                       |
+| Cafe API    | Sonnet 5 | 16,897                      | 7,169                        |
+| Cafe API    | Opus     | 16,762 · **16,917**         | 10,180 · **10,671** · 12,500 |
+| Cafe API    | Fable 5  | 16,818                      | 8,429                        |
+
+The published value is in bold where a cell has more than one sample.
+Two patterns show up only here: the no-tree side swings by up to 83% between identical repeats, and the tree side stays inside 19%.
+
 ## Other measured runs, one line each
 
 Each row is its own set of isolated runs. The first two change one thing in the tree prompt and nothing else, so they price the prompt itself.
