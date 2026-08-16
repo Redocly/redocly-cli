@@ -18,7 +18,7 @@ A session starts with a fixed cost — the harness system prompt and the task pr
 
 One shell call can chain several commands with `;`, so a run's command list is sometimes longer than its action count; the per-model tabs say when that happened.
 Repeats of the same cell differ by a few percent on the tree side and by up to 83% on the no-tree side, where the agent improvises its own search strategy each time.
-A cell measured three times reports the median; a cell measured twice reports the sample less favourable to `tree`. Every sample is listed further down.
+A cell measured three times reports the median; a cell measured twice reports the sample less favourable to `tree`.
 
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
@@ -178,21 +178,14 @@ npx -y @redocly/cli tree rebilly.yaml --format=ai --find=subscription
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-echo "---"
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
-echo "---items---"
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
-echo "---CustomerId---"
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=CustomerId
-echo "---WebsiteId---"
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=Subscription
 ```
-
-9 tool calls, 10 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Opus" %}
@@ -287,7 +280,7 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post -
 npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
 npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
 npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
 ```
 
 {% /tab %}
@@ -357,24 +350,6 @@ The Cafe API is 41 KB — small enough to read whole, and every no-tree run does
 **Where it can grep, the win narrows to 4–29%** and comes from replacing an open-ended search with bounded ones: 11 calls against 25 on the billing API, 8 against 13 on GitHub. The two 4% cells — GitHub on Fable 5 and the billing API on Sonnet 5 — are where a targeted `grep` returns about what a card returns, and they are inside the repeat spread.
 
 **The no-tree side is also the unstable one.** Three repeats of GitHub on Opus cost 8,688, 10,352 and 15,884 depending on how well the first `grep` guessed; the same cell through the index stayed inside 9,120–10,842. On the billing API with Sonnet 5 one no-tree repeat cost 22,490 across 22 searches while another delegated the whole task to a subagent in two calls. An index makes the cost predictable, not just lower.
-
-## Every run behind the tables
-
-The published value is in bold where a cell has more than one sample.
-
-| Description | Model    | no tree                                   | tree                         |
-| ----------- | -------- | ----------------------------------------- | ---------------------------- |
-| GitHub REST | Sonnet 5 | 12,154                                    | 8,677                        |
-| GitHub REST | Opus     | 8,688 · **10,352** · 15,884               | 9,120 · **9,255** · 10,842   |
-| GitHub REST | Fable 5  | 8,185                                     | 7,878                        |
-| Billing API | Sonnet 5 | 5,434 (delegated, discarded) · **22,490** | 15,921 · **21,643**          |
-| Billing API | Opus     | 22,713                                    | 19,159                       |
-| Billing API | Fable 5  | 18,834                                    | 15,448                       |
-| Cafe API    | Sonnet 5 | **16,865** · 16,897                       | 7,169 · **7,415**            |
-| Cafe API    | Opus     | **16,762** · 16,917                       | 10,180 · **10,671** · 12,500 |
-| Cafe API    | Fable 5  | 16,818                                    | 8,429                        |
-
-Two patterns show up only here: the no-tree side swings by up to 83% between identical repeats, while the tree side stays inside 19% — except the billing API on Sonnet 5, where one run walked the plan closure card by card (21,643) and another stopped earlier (15,921).
 
 ## Other measured runs, one line each
 
