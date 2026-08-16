@@ -7,6 +7,7 @@ Same multi-step task, fresh isolated sessions per description and model (Claude 
 
 Both prompts are printed in full under each description below.
 Neither lists the flags, and the tree prompt links no documentation: the agent learns the surface from the output itself.
+That is deliberate on both counts — this command's reference page is 87 KB, about 20,000 tokens, and an agent offered it reads it, which costs more than the exploration it saves; and the run line carries `--format=ai`, because the stylish views are built for a terminal and end with no `next:` line, so an agent given those falls back to guessing flags and reading the file.
 
 Every number is Claude's own usage counter, read from the run's transcript.
 A session starts with a fixed cost — the harness system prompt and the task prompt, 31,000 to 43,000 tokens depending on the model — that is identical in both conditions and swamps the difference between them, so the tables report what the run added on top of it:
@@ -351,29 +352,11 @@ The Cafe API is 41 KB — small enough to read whole, and every no-tree run does
 
 **The no-tree side is also the unstable one.** Three repeats of GitHub on Opus cost 8,688, 10,352 and 15,884 depending on how well the first `grep` guessed; the same cell through the index stayed inside 9,120–10,842. On the billing API with Sonnet 5 one no-tree repeat cost 22,490 across 22 searches while another delegated the whole task to a subagent in two calls. An index makes the cost predictable, not just lower.
 
-## Other measured runs, one line each
-
-Each row is its own set of isolated runs. The first two change one thing in the tree prompt and nothing else, so they price the prompt itself.
-
-| Run                                                        | Result                                                                                                             |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Tree prompt pointed at this command's reference page       | The page is 87 KB, roughly 20,000 tokens, and agents that are offered it read it — more than the exploration saves |
-| Tree prompt without `--format=ai` in the run line          | Agents guessed flags, called `--help`, and fell back to reading the file: the stylish views carry no `next:` line  |
-| Impact question ("what breaks if X changes"), 1.3 MB spec  | tree 56,659 / 6 actions vs grep 88,706 / 28                                                                        |
-| Protocol in `AGENTS.md` vs the same text pasted as a quote | 67,734 vs 99,464 — agents fact-check a quoted instruction against the file, and pay for it                         |
-| No instruction at all, the CLI merely installed            | 111,435 — the agent found `tree` by itself and paid a discovery tax                                                |
-
-The last three ran against earlier builds with a different measurement script; read them for direction, not for absolute numbers.
-
 ## Notes
 
 - Reproducing: every run is `claude -p` with `--allowedTools "Bash Read Grep Glob"`, started in an empty directory, with the description outside any repository so no `AGENTS.md` or `CLAUDE.md` is loaded. The tree runs use the published snapshot `@redocly/cli@0.0.0-snapshot.1786868116` through `npx -y`.
-- The numbers in the tables come from a reproduction run on a second machine state, where the starting context was 5,400 tokens lower than in the first pass — an earlier pass over the same grid produced the same tree numbers within a few percent, and the same conclusions.
-- Measure the delta, not the total. A run's first-turn context — system prompt plus task prompt — moved by 5,400 tokens between two batches measured 20 minutes apart, on every model at once, without anything in the prompts changing. Raw session totals from different batches cannot be compared; context added by the run can.
-- Pair a run with its transcript by the `session_id` in its own JSON result. Picking "the newest transcript" silently attaches the wrong file, and an earlier version of this page reported numbers gathered that way.
-- One assistant turn can be written to the transcript as several records — thinking, text, and the tool call — repeating the same usage block. Counting records instead of turns inflates output and turn counts.
-- Floors, not totals: a no-tree agent that delegates to a subagent reports only its own context, not the subagent one. It happened on the billing API with Sonnet 5, and repeatedly across earlier passes — always on Sonnet 5, always on a large description. Such runs are discarded and repeated.
-- `npx -y @redocly/cli@<version>` printed the update-available banner to `stderr` on every call — 684 bytes of agent context per call. It is suppressed for `--format=ai` from snapshot `1786868116` on; on an older build, set `REDOCLY_SUPPRESS_UPDATE_NOTICE=true`.
-- The tree runs need the build where every `ai` view ends with a `next:` line. Without it an agent that starts from a card has no in-band way to find its next call.
+- Measure what the run added, not the session total. A run's first-turn context — system prompt plus task prompt — moved by 5,400 tokens between two batches taken 20 minutes apart, on every model at once, with nothing in the prompts changed. Totals from different batches are not comparable; the context a run adds is.
+- Floors, not totals: an agent that delegates to a subagent reports only its own context, not the subagent one. It happens on large descriptions with Sonnet 5, where a no-tree run can finish in two calls and look cheap. Those runs are discarded and repeated.
+- Variance: repeats of the same cell differ by a few percent through the index and by up to 83% without it, where the agent improvises its search each time. A difference under about 15% is not a result.
 - Session is not the bill: every action re-sends the whole context, so billed cache reads on the billing-API runs were 4+ million tokens per run — fewer actions is the real saving.
-- Where the advantage is: bounded, repeatable actions and answers that carry their own coordinates. Where it isn't: a description a model can grep well, and a baseline that quietly spends a subagent's context.
+- Where the advantage is: bounded, repeatable actions and answers that carry their own coordinates. Where it isn't: a description a model can grep well.
