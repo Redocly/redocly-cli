@@ -8,15 +8,16 @@ Same multi-step task, fresh isolated sessions per description and model (Claude 
 Both prompts are printed in full under each description below.
 Neither lists the flags, and the tree prompt links no documentation: the agent learns the surface from the output itself.
 
-Every number is Claude's own usage counter, read from the run's transcript:
+Every number is Claude's own usage counter, read from the run's transcript.
+A session starts with a fixed cost — the harness system prompt and the task prompt, 31,000 to 43,000 tokens depending on the model — that is identical in both conditions and swamps the difference between them, so the tables report what the run added on top of it:
 
-| Metric      | What it counts                                                                               |
-| ----------- | -------------------------------------------------------------------------------------------- |
-| **session** | the run's final context — what the last request carried, and the first number in every table |
-| **actions** | tool calls — the number after the slash                                                      |
+| Metric      | What it counts                                                                         |
+| ----------- | -------------------------------------------------------------------------------------- |
+| **context** | tokens the task itself added: the run's final context minus its own first-turn context |
+| **actions** | tool calls — the number after the slash                                                |
 
 One shell call can chain several commands with `;`, so a run's command list is sometimes longer than its action count; the per-model tabs say when that happened.
-The tree condition ran twice per cell — once against a locally built CLI, once against the published snapshot — because a single run cannot separate differences smaller than the ±15% spread between repeats.
+The tree condition ran twice per cell, because repeats of the same cell differ by 1–30% depending on the path the agent picks.
 
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
@@ -60,9 +61,9 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 
 | Model    |     no tree | tree, run 1 | tree, run 2 |
 | -------- | ----------: | ----------: | ----------: |
-| Sonnet 5 |  47,709 / 2 |  46,375 / 6 |  52,119 / 6 |
-| Opus     | 41,245 / 10 |  34,315 / 8 | 41,771 / 11 |
-| Fable 5  |  41,765 / 8 |  33,986 / 6 |  38,569 / 5 |
+| Sonnet 5 |   5,289 / 2 |   9,186 / 6 |   9,554 / 6 |
+| Opus     | 10,245 / 10 |   8,546 / 8 | 10,630 / 11 |
+| Fable 5  |  10,445 / 8 |   7,899 / 6 |   7,106 / 5 |
 
 What the tree agent ran:
 
@@ -114,7 +115,7 @@ npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo
 
 Both agents correct, including the host override.
 No tag listing was needed: `--find` narrowed 1,000+ operations to a handful in one call, and every model started there.
-The no-tree agent on Sonnet 5 delegated the search to a subagent, whose own context is not counted here — that 47,709 is a floor.
+The no-tree agent on Sonnet 5 delegated the search to a subagent, whose own context is not counted here — its 5,289 is a floor, not a total.
 
 {% /tab %}
 {% tab label="Billing API · 1.3 MB" %}
@@ -153,9 +154,9 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 
 | Model    |     no tree | tree, run 1 | tree, run 2 |
 | -------- | ----------: | ----------: | ----------: |
-| Sonnet 5 |  47,265 / 2 | 58,972 / 11 | 57,228 / 12 |
-| Opus     | 49,418 / 17 |  42,543 / 8 | 53,551 / 12 |
-| Fable 5  | 59,349 / 24 | 41,588 / 12 | 46,846 / 12 |
+| Sonnet 5 |   4,508 / 2 | 21,767 / 11 | 14,643 / 12 |
+| Opus     | 18,400 / 17 |  16,758 / 8 | 22,389 / 12 |
+| Fable 5  | 28,016 / 24 | 15,485 / 12 | 15,371 / 12 |
 
 What the tree agent ran:
 
@@ -226,7 +227,7 @@ npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=Pla
 {% /tabs %}
 
 Both agents correct, including the `anyOf` plan choice and the `Orders` tag.
-This is the description where the index is worked hardest — a subscription pulls in a dozen schemas — and the one where results split: `tree` wins clearly on Fable 5 (which otherwise spends 24 actions grepping), and loses to Sonnet 5, whose no-tree run again delegated to an uncounted subagent.
+This is the description where the index is worked hardest — a subscription pulls in a dozen schemas — and the one where results split: `tree` wins clearly on Fable 5 (which otherwise spends 24 actions grepping), and cannot be compared on Sonnet 5, whose no-tree run again handed the work to an uncounted subagent.
 
 {% /tab %}
 {% tab label="Cafe API · 41 KB" %}
@@ -264,9 +265,9 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 
 | Model    |    no tree | tree, run 1 | tree, run 2 |
 | -------- | ---------: | ----------: | ----------: |
-| Sonnet 5 | 59,245 / 1 |  44,631 / 6 |  50,034 / 7 |
-| Opus     | 47,920 / 2 |  35,756 / 5 | 42,227 / 12 |
-| Fable 5  | 48,150 / 1 |  35,581 / 8 |  39,967 / 7 |
+| Sonnet 5 | 16,502 / 1 |   7,437 / 6 |   7,464 / 7 |
+| Opus     | 16,916 / 2 |   9,982 / 5 | 11,079 / 12 |
+| Fable 5  | 16,829 / 1 |   9,489 / 8 |   8,499 / 7 |
 
 What the tree agent ran:
 
@@ -318,37 +319,38 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
 {% /tabs %}
 
 On a file this small the no-tree agent simply reads it whole — one action.
-It still loses on tokens by 12–25%: the file is 41 KB of context, while a handful of cards is a few kilobytes. This is the most consistent result in the grid, reproduced on all three models.
+That read is the whole cost: 16,500–16,900 tokens of context against 7,400–11,100 through cards. Halving what the task costs is the most consistent result in the grid, reproduced on all three models and both tree runs.
 
 {% /tab %}
 {% /tabs %}
 
 ## The grid in one view
 
-Session tokens, no tree against the range across the two tree runs:
+Context the task added, no tree against the two tree runs:
 
-| Description | Model    | no tree |          tree | Difference |
-| ----------- | -------- | ------: | ------------: | ---------: |
-| GitHub REST | Sonnet 5 |  47,709 | 46,375–52,119 |     −3…+9% |
-| GitHub REST | Opus     |  41,245 | 34,315–41,771 |    −17…+1% |
-| GitHub REST | Fable 5  |  41,765 | 33,986–38,569 |    −19…−8% |
-| Billing API | Sonnet 5 |  47,265 | 57,228–58,972 |   +21…+25% |
-| Billing API | Opus     |  49,418 | 42,543–53,551 |    −14…+8% |
-| Billing API | Fable 5  |  59,349 | 41,588–46,846 |   −30…−21% |
-| Cafe API    | Sonnet 5 |  59,245 | 44,631–50,034 |   −25…−16% |
-| Cafe API    | Opus     |  47,920 | 35,756–42,227 |   −25…−12% |
-| Cafe API    | Fable 5  |  48,150 | 35,581–39,967 |   −26…−17% |
+| Description | Model    | no tree |            tree | Difference |
+| ----------- | -------- | ------: | --------------: | ---------: |
+| GitHub REST | Sonnet 5 | 5,289\* |   9,186 · 9,554 |          — |
+| GitHub REST | Opus     |  10,245 |  8,546 · 10,630 |    −17…+4% |
+| GitHub REST | Fable 5  |  10,445 |   7,899 · 7,106 |   −32…−24% |
+| Billing API | Sonnet 5 | 4,508\* | 21,767 · 14,643 |          — |
+| Billing API | Opus     |  18,400 | 16,758 · 22,389 |    −9…+22% |
+| Billing API | Fable 5  |  28,016 | 15,485 · 15,371 |   −45…−45% |
+| Cafe API    | Sonnet 5 |  16,502 |   7,437 · 7,464 |   −55…−55% |
+| Cafe API    | Opus     |  16,916 |  9,982 · 11,079 |   −41…−34% |
+| Cafe API    | Fable 5  |  16,829 |   9,489 · 8,499 |   −44…−49% |
+
+\* Not comparable: these two no-tree runs spent two actions each because they handed the task to a subagent, whose own context is not counted here.
 
 All 27 answers were correct, on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 That is the first result: an agent that never opens the file answers as well as one that reads it.
 
-**The index wins outright on six of nine cells**, by 8% to 30%, and the win is most consistent where the description is small enough that a no-tree agent reads it whole: the Cafe API costs 12–26% less through cards on every model, because 41 KB of file is more context than a handful of cards.
+**Where a baseline has to ingest the description, the index halves the cost.**
+The Cafe API is 41 KB — small enough to read whole, and every no-tree run does exactly that in one action for ~16,800 tokens. The same answer through cards costs 7,400–11,100, on all three models and in both tree runs. The billing API on Fable 5 is the same shape at a larger scale: 24 actions of grepping and reading for 28,016, against 15,400 through the index.
 
-**Two cells are a tie** — GitHub on Sonnet 5 and the billing API on Opus, where the two tree runs straddle the baseline. At that distance a single run says nothing; both are inside the repeat spread.
+**Where the baseline greps well, it is a wash.** GitHub on Opus lands within 4% either way, and the billing API on Opus straddles the line — that agent ran 17 targeted `grep`/`sed` calls and paid about what the cards cost.
 
-**One cell loses**: the billing API on Sonnet 5, and it is the least comparable of the nine. That no-tree run spent two actions — it handed the task to a subagent, whose own context is not counted in `session`, so 47,265 is a floor, not a total. The same delegation happened in the GitHub Sonnet 5 baseline.
-
-**Actions tell a steadier story than tokens.** On the two large descriptions the index costs 5–12 calls against 8–24, and every one of them is bounded: an operation card, a component card, a search. The no-tree runs that grep well are cheap; the ones that grep badly (Fable 5 on the billing API: 24 actions, 59,349) are the worst cells in the grid.
+**Actions are the steadier signal**: 5–12 bounded calls against 8–24 searches on the large descriptions, and each one is a card, a listing, or a search rather than a guess at a line range.
 
 ## Other measured runs, one line each
 
@@ -366,12 +368,12 @@ The last three ran against earlier builds with a different measurement script; r
 
 ## Notes
 
-- Reproducing: every run is `claude -p` with `--allowedTools "Bash Read Grep Glob"`, started in an empty directory, with the description outside any repository so no `AGENTS.md` or `CLAUDE.md` is loaded. The kit that holds the prompts and the measuring script is linked from the [command reference](../commands/tree.md).
-- Measure by session id, not by "the newest transcript": the run's own JSON result carries `session_id`, and that is the only safe way to pair a run with its transcript. An earlier version of this page reported numbers paired the unsafe way, and they were wrong.
-- One assistant turn can be written to the transcript as several records — thinking, text, and the tool call — that repeat the same usage block. Counting records instead of turns inflates output and turn counts; `session` and action counts are unaffected.
-- Floors, not totals, in two cells: the no-tree agents on Sonnet 5 delegated the GitHub and billing tasks to a subagent, whose context is not counted in `session`.
+- Reproducing: every run is `claude -p` with `--allowedTools "Bash Read Grep Glob"`, started in an empty directory, with the description outside any repository so no `AGENTS.md` or `CLAUDE.md` is loaded.
+- Measure the delta, not the total. A run's first-turn context — system prompt plus task prompt — moved by 5,400 tokens between two batches measured 20 minutes apart, on every model at once, without anything in the prompts changing. Raw session totals from different batches cannot be compared; context added by the run can.
+- Pair a run with its transcript by the `session_id` in its own JSON result. Picking "the newest transcript" silently attaches the wrong file, and an earlier version of this page reported numbers gathered that way.
+- One assistant turn can be written to the transcript as several records — thinking, text, and the tool call — repeating the same usage block. Counting records instead of turns inflates output and turn counts.
+- Floors, not totals, in two cells: the no-tree agents on Sonnet 5 delegated the GitHub and billing tasks to a subagent, whose context is not counted.
 - `npx -y @redocly/cli@<version>` printed the update-available banner to `stderr` on every call — 684 bytes of agent context per call. That is now suppressed for `--format=ai`; on an older build, set `REDOCLY_SUPPRESS_UPDATE_NOTICE=true`.
 - The tree runs need the build where every `ai` view ends with a `next:` line. Without it an agent that starts from a card has no in-band way to find its next call.
-- Variance: repeats of the same cell differ by up to ±15% of session depending on the trajectory the agent picks. Differences below that are not results.
-- Session is not the bill: every action re-sends the context, so billed cache reads on the billing-API runs were 4+ million tokens per run — fewer actions is the real saving.
+- Session is not the bill: every action re-sends the whole context, so billed cache reads on the billing-API runs were 4+ million tokens per run — fewer actions is the real saving.
 - Where the advantage is: bounded, repeatable actions and answers that carry their own coordinates. Where it isn't: a description a model can grep well, and a baseline that quietly spends a subagent's context.
