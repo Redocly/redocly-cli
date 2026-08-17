@@ -271,9 +271,14 @@ With `codeSamples: true` in the `client` block, generation collects the samples 
 This file is an [OpenAPI Overlay](https://spec.openapis.org/overlay/latest.html) that adds `x-codeSamples` to each operation.
 Docs tooling can apply the file.
 
-The built-in `typescript` generator is the reference implementation.
+The built-in `typescript` generator implements the hook.
 If you only set the flag, your Redoc docs get a TypeScript example for each operation.
 These examples always agree with the SDK.
+
+Do not read the built-in TypeScript generators as a model for your own.
+Each one is a short entry over renderers that are internal to the package, so you cannot import the parts it uses.
+The runnable examples at the end of this page are the model to copy.
+They use only the public toolkit.
 
 Your generator also receives these hooks.
 `run` gets `samples`, the `sample` hook of every selected generator, keyed by generator name.

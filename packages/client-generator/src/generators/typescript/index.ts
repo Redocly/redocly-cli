@@ -29,7 +29,7 @@ export const typescriptGenerator: Generator = ({ model, outputPath, outputMode, 
   return [{ path: outputPath, content: emitClientSingleFile(model, emit) }];
 };
 
-/** One idiomatic TS call per operation — the `x-codeSamples` reference implementation. */
+/** One idiomatic TS call per operation, for `x-codeSamples` and the SDK reference pages. */
 export function typescriptSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const ident = packageIdents(ctx.model).get(op.name) ?? op.name;
   const requiredQuery = op.queryParams.filter((param) => param.required);
