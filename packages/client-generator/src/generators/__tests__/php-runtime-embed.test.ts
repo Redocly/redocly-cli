@@ -27,7 +27,7 @@ describe('PHP_RUNTIME_SOURCE (the embedded PHP runtime)', () => {
 
   it.skipIf(!hasPhp)('the runtime module passes php -l', () => {
     const result = spawnSync('php', ['-l', 'runtime.php'], {
-      cwd: join(pkgRoot, 'php-runtime'),
+      cwd: join(pkgRoot, 'runtime', 'php'),
       encoding: 'utf-8',
     });
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);

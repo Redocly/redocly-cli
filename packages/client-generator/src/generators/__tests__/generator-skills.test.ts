@@ -45,7 +45,7 @@ describe.each(LANGUAGE)('%s generator skill ships to users', (name) => {
   const skillPath = join(generatorsDir, name, 'AGENTS.md');
 
   it('names its runtime', () => {
-    expect(readFileSync(skillPath, 'utf-8')).toContain(`${name}-runtime/`);
+    expect(readFileSync(skillPath, 'utf-8')).toContain(`runtime/${name}/`);
   });
 
   it('ships without repo-only references — the user has no index.ts, prepare, or vitest', () => {

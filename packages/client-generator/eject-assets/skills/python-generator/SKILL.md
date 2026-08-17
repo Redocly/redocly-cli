@@ -55,7 +55,7 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Parity surface:** auth (bearer/basic/apiKey), retries with `Retry-After` + jittered
   backoff, timeouts, idempotency keys, middleware, pagination (`<op>_pages()` /
   `<op>_items()` + `aiter` mirrors), SSE (`iter_sse`/`aiter_sse`), multipart.
-- The runtime is hand-written in `python-runtime/*.py` and embedded as strings at prepare
+- The runtime is hand-written in `runtime/python/*.py` and embedded as strings at prepare
   time — generator code never builds runtime logic from templates.
 - Authored ONLY with the neutral toolkit (`Printer`, naming, schema, pagination helpers) —
   the dogfooding guard fails otherwise.

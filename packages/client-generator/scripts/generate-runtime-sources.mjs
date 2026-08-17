@@ -75,7 +75,7 @@ function declaredNames() {
   return [...names].sort();
 }
 
-// The Python runtime (python-runtime/*.py) embeds the same way: hand-authored
+// The Python runtime (runtime/python/*.py) embeds the same way: hand-authored
 // once, stitched into every generated Python client by the python generator.
 const PYTHON_MODULES = [
   '_errors',
@@ -87,7 +87,7 @@ const PYTHON_MODULES = [
   '_sse',
   '_multipart',
 ];
-const pythonDir = join(pkgRoot, 'python-runtime');
+const pythonDir = join(pkgRoot, 'runtime', 'python');
 const pythonOut = join(pkgRoot, 'src', 'emitters', 'python-runtime-sources.ts');
 const pythonEntries = PYTHON_MODULES.map((name) => {
   const source = readFileSync(join(pythonDir, `${name}.py`), 'utf-8');
@@ -108,7 +108,7 @@ writeFileSync(
 );
 
 // The Go runtime embeds the same way (a single stdlib-only module).
-const goDir = join(pkgRoot, 'go-runtime');
+const goDir = join(pkgRoot, 'runtime', 'go');
 const goOut = join(pkgRoot, 'src', 'emitters', 'go-runtime-sources.ts');
 const goSource = readFileSync(join(goDir, 'runtime.go'), 'utf-8');
 writeFileSync(
@@ -122,7 +122,7 @@ writeFileSync(
 );
 
 // The PHP runtime embeds the same way (a single curl-only module).
-const phpDir = join(pkgRoot, 'php-runtime');
+const phpDir = join(pkgRoot, 'runtime', 'php');
 const phpOut = join(pkgRoot, 'src', 'emitters', 'php-runtime-sources.ts');
 const phpSource = readFileSync(join(phpDir, 'runtime.php'), 'utf-8');
 writeFileSync(

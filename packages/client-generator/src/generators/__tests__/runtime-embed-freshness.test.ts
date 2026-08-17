@@ -17,17 +17,17 @@ const STALE = 'stale embed — run `npm run prepare -w @redocly/client-generator
 
 describe('embedded runtimes match their source files', () => {
   it('go', () => {
-    const source = readFileSync(join(pkgRoot, 'go-runtime/runtime.go'), 'utf-8');
+    const source = readFileSync(join(pkgRoot, 'runtime/go/runtime.go'), 'utf-8');
     expect(GO_RUNTIME_SOURCE, STALE).toBe(source);
   });
 
   it('php', () => {
-    const source = readFileSync(join(pkgRoot, 'php-runtime/runtime.php'), 'utf-8');
+    const source = readFileSync(join(pkgRoot, 'runtime/php/runtime.php'), 'utf-8');
     expect(PHP_RUNTIME_SOURCE, STALE).toBe(source);
   });
 
   it('python — every module, and no module missing from the snapshot', () => {
-    const dir = join(pkgRoot, 'python-runtime');
+    const dir = join(pkgRoot, 'runtime', 'python');
     const onDisk = readdirSync(dir).filter((name) => name.endsWith('.py'));
     expect(Object.keys(PYTHON_RUNTIME_SOURCES).sort(), STALE).toEqual(onDisk.sort());
     const embedded: Record<string, string> = PYTHON_RUNTIME_SOURCES;
