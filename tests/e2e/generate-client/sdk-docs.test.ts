@@ -63,6 +63,28 @@ describe('generate-client sdk-docs generator (end-to-end)', () => {
     expect(go).not.toContain('client.list_orders(');
   });
 
+  it('notes the behavior an SDK call has beyond a plain JSON request', () => {
+    // listOrders declares x-redoclyPagination; the note must come from the resolver the
+    // language SDKs use, so a page never disagrees with the SDK next to it.
+    expect(python).toContain('This operation is paginated');
+    expect(go).toContain('This operation is paginated');
+
+    const streaming = mkdtempSync(join(tmpdir(), 'sdk-docs-sse-'));
+    try {
+      generate(join(__dirname, 'fixtures/sse.yaml'), join(streaming, 'client.ts'), [
+        '--generator',
+        'python',
+        '--generator',
+        'sdk-docs',
+      ]);
+      expect(readFileSync(join(streaming, 'client.python.md'), 'utf-8')).toContain(
+        'streams server-sent events'
+      );
+    } finally {
+      rmSync(streaming, { recursive: true, force: true });
+    }
+  });
+
   it('carries the parameters, the body, and the security schemes from the description', () => {
     expect(python).toContain('| `status` | query |');
     expect(python).toContain('| `orderId` | path |');

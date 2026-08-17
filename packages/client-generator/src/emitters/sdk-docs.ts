@@ -3,6 +3,7 @@
 // snippets. It writes no call syntax of its own — a second spelling of the SDK would
 // drift from it the first time either side changed.
 
+import { paginationRuleFor } from '../authoring/pagination.js';
 import { Printer } from '../authoring/printer.js';
 import type { CodeSample } from '../generators/types.js';
 import type {
@@ -11,7 +12,7 @@ import type {
   ParamModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
-import { resolveModelPagination, type PaginationConfig } from './pagination.js';
+import type { PaginationConfig } from './pagination.js';
 
 /** What this generator knows about a language that the IR cannot tell it. */
 export type SdkDocsLanguage = {
@@ -74,6 +75,18 @@ function typeLabel(schema: SchemaModel): string {
   }
 }
 
+/** Binary success content with no JSON alternative — the same test the clients apply. */
+function isBinary(op: OperationModel): boolean {
+  if (op.successResponses.some((response) => response.contentType.toLowerCase().includes('json'))) {
+    return false;
+  }
+  return op.successResponses.some(
+    (response) =>
+      response.contentType.startsWith('image/') ||
+      response.contentType === 'application/octet-stream'
+  );
+}
+
 function writeParameterTable(printer: Printer, params: ParamModel[]): void {
   printer.line('| Parameter | In | Type | Required | Description |');
   printer.line('| --------- | -- | ---- | -------- | ----------- |');
@@ -87,12 +100,7 @@ function writeParameterTable(printer: Printer, params: ParamModel[]): void {
   printer.blank();
 }
 
-function writeOperation(
-  printer: Printer,
-  op: OperationModel,
-  options: SdkDocsOptions,
-  paginated: boolean
-): void {
+function writeOperation(printer: Printer, op: OperationModel, options: SdkDocsOptions): void {
   printer.line(`### \`${op.specName ?? op.name}\``);
   printer.blank();
   if (op.summary !== undefined) {
@@ -124,8 +132,17 @@ function writeOperation(
       ? 'Returns no content.'
       : `Returns \`${success.contentType}\`, of type ${typeLabel(success.schema)}.`
   );
-  if (paginated) {
+  // The same three declaration-level facts every SDK reads: `paginationRuleFor` is the
+  // helper the language generators resolve pagination with, and the success content type
+  // is what decides a streaming or a binary response.
+  if (paginationRuleFor(op, options.pagination as Record<string, unknown> | undefined)) {
     printer.line('This operation is paginated, so the SDK gives it page and item iterators.');
+  }
+  if (op.successResponses.some((response) => response.contentType === 'text/event-stream')) {
+    printer.line('This operation streams server-sent events, so the SDK iterates the events.');
+  }
+  if (isBinary(op)) {
+    printer.line('This operation returns binary content.');
   }
   printer.blank();
 }
@@ -177,13 +194,12 @@ export function renderSdkDocs(model: ApiModel, options: SdkDocsOptions): string 
   // One section per tag, in the order the description declares them, then the untagged
   // operations — the same grouping the CLI and the split output modes use.
   const operations = model.services.flatMap((service) => service.operations);
-  const paginated = resolveModelPagination(model, options.pagination);
   const groups = [...new Set(operations.map((op) => op.tags[0]))];
   for (const group of groups) {
     printer.line(group === undefined ? '## Operations' : `## ${group}`);
     printer.blank();
     for (const op of operations.filter((candidate) => candidate.tags[0] === group)) {
-      writeOperation(printer, op, options, paginated.has(op.name));
+      writeOperation(printer, op, options);
     }
   }
   return (

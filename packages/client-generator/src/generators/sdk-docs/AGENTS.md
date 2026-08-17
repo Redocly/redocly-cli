@@ -21,6 +21,11 @@ the request body, the response type, and the behavior notes (paginated, SSE, bin
   generator never writes Python, Go, PHP, or TypeScript itself. A page that spelled out
   call syntax would state the SDK a second time and would lie the first time the SDK
   changed.
+- **Pagination comes from the SDK's own resolver.** `paginationRuleFor` (the authoring
+  helper the `python`, `go`, and `php` generators resolve pagination with) decides the
+  note, so the page marks exactly the operations those SDKs paginate. The TypeScript
+  verifier, `resolveModelPagination`, would throw on a rule it cannot verify against the
+  response schema, and that would fail a python-only run over a page.
 - **The hooks arrive as data.** The pipeline passes `samples` (the `sample` hook of every
   selected generator, keyed by generator name) in `GeneratorInput`. Importing the language
   generators instead would pull all four of them into this module and into the file
