@@ -39,6 +39,7 @@ export const EJECTABLE = new Set([
   'transformers',
   'cli',
   'cli-docs',
+  'sdk-docs',
 ]);
 
 /**

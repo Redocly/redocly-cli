@@ -98,6 +98,21 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
         options: m.cliDocsOptions,
       })),
   },
+  // sdk-docs renders one Markdown page per SDK selected beside it. It requires nothing:
+  // `requires` cannot say "one of typescript, python, go, php", and pulling an SDK in
+  // because docs were asked for would emit a whole SDK nobody selected.
+  'sdk-docs': {
+    notApplicable: {
+      outputMode: 'it emits one Markdown page per SDK',
+      importExt: 'a Markdown page has no imports',
+      runtime: 'a Markdown page embeds no runtime',
+    },
+    load: () =>
+      import('./sdk-docs/index.js').then((m) => ({
+        run: m.sdkDocsGenerator,
+        options: m.sdkDocsOptions,
+      })),
+  },
   // python emits a standalone full Python SDK (httpx) — no TypeScript involved,
   // so a python-only selection never loads the `typescript` package.
   python: {

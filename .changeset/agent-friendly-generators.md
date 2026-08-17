@@ -3,7 +3,7 @@
 '@redocly/cli': minor
 ---
 
-Added agent-friendly client generation: `python`, `go`, `php`, `cli`, and `cli-docs` generators in addition to TypeScript generators.
+Added agent-friendly client generation: `python`, `go`, `php`, `cli`, `cli-docs`, and `sdk-docs` generators in addition to TypeScript generators.
 
 Added composable generated CLIs (custom commands, one binary over several APIs via `client.cliOutput`).
 

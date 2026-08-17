@@ -171,6 +171,12 @@ const TYPESCRIPT = [
     options: 'cliDocsOptions',
   },
   {
+    name: 'sdk-docs',
+    imports: ['sdkDocsGenerator', 'sdkDocsOptions'],
+    run: 'sdkDocsGenerator',
+    options: 'sdkDocsOptions',
+  },
+  {
     name: 'tanstack-query',
     imports: ['tanstackQueryGenerator'],
     run: "tanstackQueryGenerator('react')",

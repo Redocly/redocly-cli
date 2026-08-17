@@ -23,6 +23,7 @@ Incompatible selections fail immediately with an explanation.
 | `transformers`   | `<output>.transformers.ts`: `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                  | none                                                     |
 | `cli`            | `<output>.cli.ts`: a [command-line interface](#generated-cli) for the client, ready to use as a bin. It has typed flags, `--json` bodies, env auth, and `--page-all`.                                                                                     | none                                                     |
 | `cli-docs`       | `<output>.cli.md`: a Markdown [reference for the generated CLI](#cli-reference-docs). It lists every command, flag, exit code, and credential variable.                                                                                                   | none                                                     |
+| `sdk-docs`       | `<output>.<language>.md`: a Markdown [reference for each selected SDK](#sdk-reference-docs). It lists every operation with its parameters and a call sample in that language.                                                                             | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator zod --generator mock
@@ -163,9 +164,13 @@ const login: CustomCommand = {
 process.exit(await runCli([{ commands: [login] }, ...SOURCES], process.argv.slice(2)));
 ```
 
-The CLI resolves credentials from `wiring.env`.
-A wrapper that reads a credentials file merges the file into that env (`env: { ...process.env, ...stored }`).
-Then a stored token behaves the same as a token set in the shell.
+The CLI reads credentials from `wiring.env`.
+The generated entry sets this field to `process.env`, and the composed entry keeps that value.
+If your wrapper keeps a token in a file, write the token to `process.env` before the wrapper runs a command.
+Use `Object.assign(process.env, stored)`.
+The CLI then reads the token in the same way as a variable from the shell.
+If the wrapper must not change the global environment, give the source its own env:
+`{ ...source, wiring: { ...source.wiring, env: { ...process.env, ...stored } } }`.
 The generator itself supplies no credential store and no login command.
 The auth flow of each API is different, so you supply these parts.
 This section shows the procedure.
@@ -345,6 +350,33 @@ For example, `Error` becomes `Error_2` in the Python SDK too, although Python ac
 As a result, the TypeScript, Python, PHP, and Go clients of an API share one vocabulary.
 The generator reports each rename with its cause.
 A publisher who wants a different name can rename the schema or the operation in the description.
+
+#### SDK reference docs
+
+The `sdk-docs` generator writes one Markdown page for each SDK in the same run.
+The page for the `python` generator is `<output>.python.md`, and the page for the `go` generator is `<output>.go.md`.
+Each page starts with the API title, the security schemes, and the requirements of that language.
+Then it gives one section for each operation.
+A section shows the method and path, the parameters, the request body, the response type, and a call sample in that language.
+
+The call sample comes from the SDK generator itself, through the same hook that produces `codeSamples`.
+Because of this, the page shows the syntax of the SDK next to it, and it cannot drift from that SDK.
+Select `sdk-docs` together with at least one SDK generator: `typescript`, `python`, `go`, or `php`.
+If you select `sdk-docs` alone, the command stops and tells you to add an SDK generator.
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts --generator python --generator go --generator sdk-docs
+```
+
+Two options control the pages, under `client.options.sdk-docs`:
+
+| Option        | Type    | Description                                                                                                                                              |
+| ------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`       | string  | The page heading. The default is `<API title> <language> SDK reference`. If you select more than one SDK, the generator adds the language to your title. |
+| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. The default is `false`.                                               |
+
+For a different structure or wording, [eject the generator](../commands/eject-generator.md).
+The renderer is the template, the same as for `cli-docs`.
 
 ## Package runtime
 

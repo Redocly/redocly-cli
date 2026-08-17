@@ -29,6 +29,7 @@ export type GeneratorName =
   | 'mock'
   | 'cli'
   | 'cli-docs'
+  | 'sdk-docs'
   | 'python'
   | 'go'
   | 'php';
@@ -64,6 +65,15 @@ export type GeneratorInput = {
   emit: EmitOptions;
   /** Every generator name in the run — lets a generator adapt to co-selection (cli wires zod validation when `zod` is selected). */
   selected?: string[];
+  /**
+   * The `sample` hook of every selected generator that declares one, keyed by generator
+   * name. A docs generator renders each SDK's own call snippet from these instead of
+   * importing the SDK generators, which would pull all of them into its bundle.
+   */
+  samples?: Record<
+    string,
+    (operation: OperationModel, ctx: SampleContext) => CodeSample | undefined
+  >;
   /**
    * This generator's own options from `client.options.<name>`, already validated against
    * the schema it declares with defaults applied — a generator reads them without re-checking.

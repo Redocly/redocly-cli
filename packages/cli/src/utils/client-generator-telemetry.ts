@@ -30,6 +30,7 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
   'mock',
   'cli',
   'cli-docs',
+  'sdk-docs',
   'python',
   'go',
   'php',

@@ -49,6 +49,13 @@ export function runGenerators(
   // Every emitted path must stay under the --output directory: generator modules are
   // user-chosen code, but a stray `../` or absolute path must not write elsewhere.
   const outputRoot = resolve(dirname(options.outputPath));
+  // The sample hooks of this run, so a docs generator renders each SDK's own call snippet
+  // without importing the SDK generators.
+  const samples: Record<string, NonNullable<GeneratorDescriptor['sample']>> = {};
+  for (const name of options.generators) {
+    const sample = options.registry.get(name)!.sample;
+    if (sample !== undefined) samples[name] = sample;
+  }
   for (const name of options.generators) {
     const generator = options.registry.get(name)!;
     let generated: GeneratedFile[];
@@ -59,6 +66,7 @@ export function runGenerators(
         outputMode: options.outputMode,
         emit: options.emit,
         selected: options.generators,
+        samples,
         options: options.generatorOptions?.get(name) ?? {},
       });
     } catch (error) {

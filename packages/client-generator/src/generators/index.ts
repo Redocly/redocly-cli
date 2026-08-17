@@ -6,6 +6,7 @@ import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock/index.js';
 import { phpGenerator, phpSample } from './php/index.js';
 import { pythonGenerator, pythonSample } from './python/index.js';
+import { sdkDocsGenerator } from './sdk-docs/index.js';
 import { swrGenerator } from './swr/index.js';
 import { tanstackQueryGenerator } from './tanstack-query/index.js';
 import { transformersGenerator } from './transformers/index.js';
@@ -37,6 +38,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   mock: { run: mockGenerator },
   cli: { run: cliGenerator, sample: cliSample },
   'cli-docs': { run: cliDocsGenerator },
+  'sdk-docs': { run: sdkDocsGenerator },
   python: { run: pythonGenerator, sample: pythonSample },
   go: { run: goGenerator, sample: goSample },
   php: { run: phpGenerator, sample: phpSample },

@@ -275,6 +275,11 @@ The built-in `typescript` generator is the reference implementation.
 If you only set the flag, your Redoc docs get a TypeScript example for each operation.
 These examples always agree with the SDK.
 
+Your generator also receives these hooks.
+`run` gets `samples`, the `sample` hook of every selected generator, keyed by generator name.
+A generator that writes documentation calls them instead of writing call syntax for a language it does not own.
+The built-in `sdk-docs` generator works this way.
+
 Import-specifier generators execute at generation time.
 They have the same trust level as any installed dependency that you run.
 
