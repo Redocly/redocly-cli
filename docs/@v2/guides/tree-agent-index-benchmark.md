@@ -355,33 +355,17 @@ What the same runs were billed:
 
 ## How this was measured
 
-Every run is a fresh session of an agent — Claude Code, driven from the command line with the task text as its only input.
-The agent may run shell commands, read files and search them; nothing else is prepared for it.
-Sessions start in an empty directory, and the API descriptions sit outside any repository, so no `AGENTS.md`, `CLAUDE.md` or other project instructions reach the model.
-The tree runs call a published `@redocly/cli` snapshot through `npx`.
-Each cell is one run, and both tables report that same run. All 18 answers were checked and correct on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
+Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
+Sessions start in an empty directory with the description outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call a published `@redocly/cli` snapshot through `npx`.
+Each cell is one run, both tables report that same run, and all 18 answers were checked and correct on both sides.
 
-**context** — read from the run's transcript, `~/.claude/projects/<directory>/<session_id>.jsonl`, taking the `assistant` records that carry a `message.usage`.
-A turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`: the three are disjoint and add up to the prompt the model was handed on that turn.
-The table gives the last turn's context minus the first turn's. The first turn is the system prompt plus the task, before any tool has run, so the subtraction drops a fixed 26,000 to 43,000 tokens — identical in both conditions, and drifting by thousands between batches.
-Several records can repeat one `message.id`, because thinking, text and the tool call are written separately; they are counted once.
+**context** — from the run's transcript, `~/.claude/projects/<directory>/<session_id>.jsonl`, over the `assistant` records that carry a `message.usage`.
+A turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, which is the whole prompt the model was handed on that turn; the table gives the last turn's minus the first turn's.
+The first turn is the system prompt plus the task, so the subtraction drops 26,000 to 43,000 tokens that are identical in both conditions and drift between batches.
 
-**actions** — the number of `tool_use` blocks in those same records. One shell call can chain several commands with `;`, so a run's command list is sometimes longer.
+**actions** — `tool_use` blocks in those same records. One shell call can chain several commands with `;`, so a run's command list is sometimes longer.
 
-**cost** — `total_cost_usd` from the JSON the run itself prints, exactly as the CLI reports it. Nothing is recomputed here.
-Cached reads bill at about a tenth of fresh input, so this counts the same tokens from the billing side. Model prices differ, so amounts compare across a row and not down a column.
+**cost** — `total_cost_usd` as the run itself reports it, not recomputed here. Prices differ per model, so amounts compare across a row, not down a column.
 
-**not used: the run's token totals.**
-A session also reports summed `usage` across all turns. That total counts the context once per turn, so it grows with the number of turns rather than the material pulled in — on the Cafe API it makes the index look 63–79% worse, against both tables here and the invoice.
-
-**A run that hands the work to a sub-agent does not count as cheap.**
-An agent can delegate, and the session then reports only its own context, not the sub-agent's.
-Such a run finishes in two calls and looks like the cheapest cell in the grid, while the work it paid for is invisible. Those runs are discarded and repeated; it happens on the two large descriptions with Sonnet 5.
-
-**Repeats vary, unevenly.**
-Repeating a cell through the index lands within a few percent; repeating it without the index swings by up to 83%, because the agent invents a fresh search strategy every time — one billing-API baseline was measured at 18,476 and 27,437 on different days.
-Treat any difference under about 15% of context as noise, including the GitHub Opus row.
-
-**Where the advantage is, and where it is not.**
-It is in bounded, repeatable calls and in answers that carry their own file and line coordinates, so anything can be checked against the source.
-It is not in descriptions a model can grep well: on a famous API where a first guess at a search term lands, an index and a `grep` cost about the same.
+**Noise.** Repeating a cell through the index lands within a few percent, without it by up to 83% — one billing-API baseline measured 18,476 and 27,437 on different days — so treat anything under about 15% of context as a tie.
+A no-tree run that finishes in two calls on a large description has usually handed the task to a sub-agent, whose context is not reported; those are discarded and repeated.
