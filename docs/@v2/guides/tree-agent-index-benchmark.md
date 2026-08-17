@@ -325,60 +325,70 @@ That read is the whole cost: ~16,850 tokens of context on every model, against 7
 
 ## The grid in one view
 
-| Description | Model    |     no tree |        tree | Context | Cost |
-| ----------- | -------- | ----------: | ----------: | ------: | ---: |
-| GitHub REST | Sonnet 5 | 10,523 / 11 |   9,459 / 6 |    −10% | −25% |
-| GitHub REST | Opus     |  9,024 / 10 |   9,298 / 7 |     +3% |  +5% |
-| GitHub REST | Fable 5  |   8,762 / 7 |   7,226 / 5 |    −18% | −17% |
-| Billing API | Sonnet 5 | 24,814 / 31 | 22,106 / 15 |    −11% | −46% |
-| Billing API | Opus     | 19,435 / 17 | 18,512 / 10 |     −5% | −18% |
-| Billing API | Fable 5  | 18,476 / 22 | 15,304 / 12 |    −17% | −42% |
-| Cafe API    | Sonnet 5 |  16,841 / 1 |   7,397 / 7 |    −56% | −49% |
-| Cafe API    | Opus     |  16,916 / 2 |   9,375 / 4 |    −45% |  −3% |
-| Cafe API    | Fable 5  |  16,840 / 1 |   8,181 / 7 |    −51% |  −4% |
+Context the run added, and the tool calls it took:
 
-All 18 answers were correct, on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
-That is the first result: an agent that never opens the file answers as well as one that reads it.
+| Description | Model    |     no tree |        tree | Difference |
+| ----------- | -------- | ----------: | ----------: | ---------: |
+| GitHub REST | Sonnet 5 | 10,523 / 11 |   9,459 / 6 |       −10% |
+| GitHub REST | Opus     |  9,024 / 10 |   9,298 / 7 |        +3% |
+| GitHub REST | Fable 5  |   8,762 / 7 |   7,226 / 5 |       −18% |
+| Billing API | Sonnet 5 | 24,814 / 31 | 22,106 / 15 |       −11% |
+| Billing API | Opus     | 19,435 / 17 | 18,512 / 10 |        −5% |
+| Billing API | Fable 5  | 18,476 / 22 | 15,304 / 12 |       −17% |
+| Cafe API    | Sonnet 5 |  16,841 / 1 |   7,397 / 7 |       −56% |
+| Cafe API    | Opus     |  16,916 / 2 |   9,375 / 4 |       −45% |
+| Cafe API    | Fable 5  |  16,840 / 1 |   8,181 / 7 |       −51% |
 
-**The index is cheaper in eight of nine cells on both metrics, and they agree on the ninth too** — GitHub on Opus, where a first `grep` that lands well returns about as little as a card does, and the index costs 3–5% more.
+All 18 answers were correct on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice: an agent that never opens the file answers as well as one that reads it.
+The index costs less context in eight of nine cells, and the size of the win tracks how much of the description the other agent has to pull in — half on the 41 KB Cafe API, which it reads whole, and 5–18% on the two large ones, which it can search.
+Tool calls fall everywhere: 6 against 11, 10 against 17, 15 against 31.
 
-**The two metrics measure different halves of the same effect, and the split is informative.**
-On the Cafe API the context saving is large (−45 to −56%) and the money saving is uneven (−3 to −49%): reading a 41 KB file is one big cheap action, so the window fills up without the bill moving much.
-On the billing API it is the other way round — the context saving is modest (−5 to −17%) but the money saving is large (−18 to −46%), because the no-tree agent spends 17 to 31 searches and every one of them re-sends the whole context.
+What the same runs were billed:
 
-**Actions fall in every cell**: 6 against 11, 10 against 17, 15 against 31. That is the mechanism behind the money column, and the reason the index scales to descriptions where a search strategy has to be invented from scratch.
+| Description | Model    | no tree |   tree | Difference |
+| ----------- | -------- | ------: | -----: | ---------: |
+| GitHub REST | Sonnet 5 |  $0.338 | $0.253 |       −25% |
+| GitHub REST | Opus     |  $0.372 | $0.390 |        +5% |
+| GitHub REST | Fable 5  |  $0.703 | $0.586 |       −17% |
+| Billing API | Sonnet 5 |  $0.825 | $0.444 |       −46% |
+| Billing API | Opus     |  $0.720 | $0.592 |       −18% |
+| Billing API | Fable 5  |  $1.665 | $0.964 |       −42% |
+| Cafe API    | Sonnet 5 |  $0.390 | $0.200 |       −49% |
+| Cafe API    | Opus     |  $0.348 | $0.337 |        −3% |
+| Cafe API    | Fable 5  |  $0.635 | $0.610 |        −4% |
+
+The two tables agree cell by cell, including on the one cell the index loses — GitHub on Opus, where a first `grep` that lands well returns about as little as a card does.
+Where they differ is in size, and that is the mechanism showing through: reading a 41 KB file is one cheap action, so the Cafe API saves context without saving much money, while the billing API saves modestly on context and heavily on money, because every one of those 17 to 31 searches re-sends the whole context.
+Dollar amounts compare inside a row only — the same billing-API task costs $0.72 on Opus and $1.67 on Fable 5, which says nothing about the index.
 
 ## How this was measured
 
 Every run is a fresh session of an agent — Claude Code, driven from the command line with the task text as its only input.
-The agent is allowed to run shell commands, read files and search them, and nothing else is prepared for it: no scripts, no cached results, no earlier session to learn from.
-Each session starts in an empty directory, and the API descriptions sit outside any repository, so no `AGENTS.md`, `CLAUDE.md` or other project instructions reach the model.
+The agent may run shell commands, read files and search them, and nothing else is prepared for it: no scripts, no cached results, no earlier session to learn from.
+Sessions start in an empty directory, and the API descriptions sit outside any repository, so no `AGENTS.md`, `CLAUDE.md` or other project instructions reach the model.
 The tree runs call a published `@redocly/cli` snapshot through `npx`.
+Each cell is one run, and both tables report that same run.
 
-**How context is counted.**
-Each API response reports its prompt split three ways — tokens sent fresh, tokens read from the prompt cache, and tokens written to it — and those three add up to the whole context the model was given on that turn.
-A session's first turn is the system prompt plus the task, before any tool has run; its last turn is everything the run accumulated.
-The difference between them is what the table calls context. It is not affected by how many turns the agent took, and the fixed opening cost — 26,000 to 43,000 tokens depending on the model, identical in both conditions — drops out of the comparison.
-That opening cost also drifts on its own: between two batches taken twenty minutes apart it moved by 5,400 tokens on every model at once, with nothing in the prompts changed, which is why the tables never show session totals.
+**The first table: context.**
+Each API response reports its prompt split three ways — tokens sent fresh, tokens read from the prompt cache, and tokens written to it — and the three add up to the whole context the model was handed on that turn.
+A session's first turn is the system prompt plus the task, before any tool has run; its last turn holds everything the run accumulated. The difference between them is the number in the table.
+It does not move with the number of turns an agent takes, and the fixed opening cost — 26,000 to 43,000 tokens depending on the model, identical in both conditions and drifting by thousands between batches — drops out of the subtraction.
 
-**How cost is counted.**
-It is not computed here: the CLI reports `total_cost_usd` for the run, and the table copies it.
-It follows the same tokens from a different angle — cached reads bill at about a tenth of fresh input, so a run that re-sends a small context many times can still cost less than one that pulls in a large context once.
-Because a model's price list is fixed, costs are comparable between the two cells of a row and meaningless between rows: the same billing-API task costs $0.72 on Opus and $1.67 on Fable 5, which says nothing about the index.
+**The second table: cost.**
+Nothing is computed here: the CLI reports `total_cost_usd` for the run and the table copies it.
+It counts the same tokens from the billing side, where a cached read costs about a tenth of fresh input, so it also rewards a run for re-sending less context on each of fewer turns.
+Prices differ per model, so the amounts mean something across a row and nothing down a column.
+
+**What neither table shows is the per-run token total.**
+A session's reported totals count the context once per turn, so they grow with turns rather than with the material pulled in — on the Cafe API that total makes the index look 63–79% worse, while both tables here and the invoice say the opposite.
 
 **A run that hands the work to a sub-agent does not count as cheap.**
-An agent can delegate a task, and the session then reports only its own context, not the sub-agent's.
-Such a run finishes in two calls and looks like the cheapest cell in the grid, while the work it paid for is invisible.
-Those runs are discarded and repeated. It happens on the two large descriptions with Sonnet 5.
+An agent can delegate, and the session then reports only its own context, not the sub-agent's.
+Such a run finishes in two calls and looks like the cheapest cell in the grid, while the work it paid for is invisible. Those runs are discarded and repeated; it happens on the two large descriptions with Sonnet 5.
 
-**One run per cell, and repeats vary unevenly.**
-Every number in the tables comes from a single run, and both metrics come from the same one.
+**Repeats vary, unevenly.**
 Repeating a cell through the index lands within a few percent; repeating it without the index swings by up to 83%, because the agent invents a fresh search strategy every time — one billing-API baseline was measured at 18,476 and 27,437 on different days.
 Treat any difference under about 15% of context as noise, including the GitHub Opus row.
-
-**Do not add the tokens up.**
-The per-run totals a session reports — hundreds of thousands of tokens — count the context once per turn, so they grow with the number of turns rather than with the amount of material pulled in.
-On the Cafe API that total makes the index look 63–79% worse while both metrics in the tables, and the invoice, say it is better.
 
 **Where the advantage is, and where it is not.**
 It is in bounded, repeatable calls and in answers that carry their own file and line coordinates, so anything can be checked against the source.
