@@ -3,6 +3,9 @@
 This file is the generator's DESIGN and governs our own changes: **to change the
 generator, edit this skill first, then make the code match it.**
 
+`npm run prepare` compiles it into `eject-assets/skills/zod-generator/SKILL.md`,
+the copy that ships to users — that asset is generated, so never edit it by hand.
+
 ## What it emits
 
 A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schema, the

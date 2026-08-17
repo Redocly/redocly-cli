@@ -4,6 +4,9 @@ This file is the generator's DESIGN and governs our own changes: **to change the
 generator, edit this skill first, then make the code match it** — a diff with no
 covering sentence here is incomplete.
 
+`npm run prepare` compiles it into `eject-assets/skills/typescript-generator/SKILL.md`,
+the copy that ships to users — that asset is generated, so never edit it by hand.
+
 ## What it emits
 
 The typed TypeScript client itself: model types with JSDoc, type guards, the `Ops`

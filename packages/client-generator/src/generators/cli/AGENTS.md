@@ -3,6 +3,9 @@
 This file is the generator's DESIGN and governs our own changes: **to change the
 generator, edit this skill first, then make the code match it.**
 
+`npm run prepare` compiles it into `eject-assets/skills/cli-generator/SKILL.md`,
+the copy that ships to users — that asset is generated, so never edit it by hand.
+
 ## What it emits
 
 A bin-ready `<stem>.cli.ts`: one command per operation over the sdk's instance client,

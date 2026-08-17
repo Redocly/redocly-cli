@@ -5,6 +5,9 @@ This file is the generator's DESIGN. It ships to users on `redocly eject-generat
 edit this skill first, then make the code match it** — a diff to `index.ts` that has no
 covering sentence here is incomplete.
 
+`npm run prepare` compiles it into `eject-assets/skills/python-generator/SKILL.md`,
+the copy that ships to users — that asset is generated, so never edit it by hand.
+
 ## What it emits
 
 One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an async

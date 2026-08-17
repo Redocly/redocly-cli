@@ -3,6 +3,9 @@
 This file is the generator's DESIGN and governs our own changes: **to change the
 generator, edit this skill first, then make the code match it.**
 
+`npm run prepare` compiles it into `eject-assets/skills/swr-generator/SKILL.md`,
+the copy that ships to users — that asset is generated, so never edit it by hand.
+
 ## What it emits
 
 React SWR hooks over the sdk's exported operation functions: `use<Op>()` with a

@@ -5,6 +5,9 @@ This file is the generator's DESIGN. It ships to users on `redocly eject-generat
 edit this skill first, then make the code match it** — a diff to `index.ts` that has no
 covering sentence here is incomplete.
 
+`npm run prepare` compiles it into `eject-assets/skills/php-generator/SKILL.md`,
+the copy that ships to users — that asset is generated, so never edit it by hand.
+
 ## What it emits
 
 One self-contained `<stem>.php`: promoted-constructor model classes, a `Client` with one
