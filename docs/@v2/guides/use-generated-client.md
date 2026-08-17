@@ -226,6 +226,9 @@ Every capability is the same: typed models with `allOf` flattened, enums, discri
 The SDKs also include [auth](#authentication), retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, and pagination iterators.
 They also include SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
 Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
+Each language names its output in its own way: the Python module comes from the output file name, the PHP namespace comes from the API title, and Go uses `package client` or [`goPackage`](../configuration/reference/client.md).
+If you set an option that a language cannot apply, the generator prints a warning with the option name and the reason.
+The option never disappears silently.
 
 ```python
 from openapi_client import Client
@@ -256,26 +259,6 @@ for order, err := range api.ListOrdersItems(ctx, nil) {
     fmt.Println(order.Id)
 }
 ```
-
-#### Where the languages genuinely differ
-
-The SDKs differ only where the language gives no choice:
-
-| Topic                | TypeScript                         | Python                                 | PHP                                          | Go                                             |
-| -------------------- | ---------------------------------- | -------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
-| Error handling       | `throw` or `result` (`errorMode`)  | `throw` or `result` (`errorMode`)      | exceptions (the error idiom of the language) | `(T, error)` (the error idiom of the language) |
-| Dates (`Date` mode)  | `Date`                             | `datetime` / `date`                    | `\DateTimeImmutable`                         | `time.Time` / `Date`                           |
-| Response headers     | `{ envelope: true }` per call      | `<op>_with_headers()`                  | `<op>WithHeaders()`                          | `<Op>WithHeaders`                              |
-| Auth credentials     | string or provider function        | string or callable                     | string or callable                           | provider function only (no union types)        |
-| Reserved-word fields | not applicable                     | trailing `_` (`type_`), wire name kept | trailing `_`, wire name kept                 | trailing `_` (`Type_`), `json` tag kept        |
-| File layout          | `single` or `split` (`outputMode`) | one file                               | one file                                     | one file                                       |
-| Namespacing          | ES module (the file path)          | module name from the output file name  | namespace from the API title                 | `package client`, or `goPackage`               |
-| Runtime location     | embedded or package (`runtime`)    | embedded                               | embedded                                     | embedded                                       |
-
-`argsStyle` applies only to TypeScript call sites.
-Each language SDK follows its own idiom: keyword arguments, named arguments, or a params struct.
-If you set an option that a language cannot apply, the generator prints a warning with the option name and the reason.
-The option never disappears silently.
 
 #### Auth, middleware, and reserved names by language
 
