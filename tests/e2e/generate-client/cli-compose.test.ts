@@ -99,6 +99,16 @@ describe('composed CLI (end-to-end)', () => {
     expect(captured.headers.Authorization).toBe('***');
   });
 
+  it('takes an operationId without its group, the form the guide shows', () => {
+    // `cafe shop listOrders` — the alias, then a bare operationId, because the name is
+    // unambiguous inside that api. The guide documents this shorter form.
+    const dry = runEntry(['shop', 'getOrder', 'ord_2', '--dry-run'], {
+      CAFE_SHOP_TOKEN: 'shop-secret',
+    });
+    expect(dry.code, dry.stderr).toBe(0);
+    expect(JSON.parse(dry.stdout).url).toContain('/orders/ord_2');
+  });
+
   it('namespace help shows that API; the same operationId lives in both namespaces', () => {
     const shop = runEntry(['shop', '--help']);
     const kitchen = runEntry(['kitchen', '--help']);

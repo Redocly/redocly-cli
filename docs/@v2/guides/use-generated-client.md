@@ -131,14 +131,22 @@ npx tsx src/cafe.ts shop listOrders --limit 3          # CAFE_SHOP_TOKEN
 npx tsx src/cafe.ts kitchen createOrder --json @o.json # CAFE_KITCHEN_TOKEN
 ```
 
-`binName` sets the name in the help output and the prefix of the credential variables.
-It does not install a `cafe` executable.
-To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of `package.json` at the compiled file.
-The end of this section shows this step.
-An operationId is unique only within one description.
+Two different things can stand in the word after the bin name, so compare the two setups.
+For one API, that word is the tag slug: `cafe orders listOrders`.
+For a composed binary, that word is the api alias, and the tag groups of that api nest inside it: `cafe shop orders listOrders`.
+The example above is shorter than that, because a bare operationId resolves whenever it is unambiguous.
+If two tags of one api declare the same operationId, the CLI reports the ambiguity and names the groups to choose from.
+
+An operationId is unique only inside one description.
 Because of this, each command carries its api's alias as a namespace.
 If two descriptions declare the same operationId, the result is two different commands.
 Each api keeps its own server URL, schemes, and credentials.
+
+`binName` is the name the CLI uses for itself.
+The name appears in every usage line of `--help`, and the credential variables derive from it: `binName: cafe` gives `CAFE_TOKEN`.
+It does not create an executable.
+To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of your `package.json` at the compiled file.
+The end of this section shows this step.
 
 **Commands the description doesn't have.**
 A custom command is the same data shape plus a `handler`.
@@ -261,6 +269,12 @@ for order, err := range api.ListOrdersItems(ctx, nil) {
 ```
 
 #### Auth, middleware, and reserved names by language
+
+Every language gives credentials to a client instance, and the constructor is that one way.
+`createClient(OPERATIONS, { auth })` in TypeScript is the same thing as the constructors below.
+TypeScript adds `setBearer` and `configure({ auth })` for one reason: it also exports a module-level client, which the [free functions](#authentication) call.
+Those two configure that instance.
+The Python, PHP, and Go SDKs export no module-level client, so they need no equivalent.
 
 Auth accepts a static credential, or a provider function that the client resolves for each request:
 
