@@ -227,7 +227,7 @@ describe('custom commands (composition)', () => {
 describe('multi-source runCli (one binary, several APIs)', () => {
   function sources(overrides: { rootCommands?: CustomCommand[] } = {}) {
     const main = fakeWiring();
-    const syncer = fakeWiring({ envPrefix: 'REUNITE_SYNCER' });
+    const syncer = fakeWiring({ envPrefix: 'CAFE_SYNCER' });
     const root = fakeWiring();
     return {
       main,
@@ -309,18 +309,18 @@ describe('multi-source runCli (one binary, several APIs)', () => {
 
 describe('wiring.envPrefix', () => {
   it('overrides the credential prefix without changing the displayed name', async () => {
-    const { wiring, out } = fakeWiring({ envPrefix: 'REUNITE_MAIN' });
+    const { wiring, out } = fakeWiring({ envPrefix: 'CAFE_SHOP' });
     await runCli(COMMANDS, wiring, ['--help']);
     const help = out.join('\n');
     expect(help).toContain('Usage: cafe');
-    expect(help).toContain('REUNITE_MAIN_TOKEN');
+    expect(help).toContain('CAFE_SHOP_TOKEN');
     expect(help).not.toContain('CAFE_TOKEN');
   });
 
   it('reads credentials under the override', async () => {
     const { wiring, calls, configured } = fakeWiring({
-      envPrefix: 'REUNITE_MAIN',
-      env: { REUNITE_MAIN_TOKEN: 'tok' },
+      envPrefix: 'CAFE_SHOP',
+      env: { CAFE_SHOP_TOKEN: 'tok' },
       results: { getOrder: {} },
     });
     await runCli(COMMANDS, wiring, ['orders', 'getOrder', 'ord_1']);
