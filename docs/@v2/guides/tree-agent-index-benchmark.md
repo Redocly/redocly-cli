@@ -9,16 +9,16 @@ Both prompts are printed in full under each description below.
 Neither lists the flags, and the tree prompt links no documentation: the agent learns the surface from the output itself.
 That is deliberate on both counts — this command's reference page is 87 KB, about 20,000 tokens, and an agent offered it reads it, which costs more than the exploration it saves; and the run line carries `--format=ai`, because the stylish views are built for a terminal and end with no `next:` line, so an agent given those falls back to guessing flags and reading the file.
 
-Every number is Claude's own usage counter, read from the run's transcript:
+Two numbers per run, both taken from the run itself:
 
-| Metric      | What it counts                                                                              |
-| ----------- | ------------------------------------------------------------------------------------------- |
-| **context** | tokens the run added to its own session: its final context minus the context it opened with |
-| **actions** | tool calls — the number after the slash                                                     |
+| Metric      | What it counts                                                                                       |
+| ----------- | ---------------------------------------------------------------------------------------------------- |
+| **context** | tokens the run added to its own session — how much of the description it had to pull into the window |
+| **cost**    | what the run was billed, in dollars, as reported by the CLI                                          |
 
-One shell call can chain several commands with `;`, so a run's command list is sometimes longer than its action count; the per-model tabs say when that happened.
-A cell measured three times reports the median; a cell measured twice reports the sample less favourable to `tree`.
-Why the numbers are deltas rather than session totals, and what else the setup controls for, is in [How this was measured](#how-this-was-measured) at the end.
+Tables also give the number of tool calls after the slash.
+Both come from the same run, so a row can be read across; how each is computed is in [How this was measured](#how-this-was-measured) at the end.
+Costs compare inside a row only — a model's price list has nothing to do with the index.
 
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
@@ -60,11 +60,11 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 {% /tab %}
 {% /tabs %}
 
-| Model    |     no tree |      tree |
-| -------- | ----------: | --------: |
-| Sonnet 5 |  12,154 / 8 | 8,677 / 6 |
-| Opus     | 10,352 / 13 | 9,255 / 8 |
-| Fable 5  |   8,185 / 6 | 7,878 / 7 |
+| Model    |     no tree |      tree | Context | Cost |
+| -------- | ----------: | --------: | ------: | ---: |
+| Sonnet 5 | 10,523 / 11 | 9,459 / 6 |    −10% | −25% |
+| Opus     |  9,024 / 10 | 9,298 / 7 |     +3% |  +5% |
+| Fable 5  |   8,762 / 7 | 7,226 / 5 |    −18% | −17% |
 
 What the tree agent ran:
 
@@ -74,8 +74,8 @@ What the tree agent ran:
 ```bash
 npx -y @redocly/cli tree github-api.yaml --format=ai
 npx -y @redocly/cli tree github-api.yaml --format=ai --find=release
+npx -y @redocly/cli tree github-api.yaml --format=ai --find=upload
 npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --find=upload-release-asset
 npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
 npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
 ```
@@ -84,21 +84,18 @@ npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo
 {% tab label="Opus" %}
 
 ```bash
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --find="release asset"
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --find="create release"
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=schemas --name=release
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=schemas --name=release-asset
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=release-id
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=asset-id
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=owner
-npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameters --name=repo
+npx -y @redocly/cli tree github-api.yaml --format=ai
+npx -y @redocly/cli tree github-api.yaml --format=ai --find=release
+npx -y @redocly/cli tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases' --operation=post --with-deps
+npx -y @redocly/cli tree github-api.yaml --format=ai --find='upload release asset'
+npx -y @redocly/cli tree github-api.yaml --format=ai --find='upload asset'
+npx -y @redocly/cli tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/{release_id}/assets' --operation=post
+npx -y @redocly/cli tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/assets/{asset_id}' --operation=delete --with-deps
+npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=asset-id
+npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=release-id
 ```
 
-8 tool calls, 12 invocations: this model bundled several commands into one shell call.
+7 tool calls, 9 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Fable 5" %}
@@ -106,23 +103,18 @@ npx -y @redocly/cli tree specs/github-api.yaml --format=ai --component=parameter
 ```bash
 npx -y @redocly/cli tree github-api.yaml --format=ai
 npx -y @redocly/cli tree github-api.yaml --format=ai --find="release asset"
-npx -y @redocly/cli tree github-api.yaml --format=ai --find="create release"
 npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=release-id
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=asset-id
+npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
+npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
 ```
-
-7 tool calls, 8 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% /tabs %}
 
 Both agents correct, including the host override.
 No tag listing was needed: `--find` narrowed 1,000+ operations to a handful in one call, and every model started there.
-Sonnet 5 shows the widest gap: eight `grep`/`sed` calls against six bounded ones.
-Opus is the most volatile cell in the grid — three no-tree repeats cost 8,688, 10,352 and 15,884 depending on how well its first `grep` landed, against 9,120, 9,255 and 10,842 through the index. The table gives the median of each.
+Sonnet 5 shows the widest gap in actions: 11 `grep`/`sed` calls against 6 bounded ones.
+Opus is the one cell in the grid where the index does not pay off — a first `grep` that lands well returns as little as a card does.
 
 {% /tab %}
 {% tab label="Billing API · 1.3 MB" %}
@@ -159,11 +151,11 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 {% /tab %}
 {% /tabs %}
 
-| Model    |     no tree |        tree |
-| -------- | ----------: | ----------: |
-| Sonnet 5 | 22,490 / 22 | 21,643 / 14 |
-| Opus     | 22,713 / 25 | 19,159 / 11 |
-| Fable 5  | 18,834 / 20 | 15,448 / 12 |
+| Model    |     no tree |        tree | Context | Cost |
+| -------- | ----------: | ----------: | ------: | ---: |
+| Sonnet 5 | 24,814 / 31 | 22,106 / 15 |    −11% | −46% |
+| Opus     | 19,435 / 17 | 18,512 / 10 |     −5% | −18% |
+| Fable 5  | 18,476 / 22 | 15,304 / 12 |    −17% | −42% |
 
 What the tree agent ran:
 
@@ -172,37 +164,45 @@ What the tree agent ran:
 
 ```bash
 npx -y @redocly/cli tree rebilly.yaml --format=ai
+npx -y @redocly/cli tree rebilly.yaml --format=ai --find=subscription
 npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Products
 npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Plans
-npx -y @redocly/cli tree rebilly.yaml --format=ai --find=subscription
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription --with-deps
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=Subscription --pointer
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=Subscription
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=CustomerId
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId
 ```
+
+15 tool calls, 16 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Opus" %}
 
 ```bash
 npx -y @redocly/cli tree rebilly.yaml --format=ai
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Products
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Plans
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Orders
-npx -y @redocly/cli tree $S --format=ai --path=/products --operation=post --with-deps
-npx -y @redocly/cli tree $S --format=ai "$@"
-npx -y @redocly/cli tree $S --format=ai --path=/plans --operation=post --with-deps
-npx -y @redocly/cli tree $S --format=ai --component=schemas --name=SubscriptionPlan
-npx -y @redocly/cli tree $S --format=ai --path=/subscriptions --operation=post --with-deps
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --tag=$t
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --tag=Orders
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --path=/products --operation=post --with-deps
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=Product
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula --with-deps
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=requestBodies --name=Subscription
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --pointer='#/components/schemas/Subscription'
+npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=release-id
 ```
 
-11 tool calls, 13 invocations: this model bundled several commands into one shell call.
+10 tool calls, 13 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Fable 5" %}
@@ -216,8 +216,8 @@ npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/products --operation=p
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
+npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
 npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee
 ```
@@ -226,7 +226,7 @@ npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=Pla
 {% /tabs %}
 
 Both agents correct, including the `anyOf` plan choice and the `Orders` tag.
-This is the description where the index is worked hardest — a subscription pulls in a dozen schemas — and the one where results split: `tree` wins clearly on Fable 5 (which otherwise spends 24 actions grepping), and comes out even on Sonnet 5, where the no-tree agent ran 22 searches for about what 14 bounded calls cost. An earlier repeat of that same no-tree cell handed the work to a subagent in two calls and was discarded — a subagent context is not counted, so it would have read as a 5,434 floor.
+This is the description where the index is worked hardest — a subscription pulls in a dozen schemas — and where the two metrics diverge most: the context saving is 5–17%, while the cost saving is 18–46%, because the no-tree agent spends 17 to 31 searches against 10 to 15 bounded calls, and every one of them re-sends the whole context.
 
 {% /tab %}
 {% tab label="Cafe API · 41 KB" %}
@@ -262,11 +262,11 @@ Run it with no extra flags first for the overview. Every view ends with a `next:
 {% /tab %}
 {% /tabs %}
 
-| Model    |    no tree |        tree |
-| -------- | ---------: | ----------: |
-| Sonnet 5 | 16,865 / 1 |   7,415 / 7 |
-| Opus     | 16,762 / 1 | 10,671 / 12 |
-| Fable 5  | 16,818 / 1 |   8,429 / 7 |
+| Model    |    no tree |      tree | Context | Cost |
+| -------- | ---------: | --------: | ------: | ---: |
+| Sonnet 5 | 16,841 / 1 | 7,397 / 7 |    −56% | −49% |
+| Opus     | 16,916 / 2 | 9,375 / 4 |    −45% |  −3% |
+| Fable 5  | 16,840 / 1 | 8,181 / 7 |    −51% |  −4% |
 
 What the tree agent ran:
 
@@ -279,8 +279,8 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --path=/menu --operation=get --wi
 npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
 npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
 npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
+npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage
+npx -y @redocly/cli tree cafe.yaml --format=ai --pointer='#/components/schemas/Order'
 ```
 
 {% /tab %}
@@ -288,18 +288,18 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuBa
 
 ```bash
 npx -y @redocly/cli tree cafe.yaml --format=ai
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=parameters --name=OrderId
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=MenuItemList
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path=/menu --operation=get --with-deps
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path=/orders --operation=post --with-deps
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=schemas --name=$c
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=securitySchemes
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
+npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=parameters --name=OrderId
 ```
+
+4 tool calls, 10 invocations: this model bundled several commands into one shell call.
 
 {% /tab %}
 {% tab label="Fable 5" %}
@@ -318,38 +318,35 @@ npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
 {% /tabs %}
 
 On a file this small the no-tree agent simply reads it whole — one action.
-That read is the whole cost: ~16,800 tokens of context on every model, against 7,400–10,700 through cards. Halving what the task costs is the most consistent result in the grid — the Opus cell was repeated three times and landed at 12,500, 10,180 and 10,671.
+That read is the whole cost: ~16,850 tokens of context on every model, against 7,400–9,400 through cards. Halving the context is the most consistent result in the grid. In money the picture is flatter — a single big read is cheap to bill, so the same halving shows up as −49% on Sonnet 5 but only −3% on Opus.
 
 {% /tab %}
 {% /tabs %}
 
 ## The grid in one view
 
-Context the task added, and the tool calls it took:
-
-| Description | Model    |     no tree |        tree | Difference |
-| ----------- | -------- | ----------: | ----------: | ---------: |
-| GitHub REST | Sonnet 5 |  12,154 / 8 |   8,677 / 6 |       −29% |
-| GitHub REST | Opus     | 10,352 / 13 |   9,255 / 8 |       −11% |
-| GitHub REST | Fable 5  |   8,185 / 6 |   7,878 / 7 |        −4% |
-| Billing API | Sonnet 5 | 22,490 / 22 | 21,643 / 14 |        −4% |
-| Billing API | Opus     | 22,713 / 25 | 19,159 / 11 |       −16% |
-| Billing API | Fable 5  | 18,834 / 20 | 15,448 / 12 |       −18% |
-| Cafe API    | Sonnet 5 |  16,865 / 1 |   7,415 / 7 |       −56% |
-| Cafe API    | Opus     |  16,762 / 1 | 10,671 / 12 |       −36% |
-| Cafe API    | Fable 5  |  16,818 / 1 |   8,429 / 7 |       −50% |
+| Description | Model    |     no tree |        tree | Context | Cost |
+| ----------- | -------- | ----------: | ----------: | ------: | ---: |
+| GitHub REST | Sonnet 5 | 10,523 / 11 |   9,459 / 6 |    −10% | −25% |
+| GitHub REST | Opus     |  9,024 / 10 |   9,298 / 7 |     +3% |  +5% |
+| GitHub REST | Fable 5  |   8,762 / 7 |   7,226 / 5 |    −18% | −17% |
+| Billing API | Sonnet 5 | 24,814 / 31 | 22,106 / 15 |    −11% | −46% |
+| Billing API | Opus     | 19,435 / 17 | 18,512 / 10 |     −5% | −18% |
+| Billing API | Fable 5  | 18,476 / 22 | 15,304 / 12 |    −17% | −42% |
+| Cafe API    | Sonnet 5 |  16,841 / 1 |   7,397 / 7 |    −56% | −49% |
+| Cafe API    | Opus     |  16,916 / 2 |   9,375 / 4 |    −45% |  −3% |
+| Cafe API    | Fable 5  |  16,840 / 1 |   8,181 / 7 |    −51% |  −4% |
 
 All 18 answers were correct, on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 That is the first result: an agent that never opens the file answers as well as one that reads it.
 
-**The index is cheaper in all nine cells**, from 4% to 56%, and the size of the win tracks one thing: how much of the description the no-tree agent has to pull into context.
+**The index is cheaper in eight of nine cells on both metrics, and they agree on the ninth too** — GitHub on Opus, where a first `grep` that lands well returns about as little as a card does, and the index costs 3–5% more.
 
-**Where it has to read the file, the index halves the cost.**
-The Cafe API is 41 KB — small enough to read whole, and every no-tree run does exactly that in one action for about 16,800 tokens. The same answer through cards costs 7,400–10,700 on all three models.
+**The two metrics measure different halves of the same effect, and the split is informative.**
+On the Cafe API the context saving is large (−45 to −56%) and the money saving is uneven (−3 to −49%): reading a 41 KB file is one big cheap action, so the window fills up without the bill moving much.
+On the billing API it is the other way round — the context saving is modest (−5 to −17%) but the money saving is large (−18 to −46%), because the no-tree agent spends 17 to 31 searches and every one of them re-sends the whole context.
 
-**Where it can grep, the win narrows to 4–29%** and comes from replacing an open-ended search with bounded ones: 11 calls against 25 on the billing API, 8 against 13 on GitHub. The two 4% cells — GitHub on Fable 5 and the billing API on Sonnet 5 — are where a targeted `grep` returns about what a card returns, and they are inside the repeat spread.
-
-**The no-tree side is also the unstable one.** Three repeats of GitHub on Opus cost 8,688, 10,352 and 15,884 depending on how well the first `grep` guessed; the same cell through the index stayed inside 9,120–10,842. On the billing API with Sonnet 5 one no-tree repeat cost 22,490 across 22 searches while another delegated the whole task to a subagent in two calls. An index makes the cost predictable, not just lower.
+**Actions fall in every cell**: 6 against 11, 10 against 17, 15 against 31. That is the mechanism behind the money column, and the reason the index scales to descriptions where a search strategy has to be invented from scratch.
 
 ## How this was measured
 
@@ -358,24 +355,30 @@ The agent is allowed to run shell commands, read files and search them, and noth
 Each session starts in an empty directory, and the API descriptions sit outside any repository, so no `AGENTS.md`, `CLAUDE.md` or other project instructions reach the model.
 The tree runs call a published `@redocly/cli` snapshot through `npx`.
 
-**What the numbers count.**
-A session opens with a fixed cost — the agent's own system prompt plus the task, 26,000 to 43,000 tokens depending on the model — before it does anything at all.
-That cost is identical in both conditions, and it drifts on its own: between two batches taken twenty minutes apart it moved by 5,400 tokens on every model at once, with nothing in the prompts changed.
-So the tables report the context each run added on top of its own opening cost, never the session total. Runs from different batches can only be compared this way.
+**How context is counted.**
+Each API response reports its prompt split three ways — tokens sent fresh, tokens read from the prompt cache, and tokens written to it — and those three add up to the whole context the model was given on that turn.
+A session's first turn is the system prompt plus the task, before any tool has run; its last turn is everything the run accumulated.
+The difference between them is what the table calls context. It is not affected by how many turns the agent took, and the fixed opening cost — 26,000 to 43,000 tokens depending on the model, identical in both conditions — drops out of the comparison.
+That opening cost also drifts on its own: between two batches taken twenty minutes apart it moved by 5,400 tokens on every model at once, with nothing in the prompts changed, which is why the tables never show session totals.
+
+**How cost is counted.**
+It is not computed here: the CLI reports `total_cost_usd` for the run, and the table copies it.
+It follows the same tokens from a different angle — cached reads bill at about a tenth of fresh input, so a run that re-sends a small context many times can still cost less than one that pulls in a large context once.
+Because a model's price list is fixed, costs are comparable between the two cells of a row and meaningless between rows: the same billing-API task costs $0.72 on Opus and $1.67 on Fable 5, which says nothing about the index.
 
 **A run that hands the work to a sub-agent does not count as cheap.**
 An agent can delegate a task, and the session then reports only its own context, not the sub-agent's.
 Such a run finishes in two calls and looks like the cheapest cell in the grid, while the work it paid for is invisible.
 Those runs are discarded and repeated. It happens on the two large descriptions with Sonnet 5.
 
-**Repeats vary, and unevenly.**
-The same cell repeated through the index lands within a few percent; without the index it swings by up to 83%, because the agent invents a fresh search strategy every time.
-Treat any difference under about 15% as noise — including the two 4% cells in the grid.
+**One run per cell, and repeats vary unevenly.**
+Every number in the tables comes from a single run, and both metrics come from the same one.
+Repeating a cell through the index lands within a few percent; repeating it without the index swings by up to 83%, because the agent invents a fresh search strategy every time — one billing-API baseline was measured at 18,476 and 27,437 on different days.
+Treat any difference under about 15% of context as noise, including the GitHub Opus row.
 
-**Context is not the invoice.**
-Every action re-sends the whole context, so the billed cache reads on the billing-API runs reach 4+ million tokens per run.
-What these tables measure is how much the model has to hold at once, which is what decides whether a task is feasible on a large description at all.
-The part that shows up on an invoice is the drop in the number of actions.
+**Do not add the tokens up.**
+The per-run totals a session reports — hundreds of thousands of tokens — count the context once per turn, so they grow with the number of turns rather than with the amount of material pulled in.
+On the Cafe API that total makes the index look 63–79% worse while both metrics in the tables, and the invoice, say it is better.
 
 **Where the advantage is, and where it is not.**
 It is in bounded, repeatable calls and in answers that carry their own file and line coordinates, so anything can be checked against the source.
