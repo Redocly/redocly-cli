@@ -9,9 +9,8 @@ Both prompts are printed in full under each description below.
 Neither lists the flags, and the tree prompt links no documentation: the agent learns the surface from the output itself.
 That is deliberate on both counts — this command's reference page is 87 KB, about 20,000 tokens, and an agent offered it reads it, which costs more than the exploration it saves; and the run line carries `--format=ai`, because the stylish views are built for a terminal and end with no `next:` line, so an agent given those falls back to guessing flags and reading the file.
 
-Each run is measured by one number: the context it added to its own session — how much of the description the agent had to pull into the window.
-Tables give the tool calls after the slash.
-How that is counted, and why the session totals and the dollar amounts are not used, is in [How this was measured](#how-this-was-measured) at the end.
+Each run is measured by the context it added to its own session — how much of the description the agent had to pull into the window — with tool calls after the slash, and by what it was billed.
+How both are counted is in [How this was measured](#how-this-was-measured) at the end.
 
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
@@ -329,6 +328,24 @@ That read is the whole cost: ~16,850 tokens of context on every model, against 7
 The size of the win tracks how much of the description the other agent has to pull in: half of it on the 41 KB Cafe API, which it reads whole, and 1–18% on the two large ones, which it can search instead.
 Tool calls halve in almost every cell — 13 against 26, 10 against 17, 6 against 11 — which is where the saving comes from on the large descriptions, since a closure of a dozen schemas has to enter the window either way.
 
+What the same runs were billed:
+
+| Description | Model    | no tree |   tree | Difference |
+| ----------- | -------- | ------: | -----: | ---------: |
+| GitHub REST | Sonnet 5 |  $0.338 | $0.253 |       −25% |
+| GitHub REST | Opus 5   |  $0.372 | $0.390 |        +5% |
+| GitHub REST | Fable 5  |  $0.703 | $0.586 |       −17% |
+| Billing API | Sonnet 5 |  $0.873 | $0.379 |       −57% |
+| Billing API | Opus 5   |  $0.720 | $0.592 |       −18% |
+| Billing API | Fable 5  |  $1.665 | $0.964 |       −42% |
+| Cafe API    | Sonnet 5 |  $0.219 | $0.224 |        +2% |
+| Cafe API    | Opus 5   |  $0.348 | $0.337 |        −3% |
+| Cafe API    | Fable 5  |  $0.635 | $0.610 |        −4% |
+
+Read this table for its shape, not its precision: it is the same tokens seen from the billing side, where a cached read costs about a tenth of fresh input, so it rewards fewer turns as much as smaller ones.
+That is why the billing API saves most here and least on context — 26 searches against 13 bounded calls — and why the Cafe API is the other way round.
+Amounts compare across a row only: the same billing-API task costs $0.72 on Opus 5 and $1.67 on Fable 5, which says nothing about the index.
+
 ## How this was measured
 
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
@@ -341,9 +358,11 @@ The first turn is the system prompt plus the task, so the subtraction drops 26,0
 
 **actions** — `tool_use` blocks in those same records. One shell call can chain several commands with `;`, so a run's command list is sometimes longer.
 
-**Not used: dollars, and the run's token totals.**
-A run also reports `total_cost_usd`, but it is not reproducible: the same no-tree task on the Cafe API cost $0.390 and then $0.219 for identical work, because the second run met a warm prompt cache and paid for reads instead of writes.
-The summed `usage` a run reports counts the context once per turn, so it grows with the number of turns rather than the material pulled in.
+**cost** — `total_cost_usd` as the run itself reports it, not recomputed here.
+It is the least reproducible number on this page: the same no-tree task on the Cafe API cost $0.390 and then $0.219 for identical work, because the second run met a warm prompt cache and paid for reads instead of writes. In a series, whichever condition runs second gets that discount.
+
+**Not used: the run's token totals.**
+The summed `usage` a run reports counts the context once per turn, so it grows with the number of turns rather than the material pulled in — on the Cafe API it makes the index look 63–79% worse.
 
 **Noise.** Repeating a cell through the index lands within a few percent, without it by up to 83%, because the agent invents a fresh search strategy every time; where a cell was run twice, the table shows the sample less favourable to `tree`.
 A no-tree run that finishes in two calls on a large description has usually handed the task to a sub-agent, whose context is not reported; those are discarded and repeated.
