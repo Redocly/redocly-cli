@@ -9,17 +9,16 @@ Both prompts are printed in full under each description below.
 Neither lists the flags, and the tree prompt links no documentation: the agent learns the surface from the output itself.
 That is deliberate on both counts — this command's reference page is 87 KB, about 20,000 tokens, and an agent offered it reads it, which costs more than the exploration it saves; and the run line carries `--format=ai`, because the stylish views are built for a terminal and end with no `next:` line, so an agent given those falls back to guessing flags and reading the file.
 
-Every number is Claude's own usage counter, read from the run's transcript.
-A session starts with a fixed cost — the harness system prompt and the task prompt, 31,000 to 43,000 tokens depending on the model — that is identical in both conditions and swamps the difference between them, so the tables report what the run added on top of it:
+Every number is Claude's own usage counter, read from the run's transcript:
 
-| Metric      | What it counts                                                                         |
-| ----------- | -------------------------------------------------------------------------------------- |
-| **context** | tokens the task itself added: the run's final context minus its own first-turn context |
-| **actions** | tool calls — the number after the slash                                                |
+| Metric      | What it counts                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------- |
+| **context** | tokens the run added to its own session: its final context minus the context it opened with |
+| **actions** | tool calls — the number after the slash                                                     |
 
 One shell call can chain several commands with `;`, so a run's command list is sometimes longer than its action count; the per-model tabs say when that happened.
-Repeats of the same cell differ by a few percent on the tree side and by up to 83% on the no-tree side, where the agent improvises its own search strategy each time.
 A cell measured three times reports the median; a cell measured twice reports the sample less favourable to `tree`.
+Why the numbers are deltas rather than session totals, and what else the setup controls for, is in [How this was measured](#how-this-was-measured) at the end.
 
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
@@ -352,11 +351,32 @@ The Cafe API is 41 KB — small enough to read whole, and every no-tree run does
 
 **The no-tree side is also the unstable one.** Three repeats of GitHub on Opus cost 8,688, 10,352 and 15,884 depending on how well the first `grep` guessed; the same cell through the index stayed inside 9,120–10,842. On the billing API with Sonnet 5 one no-tree repeat cost 22,490 across 22 searches while another delegated the whole task to a subagent in two calls. An index makes the cost predictable, not just lower.
 
-## Notes
+## How this was measured
 
-- Reproducing: every run is `claude -p` with `--allowedTools "Bash Read Grep Glob"`, started in an empty directory, with the description outside any repository so no `AGENTS.md` or `CLAUDE.md` is loaded. The tree runs use the published snapshot `@redocly/cli@0.0.0-snapshot.1786868116` through `npx -y`.
-- Measure what the run added, not the session total. A run's first-turn context — system prompt plus task prompt — moved by 5,400 tokens between two batches taken 20 minutes apart, on every model at once, with nothing in the prompts changed. Totals from different batches are not comparable; the context a run adds is.
-- Floors, not totals: an agent that delegates to a subagent reports only its own context, not the subagent one. It happens on large descriptions with Sonnet 5, where a no-tree run can finish in two calls and look cheap. Those runs are discarded and repeated.
-- Variance: repeats of the same cell differ by a few percent through the index and by up to 83% without it, where the agent improvises its search each time. A difference under about 15% is not a result.
-- Session is not the bill: every action re-sends the whole context, so billed cache reads on the billing-API runs were 4+ million tokens per run — fewer actions is the real saving.
-- Where the advantage is: bounded, repeatable actions and answers that carry their own coordinates. Where it isn't: a description a model can grep well.
+Every run is a fresh session of an agent — Claude Code, driven from the command line with the task text as its only input.
+The agent is allowed to run shell commands, read files and search them, and nothing else is prepared for it: no scripts, no cached results, no earlier session to learn from.
+Each session starts in an empty directory, and the API descriptions sit outside any repository, so no `AGENTS.md`, `CLAUDE.md` or other project instructions reach the model.
+The tree runs call a published `@redocly/cli` snapshot through `npx`.
+
+**What the numbers count.**
+A session opens with a fixed cost — the agent's own system prompt plus the task, 26,000 to 43,000 tokens depending on the model — before it does anything at all.
+That cost is identical in both conditions, and it drifts on its own: between two batches taken twenty minutes apart it moved by 5,400 tokens on every model at once, with nothing in the prompts changed.
+So the tables report the context each run added on top of its own opening cost, never the session total. Runs from different batches can only be compared this way.
+
+**A run that hands the work to a sub-agent does not count as cheap.**
+An agent can delegate a task, and the session then reports only its own context, not the sub-agent's.
+Such a run finishes in two calls and looks like the cheapest cell in the grid, while the work it paid for is invisible.
+Those runs are discarded and repeated. It happens on the two large descriptions with Sonnet 5.
+
+**Repeats vary, and unevenly.**
+The same cell repeated through the index lands within a few percent; without the index it swings by up to 83%, because the agent invents a fresh search strategy every time.
+Treat any difference under about 15% as noise — including the two 4% cells in the grid.
+
+**Context is not the invoice.**
+Every action re-sends the whole context, so the billed cache reads on the billing-API runs reach 4+ million tokens per run.
+What these tables measure is how much the model has to hold at once, which is what decides whether a task is feasible on a large description at all.
+The part that shows up on an invoice is the drop in the number of actions.
+
+**Where the advantage is, and where it is not.**
+It is in bounded, repeatable calls and in answers that carry their own file and line coordinates, so anything can be checked against the source.
+It is not in descriptions a model can grep well: on a famous API where a first guess at a search term lands, an index and a `grep` cost about the same.
