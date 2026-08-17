@@ -97,4 +97,32 @@ describe('Oas3 assertions', () => {
       ]
     `);
   });
+
+  it('should throw a named error when the assertions block is missing', () => {
+    const rule = {
+      'rule/no-assertions': {
+        assertionId: 'rule/no-assertions',
+        subject: { type: 'Operation', property: 'summary' },
+      },
+    };
+
+    expect(() => Assertions(rule as any)).toThrow(
+      "rule/no-assertions: 'assertions' (Object) is required"
+    );
+  });
+
+  it('should throw a named error when the assertions block is missing in a where clause', () => {
+    const rule = {
+      'rule/no-assertions-in-where': {
+        assertionId: 'rule/no-assertions-in-where',
+        subject: { type: 'Operation', property: 'summary' },
+        assertions: { pattern: '/example/' },
+        where: [{ subject: { type: 'PathItem' } }],
+      },
+    };
+
+    expect(() => Assertions(rule as any)).toThrow(
+      "rule/no-assertions-in-where -> where -> [0]: 'assertions' (Object) is required"
+    );
+  });
 });
