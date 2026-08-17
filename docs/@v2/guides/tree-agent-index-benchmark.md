@@ -339,10 +339,6 @@ Context the run added, and the tool calls it took:
 | Cafe API    | Opus     |  16,916 / 2 |   9,375 / 4 |       −45% |
 | Cafe API    | Fable 5  |  16,840 / 1 |   8,181 / 7 |       −51% |
 
-All 18 answers were correct on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice: an agent that never opens the file answers as well as one that reads it.
-The index costs less context in eight of nine cells, and the size of the win tracks how much of the description the other agent has to pull in — half on the 41 KB Cafe API, which it reads whole, and 5–18% on the two large ones, which it can search.
-Tool calls fall everywhere: 6 against 11, 10 against 17, 15 against 31.
-
 What the same runs were billed:
 
 | Description | Model    | no tree |   tree | Difference |
@@ -357,30 +353,26 @@ What the same runs were billed:
 | Cafe API    | Opus     |  $0.348 | $0.337 |        −3% |
 | Cafe API    | Fable 5  |  $0.635 | $0.610 |        −4% |
 
-The two tables agree cell by cell, including on the one cell the index loses — GitHub on Opus, where a first `grep` that lands well returns about as little as a card does.
-Where they differ is in size, and that is the mechanism showing through: reading a 41 KB file is one cheap action, so the Cafe API saves context without saving much money, while the billing API saves modestly on context and heavily on money, because every one of those 17 to 31 searches re-sends the whole context.
-Dollar amounts compare inside a row only — the same billing-API task costs $0.72 on Opus and $1.67 on Fable 5, which says nothing about the index.
-
 ## How this was measured
 
 Every run is a fresh session of an agent — Claude Code, driven from the command line with the task text as its only input.
-The agent may run shell commands, read files and search them, and nothing else is prepared for it: no scripts, no cached results, no earlier session to learn from.
+The agent may run shell commands, read files and search them; nothing else is prepared for it.
 Sessions start in an empty directory, and the API descriptions sit outside any repository, so no `AGENTS.md`, `CLAUDE.md` or other project instructions reach the model.
 The tree runs call a published `@redocly/cli` snapshot through `npx`.
-Each cell is one run, and both tables report that same run.
+Each cell is one run, and both tables report that same run. All 18 answers were checked and correct on both sides, including the `uploads.github.com` server override and the `anyOf`-without-discriminator plan choice.
 
-**The first table: context.**
-Each API response reports its prompt split three ways — tokens sent fresh, tokens read from the prompt cache, and tokens written to it — and the three add up to the whole context the model was handed on that turn.
-A session's first turn is the system prompt plus the task, before any tool has run; its last turn holds everything the run accumulated. The difference between them is the number in the table.
-It does not move with the number of turns an agent takes, and the fixed opening cost — 26,000 to 43,000 tokens depending on the model, identical in both conditions and drifting by thousands between batches — drops out of the subtraction.
+**context** — read from the run's transcript, `~/.claude/projects/<directory>/<session_id>.jsonl`, taking the `assistant` records that carry a `message.usage`.
+A turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`: the three are disjoint and add up to the prompt the model was handed on that turn.
+The table gives the last turn's context minus the first turn's. The first turn is the system prompt plus the task, before any tool has run, so the subtraction drops a fixed 26,000 to 43,000 tokens — identical in both conditions, and drifting by thousands between batches.
+Several records can repeat one `message.id`, because thinking, text and the tool call are written separately; they are counted once.
 
-**The second table: cost.**
-Nothing is computed here: the CLI reports `total_cost_usd` for the run and the table copies it.
-It counts the same tokens from the billing side, where a cached read costs about a tenth of fresh input, so it also rewards a run for re-sending less context on each of fewer turns.
-Prices differ per model, so the amounts mean something across a row and nothing down a column.
+**actions** — the number of `tool_use` blocks in those same records. One shell call can chain several commands with `;`, so a run's command list is sometimes longer.
 
-**What neither table shows is the per-run token total.**
-A session's reported totals count the context once per turn, so they grow with turns rather than with the material pulled in — on the Cafe API that total makes the index look 63–79% worse, while both tables here and the invoice say the opposite.
+**cost** — `total_cost_usd` from the JSON the run itself prints, exactly as the CLI reports it. Nothing is recomputed here.
+Cached reads bill at about a tenth of fresh input, so this counts the same tokens from the billing side. Model prices differ, so amounts compare across a row and not down a column.
+
+**not used: the run's token totals.**
+A session also reports summed `usage` across all turns. That total counts the context once per turn, so it grows with the number of turns rather than the material pulled in — on the Cafe API it makes the index look 63–79% worse, against both tables here and the invoice.
 
 **A run that hands the work to a sub-agent does not count as cheap.**
 An agent can delegate, and the session then reports only its own context, not the sub-agent's.
