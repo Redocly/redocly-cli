@@ -12,6 +12,10 @@ Three descriptions, four models, two conditions, three runs each — 72 runs:
 Each run is measured by the context it added to its own session, with tool calls after the slash, by what it was billed, and by whether its flow passes the check.
 How all four are counted is in [How this was measured](#how-this-was-measured) at the end.
 
+Every context and cost cell is the median of the runs in it whose flow works.
+A cell marked ❌ is one where none of the three did: its numbers are the median of all three and say what an answer that does not work cost, not what the task costs.
+A difference is given only where both sides carry the same mark, since a working flow and a broken one are not the same job.
+
 Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB),
 a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
 
@@ -60,21 +64,21 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took:
 
-| Model     |     no tree |        tree | Difference |
-| --------- | ----------: | ----------: | ---------: |
-| Sonnet 5  | 15,620 / 16 |  11,604 / 5 |       −26% |
-| Opus 5    | 16,462 / 13 | 16,284 / 11 |        −1% |
-| Fable 5   | 15,145 / 13 | 11,932 / 10 |       −21% |
-| Haiku 4.5 |           — |   8,565 / 6 |          — |
+| Model     |       no tree |        tree | Difference |
+| --------- | ------------: | ----------: | ---------: |
+| Sonnet 5  |   15,620 / 16 |  11,604 / 5 |       −26% |
+| Opus 5    |   16,462 / 13 | 16,284 / 11 |        −1% |
+| Fable 5   |   15,145 / 13 | 11,932 / 10 |       −21% |
+| Haiku 4.5 | 15,505 / 8 ❌ |   8,565 / 6 |          — |
 
 What those runs were billed:
 
-| Model     | no tree |  tree | Difference |
-| --------- | ------: | ----: | ---------: |
-| Sonnet 5  |   $0.46 | $0.27 |       −41% |
-| Opus 5    |   $0.72 | $0.67 |        −7% |
-| Fable 5   |   $1.09 | $0.85 |       −22% |
-| Haiku 4.5 |       — | $0.08 |          — |
+| Model     |  no tree |  tree | Difference |
+| --------- | -------: | ----: | ---------: |
+| Sonnet 5  |    $0.46 | $0.27 |       −41% |
+| Opus 5    |    $0.72 | $0.67 |        −7% |
+| Fable 5   |    $1.09 | $0.85 |       −22% |
+| Haiku 4.5 | $0.10 ❌ | $0.08 |          — |
 
 Whether each run produced a flow that would run:
 
@@ -205,21 +209,21 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took:
 
-| Model     |     no tree |        tree | Difference |
-| --------- | ----------: | ----------: | ---------: |
-| Sonnet 5  |           — | 28,164 / 13 |          — |
-| Opus 5    | 35,212 / 32 | 32,019 / 21 |        −9% |
-| Fable 5   | 32,043 / 30 | 18,329 / 11 |       −43% |
-| Haiku 4.5 |           — |           — |          — |
+| Model     |        no tree |           tree | Difference |
+| --------- | -------------: | -------------: | ---------: |
+| Sonnet 5  | 31,179 / 32 ❌ |    28,164 / 13 |          — |
+| Opus 5    |    35,212 / 32 |    32,019 / 21 |        −9% |
+| Fable 5   |    32,043 / 30 |    18,329 / 11 |       −43% |
+| Haiku 4.5 | 19,459 / 16 ❌ | 17,174 / 14 ❌ |       −12% |
 
 What those runs were billed:
 
-| Model     | no tree |  tree | Difference |
-| --------- | ------: | ----: | ---------: |
-| Sonnet 5  |       — | $0.55 |          — |
-| Opus 5    |   $1.56 | $1.00 |       −36% |
-| Fable 5   |   $2.82 | $1.32 |       −53% |
-| Haiku 4.5 |       — |     — |          — |
+| Model     |  no tree |     tree | Difference |
+| --------- | -------: | -------: | ---------: |
+| Sonnet 5  | $1.05 ❌ |    $0.55 |          — |
+| Opus 5    |    $1.56 |    $1.00 |       −36% |
+| Fable 5   |    $2.82 |    $1.32 |       −53% |
+| Haiku 4.5 | $0.16 ❌ | $0.14 ❌ |       −13% |
 
 Whether each run produced a flow that would run:
 
@@ -383,21 +387,21 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took:
 
-| Model     |    no tree |        tree | Difference |
-| --------- | ---------: | ----------: | ---------: |
-| Sonnet 5  | 18,287 / 2 |   8,474 / 5 |       −54% |
-| Opus 5    | 16,769 / 1 | 17,103 / 11 |        +2% |
-| Fable 5   | 16,882 / 1 |   9,889 / 9 |       −41% |
-| Haiku 4.5 |          — |   7,604 / 8 |          — |
+| Model     |       no tree |        tree | Difference |
+| --------- | ------------: | ----------: | ---------: |
+| Sonnet 5  |    18,287 / 2 |   8,474 / 5 |       −54% |
+| Opus 5    |    16,769 / 1 | 17,103 / 11 |        +2% |
+| Fable 5   |    16,882 / 1 |   9,889 / 9 |       −41% |
+| Haiku 4.5 | 14,934 / 1 ❌ |   7,604 / 8 |          — |
 
 What those runs were billed:
 
-| Model     | no tree |  tree | Difference |
-| --------- | ------: | ----: | ---------: |
-| Sonnet 5  |   $0.27 | $0.26 |        −4% |
-| Opus 5    |   $0.41 | $0.58 |       +41% |
-| Fable 5   |   $0.72 | $0.82 |       +14% |
-| Haiku 4.5 |       — | $0.09 |          — |
+| Model     |  no tree |  tree | Difference |
+| --------- | -------: | ----: | ---------: |
+| Sonnet 5  |    $0.27 | $0.26 |        −4% |
+| Opus 5    |    $0.41 | $0.58 |       +41% |
+| Fable 5   |    $0.72 | $0.82 |       +14% |
+| Haiku 4.5 | $0.07 ❌ | $0.09 |          — |
 
 Whether each run produced a flow that would run:
 
@@ -492,42 +496,43 @@ The index still halves the context on Sonnet 5 and Fable 5, and costs Opus 5 a l
 
 ## The grid in one view
 
-Context the run added, and the tool calls it took, over the runs whose flow works:
+Context the run added, and the tool calls it took:
 
-| Description | Model     |     no tree |        tree | Difference |
-| ----------- | --------- | ----------: | ----------: | ---------: |
-| GitHub REST | Sonnet 5  | 15,620 / 16 |  11,604 / 5 |       −26% |
-| GitHub REST | Opus 5    | 16,462 / 13 | 16,284 / 11 |        −1% |
-| GitHub REST | Fable 5   | 15,145 / 13 | 11,932 / 10 |       −21% |
-| GitHub REST | Haiku 4.5 |           — |   8,565 / 6 |          — |
-| Billing API | Sonnet 5  |           — | 28,164 / 13 |          — |
-| Billing API | Opus 5    | 35,212 / 32 | 32,019 / 21 |        −9% |
-| Billing API | Fable 5   | 32,043 / 30 | 18,329 / 11 |       −43% |
-| Billing API | Haiku 4.5 |           — |           — |          — |
-| Cafe API    | Sonnet 5  |  18,287 / 2 |   8,474 / 5 |       −54% |
-| Cafe API    | Opus 5    |  16,769 / 1 | 17,103 / 11 |        +2% |
-| Cafe API    | Fable 5   |  16,882 / 1 |   9,889 / 9 |       −41% |
-| Cafe API    | Haiku 4.5 |           — |   7,604 / 8 |          — |
+| Description | Model     |        no tree |           tree | Difference |
+| ----------- | --------- | -------------: | -------------: | ---------: |
+| GitHub REST | Sonnet 5  |    15,620 / 16 |     11,604 / 5 |       −26% |
+| GitHub REST | Opus 5    |    16,462 / 13 |    16,284 / 11 |        −1% |
+| GitHub REST | Fable 5   |    15,145 / 13 |    11,932 / 10 |       −21% |
+| GitHub REST | Haiku 4.5 |  15,505 / 8 ❌ |      8,565 / 6 |          — |
+| Billing API | Sonnet 5  | 31,179 / 32 ❌ |    28,164 / 13 |          — |
+| Billing API | Opus 5    |    35,212 / 32 |    32,019 / 21 |        −9% |
+| Billing API | Fable 5   |    32,043 / 30 |    18,329 / 11 |       −43% |
+| Billing API | Haiku 4.5 | 19,459 / 16 ❌ | 17,174 / 14 ❌ |       −12% |
+| Cafe API    | Sonnet 5  |     18,287 / 2 |      8,474 / 5 |       −54% |
+| Cafe API    | Opus 5    |     16,769 / 1 |    17,103 / 11 |        +2% |
+| Cafe API    | Fable 5   |     16,882 / 1 |      9,889 / 9 |       −41% |
+| Cafe API    | Haiku 4.5 |  14,934 / 1 ❌ |      7,604 / 8 |          — |
 
 Where both sides produce a working flow, the index is cheaper in six of eight cells, by 1% to 54%.
+The ❌ cells are cheap for the wrong reason: Haiku 4.5 read the whole Cafe file in one call for 14,934 tokens and still missed the token step.
 Tool calls fall on the two large descriptions — 21 against 32 on the billing API, 5 against 16 on GitHub — and rise on the 41 KB Cafe API, where the alternative is one read of the whole file.
 
 What those runs were billed:
 
-| Description | Model     | no tree |  tree |
-| ----------- | --------- | ------: | ----: |
-| GitHub REST | Sonnet 5  |   $0.46 | $0.27 |
-| GitHub REST | Opus 5    |   $0.72 | $0.67 |
-| GitHub REST | Fable 5   |   $1.09 | $0.85 |
-| GitHub REST | Haiku 4.5 |       — | $0.08 |
-| Billing API | Sonnet 5  |       — | $0.55 |
-| Billing API | Opus 5    |   $1.56 | $1.00 |
-| Billing API | Fable 5   |   $2.82 | $1.32 |
-| Billing API | Haiku 4.5 |       — |     — |
-| Cafe API    | Sonnet 5  |   $0.27 | $0.26 |
-| Cafe API    | Opus 5    |   $0.41 | $0.58 |
-| Cafe API    | Fable 5   |   $0.72 | $0.82 |
-| Cafe API    | Haiku 4.5 |       — | $0.09 |
+| Description | Model     |  no tree |     tree |
+| ----------- | --------- | -------: | -------: |
+| GitHub REST | Sonnet 5  |    $0.46 |    $0.27 |
+| GitHub REST | Opus 5    |    $0.72 |    $0.67 |
+| GitHub REST | Fable 5   |    $1.09 |    $0.85 |
+| GitHub REST | Haiku 4.5 | $0.10 ❌ |    $0.08 |
+| Billing API | Sonnet 5  | $1.05 ❌ |    $0.55 |
+| Billing API | Opus 5    |    $1.56 |    $1.00 |
+| Billing API | Fable 5   |    $2.82 |    $1.32 |
+| Billing API | Haiku 4.5 | $0.16 ❌ | $0.14 ❌ |
+| Cafe API    | Sonnet 5  |    $0.27 |    $0.26 |
+| Cafe API    | Opus 5    |    $0.41 |    $0.58 |
+| Cafe API    | Fable 5   |    $0.72 |    $0.82 |
+| Cafe API    | Haiku 4.5 | $0.07 ❌ |    $0.09 |
 
 How many of the three runs in each cell produced a flow that would run:
 
@@ -582,7 +587,7 @@ It is the least reproducible number here: a warm prompt cache can halve it for i
 
 **working** — the answer is parsed for the calls it proposes and compared with the flow the description requires: every required call, the host each one goes to, the fields the request body requires, and the scheme that protects the operations.
 The check accepts any JSON shape and any equivalent phrasing, and reports only what is nowhere in the answer.
-Runs that fail it are left out of the context and cost tables, since the price of an answer that does not work rewards leaving things out.
+A cell whose runs all fail is marked ❌ rather than dropped, and it is compared only with another ❌ cell, since the price of an answer that does not work rewards leaving things out.
 
 **Noise.** Repeating a cell through the index lands within a few percent, without it by up to 83%, because the agent invents a fresh search strategy every time.
 Treat anything under about 15% of context as a tie.
