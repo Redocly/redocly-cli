@@ -7,7 +7,7 @@ That check is the point: a run that skips the token call is cheap and useless, a
 Three descriptions, four models, two conditions, three runs each — 72 runs:
 
 - **no tree** — the task and the path to the file. Neither `tree` nor Redocly is named.
-- **tree** — the same task plus one line: the CLI is installed, and `tree --format=ai <flags>` makes searching the description easier. No flags are listed and no documentation is linked.
+- **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select. No flags are named in the prompt and no documentation is linked.
 
 Each run is measured by the context it added to its own session, with tool calls after the slash, by what it was billed, and by whether its flow passes the check.
 How all four are counted is in [How this was measured](#how-this-was-measured) at the end.
@@ -52,7 +52,8 @@ The CI authenticates as a GitHub App installation.
 
 API description: github-api.yaml
 
-The Redocly CLI is installed. Searching the description is easier with `tree --format=ai <flags>`:
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree github-api.yaml --format=ai <flags>
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
@@ -64,21 +65,21 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took:
 
-| Model     |       no tree |       tree | Difference |
-| --------- | ------------: | ---------: | ---------: |
-| Sonnet 5  |   12,528 / 14 | 12,915 / 7 |        +3% |
-| Opus 5    |   16,462 / 13 | 16,284 / 9 |        −1% |
-| Fable 5   |   14,815 / 10 | 11,088 / 9 |       −25% |
-| Haiku 4.5 | 15,505 / 8 ❌ |  8,565 / 6 |       −45% |
+| Model     |       no tree |         tree | Difference |
+| --------- | ------------: | -----------: | ---------: |
+| Sonnet 5  |   12,528 / 14 |  13,482 / 11 |        +8% |
+| Opus 5    |   16,462 / 13 |  13,917 / 10 |       −15% |
+| Fable 5   |   14,815 / 10 |   13,539 / 8 |        −9% |
+| Haiku 4.5 | 15,505 / 8 ❌ | 8,478 / 7 ❌ |       −45% |
 
 What those runs were billed:
 
-| Model     |  no tree |  tree | Difference |
-| --------- | -------: | ----: | ---------: |
-| Sonnet 5  |    $0.39 | $0.30 |       −23% |
-| Opus 5    |    $0.72 | $0.61 |       −15% |
-| Fable 5   |    $1.00 | $0.80 |       −20% |
-| Haiku 4.5 | $0.10 ❌ | $0.08 |       −20% |
+| Model     |  no tree |     tree | Difference |
+| --------- | -------: | -------: | ---------: |
+| Sonnet 5  |    $0.39 |    $0.54 |       +38% |
+| Opus 5    |    $0.72 |    $0.59 |       −18% |
+| Fable 5   |    $1.00 |    $1.37 |       +37% |
+| Haiku 4.5 | $0.10 ❌ | $0.08 ❌ |       −20% |
 
 Whether each run produced a flow that would run:
 
@@ -86,7 +87,7 @@ Whether each run produced a flow that would run:
 | ----------------- | ------------ | ------------ |
 | Sonnet 5 · run 1  | works        | works        |
 | Sonnet 5 · run 2  | works        | works        |
-| Sonnet 5 · run 3  | works        | works        |
+| Sonnet 5 · run 3  | works        | no app token |
 | Opus 5 · run 1    | works        | works        |
 | Opus 5 · run 2    | works        | works        |
 | Opus 5 · run 3    | works        | works        |
@@ -95,7 +96,7 @@ Whether each run produced a flow that would run:
 | Fable 5 · run 3   | works        | works        |
 | Haiku 4.5 · run 1 | no app token | no app token |
 | Haiku 4.5 · run 2 | no app token | no app token |
-| Haiku 4.5 · run 3 | no app token | works        |
+| Haiku 4.5 · run 3 | no app token | no app token |
 
 A run works when its flow contains `POST /app/installations/{id}/access_tokens`, `POST /releases`, the asset upload and `DELETE /releases/assets/{asset_id}`, and sends the upload to `uploads.github.com`.
 The upload may be addressed either by path or through the `upload_url` the release returns; both count.
@@ -129,14 +130,17 @@ grep -n "^    installation-id:|^    release-id:|^    asset-id:" github-api.yaml
 {% tab label="Sonnet 5 · run 1 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --search "release" | head -100
-redocly tree github-api.yaml --format=ai --find "release" | head -150
-redocly tree github-api.yaml --format=ai --find "upload asset" | head -60
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases" --operation post --with-deps | head -250
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/{release_id}/assets" --operation post --with-deps | head -150
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation delete --with-deps | head -100
-redocly tree github-api.yaml --format=ai --find "installation access token" | head -40
-redocly tree github-api.yaml --format=ai --path "/app/installations/{installation_id}/access_tokens" --operation post --with-deps | head -100
+find / -iname "github-api.yaml" -not -path "*/node_modules/*" 2>/dev/null
+ls **/github-api.yaml
+ls -la /Users/tora/bench-run/work
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find="release" | head -200
+redocly tree github-api.yaml --format=ai --find="upload release asset" | head -50
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -300
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -200
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -100
+redocly tree github-api.yaml --format=ai --find="installation access token" | head -50
+redocly tree github-api.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -100
 ```
 
 {% /tab %}
@@ -164,14 +168,14 @@ grep -n "securitySchemes:" github-api.yaml
 {% tab label="Sonnet 5 · run 2 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --search "release" | head -100
-redocly tree github-api.yaml --format=ai --find "release" | head -150
-redocly tree github-api.yaml --format=ai --find "upload release asset" | head -50
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases" --operation post --with-deps | head -300
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/{release_id}/assets" --operation post --with-deps | head -200
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation delete --with-deps | head -100
-redocly tree github-api.yaml --format=ai --find "create an installation access token" | head -50
-redocly tree github-api.yaml --format=ai --path "/app/installations/{installation_id}/access_tokens" --operation post --with-deps | head -150
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find="release" | head -200
+redocly tree github-api.yaml --format=ai --find="upload asset" | head -50
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps | head -300
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps | head -300
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps | head -100
+redocly tree github-api.yaml --format=ai --find="installation access token" | head -40
+redocly tree github-api.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps | head -100
 ```
 
 {% /tab %}
@@ -196,16 +200,13 @@ grep -n "^    asset-id:\|^    release-id:\|^    installation-id:" -A 8 github-ap
 {% tab label="Sonnet 5 · run 3 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --search "app" | head -100
-redocly tree github-api.yaml --format=ai --find "release" | head -150
-redocly tree github-api.yaml --format=ai --find "upload release asset" | head -60
-redocly tree github-api.yaml --format=ai --find "installation access token" | head -60
-redocly tree github-api.yaml --format=ai --path "/app/installations/{installation_id}/access_tokens" --operation post --with-deps | head -200
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases" --operation post | head -80
-echo "=====UPLOAD====="
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/{release_id}/assets" --operation post | head -80
-echo "=====DELETE ASSET====="
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation delete | head -60
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find="release" | head -100
+redocly tree github-api.yaml --format=ai --find="upload release asset" | head -60
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps | head -200
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -150
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -100
+redocly tree github-api.yaml --format=ai --component=securitySchemes | head -60
 ```
 
 {% /tab %}
@@ -235,17 +236,15 @@ sed -n '90926,90975p' github-api.yaml
 {% tab label="Opus 5 · run 1 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --help | head -60
-redocly tree github-api.yaml --format=ai --find "release" | head -60
-redocly tree github-api.yaml --format=ai --find "upload release asset" | head -20; echo ---; redocly tree github-api.yaml --format=ai --find "installation access token" | head -20
-for spec in "--path=/app/installations/{installation_id}/access_tokens --operation=post" "--path=/repos/{owner}/{repo}/releases --operation=post" "--path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post" "--path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete"; do echo "=== $spec"; redocly tree github-api.yaml --format=ai $spec | head -70; done
-redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token | head -60
-redocly tree github-api.yaml --format=ai --operation=repos/create-release | head -40
-redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset | head -40
-redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset | head -20; echo "=== TOKEN SCHEMA"; redocly tree github-api.yaml --format=ai --component=schemas --name=installation-token | head -20
-redocly tree github-api.yaml --format=ai --find "repository installation app" | head -12; echo "=== ASSET"; redocly tree github-api.yaml --format=ai --component=schemas --name=release-asset | head -6; echo "=== RELEASE"; redocly tree github-api.yaml --format=ai --component=schemas --name=release | head -6; echo "=== ASSETID"; redocly tree github-api.yaml --format=ai --component=parameters --name=asset-id | head -6
-redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"contents":{[^}]*}' | head -3; redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"workflows":{[^}]*}' | head -3; echo "=== UPDATE RELEASE"; redocly tree github-api.yaml --format=ai --operation=repos/update-release | grep -o '"requestBody".*"responses"' | head -c 2000
-redocly tree github-api.yaml --format=ai --operation=repos/check-immutable-releases | head -8; echo "=== SCHEMA"; redocly tree github-api.yaml --format=ai --component=schemas --name=check-immutable-releases | head -5
+ls && redocly tree --help
+redocly tree github-api.yaml --format=ai --find "release" | head -80
+redocly tree github-api.yaml --format=ai --find "installation token" | head -60
+redocly tree github-api.yaml --format=ai --find "upload asset" | head -30; echo ---; redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/{release_id}/assets" | head -40
+redocly tree github-api.yaml --format=ai --operation apps/create-installation-access-token --with-deps | head -120
+redocly tree github-api.yaml --format=ai --operation repos/upload-release-asset --with-deps | head -120
+redocly tree github-api.yaml --format=ai --operation repos/create-release --with-deps | head -60
+redocly tree github-api.yaml --format=ai --operation repos/delete-release-asset --with-deps | head -40; echo "=== SERVERS/SECURITY ==="; redocly tree github-api.yaml --format=ai --component securitySchemes | head -20
+redocly tree github-api.yaml | head -15; echo "=== servers ==="; grep -n -m1 -A8 "^servers:" github-api.yaml; echo "=== toplevel security ==="; grep -n -m1 -A6 "^security:" github-api.yaml
 ```
 
 {% /tab %}
@@ -274,27 +273,17 @@ awk 'NR>=53685 && NR<=53843 && /^    (get|patch|delete|post|put):/ {print NR": "
 {% tab label="Opus 5 · run 2 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --grep "releases" | head -80
+ls && redocly tree --help
 redocly tree github-api.yaml --format=ai --find "release" | head -80
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs
-redocly tree github-api.yaml --format=ai --find "upload release asset" | head -30
-echo "=== create-release ==="
-redocly tree github-api.yaml --format=ai --operation repos/create-release --with-deps | head -120
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/{release_id}/assets" --operation post --with-deps | head -60
-echo "=== DELETE ASSET ==="
-redocly tree github-api.yaml --format=ai --operation repos/delete-release-asset --with-deps | head -40
-redocly tree github-api.yaml --format=ai --operation repos/check-immutable-releases --with-deps | head -30
-echo "=== APP AUTH ==="
-redocly tree github-api.yaml --format=ai --find "installation access token" | head -20
-redocly tree github-api.yaml --format=ai --operation apps/create-installation-access-token --with-deps | head -25
-echo "=== UPDATE RELEASE ==="
-redocly tree github-api.yaml --format=ai --operation repos/update-release | head -25
-echo "=== IMMUTABLE SCHEMA ==="
-redocly tree github-api.yaml --format=ai --component schemas --name check-immutable-releases --with-deps | head -30
-redocly tree github-api.yaml --format=ai --component schemas --name release | grep -o '"immutable":{[^}]*}'
-redocly tree github-api.yaml --format=ai --component schemas --name release-asset | grep -o '"digest":{[^}]*}\|"state":{[^}]*}'
-redocly tree github-api.yaml --format=ai --operation repos/enable-immutable-releases | head -8
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/releases/{release_id}/assets" | head -10
+redocly tree github-api.yaml --format=ai --find "upload release asset" | head -30; echo ===; redocly tree github-api.yaml --format=ai --find "installation access token" | head -30
+redocly tree github-api.yaml --format=ai --find "installation access token" | head -30
+redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token | head -60
+redocly tree github-api.yaml --format=ai --operation=repos/create-release | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset | head -20; redocly tree github-api.yaml --format=ai --component=schemas --name=release-asset | head -20
+redocly tree github-api.yaml --format=ai --component=schemas --name=installation-token | head -8; echo ---; redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"contents":[^}]*}' | head -3; echo ---; redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"workflows":[^}]*}' | head -3; echo ---SERVERS; head -30 github-api.yaml | grep -A4 servers
+grep -n -m1 -A3 "^servers:" github-api.yaml; echo ---; redocly tree github-api.yaml --format=ai --find "repository installation app" | head -12
+redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation | head -6
 ```
 
 {% /tab %}
@@ -320,15 +309,16 @@ grep -n "    app-permissions:" -A 40 github-api.yaml | grep -n "contents\|workfl
 {% tab label="Opus 5 · run 3 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai | head -50
-redocly tree github-api.yaml --format=ai --find="release asset" | head -60
-redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post | head -80; echo ===; redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post | head -80
-redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post | head -60
-redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete | head -40
-redocly tree github-api.yaml --format=ai --find="installation access token" | head -30
-redocly tree github-api.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post | head -40
-redocly tree github-api.yaml --format=ai --component=schemas --name=installation-token | head -20; redocly tree github-api.yaml --format=ai --component=schemas --name=release-asset | head -20
-redocly tree github-api.yaml --format=ai --component=schemas --name=release | head -6; redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"\(contents\|workflows\)":{[^}]*}' | head
+ls && redocly tree --help
+redocly tree github-api.yaml --format=ai --find "release" | head -80
+redocly tree github-api.yaml --format=ai --find "asset" | head -60
+redocly tree github-api.yaml --format=ai --operation=repos/create-release --with-deps | head -120
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset --with-deps | head -120; echo ====; redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -60
+redocly tree github-api.yaml --format=ai --find "installation access token" | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -40
+redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -60
+redocly tree github-api.yaml --format=ai --find "repo installation" | head -20
+redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation | head -20; printf '\n--SERVERS/SECURITY--\n'; redocly tree github-api.yaml --format=ai | head -30
 ```
 
 {% /tab %}
@@ -357,16 +347,13 @@ grep "upload_url" github-api.yaml | head -15
 {% tab label="Fable 5 · run 1 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --search releases | head -60
-redocly tree github-api.yaml --format=ai --search "access_tokens" | head -30
-redocly tree github-api.yaml --format=ai --find "release" | head -60
-redocly tree github-api.yaml --format=ai --find "installation access token" | head -40
-redocly tree github-api.yaml --format=ai --find "upload asset" | head -20
-redocly tree github-api.yaml --format=ai --operation apps/create-installation-access-token | head -60
-redocly tree github-api.yaml --format=ai --operation repos/create-release | head -40
-redocly tree github-api.yaml --format=ai --operation repos/upload-release-asset | head -40
-redocly tree github-api.yaml --format=ai --operation repos/delete-release-asset | head -20
-redocly tree github-api.yaml --format=ai --path "/repos/{owner}/{repo}/installation" | head -15; redocly tree github-api.yaml --format=ai --component schemas --name installation-token | head -15
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find "release" 2>/dev/null | head -60
+redocly tree github-api.yaml --format=ai --find "upload release asset" 2>/dev/null | head -20; echo ---; redocly tree github-api.yaml --format=ai --find "installation access token" 2>/dev/null | head -20
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/installation 2>/dev/null; echo ---; redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token --with-deps 2>/dev/null | head -80
+redocly tree github-api.yaml --format=ai --operation=repos/create-release --with-deps 2>/dev/null | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset --with-deps 2>/dev/null | head -30; echo =====; redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset 2>/dev/null | head -15
+redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset 2>/dev/null | head -8; echo '---'; redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation 2>/dev/null | head -8
 ```
 
 {% /tab %}
@@ -389,15 +376,14 @@ grep -n "^    installation-token:" github-api.yaml
 {% tab label="Fable 5 · run 2 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --help | head -40
-redocly tree github-api.yaml --format=ai --find "installation access token" | head -30
-redocly tree github-api.yaml --format=ai --find "release" | head -60
-redocly tree github-api.yaml --format=ai --find "upload release asset" | head -10
-redocly tree github-api.yaml --format=ai --operation apps/create-installation-access-token | head -60
-redocly tree github-api.yaml --format=ai --operation repos/create-release | head -30
-redocly tree github-api.yaml --format=ai --operation repos/upload-release-asset | head -30
-redocly tree github-api.yaml --format=ai --operation repos/delete-release-asset | head -20
-redocly tree github-api.yaml --format=ai --find "repository installation" | head -15
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find release | head -80
+redocly tree github-api.yaml --format=ai --find "upload asset"; echo ---; redocly tree github-api.yaml --format=ai --find "installation access token" | head -20
+redocly tree github-api.yaml --format=ai --find "repository installation" | head -12; echo ===; redocly tree github-api.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps 2>/dev/null | head -100
+redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -150
+redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation --with-deps | head -20
+redocly tree github-api.yaml --format=ai --operation=repos/create-release --with-deps | head -30
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset --with-deps | head -25; echo ---DEL---; redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -12
 ```
 
 {% /tab %}
@@ -423,14 +409,14 @@ sed -n '90926,91036p' github-api.yaml
 {% tab label="Fable 5 · run 3 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --search "release" | head -80
+redocly tree --help
 redocly tree github-api.yaml --format=ai --find "release" | head -60
-redocly tree github-api.yaml --format=ai --find "installation token" | head -40
-redocly tree github-api.yaml --format=ai --find "upload asset" | head -20
-redocly tree github-api.yaml --format=ai --operation apps/create-installation-access-token | head -60
-redocly tree github-api.yaml --format=ai --operation repos/upload-release-asset | head -40
-redocly tree github-api.yaml --format=ai --operation apps/get-repo-installation | head -20; echo ---; redocly tree github-api.yaml --format=ai --operation repos/delete-release-asset | head -15
-redocly tree github-api.yaml --format=ai --operation repos/create-release | head -25
+redocly tree github-api.yaml --format=ai --find "installation access token" | head -40
+redocly tree github-api.yaml --format=ai --find "upload release asset" | head -20
+redocly tree github-api.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -120
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -50
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -60
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -40
 ```
 
 {% /tab %}
@@ -456,16 +442,12 @@ grep "release-asset-response-for-successful-upload" github-api.yaml
 {% tab label="Haiku 4.5 · run 1 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --grep "release" 2>/dev/null | head -100
-redocly tree github-api.yaml --format=ai --grep "asset" 2>/dev/null | head -100
-grep -i "release\|asset" github-api.yaml | head -30
-grep -E "'/repos.*release|'/repos.*asset" github-api.yaml | head -30
-cat github-api.yaml
-awk '/^\s*\/repos\/\{owner\}\/\{repo\}\/releases:$/,/^\s*\/repos\/\{owner\}\/\{repo\}\/releases\/{release_id}:$/' github-api.yaml | head -200
-grep -n "'/repos/{owner}/{repo}/releases" github-api.yaml
-sed -n '53272,53422p' github-api.yaml
-sed -n '53843,53953p' github-api.yaml
-sed -n '53431,53536p' github-api.yaml
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find release
+redocly tree github-api.yaml --format=ai --find "upload asset"
+redocly tree github-api.yaml --format=ai --operation=repos/create-release --with-deps
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset --with-deps
+redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset --with-deps
 ```
 
 {% /tab %}
@@ -486,13 +468,14 @@ grep "Authorization|X-GitHub|authentication|Bearer|token|github-app" github-api.
 {% tab label="Haiku 4.5 · run 2 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai | head -100
-redocly tree github-api.yaml --format=ai --find=release
-redocly tree github-api.yaml --format=ai --find=upload asset
-redocly tree github-api.yaml --format=ai --find=asset | grep -i upload
-redocly tree github-api.yaml --format=ai --path=/repos/\{owner\}/\{repo\}/releases --operation=post --with-deps
-redocly tree github-api.yaml --format=ai --path=/repos/\{owner\}/\{repo\}/releases/\{release_id\}/assets --operation=post --with-deps
-redocly tree github-api.yaml --format=ai --path=/repos/\{owner\}/\{repo\}/releases/assets/\{asset_id\} --operation=delete --with-deps
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find="release" | head -100
+redocly tree github-api.yaml --format=ai --operation="create-release" --with-deps
+redocly tree github-api.yaml --format=ai --operation="repos/create-release" --with-deps | head -150
+redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operations
+redocly tree github-api.yaml --format=ai --find="upload" | head -50
+redocly tree github-api.yaml --format=ai --operation="repos/upload-release-asset" --with-deps | head -150
+redocly tree github-api.yaml --format=ai --operation="repos/delete-release-asset" --with-deps | head -150
 ```
 
 {% /tab %}
@@ -514,12 +497,13 @@ sed -n '90866,90926p' github-api.yaml
 {% tab label="Haiku 4.5 · run 3 · tree" %}
 
 ```bash
-redocly tree github-api.yaml --format=ai --filter="release"
-redocly tree github-api.yaml --format=ai --find="release"
-redocly tree github-api.yaml --format=ai --operation="post" --path="/repos/{owner}/{repo}/releases" --with-deps
-redocly tree github-api.yaml --format=ai --find="upload asset"
-redocly tree github-api.yaml --format=ai --operation="post" --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --with-deps
-redocly tree github-api.yaml --format=ai --operation="delete" --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --with-deps
+redocly tree --help
+redocly tree github-api.yaml --format=ai --find "release"
+redocly tree github-api.yaml --format=ai --find "upload"
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
+redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id} --operation=delete --with-deps
 ```
 
 {% /tab %}
@@ -528,8 +512,8 @@ redocly tree github-api.yaml --format=ai --operation="delete" --path="/repos/{ow
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5, Opus 5 and Fable 5 pass every run on both sides, so here the index buys tool calls and price rather than correctness: 7 calls against 14 for Sonnet 5, 9 against 10 for Fable 5.
-Haiku 4.5 fails the same way each time — it declares an installation token in the flow and never calls the endpoint that mints one — and gets there once with the index, never without.
+Opus 5 and Fable 5 pass every run on both sides, so here the index buys tool calls and context rather than correctness: 10 calls against 13 for Opus 5, 8 against 10 for Fable 5.
+Sonnet 5 drops one run with the index and Haiku 4.5 passes none on either side, always the same way — it declares an installation token in the flow and never calls the endpoint that mints one.
 
 {% /tab %}
 {% tab label="Billing API · 1.3 MB" %}
@@ -562,7 +546,8 @@ customer onto a recurring plan.
 
 API description: rebilly.yaml
 
-The Redocly CLI is installed. Searching the description is easier with `tree --format=ai <flags>`:
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree rebilly.yaml --format=ai <flags>
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
@@ -576,36 +561,36 @@ Context the run added, and the tool calls it took:
 
 | Model     |        no tree |           tree | Difference |
 | --------- | -------------: | -------------: | ---------: |
-| Sonnet 5  | 31,179 / 32 ❌ | 25,231 / 11 ❌ |       −19% |
-| Opus 5    |    35,212 / 32 |    32,019 / 21 |        −9% |
-| Fable 5   |    32,043 / 30 |    18,329 / 11 |       −43% |
-| Haiku 4.5 | 19,459 / 16 ❌ | 17,174 / 14 ❌ |       −12% |
+| Sonnet 5  | 31,179 / 32 ❌ | 24,116 / 14 ❌ |       −23% |
+| Opus 5    |    35,212 / 32 |    38,129 / 23 |        +8% |
+| Fable 5   |    32,043 / 30 |    24,919 / 15 |       −22% |
+| Haiku 4.5 | 19,459 / 16 ❌ | 18,412 / 12 ❌ |        −5% |
 
 What those runs were billed:
 
 | Model     |  no tree |     tree | Difference |
 | --------- | -------: | -------: | ---------: |
-| Sonnet 5  | $1.05 ❌ | $0.49 ❌ |       −53% |
-| Opus 5    |    $1.56 |    $1.00 |       −36% |
-| Fable 5   |    $2.82 |    $1.32 |       −53% |
-| Haiku 4.5 | $0.16 ❌ | $0.14 ❌ |       −12% |
+| Sonnet 5  | $1.05 ❌ | $0.54 ❌ |       −49% |
+| Opus 5    |    $1.56 |    $1.34 |       −14% |
+| Fable 5   |    $2.82 |    $1.47 |       −48% |
+| Haiku 4.5 | $0.16 ❌ | $0.13 ❌ |       −19% |
 
 Whether each run produced a flow that would run:
 
-| Run               | no tree                                       | tree                               |
-| ----------------- | --------------------------------------------- | ---------------------------------- |
-| Sonnet 5 · run 1  | no auth scheme                                | no product call, no auth scheme    |
-| Sonnet 5 · run 2  | no auth scheme                                | wrong auth header                  |
-| Sonnet 5 · run 3  | no auth scheme                                | no auth scheme                     |
-| Opus 5 · run 1    | works                                         | works                              |
-| Opus 5 · run 2    | works                                         | works                              |
-| Opus 5 · run 3    | works                                         | works                              |
-| Fable 5 · run 1   | works                                         | works                              |
-| Fable 5 · run 2   | works                                         | works                              |
-| Fable 5 · run 3   | works                                         | works                              |
-| Haiku 4.5 · run 1 | no product call, no plan call, no auth scheme | no product call, wrong auth header |
-| Haiku 4.5 · run 2 | no product call, no plan call, no auth scheme | no product call, no auth scheme    |
-| Haiku 4.5 · run 3 | no auth scheme                                | no product call, no auth scheme    |
+| Run               | no tree                                       | tree                                          |
+| ----------------- | --------------------------------------------- | --------------------------------------------- |
+| Sonnet 5 · run 1  | no auth scheme                                | wrong auth header                             |
+| Sonnet 5 · run 2  | no auth scheme                                | no auth scheme                                |
+| Sonnet 5 · run 3  | no auth scheme                                | no auth scheme                                |
+| Opus 5 · run 1    | works                                         | works                                         |
+| Opus 5 · run 2    | works                                         | wrong auth header                             |
+| Opus 5 · run 3    | works                                         | works                                         |
+| Fable 5 · run 1   | works                                         | no auth scheme                                |
+| Fable 5 · run 2   | works                                         | works                                         |
+| Fable 5 · run 3   | works                                         | works                                         |
+| Haiku 4.5 · run 1 | no product call, no plan call, no auth scheme | no product call, no auth scheme               |
+| Haiku 4.5 · run 2 | no product call, no plan call, no auth scheme | no product call, no auth scheme               |
+| Haiku 4.5 · run 3 | no auth scheme                                | no product call, no plan call, no auth scheme |
 
 A run works when its flow contains `POST /products`, `POST /plans` and `POST /subscriptions`, names the four fields the subscription body requires — `orderType`, `customerId`, `websiteId`, `items` — and sends the secret key in the `REB-APIKEY` header the description declares.
 Naming the `SecretApiKey` scheme and then putting the key in `Authorization` counts as a failure, because Rebilly answers those calls with 401.
@@ -661,17 +646,32 @@ sed -n '11973,12003p' rebilly.yaml
 {% tab label="Sonnet 5 · run 1 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai --filter="*subscription*" | head -200
-redocly tree rebilly.yaml --format=ai --find="subscription" | head -300
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -400
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -200
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -100
-redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -40
-redocly tree rebilly.yaml --format=ai --find="payment-instruments" | head -60
-redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post --with-deps | head -200
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardCreatePlain | head -60
-redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject | head -30
-redocly tree rebilly.yaml --format=ai --component=schemas --name=CustomerId | head -20
+redocly tree --help
+redocly tree rebilly.yaml --format=ai --find="recurring" | head -100
+redocly tree rebilly.yaml --format=ai --find="plan" | head -150
+redocly tree rebilly.yaml --format=ai --find="subscription" | head -150
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -300
+redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription --with-deps | head -100
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --component=schemas --name=FlexiblePlan --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --find="product" | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product --with-deps | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
+echo ---
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanSetup
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -20
+redocly tree rebilly.yaml --format=ai --find="websites" | head -20
+redocly tree rebilly.yaml --format=ai --find="customer" | head -40
+redocly tree rebilly.yaml --format=ai --find="payment-instruments" | head -20
+redocly tree rebilly.yaml --pointer="#/paths/~1subscriptions/post/x-codeSamples" | head -80
+sed -n '32665,32785p' rebilly.yaml
+redocly tree rebilly.yaml --format=ai --path=/customers/{id} --operation=get | head -20
+echo "verifying auth scheme for these endpoints"
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | grep -i security
+redocly tree rebilly.yaml --format=ai --path=/products --operation=post | grep -i security
 ```
 
 {% /tab %}
@@ -687,25 +687,30 @@ ScheduleWakeup
 {% tab label="Sonnet 5 · run 2 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai --paths-matching '*subscription*' | head -100
-redocly tree rebilly.yaml --format=ai --find subscription | head -200
-redocly tree rebilly.yaml --format=ai --path /subscriptions --operation post --with-deps | head -400
-redocly tree rebilly.yaml --format=ai --component schemas --name SubscriptionOrOneTimeSaleItem | head -150
-redocly tree rebilly.yaml --format=ai --component schemas --name OriginalPlan
-redocly tree rebilly.yaml --format=ai --component schemas --name FlexiblePlan
-redocly tree rebilly.yaml --format=ai --find "plans" | head -60
-redocly tree rebilly.yaml --format=ai --path /plans --operation post --with-deps | head -100
-redocly tree rebilly.yaml --format=ai --component schemas --name Product | head -60
-redocly tree rebilly.yaml --format=ai --find "recurringInterval" | head -30
-redocly tree rebilly.yaml --format=ai --component schemas --name PlanPriceFormula | head -40
-redocly tree rebilly.yaml --format=ai --component schemas --name SubscriptionPlan
-redocly tree rebilly.yaml --format=ai --component schemas --name Subscription | head -80
-redocly tree rebilly.yaml --format=ai --component schemas --name PlanFormulaFlatRate
-redocly tree rebilly.yaml --format=ai --find "payment-instrument" | head -40
-redocly tree rebilly.yaml --format=ai --path /payment-instruments --operation post --with-deps | head -120
-redocly tree rebilly.yaml --format=ai --component securitySchemes | head -30
-redocly tree rebilly.yaml --format=ai | head -20
-redocly tree rebilly.yaml --format=ai --path /products --operation post --with-deps | head -20
+redocly tree --help | head -80
+redocly tree rebilly.yaml --format=ai --find="recurring" | head -100
+redocly tree rebilly.yaml --format=ai --find="plan" | head -150
+redocly tree rebilly.yaml --format=ai --find="subscription" | head -150
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -400
+redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription --with-deps | head -200
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -150
+redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan --with-deps | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=FlexiblePlan --with-deps | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps | head -120
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -100
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan | head -40
+redocly tree rebilly.yaml --format=ai --find="product" | head -40
+redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | python3 -c "
+import json,sys
+data=sys.stdin.read()
+start=data.find('--- json')
+print(data[:start])
+"
+redocly tree rebilly.yaml --format=ai --find="payment-instrument" | head -30
+redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=CustomerId | head -20
 ```
 
 {% /tab %}
@@ -750,30 +755,20 @@ sed -n '11222,11262p' rebilly.yaml
 {% tab label="Sonnet 5 · run 3 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai --depth 2 | head -100
-redocly tree rebilly.yaml --format=ai --find "subscription" | head -150
-redocly tree rebilly.yaml --format=ai --path /subscriptions/{id} --operation put --with-deps | head -250
-redocly tree rebilly.yaml --format=ai --component schemas --name SubscriptionOrOneTimeSaleItem --with-deps | head -150
-redocly tree rebilly.yaml --format=ai --find "plan" | head -60
-redocly tree rebilly.yaml --format=ai --find "product" | head -40
-echo ---
-redocly tree rebilly.yaml --format=ai --path /plans --operation post --with-deps | head -100
-redocly tree rebilly.yaml --format=ai --component schemas --name Product --with-deps | head -60
-echo "=== PostProduct ==="
-redocly tree rebilly.yaml --format=ai --path /products --operation post | head -30
-echo "=== PlanPriceFormula ==="
-redocly tree rebilly.yaml --format=ai --component schemas --name PlanPriceFormula --with-deps | head -20
-echo "=== SubscriptionPlan full ==="
-redocly tree rebilly.yaml --format=ai --component schemas --name SubscriptionPlan | head -5
-echo "=== PostSubscription ==="
-redocly tree rebilly.yaml --format=ai --path /subscriptions --operation post --with-deps | head -60
-redocly tree rebilly.yaml --format=ai --find "payment-instrument" | head -30
-echo "=== WebsiteId ==="
-redocly tree rebilly.yaml --format=ai --component schemas --name WebsiteId | head -10
-echo "=== CustomerId ==="
-redocly tree rebilly.yaml --format=ai --component schemas --name CustomerId | head -10
-redocly tree rebilly.yaml --format=ai --path /payment-instruments --operation post --with-deps | head -40
-redocly tree rebilly.yaml --format=ai --component schemas --name PlanFormulaFixedFee | head -10
+redocly tree --help | head -100
+redocly tree rebilly.yaml --format=ai --find="subscription" | head -150
+redocly tree rebilly.yaml --format=ai --find="plan" | head -150
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -300
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -100
+redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -60
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -100
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -200
+redocly tree rebilly.yaml --format=ai --find="product" | head -60
+echo "====instrument===="
+redocly tree rebilly.yaml --format=ai --find="payment instrument" | head -60
+redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post --with-deps | head -150
+redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -30
 ```
 
 {% /tab %}
@@ -825,54 +820,51 @@ sed -n '9960,9980p' rebilly.yaml
 {% tab label="Opus 5 · run 1 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -50
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs
-redocly tree rebilly.yaml --format=ai --tag=Products
-echo "=====PLANS====="
-redocly tree rebilly.yaml --format=ai --tag=Plans
-echo "=====ORDERS====="
-redocly tree rebilly.yaml --format=ai --tag=Orders
-redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -80
-echo "=====PLAN POST====="
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -200
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -120
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula --with-deps | head -40
-echo "=====FLATRATE====="
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFlatRate | head -20
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -60
-redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -8
-echo "=====PI====="
-redocly tree rebilly.yaml --format=ai --tag="Payment instruments"
-echo "=====PT====="
-redocly tree rebilly.yaml --format=ai --tag="Payment tokens"
-echo "=====SubItem====="
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -8
-echo "=====FLEX====="
-redocly tree rebilly.yaml --format=ai --component=schemas --name=FlexiblePlan | head -8
-echo "=====find websites====="
-redocly tree rebilly.yaml --format=ai --find=website | head -30
-redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post --with-deps | head -45
-redocly tree rebilly.yaml --format=ai --pointer='#/components/requestBodies/PostPaymentInstrument' | head -12
-echo "=====PostToken====="
-redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post --with-deps | head -30
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -8
-sed -n '15234,15260p;15380,15470p' rebilly.yaml
-redocly tree rebilly.yaml --format=ai --tag=Customers
-echo "=====Customer schema====="
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Customer | head -4
-awk 'NR>=15234 && NR<=15791' rebilly.yaml | grep -n -A12 "^        currency:" | head -20
-echo "=====paymentInstrumentId====="
-awk 'NR>=15234 && NR<=15791' rebilly.yaml | grep -n -A14 "^        paymentInstrumentId:" | head -20
-echo "=====items====="
-awk 'NR>=15234 && NR<=15791' rebilly.yaml | grep -n -A10 "^        items:" | head -14
-redocly tree rebilly.yaml --format=ai --find="gateway account" | head -12
-echo "=====Invoices====="
-redocly tree rebilly.yaml --format=ai --tag=Invoices | head -20
-redocly tree rebilly.yaml --format=ai --component=securitySchemes --name=SecretApiKey | head -6
-echo "=====expand====="
-redocly tree rebilly.yaml --format=ai --component=parameters --name=subscriptionExpand | head -6
-redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject | sed -n '2,3p' | cut -c1-1200
+ls -la /Users/tora/bench-run/work && redocly tree --help
+redocly tree rebilly.yaml --format=ai --find subscription | head -80
+redocly tree rebilly.yaml --format=ai --find plan | head -60
+redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps | head -250
+redocly tree rebilly.yaml --format=ai --find product | head -30
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product --with-deps | head -40; echo "=====SUBPLAN"; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps | head -200
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --find website | head -20; echo "=====PI"; redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -30; echo "=====TOKEN"; redocly tree rebilly.yaml --format=ai --find "payment token" | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | python3 -c "
+import sys,json,re
+t=sys.stdin.read()
+i=t.find('{\"description\"')
+i=t.find('--- json')
+j=t.find('--- deps')
+s=t[i+9:j]
+d=json.loads(s)
+print('required:', d.get('required'))
+for k in ['items','paymentInstrumentId','autopay','websiteId','customerId','orderType','currency','startTime','recurringInterval','delinquencyPeriod']:
+print('###',k, json.dumps(d['properties'].get(k))[:2000])
+"
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription > /tmp/claude-501/-Users-tora-bench-run-work/3fd6cb69-1d3e-4e8e-8bcb-c47f7cd81c2a/scratchpad/sub.txt; python3 - <<'EOF'
+import json
+p='/tmp/claude-501/-Users-tora-bench-run-work/3fd6cb69-1d3e-4e8e-8bcb-c47f7cd81c2a/scratchpad/sub.txt'
+t=open(p).read()
+i=t.find('--- json'); j=t.find('--- deps')
+d=json.JSONDecoder().raw_decode(t[i+9:j])[0]
+for k in ['items','paymentInstrumentId','autopay','websiteId','customerId','orderType','currency','startTime','recurringInterval','delinquencyPeriod','billingStatus','status']:
+print('###',k, json.dumps(d['properties'].get(k))[:1500])
+EOF
+redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -20; echo ====ITEM; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -30
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -40; echo "=@=OriginalPlan"; redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -12
+redocly tree rebilly.yaml --format=ai --operation=PostToken --with-deps | head -40; echo "=@=PostPaymentInstrument"; redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument --with-deps | head -40
+redocly tree rebilly.yaml --format=ai --find activation | head -20; echo "=@=defaultPI"; grep -n "defaultPaymentInstrument" rebilly.yaml | head -20
+sed -n '9937,10010p' rebilly.yaml
+sed -n '3540,3580p' rebilly.yaml; echo "=@=customer ops"; redocly tree rebilly.yaml --format=ai --path=/customers/{id} | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | head -12; echo "=@=reqbody"; sed -n '20442,20480p' rebilly.yaml
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -12; echo "=@=FIXEDFEE"; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -10; echo "=@=CONTACT"; redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject | head -8
+redocly tree rebilly.yaml --format=ai --operation=GetCustomer | head -20; echo "=@=INVOICE"; redocly tree rebilly.yaml --format=ai --find "invoice payment" | head -25
+redocly tree rebilly.yaml --format=ai --component=securitySchemes | head -20; echo "=@=SERVERS"; python3 -c "
+import re
+t=open('/Users/tora/bench-run/work/rebilly.yaml').read()
+i=t.find('servers:'); print(t[i:i+400])
+sed -n '227,240p' rebilly.yaml; python3 -c "
+i=t.find('servers:'); print(t[i:i+1600])" | grep -n "url:"
+redocly tree rebilly.yaml --format=ai --component=schemas --name=VaultedInstrument | head -8
 ```
 
 {% /tab %}
@@ -917,29 +909,36 @@ awk 'NR>=3261 && NR<=3510 && /^      [a-z]+:/ {print NR": "$0}' rebilly.yaml; ec
 {% tab label="Opus 5 · run 2 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -100
-redocly tree --help | head -60
-redocly tree rebilly.yaml --format=ai --tag=Plans; echo ---; redocly tree rebilly.yaml --format=ai --tag=Products; echo ---; redocly tree rebilly.yaml --format=ai --tag=Orders
-redocly tree rebilly.yaml --format=ai --tag="Payment instruments"; echo ---; redocly tree rebilly.yaml --format=ai --tag="Payment tokens"; echo ---; redocly tree rebilly.yaml --format=ai --tag=Customers
-redocly tree rebilly.yaml --format=ai --operation=PostProduct --with-deps | head -120
-redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps | head -400
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps | head -250
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula --with-deps | head -200
-redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps | head -60
-redocly tree rebilly.yaml --format=ai --operation=PostToken --with-deps | head -80
-redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription | head -20; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -20; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -40
-redocly tree rebilly.yaml --format=ai --find=website | head -40
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -40; echo "@@@"; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -20
-sed -n '15234,15300p' rebilly.yaml
-grep -n "autopay" rebilly.yaml | head -20
-redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument --with-deps | head -40
-sed -n '15390,15420p;15500,15520p' rebilly.yaml; echo "@@@ reqbody"; sed -n '20442,20452p' rebilly.yaml
-sed -n '17082,17140p' rebilly.yaml
-sed -n '32940,33010p' rebilly.yaml; echo "@@@ plan sample"; sed -n '31120,31185p' rebilly.yaml
-redocly tree rebilly.yaml --format=ai --component=securitySchemes | head -20; echo "@@@"; sed -n '12216,12245p' rebilly.yaml
-sed -n '227,237p' rebilly.yaml; echo "@@@ contact"; redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject | head -12
-sed -n '448,474p' rebilly.yaml
-sed -n '10877,10892p' rebilly.yaml; echo "@@@"; grep -n "example: cct_" rebilly.yaml | head -3
+ls && redocly tree --help
+redocly tree rebilly.yaml --format=ai --find=subscription | head -80
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post | head -60
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSale | head -60; echo ======; redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -100
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -20
+cd /Users/tora/bench-run/work; for n in OriginalPlan FlexiblePlan; do redocly tree rebilly.yaml --format=ai --component=schemas --name=$n | head -12; echo "-----"; done
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --find=plan | head -30; echo =====; redocly tree rebilly.yaml --format=ai --find=product | head -20; echo =====; redocly tree rebilly.yaml --format=ai --find=website | head -20
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -8; echo ==PRODUCT==; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -8
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan | head -8; echo "== FORMULA =="; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula|head -6; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee|head -6
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -6; echo "-- WEBSITE --"; redocly tree rebilly.yaml --format=ai --find="websites" | head -12; redocly tree rebilly.yaml --format=ai --component=schemas --name=Website | head -6
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId|head -6; echo "-- products ops --"; redocly tree rebilly.yaml --format=ai --find="products"|head -10; echo "-- payment instrument ops --"; redocly tree rebilly.yaml --format=ai --find="payment-instruments"|head -14; echo "-- tokens --"; redocly tree rebilly.yaml --format=ai --find="payment-tokens"|head -10
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post|head -20; echo "-- token search --"; redocly tree rebilly.yaml --format=ai --find="token"|head -25
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --pointer="#/components/requestBodies/PostPaymentInstrument"|head -10; echo "-- create token instrument --"; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken|head -6
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post|head -20; echo "-- PaymentCardToken --"; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken|head -6
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --operations | grep -iE "website|gateway-account|/customers" | head -30
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --path=/customers --operation=get|head -12; echo "-- Customer schema --"; redocly tree rebilly.yaml --format=ai --component=schemas --name=Customer|head -3
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --pointer="#/components/parameters/collectionFilter"|head -6; echo "-- servers/security --"; python3 -c "
+import re
+t=open('rebilly.yaml').read()
+i=t.find('servers:'); print(t[i:i+500])
+j=t.find('securitySchemes:'); print(t[j:j+1200])
+"
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --operations | grep -iE "invoice|transaction" | head -30
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --path=/transactions --operation=post|head -12
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --pointer="#/components/requestBodies/TransactionRequest"|head -8
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstruction|head -8
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstructionInstrument|head -5; redocly tree rebilly.yaml --format=ai --component=schemas --name=UseAsBackup|head -5; redocly tree rebilly.yaml --format=ai --component=schemas --name=CompositeToken|head -5
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --path=/plans --operation=post|head -5; redocly tree rebilly.yaml --format=ai --path=/products --operation=post|head -5; redocly tree rebilly.yaml --format=ai --pointer="#/components/parameters/subscriptionExpand"|head -5; redocly tree rebilly.yaml --format=ai --component=schemas --name=CustomerId|head -5
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrument|head -3; redocly tree rebilly.yaml --format=ai --component=schemas --name=Invoice|head -3
 ```
 
 {% /tab %}
@@ -980,27 +979,48 @@ sed -n '3261,3290p' rebilly.yaml; echo "=== PlanTrial 11762 ==="; sed -n '11762,
 {% tab label="Opus 5 · run 3 · tree" %}
 
 ```bash
-ls -la && redocly tree rebilly.yaml --format=ai | head -50
-redocly tree --help | head -60
-redocly tree rebilly.yaml --format=ai --tag=Plans; echo ====; redocly tree rebilly.yaml --format=ai --tag=Products; echo ====; redocly tree rebilly.yaml --format=ai --tag=Orders
-redocly tree rebilly.yaml --format=ai --tag="Payment tokens"; echo ====; redocly tree rebilly.yaml --format=ai --tag="Payment instruments"; echo ====; redocly tree rebilly.yaml --format=ai --find="website" | head -40
-redocly tree rebilly.yaml --format=ai --tag=Products; redocly tree rebilly.yaml --format=ai --tag=Orders
-redocly tree rebilly.yaml --format=ai --tag="Payment instruments"; redocly tree rebilly.yaml --format=ai --find="website" | head -40
+ls && redocly tree --help
+redocly tree rebilly.yaml --format=ai | head -100
+redocly tree rebilly.yaml --format=ai --tag=Plans; echo ---; redocly tree rebilly.yaml --format=ai --tag=Products; echo ---; redocly tree rebilly.yaml --format=ai --tag=Orders
 redocly tree rebilly.yaml --format=ai --operation=PostProduct --with-deps | head -120
-redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps | head -300
-sed -n '11889,12086p' rebilly.yaml
-redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps | head -80
-sed -n '20471,20480p' rebilly.yaml; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -60
-sed -n '15234,15260p' rebilly.yaml; grep -n "autopay\|paymentInstrumentId\|revision\|readOnly" /dev/null; sed -n '15400,15470p' rebilly.yaml
-grep -n "paymentInstrumentId:" rebilly.yaml | head; sed -n '15476,15500p' rebilly.yaml
-redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument --with-deps | head -60
-sed -n '20442,20455p' rebilly.yaml; echo '--- subscription paymentInstrumentId'; sed -n '15498,15520p' rebilly.yaml; echo '--- flatrate'; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFlatRate --with-deps | head -20
-redocly tree rebilly.yaml --format=ai --tag=Customers; echo '--- token'; redocly tree rebilly.yaml --format=ai --operation=PostToken --with-deps | head -40
-sed -n '17082,17140p' rebilly.yaml; echo '--- contactobject'; redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject | head -12
-redocly tree rebilly.yaml --format=ai --component=securitySchemes | head -20; echo '--- invoices'; redocly tree rebilly.yaml --format=ai --tag=Invoices
-sed -n '227,240p' rebilly.yaml; echo '--- sub currency/items/autopay'; awk 'NR>=15380 && NR<=15400' rebilly.yaml; echo '---'; awk 'NR>=15600 && NR<=15660' rebilly.yaml
-awk 'NR>=15525 && NR<=15600' rebilly.yaml | grep -n -A6 "currency\|websiteId\|items:"
-sed -n '10877,10892p' rebilly.yaml; sed -n '2898,2906p' rebilly.yaml
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product --with-deps | head -60; echo =====; redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps | head -60
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps | head -40
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -40
+cd /Users/tora/bench-run/work; for n in PlanPriceFormula PlanFormulaFlatRate ServicePeriodAnchorInstruction SchedulingMethodImmediately; do redocly tree rebilly.yaml --format=ai --component=schemas --name=$n | head -8; echo "-----"; done
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps | head -40
+cd /Users/tora/bench-run/work; for n in WebsiteId SubscriptionOrOneTimeSaleItem CustomerId; do redocly tree rebilly.yaml --format=ai --component=schemas --name=$n | head -6; echo "-----"; done; redocly tree rebilly.yaml --format=ai --find=website | head -30
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan|head -4; echo -----; redocly tree rebilly.yaml --format=ai --tag="Payment tokens"; echo -----; redocly tree rebilly.yaml --format=ai --tag="Payment instruments"
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --operation=PostToken --with-deps | head -30
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken|head -5; echo -----; redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument --with-deps | head -25
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription --with-deps|head -8; echo -----; redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject|head -5
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | python3 -c "
+import sys,json,re
+t=sys.stdin.read()
+j=t.split('--- json',1)[1].split('refs:')[0].strip().split('\nusedBy')[0]
+d=json.loads(j)
+print('required:',d.get('required'))
+for k in ['status','autopay','paymentInstrumentId','startTime','billingStatus','websiteId','currency','items','recurringInterval','delinquencyPeriod','riskMetadata']:
+p=d['properties'].get(k)
+print('==',k,'==')
+print(json.dumps(p)[:900])
+"
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --tag=Customers; echo -----; redocly tree rebilly.yaml --format=ai --component=requestBodies --name=PostPaymentInstrument|head -5; echo -----; redocly tree rebilly.yaml --format=ai --find="default payment instrument"|head -20
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=VaultedInstrument|head -5; echo -----; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCard | python3 -c "
+import sys,json
+t=sys.stdin.read();j=t.split('--- json',1)[1].split('\nrefs:')[0].split('\nusedBy')[0].strip()
+print(json.dumps(d['properties']['status'],indent=1))
+print(json.dumps(d['properties'].get('useAsBackup'))[:300])
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=Customer | python3 -c "
+t=sys.stdin.read();print(t.split('signature:')[1].split('--- json')[0])
+j=t.split('--- json',1)[1].split('\nrefs:')[0].split('\nusedBy')[0].strip()
+d=json.loads(j); print('required',d.get('required'))
+print(json.dumps(d['properties'].get('defaultPaymentInstrument'))[:600])
+"; echo -----; redocly tree rebilly.yaml --format=ai --tag=Invoices|head -25
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --tag=Transactions|head -20; echo -----; redocly tree rebilly.yaml --format=ai --operation=PutCustomer|head -12
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=securitySchemes|head -20; echo -----; redocly tree rebilly.yaml --format=ai --component=parameters --name=organizationId|head -5
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=securitySchemes --name=SecretApiKey|head -6; echo -----; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanSetup|head -4; echo ----; redocly tree rebilly.yaml --format=ai --component=schemas --name=CurrencyCode|head -3
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee|head -3; echo ----; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanTrial|head -4
+cd /Users/tora/bench-run/work; redocly tree rebilly.yaml --format=ai --component=parameters --name=subscriptionExpand|sed -n '1,6p'
 ```
 
 {% /tab %}
@@ -1049,18 +1069,24 @@ sed -n '226,245p' rebilly.yaml
 {% tab label="Fable 5 · run 1 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -100
-redocly tree rebilly.yaml --format=ai --tag=Plans; redocly tree rebilly.yaml --format=ai --tag=Orders | head -60
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -120
-redocly tree rebilly.yaml --format=ai --tag=Products; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -30
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -80
-redocly tree rebilly.yaml --format=ai --find=website | head -30; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -15
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -40
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula | head -8; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFlatRate | head -8
-redocly tree rebilly.yaml --format=ai --tag=Customers | head -16; sed -n '20471,20477p' rebilly.yaml
-redocly tree rebilly.yaml --format=ai --component=securitySchemes | head -12
-sed -n '227,236p' rebilly.yaml
+redocly tree rebilly.yaml --help | head -80
+redocly tree rebilly.yaml --format=ai --find subscription | head -60
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps | head -120
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -40
+redocly tree rebilly.yaml --format=ai --find plan | head -30; echo ---; redocly tree rebilly.yaml --format=ai --find website | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -15; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan | head -15
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -20
+redocly tree rebilly.yaml --format=ai --find product | head -15; echo ---; redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -25
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | head -12
+redocly tree rebilly.yaml --format=ai --operation=PostToken | head -12
+redocly tree rebilly.yaml --format=ai --component=schemas --name=CompositeToken | head -10
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -8; echo ---; redocly tree rebilly.yaml --format=ai --find "default payment" | head -12
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -8
+sed -n '15390,15430p' rebilly.yaml | grep -n -A8 'paymentInstrumentId' | head -30; echo ---; grep -n 'paymentInstrumentId' rebilly.yaml | sed -n '1,5p'
+grep -n 'paymentInstrumentId' rebilly.yaml | awk -F: '$1>15234 && $1<15791'; echo ---; sed -n '15380,15410p' rebilly.yaml
+sed -n '15503,15520p' rebilly.yaml
+redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument | head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -6
 ```
 
 {% /tab %}
@@ -1103,17 +1129,18 @@ sed -n '226,240p' rebilly.yaml
 {% tab label="Fable 5 · run 2 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -100
-redocly tree rebilly.yaml --format=ai --tag=Plans; redocly tree rebilly.yaml --format=ai --tag=Orders | head -50
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -120
-redocly tree rebilly.yaml --format=ai --tag=Products; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -30
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -60
-redocly tree rebilly.yaml --format=ai --find=website | head -30; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Customer | head -12; redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -8; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -8
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -14; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -8
-redocly tree rebilly.yaml --format=ai --tag=Customers | head -16
-redocly tree rebilly.yaml --format=ai --component=securitySchemes | head -12
-redocly tree rebilly.yaml --format=ai --component=securitySchemes --name=SecretApiKey | head -6
+redocly tree --help
+redocly tree rebilly.yaml --format=ai --find subscription | head -80
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -200
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --find plan | head -40
+redocly tree rebilly.yaml --format=ai --find product | head -20; echo ---; redocly tree rebilly.yaml --format=ai --find website | head -15; echo ---; redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -25
+redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -30
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -20; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -30
+redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post | head -15; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | head -20
+redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post --with-deps | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | grep -o '"paymentInstrumentId":{[^}]*}' ; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | grep -o '"autopay":{[^}]*}'; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -8; echo ---; redocly tree rebilly.yaml --format=ai --path=/customers --operation=get | head -8
 ```
 
 {% /tab %}
@@ -1152,17 +1179,21 @@ sed -n '226,245p' rebilly.yaml
 {% tab label="Fable 5 · run 3 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -100
-redocly tree rebilly.yaml --format=ai --tag=Plans; redocly tree rebilly.yaml --format=ai --tag=Orders | head -60
-redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -60
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -120
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -80
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -80
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -40; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -15; echo ===; redocly tree rebilly.yaml --format=ai --find=website | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -12; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -10; redocly tree rebilly.yaml --format=ai --find=websites | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula | head -12; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFlatRate | head -10; redocly tree rebilly.yaml --format=ai --tag=Customers | head -16
-redocly tree rebilly.yaml --format=ai --component=securitySchemes | head -20
-redocly tree rebilly.yaml --format=ai --component=securitySchemes --name=SecretApiKey | head -8
+redocly tree --help
+redocly tree rebilly.yaml --format=ai --find "subscription" | head -60
+redocly tree rebilly.yaml --format=ai --find "plan" | head -60
+redocly tree rebilly.yaml --format=ai --operation PostSubscription --with-deps | head -250
+redocly tree rebilly.yaml --format=ai --component schemas --name SubscriptionOrOneTimeSaleItem | head -60; echo ====; redocly tree rebilly.yaml --format=ai --component schemas --name OriginalPlan | head -30
+redocly tree rebilly.yaml --format=ai --operation PostPlan --with-deps | head -120
+redocly tree rebilly.yaml --format=ai --find "product" | head -20; echo ----; redocly tree rebilly.yaml --format=ai --find "website" | head -20
+redocly tree rebilly.yaml --format=ai --component schemas --name SubscriptionPlan | grep -o '"recurringInterval":{[^€]*' | head -c 2000
+redocly tree rebilly.yaml --format=ai --component schemas --name Product | head -8; echo ----; redocly tree rebilly.yaml --format=ai --find "customer" | head -15
+redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -25
+redocly tree rebilly.yaml --format=ai --component schemas --name PaymentInstrumentCreateToken | head -6
+redocly tree rebilly.yaml --format=ai --operation PostToken | head -10
+redocly tree rebilly.yaml --format=ai --component schemas --name OriginalPlan | head -6; echo ---- ; redocly tree rebilly.yaml --format=ai --component schemas --name CompositeToken | head -5
+redocly tree rebilly.yaml --format=ai --component schemas --name PaymentCardToken | head -4
+redocly tree rebilly.yaml --format=ai --component schemas --name PlanFormulaFixedFee | head -4
 ```
 
 {% /tab %}
@@ -1199,20 +1230,19 @@ grep -n "^  /website" rebilly.yaml | head -20
 {% tab label="Haiku 4.5 · run 1 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -100
-redocly tree rebilly.yaml --format=ai --find="subscription"
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -200
+redocly tree --help
+redocly tree rebilly.yaml --format=ai --find=subscription
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps
 redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -150
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -100
-redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -100
-cat rebilly.yaml
-redocly tree rebilly.yaml --format=ai --find="plans" --tag="Plans" | head -50
-redocly tree rebilly.yaml --format=ai --tag=Plans
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps | head -150
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -200
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula | head -100
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription --with-deps
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
+redocly tree rebilly.yaml --format=ai --find=plan --operation --head_limit=30
+redocly tree rebilly.yaml --format=ai --find=plan | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps
+redocly tree rebilly.yaml --format=ai --find=customer --operations | head -20
+redocly tree rebilly.yaml --format=ai --find=customer
+redocly tree rebilly.yaml --format=ai --find=payment --path | head -30
+redocly tree rebilly.yaml --format=ai --find="payment instrument"
 ```
 
 {% /tab %}
@@ -1241,25 +1271,18 @@ sed -n '25986,26086p' rebilly.yaml
 {% tab label="Haiku 4.5 · run 2 · tree" %}
 
 ```bash
-redocly tree rebilly.yaml --format=ai | head -200
-redocly tree rebilly.yaml --format=ai --find="subscription|recurring|plan" | head -150
-redocly tree rebilly.yaml --format=ai --tag="Orders"
-redocly tree rebilly.yaml --format=ai --tag="Plans"
-redocly tree rebilly.yaml --format=ai --path="/subscriptions" --operation="post" --with-deps
-sed -n '32632,32832p' rebilly.yaml
-redocly tree rebilly.yaml --format=ai --component="requestBodies" --name="Subscription"
-redocly tree rebilly.yaml --format=ai --component="schemas" --name="Subscription" | head -100
-redocly tree rebilly.yaml --format=ai --component="schemas" --name="SubscriptionOrOneTimeSaleItem"
-redocly tree rebilly.yaml --format=ai --component="schemas" --name="OriginalPlan"
-redocly tree rebilly.yaml --format=ai --tag="Payment instruments"
-redocly tree rebilly.yaml --format=ai --tag="Customers"
-redocly tree rebilly.yaml --format=ai --path="/plans" --operation="post" --with-deps | head -150
-redocly tree rebilly.yaml --format=ai --component="schemas" --name="SubscriptionPlan" | head -150
-redocly tree rebilly.yaml --format=ai --component="schemas" --name="PlanPriceFormula"
-redocly tree rebilly.yaml --format=ai --component="schemas" --name="PlanFormulaFixedFee"
-redocly tree rebilly.yaml --format=ai --path="/plans" --operation="get" --with-deps | head -100
-redocly tree rebilly.yaml --format=ai --path="/customers/{id}" --operation="get" | head -80
-redocly tree rebilly.yaml --format=ai --find="website" | head -30
+redocly tree --help
+redocly tree rebilly.yaml --format=ai --find="subscription"
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps
+redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription --with-deps
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps
+redocly tree rebilly.yaml --format=ai --find="plan"
+redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps
+redocly tree rebilly.yaml --format=ai --find="payment instrument"
+redocly tree rebilly.yaml --format=ai --find="customer" --head_limit=30
+redocly tree rebilly.yaml --format=ai --find="customer" | head -40
+redocly tree rebilly.yaml --format=ai --operation=GetCustomer --with-deps
 ```
 
 {% /tab %}
@@ -1288,19 +1311,17 @@ sed -n '11222,11322p' rebilly.yaml
 {% tab label="Haiku 4.5 · run 3 · tree" %}
 
 ```bash
-redocly tree specs/rebilly.yaml --format=ai | head -200
-redocly tree specs/rebilly.yaml --format=ai --find=subscription
-redocly tree specs/rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
-redocly tree specs/rebilly.yaml --format=ai --component=schemas --name=Subscription
-redocly tree specs/rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
-redocly tree specs/rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
-redocly tree specs/rebilly.yaml --format=ai --find=plan --tag=Plans
-redocly tree specs/rebilly.yaml --format=ai --tag=Plans
-redocly tree specs/rebilly.yaml --format=ai --tag=Customers
-redocly tree specs/rebilly.yaml --format=ai --find="payment instrument"
-redocly tree specs/rebilly.yaml --format=ai --find=website
-sed -n '32632,32832p' rebilly.yaml
-redocly tree specs/rebilly.yaml --format=ai --find="payment token"
+redocly tree --help
+redocly tree rebilly.yaml --format=ai --find "subscription" | head -100
+redocly tree rebilly.yaml --format=ai --find "recurring" | head -100
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
+redocly tree rebilly.yaml --format=ai --find "plan" | head -50
+redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
+redocly tree rebilly.yaml --format=ai --find "customer" | head -60
+redocly tree rebilly.yaml --format=ai --find "website" | head -40
 ```
 
 {% /tab %}
@@ -1309,9 +1330,9 @@ redocly tree specs/rebilly.yaml --format=ai --find="payment token"
 {% /tab %}
 {% /tabs %}
 
-Opus 5 and Fable 5 pass every run on both sides, and the index cuts their work roughly in half: 21 calls against 32, 11 against 30.
+Opus 5 and Fable 5 pass almost every run on both sides, and the index halves the work: 15 calls against 30 for Fable 5 at half the price, 23 against 32 for Opus 5.
 Sonnet 5 and Haiku 4.5 never pass, and almost always for one reason: the sequence of calls is right and the request is unauthenticated.
-Nine of those runs never mention the key at all; two name it and send it as `Authorization`, which this API rejects.
+Twelve of those runs never mention the key at all; two name it and send it as `Authorization`, which this API rejects.
 
 {% /tab %}
 {% tab label="Cafe API · 41 KB" %}
@@ -1342,7 +1363,8 @@ and follows that order until it's ready. Work out what the app has to call, end 
 
 API description: cafe.yaml
 
-The Redocly CLI is installed. Searching the description is easier with `tree --format=ai <flags>`:
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree cafe.yaml --format=ai <flags>
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
@@ -1356,19 +1378,19 @@ Context the run added, and the tool calls it took:
 
 | Model     |    no tree |        tree | Difference |
 | --------- | ---------: | ----------: | ---------: |
-| Sonnet 5  | 18,287 / 2 |   8,474 / 5 |       −54% |
-| Opus 5    | 16,769 / 1 | 17,103 / 11 |        +2% |
-| Fable 5   | 16,882 / 1 |   9,889 / 9 |       −41% |
-| Haiku 4.5 | 15,008 / 1 |   7,604 / 8 |       −49% |
+| Sonnet 5  | 18,287 / 2 |  10,484 / 7 |       −43% |
+| Opus 5    | 16,769 / 1 | 16,271 / 14 |        −3% |
+| Fable 5   | 16,882 / 1 | 10,723 / 12 |       −36% |
+| Haiku 4.5 | 15,008 / 1 | 12,188 / 16 |       −19% |
 
 What those runs were billed:
 
 | Model     | no tree |  tree | Difference |
 | --------- | ------: | ----: | ---------: |
-| Sonnet 5  |   $0.27 | $0.26 |        −4% |
-| Opus 5    |   $0.41 | $0.58 |       +41% |
-| Fable 5   |   $0.72 | $0.82 |       +14% |
-| Haiku 4.5 |   $0.07 | $0.09 |       +29% |
+| Sonnet 5  |   $0.27 | $0.30 |       +11% |
+| Opus 5    |   $0.41 | $0.61 |       +49% |
+| Fable 5   |   $0.72 | $0.95 |       +32% |
+| Haiku 4.5 |   $0.07 | $0.12 |       +71% |
 
 Whether each run produced a flow that would run:
 
@@ -1383,8 +1405,8 @@ Whether each run produced a flow that would run:
 | Fable 5 · run 1   | works         | works         |
 | Fable 5 · run 2   | works         | works         |
 | Fable 5 · run 3   | works         | works         |
-| Haiku 4.5 · run 1 | no token call | no token call |
-| Haiku 4.5 · run 2 | no token call | works         |
+| Haiku 4.5 · run 1 | no token call | works         |
+| Haiku 4.5 · run 2 | no token call | no token call |
 | Haiku 4.5 · run 3 | works         | no token call |
 
 A run works when its flow contains `POST /oauth2/token`, `GET /menu`, `POST /orders` and `GET /orders/{orderId}`, all against `api.cafe.redocly.com`.
@@ -1406,16 +1428,15 @@ cat cafe.yaml
 {% tab label="Sonnet 5 · run 1 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai | head -300
+ls cafe.yaml 2>/dev/null; redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
 redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
 redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
 redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
+redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=patch --with-deps
 redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --component=securitySchemes
-redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage
-redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
-mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-work/d7cb2634-9fd0-4c2d-a433-16add0decb91/scratchpad
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
 ```
 
 {% /tab %}
@@ -1430,18 +1451,20 @@ Artifact
 {% tab label="Sonnet 5 · run 2 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai
+redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
 redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
 redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
 redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
 redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/order-items --operation=get --with-deps
+redocly tree cafe.yaml --format=ai --component=securitySchemes
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
-redocly tree cafe.yaml --format=ai --find=webhook --with-deps
-redocly tree cafe.yaml --format=ai --find=webhook
-sed -n '665,710p' cafe.yaml
+redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage
 redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
-redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --pointer=irrelevant 2>/dev/null
+redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=delete --with-deps
 ```
 
 {% /tab %}
@@ -1455,15 +1478,24 @@ cat cafe.yaml
 {% tab label="Sonnet 5 · run 3 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai
+redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
 redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage
+echo ---
+redocly tree cafe.yaml --format=ai --component=schemas --name=Dessert
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
 redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
 redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
 redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
-redocly tree cafe.yaml --format=ai --find=order-notification --with-deps
-redocly tree cafe.yaml --format=ai --find=order-notification
-grep -n "oauth2/token\|/oauth2" cafe.yaml | head -30
+echo ===
+redocly tree cafe.yaml --format=ai --find=oauth2
+redocly tree cafe.yaml --format=ai --webhooks
+redocly tree cafe.yaml --format=ai --component=securitySchemes
+redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --find=OrderItem
+redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=patch --with-deps | head -30
 ```
 
 {% /tab %}
@@ -1483,21 +1515,20 @@ cat cafe.yaml
 {% tab label="Opus 5 · run 1 · tree" %}
 
 ```bash
-wc -l cafe.yaml && redocly tree cafe.yaml --format=ai | head -100
-redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps | head -60; echo ====; redocly tree cafe.yaml --format=ai --component=securitySchemes | head -40
-redocly tree cafe.yaml --format=ai --component=securitySchemes | head -40
-sed -n '680,730p' cafe.yaml
-redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps | head -40
-redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps | head -40
-redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps | head -30
-sed -n '1033,1106p' cafe.yaml
-redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get | head -20
-sed -n '196,232p' cafe.yaml; echo '--- PhotoSize'; sed -n '793,822p' cafe.yaml
-sed -n '868,986p' cafe.yaml
-redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=patch | head -20; echo '--- delete'; redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=delete | head -10
-redocly tree cafe.yaml --format=ai --path=/order-items --operation=get | head -20; echo '--- webhook'; sed -n '662,684p' cafe.yaml
-sed -n '1108,1206p' cafe.yaml; echo '--- Limit param'; sed -n '778,792p' cafe.yaml
-redocly tree cafe.yaml --format=ai --component=schemas --name=OrderNotification | head -20
+ls && redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --webhooks; echo "=== ROOT ==="; redocly tree cafe.yaml --format=ai
+redocly tree cafe.yaml --format=ai --component=securitySchemes --with-deps; echo "=== REGISTER ==="; redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps
+redocly tree cafe.yaml --format=ai --component=securitySchemes
+redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps; echo "=== APIKEY ==="; redocly tree cafe.yaml --format=ai --component=securitySchemes --name=ApiKey --with-deps
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps; echo "=== GETORDER ==="; redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps; echo "=== MENUITEM ==="; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuItem --with-deps
+redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto --with-deps; echo "=== WEBHOOK ==="; redocly tree cafe.yaml --format=ai --webhook=order-notification --operation=post --with-deps
+for n in PhotoSize OrderId Limit After Filter Search; do redocly tree cafe.yaml --format=ai --component=parameters --name=$n --with-deps | head -20; echo; done
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps | head -30; echo "=== ORDERITEMS ==="; redocly tree cafe.yaml --format=ai --operation=listOrderItems --with-deps | head -30
+redocly tree cafe.yaml --format=ai --find="token authorize" | head -20; echo "---"; redocly tree cafe.yaml --format=ai --pointer="#/security" | head -10
+redocly tree cafe.yaml --format=ai --operation=deleteOrder | head -8; echo "==="; redocly tree cafe.yaml --format=ai --operation=updateOrder | head -8
 ```
 
 {% /tab %}
@@ -1511,14 +1542,22 @@ cat cafe.yaml
 {% tab label="Opus 5 · run 2 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai | head -100
-redocly tree --help | head -60; echo ---; wc -l cafe.yaml
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; for op in registerOAuth2Client listMenuItems getMenuItemPhoto createOrder; do echo "=== $op"; redocly tree cafe.yaml --format=ai --operation=$op --with-deps; done
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; for op in getOrderById listOrderItems updateOrder; do echo "=== $op"; redocly tree cafe.yaml --format=ai --operation=$op --with-deps; done; echo "=== security"; redocly tree cafe.yaml --format=ai --component=securitySchemes
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps; echo "=== path photo"; redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId}; echo "=== PhotoSize"; redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize --with-deps
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; for c in Order OrderItem MenuItem Beverage MenuBaseItem; do echo "=== $c"; redocly tree cafe.yaml --format=ai --component=schemas --name=$c --with-deps | head -60; done; echo "=== webhook"; redocly tree cafe.yaml --format=ai --webhook=order-notification --with-deps | head -50
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; redocly tree cafe.yaml --format=ai --webhook=order-notification --operation=post | head -40; echo "=== listOrders"; redocly tree cafe.yaml --format=ai --operation=listOrders | head -40
-cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; redocly tree cafe.yaml --format=ai --operation=deleteOrder | head -12; redocly tree cafe.yaml --format=ai --component=schemas --name=OrderNotification | head -12; redocly tree cafe.yaml --format=ai --component=parameters --name=Limit | head -12
+ls && redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps; echo ====; redocly tree cafe.yaml --format=ai --component=securitySchemes
+redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps; echo ====; redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --component=securitySchemes --with-deps; redocly tree cafe.yaml --format=ai --webhooks
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --component=securitySchemes; echo "--- OAuth2:"; redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
+redocly tree cafe.yaml --format=ai --webhook=order-notification --operation=post --with-deps
+redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto --with-deps | head -20; echo "=== MenuItem"; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps | head -30; echo "=== Beverage"; redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps | head -20
+redocly tree cafe.yaml --format=ai --component=parameters --name=Limit; redocly tree cafe.yaml --format=ai --component=schemas --name=Page | head -20; echo "=== servers"; redocly tree cafe.yaml --format=ai | head -30
+redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId}; echo ===; redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize; echo ===; redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps | head -12
+redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize
+redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps | head -12
+redocly tree cafe.yaml --format=ai --component=parameters --name=OrderId
 ```
 
 {% /tab %}
@@ -1533,17 +1572,19 @@ cat cafe.yaml
 {% tab label="Opus 5 · run 3 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai | head -100
-redocly tree --help | head -60
-redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps | head -120
-redocly tree cafe.yaml --format=ai --component=securitySchemes | head -60
-redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps | head -60; echo "=== APIKEY ==="; redocly tree cafe.yaml --format=ai --component=securitySchemes --name=ApiKey --with-deps | head -30
-for op in listMenuItems createOrder getOrderById; do echo "##### $op"; redocly tree cafe.yaml --format=ai --operation=$op --with-deps | head -80; done
-echo "##### Order"; redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps | head -60; echo; echo "##### MenuItem/Beverage"; redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps | head -40
-echo "##### photo"; redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto | head -30; echo; echo "##### webhook"; redocly tree cafe.yaml --format=ai --operation=orderNotificationWebhook --with-deps | head -40; echo; echo "##### listOrderItems"; redocly tree cafe.yaml --format=ai --operation=listOrderItems | head -30
-echo "##### MenuBaseItem"; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem | head -20; echo; echo "##### PhotoSize"; redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize | head -20; echo; echo "##### OrderItem"; redocly tree cafe.yaml --format=ai --component=schemas --name=OrderItem|head -20
-sed -n '1,32p;196,230p' cafe.yaml; echo "=== updateOrder ==="; redocly tree cafe.yaml --format=ai --operation=updateOrder | head -25
-redocly tree cafe.yaml --format=ai --operation=listOrders | head -20
+ls -la && redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps | head -150
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps | head -200
+redocly tree cafe.yaml --format=ai --webhooks; echo ---; redocly tree cafe.yaml --format=ai --component=securitySchemes; echo ---; redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps | head -60
+redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps; echo ===; redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps|head -40; echo ===; redocly tree cafe.yaml --format=ai --operation=orderNotificationWebhook --with-deps|head -40
+redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps|head -40; echo "---SEP---"; redocly tree cafe.yaml --format=ai --operation=orderNotificationWebhook --with-deps|head -40
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps|head -60
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps|head -30; echo "---SEP---"; redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps|head -20
+redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto --with-deps|head -30; echo "---SEP---"; redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps|head -20; echo "---SEP---"; sed -n '1,32p' cafe.yaml
+sed -n '195,232p' cafe.yaml; echo "---SEP---"; sed -n '795,825p' cafe.yaml
+redocly tree cafe.yaml --format=ai --operation=listOrders --with-deps|head -20
+sed -n '712,795p' cafe.yaml
 ```
 
 {% /tab %}
@@ -1563,16 +1604,18 @@ cat cafe.yaml
 {% tab label="Fable 5 · run 1 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai | head -100
-redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps; echo ===; redocly tree cafe.yaml --format=ai --component=securitySchemes
-redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps; echo ===; redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps; echo ===; redocly tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
+redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
+redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps
 redocly tree cafe.yaml --format=ai --component=securitySchemes
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
-redocly tree cafe.yaml --format=ai --component=schemas --name=OrderItem
-redocly tree cafe.yaml --format=ai --path='/menu-item-images/{menuItemId}' --operation=get
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai | head -40
 redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
+redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto
 ```
 
 {% /tab %}
@@ -1586,15 +1629,19 @@ cat cafe.yaml
 {% tab label="Fable 5 · run 2 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai
-redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
+redocly tree cafe.yaml --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps
+redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
 redocly tree cafe.yaml --format=ai --component=securitySchemes
-redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps; redocly tree cafe.yaml --format=ai --component=securitySchemes --name=ApiKey
-redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
-redocly tree cafe.yaml --format=ai --path='/menu-item-images/{menuItemId}' --operation=get
+redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto
+grep "servers:" /Users/tora/bench-run/cafe-tree-help-fable-r2/cafe.yaml
+redocly tree cafe.yaml --format=ai --pointer=/paths/~1menu-item-images~1{menuItemId}
+sed -n '195,230p' /Users/tora/bench-run/cafe-tree-help-fable-r2/cafe.yaml
 ```
 
 {% /tab %}
@@ -1608,14 +1655,17 @@ cat cafe.yaml
 {% tab label="Fable 5 · run 3 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai
-redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
+redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps
+redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
 redocly tree cafe.yaml --format=ai --component=securitySchemes
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
-redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto && redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
+redocly tree cafe.yaml --format=ai | head -30
 ```
 
 {% /tab %}
@@ -1635,8 +1685,22 @@ cat cafe.yaml
 {% tab label="Haiku 4.5 · run 1 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai
-cat cafe.yaml
+redocly tree --help
+cat /Users/tora/bench-run/work
+ls -la /Users/tora/bench-run/work | head -20
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=get --path=/menu
+redocly tree cafe.yaml --format=ai --operation=post --path=/orders
+redocly tree cafe.yaml --format=ai --operation=get --path=/orders/{orderId}
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuItemList --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuItem --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps
+cat /Users/tora/bench-run/work/cafe.yaml
+grep "securitySchemes|components" /Users/tora/bench-run/work/cafe.yaml | head -50
+sed -n '1200,1350p' /Users/tora/bench-run/work/cafe.yaml
+grep -n "securitySchemes\|OAuth2" /Users/tora/bench-run/work/cafe.yaml | head -20
+sed -n '685,725p' /Users/tora/bench-run/work/cafe.yaml
 ```
 
 {% /tab %}
@@ -1650,14 +1714,16 @@ cat cafe.yaml
 {% tab label="Haiku 4.5 · run 2 · tree" %}
 
 ```bash
-redocly tree cafe.yaml --format=ai
-redocly tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
-redocly tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage
-redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
-redocly tree cafe.yaml --format=ai --component=schemas --name=OrderItem
+redocly tree --help
+redocly tree cafe.yaml --operations --format=ai
+redocly tree cafe.yaml --path=/menu --operation=get --with-deps --format=ai
+redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
+redocly tree cafe.yaml --path=/orders/{orderId} --operation=get --with-deps --format=ai
+redocly tree cafe.yaml --component=schemas --name=Order --format=ai
+redocly tree cafe.yaml --component=schemas --name=MenuItem --format=ai
+redocly tree cafe.yaml --component=schemas --name=Beverage --format=ai
+redocly tree cafe.yaml --component=schemas --name=Dessert --format=ai
+redocly tree cafe.yaml --component=schemas --name=MenuBaseItem --format=ai
 ```
 
 {% /tab %}
@@ -1671,7 +1737,11 @@ cat cafe.yaml
 {% tab label="Haiku 4.5 · run 3 · tree" %}
 
 ```bash
-cat cafe.yaml
+redocly tree --help
+redocly tree cafe.yaml --operations --format=ai
+redocly tree cafe.yaml --path=/menu --operation=get --with-deps --format=ai
+redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
+redocly tree cafe.yaml --path=/orders/{orderId} --operation=get --with-deps --format=ai
 ```
 
 {% /tab %}
@@ -1681,8 +1751,7 @@ cat cafe.yaml
 {% /tabs %}
 
 At 41 KB the whole description fits in one read, and every model except Haiku 4.5 answers correctly either way.
-Haiku 4.5 passes one run in three on both sides, dropping the token call the rest of the time.
-This is the description where the index costs more calls than it saves — the alternative is a single read — and still halves the context, because a read pulls in the whole file.
+This is the description where the index costs more calls than it saves — the alternative is a single read — and still cuts context by 3% to 43%, because a read pulls in the whole file.
 
 {% /tab %}
 {% /tabs %}
@@ -1693,69 +1762,70 @@ Context the run added, and the tool calls it took:
 
 | Description | Model     |        no tree |           tree | Difference |
 | ----------- | --------- | -------------: | -------------: | ---------: |
-| GitHub REST | Sonnet 5  |    12,528 / 14 |     12,915 / 7 |        +3% |
-| GitHub REST | Opus 5    |    16,462 / 13 |     16,284 / 9 |        −1% |
-| GitHub REST | Fable 5   |    14,815 / 10 |     11,088 / 9 |       −25% |
-| GitHub REST | Haiku 4.5 |  15,505 / 8 ❌ |      8,565 / 6 |       −45% |
-| Billing API | Sonnet 5  | 31,179 / 32 ❌ | 25,231 / 11 ❌ |       −19% |
-| Billing API | Opus 5    |    35,212 / 32 |    32,019 / 21 |        −9% |
-| Billing API | Fable 5   |    32,043 / 30 |    18,329 / 11 |       −43% |
-| Billing API | Haiku 4.5 | 19,459 / 16 ❌ | 17,174 / 14 ❌ |       −12% |
-| Cafe API    | Sonnet 5  |     18,287 / 2 |      8,474 / 5 |       −54% |
-| Cafe API    | Opus 5    |     16,769 / 1 |    17,103 / 11 |        +2% |
-| Cafe API    | Fable 5   |     16,882 / 1 |      9,889 / 9 |       −41% |
-| Cafe API    | Haiku 4.5 |     15,008 / 1 |      7,604 / 8 |       −49% |
+| GitHub REST | Sonnet 5  |    12,528 / 14 |    13,482 / 11 |        +8% |
+| GitHub REST | Opus 5    |    16,462 / 13 |    13,917 / 10 |       −15% |
+| GitHub REST | Fable 5   |    14,815 / 10 |     13,539 / 8 |        −9% |
+| GitHub REST | Haiku 4.5 |  15,505 / 8 ❌ |   8,478 / 7 ❌ |       −45% |
+| Billing API | Sonnet 5  | 31,179 / 32 ❌ | 24,116 / 14 ❌ |       −23% |
+| Billing API | Opus 5    |    35,212 / 32 |    38,129 / 23 |        +8% |
+| Billing API | Fable 5   |    32,043 / 30 |    24,919 / 15 |       −22% |
+| Billing API | Haiku 4.5 | 19,459 / 16 ❌ | 18,412 / 12 ❌ |        −5% |
+| Cafe API    | Sonnet 5  |     18,287 / 2 |     10,484 / 7 |       −43% |
+| Cafe API    | Opus 5    |     16,769 / 1 |    16,271 / 14 |        −3% |
+| Cafe API    | Fable 5   |     16,882 / 1 |    10,723 / 12 |       −36% |
+| Cafe API    | Haiku 4.5 |     15,008 / 1 |    12,188 / 16 |       −19% |
 
-Where both sides produce a working flow, the index is cheaper in seven of nine cells, by 1% to 54%.
-The ❌ cells are cheap for the wrong reason: Haiku 4.5 covered the 10 MB GitHub description in eight calls for 15,505 tokens and still never minted the installation token its own flow declares.
-Tool calls fall everywhere except the 41 KB Cafe API, where the alternative is one read of the whole file: on the billing API 21 against 32 for Opus 5 and 11 against 30 for Fable 5, on GitHub 7 against 14 for Sonnet 5.
+Where both sides produce a working flow, the index is cheaper in seven of nine cells, by 3% to 43%.
+The ❌ cells are cheap for the wrong reason: Haiku 4.5 covered the 10 MB GitHub description in seven calls for 8,478 tokens and still never minted the installation token its own flow declares.
+Tool calls fall everywhere except the 41 KB Cafe API, where the alternative is one read of the whole file: on the billing API 15 against 30 for Fable 5 and 23 against 32 for Opus 5, on GitHub 10 against 13 for Opus 5.
 
 What those runs were billed:
 
 | Description | Model     |  no tree |     tree | Difference |
 | ----------- | --------- | -------: | -------: | ---------: |
-| GitHub REST | Sonnet 5  |    $0.39 |    $0.30 |       −23% |
-| GitHub REST | Opus 5    |    $0.72 |    $0.61 |       −15% |
-| GitHub REST | Fable 5   |    $1.00 |    $0.80 |       −20% |
-| GitHub REST | Haiku 4.5 | $0.10 ❌ |    $0.08 |       −20% |
-| Billing API | Sonnet 5  | $1.05 ❌ | $0.49 ❌ |       −53% |
-| Billing API | Opus 5    |    $1.56 |    $1.00 |       −36% |
-| Billing API | Fable 5   |    $2.82 |    $1.32 |       −53% |
-| Billing API | Haiku 4.5 | $0.16 ❌ | $0.14 ❌ |       −12% |
-| Cafe API    | Sonnet 5  |    $0.27 |    $0.26 |        −4% |
-| Cafe API    | Opus 5    |    $0.41 |    $0.58 |       +41% |
-| Cafe API    | Fable 5   |    $0.72 |    $0.82 |       +14% |
-| Cafe API    | Haiku 4.5 |    $0.07 |    $0.09 |       +29% |
+| GitHub REST | Sonnet 5  |    $0.39 |    $0.54 |       +38% |
+| GitHub REST | Opus 5    |    $0.72 |    $0.59 |       −18% |
+| GitHub REST | Fable 5   |    $1.00 |    $1.37 |       +37% |
+| GitHub REST | Haiku 4.5 | $0.10 ❌ | $0.08 ❌ |       −20% |
+| Billing API | Sonnet 5  | $1.05 ❌ | $0.54 ❌ |       −49% |
+| Billing API | Opus 5    |    $1.56 |    $1.34 |       −14% |
+| Billing API | Fable 5   |    $2.82 |    $1.47 |       −48% |
+| Billing API | Haiku 4.5 | $0.16 ❌ | $0.13 ❌ |       −19% |
+| Cafe API    | Sonnet 5  |    $0.27 |    $0.30 |       +11% |
+| Cafe API    | Opus 5    |    $0.41 |    $0.61 |       +49% |
+| Cafe API    | Fable 5   |    $0.72 |    $0.95 |       +32% |
+| Cafe API    | Haiku 4.5 |    $0.07 |    $0.12 |       +71% |
 
 How many of the three runs in each cell produced a flow that would run:
 
 | Description | Model     | no tree | tree |
 | ----------- | --------- | ------: | ---: |
-| GitHub REST | Sonnet 5  |     3/3 |  3/3 |
+| GitHub REST | Sonnet 5  |     3/3 |  2/3 |
 | GitHub REST | Opus 5    |     3/3 |  3/3 |
 | GitHub REST | Fable 5   |     3/3 |  3/3 |
-| GitHub REST | Haiku 4.5 |     0/3 |  1/3 |
+| GitHub REST | Haiku 4.5 |     0/3 |  0/3 |
 | Billing API | Sonnet 5  |     0/3 |  0/3 |
-| Billing API | Opus 5    |     3/3 |  3/3 |
-| Billing API | Fable 5   |     3/3 |  3/3 |
+| Billing API | Opus 5    |     3/3 |  2/3 |
+| Billing API | Fable 5   |     3/3 |  2/3 |
 | Billing API | Haiku 4.5 |     0/3 |  0/3 |
 | Cafe API    | Sonnet 5  |     3/3 |  3/3 |
 | Cafe API    | Opus 5    |     3/3 |  3/3 |
 | Cafe API    | Fable 5   |     3/3 |  3/3 |
 | Cafe API    | Haiku 4.5 |     1/3 |  1/3 |
 
-Fifty-one of 72 runs produced a flow that would run.
-One cell that never produced one without the index produced one with it, and no cell went the other way, but two cells failed on both sides: on the billing API, Sonnet 5 and Haiku 4.5 lay out the right sequence of calls and never authenticate it.
+Forty-seven of 72 runs produced a flow that would run: 25 of 36 without the index, 22 of 36 with it.
+Three cells produce nothing that works on either side — Haiku 4.5 on GitHub, Sonnet 5 and Haiku 4.5 on the billing API — and no cell is carried by one condition alone.
+The index moves what a run costs, not whether the model gets the answer right.
 
 ## What the failures were
 
 | Reason                                                                              | Runs |
 | ----------------------------------------------------------------------------------- | ---: |
-| the `REB-APIKEY` header is never named, so no billing call would authenticate       |   10 |
-| `POST /products` is missing, so the plan has nothing to sell                        |    6 |
-| no call to mint the GitHub App installation token, though the flow says it uses one |    5 |
+| the `REB-APIKEY` header is never named, so no billing call would authenticate       |   12 |
+| no call to mint the GitHub App installation token, though the flow says it uses one |    7 |
+| `POST /products` is missing, so the plan has nothing to sell                        |    5 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                |    4 |
-| `POST /plans` is missing                                                            |    2 |
+| `POST /plans` is missing                                                            |    3 |
 | the billing key is sent as `Authorization`, which this API rejects                  |    2 |
 
 Every failure is either authentication or a resource a later call depends on.
@@ -1765,7 +1835,8 @@ On the Cafe API, where one read covers the whole description, both conditions fi
 ## How this was measured
 
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
-Sessions start in an empty directory with the description outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call a published `@redocly/cli` snapshot.
+Sessions start in a directory holding nothing but the description, outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call a published `@redocly/cli` snapshot.
+The no-tree prompt gives the description by path and the tree prompt by filename — the same file either way, and worth one `ls` at most.
 Each cell is three runs, and the tables give the median.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`.
