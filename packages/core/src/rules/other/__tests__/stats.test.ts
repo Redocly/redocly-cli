@@ -370,6 +370,9 @@ describe('stats', () => {
                     items:
                       type: string
                       x-items-ext: true
+                    x-examples:
+                      default:
+                        value: 1
                 responses:
                   '200':
                     description: ok
@@ -391,6 +394,7 @@ describe('stats', () => {
     });
 
     expect(statsAccumulator.xExtensions.counts).toEqual({
+      'x-examples': 1,
       'x-items-ext': 1,
       'x-logo': 1,
       'x-scopes-ext': 1,

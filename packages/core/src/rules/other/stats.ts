@@ -50,7 +50,7 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     ExamplesMap: {
       enter(_node: unknown, ctx: UserContext) {
-        if (ctx.key.toString().startsWith('x-')) {
+        if (ctx.key.toString() === 'x-examples') {
           countExtension(statsAccumulator.xExtensions, ctx);
         }
       },
@@ -82,7 +82,7 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     Operation: {
       enter(_node: unknown, ctx: UserContext) {
-        if (ctx.key.toString().startsWith('x-')) {
+        if (ctx.key.toString() === 'x-query') {
           countExtension(statsAccumulator.xExtensions, ctx);
         }
       },
@@ -109,7 +109,7 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     WebhooksMap: {
       enter(_node: unknown, ctx: UserContext) {
-        if (ctx.key.toString().startsWith('x-')) {
+        if (ctx.key.toString() === 'x-webhooks') {
           countExtension(statsAccumulator.xExtensions, ctx);
         }
       },
