@@ -12,9 +12,9 @@ Generate the client, then drive the API from the shell:
 npm run generate
 
 npx tsx src/api/client.cli.ts --help
-npx tsx src/api/client.cli.ts products listMenuItems --limit 3
-npx tsx src/api/client.cli.ts listMenuItems --limit 3          # the group is optional when unambiguous
-npx tsx src/api/client.cli.ts orders createOrder --json @order.json --dry-run
+npx tsx src/api/client.cli.ts listMenuItems --limit 3
+npx tsx src/api/client.cli.ts createOrder --json @order.json --dry-run
+npx tsx src/api/client.cli.ts products listMenuItems --limit 3  # the tag group, for an ambiguous name
 npx tsx src/api/client.cli.ts schema createOrder
 ```
 

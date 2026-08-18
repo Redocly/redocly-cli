@@ -47,17 +47,21 @@ Install zod next to the generated CLI (`npm i zod`).
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator cli
-npx tsx src/client.cli.ts orders listOrders --status open --limit 10
-npx tsx src/client.cli.ts orders createOrder --json @order.json
-npx tsx src/client.cli.ts orders listOrders --page-all   # one JSON page per line
+npx tsx src/client.cli.ts listOrders --status open --limit 10
+npx tsx src/client.cli.ts createOrder --json @order.json
+npx tsx src/client.cli.ts listOrders --page-all         # one JSON page per line
 npx tsx src/client.cli.ts schema createOrder             # the operation's full contract
 ```
 
-`--help` lists the commands.
-For tagged APIs, the commands are grouped.
-Run `<bin> <group> <command> --help` to show the flags of one command.
-An operationId also works without its group (`<bin> listOrders`) when the operationId is unambiguous.
-Because of this, you do not have to know its group.
+**The operationId alone is the command**: `<bin> listOrders`.
+You do not have to know which tag the operation carries.
+Run `<bin> listOrders --help` to show the flags of one command.
+
+A tag adds a group, and a group does two things.
+It organizes `--help`, which matters for an API with hundreds of operations.
+It also disambiguates: if two operations share a command name, the CLI reports the ambiguity and names the groups to choose from, and `<bin> orders listOrders` addresses one of them.
+An operation with no `operationId` still gets a command.
+The generator derives the name from the method and the path (`GET /pets` becomes `getPets`, and `GET /pets/{id}` becomes `getPetsId`), so a description without operationIds has a complete CLI.
 
 Group names and command names use different cases, and this is deliberate.
 A group name comes from an OpenAPI tag, which is prose.
@@ -130,10 +134,9 @@ npx tsx src/cafe.ts kitchen createOrder --json @o.json # CAFE_KITCHEN_TOKEN
 ```
 
 Two different things can stand in the word after the bin name, so compare the two setups.
-For one API, that word is the tag slug: `cafe orders listOrders`.
-For a composed binary, that word is the api alias, and the tag groups of that api nest inside it: `cafe shop orders listOrders`.
-The example above is shorter than that, because a bare operationId resolves whenever it is unambiguous.
-If two tags of one api declare the same operationId, the CLI reports the ambiguity and names the groups to choose from.
+For one API, an operationId is the whole command (`cafe listOrders`), and a tag slug goes in front of it only to resolve an ambiguous name (`cafe orders listOrders`).
+For a composed binary, that first word is the api alias, because an operationId is unique only inside one description: `cafe shop listOrders`.
+A tag group of that api nests inside its alias, again only when it is needed: `cafe shop orders listOrders`.
 
 An operationId is unique only inside one description.
 Because of this, each command carries its api's alias as a namespace.
