@@ -171,7 +171,13 @@ export const { configure, use } = client;
 export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {
     cursor?: string;
     limit?: string;
-} = {}, init?: I): Promise<EnvelopeResult<ListOrdersResult, Record<string, never>, I>> => client.listOrders({ params }, init) as Promise<EnvelopeResult<ListOrdersResult, Record<string, never>, I>>, { pages: client.listOrders.pages, items: client.listOrders.items });
+} = {}, init?: I): Promise<EnvelopeResult<ListOrdersResult, Record<string, never>, I>> => client.listOrders({ params }, init) as Promise<EnvelopeResult<ListOrdersResult, Record<string, never>, I>>, { pages: (params: {
+    cursor?: string;
+    limit?: string;
+} = {}, init: RequestOptions = {}) => client.listOrders.pages({ params }, init), items: (params: {
+    cursor?: string;
+    limit?: string;
+} = {}, init: RequestOptions = {}) => client.listOrders.items({ params }, init) });
 export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {
     expand?: string;
 } = {}, init?: I): Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>> => client.getOrder({ orderId, params }, init) as Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>>;
@@ -276,7 +282,13 @@ export const { configure, use } = client;
 export const listOrders = Object.assign((params: {
     cursor?: string;
     limit?: string;
-} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: client.listOrders.pages, items: client.listOrders.items });
+} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: (params: {
+    cursor?: string;
+    limit?: string;
+} = {}, init: RequestOptions = {}) => client.listOrders.pages({ params }, init), items: (params: {
+    cursor?: string;
+    limit?: string;
+} = {}, init: RequestOptions = {}) => client.listOrders.items({ params }, init) });
 export const getOrder = (orderId: string, params: {
     expand?: string;
 } = {}, init: RequestOptions = {}) => client.getOrder({ orderId, params }, init);

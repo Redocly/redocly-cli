@@ -314,7 +314,7 @@ describe('generateClient — end-to-end orchestration', () => {
     );
     expect(contents).toContain('item: string;');
     expect(contents).toContain(
-      '{ pages: client.listOrders.pages, items: client.listOrders.items });'
+      'init: RequestOptions = {}) => client.listOrders.pages({ params }, init)'
     );
   });
 

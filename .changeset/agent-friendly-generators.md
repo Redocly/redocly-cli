@@ -16,6 +16,8 @@ Added an `eject-generator` command that vendors any built-in generator, with its
 Renamed pagination operation extension from `x-redocly-pagination` to `x-redoclyPagination`.
 The previous name is no longer read.
 
+**Note**: with `argsStyle: flat` (the default), a free function's `.pages()`/`.items()` now take the same arguments as the function itself — `listOrders.pages({ limit: 20 })` rather than `listOrders.pages({ params: { limit: 20 } })`. Grouped mode is unchanged, and the compiler points at every call site that needs the edit.
+
 **Note**: the generated TypeScript client no longer exports per-scheme credential setters (`setBearer`, `setBasicAuth`, `setApiKey<Scheme>`). Set credentials with `configure({ auth: … })` or on the instance with `client.auth.bearer(…)`, `client.auth.basic(…)`, and `client.auth.apiKey('<scheme key>', …)`. One consequence is welcome: a setter name is no longer reserved, so an operation or schema of that name keeps it.
 
 **Note**: the TypeScript client generator is now selected as `typescript` instead of `sdk`, matching the language-named generators. Update `client.generators` lists and `--generator` flags; the old name fails with a message that points at the rename.

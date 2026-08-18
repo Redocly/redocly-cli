@@ -936,9 +936,9 @@ for await (const page of client.listOrders.pages()) {
 }
 ```
 
-The flat free functions keep both iterators.
-The flat function itself takes positional arguments.
-But its `.pages`/`.items` always take the grouped shape, because they are the client method's iterators.
+The flat free functions keep both iterators, and the iterators take the same arguments as the function they hang on.
+With `--args-style flat`, `listOrders({ limit: 20 })` and `listOrders.pages({ limit: 20 })` have the same shape.
+With `--args-style grouped`, both take the grouped object.
 
 To resume, pass the advance parameter in the initial args.
 Iteration then starts from that point, not from the beginning.

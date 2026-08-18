@@ -104,11 +104,17 @@ describe('generate-client pagination consumer', () => {
     expect(api).toContain(
       'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
     );
-    // …and the flat sugar preserves `.pages`/`.items` via Object.assign.
+    // …and the flat sugar attaches `.pages`/`.items` that take the SAME flat arguments
+    // as the call, so one exported function never has two argument shapes.
     expect(api).toContain(
       'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
     );
-    expect(api).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
+    expect(api).toContain(
+      'init: RequestOptions = {}) => client.listOrders.pages({ params }, init)'
+    );
+    expect(api).toContain(
+      'init: RequestOptions = {}) => client.listOrders.items({ params }, init)'
+    );
     expect(api).not.toContain('client.listMenuItems.pages');
     // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).
     expect(api).toContain('// ─── Embedded runtime');
@@ -121,7 +127,7 @@ describe('generate-client pagination consumer', () => {
     );
     expect(offset).toContain('item: MenuItem;');
     expect(offset).toContain(
-      '{ pages: client.listMenuItems.pages, items: client.listMenuItems.items });'
+      'init: RequestOptions = {}) => client.listMenuItems.pages({ params }, init)'
     );
     // …precedence keeps the extension's cursor rule on listOrders (not the convention)…
     expect(offset).toContain(
@@ -139,7 +145,9 @@ describe('generate-client pagination consumer', () => {
     expect(pkg).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
     );
-    expect(pkg).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
+    expect(pkg).toContain(
+      'init: RequestOptions = {}) => client.listOrders.pages({ params }, init)'
+    );
   }, 60_000);
 
   test('typecheck gate: all three generated clients + consumer scripts, strict', () => {

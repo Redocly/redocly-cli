@@ -467,13 +467,20 @@ describe('emitClientSingleFile — pagination', () => {
     expect(out).toContain('pagination: { style: "cursor", param: "cursor",');
   });
 
-  it('wraps the flat sugar in Object.assign, preserving .pages/.items', () => {
+  it('attaches .pages/.items that take the same flat arguments as the call', () => {
     const out = emit(PAGINATED, { pagination: config });
     expect(out).toContain(
       'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
     );
     expect(out).toContain('=> client.listOrders({ params }, init) as Promise<');
-    expect(out).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
+    // One exported function, one argument shape: the iterators translate to the
+    // client method's grouped form exactly as the call above does.
+    expect(out).toContain(
+      'init: RequestOptions = {}) => client.listOrders.pages({ params }, init)'
+    );
+    expect(out).toContain(
+      'init: RequestOptions = {}) => client.listOrders.items({ params }, init)'
+    );
     // Non-paginated siblings keep the plain arrow.
     expect(out).toContain(
       'export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {'

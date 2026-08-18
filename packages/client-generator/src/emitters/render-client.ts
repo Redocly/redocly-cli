@@ -392,7 +392,21 @@ export function renderFlatSugar(op: OperationModel, ident: string, ctx: EmitCont
       })()
     : `(${params}) => client.${ident}(${args}, init)`;
   if (!ctx.pagination?.has(op.name)) return `export const ${ident} = ${fn};`;
-  return `export const ${ident} = Object.assign(${fn}, { pages: client.${ident}.pages, items: client.${ident}.items });`;
+  // The iterators take the SAME flat arguments as the call above. Binding the client
+  // method's grouped iterators here would give one exported function two argument
+  // shapes — `listOrders({ limit: 20 })` beside `listOrders.pages({ params: { limit: 20 } })`.
+  // `init` is a plain `RequestOptions`: `envelope` has no meaning for an iterator.
+  const iterParams = argListText(
+    op,
+    pathParams.map((p) => p.param),
+    new Map(pathParams.map((p) => [p.param.name, p.ident])),
+    ctx,
+    'init: RequestOptions = {}'
+  );
+  const iterators = ['pages', 'items']
+    .map((kind) => `${kind}: (${iterParams}) => client.${ident}.${kind}(${args}, init)`)
+    .join(', ');
+  return `export const ${ident} = Object.assign(${fn}, { ${iterators} });`;
 }
 
 /**

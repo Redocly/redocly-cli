@@ -303,7 +303,7 @@ describe('generate-client redocly.yaml config', () => {
     // The convention fits the cursor-style list operations -> descriptor pagination…
     expect(out).toContain('pagination: {');
     // …and the flat sugar preserves the method-attached iterators.
-    expect(out).toContain('items: client.listOrders.items');
+    expect(out).toContain('=> client.listOrders.items({ params }, init)');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
