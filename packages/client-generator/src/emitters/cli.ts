@@ -2,6 +2,8 @@
 // `<stem>.cli.ts` — a shebang entry that embeds (inline) or imports (package)
 // the `runCli` engine and dispatches through the sibling generated client.
 
+import { logger } from '@redocly/openapi-core';
+
 import { casing } from '../authoring/naming.js';
 import type {
   ApiModel,
@@ -9,7 +11,7 @@ import type {
   ParamModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
-import type { CliAuthScheme, CliCommand, CliFlag } from '../runtime/cli.js';
+import { groupSlug, type CliAuthScheme, type CliCommand, type CliFlag } from '../runtime/cli.js';
 import { HEADER } from './emit-options.js';
 import { embedCliRuntime } from './inline-runtime.js';
 import { resolveOperationPagination, type PaginationConfig } from './pagination.js';
@@ -149,9 +151,35 @@ export function cliAuthSchemes(model: ApiModel): CliAuthScheme[] {
   }));
 }
 
+/** How an operation named after a tag is reached — the two halves of `parseInvocation`. */
+function shadowedAddress(command: CliCommand): string {
+  return command.group === undefined
+    ? `${command.name} (keeps the bare word, so the "${command.name}" group has no help page)`
+    : `${command.name} (run it as "${groupSlug(command.group)} ${command.name}")`;
+}
+
+/**
+ * A leading group name is read as the group, so an operation whose name is also a tag name
+ * resolves unusually: a tagged one loses the bare form and runs as `<its group> <name>`,
+ * and an untagged one keeps the bare form and hides that group's help. Nothing becomes
+ * unreachable either way, but only the description's author can rename a side of the
+ * collision, so say it once at generation time.
+ */
+function warnShadowedCommands(commands: CliCommand[]): void {
+  const slugs = new Set(commands.filter((c) => c.group).map((c) => groupSlug(c.group as string)));
+  const shadowed = commands.filter((command) => slugs.has(command.name));
+  if (shadowed.length === 0) return;
+  logger.warn(
+    `generate-client: cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed
+      .map(shadowedAddress)
+      .join(', ')}.\n`
+  );
+}
+
 /** The whole `<stem>.cli.ts` file. */
 export function renderCliModule(model: ApiModel, options: CliModuleOptions): string {
   const commands = commandData(model, { pagination: options.pagination });
+  warnShadowedCommands(commands);
   const schemes = cliAuthSchemes(model);
   const clientModule = `./${options.stem}.${options.importExt}`;
   const clientImports = ['client', 'configure', ...(options.zodSelected ? ['use'] : [])];

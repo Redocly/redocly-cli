@@ -61,6 +61,10 @@ A tag adds a group, and the group organizes `--help`.
 This matters for an API with hundreds of operations: `<bin> --help` lists the groups, and `<bin> orders --help` lists the commands of one group.
 A group also addresses a command (`<bin> orders listOrders`), which is what you would type after browsing that group, but it is never required.
 Two commands cannot share a name: when a description declares the same `operationId` twice, the generator reports it and emits the second as `<name>_2`.
+The first word is a group when it matches a group slug, and a command name in every other case.
+Because of this, an operation that carries a tag and is also named after a tag (`operationId: orders` in an API that has an `orders` tag) is available as `<bin> <its own tag> orders`, and `<bin> orders` shows the `orders` group.
+An operation with no tag keeps the bare form, because a group cannot address it, and the group of that name then has no help page.
+The generator reports both cases when it writes the CLI, so you can rename the operation or the tag.
 An operation with no `operationId` still gets a command.
 The generator derives the name from the method and the path (`GET /pets` becomes `getPets`, and `GET /pets/{id}` becomes `getPetsId`), so a description without operationIds has a complete CLI.
 

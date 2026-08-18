@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { commandData, renderCliModule, renderComposedCliEntry } from '../cli.js';
 
@@ -252,6 +254,36 @@ describe('renderCliModule', () => {
     expect(out).toContain(
       'use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));'
     );
+  });
+
+  /** `orders` is the slug of the `Orders` tag, so an operation of that name collides. */
+  function modelWithOperationNamedOrders(tags: string[]): ApiModel {
+    const [service] = MODEL.services;
+    return {
+      ...MODEL,
+      services: [
+        {
+          ...service,
+          operations: service.operations.map((op) =>
+            op.name === 'getOrder' ? { ...op, name: 'orders', tags } : op
+          ),
+        },
+      ],
+    };
+  }
+
+  it('warns when an operation is named after a tag, naming how it resolves', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    renderCliModule(modelWithOperationNamedOrders(['Reports']), options);
+    expect(warn.mock.lastCall?.[0]).toContain('orders (run it as "reports orders")');
+
+    renderCliModule(modelWithOperationNamedOrders([]), options);
+    expect(warn.mock.lastCall?.[0]).toContain('orders (keeps the bare word');
+
+    renderCliModule(MODEL, options);
+    expect(warn).toHaveBeenCalledTimes(2);
+    warn.mockRestore();
   });
 });
 

@@ -70,6 +70,24 @@ describe('parseInvocation', () => {
     expect(parseInvocation(COMMANDS, ['ping'])).toMatchObject({ kind: 'run', command: PING });
   });
 
+  it('a name that is also a group: the untagged command wins, the tagged one keeps group help', () => {
+    const untagged: CliCommand = { ...PING, name: 'orders' };
+    expect(parseInvocation([...COMMANDS, untagged], ['orders'])).toMatchObject({
+      kind: 'run',
+      command: untagged,
+    });
+    // Tagged elsewhere, the group still owns the bare word — `misc orders` runs the command.
+    const tagged: CliCommand = { ...PING, group: 'misc', name: 'orders' };
+    expect(parseInvocation([...COMMANDS, tagged], ['orders'])).toMatchObject({
+      kind: 'help',
+      topic: 'orders',
+    });
+    expect(parseInvocation([...COMMANDS, tagged], ['misc', 'orders'])).toMatchObject({
+      kind: 'run',
+      command: tagged,
+    });
+  });
+
   it('extracts global flags and leaves the body source raw', () => {
     const parsed = parseInvocation(COMMANDS, [
       'orders',

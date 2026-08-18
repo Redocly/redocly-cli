@@ -190,9 +190,14 @@ export function parseInvocation(commands: CliCommand[], argv: string[]): CliInvo
   }
 
   const slugs = new Set(commands.filter((c) => c.group).map((c) => groupSlug(c.group as string)));
+  // An untagged operation is only ever addressed by its bare name, so when that name is also
+  // a group slug the name wins — reading it as the group would leave the command unreachable.
+  // A tagged operation in the same position keeps yielding to group help: it is still
+  // reachable as `<its group> <name>`.
+  const untagged = commands.some((c) => c.group === undefined && c.name === argv[0]);
   let command: CliCommand | undefined;
   let rest: string[];
-  if (slugs.has(argv[0])) {
+  if (!untagged && slugs.has(argv[0])) {
     if (argv[1] === '--help' || argv[1] === undefined) return { kind: 'help', topic: argv[0] };
     command = commands.find((c) => c.group && groupSlug(c.group) === argv[0] && c.name === argv[1]);
     if (!command) return { kind: 'usage-error', message: `Unknown command: ${argv[0]} ${argv[1]}` };
