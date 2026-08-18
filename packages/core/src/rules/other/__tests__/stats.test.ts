@@ -341,7 +341,7 @@ describe('stats', () => {
     expect(statsAccumulator.xExtensions.counts).toEqual({});
   });
 
-  it('should count vendor extensions in Swagger 2.0 specific places, leaving scope names out', async () => {
+  it('should count vendor extensions in Swagger 2.0 specific places, leaving scope names and extension content out', async () => {
     const statsAccumulator = createOasStatsAccumulator();
     const testRuleSet: Oas2RuleSet = {
       // the stats command reuses the OAS3-typed visitor for Swagger 2.0 documents
@@ -393,7 +393,6 @@ describe('stats', () => {
     expect(statsAccumulator.xExtensions.counts).toEqual({
       'x-items-ext': 1,
       'x-logo': 1,
-      'x-logo-ext': 1,
       'x-scopes-ext': 1,
     });
   });

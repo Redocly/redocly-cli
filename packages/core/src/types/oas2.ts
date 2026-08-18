@@ -49,7 +49,6 @@ const Logo: NodeType = {
     backgroundColor: { type: 'string' },
     href: { type: 'string' },
   },
-  extensionsPrefix: 'x-',
 };
 
 const Contact: NodeType = {
