@@ -71,9 +71,13 @@ describe('generate-client identifier / comment injection', () => {
     expect(src).not.toMatch(/\*\/\s*;globalThis/);
     // No payload survives as a top-level statement (only inside identifiers/comments).
     expect(src).not.toMatch(/^\s*globalThis\.PWNED/m);
-    // The operation name became a single valid identifier (no parens/spaces/semicolons)
-    // in the flat call sugar.
-    expect(src).toMatch(/export const [A-Za-z_$][A-Za-z0-9_$]* = \([^)]*\) => client\./);
+    // The operation name became a single valid identifier (no parens, spaces, or
+    // semicolons), and the flat sugar forwards to the client method of that same name.
+    const flat = src.match(
+      /export const ([A-Za-z_$][A-Za-z0-9_$]*) = [^\n]*=> client\.([A-Za-z_$][A-Za-z0-9_$]*)\(/
+    );
+    expect(flat, 'no flat call sugar found in the generated client').not.toBeNull();
+    expect(flat![1]).toBe(flat![2]);
 
     // Strongest proof: the whole file type-checks. Injected statements would not.
     const tsc = spawnSync(
