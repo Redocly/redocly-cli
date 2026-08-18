@@ -121,12 +121,13 @@ function codeSamplesOverlay(
   model: ApiModel,
   emit: EmitOptions,
   selected: string[],
-  registry: Map<string, GeneratorDescriptor>
+  registry: Map<string, GeneratorDescriptor>,
+  outputPath: string
 ): string | undefined {
   const actions = [];
   for (const op of allOperations(model.services)) {
     const samples = selected
-      .map((name) => registry.get(name)?.sample?.(op, { model, emit }))
+      .map((name) => registry.get(name)?.sample?.(op, { model, emit, outputPath }))
       .filter((sample): sample is CodeSample => sample !== undefined);
     if (samples.length > 0) {
       actions.push({
@@ -229,7 +230,7 @@ export async function generateClient(
   });
 
   if (options.codeSamples === true) {
-    const overlay = codeSamplesOverlay(model, emit, selected, registry);
+    const overlay = codeSamplesOverlay(model, emit, selected, registry, outputPath);
     if (overlay !== undefined) {
       files.push({ path: outputPath.replace(/\.[^.]+$/, '.code-samples.yaml'), content: overlay });
     }

@@ -1043,10 +1043,12 @@ export function phpSample(op: OperationModel, ctx: SampleContext): CodeSample {
       : []),
   ];
   const namespace = identifierFor(ctx.model.title, { style: 'pascal', reserved: PHP });
+  // The file this run writes, so the snippet requires something that exists.
+  const file = ctx.outputPath.replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '.php');
   return {
     lang: 'php',
     label: 'PHP SDK',
-    source: `use ${namespace}\\{Client, Config};\n\n$client = new Client(new Config());\n$result = $client->${methodName(op)}(${args.join(', ')});\n`,
+    source: `require '${file}';\n\nuse ${namespace}\\{Client, Config};\n\n$client = new Client(new Config());\n$result = $client->${methodName(op)}(${args.join(', ')});\n`,
   };
 }
 
@@ -1067,7 +1069,7 @@ export const phpDocs: Generator = ({ model, outputPath, emit }) => [
         fence: 'php',
         requires: 'The SDK needs the curl extension.',
       },
-      sample: (op) => phpSample(op, { model, emit }),
+      sample: (op) => phpSample(op, { model, emit, outputPath }),
       pagination: emit.pagination,
     }),
   },

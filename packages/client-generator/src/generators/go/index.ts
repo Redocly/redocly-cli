@@ -1106,6 +1106,8 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
 /** One idiomatic Go call per operation — feeds `x-codeSamples` for docs. */
 export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const dateType = ctx.emit.dateType ?? 'string';
+  // `goPackage` renames the package clause, and the snippet qualifies with it.
+  const pkg = ctx.emit.goPackage ?? 'client';
   const ident = exported(op.name);
   const args = [
     'ctx',
@@ -1118,7 +1120,7 @@ export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
   return {
     lang: 'go',
     label: 'Go SDK',
-    source: `client := client.New(client.Config{})\nresult, err := client.${ident}(${args.join(', ')})\n`,
+    source: `client := ${pkg}.New(${pkg}.Config{})\nresult, err := client.${ident}(${args.join(', ')})\n`,
   };
 }
 
@@ -1139,7 +1141,7 @@ export const goDocs: Generator = ({ model, outputPath, emit }) => [
         fence: 'go',
         requires: 'The SDK needs the standard library only.',
       },
-      sample: (op) => goSample(op, { model, emit }),
+      sample: (op) => goSample(op, { model, emit, outputPath }),
       pagination: emit.pagination,
     }),
   },

@@ -47,7 +47,7 @@ export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
         fence: 'typescript',
         requires: 'The client has no dependencies.',
       },
-      sample: (op) => typescriptSample(op, { model, emit }),
+      sample: (op) => typescriptSample(op, { model, emit, outputPath }),
       pagination: emit.pagination,
     }),
   },
@@ -56,6 +56,10 @@ export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
 /** One idiomatic TS call per operation, for `x-codeSamples` and the SDK reference pages. */
 export function typescriptSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const ident = packageIdents(ctx.model).get(op.name) ?? op.name;
+  // The module this run writes, with the run's import extension — `./client` would be
+  // both the wrong name for most stems and extensionless under ESM resolution.
+  const stem = ctx.outputPath.replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '');
+  const specifier = `./${stem}.${ctx.emit.importExt ?? 'js'}`;
   const requiredQuery = op.queryParams.filter((param) => param.required);
   const slots: string[] = [];
   if (requiredQuery.length > 0) {
@@ -78,6 +82,6 @@ export function typescriptSample(op: OperationModel, ctx: SampleContext): CodeSa
   return {
     lang: 'typescript',
     label: 'TypeScript SDK',
-    source: `import { ${ident} } from './client';\n\nconst result = await ${ident}(${args.join(', ')});\n`,
+    source: `import { ${ident} } from '${specifier}';\n\nconst result = await ${ident}(${args.join(', ')});\n`,
   };
 }

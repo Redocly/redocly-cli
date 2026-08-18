@@ -53,6 +53,35 @@ describe('codeSamples', () => {
     }
   });
 
+  it('imports the module each generator actually writes, not a hardcoded name', async () => {
+    // A snippet that imports `client` is wrong for every stem the languages rewrite:
+    // `openapi.client.ts` becomes `openapi_client.py`, and Go qualifies with `goPackage`.
+    const dir = await mkdtemp(join(tmpdir(), 'code-samples-module-'));
+    try {
+      await writeFile(join(dir, 'openapi.yaml'), SPEC);
+      await generateClient({
+        api: join(dir, 'openapi.yaml'),
+        output: join(dir, 'openapi.client.ts'),
+        generators: ['typescript', 'python', 'go', 'php'],
+        goPackage: 'cafe',
+        codeSamples: true,
+      });
+      const overlay = parseYaml(
+        await readFile(join(dir, 'openapi.client.code-samples.yaml'), 'utf-8')
+      ) as Overlay;
+      const samples = overlay.actions.find((action) => action.target === "$.paths['/pets'].get")!
+        .update['x-codeSamples'] as Array<Record<string, string>>;
+      const sourceOf = (lang: string) => samples.find((sample) => sample.lang === lang)!.source;
+
+      expect(sourceOf('typescript')).toContain("from './openapi.client.js'");
+      expect(sourceOf('python')).toContain('from openapi_client import Client');
+      expect(sourceOf('php')).toContain("require 'openapi.client.php'");
+      expect(sourceOf('go')).toContain('cafe.New(cafe.Config{})');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
   it('emits no overlay file when codeSamples is off', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'code-samples-off-'));
     try {

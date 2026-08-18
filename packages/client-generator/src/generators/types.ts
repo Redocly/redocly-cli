@@ -81,8 +81,13 @@ export type Generator = (input: GeneratorInput) => GeneratedFile[];
 /** One idiomatic call snippet for an operation, rendered for docs (`x-codeSamples`). */
 export type CodeSample = { lang: string; label?: string; source: string };
 
-/** What a `sample` hook receives besides the operation. */
-export type SampleContext = { model: ApiModel; emit: EmitOptions };
+/**
+ * What a `sample` hook receives besides the operation. `outputPath` is the `--output`
+ * anchor: a snippet has to import the module this run actually writes, and each language
+ * derives that name from the anchor its own way (`openapi.client.ts` becomes
+ * `openapi_client.py`), so a hardcoded module name is wrong for most stems.
+ */
+export type SampleContext = { model: ApiModel; emit: EmitOptions; outputPath: string };
 
 /**
  * A generator plus its declared compatibility contract. `validateGenerators`

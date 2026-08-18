@@ -84,7 +84,7 @@ describe('cliGenerator', () => {
 
   it('renders a shell x-codeSamples snippet per operation, addressed by the group slug', () => {
     const op = MODEL.services[0].operations[0];
-    const sample = cliSample(op, { model: MODEL, emit: {} });
+    const sample = cliSample(op, { model: MODEL, emit: {}, outputPath: 'client.ts' });
     expect(sample).toMatchObject({ lang: 'shell', label: 'CLI' });
     // The CLI dispatches on the slugged group, so the sample must use it — the raw
     // tag ("Orders", or worse a multi-word one) would not resolve.
@@ -102,7 +102,11 @@ describe('cliGenerator', () => {
         },
       ],
     } as ApiModel;
-    const sample = cliSample(model.services[0].operations[0], { model, emit: {} });
+    const sample = cliSample(model.services[0].operations[0], {
+      model,
+      emit: {},
+      outputPath: 'client.ts',
+    });
     expect(sample?.source).toContain('coffee-orders getOrder <orderId>');
   });
 });

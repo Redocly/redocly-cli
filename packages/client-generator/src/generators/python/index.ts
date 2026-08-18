@@ -749,7 +749,12 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
 };
 
 /** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */
-export function pythonSample(op: OperationModel, _ctx: SampleContext): CodeSample {
+export function pythonSample(op: OperationModel, ctx: SampleContext): CodeSample {
+  // The module name this run writes, not a guess: `openapi.client.ts` becomes
+  // `openapi_client.py`, so `from client import Client` would not import.
+  const module = pythonModulePath(ctx.outputPath)
+    .replace(/^.*[\\/]/, '')
+    .replace(/\.py$/, '');
   const ident = identifierFor(op.name, { style: 'snake', reserved: PY });
   const args = [
     ...op.pathParams.map((param) => {
@@ -767,7 +772,7 @@ export function pythonSample(op: OperationModel, _ctx: SampleContext): CodeSampl
   return {
     lang: 'python',
     label: 'Python SDK',
-    source: `from client import Client\n\nclient = Client()\nresult = client.${ident}(${args.join(', ')})\n`,
+    source: `from ${module} import Client\n\nclient = Client()\nresult = client.${ident}(${args.join(', ')})\n`,
   };
 }
 
@@ -788,7 +793,7 @@ export const pythonDocs: Generator = ({ model, outputPath, emit }) => [
         fence: 'python',
         requires: 'The SDK needs `httpx`.',
       },
-      sample: (op) => pythonSample(op, { model, emit }),
+      sample: (op) => pythonSample(op, { model, emit, outputPath }),
       pagination: emit.pagination,
     }),
   },
