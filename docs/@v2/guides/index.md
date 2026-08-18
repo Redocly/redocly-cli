@@ -103,6 +103,12 @@ Pre-configure publisher defaults and write custom client generators.
 Measured token counts for exploring GitHub's 10.0 MB REST API description with `tree`, compared against reading the whole file and against searching it with `grep`.
 {% /card %}
 
+{% card title="Whether an agent's flow works"
+    to="./tree-agent-index-benchmark-v2"
+  %}
+The same comparison judged on the answer: does the flow an agent produces actually run, and what does it leave out when it does not.
+{% /card %}
+
 {% card title="Set up tab completion"
     to="./autocomplete"
   %}

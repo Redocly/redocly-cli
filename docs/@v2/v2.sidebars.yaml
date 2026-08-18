@@ -70,6 +70,8 @@
           page: guides/customize-client-generation.md
         - label: Agent context costs with tree
           page: guides/tree-agent-index-benchmark.md
+        - label: Whether an agent's flow works
+          page: guides/tree-agent-index-benchmark-v2.md
         - label: Hide internal APIs
           page: guides/hide-apis.md
         - label: Replace the servers URL
