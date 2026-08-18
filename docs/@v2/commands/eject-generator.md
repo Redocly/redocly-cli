@@ -9,7 +9,8 @@ Do not edit it manually.
 You or your agent edit the generator, and the `redocly generate-client` command rebuilds the client.
 When the spec changes later, the command regenerates the client and keeps your customization.
 
-You can eject every built-in generator: the SDKs (`typescript`, `python`, `go`, `php`) and the add-on generators (`zod`, `mock`, `cli`, `cli-docs`, `sdk-docs`, `swr`, `tanstack-query`, `transformers`).
+You can eject every built-in generator: the SDKs (`typescript`, `python`, `go`, `php`) and the add-on generators (`zod`, `mock`, `cli`, `swr`, `tanstack-query`, `transformers`).
+A generator that writes reference documentation carries that page with it, so ejecting `cli` or `python` also hands you the layout of its page.
 The `tanstack-query-vue`, `-svelte`, and `-solid` variants are the same generator with one different argument.
 Eject `tanstack-query` and set the framework in your copy.
 

@@ -22,8 +22,6 @@ Incompatible selections fail immediately with an explanation.
 | `mock`           | `<output>.mocks.ts`: [MSW](https://mswjs.io) v2 handlers and `create<Schema>` factories.                                                                                                                                                                  | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
 | `transformers`   | `<output>.transformers.ts`: `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                  | none                                                     |
 | `cli`            | `<output>.cli.ts`: a [command-line interface](#generated-cli) for the client, ready to use as a bin. It has typed flags, `--json` bodies, env auth, and `--page-all`.                                                                                     | none                                                     |
-| `cli-docs`       | `<output>.cli.md`: a Markdown [reference for the generated CLI](#cli-reference-docs). It lists every command, flag, exit code, and credential variable.                                                                                                   | none                                                     |
-| `sdk-docs`       | `<output>.<language>.md`: a Markdown [reference for each selected SDK](#sdk-reference-docs). It lists every operation with its parameters and a call sample in that language.                                                                             | none                                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator zod --generator mock
@@ -188,33 +186,6 @@ Without this setting, `tsx` reports `Top-level await is currently not supported 
 To ship the CLI as a real bin, compile it with `tsc`.
 Then point the `bin` field of `package.json` at the compiled file.
 
-#### CLI reference docs
-
-The `cli-docs` generator writes `<output>.cli.md`, a Markdown reference.
-The page contains the usage line, the global flags, the credential environment variables, and the exit-code table.
-It also contains one section for each command.
-Each section lists the positionals and flags of the command with their types, defaults, and descriptions.
-The page renders from the same command table that the CLI dispatches on.
-Because of this, the page always matches the tool that it documents.
-When you regenerate, the docs update with the tool.
-When you select `cli-docs`, the command also selects the CLI that the page describes, so `--generator cli-docs` is enough.
-
-```sh
-redocly generate-client openapi.yaml --output src/client.ts --generator cli-docs
-```
-
-Two options control the page, under `client.options.cli-docs`:
-
-| Option        | Type    | Description                                                                                                |
-| ------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
-| `title`       | string  | The page heading. The default is `<API title> CLI`.                                                        |
-| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. The default is `false`. |
-
-For a different structure or wording, [eject the generator](../commands/eject-generator.md).
-The renderer is the template.
-Because of this, `redocly eject-generator cli-docs` gives you the page layout as code that you own, with no template syntax to learn.
-The same reference for the language SDKs is next.
-
 ### Language SDKs
 
 The `python`, `go`, and `php` generators each emit a full SDK for that language.
@@ -348,32 +319,30 @@ As a result, the TypeScript, Python, PHP, and Go clients of an API share one voc
 The generator reports each rename with its cause.
 A publisher who wants a different name can rename the schema or the operation in the description.
 
-#### SDK reference docs
+### Reference documentation
 
-The `sdk-docs` generator writes one Markdown page for each SDK in the same run.
-The page for the `python` generator is `<output>.python.md`, and the page for the `go` generator is `<output>.go.md`.
-Each page starts with the API title, the security schemes, and the requirements of that language.
-Then it gives one section for each operation.
-A section shows the method and path, the parameters, the request body, the response type, and a call sample in that language.
+`client.docs: true`, or the `--docs` flag, also writes the reference documentation for what the run generates.
+Each generator documents itself, and it writes one Markdown page next to its own output:
 
-The call sample comes from the SDK generator itself, through the same hook that produces `codeSamples`.
-Because of this, the page shows the syntax of the SDK next to it, and it cannot drift from that SDK.
-Select `sdk-docs` together with at least one SDK generator: `typescript`, `python`, `go`, or `php`.
-If you select `sdk-docs` alone, the command stops and tells you to add an SDK generator.
+| Generator             | Page                     | Contents                                                                                               |
+| --------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `cli`                 | `<output>.cli.md`        | The usage line, the global flags, the credential variables, the exit codes, and every command.         |
+| `typescript`          | `<output>.typescript.md` | The security schemes, and every operation with its parameters, body, response type, and a call sample. |
+| `python`, `go`, `php` | `<output>.<language>.md` | The same page for that SDK, with its own call samples.                                                 |
 
 ```sh
-redocly generate-client openapi.yaml --output src/client.ts --generator python --generator go --generator sdk-docs
+redocly generate-client openapi.yaml --output src/client.ts --generator cli --generator python --docs
 ```
 
-Two options control the pages, under `client.options.sdk-docs`:
+One switch covers every language, so a newly documented generator needs no new flag.
+A generator that documents nothing, such as `zod`, writes no page.
+Each page takes its call samples from the generator's own `sample` hook, so a page shows the syntax of the artifact beside it.
+The CLI page renders from the same command table that the CLI dispatches on.
+Because of this, a page cannot describe something other than what the run produced.
 
-| Option        | Type    | Description                                                                                                                                              |
-| ------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `title`       | string  | The page heading. The default is `<API title> <language> SDK reference`. If you select more than one SDK, the generator adds the language to your title. |
-| `frontmatter` | boolean | Emit YAML front matter (`title`) above the heading, for docs sites that expect it. The default is `false`.                                               |
-
-For a different structure or wording, [eject the generator](../commands/eject-generator.md).
-The renderer is the template, the same as for `cli-docs`.
+Set `client.docsFrontmatter: true` to put YAML front matter with the title above each page, for docs sites that expect it.
+For a different structure or wording, [eject the generator](../commands/eject-generator.md) that owns the page.
+The renderer is the template, so an ejected generator keeps writing its page and you own the layout.
 
 ## Package runtime
 

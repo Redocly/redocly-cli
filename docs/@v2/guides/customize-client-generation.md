@@ -280,10 +280,49 @@ Each one is a short entry over renderers that are internal to the package, so yo
 The runnable examples at the end of this page are the model to copy.
 They use only the public toolkit.
 
-Your generator also receives these hooks.
-`run` gets `samples`, the `sample` hook of every selected generator, keyed by generator name.
-A generator that writes documentation calls them instead of writing call syntax for a language it does not own.
-The built-in `sdk-docs` generator works this way.
+### Reference documentation for what you generate
+
+Implement the optional `docs(input)` hook to return the reference page for your output, with the same `{ path, content }` shape as `run`.
+The command calls it only when `client.docs` (or `--docs`) is on, so documentation is one switch for the whole run.
+
+A generator documents itself, because nothing else knows its call syntax.
+The `renderReferencePage(model, options)` helper renders the standard page, and it takes your `sample` hook for the snippets:
+
+```js
+import { defineGenerator, renderReferencePage } from '@redocly/client-generator';
+
+const rubyCall = (operation) => ({ lang: 'ruby', source: `client.${operation.name}` });
+
+export default defineGenerator({
+  name: 'ruby',
+  run({ model, outputPath }) {
+    /* the SDK */
+  },
+  sample: rubyCall,
+  docs({ model, outputPath, emit }) {
+    return [
+      {
+        path: outputPath.replace(/\.[^.\\/]+$/, '.ruby.md'),
+        content: renderReferencePage(model, {
+          title: `${model.title} Ruby SDK reference`,
+          frontmatter: emit.docsFrontmatter === true,
+          language: {
+            name: 'ruby',
+            label: 'Ruby',
+            fence: 'ruby',
+            requires: 'The SDK needs `faraday`.',
+          },
+          sample: rubyCall,
+          pagination: emit.pagination,
+        }),
+      },
+    ];
+  },
+});
+```
+
+Write your own page instead if the standard layout does not fit: the hook returns files, so the content is yours.
+An ejected generator keeps its `docs` hook, so the page layout is ejectable with the generator that owns it.
 
 Import-specifier generators execute at generation time.
 They have the same trust level as any installed dependency that you run.

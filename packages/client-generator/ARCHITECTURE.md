@@ -52,7 +52,7 @@ options, decides the output paths, and calls a renderer. The renderer itself liv
 `emitters/`, because that layer already holds the shared pieces every renderer composes
 with — `operation-signature.ts` for the calling convention, `ts-type.ts` for schema
 types, `pagination.ts`, `sse.ts`. `emitters/cli.ts` is there for that reason: `cli`
-renders from it, `cli-docs` renders the page from the same command table, and the
+renders from it, its `docs` hook renders the reference page from the same command table, and the
 package entry exports its composed-entry renderer.
 
 The three language SDKs are the exception. `python`, `go`, and `php` compose with
