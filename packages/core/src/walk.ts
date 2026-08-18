@@ -249,13 +249,14 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         const isExtensionKey =
           type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
 
-        if (propType === undefined) {
-          // extensions are not additional properties — dispatch them as SpecExtension
-          propType = isExtensionKey ? SpecExtension : type.additionalProperties;
+        // extensions are not additional properties — only regular undeclared keys take the catch-all type
+        if (propType === undefined && !isExtensionKey) {
+          propType = type.additionalProperties;
         }
+        // a function type picks the concrete type from the value; runs after the fallback because additionalProperties can be a function too
         if (typeof propType === 'function') propType = propType(value, propName);
+        // an extension key that resolved to anything but a named type (undeclared or a plain schema) walks as SpecExtension
         if (isExtensionKey && !isNamedType(propType)) {
-          // a declared extension with a plain schema gets no typed walk — visit it as SpecExtension
           propType = SpecExtension;
         }
 
@@ -382,6 +383,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           if (type.additionalProperties) {
             props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
           } else if (type.extensionsPrefix) {
+            // declared extensions (like x-query) are already in props — pushing them again would walk their subtree twice
             props.push(
               ...Object.keys(resolvedNode).filter(
                 (k) => k.startsWith(type.extensionsPrefix as string) && !props.includes(k)

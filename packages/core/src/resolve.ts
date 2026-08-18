@@ -321,14 +321,17 @@ export async function resolveDocument(opts: {
       for (const propName of Object.keys(node)) {
         let propValue = node[propName];
         let propType = getOwn(type.properties, propName);
-        if (propType === undefined) {
-          // extensions are not additional properties — resolve them as SpecExtension
-          propType =
-            type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)
-              ? SpecExtension
-              : type.additionalProperties;
+        const isExtensionKey =
+          type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
+
+        // extensions are not additional properties — only regular undeclared keys take the catch-all type
+        if (propType === undefined && !isExtensionKey) {
+          propType = type.additionalProperties;
         }
+        // a function type picks the concrete type from the value; runs after the fallback because additionalProperties can be a function too
         if (typeof propType === 'function') propType = propType(propValue, propName);
+        // an undeclared extension key resolves as SpecExtension so $refs inside it are followed
+        if (isExtensionKey && propType === undefined) propType = SpecExtension;
         if (propType === undefined) propType = unknownType;
 
         if (!isNamedType(propType) && propType?.directResolveAs) {

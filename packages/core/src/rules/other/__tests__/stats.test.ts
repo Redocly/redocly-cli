@@ -296,6 +296,51 @@ describe('stats', () => {
     expect(statsAccumulator.xExtensions.total).toBe(34);
   });
 
+  it('should not count standard keys that reach extension-typed nodes', async () => {
+    const statsAccumulator = createOasStatsAccumulator();
+    const testRuleSet: Oas3RuleSet = {
+      stats: () => StatsOAS(statsAccumulator),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: t
+            version: '1'
+          webhooks:
+            newPet:
+              post:
+                responses:
+                  '200':
+                    description: ok
+          paths:
+            /a:
+              get:
+                operationId: a
+                requestBody:
+                  content:
+                    application/json:
+                      examples:
+                        first:
+                          value: 1
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/stats': 'error' },
+      }),
+    });
+
+    expect(statsAccumulator.xExtensions.counts).toEqual({});
+  });
+
   it('should count vendor extensions in Swagger 2.0 specific places, leaving scope names out', async () => {
     const statsAccumulator = createOasStatsAccumulator();
     const testRuleSet: Oas2RuleSet = {

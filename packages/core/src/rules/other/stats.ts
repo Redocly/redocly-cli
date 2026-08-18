@@ -17,8 +17,8 @@ import type { Oas2Parameter } from '../../typings/swagger.js';
 import type { UserContext } from '../../walk.js';
 
 function countExtension(row: StatsRow, ctx: UserContext) {
+  if (isRef(ctx.parent)) return;
   const extensionName = ctx.key.toString();
-  if (!extensionName.startsWith('x-') || isRef(ctx.parent)) return;
   const counts = (row.counts ??= {});
   counts[extensionName] = (counts[extensionName] ?? 0) + 1;
 }
@@ -50,7 +50,9 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     ExamplesMap: {
       enter(_node: unknown, ctx: UserContext) {
-        countExtension(statsAccumulator.xExtensions, ctx);
+        if (ctx.key.toString().startsWith('x-')) {
+          countExtension(statsAccumulator.xExtensions, ctx);
+        }
       },
     },
     EnumDescriptions: {
@@ -80,7 +82,9 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     Operation: {
       enter(_node: unknown, ctx: UserContext) {
-        countExtension(statsAccumulator.xExtensions, ctx);
+        if (ctx.key.toString().startsWith('x-')) {
+          countExtension(statsAccumulator.xExtensions, ctx);
+        }
       },
     },
     ExternalDocs: {
@@ -105,7 +109,9 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     WebhooksMap: {
       enter(_node: unknown, ctx: UserContext) {
-        countExtension(statsAccumulator.xExtensions, ctx);
+        if (ctx.key.toString().startsWith('x-')) {
+          countExtension(statsAccumulator.xExtensions, ctx);
+        }
       },
       Operation: {
         leave(operation: Oas3Operation) {
