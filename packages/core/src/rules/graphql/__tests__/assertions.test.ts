@@ -495,4 +495,49 @@ describe('GraphQL configurable rules (rule/*)', () => {
       ]
     `);
   });
+
+  it('fails with a named error when the assertions block is missing', async () => {
+    const config = await createConfig(
+      outdent`
+        rules:
+          rule/graphql-no-assertions:
+            subject:
+              type: ObjectTypeDefinition
+      `
+    );
+
+    await expect(
+      lintFromString({
+        source: 'type Correct { name: String! }',
+        absoluteRef: 'schema.graphql',
+        config,
+      })
+    ).rejects.toThrow("rule/graphql-no-assertions: 'assertions' (Object) is required");
+  });
+
+  it('fails with a named error when the assertions block is missing in a where clause', async () => {
+    const config = await createConfig(
+      outdent`
+        rules:
+          rule/graphql-no-assertions-in-where:
+            subject:
+              type: FieldDefinition
+            assertions:
+              casing: camelCase
+            where:
+              - subject:
+                  type: ObjectTypeDefinition
+      `
+    );
+
+    await expect(
+      lintFromString({
+        source: 'type Correct { name: String! }',
+        absoluteRef: 'schema.graphql',
+        config,
+      })
+    ).rejects.toThrow(
+      "rule/graphql-no-assertions-in-where -> where -> [0]: 'assertions' (Object) is required"
+    );
+  });
 });
