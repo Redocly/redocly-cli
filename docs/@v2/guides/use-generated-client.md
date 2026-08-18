@@ -184,10 +184,34 @@ The generator itself supplies no credential store and no login command.
 The auth flow of each API is different, so you supply these parts.
 This section shows the procedure.
 
-The CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"`.
+#### Ship it as a real command
+
+`binName` is the name the CLI uses for itself, not an installation.
+The generated file is a module until you point a `bin` field at it, and these three steps are what make `cafe` a command on your machine.
+
+First, the CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"`.
 Without this setting, `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, and that message does not point to the fix.
-To ship the CLI as a real bin, compile it with `tsc`.
-Then point the `bin` field of `package.json` at the compiled file.
+
+Second, compile the entry with `tsc` and declare the compiled file as the bin:
+
+```json
+{
+  "type": "module",
+  "bin": { "cafe": "./dist/cafe.js" },
+  "scripts": { "build": "tsc" }
+}
+```
+
+Third, install the package, or link it while you develop:
+
+```sh
+npm run build && npm link
+cafe listOrders --limit 3     # CAFE_TOKEN from the environment
+```
+
+Keep the `bin` key and `binName` the same, or the help output names a command that does not exist.
+For a one-off run, `npx tsx src/cafe.ts listOrders --limit 3` uses the same entry with no build step.
+`binName` applies to the `cli` generator only: the `python`, `go`, and `php` SDKs are libraries, and they emit no command.
 
 ### Language SDKs
 

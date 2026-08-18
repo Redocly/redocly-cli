@@ -902,7 +902,7 @@ yargs(hideBin(process.argv))
           },
           'bin-name': {
             description:
-              "Command name for the `cli` generator's help output and credential env vars. Defaults to the output stem.",
+              "Command name for the `cli` generator's help output and credential env vars; it does not install a command. Defaults to the output stem.",
             type: 'string',
             requiresArg: true,
           },
