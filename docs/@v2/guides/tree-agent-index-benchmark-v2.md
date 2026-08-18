@@ -58,12 +58,43 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |     no tree |        tree | Context |          Cost |   Working |
-| --------- | ----------: | ----------: | ------: | ------------: | --------: |
-| Sonnet 5  | 15,620 / 16 |  11,604 / 5 |    −26% | $0.46 → $0.27 | 2/3 → 1/3 |
-| Opus 5    | 16,462 / 13 | 16,284 / 11 |     −1% | $0.72 → $0.67 | 3/3 → 2/3 |
-| Fable 5   | 15,145 / 13 | 11,932 / 10 |    −21% | $1.09 → $0.85 | 1/3 → 2/3 |
-| Haiku 4.5 |           — |   8,565 / 6 |       — |     — → $0.08 | 0/3 → 1/3 |
+Context the run added, and the tool calls it took:
+
+| Model     |     no tree |        tree | Difference |
+| --------- | ----------: | ----------: | ---------: |
+| Sonnet 5  | 15,620 / 16 |  11,604 / 5 |       −26% |
+| Opus 5    | 16,462 / 13 | 16,284 / 11 |        −1% |
+| Fable 5   | 15,145 / 13 | 11,932 / 10 |       −21% |
+| Haiku 4.5 |           — |   8,565 / 6 |          — |
+
+What those runs were billed:
+
+| Model     | no tree |  tree | Difference |
+| --------- | ------: | ----: | ---------: |
+| Sonnet 5  |   $0.46 | $0.27 |       −41% |
+| Opus 5    |   $0.72 | $0.67 |        −7% |
+| Fable 5   |   $1.09 | $0.85 |       −22% |
+| Haiku 4.5 |       — | $0.08 |          — |
+
+Whether each run produced a flow that would run:
+
+| Run               | no tree                                        | tree            |
+| ----------------- | ---------------------------------------------- | --------------- |
+| Sonnet 5 · run 1  | no asset upload                                | no asset upload |
+| Sonnet 5 · run 2  | works                                          | no asset upload |
+| Sonnet 5 · run 3  | works                                          | works           |
+| Opus 5 · run 1    | works                                          | works           |
+| Opus 5 · run 2    | works                                          | no asset upload |
+| Opus 5 · run 3    | works                                          | works           |
+| Fable 5 · run 1   | no asset upload                                | works           |
+| Fable 5 · run 2   | no asset upload                                | works           |
+| Fable 5 · run 3   | works                                          | no asset upload |
+| Haiku 4.5 · run 1 | no app token                                   | no app token    |
+| Haiku 4.5 · run 2 | no app token, no asset upload, no asset delete | no app token    |
+| Haiku 4.5 · run 3 | no app token                                   | works           |
+
+A run works when its flow contains `POST /app/installations/{id}/access_tokens`, `POST /releases`, the asset upload and `DELETE /releases/assets/{asset_id}`, and sends the upload to `uploads.github.com`.
+The upload may be addressed either by path or through the `upload_url` the release returns; both count.
 
 What the tree agent ran:
 
@@ -172,12 +203,43 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |     no tree |        tree | Context |          Cost |   Working |
-| --------- | ----------: | ----------: | ------: | ------------: | --------: |
-| Sonnet 5  |           — | 28,164 / 13 |       — |     — → $0.55 | 0/3 → 1/3 |
-| Opus 5    | 35,212 / 32 | 32,019 / 21 |     −9% | $1.56 → $1.00 | 3/3 → 3/3 |
-| Fable 5   | 32,043 / 30 | 18,329 / 11 |    −43% | $2.82 → $1.32 | 3/3 → 3/3 |
-| Haiku 4.5 |           — |           — |       — |         — → — | 0/3 → 0/3 |
+Context the run added, and the tool calls it took:
+
+| Model     |     no tree |        tree | Difference |
+| --------- | ----------: | ----------: | ---------: |
+| Sonnet 5  |           — | 28,164 / 13 |          — |
+| Opus 5    | 35,212 / 32 | 32,019 / 21 |        −9% |
+| Fable 5   | 32,043 / 30 | 18,329 / 11 |       −43% |
+| Haiku 4.5 |           — |           — |          — |
+
+What those runs were billed:
+
+| Model     | no tree |  tree | Difference |
+| --------- | ------: | ----: | ---------: |
+| Sonnet 5  |       — | $0.55 |          — |
+| Opus 5    |   $1.56 | $1.00 |       −36% |
+| Fable 5   |   $2.82 | $1.32 |       −53% |
+| Haiku 4.5 |       — |     — |          — |
+
+Whether each run produced a flow that would run:
+
+| Run               | no tree                                       | tree                            |
+| ----------------- | --------------------------------------------- | ------------------------------- |
+| Sonnet 5 · run 1  | no auth scheme                                | no product call, no auth scheme |
+| Sonnet 5 · run 2  | no auth scheme                                | works                           |
+| Sonnet 5 · run 3  | no auth scheme                                | no auth scheme                  |
+| Opus 5 · run 1    | works                                         | works                           |
+| Opus 5 · run 2    | works                                         | works                           |
+| Opus 5 · run 3    | works                                         | works                           |
+| Fable 5 · run 1   | works                                         | works                           |
+| Fable 5 · run 2   | works                                         | works                           |
+| Fable 5 · run 3   | works                                         | works                           |
+| Haiku 4.5 · run 1 | no product call, no plan call, no auth scheme | no product call, no auth scheme |
+| Haiku 4.5 · run 2 | no product call, no plan call, no auth scheme | no product call, no auth scheme |
+| Haiku 4.5 · run 3 | no auth scheme                                | no product call, no auth scheme |
+
+A run works when its flow contains `POST /products`, `POST /plans` and `POST /subscriptions`, names the four fields the subscription body requires — `orderType`, `customerId`, `websiteId`, `items` — and names the `SecretApiKey` header (or the `REB-APIKEY` it appears as).
+Authentication here is a header, not a call, so a flow that never mentions it would be rejected on the first request.
 
 What the tree agent ran:
 
@@ -319,12 +381,43 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |    no tree |        tree | Context |          Cost |   Working |
-| --------- | ---------: | ----------: | ------: | ------------: | --------: |
-| Sonnet 5  | 18,287 / 2 |   8,474 / 5 |    −54% | $0.27 → $0.26 | 3/3 → 3/3 |
-| Opus 5    | 16,769 / 1 | 17,103 / 11 |     +2% | $0.41 → $0.58 | 3/3 → 3/3 |
-| Fable 5   | 16,882 / 1 |   9,889 / 9 |    −41% | $0.72 → $0.82 | 3/3 → 3/3 |
-| Haiku 4.5 |          — |   7,604 / 8 |       — |     — → $0.09 | 0/3 → 1/3 |
+Context the run added, and the tool calls it took:
+
+| Model     |    no tree |        tree | Difference |
+| --------- | ---------: | ----------: | ---------: |
+| Sonnet 5  | 18,287 / 2 |   8,474 / 5 |       −54% |
+| Opus 5    | 16,769 / 1 | 17,103 / 11 |        +2% |
+| Fable 5   | 16,882 / 1 |   9,889 / 9 |       −41% |
+| Haiku 4.5 |          — |   7,604 / 8 |          — |
+
+What those runs were billed:
+
+| Model     | no tree |  tree | Difference |
+| --------- | ------: | ----: | ---------: |
+| Sonnet 5  |   $0.27 | $0.26 |        −4% |
+| Opus 5    |   $0.41 | $0.58 |       +41% |
+| Fable 5   |   $0.72 | $0.82 |       +14% |
+| Haiku 4.5 |       — | $0.09 |          — |
+
+Whether each run produced a flow that would run:
+
+| Run               | no tree        | tree          |
+| ----------------- | -------------- | ------------- |
+| Sonnet 5 · run 1  | works          | works         |
+| Sonnet 5 · run 2  | works          | works         |
+| Sonnet 5 · run 3  | works          | works         |
+| Opus 5 · run 1    | works          | works         |
+| Opus 5 · run 2    | works          | works         |
+| Opus 5 · run 3    | works          | works         |
+| Fable 5 · run 1   | works          | works         |
+| Fable 5 · run 2   | works          | works         |
+| Fable 5 · run 3   | works          | works         |
+| Haiku 4.5 · run 1 | no token call  | no token call |
+| Haiku 4.5 · run 2 | no token call  | works         |
+| Haiku 4.5 · run 3 | no status call | no token call |
+
+A run works when its flow contains `POST /oauth2/token`, `GET /menu`, `POST /orders` and `GET /orders/{orderId}`, all against `api.cafe.redocly.com`.
+The token call is what most failures drop: without it the order and its status return 401, because both operations declare OAuth2 scopes while the menu is public.
 
 What the tree agent ran:
 
@@ -419,22 +512,39 @@ Context the run added, and the tool calls it took, over the runs whose flow work
 Where both sides produce a working flow, the index is cheaper in six of eight cells, by 1% to 54%.
 Tool calls fall on the two large descriptions — 21 against 32 on the billing API, 5 against 16 on GitHub — and rise on the 41 KB Cafe API, where the alternative is one read of the whole file.
 
-How often the flow worked, and what it was billed:
+What those runs were billed:
 
-| Description | Model     | no tree | tree | Cost, no tree → tree |
-| ----------- | --------- | ------: | ---: | -------------------- |
-| GitHub REST | Sonnet 5  |     2/3 |  1/3 | $0.46 → $0.27        |
-| GitHub REST | Opus 5    |     3/3 |  2/3 | $0.72 → $0.67        |
-| GitHub REST | Fable 5   |     1/3 |  2/3 | $1.09 → $0.85        |
-| GitHub REST | Haiku 4.5 |     0/3 |  1/3 | — → $0.08            |
-| Billing API | Sonnet 5  |     0/3 |  1/3 | — → $0.55            |
-| Billing API | Opus 5    |     3/3 |  3/3 | $1.56 → $1.00        |
-| Billing API | Fable 5   |     3/3 |  3/3 | $2.82 → $1.32        |
-| Billing API | Haiku 4.5 |     0/3 |  0/3 | — → —                |
-| Cafe API    | Sonnet 5  |     3/3 |  3/3 | $0.27 → $0.26        |
-| Cafe API    | Opus 5    |     3/3 |  3/3 | $0.41 → $0.58        |
-| Cafe API    | Fable 5   |     3/3 |  3/3 | $0.72 → $0.82        |
-| Cafe API    | Haiku 4.5 |     0/3 |  1/3 | — → $0.09            |
+| Description | Model     | no tree |  tree |
+| ----------- | --------- | ------: | ----: |
+| GitHub REST | Sonnet 5  |   $0.46 | $0.27 |
+| GitHub REST | Opus 5    |   $0.72 | $0.67 |
+| GitHub REST | Fable 5   |   $1.09 | $0.85 |
+| GitHub REST | Haiku 4.5 |       — | $0.08 |
+| Billing API | Sonnet 5  |       — | $0.55 |
+| Billing API | Opus 5    |   $1.56 | $1.00 |
+| Billing API | Fable 5   |   $2.82 | $1.32 |
+| Billing API | Haiku 4.5 |       — |     — |
+| Cafe API    | Sonnet 5  |   $0.27 | $0.26 |
+| Cafe API    | Opus 5    |   $0.41 | $0.58 |
+| Cafe API    | Fable 5   |   $0.72 | $0.82 |
+| Cafe API    | Haiku 4.5 |       — | $0.09 |
+
+How many of the three runs in each cell produced a flow that would run:
+
+| Description | Model     | no tree | tree |
+| ----------- | --------- | ------: | ---: |
+| GitHub REST | Sonnet 5  |     2/3 |  1/3 |
+| GitHub REST | Opus 5    |     3/3 |  2/3 |
+| GitHub REST | Fable 5   |     1/3 |  2/3 |
+| GitHub REST | Haiku 4.5 |     0/3 |  1/3 |
+| Billing API | Sonnet 5  |     0/3 |  1/3 |
+| Billing API | Opus 5    |     3/3 |  3/3 |
+| Billing API | Fable 5   |     3/3 |  3/3 |
+| Billing API | Haiku 4.5 |     0/3 |  0/3 |
+| Cafe API    | Sonnet 5  |     3/3 |  3/3 |
+| Cafe API    | Opus 5    |     3/3 |  3/3 |
+| Cafe API    | Fable 5   |     3/3 |  3/3 |
+| Cafe API    | Haiku 4.5 |     0/3 |  1/3 |
 
 Forty-four of 72 runs produced a flow that would run.
 Three cells never produced one without the index and two of them did with it, while no cell went the other way: on the large descriptions the index does not only change the price, it changes whether the weaker models arrive at a usable answer at all.
