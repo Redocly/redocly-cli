@@ -11,7 +11,7 @@ Send us your feedback while we stabilize the feature.
 Point the command at a description and give it an output path:
 
 ```bash
-npx @redocly/cli generate-client openapi.yaml --output src/client.ts
+redocly generate-client openapi.yaml --output src/client.ts
 ```
 
 That writes one self-contained file with a typed function for each operation:
@@ -29,7 +29,7 @@ The client has no dependencies, and it carries the behavior an API needs: auth f
 Add a flag for each extra artifact you want:
 
 ```bash
-npx @redocly/cli generate-client openapi.yaml -o src/client.ts \
+redocly generate-client openapi.yaml -o src/client.ts \
   --generator zod --generator tanstack-query --generator mock --docs
 ```
 

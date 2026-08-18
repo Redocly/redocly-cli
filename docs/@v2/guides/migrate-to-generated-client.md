@@ -13,7 +13,7 @@ If the description is out of date, read [Expect the description to be wrong](#ex
 Generate into a new path and change nothing else:
 
 ```bash
-npx @redocly/cli generate-client openapi.yaml --output src/api/generated/client.ts
+redocly generate-client openapi.yaml --output src/api/generated/client.ts
 ```
 
 Your application still runs on the old code.
