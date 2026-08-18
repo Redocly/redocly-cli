@@ -1,4 +1,4 @@
-import type { NormalizedNodeType } from '../../types/index.js';
+import { isRef } from '../../ref-utils.js';
 import type {
   AsyncAPIStatsAccumulator,
   OASStatsAccumulator,
@@ -14,17 +14,13 @@ import type {
   OasRef,
 } from '../../typings/openapi.js';
 import type { Oas2Parameter } from '../../typings/swagger.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { UserContext } from '../../walk.js';
 
-function countExtensions(row: StatsRow, node: unknown, type: NormalizedNodeType) {
-  if (!type.extensionsPrefix || !isPlainObject(node)) return;
+function countExtension(row: StatsRow, ctx: UserContext) {
+  const extensionName = ctx.key.toString();
+  if (!extensionName.startsWith('x-') || isRef(ctx.parent)) return;
   const counts = (row.counts ??= {});
-  for (const propName of Object.keys(node)) {
-    if (propName.startsWith(type.extensionsPrefix)) {
-      counts[propName] = (counts[propName] ?? 0) + 1;
-    }
-  }
+  counts[extensionName] = (counts[extensionName] ?? 0) + 1;
 }
 
 function finalizeStats(statsAccumulator: StatsAccumulator) {
@@ -42,10 +38,47 @@ function finalizeStats(statsAccumulator: StatsAccumulator) {
 
 export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
   return {
-    ExternalDocs: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
+    SpecExtension: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
       },
+    },
+    XCodeSampleList: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    ExamplesMap: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    EnumDescriptions: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    TagGroups: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    Logo: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    XServerList: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    Operation: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
       },
@@ -56,22 +89,19 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     Tag: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave(tag: Oas3Tag | Oas3_2Tag) {
         statsAccumulator.tags.items!.add(tag.name);
       },
     },
     Link: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave(link: Oas3Link) {
         statsAccumulator.links.items!.add(link.operationId!);
       },
     },
     WebhooksMap: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
       Operation: {
         leave(operation: Oas3Operation) {
           statsAccumulator.webhooks.total++;
@@ -84,9 +114,6 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     Paths: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       PathItem: {
         leave() {
           statsAccumulator.pathItems.total++;
@@ -116,166 +143,8 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     Root: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave() {
         finalizeStats(statsAccumulator);
-      },
-    },
-    AuthorizationCode: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Callback: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ClientCredentials: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Components: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Contact: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    DeviceAuthorization: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Discriminator: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Encoding: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Example: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Header: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ImplicitFlow: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Info: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    License: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Logo: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MediaType: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OAuth2Flows: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Operation: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Parameter: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ParameterItems: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    PasswordFlow: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    PathItem: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    RequestBody: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Response: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Responses: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Schema: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Scopes: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    SecurityScheme: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Server: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ServerVariable: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    TagGroup: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Xml: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
       },
     },
   };
@@ -283,10 +152,12 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
 
 export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
   return {
-    ExternalDocs: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
+    SpecExtension: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
       },
+    },
+    ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
       },
@@ -297,9 +168,6 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     Tag: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave(tag: Oas3Tag) {
         statsAccumulator.tags.items!.add(tag.name);
       },
@@ -334,136 +202,8 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     Root: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave() {
         finalizeStats(statsAccumulator);
-      },
-    },
-    AuthorizationCode: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Channel: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ChannelBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ClientCredentials: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Components: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Contact: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    CorrelationId: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ImplicitFlow: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Info: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    License: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Message: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MessageBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MessageExample: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MessageTrait: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Operation: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OperationBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OperationTrait: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Parameter: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    PasswordFlow: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Schema: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    SecurityScheme: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    SecuritySchemeFlows: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Server: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ServerBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ServerVariable: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
       },
     },
   };
@@ -471,10 +211,12 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
 
 export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
   return {
-    ExternalDocs: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
+    SpecExtension: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
       },
+    },
+    ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
       },
@@ -485,9 +227,6 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     Tag: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave(tag: Oas3Tag) {
         statsAccumulator.tags.items!.add(tag.name);
       },
@@ -524,146 +263,8 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
       },
     },
     Root: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
       leave() {
         finalizeStats(statsAccumulator);
-      },
-    },
-    AuthorizationCode: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Channel: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ChannelBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ClientCredentials: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Components: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Contact: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    CorrelationId: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ImplicitFlow: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Info: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    License: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Message: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MessageBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MessageExample: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    MessageTrait: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Operation: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OperationBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OperationReply: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OperationReplyAddress: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    OperationTrait: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Parameter: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    PasswordFlow: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Schema: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    SecurityScheme: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    SecuritySchemeFlows: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    Server: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ServerBindings: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
-      },
-    },
-    ServerVariable: {
-      enter(node: unknown, ctx: UserContext) {
-        countExtensions(statsAccumulator.xExtensions, node, ctx.type);
       },
     },
   };

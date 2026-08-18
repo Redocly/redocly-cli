@@ -53,7 +53,7 @@ function createAsyncStatsAccumulator(): AsyncAPIStatsAccumulator {
 }
 
 describe('stats', () => {
-  it('should have a counting hook for every node type that allows extensions', () => {
+  it('should have a counting hook for SpecExtension and for every declared extension type', () => {
     const statsVisitors = [
       {
         visitor: StatsOAS(createOasStatsAccumulator()) as Record<string, unknown>,
@@ -70,13 +70,16 @@ describe('stats', () => {
     ];
 
     for (const { visitor, typeMaps } of statsVisitors) {
+      expect(visitor.SpecExtension, 'missing SpecExtension counting hook').toBeDefined();
       for (const typeMap of typeMaps as Array<Record<string, NodeType>>) {
-        for (const [typeName, nodeType] of Object.entries(typeMap)) {
-          if (nodeType.extensionsPrefix) {
-            expect(
-              visitor[typeName],
-              `missing extension counting hook for ${typeName}`
-            ).toBeDefined();
+        for (const nodeType of Object.values(typeMap)) {
+          for (const [propName, propType] of Object.entries(nodeType.properties ?? {})) {
+            if (propName.startsWith('x-') && typeof propType === 'string') {
+              expect(
+                visitor[propType],
+                `missing counting hook for declared extension ${propName} (type ${propType})`
+              ).toBeDefined();
+            }
           }
         }
       }
@@ -139,6 +142,7 @@ describe('stats', () => {
               get:
                 operationId: a
                 x-internal: true
+                x-hideTryItPanel: true
                 x-codeSamples:
                   - lang: curl
                     source: echo
@@ -253,6 +257,7 @@ describe('stats', () => {
       'x-example-ext': 1,
       'x-external-docs-ext': 1,
       'x-header-ext': 1,
+      'x-hideTryItPanel': 1,
       'x-implicit-ext': 1,
       'x-internal': 2,
       'x-license-ext': 1,
@@ -275,7 +280,7 @@ describe('stats', () => {
       'x-webhooks': 1,
       'x-xml-ext': 1,
     });
-    expect(statsAccumulator.xExtensions.total).toBe(32);
+    expect(statsAccumulator.xExtensions.total).toBe(33);
   });
 
   it('should count vendor extensions in Swagger 2.0 specific places, leaving scope names out', async () => {

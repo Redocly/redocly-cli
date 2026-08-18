@@ -246,14 +246,16 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
       const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
         let propType = getOwn(type.properties, propName);
-        if (propType === undefined) propType = type.additionalProperties;
-        if (typeof propType === 'function') propType = propType(value, propName);
+        const isExtensionKey =
+          type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
 
-        if (
-          propType === undefined &&
-          type.extensionsPrefix &&
-          propName.startsWith(type.extensionsPrefix)
-        ) {
+        if (propType === undefined) {
+          // extensions are not additional properties — dispatch them as SpecExtension
+          propType = isExtensionKey ? SpecExtension : type.additionalProperties;
+        }
+        if (typeof propType === 'function') propType = propType(value, propName);
+        if (isExtensionKey && !isNamedType(propType)) {
+          // a declared extension with a plain schema gets no typed walk — visit it as SpecExtension
           propType = SpecExtension;
         }
 
@@ -274,7 +276,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       };
 
       currentLocation = resolvedLocation;
-      const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
+      // primitives have no identity to dedupe by — use their location; objects dedupe by identity
+      const seenKey =
+        isPlainObject(resolvedNode) || Array.isArray(resolvedNode)
+          ? resolvedNode
+          : location.absolutePointer;
+      const isNodeSeen = seenNodesPerType[type.name]?.has?.(seenKey);
       let visitedBySome = false;
 
       const currentEnterVisitors =
@@ -346,7 +353,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       if (visitedBySome || !isNodeSeen) {
         seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-        seenNodesPerType[type.name].add(resolvedNode);
+        seenNodesPerType[type.name].add(seenKey);
 
         if (Array.isArray(resolvedNode)) {
           const itemsType = type.items;
