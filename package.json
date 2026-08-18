@@ -80,6 +80,7 @@
     "tsx": "^4.19.3",
     "typescript": "6.0.2",
     "typescript7": "npm:typescript@7.0.2",
+    "valibot": "^1.4.2",
     "vitest": "^4.1.8",
     "zod": "^4.0.0"
   },
