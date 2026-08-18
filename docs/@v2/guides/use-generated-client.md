@@ -573,6 +573,41 @@ But prefer `use()` to add to existing middleware, including [publisher pre-confi
 
 See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
 
+## The HTTP layer
+
+The client sends requests with `fetch`, and that is the only transport it needs.
+Auth, retries, timeouts, and middleware are part of the client, so you do not add a request library to get them.
+
+If your application already has a configured HTTP layer, pass it to the client instead of replacing what you have.
+`ClientConfig.fetch` accepts anything with the `fetch` signature, so an existing instance of your request library goes in through one adapter function:
+
+```ts
+import axios from 'axios';
+import { configure } from './client.ts';
+
+// One adapter, and every generated call goes through your instance:
+// its interceptors, its base configuration, its telemetry.
+configure({
+  fetch: async (input, init) => {
+    const response = await axios.request({
+      url: typeof input === 'string' ? input : input.toString(),
+      method: init?.method ?? 'GET',
+      headers: init?.headers as Record<string, string>,
+      data: init?.body,
+      responseType: 'text',
+      validateStatus: () => true,
+    });
+    return new Response(response.data, {
+      status: response.status,
+      headers: response.headers as HeadersInit,
+    });
+  },
+});
+```
+
+The same seam takes a test double, a proxy-aware fetch, or a `fetch` that adds tracing headers.
+Prefer [middleware](#middleware) for behavior that belongs to your API, and keep `fetch` for the transport itself.
+
 ## Retries
 
 Retry is **opt-in**.
@@ -963,3 +998,4 @@ That is a generator bug, not a style choice.
 - **[`generate-client` command](../commands/generate-client.md)** — Learn about the the `generate-client` command's flags, output modes, and invocation
 - **[`client` configuration](../configuration/reference/client.md)** — Explore the settings for the `generate-client` command
 - **[Customize client generation](./customize-client-generation.md)** — Learn how to control the output of the `generate-client`
+- **[Move an app to a generated client](./migrate-to-generated-client.md)** — Replace a hand-written client, one call site at a time

@@ -6,6 +6,36 @@ Its flags, generated output, configuration schema, and custom-generator API can 
 Send us your feedback while we stabilize the feature.
 {% /admonition %}
 
+## Quickstart
+
+Point the command at a description and give it an output path:
+
+```bash
+npx @redocly/cli generate-client openapi.yaml --output src/client.ts
+```
+
+That writes one self-contained file with a typed function for each operation:
+
+```ts
+import { listOrders, createOrder, configure } from './client.js';
+
+configure({ auth: { bearer: process.env.API_TOKEN } });
+
+const orders = await listOrders({ status: 'open', limit: 10 });
+const created = await createOrder({ items: [{ menuItemId: 'itm_1', quantity: 2 }] });
+```
+
+The client has no dependencies, and it carries the behavior an API needs: auth for every scheme the description declares, opt-in retries, timeouts, middleware, pagination iterators, and typed server-sent events.
+Add a flag for each extra artifact you want:
+
+```bash
+npx @redocly/cli generate-client openapi.yaml -o src/client.ts \
+  --generator zod --generator tanstack-query --generator mock --docs
+```
+
+The rest of this page describes the flags.
+[Use the generated client](../guides/use-generated-client.md) describes what the output does.
+
 ## Introduction
 
 The `generate-client` command generates a typed TypeScript client from an OpenAPI 3.x description.
@@ -132,6 +162,7 @@ See [Package runtime](../guides/use-generated-client.md#package-runtime) in the 
 ## Resources
 
 - **[Use the generated client](../guides/use-generated-client.md)** - Learn how to use the client produced by the `generate-client` command
+- **[Move an app to a generated client](../guides/migrate-to-generated-client.md)** - Replace a hand-written client, one call site at a time
 - **[`client` configuration](../configuration/reference/client.md)** - Explore the settings for the `generate-client` command
 - **[Lint command](./lint.md)** - Validate your API description before you generate a client
 - **[Bundle command](./bundle.md)** - Combine a multi-file description into one input file
