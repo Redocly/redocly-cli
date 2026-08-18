@@ -57,9 +57,10 @@ npx tsx src/client.cli.ts schema createOrder             # the operation's full 
 You do not have to know which tag the operation carries.
 Run `<bin> listOrders --help` to show the flags of one command.
 
-A tag adds a group, and a group does two things.
-It organizes `--help`, which matters for an API with hundreds of operations.
-It also disambiguates: if two operations share a command name, the CLI reports the ambiguity and names the groups to choose from, and `<bin> orders listOrders` addresses one of them.
+A tag adds a group, and the group organizes `--help`.
+This matters for an API with hundreds of operations: `<bin> --help` lists the groups, and `<bin> orders --help` lists the commands of one group.
+A group also addresses a command (`<bin> orders listOrders`), which is what you would type after browsing that group, but it is never required.
+Two commands cannot share a name: when a description declares the same `operationId` twice, the generator reports it and emits the second as `<name>_2`.
 An operation with no `operationId` still gets a command.
 The generator derives the name from the method and the path (`GET /pets` becomes `getPets`, and `GET /pets/{id}` becomes `getPetsId`), so a description without operationIds has a complete CLI.
 
