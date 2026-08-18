@@ -73,6 +73,11 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
         countExtension(statsAccumulator.xExtensions, ctx);
       },
     },
+    XUsePkce: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
     Operation: {
       enter(_node: unknown, ctx: UserContext) {
         countExtension(statsAccumulator.xExtensions, ctx);

@@ -52,6 +52,15 @@ function createAsyncStatsAccumulator(): AsyncAPIStatsAccumulator {
   };
 }
 
+function declaredExtensionTypeNames(propType: unknown, propName: string): string[] {
+  const sampleValues: unknown[] = [{}, [], true, 0, 'text'];
+  const typeNames =
+    typeof propType === 'function'
+      ? sampleValues.map((value) => propType(value, propName))
+      : [propType];
+  return typeNames.filter((typeName): typeName is string => typeof typeName === 'string');
+}
+
 describe('stats', () => {
   it('should have a counting hook for SpecExtension and for every declared extension type', () => {
     const statsVisitors = [
@@ -74,10 +83,11 @@ describe('stats', () => {
       for (const typeMap of typeMaps as Array<Record<string, NodeType>>) {
         for (const nodeType of Object.values(typeMap)) {
           for (const [propName, propType] of Object.entries(nodeType.properties ?? {})) {
-            if (propName.startsWith('x-') && typeof propType === 'string') {
+            if (!propName.startsWith('x-')) continue;
+            for (const typeName of declaredExtensionTypeNames(propType, propName)) {
               expect(
-                visitor[propType],
-                `missing counting hook for declared extension ${propName} (type ${propType})`
+                visitor[typeName],
+                `missing counting hook for declared extension ${propName} (type ${typeName})`
               ).toBeDefined();
             }
           }
@@ -236,6 +246,8 @@ describe('stats', () => {
                     tokenUrl: https://example.com/token
                     scopes: {}
                     x-authorization-code-ext: true
+                    x-usePkce:
+                      disableManualConfiguration: true
         `,
         ''
       ),
@@ -277,10 +289,11 @@ describe('stats', () => {
       'x-tag-ext': 1,
       'x-tag-group-ext': 1,
       'x-tagGroups': 1,
+      'x-usePkce': 1,
       'x-webhooks': 1,
       'x-xml-ext': 1,
     });
-    expect(statsAccumulator.xExtensions.total).toBe(33);
+    expect(statsAccumulator.xExtensions.total).toBe(34);
   });
 
   it('should count vendor extensions in Swagger 2.0 specific places, leaving scope names out', async () => {
