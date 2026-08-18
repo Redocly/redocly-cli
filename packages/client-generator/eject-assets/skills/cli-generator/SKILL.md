@@ -14,6 +14,10 @@ to `generators/cli.mjs` that has no covering sentence here is incomplete.
 A bin-ready `<stem>.cli.ts`: one command per operation over the sdk's instance client,
 with `--help`, a `schema <op>` introspection command, and `--dry-run`.
 
+With `client.docs` (or `--docs`), the `docs` hook also writes `<stem>.cli.md`: the usage
+line, the global flags, the credential variables, the exit-code table, and one section per
+command with its positionals and flags.
+
 ## Design decisions that must hold
 
 - **Argument shape:** path params positional, query params typed `--kebab-name` flags,
@@ -78,9 +82,18 @@ with `--help`, a `schema <op>` introspection command, and `--dry-run`.
   entry exports its `SOURCES` so an adopter layers custom commands around it without
   editing a generated file. Without `cliOutput`, nothing changes.
 
+- **The CLI documents itself.** The page is this generator's `docs` hook, not a separate
+  generator: nothing else knows this tool's commands, and a reader who ejects `cli` gets
+  the page layout with it. The page renders from `commandData` — the same table `runCli`
+  dispatches on — so it cannot describe a tool other than the one beside it. A capability
+  reaches the page only by being in that table. The page is Markdown that survives a
+  linter (ATX headings, a blank line around every block, no hard tabs, one sentence per
+  line) and it escapes what descriptions contain, because a summary is arbitrary text.
+
 ## Emitters that implement it
 
-`emitters/cli.ts` (commands + module), plus the sdk's operation types.
+`emitters/cli.ts` (commands + module) and `emitters/cli-docs.ts` (the page), plus the
+sdk's operation types.
 
 ## Ejecting it
 

@@ -23,6 +23,6 @@ Credentials come from environment variables derived from the file stem: `CLIENT_
 Exit codes are a documented contract (0 ok, 1 API error, 2 auth, 3 validation, 4 usage), and errors print one JSON object to stderr so stdout stays clean for piping.
 To ship a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
 
-The `cli-docs` generator (also selected here) writes `src/api/client.cli.md` alongside it: the Markdown reference for this CLI — usage, global flags, credential variables, exit codes, and every command with its arguments and flags.
+`client.docs: true` (the `--docs` flag) is set here, so the CLI also writes its own reference next to itself: `src/api/client.cli.md` — usage, global flags, credential variables, exit codes, and every command with its arguments and flags.
 It renders from the same command table the CLI dispatches on, so the page cannot drift from the tool; regenerate and the docs follow.
-`client.options.cli-docs` sets the page title here, and `redocly eject-generator cli-docs` hands over the renderer itself if you want a different structure — the renderer is the template.
+The page belongs to the `cli` generator, so `redocly eject-generator cli` hands over the layout with the generator — the renderer is the template.

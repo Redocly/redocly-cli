@@ -28,6 +28,12 @@ export default {
   sample(operation, { model, emit }) {
     return { lang: 'python', source: '…' };
   },
+  // Optional: the reference page for what `run` emits, written when `client.docs` (or
+  // --docs) is on. Same `{ path, content }` shape as `run`; `renderReferencePage` gives
+  // the standard layout and takes `sample` for its snippets. A generator documents itself.
+  docs({ model, outputPath, emit }) {
+    return [{ path: outputPath.replace(/\.ts$/, '.mine.md'), content: '…' }];
+  },
 };
 ```
 
@@ -102,6 +108,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `docText(description)`                                | Description as trimmed lines for any comment syntax.                                                                             |
 | `schemaAtPointer(schema, pointer, model)`             | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
 | `paginationRuleFor(op, config)`                       | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
+| `renderReferencePage(model, options)`                 | The Markdown reference page a generator's `docs` hook returns — your `sample` hook supplies its call snippets.                   |
 | `NotSupportedError`                                   | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
 | `AUTHORING_HELPER_NAMES`                              | The list of the above (introspection).                                                                                           |
 

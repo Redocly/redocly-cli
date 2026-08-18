@@ -1,6 +1,7 @@
 # python-sdk
 
 The `python` generator emits `src/api/client.py`.
+`client.docs: true` (the `--docs` flag) is set here too, so the generator also writes its own reference: `src/api/client.python.md` — every operation with its parameters, body, response type, and a Python call sample.
 'It is a full Python SDK over [httpx](https://www.python-httpx.org/) (Python ≥ 3.9):
 
 - typed dataclass models

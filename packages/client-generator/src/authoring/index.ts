@@ -10,6 +10,13 @@ export { Printer } from './printer.js';
 export type { DateType } from './options.js';
 export { casing, identifierFor, RESERVED_WORDS } from './naming.js';
 export { paginationRuleFor, type NeutralPaginationRule } from './pagination.js';
+// The Markdown reference page a generator's `docs` hook returns. Here rather than in the
+// emitters, so a generator ejected as source reaches it through the package like we do.
+export {
+  renderReferencePage,
+  type ReferenceLanguage,
+  type ReferencePageOptions,
+} from './reference-page.js';
 export {
   discriminatorCases,
   docText,
@@ -36,5 +43,6 @@ export const AUTHORING_HELPER_NAMES = [
   'headerCoerceType',
   'schemaAtPointer',
   'paginationRuleFor',
+  'renderReferencePage',
   'NotSupportedError',
 ] as const;

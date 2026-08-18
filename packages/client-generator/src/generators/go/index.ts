@@ -16,6 +16,7 @@ import {
   isNullable,
   NotSupportedError,
   paginationRuleFor,
+  renderReferencePage,
   RESERVED_WORDS,
   schemaAtPointer,
   unwrapNullable,
@@ -1120,3 +1121,26 @@ export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
     source: `client := client.New(client.Config{})\nresult, err := client.${ident}(${args.join(', ')})\n`,
   };
 }
+
+/**
+ * The SDK's own reference page, written when `client.docs` is on. The call snippets come
+ * from `goSample` — this generator's own hook — so the page can only ever show the syntax
+ * of the SDK beside it, and ejecting this generator takes the page with it.
+ */
+export const goDocs: Generator = ({ model, outputPath, emit }) => [
+  {
+    path: outputPath.replace(/\.[^.\\/]+$/, '.go.md'),
+    content: renderReferencePage(model, {
+      title: `${model.title} Go SDK reference`,
+      frontmatter: emit.docsFrontmatter === true,
+      language: {
+        name: 'go',
+        label: 'Go',
+        fence: 'go',
+        requires: 'The SDK needs the standard library only.',
+      },
+      sample: (op) => goSample(op, { model, emit }),
+      pagination: emit.pagination,
+    }),
+  },
+];

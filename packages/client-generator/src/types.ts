@@ -111,6 +111,16 @@ export type GenerateClientOptions = {
    */
   codeSamples?: boolean;
   /**
+   * Also write reference documentation for what this run generates: one Markdown page per
+   * selected generator that implements the `docs` hook (`<stem>.cli.md` for the CLI,
+   * `<stem>.python.md` for the Python SDK, and so on). One switch for every language, so a
+   * newly documented generator needs no new flag. The `--docs` flag sets it too.
+   */
+  docs?: boolean;
+  /** Emit YAML front matter carrying the title above each documentation page, for docs
+   * sites that expect it. Config-only. */
+  docsFrontmatter?: boolean;
+  /**
    * Auto-pagination rules: a convention rule (applied to every operation it
    * structurally fits), per-operation overrides, and `exclude`d operationIds —
    * resolved together with each operation's `x-redoclyPagination` extension (per-op config >

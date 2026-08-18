@@ -1,21 +1,20 @@
-// The sdk-docs emitter: renders the Markdown reference for one language SDK from the IR
-// the SDK itself is built from, plus that generator's own `sample` hook for the call
+// The reference-page renderer: the Markdown reference for ONE generated SDK, built from
+// the IR that SDK is built from, plus that generator's own `sample` hook for the call
 // snippets. It writes no call syntax of its own — a second spelling of the SDK would
-// drift from it the first time either side changed.
+// drift from it the first time either side changed. Part of the authoring toolkit, so a
+// generator ejected as source (python, go, php) reaches it the same way we do.
 
-import { paginationRuleFor } from '../authoring/pagination.js';
-import { Printer } from '../authoring/printer.js';
-import type { CodeSample } from '../generators/types.js';
 import type {
   ApiModel,
   OperationModel,
   ParamModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
-import type { PaginationConfig } from './pagination.js';
+import { paginationRuleFor } from './pagination.js';
+import { Printer } from './printer.js';
 
-/** What this generator knows about a language that the IR cannot tell it. */
-export type SdkDocsLanguage = {
+/** What a generator knows about its language that the IR cannot tell the renderer. */
+export type ReferenceLanguage = {
   /** Generator name; also the infix of the page file (`<stem>.python.md`). */
   name: string;
   /** Display name for the default heading. */
@@ -26,15 +25,16 @@ export type SdkDocsLanguage = {
   requires: string;
 };
 
-export type SdkDocsOptions = {
+export type ReferencePageOptions = {
   /** Page heading. */
   title: string;
   /** Emit YAML front matter carrying the title, for docs sites that expect it. */
   frontmatter: boolean;
-  language: SdkDocsLanguage;
-  /** The call snippet for one operation, from the SDK generator's own `sample` hook. */
-  sample: (operation: OperationModel) => CodeSample | undefined;
-  pagination?: PaginationConfig;
+  language: ReferenceLanguage;
+  /** The call snippet for one operation — the generator's own `sample` hook. */
+  sample: (operation: OperationModel) => { lang: string; source: string } | undefined;
+  /** The `pagination` config, passed through to `paginationRuleFor`. */
+  pagination?: Record<string, unknown>;
 };
 
 /** Table-cell-safe text: one line, with pipes and backslashes escaped. */
@@ -100,7 +100,7 @@ function writeParameterTable(printer: Printer, params: ParamModel[]): void {
   printer.blank();
 }
 
-function writeOperation(printer: Printer, op: OperationModel, options: SdkDocsOptions): void {
+function writeOperation(printer: Printer, op: OperationModel, options: ReferencePageOptions): void {
   printer.line(`### \`${op.specName ?? op.name}\``);
   printer.blank();
   if (op.summary !== undefined) {
@@ -135,7 +135,7 @@ function writeOperation(printer: Printer, op: OperationModel, options: SdkDocsOp
   // The same three declaration-level facts every SDK reads: `paginationRuleFor` is the
   // helper the language generators resolve pagination with, and the success content type
   // is what decides a streaming or a binary response.
-  if (paginationRuleFor(op, options.pagination as Record<string, unknown> | undefined)) {
+  if (paginationRuleFor(op, options.pagination)) {
     printer.line('This operation is paginated, so the SDK gives it page and item iterators.');
   }
   if (op.successResponses.some((response) => response.contentType === 'text/event-stream')) {
@@ -148,7 +148,7 @@ function writeOperation(printer: Printer, op: OperationModel, options: SdkDocsOp
 }
 
 /** The whole page: heading, requirements, security schemes, then every operation by tag. */
-export function renderSdkDocs(model: ApiModel, options: SdkDocsOptions): string {
+export function renderReferencePage(model: ApiModel, options: ReferencePageOptions): string {
   const printer = new Printer();
   if (options.frontmatter) {
     printer.line('---');

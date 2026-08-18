@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 
-import { commandData, renderCliModule } from '../../emitters/cli.js';
+import { renderCliDocs } from '../../emitters/cli-docs.js';
+import { cliAuthSchemes, commandData, renderCliModule } from '../../emitters/cli.js';
 import type { OperationModel } from '../../intermediate-representation/model.js';
 import { groupSlug } from '../../runtime/cli.js';
 import { anchor } from '../anchor.js';
@@ -34,6 +35,23 @@ export const cliGenerator: Generator = ({ model, outputPath, emit, selected }) =
     pagination: emit.pagination,
   });
   return [{ path: join(dir, `${stem}.cli.ts`), content }];
+};
+
+/**
+ * The CLI's own reference page, written when `client.docs` is on: the usage line, the
+ * global flags, the credential variables, the exit codes, and one section per command.
+ * It renders from `commandData` — the same table `runCli` dispatches on — so the page
+ * cannot describe a tool other than the one beside it.
+ */
+export const cliDocs: Generator = ({ model, outputPath, emit }) => {
+  const { dir, stem } = anchor(outputPath);
+  const content = renderCliDocs(commandData(model, { pagination: emit.pagination }), {
+    title: `${model.title} command-line reference`,
+    frontmatter: emit.docsFrontmatter === true,
+    binName: emit.binName ?? commandName(stem),
+    schemes: cliAuthSchemes(model),
+  });
+  return [{ path: join(dir, `${stem}.cli.md`), content }];
 };
 
 /** One shell invocation per operation — feeds `x-codeSamples` for docs. */

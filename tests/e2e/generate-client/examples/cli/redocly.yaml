@@ -8,7 +8,4 @@ apis:
         - typescript
         - zod
         - cli
-        - cli-docs
-      options:
-        cli-docs:
-          title: Cafe CLI
+      docs: true

@@ -55,6 +55,14 @@ for the smaller paths first when they fit: `client.setup` bakes publisher defaul
 generated client, and middleware or `configure()` change behavior at run time rather than
 generation time.
 
+- **It documents itself.** With `client.docs` (or `--docs`), the `docs` hook writes
+  `<stem>.typescript.md`: the security schemes, then one section per operation with its parameters,
+  body, response type, and behavior notes. The call snippets come from this generator's own
+  `sample` hook, so the page can only show the syntax of the SDK beside it, and the layout
+  comes from `renderReferencePage` in the authoring toolkit — reachable from an ejected copy
+  through `@redocly/client-generator`. Pagination on the page is decided by
+  `paginationRuleFor`, the same helper this generator resolves pagination with.
+
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.

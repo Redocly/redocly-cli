@@ -1,17 +1,15 @@
 import type { EmitOptions } from '../emitters/emit-options.js';
-import { cliDocsGenerator } from './cli-docs/index.js';
-import { cliGenerator, cliSample } from './cli/index.js';
-import { goGenerator, goSample } from './go/index.js';
+import { cliDocs, cliGenerator, cliSample } from './cli/index.js';
+import { goDocs, goGenerator, goSample } from './go/index.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock/index.js';
-import { phpGenerator, phpSample } from './php/index.js';
-import { pythonGenerator, pythonSample } from './python/index.js';
-import { sdkDocsGenerator } from './sdk-docs/index.js';
+import { phpDocs, phpGenerator, phpSample } from './php/index.js';
+import { pythonDocs, pythonGenerator, pythonSample } from './python/index.js';
 import { swrGenerator } from './swr/index.js';
 import { tanstackQueryGenerator } from './tanstack-query/index.js';
 import { transformersGenerator } from './transformers/index.js';
 import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
-import { typescriptGenerator, typescriptSample } from './typescript/index.js';
+import { typescriptDocs, typescriptGenerator, typescriptSample } from './typescript/index.js';
 import { zodGenerator } from './zod/index.js';
 
 export type {
@@ -26,8 +24,8 @@ export type {
 // statically anyway). Compatibility metadata lives in BUILTIN_META — one home;
 // only the eagerly imported `run` functions live here. The pipeline entry never
 // touches this module: it loads built-ins lazily through the meta table.
-const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> = {
-  typescript: { run: typescriptGenerator, sample: typescriptSample },
+const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample' | 'docs'>> = {
+  typescript: { run: typescriptGenerator, sample: typescriptSample, docs: typescriptDocs },
   zod: { run: zodGenerator },
   transformers: { run: transformersGenerator },
   'tanstack-query': { run: tanstackQueryGenerator('react') },
@@ -36,12 +34,10 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample'>> =
   'tanstack-query-solid': { run: tanstackQueryGenerator('solid') },
   swr: { run: swrGenerator },
   mock: { run: mockGenerator },
-  cli: { run: cliGenerator, sample: cliSample },
-  'cli-docs': { run: cliDocsGenerator },
-  'sdk-docs': { run: sdkDocsGenerator },
-  python: { run: pythonGenerator, sample: pythonSample },
-  go: { run: goGenerator, sample: goSample },
-  php: { run: phpGenerator, sample: phpSample },
+  cli: { run: cliGenerator, sample: cliSample, docs: cliDocs },
+  python: { run: pythonGenerator, sample: pythonSample, docs: pythonDocs },
+  go: { run: goGenerator, sample: goSample, docs: goDocs },
+  php: { run: phpGenerator, sample: phpSample, docs: phpDocs },
 };
 
 const GENERATORS = Object.fromEntries(

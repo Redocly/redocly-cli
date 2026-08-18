@@ -906,6 +906,11 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
+          docs: {
+            description:
+              'Also write reference documentation for what this run generates: one Markdown page per selected generator that documents itself (the CLI, and each SDK).',
+            type: 'boolean',
+          },
           'go-package': {
             description:
               "Package clause of the `go` generator's output (a valid Go package name). Defaults to `client`.",
@@ -956,7 +961,7 @@ yargs(hideBin(process.argv))
           },
           generator: {
             describe:
-              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, cli-docs, sdk-docs, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
+              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
             type: 'string',
             array: true,
             requiresArg: true,

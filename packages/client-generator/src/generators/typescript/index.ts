@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 
+import { renderReferencePage } from '../../authoring/reference-page.js';
 import { emitClientSingleFile, emitClientSplit } from '../../emitters/client-assembly.js';
 import { packageIdents } from '../../emitters/descriptor.js';
 import type { OperationModel } from '../../intermediate-representation/model.js';
@@ -28,6 +29,29 @@ export const typescriptGenerator: Generator = ({ model, outputPath, outputMode, 
   }
   return [{ path: outputPath, content: emitClientSingleFile(model, emit) }];
 };
+
+/**
+ * The client's own reference page, written when `client.docs` is on. Its snippets come from
+ * `typescriptSample` below, so the page shows the calling convention this run generated —
+ * `argsStyle` included.
+ */
+export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
+  {
+    path: outputPath.replace(/\.[^.\\/]+$/, '.typescript.md'),
+    content: renderReferencePage(model, {
+      title: `${model.title} TypeScript client reference`,
+      frontmatter: emit.docsFrontmatter === true,
+      language: {
+        name: 'typescript',
+        label: 'TypeScript',
+        fence: 'typescript',
+        requires: 'The client has no dependencies.',
+      },
+      sample: (op) => typescriptSample(op, { model, emit }),
+      pagination: emit.pagination,
+    }),
+  },
+];
 
 /** One idiomatic TS call per operation, for `x-codeSamples` and the SDK reference pages. */
 export function typescriptSample(op: OperationModel, ctx: SampleContext): CodeSample {

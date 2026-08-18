@@ -6,6 +6,7 @@
 import {
   Printer,
   paginationRuleFor,
+  renderReferencePage,
   schemaAtPointer,
   discriminatorCases,
   docText,
@@ -769,3 +770,26 @@ export function pythonSample(op: OperationModel, _ctx: SampleContext): CodeSampl
     source: `from client import Client\n\nclient = Client()\nresult = client.${ident}(${args.join(', ')})\n`,
   };
 }
+
+/**
+ * The SDK's own reference page, written when `client.docs` is on. The call snippets come
+ * from `pythonSample` — this generator's own hook — so the page can only ever show the syntax
+ * of the SDK beside it, and ejecting this generator takes the page with it.
+ */
+export const pythonDocs: Generator = ({ model, outputPath, emit }) => [
+  {
+    path: outputPath.replace(/\.[^.\\/]+$/, '.python.md'),
+    content: renderReferencePage(model, {
+      title: `${model.title} Python SDK reference`,
+      frontmatter: emit.docsFrontmatter === true,
+      language: {
+        name: 'python',
+        label: 'Python',
+        fence: 'python',
+        requires: 'The SDK needs `httpx`.',
+      },
+      sample: (op) => pythonSample(op, { model, emit }),
+      pagination: emit.pagination,
+    }),
+  },
+];

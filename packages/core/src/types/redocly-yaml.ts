@@ -388,6 +388,8 @@ const Client: NodeType = {
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
     codeSamples: { type: 'boolean' },
+    docs: { type: 'boolean' },
+    docsFrontmatter: { type: 'boolean' },
     setup: { type: 'string' },
     options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',

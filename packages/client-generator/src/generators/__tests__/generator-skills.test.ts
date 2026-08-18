@@ -14,16 +14,7 @@ const generatorsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 /** Language generators: one self-contained file, ejected as its own source. */
 const LANGUAGE = ['python', 'go', 'php'];
 /** TypeScript generators: thin entries over shared emitters, ejected bundled with them. */
-const TYPESCRIPT = [
-  'typescript',
-  'zod',
-  'mock',
-  'cli',
-  'cli-docs',
-  'swr',
-  'tanstack-query',
-  'transformers',
-];
+const TYPESCRIPT = ['typescript', 'zod', 'mock', 'cli', 'swr', 'tanstack-query', 'transformers'];
 const EJECTABLE = [...LANGUAGE, ...TYPESCRIPT];
 
 describe.each(EJECTABLE)('%s generator skill', (name) => {

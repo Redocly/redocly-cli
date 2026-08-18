@@ -29,8 +29,6 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
   'transformers',
   'mock',
   'cli',
-  'cli-docs',
-  'sdk-docs',
   'python',
   'go',
   'php',

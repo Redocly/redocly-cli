@@ -6,3 +6,5 @@ apis:
     client:
       generators:
         - python
+      # One switch documents whatever the run generates: `src/api/client.python.md`.
+      docs: true

@@ -9,8 +9,8 @@ import type { EmitOptions } from '../emitters/emit-options.js';
 import { NotSupportedError } from '../errors.js';
 import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 
-export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample'> & {
-  load: () => Promise<Pick<GeneratorDescriptor, 'run' | 'sample'>>;
+export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample' | 'docs'> & {
+  load: () => Promise<Pick<GeneratorDescriptor, 'run' | 'sample' | 'docs'>>;
 };
 
 function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): BuiltinMeta {
@@ -43,6 +43,7 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
       import('./typescript/index.js').then((m) => ({
         run: m.typescriptGenerator,
         sample: m.typescriptSample,
+        docs: m.typescriptDocs,
       })),
   },
   zod: { load: () => import('./zod/index.js').then((m) => ({ run: m.zodGenerator })) },
@@ -80,37 +81,10 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
     requires: ['typescript', 'zod'],
     errorModes: ['throw'],
     load: () =>
-      import('./cli/index.js').then((m) => ({ run: m.cliGenerator, sample: m.cliSample })),
-  },
-  // cli-docs renders the Markdown reference for the CLI from the same command table the
-  // CLI dispatches on, so it requires the generator it documents.
-  'cli-docs': {
-    requires: ['cli'],
-    errorModes: ['throw'],
-    notApplicable: {
-      outputMode: 'it emits one Markdown page',
-      importExt: 'a Markdown page has no imports',
-      runtime: 'a Markdown page embeds no runtime',
-    },
-    load: () =>
-      import('./cli-docs/index.js').then((m) => ({
-        run: m.cliDocsGenerator,
-        options: m.cliDocsOptions,
-      })),
-  },
-  // sdk-docs renders one Markdown page per SDK selected beside it. It requires nothing:
-  // `requires` cannot say "one of typescript, python, go, php", and pulling an SDK in
-  // because docs were asked for would emit a whole SDK nobody selected.
-  'sdk-docs': {
-    notApplicable: {
-      outputMode: 'it emits one Markdown page per SDK',
-      importExt: 'a Markdown page has no imports',
-      runtime: 'a Markdown page embeds no runtime',
-    },
-    load: () =>
-      import('./sdk-docs/index.js').then((m) => ({
-        run: m.sdkDocsGenerator,
-        options: m.sdkDocsOptions,
+      import('./cli/index.js').then((m) => ({
+        run: m.cliGenerator,
+        sample: m.cliSample,
+        docs: m.cliDocs,
       })),
   },
   // python emits a standalone full Python SDK (httpx) — no TypeScript involved,
@@ -118,14 +92,23 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   python: {
     notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
     load: () =>
-      import('./python/index.js').then((m) => ({ run: m.pythonGenerator, sample: m.pythonSample })),
+      import('./python/index.js').then((m) => ({
+        run: m.pythonGenerator,
+        sample: m.pythonSample,
+        docs: m.pythonDocs,
+      })),
   },
   // go emits a standalone full Go SDK (stdlib-only) — no TypeScript involved.
   // `(T, error)` returns ARE its error mode, so `result` has no Go rendering.
   go: {
     errorModes: ['throw'],
     notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
-    load: () => import('./go/index.js').then((m) => ({ run: m.goGenerator, sample: m.goSample })),
+    load: () =>
+      import('./go/index.js').then((m) => ({
+        run: m.goGenerator,
+        sample: m.goSample,
+        docs: m.goDocs,
+      })),
   },
   // php emits a standalone full PHP SDK (curl extension) — no TypeScript involved.
   // Exceptions ARE its error mode, so `result` has no PHP rendering.
@@ -133,7 +116,11 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
     errorModes: ['throw'],
     notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
     load: () =>
-      import('./php/index.js').then((m) => ({ run: m.phpGenerator, sample: m.phpSample })),
+      import('./php/index.js').then((m) => ({
+        run: m.phpGenerator,
+        sample: m.phpSample,
+        docs: m.phpDocs,
+      })),
   },
 };
 
@@ -143,7 +130,7 @@ const SINGLE_GENERATOR_OPTIONS: {
   generators: GeneratorName[];
   reason: string;
 }[] = [
-  { option: 'binName', generators: ['cli', 'cli-docs'], reason: 'it names the generated command' },
+  { option: 'binName', generators: ['cli'], reason: 'it names the generated command' },
   { option: 'goPackage', generators: ['go'], reason: 'it declares the Go package clause' },
 ];
 

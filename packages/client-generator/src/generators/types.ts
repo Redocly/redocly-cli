@@ -28,8 +28,6 @@ export type GeneratorName =
   | 'transformers'
   | 'mock'
   | 'cli'
-  | 'cli-docs'
-  | 'sdk-docs'
   | 'python'
   | 'go'
   | 'php';
@@ -65,15 +63,6 @@ export type GeneratorInput = {
   emit: EmitOptions;
   /** Every generator name in the run — lets a generator adapt to co-selection (cli wires zod validation when `zod` is selected). */
   selected?: string[];
-  /**
-   * The `sample` hook of every selected generator that declares one, keyed by generator
-   * name. A docs generator renders each SDK's own call snippet from these instead of
-   * importing the SDK generators, which would pull all of them into its bundle.
-   */
-  samples?: Record<
-    string,
-    (operation: OperationModel, ctx: SampleContext) => CodeSample | undefined
-  >;
   /**
    * This generator's own options from `client.options.<name>`, already validated against
    * the schema it declares with defaults applied — a generator reads them without re-checking.
@@ -114,6 +103,14 @@ export type GeneratorDescriptor = {
   /** Optional: one idiomatic call snippet per operation for docs (`x-codeSamples`);
    * collected into an overlay when `codeSamples` is enabled. Return undefined to skip. */
   sample?: (operation: OperationModel, ctx: SampleContext) => CodeSample | undefined;
+  /**
+   * Optional: the reference documentation for what `run` emits — a Markdown page per
+   * generated artifact, returned like `run`'s files. Called only when `client.docs` (or
+   * `--docs`) is on, so documentation is one switch for the whole run instead of a
+   * generator name per language. A generator documents ITSELF: nothing else knows its
+   * call syntax, and ejecting the generator takes its page with it.
+   */
+  docs?: Generator;
   // `string[]` (not `GeneratorName[]`) so a custom generator may require a built-in or another
   // custom generator by name; built-in descriptors still type-check (their names are strings).
   requires?: string[];

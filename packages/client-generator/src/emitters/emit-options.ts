@@ -76,6 +76,14 @@ export type EmitOptions = {
    * statically: an explicit rule that doesn't fit its operation fails generation.
    */
   pagination?: PaginationConfig;
+  /**
+   * Also write the reference documentation for what each selected generator emits: one
+   * Markdown page per generator that implements the `docs` hook. One switch for the whole
+   * run, so a new documented language never needs a new flag.
+   */
+  docs?: boolean;
+  /** Emit YAML front matter carrying the title above each documentation page. */
+  docsFrontmatter?: boolean;
 };
 
 /**

@@ -15,6 +15,7 @@ import {
   identifierFor,
   isNullable,
   paginationRuleFor,
+  renderReferencePage,
   RESERVED_WORDS,
   schemaAtPointer,
   unwrapNullable,
@@ -1048,3 +1049,26 @@ export function phpSample(op: OperationModel, ctx: SampleContext): CodeSample {
     source: `use ${namespace}\\{Client, Config};\n\n$client = new Client(new Config());\n$result = $client->${methodName(op)}(${args.join(', ')});\n`,
   };
 }
+
+/**
+ * The SDK's own reference page, written when `client.docs` is on. The call snippets come
+ * from `phpSample` — this generator's own hook — so the page can only ever show the syntax
+ * of the SDK beside it, and ejecting this generator takes the page with it.
+ */
+export const phpDocs: Generator = ({ model, outputPath, emit }) => [
+  {
+    path: outputPath.replace(/\.[^.\\/]+$/, '.php.md'),
+    content: renderReferencePage(model, {
+      title: `${model.title} PHP SDK reference`,
+      frontmatter: emit.docsFrontmatter === true,
+      language: {
+        name: 'php',
+        label: 'PHP',
+        fence: 'php',
+        requires: 'The SDK needs the curl extension.',
+      },
+      sample: (op) => phpSample(op, { model, emit }),
+      pagination: emit.pagination,
+    }),
+  },
+];

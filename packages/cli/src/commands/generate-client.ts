@@ -41,6 +41,7 @@ export type GenerateClientCommandArgv = {
   'date-type'?: 'string' | 'Date';
   'mock-data'?: 'static' | 'faker';
   'mock-seed'?: number;
+  docs?: boolean;
   generator?: string[];
   setup?: string;
 };
@@ -116,6 +117,7 @@ export async function handleGenerateClient({
     dateType: argv['date-type'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
+    docs: argv.docs,
     generators: argv.generator?.map((specifier) =>
       specifier.startsWith('.') ? resolvePath(specifier) : specifier
     ),

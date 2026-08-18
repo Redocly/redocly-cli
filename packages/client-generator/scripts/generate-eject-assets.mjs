@@ -107,10 +107,13 @@ const BUILTIN_META = await loadBuiltinMeta();
  * `notApplicable` — so an ejected generator still pulls its prerequisites in and is
  * validated exactly like the built-in it replaces.
  */
-function defaultExport(name, run, sample, options) {
+function defaultExport(name, { run, sample, options, docs }) {
   const { load: _load, ...contract } = BUILTIN_META[name];
   const fields = [`  name: '${name}',`, `  run: ${run},`];
   if (sample !== undefined) fields.push(`  sample: ${sample},`);
+  // The generator's own reference page travels with it: an ejected copy keeps
+  // documenting itself, and the page layout is the user's to change.
+  if (docs !== undefined) fields.push(`  docs: ${docs},`);
   if (options !== undefined) fields.push(`  options: ${options},`);
   for (const [key, value] of Object.entries(contract)) {
     // Wrapped only when it would run long — the user owns and edits this file.
@@ -142,9 +145,9 @@ function writeSkill(name) {
 }
 
 const LANGUAGE = [
-  { name: 'python', run: 'pythonGenerator', sample: 'pythonSample' },
-  { name: 'go', run: 'goGenerator', sample: 'goSample' },
-  { name: 'php', run: 'phpGenerator', sample: 'phpSample' },
+  { name: 'python', run: 'pythonGenerator', sample: 'pythonSample', docs: 'pythonDocs' },
+  { name: 'go', run: 'goGenerator', sample: 'goSample', docs: 'goDocs' },
+  { name: 'php', run: 'phpGenerator', sample: 'phpSample', docs: 'phpDocs' },
 ];
 
 /**
@@ -155,26 +158,21 @@ const LANGUAGE = [
 const TYPESCRIPT = [
   {
     name: 'typescript',
-    imports: ['typescriptGenerator', 'typescriptSample'],
+    imports: ['typescriptGenerator', 'typescriptSample', 'typescriptDocs'],
     run: 'typescriptGenerator',
     sample: 'typescriptSample',
+    docs: 'typescriptDocs',
   },
   { name: 'zod', imports: ['zodGenerator'], run: 'zodGenerator' },
   { name: 'mock', imports: ['mockGenerator'], run: 'mockGenerator' },
   { name: 'swr', imports: ['swrGenerator'], run: 'swrGenerator' },
   { name: 'transformers', imports: ['transformersGenerator'], run: 'transformersGenerator' },
-  { name: 'cli', imports: ['cliGenerator', 'cliSample'], run: 'cliGenerator', sample: 'cliSample' },
   {
-    name: 'cli-docs',
-    imports: ['cliDocsGenerator', 'cliDocsOptions'],
-    run: 'cliDocsGenerator',
-    options: 'cliDocsOptions',
-  },
-  {
-    name: 'sdk-docs',
-    imports: ['sdkDocsGenerator', 'sdkDocsOptions'],
-    run: 'sdkDocsGenerator',
-    options: 'sdkDocsOptions',
+    name: 'cli',
+    imports: ['cliGenerator', 'cliSample', 'cliDocs'],
+    run: 'cliGenerator',
+    sample: 'cliSample',
+    docs: 'cliDocs',
   },
   {
     name: 'tanstack-query',
@@ -183,7 +181,7 @@ const TYPESCRIPT = [
   },
 ];
 
-for (const { name, imports, run, sample, options } of TYPESCRIPT) {
+for (const { name, imports, run, sample, options, docs } of TYPESCRIPT) {
   // Bundling starts from a generated entry so the default export survives esbuild's
   // renaming: appending it to the bundle would reference a symbol esbuild may have
   // renamed, while an entry module's own export is resolved before that happens.
@@ -192,7 +190,7 @@ for (const { name, imports, run, sample, options } of TYPESCRIPT) {
     entry,
     `import { ${imports.join(', ')} } from ${JSON.stringify(
       join(pkgRoot, 'src', 'generators', name, 'index.ts')
-    )};\n` + defaultExport(name, run, sample, options)
+    )};\n` + defaultExport(name, { run, sample, options, docs })
   );
   const outFile = join(outDir, `${name}.mjs`);
   try {
@@ -218,7 +216,7 @@ for (const { name, imports, run, sample, options } of TYPESCRIPT) {
   writeSkill(name);
 }
 
-for (const { name, run, sample } of LANGUAGE) {
+for (const { name, run, sample, docs } of LANGUAGE) {
   const source = readFileSync(join(pkgRoot, 'src', 'generators', name, 'index.ts'), 'utf-8')
     .replaceAll("'../../authoring/index.js'", "'@redocly/client-generator'")
     .replaceAll(
@@ -233,7 +231,10 @@ for (const { name, run, sample } of LANGUAGE) {
     },
   }).outputText;
   const outFile = join(outDir, `${name}.mjs`);
-  writeFileSync(outFile, provenanceHeader(name) + stripped + defaultExport(name, run, sample));
+  writeFileSync(
+    outFile,
+    provenanceHeader(name) + stripped + defaultExport(name, { run, sample, docs })
+  );
   checkSyntax(outFile, name);
   writeSkill(name);
 }

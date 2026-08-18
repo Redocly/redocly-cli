@@ -6,7 +6,7 @@
 // package. The `/generate` entry re-exports `generateClient` from here and
 // layers the sync TS toolkit on top.
 
-import { stringifyYaml } from '@redocly/openapi-core';
+import { logger, stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve, sep } from 'node:path';
 
@@ -49,26 +49,27 @@ export function runGenerators(
   // Every emitted path must stay under the --output directory: generator modules are
   // user-chosen code, but a stray `../` or absolute path must not write elsewhere.
   const outputRoot = resolve(dirname(options.outputPath));
-  // The sample hooks of this run, so a docs generator renders each SDK's own call snippet
-  // without importing the SDK generators.
-  const samples: Record<string, NonNullable<GeneratorDescriptor['sample']>> = {};
-  for (const name of options.generators) {
-    const sample = options.registry.get(name)!.sample;
-    if (sample !== undefined) samples[name] = sample;
-  }
+  let documented = false;
   for (const name of options.generators) {
     const generator = options.registry.get(name)!;
+    const input = {
+      model,
+      outputPath: options.outputPath,
+      outputMode: options.outputMode,
+      emit: options.emit,
+      selected: options.generators,
+      options: options.generatorOptions?.get(name) ?? {},
+    };
     let generated: GeneratedFile[];
     try {
-      generated = generator.run({
-        model,
-        outputPath: options.outputPath,
-        outputMode: options.outputMode,
-        emit: options.emit,
-        selected: options.generators,
-        samples,
-        options: options.generatorOptions?.get(name) ?? {},
-      });
+      // `docs` documents what `run` emits, so both run behind the same name and their
+      // files land together. A generator without a `docs` hook simply has no page.
+      if (options.emit.docs === true && generator.docs !== undefined) {
+        generated = [...generator.run(input), ...generator.docs(input)];
+        documented = true;
+      } else {
+        generated = generator.run(input);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Generator "${name}" failed: ${message}`);
@@ -99,6 +100,13 @@ export function runGenerators(
       // a relative `file.path` would otherwise resolve against the cwd at write time.
       files.push({ path: resolved, content: file.content });
     }
+  }
+  // Asking for documentation and getting none is worth saying: `zod` and the framework
+  // wrappers document nothing, so a selection of only those writes no page.
+  if (options.emit.docs === true && !documented) {
+    logger.warn(
+      `generate-client: docs is on, but no selected generator writes documentation (${options.generators.join(', ')}).\n`
+    );
   }
   return files;
 }
@@ -203,6 +211,8 @@ export async function generateClient(
     binName: options.binName,
     goPackage: options.goPackage,
     pagination: options.pagination,
+    docs: options.docs,
+    docsFrontmatter: options.docsFrontmatter,
   };
   // Fail fast on an incompatible selection (missing prerequisite, unsupported
   // error-mode/date-type/runtime) before producing any file, and warn about options a
