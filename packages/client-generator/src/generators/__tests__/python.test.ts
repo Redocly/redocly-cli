@@ -61,6 +61,33 @@ describe('renderPythonModels', () => {
     expect(note).toBeGreaterThan(id);
   });
 
+  it("renders pydantic models under models: 'pydantic', with wire names as aliases", () => {
+    const out = renderPythonModels(
+      model({
+        Order: {
+          kind: 'object',
+          properties: [
+            { name: 'id', schema: STRING, required: true },
+            // A wire name that is not a legal Python field name: the alias carries it.
+            { name: 'class', schema: STRING, required: false },
+          ],
+        },
+      }),
+      'string',
+      'pydantic'
+    );
+    expect(out).toContain('from pydantic import BaseModel, ConfigDict, Field');
+    expect(out).toContain('class Order(BaseModel):');
+    expect(out).toContain('model_config = ConfigDict(populate_by_name=True)');
+    expect(out).toContain('id: str');
+    expect(out).toContain('class_: Optional[str] = Field(default=None, alias="class")');
+    // The alias replaces `_field_map`, and `ClassVar` typed only that map.
+    expect(out).not.toContain('@dataclass');
+    expect(out).not.toContain('_field_map');
+    expect(out).not.toContain('ClassVar');
+    expect(out).not.toContain('from dataclasses import');
+  });
+
   it('flattens allOf compositions into one dataclass', () => {
     const out = renderPythonModels(
       model({

@@ -27,7 +27,7 @@ import type {
   SchemaModel,
   ServerModel,
 } from '../../intermediate-representation/model.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
+import type { CodeSample, Generator, GeneratorOptionsSchema, SampleContext } from '../types.js';
 
 const PY = RESERVED_WORDS.python;
 
@@ -94,16 +94,41 @@ function writeDocstring(printer: Printer, description?: string): void {
   printer.line('"""');
 }
 
+/** The model style the generator emits: plain dataclasses, or pydantic `BaseModel`s. */
+export type PythonModels = 'dataclass' | 'pydantic';
+
+export const pythonOptions: GeneratorOptionsSchema = {
+  type: 'object',
+  properties: {
+    models: {
+      enum: ['dataclass', 'pydantic'],
+      default: 'dataclass',
+      description:
+        'Model style: standard-library dataclasses (default, httpx is the only dependency), or pydantic BaseModel classes (adds pydantic).',
+    },
+  },
+  additionalProperties: false,
+};
+
 function writeDataclass(
   printer: Printer,
   name: string,
   properties: PropertyModel[],
   dateType: DateType,
+  models: PythonModels,
   description?: string
 ): void {
-  printer.line('@dataclass');
-  printer.block(`class ${className(name)}:`, () => {
+  const pydantic = models === 'pydantic';
+  if (!pydantic) printer.line('@dataclass');
+  const header = pydantic ? `class ${className(name)}(BaseModel):` : `class ${className(name)}:`;
+  printer.block(header, () => {
     writeDocstring(printer, description);
+    // A wire name that is not a legal field name travels as an alias, so the model
+    // accepts both spellings; without this, populating by field name would fail.
+    if (pydantic) {
+      printer.line('model_config = ConfigDict(populate_by_name=True)');
+      printer.blank();
+    }
     // Required fields first — a dataclass field without a default may not follow one with.
     const ordered = [
       ...properties.filter((property) => property.required),
@@ -113,13 +138,16 @@ function writeDataclass(
     if (ordered.length === 0) printer.line('pass');
     for (const property of ordered) {
       const { python, renamed } = fieldName(property.name);
-      if (renamed) fieldMap.push([python, property.name]);
+      if (renamed && !pydantic) fieldMap.push([python, property.name]);
+      const alias = renamed && pydantic ? `alias=${JSON.stringify(property.name)}` : undefined;
       const baseType = pythonType(property.schema, dateType);
       if (property.required) {
-        printer.line(`${python}: ${baseType}`);
+        const value = alias === undefined ? '' : ` = Field(${alias})`;
+        printer.line(`${python}: ${baseType}${value}`);
       } else {
         const optional = baseType.startsWith('Optional[') ? baseType : `Optional[${baseType}]`;
-        printer.line(`${python}: ${optional} = None`);
+        const value = alias === undefined ? 'None' : `Field(default=None, ${alias})`;
+        printer.line(`${python}: ${optional} = ${value}`);
       }
     }
     if (fieldMap.length > 0) {
@@ -134,15 +162,32 @@ function writeDataclass(
 }
 
 /** Render every named schema: Enum classes, dataclasses (allOf flattened), union aliases. */
-export function renderPythonModels(model: ApiModel, dateType: DateType = 'string'): string {
+export function renderPythonModels(
+  model: ApiModel,
+  dateType: DateType = 'string',
+  models: PythonModels = 'dataclass'
+): string {
   const printer = new Printer('    ');
   printer.line('from __future__ import annotations');
   printer.blank();
-  printer.line('from dataclasses import dataclass');
+  if (models === 'dataclass') printer.line('from dataclasses import dataclass');
   printer.line('from enum import Enum');
-  printer.line(
-    'from typing import Any, AsyncIterator, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple, Union'
-  );
+  // `ClassVar` types the `_field_map` of a dataclass model, which pydantic mode
+  // replaces with field aliases — importing it there would be an unused import.
+  const typingNames = [
+    'Any',
+    'AsyncIterator',
+    'Dict',
+    'Iterator',
+    'List',
+    'Literal',
+    'Optional',
+    'Tuple',
+    'Union',
+  ];
+  if (models === 'dataclass') typingNames.splice(2, 0, 'ClassVar');
+  printer.line(`from typing import ${typingNames.join(', ')}`);
+  if (models === 'pydantic') printer.line('from pydantic import BaseModel, ConfigDict, Field');
   // Only under `dateType: Date` — an unused import in every other client would be noise.
   if (dateType === 'Date') printer.line('from datetime import date, datetime');
   printer.blank();
@@ -171,6 +216,7 @@ export function renderPythonModels(model: ApiModel, dateType: DateType = 'string
           name,
           flat.properties,
           dateType,
+          models,
           flat.description ?? schema.description
         );
         continue;
@@ -666,19 +712,24 @@ function pythonModulePath(outputPath: string): string {
 }
 
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
-export const pythonGenerator: Generator = ({ model, outputPath, emit }) => {
+export const pythonGenerator: Generator = ({ model, outputPath, emit, options }) => {
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
+  const models = (options?.models as PythonModels | undefined) ?? 'dataclass';
   const printer = new Printer('    ');
   printer.line(
     `# Generated by @redocly/client-generator (python) from "${model.title}" ${model.version}.`
   );
   printer.line('# Do not edit by hand — regenerate with `redocly generate-client`.');
-  printer.line('# Requires Python >= 3.9 and httpx: pip install httpx');
+  printer.line(
+    models === 'pydantic'
+      ? '# Requires Python >= 3.9, httpx, and pydantic: pip install httpx pydantic'
+      : '# Requires Python >= 3.9 and httpx: pip install httpx'
+  );
   printer.blank();
 
   // Models (with the shared imports header).
-  printer.line(renderPythonModels(model, dateType).trimEnd());
+  printer.line(renderPythonModels(model, dateType, models).trimEnd());
   printer.blank();
   printer.blank();
   writePythonServers(printer, model);

@@ -1,8 +1,10 @@
-# Reflective JSON <-> dataclass conversion for generated Python clients. The
-# generated models are plain dataclasses; this decoder hydrates parsed JSON into
-# them (and encode() mirrors back to wire shape), honoring each class's
-# `_field_map` (python name -> wire name) and typing constructs the generator
-# emits: Optional/Union, List, Dict, Enum, Literal, Any.
+# Reflective JSON <-> model conversion for generated Python clients. Models are
+# plain dataclasses by default, or pydantic BaseModels under `models: pydantic`;
+# one decoder serves both. For a dataclass it hydrates parsed JSON reflectively,
+# honoring each class's `_field_map` (python name -> wire name) and the typing
+# constructs the generator emits: Optional/Union, List, Dict, Enum, Literal, Any.
+# For a pydantic model it defers to pydantic, which already knows the aliases.
+# encode() mirrors whichever it was given back to wire shape.
 from __future__ import annotations
 
 import dataclasses
@@ -66,6 +68,10 @@ def decode(type_: Any, data: Any):
             )
         except ValueError:
             return data
+    # A pydantic model validates itself, aliases included. `ValidationError`
+    # subclasses `ValueError`, so union member probing above still works.
+    if isinstance(type_, type) and hasattr(type_, "model_validate"):
+        return type_.model_validate(data)
     if dataclasses.is_dataclass(type_):
         hints = get_type_hints(type_)
         field_map = getattr(type_, "_field_map", {})
@@ -80,6 +86,10 @@ def decode(type_: Any, data: Any):
 
 def encode(value: Any):
     """Python shape -> wire (JSON) shape; inverse of decode for request bodies."""
+    # `mode="json"` resolves datetimes and enums the same way the branches below do,
+    # and `exclude_none` matches the dataclass path: an unset optional is not sent.
+    if hasattr(value, "model_dump") and not isinstance(value, type):
+        return value.model_dump(by_alias=True, exclude_none=True, mode="json")
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
         field_map = getattr(type(value), "_field_map", {})
         out = {}

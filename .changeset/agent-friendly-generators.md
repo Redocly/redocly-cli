@@ -9,7 +9,7 @@ Added `--docs` (`client.docs`), which writes the reference documentation for wha
 
 Added composable generated CLIs (custom commands, one binary over several APIs via `client.cliOutput`).
 
-Added language-neutral authoring toolkit with per-generator options.
+Added language-neutral authoring toolkit with per-generator options, including `client.options.python.models: pydantic`, which emits `BaseModel` classes instead of dataclasses.
 
 Added an `eject-generator` command that vendors any built-in generator, with its design as an agent skill, into your repo.
 

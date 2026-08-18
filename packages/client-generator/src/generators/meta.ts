@@ -96,6 +96,7 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
         run: m.pythonGenerator,
         sample: m.pythonSample,
         docs: m.pythonDocs,
+        options: m.pythonOptions,
       })),
   },
   // go emits a standalone full Go SDK (stdlib-only) — no TypeScript involved.

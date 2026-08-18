@@ -23,9 +23,24 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   `identifierFor(stem, snake)`, so `rebilly-core.client.ts` emits
   `rebilly_core_client.py` and `import rebilly_core_client` just works.
 
-- **Models are dataclasses**, required fields first (a dataclass constraint), optionals
-  `Optional[T] = None`. Wire names live in a `_field_map: ClassVar[Dict[str, str]]`;
+- **Models are dataclasses by default**, required fields first (a dataclass constraint),
+  optionals `Optional[T] = None`. Wire names live in a `_field_map: ClassVar[Dict[str, str]]`;
   decode/encode is reflective (`_decode.py`, `get_type_hints`) — no per-model codecs.
+- **`models: pydantic` emits `BaseModel` classes instead**, for the FastAPI-shaped half of
+  the ecosystem that expects them. A wire name becomes `Field(alias=…)` with
+  `populate_by_name=True`, so `_field_map` is not emitted in this mode — the alias is the
+  mapping. Everything else is unchanged: the same class names, the same field names, the
+  same `Optional[T] = None`, the same enums and union aliases, the same client and runtime.
+  Switching modes must not change a call site.
+- **One runtime serves both model modes.** `_decode.py` dispatches on the target: a class
+  with `model_validate` is validated by pydantic, a dataclass is hydrated reflectively, and
+  `encode` mirrors that with `model_dump(by_alias=True, exclude_none=True, mode="json")`.
+  A second runtime variant per mode would double the surface that has to stay in step, and
+  pydantic's `ValidationError` already subclasses `ValueError`, so union member probing
+  needs no new except clause.
+- **`models: pydantic` adds a dependency, and the header says so.** The default mode keeps
+  httpx as the only requirement; the pydantic header asks for both. A mode that quietly
+  needed a package the file never named would fail at import with nothing to act on.
 - **Naming:** fields/methods snake*case via `identifierFor(..., RESERVED_WORDS.python)`;
   reserved words get a trailing underscore (`class*`); `+1`/`-1`become`plus_1`/`minus_1`.
 - **Enums** are `class X(str, Enum)` with SCREAMING members; **unions** are `Union[...]`
