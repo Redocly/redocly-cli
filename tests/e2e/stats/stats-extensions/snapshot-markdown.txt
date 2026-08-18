@@ -9,7 +9,7 @@
 | 🎣 Webhooks | 2 |
 | 👷 Operations | 3 |
 | 🔖 Tags | 2 |
-| 🧩 Vendor Extensions | 13 |
+| 🧩 Vendor Extensions | 12 |
 
 #### 🧩 Vendor Extensions
 | Extension | Count |
@@ -24,7 +24,6 @@
 | x-paths-ext | 1 |
 | x-query | 2 |
 | x-servers | 1 |
-| x-sibling-ext | 1 |
 | x-tagGroups | 1 |
 | x-webhooks | 1 |
 

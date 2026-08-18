@@ -5,7 +5,7 @@ import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { createConfig } from '../config/index.js';
 import { lintDocument } from '../lint.js';
-import { type Async2RuleSet, type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
+import { type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
 import { BaseResolver, type Document } from '../resolve.js';
 import { listOf } from '../types/index.js';
 
@@ -1836,161 +1836,7 @@ describe('type extensions', () => {
   });
 });
 
-describe('spec extensions dispatch', () => {
-  it('should dispatch a typed extension to SpecExtension visitors and keep its typed walk', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(`enter extension ${ctx.key}`),
-          leave: (_node: any, ctx: any) => calls.push(`leave extension ${ctx.key}`),
-        },
-        XCodeSampleList: {
-          enter: () => calls.push('typed walk of x-codeSamples'),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-                x-codeSamples:
-                  - lang: curl
-                    source: echo
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual([
-      'typed walk of x-codeSamples',
-      'enter extension x-codeSamples',
-      'leave extension x-codeSamples',
-    ]);
-  });
-
-  it('should give a full SpecExtension lifecycle to a declared extension with a plain schema', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(`enter ${ctx.key}`),
-          leave: (_node: any, ctx: any) => calls.push(`leave ${ctx.key}`),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-                x-hideTryItPanel: true
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['enter x-hideTryItPanel', 'leave x-hideTryItPanel']);
-  });
-
-  it('should activate nested SpecExtension visitors for every extension kind', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        Operation: {
-          SpecExtension: {
-            enter: (_node: any, ctx: any, parents: any) =>
-              calls.push(`${parents.Operation.operationId} > ${ctx.key}`),
-          },
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-                x-codeSamples:
-                  - lang: curl
-                    source: echo
-                x-hideTryItPanel: true
-                x-unknown-ext: true
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['get > x-codeSamples', 'get > x-hideTryItPanel', 'get > x-unknown-ext']);
-  });
-
-  it('should honor the skip hook of SpecExtension visitors for declared extensions', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          skip: (_node: any, key: any) => key === 'x-codeSamples',
-          enter: (_node: any, ctx: any) => calls.push(`enter ${ctx.key}`),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-                x-codeSamples:
-                  - lang: curl
-                    source: echo
-                x-hideTryItPanel: true
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['enter x-hideTryItPanel']);
-  });
-
+describe('spec extensions', () => {
   it('should visit a declared extension node once, not once per visitor kind', async () => {
     const anyVisits: string[] = [];
 
@@ -2029,6 +1875,42 @@ describe('spec extensions dispatch', () => {
     expect(extensionVisits).toHaveLength(1);
   });
 
+  it('should walk a declared extension subtree once for nested visitors', async () => {
+    const operationVisits: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        PathItem: {
+          Operation: {
+            leave: (operation: any) => operationVisits.push(operation.operationId),
+          },
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+              x-query:
+                operationId: query
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(operationVisits).toEqual(['get', 'query']);
+  });
+
   it('should keep struct validation for a typed extension with an invalid shape', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
@@ -2055,173 +1937,6 @@ describe('spec extensions dispatch', () => {
     expect(results.map((problem) => problem.message)).toContain(
       'Expected type `XCodeSampleList` (array) but got `string`'
     );
-  });
-
-  it('should dispatch an x- key as SpecExtension even when additionalProperties matches it', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Async2RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          asyncapi: 2.6.0
-          info:
-            title: t
-            version: '1'
-          channels:
-            user/signedup:
-              subscribe:
-                message:
-                  x-msg-ext: hello
-                  payload:
-                    type: object
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { async2: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['extension x-msg-ext']);
-  });
-
-  it('should dispatch an x- key inside Swagger 2.0 scopes, leaving scope names to the map', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas2RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          swagger: '2.0'
-          info:
-            title: t
-            version: '1'
-          paths: {}
-          securityDefinitions:
-            oauth:
-              type: oauth2
-              flow: implicit
-              authorizationUrl: https://example.com/auth
-              scopes:
-                read: Read access
-                x-scopes-ext: internal note
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas2: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['extension x-scopes-ext']);
-  });
-
-  it('should dispatch an x- key on a callback, leaving expression keys to the map', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-                callbacks:
-                  onEvent:
-                    x-callback-ext: true
-                    '{$request.body#/url}':
-                      post:
-                        responses:
-                          '200':
-                            description: ok
-                responses:
-                  '200':
-                    description: ok
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['extension x-callback-ext']);
-  });
-
-  it('should dispatch a declared extension whose value is a $ref, visiting the ref once', async () => {
-    const extensionCalls: string[] = [];
-    const refCalls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => extensionCalls.push(`extension ${ctx.key}`),
-        },
-        ref: {
-          enter: (node: any) => refCalls.push(node.$ref),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-          x-webhooks:
-            $ref: '#/components/x-hooks-source'
-          components:
-            x-hooks-source:
-              newPet:
-                post:
-                  responses:
-                    '200':
-                      description: ok
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(extensionCalls).toContain('extension x-webhooks');
-    expect(refCalls.filter((ref) => ref === '#/components/x-hooks-source')).toHaveLength(1);
   });
 
   it('should not re-visit $refs inside a declared extension subtree', async () => {
@@ -2263,43 +1978,6 @@ describe('spec extensions dispatch', () => {
     });
 
     expect(refCalls.filter((ref) => ref === '#/components/x-hook-item')).toHaveLength(1);
-  });
-
-  it('should visit every occurrence of extensions with equal scalar values', async () => {
-    const calls: string[] = [];
-
-    const testRuleSet: Oas3RuleSet = {
-      test: () => ({
-        SpecExtension: {
-          enter: (_node: any, ctx: any) => calls.push(ctx.location.pointer),
-        },
-      }),
-    };
-
-    await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: parseYamlToDocument(
-        outdent`
-          openapi: 3.0.0
-          paths:
-            /pet:
-              get:
-                operationId: get
-                x-internal: true
-            /dog:
-              get:
-                operationId: getDog
-                x-internal: true
-        `,
-        ''
-      ),
-      config: await createConfig({
-        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
-        rules: { 'test/test': 'error' },
-      }),
-    });
-
-    expect(calls).toEqual(['#/paths/~1pet/get/x-internal', '#/paths/~1dog/get/x-internal']);
   });
 });
 

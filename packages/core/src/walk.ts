@@ -172,8 +172,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     type: NormalizedNodeType,
     location: Location,
     parent: any,
-    key: string | number,
-    isDeclaredExtension: boolean = false
+    key: string | number
   ) {
     const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
       if (!isRef(ref)) return { location, node: ref };
@@ -247,16 +246,14 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
       const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
         let propType = getOwn(type.properties, propName);
-        const isExtensionKey =
-          type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
-        const isDeclaredExtension = isExtensionKey && propType !== undefined;
-
-        if (propType === undefined) {
-          propType = isExtensionKey ? SpecExtension : type.additionalProperties;
-        }
+        if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(value, propName);
-        if (isDeclaredExtension && !isNamedType(propType)) {
-          // a declared extension with a plain schema gets no typed walk — visit it as SpecExtension
+
+        if (
+          propType === undefined &&
+          type.extensionsPrefix &&
+          propName.startsWith(type.extensionsPrefix)
+        ) {
           propType = SpecExtension;
         }
 
@@ -273,32 +270,15 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           return;
         }
 
-        walkNode(
-          value,
-          propType,
-          loc.child([propName]),
-          valueParent,
-          propName,
-          isDeclaredExtension && propType !== SpecExtension
-        );
+        walkNode(value, propType, loc.child([propName]), valueParent, propName);
       };
 
       currentLocation = resolvedLocation;
-      // primitives have no identity to dedupe by — use their location; objects dedupe by identity
-      const seenKey =
-        isPlainObject(resolvedNode) || Array.isArray(resolvedNode)
-          ? resolvedNode
-          : location.absolutePointer;
-      const isNodeSeen = seenNodesPerType[type.name]?.has?.(seenKey);
+      const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
       let visitedBySome = false;
 
-      let currentEnterVisitors =
+      const currentEnterVisitors =
         combinedEnter[type.name] || anyEnter.concat(normalizedVisitors[type.name]?.enter || []);
-      if (isDeclaredExtension) {
-        currentEnterVisitors = currentEnterVisitors.concat(
-          normalizedVisitors.SpecExtension?.enter || []
-        );
-      }
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
       const ignoreKey = `${currentLocation.absolutePointer}${currentLocation.pointer}`;
@@ -366,7 +346,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       if (visitedBySome || !isNodeSeen) {
         seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-        seenNodesPerType[type.name].add(seenKey);
+        seenNodesPerType[type.name].add(resolvedNode);
 
         if (Array.isArray(resolvedNode)) {
           const itemsType = type.items;
@@ -428,13 +408,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         }
       }
 
-      let currentLeaveVisitors =
+      const currentLeaveVisitors =
         combinedLeave[type.name] || (normalizedVisitors[type.name]?.leave || []).concat(anyLeave);
-      if (isDeclaredExtension) {
-        currentLeaveVisitors = (normalizedVisitors.SpecExtension?.leave || []).concat(
-          currentLeaveVisitors
-        );
-      }
 
       for (const context of activatedContexts.reverse()) {
         if (context.isSkippedLevel) {
