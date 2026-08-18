@@ -143,6 +143,52 @@ describe('renderPythonModels', () => {
     expectCompiles(out);
   });
 
+  /** Cat/Dog under a `petType` discriminator; `declares` controls whether they declare it. */
+  function petUnion(declares: boolean) {
+    const member = {
+      kind: 'object' as const,
+      properties: declares ? [{ name: 'petType', schema: STRING, required: true }] : [],
+    };
+    return {
+      Cat: member,
+      Dog: member,
+      Pet: {
+        kind: 'union' as const,
+        members: [
+          { kind: 'ref' as const, name: 'Cat' },
+          { kind: 'ref' as const, name: 'Dog' },
+        ],
+        discriminator: {
+          propertyName: 'petType',
+          mapping: [
+            { value: 'cat', schemaName: 'Cat' },
+            { value: 'dog', schemaName: 'Dog' },
+          ],
+        },
+      },
+    };
+  }
+
+  it('pins the discriminator as a Literal so pydantic resolves a nested union', () => {
+    const out = renderPythonModels(model(petUnion(true)), 'string', 'pydantic');
+    expect(out).toContain('pet_type: Literal["cat"] = Field(alias="petType")');
+    expect(out).toContain('pet_type: Literal["dog"] = Field(alias="petType")');
+    expect(out).toContain('Pet = Annotated[Union[Cat, Dog], Field(discriminator="pet_type")]');
+    expect(out).toContain('Annotated');
+    expectCompiles(out);
+  });
+
+  it('leaves the union plain when its members do not declare the discriminator', () => {
+    const out = renderPythonModels(model(petUnion(false)), 'string', 'pydantic');
+    expect(out).toContain('Pet = Union[Cat, Dog]');
+    expect(out).not.toContain('Annotated');
+    // Dataclass mode never annotates: it walks the fields and reads the table itself.
+    const dataclasses = renderPythonModels(model(petUnion(true)), 'string', 'dataclass');
+    expect(dataclasses).toContain('Pet = Union[Cat, Dog]');
+    expect(dataclasses).toContain('pet_type: str');
+    expectCompiles(out);
+  });
+
   it('sanitizes reserved-word field names and records the wire mapping', () => {
     const out = renderPythonModels(
       model({

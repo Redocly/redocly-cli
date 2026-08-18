@@ -24,6 +24,10 @@ def decode(type_: Any, data: Any):
     mismatched shapes pass through unchanged (the server is the source of truth)."""
     if data is None or type_ is Any or type_ is None:
         return data
+    # `Annotated[Union[...], Field(discriminator=...)]`: pydantic reads that annotation on a
+    # model's own field, so here only the union underneath matters.
+    if hasattr(type_, "__metadata__"):
+        type_ = get_args(type_)[0]
     origin = get_origin(type_)
     if origin is typing.Union:
         discriminator = DISCRIMINATORS.get(type_)

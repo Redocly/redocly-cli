@@ -110,13 +110,67 @@ export const pythonOptions: GeneratorOptionsSchema = {
   additionalProperties: false,
 };
 
+/** The wire property and value a union's discriminator mapping pins on one member class. */
+type DiscriminatorPin = { property: string; value: string };
+
+/**
+ * Under `models: pydantic` the decoder hands a whole object tree to `model_validate`, so a
+ * union nested in a model is resolved by pydantic and never reaches the `DISCRIMINATORS`
+ * table. Pydantic resolves it correctly when the annotation carries the discriminator, which
+ * it accepts only if every member types that property as a `Literal` — and the mapping
+ * already pins one value per member. This pass works out which unions qualify: every member
+ * must declare the property, and no member may be pinned to two different values (a schema
+ * reused by two unions).
+ */
+function pydanticDiscriminators(model: ApiModel): {
+  pins: Map<string, DiscriminatorPin>;
+  unions: Map<string, string>;
+} {
+  const pins = new Map<string, DiscriminatorPin>();
+  const conflicted = new Set<string>();
+  const candidates: Array<{ name: string; property: string; members: string[] }> = [];
+  for (const { name, schema } of model.schemas) {
+    const cases = discriminatorCases(schema, model);
+    if (cases === undefined) continue;
+    const declares = cases.cases.every(
+      (entry) =>
+        flattenAllOf(entry.schema, model)?.properties.some(
+          (property) => property.name === cases.property
+        ) === true
+    );
+    if (!declares) continue;
+    for (const entry of cases.cases) {
+      const existing = pins.get(entry.schemaName);
+      if (existing !== undefined && existing.value !== entry.value) {
+        conflicted.add(entry.schemaName);
+        continue;
+      }
+      pins.set(entry.schemaName, { property: cases.property, value: entry.value });
+    }
+    candidates.push({
+      name,
+      property: cases.property,
+      members: cases.cases.map((entry) => entry.schemaName),
+    });
+  }
+  const unions = new Map<string, string>();
+  for (const candidate of candidates) {
+    if (candidate.members.some((member) => conflicted.has(member))) continue;
+    unions.set(candidate.name, fieldName(candidate.property).python);
+  }
+  for (const member of conflicted) pins.delete(member);
+  return { pins, unions };
+}
+
 function writeDataclass(
   printer: Printer,
   name: string,
   properties: PropertyModel[],
   dateType: DateType,
   models: PythonModels,
-  description?: string
+  description?: string,
+  /** The discriminator value this class is mapped to, pinned as a `Literal` (pydantic). */
+  pinned?: DiscriminatorPin
 ): void {
   const pydantic = models === 'pydantic';
   if (!pydantic) printer.line('@dataclass');
@@ -140,7 +194,10 @@ function writeDataclass(
       const { python, renamed } = fieldName(property.name);
       if (renamed && !pydantic) fieldMap.push([python, property.name]);
       const alias = renamed && pydantic ? `alias=${JSON.stringify(property.name)}` : undefined;
-      const baseType = pythonType(property.schema, dateType);
+      const baseType =
+        pinned?.property === property.name
+          ? `Literal[${JSON.stringify(pinned.value)}]`
+          : pythonType(property.schema, dateType);
       if (property.required) {
         const value = alias === undefined ? '' : ` = Field(${alias})`;
         printer.line(`${python}: ${baseType}${value}`);
@@ -168,6 +225,10 @@ export function renderPythonModels(
   models: PythonModels = 'dataclass'
 ): string {
   const printer = new Printer('    ');
+  const { pins, unions } =
+    models === 'pydantic'
+      ? pydanticDiscriminators(model)
+      : { pins: new Map<string, DiscriminatorPin>(), unions: new Map<string, string>() };
   printer.line('from __future__ import annotations');
   printer.blank();
   if (models === 'dataclass') printer.line('from dataclasses import dataclass');
@@ -186,6 +247,7 @@ export function renderPythonModels(
     'Union',
   ];
   if (models === 'dataclass') typingNames.splice(2, 0, 'ClassVar');
+  if (unions.size > 0) typingNames.unshift('Annotated');
   printer.line(`from typing import ${typingNames.join(', ')}`);
   if (models === 'pydantic') printer.line('from pydantic import BaseModel, ConfigDict, Field');
   // Only under `dateType: Date` — an unused import in every other client would be noise.
@@ -217,7 +279,8 @@ export function renderPythonModels(
           flat.properties,
           dateType,
           models,
-          flat.description ?? schema.description
+          flat.description ?? schema.description,
+          pins.get(name)
         );
         continue;
       }
@@ -232,7 +295,12 @@ export function renderPythonModels(
           .join(', ');
         printer.line(`# Discriminated by "${cases.property}": ${table}`);
       }
-      printer.line(`${className(name)} = ${pythonType(schema, dateType)}`);
+      const field = unions.get(name);
+      const union =
+        field === undefined
+          ? pythonType(schema, dateType)
+          : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${JSON.stringify(field)})]`;
+      printer.line(`${className(name)} = ${union}`);
       printer.blank();
     });
   }
@@ -295,10 +363,16 @@ function writePythonServers(printer: Printer, model: ApiModel): void {
   printer.blank();
 }
 
-/** `DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})` registration lines. */
-function discriminatorRegistrations(model: ApiModel): string[] {
+/**
+ * `DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})` registration lines, which `decode`
+ * dispatches through. A union whose annotation already carries the discriminator is left
+ * out: pydantic resolves it at any depth, and the `Literal` on each member makes the
+ * decoder's member probe exact.
+ */
+function discriminatorRegistrations(model: ApiModel, annotated: Set<string>): string[] {
   const lines: string[] = [];
   for (const { name, schema } of model.schemas) {
+    if (annotated.has(name)) continue;
     const cases = discriminatorCases(schema, model);
     if (cases === undefined) continue;
     const mapping = cases.cases
@@ -716,6 +790,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit, options })
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
   const models = (options?.models as PythonModels | undefined) ?? 'dataclass';
+  const pydantic = models === 'pydantic' ? pydanticDiscriminators(model) : undefined;
   const printer = new Printer('    ');
   printer.line(
     `# Generated by @redocly/client-generator (python) from "${model.title}" ${model.version}.`
@@ -748,7 +823,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit, options })
     printer.blank();
   }
   printer.blank();
-  const registrations = discriminatorRegistrations(model);
+  const registrations = discriminatorRegistrations(model, new Set(pydantic?.unions.keys()));
   if (registrations.length > 0) {
     printer.line('# Discriminated unions dispatch by their property inside decode().');
     for (const registration of registrations) printer.line(registration);

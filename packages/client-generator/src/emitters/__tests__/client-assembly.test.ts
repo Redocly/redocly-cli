@@ -91,8 +91,10 @@ describe('emitClientSingleFile (package arm)', () => {
   const output = emit(CAFE, { serverUrl: 'https://x' });
 
   it('imports from the package instead of inlining the runtime template', () => {
+    // Only the names the file references: `TokenProvider` typed the removed apiKey
+    // setters, and an unused type import fails a consumer's `noUnusedLocals` build.
     expect(output).toContain(
-      "import { createClient, type EnvelopeResult, type OperationDescriptor, type RequestOptions, type SseOptions, type TokenProvider } from '@redocly/client-generator';"
+      "import { createClient, type EnvelopeResult, type OperationDescriptor, type RequestOptions, type SseOptions } from '@redocly/client-generator';"
     );
     expect(output).not.toContain('__send');
     expect(output).not.toContain('__buildUrl');
@@ -273,7 +275,7 @@ describe('emitClientSingleFile (package arm)', () => {
     expect(out).not.toContain('=> client.getOrder(');
     // No flat sugar → the per-call option types are not imported (only re-exported).
     expect(out).toContain(
-      "import { createClient, type OperationDescriptor, type TokenProvider } from '@redocly/client-generator';"
+      "import { createClient, type OperationDescriptor } from '@redocly/client-generator';"
     );
   });
 

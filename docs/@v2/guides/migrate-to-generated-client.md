@@ -37,17 +37,17 @@ A reviewer then sees what changed in the API when you regenerate, and the build 
 
 The pieces of a hand-written client have direct equivalents:
 
-| What you have now                         | What replaces it                                                                                                                                            |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A types file, generated or hand-written   | The types in the generated client. Every operation carries its own request and response types.                                                              |
-| A `fetch` wrapper with a base URL         | `configure({ serverUrl })`, or the `servers` entry of the description.                                                                                      |
-| Auth headers added by hand                | `configure({ auth: … })`, or the generated setter for each scheme the description declares. See [Authentication](./use-generated-client.md#authentication). |
-| A retry helper                            | `configure({ retry: { retries: 3 } })`. See [Retries](./use-generated-client.md#retries).                                                                   |
-| A hand-rolled pagination loop             | Declared [pagination](./use-generated-client.md#pagination), then `.pages()` and `.items()` iterators.                                                      |
-| Interceptors for logs, traces, or headers | [Middleware](./use-generated-client.md#middleware), which sees each operation's id and tags as literal types.                                               |
-| An existing configured request library    | `configure({ fetch })`. See [The HTTP layer](./use-generated-client.md#the-http-layer).                                                                     |
-| Response shapes checked by hand           | The [`zod` generator](./use-generated-client.md#runtime-validation) and its `zodValidation()` middleware.                                                   |
-| Hand-written API mocks in tests           | The [`mock` generator](./use-generated-client.md#generators): MSW handlers and typed data factories.                                                        |
+| What you have now                         | What replaces it                                                                                                                      |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| A types file, generated or hand-written   | The types in the generated client. Every operation carries its own request and response types.                                        |
+| A `fetch` wrapper with a base URL         | `configure({ serverUrl })`, or the `servers` entry of the description.                                                                |
+| Auth headers added by hand                | `configure({ auth: … })`, or `client.auth.bearer(…)` on one instance. See [Authentication](./use-generated-client.md#authentication). |
+| A retry helper                            | `configure({ retry: { retries: 3 } })`. See [Retries](./use-generated-client.md#retries).                                             |
+| A hand-rolled pagination loop             | Declared [pagination](./use-generated-client.md#pagination) with the `.pages()` and `.items()` iterators.                             |
+| Interceptors for logs, traces, or headers | [Middleware](./use-generated-client.md#middleware), which sees each operation's id and tags as literal types.                         |
+| An existing configured request library    | `configure({ fetch })`. See [The HTTP layer](./use-generated-client.md#the-http-layer).                                               |
+| Response shapes checked by hand           | The [`zod` generator](./use-generated-client.md#runtime-validation) and its `zodValidation()` middleware.                             |
+| Hand-written API mocks in tests           | The [`mock` generator](./use-generated-client.md#generators): MSW handlers and typed data factories.                                  |
 
 Two of those replace whole files rather than lines.
 Pagination loops and mock fixtures are usually the largest deletions in a migration of this kind.

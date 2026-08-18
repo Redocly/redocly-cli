@@ -31,6 +31,16 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   mapping. Everything else is unchanged: the same class names, the same field names, the
   same `Optional[T] = None`, the same enums and union aliases, the same client and runtime.
   Switching modes must not change a call site.
+- **A discriminated union carries its discriminator into the pydantic annotation.** The
+  decoder hands a whole object tree to `model_validate`, so a union nested in a model is
+  resolved by pydantic and never reaches the `DISCRIMINATORS` table that dataclass mode
+  walks. Pydantic resolves it correctly from `Annotated[Union[...], Field(discriminator=…)]`,
+  which it accepts only when every member types that property as a `Literal` — and the
+  mapping already pins one value per member, so the members get `Literal["cat"]`. Such a
+  union registers no table entry: pydantic owns it at every depth, and the `Literal` makes
+  the decoder's member probe exact. A union whose members never declare the property keeps
+  the plain `Union` and the table entry, and pydantic then matches nested members its own
+  way — the description is what has to change there.
 - **One runtime serves both model modes.** `_decode.py` dispatches on the target: a class
   with `model_validate` is validated by pydantic, a dataclass is hydrated reflectively, and
   `encode` mirrors that with `model_dump(by_alias=True, exclude_none=True, mode="json")`.

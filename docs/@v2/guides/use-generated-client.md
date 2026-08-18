@@ -264,6 +264,9 @@ Every class then extends `BaseModel`, and a wire name that is not a legal Python
 The call sites do not change: the same class names, the same field names, the same client.
 Pydantic then validates each response as the SDK decodes it, so a response that does not match the description raises `ValidationError` instead of passing through.
 This mode needs `pydantic` next to `httpx`, and the header of the generated file says so.
+A discriminated union keeps its discriminator in both modes, and each member declares its own value as a `Literal`.
+For this to work, every member schema must declare the discriminator property.
+When a member omits it, pydantic matches the members of a nested union by shape, which can select the wrong one.
 
 ```php
 require 'client.php';

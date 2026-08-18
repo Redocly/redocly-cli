@@ -76,9 +76,6 @@ function emitClient(
   const flat = ctx.argsStyle === 'flat';
   const hasSse = ops.some(isSseOp);
   const hasRegular = ops.some((op) => !isSseOp(op));
-  const apiKeySchemes = model.securitySchemes.filter(
-    (s) => s.kind === 'apiKeyHeader' || s.kind === 'apiKeyQuery' || s.kind === 'apiKeyCookie'
-  );
 
   const wiring =
     ops.length > 0
@@ -106,7 +103,6 @@ function emitClient(
         hasFlatSse: hasSse && flat,
         hasFlatRegular: hasRegular && flat,
         hasRegular,
-        hasApiKey: apiKeySchemes.length > 0,
       });
   const schemaSection = [
     renderTypeAliases(model.schemas, ctx.dateType),
@@ -176,7 +172,7 @@ function schemaLinks(model: ApiModel, ctx: EmitContext, specifier: string): stri
 function importLine(
   options: EmitOptions,
   ctx: EmitContext,
-  refs: { hasFlatSse: boolean; hasFlatRegular: boolean; hasRegular: boolean; hasApiKey: boolean }
+  refs: { hasFlatSse: boolean; hasFlatRegular: boolean; hasRegular: boolean }
 ): string {
   const values = ['createClient', ...(options.setup ? ['mergeSetup'] : [])];
   const types = [
@@ -190,8 +186,6 @@ function importLine(
     // (an SSE-only spec would otherwise import it unused and fail noUnusedLocals).
     ...(ctx.errorMode === 'result' && refs.hasRegular ? ['Result'] : []),
     ...(refs.hasFlatSse ? ['SseOptions'] : []),
-    // The apiKey sugar closures take a `TokenProvider`.
-    ...(refs.hasApiKey ? ['TokenProvider'] : []),
   ].sort();
   const names = [...values, ...types.map((t) => `type ${t}`)].join(', ');
   return `import { ${names} } from '${PACKAGE_SPECIFIER}';`;

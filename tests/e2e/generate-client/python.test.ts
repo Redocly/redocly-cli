@@ -139,4 +139,31 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
     expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
     expect(result.stdout).toContain('PYDANTIC_ROUND_TRIP_OK');
   });
+
+  it.skipIf(!hasPydantic)('resolves a discriminated union nested in a model, not by shape', () => {
+    // Pydantic resolves a nested union itself, so the discriminator has to reach the
+    // annotation: `MenuItem` lives inside `MenuItemList.items`, never at the top level.
+    const item = [
+      '{"category": "dessert", "calories": 400, "id": "mi_1", "name": "Cake",',
+      '"price": 500, "createdAt": "2026-01-01T00:00:00Z",',
+      '"updatedAt": "2026-01-01T00:00:00Z", "object": "menuItem"}',
+    ].join(' ');
+    const script = [
+      'import sys',
+      `sys.path.insert(0, ${JSON.stringify(dir)})`,
+      'import client',
+      `item = ${item}`,
+      'page = {"limit": 1, "endCursor": "c", "startCursor": "c",',
+      '        "hasNextPage": False, "hasPrevPage": False, "total": 1}',
+      'listed = client.decode(client.MenuItemList, {"object": "list", "page": page, "items": [item]})',
+      'assert type(listed.items[0]).__name__ == "Dessert", type(listed.items[0])',
+      // The top level goes through the same annotation.
+      'assert type(client.decode(client.MenuItem, item)).__name__ == "Dessert"',
+      'assert client.encode(listed)["items"][0]["category"] == "dessert"',
+      'print("PYDANTIC_DISCRIMINATOR_OK")',
+    ].join('\n');
+    const result = spawnSync('python3', ['-c', script], { encoding: 'utf-8' });
+    expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+    expect(result.stdout).toContain('PYDANTIC_DISCRIMINATOR_OK');
+  });
 });
