@@ -135,15 +135,16 @@ describe('sanitizeIdentifiers', () => {
     expect(m.schemas.map((schema) => schema.name)).toEqual(['Date_2', 'Promise_2']);
   });
 
-  it('renames a schema that collides with an auth setter derived from the security schemes', () => {
-    // A bearer scheme makes the sugar emit `export const setBearer = …`; a string-enum
-    // schema of the same name emits an `export const` companion — a duplicate declaration.
+  it('keeps a schema named after a former auth setter: nothing exports that name now', () => {
+    // The generator used to emit `export const setBearer = …` for a bearer scheme, which
+    // collided with a string-enum schema's `export const` companion. Credentials moved to
+    // `configure`/`client.auth`, so no generated export claims the name.
     const m = model([
       { name: 'setBearer', schema: { kind: 'enum', scalar: 'string', values: ['a', 'b'] } },
     ]);
     m.securitySchemes = [{ kind: 'bearer', key: 'bearerAuth' }];
     sanitizeIdentifiers(m);
-    expect(m.schemas[0].name).toBe('setBearer_2');
+    expect(m.schemas[0].name).toBe('setBearer');
   });
 
   it('renames an operation that collides with a runtime declaration', () => {

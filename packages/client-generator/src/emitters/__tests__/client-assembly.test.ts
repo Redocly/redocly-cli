@@ -108,7 +108,6 @@ describe('emitClientSingleFile (package arm)', () => {
       { serverUrl: 'https://x/\u2029path' }
     );
     expect(out).toContain('serverUrl: "https://x/\\u2029path"');
-    expect(out).toContain('client.auth.apiKey("k\\u2028evil", value)');
     expect(out).not.toContain('\u2028');
     expect(out).not.toContain('\u2029');
   });
@@ -150,14 +149,15 @@ describe('emitClientSingleFile (package arm)', () => {
     expect(emit(model)).toContain('export function isCat(');
   });
 
-  it('emits core destructure and auth sugar bound to the instance', () => {
+  it('exports the core destructure, and no per-scheme credential setters', () => {
     expect(output).toContain('export const { configure, use } = client;');
-    expect(output).toContain('export const setBearer = client.auth.bearer;');
-    // Sole apiKey scheme → unsuffixed setter, scheme key baked into the closure.
-    expect(output).toContain(
-      'export const setApiKey = (value: TokenProvider) => client.auth.apiKey("cookieAuth", value);'
-    );
-    expect(output).not.toContain('setBasicAuth');
+    // Credentials are set through `configure({ auth })` or `client.auth.*`. A setter per
+    // scheme gave the same act a third spelling and a name operations had to avoid.
+    expect(output).not.toContain('export const setBearer');
+    expect(output).not.toContain('export const setApiKey');
+    expect(output).not.toContain('export const setBasicAuth');
+    // What tells the runtime which credentials an operation needs is the descriptor.
+    expect(output).toContain('security: [[{ scheme: "bearerAuth"');
   });
 
   it('emits flat sugar one-liners forwarding to the grouped client methods', () => {
@@ -291,26 +291,6 @@ describe('emitClientSingleFile (package arm)', () => {
     const out = emit(model);
     expect(out).not.toContain('export type SearchResult = SearchResult;');
     expect(out).toContain('result: SearchResult;'); // the schema type, inlined
-  });
-
-  it('suffixes apiKey setters when several apiKey schemes exist; emits setBasicAuth for basic', () => {
-    const out = emit(
-      modelWith([getOrder], {
-        schemas: SCHEMAS,
-        securitySchemes: [
-          { kind: 'basic', key: 'basicAuth' },
-          { kind: 'apiKeyHeader', key: 'keyA', headerName: 'X-A' },
-          { kind: 'apiKeyQuery', key: 'keyB', paramName: 'b' },
-        ],
-      })
-    );
-    expect(out).toContain('export const setBasicAuth = client.auth.basic;');
-    expect(out).toContain(
-      'export const setApiKeyKeyA = (value: TokenProvider) => client.auth.apiKey("keyA", value);'
-    );
-    expect(out).toContain(
-      'export const setApiKeyKeyB = (value: TokenProvider) => client.auth.apiKey("keyB", value);'
-    );
   });
 
   it('handles a spec with no operations: uniform wiring over empty maps', () => {

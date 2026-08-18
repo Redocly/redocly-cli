@@ -1,5 +1,6 @@
 import {
   ApiError,
+  client,
   createOrder,
   deleteMenuItem,
   deleteOrder,
@@ -10,8 +11,6 @@ import {
   listOrderItems,
   listOrders,
   registerOAuth2Client,
-  setApiKey,
-  setBearer,
   updateOrder,
   createMenuItem,
   isBeverage,
@@ -42,8 +41,8 @@ async function main(): Promise<void> {
   // Set credentials once. Every OAuth2/bearer operation now sends
   // `Authorization: Bearer <token>`, and every ApiKey operation sends the
   // `X-API-Key` header. Operations declared `security: []` send neither.
-  setBearer('test-bearer-token');
-  setApiKey('test-api-key');
+  client.auth.bearer('test-bearer-token');
+  client.auth.apiKey('ApiKey', 'test-api-key');
 
   results.push(
     await step('listMenuItems', () =>

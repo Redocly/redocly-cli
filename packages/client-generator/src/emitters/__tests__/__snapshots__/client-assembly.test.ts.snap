@@ -71,7 +71,6 @@ export type OperationTag = Extract<(typeof OPERATIONS)[keyof typeof OPERATIONS],
 export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://cafe.example.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
-export const setBearer = client.auth.bearer;
 export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {
     expand?: string;
 } = {}, init?: I): Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>> => client.getOrder({ orderId, params }, init) as Promise<EnvelopeResult<GetOrderResult, Record<string, never>, I>>;

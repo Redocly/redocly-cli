@@ -11,7 +11,6 @@ import {
   type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
 import type { SecuritySpec } from '../runtime/types.js';
-import { authSetterNames } from './auth.js';
 import { uniqueIdent } from './identifier.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { ModelPagination } from './pagination.js';
@@ -25,12 +24,12 @@ import type { DateType } from './types.js';
 
 /**
  * Operation-name → emitted-identifier plan. The full reserved set (wiring + imported
- * bindings + auth sugar, computed from the model FIRST) is seeded before any operation
+ * bindings, computed from the model FIRST) is seeded before any operation
  * is sanitized, so collisions rename the operation (`configure` → `configure_2`)
  * deterministically regardless of document order.
  */
 export function packageIdents(model: ApiModel): Map<string, string> {
-  const used = new Set<string>([...WIRING_NAMES, ...authSetterNames(model.securitySchemes)]);
+  const used = new Set<string>(WIRING_NAMES);
   const idents = new Map<string, string>();
   for (const op of allOperations(model.services)) idents.set(op.name, uniqueIdent(op.name, used));
   return idents;

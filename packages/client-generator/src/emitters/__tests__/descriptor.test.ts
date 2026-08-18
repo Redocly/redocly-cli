@@ -23,11 +23,7 @@ const JSON_OK: ResponseBodyModel = {
 describe('packageIdents', () => {
   it('renames colliding operation ids deterministically', () => {
     const model = modelWith(
-      [
-        operation({ name: 'configure' }),
-        operation({ name: 'createClient' }),
-        operation({ name: 'setBearer' }),
-      ],
+      [operation({ name: 'configure' }), operation({ name: 'createClient' })],
       {
         securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
       }
@@ -35,7 +31,15 @@ describe('packageIdents', () => {
     const idents = packageIdents(model);
     expect(idents.get('configure')).toBe('configure_2');
     expect(idents.get('createClient')).toBe('createClient_2');
-    expect(idents.get('setBearer')).toBe('setBearer_2'); // auth sugar seeded first
+  });
+
+  it('leaves a name free once nothing exports it: no per-scheme setters, no reservation', () => {
+    // `setBearer` was a generated export, so an operation of that name had to be renamed.
+    // Credentials now go through `configure`/`client.auth`, so the name is the caller's.
+    const model = modelWith([operation({ name: 'setBearer' })], {
+      securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
+    });
+    expect(packageIdents(model).get('setBearer')).toBe('setBearer');
   });
 
   it('keeps non-colliding names and sanitizes non-identifier ones', () => {

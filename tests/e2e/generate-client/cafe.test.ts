@@ -274,10 +274,10 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(entry!.headers['x-request-id']).toBe('11111111-2222-3333-4444-555555555555');
   });
 
-  // The consumer calls setBearer()/setApiKey() once; every OAuth2 operation must
+  // The consumer sets each credential once on the instance; every OAuth2 operation must
   // then carry the bearer header, every ApiKey operation the X-API-Key header,
   // and `security: []` operations neither.
-  test('setBearer() injects Authorization on OAuth2 operations (getOrderById)', () => {
+  test('a bearer credential injects Authorization on OAuth2 operations (getOrderById)', () => {
     const entry = log.find(
       (e) => e.method === 'GET' && e.url === '/orders/ord_01h1s5z6vf2mm1mz3hevnn9va7'
     );
@@ -285,7 +285,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(entry!.headers['authorization']).toBe('Bearer test-bearer-token');
   });
 
-  test('setApiKey() injects X-API-Key on ApiKey operations (getRevenue)', () => {
+  test('an apiKey credential injects X-API-Key on ApiKey operations (getRevenue)', () => {
     const entry = log.find((e) => e.method === 'GET' && e.url.startsWith('/revenue'));
     expect(entry).toBeDefined();
     expect(entry!.headers['x-api-key']).toBe('test-api-key');

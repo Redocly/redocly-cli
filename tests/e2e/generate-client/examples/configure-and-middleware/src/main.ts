@@ -4,17 +4,17 @@
 //   `Retry-After` honored; per-call override via `init.retry`).
 // * `use()`: middleware that targets `ctx.operation.id` — a LITERAL UNION of this
 //   spec's operation ids, so a typo fails the build instead of silently never matching.
-// * `setApiKey()`: per-scheme auth sugar; injected only on operations whose
+// * `client.auth.apiKey()`: a credential per scheme; injected only on operations whose
 //   `security` names the scheme.
 // * `ApiError`: a non-2xx response throws, carrying the decoded problem document
 //   on `error.body`.
 import {
   ApiError,
+  client,
   configure,
   createPayment,
   getPayment,
   listPayments,
-  setApiKey,
   use,
   type ProblemDetails,
 } from './api/client.js';
@@ -61,7 +61,7 @@ configure({
 
 // Auth sugar generated from the spec's `ApiKeyAuth` scheme: every operation whose
 // `security` requires it gets an `X-Api-Key` header — nothing to wire by hand.
-setApiKey('demo-key-123');
+client.auth.apiKey('ApiKey', 'demo-key-123');
 
 use({
   onRequest: (ctx) => {

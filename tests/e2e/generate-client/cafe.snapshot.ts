@@ -2214,8 +2214,6 @@ export function createClient<
 export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://api.cafe.redocly.com", clientHeader: "redocly-client-generator" });
 
 export const { configure, use } = client;
-export const setBearer = client.auth.bearer;
-export const setApiKey = (value: TokenProvider) => client.auth.apiKey("ApiKey", value);
 export const listMenuItems = <I extends RequestOptions | undefined = undefined>(params: {
     /**
      * Use the `endCursor` as a value for the `after` parameter to get the next page.

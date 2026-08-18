@@ -1,6 +1,5 @@
 import { logger } from '@redocly/openapi-core';
 
-import { authSetterNames } from '../emitters/auth.js';
 import { isSafeIdentifier, sanitizeIdentifier } from '../emitters/identifier.js';
 import { reservedModuleNames } from '../emitters/reserved-names.js';
 import { pascalCase } from '../emitters/support.js';
@@ -43,13 +42,9 @@ export function sanitizeIdentifiers(model: ApiModel): void {
 
   // Schema types land in the same module scope as everything the generator emits and
   // embeds, so a schema may not reuse a reserved name (the runtime's `ApiError` class,
-  // a satellite import like msw's `http`, the `client` const, an auth setter, …). The
-  // rename is mode-independent — a `--runtime` flip must not change the generated
-  // type names.
-  const reservedNames = new Set<string>([
-    ...reservedModuleNames(),
-    ...authSetterNames(model.securitySchemes),
-  ]);
+  // a satellite import like msw's `http`, the `client` const, …). The rename is
+  // mode-independent — a `--runtime` flip must not change the generated type names.
+  const reservedNames = new Set<string>(reservedModuleNames());
   const schemaNames = new Set<string>(reservedNames);
   const schemaPascals = new Set<string>();
   const renamed = new Map<string, string>();

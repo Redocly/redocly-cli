@@ -1,4 +1,4 @@
-import { client, configure_2, createOrder, getOrder, setBearer, streamEvents, use } from './api.js';
+import { client, configure_2, createOrder, getOrder, streamEvents, use } from './api.js';
 
 async function main(): Promise<void> {
   const middlewareIds: string[] = [];
@@ -7,7 +7,7 @@ async function main(): Promise<void> {
       middlewareIds.push(ctx.operation.id);
     },
   });
-  setBearer('test-token');
+  client.auth.bearer('test-token');
 
   // Flat sugar: positional path value forwarded under the wire name `order-id`.
   const order = await getOrder('o-1', { expand: 'items' });

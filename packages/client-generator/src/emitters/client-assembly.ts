@@ -14,9 +14,7 @@ import {
   allOperations,
   type ApiModel,
   type OperationModel,
-  type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
-import { apiKeySetterName } from './auth.js';
 import { packageIdents, renderDescriptors } from './descriptor.js';
 import { banner, type EmitOptions, HEADER, renderTitleComment } from './emit-options.js';
 import { codeString } from './identifier.js';
@@ -119,7 +117,7 @@ function emitClient(
   const bodySection = [...ops.map((op) => renderAliases(op, ctx, 'wire')), ...wiring]
     .filter((section) => section.length > 0)
     .join('\n\n');
-  const sugar = sugarSection(ops, idents, ctx, model.securitySchemes, apiKeySchemes);
+  const sugar = sugarSection(ops, idents, ctx);
   // Embed mode exports its whole public surface in place; only the package arm re-exports.
   const reexports = embed ? '' : reexportLines(ctx, hasSse);
 
@@ -241,26 +239,12 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
 function sugarSection(
   ops: OperationModel[],
   idents: Map<string, string>,
-  ctx: EmitContext,
-  schemes: SecuritySchemeModel[],
-  apiKeySchemes: SecuritySchemeModel[]
+  ctx: EmitContext
 ): string {
+  // Credentials go through `configure({ auth })` or `client.auth.*` — one way per act.
+  // Per-scheme setters used to be exported here too, which gave the same act three
+  // spellings and a name per scheme that operation names then had to avoid.
   const lines = ['export const { configure, use } = client;'];
-  // Auth sugar in `authSetterNames` order: bearer, basic, then each apiKey scheme.
-  // The runtime's auth members close over the instance config (no `this`), so
-  // direct bindings are safe.
-  if (schemes.some((s) => s.kind === 'bearer')) {
-    lines.push('export const setBearer = client.auth.bearer;');
-  }
-  if (schemes.some((s) => s.kind === 'basic')) {
-    lines.push('export const setBasicAuth = client.auth.basic;');
-  }
-  for (const scheme of apiKeySchemes) {
-    const name = apiKeySetterName(scheme.key, apiKeySchemes.length === 1);
-    lines.push(
-      `export const ${name} = (value: TokenProvider) => client.auth.apiKey(${codeString(scheme.key)}, value);`
-    );
-  }
   if (ops.length === 0) return lines.join('\n');
   if (ctx.argsStyle === 'grouped') {
     // Grouped style: the client methods already take the grouped args shape.

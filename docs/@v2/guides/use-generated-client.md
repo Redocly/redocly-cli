@@ -220,6 +220,22 @@ for order in client.list_orders_items(limit=50):
     print(order)
 ```
 
+The Python models are dataclasses, so `httpx` stays the only requirement.
+If your project expects [pydantic](https://docs.pydantic.dev/) models, ask for them:
+
+```yaml
+client:
+  generators: [python]
+  options:
+    python:
+      models: pydantic # default: dataclass
+```
+
+Every class then extends `BaseModel`, and a wire name that is not a legal Python field name becomes a field alias.
+The call sites do not change: the same class names, the same field names, the same client.
+Pydantic then validates each response as the SDK decodes it, so a response that does not match the description raises `ValidationError` instead of passing through.
+This mode needs `pydantic` next to `httpx`, and the header of the generated file says so.
+
 ```php
 require 'client.php';
 
@@ -246,8 +262,7 @@ for order, err := range api.ListOrdersItems(ctx, nil) {
 
 Every language gives credentials to a client instance, and the constructor is that one way.
 `createClient(OPERATIONS, { auth })` in TypeScript is the same thing as the constructors below.
-TypeScript adds `setBearer` and `configure({ auth })` for one reason: it also exports a module-level client, which the [free functions](#authentication) call.
-Those two configure that instance.
+TypeScript adds `configure({ auth })` for one reason: it also exports a module-level client, which the [free functions](#authentication) call, and `configure` is how you set up that instance.
 The Python, PHP, and Go SDKs export no module-level client, so they need no equivalent.
 
 Auth accepts a static credential, or a provider function that the client resolves for each request:
@@ -411,16 +426,28 @@ Credentials are **per instance**.
 They live in the client config (`ClientConfig.auth`).
 Each operation automatically sends the credentials that its `security` requires.
 A description that declares no `securitySchemes` produces a client with no auth code.
-The generator emits a setter for each `securityScheme` that the runtime can apply:
+Set credentials in one of two places, and both configure the same instance:
 
-| Scheme                         | Setter                                    | Applied as                               |
-| ------------------------------ | ----------------------------------------- | ---------------------------------------- |
-| HTTP `bearer` / OAuth2         | `setBearer(token)`                        | `Authorization: Bearer <token>`          |
-| HTTP `basic`                   | `setBasicAuth(user, pass)`                | `Authorization: Basic <base64>`          |
-| `apiKey` (header/query/cookie) | `setApiKey(key)` / `setApiKey<Name>(key)` | the named header, query param, or cookie |
+```ts
+import { client, configure } from './client.ts';
 
-For a single apiKey scheme, the setter is `setApiKey` without a suffix.
-For more than one scheme, each setter is `setApiKey<SchemeName>`.
+// Up front, with the rest of the configuration.
+configure({ auth: { bearer: process.env.API_TOKEN } });
+
+// Or one scheme at a time, by kind.
+client.auth.bearer(process.env.API_TOKEN);
+client.auth.basic({ username: 'svc', password: 's3cr3t' });
+client.auth.apiKey('SecretApiKey', process.env.API_KEY); // addressed by scheme key
+```
+
+| Scheme                         | How you set it                       | Applied as                               |
+| ------------------------------ | ------------------------------------ | ---------------------------------------- |
+| HTTP `bearer` / OAuth2         | `auth.bearer(token)`                 | `Authorization: Bearer <token>`          |
+| HTTP `basic`                   | `auth.basic({ username, password })` | `Authorization: Basic <base64>`          |
+| `apiKey` (header/query/cookie) | `auth.apiKey('<scheme key>', value)` | the named header, query param, or cookie |
+
+Each operation sends only the credentials its own `security` requires, so setting several is normal.
+An apiKey scheme is addressed by the key the description gives it, so an API with several apiKey schemes needs no extra names.
 The runtime cannot inject `mutualTLS`.
 Cookie apiKey credentials travel in the `Cookie` request header, and browsers refuse to set this header.
 Because of this, cookie auth works only in server-side clients.
@@ -429,15 +456,12 @@ Bearer and apiKey credentials accept a **`TokenProvider`**: a string, or a funct
 This is useful for refresh flows:
 
 ```ts
-import { setBearer } from './client.ts';
+import { client } from './client.ts';
 
-setBearer(async () => await getFreshAccessToken());
+client.auth.bearer(async () => await getFreshAccessToken());
 ```
 
-Each setter is shorthand for the `auth` member of the exported `client` instance (`export const setBearer = client.auth.bearer;`).
-Because of this, the setter configures that instance.
-As an alternative, pass credentials up front with `configure({ auth: { … } })`.
-Or set them with `client.auth.bearer(…)`, `client.auth.basic(…)`, or `client.auth.apiKey(scheme, …)`.
+The client resolves the provider for each request, so a refreshed token takes effect without reconfiguration.
 
 For **multiple independent instances** with different credentials, build extra clients from the same generated descriptors.
 The generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
