@@ -1870,7 +1870,7 @@ On the Cafe API, where one read covers the whole description, both conditions fi
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
 Sessions start in a directory holding nothing but the description, outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call `@redocly/cli@0.0.0-snapshot.1787132334`.
 The no-tree prompt gives the description by path and the tree prompt by filename — the same file either way, and worth one `ls` at most.
-Each cell is three runs, and the tables give the median.
+Each cell is three runs, and the tables give the median. Opus 5 on the billing API has six, run to see how far one cell moves when it is repeated; its median is the same either way.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`.
 A turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, which is the whole prompt the model was handed on that turn; the table gives the last turn's minus the first turn's.
@@ -1886,5 +1886,6 @@ The check accepts any JSON shape and any equivalent phrasing: a call addressed t
 It reports only what is nowhere in the answer.
 A cell whose runs all fail is marked ❌ rather than dropped, because the price of an answer that does not work rewards leaving things out and is worth seeing next to the price of one that runs.
 
-**Noise.** Repeating a cell through the index lands within a few percent, without it by up to 83%, because the agent invents a fresh search strategy every time.
-Treat anything under about 15% of context as a tie.
+**Noise.** A cell repeated is a cell that answers differently, because the agent invents a fresh route every time.
+Opus 5 on the billing API was run six times through the index and its runs span 27,815 to 43,402 tokens of context and 15 to 28 calls — a 56% spread inside one condition, against the 3% that separates its median from the no-tree median.
+The median is steady even so: the first three repeats and all six give the same figures. Treat anything under about 15% of context as a tie, and read a single cell as a range rather than a number.
