@@ -80,7 +80,8 @@ The same section shows the environment variables that the CLI reads.
 
 The CLI reads credentials from environment variables.
 The prefix is the output file name in constant case: `MY_API_*` for `my-api.ts`.
-The `binName` option overrides the prefix.
+The prefix is fixed when the file is generated, so the variables stay the same whatever you install the command as.
+To change them, rename the output file.
 For bearer auth, use `<PREFIX>_TOKEN` (or `--token`).
 For basic auth, use `<PREFIX>_USERNAME` and `<PREFIX>_PASSWORD`.
 For apiKey auth, use `<PREFIX>_API_KEY_<SCHEME>`.
@@ -121,11 +122,10 @@ This makes two things possible without changes to the generated files.
 Set a top-level `client.cliOutput`.
 Then `redocly generate-client` (no api argument) emits a composed entry for every api that emits a cli module.
 Each api's alias from `apis:` becomes its command namespace (`shop` and `kitchen` below).
-The CLI reads each api's credentials under `<BINNAME>_<ALIAS>_*`:
+The CLI reads each api's credentials under `<ENTRY>_<ALIAS>_*`, where `<ENTRY>` is the entry file name in constant case:
 
 ```yaml
 client:
-  binName: cafe
   cliOutput: ./src/cafe.ts
   generators: [typescript, cli]
 apis:
@@ -138,7 +138,7 @@ npx tsx src/cafe.ts shop listOrders --limit 3          # CAFE_SHOP_TOKEN
 npx tsx src/cafe.ts kitchen createOrder --json @o.json # CAFE_KITCHEN_TOKEN
 ```
 
-Two different things can stand in the word after the bin name, so compare the two setups.
+Two different things can stand in the word after the command, so compare the two setups.
 For one API, an operationId is the whole command (`cafe listOrders`), and a tag slug goes in front of it only to resolve an ambiguous name (`cafe orders listOrders`).
 For a composed binary, that first word is the api alias, because an operationId is unique only inside one description: `cafe shop listOrders`.
 A tag group of that api nests inside its alias, again only when it is needed: `cafe shop orders listOrders`.
@@ -148,9 +148,8 @@ Because of this, each command carries its api's alias as a namespace.
 If two descriptions declare the same operationId, the result is two different commands.
 Each api keeps its own server URL, schemes, and credentials.
 
-`binName` is the name the CLI uses for itself.
-The name appears in every usage line of `--help`, and the credential variables derive from it: `binName: cafe` gives `CAFE_TOKEN`.
-It does not create an executable.
+The CLI has no name of its own to configure.
+It reads the name it was invoked as from the process, so `--help` always shows the command you typed.
 To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of your `package.json` at the compiled file.
 The end of this section shows this step.
 
@@ -191,18 +190,21 @@ This section shows the procedure.
 
 #### Ship it as a real command
 
-`binName` is the name the CLI uses for itself, not an installation.
+The command name is yours, and generation never sets it.
 The generated file is a module until you point a `bin` field at it, and these three steps are what make `cafe` a command on your machine.
 
 First, the CLI uses top-level `await`, so the nearest `package.json` must set `"type": "module"`.
 Without this setting, `tsx` reports `Top-level await is currently not supported with the "cjs" output format`, and that message does not point to the fix.
 
-Second, compile the entry with `tsc` and declare the compiled file as the bin:
+Second, compile the entry with `tsc` and declare the compiled file as the bin.
+For one API the entry is the CLI module, `<output>.cli.ts`, so `src/cafe.ts` compiles to `dist/cafe.cli.js`.
+For a composed binary the entry is `cliOutput` itself, so `./src/cafe.ts` compiles to `dist/cafe.js`.
+The client module is not an entry, and a `bin` field that points at it gives you a command that does nothing:
 
 ```json
 {
   "type": "module",
-  "bin": { "cafe": "./dist/cafe.js" },
+  "bin": { "cafe": "./dist/cafe.cli.js" },
   "scripts": { "build": "tsc" }
 }
 ```
@@ -214,9 +216,10 @@ npm run build && npm link
 cafe listOrders --limit 3     # CAFE_TOKEN from the environment
 ```
 
-Keep the `bin` key and `binName` the same, or the help output names a command that does not exist.
-For a one-off run, `npx tsx src/cafe.ts listOrders --limit 3` uses the same entry with no build step.
-`binName` applies to the `cli` generator only: the `python`, `go`, and `php` SDKs are libraries, and they emit no command.
+The help output follows the name you install, because the CLI reads it from the process.
+The credential variables do not: they come from the output file name, so a renamed command never invalidates the variables your users already set.
+For a one-off run, `npx tsx src/cafe.cli.ts listOrders --limit 3` uses the same entry with no build step.
+Only the `cli` generator emits a command: the `python`, `go`, and `php` SDKs are libraries.
 
 ### Language SDKs
 

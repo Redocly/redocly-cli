@@ -69,7 +69,7 @@ describe('wireConfig', () => {
     expect(
       wire(outdent`
         client:
-          binName: cafe
+          runtime: package
         apis:
           cafe:
             root: ./openapi.yaml
@@ -78,7 +78,7 @@ describe('wireConfig', () => {
       client:
         generators:
           - ./generators/php.mjs
-        binName: cafe
+        runtime: package
       apis:
         cafe:
           root: ./openapi.yaml

@@ -62,9 +62,9 @@ const login: CustomCommand = {
 process.exit(
   await runCli(
     [
-      { commands: [login], wiring: { ...shop.wiring, binName: 'cafe' } },
-      { namespace: 'shop', commands: shop.COMMANDS, wiring: { ...shop.wiring, binName: 'cafe', envPrefix: 'CAFE_SHOP' } },
-      { namespace: 'kitchen', commands: kitchen.COMMANDS, wiring: { ...kitchen.wiring, binName: 'cafe', envPrefix: 'CAFE_KITCHEN' } },
+      { commands: [login], wiring: shop.wiring },
+      { namespace: 'shop', commands: shop.COMMANDS, wiring: { ...shop.wiring, envPrefix: 'CAFE_SHOP' } },
+      { namespace: 'kitchen', commands: kitchen.COMMANDS, wiring: { ...kitchen.wiring, envPrefix: 'CAFE_KITCHEN' } },
     ],
     process.argv.slice(2)
   )
@@ -155,7 +155,6 @@ describe('config-driven composition (client.cliOutput)', () => {
       [
         'extends: []',
         'client:',
-        '  binName: cafe',
         // A directory nothing else creates — the composed entry makes its own.
         '  cliOutput: ./bin/cafe.ts',
         '  importExt: ts',
@@ -196,7 +195,7 @@ describe('config-driven composition (client.cliOutput)', () => {
       encoding: 'utf-8',
     });
     expect(help.status, help.stderr).toBe(0);
-    expect(help.stdout).toContain('Usage: cafe <api> <command>');
+    expect(help.stdout).toContain('Usage: cafe.ts <api> <command>');
     expect(help.stdout).toContain('shop');
     expect(help.stdout).toContain('kitchen');
   });

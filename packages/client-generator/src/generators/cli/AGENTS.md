@@ -31,15 +31,15 @@ command with its positionals and flags.
   A bare operationId resolves to its grouped command when unambiguous.
 - **Exit codes are a contract:** 0 ok, 1 API error, 2 auth, 3 validation, 4 usage.
   Errors print ONE JSON object to stderr so stdout stays pipeable.
-- **The bin name is a command name, not a filename.** It defaults to the output stem with
-  dots and other non-word characters folded to `-` (`openapi.client` → `openapi-client`),
-  because the stem follows the TypeScript file convention and a usage line reading
-  `openapi.client orders …` looks like a path. `client.binName` overrides it.
-- **Credentials come from the environment** — a prefix derived from the bin name
-  (`CLIENT_TOKEN`), overridable via `wiring.envPrefix` — or explicit flags; `--dry-run`
-  prints the prepared request with credentials REDACTED. Help lists only the credentials
-  the description declares, and an unusable `--token` is a usage error, never silently
-  dropped.
+- **The CLI names itself from `process.argv[1]`.** Only the operator's `bin` field decides
+  what the command is called, so help reads the invoked name back instead of printing a
+  name from generation that may not exist on the machine.
+- **Credentials come from the environment** — `wiring.envPrefix`, the constant-cased output
+  stem (`CLIENT_TOKEN`), which a composed entry sets per api alias — or explicit flags;
+  `--dry-run` prints the prepared request with credentials REDACTED. The prefix is fixed at
+  generation on purpose: a renamed binary must keep reading the variables a published CLI
+  already documents. Help lists only the credentials the description declares, and an
+  unusable `--token` is a usage error, never silently dropped.
 - **Validation is on by default.** The generator declares `requires: ['typescript', 'zod']` and
   the pipeline pulls prerequisites in automatically, so `--generator cli` alone produces a
   validating CLI — a user shouldn't have to know which other generator provides it. The

@@ -13,17 +13,6 @@ import type { CodeSample, Generator, SampleContext } from '../types.js';
  * bodies, env auth, `--page-all`, SSE/blob output, a documented exit-code
  * contract). Requires `typescript` (throw mode); wires zod validation when co-selected.
  */
-/** The stem as a command name: dots and other non-word characters fold to `-`. */
-function commandName(stem: string): string {
-  return (
-    stem
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter(Boolean)
-      .join('-') || 'client'
-  );
-}
-
 export const cliGenerator: Generator = ({ model, outputPath, emit, selected }) => {
   const { dir, stem } = anchor(outputPath);
   const content = renderCliModule(model, {
@@ -31,7 +20,6 @@ export const cliGenerator: Generator = ({ model, outputPath, emit, selected }) =
     importExt: emit.importExt ?? 'js',
     runtime: emit.runtime ?? 'inline',
     zodSelected: selected?.includes('zod') ?? false,
-    binName: emit.binName ?? commandName(stem),
     pagination: emit.pagination,
     argsStyle: emit.argsStyle ?? 'grouped',
   });
@@ -49,7 +37,7 @@ export const cliDocs: Generator = ({ model, outputPath, emit }) => {
   const content = renderCliDocs(commandData(model, { pagination: emit.pagination }), {
     title: `${model.title} command-line reference`,
     frontmatter: emit.docsFrontmatter === true,
-    binName: emit.binName ?? commandName(stem),
+    name: stem,
     schemes: cliAuthSchemes(model),
   });
   return [{ path: join(dir, `${stem}.cli.md`), content }];

@@ -11,7 +11,13 @@ import type {
   ParamModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
-import { groupSlug, type CliAuthScheme, type CliCommand, type CliFlag } from '../runtime/cli.js';
+import {
+  constantCase,
+  groupSlug,
+  type CliAuthScheme,
+  type CliCommand,
+  type CliFlag,
+} from '../runtime/cli.js';
 import { HEADER } from './emit-options.js';
 import { embedCliRuntime } from './inline-runtime.js';
 import { resolveOperationPagination, type PaginationConfig } from './pagination.js';
@@ -152,7 +158,6 @@ export type CliModuleOptions = {
   importExt: string;
   runtime: 'inline' | 'package';
   zodSelected: boolean;
-  binName: string;
   pagination?: PaginationConfig;
   /** The sibling client's call shape, which the dispatcher builds its inputs for. */
   argsStyle?: 'grouped' | 'flat';
@@ -209,7 +214,7 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
   const parts = [
     '#!/usr/bin/env node',
     HEADER,
-    'import { readFileSync, realpathSync, writeFileSync } from "node:fs";\nimport { fileURLToPath } from "node:url";',
+    'import { readFileSync, realpathSync, writeFileSync } from "node:fs";\nimport { basename } from "node:path";\nimport { fileURLToPath } from "node:url";',
     [
       ...(options.runtime === 'package'
         ? ['import { runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";']
@@ -232,7 +237,8 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
         ]
       : []),
     `export const wiring: CliWiring = {
-  binName: ${codeJson(options.binName)},
+  name: basename(process.argv[1] ?? ${codeJson(options.stem)}),
+  envPrefix: ${codeJson(constantCase(options.stem))},
   client,
 ${options.argsStyle === 'flat' ? '  argsStyle: "flat",\n' : ''}  configure,
   schemes: ${codeJson(schemes)},
@@ -273,8 +279,8 @@ export type ComposedCliSource = {
  * inline runtime's zero-dependency promise holds — and exports `SOURCES` so an adopter
  * layers custom commands (a `login`) around it without editing a generated file.
  */
-export function renderComposedCliEntry(sources: ComposedCliSource[], binName: string): string {
-  const prefix = binName.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
+export function renderComposedCliEntry(sources: ComposedCliSource[], stem: string): string {
+  const prefix = constantCase(stem);
   // An identifier can't start with a digit, and two aliases can sanitize identically —
   // the underscore and the index keep every import binding legal and unique.
   const idents = new Map<string, string>();
@@ -292,11 +298,11 @@ export function renderComposedCliEntry(sources: ComposedCliSource[], binName: st
   const entries = sources.map(({ alias }) => {
     const ident = identFor(alias);
     const namespace = kebab(alias);
-    const aliasPrefix = `${prefix}_${alias.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase()}`;
+    const aliasPrefix = `${prefix}_${constantCase(alias)}`;
     return `  {
     namespace: ${JSON.stringify(namespace)},
     commands: ${ident}Commands,
-    wiring: { ...${ident}Wiring, binName: ${JSON.stringify(binName)}, envPrefix: ${JSON.stringify(aliasPrefix)} },
+    wiring: { ...${ident}Wiring, envPrefix: ${JSON.stringify(aliasPrefix)} },
   },`;
   });
   return (

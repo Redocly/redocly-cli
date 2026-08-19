@@ -106,16 +106,13 @@ describe('validateGenerators', () => {
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
     try {
       validateGenerators(['python'], { goPackage: 'mypkg' });
-      validateGenerators(['go'], { binName: 'cafe-api' });
       const messages = warn.mock.calls.map(([message]) => message).join('');
       expect(messages).toContain('goPackage is ignored');
-      expect(messages).toContain('binName is ignored');
 
       // The generator that reads it is selected, so nothing to say — even alongside
       // generators that don't read it.
       warn.mockClear();
-      validateGenerators(['typescript', 'zod', 'cli'], { binName: 'cafe-api' });
-      validateGenerators(['go'], { goPackage: 'mypkg' });
+      validateGenerators(['typescript', 'go'], { goPackage: 'mypkg' });
       expect(warn).not.toHaveBeenCalled();
     } finally {
       warn.mockRestore();

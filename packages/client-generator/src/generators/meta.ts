@@ -125,16 +125,6 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
   },
 };
 
-/** Options a single generator reads, so setting one without it selected is a no-op. */
-const SINGLE_GENERATOR_OPTIONS: {
-  option: 'binName' | 'goPackage';
-  generators: GeneratorName[];
-  reason: string;
-}[] = [
-  { option: 'binName', generators: ['cli'], reason: 'it names the generated command' },
-  { option: 'goPackage', generators: ['go'], reason: 'it declares the Go package clause' },
-];
-
 /**
  * Validate a generator selection against every selected generator's declared
  * contract, throwing the first violation with an actionable message. Runs before
@@ -150,16 +140,14 @@ export function validateSelection(
   outputMode?: OutputMode
 ): void {
   const selected = new Set(names);
-  // Options only one generator reads. `notApplicable` can't express this: it fires per
-  // generator, so marking `binName` on `typescript` would warn on `--generator typescript
-  // --generator cli`, where `cli` does apply it. Setting one with none of its generators selected
+  // `goPackage` is read by one generator, which `notApplicable` can't express: it fires
+  // per generator, so marking the option on `typescript` would warn on `--generator
+  // typescript --generator go`, where `go` does apply it. Setting it with `go` unselected
   // does nothing at all, which is worth saying.
-  for (const { option, generators, reason } of SINGLE_GENERATOR_OPTIONS) {
-    if (emit[option] !== undefined && !generators.some((generator) => selected.has(generator))) {
-      logger.warn(
-        `generate-client: ${option} is ignored — ${reason}, and no selected generator uses it (add --generator ${generators[0]}).\n`
-      );
-    }
+  if (emit.goPackage !== undefined && !selected.has('go')) {
+    logger.warn(
+      'generate-client: goPackage is ignored — it declares the Go package clause, and no selected generator uses it (add --generator go).\n'
+    );
   }
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';

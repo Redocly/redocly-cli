@@ -21,7 +21,7 @@ npx tsx src/api/client.cli.ts schema createOrder
 `--dry-run` prints the prepared request (credentials redacted) without sending it.
 Credentials come from environment variables derived from the file stem: `CLIENT_TOKEN` for bearer auth here, or pass `--token`.
 Exit codes are a documented contract (0 ok, 1 API error, 2 auth, 3 validation, 4 usage), and errors print one JSON object to stderr so stdout stays clean for piping.
-To ship a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled file.
+To ship a real bin, compile with `tsc` and point `package.json`'s `bin` at the compiled CLI module (`dist/api/client.cli.js`), not at the client beside it.
 
 `client.docs: true` (the `--docs` flag) is set here, so the CLI also writes its own reference next to itself: `src/api/client.cli.md` — usage, global flags, credential variables, exit codes, and every command with its arguments and flags.
 It renders from the same command table the CLI dispatches on, so the page cannot drift from the tool; regenerate and the docs follow.

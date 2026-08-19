@@ -1,18 +1,20 @@
 // The cli-docs emitter: renders the Markdown reference for the generated CLI from the
-// SAME command table `runCli` dispatches on, and the same `groupSlug`/`envPrefix` the
+// SAME command table `runCli` dispatches on, and the same `groupSlug`/`constantCase` the
 // runtime addresses groups and reads credentials with. A second model would drift from
 // the tool the first time either side changed.
 
 import { Printer } from '../authoring/printer.js';
-import { envPrefix, groupSlug, type CliCommand, type CliFlag } from '../runtime/cli.js';
+import { constantCase, groupSlug, type CliCommand, type CliFlag } from '../runtime/cli.js';
 
 export type CliDocsOptions = {
   /** Page heading. */
   title: string;
   /** Emit YAML front matter carrying the title, for docs sites that expect it. */
   frontmatter: boolean;
-  /** The command name the CLI prints and derives its credential variables from. */
-  binName: string;
+  /** The generated file's stem: what the page calls the command, and what its credential
+   * variables derive from. A reader who installs it under another bin name renames only
+   * the command — the variables are fixed at generation. */
+  name: string;
   /** Auth schemes the description declares, in the order the CLI resolves them. */
   schemes: Array<{ key: string; kind: 'bearer' | 'basic' | 'apiKey' }>;
 };
@@ -29,9 +31,9 @@ function address(command: CliCommand): string {
     .join(' ');
 }
 
-function usageLine(binName: string, command: CliCommand): string {
+function usageLine(name: string, command: CliCommand): string {
   const words = [
-    binName,
+    name,
     address(command),
     ...command.positionals.map((positional) => `<${positional.name}>`),
     ...command.flags.filter((flag) => flag.required).map((flag) => `--${flag.name} <${flag.type}>`),
@@ -70,7 +72,7 @@ function writeCommand(printer: Printer, command: CliCommand, options: CliDocsOpt
   printer.line(`\`${command.method} ${command.path}\``);
   printer.blank();
   printer.line('```sh');
-  printer.line(usageLine(options.binName, command));
+  printer.line(usageLine(options.name, command));
   printer.line('```');
   printer.blank();
   if (command.positionals.length > 0) {
@@ -111,7 +113,7 @@ export function renderCliDocs(commands: CliCommand[], options: CliDocsOptions): 
   printer.line(`# ${options.title}`);
   printer.blank();
   printer.line(
-    `Generated command-line reference for \`${options.binName}\`, produced from the API description by \`redocly generate-client\`.`
+    `Generated command-line reference for \`${options.name}\`, produced from the API description by \`redocly generate-client\`.`
   );
   printer.line('Re-run generation to update it — this file is not hand-edited.');
   printer.blank();
@@ -119,10 +121,14 @@ export function renderCliDocs(commands: CliCommand[], options: CliDocsOptions): 
   printer.line('## Usage');
   printer.blank();
   printer.line('```sh');
-  printer.line(`${options.binName} <command> [flags]`);
-  printer.line(`${options.binName} --help`);
-  printer.line(`${options.binName} schema <command>   # request/response schemas`);
+  printer.line(`${options.name} <command> [flags]`);
+  printer.line(`${options.name} --help`);
+  printer.line(`${options.name} schema <command>   # request/response schemas`);
   printer.line('```');
+  printer.blank();
+  printer.line(
+    'Install the file under any `bin` name: the command takes that name, and the credential variables below do not change.'
+  );
   printer.blank();
 
   printer.line('## Global flags');
@@ -145,7 +151,7 @@ export function renderCliDocs(commands: CliCommand[], options: CliDocsOptions): 
   }
   printer.blank();
 
-  const prefix = envPrefix(options.binName);
+  const prefix = constantCase(options.name);
   printer.line('## Credentials');
   printer.blank();
   if (options.schemes.length === 0) {
@@ -161,7 +167,7 @@ export function renderCliDocs(commands: CliCommand[], options: CliDocsOptions): 
           ? `\`${prefix}_TOKEN\` (or \`--token\`)`
           : scheme.kind === 'basic'
             ? `\`${prefix}_USERNAME\` and \`${prefix}_PASSWORD\``
-            : `\`${prefix}_API_KEY_${envPrefix(scheme.key)}\``;
+            : `\`${prefix}_API_KEY_${constantCase(scheme.key)}\``;
       printer.line(`| ${scheme.kind} (\`${scheme.key}\`) | ${variable} |`);
     }
   }
@@ -195,7 +201,7 @@ export function renderCliDocs(commands: CliCommand[], options: CliDocsOptions): 
     } else {
       printer.line(`## ${group}`);
       printer.blank();
-      printer.line(`Addressed as \`${options.binName} ${groupSlug(group)} <command>\`.`);
+      printer.line(`Addressed as \`${options.name} ${groupSlug(group)} <command>\`.`);
       printer.blank();
     }
     for (const command of inGroup) writeCommand(printer, command, options);

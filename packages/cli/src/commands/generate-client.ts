@@ -34,7 +34,6 @@ export type GenerateClientCommandArgv = {
   'output-mode'?: 'single' | 'split';
   runtime?: 'inline' | 'package';
   'import-ext'?: 'js' | 'ts';
-  'bin-name'?: string;
   'go-package'?: string;
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
@@ -110,7 +109,6 @@ export async function handleGenerateClient({
     outputMode: argv['output-mode'],
     runtime: argv.runtime,
     importExt: argv['import-ext'],
-    binName: argv['bin-name'],
     goPackage: argv['go-package'],
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
@@ -172,7 +170,7 @@ export async function handleGenerateClient({
     argv.api === undefined &&
     run.composable.length > 0
   ) {
-    await writeComposedCliEntry(topLevelClient.cliOutput, topLevelClient.binName, run);
+    await writeComposedCliEntry(topLevelClient.cliOutput, run);
   }
 }
 
@@ -255,7 +253,6 @@ async function generateApiClient(
  * its alias as a namespace. */
 async function writeComposedCliEntry(
   cliOutput: string,
-  configuredBinName: string | undefined,
   { configDir, seenOutputs, composable }: GenerationRun
 ): Promise<void> {
   const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
@@ -270,17 +267,13 @@ async function writeComposedCliEntry(
       `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
     );
   }
-  const binName =
-    configuredBinName ??
-    basename(entryPath, extname(entryPath))
-      .replace(/[^A-Za-z0-9]+/g, '-')
-      .toLowerCase();
+  const stem = basename(entryPath, extname(entryPath));
   const content = renderComposedCliEntry(
     composable.map(({ alias, cliPath }) => ({
       alias,
       modulePath: `./${relative(dirname(entryPath), cliPath).split('\\').join('/')}`,
     })),
-    binName
+    stem
   );
   await mkdir(dirname(entryPath), { recursive: true });
   await writeFile(entryPath, content, 'utf-8');
@@ -290,7 +283,7 @@ async function writeComposedCliEntry(
       blue(
         `Composed CLI written to ${yellow(relative(process.cwd(), entryPath))} — ${composable
           .map(({ alias }) => alias)
-          .join(', ')} behind one \`${binName}\` binary.`
+          .join(', ')} behind one \`${stem}\` binary.`
       ) +
       '\n'
   );

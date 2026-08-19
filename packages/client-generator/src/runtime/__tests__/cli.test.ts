@@ -170,7 +170,8 @@ function fakeWiring(overrides: Partial<CliWiring> & { results?: Record<string, u
     });
   }
   const wiring: CliWiring = {
-    binName: 'cafe',
+    name: 'cafe',
+    envPrefix: 'CAFE',
     client,
     configure: (config) => configured.push(config as Record<string, unknown>),
     schemes: [{ key: 'BearerAuth', kind: 'bearer' }],
@@ -201,7 +202,7 @@ describe('custom commands (composition)', () => {
     expect(code).toBe(0);
     expect(out).toEqual(['me']);
     expect(received[0].params).toEqual({ verbose: true });
-    expect(received[0].wiring.binName).toBe('cafe');
+    expect(received[0].wiring.name).toBe('cafe');
   });
 
   it('lists a custom command in help and its declared contract in schema', async () => {
@@ -277,7 +278,7 @@ describe('multi-source runCli (one binary, several APIs)', () => {
     const login: CustomCommand = {
       name: 'login',
       handler: (context) => {
-        seen.push(context.wiring.binName);
+        seen.push(context.wiring.name);
         context.wiring.stdout('ok');
         return 0;
       },
@@ -327,8 +328,8 @@ describe('multi-source runCli (one binary, several APIs)', () => {
   });
 });
 
-describe('wiring.envPrefix', () => {
-  it('overrides the credential prefix without changing the displayed name', async () => {
+describe('wiring.envPrefix (what a composed entry sets per api)', () => {
+  it('drives the credential variables without changing the displayed name', async () => {
     const { wiring, out } = fakeWiring({ envPrefix: 'CAFE_SHOP' });
     await runCli(COMMANDS, wiring, ['--help']);
     const help = out.join('\n');

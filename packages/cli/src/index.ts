@@ -900,12 +900,6 @@ yargs(hideBin(process.argv))
             choices: ['inline', 'package'] as const,
             requiresArg: true,
           },
-          'bin-name': {
-            description:
-              "Command name for the `cli` generator's help output and credential env vars; it does not install a command. Defaults to the output stem.",
-            type: 'string',
-            requiresArg: true,
-          },
           docs: {
             description:
               'Also write reference documentation for what this run generates: one Markdown page per selected generator that documents itself (the CLI, and each SDK).',

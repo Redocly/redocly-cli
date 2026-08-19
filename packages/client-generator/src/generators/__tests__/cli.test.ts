@@ -111,26 +111,17 @@ describe('cliGenerator', () => {
   });
 });
 
-describe('bin name', () => {
-  it('folds the TypeScript stem into a command-like name', () => {
-    // `openapi.client` in a usage line reads as a filename, and yields OPENAPI_CLIENT_* anyway.
+describe('naming', () => {
+  it('fixes the credential prefix to the stem and takes the command name from argv', () => {
     const out = cliGenerator({
       model: MODEL,
       outputPath: '/out/openapi.client.ts',
       outputMode: 'single',
       emit: {},
     })[0].content;
-    expect(out).toContain('binName: "openapi-client"');
-    expect(out).not.toContain('binName: "openapi.client"');
-  });
-
-  it('honors an explicit binName', () => {
-    const out = cliGenerator({
-      model: MODEL,
-      outputPath: '/out/openapi.client.ts',
-      outputMode: 'single',
-      emit: { binName: 'cafe' },
-    })[0].content;
-    expect(out).toContain('binName: "cafe"');
+    // The prefix is generated, so installing the file under another bin keeps the
+    // variables; the displayed name follows whatever the operator actually typed.
+    expect(out).toContain('envPrefix: "OPENAPI_CLIENT"');
+    expect(out).toContain('name: basename(process.argv[1] ?? "openapi.client")');
   });
 });

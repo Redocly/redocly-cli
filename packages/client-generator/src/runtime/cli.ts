@@ -54,10 +54,13 @@ export type CliCommand = {
 export type CliAuthScheme = { key: string; kind: 'bearer' | 'basic' | 'apiKey' };
 
 export type CliWiring = {
-  binName: string;
-  /** Credential variable prefix. Defaults to `binName`, constant-cased — set it when the
-   * displayed name and the credential family must differ (a composed multi-API binary). */
-  envPrefix?: string;
+  /** The name the CLI is invoked as, for help output only. The generated entry reads it
+   * from `process.argv[1]`, so help never names a command that is not installed. */
+  name: string;
+  /** Credential variable prefix, constant-cased: `CAFE` gives `CAFE_TOKEN`. Fixed at
+   * generation from the output file name, so renaming the binary keeps the variables
+   * a published CLI already documents. A composed entry sets one per api alias. */
+  envPrefix: string;
   /** The generated instance client. */
   client: Record<string, unknown>;
   /** How that client takes its inputs. Defaults to `'grouped'`, the generated default. */
@@ -348,9 +351,9 @@ export function parseInvocation(commands: CliCommand[], argv: string[]): CliInvo
   return { kind: 'run', command, positionals, params, globals };
 }
 
-/** Credential env-var prefix: bin name constant-cased (`cafe-api` → `CAFE_API`). */
-export function envPrefix(binName: string): string {
-  return binName
+/** `cafe-api` → `CAFE_API`: the casing of every credential variable this CLI reads. */
+export function constantCase(value: string): string {
+  return value
     .replace(/[^A-Za-z0-9]+/g, '_')
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .toUpperCase();
@@ -358,7 +361,7 @@ export function envPrefix(binName: string): string {
 
 function resolveAuth(wiring: CliWiring, token: string | undefined): Record<string, unknown> {
   const env = wiring.env ?? {};
-  const prefix = wiring.envPrefix ?? envPrefix(wiring.binName);
+  const prefix = wiring.envPrefix;
   const auth: Record<string, unknown> = {};
   for (const scheme of wiring.schemes ?? []) {
     if (scheme.kind === 'bearer') {
@@ -369,7 +372,7 @@ function resolveAuth(wiring: CliWiring, token: string | undefined): Record<strin
       const password = env[`${prefix}_PASSWORD`];
       if (username !== undefined && password !== undefined) auth.basic = { username, password };
     } else {
-      const value = env[`${prefix}_API_KEY_${envPrefix(scheme.key)}`];
+      const value = env[`${prefix}_API_KEY_${constantCase(scheme.key)}`];
       if (value !== undefined) {
         auth.apiKey = {
           ...(auth.apiKey as Record<string, string> | undefined),
@@ -424,7 +427,7 @@ function commandContract(command: CliCommand): Record<string, unknown> {
 
 function renderHelp(
   commands: CliCommand[],
-  binName: string,
+  name: string,
   schemes: CliAuthScheme[],
   prefix: string,
   topic?: CliCommand | string
@@ -432,7 +435,7 @@ function renderHelp(
   if (topic !== undefined && typeof topic !== 'string') {
     const command = topic;
     const usage = [
-      binName,
+      name,
       ...(command.group ? [groupSlug(command.group)] : []),
       command.name,
       ...command.positionals.map((slot) => `<${slot.name}>`),
@@ -465,8 +468,8 @@ function renderHelp(
       : commands;
   const lines =
     typeof topic === 'string'
-      ? [`Usage: ${binName} ${topic} <command> …`, '', 'Commands:']
-      : [`Usage: ${binName} [group] <command> …`, '', 'Commands:'];
+      ? [`Usage: ${name} ${topic} <command> …`, '', 'Commands:']
+      : [`Usage: ${name} [group] <command> …`, '', 'Commands:'];
   const seenGroups = new Set<string>();
   const grouped = commands.some((c) => c.group);
   for (const command of scope) {
@@ -494,7 +497,7 @@ function renderHelp(
     ...(kinds.has('basic') ? [`${prefix}_USERNAME`, `${prefix}_PASSWORD`] : []),
     ...schemes
       .filter((scheme) => scheme.kind === 'apiKey')
-      .map((scheme) => `${prefix}_API_KEY_${envPrefix(scheme.key)}`),
+      .map((scheme) => `${prefix}_API_KEY_${constantCase(scheme.key)}`),
   ];
   lines.push(
     '',
@@ -508,7 +511,7 @@ function renderHelp(
     `  --json <json|@file|@->  Request body`,
     ...(credentials.length > 0 ? ['', 'Environment:', `  ${credentials.join(', ')}`] : []),
     '',
-    `Run ${binName} ${grouped ? '<group> <command>' : '<command>'} --help for command details; ${binName} schema <command> prints its schemas.`
+    `Run ${name} ${grouped ? '<group> <command>' : '<command>'} --help for command details; ${name} schema <command> prints its schemas.`
   );
   return lines;
 }
@@ -586,7 +589,7 @@ async function runSources(sources: CommandSource[], argv: string[]): Promise<num
     }
   }
   if (argv.length === 0 || argv[0] === '--help') {
-    for (const line of renderComposedHelp(sources, top.binName)) top.stdout(line);
+    for (const line of renderComposedHelp(sources, top.name)) top.stdout(line);
     return 0;
   }
   const source = namespaced.find((candidate) => candidate.namespace === argv[0]);
@@ -610,8 +613,8 @@ async function runSources(sources: CommandSource[], argv: string[]): Promise<num
 }
 
 /** The composed top-level help: namespaces, root commands, and how to descend. */
-function renderComposedHelp(sources: CommandSource[], binName: string): string[] {
-  const lines = [`Usage: ${binName} <api> <command> …`, '', 'APIs:'];
+function renderComposedHelp(sources: CommandSource[], name: string): string[] {
+  const lines = [`Usage: ${name} <api> <command> …`, '', 'APIs:'];
   for (const source of sources) {
     if (source.namespace !== undefined) lines.push(`  ${source.namespace}`);
   }
@@ -622,7 +625,7 @@ function renderComposedHelp(sources: CommandSource[], binName: string): string[]
       lines.push(`  ${command.name}  ${oneLine(command.summary ?? '')}`.trimEnd());
     }
   }
-  lines.push('', `Run ${binName} <api> --help for that API's commands.`);
+  lines.push('', `Run ${name} <api> --help for that API's commands.`);
   return lines;
 }
 
@@ -653,12 +656,11 @@ async function runSingle(
   const invocation = parseInvocation(commands, argv);
   if (invocation.kind === 'usage-error') return fail(4, { message: invocation.message });
   if (invocation.kind === 'help') {
-    const prefix = wiring.envPrefix ?? envPrefix(wiring.binName);
     for (const line of renderHelp(
       commands,
-      wiring.binName,
+      wiring.name,
       wiring.schemes ?? [],
-      prefix,
+      wiring.envPrefix,
       invocation.topic
     ))
       stdout(line);

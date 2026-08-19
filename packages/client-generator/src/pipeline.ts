@@ -242,7 +242,6 @@ export async function generateClient(
     setup: setupBlock,
     runtime: options.runtime,
     importExt: options.importExt,
-    binName: options.binName,
     goPackage: options.goPackage,
     pagination: options.pagination,
     docs: options.docs,

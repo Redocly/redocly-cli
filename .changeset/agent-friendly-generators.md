@@ -8,6 +8,7 @@ Added agent-friendly client generation: `python`, `go`, `php`, and `cli` generat
 Added `--docs` (`client.docs`), which writes the reference documentation for what a run generates: each generator documents itself with one Markdown page next to its output.
 
 Added composable generated CLIs (custom commands, one binary over several APIs via `client.cliOutput`).
+The generated CLI takes its displayed name from the command it is invoked as, so help always names a command that exists, and its credential environment variables come from the output file name (`CAFE_TOKEN` for `cafe.ts`), so installing it under any `bin` name keeps the variables your users set.
 
 Added language-neutral authoring toolkit with per-generator options, including `client.options.python.models: pydantic`, which emits `BaseModel` classes instead of dataclasses.
 

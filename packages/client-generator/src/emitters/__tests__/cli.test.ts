@@ -224,7 +224,6 @@ describe('renderCliModule', () => {
     importExt: 'js',
     runtime: 'inline' as const,
     zodSelected: false,
-    binName: 'cafe',
   };
 
   it('emits a shebang entry that wires node bindings and embeds the cli runtime inline', () => {
