@@ -22,17 +22,11 @@
 
 ### Patch Changes
 
-- Updated @redocly/openapi-core to v2.46.0.
-
-## 2.45.1
-
-### Patch Changes
-
 - Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.
 - Reduced CLI startup time on Node 22.8 and later reusing Node's on-disk compile cache.
   Set `NODE_DISABLE_COMPILE_CACHE=1` to turn it off.
 - Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
-- Updated @redocly/openapi-core to v2.45.1.
+- Updated @redocly/openapi-core to v2.46.0.
 
 ## 2.45.0
 
