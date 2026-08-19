@@ -72,6 +72,12 @@ export type OperationDescriptor = {
   security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
   /**
+   * `'grouped'` marks an operation that takes its inputs namespaced by layer even on a
+   * `argsStyle: 'flat'` client — the generator sets it where a merged call could not carry
+   * one name for two layers, and the operation's own input type says the same.
+   */
+  argsStyle?: 'grouped';
+  /**
    * Declared success-response headers for throw-mode `{ envelope: true }`.
    * `name` is the lowercased wire name; `key` is the camelCase envelope property.
    */

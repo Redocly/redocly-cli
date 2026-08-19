@@ -80,6 +80,20 @@ function mergedBodyFlag(
   return 'mergeBody' in shape && shape.mergeBody ? { merged: true } : {};
 }
 
+/**
+ * The operations a flat-style run still addresses by layer: their merged names would
+ * collide, so the client's own input type keeps the namespaced shape and the dispatcher
+ * has to build that shape too.
+ */
+function groupedInputFlag(
+  op: OperationModel,
+  model: ApiModel,
+  argsStyle: 'grouped' | 'flat' | undefined
+): { argsStyle?: 'grouped' } {
+  if (argsStyle !== 'flat') return {};
+  return 'collisions' in flatInputShape(op, model.schemas) ? { argsStyle: 'grouped' } : {};
+}
+
 /** Every operation as pure command data — the table `runCli` interprets. */
 export function commandData(
   model: ApiModel,
@@ -113,6 +127,7 @@ export function commandData(
         ...(resolveOperationPagination(op, model, emit.pagination).spec !== undefined
           ? { paginated: true }
           : {}),
+        ...groupedInputFlag(op, model, emit.argsStyle),
         ...(isSseOp(op) ? { sse: true } : {}),
         ...(isBlobOp(op) ? { blob: true } : {}),
         ...(jsonBody !== undefined || responseSchema !== undefined
@@ -214,10 +229,12 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
   const parts = [
     '#!/usr/bin/env node',
     HEADER,
-    'import { readFileSync, realpathSync, writeFileSync } from "node:fs";\nimport { basename } from "node:path";\nimport { fileURLToPath } from "node:url";',
+    'import { readFileSync, realpathSync, writeFileSync } from "node:fs";\nimport { fileURLToPath } from "node:url";',
     [
       ...(options.runtime === 'package'
-        ? ['import { runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";']
+        ? [
+            'import { invokedName, runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";',
+          ]
         : []),
       `import { ${clientImports.join(', ')} } from "${clientModule}";`,
       ...(options.zodSelected
@@ -237,7 +254,7 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
         ]
       : []),
     `export const wiring: CliWiring = {
-  name: basename(process.argv[1] ?? ${codeJson(options.stem)}),
+  name: invokedName(process.argv[1], ${codeJson(options.stem)}),
   envPrefix: ${codeJson(constantCase(options.stem))},
   client,
 ${options.argsStyle === 'flat' ? '  argsStyle: "flat",\n' : ''}  configure,

@@ -409,3 +409,51 @@ describe('renderTanstackModule', () => {
     });
   });
 });
+
+describe('a pagination parameter whose name is not an identifier', () => {
+  const spec = {
+    name: 'listOrders',
+    method: 'get' as const,
+    path: '/orders',
+    queryParams: [param('after-cursor', 'query', false)],
+    successResponses: [
+      {
+        contentType: 'application/json',
+        status: 200,
+        schema: {
+          kind: 'object' as const,
+          properties: [
+            { name: 'items', schema: { kind: 'array' as const, items: SCALAR }, required: true },
+            { name: 'next', schema: SCALAR, required: false },
+          ],
+        },
+      },
+    ],
+  };
+  const pagination: PaginationConfig = {
+    operations: {
+      listOrders: {
+        style: 'cursor',
+        cursorParam: 'after-cursor',
+        nextCursor: '/next',
+        items: '/items',
+      },
+    },
+  };
+
+  it('reads it with bracket access in both argument styles', () => {
+    const grouped = renderTanstackModule(
+      apiModel({ services: [{ name: 'Default', operations: [operation(spec)] }] }),
+      { sdkModule: SDK, framework: 'react', pagination }
+    );
+    expect(grouped).toContain('initialPageParam: vars.query?.["after-cursor"]');
+
+    const flat = renderTanstackModule(
+      apiModel({ services: [{ name: 'Default', operations: [operation(spec)] }] }),
+      { sdkModule: SDK, framework: 'react', pagination, argsStyle: 'flat' }
+    );
+    // `vars.["after-cursor"]` would not even parse.
+    expect(flat).toContain('initialPageParam: vars["after-cursor"]');
+    expect(flat).not.toContain('vars.[');
+  });
+});

@@ -630,11 +630,21 @@ function writePaginationWrappers(
 ): void {
   const success = successSchema(op);
   const pageType = success === undefined ? 'Any' : pythonType(success, dateType);
-  const iterNames = uniqueIdentifiers(
-    op.queryParams.map((param) => param.name),
+  // The iterators take the same arguments as the operation itself, computed the same way,
+  // so a name the method moved aside (`id_2`) is the same name here — copying a call from
+  // one to the other has to keep working. Path values are substituted, not dropped.
+  const argNames = uniqueIdentifiers(
+    [...op.pathParams, ...op.queryParams].map((param) => param.name),
     { style: 'snake', reserved: PY, taken: METHOD_ARG_SLOTS }
   );
-  const queryArgs = op.queryParams.map((param, index) => ({ param, python: iterNames[index] }));
+  const pathArgs = op.pathParams.map((param, index) => ({ param, python: argNames[index] }));
+  const queryArgs = op.queryParams.map((param, index) => ({
+    param,
+    python: argNames[op.pathParams.length + index],
+  }));
+  const positional = pathArgs.map(
+    ({ param, python }) => `${python}: ${pythonType(param.schema, dateType)}`
+  );
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
       const annotation = pythonType(param.schema);
@@ -645,7 +655,7 @@ function writePaginationWrappers(
     'timeout: Optional[float] = None',
     'retry: Optional[Dict[str, Any]] = None',
   ];
-  const signature = ['self', '*', ...kwargs].join(', ');
+  const signature = ['self', ...positional, '*', ...kwargs].join(', ');
   const iterType = isAsync ? 'AsyncIterator' : 'Iterator';
   const pagesFn = isAsync ? 'aiter_pages' : 'iter_pages';
   const itemsFn = isAsync ? 'aiter_items' : 'iter_items';
@@ -661,7 +671,10 @@ function writePaginationWrappers(
     const awaitKw = isAsync ? 'await ' : '';
     printer.block(`${prefix} _page(page_params: Dict[str, Any]) -> Tuple[Any, Any]:`, () => {
       printer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
-      printer.line('url = build_url(self._server_url, op["path"], {})');
+      const pathDict = pathArgs
+        .map(({ param, python }) => `${JSON.stringify(param.name)}: ${python}`)
+        .join(', ');
+      printer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
       printer.line(
         `response = ${awaitKw}${isAsync ? 'send_async' : 'send'}(self._http, self._config, op, url, method=op["method"], ` +
           'headers={**auth_headers, **(headers or {})}, params={**page_params, **auth_query}, ' +

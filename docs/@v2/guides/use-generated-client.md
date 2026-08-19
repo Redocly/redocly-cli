@@ -150,6 +150,7 @@ Each api keeps its own server URL, schemes, and credentials.
 
 The CLI has no name of its own to configure.
 It reads the name it was invoked as from the process, so `--help` always shows the command you typed.
+When the process starts from the file itself, such as `node dist/cafe.cli.js` or a Windows `bin` shim, the help drops the script extension and shows `cafe`.
 To type `cafe` instead of `npx tsx src/cafe.ts`, compile the entry and point the `bin` field of your `package.json` at the compiled file.
 The end of this section shows this step.
 

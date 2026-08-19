@@ -138,6 +138,27 @@ function resolvedSchema(
 }
 
 /**
+ * The property names of a body a merged call spreads. An `allOf` composition contributes the
+ * names of every member, because that is what the merged object ends up carrying; a member
+ * that is not an object makes the whole body unspreadable.
+ */
+function mergedBodyProperties(
+  schema: SchemaModel,
+  schemas: readonly NamedSchemaModel[] | undefined
+): string[] | undefined {
+  const resolved = resolvedSchema(schema, schemas);
+  if (resolved?.kind === 'object') return resolved.properties.map((property) => property.name);
+  if (resolved?.kind !== 'intersection') return undefined;
+  const names: string[] = [];
+  for (const member of resolved.members) {
+    const memberNames = mergedBodyProperties(member, schemas);
+    if (memberNames === undefined) return undefined;
+    names.push(...memberNames);
+  }
+  return names;
+}
+
+/**
  * How a flat-style call spells one operation's inputs. Every parameter sits at one level,
  * and a REQUIRED object body contributes its own properties — an optional body cannot
  * (omitting it and omitting its required properties would look the same), and neither can
@@ -157,18 +178,17 @@ export function flatInputShape(
     ...op.headerParams,
     ...op.cookieParams,
   ];
-  const resolved = op.requestBody ? resolvedSchema(op.requestBody.schema, schemas) : undefined;
-  const mergeBody =
-    (op.requestBody?.required ?? false) &&
-    (resolved?.kind === 'object' || resolved?.kind === 'intersection');
+  const bodyProperties =
+    (op.requestBody?.required ?? false) && op.requestBody !== undefined
+      ? mergedBodyProperties(op.requestBody.schema, schemas)
+      : undefined;
+  const mergeBody = bodyProperties !== undefined;
   const counts = new Map<string, number>();
   for (const param of params) counts.set(param.name, (counts.get(param.name) ?? 0) + 1);
   // An unmerged body keeps the `body` key, which a parameter of that name would shadow.
   if (op.requestBody && !mergeBody) counts.set('body', (counts.get('body') ?? 0) + 1);
-  if (mergeBody && resolved.kind === 'object') {
-    for (const property of resolved.properties) {
-      counts.set(property.name, (counts.get(property.name) ?? 0) + 1);
-    }
+  for (const property of bodyProperties ?? []) {
+    counts.set(property, (counts.get(property) ?? 0) + 1);
   }
   const collisions = [...counts].filter(([, count]) => count > 1).map(([paramName]) => paramName);
   return collisions.length > 0 ? { collisions } : { mergeBody };

@@ -876,6 +876,12 @@ export type OperationDescriptor = {
   security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
   /**
+   * `'grouped'` marks an operation that takes its inputs namespaced by layer even on a
+   * `argsStyle: 'flat'` client — the generator sets it where a merged call could not carry
+   * one name for two layers, and the operation's own input type says the same.
+   */
+  argsStyle?: 'grouped';
+  /**
    * Declared success-response headers for throw-mode `{ envelope: true }`.
    * `name` is the lowercased wire name; `key` is the camelCase envelope property.
    */
@@ -1850,13 +1856,18 @@ function kindFor(op: OperationDescriptor): ParseAs | 'void' {
   return 'auto';
 }
 
-/** The call's inputs in namespaced form, converting first on a flat-style client. */
+/**
+ * The call's inputs in namespaced form, converting first on a flat-style client. An
+ * operation the generator marked `argsStyle: 'grouped'` is already namespaced — its names
+ * could not be merged, so its input type never offered the flat shape.
+ */
 function inputOf(
   op: OperationDescriptor,
   args: OperationArgs,
   config: ClientConfig
 ): OperationArgs {
-  return config.argsStyle === 'flat' ? namespaceArgs(op, args) : args;
+  const merged = config.argsStyle === 'flat' && op.argsStyle !== 'grouped';
+  return merged ? namespaceArgs(op, args) : args;
 }
 
 /** Route the namespaced args to the request pieces. */

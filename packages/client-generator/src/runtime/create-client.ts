@@ -156,13 +156,18 @@ function kindFor(op: OperationDescriptor): ParseAs | 'void' {
   return 'auto';
 }
 
-/** The call's inputs in namespaced form, converting first on a flat-style client. */
+/**
+ * The call's inputs in namespaced form, converting first on a flat-style client. An
+ * operation the generator marked `argsStyle: 'grouped'` is already namespaced — its names
+ * could not be merged, so its input type never offered the flat shape.
+ */
 function inputOf(
   op: OperationDescriptor,
   args: OperationArgs,
   config: ClientConfig
 ): OperationArgs {
-  return config.argsStyle === 'flat' ? namespaceArgs(op, args) : args;
+  const merged = config.argsStyle === 'flat' && op.argsStyle !== 'grouped';
+  return merged ? namespaceArgs(op, args) : args;
 }
 
 /** Route the namespaced args to the request pieces. */

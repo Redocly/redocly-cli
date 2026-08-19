@@ -75,7 +75,7 @@ function emitClient(
     ops.length > 0
       ? [
           renderOpsType(model, idents, ctx),
-          renderDescriptors(model, idents, ctx.dateType, pagination),
+          renderDescriptors(model, idents, ctx.dateType, pagination, ctx.argsStyle),
         ]
       : // A spec with no operations still gets the uniform wiring shape.
         [

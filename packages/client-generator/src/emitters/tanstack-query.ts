@@ -201,7 +201,7 @@ function nextPageSource(
 ): string {
   const advance = paramsAccess(spec.param);
   // Where the caller's own starting value lives, in the sdk's spelling for a query param.
-  const given = argsStyle === 'flat' ? `vars.${advance}` : `vars.query?.${advance}`;
+  const given = argsStyle === 'flat' ? memberAccess('vars', spec.param) : `vars.query?.${advance}`;
   if (spec.style === 'cursor') {
     const stopEarly =
       spec.hasMore === undefined
@@ -288,6 +288,14 @@ function varsPieces(op: OperationModel): { params: string; keyArg: string; callA
 /** One query-param access step: `.name`, or `["a b"]` when not a bare identifier. */
 function paramsAccess(name: string): string {
   return isSafeIdentifier(name) ? name : `[${safeIdent(name)}]`;
+}
+
+/**
+ * `<base>.name`, or `<base>["wire-name"]` when the name is not an identifier — the dot form
+ * would be a syntax error there. (After `?.` either form appends directly.)
+ */
+function memberAccess(base: string, name: string): string {
+  return isSafeIdentifier(name) ? `${base}.${name}` : `${base}[${safeIdent(name)}]`;
 }
 
 /** An RFC 6901 pointer as an optional property chain: `/page/endCursor` → `.page?.endCursor`. */

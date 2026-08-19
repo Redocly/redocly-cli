@@ -45,6 +45,9 @@ export type CliCommand = {
    */
   unsupportedBody?: string;
   paginated?: boolean;
+  /** `'grouped'` marks a command whose client method takes namespaced inputs even on a
+   * flat-style client, because its merged names would collide. */
+  argsStyle?: 'grouped';
   sse?: boolean;
   blob?: boolean;
   /** IR schemas for the `schema` command, serialized verbatim. */
@@ -170,6 +173,21 @@ const GLOBAL_FLAGS: Record<string, { key: keyof CliGlobals; boolean?: boolean }>
 };
 
 /**
+ * The name to print in help: the command the CLI was invoked as. A global install resolves
+ * `argv[1]` to the bin itself, so its basename is exactly what the user typed. A Windows
+ * `.cmd` shim, a `node dist/cafe.cli.js`, and a `tsx client.cli.ts` run all pass the script
+ * path instead — printing that would name a command nobody can type, so a script extension
+ * and the `.cli` marker come off: `cafe.cli.js` prints `cafe`.
+ */
+export function invokedName(scriptPath: string | undefined, fallback: string): string {
+  if (scriptPath === undefined) return fallback;
+  const base = scriptPath.replace(/^.*[\\/]/, '');
+  const withoutExtension = base.replace(/\.(mjs|cjs|js|mts|cts|ts|cmd|bat|ps1|exe)$/i, '');
+  const name = withoutExtension.replace(/\.cli$/i, '');
+  return name === '' ? fallback : name;
+}
+
+/**
  * The shell-typable form of a group name: an OpenAPI tag can contain spaces ("Some
  * multi-word tag"), which only resolves if the user quotes it. Commands are addressed by
  * this slug; help still shows the original tag.
@@ -199,7 +217,8 @@ function callInputs(
   argsStyle: CliWiring['argsStyle']
 ): Record<string, unknown> | undefined {
   const inputs: Record<string, unknown> = {};
-  if (argsStyle === 'flat') {
+  // A command the generator marked `grouped` keeps the namespaced shape even here.
+  if (argsStyle === 'flat' && command.argsStyle !== 'grouped') {
     Object.assign(inputs, positionals, params);
     if (body !== undefined) {
       if (command.body?.merged === true) Object.assign(inputs, body as Record<string, unknown>);

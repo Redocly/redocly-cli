@@ -206,6 +206,32 @@ describe('call inputs — the merged shape (argsStyle: flat)', () => {
     expect(out).toContain('body?: PatchThingBody;');
   });
 
+  it('counts the properties of an allOf body, which a merged call would spread too', () => {
+    const out = emitFlat({
+      name: 'saveThing',
+      path: '/things/{id}',
+      pathParams: [param('id', 'path', true)],
+      queryParams: [param('label', 'query', false)],
+      requestBody: {
+        contentType: 'application/json',
+        required: true,
+        schema: {
+          kind: 'intersection',
+          members: [
+            { kind: 'object', properties: [{ name: 'label', schema: SCALAR, required: true }] },
+            { kind: 'object', properties: [{ name: 'note', schema: SCALAR, required: false }] },
+          ],
+        },
+      },
+    });
+    // `label` arrives from the query AND from the body, so the merged shape is impossible.
+    expect(out).toContain('path: SaveThingPath;');
+    expect(out).toContain('query?: SaveThingQuery;');
+    expect(out).toContain('body: SaveThingBody;');
+    // The descriptor says the same, so the runtime takes the namespaced call.
+    expect(out).toContain('argsStyle: "grouped"');
+  });
+
   it('falls back to the namespaced shape when one name lands in two layers', () => {
     const out = emitFlat({
       name: 'getThing',

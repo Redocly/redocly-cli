@@ -516,6 +516,59 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('-> Iterator[OrderPage]:');
   });
 
+  it('an iterator takes the path parameters and substitutes them, like the call does', () => {
+    // Without this the iterator requested the template literally (`/orders/{orderId}/items`)
+    // and the caller had no argument to pass the value in.
+    const out = pythonGenerator({
+      model: {
+        title: 'Nested',
+        version: '1.0.0',
+        serverUrl: 'https://api.example.com',
+        schemas: [],
+        securitySchemes: [],
+        services: [
+          {
+            name: 'Orders',
+            operations: [
+              {
+                name: 'listOrderItems',
+                specName: 'listOrderItems',
+                method: 'get',
+                path: '/orders/{orderId}/items',
+                tags: [],
+                pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
+                queryParams: [{ name: 'cursor', in: 'query', required: false, schema: STRING }],
+                headerParams: [],
+                cookieParams: [],
+                security: [],
+                paginationExtension: {
+                  style: 'cursor',
+                  cursorParam: 'cursor',
+                  nextCursor: '/next',
+                  items: '/items',
+                },
+                successResponses: [
+                  {
+                    status: '200',
+                    contentType: 'application/json',
+                    schema: { kind: 'object', properties: [] },
+                  },
+                ],
+                errorResponses: [],
+              },
+            ],
+          },
+        ],
+      } as unknown as ApiModel,
+      outputPath: '/tmp/client.ts',
+      emit: {},
+      outputMode: 'single',
+    })[0].content;
+    expect(out).toContain('def list_order_items_pages(self, order_id: str, *, cursor:');
+    expect(out).toContain('def list_order_items_items(self, order_id: str, *, cursor:');
+    expect(out).toContain('url = build_url(self._server_url, op["path"], {"orderId": order_id})');
+  });
+
   it('SSE operations stream typed events; multipart bodies route through to_multipart', () => {
     const out = generate();
     expect(out).toContain('def stream_events(');

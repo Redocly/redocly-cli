@@ -120,8 +120,9 @@ describe('naming', () => {
       emit: {},
     })[0].content;
     // The prefix is generated, so installing the file under another bin keeps the
-    // variables; the displayed name follows whatever the operator actually typed.
+    // variables; the displayed name follows whatever the operator actually typed, with the
+    // generated name standing in when `argv[1]` is a script path rather than the command.
     expect(out).toContain('envPrefix: "OPENAPI_CLIENT"');
-    expect(out).toContain('name: basename(process.argv[1] ?? "openapi.client")');
+    expect(out).toContain('name: invokedName(process.argv[1], "openapi.client")');
   });
 });

@@ -1,4 +1,5 @@
 import {
+  invokedName,
   parseInvocation,
   runCli,
   type CliCommand,
@@ -746,5 +747,22 @@ describe('help output', () => {
       kind: 'run',
       command: GET,
     });
+  });
+});
+
+describe('invokedName', () => {
+  it('names the command the CLI was invoked as, not the script file', () => {
+    // A global install: `argv[1]` IS the bin, so its basename is what the user typed.
+    expect(invokedName('/usr/local/bin/cafe', 'client')).toBe('cafe');
+    expect(invokedName('/usr/local/bin/mycafe', 'client')).toBe('mycafe');
+    // A Windows shim, a `node dist/cafe.cli.js`, and a `tsx client.cli.ts` run all pass the
+    // script path — printing that would name a command nobody can type.
+    expect(invokedName('C:\\project\\dist\\cafe.cli.js', 'client')).toBe('cafe');
+    expect(invokedName('/project/src/client.cli.ts', 'client')).toBe('client');
+    expect(invokedName('/project/bin/cafe.cmd', 'client')).toBe('cafe');
+    expect(invokedName('/project/dist/cafe.mjs', 'client')).toBe('cafe');
+    // Nothing to read, or nothing left after trimming: the generated name stands in.
+    expect(invokedName(undefined, 'client')).toBe('client');
+    expect(invokedName('/project/.js', 'client')).toBe('client');
   });
 });

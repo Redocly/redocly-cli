@@ -186,6 +186,34 @@ describe('createClientCore', () => {
     expect((calls[2].init.headers as Record<string, string>).Accept).toBe('application/json');
   });
 
+  it('a flat client still takes namespaced args for an operation marked grouped', async () => {
+    // A merged call cannot carry one name for two layers, so the generator marks that
+    // operation `argsStyle: 'grouped'` and types it that way — the runtime must agree.
+    const ops = {
+      getThing: {
+        id: 'getThing',
+        method: 'GET',
+        path: '/things/{id}',
+        params: [
+          { name: 'id', in: 'path' as const },
+          { name: 'id', in: 'query' as const },
+        ],
+        argsStyle: 'grouped' as const,
+      },
+    };
+    const { calls, fetchImpl } = spy([jsonOk({ ok: true })]);
+    const client = createClientCore<{
+      getThing: { args: Record<string, unknown>; result: unknown };
+    }>(ops, {
+      serverUrl: 'https://x',
+      argsStyle: 'flat',
+      fetch: fetchImpl,
+    });
+    await client.getThing({ path: { id: 'p1' }, query: { id: 7 } });
+    // Both values reach the wire, each in its own place.
+    expect(calls[0].url).toBe('https://x/things/p1?id=7');
+  });
+
   it('rejects an unknown top-level argument key (flat-style shape passed to a grouped call)', async () => {
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x' });
     await expect(client.getOrder({ path: { orderId: 'o1' }, limit: 10 } as never)).rejects.toThrow(

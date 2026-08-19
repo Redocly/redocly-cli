@@ -202,3 +202,79 @@ describe('generate-client python generator, parameter names an SDK cannot take l
     expect(result.status, result.stderr).toBe(0);
   });
 });
+
+describe('generate-client python generator, a paginated operation under a path parameter', () => {
+  let dir: string;
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'python-page-path-'));
+    writeFileSync(
+      join(dir, 'openapi.yaml'),
+      [
+        'openapi: 3.1.0',
+        'info: { title: Nested, version: 1.0.0 }',
+        'servers: [{ url: http://127.0.0.1:3141 }]',
+        'paths:',
+        '  /orders/{orderId}/items:',
+        '    get:',
+        '      operationId: listOrderItems',
+        '      x-redoclyPagination:',
+        '        { style: cursor, cursorParam: cursor, nextCursor: /next, items: /items }',
+        '      parameters:',
+        '        - { name: orderId, in: path, required: true, schema: { type: string } }',
+        '        - { name: cursor, in: query, required: false, schema: { type: string } }',
+        '      responses:',
+        "        '200':",
+        '          description: ok',
+        '          content:',
+        '            application/json:',
+        '              schema:',
+        '                type: object',
+        '                properties:',
+        '                  items: { type: array, items: { type: object } }',
+        '                  next: { type: string }',
+        '',
+      ].join('\n'),
+      'utf-8'
+    );
+    generate(join(dir, 'openapi.yaml'), join(dir, 'client.ts'), ['--generator', 'python']);
+  });
+
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it.skipIf(!hasHttpx)('substitutes the path value into every page request', () => {
+    // The iterator serves its own pages here: what matters is the URL it asks for, which
+    // used to be the template itself (`/orders/{orderId}/items`) with the value dropped.
+    const script = [
+      'import json, sys, threading',
+      'from http.server import BaseHTTPRequestHandler, HTTPServer',
+      'seen = []',
+      'class Handler(BaseHTTPRequestHandler):',
+      '    def do_GET(self):',
+      '        seen.append(self.path)',
+      '        first = "cursor=" not in self.path',
+      '        body = {"items": [{"id": "i1"}], "next": "c2" if first else None}',
+      '        payload = json.dumps(body).encode()',
+      '        self.send_response(200)',
+      '        self.send_header("content-type", "application/json")',
+      '        self.send_header("content-length", str(len(payload)))',
+      '        self.end_headers()',
+      '        self.wfile.write(payload)',
+      '    def log_message(self, *args):',
+      '        pass',
+      'server = HTTPServer(("127.0.0.1", 3141), Handler)',
+      'threading.Thread(target=server.serve_forever, daemon=True).start()',
+      `sys.path.insert(0, ${JSON.stringify(dir)})`,
+      'import client',
+      'pages = list(client.Client().list_order_items_pages("ord_7"))',
+      'assert len(pages) == 2, pages',
+      'assert seen == ["/orders/ord_7/items", "/orders/ord_7/items?cursor=c2"], seen',
+      'print("PYTHON_PAGE_PATH_OK")',
+    ].join('\n');
+    const result = spawnSync('python3', ['-c', script], { encoding: 'utf-8' });
+    expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+    expect(result.stdout).toContain('PYTHON_PAGE_PATH_OK');
+  });
+});

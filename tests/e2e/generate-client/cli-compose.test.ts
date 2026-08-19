@@ -195,7 +195,9 @@ describe('config-driven composition (client.cliOutput)', () => {
       encoding: 'utf-8',
     });
     expect(help.status, help.stderr).toBe(0);
-    expect(help.stdout).toContain('Usage: cafe.ts <api> <command>');
+    // Run as a script, so help names the file without its extension — never `cafe.ts`,
+    // which is not a command anyone can type.
+    expect(help.stdout).toContain('Usage: cafe <api> <command>');
     expect(help.stdout).toContain('shop');
     expect(help.stdout).toContain('kitchen');
   });

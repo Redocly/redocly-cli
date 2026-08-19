@@ -246,7 +246,7 @@ describe('renderCliModule', () => {
   it('package mode imports runCli from the package; zod co-selection wires validation', () => {
     const out = renderCliModule(MODEL, { ...options, runtime: 'package', zodSelected: true });
     expect(out).toContain(
-      'import { runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";'
+      'import { invokedName, runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";'
     );
     expect(out).not.toContain('function parseInvocation');
     expect(out).toContain('import { zodValidation } from "./client.zod.js";');

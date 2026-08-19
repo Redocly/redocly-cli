@@ -13,8 +13,9 @@ import {
 import type { SecuritySpec } from '../runtime/types.js';
 import { uniqueIdent } from './identifier.js';
 import { isTypedMultipart } from './operation-types.js';
+import type { ArgsStyle } from './operations.js';
 import type { ModelPagination } from './pagination.js';
-import { responseText } from './render-client.js';
+import { flatInputShape, responseText } from './render-client.js';
 import { WIRING_NAMES } from './reserved-names.js';
 import { responseHeaderSpecs } from './response-headers.js';
 import { isSseOp, sseDataKind } from './sse.js';
@@ -41,7 +42,8 @@ function descriptorValue(
   schemes: SecuritySchemeModel[],
   dateType: DateType,
   pagination?: ModelPagination,
-  schemas: readonly NamedSchemaModel[] = []
+  schemas: readonly NamedSchemaModel[] = [],
+  argsStyle: ArgsStyle = 'grouped'
 ) {
   const params = [...op.pathParams, ...op.queryParams, ...op.headerParams, ...op.cookieParams].map(
     (p) => ({
@@ -94,6 +96,12 @@ function descriptorValue(
     ...(responseHeaders === undefined ? {} : { responseHeaders }),
     // The resolved spec is already normalized with stable key order (see pagination.ts).
     ...(pagination?.has(op.name) ? { pagination: pagination.get(op.name)!.spec } : {}),
+    // A merged call cannot carry one name for two layers, so an operation whose names
+    // collide keeps the namespaced shape — its `<Op>Variables` says so, and the runtime
+    // has to agree or the typed call would be rejected.
+    ...(argsStyle === 'flat' && 'collisions' in flatInputShape(op, schemas)
+      ? { argsStyle: 'grouped' }
+      : {}),
   };
 }
 
@@ -102,13 +110,14 @@ export function renderDescriptors(
   model: ApiModel,
   idents: Map<string, string>,
   dateType: DateType,
-  pagination?: ModelPagination
+  pagination?: ModelPagination,
+  argsStyle: ArgsStyle = 'grouped'
 ): string {
   const ops = allOperations(model.services);
   if (ops.length === 0) return '';
   const entryLines = ops.map((op, index) => {
     const value = codeLiteral(
-      descriptorValue(op, model.securitySchemes, dateType, pagination, model.schemas)
+      descriptorValue(op, model.securitySchemes, dateType, pagination, model.schemas, argsStyle)
     );
     return `    ${idents.get(op.name)!}: ${value}${index === ops.length - 1 ? '' : ','}`;
   });
