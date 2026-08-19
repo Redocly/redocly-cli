@@ -1,14 +1,15 @@
-import type {
-  ApiOverview,
-  ComponentCard,
-  ComponentListCard,
-  FileCard,
-  FindReport,
-  OperationCard,
-  OperationListCard,
-  TypedRef,
-  UsedByEntry,
-  UsedByReport,
+import {
+  isPlainObject,
+  type ApiOverview,
+  type ComponentCard,
+  type ComponentListCard,
+  type FileCard,
+  type FindReport,
+  type OperationCard,
+  type OperationListCard,
+  type TypedRef,
+  type UsedByEntry,
+  type UsedByReport,
 } from '@redocly/openapi-core';
 
 import type { PointerCard, TreeView } from '../index.js';
@@ -242,12 +243,73 @@ function vendorKeyRange(
 }
 
 /**
- * A card's body as minified JSON: the same parser dep signatures use, so every value survives —
- * only YAML comments are lost. Top-level `x-*` vendor keys fold to an `"omitted (L<start>-<end>)"`
+ * A card's body as minified JSON: the same parser dep signatures use, so every value survives
+ * except what `compactBody` trims — long prose and error responses — and YAML comments. Top-level `x-*` vendor keys fold to an `"omitted (L<start>-<end>)"`
  * marker instead of their full value (those blocks dominate a card's size — see the design doc);
  * a vendor key the raw-line scan can't locate folds to plain `"omitted"`. Returns undefined when
  * the content doesn't parse, so the caller falls back to the raw `--- yaml` block.
  */
+/** A node's own prose earns more room than the prose on a field inside it. */
+const OWN_DESCRIPTION_LIMIT = 600;
+const FIELD_DESCRIPTION_LIMIT = 120;
+
+/** Keeps whole sentences up to `limit`: in an API description the operative detail — the host to
+ * call, the header to send — usually sits past the opening sentence, so cutting at a character
+ * count would drop exactly the part worth keeping. */
+function clipSentences(value: string, limit: number): string {
+  if (value.length <= limit) return value;
+  let kept = '';
+  for (const sentence of value.trim().split(/(?<=[.!?])\s+/)) {
+    if (kept.length > 0 && kept.length + 1 + sentence.length > limit) break;
+    kept = kept.length > 0 ? `${kept} ${sentence}` : sentence;
+  }
+  return `${kept.length > 0 ? kept : value.slice(0, limit).trimEnd()} …`;
+}
+
+/**
+ * Trims what a card body carries for reading rather than for calling: prose is clipped, and error
+ * responses fold to an `errors` list, since they are the shared `$ref`s every operation repeats.
+ * Both are what an agent pays for and does not use — a third of a card's bytes on large
+ * descriptions (see the benchmark guide).
+ */
+function compactBody(node: unknown, depth: number): unknown {
+  if (Array.isArray(node)) return node.map((item) => compactBody(item, depth));
+  if (!isPlainObject(node)) return node;
+
+  const compacted: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'description' && typeof value === 'string') {
+      compacted[key] = clipSentences(
+        value,
+        depth === 0 ? OWN_DESCRIPTION_LIMIT : FIELD_DESCRIPTION_LIMIT
+      );
+    } else if (key === 'responses' && isPlainObject(value)) {
+      compacted[key] = compactResponses(value, depth);
+    } else {
+      compacted[key] = compactBody(value, depth + 1);
+    }
+  }
+  return compacted;
+}
+
+/** Successful responses in full; the error ones as the bare list of codes they answer with. */
+function compactResponses(
+  responses: Record<string, unknown>,
+  depth: number
+): Record<string, unknown> {
+  const compacted: Record<string, unknown> = {};
+  const errorCodes: string[] = [];
+  for (const [code, response] of Object.entries(responses)) {
+    if (code.startsWith('2') || code === 'default') {
+      compacted[code] = compactBody(response, depth + 1);
+    } else {
+      errorCodes.push(code);
+    }
+  }
+  if (errorCodes.length > 0) compacted.errors = errorCodes.join(', ');
+  return compacted;
+}
+
 function renderCardBodyJson(content: string, startLine: number): string | undefined {
   const parsed = parseNodeContent(content);
   if (parsed === undefined) return undefined;
@@ -265,7 +327,7 @@ function renderCardBodyJson(content: string, startLine: number): string | undefi
     const range = vendorKeyRange(key, rawLines, baseIndent, startLine);
     folded[key] = range ? `omitted (L${range.start_line}-${range.end_line})` : 'omitted';
   }
-  return JSON.stringify(folded);
+  return JSON.stringify(compactBody(folded, 0));
 }
 
 function aiCardBody(card: OperationCard | ComponentCard): string[] {

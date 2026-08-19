@@ -995,6 +995,48 @@ describe('renderView (ai)', () => {
     `);
   });
 
+  it('clips prose in an ai card body and folds error responses to their codes', () => {
+    const ownDescription = [
+      'This endpoint makes use of a hypermedia relation to determine which URL to access.',
+      'Use the `upload_url` returned by the create-release response to upload an asset.',
+      'Most libraries handle this for you, and the ones that do not will need a client that '.repeat(
+        6
+      ),
+    ].join(' ');
+    const fieldDescription =
+      'The file name of the asset. An upload that collides with a name already attached to this release answers 422, so the caller has to delete the old asset first.';
+    const card: OperationCard = {
+      ...operationCardWithDepsFixture,
+      content: [
+        `description: ${ownDescription}`,
+        'requestBody:',
+        '  content:',
+        '    application/json:',
+        '      schema:',
+        '        properties:',
+        '          name:',
+        `            description: ${fieldDescription}`,
+        'responses:',
+        "  '201':",
+        '    description: Created',
+        "  '404':",
+        '    description: Not found',
+        "  '422':",
+        '    description: Validation failed',
+      ].join('\n'),
+    };
+
+    const body = renderView({ kind: 'operation-card', card }, 'ai').split('\n')[2];
+
+    // The sentence that names `upload_url` is the point of the card, and it is the second one.
+    expect(body).toContain('Use the `upload_url` returned by the create-release response');
+    expect(body).not.toContain('Most libraries handle this for you');
+    expect(body).toContain('"description":"The file name of the asset. …"');
+    expect(body).toContain('"201":{"description":"Created"}');
+    expect(body).toContain('"errors":"404, 422"');
+    expect(body).not.toContain('Not found');
+  });
+
   it('renders an ai operation card without deps: compact refs line', () => {
     const cardWithoutDeps: OperationCard = {
       method: 'get',
