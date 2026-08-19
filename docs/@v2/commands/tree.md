@@ -1358,8 +1358,9 @@ security: SecretApiKey · apiKey in header REB-APIKEY | JWT · http bearer
 ```
 
 The card's own `content` (the `--- json` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
-It's the parsed body, serialized as one line of minified JSON instead of the indented source, with two parts shortened because they are read rather than called: prose longer than 600 characters on the operation itself, or 120 on a field inside it, keeps whole sentences up to that length and ends in `…`, and error responses fold to an `errors` list of the codes they answer with — the response components themselves stay in `--- deps`, so nothing becomes unreachable.
+It's the parsed body, serialized as one line of minified JSON instead of the indented source, with two parts shortened because they are read rather than called: prose longer than 600 characters on the card's own node, or 120 on a field inside it, keeps whole sentences up to that length and ends in `…`, and error responses fold to an `errors` list of the codes they answer with — the response components themselves stay in `--- deps`, so nothing becomes unreachable.
 Everything else survives; only the YAML comments are lost.
+Both shortenings belong to `ai`: `--format=json` returns the body whole, and every card carries the line range that leads to the source.
 A top-level `x-*` vendor key — a code-samples block, most often — folds to an `"omitted (L<start>-<end>)"` marker with its own source coordinates instead, since those blocks can dwarf the rest of the card; fetch the range directly with `--format=json` or a plain file read when the samples themselves are what's needed.
 Content that fails to parse falls back to a `--- yaml` block with the raw source instead.
 Each `--- deps` line is `id L<start>-<end>: signature`, with a `· f:<path>` suffix only when a dependency lives in a different file than the card.
