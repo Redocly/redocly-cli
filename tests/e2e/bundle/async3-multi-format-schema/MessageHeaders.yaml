@@ -1,0 +1,5 @@
+type: object
+properties:
+  correlationId:
+    type: string
+    description: Correlation ID set by the producer
