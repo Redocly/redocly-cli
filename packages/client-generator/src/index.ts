@@ -51,7 +51,7 @@ export type {
   TokenProvider,
 } from './runtime/index.js';
 // The generated-CLI engine (package-mode cli files import it from the package root).
-export { runCli } from './runtime/cli.js';
+export { invokedName, runCli } from './runtime/cli.js';
 export type {
   CliAuthScheme,
   CliCommand,

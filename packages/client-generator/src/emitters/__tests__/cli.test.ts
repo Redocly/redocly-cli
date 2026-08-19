@@ -286,6 +286,32 @@ describe('renderCliModule', () => {
   });
 });
 
+describe('the package-mode import line', () => {
+  it('names only values the package root exports', async () => {
+    // The emitted entry is the only consumer of these names, and a missing export breaks
+    // every package-mode CLI at import time rather than at generation.
+    const out = renderCliModule(MODEL, {
+      stem: 'client',
+      importExt: 'js',
+      runtime: 'package',
+      zodSelected: false,
+    });
+    const line = out
+      .split('\n')
+      .find((candidate) => candidate.includes('from "@redocly/client-generator"'));
+    expect(line, 'no package import line found').toBeDefined();
+    const names = line!
+      .slice(line!.indexOf('{') + 1, line!.indexOf('}'))
+      .split(',')
+      .map((specifier) => specifier.trim())
+      .filter((specifier) => specifier !== '' && !specifier.startsWith('type '));
+    const root = (await import('../../index.js')) as Record<string, unknown>;
+    for (const name of names) {
+      expect(typeof root[name], `${name} is imported but not exported`).toBe('function');
+    }
+  });
+});
+
 describe('renderComposedCliEntry', () => {
   it('keeps import bindings legal for digit-leading aliases and unique for colliding ones', () => {
     const out = renderComposedCliEntry(

@@ -149,13 +149,16 @@ function mergedBodyProperties(
   const resolved = resolvedSchema(schema, schemas);
   if (resolved?.kind === 'object') return resolved.properties.map((property) => property.name);
   if (resolved?.kind !== 'intersection') return undefined;
-  const names: string[] = [];
+  // Deduplicated: `allOf` members routinely redeclare a property to refine it, and the
+  // merged body still carries one key for it — counting it twice would read as a collision
+  // and push a mergeable operation back to the namespaced shape.
+  const names = new Set<string>();
   for (const member of resolved.members) {
     const memberNames = mergedBodyProperties(member, schemas);
     if (memberNames === undefined) return undefined;
-    names.push(...memberNames);
+    for (const name of memberNames) names.add(name);
   }
-  return names;
+  return [...names];
 }
 
 /**

@@ -232,6 +232,36 @@ describe('call inputs — the merged shape (argsStyle: flat)', () => {
     expect(out).toContain('argsStyle: "grouped"');
   });
 
+  it('a property two allOf members declare is one key, not a collision', () => {
+    const out = emitFlat({
+      name: 'saveThing',
+      path: '/things/{id}',
+      pathParams: [param('id', 'path', true)],
+      requestBody: {
+        contentType: 'application/json',
+        required: true,
+        schema: {
+          kind: 'intersection',
+          members: [
+            {
+              kind: 'object',
+              properties: [
+                { name: 'label', schema: SCALAR, required: true },
+                { name: 'note', schema: SCALAR, required: false },
+              ],
+            },
+            // A refinement of the same property — the merged body still has one `label`.
+            { kind: 'object', properties: [{ name: 'label', schema: SCALAR, required: false }] },
+          ],
+        },
+      },
+    });
+    expect(out).toContain(
+      'export type SaveThingVariables = {\n    id: string;\n} & SaveThingBody;'
+    );
+    expect(out).not.toContain('argsStyle: "grouped"');
+  });
+
   it('falls back to the namespaced shape when one name lands in two layers', () => {
     const out = emitFlat({
       name: 'getThing',
