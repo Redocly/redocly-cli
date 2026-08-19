@@ -14,7 +14,8 @@ Options:
                              [choices: "warn", "error", "off"] [default: "warn"]
       --format       Use a specific output format.
                          [choices: "stylish", "json", "ai"] [default: "stylish"]
-      --tag          Show the operations of one tag.                    [string]
+      --tag          Show the operations of one tag, or list every tag when no n
+                     ame is given.                                      [string]
       --path         Show the operations of one path.                   [string]
       --webhook      Show the operations of one webhook.                [string]
       --operation    Show one operation: an HTTP method (with --path or --webhoo
