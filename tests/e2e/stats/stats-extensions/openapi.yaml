@@ -1,0 +1,89 @@
+openapi: 3.0.0
+info:
+  title: Vendor extensions fixture
+  version: '1.0'
+  x-metadata:
+    department: Platform
+    team: Docs
+  x-outer:
+    x-inner: 1
+x-tagGroups:
+  - name: Core
+    tags:
+      - group-tag-name
+x-ignoredHeaderParameters:
+  - X-Trace-Id
+x-servers:
+  - url: https://legacy.example.com
+x-webhooks:
+  newPet:
+    post:
+      tags:
+        - webhook-tag
+      responses:
+        '200':
+          description: ok
+    x-query:
+      operationId: webhookQuery
+      responses:
+        '200':
+          description: ok
+paths:
+  x-paths-ext: true
+  /a:
+    get:
+      operationId: a
+      x-codeSamples:
+        - lang: curl
+          source: curl https://example.com/a
+      x-badges:
+        - name: Beta
+          color: purple
+        - name: New
+          color: green
+          position: before
+      x-internal: true
+      parameters:
+        - $ref: '#/components/parameters/Shared'
+      responses:
+        '200':
+          $ref: '#/components/responses/SharedResponse'
+    x-query:
+      operationId: queryA
+      tags:
+        - query-tag
+      responses:
+        '200':
+          description: ok
+  /b:
+    get:
+      operationId: b
+      x-internal: true
+      x-codeSamples:
+        - lang: python
+          source: print("hi")
+      parameters:
+        - $ref: '#/components/parameters/Shared'
+      responses:
+        '200':
+          $ref: '#/components/responses/SharedResponse'
+          x-sibling-ext: true
+components:
+  parameters:
+    Shared:
+      name: p
+      in: query
+      x-hideReplay: true
+      schema:
+        type: string
+  responses:
+    SharedResponse:
+      description: ok
+  schemas:
+    x-MySchema:
+      type: string
+    Pet:
+      type: object
+      properties:
+        x-trace-id:
+          type: string

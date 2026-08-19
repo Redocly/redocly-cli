@@ -256,6 +256,7 @@ const Discriminator: NodeType = {
 };
 
 const Components: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     ...Oas3_1Types.Components.properties,
     mediaTypes: 'NamedMediaTypes',

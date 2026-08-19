@@ -9,6 +9,7 @@
 | 🎣 Webhooks | 0 |
 | 👷 Operations | 8 |
 | 🔖 Tags | 3 |
+| 🧩 Vendor Extensions | 0 |
 
 Document: museum.yaml stats:
 
