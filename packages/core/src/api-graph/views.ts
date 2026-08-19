@@ -4,8 +4,10 @@ import {
   collectReversePathsTo,
   graphNodeIdFor,
   type ApiAnalysis,
+  type ApiIndexMeta,
   type CollectedComponent,
   type CollectedOperation,
+  type CollectedSecurityScheme,
 } from './build-graph.js';
 import {
   COMPONENT_SECTIONS,
@@ -27,12 +29,19 @@ import type { GraphEdge, GraphNode } from './types.js';
 
 export type FileRange = { pointer: string; file: string; start_line: number; end_line: number };
 
+/** What protects a selection: the alternatives it accepts, and what each named scheme asks for. */
+export type SecurityView = {
+  requirements: Record<string, string[]>[];
+  schemes: CollectedSecurityScheme[];
+};
+
 export type ApiOverview = {
   docName: string;
   spec: SpecVersion;
   docDescription?: string;
   overview?: Partial<FileRange> & { summary?: string };
   servers?: Partial<FileRange> & { urls: string[] };
+  security?: SecurityView;
   tags: { name: string; summary?: string; operations: number }[];
   operations: number;
   webhooks: { name: string; operations: number }[];
@@ -115,6 +124,10 @@ export function buildOverview(
     ...(meta.servers
       ? { servers: { ...toFileRange(meta.servers.location, cwd), urls: meta.servers.urls } }
       : {}),
+    ...(() => {
+      const security = toSecurityView(meta.security?.requirements, meta);
+      return security ? { security } : {};
+    })(),
     tags: orderedTagNames.map((name) => {
       const declared = meta.declaredTags.find((tag) => tag.name === name);
       const summary = truncateSummary(declared?.description);
@@ -160,6 +173,8 @@ export type UsedByEntry = {
 
 export type OperationCard = OperationListItem & {
   description?: string;
+  /** The operation's own requirement, or the root one it inherits when it has none. */
+  security?: SecurityView;
   refs: TypedRef[];
   usedBy: UsedByEntry[];
   content?: string;
@@ -323,6 +338,23 @@ function toUsedByEntry(analysis: ApiAnalysis, nodeId: string, cwd: string): Used
 }
 
 /** The card fields shared by a full card and its list-card counterpart, with no retrieval. */
+/**
+ * Resolves a requirement list to the schemes it names, dropping any the description never
+ * declares. An operation without its own requirement inherits the root one, which is the case
+ * a caller cannot see from the operation's source alone.
+ */
+function toSecurityView(
+  requirements: Record<string, string[]>[] | undefined,
+  meta: ApiIndexMeta
+): SecurityView | undefined {
+  if (requirements === undefined) return undefined;
+  const named = new Set(requirements.flatMap((requirement) => Object.keys(requirement)));
+  return {
+    requirements,
+    schemes: meta.securitySchemes.filter((scheme) => named.has(scheme.name)),
+  };
+}
+
 export function buildOperationListCard(
   analysis: ApiAnalysis,
   operation: CollectedOperation,
@@ -333,6 +365,13 @@ export function buildOperationListCard(
   return {
     ...toOperationListItem(operation, cwd),
     ...(description ? { description } : {}),
+    ...(() => {
+      const security = toSecurityView(
+        operation.security ?? analysis.meta.security?.requirements,
+        analysis.meta
+      );
+      return security ? { security } : {};
+    })(),
     refs: collectNodeRefs({ file: range.file, pointer: range.pointer, analysis, cwd }).map(
       classifyRef
     ),

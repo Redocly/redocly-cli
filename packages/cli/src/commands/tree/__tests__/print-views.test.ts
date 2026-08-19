@@ -1,5 +1,6 @@
 import type {
   ApiOverview,
+  SecurityView,
   ComponentCard,
   ComponentListCard,
   FileCard,
@@ -993,6 +994,31 @@ describe('renderView (ai)', () => {
       usedBy: 1 (--used-by)
       next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>"
     `);
+  });
+
+  it('states the effective security on an ai card and in the ai overview', () => {
+    const security: SecurityView = {
+      requirements: [{ SecretApiKey: [] }, { OAuth2: ['orders:write'] }],
+      schemes: [
+        { name: 'SecretApiKey', type: 'apiKey', in: 'header', keyName: 'REB-APIKEY' },
+        { name: 'OAuth2', type: 'oauth2' },
+      ],
+    };
+
+    const card = renderView(
+      { kind: 'operation-card', card: { ...operationCardWithDepsFixture, security } },
+      'ai'
+    );
+    // The name alone does not say which header carries the key, so the card resolves it.
+    expect(card).toContain(
+      'auth: SecretApiKey · apiKey in header REB-APIKEY | OAuth2 · oauth2 (orders:write)'
+    );
+
+    const overview = renderView(
+      { kind: 'overview', overview: { ...overviewFixture, security } },
+      'ai'
+    );
+    expect(overview).toContain('security: SecretApiKey · apiKey in header REB-APIKEY');
   });
 
   it('clips prose in an ai card body and folds error responses to their codes', () => {

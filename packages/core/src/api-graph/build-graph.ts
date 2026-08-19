@@ -32,8 +32,21 @@ export type CollectedOperation = {
   description?: string;
   operationId?: string;
   deprecated?: boolean;
+  /** Each entry is one alternative: the schemes that must all be satisfied together, with scopes. */
+  security?: Record<string, string[]>[];
   location: Location;
   pathItemLocation: Location;
+};
+
+/** What a security scheme asks the caller to send, flattened from its OpenAPI shape. */
+export type CollectedSecurityScheme = {
+  name: string;
+  type?: string;
+  in?: string;
+  /** An `apiKey` scheme's own `name`: the header, query, or cookie the key goes in. */
+  keyName?: string;
+  /** An `http` scheme's `scheme`: `bearer`, `basic`, and so on. */
+  scheme?: string;
 };
 
 export type CollectedComponent = {
@@ -47,6 +60,9 @@ export type ApiIndexMeta = {
   info?: { title?: string; description?: string; location: Location };
   servers?: { urls: string[]; location: Location };
   declaredTags: { name: string; description?: string; location: Location }[];
+  /** The root requirement, which every operation without one of its own inherits. */
+  security?: { requirements: Record<string, string[]>[]; location: Location };
+  securitySchemes: CollectedSecurityScheme[];
   operations: CollectedOperation[];
   components: CollectedComponent[];
   pathsLocation?: Location;
@@ -111,7 +127,12 @@ function walkStructure(options: {
 
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge>();
-  const meta: ApiIndexMeta = { declaredTags: [], operations: [], components: [] };
+  const meta: ApiIndexMeta = {
+    declaredTags: [],
+    securitySchemes: [],
+    operations: [],
+    components: [],
+  };
 
   // A split layout defines root components as whole-file refs (`Order: {$ref: Order.yaml}`).
   // Bundling used to inline those files under their component names; to keep the same canonical
@@ -261,6 +282,23 @@ function walkStructure(options: {
         location: vctx.location,
       };
     },
+    // Oas3Visitor types neither node, so both fall back to the untyped catch-all.
+    SecurityRequirementList(node: Record<string, string[]>[], vctx) {
+      // An operation carries its own list; only the root one describes the whole API.
+      if (vctx.rawLocation.pointer !== '#/security') return;
+      meta.security = { requirements: node, location: vctx.location };
+    },
+    SecurityScheme(node: CollectedSecurityScheme & { name?: string }, vctx) {
+      const segments = parsePointerSegments(vctx.rawLocation.pointer);
+      if (segments.length !== 3 || segments[1] !== 'securitySchemes') return;
+      meta.securitySchemes.push({
+        name: segments[2],
+        type: node.type,
+        in: node.in,
+        keyName: node.name,
+        scheme: node.scheme,
+      });
+    },
     Tag(node, vctx) {
       meta.declaredTags.push({
         name: node.name,
@@ -318,6 +356,7 @@ function walkStructure(options: {
               description: node.description,
               operationId: node.operationId,
               deprecated: node.deprecated,
+              ...(node.security ? { security: node.security } : {}),
               location: vctx.location,
               pathItemLocation: currentWebhookPathItemLocation!,
             });
@@ -350,6 +389,7 @@ function walkStructure(options: {
           description: node.description,
           operationId: node.operationId,
           deprecated: node.deprecated,
+          ...(node.security ? { security: node.security } : {}),
           location: vctx.location,
           pathItemLocation: currentPathItemRawLocation,
         });

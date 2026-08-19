@@ -995,6 +995,7 @@ Every `ai` view shares the same conventions:
 - `·` separates fields on a line; `—` precedes a summary or piece of prose.
 - `L<start>` marks a single line, `L<start>-<end>` a range — fetch a card, or read the file directly, for the text in between.
 - A trailing `…` marks prose that was clipped to whole sentences; the line range on the same entry leads to the full text.
+- `security:` on an overview and `auth:` on a card name what the caller has to send: `|` separates alternatives, `+` schemes that apply together, and each name is followed by the scheme's own terms — `apiKey in header REB-APIKEY`, `http bearer`, `oauth2 (orders:write)`.
 - A listing entry adds a trailing `· f:<relative path>` only once the listing spans more than one file, the same rule the stylish listings use.
 - The last line is `next:`, naming the flags that continue from this view.
   Every id above it — `schemas/Order`, a `deeper:` entry — is already a selector, and every `$ref` inside a card body is a `--pointer` argument, so an agent can run the whole chain from the output alone without reading this page.
@@ -1334,6 +1335,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
 
 ```
 post /orders · createOrder · cafe.yaml L316-372 · tags: Orders — Create order
+auth: OAuth2 · oauth2 (orders:write)
 --- json
 {"tags":["Orders"],"summary":"Create order","description":"Create a new order.\nOrder items cannot be changed - if they need to be updated, cancel the order and place a new one.\n","operationId":"createOrder","security":[{"OAuth2":["orders:write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Order"},"examples":{"OrderRequest":{"dataValue":{"customerName":"Mary Ann","orderItems":[{"menuItemId":"prd_01h1s5z6vf2mm1mz3hevnn9va7","quantity":2,"comment":"No sugar!","discount":0}]}}}}}},"responses":{"201":{"description":"Order placed successfully.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Order"},"examples":{"OrderResponse":{"dataValue":{"id":"ord_01h1s5z6vf2mm1mz3hevnn9va7","customerName":"Mary Ann","orderItems":[{"menuItemId":"prd_01h1s5z6vf2mm1mz3hevnn9va7","quantity":2,"comment":"No sugar!","discount":0}],"object":"order","status":"placed","totalPrice":200,"createdAt":"2026-08-24T14:15:22Z","updatedAt":"2026-08-24T14:15:22Z"}}}}}},"errors":"400, 401, 403, 500"}}
 --- deps (7, signatures depth ≤2)
@@ -1347,6 +1349,9 @@ schemas/OrderStatus L1025-1031: string=placed|preparing|completed|canceled
 next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 ```
 
+An `auth:` line opens the card whenever the operation is protected, resolved from the operation's own `security` or, when it declares none, from the root requirement it inherits — the case the operation's source does not show at all.
+Each scheme is printed with what it asks for, because the name alone does not say which header carries the key.
+
 The card's own `content` (the `--- json` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
 It's the parsed body, serialized as one line of minified JSON instead of the indented source, with two parts shortened because they are read rather than called: prose longer than 600 characters on the operation itself, or 120 on a field inside it, keeps whole sentences up to that length and ends in `…`, and error responses fold to an `errors` list of the codes they answer with — the response components themselves stay in `--- deps`, so nothing becomes unreachable.
 Everything else survives; only the YAML comments are lost.
@@ -1354,7 +1359,7 @@ A top-level `x-*` vendor key — a code-samples block, most often — folds to a
 Content that fails to parse falls back to a `--- yaml` block with the raw source instead.
 Each `--- deps` line is `id L<start>-<end>: signature`, with a `· f:<path>` suffix only when a dependency lives in a different file than the card.
 `Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) instead of being cut off; a `deeper:` line with a ready-to-run `hint:` would list anything past that window, and both are absent here because nothing in this closure sits further out.
-On cafe.yaml, this same card is 10,919 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 1,882 bytes as `--format=ai` — an 83% reduction: the five dependencies above shrink to one-line signatures, and the card's own body serializes as minified JSON instead of indented YAML.
+On cafe.yaml, this same card is 10,919 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 1,920 bytes as `--format=ai` — an 82% reduction: the five dependencies above shrink to one-line signatures, and the card's own body serializes as minified JSON instead of indented YAML.
 The effect grows with the schema graph: a closure that pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, or dependencies with many more properties than `Order`'s eight, saves more per entry than this example does.
 
 ### Find what depends on a selection: `--used-by`

@@ -1,6 +1,7 @@
 import {
   isPlainObject,
   type ApiOverview,
+  type SecurityView,
   type ComponentCard,
   type ComponentListCard,
   type FileCard,
@@ -71,6 +72,35 @@ function aiComponentLine(item: ComponentListCard, showFile: boolean): string {
   return `${item.component}/${item.name} · L${item.start_line}${file}${summary}`;
 }
 
+/**
+ * What the caller has to send to be let in, resolved from the scheme's own definition: a
+ * requirement names a scheme, and the name alone does not say which header carries the key.
+ * Alternatives are separated by `|`, and schemes that must be satisfied together by `+`.
+ */
+function aiSecurityLine(label: string, security: SecurityView): string {
+  const detailOf = new Map(
+    security.schemes.map((scheme) => {
+      if (scheme.type === 'apiKey' && scheme.in && scheme.keyName) {
+        return [scheme.name, `apiKey in ${scheme.in} ${scheme.keyName}`];
+      }
+      if (scheme.type === 'http' && scheme.scheme) return [scheme.name, `http ${scheme.scheme}`];
+      return [scheme.name, scheme.type ?? ''];
+    })
+  );
+  const alternatives = security.requirements.map((requirement) => {
+    const names = Object.keys(requirement);
+    if (names.length === 0) return 'none';
+    return names
+      .map((name) => {
+        const detail = detailOf.get(name);
+        const scopes = requirement[name].length > 0 ? ` (${requirement[name].join(' ')})` : '';
+        return `${name}${detail ? ` · ${detail}` : ''}${scopes}`;
+      })
+      .join(' + ');
+  });
+  return `${label}: ${alternatives.join(' | ')}`;
+}
+
 function renderAiOverview(
   overview: ApiOverview,
   operations?: OperationListCard[],
@@ -81,6 +111,9 @@ function renderAiOverview(
   lines.push(`${overview.docName} · ${overview.spec}${description}`);
   if (overview.servers !== undefined && overview.servers.urls.length > 0) {
     lines.push(`servers: ${overview.servers.urls.join(', ')}`);
+  }
+  if (overview.security !== undefined) {
+    lines.push(aiSecurityLine('security', overview.security));
   }
   const webhookOperationCount = overview.webhooks.reduce(
     (total, webhook) => total + webhook.operations,
@@ -332,6 +365,11 @@ function renderCardBodyJson(content: string, startLine: number): string | undefi
 
 function aiCardBody(card: OperationCard | ComponentCard): string[] {
   const lines: string[] = [];
+  // An operation that states no requirement of its own inherits the root one, which its source
+  // does not show: without this line the caller has to know to go looking for it.
+  if ('security' in card && card.security !== undefined) {
+    lines.push(aiSecurityLine('auth', card.security));
+  }
   if (card.content !== undefined) {
     const json = renderCardBodyJson(card.content, card.start_line);
     if (json !== undefined) {

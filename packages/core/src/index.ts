@@ -196,6 +196,7 @@ export type {
   OperationCard,
   OperationListCard,
   OperationListItem,
+  SecurityView,
   TypedRef,
   UsedByEntry,
   UsedByReport,
