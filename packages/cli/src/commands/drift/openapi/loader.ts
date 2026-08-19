@@ -34,7 +34,7 @@ type HttpMethod = (typeof HTTP_METHODS)[number];
 
 const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
 
-function isHttpMethod(value: string): value is HttpMethod {
+export function isHttpMethod(value: string): value is HttpMethod {
   return (HTTP_METHODS as readonly string[]).includes(value);
 }
 
@@ -187,7 +187,7 @@ function toOperationId(
   return `${method.toUpperCase()} ${pathTemplate}`;
 }
 
-function detectOpenApi3Spec(document: Document): SpecVersion | null {
+export function detectOpenApi3Spec(document: Document): SpecVersion | null {
   try {
     const specVersion = detectSpec(document.parsed);
     return getMajorSpecVersion(specVersion) === 'oas3' ? specVersion : null;
@@ -374,7 +374,7 @@ function finalizeIndex(
  * Resolve the OpenAPI spec input (a single file or a folder) into a flat list
  * of spec file paths that openapi-core can bundle individually.
  */
-async function resolveSpecFiles(
+export async function resolveSpecFiles(
   specPath: string
 ): Promise<{ specFiles: string[]; fromDirectory: boolean }> {
   const stats = await stat(specPath);

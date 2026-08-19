@@ -113,5 +113,6 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 
 ## Related commands
 
+- [`coverage`](./coverage.md) measures how much of the description that same traffic actually exercised.
 - [`proxy`](./proxy.md) captures live HTTP traffic into a HAR file that can be replayed through `drift`.
 - [`generate-spec`](./generate-spec.md) infers an OpenAPI description from the same traffic formats.

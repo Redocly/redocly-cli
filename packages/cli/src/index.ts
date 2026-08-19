@@ -15,6 +15,8 @@ import { hideBin } from 'yargs/helpers';
 import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
+import { type CoverageArgv } from './commands/coverage/index.js';
+import { type CoverageFormat } from './commands/coverage/reporter.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -1152,6 +1154,73 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handleDrift } = await import('./commands/drift/index.js');
       commandWrapper(handleDrift)(argv as Arguments<DriftArgv>);
+    }
+  )
+  .command(
+    'coverage <traffic>',
+    'Report which documented properties, union branches, and schemas recorded traffic never exercised [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_COVERAGE')
+        .positional('traffic', {
+          describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
+          type: 'string',
+        })
+        .option({
+          api: {
+            description: 'OpenAPI description file or folder to measure coverage against.',
+            type: 'string',
+            demandOption: true,
+          },
+          'traffic-format': {
+            description: 'Traffic input format.',
+            choices: [
+              'auto',
+              'har',
+              'kong',
+              'nginx-json',
+              'apache-json',
+              'ndjson',
+            ] as ReadonlyArray<TrafficFormat>,
+            default: 'auto' as TrafficFormat,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json'] as ReadonlyArray<CoverageFormat>,
+            default: 'stylish' as CoverageFormat,
+          },
+          'match-mode': {
+            description:
+              'Endpoint matching mode (how requests are located via the description servers).',
+            choices: ['strict-host', 'basepath'] as ReadonlyArray<MatchMode>,
+            default: 'strict-host' as MatchMode,
+          },
+          schema: {
+            description: 'Report only this component schema.',
+            type: 'string',
+          },
+          all: {
+            description:
+              'List the operations and schemas nothing reached instead of collapsing them to a count.',
+            type: 'boolean',
+            default: false,
+          },
+          output: {
+            description:
+              'Write the coverage report (in the format selected with --format) to this file instead of stdout.',
+            type: 'string',
+            alias: 'o',
+          },
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+        }),
+    async (argv) => {
+      const { handleCoverage } = await import('./commands/coverage/index.js');
+      commandWrapper(handleCoverage)(argv as Arguments<CoverageArgv>);
     }
   )
   .command(
