@@ -1,5 +1,11 @@
 # What the `tree` index costs an agent, measured
 
+{% admonition type="warning" name="Superseded" %}
+This benchmark measured `@redocly/cli@0.0.0-snapshot.1786868116`. `tree --format=ai` has changed since — long prose is clipped, error responses fold to their codes, and every card states the security requirement that applies to it — so the numbers here no longer reproduce.
+
+Read [Whether the flow an agent produces would actually run](./tree-agent-index-benchmark-v2.md) instead: it measures the current output over four models and three repeats a cell, and checks that the answer would work rather than only that it names the right calls.
+{% /admonition %}
+
 Same multi-step task, fresh isolated sessions per description and model (Claude Sonnet 5, Opus, Fable 5; English prompts):
 
 - **no tree** — the task and the path to the file, nothing else. Neither `tree` nor Redocly is named, so the agent has no hint the command exists and works the file with general-purpose tools.

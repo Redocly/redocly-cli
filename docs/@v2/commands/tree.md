@@ -1838,7 +1838,7 @@ Large API descriptions do not fit in an LLM's context window.
 Instead of feeding the whole file to a model, let the agent navigate the selector surface above in bounded steps.
 Every result is generated deterministically from the document structure — no AI calls or API keys are needed.
 It is available for OpenAPI descriptions; the typed selectors, `--used-by`, and `--with-deps` report an error for other specification types.
-For measured costs — on GitHub's 10.0 MB REST API description, where the whole file is 1.9 million tokens — including live agent runs against a `grep`-only baseline, see [Agent context costs with tree](../guides/tree-agent-index-benchmark.md).
+For measured costs — on GitHub's 10.0 MB REST API description, where the whole file is 1.9 million tokens — including live agent runs against a `grep`-only baseline, see [Whether the flow an agent produces would actually run](../guides/tree-agent-index-benchmark-v2.md).
 
 When wiring this into an agent, hand it the run line with `--format=ai` and let the `next:` lines carry it from there.
 Pasting this page into a prompt, or pointing an agent at it, costs 6,000 to 21,000 tokens depending on the model — more than the exploration it saves.
