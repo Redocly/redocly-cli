@@ -36,6 +36,8 @@ describe('analyzeApi', () => {
       title: 'Split API',
       description: 'Multi-file description for api-graph tests.',
     });
+    // paths/tickets.yaml declares its own top-level `servers:` — a path-item override whose
+    // pointer inside that file is also `#/servers`; the root document's list must win.
     expect(meta.servers?.urls).toEqual(['https://api.example.com/v1']);
     expect(meta.declaredTags.map((tag) => tag.name)).toEqual(['Tickets']);
     expect(meta.declaredTags[0].description).toBe('Buy tickets and manage reservations.');

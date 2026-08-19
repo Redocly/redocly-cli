@@ -275,8 +275,15 @@ function walkStructure(options: {
     // Oas3Visitor has no dedicated ServerList entry, so node falls back to the visitor
     // type's untyped catch-all — annotate it explicitly to avoid implicit `any` below.
     ServerList(node: { url?: string }[], vctx) {
-      // Path items and operations can override servers; only the root list describes the API.
-      if (vctx.rawLocation.pointer !== '#/servers') return;
+      // Path items and operations can override servers; only the root document's list describes
+      // the API. A referenced file's own top-level `servers:` also sits at `#/servers`, so the
+      // pointer alone is not enough — the source has to be the root document too.
+      if (
+        vctx.rawLocation.pointer !== '#/servers' ||
+        vctx.rawLocation.source.absoluteRef !== rootAbs
+      ) {
+        return;
+      }
       meta.servers = {
         urls: node.map((server) => server.url).filter((url): url is string => Boolean(url)),
         location: vctx.location,
@@ -284,8 +291,14 @@ function walkStructure(options: {
     },
     // Oas3Visitor types neither node, so both fall back to the untyped catch-all.
     SecurityRequirementList(node: Record<string, string[]>[], vctx) {
-      // An operation carries its own list; only the root one describes the whole API.
-      if (vctx.rawLocation.pointer !== '#/security') return;
+      // An operation carries its own list; only the root document's describes the whole API,
+      // and a referenced file's own top-level `security:` also sits at `#/security`.
+      if (
+        vctx.rawLocation.pointer !== '#/security' ||
+        vctx.rawLocation.source.absoluteRef !== rootAbs
+      ) {
+        return;
+      }
       meta.security = { requirements: node, location: vctx.location };
     },
     SecurityScheme(node: CollectedSecurityScheme & { name?: string }, vctx) {

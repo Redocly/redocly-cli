@@ -1,3 +1,5 @@
+servers:
+  - url: https://tickets.example.com
 get:
   summary: List tickets
   tags: [Tickets]
