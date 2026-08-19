@@ -112,6 +112,38 @@ export function runGenerators(
 }
 
 /**
+ * A parameter name used in two locations of one operation — `id` in the path AND in the
+ * query, which OpenAPI permits. Every SDK still sends both, under their own wire names, but
+ * the languages that pass parameters as separate arguments have to rename the second one, so
+ * the publisher should hear about it once and can rename it in the description instead.
+ */
+function warnRepeatedParamNames(model: ApiModel): void {
+  for (const service of model.services) {
+    for (const op of service.operations) {
+      const seen = new Set<string>();
+      const repeated = new Set<string>();
+      for (const param of [
+        ...op.pathParams,
+        ...op.queryParams,
+        ...op.headerParams,
+        ...op.cookieParams,
+      ]) {
+        if (seen.has(param.name)) repeated.add(param.name);
+        seen.add(param.name);
+      }
+      if (repeated.size === 0) continue;
+      logger.warn(
+        `generate-client: operation "${op.specName ?? op.name}" uses ${[...repeated]
+          .map((name) => `"${name}"`)
+          .join(
+            ', '
+          )} in more than one parameter location. Every SDK sends both, and the SDKs whose methods take one argument per parameter give the later one a suffixed name — rename it in the description to choose the name yourself.\n`
+      );
+    }
+  }
+}
+
+/**
  * An OpenAPI Overlay (1.0.0) adding per-operation `x-codeSamples`, collected from
  * every selected generator that implements the `sample` hook; undefined when no
  * generator contributed a sample. Docs tooling applies it to the description —
@@ -174,6 +206,7 @@ export async function generateClient(
         normalizeSwagger2(document as unknown as Record<string, unknown>)
       : document;
   const model = buildApiModel(normalized);
+  warnRepeatedParamNames(model);
 
   // A publisher `--setup` module is read, validated, and transformed into the neutral setup
   // expression baked into the client. Applied across all output modes by the emitter.

@@ -167,3 +167,38 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
     expect(result.stdout).toContain('PYDANTIC_DISCRIMINATOR_OK');
   });
 });
+
+describe('generate-client python generator, parameter names an SDK cannot take literally', () => {
+  let dir: string;
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'python-repeated-'));
+    generate(join(__dirname, 'fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
+      '--generator',
+      'python',
+    ]);
+  });
+
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('renames the repeat, keeps the wire name, and still parses', () => {
+    const source = readFileSync(join(dir, 'client.py'), 'utf-8');
+    // `id` in the path and in the query: the later one moves aside…
+    expect(source).toContain('def get_thing(self, id: str, *, id_2: Optional[int] = None');
+    // …and a parameter named after one of the method's own arguments does too.
+    expect(source).toContain('def make_thing(self, body_2: str, ctx: str, body: Thing, *,');
+    expect(source).toContain('timeout_2: Optional[str] = None');
+    // The request is unchanged: the descriptor and the query keys keep the wire names.
+    expect(source).toContain('params["id"] = encode(id_2)');
+    expect(source).toContain('params["timeout"] = encode(timeout_2)');
+  });
+
+  it.skipIf(!hasPython)('the generated client is valid Python', () => {
+    const result = spawnSync('python3', ['-m', 'py_compile', join(dir, 'client.py')], {
+      encoding: 'utf-8',
+    });
+    expect(result.status, result.stderr).toBe(0);
+  });
+});

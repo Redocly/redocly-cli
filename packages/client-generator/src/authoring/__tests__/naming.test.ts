@@ -1,4 +1,4 @@
-import { casing, identifierFor, RESERVED_WORDS } from '../naming.js';
+import { casing, identifierFor, RESERVED_WORDS, uniqueIdentifiers } from '../naming.js';
 
 describe('casing', () => {
   it('splits on delimiters and case boundaries, handling acronyms', () => {
@@ -46,5 +46,32 @@ describe('identifierFor', () => {
     expect(identifierFor('class', { style: 'camel', reserved: RESERVED_WORDS.php })).toBe('class_');
     expect(identifierFor('list', { style: 'camel', reserved: RESERVED_WORDS.php })).toBe('list_');
     expect(identifierFor('echo', { style: 'camel', reserved: RESERVED_WORDS.php })).toBe('echo_');
+  });
+});
+
+describe('uniqueIdentifiers', () => {
+  it('separates a repeat the way the casing style spells names', () => {
+    // OpenAPI lets one name appear in two locations; a signature cannot declare it twice.
+    expect(uniqueIdentifiers(['id', 'id'], { style: 'snake' })).toEqual(['id', 'id_2']);
+    expect(uniqueIdentifiers(['id', 'id', 'id'], { style: 'camel' })).toEqual(['id', 'id2', 'id3']);
+  });
+
+  it('moves aside for a name the caller already took', () => {
+    expect(
+      uniqueIdentifiers(['body', 'timeout'], { style: 'snake', taken: ['self', 'body', 'timeout'] })
+    ).toEqual(['body_2', 'timeout_2']);
+  });
+
+  it('applies the style and the reserved-word rule first', () => {
+    expect(
+      uniqueIdentifiers(['order-id', 'class'], {
+        style: 'snake',
+        reserved: RESERVED_WORDS.python,
+      })
+    ).toEqual(['order_id', 'class_']);
+  });
+
+  it('keeps distinct names distinct, and needs no suffix when nothing clashes', () => {
+    expect(uniqueIdentifiers(['a', 'b'], { style: 'camel', taken: ['c'] })).toEqual(['a', 'b']);
   });
 });

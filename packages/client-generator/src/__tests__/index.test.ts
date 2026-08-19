@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -190,6 +191,37 @@ describe('generateClient — end-to-end orchestration', () => {
 
   afterEach(async () => {
     await rm(workDir, { recursive: true, force: true });
+  });
+
+  it('reports a parameter name used in two locations, which every SDK has to spell once', async () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const api = join(workDir, 'repeated.yaml');
+    await writeFile(
+      api,
+      outdent`
+        openapi: 3.1.0
+        info: { title: Repeated, version: 1.0.0 }
+        paths:
+          /things/{id}:
+            get:
+              operationId: getThing
+              parameters:
+                - { name: id, in: path, required: true, schema: { type: string } }
+                - { name: id, in: query, required: false, schema: { type: integer } }
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema: { type: object }
+      `,
+      'utf-8'
+    );
+    await generateClient({ api, output: join(workDir, 'client.ts') });
+    expect(warn.mock.calls.map(([message]) => message).join('\n')).toContain(
+      'operation "getThing" uses "id" in more than one parameter location'
+    );
+    warn.mockRestore();
   });
 
   it('writes the generated file to disk and reports its size', async () => {

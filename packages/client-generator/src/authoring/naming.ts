@@ -87,3 +87,34 @@ export function identifierFor(
   const base = styled === '' ? '_' : /^[0-9]/.test(styled) ? `_${styled}` : styled;
   return options.reserved?.has(base.toLowerCase()) ? `${base}_` : base;
 }
+
+/**
+ * `identifierFor` over a list of wire names, made unique among themselves and among the
+ * names already `taken` — `id`, `id_2`, `id_3`, … A language that passes parameters as
+ * separate arguments needs this: OpenAPI lets one name appear in two locations (`id` in the
+ * path AND in the query), and a signature cannot declare that name twice. Seed `taken` with
+ * the argument slots the method itself declares (a body, a headers bag, a timeout), so a
+ * parameter named after one of them moves aside instead of shadowing it.
+ *
+ * The wire name is untouched: only the binding moves, so the request is unchanged.
+ */
+export function uniqueIdentifiers(
+  names: readonly string[],
+  options: {
+    style?: keyof typeof casing;
+    reserved?: ReadonlySet<string>;
+    taken?: Iterable<string>;
+  } = {}
+): string[] {
+  const used = new Set(options.taken ?? []);
+  // The separator follows the casing style, so the result stays idiomatic: `order_id_2` in
+  // snake-case languages, `orderId2` where names run together.
+  const separator = options.style === 'snake' || options.style === 'screaming' ? '_' : '';
+  return names.map((name) => {
+    const base = identifierFor(name, options);
+    let unique = base;
+    for (let suffix = 2; used.has(unique); suffix++) unique = `${base}${separator}${suffix}`;
+    used.add(unique);
+    return unique;
+  });
+}

@@ -39,6 +39,11 @@ switch patterns), HTTP over `java.net.http.HttpClient` — part of the JDK since
   (`Integer`, not `int`). Hydration is compile-time generated per record —
   `static Order fromJson(Object json)` and `Object toJson()` over the runtime's JSON
   graph, mirroring PHP's `fromArray`/`toArray` (no reflection). Wire names inline.
+- **Every parameter is its own argument, so their names share one namespace** with the
+  arguments the method declares itself (`body`, `headers`, `options`). Build them with
+  `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
+  locations (`id` in the path AND in the query), and Java rejects a duplicate parameter. The
+  wire name is untouched, so the request is unchanged.
 - **Naming:** classes PascalCase, fields/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.java)` (the `java` reserved set is new toolkit work);
   `+1`/`-1` → `plus1`/`minus1`; digit-leading names get a letter prefix.

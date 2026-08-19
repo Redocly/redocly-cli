@@ -13,6 +13,8 @@ Added language-neutral authoring toolkit with per-generator options, including `
 
 Added an `eject-generator` command that vendors any built-in generator, with its design as an agent skill, into your repo.
 
+Fixed generated Python, PHP, and Go clients for descriptions that use one parameter name in two locations (`id` in the path and in the query, which OpenAPI permits), or a parameter named after an argument the method declares itself (`body`, `headers`, `timeout`, `params`). The later parameter now takes a suffixed name — `id_2` in Python, `$id2` in PHP, `id2` in Go — and the wire names stay as written, so both values still reach the API. Before this, the generated module did not parse at all: a `SyntaxError` in Python, a fatal redefinition in PHP, and a compile error in Go.
+
 Renamed pagination operation extension from `x-redocly-pagination` to `x-redoclyPagination`.
 The previous name is no longer read.
 

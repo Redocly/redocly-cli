@@ -50,6 +50,11 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **`models: pydantic` adds a dependency, and the header says so.** The default mode keeps
   httpx as the only requirement; the pydantic header asks for both. A mode that quietly
   needed a package the file never named would fail at import with nothing to act on.
+- **Every parameter is its own argument, so their names share one namespace** with the
+  arguments the method declares itself (`body`, `headers`, `timeout`, `retry`, `idempotency_key`). Build them with
+  `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
+  locations (`id` in the path AND in the query), and a `def` that declared one name twice is a `SyntaxError`. The
+  wire name is untouched, so the request is unchanged.
 - **Naming:** fields/methods snake*case via `identifierFor(..., RESERVED_WORDS.python)`;
   reserved words get a trailing underscore (`class*`); `+1`/`-1`become`plus_1`/`minus_1`.
 - **Enums** are `class X(str, Enum)` with SCREAMING members; **unions** are `Union[...]`

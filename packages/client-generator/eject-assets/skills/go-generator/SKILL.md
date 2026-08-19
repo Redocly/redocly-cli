@@ -28,6 +28,11 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   (never `// `, which gofmt strips), and CONSECUTIVE blank lines collapse to one — gofmt
   rewrites `//\n//` to a single `//`, so emitting both means our output is not
   gofmt-clean. Descriptions with a double blank line are common in real specs.
+- **Every parameter is its own argument, so their names share one namespace** with the
+  arguments the method declares itself (`ctx`, `body`, `params`, and the receiver). Build them with
+  `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
+  locations (`id` in the path AND in the query), and Go rejects a duplicate parameter. The
+  wire name is untouched, so the request is unchanged.
 - **Naming:** exported PascalCase via `identifierFor` + an `N` prefix for digit-leading
   names (`3ds` → `N3ds` — an `_`-prefixed field is unexported and invisible to
   `encoding/json`); `+1`/`-1` become `Plus1`/`Minus1`.

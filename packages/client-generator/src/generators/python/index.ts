@@ -16,6 +16,7 @@ import {
   identifierFor,
   isNullable,
   RESERVED_WORDS,
+  uniqueIdentifiers,
   unwrapNullable,
   type DateType,
 } from '../../authoring/index.js';
@@ -161,6 +162,12 @@ function pydanticDiscriminators(model: ApiModel): {
   for (const member of conflicted) pins.delete(member);
   return { pins, unions };
 }
+
+/**
+ * The argument names every request method declares itself. A parameter named after one of
+ * them takes a suffixed binding instead, so the slot keeps its meaning.
+ */
+const METHOD_ARG_SLOTS = ['self', 'body', 'headers', 'timeout', 'retry', 'idempotency_key'];
 
 function writeDataclass(
   printer: Printer,
@@ -495,13 +502,18 @@ function writeMethod(
   model?: ApiModel,
   envelope = false
 ): void {
-  const pathArgs = op.pathParams.map((param) => ({
+  // Every parameter is a separate argument, so path and query names share one namespace
+  // with the slots this method declares itself. `uniqueIdentifiers` moves a repeat aside
+  // (`id`, `id_2`) — a description may legally use one name in two locations, and a
+  // signature that declared it twice would not even parse.
+  const argNames = uniqueIdentifiers(
+    [...op.pathParams, ...op.queryParams].map((param) => param.name),
+    { style: 'snake', reserved: PY, taken: METHOD_ARG_SLOTS }
+  );
+  const pathArgs = op.pathParams.map((param, index) => ({ param, python: argNames[index] }));
+  const queryArgs = op.queryParams.map((param, index) => ({
     param,
-    python: identifierFor(param.name, { style: 'snake', reserved: PY }),
-  }));
-  const queryArgs = op.queryParams.map((param) => ({
-    param,
-    python: identifierFor(param.name, { style: 'snake', reserved: PY }),
+    python: argNames[op.pathParams.length + index],
   }));
   const positional = pathArgs.map(
     ({ param, python }) => `${python}: ${pythonType(param.schema, dateType)}`
@@ -618,10 +630,11 @@ function writePaginationWrappers(
 ): void {
   const success = successSchema(op);
   const pageType = success === undefined ? 'Any' : pythonType(success, dateType);
-  const queryArgs = op.queryParams.map((param) => ({
-    param,
-    python: identifierFor(param.name, { style: 'snake', reserved: PY }),
-  }));
+  const iterNames = uniqueIdentifiers(
+    op.queryParams.map((param) => param.name),
+    { style: 'snake', reserved: PY, taken: METHOD_ARG_SLOTS }
+  );
+  const queryArgs = op.queryParams.map((param, index) => ({ param, python: iterNames[index] }));
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
       const annotation = pythonType(param.schema);

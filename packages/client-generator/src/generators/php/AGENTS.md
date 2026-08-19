@@ -27,6 +27,11 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 - The `Client` class is NOT `final` — PHP test suites mock concrete classes
   (`createMock(Client::class)`), and `final` would force a wrapper interface on every
   consumer. Model classes stay `final`.
+- **Every parameter is its own argument, so their names share one namespace** with the
+  arguments the method declares itself (`$body`, `$headers`, `$idempotencyKey`). Build them with
+  `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
+  locations (`id` in the path AND in the query), and PHP rejects a redefined parameter outright. The
+  wire name is untouched, so the request is unchanged.
 - **Naming:** classes PascalCase, properties/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.php)`; reserved words get a trailing underscore.
 - **Enums** are native backed enums (string/int); other scalars stay aliases.

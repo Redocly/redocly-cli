@@ -13,6 +13,7 @@ import {
   flattenAllOf,
   headerCoerceType,
   identifierFor,
+  uniqueIdentifiers,
   isNullable,
   NotSupportedError,
   paginationRuleFor,
@@ -27,6 +28,7 @@ import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 import type {
   ApiModel,
   OperationModel,
+  ParamModel,
   PropertyModel,
   SchemaModel,
   ServerModel,
@@ -472,6 +474,32 @@ function goPaginationLiteral(rule: NeutralPaginationRule): string {
   return `&PaginationSpec{${fields.join(', ')}}`;
 }
 
+/**
+ * The argument names a method declares beside its path parameters: the receiver, the
+ * context, the request body, and the query struct.
+ */
+const METHOD_ARG_SLOTS = ['c', 'ctx', 'body', 'params', 'out', 'op'];
+
+/**
+ * Path parameters as Go arguments, uniquely named. A parameter named after one of the
+ * method's own arguments (or a name a description reuses across locations) moves aside as
+ * `id2` — Go rejects a duplicate parameter, and the wire name is untouched either way.
+ */
+function pathArguments(
+  op: OperationModel,
+  dateType: DateType
+): Array<{ param: ParamModel; go: string; type: string }> {
+  const names = uniqueIdentifiers(
+    op.pathParams.map((param) => param.name),
+    { style: 'camel', reserved: GO, taken: METHOD_ARG_SLOTS }
+  );
+  return op.pathParams.map((param, index) => ({
+    param,
+    go: names[index],
+    type: goType(param.schema, dateType),
+  }));
+}
+
 /** Declared response headers planned for the `<Op>Headers` struct: field, wire name, coerce helper. */
 function envelopeHeaderPlan(
   op: OperationModel,
@@ -503,11 +531,7 @@ function writeGoMethod(
   model?: ApiModel,
   envelope = false
 ): void {
-  const pathArgs = op.pathParams.map((param) => ({
-    param,
-    go: identifierFor(param.name, { style: 'camel', reserved: GO }),
-    type: goType(param.schema, dateType),
-  }));
+  const pathArgs = pathArguments(op, dateType);
   const hasParams = op.queryParams.length > 0;
   const success = successSchema(op);
   const returnType = success === undefined ? undefined : goType(success, dateType);
@@ -704,11 +728,7 @@ function writeGoPaginationWrappers(
   pageType: string,
   itemType: string
 ): void {
-  const pathArgs = op.pathParams.map((param) => ({
-    param,
-    go: identifierFor(param.name, { style: 'camel', reserved: GO }),
-    type: goType(param.schema, dateType),
-  }));
+  const pathArgs = pathArguments(op, dateType);
   const hasParams = op.queryParams.length > 0;
   const args = [
     'ctx context.Context',

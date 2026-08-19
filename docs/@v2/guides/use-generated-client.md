@@ -361,6 +361,13 @@ The wire name does not change.
 For example, `tag.type_` in Python, `$tag->type_` in PHP, and `tag.Type_` in Go all serialize as `type`.
 The same applies to method arguments: `list_tags(type_=...)`, `ListTagsParams{Type_: ...}`.
 
+OpenAPI lets one operation use the same parameter name in two locations, such as `id` in the path and `id` in the query.
+The SDKs whose methods take one argument per parameter cannot declare that name twice, so the later parameter gets a suffix: `id_2` in Python, `$id2` in PHP, `id2` in Go.
+A parameter named after an argument the method declares itself, such as `body` or `headers`, moves aside the same way.
+The wire names never change, so both values reach the API as written, and the generator reports each rename.
+To choose the names yourself, rename the parameter in the description.
+The TypeScript client needs no rename, because each layer of its input is a separate object.
+
 The generator resolves type and method **names** once, in the shared model.
 It checks them against a reserved set that is the union across the supported languages.
 Because of this, a schema keeps the same name in every SDK that you generate from the description.

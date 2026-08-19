@@ -1,5 +1,6 @@
 import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -69,5 +70,41 @@ describe('generate-client go generator (end-to-end)', () => {
       }
     },
     60_000
+  );
+});
+
+describe('generate-client go generator, parameter names an SDK cannot take literally', () => {
+  let dir: string;
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'go-repeated-'));
+    generate(join(__dirname, 'fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
+      '--generator',
+      'go',
+    ]);
+  });
+
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('renames a parameter that clashes with one of the method arguments', () => {
+    const source = readFileSync(join(dir, 'client.go'), 'utf-8');
+    // Query params live in their own struct, so `id` needs no rename here…
+    expect(source).toContain('func (c *Client) GetThing(ctx context.Context, id string');
+    // …but a path parameter named after an argument the method declares itself does.
+    expect(source).toContain(
+      'func (c *Client) MakeThing(ctx context.Context, body2 string, ctx2 string, body Thing'
+    );
+  });
+
+  it.skipIf(!hasGo)(
+    'the generated client compiles (go build)',
+    () => {
+      writeFileSync(join(dir, 'go.mod'), 'module repeatedparams\n\ngo 1.21\n', 'utf-8');
+      const result = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
+      expect(result.status, result.stderr).toBe(0);
+    },
+    180_000
   );
 });

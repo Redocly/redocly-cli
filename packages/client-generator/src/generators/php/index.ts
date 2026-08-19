@@ -13,6 +13,7 @@ import {
   flattenAllOf,
   headerCoerceType,
   identifierFor,
+  uniqueIdentifiers,
   isNullable,
   paginationRuleFor,
   renderReferencePage,
@@ -528,19 +529,33 @@ type MethodArgs = {
   signature: string[];
 };
 
+/**
+ * The argument names a request method declares beside its parameters. A parameter named
+ * after one of them takes a suffixed variable instead, so the slot keeps its meaning.
+ */
+const SIGNATURE_ARG_SLOTS = ['body', 'headers', 'idempotencyKey'];
+
 function methodArgs(
   op: OperationModel,
   model: ApiModel,
   includeBody: boolean,
   dateType: DateType
 ): MethodArgs {
-  const pathArgs = op.pathParams.map((param) => ({
-    php: propertyName(param.name),
+  // Each parameter is its own argument, so path and query names share one namespace with
+  // the slots this signature declares itself (`$body`, `$headers`, `$idempotencyKey`).
+  // A repeat moves aside (`$id`, `$id_2`): PHP rejects a redefined parameter outright, and
+  // a description may legally use one name in two locations.
+  const names = uniqueIdentifiers(
+    [...op.pathParams, ...op.queryParams].map((param) => param.name),
+    { style: 'camel', reserved: PHP, taken: SIGNATURE_ARG_SLOTS }
+  );
+  const pathArgs = op.pathParams.map((param, index) => ({
+    php: names[index],
     wire: param.name,
     type: phpType(param.schema, model, dateType),
   }));
-  const queryArgs = op.queryParams.map((param) => {
-    const php = propertyName(param.name);
+  const queryArgs = op.queryParams.map((param, index) => {
+    const php = names[op.pathParams.length + index];
     return {
       php,
       wire: param.name,

@@ -8,7 +8,7 @@
 export { NotSupportedError } from '../errors.js';
 export { Printer } from './printer.js';
 export type { DateType } from './options.js';
-export { casing, identifierFor, RESERVED_WORDS } from './naming.js';
+export { casing, identifierFor, RESERVED_WORDS, uniqueIdentifiers } from './naming.js';
 export { paginationRuleFor, type NeutralPaginationRule } from './pagination.js';
 // The Markdown reference page a generator's `docs` hook returns. Here rather than in the
 // emitters, so a generator ejected as source reaches it through the package like we do.
@@ -33,6 +33,7 @@ export const AUTHORING_HELPER_NAMES = [
   'Printer',
   'casing',
   'identifierFor',
+  'uniqueIdentifiers',
   'RESERVED_WORDS',
   'flattenAllOf',
   'discriminatorCases',

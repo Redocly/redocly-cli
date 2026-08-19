@@ -1,5 +1,6 @@
 import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -57,4 +58,35 @@ describe('generate-client php generator (end-to-end)', () => {
     },
     60_000
   );
+});
+
+describe('generate-client php generator, parameter names an SDK cannot take literally', () => {
+  let dir: string;
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'php-repeated-'));
+    generate(join(__dirname, 'fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
+      '--generator',
+      'php',
+    ]);
+  });
+
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('renames the repeat, keeps the wire name, and still parses', () => {
+    const source = readFileSync(join(dir, 'client.php'), 'utf-8');
+    // `id` in the path and in the query: PHP rejects a redefined parameter outright.
+    expect(source).toContain('public function getThing(string $id, ?int $id2 = null');
+    // A parameter named after one of the signature's own arguments moves aside too.
+    expect(source).toContain('public function makeThing(string $body2, string $ctx, Thing $body');
+    // The request is unchanged: the query keys keep the wire names.
+    expect(source).toContain("$query['id'] = $id2;");
+  });
+
+  it.skipIf(!hasPhp)('the generated client parses (php -l)', () => {
+    const lint = spawnSync('php', ['-l', join(dir, 'client.php')], { encoding: 'utf-8' });
+    expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
+  });
 });
